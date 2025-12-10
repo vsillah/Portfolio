@@ -1,0 +1,177 @@
+{
+  "personal": {
+    "name": "Vambah Sillah",
+    "title": "Director, Product Management",
+    "location": "22 Vassar Street, Medford, MA 02155",
+    "email": "vsillah@gmail.com",
+    "phone": "617-967-7448"
+  },
+  "bio": {
+    "summary": "IT Product Manager with a proven track record of applying agile methodology to continuously evolve products to delight customers.",
+    "highlights": [
+      "Skilled facilitator with a passion for inspiring teams to deliver innovative solutions.",
+      "Excellent analytical skills with demonstrated ability to transform qualitative and quantitative data into actionable insights.",
+      "Entrepreneurial mindset with a bias for customer focused innovation.",
+      "Managerial experience designing professional development programs to elevate associates' skillsets.",
+      "Demonstrated ability to identify market opportunities, plan strategic initiatives, and execute towards established objectives."
+    ]
+  },
+  "experience": [
+    {
+      "company": "Fidelity Investments, Fidelity Institutional",
+      "title": "Director of Product Management",
+      "location": "Boston, MA",
+      "period": "Jan 2024 – Present",
+      "achievements": [
+        "Conducted market analysis and developed business case frameworks to assess the viability of new offerings.",
+        "Established cooperative partnerships with Product Area Leaders and consulted with subject matter experts across Finance, Market Research, and Strategy.",
+        "Synthesized 'voice of the client' inputs and developed client segmentation frameworks to inform adoption and delivery strategies.",
+        "Facilitated capability sizing sessions and collaborated with senior leadership to articulate strategic outputs.",
+        "Designed and executed a squad lead cohort training program, empowering 15 squad leaders.",
+        "Partnered with procurement teams for vendor analysis and cost-benefit models."
+      ]
+    },
+    {
+      "company": "Fidelity Investments",
+      "title": "Product Manager",
+      "location": "Boston, MA",
+      "period": "Apr 2018 – Jan 2022",
+      "achievements": [
+        "Led delivery of a reusable error handling platform, addressing 10% of raised defects.",
+        "Simplified complex client configurations with new data flow diagrams.",
+        "Established a professional development forum for subject matter experts.",
+        "Identified 22% of team's enhancements through incident management reporting."
+      ]
+    },
+    {
+      "company": "Fidelity Investments, Personal Investing",
+      "title": "Digital Product Owner",
+      "location": "Merrimack, NH",
+      "period": "Aug 2016 – Apr 2018",
+      "achievements": [
+        "Leveraged customer insights to develop an event-driven notification platform to digitize the 'awareness' stage of the customer journey.",
+        "Utilized SiteCatalyst, ClickTale, and OpinionLab to identify unmet customer need, driving backlog prioritization and maximizing value.",
+        "Designed and facilitated an organization-wide workshop to identify and build consensus for customer-driven inputs to influence backlog prioritization.",
+        "Partnered with Salesforce Marketing Cloud for on-demand notifications.",
+        "Produced informative music video describing new operating model (1.5k+ views).",
+        "Accolades: 2017 ShipIt Day award finalist."
+      ]
+    },
+    {
+      "company": "Fidelity Investments, Personal Investing",
+      "title": "BA Team Lead & Product Owner",
+      "location": "Boston, MA",
+      "period": "June 2015 – August 2016",
+      "achievements": [
+        "Digitized product offerings within existing digital ecosystem (ABLE accounts, TEM plans), creating $102M in inflows.",
+        "Developed 'BA in a Box' to assist Ship It Day Teams, streamlining release planning.",
+        "Implemented process to reduce acceptance test window of new enhancements from 3 days to 1 hour.",
+        "Led a 5-member BA team in instituting best practices for requirement gathering, resulting in a 30% faster time to market.",
+        "Managed offshore team to integrate 401k and retail plans, driving $102M in inflows."
+      ]
+    },
+    {
+      "company": "Fidelity Investments, Personal Investing",
+      "title": "Senior Business Analyst",
+      "location": "Boston, MA",
+      "period": "Dec 2014 – June 2015",
+      "achievements": [
+        "Consolidated customer metrics to provide holistic feedback along the customer journey.",
+        "Winner of the 2015 Excellence Award for outstanding teamwork."
+      ]
+    },
+    {
+      "company": "Fidelity Investments, Asset Management",
+      "title": "Business Analyst",
+      "location": "Boston, MA",
+      "period": "Aug 2012 – Dec 2014",
+      "achievements": [
+        "Led an offshore team to deliver a digital experience for distributing research analyst reports.",
+        "Documented objectives, use cases, and data specifications.",
+        "Created complex logical data models and metadata business rules."
+      ]
+    }
+  ],
+  "skills": {
+    "technical": ["SQL", "Python", "Visio", "Adobe SiteCatalyst", "Splunk", "Generative AI Tools"],
+    "leadership": ["Strategic Planning", "Facilitation", "People management", "Change Management"]
+  },
+  "education": {
+    "degree": "BS Business Administration",
+    "school": "Boston University",
+    "year": "2008"
+  },
+  "certifications": [
+    "Certified Scrum Master (2014)",
+    "Certified Product Owner (2014)"
+  ],
+  "projects": [
+    {
+      "title": "Achiever's Network Flash Consulting",
+      "description": "Enhanced online presence and made website conversion-friendly. Increased awareness on social media platforms."
+    },
+    {
+      "title": "Crossover Project",
+      "description": "Fidelity Investments strategic initiative."
+    },
+    {
+      "title": "Counterparty NGR Project",
+      "description": "Project focused on risk and counterparty data management."
+    },
+    {
+      "title": "CRS/Research Browser",
+      "description": "Event Notification Project. Digitized research report distribution."
+    },
+    {
+      "title": "Portfolio Summary Project",
+      "description": "Fidelity.com Portfolio Summary enhancement and modernization."
+    },
+    {
+      "title": "Proactive Notification",
+      "description": "PI Project to digitize the 'awareness' stage of customer journey."
+    },
+    {
+      "title": "Error Handling Platform",
+      "description": "Reusable platform addressing 10% of raised defects across suite."
+    },
+    {
+      "title": "Digital Onboarding",
+      "description": "Streamlined client onboarding via simplified data flows."
+    },
+    {
+      "title": "Professional Dev Forum",
+      "description": "Professional development forum for subject matter experts."
+    },
+    {
+      "title": "Agile Transformation",
+      "description": "Adoption of Agile principles and 'BA in a Box' development."
+    },
+    {
+      "title": "Beta Delivery Platform",
+      "description": "Safely expose customers to experimental products."
+    },
+    {
+      "title": "Customer Insights",
+      "description": "Voice of the Client synthesis and segmentation frameworks."
+    },
+    {
+      "title": "Legal Review Workflow",
+      "description": "Scaled best practices working model across the organization."
+    },
+    {
+      "title": "Workplace 401k Integration",
+      "description": "Integrated digital platform for workplace and retail plans."
+    },
+    {
+      "title": "Admin Pool Program",
+      "description": "Job share program to streamline existing workload processes."
+    }
+  ],
+  "personalInterests": [
+    "Spanish (conversational)",
+    "chess",
+    "mountain biking",
+    "obstacle course racing"
+  ]
+}
+
