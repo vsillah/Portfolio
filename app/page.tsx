@@ -9,13 +9,47 @@ import Videos from '@/components/Videos'
 import About from '@/components/About'
 import Contact from '@/components/Contact'
 import Navigation from '@/components/Navigation'
+import { analytics } from '@/lib/analytics'
 
 export default function Home() {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
+    // Track page view
+    analytics.pageView()
   }, [])
+
+  // Track section views on scroll
+  useEffect(() => {
+    if (!mounted) return
+
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.5, // Trigger when 50% of section is visible
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const section = entry.target.id
+          if (section) {
+            analytics.sectionView(section as any)
+          }
+        }
+      })
+    }, observerOptions)
+
+    // Observe all sections
+    const sections = ['home', 'projects', 'publications', 'music', 'videos', 'about', 'contact']
+    sections.forEach((id) => {
+      const element = document.getElementById(id)
+      if (element) observer.observe(element)
+    })
+
+    return () => observer.disconnect()
+  }, [mounted])
 
   if (!mounted) {
     return null
@@ -34,4 +68,3 @@ export default function Home() {
     </main>
   )
 }
-

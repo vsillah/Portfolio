@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { Play, Youtube } from 'lucide-react'
 import { useState } from 'react'
+import { analytics } from '@/lib/analytics'
 
 // Sample YouTube videos - replace with your actual video IDs
 const videos = [
@@ -32,7 +33,8 @@ const videos = [
 export default function Videos() {
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
 
-  const openVideo = (videoId: string) => {
+  const openVideo = (videoId: string, videoTitle: string) => {
+    analytics.videoPlay(videoId, videoTitle)
     setSelectedVideo(videoId)
   }
 
@@ -82,7 +84,7 @@ export default function Videos() {
                 
                 {/* Play Button Overlay */}
                 <motion.button
-                  onClick={() => openVideo(video.videoId)}
+                  onClick={() => openVideo(video.videoId, video.title)}
                   className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

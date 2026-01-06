@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { ExternalLink, Github, Code2 } from 'lucide-react'
 import { useState } from 'react'
+import { analytics } from '@/lib/analytics'
 
 // Featured projects from portfolio
 const projects = [
@@ -166,6 +167,13 @@ export default function Projects() {
                 <div className="flex gap-4">
                   <motion.a
                     href={project.github}
+                    onClick={(e) => {
+                      if (project.github !== '#') {
+                        analytics.projectClick(project.id, project.title, 'github')
+                      } else {
+                        e.preventDefault()
+                      }
+                    }}
                     className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
                     whileHover={{ x: 5 }}
                     whileTap={{ scale: 0.95 }}
@@ -175,6 +183,13 @@ export default function Projects() {
                   </motion.a>
                   <motion.a
                     href={project.live}
+                    onClick={(e) => {
+                      if (project.live !== '#') {
+                        analytics.projectClick(project.id, project.title, 'live')
+                      } else {
+                        e.preventDefault()
+                      }
+                    }}
                     className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
                     whileHover={{ x: 5 }}
                     whileTap={{ scale: 0.95 }}

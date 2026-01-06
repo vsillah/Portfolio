@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
+import { analytics } from '@/lib/analytics'
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -54,6 +55,7 @@ export default function Navigation() {
               <motion.a
                 key={item.name}
                 href={item.href}
+                onClick={() => analytics.navClick(item.href)}
                 className="text-gray-300 hover:text-white transition-colors relative"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -95,7 +97,10 @@ export default function Navigation() {
                   key={item.name}
                   href={item.href}
                   className="block py-2 text-gray-300 hover:text-white transition-colors"
-                  onClick={() => setIsMobileMenuOpen(false)}
+                  onClick={() => {
+                    analytics.navClick(item.href)
+                    setIsMobileMenuOpen(false)
+                  }}
                   whileHover={{ x: 10 }}
                 >
                   {item.name}

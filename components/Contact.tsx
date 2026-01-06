@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { Mail, Github, Linkedin, Twitter, Send, Music, BookOpen } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { analytics } from '@/lib/analytics'
 
 const socialLinks = [
   { icon: Linkedin, href: 'https://www.linkedin.com/in/vambah-sillah-08989b8/', label: 'LinkedIn' },
@@ -21,6 +22,10 @@ export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
   const [statusMessage, setStatusMessage] = useState('')
+
+  useEffect(() => {
+    analytics.contactFormView()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,6 +51,7 @@ export default function Contact() {
       // Success
       setSubmitStatus('success')
       setStatusMessage('Message sent successfully! I\'ll get back to you soon.')
+      analytics.contactFormSubmit()
       setFormData({ name: '', email: '', message: '' })
       
       // Reset status after 5 seconds
@@ -201,6 +207,7 @@ export default function Contact() {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => analytics.socialClick(social.label, social.href)}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
