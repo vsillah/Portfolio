@@ -30,10 +30,30 @@ export default function AdminDashboard() {
     setLoading(true)
     try {
       const response = await fetch(`/api/analytics/stats?days=${days}`)
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
       const result = await response.json()
+      if (result.error) {
+        throw new Error(result.error)
+      }
       setData(result)
     } catch (error) {
       console.error('Failed to fetch analytics:', error)
+      // Set empty data structure on error so UI can still render
+      setData({
+        totalEvents: 0,
+        totalSessions: 0,
+        totalPageViews: 0,
+        totalClicks: 0,
+        totalFormSubmits: 0,
+        eventsByType: {},
+        eventsBySection: {},
+        recentEvents: [],
+        topProjects: [],
+        topVideos: [],
+        socialClicks: {},
+      })
     } finally {
       setLoading(false)
     }
@@ -47,10 +67,11 @@ export default function AdminDashboard() {
     )
   }
 
+  // Ensure data is initialized
   if (!data) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-red-500">Failed to load analytics</div>
+        <div className="text-red-500">Failed to load analytics. Please check your Supabase connection.</div>
       </div>
     )
   }
@@ -114,30 +135,35 @@ export default function AdminDashboard() {
           {/* Events by Type */}
           <ChartCard title="Events by Type">
             <div className="space-y-3">
-              {Object.entries(data.eventsByType).map(([type, count]) => (
-                <div key={type} className="flex items-center justify-between">
-                  <span className="text-gray-300 capitalize">{type.replace('_', ' ')}</span>
-                  <div className="flex items-center gap-3">
-                    <div className="w-32 bg-gray-800 rounded-full h-2">
-                      <div
-                        className="bg-purple-600 h-2 rounded-full"
-                        style={{
-                          width: `${(count / data.totalEvents) * 100}%`,
-                        }}
-                      />
+              {Object.entries(data.eventsByType).length > 0 ? (
+                Object.entries(data.eventsByType).map(([type, count]) => (
+                  <div key={type} className="flex items-center justify-between">
+                    <span className="text-gray-300 capitalize">{type.replace('_', ' ')}</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-32 bg-gray-800 rounded-full h-2">
+                        <div
+                          className="bg-purple-600 h-2 rounded-full"
+                          style={{
+                            width: `${(count / data.totalEvents) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-white font-semibold w-12 text-right">{count}</span>
                     </div>
-                    <span className="text-white font-semibold w-12 text-right">{count}</span>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500">No events yet</p>
+              )}
             </div>
           </ChartCard>
 
           {/* Events by Section */}
           <ChartCard title="Events by Section">
             <div className="space-y-3">
-              {Object.entries(data.eventsBySection).map(([section, count]) => (
-                <div key={section} className="flex items-center justify-between">
+              {Object.entries(data.eventsBySection).length > 0 ? (
+                Object.entries(data.eventsBySection).map(([section, count]) => (
+                  <div key={section} className="flex items-center justify-between">
                   <span className="text-gray-300 capitalize">{section}</span>
                   <div className="flex items-center gap-3">
                     <div className="w-32 bg-gray-800 rounded-full h-2">
@@ -151,7 +177,10 @@ export default function AdminDashboard() {
                     <span className="text-white font-semibold w-12 text-right">{count}</span>
                   </div>
                 </div>
-              ))}
+                ))
+              ) : (
+                <p className="text-gray-500">No section views yet</p>
+              )}
             </div>
           </ChartCard>
         </div>
