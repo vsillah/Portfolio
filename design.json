@@ -1,0 +1,742 @@
+{
+  "designSystem": {
+    "name": "Odama Interface Guidelines",
+    "version": "1.0",
+    "description": "A modern, bold design system featuring vibrant orange accents, clean typography, and intuitive user interactions"
+  },
+
+  "designPrinciples": {
+    "philosophy": "Clean, modern, and accessible interface design with bold use of color to guide user attention and actions",
+    "keyPrinciples": [
+      "Bold and confident: Use vibrant orange as the primary action color to create energy and confidence",
+      "Clear hierarchy: Strong typographic contrast with bold headlines and clean body text",
+      "Generous spacing: Ample whitespace to create breathing room and improve readability",
+      "Intuitive interactions: Clear visual feedback for all interactive states",
+      "Accessible contrast: High contrast ratios between text and backgrounds",
+      "Consistent patterns: Reusable component patterns across all interfaces"
+    ]
+  },
+
+  "colorPalette": {
+    "primary": {
+      "safetyOrange": {
+        "value": "#F26522",
+        "name": "Safety Orange",
+        "usage": "Primary brand color, CTA buttons, links, active states, key UI elements",
+        "role": "The hero of the design system - use boldly for actions that matter"
+      },
+      "tawny": {
+        "value": "#C45E23",
+        "name": "Tawny",
+        "usage": "Darker orange variant for hover states, depth, and secondary emphasis",
+        "role": "Supporting primary actions with warmth and depth"
+      },
+      "lumber": {
+        "value": "#F4DCC6",
+        "name": "Lumber",
+        "usage": "Light warm background, subtle highlights, soft containers",
+        "role": "Creates warmth and softness in backgrounds and secondary surfaces"
+      }
+    },
+
+    "secondary": {
+      "middleGrey": {
+        "value": "#828282",
+        "name": "Middle Grey",
+        "usage": "Secondary text, disabled states, borders, subtle UI elements",
+        "role": "Provides neutral balance and hierarchy"
+      },
+      "whiteCoffee": {
+        "value": "#E9DFDB",
+        "name": "White Coffee",
+        "usage": "Light backgrounds, alternating rows, subtle containers",
+        "role": "Soft neutral surface for layering content"
+      },
+      "coffeeBreak": {
+        "value": "#CDCAC9",
+        "name": "Coffee Break",
+        "usage": "Borders, dividers, subtle backgrounds",
+        "role": "Creates subtle separation without harsh lines"
+      }
+    },
+
+    "semantic": {
+      "success": {
+        "value": "#4CAF50",
+        "usage": "Success states, confirmations, selected checkboxes, positive indicators"
+      },
+      "info": {
+        "value": "#5B8DEF",
+        "usage": "Informational messages, links, secondary actions"
+      },
+      "warning": {
+        "value": "#FFC107",
+        "usage": "Warning states, caution indicators"
+      },
+      "error": {
+        "value": "#F44336",
+        "usage": "Error states, validation failures, destructive actions"
+      }
+    },
+
+    "neutral": {
+      "black": {
+        "value": "#000000",
+        "usage": "Headers, primary text, dark surfaces, high emphasis text"
+      },
+      "white": {
+        "value": "#FFFFFF",
+        "usage": "Backgrounds, cards, light surfaces, text on dark backgrounds"
+      },
+      "greyScale": {
+        "50": "#FAFAFA",
+        "100": "#F5F5F5",
+        "200": "#EEEEEE",
+        "300": "#E0E0E0",
+        "400": "#BDBDBD",
+        "500": "#9E9E9E",
+        "600": "#757575",
+        "700": "#616161",
+        "800": "#424242",
+        "900": "#212121"
+      }
+    },
+
+    "background": {
+      "primary": "#FFFFFF",
+      "secondary": "#F5F5F5",
+      "tertiary": "#F4DCC6",
+      "dark": "#000000",
+      "usage": "Layer backgrounds from light to darker for depth and hierarchy"
+    }
+  },
+
+  "typography": {
+    "fontFamily": {
+      "primary": "OdaSans",
+      "fallback": "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif",
+      "description": "OdaSans is a bold, modern sans-serif typeface that conveys confidence and clarity"
+    },
+
+    "typeScale": {
+      "hero": {
+        "fontSize": "72px",
+        "fontWeight": "700",
+        "lineHeight": "1.1",
+        "letterSpacing": "-0.02em",
+        "usage": "Large hero sections, landing page headlines"
+      },
+      "h1": {
+        "fontSize": "48px",
+        "fontWeight": "700",
+        "lineHeight": "1.2",
+        "letterSpacing": "-0.01em",
+        "usage": "Page titles, major section headers"
+      },
+      "h2": {
+        "fontSize": "36px",
+        "fontWeight": "700",
+        "lineHeight": "1.3",
+        "letterSpacing": "0",
+        "usage": "Section titles, component headers"
+      },
+      "h3": {
+        "fontSize": "24px",
+        "fontWeight": "700",
+        "lineHeight": "1.4",
+        "letterSpacing": "0",
+        "usage": "Subsection headers, card titles"
+      },
+      "h4": {
+        "fontSize": "20px",
+        "fontWeight": "600",
+        "lineHeight": "1.5",
+        "letterSpacing": "0",
+        "usage": "Small headers, list titles"
+      },
+      "body": {
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "lineHeight": "1.6",
+        "letterSpacing": "0",
+        "usage": "Body text, descriptions, general content"
+      },
+      "bodySmall": {
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "lineHeight": "1.5",
+        "letterSpacing": "0",
+        "usage": "Secondary text, captions, small labels"
+      },
+      "caption": {
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "lineHeight": "1.4",
+        "letterSpacing": "0.01em",
+        "usage": "Micro copy, timestamps, metadata"
+      }
+    },
+
+    "fontWeights": {
+      "regular": 400,
+      "medium": 500,
+      "semibold": 600,
+      "bold": 700,
+      "usage": "Use bold weights for emphasis and hierarchy, regular for readability"
+    },
+
+    "textStyles": {
+      "uppercase": {
+        "textTransform": "uppercase",
+        "letterSpacing": "0.05em",
+        "usage": "Labels, categories, small headings for emphasis"
+      }
+    }
+  },
+
+  "spacing": {
+    "scale": {
+      "4": "4px",
+      "8": "8px",
+      "12": "12px",
+      "16": "16px",
+      "20": "20px",
+      "24": "24px",
+      "32": "32px",
+      "40": "40px",
+      "48": "48px",
+      "64": "64px",
+      "80": "80px",
+      "96": "96px",
+      "128": "128px"
+    },
+
+    "horizontal": {
+      "micro": "8px",
+      "small": "16px",
+      "medium": "24px",
+      "large": "32px",
+      "xlarge": "48px",
+      "xxlarge": "64px",
+      "usage": "Horizontal spacing between elements, margins, padding"
+    },
+
+    "vertical": {
+      "micro": "8px",
+      "small": "16px",
+      "medium": "24px",
+      "large": "32px",
+      "xlarge": "48px",
+      "xxlarge": "64px",
+      "section": "80px",
+      "usage": "Vertical rhythm, section spacing, element separation"
+    },
+
+    "component": {
+      "buttonPadding": "12px 24px",
+      "buttonPaddingSmall": "8px 16px",
+      "buttonPaddingLarge": "16px 32px",
+      "inputPadding": "12px 16px",
+      "cardPadding": "24px",
+      "containerPadding": "32px",
+      "sectionPadding": "80px 0"
+    },
+
+    "grid": {
+      "columns": 12,
+      "gutter": "24px",
+      "margin": "32px",
+      "maxWidth": "1200px",
+      "usage": "Use 12-column grid for layout consistency"
+    }
+  },
+
+  "borderRadius": {
+    "none": "0px",
+    "small": "4px",
+    "medium": "8px",
+    "large": "12px",
+    "xlarge": "16px",
+    "full": "9999px",
+    "usage": {
+      "buttons": "8px",
+      "inputs": "8px",
+      "cards": "12px",
+      "modals": "16px",
+      "avatars": "9999px",
+      "badges": "9999px"
+    }
+  },
+
+  "shadows": {
+    "none": "none",
+    "small": "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)",
+    "medium": "0 3px 6px rgba(0, 0, 0, 0.15), 0 2px 4px rgba(0, 0, 0, 0.12)",
+    "large": "0 10px 20px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.10)",
+    "xlarge": "0 15px 25px rgba(0, 0, 0, 0.15), 0 5px 10px rgba(0, 0, 0, 0.05)",
+    "usage": {
+      "cards": "medium",
+      "modals": "large",
+      "dropdowns": "medium",
+      "buttons": "small on hover",
+      "floatingElements": "xlarge"
+    }
+  },
+
+  "components": {
+    "buttons": {
+      "variants": {
+        "primary": {
+          "background": "#F26522",
+          "color": "#FFFFFF",
+          "border": "none",
+          "fontWeight": "600",
+          "fontSize": "16px",
+          "padding": "12px 24px",
+          "borderRadius": "8px",
+          "states": {
+            "hover": {
+              "background": "#C45E23",
+              "transform": "translateY(-1px)",
+              "shadow": "medium"
+            },
+            "active": {
+              "background": "#A04F1E",
+              "transform": "translateY(0)"
+            },
+            "disabled": {
+              "background": "#CDCAC9",
+              "color": "#828282",
+              "cursor": "not-allowed"
+            }
+          }
+        },
+        "secondary": {
+          "background": "transparent",
+          "color": "#F26522",
+          "border": "2px solid #F26522",
+          "fontWeight": "600",
+          "fontSize": "16px",
+          "padding": "10px 22px",
+          "borderRadius": "8px",
+          "states": {
+            "hover": {
+              "background": "#FFF5F0",
+              "borderColor": "#C45E23",
+              "color": "#C45E23"
+            },
+            "active": {
+              "background": "#FFEBE0"
+            },
+            "disabled": {
+              "borderColor": "#CDCAC9",
+              "color": "#828282"
+            }
+          }
+        },
+        "ghost": {
+          "background": "transparent",
+          "color": "#000000",
+          "border": "none",
+          "fontWeight": "500",
+          "fontSize": "16px",
+          "padding": "12px 24px",
+          "borderRadius": "8px",
+          "states": {
+            "hover": {
+              "background": "#F5F5F5"
+            },
+            "active": {
+              "background": "#EEEEEE"
+            }
+          }
+        }
+      },
+      "sizes": {
+        "small": {
+          "padding": "8px 16px",
+          "fontSize": "14px"
+        },
+        "medium": {
+          "padding": "12px 24px",
+          "fontSize": "16px"
+        },
+        "large": {
+          "padding": "16px 32px",
+          "fontSize": "18px"
+        }
+      }
+    },
+
+    "inputs": {
+      "base": {
+        "background": "#FFFFFF",
+        "border": "1px solid #E0E0E0",
+        "borderRadius": "8px",
+        "padding": "12px 16px",
+        "fontSize": "16px",
+        "fontWeight": "400",
+        "color": "#000000",
+        "states": {
+          "focus": {
+            "borderColor": "#F26522",
+            "outline": "2px solid rgba(242, 101, 34, 0.2)",
+            "outlineOffset": "2px"
+          },
+          "error": {
+            "borderColor": "#F44336",
+            "outline": "2px solid rgba(244, 67, 54, 0.2)"
+          },
+          "disabled": {
+            "background": "#F5F5F5",
+            "borderColor": "#E0E0E0",
+            "color": "#828282"
+          }
+        }
+      },
+      "label": {
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "color": "#000000",
+        "marginBottom": "8px"
+      },
+      "helperText": {
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "color": "#828282",
+        "marginTop": "4px"
+      },
+      "errorText": {
+        "fontSize": "12px",
+        "fontWeight": "400",
+        "color": "#F44336",
+        "marginTop": "4px"
+      }
+    },
+
+    "checkboxes": {
+      "size": "20px",
+      "borderRadius": "4px",
+      "border": "2px solid #E0E0E0",
+      "background": "#FFFFFF",
+      "states": {
+        "checked": {
+          "background": "#4CAF50",
+          "borderColor": "#4CAF50",
+          "iconColor": "#FFFFFF"
+        },
+        "hover": {
+          "borderColor": "#F26522"
+        },
+        "disabled": {
+          "background": "#F5F5F5",
+          "borderColor": "#E0E0E0"
+        }
+      }
+    },
+
+    "radioButtons": {
+      "size": "20px",
+      "borderRadius": "9999px",
+      "border": "2px solid #E0E0E0",
+      "background": "#FFFFFF",
+      "states": {
+        "selected": {
+          "borderColor": "#4CAF50",
+          "innerDot": {
+            "size": "10px",
+            "background": "#4CAF50"
+          }
+        },
+        "hover": {
+          "borderColor": "#F26522"
+        }
+      }
+    },
+
+    "toggles": {
+      "width": "48px",
+      "height": "24px",
+      "borderRadius": "9999px",
+      "background": "#CDCAC9",
+      "states": {
+        "on": {
+          "background": "#4CAF50",
+          "thumbPosition": "24px"
+        },
+        "off": {
+          "background": "#CDCAC9",
+          "thumbPosition": "2px"
+        }
+      },
+      "thumb": {
+        "size": "20px",
+        "background": "#FFFFFF",
+        "borderRadius": "9999px"
+      }
+    },
+
+    "cards": {
+      "background": "#FFFFFF",
+      "borderRadius": "12px",
+      "padding": "24px",
+      "border": "1px solid #E0E0E0",
+      "shadow": "small",
+      "states": {
+        "hover": {
+          "shadow": "medium",
+          "transform": "translateY(-2px)",
+          "transition": "all 0.3s ease"
+        }
+      }
+    },
+
+    "tables": {
+      "header": {
+        "background": "#F5F5F5",
+        "color": "#000000",
+        "fontWeight": "600",
+        "fontSize": "14px",
+        "padding": "12px 16px",
+        "borderBottom": "2px solid #E0E0E0"
+      },
+      "row": {
+        "background": "#FFFFFF",
+        "color": "#000000",
+        "fontSize": "14px",
+        "padding": "12px 16px",
+        "borderBottom": "1px solid #E0E0E0",
+        "states": {
+          "hover": {
+            "background": "#F5F5F5"
+          },
+          "selected": {
+            "background": "#E3F2FD",
+            "borderLeft": "3px solid #5B8DEF"
+          }
+        }
+      },
+      "alternatingRows": {
+        "even": "#FFFFFF",
+        "odd": "#FAFAFA"
+      }
+    },
+
+    "navigation": {
+      "bar": {
+        "background": "#000000",
+        "height": "64px",
+        "padding": "0 32px",
+        "borderRadius": "16px",
+        "shadow": "medium"
+      },
+      "item": {
+        "color": "#FFFFFF",
+        "fontSize": "14px",
+        "fontWeight": "500",
+        "padding": "8px 16px",
+        "borderRadius": "8px",
+        "states": {
+          "active": {
+            "background": "#F26522",
+            "color": "#FFFFFF"
+          },
+          "hover": {
+            "background": "rgba(255, 255, 255, 0.1)"
+          }
+        }
+      },
+      "icon": {
+        "size": "24px",
+        "color": "#FFFFFF",
+        "states": {
+          "active": {
+            "color": "#F26522"
+          }
+        }
+      }
+    },
+
+    "calendar": {
+      "header": {
+        "background": "#F5F5F5",
+        "fontSize": "14px",
+        "fontWeight": "600",
+        "padding": "12px"
+      },
+      "day": {
+        "size": "40px",
+        "fontSize": "14px",
+        "fontWeight": "400",
+        "borderRadius": "8px",
+        "states": {
+          "today": {
+            "border": "2px solid #F26522"
+          },
+          "selected": {
+            "background": "#F26522",
+            "color": "#FFFFFF"
+          },
+          "hover": {
+            "background": "#FFF5F0"
+          },
+          "disabled": {
+            "color": "#CDCAC9"
+          }
+        }
+      }
+    },
+
+    "badges": {
+      "base": {
+        "padding": "4px 12px",
+        "borderRadius": "9999px",
+        "fontSize": "12px",
+        "fontWeight": "600"
+      },
+      "variants": {
+        "primary": {
+          "background": "#F26522",
+          "color": "#FFFFFF"
+        },
+        "secondary": {
+          "background": "#E0E0E0",
+          "color": "#000000"
+        },
+        "success": {
+          "background": "#4CAF50",
+          "color": "#FFFFFF"
+        },
+        "info": {
+          "background": "#5B8DEF",
+          "color": "#FFFFFF"
+        }
+      }
+    },
+
+    "avatars": {
+      "sizes": {
+        "small": "32px",
+        "medium": "40px",
+        "large": "56px",
+        "xlarge": "80px"
+      },
+      "borderRadius": "9999px",
+      "border": "2px solid #FFFFFF",
+      "shadow": "small",
+      "groupOverlap": "-8px"
+    },
+
+    "modals": {
+      "overlay": {
+        "background": "rgba(0, 0, 0, 0.5)",
+        "backdropFilter": "blur(4px)"
+      },
+      "content": {
+        "background": "#FFFFFF",
+        "borderRadius": "16px",
+        "padding": "32px",
+        "maxWidth": "600px",
+        "shadow": "xlarge"
+      }
+    },
+
+    "tooltips": {
+      "background": "#000000",
+      "color": "#FFFFFF",
+      "fontSize": "12px",
+      "fontWeight": "400",
+      "padding": "8px 12px",
+      "borderRadius": "6px",
+      "shadow": "medium"
+    }
+  },
+
+  "animation": {
+    "duration": {
+      "fast": "150ms",
+      "normal": "250ms",
+      "slow": "400ms"
+    },
+    "easing": {
+      "ease": "cubic-bezier(0.25, 0.1, 0.25, 1)",
+      "easeIn": "cubic-bezier(0.4, 0, 1, 1)",
+      "easeOut": "cubic-bezier(0, 0, 0.2, 1)",
+      "easeInOut": "cubic-bezier(0.4, 0, 0.2, 1)"
+    },
+    "usage": {
+      "buttonHover": "all 0.15s ease",
+      "cardHover": "all 0.3s ease",
+      "modal": "all 0.25s ease-out",
+      "dropdown": "all 0.2s ease-in-out"
+    }
+  },
+
+  "layout": {
+    "maxWidth": {
+      "small": "640px",
+      "medium": "768px",
+      "large": "1024px",
+      "xlarge": "1280px",
+      "full": "100%"
+    },
+    "breakpoints": {
+      "mobile": "320px",
+      "tablet": "768px",
+      "desktop": "1024px",
+      "wide": "1440px"
+    },
+    "containerPadding": {
+      "mobile": "16px",
+      "tablet": "32px",
+      "desktop": "48px"
+    }
+  },
+
+  "accessibility": {
+    "focusVisible": {
+      "outline": "2px solid #F26522",
+      "outlineOffset": "2px"
+    },
+    "minTouchTarget": "44px",
+    "minContrastRatio": "4.5:1",
+    "principles": [
+      "All interactive elements must have visible focus states",
+      "Minimum touch target size of 44x44px",
+      "Color contrast ratio of at least 4.5:1 for text",
+      "All actions must be keyboard accessible",
+      "Provide clear labels for form elements",
+      "Use semantic HTML elements"
+    ]
+  },
+
+  "iconography": {
+    "style": "Outlined, minimal, geometric",
+    "strokeWidth": "2px",
+    "sizes": {
+      "small": "16px",
+      "medium": "24px",
+      "large": "32px",
+      "xlarge": "48px"
+    },
+    "color": "Inherit from parent or use #000000 for default"
+  },
+
+  "implementation": {
+    "cssVariables": true,
+    "darkModeSupport": true,
+    "responsiveDesign": true,
+    "componentLibrary": "Build modular, reusable components",
+    "stateManagement": "Use clear visual feedback for all interactive states",
+    "performanceOptimization": "Lazy load images, minimize animations on low-powered devices"
+  },
+
+  "bestPractices": {
+    "consistency": "Use the same component patterns throughout the application",
+    "clarity": "Prioritize readability and clear visual hierarchy",
+    "feedback": "Provide immediate visual feedback for all user interactions",
+    "simplicity": "Favor simple, intuitive patterns over complex interactions",
+    "hierarchy": "Use size, weight, and color to establish clear content hierarchy",
+    "whitespace": "Use generous spacing to create breathing room and improve focus"
+  }
+}

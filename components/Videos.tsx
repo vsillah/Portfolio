@@ -8,31 +8,24 @@ import { useState } from 'react'
 const videos = [
   {
     id: 1,
-    title: 'Building a Full-Stack Application',
-    description: 'Complete walkthrough of building a modern web application from scratch',
-    videoId: 'dQw4w9WgXcQ', // Replace with your YouTube video ID
-    thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+    title: 'Never Know Bar 4 Bar Breakdown, 1st Verse',
+    description: 'This is the Bar for Bar Breakdown of "Never Know", the first single release from "Into the Rabbit Hole" album by Mad Hadda',
+    videoId: 'ps5WbgLk4mI', // Replaced with my YouTube video ID
+    thumbnail: 'https://i9.ytimg.com/vi_webp/ps5WbgLk4mI/mq2.webp?sqp=CNCk9coG-oaymwEmCMACELQB8quKqQMa8AEB-AHOBYACgAqKAgwIABABGH8gRygkMA8=&rs=AOn4CLCAouxUg-Z8c1kujawqQvMQJPh3lw',
   },
   {
     id: 2,
-    title: 'Advanced React Patterns',
-    description: 'Exploring advanced React patterns and best practices for scalable applications',
-    videoId: 'dQw4w9WgXcQ', // Replace with your YouTube video ID
-    thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+    title: 'Never Know Bar 4 Bar Breakdown, 2nd Verse',
+    description: 'This is the Bar for Bar Breakdown of "Never Know", the first single release from "Into the Rabbit Hole" album by Mad Hadda',
+    videoId: 'VltoBXKskOE', // Replaced with my YouTube video ID
+    thumbnail: 'https://i9.ytimg.com/vi/VltoBXKskOE/mqdefault.jpg?v=6787cb7e&sqp=CPym9coG&rs=AOn4CLAZYLSFQRodeKqJCGc7QdipXVs1yA',
   },
   {
     id: 3,
-    title: 'Machine Learning Tutorial',
-    description: 'Introduction to machine learning concepts with practical examples',
-    videoId: 'dQw4w9WgXcQ', // Replace with your YouTube video ID
-    thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-  },
-  {
-    id: 4,
-    title: 'DevOps Best Practices',
-    description: 'Setting up CI/CD pipelines and deployment strategies',
-    videoId: 'dQw4w9WgXcQ', // Replace with your YouTube video ID
-    thumbnail: 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
+    title: 'Shoulders of Giants short video',
+    description: 'This is the short video of "Shoulders of Giants", the second single release from "Into the Rabbit Hole" album by Mad Hadda',
+    videoId: 'V4phmDS8Bik', // Replace with your YouTube video ID
+    thumbnail: 'https://i9.ytimg.com/vi_webp/V4phmDS8Bik/mq2.webp?sqp=CPym9coG-oaymwEmCMACELQB8quKqQMa8AEB-AHqCYAC0AWKAgwIABABGCsgXCh_MA8=&rs=AOn4CLAgI-TkdRZ6TOTK1I87DjfGnhGkgg',
   },
 ]
 

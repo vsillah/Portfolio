@@ -12,7 +12,7 @@ const musicProjects = [
     year: '2025',
     description: 'A highly anticipated album that delves deep into personal and artistic evolution, blending old-school beats with modern sounds.',
     spotifyLink: 'https://open.spotify.com/artist/1B5vy5knIGXOxClIzkkVHR?si=frSOxcxXSPCi6S04691zkg',
-    image: '/V 9T Stylish.jpg',
+    image: '/ITRH_Cover.png', // Changed from '/V 9T Stylish.jpg'
     popularTracks: ['Never Know', 'Shoulders of Giants', 'Odds Against Humanity', 'Politics', 'Trip to Mars'],
   },
 ]
@@ -25,7 +25,7 @@ export default function Music() {
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-500/30 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500/30 rounded-full blur-3xl" />
       </div>
-
+      
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -63,6 +63,9 @@ export default function Music() {
                   className="w-full h-full object-contain"
                   whileHover={{ scale: 1.1 }}
                   transition={{ duration: 0.3 }}
+                  onError={(e) => {
+                    e.currentTarget.src = '/V 9T Sitting.jpg' // Fallback image
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
                 

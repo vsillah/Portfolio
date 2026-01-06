@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Mail, Github, Linkedin, Twitter, Send, Music } from 'lucide-react'
+import { Mail, Github, Linkedin, Twitter, Send, Music, BookOpen } from 'lucide-react'
 import { useState } from 'react'
 
 const socialLinks = [
@@ -9,6 +9,7 @@ const socialLinks = [
   { icon: Mail, href: 'mailto:vsillah@gmail.com', label: 'Email' },
   { icon: Music, href: 'https://open.spotify.com/artist/1B5vy5knIGXOxClIzkkVHR?si=frSOxcxXSPCi6S04691zkg', label: 'Spotify' },
   { icon: Github, href: 'https://github.com/vsillah', label: 'GitHub' },
+  { icon: BookOpen, href: 'https://medium.com/@vsillah', label: 'Medium' },
 ]
 
 export default function Contact() {
@@ -18,16 +19,57 @@ export default function Contact() {
     message: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle')
+  const [statusMessage, setStatusMessage] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    // Add your form submission logic here
-    setTimeout(() => {
-      setIsSubmitting(false)
+    setSubmitStatus('idle')
+    setStatusMessage('')
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to send message')
+      }
+
+      // Success
+      setSubmitStatus('success')
+      setStatusMessage('Message sent successfully! I\'ll get back to you soon.')
       setFormData({ name: '', email: '', message: '' })
-      alert('Message sent! (This is a demo - connect to your backend)')
-    }, 1000)
+      
+      // Reset status after 5 seconds
+      setTimeout(() => {
+        setSubmitStatus('idle')
+        setStatusMessage('')
+      }, 5000)
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      setSubmitStatus('error')
+      setStatusMessage(
+        error instanceof Error 
+          ? error.message 
+          : 'Failed to send message. Please try again or email me directly at vsillah@gmail.com'
+      )
+      
+      // Reset status after 5 seconds
+      setTimeout(() => {
+        setSubmitStatus('idle')
+        setStatusMessage('')
+      }, 5000)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -58,6 +100,21 @@ export default function Contact() {
             onSubmit={handleSubmit}
             className="space-y-6"
           >
+            {/* Status Message */}
+            {statusMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`p-4 rounded-lg ${
+                  submitStatus === 'success' 
+                    ? 'bg-green-500/20 border border-green-500/50 text-green-400' 
+                    : 'bg-red-500/20 border border-red-500/50 text-red-400'
+                }`}
+              >
+                {statusMessage}
+              </motion.div>
+            )}
+
             <div>
               <label htmlFor="name" className="block text-gray-300 mb-2">
                 Name
@@ -178,4 +235,3 @@ export default function Contact() {
     </section>
   )
 }
-

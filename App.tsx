@@ -1,4 +1,3 @@
-import React from 'react';
 import ScrollAdventure from './components/ui/animated-scroll';
 
 export default function App() {
