@@ -1,7 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { BarChart3, Users, MousePointerClick, Mail, Eye, TrendingUp, Clock } from 'lucide-react'
+import { useEffect, useState, useCallback } from 'react'
+import { motion } from 'framer-motion'
+import { BarChart3, Users, MousePointerClick, Mail, Eye, TrendingUp, Clock, Settings } from 'lucide-react'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import Link from 'next/link'
+import AnalyticsActions from '@/components/admin/AnalyticsActions'
 
 interface AnalyticsData {
   totalEvents: number
@@ -18,15 +22,19 @@ interface AnalyticsData {
 }
 
 export default function AdminDashboard() {
+  return (
+    <ProtectedRoute requireAdmin>
+      <AdminDashboardContent />
+    </ProtectedRoute>
+  )
+}
+
+function AdminDashboardContent() {
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [days, setDays] = useState(7)
 
-  useEffect(() => {
-    fetchAnalytics()
-  }, [days])
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     setLoading(true)
     try {
       const response = await fetch(`/api/analytics/stats?days=${days}`)
@@ -57,7 +65,11 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [days])
+
+  useEffect(() => {
+    fetchAnalytics()
+  }, [fetchAnalytics])
 
   if (loading) {
     return (
@@ -80,10 +92,25 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-black text-white p-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
-          <p className="text-gray-400">Portfolio performance insights</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
+            <p className="text-gray-400">Portfolio performance insights</p>
+          </div>
+          <Link href="/admin/content">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-6 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white hover:border-purple-500/50 transition-colors flex items-center gap-2"
+            >
+              <Settings size={20} />
+              Content Management
+            </motion.button>
+          </Link>
         </div>
+
+        {/* Admin Actions */}
+        <AnalyticsActions days={days} onRefresh={fetchAnalytics} />
 
         {/* Time Range Selector */}
         <div className="mb-6 flex gap-2">

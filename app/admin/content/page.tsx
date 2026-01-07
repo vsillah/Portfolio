@@ -1,0 +1,92 @@
+'use client'
+
+import { motion } from 'framer-motion'
+import { FolderOpen, Video, BookOpen, Music, Download, BarChart3 } from 'lucide-react'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import Link from 'next/link'
+
+export default function ContentManagementPage() {
+  const contentTypes = [
+    {
+      name: 'Projects',
+      href: '/admin/content/projects',
+      icon: <FolderOpen size={32} />,
+      description: 'Manage portfolio projects',
+      color: 'from-blue-500 to-cyan-500',
+    },
+    {
+      name: 'Videos',
+      href: '/admin/content/videos',
+      icon: <Video size={32} />,
+      description: 'Manage video content',
+      color: 'from-red-500 to-pink-500',
+    },
+    {
+      name: 'Publications',
+      href: '/admin/content/publications',
+      icon: <BookOpen size={32} />,
+      description: 'Manage publications',
+      color: 'from-green-500 to-emerald-500',
+    },
+    {
+      name: 'Music',
+      href: '/admin/content/music',
+      icon: <Music size={32} />,
+      description: 'Manage music projects',
+      color: 'from-purple-500 to-pink-500',
+    },
+    {
+      name: 'Lead Magnets',
+      href: '/admin/content/lead-magnets',
+      icon: <Download size={32} />,
+      description: 'Manage downloadable resources',
+      color: 'from-orange-500 to-yellow-500',
+    },
+  ]
+
+  return (
+    <ProtectedRoute requireAdmin>
+      <div className="min-h-screen bg-black text-white p-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold mb-2">Content Management</h1>
+            <p className="text-gray-400">Manage your portfolio content</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {contentTypes.map((type, index) => (
+              <Link key={type.name} href={type.href}>
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="p-6 bg-gray-900 border border-gray-800 rounded-xl hover:border-purple-500/50 transition-all cursor-pointer"
+                >
+                  <div className={`w-16 h-16 rounded-lg bg-gradient-to-r ${type.color} flex items-center justify-center text-white mb-4`}>
+                    {type.icon}
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{type.name}</h3>
+                  <p className="text-gray-400 text-sm">{type.description}</p>
+                </motion.div>
+              </Link>
+            ))}
+          </div>
+
+          <div className="mt-8">
+            <Link href="/admin">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-6 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white hover:border-purple-500/50 transition-colors flex items-center gap-2"
+              >
+                <BarChart3 size={20} />
+                Back to Analytics
+              </motion.button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    </ProtectedRoute>
+  )
+}

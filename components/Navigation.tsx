@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X } from 'lucide-react'
 import { analytics } from '@/lib/analytics'
+import UserMenu from '@/components/auth/UserMenu'
+import { useAuth } from '@/components/AuthProvider'
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -18,6 +20,7 @@ const navItems = [
 export default function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { user } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -50,7 +53,7 @@ export default function Navigation() {
           </motion.a>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item, index) => (
               <motion.a
                 key={item.name}
@@ -70,6 +73,18 @@ export default function Navigation() {
                 />
               </motion.a>
             ))}
+            {user ? (
+              <UserMenu />
+            ) : (
+              <motion.a
+                href="/auth/login"
+                className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Sign In
+              </motion.a>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -106,6 +121,19 @@ export default function Navigation() {
                   {item.name}
                 </motion.a>
               ))}
+              <div className="pt-4 border-t border-gray-800">
+                {user ? (
+                  <UserMenu />
+                ) : (
+                  <motion.a
+                    href="/auth/login"
+                    className="block w-full text-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-sm font-semibold"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Sign In
+                  </motion.a>
+                )}
+              </div>
             </div>
           </motion.div>
         )}

@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic'
+
 // Anonymize IP address (remove last octet)
 function anonymizeIP(ip: string | null): string | null {
   if (!ip) return null

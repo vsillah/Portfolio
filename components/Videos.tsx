@@ -12,21 +12,21 @@ const videos = [
     title: 'Never Know Bar 4 Bar Breakdown, 1st Verse',
     description: 'This is the Bar for Bar Breakdown of "Never Know", the first single release from "Into the Rabbit Hole" album by Mad Hadda',
     videoId: 'ps5WbgLk4mI', // Replaced with my YouTube video ID
-    thumbnail: 'https://i9.ytimg.com/vi_webp/ps5WbgLk4mI/mq2.webp?sqp=CNCk9coG-oaymwEmCMACELQB8quKqQMa8AEB-AHOBYACgAqKAgwIABABGH8gRygkMA8=&rs=AOn4CLCAouxUg-Z8c1kujawqQvMQJPh3lw',
+    thumbnail: 'https://img.youtube.com/vi/ps5WbgLk4mI/hqdefault.jpg',
   },
   {
     id: 2,
     title: 'Never Know Bar 4 Bar Breakdown, 2nd Verse',
     description: 'This is the Bar for Bar Breakdown of "Never Know", the first single release from "Into the Rabbit Hole" album by Mad Hadda',
     videoId: 'VltoBXKskOE', // Replaced with my YouTube video ID
-    thumbnail: 'https://i9.ytimg.com/vi/VltoBXKskOE/mqdefault.jpg?v=6787cb7e&sqp=CPym9coG&rs=AOn4CLAZYLSFQRodeKqJCGc7QdipXVs1yA',
+    thumbnail: 'https://img.youtube.com/vi/VltoBXKskOE/hqdefault.jpg',
   },
   {
     id: 3,
     title: 'Shoulders of Giants short video',
     description: 'This is the short video of "Shoulders of Giants", the second single release from "Into the Rabbit Hole" album by Mad Hadda',
     videoId: 'V4phmDS8Bik', // Replace with your YouTube video ID
-    thumbnail: 'https://i9.ytimg.com/vi_webp/V4phmDS8Bik/mq2.webp?sqp=CPym9coG-oaymwEmCMACELQB8quKqQMa8AEB-AHqCYAC0AWKAgwIABABGCsgXCh_MA8=&rs=AOn4CLAgI-TkdRZ6TOTK1I87DjfGnhGkgg',
+    thumbnail: 'https://img.youtube.com/vi/V4phmDS8Bik/hqdefault.jpg',
   },
 ]
 
@@ -79,6 +79,15 @@ export default function Videos() {
                   src={video.thumbnail}
                   alt={video.title}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to medium quality if high quality fails
+                    const target = e.target as HTMLImageElement
+                    if (target.src.includes('hqdefault')) {
+                      target.src = `https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`
+                    } else if (target.src.includes('mqdefault')) {
+                      target.src = `https://img.youtube.com/vi/${video.videoId}/default.jpg`
+                    }
+                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                 
