@@ -19,17 +19,8 @@ function AuthCallbackContent() {
         const error = hashParams.get('error')
         const errorDescription = hashParams.get('error_description')
 
-        // Only log in development
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Auth callback - Full URL:', window.location.href)
-          console.log('Auth callback - Hash:', window.location.hash)
-          console.log('Extracted tokens:', { accessToken: !!accessToken, refreshToken: !!refreshToken, error })
-        }
-
         if (error) {
-          // Log error in production for debugging OAuth issues
-          console.error('OAuth error:', error, errorDescription)
-          router.push(`/auth/login?error=${encodeURIComponent(errorDescription || error)}`)
+          window.location.href = `/auth/login?error=${encodeURIComponent(errorDescription || error)}`
           return
         }
 
@@ -41,20 +32,22 @@ function AuthCallbackContent() {
           })
 
           if (sessionError) {
-            if (process.env.NODE_ENV === 'development') {
-              console.error('Session error:', sessionError)
-            }
-            router.push(`/auth/login?error=${encodeURIComponent(sessionError.message)}`)
+            window.location.href = `/auth/login?error=${encodeURIComponent(sessionError.message)}`
             return
           }
 
           if (data?.session) {
-            // Success! Redirect to home or the next URL
+            // Success! Wait a moment for session to be stored
+            await new Promise(resolve => setTimeout(resolve, 200))
+            
+            // Get next URL or default to home
             const next = searchParams.get('next') || '/'
+            
             // Clear the hash from URL
             window.history.replaceState(null, '', window.location.pathname + window.location.search)
-            router.push(next)
-            router.refresh() // Refresh to update auth state
+            
+            // Use window.location for production - ensures full page reload
+            window.location.href = next
             return
           }
         }
@@ -65,17 +58,16 @@ function AuthCallbackContent() {
           const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
           
           if (exchangeError) {
-            if (process.env.NODE_ENV === 'development') {
-              console.error('Code exchange error:', exchangeError)
-            }
-            router.push(`/auth/login?error=${encodeURIComponent(exchangeError.message)}`)
+            window.location.href = `/auth/login?error=${encodeURIComponent(exchangeError.message)}`
             return
           }
 
           if (data?.session) {
+            // Wait for session to be stored
+            await new Promise(resolve => setTimeout(resolve, 200))
+            
             const next = searchParams.get('next') || '/'
-            router.push(next)
-            router.refresh()
+            window.location.href = next
             return
           }
         }
@@ -84,19 +76,14 @@ function AuthCallbackContent() {
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
           const next = searchParams.get('next') || '/'
-          router.push(next)
-          router.refresh()
+          window.location.href = next
           return
         }
 
         // If we get here, something went wrong
-        router.push('/auth/login?error=Could not authenticate')
+        window.location.href = '/auth/login?error=Could not authenticate'
       } catch (error: any) {
-        // Only log in development to avoid console spam in production
-        if (process.env.NODE_ENV === 'development') {
-          console.error('Auth callback error:', error)
-        }
-        router.push(`/auth/login?error=${encodeURIComponent(error.message || 'Authentication failed')}`)
+        window.location.href = `/auth/login?error=${encodeURIComponent(error.message || 'Authentication failed')}`
       }
     }
 
