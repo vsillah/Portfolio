@@ -10,6 +10,7 @@ import { useAuth } from '@/components/AuthProvider'
 const navItems = [
   { name: 'Home', href: '#home' },
   { name: 'Projects', href: '#projects' },
+  { name: 'Prototypes', href: '#prototypes' },
   { name: 'Publications', href: '#publications' },
   { name: 'Music', href: '#music' },
   { name: 'Videos', href: '#videos' },

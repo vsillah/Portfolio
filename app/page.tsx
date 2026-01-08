@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Hero from '@/components/Hero'
 import Projects from '@/components/Projects'
+import AppPrototypes from '@/components/AppPrototypes'
 import Publications from '@/components/Publications'
 import Music from '@/components/Music'
 import Videos from '@/components/Videos'
@@ -42,7 +43,7 @@ export default function Home() {
     }, observerOptions)
 
     // Observe all sections
-    const sections = ['home', 'projects', 'publications', 'music', 'videos', 'about', 'contact']
+    const sections = ['home', 'projects', 'prototypes', 'publications', 'music', 'videos', 'about', 'contact']
     sections.forEach((id) => {
       const element = document.getElementById(id)
       if (element) observer.observe(element)
@@ -60,6 +61,7 @@ export default function Home() {
       <Navigation />
       <Hero />
       <Projects />
+      <AppPrototypes />
       <Publications />
       <Music />
       <Videos />

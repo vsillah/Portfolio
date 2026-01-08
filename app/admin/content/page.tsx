@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FolderOpen, Video, BookOpen, Music, Download, BarChart3 } from 'lucide-react'
+import { FolderOpen, Video, BookOpen, Music, Download, BarChart3, Sparkles } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 
@@ -41,6 +41,13 @@ export default function ContentManagementPage() {
       icon: <Download size={32} />,
       description: 'Manage downloadable resources',
       color: 'from-orange-500 to-yellow-500',
+    },
+    {
+      name: 'Prototypes',
+      href: '/admin/content/prototypes',
+      icon: <Sparkles size={32} />,
+      description: 'Manage app prototype demos',
+      color: 'from-purple-500 to-pink-500',
     },
   ]
 
