@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ExternalLink, Github, Code2 } from 'lucide-react'
+import { ExternalLink, Github, Code2, Download } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { analytics } from '@/lib/analytics'
 
@@ -15,6 +15,9 @@ interface Project {
   technologies: string[]
   display_order: number
   is_published: boolean
+  file_path: string | null
+  file_type: string | null
+  file_size: number | null
 }
 
 export default function Projects() {
@@ -151,10 +154,12 @@ export default function Projects() {
                 </div>
 
                 {/* Links */}
-                <div className="flex gap-4">
+                <div className="flex gap-4 flex-wrap">
                   {project.github && (
                     <motion.a
                       href={project.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       onClick={() => {
                         analytics.projectClick(project.id, project.title, 'github')
                       }}
@@ -169,6 +174,8 @@ export default function Projects() {
                   {project.live && (
                     <motion.a
                       href={project.live}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       onClick={() => {
                         analytics.projectClick(project.id, project.title, 'live')
                       }}
@@ -178,6 +185,30 @@ export default function Projects() {
                     >
                       <ExternalLink size={18} />
                       <span className="text-sm">Learn More</span>
+                    </motion.a>
+                  )}
+                  {project.file_path && (
+                    <motion.a
+                      href={`/api/projects/${project.id}/download`}
+                      onClick={async (e) => {
+                        e.preventDefault()
+                        try {
+                          const response = await fetch(`/api/projects/${project.id}/download`)
+                          if (response.ok) {
+                            const data = await response.json()
+                            window.open(data.downloadUrl, '_blank')
+                            analytics.projectClick(project.id, project.title, 'download')
+                          }
+                        } catch (error) {
+                          console.error('Error downloading file:', error)
+                        }
+                      }}
+                      className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
+                      whileHover={{ x: 5 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Download size={18} />
+                      <span className="text-sm">Download</span>
                     </motion.a>
                   )}
                 </div>

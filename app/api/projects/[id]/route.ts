@@ -57,7 +57,7 @@ export async function PUT(
 
     const { id } = params
     const body = await request.json()
-    const { title, description, github, live, image, technologies, display_order, is_published } = body
+    const { title, description, github, live, image, technologies, display_order, is_published, file_path, file_type, file_size } = body
 
     const updateData: any = {
       updated_at: new Date().toISOString(),
@@ -71,6 +71,9 @@ export async function PUT(
     if (technologies !== undefined) updateData.technologies = technologies
     if (display_order !== undefined) updateData.display_order = display_order
     if (is_published !== undefined) updateData.is_published = is_published
+    if (file_path !== undefined) updateData.file_path = file_path
+    if (file_type !== undefined) updateData.file_type = file_type
+    if (file_size !== undefined) updateData.file_size = file_size
 
     const { data, error } = await supabaseAdmin
       .from('projects')

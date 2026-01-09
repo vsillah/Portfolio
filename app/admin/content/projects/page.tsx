@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown } from 'lucide-react'
+import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, Upload, File, X } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
 
@@ -16,6 +16,9 @@ interface Project {
   technologies: string[]
   display_order: number
   is_published: boolean
+  file_path: string | null
+  file_type: string | null
+  file_size: number | null
   created_at: string
   updated_at: string
 }
@@ -35,6 +38,13 @@ export default function ProjectsManagementPage() {
     display_order: 0,
     is_published: true,
   })
+  const [uploadingFile, setUploadingFile] = useState(false)
+  const [uploadedFile, setUploadedFile] = useState<{
+    file_path: string
+    file_type: string
+    file_size: number
+    file_name: string
+  } | null>(null)
 
   useEffect(() => {
     fetchProjects()
@@ -176,6 +186,9 @@ export default function ProjectsManagementPage() {
         technologies: technologiesArray,
         display_order: formData.display_order,
         is_published: formData.is_published,
+        file_path: uploadedFile?.file_path || null,
+        file_type: uploadedFile?.file_type || null,
+        file_size: uploadedFile?.file_size || null,
       }
 
       const url = editingProject ? `/api/projects/${editingProject.id}` : '/api/projects'
@@ -203,6 +216,7 @@ export default function ProjectsManagementPage() {
           display_order: 0,
           is_published: true,
         })
+        setUploadedFile(null)
         fetchProjects()
       } else {
         const error = await response.json()
@@ -212,6 +226,53 @@ export default function ProjectsManagementPage() {
       console.error('Error saving project:', error)
       alert('Failed to save project')
     }
+  }
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingFile(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const formData = new FormData()
+      formData.append('file', file)
+      if (editingProject) {
+        formData.append('projectId', editingProject.id.toString())
+      }
+
+      const response = await fetch('/api/projects/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: formData,
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUploadedFile({
+          file_path: data.file_path,
+          file_type: data.file_type,
+          file_size: data.file_size,
+          file_name: file.name,
+        })
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to upload file')
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      alert('Failed to upload file')
+    } finally {
+      setUploadingFile(false)
+    }
+  }
+
+  const handleRemoveFile = () => {
+    setUploadedFile(null)
   }
 
   const handleEdit = (project: Project) => {
@@ -226,12 +287,23 @@ export default function ProjectsManagementPage() {
       display_order: project.display_order,
       is_published: project.is_published,
     })
+    if (project.file_path) {
+      setUploadedFile({
+        file_path: project.file_path,
+        file_type: project.file_type || '',
+        file_size: project.file_size || 0,
+        file_name: project.file_path.split('/').pop() || 'file',
+      })
+    } else {
+      setUploadedFile(null)
+    }
     setShowAddForm(true)
   }
 
   const handleCancel = () => {
     setShowAddForm(false)
     setEditingProject(null)
+    setUploadedFile(null)
     setFormData({
       title: '',
       description: '',
@@ -323,6 +395,49 @@ export default function ProjectsManagementPage() {
                     onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                     className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Project File (PDF, Document, etc.)</label>
+                  {uploadedFile ? (
+                    <div className="flex items-center justify-between p-3 bg-gray-800 border border-gray-700 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <File size={20} className="text-blue-400" />
+                        <div>
+                          <p className="text-sm text-white">{uploadedFile.file_name}</p>
+                          <p className="text-xs text-gray-400">
+                            {(uploadedFile.file_size / 1024).toFixed(2)} KB • {uploadedFile.file_type}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemoveFile}
+                        className="p-1 text-red-400 hover:text-red-300"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-750 hover:border-purple-500 transition-colors">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <Upload className="w-8 h-8 mb-2 text-gray-400" />
+                        <p className="mb-2 text-sm text-gray-400">
+                          <span className="font-semibold">Click to upload</span> or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500">PDF, DOC, DOCX, etc. (MAX. 10MB)</p>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        onChange={handleFileUpload}
+                        disabled={uploadingFile}
+                        accept=".pdf,.doc,.docx,.txt,.zip"
+                      />
+                    </label>
+                  )}
+                  {uploadingFile && (
+                    <p className="mt-2 text-sm text-gray-400">Uploading file...</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">Technologies (comma-separated)</label>
@@ -436,6 +551,15 @@ export default function ProjectsManagementPage() {
                       )}
                       <span>•</span>
                       <span>Order: {project.display_order}</span>
+                      {project.file_path && (
+                        <>
+                          <span>•</span>
+                          <span className="flex items-center gap-1 text-blue-400">
+                            <File size={14} />
+                            File attached
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

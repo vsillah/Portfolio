@@ -31,6 +31,28 @@ BEGIN
   ) THEN
     ALTER TABLE projects ADD COLUMN display_order INTEGER DEFAULT 0;
   END IF;
+  
+  -- Add file upload columns if they don't exist
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'projects' AND column_name = 'file_path'
+  ) THEN
+    ALTER TABLE projects ADD COLUMN file_path TEXT;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'projects' AND column_name = 'file_type'
+  ) THEN
+    ALTER TABLE projects ADD COLUMN file_type TEXT;
+  END IF;
+  
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_name = 'projects' AND column_name = 'file_size'
+  ) THEN
+    ALTER TABLE projects ADD COLUMN file_size INTEGER;
+  END IF;
 END $$;
 
 -- Indexes
@@ -77,6 +99,42 @@ CREATE TRIGGER projects_updated_at
   EXECUTE FUNCTION update_projects_updated_at();
 ```
 
-## Step 2: Migrate Existing Projects (Optional)
+## Step 2: Create Supabase Storage Bucket for Project Files
+
+1. Go to Supabase Dashboard → Storage
+2. Create a new bucket named `projects`
+3. Set it to **Private** (not public)
+4. Add the following storage policies:
+
+```sql
+-- Allow authenticated users to read project files
+CREATE POLICY "Authenticated users can read project files"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'projects' AND auth.role() = 'authenticated');
+
+-- Allow admins to upload project files
+CREATE POLICY "Admins can upload project files"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'projects' AND
+  EXISTS (
+    SELECT 1 FROM user_profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+
+-- Allow admins to update/delete project files
+CREATE POLICY "Admins can manage project files"
+ON storage.objects FOR ALL
+USING (
+  bucket_id = 'projects' AND
+  EXISTS (
+    SELECT 1 FROM user_profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  )
+);
+```
+
+## Step 3: Migrate Existing Projects (Optional)
 
 If you want to migrate the hardcoded projects to the database, you can insert them manually or use the admin interface after it's built.

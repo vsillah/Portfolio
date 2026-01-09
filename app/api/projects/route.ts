@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, github, live, image, technologies, display_order, is_published } = body
+    const { title, description, github, live, image, technologies, display_order, is_published, file_path, file_type, file_size } = body
 
     if (!title) {
       return NextResponse.json(
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { data, error } = await supabaseAdmin
+      const { data, error } = await supabaseAdmin
       .from('projects')
       .insert([{
         title,
@@ -78,6 +78,9 @@ export async function POST(request: NextRequest) {
         technologies: technologies || [],
         display_order: display_order || 0,
         is_published: is_published !== undefined ? is_published : true,
+        file_path: file_path || null,
+        file_type: file_type || null,
+        file_size: file_size || null,
         created_by: user.id,
       }])
       .select()
