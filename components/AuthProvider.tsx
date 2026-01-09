@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { getCurrentUser, getUserProfile, onAuthStateChange, UserProfile } from '@/lib/auth'
+import { getCurrentUser, getCurrentSession, onAuthStateChange, UserProfile } from '@/lib/auth'
 
 interface AuthContextType {
   user: User | null
@@ -27,6 +27,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Helper function to fetch profile from API
+  const fetchProfileFromAPI = async (session: Session | null, forceRefresh = false): Promise<UserProfile | null> => {
+    if (!session?.access_token) {
+      return null
+    }
+
+    try {
+      const url = `/api/user/profile${forceRefresh ? '?t=' + Date.now() : ''}`
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        cache: forceRefresh ? 'no-store' : 'default',
+      })
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          return null
+        }
+        throw new Error(`Failed to fetch profile: ${response.status}`)
+      }
+
+      const data = await response.json()
+      console.log('[AUTH DEBUG] Fetched profile from API:', data.profile)
+      return data.profile as UserProfile | null
+    } catch (error) {
+      console.error('Error fetching profile from API:', error)
+      return null
+    }
+  }
+
   useEffect(() => {
     // Get initial session
     const initAuth = async () => {
@@ -35,17 +66,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(user)
         if (user) {
           try {
-            const userProfile = await getUserProfile(user.id)
-            setProfile(userProfile)
+            const session = await getCurrentSession()
+            if (session) {
+              const userProfile = await fetchProfileFromAPI(session, true) // Force refresh on init
+              setProfile(userProfile)
+            }
           } catch (profileError) {
             // Silently handle profile errors - profile might not exist yet or will be created by trigger
-            // The trigger should create it automatically, so we don't need to log this
+            console.warn('Profile fetch error:', profileError)
           }
         }
       } catch (error) {
         // Only log unexpected errors
         console.error('Auth init error:', error)
       } finally {
+        // Only set loading false after profile fetch completes (or if no user)
         setLoading(false)
       }
     }
@@ -56,11 +91,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = onAuthStateChange(async (event, session) => {
       if (session?.user) {
         setUser(session.user)
-        // Fetch profile with error suppression
+        setLoading(true) // Keep loading true while fetching profile
+        // Fetch profile using API route
         // Use setTimeout to debounce and avoid rapid repeated calls
         setTimeout(async () => {
           try {
-            const userProfile = await getUserProfile(session.user.id)
+            const userProfile = await fetchProfileFromAPI(session)
             if (userProfile) {
               setProfile(userProfile)
             }
@@ -68,13 +104,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // We'll get it on the next auth state change
           } catch (profileError) {
             // Silently handle all profile errors - they're expected during initial setup
+            console.warn('Profile fetch error in auth change:', profileError)
+          } finally {
+            setLoading(false) // Only set loading false after profile fetch completes
           }
         }, 100)
       } else {
         setUser(null)
         setProfile(null)
+        setLoading(false)
       }
-      setLoading(false)
     })
 
     return () => {
@@ -82,11 +121,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const isAdmin = profile?.role === 'admin' || false
+
+  // Debug logging
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthProvider.tsx:124',message:'Auth state changed',data:{hasUser:!!user,userId:user?.id,hasProfile:!!profile,profileRole:profile?.role,isAdmin,loading},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    if (user && !loading) {
+      console.log('[AUTH DEBUG] User:', user.id, user.email)
+      console.log('[AUTH DEBUG] Profile:', profile)
+      console.log('[AUTH DEBUG] Profile role:', profile?.role)
+      console.log('[AUTH DEBUG] isAdmin:', isAdmin)
+    }
+  }, [user, profile, loading, isAdmin])
+
   const value = {
     user,
     profile,
     loading,
-    isAdmin: profile?.role === 'admin' || false,
+    isAdmin,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

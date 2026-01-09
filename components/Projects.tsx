@@ -2,69 +2,47 @@
 
 import { motion } from 'framer-motion'
 import { ExternalLink, Github, Code2 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { analytics } from '@/lib/analytics'
 
-// Featured projects from portfolio
-const projects = [
-  {
-    id: 1,
-    title: 'Error Handling Platform',
-    description: 'Reusable platform addressing 10% of raised defects across suite. Simplified complex client configurations with new data flow diagrams.',
-    tech: ['Product Management', 'Agile', 'Strategic Planning'],
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
-    github: '#',
-    live: '#',
-  },
-  {
-    id: 2,
-    title: 'Proactive Notification Platform',
-    description: 'Event-driven notification platform to digitize the awareness stage of customer journey. Partnered with Salesforce Marketing Cloud.',
-    tech: ['Product Ownership', 'Customer Insights', 'Agile'],
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
-    github: '#',
-    live: '#',
-  },
-  {
-    id: 3,
-    title: 'Workplace 401k Integration',
-    description: 'Integrated digital platform for workplace and retail plans, creating $102M in inflows. Managed offshore team to deliver seamless experience.',
-    tech: ['Product Management', 'Team Leadership', 'Agile'],
-    image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?w=800',
-    github: '#',
-    live: '#',
-  },
-  {
-    id: 4,
-    title: 'Customer Insights Framework',
-    description: 'Synthesized voice of the client inputs and developed client segmentation frameworks to inform adoption and delivery strategies.',
-    tech: ['Market Research', 'Data Analysis', 'Strategy'],
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800',
-    github: '#',
-    live: '#',
-  },
-  {
-    id: 5,
-    title: 'Squad Lead Training Program',
-    description: 'Designed and executed a squad lead cohort training program, empowering 15 squad leaders with professional development and best practices.',
-    tech: ['People Management', 'Training', 'Leadership'],
-    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800',
-    github: '#',
-    live: '#',
-  },
-  {
-    id: 6,
-    title: 'Digital Onboarding Platform',
-    description: 'Streamlined client onboarding via simplified data flows. Reduced acceptance test window from 3 days to 1 hour, improving time to market by 30%.',
-    tech: ['Process Improvement', 'Agile', 'Product Management'],
-    image: 'https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=800',
-    github: '#',
-    live: '#',
-  },
-]
+interface Project {
+  id: number
+  title: string
+  description: string | null
+  github: string | null
+  live: string | null
+  image: string | null
+  technologies: string[]
+  display_order: number
+  is_published: boolean
+}
 
 export default function Projects() {
   const [hoveredId, setHoveredId] = useState<number | null>(null)
+  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchProjects()
+  }, [])
+
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch('/api/projects?published=true')
+      if (response.ok) {
+        const data = await response.json()
+        setProjects(data || [])
+      } else {
+        // If API fails (e.g., table doesn't exist yet), use empty array
+        setProjects([])
+      }
+    } catch (error) {
+      console.error('Error fetching projects:', error)
+      setProjects([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <section id="projects" className="py-20 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
@@ -89,8 +67,17 @@ export default function Projects() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
-          {projects.map((project, index) => (
+        {loading ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400">Loading projects...</div>
+          </div>
+        ) : projects.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400">No projects available at the moment.</div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
+            {projects.map((project, index) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 30 }}
@@ -124,7 +111,7 @@ export default function Projects() {
               {/* Project Image */}
               <div className="relative h-48 overflow-hidden rounded-t-xl">
                 <motion.img
-                  src={project.image}
+                  src={project.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
                   alt={project.title}
                   className="w-full h-full object-contain"
                   whileHover={{ scale: 1.1 }}
@@ -148,7 +135,7 @@ export default function Projects() {
 
                 {/* Tech Stack */}
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {project.tech.map((tech) => (
+                  {project.technologies && project.technologies.map((tech) => (
                     <motion.span
                       key={tech}
                       className="px-3 py-1 text-xs bg-gray-800/50 text-gray-300 rounded-md border border-gray-700/50 backdrop-blur-sm"
@@ -165,38 +152,34 @@ export default function Projects() {
 
                 {/* Links */}
                 <div className="flex gap-4">
-                  <motion.a
-                    href={project.github}
-                    onClick={(e) => {
-                      if (project.github !== '#') {
+                  {project.github && (
+                    <motion.a
+                      href={project.github}
+                      onClick={() => {
                         analytics.projectClick(project.id, project.title, 'github')
-                      } else {
-                        e.preventDefault()
-                      }
-                    }}
-                    className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-                    whileHover={{ x: 5 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Code2 size={18} />
-                    <span className="text-sm">Details</span>
-                  </motion.a>
-                  <motion.a
-                    href={project.live}
-                    onClick={(e) => {
-                      if (project.live !== '#') {
+                      }}
+                      className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                      whileHover={{ x: 5 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <Code2 size={18} />
+                      <span className="text-sm">Details</span>
+                    </motion.a>
+                  )}
+                  {project.live && (
+                    <motion.a
+                      href={project.live}
+                      onClick={() => {
                         analytics.projectClick(project.id, project.title, 'live')
-                      } else {
-                        e.preventDefault()
-                      }
-                    }}
-                    className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-                    whileHover={{ x: 5 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <ExternalLink size={18} />
-                    <span className="text-sm">Learn More</span>
-                  </motion.a>
+                      }}
+                      className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                      whileHover={{ x: 5 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <ExternalLink size={18} />
+                      <span className="text-sm">Learn More</span>
+                    </motion.a>
+                  )}
                 </div>
               </div>
 
@@ -223,8 +206,9 @@ export default function Projects() {
                 </motion.div>
               )}
             </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

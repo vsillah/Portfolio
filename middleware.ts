@@ -36,53 +36,14 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  const { pathname } = req.nextUrl
-
-  // Protect admin routes
-  if (pathname.startsWith('/admin')) {
-    if (!session) {
-      const redirectUrl = req.nextUrl.clone()
-      redirectUrl.pathname = '/auth/login'
-      redirectUrl.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(redirectUrl)
-    }
-
-    // Check if user is admin using admin client
-    const supabaseAdmin = createClient(
-      supabaseUrl,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      }
-    )
-
-    const { data: profile } = await supabaseAdmin
-      .from('user_profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single()
-
-    if (profile?.role !== 'admin') {
-      return NextResponse.redirect(new URL('/', req.url))
-    }
-  }
-
-  // Protect lead magnets route
-  if (pathname.startsWith('/lead-magnets')) {
-    if (!session) {
-      const redirectUrl = req.nextUrl.clone()
-      redirectUrl.pathname = '/auth/login'
-      redirectUrl.searchParams.set('redirect', pathname)
-      return NextResponse.redirect(redirectUrl)
-    }
-  }
+  // Note: /admin routes are protected by ProtectedRoute component on the client side
+  // Middleware can't access localStorage where Supabase stores sessions, so we rely on
+  // client-side protection. API routes are still protected server-side.
+  // /lead-magnets is also protected by ProtectedRoute component on the client side
 
   return res
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/lead-magnets/:path*'],
+  matcher: [], // No routes protected by middleware - using client-side ProtectedRoute instead
 }

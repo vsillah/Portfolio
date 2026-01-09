@@ -21,9 +21,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
 })
 
 // Server-side client with service role (for admin operations)
+// Note: This is accessed in API routes (server-side only)
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-if (!serviceRoleKey) {
-  console.warn('SUPABASE_SERVICE_ROLE_KEY is missing. Admin operations may fail.')
+if (!serviceRoleKey && typeof window === 'undefined') {
+  // Only warn on server-side to avoid client-side warnings
+  console.warn('[SERVER] SUPABASE_SERVICE_ROLE_KEY is missing. Admin operations may fail.')
 }
 
 export const supabaseAdmin = createClient(

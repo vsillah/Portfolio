@@ -20,14 +20,10 @@ export async function GET(request: NextRequest) {
     const channel = searchParams.get('channel')
     const type = searchParams.get('type')
 
-    // Build query
+    // Build query - start simple, add relations only if tables exist
     let query = supabaseAdmin
       .from('app_prototypes')
-      .select(`
-        *,
-        demos:prototype_demos(*),
-        stage_history:prototype_stage_history(*)
-      `)
+      .select('*')
       .order('created_at', { ascending: false })
 
     // Apply filters
@@ -43,17 +39,76 @@ export async function GET(request: NextRequest) {
 
     const { data: prototypes, error } = await query
 
-    if (error) throw error
+    if (error) {
+      console.error('Supabase query error:', error)
+      // If table doesn't exist, return empty array instead of error
+      if (error.code === '42P01' || error.message?.includes('does not exist') || error.message?.includes('relation') || error.details?.includes('does not exist')) {
+        return NextResponse.json([])
+      }
+      throw error
+    }
+
+    // If no prototypes, return early
+    if (!prototypes || prototypes.length === 0) {
+      return NextResponse.json([])
+    }
+
+    // Try to fetch related data (demos, history) separately to avoid relation errors
+    const prototypeIds = prototypes.map((p: any) => p.id)
+    
+    let demosMap: Record<string, any[]> = {}
+    let historyMap: Record<string, any[]> = {}
+    
+    try {
+      const { data: demos } = await supabaseAdmin
+        .from('prototype_demos')
+        .select('*')
+        .in('prototype_id', prototypeIds)
+      
+      if (demos) {
+        demos.forEach((demo: any) => {
+          if (!demosMap[demo.prototype_id]) {
+            demosMap[demo.prototype_id] = []
+          }
+          demosMap[demo.prototype_id].push(demo)
+        })
+      }
+    } catch (err) {
+      console.warn('Could not fetch demos:', err)
+    }
+
+    try {
+      const { data: history } = await supabaseAdmin
+        .from('prototype_stage_history')
+        .select('*')
+        .in('prototype_id', prototypeIds)
+      
+      if (history) {
+        history.forEach((h: any) => {
+          if (!historyMap[h.prototype_id]) {
+            historyMap[h.prototype_id] = []
+          }
+          historyMap[h.prototype_id].push(h)
+        })
+      }
+    } catch (err) {
+      console.warn('Could not fetch stage history:', err)
+    }
 
     // Fetch enrollment status for logged-in users
     let enrollments: any[] = []
     if (user) {
-      const { data } = await supabaseAdmin
-        .from('prototype_enrollments')
-        .select('prototype_id, enrollment_type')
-        .eq('user_id', user.id)
+      try {
+        const { data } = await supabaseAdmin
+          .from('prototype_enrollments')
+          .select('prototype_id, enrollment_type')
+          .eq('user_id', user.id)
 
-      enrollments = data || []
+        enrollments = data || []
+      } catch (err) {
+        // Table might not exist yet, ignore error
+        console.warn('Could not fetch enrollments:', err)
+      }
     }
 
     // Fetch feedback counts for production prototypes
@@ -63,62 +118,72 @@ export async function GET(request: NextRequest) {
 
     let feedbackCounts: Record<string, number> = {}
     if (productionIds.length > 0) {
-      const { data: feedback } = await supabaseAdmin
-        .from('prototype_feedback')
-        .select('prototype_id')
-        .in('prototype_id', productionIds)
+      try {
+        const { data: feedback } = await supabaseAdmin
+          .from('prototype_feedback')
+          .select('prototype_id')
+          .in('prototype_id', productionIds)
 
-      feedbackCounts = (feedback || []).reduce((acc: Record<string, number>, fb: any) => {
-        acc[fb.prototype_id] = (acc[fb.prototype_id] || 0) + 1
-        return acc
-      }, {})
+        feedbackCounts = (feedback || []).reduce((acc: Record<string, number>, fb: any) => {
+          acc[fb.prototype_id] = (acc[fb.prototype_id] || 0) + 1
+          return acc
+        }, {})
+      } catch (err) {
+        // Table might not exist yet, ignore error
+        console.warn('Could not fetch feedback counts:', err)
+      }
     }
 
     // Fetch analytics for production prototypes (public metrics only)
     let analytics: Record<string, any> = {}
     if (productionIds.length > 0) {
-      const thirtyDaysAgo = new Date()
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-      
-      const { data: analyticsData } = await supabaseAdmin
-        .from('prototype_analytics')
-        .select('prototype_id, metric_type, metric_value')
-        .in('prototype_id', productionIds)
-        .gte('metric_date', thirtyDaysAgo.toISOString().split('T')[0])
-      
-      // Aggregate analytics
-      if (analyticsData) {
-        analyticsData.forEach((metric: any) => {
-          if (!analytics[metric.prototype_id]) {
-            analytics[metric.prototype_id] = {}
-          }
-          if (metric.metric_type === 'active-users') {
-            analytics[metric.prototype_id].active_users = Math.max(
-              analytics[metric.prototype_id].active_users || 0,
-              Number(metric.metric_value)
-            )
-          } else if (metric.metric_type === 'pageviews') {
-            analytics[metric.prototype_id].pageviews = 
-              (analytics[metric.prototype_id].pageviews || 0) + Number(metric.metric_value)
-          } else if (metric.metric_type === 'downloads') {
-            analytics[metric.prototype_id].downloads = 
-              (analytics[metric.prototype_id].downloads || 0) + Number(metric.metric_value)
-          }
-        })
+      try {
+        const thirtyDaysAgo = new Date()
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+        
+        const { data: analyticsData } = await supabaseAdmin
+          .from('prototype_analytics')
+          .select('prototype_id, metric_type, metric_value')
+          .in('prototype_id', productionIds)
+          .gte('metric_date', thirtyDaysAgo.toISOString().split('T')[0])
+        
+        // Aggregate analytics
+        if (analyticsData) {
+          analyticsData.forEach((metric: any) => {
+            if (!analytics[metric.prototype_id]) {
+              analytics[metric.prototype_id] = {}
+            }
+            if (metric.metric_type === 'active-users') {
+              analytics[metric.prototype_id].active_users = Math.max(
+                analytics[metric.prototype_id].active_users || 0,
+                Number(metric.metric_value)
+              )
+            } else if (metric.metric_type === 'pageviews') {
+              analytics[metric.prototype_id].pageviews = 
+                (analytics[metric.prototype_id].pageviews || 0) + Number(metric.metric_value)
+            } else if (metric.metric_type === 'downloads') {
+              analytics[metric.prototype_id].downloads = 
+                (analytics[metric.prototype_id].downloads || 0) + Number(metric.metric_value)
+            }
+          })
+        }
+      } catch (err) {
+        // Table might not exist yet, ignore error
+        console.warn('Could not fetch analytics:', err)
       }
     }
 
     // Combine data
-    const enrichedPrototypes = (prototypes || []).map((prototype: any) => {
+    const enrichedPrototypes = prototypes.map((prototype: any) => {
       const enrollment = enrollments.find((e: any) => e.prototype_id === prototype.id)
       
       // Sort demos by display_order
-      const sortedDemos = (prototype.demos || []).sort((a: any, b: any) => 
+      const sortedDemos = (demosMap[prototype.id] || []).sort((a: any, b: any) => 
         a.display_order - b.display_order
       )
       
       // Sort stage history by date (most recent first)
-      const sortedHistory = (prototype.stage_history || []).sort((a: any, b: any) => 
+      const sortedHistory = (historyMap[prototype.id] || []).sort((a: any, b: any) => 
         new Date(b.changed_at).getTime() - new Date(a.changed_at).getTime()
       )
       

@@ -13,6 +13,16 @@ export default function UserMenu() {
   const menuRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
+  // Debug logging
+  useEffect(() => {
+    if (user) {
+      console.log('[USER MENU DEBUG] User:', user.id)
+      console.log('[USER MENU DEBUG] Profile:', profile)
+      console.log('[USER MENU DEBUG] isAdmin:', isAdmin)
+      console.log('[USER MENU DEBUG] Profile role:', profile?.role)
+    }
+  }, [user, profile, isAdmin])
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
