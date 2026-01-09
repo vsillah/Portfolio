@@ -129,7 +129,7 @@ export const analytics = {
   }),
 
   // Project click
-  projectClick: (projectId: number, projectTitle: string, linkType: 'github' | 'live') => trackEvent({
+  projectClick: (projectId: number, projectTitle: string, linkType: 'github' | 'live' | 'download') => trackEvent({
     event_type: 'click',
     event_name: 'project_click',
     section: 'projects',
