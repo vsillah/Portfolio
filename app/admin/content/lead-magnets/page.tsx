@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit, Download } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
+import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 interface LeadMagnet {
   id: number
@@ -52,6 +53,12 @@ export default function LeadMagnetsManagementPage() {
     <ProtectedRoute requireAdmin>
       <div className="min-h-screen bg-black text-white p-8">
         <div className="max-w-7xl mx-auto">
+          <Breadcrumbs items={[
+            { label: 'Admin Dashboard', href: '/admin' },
+            { label: 'Content Management', href: '/admin/content' },
+            { label: 'Lead Magnets' }
+          ]} />
+          
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">Lead Magnets Management</h1>

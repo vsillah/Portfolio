@@ -37,9 +37,13 @@ export default function Music() {
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             <span className="gradient-text">Music</span>
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Hip hop artist from Roxbury, MA - blending old-school beats with modern sounds
-          </p>
+          <div className="mt-8 max-w-3xl mx-auto">
+            <p className="text-gray-300 leading-relaxed">
+              Hailing from the vibrant neighborhood of Roxbury, MA, <strong className="text-white">Mad Hadda</strong> is not just a hip hop artist; 
+              he's a storyteller whose roots run deep in the rich cultural tapestry of Boston. His music blends thoughtful narratives with innovative 
+              beats, exploring themes of social justice, personal growth, and the complexities of identity - blending old-school beats with modern sounds.
+            </p>
+          </div>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -147,21 +151,6 @@ export default function Music() {
             </motion.div>
           ))}
         </div>
-
-        {/* Artist Bio */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="mt-16 max-w-3xl mx-auto text-center"
-        >
-          <p className="text-gray-300 leading-relaxed">
-            Hailing from the vibrant neighborhood of Roxbury, MA, <strong className="text-white">Mad Hadda</strong> is not just a hip hop artist; 
-            he's a storyteller whose roots run deep in the rich cultural tapestry of Boston. His music blends thoughtful narratives with innovative 
-            beats, exploring themes of social justice, personal growth, and the complexities of identity.
-          </p>
-        </motion.div>
       </div>
     </section>
   )

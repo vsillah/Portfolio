@@ -17,7 +17,7 @@ const pages = [
       heading: 'Vambah Sillah',
       description: (
         <div className="space-y-6">
-            <div className="text-xl md:text-2xl font-light text-slate-300">Director, Product Management</div>
+            <div className="text-xl md:text-2xl font-light text-slate-300">Director of Product Strategy at a Fortune 500 Company, AI Automations specialist, Author, Hip Hop Artist, and Co-Founder of AmaduTown Advisory Solutions.</div>
             <hr className="border-slate-600 w-24 mx-auto" />
             <div className="flex flex-col items-center gap-3 text-sm md:text-base text-slate-400">
                 <div className="flex items-center gap-2">

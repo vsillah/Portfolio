@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getCurrentUser, isAdmin } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -209,22 +209,18 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    // Get the session token from the Authorization header
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    
+    if (!token) {
       return NextResponse.json(
         { error: 'Authentication required' },
         { status: 401 }
       )
     }
 
-    const isUserAdmin = await isAdmin(user.id)
-    if (!isUserAdmin) {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
-      )
-    }
-
+    // Parse request body first
     const body = await request.json()
     const {
       title,
@@ -245,6 +241,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Missing required fields' },
         { status: 400 }
+      )
+    }
+
+    // Verify the user with the token
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      )
+    }
+
+    // Check if user is admin by fetching their profile
+    const { data: profile, error: profileError } = await supabaseAdmin
+      .from('user_profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    if (profileError || !profile || profile.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
       )
     }
 

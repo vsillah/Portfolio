@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, Upload, File, X } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
+import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 interface Project {
   id: number
@@ -49,6 +50,7 @@ export default function ProjectsManagementPage() {
   useEffect(() => {
     fetchProjects()
   }, [])
+
 
   const fetchProjects = async () => {
     try {
@@ -320,6 +322,12 @@ export default function ProjectsManagementPage() {
     <ProtectedRoute requireAdmin>
       <div className="min-h-screen bg-black text-white p-8">
         <div className="max-w-7xl mx-auto">
+          <Breadcrumbs items={[
+            { label: 'Admin Dashboard', href: '/admin' },
+            { label: 'Content Management', href: '/admin/content' },
+            { label: 'Projects' }
+          ]} />
+          
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">Projects Management</h1>
@@ -418,7 +426,9 @@ export default function ProjectsManagementPage() {
                       </button>
                     </div>
                   ) : (
-                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-750 hover:border-purple-500 transition-colors">
+                    <label 
+                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-750 hover:border-purple-500 transition-colors"
+                    >
                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
                         <Upload className="w-8 h-8 mb-2 text-gray-400" />
                         <p className="mb-2 text-sm text-gray-400">

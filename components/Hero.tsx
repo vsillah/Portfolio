@@ -122,6 +122,15 @@ const Streak = ({ index }: { index: number }) => {
 export default function Hero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
+  // All roles/titles as pills
+  const allRoles = [
+    'Director of Product Strategy at a Fortune 500 Company',
+    'AI Automations specialist',
+    'Author',
+    'Hip Hop Artist',
+    'Co-Founder of AmaduTown Advisory Solutions',
+  ]
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({
@@ -197,31 +206,52 @@ export default function Hero() {
 
         <motion.div variants={itemVariants}>
           <motion.h1
-            className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-tight"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight"
             whileHover={{ scale: 1.02 }}
           >
             <span className="text-white">Vambah Sillah</span>
-            <br />
-            <span 
-              className="bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent"
-              style={{
-                backgroundImage: 'linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-              }}
-            >
-              Director, Product Management
-            </span>
           </motion.h1>
         </motion.div>
 
         <motion.p
           variants={itemVariants}
-          className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed"
+          className="text-lg md:text-xl lg:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed"
         >
           IT Product Manager with a proven track record of applying agile methodology to continuously evolve products to delight customers.
         </motion.p>
+
+        <motion.div 
+          variants={itemVariants}
+          className="flex flex-wrap justify-center gap-3 md:gap-4 mb-10"
+        >
+          {allRoles.map((role, index) => (
+            <motion.div
+              key={role}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.1, ease: 'easeOut' }}
+              className="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-gray-900/95 backdrop-blur-sm border border-purple-500/60 shadow-lg hover:border-purple-400/80 hover:bg-gray-800/95 transition-all cursor-default"
+              style={{
+                background: 'linear-gradient(135deg, rgba(17, 24, 39, 0.98) 0%, rgba(31, 41, 55, 0.98) 50%, rgba(17, 24, 39, 0.98) 100%)',
+                boxShadow: '0 4px 14px 0 rgba(139, 92, 246, 0.25)',
+              }}
+              whileHover={{ scale: 1.05, y: -2 }}
+            >
+              <span 
+                className="text-sm md:text-base font-semibold bg-gradient-to-r from-purple-300 via-pink-400 to-rose-400 bg-clip-text text-transparent"
+                style={{
+                  backgroundImage: 'linear-gradient(135deg, #c4b5fd 0%, #f472b6 50%, #fb7185 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  filter: 'brightness(1.1)',
+                }}
+              >
+                {role}
+              </span>
+            </motion.div>
+          ))}
+        </motion.div>
 
         <motion.div variants={itemVariants} className="flex flex-wrap justify-center gap-4">
           <motion.a

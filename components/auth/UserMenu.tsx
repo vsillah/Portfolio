@@ -92,15 +92,7 @@ export default function UserMenu() {
                     onClick={() => setIsOpen(false)}
                   >
                     <Shield size={16} />
-                    Analytics Dashboard
-                  </a>
-                  <a
-                    href="/admin/content"
-                    className="flex items-center gap-3 px-3 py-2 text-sm text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Settings size={16} />
-                    Content Management
+                    Admin Dashboard
                   </a>
                 </>
               )}

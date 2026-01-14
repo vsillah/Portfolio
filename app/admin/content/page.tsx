@@ -1,9 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FolderOpen, Video, BookOpen, Music, Download, BarChart3, Sparkles } from 'lucide-react'
+import { FolderOpen, Video, BookOpen, Music, Download, BarChart3, Sparkles, Package } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
+import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 export default function ContentManagementPage() {
   const contentTypes = [
@@ -49,12 +50,24 @@ export default function ContentManagementPage() {
       description: 'Manage app prototype demos',
       color: 'from-purple-500 to-pink-500',
     },
+    {
+      name: 'Merchandise',
+      href: '/admin/content/merchandise',
+      icon: <Package size={32} />,
+      description: 'Manage print-on-demand products',
+      color: 'from-indigo-500 to-purple-500',
+    },
   ]
 
   return (
     <ProtectedRoute requireAdmin>
       <div className="min-h-screen bg-black text-white p-8">
         <div className="max-w-7xl mx-auto">
+          <Breadcrumbs items={[
+            { label: 'Admin Dashboard', href: '/admin' },
+            { label: 'Content Management' }
+          ]} />
+          
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">Content Management</h1>
             <p className="text-gray-400">Manage your portfolio content</p>
@@ -80,18 +93,6 @@ export default function ContentManagementPage() {
             ))}
           </div>
 
-          <div className="mt-8">
-            <Link href="/admin">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white hover:border-purple-500/50 transition-colors flex items-center gap-2"
-              >
-                <BarChart3 size={20} />
-                Back to Analytics
-              </motion.button>
-            </Link>
-          </div>
         </div>
       </div>
     </ProtectedRoute>
