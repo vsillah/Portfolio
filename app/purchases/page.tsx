@@ -1,11 +1,9 @@
 'use client'
 
-export const dynamic = 'force-dynamic'
-
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { Download, ShoppingBag, CheckCircle } from 'lucide-react'
+import { ShoppingBag, Loader } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
 import DownloadManager from '@/components/DownloadManager'
@@ -32,7 +30,7 @@ interface Order {
   }>
 }
 
-export default function PurchasesPage() {
+function PurchasesContent() {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -252,5 +250,20 @@ export default function PurchasesPage() {
         </motion.div>
       </div>
     </div>
+  )
+}
+
+export default function PurchasesPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <Loader className="animate-spin mx-auto mb-4" size={48} />
+          <div className="text-gray-400">Loading...</div>
+        </div>
+      </div>
+    }>
+      <PurchasesContent />
+    </Suspense>
   )
 }
