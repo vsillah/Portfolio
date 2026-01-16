@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
+import { verifyAuth, isAuthError } from '@/lib/auth-server'
 
 export const dynamic = 'force-dynamic'
 
 // Get user's cart from database (for authenticated users)
 export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const authResult = await verifyAuth(request)
+    if (isAuthError(authResult)) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { error: authResult.error },
+        { status: authResult.status }
       )
     }
+
+    const { user } = authResult
 
     const { data, error } = await supabaseAdmin
       .from('cart_items')
@@ -36,13 +38,15 @@ export async function GET(request: NextRequest) {
 // Sync cart from localStorage to database (for authenticated users)
 export async function POST(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const authResult = await verifyAuth(request)
+    if (isAuthError(authResult)) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { error: authResult.error },
+        { status: authResult.status }
       )
     }
+
+    const { user } = authResult
 
     const body = await request.json()
     const { cartItems } = body

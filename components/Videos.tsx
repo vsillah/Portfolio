@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Play, Youtube } from 'lucide-react'
 import { useState } from 'react'
 import { analytics } from '@/lib/analytics'
+import ExpandableText from '@/components/ui/ExpandableText'
 
 // Sample YouTube videos - replace with your actual video IDs
 const videos = [
@@ -71,10 +72,10 @@ export default function Videos() {
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative rounded-xl overflow-hidden border border-gray-800 hover:border-red-500/50 transition-all duration-300 bg-gray-900"
+              className="group relative rounded-xl overflow-hidden border border-gray-800 hover:border-red-500/50 transition-all duration-300 bg-gray-900 flex flex-col"
             >
               {/* Thumbnail */}
-              <div className="relative aspect-video overflow-hidden">
+              <div className="relative aspect-video overflow-hidden flex-shrink-0">
                 <img
                   src={video.thumbnail}
                   alt={video.title}
@@ -116,13 +117,21 @@ export default function Videos() {
               </div>
 
               {/* Video Info */}
-              <div className="p-6">
+              <div className="p-6 flex flex-col flex-grow">
                 <h3 className="text-xl font-bold text-white mb-2 group-hover:text-red-400 transition-colors">
                   {video.title}
                 </h3>
-                <p className="text-gray-400 text-sm line-clamp-2">
-                  {video.description}
-                </p>
+                
+                {/* Expandable Description */}
+                <ExpandableText
+                  text={video.description}
+                  maxHeight={80}
+                  className="text-gray-400 text-sm"
+                  expandButtonColor="text-red-400 hover:text-red-300"
+                />
+
+                {/* Spacer to push content to bottom if needed */}
+                <div className="flex-grow" />
               </div>
 
               {/* Hover glow effect */}
@@ -171,4 +180,3 @@ export default function Videos() {
     </section>
   )
 }
-

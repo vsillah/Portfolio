@@ -1,18 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
+import { verifyAuth, isAuthError } from '@/lib/auth-server'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const authResult = await verifyAuth(request)
+    if (isAuthError(authResult)) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { error: authResult.error },
+        { status: authResult.status }
       )
     }
+
+    const { user } = authResult
 
     const { data: orders, error } = await supabaseAdmin
       .from('orders')

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getCurrentUser, isAdmin } from '@/lib/auth'
+import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -40,21 +40,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const authResult = await verifyAdmin(request)
+    if (isAuthError(authResult)) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
+        { error: authResult.error },
+        { status: authResult.status }
       )
     }
 
-    const isUserAdmin = await isAdmin(user.id)
-    if (!isUserAdmin) {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
-      )
-    }
+    const { user } = authResult
 
     const body = await request.json()
     const { title, artist, album, description, spotify_url, apple_music_url, youtube_url, release_date, genre, display_order, is_published, file_path, file_type, file_size } = body

@@ -11,6 +11,7 @@ import { useAuth } from '@/components/AuthProvider'
 import PrototypeDemoSelector from './PrototypeDemoSelector'
 import PrototypeEnrollment from './PrototypeEnrollment'
 import PrototypeFeedback from './PrototypeFeedback'
+import ExpandableText from '@/components/ui/ExpandableText'
 
 interface Demo {
   id: string
@@ -110,11 +111,11 @@ export default function PrototypeCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/50 transition-all duration-300"
+      className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/50 transition-all duration-300 flex flex-col"
     >
       {/* Thumbnail or Demo */}
       {prototype.demos && prototype.demos.length > 0 ? (
-        <div className="relative">
+        <div className="relative flex-shrink-0">
           <PrototypeDemoSelector
             demos={prototype.demos}
             prototypeId={prototype.id}
@@ -122,7 +123,7 @@ export default function PrototypeCard({
           />
         </div>
       ) : prototype.thumbnail_url ? (
-        <div className="relative h-48 overflow-hidden">
+        <div className="relative h-48 overflow-hidden flex-shrink-0">
           <img
             src={prototype.thumbnail_url}
             alt={prototype.title}
@@ -139,7 +140,7 @@ export default function PrototypeCard({
           </div>
         </div>
       ) : (
-        <div className="relative h-48 bg-gradient-to-br from-purple-900/20 to-pink-900/20 flex items-center justify-center">
+        <div className="relative h-48 bg-gradient-to-br from-purple-900/20 to-pink-900/20 flex items-center justify-center flex-shrink-0">
           <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold border ${getStageColor(prototype.production_stage)}`}>
             {prototype.production_stage}
           </div>
@@ -147,7 +148,7 @@ export default function PrototypeCard({
         </div>
       )}
 
-      <div className="p-6">
+      <div className="p-6 flex flex-col flex-grow">
         {/* Header */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
@@ -197,10 +198,13 @@ export default function PrototypeCard({
           </div>
         )}
 
-        {/* Description */}
-        <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-          {prototype.description}
-        </p>
+        {/* Expandable Description */}
+        <ExpandableText
+          text={prototype.description}
+          maxHeight={80}
+          className="text-gray-400 text-sm"
+          expandButtonColor="text-purple-400 hover:text-purple-300"
+        />
 
         {/* Purpose */}
         <div className="mb-4 p-3 bg-gray-800/50 rounded-lg">
@@ -266,8 +270,11 @@ export default function PrototypeCard({
           </div>
         )}
 
+        {/* Spacer to push actions to bottom */}
+        <div className="flex-grow" />
+
         {/* Actions */}
-        <div className="space-y-2">
+        <div className="space-y-2 mt-auto">
           {/* Primary Action Based on Stage */}
           {prototype.production_stage === 'Production' && prototype.channel === 'Mobile' && prototype.download_url ? (
             <a

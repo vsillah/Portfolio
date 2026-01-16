@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { getCurrentUser, isAdmin } from '@/lib/auth'
+import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,19 +9,11 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const authResult = await verifyAdmin(request)
+    if (isAuthError(authResult)) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
-    }
-
-    const isUserAdmin = await isAdmin(user.id)
-    if (!isUserAdmin) {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
+        { error: authResult.error },
+        { status: authResult.status }
       )
     }
 
@@ -84,19 +76,11 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const authResult = await verifyAdmin(request)
+    if (isAuthError(authResult)) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
-    }
-
-    const isUserAdmin = await isAdmin(user.id)
-    if (!isUserAdmin) {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
+        { error: authResult.error },
+        { status: authResult.status }
       )
     }
 

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { BookOpen, ExternalLink } from 'lucide-react'
+import ExpandableText from '@/components/ui/ExpandableText'
 
 const publications = [
   {
@@ -46,13 +47,13 @@ export default function Publications() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/50 transition-all duration-300"
+              className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/50 transition-all duration-300 flex flex-col"
               style={{
                 boxShadow: '0 0 20px rgba(139, 92, 246, 0.1)',
               }}
             >
               {/* Publication Image */}
-              <div className="relative h-64 overflow-hidden rounded-t-xl">
+              <div className="relative h-64 overflow-hidden rounded-t-xl flex-shrink-0">
                 <motion.img
                   src={publication.image}
                   alt={publication.title}
@@ -69,24 +70,31 @@ export default function Publications() {
               </div>
 
               {/* Publication Content */}
-              <div className="p-6">
+              <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">
                     {publication.title}
                   </h3>
-                  <BookOpen className="text-purple-400" size={20} />
+                  <BookOpen className="text-purple-400 flex-shrink-0" size={20} />
                 </div>
 
-                <p className="text-gray-400 text-sm mb-6">
-                  {publication.description}
-                </p>
+                {/* Expandable Description */}
+                <ExpandableText
+                  text={publication.description}
+                  maxHeight={80}
+                  className="text-gray-400 text-sm"
+                  expandButtonColor="text-purple-400 hover:text-purple-300"
+                />
+
+                {/* Spacer to push button to bottom */}
+                <div className="flex-grow" />
 
                 {/* Amazon Link */}
                 <motion.a
                   href={publication.amazonLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-orange-500/50 transition-all group/link"
+                  className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-orange-500/50 transition-all group/link mt-auto"
                   whileHover={{ scale: 1.02, y: -2 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -114,4 +122,3 @@ export default function Publications() {
     </section>
   )
 }
-

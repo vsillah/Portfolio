@@ -1,25 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { getCurrentUser, isAdmin } from '@/lib/auth'
+import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
-    if (!user) {
+    const authResult = await verifyAdmin(request)
+    if (isAuthError(authResult)) {
       return NextResponse.json(
-        { error: 'Authentication required' },
-        { status: 401 }
-      )
-    }
-
-    const isUserAdmin = await isAdmin(user.id)
-    if (!isUserAdmin) {
-      return NextResponse.json(
-        { error: 'Admin access required' },
-        { status: 403 }
+        { error: authResult.error },
+        { status: authResult.status }
       )
     }
 
@@ -38,17 +29,6 @@ export async function POST(request: NextRequest) {
     const fileExt = file.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
     const filePath = projectId ? `project-${projectId}/${fileName}` : `uploads/${fileName}`
-
-    // Upload file to Supabase Storage
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        auth: {
-          persistSession: false,
-        },
-      }
-    )
 
     // Use service role for upload (admin operations)
     const { data, error } = await supabaseAdmin.storage

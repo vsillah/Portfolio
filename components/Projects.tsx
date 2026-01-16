@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { ExternalLink, Github, Code2, Download } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { analytics } from '@/lib/analytics'
+import ExpandableText from '@/components/ui/ExpandableText'
 
 interface Project {
   id: number
@@ -89,7 +90,7 @@ export default function Projects() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               onHoverStart={() => setHoveredId(project.id)}
               onHoverEnd={() => setHoveredId(null)}
-              className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border transition-all duration-300"
+              className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border transition-all duration-300 flex flex-col"
               style={{
                 borderColor: hoveredId === project.id 
                   ? 'rgba(139, 92, 246, 0.6)' 
@@ -112,7 +113,7 @@ export default function Projects() {
               />
               <div className="absolute inset-[1px] rounded-xl bg-gradient-to-br from-gray-900 to-black" />
               {/* Project Image */}
-              <div className="relative h-48 overflow-hidden rounded-t-xl">
+              <div className="relative h-48 overflow-hidden rounded-t-xl flex-shrink-0">
                 <motion.img
                   src={project.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
                   alt={project.title}
@@ -124,17 +125,23 @@ export default function Projects() {
               </div>
 
               {/* Project Content */}
-              <div className="p-6 relative z-10">
+              <div className="p-6 relative z-10 flex flex-col flex-grow">
                 <div className="flex items-start justify-between mb-3">
                   <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">
                     {project.title}
                   </h3>
-                  <Code2 className="text-purple-400" size={20} />
+                  <Code2 className="text-purple-400 flex-shrink-0" size={20} />
                 </div>
 
-                <p className="text-gray-400 text-sm mb-4 line-clamp-2">
-                  {project.description}
-                </p>
+                {/* Expandable Description */}
+                {project.description && (
+                  <ExpandableText
+                    text={project.description}
+                    maxHeight={80}
+                    className="text-gray-400 text-sm"
+                    expandButtonColor="text-purple-400 hover:text-purple-300"
+                  />
+                )}
 
                 {/* Tech Stack */}
                 <div className="flex flex-wrap gap-2 mb-4">
@@ -153,8 +160,11 @@ export default function Projects() {
                   ))}
                 </div>
 
+                {/* Spacer to push links to bottom */}
+                <div className="flex-grow" />
+
                 {/* Links */}
-                <div className="flex gap-4 flex-wrap">
+                <div className="flex gap-4 flex-wrap mt-auto">
                   {project.github && (
                     <motion.a
                       href={project.github}
@@ -244,4 +254,3 @@ export default function Projects() {
     </section>
   )
 }
-

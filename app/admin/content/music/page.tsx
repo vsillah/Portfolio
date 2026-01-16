@@ -242,7 +242,9 @@ export default function MusicManagementPage() {
     setUploadingFile(true)
     try {
       const session = await getCurrentSession()
-      if (!session) return
+      if (!session) {
+        return
+      }
 
       const formData = new FormData()
       formData.append('file', file)
