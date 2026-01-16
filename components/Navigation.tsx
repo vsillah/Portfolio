@@ -14,7 +14,7 @@ const navItems = [
   { name: 'Publications', href: '#publications' },
   { name: 'Music', href: '#music' },
   { name: 'Videos', href: '#videos' },
-  { name: 'Store', href: '/store' },
+  { name: 'Store', href: '#store' },
   { name: 'About', href: '#about' },
   { name: 'Contact', href: '#contact' },
 ]

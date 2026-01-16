@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Music2, ExternalLink, Play } from 'lucide-react'
+import { Music2, ExternalLink, Play, ShoppingCart, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import ExpandableText from '@/components/ui/ExpandableText'
 
@@ -22,6 +23,10 @@ interface MusicEntry {
   file_path: string | null
   file_type: string | null
   created_at: string
+  linked_product: {
+    id: number
+    price: number | null
+  } | null
 }
 
 export default function Music() {
@@ -120,6 +125,15 @@ export default function Music() {
               beats, exploring themes of social justice, personal growth, and the complexities of identity - blending old-school beats with modern sounds.
             </p>
           </div>
+          {/* Browse Store Link */}
+          <Link 
+            href="/store?type=music"
+            className="inline-flex items-center gap-2 mt-6 text-green-400 hover:text-green-300 transition-colors group"
+          >
+            <ShoppingCart size={18} />
+            <span>Browse Music Store</span>
+            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -157,6 +171,19 @@ export default function Music() {
                   <div className="absolute top-4 right-4 bg-green-600/90 backdrop-blur-sm p-3 rounded-full">
                     <Music2 className="text-white" size={24} />
                   </div>
+                  
+                  {/* Purchase Badge */}
+                  {entry.linked_product && (
+                    <Link
+                      href={`/store/${entry.linked_product.id}`}
+                      className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white text-xs font-semibold shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-105"
+                    >
+                      <ShoppingCart size={12} />
+                      {entry.linked_product.price !== null 
+                        ? `$${entry.linked_product.price.toFixed(2)}` 
+                        : 'Free'}
+                    </Link>
+                  )}
 
                   {/* Play Button Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">

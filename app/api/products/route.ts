@@ -9,6 +9,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const activeOnly = searchParams.get('active') !== 'false'
     const type = searchParams.get('type')
+    
+    // Filter by linked content entity
+    const musicId = searchParams.get('music_id')
+    const publicationId = searchParams.get('publication_id')
+    const prototypeId = searchParams.get('prototype_id')
 
     let query = supabaseAdmin
       .from('products')
@@ -22,6 +27,19 @@ export async function GET(request: NextRequest) {
 
     if (type) {
       query = query.eq('type', type)
+    }
+    
+    // Filter by linked entity ID (useful for checking if a product exists for a content item)
+    if (musicId) {
+      query = query.eq('music_id', parseInt(musicId))
+    }
+    
+    if (publicationId) {
+      query = query.eq('publication_id', parseInt(publicationId))
+    }
+    
+    if (prototypeId) {
+      query = query.eq('prototype_id', prototypeId)
     }
 
     const { data: products, error } = await query
@@ -67,6 +85,10 @@ export async function POST(request: NextRequest) {
       is_active,
       is_featured,
       display_order,
+      // Linked content entity IDs
+      music_id,
+      publication_id,
+      prototype_id,
     } = body
 
     if (!title || !type) {
@@ -97,6 +119,10 @@ export async function POST(request: NextRequest) {
         is_featured: is_featured !== undefined ? is_featured : false,
         display_order: display_order || 0,
         created_by: user.id,
+        // Linked content entity IDs
+        music_id: music_id || null,
+        publication_id: publication_id || null,
+        prototype_id: prototype_id || null,
       }])
       .select()
       .single()

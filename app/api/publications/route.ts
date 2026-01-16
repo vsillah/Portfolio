@@ -28,7 +28,33 @@ export async function GET(request: NextRequest) {
       throw error
     }
 
-    return NextResponse.json(publications || [])
+    // Fetch linked products for publication entries
+    const publicationIds = (publications || []).map(p => p.id)
+    let linkedProducts: Record<number, { id: number; price: number | null }> = {}
+    
+    if (publicationIds.length > 0) {
+      const { data: products } = await supabaseAdmin
+        .from('products')
+        .select('id, price, publication_id')
+        .in('publication_id', publicationIds)
+        .eq('is_active', true)
+      
+      if (products) {
+        products.forEach(p => {
+          if (p.publication_id) {
+            linkedProducts[p.publication_id] = { id: p.id, price: p.price }
+          }
+        })
+      }
+    }
+
+    // Attach linked_product to each publication entry
+    const publicationsWithProducts = (publications || []).map(p => ({
+      ...p,
+      linked_product: linkedProducts[p.id] || null
+    }))
+
+    return NextResponse.json(publicationsWithProducts)
   } catch (error: any) {
     console.error('Error fetching publications:', error)
     return NextResponse.json(

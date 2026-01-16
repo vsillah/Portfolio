@@ -1,20 +1,102 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { BookOpen, ExternalLink } from 'lucide-react'
+import { BookOpen, ExternalLink, ShoppingCart, ArrowRight } from 'lucide-react'
 import ExpandableText from '@/components/ui/ExpandableText'
+import Link from 'next/link'
 
-const publications = [
+interface Publication {
+  id: number
+  title: string
+  description: string | null
+  publication_url: string | null
+  author: string | null
+  publication_date: string | null
+  publisher: string | null
+  file_path: string | null
+  file_type: string | null
+  linked_product: {
+    id: number
+    price: number | null
+  } | null
+}
+
+// Fallback data in case database table doesn't exist yet
+const fallbackPublications = [
   {
     id: 1,
-    title: 'My Book',
+    title: 'The Equity Code',
     description: 'Check out my published work on Amazon',
-    amazonLink: 'https://a.co/d/bVCvCyT',
-    image: '/The_Equity_Code_Cover.png',
+    publication_url: 'https://a.co/d/bVCvCyT',
+    author: null,
+    publication_date: null,
+    publisher: 'Amazon',
+    file_path: '/The_Equity_Code_Cover.png',
+    file_type: 'image/png',
+    linked_product: null,
   },
 ]
 
 export default function Publications() {
+  const [publications, setPublications] = useState<Publication[]>([])
+  const [loading, setLoading] = useState(true)
+  const [usedFallback, setUsedFallback] = useState(false)
+
+  useEffect(() => {
+    fetchPublications()
+  }, [])
+
+  const fetchPublications = async () => {
+    try {
+      const response = await fetch('/api/publications?published=true')
+      if (response.ok) {
+        const data = await response.json()
+        if (data && data.length > 0) {
+          setPublications(data)
+        } else {
+          // Use fallback if no data from API
+          setPublications(fallbackPublications)
+          setUsedFallback(true)
+        }
+      } else {
+        // Use fallback on error
+        setPublications(fallbackPublications)
+        setUsedFallback(true)
+      }
+    } catch (error) {
+      console.error('Error fetching publications:', error)
+      // Use fallback on error
+      setPublications(fallbackPublications)
+      setUsedFallback(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Get image URL - either from file_path or use default
+  const getImageUrl = (pub: Publication) => {
+    if (pub.file_path) {
+      // If it starts with /, it's a local public path
+      if (pub.file_path.startsWith('/')) {
+        return pub.file_path
+      }
+      // Otherwise it might be a Supabase storage path
+      return pub.file_path
+    }
+    return '/The_Equity_Code_Cover.png'
+  }
+
+  if (loading) {
+    return (
+      <section id="publications" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900">
+        <div className="max-w-7xl mx-auto text-center">
+          <div className="text-gray-400">Loading publications...</div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section id="publications" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
       {/* Subtle background effect */}
@@ -37,6 +119,15 @@ export default function Publications() {
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             Published works and written content
           </p>
+          {/* Browse Store Link */}
+          <Link 
+            href="/store?type=ebook"
+            className="inline-flex items-center gap-2 mt-6 text-purple-400 hover:text-purple-300 transition-colors group"
+          >
+            <ShoppingCart size={18} />
+            <span>Browse Publications Store</span>
+            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -55,7 +146,7 @@ export default function Publications() {
               {/* Publication Image */}
               <div className="relative h-64 overflow-hidden rounded-t-xl flex-shrink-0">
                 <motion.img
-                  src={publication.image}
+                  src={getImageUrl(publication)}
                   alt={publication.title}
                   className="w-full h-full object-contain"
                   whileHover={{ scale: 1.1 }}
@@ -67,40 +158,85 @@ export default function Publications() {
                 <div className="absolute top-4 right-4 bg-purple-600/90 backdrop-blur-sm p-3 rounded-full">
                   <BookOpen className="text-white" size={24} />
                 </div>
+                
+                {/* Purchase Badge */}
+                {publication.linked_product && (
+                  <Link
+                    href={`/store/${publication.linked_product.id}`}
+                    className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white text-xs font-semibold shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-105"
+                  >
+                    <ShoppingCart size={12} />
+                    {publication.linked_product.price !== null 
+                      ? `$${publication.linked_product.price.toFixed(2)}` 
+                      : 'Free'}
+                  </Link>
+                )}
               </div>
 
               {/* Publication Content */}
               <div className="p-6 flex flex-col flex-grow">
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">
-                    {publication.title}
-                  </h3>
+                  <div>
+                    <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">
+                      {publication.title}
+                    </h3>
+                    {(publication.author || publication.publisher) && (
+                      <p className="text-sm text-gray-400 mt-1">
+                        {publication.author}
+                        {publication.author && publication.publisher && ' • '}
+                        {publication.publisher}
+                      </p>
+                    )}
+                  </div>
                   <BookOpen className="text-purple-400 flex-shrink-0" size={20} />
                 </div>
 
                 {/* Expandable Description */}
-                <ExpandableText
-                  text={publication.description}
-                  maxHeight={80}
-                  className="text-gray-400 text-sm"
-                  expandButtonColor="text-purple-400 hover:text-purple-300"
-                />
+                {publication.description && (
+                  <ExpandableText
+                    text={publication.description}
+                    maxHeight={80}
+                    className="text-gray-400 text-sm"
+                    expandButtonColor="text-purple-400 hover:text-purple-300"
+                  />
+                )}
 
                 {/* Spacer to push button to bottom */}
                 <div className="flex-grow" />
 
-                {/* Amazon Link */}
-                <motion.a
-                  href={publication.amazonLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-orange-500/50 transition-all group/link mt-auto"
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <span>View on Amazon</span>
-                  <ExternalLink size={18} className="group-hover/link:translate-x-1 transition-transform" />
-                </motion.a>
+                {/* Action Buttons */}
+                <div className="space-y-2 mt-auto">
+                  {/* Buy E-Book Button (if linked product exists) */}
+                  {publication.linked_product && (
+                    <Link
+                      href={`/store/${publication.linked_product.id}`}
+                      className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all"
+                    >
+                      <ShoppingCart size={18} />
+                      <span>
+                        Buy E-Book
+                        {publication.linked_product.price !== null && 
+                          ` - $${publication.linked_product.price.toFixed(2)}`
+                        }
+                      </span>
+                    </Link>
+                  )}
+                  
+                  {/* External Link (Amazon, etc.) */}
+                  {publication.publication_url && (
+                    <motion.a
+                      href={publication.publication_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-orange-500/50 transition-all group/link"
+                      whileHover={{ scale: 1.02, y: -2 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <span>View on Amazon</span>
+                      <ExternalLink size={18} className="group-hover/link:translate-x-1 transition-transform" />
+                    </motion.a>
+                  )}
+                </div>
               </div>
 
               {/* Glow effect on hover */}

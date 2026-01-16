@@ -26,10 +26,13 @@ export async function POST(request: NextRequest) {
     const {
       productIds, // Optional: specific product IDs to sync
       category, // Optional: filter by category
-      logoUrl, // Logo URL for mockup generation
+      logoUrl, // Logo URL for mockup generation (optional)
       defaultMarkup = 50, // Default markup percentage
       generateMockups = true, // Whether to generate mockups
     } = body
+    
+    // Only generate mockups if we have a logo URL and generateMockups is true
+    const shouldGenerateMockups = generateMockups && !!logoUrl
 
     // Get products from Printful
     let printfulProducts
@@ -72,6 +75,9 @@ export async function POST(request: NextRequest) {
 
         let productId: number
 
+        // Calculate retail price with markup
+        const retailPrice = calculatePriceWithMarkup(baseCost, defaultMarkup)
+
         if (existingProduct) {
           // Update existing product
           const { error: updateError } = await supabaseAdmin
@@ -84,6 +90,7 @@ export async function POST(request: NextRequest) {
               printful_product_id: product.id,
               base_cost: baseCost,
               markup_percentage: defaultMarkup,
+              price: retailPrice, // Set the display price
               is_print_on_demand: true,
               image_url: product.image,
               updated_at: new Date().toISOString(),
@@ -105,6 +112,7 @@ export async function POST(request: NextRequest) {
               printful_product_id: product.id,
               base_cost: baseCost,
               markup_percentage: defaultMarkup,
+              price: retailPrice, // Set the display price
               is_print_on_demand: true,
               image_url: product.image,
               is_active: true,
@@ -146,7 +154,8 @@ export async function POST(request: NextRequest) {
             color_code: variant.color_code || null,
             sku: variant.name || null,
             price: variantPrice,
-            is_available: variant.availability_status === 'in_stock',
+            // Mark as available if enabled and not discontinued (Printful sync variants don't have availability_status)
+            is_available: variant.is_enabled && !variant.is_discontinued,
           }
 
           if (existingVariant) {
@@ -169,7 +178,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate mockups if requested and logo URL provided
-        if (generateMockups && logoUrl && variantIds.length > 0) {
+        if (shouldGenerateMockups && variantIds.length > 0) {
           try {
             const mockupResults = await batchGenerateMockups(
               variantIds.slice(0, 5), // Limit to first 5 variants to avoid rate limits

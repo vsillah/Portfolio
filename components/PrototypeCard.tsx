@@ -5,8 +5,9 @@ import { motion } from 'framer-motion'
 import { 
   Smartphone, Globe, Wrench, Sparkles, 
   ExternalLink, Download, MessageSquare, Star,
-  CheckCircle2, TrendingUp, Clock, Info
+  CheckCircle2, TrendingUp, Clock, Info, ShoppingCart
 } from 'lucide-react'
+import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import PrototypeDemoSelector from './PrototypeDemoSelector'
 import PrototypeEnrollment from './PrototypeEnrollment'
@@ -51,6 +52,10 @@ interface AppPrototype {
     pageviews?: number
     downloads?: number
   }
+  linked_product?: {
+    id: number
+    price: number | null
+  } | null
 }
 
 interface PrototypeCardProps {
@@ -138,6 +143,19 @@ export default function PrototypeCard({
           >
             {prototype.production_stage}
           </div>
+          
+          {/* Purchase Badge */}
+          {prototype.linked_product && (
+            <Link
+              href={`/store/${prototype.linked_product.id}`}
+              className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white text-xs font-semibold shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-105"
+            >
+              <ShoppingCart size={12} />
+              {prototype.linked_product.price !== null 
+                ? `$${prototype.linked_product.price.toFixed(2)}` 
+                : 'Free'}
+            </Link>
+          )}
         </div>
       ) : (
         <div className="relative h-48 bg-gradient-to-br from-purple-900/20 to-pink-900/20 flex items-center justify-center flex-shrink-0">
@@ -275,6 +293,20 @@ export default function PrototypeCard({
 
         {/* Actions */}
         <div className="space-y-2 mt-auto">
+          {/* Purchase Button (if linked product exists) */}
+          {prototype.linked_product && (
+            <Link
+              href={`/store/${prototype.linked_product.id}`}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-colors"
+            >
+              <ShoppingCart size={18} />
+              Purchase
+              {prototype.linked_product.price !== null && 
+                ` - $${prototype.linked_product.price.toFixed(2)}`
+              }
+            </Link>
+          )}
+          
           {/* Primary Action Based on Stage */}
           {prototype.production_stage === 'Production' && prototype.channel === 'Mobile' && prototype.download_url ? (
             <a

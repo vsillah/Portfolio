@@ -174,6 +174,27 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Fetch linked products for prototypes
+    let linkedProducts: Record<string, { id: number; price: number | null }> = {}
+    try {
+      const { data: products } = await supabaseAdmin
+        .from('products')
+        .select('id, price, prototype_id')
+        .in('prototype_id', prototypeIds)
+        .eq('is_active', true)
+      
+      if (products) {
+        products.forEach((p: any) => {
+          if (p.prototype_id) {
+            linkedProducts[p.prototype_id] = { id: p.id, price: p.price }
+          }
+        })
+      }
+    } catch (err) {
+      // Column might not exist yet, ignore error
+      console.warn('Could not fetch linked products:', err)
+    }
+
     // Combine data
     const enrichedPrototypes = prototypes.map((prototype: any) => {
       const enrollment = enrollments.find((e: any) => e.prototype_id === prototype.id)
@@ -195,6 +216,7 @@ export async function GET(request: NextRequest) {
         user_enrollment: enrollment?.enrollment_type || null,
         feedback_count: feedbackCounts[prototype.id] || 0,
         analytics: analytics[prototype.id] || undefined,
+        linked_product: linkedProducts[prototype.id] || null,
       }
     })
 

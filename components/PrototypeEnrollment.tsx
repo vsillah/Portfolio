@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { getCurrentSession } from '@/lib/auth'
 
 interface PrototypeEnrollmentProps {
   prototypeId: string
@@ -68,10 +69,18 @@ export default function PrototypeEnrollment({
     setSuccess(false)
 
     try {
+      // Get the session to retrieve the access token
+      const session = await getCurrentSession()
+      
+      if (!session?.access_token) {
+        throw new Error('Session expired. Please log in again.')
+      }
+      
       const response = await fetch('/api/prototypes/enroll', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           prototypeId,

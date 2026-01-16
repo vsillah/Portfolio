@@ -28,7 +28,33 @@ export async function GET(request: NextRequest) {
       throw error
     }
 
-    return NextResponse.json(music || [])
+    // Fetch linked products for music entries
+    const musicIds = (music || []).map(m => m.id)
+    let linkedProducts: Record<number, { id: number; price: number | null }> = {}
+    
+    if (musicIds.length > 0) {
+      const { data: products } = await supabaseAdmin
+        .from('products')
+        .select('id, price, music_id')
+        .in('music_id', musicIds)
+        .eq('is_active', true)
+      
+      if (products) {
+        products.forEach(p => {
+          if (p.music_id) {
+            linkedProducts[p.music_id] = { id: p.id, price: p.price }
+          }
+        })
+      }
+    }
+
+    // Attach linked_product to each music entry
+    const musicWithProducts = (music || []).map(m => ({
+      ...m,
+      linked_product: linkedProducts[m.id] || null
+    }))
+
+    return NextResponse.json(musicWithProducts)
   } catch (error: any) {
     console.error('Error fetching music:', error)
     return NextResponse.json(

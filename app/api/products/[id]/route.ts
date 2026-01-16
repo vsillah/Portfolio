@@ -81,6 +81,10 @@ export async function PUT(
       markup_percentage,
       printful_product_id,
       printful_variant_id,
+      // Linked content entity IDs
+      music_id,
+      publication_id,
+      prototype_id,
     } = body
 
     const updateData: any = {}
@@ -112,6 +116,10 @@ export async function PUT(
       updateData.printful_product_id = printful_product_id ? parseInt(printful_product_id) : null
     if (printful_variant_id !== undefined)
       updateData.printful_variant_id = printful_variant_id ? parseInt(printful_variant_id) : null
+    // Linked content entity IDs
+    if (music_id !== undefined) updateData.music_id = music_id || null
+    if (publication_id !== undefined) updateData.publication_id = publication_id || null
+    if (prototype_id !== undefined) updateData.prototype_id = prototype_id || null
 
     const { data, error } = await supabaseAdmin
       .from('products')

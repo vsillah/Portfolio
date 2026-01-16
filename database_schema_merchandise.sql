@@ -57,7 +57,7 @@ END $$;
 CREATE TABLE IF NOT EXISTS product_variants (
   id BIGSERIAL PRIMARY KEY,
   product_id BIGINT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-  printful_variant_id INTEGER NOT NULL,
+  printful_variant_id BIGINT NOT NULL,  -- Must be BIGINT, Printful IDs exceed INTEGER max
   size TEXT,
   color TEXT NOT NULL,
   color_code TEXT,

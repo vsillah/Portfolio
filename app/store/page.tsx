@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Search, Filter, ShoppingCart } from 'lucide-react'
 import ProductCard from '@/components/ProductCard'
 import { useAuth } from '@/components/AuthProvider'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface Product {
   id: number
@@ -30,6 +30,7 @@ const PRODUCT_TYPES = [
 export default function StorePage() {
   const { user } = useAuth()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,6 +38,14 @@ export default function StorePage() {
   const [selectedType, setSelectedType] = useState('all')
   const [showFeaturedOnly, setShowFeaturedOnly] = useState(false)
   const [cartCount, setCartCount] = useState(0)
+
+  // Read type from URL query params on mount
+  useEffect(() => {
+    const typeParam = searchParams.get('type')
+    if (typeParam && PRODUCT_TYPES.some(t => t.value === typeParam)) {
+      setSelectedType(typeParam)
+    }
+  }, [searchParams])
 
   useEffect(() => {
     fetchProducts()
@@ -191,7 +200,18 @@ export default function StorePage() {
             <div className="flex gap-2">
               <select
                 value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
+                onChange={(e) => {
+                  const newType = e.target.value
+                  setSelectedType(newType)
+                  // Update URL without full page reload
+                  const url = new URL(window.location.href)
+                  if (newType === 'all') {
+                    url.searchParams.delete('type')
+                  } else {
+                    url.searchParams.set('type', newType)
+                  }
+                  router.replace(url.pathname + url.search, { scroll: false })
+                }}
                 className="px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-purple-500"
               >
                 {PRODUCT_TYPES.map(type => (

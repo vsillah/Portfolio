@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Sparkles, Filter } from 'lucide-react'
+import { Sparkles, Filter, ShoppingCart, ArrowRight } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
+import Link from 'next/link'
 import PrototypeCard from './PrototypeCard'
 import PrototypeFilters from './PrototypeFilters'
 
@@ -41,6 +42,10 @@ interface AppPrototype {
     pageviews?: number
     downloads?: number
   }
+  linked_product?: {
+    id: number
+    price: number | null
+  } | null
 }
 
 export default function AppPrototypes() {
@@ -121,6 +126,15 @@ export default function AppPrototypes() {
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             Explore innovative applications across different stages of development
           </p>
+          {/* Browse Store Link */}
+          <Link 
+            href="/store?type=app"
+            className="inline-flex items-center gap-2 mt-6 text-purple-400 hover:text-purple-300 transition-colors group"
+          >
+            <ShoppingCart size={18} />
+            <span>Browse Apps Store</span>
+            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </Link>
         </motion.div>
 
         {/* Filters */}

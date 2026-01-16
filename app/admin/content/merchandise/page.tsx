@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { RefreshCw, Eye, EyeOff, Settings, Package, CheckCircle, XCircle, Loader } from 'lucide-react'
+import { RefreshCw, Eye, EyeOff, Settings, Package, CheckCircle, XCircle, Loader, Upload, Image as ImageIcon, X } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -44,10 +44,92 @@ export default function MerchandiseManagementPage() {
     defaultMarkup: 50,
     generateMockups: true,
   })
+  const [logoFile, setLogoFile] = useState<File | null>(null)
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     fetchProducts()
   }, [])
+
+  const handleLogoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file (PNG, JPG, SVG)')
+        return
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File size must be less than 5MB')
+        return
+      }
+      
+      setLogoFile(file)
+      
+      // Create preview
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string)
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
+  const handleUploadLogo = async (): Promise<string | null> => {
+    if (!logoFile) return syncConfig.logoUrl || null
+    
+    setUploadingLogo(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        throw new Error('Not authenticated')
+      }
+
+      // Create form data for upload
+      const formData = new FormData()
+      formData.append('file', logoFile)
+      formData.append('bucket', 'products')
+      formData.append('folder', 'merchandise')
+
+      // Upload via API route (bypasses RLS issues)
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: formData,
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Upload failed')
+      }
+      
+      // Update sync config with the URL
+      setSyncConfig(prev => ({ ...prev, logoUrl: data.publicUrl }))
+      
+      return data.publicUrl
+    } catch (error: any) {
+      console.error('Failed to upload logo:', error)
+      alert(`Failed to upload logo: ${error.message}`)
+      return null
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
+  const clearLogoFile = () => {
+    setLogoFile(null)
+    setLogoPreview(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
+  }
 
   const fetchProducts = async () => {
     try {
@@ -76,15 +158,29 @@ export default function MerchandiseManagementPage() {
   }
 
   const handleSync = async () => {
-    if (!syncConfig.logoUrl) {
-      alert('Please provide a logo URL for mockup generation')
-      return
-    }
-
     setSyncing(true)
     setSyncStatus(null)
 
     try {
+      // Upload logo first if a file was selected
+      let logoUrl = syncConfig.logoUrl
+      if (logoFile) {
+        const uploadedUrl = await handleUploadLogo()
+        if (uploadedUrl) {
+          logoUrl = uploadedUrl
+        }
+      }
+
+      // Check if we have a logo URL (required for mockups, but optional for sync)
+      if (!logoUrl && syncConfig.generateMockups) {
+        setSyncStatus({
+          success: false,
+          message: 'Please provide a logo for mockup generation, or disable mockup generation',
+        })
+        setSyncing(false)
+        return
+      }
+
       const session = await getCurrentSession()
       if (!session) return
 
@@ -95,9 +191,9 @@ export default function MerchandiseManagementPage() {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          logoUrl: syncConfig.logoUrl,
+          logoUrl: logoUrl || '',
           defaultMarkup: syncConfig.defaultMarkup,
-          generateMockups: syncConfig.generateMockups,
+          generateMockups: syncConfig.generateMockups && !!logoUrl,
         }),
       })
 
@@ -209,17 +305,94 @@ export default function MerchandiseManagementPage() {
             </div>
 
             <div className="space-y-4">
+              {/* Logo Upload Section */}
               <div>
-                <label className="block text-sm font-medium mb-2">Logo URL</label>
-                <input
-                  type="url"
-                  value={syncConfig.logoUrl}
-                  onChange={(e) => setSyncConfig({ ...syncConfig, logoUrl: e.target.value })}
-                  placeholder="https://your-logo-url.com/logo.png"
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  URL to your logo file (PNG/SVG) for mockup generation
+                <label className="block text-sm font-medium mb-2">Logo for Mockups</label>
+                
+                {/* Upload Area */}
+                <div className="space-y-3">
+                  {/* File Upload */}
+                  <div 
+                    className={`relative border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
+                      logoPreview || syncConfig.logoUrl
+                        ? 'border-purple-500 bg-purple-900/20'
+                        : 'border-gray-700 hover:border-gray-600 bg-gray-800/50'
+                    }`}
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoFileSelect}
+                      className="hidden"
+                    />
+                    
+                    {logoPreview ? (
+                      <div className="relative">
+                        <img 
+                          src={logoPreview} 
+                          alt="Logo preview" 
+                          className="max-h-32 mx-auto rounded-lg"
+                        />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            clearLogoFile()
+                          }}
+                          className="absolute -top-2 -right-2 p-1 bg-red-600 rounded-full hover:bg-red-700 transition-colors"
+                        >
+                          <X size={14} />
+                        </button>
+                        <p className="mt-2 text-sm text-purple-400">{logoFile?.name}</p>
+                      </div>
+                    ) : syncConfig.logoUrl ? (
+                      <div className="relative">
+                        <img 
+                          src={syncConfig.logoUrl} 
+                          alt="Current logo" 
+                          className="max-h-32 mx-auto rounded-lg"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none'
+                          }}
+                        />
+                        <p className="mt-2 text-sm text-gray-400">Current logo from URL</p>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="mx-auto text-gray-500 mb-2" size={32} />
+                        <p className="text-gray-400">
+                          Click to upload logo
+                        </p>
+                        <p className="text-xs text-gray-500 mt-1">
+                          PNG, JPG, or SVG (max 5MB)
+                        </p>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Or divider */}
+                  <div className="flex items-center gap-4">
+                    <div className="flex-1 h-px bg-gray-700" />
+                    <span className="text-xs text-gray-500">OR</span>
+                    <div className="flex-1 h-px bg-gray-700" />
+                  </div>
+                  
+                  {/* URL Input */}
+                  <input
+                    type="url"
+                    value={syncConfig.logoUrl}
+                    onChange={(e) => {
+                      setSyncConfig({ ...syncConfig, logoUrl: e.target.value })
+                      clearLogoFile() // Clear file if URL is entered
+                    }}
+                    placeholder="https://your-logo-url.com/logo.png"
+                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500 text-sm"
+                  />
+                </div>
+                
+                <p className="text-xs text-gray-500 mt-2">
+                  Upload your logo or provide a URL. This will be used to generate product mockups.
                 </p>
               </div>
 
@@ -255,12 +428,17 @@ export default function MerchandiseManagementPage() {
 
               <motion.button
                 onClick={handleSync}
-                disabled={syncing || !syncConfig.logoUrl}
-                whileHover={{ scale: syncing ? 1 : 1.02 }}
-                whileTap={{ scale: syncing ? 1 : 0.98 }}
+                disabled={syncing || uploadingLogo}
+                whileHover={{ scale: syncing || uploadingLogo ? 1 : 1.02 }}
+                whileTap={{ scale: syncing || uploadingLogo ? 1 : 0.98 }}
                 className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {syncing ? (
+                {uploadingLogo ? (
+                  <>
+                    <Loader className="animate-spin" size={20} />
+                    Uploading Logo...
+                  </>
+                ) : syncing ? (
                   <>
                     <Loader className="animate-spin" size={20} />
                     Syncing...
@@ -272,6 +450,12 @@ export default function MerchandiseManagementPage() {
                   </>
                 )}
               </motion.button>
+              
+              {!syncConfig.logoUrl && !logoFile && (
+                <p className="text-xs text-yellow-500">
+                  ⚠️ No logo provided. Mockup generation will be skipped unless you upload or provide a logo URL.
+                </p>
+              )}
 
               {syncStatus && (
                 <motion.div

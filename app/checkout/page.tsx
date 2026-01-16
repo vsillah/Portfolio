@@ -47,6 +47,13 @@ export default function CheckoutPage() {
     loadCart()
   }, [])
 
+  // Auto-advance to review step for logged-in users
+  useEffect(() => {
+    if (user && step === 'contact') {
+      setStep('review')
+    }
+  }, [user, step])
+
   const loadCart = async () => {
     const cart = getCart()
     if (cart.length === 0) {

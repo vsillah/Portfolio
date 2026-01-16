@@ -145,11 +145,20 @@ class PrintfulClient {
     }
 
     const url = `${PRINTFUL_API_BASE}${endpoint}`
-    const headers = {
+    const headers: Record<string, string> = {
       'Authorization': `Bearer ${this.apiKey}`,
       'Content-Type': 'application/json',
-      ...options.headers,
     }
+    
+    // Add store ID header if configured
+    if (this.storeId) {
+      headers['X-PF-Store-Id'] = this.storeId
+    }
+    
+    // Merge any additional headers
+    Object.assign(headers, options.headers || {})
+
+    console.log('[Printful] Requesting:', url)
 
     try {
       const response = await fetch(url, {
@@ -157,13 +166,20 @@ class PrintfulClient {
         headers,
       })
 
+      const responseText = await response.text()
+      console.log('[Printful] Response status:', response.status)
+      console.log('[Printful] Response body:', responseText.substring(0, 500))
+
       if (!response.ok) {
-        const error = await response.json().catch(() => ({ error: 'Unknown error' }))
-        throw new Error(error.message || `Printful API error: ${response.statusText}`)
+        let error: any = { error: 'Unknown error' }
+        try {
+          error = JSON.parse(responseText)
+        } catch {}
+        throw new Error(error.result || error.message || error.error || `Printful API error: ${response.statusText}`)
       }
 
-      const data = await response.json()
-      return data.result || data
+      const data = JSON.parse(responseText)
+      return data.result !== undefined ? data.result : data
     } catch (error: any) {
       console.error('Printful API request failed:', error)
       throw error
@@ -171,31 +187,65 @@ class PrintfulClient {
   }
 
   /**
-   * Get all available products from Printful catalog
+   * Get all sync products from the store
    */
-  async getProducts(categoryId?: number): Promise<PrintfulProduct[]> {
-    const endpoint = categoryId 
-      ? `/store/products?category_id=${categoryId}`
-      : '/store/products'
-    
-    const response = await this.request<{ items: PrintfulProduct[] }>(endpoint)
-    return response.items || []
+  async getProducts(): Promise<PrintfulProduct[]> {
+    // /store/products returns the list of sync products in your store
+    const response = await this.request<PrintfulProduct[]>('/store/products')
+    return Array.isArray(response) ? response : []
   }
 
   /**
-   * Get product details including variants
+   * Get sync product details including variants
    */
   async getProductDetails(productId: number): Promise<{
     product: PrintfulProduct
     variants: PrintfulVariant[]
   }> {
-    const product = await this.request<PrintfulProduct>(`/store/products/${productId}`)
-    const variants = await this.request<PrintfulVariant[]>(`/store/products/${productId}/variants`)
+    // /store/products/{id} returns { sync_product, sync_variants }
+    const response = await this.request<{
+      sync_product: any
+      sync_variants: any[]
+    }>(`/store/products/${productId}`)
     
-    return {
-      product,
-      variants: variants || [],
+    // Map sync_product to our interface
+    const product: PrintfulProduct = {
+      id: response.sync_product?.id || productId,
+      name: response.sync_product?.name || '',
+      type: response.sync_product?.type || '',
+      type_name: response.sync_product?.type_name || '',
+      brand: response.sync_product?.brand || '',
+      model: response.sync_product?.model || '',
+      image: response.sync_product?.thumbnail_url || '',
+      variant_count: response.sync_variants?.length || 0,
+      currency: 'USD',
+      files: [],
+      options: [],
+      dimensions: '',
+      size: '',
+      is_discontinued: false,
+      avg_fulfillment_time: 0,
     }
+    
+    // Map sync_variants to our interface
+    const variants: PrintfulVariant[] = (response.sync_variants || []).map((v: any) => ({
+      id: v.id,
+      product_id: v.sync_product_id,
+      name: v.name || '',
+      size: v.size || '',
+      color: v.color || '',
+      color_code: v.color_code || '',
+      availability_status: v.availability_status || 'in_stock',
+      availability_regions: [],
+      price: v.retail_price || '0',
+      currency: v.currency || 'USD',
+      files: v.files || [],
+      options: v.options || [],
+      is_discontinued: false,
+      is_enabled: true,
+    }))
+    
+    return { product, variants }
   }
 
   /**
