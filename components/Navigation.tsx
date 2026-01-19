@@ -51,7 +51,7 @@ export default function Navigation() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            Vambah Sillah
+            Amadutown Advisory Solutions
           </motion.a>
 
           {/* Right side: User Menu and Hamburger */}

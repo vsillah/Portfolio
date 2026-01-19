@@ -32,11 +32,11 @@ export default function Hero() {
 
   // All roles/titles as pills
   const allRoles = [
-    'Director of Product Strategy at a Fortune 500 Company',
+    'Director, Product Strategy',
     'AI Automations specialist',
     'Author',
-    'Hip Hop Artist',
-    'Co-Founder of AmaduTown Advisory Solutions',
+    'Lyricist',
+    'Founder',
   ]
 
   useEffect(() => {
