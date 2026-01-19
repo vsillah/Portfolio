@@ -35,10 +35,23 @@ AMADUTOWN_LOGO_URL=https://your-logo-url.com/logo.png
 2. Go to Dashboard → Stores → API
 3. Generate API key
 4. Copy API key to `PRINTFUL_API_KEY`
-5. For webhooks, go to Settings → Webhooks and add endpoint:
+5. Find your Store ID in the URL when viewing your store (e.g., `https://www.printful.com/dashboard/stores/12345678` → Store ID is `12345678`)
+6. Copy Store ID to `PRINTFUL_STORE_ID`
+
+**Setting Up Webhooks (for real-time product sync):**
+1. Go to Printful Dashboard → Settings → Stores → Your Store → Webhooks
+2. Add webhook endpoint:
    - URL: `https://your-domain.com/api/webhooks/printful`
-   - Events: `package_shipped`, `package_returned`, `order_failed`
-   - Copy webhook secret to `PRINTFUL_WEBHOOK_SECRET`
+   - Select events:
+     - `product_synced` - When you add/update a product in Printful
+     - `product_updated` - When product details change
+     - `product_deleted` - When you remove a product
+     - `package_shipped` - When an order ships (optional)
+     - `package_returned` - When a package is returned (optional)
+3. Copy the webhook secret to `PRINTFUL_WEBHOOK_SECRET`
+4. Deploy your site to Vercel (webhooks require a public URL)
+
+**Note:** The webhook secret is used to verify that incoming requests are genuinely from Printful. Without it, anyone could send fake webhook requests to your endpoint.
 
 ### 3. Install Dependencies
 
@@ -101,6 +114,12 @@ After syncing:
 - Tracking number integration
 - Email notifications (to be implemented)
 
+### Real-Time Product Sync
+- Products automatically sync when you add/update them in Printful
+- No need to manually click "Sync" after initial setup
+- Webhooks handle: product creation, updates, and deletion
+- Variants (sizes/colors) are synced automatically
+
 ### Admin Dashboard
 - Product sync interface
 - Markup configuration
@@ -110,11 +129,16 @@ After syncing:
 ## API Endpoints
 
 ### Merchandise
-- `POST /api/merchandise/sync` - Sync products from Printful (admin)
+- `POST /api/merchandise/sync` - Sync all products from Printful (admin, manual)
 - `GET /api/products/[id]` - Get product with variants
 - `POST /api/checkout/shipping` - Calculate shipping costs
 - `POST /api/orders/fulfill` - Manually submit order to Printful (admin)
-- `POST /api/webhooks/printful` - Printful webhook handler
+
+### Webhooks
+- `POST /api/webhooks/printful` - Printful webhook handler for real-time sync
+  - Handles `product_synced`, `product_updated`, `product_deleted` events
+  - Automatically syncs individual products when changes occur in Printful
+  - Verifies webhook signature using `PRINTFUL_WEBHOOK_SECRET`
 
 ## Business Logic
 

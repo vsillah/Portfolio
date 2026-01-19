@@ -439,3 +439,26 @@ export function calculatePriceWithMarkup(
 export function parsePrintfulPrice(priceString: string): number {
   return parseFloat(priceString) || 0
 }
+
+// Helper function to map Printful product type to category
+export function mapProductTypeToCategory(typeName: string): string {
+  const lowerType = typeName.toLowerCase()
+  
+  if (lowerType.includes('shirt') || lowerType.includes('hoodie') || lowerType.includes('sweatshirt') || lowerType.includes('hat') || lowerType.includes('cap')) {
+    return 'apparel'
+  }
+  
+  if (lowerType.includes('mug') || lowerType.includes('bottle') || lowerType.includes('tumbler') || lowerType.includes('coaster')) {
+    return 'houseware'
+  }
+  
+  if (lowerType.includes('backpack') || lowerType.includes('bag') || lowerType.includes('duffel') || lowerType.includes('tote')) {
+    return 'travel'
+  }
+  
+  if (lowerType.includes('notebook') || lowerType.includes('journal') || lowerType.includes('sticker') || lowerType.includes('mousepad')) {
+    return 'office'
+  }
+  
+  return 'apparel'
+}

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, ShoppingCart } from 'lucide-react'
+import { Search, Filter, ShoppingCart, ArrowLeft, Home } from 'lucide-react'
 import ProductCard from '@/components/ProductCard'
 import { useAuth } from '@/components/AuthProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -160,10 +160,19 @@ export default function StorePage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
+          {/* Back to Home Link */}
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
+          >
+            <ArrowLeft size={20} />
+            Back to Home
+          </button>
+          
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-4xl font-bold mb-2">Product Store</h1>
-              <p className="text-gray-400">Browse our lead magnets and products</p>
+              <p className="text-gray-400">Browse our collection of digital products and merchandise</p>
             </div>
             {cartCount > 0 && (
               <motion.button

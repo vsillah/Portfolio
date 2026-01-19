@@ -1,0 +1,100 @@
+---
+alwaysApply: true
+---
+This repository follows a multi-app, feature-driven architecture.
+
+Top-level rule:
+- Treat each folder under /apps as an independent application boundary.
+- Never mix frontend and backend concerns.
+/apps/backend
+- Contains backend-only code (APIs, services, data access).
+- No frontend imports or UI concepts allowed.
+
+/apps/frontend
+- Contains all client-side code.
+- No backend logic or persistence code allowed.
+/apps/frontend/assets
+- Static files only (images, fonts, icons)
+- Never place logic or components here
+
+/apps/frontend/src
+- All executable frontend code lives here
+/src/components
+- Reusable, presentational building blocks
+- No routing logic
+- No Redux access unless explicitly passed as props
+- No awareness of user flow (auth, onboarding, checkout, etc.)
+
+/src/screens
+- Feature- or journey-oriented containers
+- Represents "pages" or "flows" in the application
+- Screens compose components and connect to Redux
+Rule of thumb for Cursor:
+
+If the code represents what the user is doing, it belongs in screens.
+If it represents how something looks or behaves generically, it belongs in components.
+/src/screens/*
+- Each subfolder represents a user-facing feature or flow
+- Examples: auth, main, onboarding, profile
+
+Inside each screen folder:
+- index.tsx (or equivalent entry file)
+- feature-specific subcomponents
+- feature-specific hooks or helpers
+Cursor should create new screen folders when a feature introduces:
+
+a new user journey
+
+a new navigation entry
+
+a new authentication or authorization boundary
+/src/redux
+- Global application state only
+
+/redux/actions
+- Action creators only
+- No reducer logic
+
+/redux/reducers
+- Reducers only
+- No side effects
+Cursor should not:
+
+Create Redux logic inside screens or components
+
+Duplicate Redux state per feature unless instructed
+
+If feature-level state is needed, ask:
+
+"Should this be global Redux state or local screen state?"
+/src/tests
+- Tests should mirror the structure of src
+- Prefer colocated test folders for screens and critical logic
+- Naming convention: *.test.ts(x)
+Cursor should:
+
+Place tests close to the feature they validate
+
+Avoid dumping all tests into a single flat directory
+/src/libs
+- External integrations
+- Wrappers around third-party libraries
+- Code that could be reused across apps in the future
+
+/utils (if introduced)
+- Small pure helper functions
+- No side effects
+If Cursor is unsure whether something is a lib or a component, it must ask.
+
+/design-files
+- Design references only (Figma exports, mocks, diagrams)
+- Never import from this folder in production code
+- Use for visual or UX context only
+Cursor may reference design intent but must never generate runtime dependencies on this folder.
+README.md defines:
+- App responsibilities
+- Folder intent
+- Architectural constraints
+
+Cursor must treat README as authoritative.
+If a change violates README assumptions, ask before proceeding.

@@ -1,69 +1,304 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { printful, parsePrintfulPrice, calculatePriceWithMarkup, mapProductTypeToCategory } from '@/lib/printful'
 import crypto from 'crypto'
 
 export const dynamic = 'force-dynamic'
 
+// Default markup percentage for synced products
+const DEFAULT_MARKUP = 50
+
 /**
- * Printful Webhook Handler
- * Handles order status updates from Printful
+ * Verify Printful webhook signature
+ */
+function verifyWebhookSignature(payload: string, signature: string | null): boolean {
+  const webhookSecret = process.env.PRINTFUL_WEBHOOK_SECRET
+  
+  // If no secret configured, skip verification (not recommended for production)
+  if (!webhookSecret) {
+    console.warn('[Printful Webhook] No PRINTFUL_WEBHOOK_SECRET configured, skipping signature verification')
+    return true
+  }
+  
+  if (!signature) {
+    console.error('[Printful Webhook] No signature provided')
+    return false
+  }
+  
+  // Printful uses HMAC-SHA256
+  const expectedSignature = crypto
+    .createHmac('sha256', webhookSecret)
+    .update(payload)
+    .digest('base64')
+  
+  return signature === expectedSignature
+}
+
+/**
+ * Sync a single product from Printful
+ */
+async function syncProduct(printfulProductId: number): Promise<{ success: boolean; action: string }> {
+  try {
+    const { product, variants } = await printful.getProductDetails(printfulProductId)
+    
+    // Determine category from product type
+    const productCategory = mapProductTypeToCategory(product.type_name || '')
+    
+    // Calculate base cost (use first variant's price as base)
+    const baseCost = variants.length > 0
+      ? parsePrintfulPrice(variants[0].price)
+      : 0
+    
+    // Calculate retail price with markup
+    const retailPrice = calculatePriceWithMarkup(baseCost, DEFAULT_MARKUP)
+    
+    // Check if product already exists
+    const { data: existingProduct } = await supabaseAdmin
+      .from('products')
+      .select('id')
+      .eq('printful_product_id', printfulProductId)
+      .single()
+    
+    let productId: number
+    let action: string
+    
+    if (existingProduct) {
+      // Update existing product
+      const { error: updateError } = await supabaseAdmin
+        .from('products')
+        .update({
+          title: product.name,
+          description: `${product.brand || ''} ${product.model || ''}`.trim() || product.name,
+          type: 'merchandise',
+          category: productCategory,
+          base_cost: baseCost,
+          markup_percentage: DEFAULT_MARKUP,
+          price: retailPrice,
+          is_print_on_demand: true,
+          image_url: product.image,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', existingProduct.id)
+      
+      if (updateError) throw updateError
+      productId = existingProduct.id
+      action = 'updated'
+    } else {
+      // Create new product
+      const { data: newProduct, error: insertError } = await supabaseAdmin
+        .from('products')
+        .insert({
+          title: product.name,
+          description: `${product.brand || ''} ${product.model || ''}`.trim() || product.name,
+          type: 'merchandise',
+          category: productCategory,
+          printful_product_id: printfulProductId,
+          base_cost: baseCost,
+          markup_percentage: DEFAULT_MARKUP,
+          price: retailPrice,
+          is_print_on_demand: true,
+          image_url: product.image,
+          is_active: true,
+        })
+        .select('id')
+        .single()
+      
+      if (insertError) throw insertError
+      productId = newProduct.id
+      action = 'created'
+    }
+    
+    // Sync variants
+    for (const variant of variants) {
+      if (!variant.is_enabled || variant.is_discontinued) {
+        continue
+      }
+      
+      const variantPrice = calculatePriceWithMarkup(
+        parsePrintfulPrice(variant.price),
+        DEFAULT_MARKUP
+      )
+      
+      // Check if variant exists
+      const { data: existingVariant } = await supabaseAdmin
+        .from('product_variants')
+        .select('id')
+        .eq('product_id', productId)
+        .eq('printful_variant_id', variant.id)
+        .single()
+      
+      const variantData = {
+        product_id: productId,
+        printful_variant_id: variant.id,
+        size: variant.size || null,
+        color: variant.color,
+        color_code: variant.color_code || null,
+        sku: variant.name || null,
+        price: variantPrice,
+        is_available: variant.is_enabled && !variant.is_discontinued,
+      }
+      
+      if (existingVariant) {
+        await supabaseAdmin
+          .from('product_variants')
+          .update(variantData)
+          .eq('id', existingVariant.id)
+      } else {
+        await supabaseAdmin
+          .from('product_variants')
+          .insert({
+            ...variantData,
+            mockup_urls: [],
+          })
+      }
+    }
+    
+    return { success: true, action }
+  } catch (error: any) {
+    console.error(`[Printful Webhook] Error syncing product ${printfulProductId}:`, error)
+    throw error
+  }
+}
+
+/**
+ * Delete a product from the database
+ */
+async function deleteProduct(printfulProductId: number): Promise<{ success: boolean }> {
+  try {
+    // Find the product
+    const { data: existingProduct } = await supabaseAdmin
+      .from('products')
+      .select('id')
+      .eq('printful_product_id', printfulProductId)
+      .single()
+    
+    if (!existingProduct) {
+      console.log(`[Printful Webhook] Product ${printfulProductId} not found in database, nothing to delete`)
+      return { success: true }
+    }
+    
+    // Delete variants first (cascade should handle this, but being explicit)
+    await supabaseAdmin
+      .from('product_variants')
+      .delete()
+      .eq('product_id', existingProduct.id)
+    
+    // Delete the product (or mark as inactive)
+    await supabaseAdmin
+      .from('products')
+      .update({ is_active: false })
+      .eq('id', existingProduct.id)
+    
+    console.log(`[Printful Webhook] Deactivated product ${printfulProductId}`)
+    return { success: true }
+  } catch (error: any) {
+    console.error(`[Printful Webhook] Error deleting product ${printfulProductId}:`, error)
+    throw error
+  }
+}
+
+/**
+ * Handle Printful webhooks
  * POST /api/webhooks/printful
+ * 
+ * Printful sends webhooks for:
+ * - product_synced: A product was synced (created or updated)
+ * - product_updated: Product details were updated
+ * - product_deleted: A product was deleted
  */
 export async function POST(request: NextRequest) {
   try {
+    const payload = await request.text()
+    const signature = request.headers.get('X-Printful-Signature')
+    
     // Verify webhook signature
-    const signature = request.headers.get('x-printful-signature')
-    const webhookSecret = process.env.PRINTFUL_WEBHOOK_SECRET
-
-    if (webhookSecret && signature) {
-      const body = await request.text()
-      const expectedSignature = crypto
-        .createHmac('sha256', webhookSecret)
-        .update(body)
-        .digest('hex')
-
-      if (signature !== expectedSignature) {
-        return NextResponse.json(
-          { error: 'Invalid signature' },
-          { status: 401 }
-        )
+    if (!verifyWebhookSignature(payload, signature)) {
+      console.error('[Printful Webhook] Invalid signature')
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { status: 401 }
+      )
+    }
+    
+    // Parse the webhook payload
+    let webhookData: any
+    try {
+      webhookData = JSON.parse(payload)
+    } catch (e) {
+      console.error('[Printful Webhook] Invalid JSON payload')
+      return NextResponse.json(
+        { error: 'Invalid JSON payload' },
+        { status: 400 }
+      )
+    }
+    
+    const { type, data } = webhookData
+    
+    console.log(`[Printful Webhook] Received event: ${type}`)
+    
+    // Handle different webhook event types
+    switch (type) {
+      case 'product_synced':
+      case 'product_updated': {
+        // data.sync_product contains the product info
+        const printfulProductId = data?.sync_product?.id
+        if (!printfulProductId) {
+          console.error('[Printful Webhook] No product ID in webhook data')
+          return NextResponse.json(
+            { error: 'No product ID in webhook data' },
+            { status: 400 }
+          )
+        }
+        
+        const result = await syncProduct(printfulProductId)
+        console.log(`[Printful Webhook] Product ${printfulProductId} ${result.action}`)
+        
+        return NextResponse.json({
+          success: true,
+          action: result.action,
+          productId: printfulProductId,
+        })
+      }
+      
+      case 'product_deleted': {
+        const printfulProductId = data?.sync_product?.id
+        if (!printfulProductId) {
+          console.error('[Printful Webhook] No product ID in webhook data')
+          return NextResponse.json(
+            { error: 'No product ID in webhook data' },
+            { status: 400 }
+          )
+        }
+        
+        await deleteProduct(printfulProductId)
+        console.log(`[Printful Webhook] Product ${printfulProductId} deleted`)
+        
+        return NextResponse.json({
+          success: true,
+          action: 'deleted',
+          productId: printfulProductId,
+        })
+      }
+      
+      // Handle other event types we might want to track
+      case 'package_shipped':
+      case 'package_returned': {
+        // These are order-related events, log them but don't process
+        console.log(`[Printful Webhook] Order event: ${type}`, data)
+        return NextResponse.json({ success: true, message: 'Event logged' })
+      }
+      
+      default: {
+        // Unknown event type, acknowledge but don't process
+        console.log(`[Printful Webhook] Unknown event type: ${type}`)
+        return NextResponse.json({
+          success: true,
+          message: `Unknown event type: ${type}`,
+        })
       }
     }
-
-    const event = await request.json()
-    const { type, data } = event
-
-    console.log('Printful webhook received:', type, data)
-
-    // Handle different event types
-    switch (type) {
-      case 'package_shipped':
-        await handlePackageShipped(data)
-        break
-
-      case 'package_returned':
-        await handlePackageReturned(data)
-        break
-
-      case 'order_failed':
-        await handleOrderFailed(data)
-        break
-
-      case 'order_put_hold':
-        await handleOrderPutHold(data)
-        break
-
-      case 'order_remove_hold':
-        await handleOrderRemoveHold(data)
-        break
-
-      default:
-        console.log('Unhandled webhook type:', type)
-    }
-
-    return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error('Error processing Printful webhook:', error)
+    console.error('[Printful Webhook] Error processing webhook:', error)
     return NextResponse.json(
       { error: error.message || 'Failed to process webhook' },
       { status: 500 }
@@ -72,147 +307,12 @@ export async function POST(request: NextRequest) {
 }
 
 /**
- * Handle package_shipped event
+ * Handle GET requests (for webhook verification)
  */
-async function handlePackageShipped(data: any) {
-  const { order } = data
-
-  if (!order || !order.external_id) {
-    console.error('Invalid package_shipped event data')
-    return
-  }
-
-  const orderId = parseInt(order.external_id)
-
-  // Get tracking info from shipments
-  const shipments = order.shipments || []
-  const trackingNumber = shipments.length > 0 ? shipments[0].tracking_number : null
-  const trackingUrl = shipments.length > 0 ? shipments[0].tracking_url : null
-
-  // Update order status
-  const updateData: any = {
-    fulfillment_status: 'shipped',
-  }
-
-  if (trackingNumber) {
-    updateData.tracking_number = trackingNumber
-  }
-
-  // Estimate delivery (typically 3-7 days after shipping)
-  if (order.shipments && order.shipments.length > 0) {
-    const shippedAt = order.shipments[0].shipped_at
-    if (shippedAt) {
-      const shipDate = new Date(shippedAt * 1000)
-      const estimatedDelivery = new Date(shipDate)
-      estimatedDelivery.setDate(estimatedDelivery.getDate() + 5) // Add 5 days
-      updateData.estimated_delivery = estimatedDelivery.toISOString().split('T')[0]
-    }
-  }
-
-  const { error } = await supabaseAdmin
-    .from('orders')
-    .update(updateData)
-    .eq('id', orderId)
-
-  if (error) {
-    console.error('Error updating order with shipping info:', error)
-  } else {
-    // TODO: Send shipping notification email
-    console.log(`Order ${orderId} marked as shipped with tracking: ${trackingNumber}`)
-  }
-}
-
-/**
- * Handle package_returned event
- */
-async function handlePackageReturned(data: any) {
-  const { order } = data
-
-  if (!order || !order.external_id) {
-    console.error('Invalid package_returned event data')
-    return
-  }
-
-  const orderId = parseInt(order.external_id)
-
-  await supabaseAdmin
-    .from('orders')
-    .update({
-      fulfillment_status: 'cancelled',
-    })
-    .eq('id', orderId)
-
-  // TODO: Send return notification email
-  console.log(`Order ${orderId} marked as returned`)
-}
-
-/**
- * Handle order_failed event
- */
-async function handleOrderFailed(data: any) {
-  const { order } = data
-
-  if (!order || !order.external_id) {
-    console.error('Invalid order_failed event data')
-    return
-  }
-
-  const orderId = parseInt(order.external_id)
-
-  await supabaseAdmin
-    .from('orders')
-    .update({
-      fulfillment_status: 'cancelled',
-      status: 'failed',
-    })
-    .eq('id', orderId)
-
-  // TODO: Send failure notification email and process refund if needed
-  console.log(`Order ${orderId} marked as failed`)
-}
-
-/**
- * Handle order_put_hold event
- */
-async function handleOrderPutHold(data: any) {
-  const { order } = data
-
-  if (!order || !order.external_id) {
-    console.error('Invalid order_put_hold event data')
-    return
-  }
-
-  const orderId = parseInt(order.external_id)
-
-  await supabaseAdmin
-    .from('orders')
-    .update({
-      fulfillment_status: 'processing',
-    })
-    .eq('id', orderId)
-
-  console.log(`Order ${orderId} put on hold`)
-}
-
-/**
- * Handle order_remove_hold event
- */
-async function handleOrderRemoveHold(data: any) {
-  const { order } = data
-
-  if (!order || !order.external_id) {
-    console.error('Invalid order_remove_hold event data')
-    return
-  }
-
-  const orderId = parseInt(order.external_id)
-
-  await supabaseAdmin
-    .from('orders')
-    .update({
-      fulfillment_status: 'processing',
-    })
-    .eq('id', orderId)
-
-  console.log(`Order ${orderId} hold removed`)
+export async function GET(request: NextRequest) {
+  // Printful may send a GET request to verify the endpoint exists
+  return NextResponse.json({
+    status: 'ok',
+    message: 'Printful webhook endpoint is active',
+  })
 }

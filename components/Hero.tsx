@@ -27,98 +27,6 @@ const itemVariants = {
   },
 }
 
-// Starfield particle component
-const Star = ({ index }: { index: number }) => {
-  const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 })
-  
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setDimensions({ width: window.innerWidth, height: window.innerHeight })
-    }
-  }, [])
-
-  const startX = Math.random() * dimensions.width
-  const startY = Math.random() * dimensions.height
-  const endX = startX + (Math.random() - 0.5) * 400
-  const endY = startY + (Math.random() - 0.5) * 400
-  const duration = 2 + Math.random() * 3
-  const delay = Math.random() * 2
-  const size = 1 + Math.random() * 2
-  const colors = ['#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4']
-  const color = colors[Math.floor(Math.random() * colors.length)]
-
-  return (
-    <motion.div
-      className="absolute rounded-full"
-      style={{
-        width: `${size}px`,
-        height: `${size}px`,
-        background: color,
-        boxShadow: `0 0 ${size * 2}px ${color}`,
-        left: `${startX}px`,
-        top: `${startY}px`,
-      }}
-      animate={{
-        x: [0, endX - startX],
-        y: [0, endY - startY],
-        opacity: [0, 1, 0.8, 0],
-        scale: [0, 1, 1.2, 0],
-      }}
-      transition={{
-        duration,
-        repeat: Infinity,
-        delay,
-        ease: 'linear',
-      }}
-    />
-  )
-}
-
-// Streaking trail effect
-const Streak = ({ index }: { index: number }) => {
-  const [dimensions, setDimensions] = useState({ width: 1920, height: 1080 })
-  
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      setDimensions({ width: window.innerWidth, height: window.innerHeight })
-    }
-  }, [])
-
-  const startX = Math.random() * dimensions.width
-  const startY = Math.random() * dimensions.height
-  const angle = Math.random() * Math.PI * 2
-  const length = 100 + Math.random() * 200
-  const endX = startX + Math.cos(angle) * length
-  const endY = startY + Math.sin(angle) * length
-  const duration = 1 + Math.random() * 2
-  const delay = Math.random() * 3
-  const colors = ['#3b82f6', '#8b5cf6', '#ec4899']
-  const color = colors[Math.floor(Math.random() * colors.length)]
-
-  return (
-    <motion.line
-      x1={startX}
-      y1={startY}
-      x2={endX}
-      y2={endY}
-      stroke={color}
-      strokeWidth="1"
-      opacity={0.6}
-      initial={{ pathLength: 0, opacity: 0 }}
-      animate={{
-        pathLength: [0, 1, 0],
-        opacity: [0, 0.8, 0],
-      }}
-      transition={{
-        duration,
-        repeat: Infinity,
-        delay,
-        ease: 'easeInOut',
-      }}
-    />
-  )
-}
-
 export default function Hero() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
 
@@ -147,27 +55,27 @@ export default function Hero() {
       id="home"
       className="min-h-screen flex items-center justify-center relative overflow-hidden bg-black"
     >
-      {/* Animated starfield background */}
+      {/* Professional gradient background */}
       <div className="absolute inset-0">
-        {/* Base gradient */}
+        {/* Base dark gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900" />
+        
+        {/* Subtle accent gradient that follows mouse */}
         <div
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-20 transition-opacity duration-500"
           style={{
-            background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(59, 130, 246, 0.4) 0%, rgba(139, 92, 246, 0.3) 30%, rgba(236, 72, 153, 0.2) 60%, transparent 100%)`,
+            background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(139, 92, 246, 0.3) 0%, transparent 50%)`,
           }}
         />
         
-        {/* Animated stars */}
-        {typeof window !== 'undefined' && [...Array(50)].map((_, i) => (
-          <Star key={i} index={i} />
-        ))}
-        
-        {/* Streaking trails */}
-        <svg className="absolute inset-0 w-full h-full" style={{ pointerEvents: 'none' }}>
-          {typeof window !== 'undefined' && [...Array(15)].map((_, i) => (
-            <Streak key={i} index={i} />
-          ))}
-        </svg>
+        {/* Subtle mesh pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-5"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)`,
+            backgroundSize: '40px 40px',
+          }}
+        />
       </div>
 
       <motion.div
