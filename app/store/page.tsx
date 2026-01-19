@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { Search, Filter, ShoppingCart, ArrowLeft, Home } from 'lucide-react'
 import ProductCard from '@/components/ProductCard'
@@ -27,7 +27,21 @@ const PRODUCT_TYPES = [
   { value: 'merchandise', label: 'Merchandise' },
 ]
 
-export default function StorePage() {
+// Loading fallback component
+function StoreLoading() {
+  return (
+    <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center py-12">
+          <div className="text-gray-400">Loading store...</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Main store content that uses useSearchParams
+function StoreContent() {
   const { user } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -87,17 +101,14 @@ export default function StorePage() {
   const filterProducts = () => {
     let filtered = [...products]
 
-    // Filter by type
     if (selectedType !== 'all') {
       filtered = filtered.filter(p => p.type === selectedType)
     }
 
-    // Filter by featured
     if (showFeaturedOnly) {
       filtered = filtered.filter(p => p.is_featured)
     }
 
-    // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase()
       filtered = filtered.filter(p =>
@@ -106,7 +117,6 @@ export default function StorePage() {
       )
     }
 
-    // Sort: featured first, then by display order
     filtered.sort((a, b) => {
       if (a.is_featured && !b.is_featured) return -1
       if (!a.is_featured && b.is_featured) return 1
@@ -134,7 +144,6 @@ export default function StorePage() {
         localStorage.setItem('cart', JSON.stringify(cartItems))
         setCartCount(cartItems.length)
         
-        // Show success feedback
         const button = document.activeElement as HTMLElement
         if (button) {
           const originalText = button.textContent
@@ -212,7 +221,6 @@ export default function StorePage() {
                 onChange={(e) => {
                   const newType = e.target.value
                   setSelectedType(newType)
-                  // Update URL without full page reload
                   const url = new URL(window.location.href)
                   if (newType === 'all') {
                     url.searchParams.delete('type')
@@ -278,5 +286,14 @@ export default function StorePage() {
         )}
       </div>
     </div>
+  )
+}
+
+// Main page component with Suspense boundary
+export default function StorePage() {
+  return (
+    <Suspense fallback={<StoreLoading />}>
+      <StoreContent />
+    </Suspense>
   )
 }
