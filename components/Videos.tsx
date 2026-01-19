@@ -13,21 +13,21 @@ const videos = [
     title: 'Never Know Bar 4 Bar Breakdown, 1st Verse',
     description: 'This is the Bar for Bar Breakdown of "Never Know", the first single release from "Into the Rabbit Hole" album by Mad Hadda',
     videoId: 'ps5WbgLk4mI', // Replaced with my YouTube video ID
-    thumbnail: 'https://img.youtube.com/vi/ps5WbgLk4mI/hqdefault.jpg',
+    thumbnail: 'https://img.youtube.com/vi/ps5WbgLk4mI/hqdefault.jpg?v=2',
   },
   {
     id: 2,
     title: 'Never Know Bar 4 Bar Breakdown, 2nd Verse',
     description: 'This is the Bar for Bar Breakdown of "Never Know", the first single release from "Into the Rabbit Hole" album by Mad Hadda',
     videoId: 'VltoBXKskOE', // Replaced with my YouTube video ID
-    thumbnail: 'https://img.youtube.com/vi/VltoBXKskOE/hqdefault.jpg',
+    thumbnail: 'https://img.youtube.com/vi/VltoBXKskOE/hqdefault.jpg?v=2',
   },
   {
     id: 3,
     title: 'Shoulders of Giants short video',
     description: 'This is the short video of "Shoulders of Giants", the second single release from "Into the Rabbit Hole" album by Mad Hadda',
     videoId: 'V4phmDS8Bik', // Replace with your YouTube video ID
-    thumbnail: 'https://img.youtube.com/vi/V4phmDS8Bik/hqdefault.jpg',
+    thumbnail: 'https://img.youtube.com/vi/V4phmDS8Bik/hqdefault.jpg?v=2',
   },
 ]
 
