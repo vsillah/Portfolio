@@ -4,6 +4,30 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 
 export const dynamic = 'force-dynamic'
 
+// Type definitions
+type PublicationRow = {
+  id: number
+  title: string
+  description: string | null
+  publication_url: string | null
+  author: string | null
+  publication_date: string | null
+  publisher: string | null
+  display_order: number
+  is_published: boolean
+  file_path: string | null
+  file_type: string | null
+  file_size: number | null
+  created_at: string
+  created_by: string | null
+}
+
+type ProductRow = {
+  id: number
+  price: number | null
+  publication_id: number | null
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -29,7 +53,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch linked products for publication entries
-    const publicationIds = (publications || []).map(p => p.id)
+    const publicationIds = (publications || []).map((p: PublicationRow) => p.id)
     let linkedProducts: Record<number, { id: number; price: number | null }> = {}
     
     if (publicationIds.length > 0) {
@@ -40,7 +64,7 @@ export async function GET(request: NextRequest) {
         .eq('is_active', true)
       
       if (products) {
-        products.forEach(p => {
+        products.forEach((p: ProductRow) => {
           if (p.publication_id) {
             linkedProducts[p.publication_id] = { id: p.id, price: p.price }
           }
@@ -49,7 +73,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Attach linked_product to each publication entry
-    const publicationsWithProducts = (publications || []).map(p => ({
+    const publicationsWithProducts = (publications || []).map((p: PublicationRow) => ({
       ...p,
       linked_product: linkedProducts[p.id] || null
     }))

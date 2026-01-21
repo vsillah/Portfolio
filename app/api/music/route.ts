@@ -4,6 +4,33 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 
 export const dynamic = 'force-dynamic'
 
+// Type definitions
+type MusicRow = {
+  id: number
+  title: string
+  artist: string
+  album: string | null
+  description: string | null
+  spotify_url: string | null
+  apple_music_url: string | null
+  youtube_url: string | null
+  release_date: string | null
+  genre: string | null
+  display_order: number
+  is_published: boolean
+  file_path: string | null
+  file_type: string | null
+  file_size: number | null
+  created_at: string
+  created_by: string | null
+}
+
+type ProductRow = {
+  id: number
+  price: number | null
+  music_id: number | null
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -29,7 +56,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch linked products for music entries
-    const musicIds = (music || []).map(m => m.id)
+    const musicIds = (music || []).map((m: MusicRow) => m.id)
     let linkedProducts: Record<number, { id: number; price: number | null }> = {}
     
     if (musicIds.length > 0) {
@@ -40,7 +67,7 @@ export async function GET(request: NextRequest) {
         .eq('is_active', true)
       
       if (products) {
-        products.forEach(p => {
+        products.forEach((p: ProductRow) => {
           if (p.music_id) {
             linkedProducts[p.music_id] = { id: p.id, price: p.price }
           }
@@ -49,7 +76,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Attach linked_product to each music entry
-    const musicWithProducts = (music || []).map(m => ({
+    const musicWithProducts = (music || []).map((m: MusicRow) => ({
       ...m,
       linked_product: linkedProducts[m.id] || null
     }))

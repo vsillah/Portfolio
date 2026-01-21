@@ -6,6 +6,13 @@ import Stripe from 'stripe'
 
 export const dynamic = 'force-dynamic'
 
+// Type for order item from query
+type OrderItemRow = {
+  product_variant_id: number | null
+  printful_variant_id: string | null
+  quantity: number
+}
+
 export async function POST(request: NextRequest) {
   const body = await request.text()
   const signature = request.headers.get('stripe-signature')
@@ -71,8 +78,8 @@ export async function POST(request: NextRequest) {
               if (orderItems && orderItems.length > 0) {
                 // Build Printful items
                 const printfulItems = orderItems
-                  .filter((item) => item.printful_variant_id)
-                  .map((item) => ({
+                  .filter((item: OrderItemRow) => item.printful_variant_id)
+                  .map((item: OrderItemRow) => ({
                     variant_id: item.printful_variant_id,
                     quantity: item.quantity,
                   }))

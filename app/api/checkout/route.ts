@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
 
     if (productsError) throw productsError
 
-    const productMap = new Map(
+    const productMap = new Map<number, { price: number | null; isPrintOnDemand: boolean }>(
       products.map((p: { id: number; price: number | null; is_print_on_demand: boolean }) => [
         p.id,
         { price: p.price, isPrintOnDemand: p.is_print_on_demand },
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     const variantIds = cartItems
       .filter((item: any) => item.variantId)
       .map((item: any) => item.variantId)
-    const variantMap = new Map()
+    const variantMap = new Map<number, { price: number; printfulVariantId: string | null }>()
 
     if (variantIds.length > 0) {
       const { data: variants } = await supabaseAdmin
@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
 
       if (item.variantId && variantMap.has(item.variantId)) {
         // Merchandise with variant
-        const variant = variantMap.get(item.variantId)
+        const variant = variantMap.get(item.variantId)!
         price = variant.price
         productVariantId = item.variantId
         printfulVariantId = variant.printfulVariantId

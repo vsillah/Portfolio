@@ -5,6 +5,17 @@ import { printful } from '@/lib/printful'
 
 export const dynamic = 'force-dynamic'
 
+// Type definition for order item
+type OrderItemRow = {
+  id: number
+  order_id: number
+  product_id: number
+  product_variant_id: number | null
+  printful_variant_id: string | null
+  quantity: number
+  price_at_purchase: number
+}
+
 /**
  * Submit order to Printful for fulfillment
  * POST /api/orders/fulfill
@@ -65,8 +76,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Separate merchandise and digital items
-    const merchandiseItems = orderItems.filter((item) => item.product_variant_id)
-    const digitalItems = orderItems.filter((item) => !item.product_variant_id)
+    const merchandiseItems = orderItems.filter((item: OrderItemRow) => item.product_variant_id)
+    const digitalItems = orderItems.filter((item: OrderItemRow) => !item.product_variant_id)
 
     if (merchandiseItems.length === 0) {
       return NextResponse.json(
