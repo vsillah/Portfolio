@@ -1,8 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ExternalLink, Github, Code2, Download } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { ExternalLink, Code2, Download } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
 import { analytics } from '@/lib/analytics'
 import ExpandableText from '@/components/ui/ExpandableText'
 
@@ -21,8 +21,107 @@ interface Project {
   file_size: number | null
 }
 
+const ProjectCard = ({ project, index }: { project: Project, index: number }) => {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+  }
+
+  return (
+    <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+      className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 flex flex-col hover:-translate-y-2 shadow-2xl"
+    >
+      {/* Mouse Tracking Glow */}
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(212, 175, 55, 0.08), transparent 40%)`
+        }}
+      />
+
+      {/* Project Image */}
+      <div className="relative h-56 overflow-hidden flex-shrink-0">
+        <img
+          src={project.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
+          alt={project.title}
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[40%] group-hover:grayscale-0"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-60" />
+      </div>
+
+      {/* Project Content */}
+      <div className="p-8 flex flex-col flex-grow relative z-10">
+        <div className="flex items-start justify-between mb-4">
+          <h3 className="font-premium text-2xl font-medium text-platinum-white group-hover:text-radiant-gold transition-colors">
+            {project.title}
+          </h3>
+          <Code2 className="text-radiant-gold/40 flex-shrink-0" size={20} />
+        </div>
+
+        {/* Expandable Description */}
+        {project.description && (
+          <ExpandableText
+            text={project.description}
+            maxHeight={80}
+            className="font-body text-platinum-white/50 text-sm leading-relaxed mb-6"
+            expandButtonColor="text-radiant-gold hover:text-gold-light"
+          />
+        )}
+
+        {/* Tech Stack */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          {project.technologies && project.technologies.map((tech) => (
+            <span
+              key={tech}
+              className="px-3 py-1 text-[10px] font-heading tracking-wider bg-imperial-navy/50 text-radiant-gold/60 rounded-full border border-radiant-gold/10"
+            >
+              {tech}
+            </span>
+          ))}
+        </div>
+
+        {/* Spacer */}
+        <div className="flex-grow" />
+
+        {/* Links */}
+        <div className="flex gap-6 items-center pt-6 border-t border-radiant-gold/5">
+          {project.github && (
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] font-heading tracking-widest text-platinum-white/40 hover:text-radiant-gold transition-colors flex items-center gap-2"
+            >
+              DETAILS
+            </a>
+          )}
+          {project.live && (
+            <a
+              href={project.live}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[10px] font-heading tracking-widest text-platinum-white/40 hover:text-radiant-gold transition-colors flex items-center gap-2"
+            >
+              LEARN MORE
+            </a>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function Projects() {
-  const [hoveredId, setHoveredId] = useState<number | null>(null)
   const [projects, setProjects] = useState<Project[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -37,7 +136,6 @@ export default function Projects() {
         const data = await response.json()
         setProjects(data || [])
       } else {
-        // If API fails (e.g., table doesn't exist yet), use empty array
         setProjects([])
       }
     } catch (error) {
@@ -49,204 +147,41 @@ export default function Projects() {
   }
 
   return (
-    <section id="projects" className="py-20 px-4 sm:px-6 lg:px-8 bg-black relative overflow-hidden">
-      {/* Subtle background effect */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl" />
-      </div>
-      <div className="max-w-7xl mx-auto">
+    <section id="projects" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
+      {/* Subtle Aurora */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-radiant-gold/5 blur-[120px] rounded-full" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.8 }}
+          className="max-w-3xl mb-20"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="gradient-text">Featured Projects</span>
+          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6">
+            <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
+              Portfolio
+            </span>
+          </div>
+          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+            <span className="italic text-radiant-gold">Projects</span>
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            A showcase of strategic initiatives, platforms, and digital experiences managed from concept to execution
+          <p className="font-body text-platinum-white/50 text-lg leading-relaxed">
+            A curated selection of strategic initiatives and digital products built for the modern era.
           </p>
         </motion.div>
 
         {loading ? (
-          <div className="text-center py-12">
-            <div className="text-gray-400">Loading projects...</div>
-          </div>
-        ) : projects.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-gray-400">No projects available at the moment.</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-[450px] bg-silicon-slate/20 rounded-2xl animate-pulse" />
+            ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {projects.map((project, index) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              onHoverStart={() => setHoveredId(project.id)}
-              onHoverEnd={() => setHoveredId(null)}
-              className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border transition-all duration-300 flex flex-col"
-              style={{
-                borderColor: hoveredId === project.id 
-                  ? 'rgba(139, 92, 246, 0.6)' 
-                  : 'rgba(55, 65, 81, 0.5)',
-                boxShadow: hoveredId === project.id
-                  ? '0 0 20px rgba(139, 92, 246, 0.3), 0 0 40px rgba(236, 72, 153, 0.2)'
-                  : 'none',
-              }}
-            >
-              {/* Animated glowing border */}
-              <motion.div
-                className="absolute inset-0 rounded-xl pointer-events-none"
-                style={{
-                  background: hoveredId === project.id
-                    ? 'linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(139, 92, 246, 0.3), rgba(236, 72, 153, 0.3))'
-                    : 'transparent',
-                  opacity: hoveredId === project.id ? 1 : 0,
-                  transition: 'opacity 0.3s ease',
-                }}
-              />
-              <div className="absolute inset-[1px] rounded-xl bg-gradient-to-br from-gray-900 to-black" />
-              {/* Project Image */}
-              <div className="relative h-48 overflow-hidden rounded-t-xl flex-shrink-0">
-                <motion.img
-                  src={project.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
-                  alt={project.title}
-                  className="w-full h-full object-contain"
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.3 }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-              </div>
-
-              {/* Project Content */}
-              <div className="p-6 relative z-10 flex flex-col flex-grow">
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">
-                    {project.title}
-                  </h3>
-                  <Code2 className="text-purple-400 flex-shrink-0" size={20} />
-                </div>
-
-                {/* Expandable Description */}
-                {project.description && (
-                  <ExpandableText
-                    text={project.description}
-                    maxHeight={80}
-                    className="text-gray-400 text-sm"
-                    expandButtonColor="text-purple-400 hover:text-purple-300"
-                  />
-                )}
-
-                {/* Tech Stack */}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {project.technologies && project.technologies.map((tech) => (
-                    <motion.span
-                      key={tech}
-                      className="px-3 py-1 text-xs bg-gray-800/50 text-gray-300 rounded-md border border-gray-700/50 backdrop-blur-sm"
-                      whileHover={{ 
-                        scale: 1.05,
-                        borderColor: 'rgba(139, 92, 246, 0.5)',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                      }}
-                    >
-                      {tech}
-                    </motion.span>
-                  ))}
-                </div>
-
-                {/* Spacer to push links to bottom */}
-                <div className="flex-grow" />
-
-                {/* Links */}
-                <div className="flex gap-4 flex-wrap mt-auto">
-                  {project.github && (
-                    <motion.a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        analytics.projectClick(project.id, project.title, 'github')
-                      }}
-                      className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-                      whileHover={{ x: 5 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Code2 size={18} />
-                      <span className="text-sm">Details</span>
-                    </motion.a>
-                  )}
-                  {project.live && (
-                    <motion.a
-                      href={project.live}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={() => {
-                        analytics.projectClick(project.id, project.title, 'live')
-                      }}
-                      className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-                      whileHover={{ x: 5 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <ExternalLink size={18} />
-                      <span className="text-sm">Learn More</span>
-                    </motion.a>
-                  )}
-                  {project.file_path && (
-                    <motion.a
-                      href={`/api/projects/${project.id}/download`}
-                      onClick={async (e) => {
-                        e.preventDefault()
-                        try {
-                          const response = await fetch(`/api/projects/${project.id}/download`)
-                          if (response.ok) {
-                            const data = await response.json()
-                            window.open(data.downloadUrl, '_blank')
-                            analytics.projectClick(project.id, project.title, 'download')
-                          }
-                        } catch (error) {
-                          console.error('Error downloading file:', error)
-                        }
-                      }}
-                      className="flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors"
-                      whileHover={{ x: 5 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <Download size={18} />
-                      <span className="text-sm">Download</span>
-                    </motion.a>
-                  )}
-                </div>
-              </div>
-
-              {/* Animated glow effect */}
-              {hoveredId === project.id && (
-                <motion.div
-                  className="absolute -inset-1 rounded-xl pointer-events-none opacity-75"
-                  initial={{ opacity: 0 }}
-                  animate={{ 
-                    opacity: [0.5, 0.8, 0.5],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    ease: 'easeInOut',
-                  }}
-                >
-                  <div 
-                    className="absolute inset-0 rounded-xl blur-xl"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.4), rgba(139, 92, 246, 0.4), rgba(236, 72, 153, 0.4))',
-                    }}
-                  />
-                </motion.div>
-              )}
-            </motion.div>
+              <ProjectCard key={project.id} project={project} index={index} />
             ))}
           </div>
         )}

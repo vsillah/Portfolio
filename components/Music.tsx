@@ -51,92 +51,54 @@ export default function Music() {
     }
   }
 
-  // Get public URL for file from Supabase storage
   const getFileUrl = (filePath: string | null) => {
     if (!filePath) return null
     const { data } = supabase.storage.from('music').getPublicUrl(filePath)
     return data.publicUrl
   }
 
-  // Check if file is an image
   const isImage = (fileType: string | null) => {
     return fileType?.startsWith('image/')
   }
 
   if (loading) {
     return (
-      <section id="music" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900 to-black">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="text-gray-400">Loading music...</div>
-        </div>
-      </section>
-    )
-  }
-
-  if (musicEntries.length === 0) {
-    return (
-      <section id="music" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-500/30 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500/30 rounded-full blur-3xl" />
-        </div>
-        
-        <div className="max-w-7xl mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              <span className="gradient-text">Music</span>
-            </h2>
-            <p className="text-gray-400 mt-8">No music entries yet. Check back soon!</p>
-          </motion.div>
+      <section id="music" className="py-32 bg-silicon-slate/5">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="h-10 w-48 bg-silicon-slate/20 mx-auto rounded-full animate-pulse" />
         </div>
       </section>
     )
   }
 
   return (
-    <section id="music" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900 to-black relative overflow-hidden">
-      {/* Subtle background effect */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-green-500/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-emerald-500/30 rounded-full blur-3xl" />
-      </div>
-      
+    <section id="music" className="py-32 px-6 sm:px-10 lg:px-12 bg-silicon-slate/5 relative overflow-hidden">
+      {/* Aurora */}
+      <div className="absolute top-1/2 right-0 w-[600px] h-[600px] bg-radiant-gold/5 blur-[120px] rounded-full" />
+
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="gradient-text">Music</span>
-          </h2>
-          <div className="mt-8 max-w-3xl mx-auto">
-            <p className="text-gray-300 leading-relaxed">
-              Hailing from the vibrant neighborhood of Roxbury, MA, <strong className="text-white">Mad Hadda</strong> is not just a hip hop artist; 
-              he's a storyteller whose roots run deep in the rich cultural tapestry of Boston. His music blends thoughtful narratives with innovative 
-              beats, exploring themes of social justice, personal growth, and the complexities of identity - blending old-school beats with modern sounds.
-            </p>
+          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
+            <Music2 className="w-3 h-3 text-radiant-gold" />
+            <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
+              Discography
+            </span>
           </div>
-          {/* Browse Store Link */}
-          <Link 
-            href="/store?type=music"
-            className="inline-flex items-center gap-2 mt-6 text-green-400 hover:text-green-300 transition-colors group"
-          >
-            <ShoppingCart size={18} />
-            <span>Browse Music Store</span>
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
+          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+            <span className="italic text-radiant-gold">Music</span>
+          </h2>
+          <p className="font-body text-platinum-white/50 text-lg max-w-3xl mx-auto leading-relaxed">
+            Storytelling through rhythm and rhyme. Explore the musical journey of <strong className="text-radiant-gold">Mad Hadda</strong>.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {musicEntries.map((entry, index) => {
             const imageUrl = isImage(entry.file_type) ? getFileUrl(entry.file_path) : null
             const releaseYear = entry.release_date ? new Date(entry.release_date).getFullYear() : null
@@ -147,69 +109,50 @@ export default function Music() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800 hover:border-green-500/50 transition-all duration-300 flex flex-col"
-                style={{
-                  boxShadow: '0 0 20px rgba(34, 197, 94, 0.1)',
-                }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="group relative bg-imperial-navy/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 flex flex-col"
               >
                 {/* Album Image */}
-                <div className="relative h-64 overflow-hidden rounded-t-xl flex-shrink-0">
-                  <motion.img
+                <div className="relative aspect-square overflow-hidden flex-shrink-0">
+                  <img
                     src={imageUrl || '/V 9T Sitting.jpg'}
                     alt={entry.title}
-                    className="w-full h-full object-contain"
-                    whileHover={{ scale: 1.1 }}
-                    transition={{ duration: 0.3 }}
-                    onError={(e) => {
-                      e.currentTarget.src = '/V 9T Sitting.jpg'
-                    }}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    onError={(e) => { e.currentTarget.src = '/V 9T Sitting.jpg' }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent opacity-60" />
                   
-                  {/* Music Icon Overlay */}
-                  <div className="absolute top-4 right-4 bg-green-600/90 backdrop-blur-sm p-3 rounded-full">
-                    <Music2 className="text-white" size={24} />
+                  {/* Play Button Overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all duration-500">
+                    <motion.div
+                      className="w-20 h-20 bg-radiant-gold/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-4 group-hover:translate-y-0"
+                    >
+                      <Play className="text-imperial-navy ml-1" size={32} fill="currentColor" />
+                    </motion.div>
                   </div>
-                  
+
                   {/* Purchase Badge */}
                   {entry.linked_product && (
                     <Link
                       href={`/store/${entry.linked_product.id}`}
-                      className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white text-xs font-semibold shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-105"
+                      className="absolute top-6 left-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold"
                     >
-                      <ShoppingCart size={12} />
-                      {entry.linked_product.price !== null 
-                        ? `$${entry.linked_product.price.toFixed(2)}` 
-                        : 'Free'}
+                      {entry.linked_product.price !== null ? `$${entry.linked_product.price.toFixed(2)}` : 'Free'}
                     </Link>
                   )}
-
-                  {/* Play Button Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
-                    <motion.div
-                      className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-                      whileHover={{ scale: 1.1 }}
-                    >
-                      <Play className="text-white ml-1" size={24} fill="white" />
-                    </motion.div>
-                  </div>
                 </div>
 
                 {/* Album Content */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <div className="flex items-start justify-between mb-3">
+                <div className="p-8 flex flex-col flex-grow relative z-10">
+                  <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="text-xl font-bold text-white group-hover:text-green-400 transition-colors">
+                      <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors">
                         {entry.title}
                       </h3>
-                      <p className="text-sm text-gray-400 mt-1">
-                        {entry.artist}
-                        {entry.album && ` • ${entry.album}`}
-                        {releaseYear && ` • ${releaseYear}`}
+                      <p className="text-[10px] font-heading tracking-widest text-platinum-white/40 mt-2 uppercase">
+                        {entry.artist} {entry.album && ` • ${entry.album}`} {releaseYear && ` • ${releaseYear}`}
                       </p>
                     </div>
-                    <Music2 className="text-green-400 flex-shrink-0" size={20} />
                   </div>
 
                   {/* Expandable Description */}
@@ -217,81 +160,27 @@ export default function Music() {
                     <ExpandableText
                       text={entry.description}
                       maxHeight={80}
-                      className="text-gray-400 text-sm"
-                      expandButtonColor="text-green-400 hover:text-green-300"
+                      className="font-body text-platinum-white/50 text-sm leading-relaxed mb-8"
+                      expandButtonColor="text-radiant-gold hover:text-gold-light"
                     />
                   )}
 
-                  {/* Genre Tag */}
-                  {entry.genre && (
-                    <div className="mb-4">
-                      <span className="px-2 py-1 text-xs bg-gray-800/50 text-gray-300 rounded-md border border-gray-700/50">
-                        {entry.genre}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Spacer to push buttons to bottom */}
                   <div className="flex-grow" />
 
                   {/* Streaming Links */}
-                  <div className="space-y-2 mt-auto">
+                  <div className="flex flex-wrap gap-4 pt-6 border-t border-radiant-gold/5">
                     {entry.spotify_url && (
-                      <motion.a
-                        href={entry.spotify_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-green-500/50 transition-all group/link"
-                        whileHover={{ scale: 1.02, y: -2 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <span>Listen on Spotify</span>
-                        <ExternalLink size={18} className="group-hover/link:translate-x-1 transition-transform" />
-                      </motion.a>
+                      <a href={entry.spotify_url} target="_blank" rel="noopener noreferrer" className="text-platinum-white/40 hover:text-radiant-gold transition-colors">
+                        <ExternalLink size={18} />
+                      </a>
                     )}
-                    
                     {entry.apple_music_url && (
-                      <motion.a
-                        href={entry.apple_music_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full px-6 py-2 bg-gradient-to-r from-pink-500 to-red-500 rounded-lg text-white font-semibold hover:shadow-lg transition-all"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <span>Apple Music</span>
-                        <ExternalLink size={16} />
-                      </motion.a>
-                    )}
-                    
-                    {entry.youtube_url && (
-                      <motion.a
-                        href={entry.youtube_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 w-full px-6 py-2 bg-gradient-to-r from-red-600 to-red-700 rounded-lg text-white font-semibold hover:shadow-lg transition-all"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <span>YouTube</span>
-                        <ExternalLink size={16} />
-                      </motion.a>
+                      <a href={entry.apple_music_url} target="_blank" rel="noopener noreferrer" className="text-platinum-white/40 hover:text-radiant-gold transition-colors">
+                        <Music2 size={18} />
+                      </a>
                     )}
                   </div>
                 </div>
-
-                {/* Glow effect on hover */}
-                <motion.div
-                  className="absolute -inset-1 rounded-xl pointer-events-none opacity-0 group-hover:opacity-75 transition-opacity"
-                  initial={false}
-                >
-                  <div 
-                    className="absolute inset-0 rounded-xl blur-xl"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.4), rgba(16, 185, 129, 0.4))',
-                    }}
-                  />
-                </motion.div>
               </motion.div>
             )
           })}

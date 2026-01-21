@@ -1,32 +1,31 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Play, Youtube } from 'lucide-react'
+import { Play, Youtube, X, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { analytics } from '@/lib/analytics'
 import ExpandableText from '@/components/ui/ExpandableText'
 
-// Sample YouTube videos - replace with your actual video IDs
 const videos = [
   {
     id: 1,
     title: 'Never Know Bar 4 Bar Breakdown, 1st Verse',
     description: 'This is the Bar for Bar Breakdown of "Never Know", the first single release from "Into the Rabbit Hole" album by Mad Hadda',
-    videoId: 'ps5WbgLk4mI', // Replaced with my YouTube video ID
+    videoId: 'ps5WbgLk4mI',
     thumbnail: 'https://img.youtube.com/vi/ps5WbgLk4mI/hqdefault.jpg?v=2',
   },
   {
     id: 2,
     title: 'Never Know Bar 4 Bar Breakdown, 2nd Verse',
     description: 'This is the Bar for Bar Breakdown of "Never Know", the first single release from "Into the Rabbit Hole" album by Mad Hadda',
-    videoId: 'VltoBXKskOE', // Replaced with my YouTube video ID
+    videoId: 'VltoBXKskOE',
     thumbnail: 'https://img.youtube.com/vi/VltoBXKskOE/hqdefault.jpg?v=2',
   },
   {
     id: 3,
     title: 'Shoulders of Giants short video',
     description: 'This is the short video of "Shoulders of Giants", the second single release from "Into the Rabbit Hole" album by Mad Hadda',
-    videoId: 'V4phmDS8Bik', // Replace with your YouTube video ID
+    videoId: 'V4phmDS8Bik',
     thumbnail: 'https://img.youtube.com/vi/V4phmDS8Bik/hqdefault.jpg?v=2',
   },
 ]
@@ -39,108 +38,85 @@ export default function Videos() {
     setSelectedVideo(videoId)
   }
 
-  const closeVideo = () => {
-    setSelectedVideo(null)
-  }
+  const closeVideo = () => setSelectedVideo(null)
 
   return (
-    <section id="videos" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900">
-      <div className="max-w-7xl mx-auto">
+    <section id="videos" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
+      {/* Aurora */}
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-radiant-gold/5 blur-[120px] rounded-full" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
         >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Youtube className="text-red-500" size={40} />
-            <h2 className="text-4xl md:text-5xl font-bold">
-              <span className="gradient-text">YouTube Channel</span>
-            </h2>
+          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
+            <Youtube className="w-3 h-3 text-radiant-gold" />
+            <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
+              Visuals
+            </span>
           </div>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Product management insights, strategic initiatives, and professional development content
+          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+            <span className="italic text-radiant-gold">Videos</span>
+          </h2>
+          <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
+            Behind-the-scenes insights, lyric breakdowns, and strategic visual content.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {videos.map((video, index) => (
             <motion.div
               key={video.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative rounded-xl overflow-hidden border border-gray-800 hover:border-red-500/50 transition-all duration-300 bg-gray-900 flex flex-col"
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 flex flex-col"
             >
               {/* Thumbnail */}
               <div className="relative aspect-video overflow-hidden flex-shrink-0">
                 <img
                   src={video.thumbnail}
                   alt={video.title}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Fallback to medium quality if high quality fails
-                    const target = e.target as HTMLImageElement
-                    if (target.src.includes('hqdefault')) {
-                      target.src = `https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`
-                    } else if (target.src.includes('mqdefault')) {
-                      target.src = `https://img.youtube.com/vi/${video.videoId}/default.jpg`
-                    }
-                  }}
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent opacity-60" />
                 
-                {/* Play Button Overlay */}
+                {/* Play Button */}
                 <motion.button
                   onClick={() => openVideo(video.videoId, video.title)}
-                  className="absolute inset-0 flex items-center justify-center bg-black/40 hover:bg-black/20 transition-colors"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all duration-500"
                 >
                   <motion.div
-                    className="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center shadow-lg"
-                    whileHover={{ scale: 1.1 }}
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                    className="w-20 h-20 bg-radiant-gold/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl scale-90 group-hover:scale-100 transition-transform duration-500"
                   >
-                    <Play className="text-white ml-1" size={30} fill="white" />
+                    <Play className="text-imperial-navy ml-1" size={32} fill="currentColor" />
                   </motion.div>
                 </motion.button>
 
-                {/* YouTube Badge */}
-                <div className="absolute top-4 right-4 bg-red-600 px-3 py-1 rounded-full flex items-center gap-2">
-                  <Youtube size={16} className="text-white" />
-                  <span className="text-white text-xs font-semibold">YouTube</span>
+                <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1 bg-imperial-navy/80 backdrop-blur-md border border-radiant-gold/20 rounded-full text-[10px] font-heading tracking-widest text-radiant-gold uppercase">
+                  <Youtube size={12} />
+                  <span>Watch</span>
                 </div>
               </div>
 
               {/* Video Info */}
-              <div className="p-6 flex flex-col flex-grow">
-                <h3 className="text-xl font-bold text-white mb-2 group-hover:text-red-400 transition-colors">
+              <div className="p-8 flex flex-col flex-grow">
+                <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors mb-4">
                   {video.title}
                 </h3>
                 
-                {/* Expandable Description */}
                 <ExpandableText
                   text={video.description}
                   maxHeight={80}
-                  className="text-gray-400 text-sm"
-                  expandButtonColor="text-red-400 hover:text-red-300"
+                  className="font-body text-platinum-white/50 text-sm leading-relaxed"
+                  expandButtonColor="text-radiant-gold hover:text-gold-light"
                 />
-
-                {/* Spacer to push content to bottom if needed */}
-                <div className="flex-grow" />
               </div>
-
-              {/* Hover glow effect */}
-              <motion.div
-                className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity"
-                initial={false}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-red-600/20 to-pink-600/20 blur-xl" />
-              </motion.div>
             </motion.div>
           ))}
         </div>
@@ -151,14 +127,14 @@ export default function Videos() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-imperial-navy/95 backdrop-blur-xl p-6"
             onClick={closeVideo}
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative w-full max-w-4xl aspect-video"
+              className="relative w-full max-w-5xl aspect-video glass-card p-2 border-radiant-gold/20"
               onClick={(e) => e.stopPropagation()}
             >
               <iframe
@@ -169,9 +145,10 @@ export default function Videos() {
               />
               <button
                 onClick={closeVideo}
-                className="absolute -top-12 right-0 text-white hover:text-red-500 transition-colors"
+                className="absolute -top-12 right-0 text-platinum-white/60 hover:text-radiant-gold flex items-center gap-2 text-[10px] font-heading tracking-widest uppercase transition-colors"
               >
-                Close
+                <span>Close</span>
+                <X size={16} />
               </button>
             </motion.div>
           </motion.div>

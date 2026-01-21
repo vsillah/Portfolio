@@ -28,13 +28,16 @@ if (!serviceRoleKey && typeof window === 'undefined') {
   console.warn('[SERVER] SUPABASE_SERVICE_ROLE_KEY is missing. Admin operations may fail.')
 }
 
-export const supabaseAdmin = createClient(
-  supabaseUrl,
-  serviceRoleKey || supabaseAnonKey, // Fallback to anon key if service role missing (won't work for admin ops)
-  {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  }
-)
+// Ensure supabaseAdmin is only created on the server to avoid client-side auth warnings
+export const supabaseAdmin = typeof window === 'undefined'
+  ? createClient(
+      supabaseUrl,
+      serviceRoleKey || supabaseAnonKey,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false
+        }
+      }
+    )
+  : null as any

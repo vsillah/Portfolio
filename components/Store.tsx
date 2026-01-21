@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingBag, ArrowRight, ShoppingCart, DollarSign, Image as ImageIcon } from 'lucide-react'
+import { ShoppingBag, ArrowRight, ShoppingCart, DollarSign } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
@@ -36,17 +36,13 @@ export default function Store() {
 
   const fetchProducts = async () => {
     try {
-      // Fetch featured products, prioritizing merchandise
       const response = await fetch('/api/products?active=true')
       if (response.ok) {
         const data = await response.json()
-        // Filter to show featured items first, then merchandise, limit to 6 items
         const sorted = (data || [])
           .sort((a: Product, b: Product) => {
-            // Featured first
             if (a.is_featured && !b.is_featured) return -1
             if (!a.is_featured && b.is_featured) return 1
-            // Then merchandise
             if (a.type === 'merchandise' && b.type !== 'merchandise') return -1
             if (a.type !== 'merchandise' && b.type === 'merchandise') return 1
             return 0
@@ -67,179 +63,115 @@ export default function Store() {
 
   if (loading) {
     return (
-      <section id="store" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="text-gray-400">Loading store...</div>
+      <section id="store" className="py-32 bg-silicon-slate/10">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="h-10 w-48 bg-silicon-slate/20 mx-auto rounded-full animate-pulse" />
         </div>
       </section>
     )
   }
 
   return (
-    <section id="store" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
-      {/* Subtle background effect */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 left-1/3 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/3 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl" />
-      </div>
-
+    <section id="store" className="py-32 px-6 sm:px-10 lg:px-12 bg-silicon-slate/10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
         >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <ShoppingBag className="text-purple-500" size={40} />
-            <h2 className="text-4xl md:text-5xl font-bold">
-              <span className="gradient-text">Store</span>
-            </h2>
+          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
+            <ShoppingBag className="w-3 h-3 text-radiant-gold" />
+            <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
+              Store
+            </span>
           </div>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Browse our collection of merchandise, digital products, and more
+          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+            <span className="italic text-radiant-gold">Store</span>
+          </h2>
+          <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
+            Premium products and digital tools designed to elevate your professional workflow.
           </p>
-          {/* Browse Full Store Link */}
-          <Link 
-            href="/store"
-            className="inline-flex items-center gap-2 mt-6 text-purple-400 hover:text-purple-300 transition-colors group"
-          >
-            <ShoppingCart size={18} />
-            <span>Browse Full Store</span>
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-          </Link>
         </motion.div>
 
         {/* Products Grid */}
-        {products.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400 mb-4">No products available yet.</p>
-            <Link 
-              href="/store"
-              className="text-purple-400 hover:text-purple-300"
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {products.map((product, index) => (
+            <motion.div
+              key={product.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              onClick={() => handleProductClick(product.id)}
+              className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 cursor-pointer"
             >
-              Check back soon or visit our store
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {products.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                onClick={() => handleProductClick(product.id)}
-                className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/50 transition-all duration-300 cursor-pointer"
-                style={{
-                  boxShadow: '0 0 20px rgba(139, 92, 246, 0.1)',
-                }}
-              >
-                {/* Product Image */}
-                <div className="relative h-56 overflow-hidden">
-                  {product.image_url ? (
-                    <motion.img
-                      src={product.image_url}
-                      alt={product.title}
-                      className="w-full h-full object-cover"
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ duration: 0.3 }}
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none'
-                      }}
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-900/20 to-blue-900/20">
-                      <ShoppingBag className="text-gray-600" size={48} />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                  
-                  {/* Type Badge */}
-                  <div className="absolute top-4 left-4 px-3 py-1 bg-gray-900/80 backdrop-blur-sm rounded-full text-xs font-semibold text-gray-300">
-                    {TYPE_LABELS[product.type] || product.type}
-                  </div>
-                  
-                  {/* Featured Badge */}
-                  {product.is_featured && (
-                    <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-xs font-semibold text-white">
-                      Featured
-                    </div>
-                  )}
-                  
-                  {/* Price Badge */}
-                  <div className="absolute bottom-4 right-4 flex items-center gap-1 px-3 py-1.5 bg-green-500/90 backdrop-blur-sm rounded-full text-white text-sm font-bold">
-                    {product.price !== null ? (
-                      <>
-                        <DollarSign size={14} />
-                        {product.price.toFixed(2)}
-                      </>
-                    ) : (
-                      'Free'
-                    )}
-                  </div>
-                </div>
-
-                {/* Product Content */}
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors mb-2">
-                    {product.title}
-                  </h3>
-                  {product.description && (
-                    <p className="text-gray-400 text-sm line-clamp-2 mb-4">
-                      {product.description}
-                    </p>
-                  )}
-                  
-                  {/* View Product Button */}
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-purple-500/30 transition-all"
-                  >
-                    <ShoppingCart size={18} />
-                    {product.type === 'merchandise' ? 'View Options' : 'View Product'}
-                  </motion.div>
-                </div>
-
-                {/* Glow effect on hover */}
-                <motion.div
-                  className="absolute -inset-1 rounded-xl pointer-events-none opacity-0 group-hover:opacity-75 transition-opacity"
-                  initial={false}
-                >
-                  <div 
-                    className="absolute inset-0 rounded-xl blur-xl"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(236, 72, 153, 0.4))',
-                    }}
+              {/* Product Image */}
+              <div className="relative h-64 overflow-hidden">
+                {product.image_url ? (
+                  <img
+                    src={product.image_url}
+                    alt={product.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
-                </motion.div>
-              </motion.div>
-            ))}
-          </div>
-        )}
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-imperial-navy">
+                    <ShoppingBag className="text-radiant-gold/20" size={48} />
+                  </div>
+                )}
+                
+                {/* Badges */}
+                <div className="absolute top-6 left-6 flex flex-col gap-2">
+                  <span className="px-3 py-1 bg-imperial-navy/80 backdrop-blur-md border border-radiant-gold/20 rounded-full text-[10px] font-heading tracking-widest text-radiant-gold uppercase">
+                    {TYPE_LABELS[product.type] || product.type}
+                  </span>
+                  {product.is_featured && (
+                    <span className="px-3 py-1 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold">
+                      Featured
+                    </span>
+                  )}
+                </div>
+                
+                <div className="absolute bottom-6 right-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-sm font-heading tracking-tighter">
+                  {product.price !== null ? `$${product.price.toFixed(2)}` : 'Free'}
+                </div>
+              </div>
 
-        {/* View All Products Button */}
+              {/* Product Content */}
+              <div className="p-8">
+                <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors mb-3">
+                  {product.title}
+                </h3>
+                {product.description && (
+                  <p className="font-body text-platinum-white/50 text-sm line-clamp-2 mb-8">
+                    {product.description}
+                  </p>
+                )}
+                
+                <div className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 group-hover:bg-radiant-gold group-hover:text-imperial-navy rounded-full transition-all duration-300">
+                  <ShoppingCart size={14} />
+                  <span className="text-[10px] font-heading tracking-widest uppercase">
+                    {product.type === 'merchandise' ? 'View Options' : 'View Product'}
+                  </span>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* View All */}
         {products.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-center mt-12"
-          >
+          <div className="text-center mt-20">
             <Link
               href="/store"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-purple-500/30 transition-all group"
+              className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
             >
-              <ShoppingBag size={20} />
-              View All Products
-              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+              <span>Explore Boutique</span>
+              <ArrowRight size={14} />
             </Link>
-          </motion.div>
+          </div>
         )}
       </div>
     </section>

@@ -32,92 +32,53 @@ export default function PrototypeFilters({
     onTypeChange(null)
   }
 
+  const FilterGroup = ({ label, items, active, onChange }: any) => (
+    <div className="space-y-3">
+      <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-platinum-white/30">{label}</p>
+      <div className="flex flex-wrap gap-2">
+        {items.map((item: string) => (
+          <button
+            key={item}
+            onClick={() => onChange(active === item ? null : item)}
+            className={`px-4 py-1.5 rounded-full text-[10px] font-heading tracking-wider uppercase transition-all duration-300 border ${
+              active === item
+                ? 'bg-radiant-gold text-imperial-navy border-radiant-gold shadow-lg shadow-radiant-gold/20'
+                : 'bg-transparent text-platinum-white/60 border-platinum-white/10 hover:border-platinum-white/30'
+            }`}
+          >
+            {item}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-8 bg-gray-900/50 backdrop-blur-sm rounded-xl p-6 border border-gray-800"
+      className="glass-card p-8 border-radiant-gold/5"
     >
-      <div className="flex items-center gap-4 mb-4">
-        <Filter className="text-purple-400" size={20} />
-        <h3 className="text-lg font-semibold text-white">Filters</h3>
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-3">
+          <Filter className="text-radiant-gold w-3 h-3" />
+          <h3 className="text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/80">Refine Selection</h3>
+        </div>
         {hasActiveFilters && (
           <button
             onClick={clearAllFilters}
-            className="ml-auto flex items-center gap-2 px-3 py-1 text-sm text-gray-400 hover:text-white transition-colors"
+            className="flex items-center gap-2 text-[10px] font-heading tracking-widest uppercase text-platinum-white/40 hover:text-radiant-gold transition-colors"
           >
-            <X size={16} />
-            Clear all
+            <X size={12} />
+            <span>Reset</span>
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Production Stage Filter */}
-        <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">
-            Production Stage
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {stages.map((stage) => (
-              <button
-                key={stage}
-                onClick={() => onStageChange(stageFilter === stage ? null : stage)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  stageFilter === stage
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
-              >
-                {stage}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Channel Filter */}
-        <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">
-            Channel
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {channels.map((channel) => (
-              <button
-                key={channel}
-                onClick={() => onChannelChange(channelFilter === channel ? null : channel)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  channelFilter === channel
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
-              >
-                {channel}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Product Type Filter */}
-        <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">
-            Product Type
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {types.map((type) => (
-              <button
-                key={type}
-                onClick={() => onTypeChange(typeFilter === type ? null : type)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  typeFilter === type
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+        <FilterGroup label="Production Stage" items={stages} active={stageFilter} onChange={onStageChange} />
+        <FilterGroup label="Channel" items={channels} active={channelFilter} onChange={onChannelChange} />
+        <FilterGroup label="Product Type" items={types} active={typeFilter} onChange={onTypeChange} />
       </div>
     </motion.div>
   )

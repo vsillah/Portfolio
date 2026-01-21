@@ -55,18 +55,15 @@ export default function Publications() {
         if (data && data.length > 0) {
           setPublications(data)
         } else {
-          // Use fallback if no data from API
           setPublications(fallbackPublications)
           setUsedFallback(true)
         }
       } else {
-        // Use fallback on error
         setPublications(fallbackPublications)
         setUsedFallback(true)
       }
     } catch (error) {
       console.error('Error fetching publications:', error)
-      // Use fallback on error
       setPublications(fallbackPublications)
       setUsedFallback(true)
     } finally {
@@ -74,14 +71,11 @@ export default function Publications() {
     }
   }
 
-  // Get image URL - either from file_path or use default
   const getImageUrl = (pub: Publication) => {
     if (pub.file_path) {
-      // If it starts with /, it's a local public path
       if (pub.file_path.startsWith('/')) {
         return pub.file_path
       }
-      // Otherwise it might be a Supabase storage path
       return pub.file_path
     }
     return '/The_Equity_Code_Cover.png'
@@ -89,83 +83,78 @@ export default function Publications() {
 
   if (loading) {
     return (
-      <section id="publications" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900">
-        <div className="max-w-7xl mx-auto text-center">
-          <div className="text-gray-400">Loading publications...</div>
+      <section id="publications" className="py-32 bg-imperial-navy">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="h-10 w-48 bg-silicon-slate/20 mx-auto rounded-full animate-pulse" />
         </div>
       </section>
     )
   }
 
   return (
-    <section id="publications" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900 relative overflow-hidden">
-      {/* Subtle background effect */}
-      <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-500/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-pink-500/30 rounded-full blur-3xl" />
-      </div>
+    <section id="publications" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
+      {/* Subtle Aurora */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-bronze/5 blur-[120px] rounded-full" />
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="gradient-text">Publications</span>
+          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
+            <BookOpen className="w-3 h-3 text-radiant-gold" />
+            <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
+              Library
+            </span>
+          </div>
+          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+            <span className="italic text-radiant-gold">Publications</span>
           </h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Published works and written content
+          <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto mb-10">
+            Thought leadership and strategic guides for the digital frontier.
           </p>
-          {/* Browse Store Link */}
           <Link 
             href="/store?type=ebook"
-            className="inline-flex items-center gap-2 mt-6 text-purple-400 hover:text-purple-300 transition-colors group"
+            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
           >
-            <ShoppingCart size={18} />
-            <span>Browse Publications Store</span>
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            <span>Browse Library Store</span>
+            <ArrowRight size={14} />
           </Link>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {publications.map((publication, index) => (
             <motion.div
               key={publication.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/50 transition-all duration-300 flex flex-col"
-              style={{
-                boxShadow: '0 0 20px rgba(139, 92, 246, 0.1)',
-              }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 flex flex-col"
             >
               {/* Publication Image */}
-              <div className="relative h-64 overflow-hidden rounded-t-xl flex-shrink-0">
-                <motion.img
+              <div className="relative h-80 overflow-hidden flex-shrink-0">
+                <img
                   src={getImageUrl(publication)}
                   alt={publication.title}
-                  className="w-full h-full object-contain"
-                  whileHover={{ scale: 1.1 }}
-                  transition={{ duration: 0.3 }}
+                  className="w-full h-full object-contain p-8 transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-40" />
                 
                 {/* Book Icon Overlay */}
-                <div className="absolute top-4 right-4 bg-purple-600/90 backdrop-blur-sm p-3 rounded-full">
-                  <BookOpen className="text-white" size={24} />
+                <div className="absolute top-6 right-6 bg-radiant-gold text-imperial-navy p-3 rounded-full shadow-xl">
+                  <BookOpen size={20} />
                 </div>
                 
                 {/* Purchase Badge */}
                 {publication.linked_product && (
                   <Link
                     href={`/store/${publication.linked_product.id}`}
-                    className="absolute top-4 left-4 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white text-xs font-semibold shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-105"
+                    className="absolute top-6 left-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold"
                   >
-                    <ShoppingCart size={12} />
                     {publication.linked_product.price !== null 
                       ? `$${publication.linked_product.price.toFixed(2)}` 
                       : 'Free'}
@@ -174,21 +163,20 @@ export default function Publications() {
               </div>
 
               {/* Publication Content */}
-              <div className="p-6 flex flex-col flex-grow">
-                <div className="flex items-start justify-between mb-3">
+              <div className="p-8 flex flex-col flex-grow relative z-10">
+                <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors">
+                    <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors">
                       {publication.title}
                     </h3>
                     {(publication.author || publication.publisher) && (
-                      <p className="text-sm text-gray-400 mt-1">
+                      <p className="text-[10px] font-heading tracking-widest text-platinum-white/40 mt-2 uppercase">
                         {publication.author}
                         {publication.author && publication.publisher && ' • '}
                         {publication.publisher}
                       </p>
                     )}
                   </div>
-                  <BookOpen className="text-purple-400 flex-shrink-0" size={20} />
                 </div>
 
                 {/* Expandable Description */}
@@ -196,61 +184,37 @@ export default function Publications() {
                   <ExpandableText
                     text={publication.description}
                     maxHeight={80}
-                    className="text-gray-400 text-sm"
-                    expandButtonColor="text-purple-400 hover:text-purple-300"
+                    className="font-body text-platinum-white/50 text-sm leading-relaxed mb-8"
+                    expandButtonColor="text-radiant-gold hover:text-gold-light"
                   />
                 )}
 
-                {/* Spacer to push button to bottom */}
                 <div className="flex-grow" />
 
-                {/* Action Buttons */}
-                <div className="space-y-2 mt-auto">
-                  {/* Buy E-Book Button (if linked product exists) */}
+                <div className="space-y-3 pt-6 border-t border-radiant-gold/5">
                   {publication.linked_product && (
                     <Link
                       href={`/store/${publication.linked_product.id}`}
-                      className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-purple-500/50 transition-all"
+                      className="w-full flex items-center justify-center gap-3 py-3 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:brightness-110 transition-all"
                     >
-                      <ShoppingCart size={18} />
-                      <span>
-                        Buy E-Book
-                        {publication.linked_product.price !== null && 
-                          ` - $${publication.linked_product.price.toFixed(2)}`
-                        }
-                      </span>
+                      <ShoppingCart size={14} />
+                      <span>Buy E-Book</span>
                     </Link>
                   )}
                   
-                  {/* External Link (Amazon, etc.) */}
                   {publication.publication_url && (
                     <motion.a
                       href={publication.publication_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 rounded-lg text-white font-semibold hover:shadow-lg hover:shadow-orange-500/50 transition-all group/link"
-                      whileHover={{ scale: 1.02, y: -2 }}
-                      whileTap={{ scale: 0.98 }}
+                      className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-platinum-white/80 transition-all group/link"
                     >
                       <span>View on Amazon</span>
-                      <ExternalLink size={18} className="group-hover/link:translate-x-1 transition-transform" />
+                      <ExternalLink size={14} className="group-hover/link:translate-x-1 transition-transform" />
                     </motion.a>
                   )}
                 </div>
               </div>
-
-              {/* Glow effect on hover */}
-              <motion.div
-                className="absolute -inset-1 rounded-xl pointer-events-none opacity-0 group-hover:opacity-75 transition-opacity"
-                initial={false}
-              >
-                <div 
-                  className="absolute inset-0 rounded-xl blur-xl"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(236, 72, 153, 0.4))',
-                  }}
-                />
-              </motion.div>
             </motion.div>
           ))}
         </div>

@@ -107,61 +107,71 @@ export default function AppPrototypes() {
   }
 
   return (
-    <section id="prototypes" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-black to-gray-900">
-      <div className="max-w-7xl mx-auto">
+    <section id="prototypes" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
+      {/* Aurora */}
+      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-bronze/5 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
         >
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <Sparkles className="text-purple-500" size={40} />
-            <h2 className="text-4xl md:text-5xl font-bold">
-              <span className="gradient-text">App Prototypes</span>
-            </h2>
+          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
+            <Sparkles className="w-3 h-3 text-radiant-gold" />
+            <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
+              Beta
+            </span>
           </div>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Explore innovative applications across different stages of development
+          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+            <span className="italic text-radiant-gold">Prototypes</span>
+          </h2>
+          <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto mb-10">
+            Experimental applications and innovative prototypes in various stages of development.
           </p>
-          {/* Browse Store Link */}
           <Link 
             href="/store?type=app"
-            className="inline-flex items-center gap-2 mt-6 text-purple-400 hover:text-purple-300 transition-colors group"
+            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
           >
-            <ShoppingCart size={18} />
-            <span>Browse Apps Store</span>
-            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+            <span>Explore Apps Store</span>
+            <ArrowRight size={14} />
           </Link>
         </motion.div>
 
         {/* Filters */}
-        <PrototypeFilters
-          stageFilter={stageFilter}
-          channelFilter={channelFilter}
-          typeFilter={typeFilter}
-          onStageChange={setStageFilter}
-          onChannelChange={setChannelFilter}
-          onTypeChange={setTypeFilter}
-        />
+        <div className="mb-12">
+          <PrototypeFilters
+            stageFilter={stageFilter}
+            channelFilter={channelFilter}
+            typeFilter={typeFilter}
+            onStageChange={setStageFilter}
+            onChannelChange={setChannelFilter}
+            onTypeChange={setTypeFilter}
+          />
+        </div>
 
         {/* Loading State */}
         {loading ? (
-          <div className="text-center py-20">
-            <div className="text-gray-400">Loading prototypes...</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-[400px] bg-silicon-slate/20 rounded-2xl animate-pulse" />
+            ))}
           </div>
         ) : (
           <>
             {/* Results Count */}
-            <div className="mb-6 text-gray-400">
-              Showing {filteredPrototypes.length} of {prototypes.length} prototypes
+            <div className="mb-10 flex items-center justify-between">
+              <p className="text-[10px] font-heading tracking-widest text-platinum-white/30 uppercase">
+                {filteredPrototypes.length} Prototypes Found
+              </p>
             </div>
 
             {/* Prototypes Grid */}
             {filteredPrototypes.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                 {filteredPrototypes.map((prototype, index) => (
                   <PrototypeCard
                     key={prototype.id}
@@ -174,9 +184,9 @@ export default function AppPrototypes() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-20 text-gray-500">
-                <Filter className="mx-auto mb-4 opacity-50" size={48} />
-                <p>No prototypes match your filters. Try adjusting your selection.</p>
+              <div className="text-center py-32 glass-card border-radiant-gold/10">
+                <Filter className="mx-auto mb-6 text-radiant-gold/20" size={48} />
+                <p className="font-body text-platinum-white/40">No prototypes match your current refinements.</p>
               </div>
             )}
           </>

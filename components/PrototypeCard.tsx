@@ -1,14 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { 
   Smartphone, Globe, Wrench, Sparkles, 
   ExternalLink, Download, MessageSquare, Star,
-  CheckCircle2, TrendingUp, Clock, Info, ShoppingCart
+  CheckCircle2, TrendingUp, Info, ShoppingCart
 } from 'lucide-react'
 import Link from 'next/link'
-import { useAuth } from '@/components/AuthProvider'
 import PrototypeDemoSelector from './PrototypeDemoSelector'
 import PrototypeEnrollment from './PrototypeEnrollment'
 import PrototypeFeedback from './PrototypeFeedback'
@@ -26,12 +25,6 @@ interface Demo {
   display_order: number
 }
 
-interface StageHistory {
-  old_stage: string | null
-  new_stage: string
-  changed_at: string
-}
-
 interface AppPrototype {
   id: string
   title: string
@@ -44,7 +37,6 @@ interface AppPrototype {
   download_url?: string
   app_repo_url?: string
   demos?: Demo[]
-  stage_history?: StageHistory[]
   feedback_count?: number
   user_enrollment?: string | null
   analytics?: {
@@ -58,318 +50,152 @@ interface AppPrototype {
   } | null
 }
 
-interface PrototypeCardProps {
-  prototype: AppPrototype
-  user: any
-  isAdmin: boolean
-  onEnrollmentSuccess: (prototypeId: string, enrollmentType: string) => void
-  index: number
-}
-
-export default function PrototypeCard({
-  prototype,
-  user,
-  isAdmin,
-  onEnrollmentSuccess,
-  index,
-}: PrototypeCardProps) {
+export default function PrototypeCard({ prototype, user, index, onEnrollmentSuccess }: any) {
   const [showFeedback, setShowFeedback] = useState(false)
   const [selectedDemoId, setSelectedDemoId] = useState<string | null>(null)
-  const [showStageHistory, setShowStageHistory] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!cardRef.current) return
+    const rect = cardRef.current.getBoundingClientRect()
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top })
+  }
 
   const getStageColor = (stage: string) => {
     switch (stage) {
-      case 'Dev': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50'
-      case 'QA': return 'bg-blue-500/20 text-blue-400 border-blue-500/50'
-      case 'Pilot': return 'bg-purple-500/20 text-purple-400 border-purple-500/50'
-      case 'Production': return 'bg-green-500/20 text-green-400 border-green-500/50'
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/50'
+      case 'Dev': return 'text-yellow-400 border-yellow-500/30 bg-yellow-500/5'
+      case 'QA': return 'text-blue-400 border-blue-500/30 bg-blue-500/5'
+      case 'Pilot': return 'text-radiant-gold border-radiant-gold/30 bg-radiant-gold/5'
+      case 'Production': return 'text-green-400 border-green-500/30 bg-green-500/5'
+      default: return 'text-platinum-white/40 border-platinum-white/10'
     }
   }
 
-  const getChannelIcon = () => {
-    return prototype.channel === 'Mobile' ? Smartphone : Globe
-  }
-
-  const getTypeIcon = () => {
-    return prototype.product_type === 'Utility' ? Wrench : Sparkles
-  }
-
-  const ChannelIcon = getChannelIcon()
-  const TypeIcon = getTypeIcon()
-
-  const primaryDemo = prototype.demos?.find(d => d.is_primary) || prototype.demos?.[0]
-  const currentDemoId = selectedDemoId || primaryDemo?.id || ''
-  const currentDemo = prototype.demos?.find(d => d.id === currentDemoId) || primaryDemo
-
-  // Get latest stage history entry
-  const latestHistory = prototype.stage_history?.[0]
-  const stageHistoryText = latestHistory 
-    ? latestHistory.old_stage 
-      ? `Moved from ${latestHistory.old_stage} on ${new Date(latestHistory.changed_at).toLocaleDateString()}`
-      : `In ${latestHistory.new_stage} since ${new Date(latestHistory.changed_at).toLocaleDateString()}`
-    : `Currently in ${prototype.production_stage}`
+  const TypeIcon = prototype.product_type === 'Utility' ? Wrench : Sparkles
+  const ChannelIcon = prototype.channel === 'Mobile' ? Smartphone : Globe
 
   return (
     <motion.div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="group relative bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-sm rounded-xl overflow-hidden border border-gray-800 hover:border-purple-500/50 transition-all duration-300 flex flex-col"
+      transition={{ duration: 0.6, delay: index * 0.1 }}
+      className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 flex flex-col hover:-translate-y-2"
     >
-      {/* Thumbnail or Demo */}
-      {prototype.demos && prototype.demos.length > 0 ? (
-        <div className="relative flex-shrink-0">
+      {/* Mouse Tracking Glow */}
+      <div 
+        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+        style={{
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(212, 175, 55, 0.05), transparent 40%)`
+        }}
+      />
+
+      {/* Media Section */}
+      <div className="relative h-56 overflow-hidden flex-shrink-0">
+        {prototype.demos && prototype.demos.length > 0 ? (
           <PrototypeDemoSelector
             demos={prototype.demos}
             prototypeId={prototype.id}
             onDemoChange={setSelectedDemoId}
           />
-        </div>
-      ) : prototype.thumbnail_url ? (
-        <div className="relative h-48 overflow-hidden flex-shrink-0">
+        ) : (
           <img
-            src={prototype.thumbnail_url}
+            src={prototype.thumbnail_url || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800'}
             alt={prototype.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
-          
-          {/* Stage Badge */}
-          <div 
-            className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold border ${getStageColor(prototype.production_stage)}`}
-            title={stageHistoryText}
-          >
-            {prototype.production_stage}
-          </div>
-          
-          {/* Purchase Badge */}
-          {prototype.linked_product && (
-            <Link
-              href={`/store/${prototype.linked_product.id}`}
-              className="absolute top-4 right-4 flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full text-white text-xs font-semibold shadow-lg hover:shadow-purple-500/50 transition-all hover:scale-105"
-            >
-              <ShoppingCart size={12} />
-              {prototype.linked_product.price !== null 
-                ? `$${prototype.linked_product.price.toFixed(2)}` 
-                : 'Free'}
-            </Link>
-          )}
-        </div>
-      ) : (
-        <div className="relative h-48 bg-gradient-to-br from-purple-900/20 to-pink-900/20 flex items-center justify-center flex-shrink-0">
-          <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold border ${getStageColor(prototype.production_stage)}`}>
-            {prototype.production_stage}
-          </div>
-          <TypeIcon className="text-purple-400" size={48} />
-        </div>
-      )}
-
-      <div className="p-6 flex flex-col flex-grow">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex-1">
-            <h3 className="text-xl font-bold text-white group-hover:text-purple-400 transition-colors mb-1">
-              {prototype.title}
-            </h3>
-            {/* Stage badge with history tooltip */}
-            <div className="flex items-center gap-2">
-              <div 
-                className={`px-2 py-0.5 rounded text-xs font-semibold border ${getStageColor(prototype.production_stage)}`}
-                title={stageHistoryText}
-              >
-                {prototype.production_stage}
-              </div>
-              {prototype.stage_history && prototype.stage_history.length > 0 && (
-                <button
-                  onClick={() => setShowStageHistory(!showStageHistory)}
-                  className="text-xs text-gray-500 hover:text-gray-400 flex items-center gap-1"
-                >
-                  <Info size={12} />
-                  History
-                </button>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <ChannelIcon className="text-purple-400" size={20} />
-            <TypeIcon className="text-blue-400" size={20} />
-          </div>
-        </div>
-
-        {/* Stage History Timeline (if expanded) */}
-        {showStageHistory && prototype.stage_history && prototype.stage_history.length > 0 && (
-          <div className="mb-4 p-3 bg-gray-800/50 rounded-lg space-y-2">
-            <p className="text-xs font-semibold text-gray-400 mb-2">Stage History</p>
-            {prototype.stage_history.map((history, idx) => (
-              <div key={idx} className="flex items-center gap-2 text-xs text-gray-400">
-                <Clock size={12} />
-                <span>
-                  {history.old_stage ? `${history.old_stage} → ${history.new_stage}` : `Started in ${history.new_stage}`}
-                </span>
-                <span className="text-gray-600">
-                  {new Date(history.changed_at).toLocaleDateString()}
-                </span>
-              </div>
-            ))}
-          </div>
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-60" />
+        
+        {/* Stage Badge */}
+        <div className={`absolute top-6 left-6 px-3 py-1 rounded-full text-[10px] font-heading tracking-widest uppercase border ${getStageColor(prototype.production_stage)} backdrop-blur-md`}>
+          {prototype.production_stage}
+        </div>
+      </div>
 
-        {/* Expandable Description */}
+      <div className="p-8 flex flex-col flex-grow relative z-10">
+        <div className="flex items-start justify-between mb-4">
+          <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors">
+            {prototype.title}
+          </h3>
+          <div className="flex gap-3 text-platinum-white/30">
+            <ChannelIcon size={16} />
+            <TypeIcon size={16} />
+          </div>
+        </div>
+
         <ExpandableText
           text={prototype.description}
-          maxHeight={80}
-          className="text-gray-400 text-sm"
-          expandButtonColor="text-purple-400 hover:text-purple-300"
+          maxHeight={60}
+          className="font-body text-platinum-white/50 text-sm leading-relaxed mb-6"
+          expandButtonColor="text-radiant-gold hover:text-gold-light"
         />
 
-        {/* Purpose */}
-        <div className="mb-4 p-3 bg-gray-800/50 rounded-lg">
-          <p className="text-xs text-gray-500 mb-1">Purpose</p>
-          <p className="text-sm text-gray-300">{prototype.purpose}</p>
-        </div>
-
-        {/* Analytics Badge (Production only, public) */}
-        {prototype.production_stage === 'Production' && prototype.analytics && (
-          <div className="mb-4 flex flex-wrap gap-2">
-            {prototype.analytics.active_users !== undefined && (
-              <div className="px-3 py-1 bg-green-500/20 border border-green-500/30 rounded-lg flex items-center gap-2">
-                <TrendingUp size={14} className="text-green-400" />
-                <span className="text-xs text-green-400">
-                  {prototype.analytics.active_users.toLocaleString()} active users
-                </span>
+        {/* Analytics/Metrics */}
+        {prototype.analytics && (
+          <div className="flex flex-wrap gap-4 mb-8">
+            {prototype.analytics.active_users && (
+              <div className="flex items-center gap-2 text-green-400/80">
+                <TrendingUp size={12} />
+                <span className="text-[10px] font-heading tracking-wider uppercase">{prototype.analytics.active_users} Users</span>
               </div>
             )}
-            {prototype.analytics.downloads !== undefined && prototype.channel === 'Mobile' && (
-              <div className="px-3 py-1 bg-blue-500/20 border border-blue-500/30 rounded-lg flex items-center gap-2">
-                <Download size={14} className="text-blue-400" />
-                <span className="text-xs text-blue-400">
-                  {prototype.analytics.downloads.toLocaleString()} downloads
-                </span>
-              </div>
-            )}
-            {prototype.analytics.pageviews !== undefined && prototype.channel === 'Web' && (
-              <div className="px-3 py-1 bg-purple-500/20 border border-purple-500/30 rounded-lg flex items-center gap-2">
-                <TrendingUp size={14} className="text-purple-400" />
-                <span className="text-xs text-purple-400">
-                  {prototype.analytics.pageviews.toLocaleString()} pageviews
-                </span>
+            {prototype.feedback_count && (
+              <div className="flex items-center gap-2 text-radiant-gold/80">
+                <Star size={12} />
+                <span className="text-[10px] font-heading tracking-wider uppercase">{prototype.feedback_count} Reviews</span>
               </div>
             )}
           </div>
         )}
 
-        {/* Metadata Badges */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          <span className="px-2 py-1 text-xs bg-gray-800 text-gray-300 rounded">
-            {prototype.channel}
-          </span>
-          <span className="px-2 py-1 text-xs bg-gray-800 text-gray-300 rounded">
-            {prototype.product_type}
-          </span>
-          {prototype.feedback_count !== undefined && prototype.feedback_count > 0 && (
-            <span className="px-2 py-1 text-xs bg-purple-500/20 text-purple-400 rounded flex items-center gap-1">
-              <Star size={12} />
-              {prototype.feedback_count} reviews
-            </span>
-          )}
-        </div>
-
-        {/* Enrollment Status */}
-        {prototype.user_enrollment && (
-          <div className="mb-4 p-2 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-2">
-            <CheckCircle2 className="text-green-400" size={16} />
-            <span className="text-xs text-green-400">
-              {prototype.user_enrollment === 'Waitlist' && 'You are on the waitlist'}
-              {prototype.user_enrollment === 'Pilot' && 'You are a pilot user'}
-              {prototype.user_enrollment === 'Production-Interest' && 'You expressed interest'}
-            </span>
-          </div>
-        )}
-
-        {/* Spacer to push actions to bottom */}
         <div className="flex-grow" />
 
         {/* Actions */}
-        <div className="space-y-2 mt-auto">
-          {/* Purchase Button (if linked product exists) */}
+        <div className="space-y-3 pt-6 border-t border-radiant-gold/5">
           {prototype.linked_product && (
             <Link
               href={`/store/${prototype.linked_product.id}`}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg transition-colors"
+              className="w-full flex items-center justify-center gap-3 py-3 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:brightness-110 transition-all"
             >
-              <ShoppingCart size={18} />
-              Purchase
-              {prototype.linked_product.price !== null && 
-                ` - $${prototype.linked_product.price.toFixed(2)}`
-              }
+              <ShoppingCart size={14} />
+              <span>Get Access</span>
             </Link>
           )}
-          
-          {/* Primary Action Based on Stage */}
-          {prototype.production_stage === 'Production' && prototype.channel === 'Mobile' && prototype.download_url ? (
-            <a
-              href={prototype.download_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
-            >
-              <Download size={18} />
-              Download App
-            </a>
-          ) : prototype.production_stage === 'Production' && prototype.channel === 'Web' ? (
-            <PrototypeEnrollment
-              prototypeId={prototype.id}
-              stage={prototype.production_stage}
-              user={user}
-              currentEnrollment={prototype.user_enrollment || null}
-              onSuccess={() => onEnrollmentSuccess(prototype.id, 'Production-Interest')}
-            />
-          ) : (
-            <PrototypeEnrollment
-              prototypeId={prototype.id}
-              stage={prototype.production_stage}
-              user={user}
-              currentEnrollment={prototype.user_enrollment || null}
-              onSuccess={(type) => onEnrollmentSuccess(prototype.id, type || 'Waitlist')}
-            />
-          )}
 
-          {/* App Repo Link */}
-          {prototype.app_repo_url && (
-            <a
-              href={prototype.app_repo_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors text-sm"
-            >
-              <ExternalLink size={16} />
-              View Repository
-            </a>
-          )}
-
-          {/* Feedback Button - Only for Pilot/Production users */}
-          {(prototype.production_stage === 'Production' || 
-            (prototype.user_enrollment === 'Pilot')) && user && (
+          <div className="grid grid-cols-2 gap-3">
+            {prototype.app_repo_url && (
+              <a
+                href={prototype.app_repo_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 py-2 border border-platinum-white/10 rounded-full text-[10px] font-heading tracking-widest uppercase text-platinum-white/60 hover:text-platinum-white hover:border-platinum-white/20 transition-all"
+              >
+                Repo
+              </a>
+            )}
             <button
               onClick={() => setShowFeedback(!showFeedback)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg transition-colors"
+              className="flex items-center justify-center gap-2 py-2 border border-platinum-white/10 rounded-full text-[10px] font-heading tracking-widest uppercase text-platinum-white/60 hover:text-platinum-white hover:border-platinum-white/20 transition-all"
             >
-              <MessageSquare size={18} />
-              {showFeedback ? 'Hide Feedback' : 'View Feedback'}
+              {showFeedback ? 'Hide' : 'Feedback'}
             </button>
-          )}
+          </div>
         </div>
 
-        {/* Feedback Section */}
-        {showFeedback && user && (
-          <PrototypeFeedback
-            prototypeId={prototype.id}
-            stage={prototype.production_stage}
-            user={user}
-            userEnrollment={prototype.user_enrollment || null}
-          />
+        {/* Feedback Section Overlay */}
+        {showFeedback && (
+          <div className="mt-6 pt-6 border-t border-radiant-gold/5">
+            <PrototypeFeedback
+              prototypeId={prototype.id}
+              stage={prototype.production_stage}
+              user={user}
+              userEnrollment={prototype.user_enrollment || null}
+            />
+          </div>
         )}
       </div>
     </motion.div>

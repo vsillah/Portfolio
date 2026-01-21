@@ -26,7 +26,7 @@ export default function Navigation() {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
+      setIsScrolled(window.scrollY > 20)
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
@@ -34,82 +34,98 @@ export default function Navigation() {
 
   return (
     <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.5 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      initial={{ y: -100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         isScrolled
-          ? 'bg-black/80 backdrop-blur-md shadow-lg'
-          : 'bg-transparent'
+          ? 'py-3 bg-imperial-navy/80 backdrop-blur-xl border-b border-radiant-gold/10'
+          : 'py-6 bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+        <div className="flex items-center justify-between">
+          {/* Logo */}
           <motion.a
             href="#home"
-            className="text-2xl font-bold gradient-text"
+            className="flex items-center"
             whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
           >
-            Amadutown Advisory Solutions
+            <img 
+              src="/logo.png" 
+              alt="AmaduTown" 
+              className="h-10 sm:h-12 w-auto object-contain"
+            />
           </motion.a>
 
-          {/* Right side: User Menu and Hamburger */}
-          <div className="flex items-center gap-4">
-            {user && (
-              <div className="hidden sm:block">
-                <UserMenu />
-              </div>
-            )}
+          {/* Desktop Navigation - Centered & Refined */}
+          <div className="hidden lg:flex items-center gap-8">
+            {navItems.slice(0, 5).map((item) => (
+              <motion.a
+                key={item.name}
+                href={item.href}
+                className="relative text-[10px] font-heading tracking-[0.2em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors group"
+              >
+                {item.name}
+                <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-radiant-gold transition-all duration-300 group-hover:w-full" />
+              </motion.a>
+            ))}
+          </div>
+
+          {/* Right side: Auth + Action */}
+          <div className="flex items-center gap-6">
             {!user && (
               <motion.a
                 href="/auth/login"
-                className="hidden sm:block px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="hidden sm:block text-[10px] font-heading tracking-[0.2em] uppercase text-platinum-white/60 hover:text-platinum-white transition-colors"
               >
-                Sign In
+                Login
               </motion.a>
             )}
             
-            {/* Hamburger Menu Button */}
-            <motion.button
-              className="text-gray-300 hover:text-white transition-colors p-2"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              aria-label="Toggle menu"
+            <motion.a
+              href="#contact"
+              className="hidden lg:flex px-6 py-2 border border-radiant-gold/30 rounded-full text-[10px] font-heading tracking-[0.2em] uppercase text-radiant-gold hover:bg-radiant-gold hover:text-imperial-navy transition-all duration-300"
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              Contact Us
+            </motion.a>
+            
+            {/* Hamburger */}
+            <motion.button
+              className="text-platinum-white/80 hover:text-radiant-gold lg:hidden"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+            >
+              {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </motion.button>
           </div>
         </div>
       </div>
 
-      {/* Hamburger Menu Dropdown */}
+      {/* Mobile/Tablet Menu Dropdown */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="bg-black/95 backdrop-blur-md border-t border-gray-800"
+            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            className="bg-silicon-slate/98 backdrop-blur-md border-t border-radiant-gold/10 lg:hidden"
           >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {navItems.map((item, index) => (
                   <motion.a
                     key={item.name}
                     href={item.href}
-                    className="block py-3 px-4 text-gray-300 hover:text-white hover:bg-gray-800/50 rounded-lg transition-all"
+                    className="block py-3 px-4 text-platinum-white/80 hover:text-radiant-gold hover:bg-imperial-navy/50 rounded-lg transition-all"
                     onClick={() => {
                       analytics.navClick(item.href)
                       setIsMenuOpen(false)
                     }}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    whileHover={{ x: 5 }}
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
                   >
                     <span className="text-sm font-medium">{item.name}</span>
                   </motion.a>
@@ -117,17 +133,26 @@ export default function Navigation() {
               </div>
               
               {/* User Menu for Mobile */}
-              <div className="mt-4 pt-4 border-t border-gray-800 sm:hidden">
+              <div className="mt-6 pt-6 border-t border-radiant-gold/10 flex flex-col gap-3">
                 {user ? (
                   <UserMenu />
                 ) : (
-                  <motion.a
-                    href="/auth/login"
-                    className="block w-full text-center px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-sm font-semibold"
-                    onClick={() => setIsMenuOpen(false)}
-                  >
-                    Sign In
-                  </motion.a>
+                  <>
+                    <motion.a
+                      href="/auth/login"
+                      className="btn-ghost text-center text-sm"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Login
+                    </motion.a>
+                    <motion.a
+                      href="#contact"
+                      className="btn-gold text-center text-sm"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      GET STARTED
+                    </motion.a>
+                  </>
                 )}
               </div>
             </div>

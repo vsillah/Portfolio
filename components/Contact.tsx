@@ -1,9 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Mail, Github, Linkedin, Twitter, Send, Music, BookOpen } from 'lucide-react'
+import { Mail, Github, Linkedin, Send, Music, BookOpen, ArrowRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { analytics } from '@/lib/analytics'
+import { MagneticButton } from './ui/MagneticButton'
 
 const socialLinks = [
   { icon: Linkedin, href: 'https://www.linkedin.com/in/vambah-sillah-08989b8/', label: 'LinkedIn' },
@@ -48,13 +49,11 @@ export default function Contact() {
         throw new Error(result.error || 'Failed to send message')
       }
 
-      // Success
       setSubmitStatus('success')
       setStatusMessage('Message sent successfully! I\'ll get back to you soon.')
       analytics.contactFormSubmit()
       setFormData({ name: '', email: '', message: '' })
       
-      // Reset status after 5 seconds
       setTimeout(() => {
         setSubmitStatus('idle')
         setStatusMessage('')
@@ -68,7 +67,6 @@ export default function Contact() {
           : 'Failed to send message. Please try again or email me directly at vsillah@gmail.com'
       )
       
-      // Reset status after 5 seconds
       setTimeout(() => {
         setSubmitStatus('idle')
         setStatusMessage('')
@@ -79,166 +77,176 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900 to-black">
-      <div className="max-w-4xl mx-auto">
+    <section id="contact" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
+      {/* Aurora */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-radiant-gold/5 blur-[150px] rounded-full pointer-events-none" />
+
+      <div className="max-w-5xl mx-auto relative z-10 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.8 }}
+          className="mb-20"
         >
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            <span className="gradient-text">Get In Touch</span>
+          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6">
+            <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
+              Inquiry
+            </span>
+          </div>
+          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+            <span className="italic text-radiant-gold">Contact</span>
           </h2>
-          <p className="text-gray-400 text-lg">
-            Let's collaborate on your next project or just say hello!
+          <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto leading-relaxed">
+            Whether you have a specific inquiry or just want to explore possibilities, 
+            I'm here to bridge the gap between your vision and reality.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Contact Form */}
-          <motion.form
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 text-left items-start">
+          {/* Contact Details */}
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
+            className="lg:col-span-2 space-y-12"
+          >
+            {/* Profile Photo */}
+            <div className="relative">
+              <div className="relative w-28 h-36 mx-auto lg:mx-0 rounded-2xl overflow-hidden border border-radiant-gold/20 shadow-xl">
+                <img
+                  src="/Profile_Photo_1.jpg"
+                  alt="Vambah Sillah"
+                  className="w-full h-full object-cover object-top grayscale-[20%] hover:grayscale-0 transition-all duration-500"
+                  onError={(e) => { e.currentTarget.src = '/Profile Photo.png' }}
+                />
+              </div>
+              {/* Subtle glow behind photo */}
+              <div 
+                className="absolute inset-0 -z-10 blur-2xl opacity-30"
+                style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.4) 0%, transparent 70%)' }}
+              />
+            </div>
+
+            <div>
+              <h3 className="text-[10px] font-heading tracking-[0.2em] text-radiant-gold uppercase mb-6">Contact Info</h3>
+              <div className="space-y-4">
+                <a href="mailto:vsillah@gmail.com" className="block font-premium text-2xl text-platinum-white hover:text-radiant-gold transition-colors">
+                  vsillah@gmail.com
+                </a>
+                <p className="font-body text-platinum-white/50 text-lg">
+                  617-967-7448 <br />
+                  Medford, MA
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[10px] font-heading tracking-[0.2em] text-radiant-gold uppercase mb-6">Socials</h3>
+              <div className="flex flex-wrap gap-4">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-3 bg-silicon-slate/30 border border-radiant-gold/10 rounded-full text-platinum-white/60 hover:text-radiant-gold hover:border-radiant-gold/40 transition-all"
+                  >
+                    <social.icon size={18} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Contact Form */}
+          <motion.form
+            initial={{ opacity: 0, x: 20 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
             onSubmit={handleSubmit}
-            className="space-y-6"
+            className="lg:col-span-3 glass-card p-10 border-radiant-gold/10 space-y-8"
           >
             {/* Status Message */}
             {statusMessage && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`p-4 rounded-lg ${
+                className={`p-4 rounded-lg text-sm font-body ${
                   submitStatus === 'success' 
-                    ? 'bg-green-500/20 border border-green-500/50 text-green-400' 
-                    : 'bg-red-500/20 border border-red-500/50 text-red-400'
+                    ? 'bg-radiant-gold/10 border border-radiant-gold/20 text-radiant-gold' 
+                    : 'bg-red-500/10 border border-red-500/20 text-red-400'
                 }`}
               >
                 {statusMessage}
               </motion.div>
             )}
 
-            <div>
-              <label htmlFor="name" className="block text-gray-300 mb-2">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-purple-500 transition-colors"
-                placeholder="Your name"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+              <div className="space-y-2">
+                <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Name</label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                  className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
+                  placeholder="Your full name"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Email</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  required
+                  className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
+                  placeholder="your@email.com"
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="email" className="block text-gray-300 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-purple-500 transition-colors"
-                placeholder="your.email@example.com"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="message" className="block text-gray-300 mb-2">
-                Message
-              </label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Message</label>
               <textarea
-                id="message"
                 value={formData.message}
                 onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 required
-                rows={6}
-                className="w-full px-4 py-3 bg-gray-900 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-purple-500 transition-colors resize-none"
-                placeholder="Your message..."
+                rows={4}
+                className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5 resize-none"
+                placeholder="What are you envisioning?"
               />
             </div>
 
-            <motion.button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 rounded-lg text-white font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-purple-500/50 transition-all disabled:opacity-50"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              {isSubmitting ? (
-                'Sending...'
-              ) : (
-                <>
-                  Send Message
-                  <Send size={20} />
-                </>
-              )}
-            </motion.button>
+            <MagneticButton>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-gold w-full flex items-center justify-center gap-3 rounded-full text-[10px] font-heading tracking-[0.2em] uppercase disabled:opacity-50"
+              >
+                {isSubmitting ? 'Sending...' : 'Send Message'}
+                {!isSubmitting && <ArrowRight size={14} />}
+              </button>
+            </MagneticButton>
           </motion.form>
+        </div>
 
-          {/* Social Links */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="space-y-8"
-          >
-            <div>
-              <h3 className="text-2xl font-bold text-white mb-4">Connect With Me</h3>
-              <p className="text-gray-400 mb-6">
-                Feel free to reach out through any of these platforms. I'm always open to
-                discussing new projects, creative ideas, or opportunities.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {socialLinks.map((social, index) => (
-                <motion.a
-                  key={social.label}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => analytics.socialClick(social.label, social.href)}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex flex-col items-center justify-center p-6 bg-gray-900 rounded-lg border border-gray-800 hover:border-purple-500/50 transition-all group"
-                  whileHover={{ scale: 1.05, y: -5 }}
-                >
-                  <social.icon
-                    className="text-gray-400 group-hover:text-purple-400 mb-2 transition-colors"
-                    size={32}
-                  />
-                  <span className="text-gray-300 group-hover:text-white transition-colors">
-                    {social.label}
-                  </span>
-                </motion.a>
-              ))}
-            </div>
-          </motion.div>
+        {/* Footer */}
+        <div className="mt-32 pt-12 border-t border-radiant-gold/5 flex flex-col md:flex-row items-center justify-between gap-6 opacity-40">
+          <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-platinum-white">
+            © {new Date().getFullYear()} Vambah Sillah
+          </p>
+          <div className="flex gap-8">
+            <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-platinum-white">
+              Based in Medford, MA
+            </p>
+            <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-platinum-white">
+              Built with Passion
+            </p>
+          </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        className="mt-20 text-center text-gray-500 text-sm"
-      >
-        <p>© {new Date().getFullYear()} Vambah Sillah. Built with Next.js & Framer Motion</p>
-        <p className="mt-2 text-xs text-gray-600">22 Vassar Street, Medford, MA 02155 | 617-967-7448</p>
-      </motion.div>
     </section>
   )
 }
