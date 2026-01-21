@@ -143,12 +143,12 @@ BEGIN
     ALTER TABLE order_items ADD COLUMN product_variant_id BIGINT REFERENCES product_variants(id) ON DELETE SET NULL;
   END IF;
 
-  -- Add printful_variant_id if it doesn't exist
+  -- Add printful_variant_id if it doesn't exist (BIGINT required - Printful IDs exceed INTEGER max)
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.columns 
     WHERE table_name = 'order_items' AND column_name = 'printful_variant_id'
   ) THEN
-    ALTER TABLE order_items ADD COLUMN printful_variant_id INTEGER;
+    ALTER TABLE order_items ADD COLUMN printful_variant_id BIGINT;
   END IF;
 END $$;
 

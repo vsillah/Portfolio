@@ -16,6 +16,38 @@ export interface ProductVariant {
   mockup_urls: string[]
 }
 
+// Standard clothing size order from smallest to largest
+const SIZE_ORDER: Record<string, number> = {
+  'XS': 1,
+  'S': 2,
+  'M': 3,
+  'L': 4,
+  'XL': 5,
+  '2XL': 6,
+  'XXL': 6,
+  '3XL': 7,
+  'XXXL': 7,
+  '4XL': 8,
+  '5XL': 9,
+}
+
+// Sort sizes from small to large
+const sortSizes = (sizes: string[]): string[] => {
+  return sizes.sort((a, b) => {
+    const orderA = SIZE_ORDER[a.toUpperCase()] ?? 100
+    const orderB = SIZE_ORDER[b.toUpperCase()] ?? 100
+    // If both have defined order, sort by order
+    if (orderA !== 100 && orderB !== 100) {
+      return orderA - orderB
+    }
+    // If only one has defined order, prioritize it
+    if (orderA !== 100) return -1
+    if (orderB !== 100) return 1
+    // Otherwise sort alphabetically
+    return a.localeCompare(b)
+  })
+}
+
 interface VariantSelectorProps {
   variants: ProductVariant[]
   selectedVariant: ProductVariant | null
@@ -46,7 +78,7 @@ export default function VariantSelector({
       colors.add(variant.color)
     })
 
-    setAvailableSizes(Array.from(sizes).sort())
+    setAvailableSizes(sortSizes(Array.from(sizes)))
     setAvailableColors(Array.from(colors))
 
     // Auto-select first available variant if none selected
@@ -98,12 +130,12 @@ export default function VariantSelector({
 
   // Get available sizes for selected color
   const getAvailableSizesForColor = (color: string) => {
-    return variants
+    const sizes = variants
       .filter((v) => v.color === color && v.is_available)
       .map((v) => v.size)
       .filter((size): size is string => size !== null)
       .filter((size, index, self) => self.indexOf(size) === index)
-      .sort()
+    return sortSizes(sizes)
   }
 
   const currentColors = selectedSize

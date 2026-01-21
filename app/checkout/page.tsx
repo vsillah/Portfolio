@@ -5,10 +5,10 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Lock } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
-import { getCart, clearCart, type CartItem } from '@/lib/cart'
+import { getCart, clearCart, saveCart, updateCartItemQuantity, removeFromCart, type CartItem } from '@/lib/cart'
 import ContactForm from '@/components/checkout/ContactForm'
 import DiscountCodeForm from '@/components/checkout/DiscountCodeForm'
-import OrderSummary from '@/components/checkout/OrderSummary'
+import OrderSummary, { type ProductVariant } from '@/components/checkout/OrderSummary'
 import ExitIntentPopup from '@/components/ExitIntentPopup'
 import ScrollOffer from '@/components/ScrollOffer'
 import TimeBasedPopup from '@/components/TimeBasedPopup'
@@ -21,6 +21,7 @@ interface Product {
   type: string
   price: number | null
   image_url: string | null
+  is_print_on_demand?: boolean
 }
 
 interface DiscountCode {
@@ -37,6 +38,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<'contact' | 'review' | 'payment' | 'complete'>('contact')
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [products, setProducts] = useState<Record<number, Product>>({})
+  const [variants, setVariants] = useState<Record<number, ProductVariant[]>>({})
   const [loading, setLoading] = useState(true)
   const [contactInfo, setContactInfo] = useState<{ name: string; email: string } | null>(null)
   const [appliedDiscountCode, setAppliedDiscountCode] = useState<string | null>(null)
@@ -69,13 +71,40 @@ export default function CheckoutPage() {
       if (response.ok) {
         const allProducts: Product[] = await response.json()
         const productMap: Record<number, Product> = {}
+        const merchandiseProductIds: number[] = []
+        
         cart.forEach(item => {
           const product = allProducts.find(p => p.id === item.productId)
           if (product) {
             productMap[product.id] = product
+            // Track merchandise products that need variant fetching
+            if (product.is_print_on_demand) {
+              merchandiseProductIds.push(product.id)
+            }
           }
         })
         setProducts(productMap)
+
+        // Fetch variants for merchandise products
+        if (merchandiseProductIds.length > 0) {
+          const variantMap: Record<number, ProductVariant[]> = {}
+          await Promise.all(
+            merchandiseProductIds.map(async (productId) => {
+              try {
+                const variantResponse = await fetch(`/api/products/${productId}`)
+                if (variantResponse.ok) {
+                  const data = await variantResponse.json()
+                  if (data.variants && data.variants.length > 0) {
+                    variantMap[productId] = data.variants
+                  }
+                }
+              } catch (error) {
+                console.error(`Failed to fetch variants for product ${productId}:`, error)
+              }
+            })
+          )
+          setVariants(variantMap)
+        }
       }
     } catch (error) {
       console.error('Failed to fetch products:', error)
@@ -84,11 +113,24 @@ export default function CheckoutPage() {
     }
   }
 
+  const getItemPrice = (item: CartItem): number | null => {
+    const product = products[item.productId]
+    if (!product) return null
+
+    // For merchandise with variants, use variant price
+    if (item.variantId && variants[item.productId]) {
+      const variant = variants[item.productId].find(v => v.id === item.variantId)
+      if (variant) return variant.price
+    }
+
+    return product.price
+  }
+
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
-      const product = products[item.productId]
-      if (product && product.price !== null) {
-        return total + (product.price * item.quantity)
+      const price = getItemPrice(item)
+      if (price !== null) {
+        return total + (price * item.quantity)
       }
       return total
     }, 0)
@@ -97,6 +139,48 @@ export default function CheckoutPage() {
   const calculateFinalTotal = () => {
     const subtotal = calculateSubtotal()
     return Math.max(0, subtotal - discountAmount)
+  }
+
+  // Cart management handlers
+  const handleQuantityChange = (productId: number, quantity: number, variantId?: number) => {
+    const updated = updateCartItemQuantity(productId, quantity, variantId)
+    setCartItems(updated)
+    
+    // Redirect to store if cart is empty
+    if (updated.length === 0) {
+      router.push('/store')
+    }
+  }
+
+  const handleRemoveItem = (productId: number, variantId?: number) => {
+    const updated = removeFromCart(productId, variantId)
+    setCartItems(updated)
+    
+    // Redirect to store if cart is empty
+    if (updated.length === 0) {
+      router.push('/store')
+    }
+  }
+
+  const handleVariantChange = (
+    productId: number,
+    oldVariantId: number | undefined,
+    newVariantId: number,
+    printfulVariantId: number
+  ) => {
+    const cart = getCart()
+    const updatedCart = cart.map(item => {
+      if (item.productId === productId && item.variantId === oldVariantId) {
+        return {
+          ...item,
+          variantId: newVariantId,
+          printfulVariantId: printfulVariantId,
+        }
+      }
+      return item
+    })
+    saveCart(updatedCart)
+    setCartItems(updatedCart)
   }
 
   const handleContactSubmit = (data: { name: string; email: string }) => {
@@ -312,9 +396,14 @@ export default function CheckoutPage() {
             <OrderSummary
               cartItems={cartItems}
               products={products}
+              variants={variants}
               subtotal={subtotal}
               discountAmount={discountAmount}
               finalTotal={finalTotal}
+              editable={true}
+              onQuantityChange={handleQuantityChange}
+              onRemoveItem={handleRemoveItem}
+              onVariantChange={handleVariantChange}
             />
           </div>
         </div>

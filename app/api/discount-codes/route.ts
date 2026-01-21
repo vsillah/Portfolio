@@ -49,6 +49,7 @@ export async function POST(request: NextRequest) {
       discount_type,
       discount_value,
       applicable_product_ids,
+      applicable_user_ids,
       max_uses,
       valid_from,
       valid_until,
@@ -70,6 +71,9 @@ export async function POST(request: NextRequest) {
         discount_value: parseFloat(discount_value),
         applicable_product_ids: applicable_product_ids && applicable_product_ids.length > 0
           ? applicable_product_ids
+          : null,
+        applicable_user_ids: applicable_user_ids && applicable_user_ids.length > 0
+          ? applicable_user_ids
           : null,
         max_uses: max_uses ? parseInt(max_uses) : null,
         valid_from: valid_from || new Date().toISOString(),

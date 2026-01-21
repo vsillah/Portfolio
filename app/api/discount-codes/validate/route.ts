@@ -73,6 +73,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check if code is restricted to specific users
+    if (discountCode.applicable_user_ids && discountCode.applicable_user_ids.length > 0) {
+      if (!user) {
+        return NextResponse.json(
+          { error: 'This discount code requires you to be logged in' },
+          { status: 401 }
+        )
+      }
+
+      if (!discountCode.applicable_user_ids.includes(user.id)) {
+        return NextResponse.json(
+          { error: 'This discount code is not valid for your account' },
+          { status: 403 }
+        )
+      }
+    }
+
     // Check if code applies to the products in cart
     if (discountCode.applicable_product_ids && discountCode.applicable_product_ids.length > 0) {
       const applicable = productIds.some((id: number) =>

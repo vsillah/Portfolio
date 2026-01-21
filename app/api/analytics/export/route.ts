@@ -4,6 +4,21 @@ import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
 
+// Type definition for analytics event from database
+type AnalyticsEventRow = {
+  id: number
+  event_type: string
+  event_name: string
+  section: string | null
+  metadata: Record<string, any> | null
+  user_agent: string | null
+  referrer: string | null
+  ip_address: string | null
+  session_id: string | null
+  user_id: string | null
+  created_at: string
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Check admin authentication
@@ -63,7 +78,7 @@ export async function GET(request: NextRequest) {
     if (format === 'csv') {
       // Convert to CSV
       const csvHeaders = ['Event Type', 'Event Name', 'Section', 'Created At', 'Metadata']
-      const csvRows = events?.map((e) => [
+      const csvRows = events?.map((e: AnalyticsEventRow) => [
         e.event_type,
         e.event_name,
         e.section || '',

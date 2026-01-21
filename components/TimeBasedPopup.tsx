@@ -55,7 +55,10 @@ export default function TimeBasedPopup({
       onApplyDiscount()
     }
     setIsOpen(false)
-    router.push('/checkout')
+    // Only navigate to checkout if not already there (avoids resetting page state)
+    if (!window.location.pathname.startsWith('/checkout')) {
+      router.push('/checkout')
+    }
   }
 
   return (

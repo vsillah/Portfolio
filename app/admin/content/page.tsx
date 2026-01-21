@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FolderOpen, Video, BookOpen, Music, Download, BarChart3, Sparkles, Package } from 'lucide-react'
+import { FolderOpen, Video, BookOpen, Music, Download, BarChart3, Sparkles, Package, Tag } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -56,6 +56,13 @@ export default function ContentManagementPage() {
       icon: <Package size={32} />,
       description: 'Manage print-on-demand products',
       color: 'from-indigo-500 to-purple-500',
+    },
+    {
+      name: 'Discount Codes',
+      href: '/admin/content/discount-codes',
+      icon: <Tag size={32} />,
+      description: 'Manage discount codes and promotions',
+      color: 'from-green-500 to-teal-500',
     },
   ]
 

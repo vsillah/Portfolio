@@ -13,6 +13,7 @@ interface DiscountCode {
   discount_type: 'percentage' | 'fixed'
   discount_value: number
   applicable_product_ids: number[] | null
+  applicable_user_ids: string[] | null
   max_uses: number | null
   used_count: number
   valid_from: string
@@ -32,6 +33,7 @@ export default function DiscountCodesManagementPage() {
     discount_type: 'percentage' as 'percentage' | 'fixed',
     discount_value: '',
     applicable_product_ids: '',
+    applicable_user_ids: '',
     max_uses: '',
     valid_from: new Date().toISOString().split('T')[0],
     valid_until: '',
@@ -103,6 +105,9 @@ export default function DiscountCodesManagementPage() {
         applicable_product_ids: formData.applicable_product_ids
           ? formData.applicable_product_ids.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id))
           : null,
+        applicable_user_ids: formData.applicable_user_ids
+          ? formData.applicable_user_ids.split(',').map(id => id.trim()).filter(id => id.length > 0)
+          : null,
         max_uses: formData.max_uses ? parseInt(formData.max_uses) : null,
         valid_from: formData.valid_from || new Date().toISOString(),
         valid_until: formData.valid_until || null,
@@ -129,6 +134,7 @@ export default function DiscountCodesManagementPage() {
           discount_type: 'percentage',
           discount_value: '',
           applicable_product_ids: '',
+          applicable_user_ids: '',
           max_uses: '',
           valid_from: new Date().toISOString().split('T')[0],
           valid_until: '',
@@ -152,6 +158,7 @@ export default function DiscountCodesManagementPage() {
       discount_type: code.discount_type,
       discount_value: code.discount_value.toString(),
       applicable_product_ids: code.applicable_product_ids?.join(', ') || '',
+      applicable_user_ids: code.applicable_user_ids?.join(', ') || '',
       max_uses: code.max_uses?.toString() || '',
       valid_from: code.valid_from ? new Date(code.valid_from).toISOString().split('T')[0] : '',
       valid_until: code.valid_until ? new Date(code.valid_until).toISOString().split('T')[0] : '',
@@ -168,6 +175,7 @@ export default function DiscountCodesManagementPage() {
       discount_type: 'percentage',
       discount_value: '',
       applicable_product_ids: '',
+      applicable_user_ids: '',
       max_uses: '',
       valid_from: new Date().toISOString().split('T')[0],
       valid_until: '',
@@ -273,6 +281,21 @@ export default function DiscountCodesManagementPage() {
                     className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
                     placeholder="1, 2, 3"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    Applicable User IDs (comma-separated, leave empty for all users)
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.applicable_user_ids}
+                    onChange={(e) => setFormData({ ...formData, applicable_user_ids: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500 font-mono text-sm"
+                    placeholder="uuid-1, uuid-2"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Enter user UUIDs to restrict this code to specific users
+                  </p>
                 </div>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
@@ -414,6 +437,12 @@ export default function DiscountCodesManagementPage() {
                       {code.applicable_product_ids && code.applicable_product_ids.length > 0 && (
                         <p className="text-sm text-gray-400 mt-2">
                           Applies to products: {code.applicable_product_ids.join(', ')}
+                        </p>
+                      )}
+                      {code.applicable_user_ids && code.applicable_user_ids.length > 0 && (
+                        <p className="text-sm text-purple-400 mt-2">
+                          <Users className="inline-block mr-1" size={14} />
+                          Restricted to {code.applicable_user_ids.length} user{code.applicable_user_ids.length !== 1 ? 's' : ''}
                         </p>
                       )}
                     </div>

@@ -23,6 +23,7 @@ export async function PUT(
       discount_type,
       discount_value,
       applicable_product_ids,
+      applicable_user_ids,
       max_uses,
       valid_from,
       valid_until,
@@ -37,6 +38,11 @@ export async function PUT(
     if (applicable_product_ids !== undefined) {
       updateData.applicable_product_ids = applicable_product_ids && applicable_product_ids.length > 0
         ? applicable_product_ids
+        : null
+    }
+    if (applicable_user_ids !== undefined) {
+      updateData.applicable_user_ids = applicable_user_ids && applicable_user_ids.length > 0
+        ? applicable_user_ids
         : null
     }
     if (max_uses !== undefined) updateData.max_uses = max_uses ? parseInt(max_uses) : null

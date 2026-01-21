@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { ShoppingCart, ArrowLeft, Package, Info } from 'lucide-react'
 import VariantSelector, { ProductVariant } from '@/components/VariantSelector'
 import MockupViewer from '@/components/MockupViewer'
-import { addToCart, clearCart } from '@/lib/cart'
+import { addToCart, getCartCount } from '@/lib/cart'
 
 interface Product {
   id: number
@@ -38,9 +38,12 @@ export default function ProductDetailPage() {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null)
   const [loading, setLoading] = useState(true)
   const [addingToCart, setAddingToCart] = useState(false)
+  const [cartCount, setCartCount] = useState(0)
 
   useEffect(() => {
     fetchProduct()
+    // Load cart count on mount
+    setCartCount(getCartCount())
   }, [productId])
 
   const fetchProduct = async () => {
@@ -76,6 +79,9 @@ export default function ProductDetailPage() {
         selectedVariant.id,
         selectedVariant.printful_variant_id
       )
+
+      // Update cart count
+      setCartCount(getCartCount())
 
       // Show success feedback
       const button = document.activeElement as HTMLElement
@@ -124,14 +130,39 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
       <div className="max-w-7xl mx-auto">
-        {/* Back Button */}
-        <button
-          onClick={() => router.push('/store')}
-          className="flex items-center gap-2 text-gray-400 hover:text-white mb-8 transition-colors"
-        >
-          <ArrowLeft size={20} />
-          Back to Store
-        </button>
+        {/* Header with Back Button and Cart */}
+        <div className="flex items-center justify-between mb-8">
+          <button
+            onClick={() => router.push('/store')}
+            className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft size={20} />
+            Back to Store
+          </button>
+
+          {/* Cart Button */}
+          <motion.button
+            onClick={() => router.push('/checkout')}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="relative flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-lg transition-colors"
+          >
+            <ShoppingCart size={20} />
+            <span className="hidden sm:inline">Cart</span>
+            <AnimatePresence>
+              {cartCount > 0 && (
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  exit={{ scale: 0 }}
+                  className="absolute -top-2 -right-2 w-5 h-5 bg-purple-600 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                >
+                  {cartCount > 99 ? '99+' : cartCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </motion.button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Image/Mockup Section */}
