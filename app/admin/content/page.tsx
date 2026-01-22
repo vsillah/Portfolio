@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FolderOpen, Video, BookOpen, Music, Download, BarChart3, Sparkles, Package, Tag } from 'lucide-react'
+import { FolderOpen, Video, BookOpen, Music, Download, BarChart3, Sparkles, Package, Tag, Users } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -63,6 +63,13 @@ export default function ContentManagementPage() {
       icon: <Tag size={32} />,
       description: 'Manage discount codes and promotions',
       color: 'from-green-500 to-teal-500',
+    },
+    {
+      name: 'Users',
+      href: '/admin/users',
+      icon: <Users size={32} />,
+      description: 'Manage users and assign roles',
+      color: 'from-cyan-500 to-blue-500',
     },
   ]
 

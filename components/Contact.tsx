@@ -1,10 +1,11 @@
 'use client'
 
-import { motion } from 'framer-motion'
-import { Mail, Github, Linkedin, Send, Music, BookOpen, ArrowRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Mail, Github, Linkedin, Send, Music, BookOpen, ArrowRight, MessageCircle, FileText } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { analytics } from '@/lib/analytics'
 import { MagneticButton } from './ui/MagneticButton'
+import { Chat } from './chat'
 
 const socialLinks = [
   { icon: Linkedin, href: 'https://www.linkedin.com/in/vambah-sillah-08989b8/', label: 'LinkedIn' },
@@ -14,7 +15,10 @@ const socialLinks = [
   { icon: BookOpen, href: 'https://medium.com/@vsillah', label: 'Medium' },
 ]
 
+type ContactTab = 'form' | 'chat'
+
 export default function Contact() {
+  const [activeTab, setActiveTab] = useState<ContactTab>('chat')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -159,77 +163,130 @@ export default function Contact() {
             </div>
           </motion.div>
 
-          {/* Contact Form */}
-          <motion.form
+          {/* Contact Form / Chat */}
+          <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            onSubmit={handleSubmit}
-            className="lg:col-span-3 glass-card p-10 border-radiant-gold/10 space-y-8"
+            className="lg:col-span-3"
           >
-            {/* Status Message */}
-            {statusMessage && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`p-4 rounded-lg text-sm font-body ${
-                  submitStatus === 'success' 
-                    ? 'bg-radiant-gold/10 border border-radiant-gold/20 text-radiant-gold' 
-                    : 'bg-red-500/10 border border-red-500/20 text-red-400'
+            {/* Tabs */}
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => setActiveTab('chat')}
+                className={`flex items-center gap-2 px-5 py-3 rounded-full text-[10px] font-heading tracking-[0.15em] uppercase transition-all duration-300 ${
+                  activeTab === 'chat'
+                    ? 'bg-gradient-to-r from-radiant-gold to-bronze text-imperial-navy'
+                    : 'bg-silicon-slate/30 border border-radiant-gold/20 text-platinum-white/70 hover:border-radiant-gold/40 hover:text-platinum-white'
                 }`}
               >
-                {statusMessage}
-              </motion.div>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-              <div className="space-y-2">
-                <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Name</label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                  className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
-                  placeholder="Your full name"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Email</label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                  className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
-                  placeholder="your@email.com"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Message</label>
-              <textarea
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                required
-                rows={4}
-                className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5 resize-none"
-                placeholder="What are you envisioning?"
-              />
-            </div>
-
-            <MagneticButton>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="btn-gold w-full flex items-center justify-center gap-3 rounded-full text-[10px] font-heading tracking-[0.2em] uppercase disabled:opacity-50"
-              >
-                {isSubmitting ? 'Sending...' : 'Send Message'}
-                {!isSubmitting && <ArrowRight size={14} />}
+                <MessageCircle size={14} />
+                Chat Now
               </button>
-            </MagneticButton>
-          </motion.form>
+              <button
+                onClick={() => setActiveTab('form')}
+                className={`flex items-center gap-2 px-5 py-3 rounded-full text-[10px] font-heading tracking-[0.15em] uppercase transition-all duration-300 ${
+                  activeTab === 'form'
+                    ? 'bg-gradient-to-r from-radiant-gold to-bronze text-imperial-navy'
+                    : 'bg-silicon-slate/30 border border-radiant-gold/20 text-platinum-white/70 hover:border-radiant-gold/40 hover:text-platinum-white'
+                }`}
+              >
+                <FileText size={14} />
+                Send Message
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            <AnimatePresence mode="wait">
+              {activeTab === 'chat' ? (
+                <motion.div
+                  key="chat"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Chat 
+                    visitorEmail={formData.email || undefined}
+                    visitorName={formData.name || undefined}
+                  />
+                </motion.div>
+              ) : (
+                <motion.form
+                  key="form"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2 }}
+                  onSubmit={handleSubmit}
+                  className="glass-card p-10 border-radiant-gold/10 space-y-8"
+                >
+                  {/* Status Message */}
+                  {statusMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`p-4 rounded-lg text-sm font-body ${
+                        submitStatus === 'success' 
+                          ? 'bg-radiant-gold/10 border border-radiant-gold/20 text-radiant-gold' 
+                          : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                      }`}
+                    >
+                      {statusMessage}
+                    </motion.div>
+                  )}
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Name</label>
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        required
+                        className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
+                        placeholder="Your full name"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Email</label>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        required
+                        className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
+                        placeholder="your@email.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Message</label>
+                    <textarea
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      required
+                      rows={4}
+                      className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5 resize-none"
+                      placeholder="What are you envisioning?"
+                    />
+                  </div>
+
+                  <MagneticButton>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="btn-gold w-full flex items-center justify-center gap-3 rounded-full text-[10px] font-heading tracking-[0.2em] uppercase disabled:opacity-50"
+                    >
+                      {isSubmitting ? 'Sending...' : 'Send Message'}
+                      {!isSubmitting && <ArrowRight size={14} />}
+                    </button>
+                  </MagneticButton>
+                </motion.form>
+              )}
+            </AnimatePresence>
+          </motion.div>
         </div>
 
         {/* Footer */}

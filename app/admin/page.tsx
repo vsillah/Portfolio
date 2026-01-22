@@ -194,7 +194,7 @@ function AdminDashboardContent() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <Link href="/admin/analytics">
             <motion.div
               whileHover={{ scale: 1.02 }}
@@ -224,6 +224,23 @@ function AdminDashboardContent() {
                 <div>
                   <h3 className="text-xl font-bold mb-1">Content Management Hub</h3>
                   <p className="text-gray-400 text-sm">Manage all your portfolio content in one place</p>
+                </div>
+              </div>
+            </motion.div>
+          </Link>
+
+          <Link href="/admin/users">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-6 bg-gradient-to-r from-green-600/20 to-teal-600/20 border border-green-500/50 rounded-xl cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 flex items-center justify-center">
+                  <Users size={32} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1">User Management</h3>
+                  <p className="text-gray-400 text-sm">Manage users, roles, and view purchase history</p>
                 </div>
               </div>
             </motion.div>
