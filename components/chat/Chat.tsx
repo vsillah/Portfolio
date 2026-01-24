@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { MessageCircle, X, Trash2, AlertCircle } from 'lucide-react'
 import { ChatMessage, type ChatMessageProps } from './ChatMessage'
 import { ChatInput } from './ChatInput'
-import { generateSessionId, CHAT_CHAT_STORAGE_KEY } from '@/lib/chat-utils'
+import { generateSessionId, CHAT_STORAGE_KEY } from '@/lib/chat-utils'
 
 interface Message extends ChatMessageProps {
   id: string

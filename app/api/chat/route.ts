@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { sendToN8n, generateSessionId, formatHistoryForN8n, type ChatMessage } from '@/lib/n8n'
+import { sendToN8n, generateSessionId } from '@/lib/n8n'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,25 +66,11 @@ export async function POST(request: NextRequest) {
       console.error('Error saving user message:', userMsgError)
     }
 
-    // Get chat history for context
-    const { data: historyData } = await supabaseAdmin
-      .from('chat_messages')
-      .select('role, content, created_at')
-      .eq('session_id', sessionId)
-      .order('created_at', { ascending: true })
-      .limit(20)
-
-    const history: ChatMessage[] = (historyData || []).map(msg => ({
-      role: msg.role as 'user' | 'assistant' | 'support',
-      content: msg.content,
-      timestamp: msg.created_at,
-    }))
-
-    // Send to n8n webhook
+    // Send to n8n chat trigger
+    // Note: n8n's Simple Memory handles conversation history using sessionId
     const n8nResponse = await sendToN8n({
       message: message.trim(),
       sessionId,
-      history: formatHistoryForN8n(history),
       visitorEmail,
       visitorName,
     })
