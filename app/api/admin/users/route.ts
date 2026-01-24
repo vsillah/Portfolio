@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     // Fetch order stats for each user
     const usersWithStats = await Promise.all(
-      (users || []).map(async (user) => {
+      (users || []).map(async (user: { id: string; email: string; role: string; created_at: string; updated_at: string }) => {
         const { data: orderStats } = await supabaseAdmin
           .from('orders')
           .select('id, final_amount, status')
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
           .eq('status', 'completed')
 
         const orderCount = orderStats?.length || 0
-        const totalSpent = orderStats?.reduce((sum, order) => sum + (parseFloat(order.final_amount) || 0), 0) || 0
+        const totalSpent = orderStats?.reduce((sum: number, order: { final_amount: string }) => sum + (parseFloat(order.final_amount) || 0), 0) || 0
 
         return {
           ...user,
