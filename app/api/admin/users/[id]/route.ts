@@ -40,9 +40,9 @@ export async function GET(
       .eq('user_id', params.id)
       .order('created_at', { ascending: false })
 
-    const completedOrders = orders?.filter(o => o.status === 'completed') || []
+    const completedOrders = orders?.filter((o: { status: string }) => o.status === 'completed') || []
     const orderCount = completedOrders.length
-    const totalSpent = completedOrders.reduce((sum, order) => sum + (parseFloat(order.final_amount) || 0), 0)
+    const totalSpent = completedOrders.reduce((sum: number, order: { final_amount: string }) => sum + (parseFloat(order.final_amount) || 0), 0)
 
     return NextResponse.json({
       user: {
