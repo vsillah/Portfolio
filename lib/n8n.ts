@@ -87,6 +87,78 @@ export interface N8nChatRequest {
   history?: ChatMessage[]
   visitorEmail?: string
   visitorName?: string
+  diagnosticMode?: boolean
+  diagnosticAuditId?: string
+  diagnosticProgress?: DiagnosticProgress
+}
+
+/**
+ * Diagnostic category enum
+ */
+export type DiagnosticCategory = 
+  | 'business_challenges'
+  | 'tech_stack'
+  | 'automation_needs'
+  | 'ai_readiness'
+  | 'budget_timeline'
+  | 'decision_making'
+
+/**
+ * Diagnostic progress tracking
+ */
+export interface DiagnosticProgress {
+  currentCategory?: DiagnosticCategory
+  completedCategories: DiagnosticCategory[]
+  questionsAsked: string[]
+  responsesReceived: Record<string, unknown>
+}
+
+/**
+ * Diagnostic audit request structure for n8n
+ */
+export interface DiagnosticAuditRequest {
+  sessionId: string
+  diagnosticAuditId?: string
+  message: string
+  currentCategory?: DiagnosticCategory
+  progress?: DiagnosticProgress
+  visitorEmail?: string
+  visitorName?: string
+}
+
+/**
+ * Diagnostic response from n8n
+ */
+export interface DiagnosticResponse {
+  response: string
+  diagnosticData?: Partial<DiagnosticAuditData>
+  currentCategory?: DiagnosticCategory
+  isComplete?: boolean
+  nextQuestion?: string
+  progress?: DiagnosticProgress
+  metadata?: {
+    questionsAsked?: string[]
+    responsesReceived?: Record<string, unknown>
+    [key: string]: unknown
+  }
+}
+
+/**
+ * Complete diagnostic audit data structure
+ */
+export interface DiagnosticAuditData {
+  business_challenges: Record<string, unknown>
+  tech_stack: Record<string, unknown>
+  automation_needs: Record<string, unknown>
+  ai_readiness: Record<string, unknown>
+  budget_timeline: Record<string, unknown>
+  decision_making: Record<string, unknown>
+  diagnostic_summary?: string
+  key_insights?: string[]
+  recommended_actions?: string[]
+  urgency_score?: number
+  opportunity_score?: number
+  sales_notes?: string
 }
 
 export interface N8nChatResponse {
@@ -119,11 +191,22 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
   }
 
   try {
-    const payload = {
+    const payload: Record<string, unknown> = {
       action: 'sendMessage',
       sessionId: request.sessionId,
       chatInput: request.message,
-    };
+    }
+
+    // Add diagnostic mode flags if in diagnostic mode
+    if (request.diagnosticMode) {
+      payload.diagnosticMode = true
+      if (request.diagnosticAuditId) {
+        payload.diagnosticAuditId = request.diagnosticAuditId
+      }
+      if (request.diagnosticProgress) {
+        payload.diagnosticProgress = request.diagnosticProgress
+      }
+    }
 
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
@@ -157,6 +240,112 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
   } catch (error) {
     console.error('Error communicating with n8n:', error)
     throw error
+  }
+}
+
+/**
+ * Send diagnostic-specific request to n8n diagnostic workflow
+ * Can use separate webhook URL or same webhook with routing
+ */
+export async function sendDiagnosticToN8n(request: DiagnosticAuditRequest): Promise<DiagnosticResponse> {
+  const diagnosticWebhookUrl = process.env.N8N_DIAGNOSTIC_WEBHOOK_URL || N8N_WEBHOOK_URL
+  
+  if (!diagnosticWebhookUrl) {
+    throw new Error('N8N_DIAGNOSTIC_WEBHOOK_URL or N8N_WEBHOOK_URL environment variable is not configured')
+  }
+
+  try {
+    const payload = {
+      action: 'sendMessage',
+      sessionId: request.sessionId,
+      chatInput: request.message,
+      diagnosticMode: true,
+      diagnosticAuditId: request.diagnosticAuditId,
+      currentCategory: request.currentCategory,
+      progress: request.progress,
+      visitorEmail: request.visitorEmail,
+      visitorName: request.visitorName,
+    }
+
+    const response = await fetch(diagnosticWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('n8n diagnostic webhook error:', response.status, errorText)
+      
+      if (response.status === 404) {
+        throw new Error(`n8n diagnostic workflow not found (404). Please ensure: 1) The workflow is ACTIVE in n8n, 2) The webhook URL is correct`)
+      }
+      throw new Error(`n8n diagnostic webhook returned ${response.status}: ${errorText}`)
+    }
+
+    const data = await response.json()
+    const result = Array.isArray(data) ? data[0] : data
+
+    return {
+      response: result.response || result.output || result.text || result.message || '',
+      diagnosticData: result.diagnosticData,
+      currentCategory: result.currentCategory,
+      isComplete: result.isComplete || false,
+      nextQuestion: result.nextQuestion,
+      progress: result.progress,
+      metadata: result.metadata || {},
+    }
+  } catch (error) {
+    console.error('Error communicating with n8n diagnostic workflow:', error)
+    throw error
+  }
+}
+
+/**
+ * Trigger diagnostic completion webhook for sales enablement
+ * This is called when a diagnostic audit is completed
+ */
+export async function triggerDiagnosticCompletionWebhook(
+  diagnosticAuditId: string,
+  diagnosticData: DiagnosticAuditData,
+  contactInfo?: { email?: string; name?: string; company?: string }
+): Promise<void> {
+  const completionWebhookUrl = process.env.N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL || N8N_LEAD_WEBHOOK_URL
+  
+  if (!completionWebhookUrl) {
+    console.warn('Diagnostic completion webhook URL not configured - skipping sales notification')
+    return
+  }
+
+  try {
+    const payload = {
+      diagnosticAuditId,
+      diagnosticData,
+      contactInfo,
+      completedAt: new Date().toISOString(),
+      source: 'chat_diagnostic',
+    }
+
+    const response = await fetch(completionWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Diagnostic completion webhook error:', response.status, errorText)
+      // Don't throw - this is fire-and-forget
+    }
+  } catch (error) {
+    console.error('Diagnostic completion webhook failed:', error)
+    // Don't throw - this is fire-and-forget
   }
 }
 

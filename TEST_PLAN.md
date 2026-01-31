@@ -18,7 +18,7 @@ A comprehensive manual test plan to validate functionality after major updates. 
 | Admin Dashboard | 10 tests | 10 min |
 | Responsive Design | 6 tests | 5 min |
 | Performance | 4 tests | 3 min |
-| **Total** | **75 tests** | **~65 min** |
+| **Total** | **87 tests** | **~75 min** |
 
 ---
 
@@ -251,10 +251,28 @@ Test each section link scrolls to correct area:
 |------|-------|-----------------|--------|
 | Chat toggle | Click "Chat Now" | Chat expands | ☐ |
 | Welcome message | Open chat | Welcome message displays | ☐ |
+| Suggested actions display | Open chat | "Things you can ask me" section shows | ☐ |
 | Send message | Type and send | Message appears, AI responds | ☐ |
 | Loading indicator | Send message | Typing indicator shows | ☐ |
 | Clear chat | Click trash icon | Chat resets, new session | ☐ |
 | Minimize chat | Click X | Chat collapses to button | ☐ |
+| Suggestions hide on message | Send any message | Suggestions disappear | ☐ |
+
+### 6.3 Chat Diagnostic Feature
+| Test | Steps | Expected Result | Status |
+|------|-------|-----------------|--------|
+| Diagnostic trigger via suggestion | Click "Perform an AI Audit" | Diagnostic mode activates | ☐ |
+| Diagnostic trigger via text | Type "I want an audit" | Diagnostic mode activates | ☐ |
+| Diagnostic trigger phrases | Try various phrases (audit, diagnostic, identify issues) | All trigger diagnostic mode | ☐ |
+| Diagnostic progress indicator | Start diagnostic | Progress banner shows current category | ☐ |
+| Diagnostic mode header | In diagnostic mode | Header shows "Diagnostic Mode" with icon | ☐ |
+| Category progression | Answer questions | Progress updates, category changes | ☐ |
+| Diagnostic data saves | Answer questions | Data saved incrementally to database | ☐ |
+| Diagnostic completion | Complete all categories | Status changes to "completed" | ☐ |
+| Diagnostic links to contact | Complete diagnostic with email | Links to contact_submissions table | ☐ |
+| Diagnostic triggers lead webhook | Complete diagnostic | Lead qualification webhook fires | ☐ |
+| Exit diagnostic mode | Type "exit" or clear chat | Diagnostic mode ends | ☐ |
+| Diagnostic persists on refresh | Start diagnostic, refresh page | Diagnostic state restored | ☐ |
 
 ---
 
@@ -370,11 +388,45 @@ Test at these breakpoints:
 
 ---
 
-## 11. API Endpoints Quick Check
+## 11. Chat Diagnostic API Tests
+
+### 11.1 Diagnostic Endpoints
+| Test | Steps | Expected Result | Status |
+|------|-------|-----------------|--------|
+| GET diagnostic by session | `GET /api/chat/diagnostic?sessionId=xxx` | Returns diagnostic audit if exists | ☐ |
+| GET diagnostic by audit ID | `GET /api/chat/diagnostic?auditId=xxx` | Returns specific audit | ☐ |
+| GET returns null if none | `GET /api/chat/diagnostic?sessionId=new` | Returns `{ audit: null }` | ☐ |
+| PUT updates diagnostic | `PUT /api/chat/diagnostic` with auditId | Updates audit record | ☐ |
+| PUT validates auditId | `PUT /api/chat/diagnostic` without auditId | Returns 400 error | ☐ |
+
+### 11.2 Chat API with Diagnostic Mode
+| Test | Steps | Expected Result | Status |
+|------|-------|-----------------|--------|
+| POST with diagnosticMode flag | Send message with `diagnosticMode: true` | Routes to diagnostic workflow | ☐ |
+| POST detects diagnostic intent | Send "I want an audit" | Auto-detects and enables diagnostic mode | ☐ |
+| POST saves diagnostic data | Send diagnostic responses | Data saved incrementally | ☐ |
+| POST returns diagnostic metadata | Complete diagnostic step | Returns progress, category, completion status | ☐ |
+| POST links to contact on completion | Complete diagnostic with email | Creates/updates contact_submission | ☐ |
+
+### 11.3 Diagnostic Data Structure
+| Test | Steps | Expected Result | Status |
+|------|-------|-----------------|--------|
+| All categories present | Complete diagnostic | All 6 categories have data | ☐ |
+| Business challenges saved | Answer business questions | Data in `business_challenges` field | ☐ |
+| Tech stack saved | Answer tech questions | Data in `tech_stack` field | ☐ |
+| Automation needs saved | Answer automation questions | Data in `automation_needs` field | ☐ |
+| AI readiness saved | Answer AI questions | Data in `ai_readiness` field | ☐ |
+| Budget timeline saved | Answer budget questions | Data in `budget_timeline` field | ☐ |
+| Decision making saved | Answer decision questions | Data in `decision_making` field | ☐ |
+| Summary generated | Complete diagnostic | `diagnostic_summary` populated | ☐ |
+| Insights extracted | Complete diagnostic | `key_insights` array populated | ☐ |
+| Scores calculated | Complete diagnostic | `urgency_score` and `opportunity_score` set | ☐ |
+
+## 12. API Endpoints Quick Check
 
 Use browser dev tools Network tab or curl to verify:
 
-### 11.1 Public Endpoints
+### 12.1 Public Endpoints
 ```bash
 # Products
 curl http://localhost:3000/api/products?active=true
@@ -407,7 +459,7 @@ curl http://localhost:3000/api/orders
 curl http://localhost:3000/api/user/profile
 ```
 
-### 11.3 Admin Endpoints
+### 12.3 Admin Endpoints
 ```bash
 # Analytics (admin only)
 curl http://localhost:3000/api/analytics/stats
@@ -418,7 +470,7 @@ curl http://localhost:3000/api/admin/users
 
 ---
 
-## 12. Post-Test Cleanup
+## 13. Post-Test Cleanup
 
 After testing:
 - [ ] Clear test orders from database (if using real Stripe test mode)
@@ -442,6 +494,8 @@ Document any known issues here:
 
 1. _Example: OAuth redirect may fail in incognito mode_
 2. _Example: Chat history doesn't sync across devices_
+3. _Diagnostic: Requires n8n workflow to be configured for full functionality_
+4. _Diagnostic: Diagnostic mode persists until explicitly exited or chat cleared_
 
 ---
 
@@ -450,6 +504,7 @@ Document any known issues here:
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2026-01-21 | Initial test plan |
+| 1.1 | 2026-01-29 | Added Chat Diagnostic Feature tests (12 new tests) |
 
 ---
 
@@ -463,7 +518,82 @@ For rapid verification after deployment, run these critical tests only:
 4. [ ] Products display in Store
 5. [ ] Add to cart works
 6. [ ] Contact form submits
-7. [ ] Admin dashboard loads (as admin)
-8. [ ] No console errors on main pages
+7. [ ] Chat opens and sends messages
+8. [ ] Diagnostic can be triggered via suggestion button
+9. [ ] Admin dashboard loads (as admin)
+10. [ ] No console errors on main pages
 
 If any smoke test fails, run full test suite before proceeding.
+
+## Diagnostic Feature Test Scenarios
+
+### Scenario 1: Happy Path - Complete Diagnostic via Suggestion Button
+1. [ ] Open chat component
+2. [ ] Verify "Things you can ask me" suggestions appear
+3. [ ] Click "Perform an AI Audit" button
+4. [ ] Verify diagnostic mode activates (header changes, progress indicator shows)
+5. [ ] Answer questions for each category (6 categories total)
+6. [ ] Verify progress updates after each category
+7. [ ] Complete all categories
+8. [ ] Verify diagnostic status changes to "completed"
+9. [ ] Verify diagnostic data saved to database
+10. [ ] If email provided, verify linked to contact_submissions
+11. [ ] Verify lead qualification webhook triggered
+
+### Scenario 2: Diagnostic via Text Trigger
+1. [ ] Open chat component
+2. [ ] Type "I want to perform an AI audit"
+3. [ ] Verify diagnostic mode activates automatically
+4. [ ] Verify diagnostic audit record created
+5. [ ] Answer questions and verify data saves incrementally
+
+### Scenario 3: Diagnostic Persistence
+1. [ ] Start diagnostic (answer 2-3 questions)
+2. [ ] Refresh the page
+3. [ ] Verify diagnostic state restored
+4. [ ] Verify progress indicator shows correct category
+5. [ ] Continue answering questions
+6. [ ] Verify previous answers preserved
+
+### Scenario 4: Exit Diagnostic Mode
+1. [ ] Start diagnostic
+2. [ ] Type "exit" or clear chat
+3. [ ] Verify diagnostic mode ends
+4. [ ] Verify can return to normal chat
+5. [ ] Verify diagnostic audit status set to "abandoned" or remains "in_progress"
+
+### Scenario 5: Diagnostic with Contact Linking
+1. [ ] Start diagnostic with visitor email provided
+2. [ ] Complete diagnostic
+3. [ ] Verify diagnostic_audits.contact_submission_id populated
+4. [ ] Verify contact_submissions record created/updated
+5. [ ] Verify lead qualification webhook includes diagnostic insights
+6. [ ] Check database for diagnostic data in contact_submissions fields
+
+### Scenario 6: Multiple Diagnostic Triggers
+Test that various phrases trigger diagnostic:
+- [ ] "perform an audit"
+- [ ] "I need a diagnostic"
+- [ ] "help me identify issues"
+- [ ] "business assessment"
+- [ ] "analyze my business"
+- [ ] "evaluate my tech stack"
+- [ ] "review my automation needs"
+
+Each should activate diagnostic mode.
+
+### Scenario 7: Diagnostic API Endpoints
+1. [ ] Start diagnostic, get auditId
+2. [ ] `GET /api/chat/diagnostic?sessionId=xxx` returns audit
+3. [ ] `GET /api/chat/diagnostic?auditId=xxx` returns same audit
+4. [ ] `PUT /api/chat/diagnostic` updates audit status
+5. [ ] Verify all diagnostic fields accessible via API
+
+### Scenario 8: Error Handling
+1. [ ] Start diagnostic without n8n configured
+2. [ ] Verify graceful fallback to regular chat
+3. [ ] Start diagnostic, disconnect network mid-way
+4. [ ] Verify error message shown
+5. [ ] Verify diagnostic progress not lost
+6. [ ] Reconnect and continue
+7. [ ] Verify can complete diagnostic

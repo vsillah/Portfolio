@@ -77,7 +77,8 @@ export default function Navigation() {
             <img 
               src="/logo.png" 
               alt="AmaduTown" 
-              className="h-12 sm:h-14 w-auto object-contain"
+              className="object-contain"
+              style={{ width: 'auto', height: '60px' }}
             />
           </motion.a>
 

@@ -1,13 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { sendToN8n, generateSessionId } from '@/lib/n8n'
+import { sendToN8n, sendDiagnosticToN8n, generateSessionId, triggerDiagnosticCompletionWebhook, triggerLeadQualificationWebhook } from '@/lib/n8n'
+import type { DiagnosticProgress, DiagnosticCategory } from '@/lib/n8n'
+import { saveDiagnosticAudit, getDiagnosticAuditBySession, linkDiagnosticToContact } from '@/lib/diagnostic'
 
 export const dynamic = 'force-dynamic'
+
+// Diagnostic trigger phrases (same as in Chat.tsx)
+const DIAGNOSTIC_TRIGGERS = [
+  'audit',
+  'diagnostic',
+  'identify issues',
+  'help me identify',
+  'self-assessment',
+  'business assessment',
+  'analyze my',
+  'evaluate my',
+  'review my',
+]
+
+function detectDiagnosticIntent(message: string): boolean {
+  const lowerMessage = message.toLowerCase()
+  return DIAGNOSTIC_TRIGGERS.some(trigger => lowerMessage.includes(trigger))
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { message, sessionId: providedSessionId, visitorEmail, visitorName } = body
+    const { 
+      message, 
+      sessionId: providedSessionId, 
+      visitorEmail, 
+      visitorName,
+      diagnosticMode: providedDiagnosticMode,
+      diagnosticAuditId: providedDiagnosticAuditId,
+      diagnosticProgress: providedDiagnosticProgress
+    } = body
 
     // Validate message
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -19,6 +47,13 @@ export async function POST(request: NextRequest) {
 
     // Use provided session ID or generate a new one
     const sessionId = providedSessionId || generateSessionId()
+
+    // Detect diagnostic intent if not already in diagnostic mode
+    const shouldStartDiagnostic = !providedDiagnosticMode && detectDiagnosticIntent(message)
+    const isDiagnosticMode = providedDiagnosticMode || shouldStartDiagnostic
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/chat/route.ts:POST',message:'Diagnostic mode detection',data:{message,providedDiagnosticMode,shouldStartDiagnostic,isDiagnosticMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
 
     // Check if session exists, create if not
     const { data: existingSession } = await supabaseAdmin
@@ -52,6 +87,41 @@ export async function POST(request: NextRequest) {
         .eq('session_id', sessionId)
     }
 
+    // Get or create diagnostic audit if in diagnostic mode
+    let diagnosticAuditId: string | null = providedDiagnosticAuditId || null
+    let currentDiagnosticProgress: DiagnosticProgress | null = providedDiagnosticProgress || null
+
+    if (isDiagnosticMode) {
+      // Check for existing diagnostic audit
+      if (!diagnosticAuditId) {
+        const { data: existingAudit } = await getDiagnosticAuditBySession(sessionId)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/chat/route.ts:POST',message:'Existing audit check',data:{sessionId,existingAudit:existingAudit?.id,status:existingAudit?.status},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        if (existingAudit && existingAudit.status === 'in_progress') {
+          diagnosticAuditId = existingAudit.id
+          currentDiagnosticProgress = {
+            completedCategories: [],
+            questionsAsked: existingAudit.questions_asked || [],
+            responsesReceived: existingAudit.responses_received || {},
+          }
+        }
+      }
+
+      // Create new diagnostic audit if needed
+      if (!diagnosticAuditId) {
+        const result = await saveDiagnosticAudit(sessionId, {
+          status: 'in_progress',
+        })
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/chat/route.ts:POST',message:'Create diagnostic audit',data:{sessionId,auditId:result.id,error:result.error?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+        // #endregion
+        if (result.id) {
+          diagnosticAuditId = result.id
+        }
+      }
+    }
+
     // Save user message to database
     const { error: userMsgError } = await supabaseAdmin
       .from('chat_messages')
@@ -59,21 +129,126 @@ export async function POST(request: NextRequest) {
         session_id: sessionId,
         role: 'user',
         content: message.trim(),
-        metadata: { visitorEmail, visitorName },
+        metadata: { 
+          visitorEmail, 
+          visitorName,
+          diagnosticMode: isDiagnosticMode,
+          diagnosticAuditId: diagnosticAuditId || undefined,
+        },
       })
 
     if (userMsgError) {
       console.error('Error saving user message:', userMsgError)
     }
 
-    // Send to n8n chat trigger
-    // Note: n8n's Simple Memory handles conversation history using sessionId
-    const n8nResponse = await sendToN8n({
-      message: message.trim(),
-      sessionId,
-      visitorEmail,
-      visitorName,
-    })
+    // Send to n8n - use diagnostic workflow if in diagnostic mode
+    let n8nResponse
+    let diagnosticResponse = null
+    let diagnosticComplete = false
+    let currentCategory: DiagnosticCategory | undefined = undefined
+
+    if (isDiagnosticMode && diagnosticAuditId) {
+      // Use diagnostic-specific n8n workflow
+      try {
+        diagnosticResponse = await sendDiagnosticToN8n({
+          sessionId,
+          diagnosticAuditId,
+          message: message.trim(),
+          currentCategory: currentDiagnosticProgress?.currentCategory,
+          progress: currentDiagnosticProgress || undefined,
+          visitorEmail,
+          visitorName,
+        })
+
+        // Update diagnostic progress
+        if (diagnosticResponse.progress) {
+          currentDiagnosticProgress = diagnosticResponse.progress
+        }
+        if (diagnosticResponse.currentCategory) {
+          currentCategory = diagnosticResponse.currentCategory
+        }
+        if (diagnosticResponse.isComplete) {
+          diagnosticComplete = true
+        }
+
+        // Save diagnostic data incrementally
+        if (diagnosticResponse.diagnosticData && diagnosticAuditId) {
+          await saveDiagnosticAudit(sessionId, {
+            diagnosticAuditId,
+            currentCategory: diagnosticResponse.currentCategory,
+            progress: diagnosticResponse.progress,
+            diagnosticData: diagnosticResponse.diagnosticData,
+            status: diagnosticResponse.isComplete ? 'completed' : 'in_progress',
+          })
+        }
+
+        // Handle diagnostic completion
+        if (diagnosticComplete && diagnosticAuditId && diagnosticResponse.diagnosticData) {
+          // Link to contact submission if email provided
+          if (visitorEmail) {
+            // Find or create contact submission
+            const { data: contactSubmissions } = await supabaseAdmin
+              .from('contact_submissions')
+              .select('id')
+              .eq('email', visitorEmail.toLowerCase())
+              .order('created_at', { ascending: false })
+              .limit(1)
+
+            if (contactSubmissions && contactSubmissions.length > 0) {
+              await linkDiagnosticToContact(diagnosticAuditId, contactSubmissions[0].id)
+              
+              // Trigger lead qualification with diagnostic insights
+              triggerLeadQualificationWebhook({
+                name: visitorName || 'Unknown',
+                email: visitorEmail,
+                message: `Diagnostic completed. ${diagnosticResponse.diagnosticData.diagnostic_summary || 'See diagnostic audit for details.'}`,
+                submissionId: contactSubmissions[0].id.toString(),
+                submittedAt: new Date().toISOString(),
+                source: 'chat_diagnostic',
+              }).catch(err => console.error('Lead qualification webhook failed:', err))
+            }
+          }
+
+          // Trigger diagnostic completion webhook for sales enablement
+          triggerDiagnosticCompletionWebhook(
+            diagnosticAuditId,
+            diagnosticResponse.diagnosticData as any,
+            { email: visitorEmail, name: visitorName }
+          ).catch(err => console.error('Diagnostic completion webhook failed:', err))
+        }
+
+        n8nResponse = {
+          response: diagnosticResponse.response,
+          escalated: false,
+          metadata: diagnosticResponse.metadata || {},
+        }
+      } catch (error) {
+        console.error('Diagnostic n8n error, falling back to regular chat:', error)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/chat/route.ts:POST',message:'Diagnostic n8n error - falling back',data:{error:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+        // #endregion
+        // Fall back to regular chat
+        n8nResponse = await sendToN8n({
+          message: message.trim(),
+          sessionId,
+          visitorEmail,
+          visitorName,
+          diagnosticMode: false,
+        })
+      }
+    } else {
+      // Regular chat mode
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/chat/route.ts:POST',message:'Using regular chat mode',data:{isDiagnosticMode,diagnosticAuditId,reason:!isDiagnosticMode ? 'not_in_diagnostic_mode' : !diagnosticAuditId ? 'no_audit_id' : 'unknown'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+      // #endregion
+      n8nResponse = await sendToN8n({
+        message: message.trim(),
+        sessionId,
+        visitorEmail,
+        visitorName,
+        diagnosticMode: false,
+      })
+    }
 
     // Save assistant response to database
     const { error: assistantMsgError } = await supabaseAdmin
@@ -82,7 +257,11 @@ export async function POST(request: NextRequest) {
         session_id: sessionId,
         role: n8nResponse.escalated ? 'support' : 'assistant',
         content: n8nResponse.response,
-        metadata: n8nResponse.metadata,
+        metadata: {
+          ...n8nResponse.metadata,
+          diagnosticMode: isDiagnosticMode,
+          diagnosticAuditId: diagnosticAuditId || undefined,
+        },
       })
 
     if (assistantMsgError) {
@@ -102,6 +281,11 @@ export async function POST(request: NextRequest) {
       sessionId,
       escalated: n8nResponse.escalated,
       metadata: n8nResponse.metadata,
+      diagnosticMode: isDiagnosticMode,
+      diagnosticAuditId: diagnosticAuditId || undefined,
+      diagnosticProgress: currentDiagnosticProgress || undefined,
+      currentCategory: currentCategory,
+      diagnosticComplete: diagnosticComplete,
     })
   } catch (error) {
     console.error('Chat API error:', error)

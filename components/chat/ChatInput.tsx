@@ -3,15 +3,25 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Send, Loader2 } from 'lucide-react'
+import type { DiagnosticCategory } from '@/lib/n8n'
 
 interface ChatInputProps {
   onSend: (message: string) => void
   disabled?: boolean
   isLoading?: boolean
   placeholder?: string
+  isDiagnosticMode?: boolean
+  currentCategory?: DiagnosticCategory | null
 }
 
-export function ChatInput({ onSend, disabled, isLoading, placeholder = 'Type your message...' }: ChatInputProps) {
+export function ChatInput({ 
+  onSend, 
+  disabled, 
+  isLoading, 
+  placeholder = 'Type your message...',
+  isDiagnosticMode = false,
+  currentCategory = null
+}: ChatInputProps) {
   const [message, setMessage] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -73,9 +83,22 @@ export function ChatInput({ onSend, disabled, isLoading, placeholder = 'Type you
           )}
         </motion.button>
       </div>
-      <p className="text-[10px] text-platinum-white/30 mt-2 text-center">
-        Press Enter to send, Shift+Enter for new line
-      </p>
+      {/* Diagnostic mode hint */}
+      {isDiagnosticMode && currentCategory && (
+        <p className="text-[10px] text-radiant-gold/70 mt-2 text-center">
+          Answering questions about: {currentCategory.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+        </p>
+      )}
+      {!isDiagnosticMode && (
+        <p className="text-[10px] text-platinum-white/30 mt-2 text-center">
+          Press Enter to send, Shift+Enter for new line
+        </p>
+      )}
+      {isDiagnosticMode && !currentCategory && (
+        <p className="text-[10px] text-platinum-white/30 mt-2 text-center">
+          Starting diagnostic assessment...
+        </p>
+      )}
     </form>
   )
 }
