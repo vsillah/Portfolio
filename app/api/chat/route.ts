@@ -51,9 +51,6 @@ export async function POST(request: NextRequest) {
     // Detect diagnostic intent if not already in diagnostic mode
     const shouldStartDiagnostic = !providedDiagnosticMode && detectDiagnosticIntent(message)
     const isDiagnosticMode = providedDiagnosticMode || shouldStartDiagnostic
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/chat/route.ts:POST',message:'Diagnostic mode detection',data:{message,providedDiagnosticMode,shouldStartDiagnostic,isDiagnosticMode},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
 
     // Check if session exists, create if not
     const { data: existingSession } = await supabaseAdmin
@@ -95,9 +92,6 @@ export async function POST(request: NextRequest) {
       // Check for existing diagnostic audit
       if (!diagnosticAuditId) {
         const { data: existingAudit } = await getDiagnosticAuditBySession(sessionId)
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/chat/route.ts:POST',message:'Existing audit check',data:{sessionId,existingAudit:existingAudit?.id,status:existingAudit?.status},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
         if (existingAudit && existingAudit.status === 'in_progress') {
           diagnosticAuditId = existingAudit.id
           currentDiagnosticProgress = {
@@ -113,9 +107,6 @@ export async function POST(request: NextRequest) {
         const result = await saveDiagnosticAudit(sessionId, {
           status: 'in_progress',
         })
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/chat/route.ts:POST',message:'Create diagnostic audit',data:{sessionId,auditId:result.id,error:result.error?.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-        // #endregion
         if (result.id) {
           diagnosticAuditId = result.id
         }
@@ -223,24 +214,33 @@ export async function POST(request: NextRequest) {
           metadata: diagnosticResponse.metadata || {},
         }
       } catch (error) {
-        console.error('Diagnostic n8n error, falling back to regular chat:', error)
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/chat/route.ts:POST',message:'Diagnostic n8n error - falling back',data:{error:error instanceof Error ? error.message : String(error)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
-        // #endregion
-        // Fall back to regular chat
-        n8nResponse = await sendToN8n({
-          message: message.trim(),
-          sessionId,
-          visitorEmail,
-          visitorName,
-          diagnosticMode: false,
-        })
+        console.error('Diagnostic n8n error, trying regular workflow with diagnostic flags:', error)
+        // Fall back to regular workflow but with diagnostic mode flags
+        // This allows the workflow to detect diagnosticMode if it has the IF node configured
+        try {
+          n8nResponse = await sendToN8n({
+            message: message.trim(),
+            sessionId,
+            visitorEmail,
+            visitorName,
+            diagnosticMode: true,
+            diagnosticAuditId: diagnosticAuditId || undefined,
+            diagnosticProgress: currentDiagnosticProgress || undefined,
+          })
+        } catch (fallbackError) {
+          // If even the fallback fails, use regular chat as last resort
+          console.error('Fallback also failed, using regular chat:', fallbackError)
+          n8nResponse = await sendToN8n({
+            message: message.trim(),
+            sessionId,
+            visitorEmail,
+            visitorName,
+            diagnosticMode: false,
+          })
+        }
       }
     } else {
       // Regular chat mode
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/chat/route.ts:POST',message:'Using regular chat mode',data:{isDiagnosticMode,diagnosticAuditId,reason:!isDiagnosticMode ? 'not_in_diagnostic_mode' : !diagnosticAuditId ? 'no_audit_id' : 'unknown'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
-      // #endregion
       n8nResponse = await sendToN8n({
         message: message.trim(),
         sessionId,
@@ -276,8 +276,25 @@ export async function POST(request: NextRequest) {
         .eq('session_id', sessionId)
     }
 
+    // Final safeguard - ensure response is always a string
+    let finalResponse = n8nResponse.response
+    if (typeof finalResponse === 'object' && finalResponse !== null) {
+      // If response is an object, extract the text field or stringify
+      finalResponse = finalResponse.response || finalResponse.text || finalResponse.message || JSON.stringify(finalResponse)
+    } else if (typeof finalResponse === 'string') {
+      // Try to parse if it's a JSON string
+      try {
+        const parsed = JSON.parse(finalResponse)
+        if (parsed && typeof parsed === 'object' && parsed.response) {
+          finalResponse = parsed.response
+        }
+      } catch {
+        // Not JSON, use as-is
+      }
+    }
+
     return NextResponse.json({
-      response: n8nResponse.response,
+      response: String(finalResponse || ''),
       sessionId,
       escalated: n8nResponse.escalated,
       metadata: n8nResponse.metadata,

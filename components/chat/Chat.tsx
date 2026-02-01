@@ -33,11 +33,7 @@ const DIAGNOSTIC_TRIGGERS = [
 
 function detectDiagnosticIntent(message: string): boolean {
   const lowerMessage = message.toLowerCase()
-  const result = DIAGNOSTIC_TRIGGERS.some(trigger => lowerMessage.includes(trigger))
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Chat.tsx:detectDiagnosticIntent',message:'Diagnostic intent detection',data:{message,lowerMessage,result,triggers:DIAGNOSTIC_TRIGGERS},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
-  return result
+  return DIAGNOSTIC_TRIGGERS.some(trigger => lowerMessage.includes(trigger))
 }
 
 export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
@@ -226,9 +222,6 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
         diagnosticAuditId: diagnosticAuditId || undefined,
         diagnosticProgress: diagnosticProgress || undefined,
       }
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Chat.tsx:sendMessage',message:'API request payload',data:requestPayload,timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-      // #endregion
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -236,9 +229,6 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       })
 
       const data = await response.json()
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Chat.tsx:sendMessage',message:'API response',data:{diagnosticMode:data.diagnosticMode,diagnosticAuditId:data.diagnosticAuditId,response:data.response?.substring(0,100)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-      // #endregion
 
       // Remove typing indicator
       setMessages(prev => prev.filter(m => m.id !== typingId))
@@ -266,10 +256,33 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       }
 
       // Add assistant response
+      // Extract response text - handle cases where response might be an object or JSON string
+      let responseText = data.response
+      
+      if (typeof responseText === 'object' && responseText !== null) {
+        // If response is an object, try to extract the text field
+        responseText = responseText.response || responseText.text || responseText.message || ''
+      } else if (typeof responseText === 'string') {
+        // Try to parse if it's a JSON string
+        try {
+          const parsed = JSON.parse(responseText)
+          if (parsed && typeof parsed === 'object' && parsed.response) {
+            responseText = parsed.response || parsed.text || parsed.message || responseText
+          }
+        } catch {
+          // Not JSON, use as-is
+        }
+      }
+      
+      // Final safeguard - ensure we never display raw JSON objects
+      if (typeof responseText === 'object' && responseText !== null) {
+        responseText = JSON.stringify(responseText)
+      }
+      
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
         role: data.escalated ? 'support' : 'assistant',
-        content: data.response,
+        content: String(responseText || ''),
         timestamp: new Date().toISOString(),
       }
       setMessages(prev => [...prev, assistantMessage])

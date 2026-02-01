@@ -231,9 +231,34 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
 
     // Handle different response formats from n8n
     const result = Array.isArray(data) ? data[0] : data
+    
+    // Extract response text - handle cases where response might be a JSON string or object
+    let responseText = result.output || result.response || result.text || result.message || ''
+    
+    // If response is a string that looks like JSON, try to parse it
+    if (typeof responseText === 'string' && (responseText.trim().startsWith('{') || responseText.trim().startsWith('['))) {
+      try {
+        const parsed = JSON.parse(responseText)
+        if (parsed && typeof parsed === 'object') {
+          // If it's a diagnostic response object, extract the response field
+          if (parsed.response && typeof parsed.response === 'string') {
+            responseText = parsed.response
+          } else if (parsed.currentCategory !== undefined) {
+            // It's a diagnostic object but response might be nested or missing
+            responseText = parsed.response || parsed.text || parsed.message || responseText
+          }
+        }
+      } catch {
+        // Not valid JSON, use as-is
+      }
+    }
+    // If response is an object, extract text field
+    else if (typeof responseText === 'object' && responseText !== null) {
+      responseText = responseText.response || responseText.text || responseText.message || ''
+    }
 
     return {
-      response: result.output || result.response || result.text || result.message || 'I apologize, but I could not process your request. Please try again.',
+      response: responseText || 'I apologize, but I could not process your request. Please try again.',
       escalated: result.escalated || result.escalate || false,
       metadata: result.metadata || {},
     }
@@ -283,17 +308,60 @@ export async function sendDiagnosticToN8n(request: DiagnosticAuditRequest): Prom
       if (response.status === 404) {
         throw new Error(`n8n diagnostic workflow not found (404). Please ensure: 1) The workflow is ACTIVE in n8n, 2) The webhook URL is correct`)
       }
+      
+      if (response.status === 500) {
+        throw new Error(`n8n diagnostic workflow error (500): ${errorText}. The workflow may not have a diagnostic branch configured. Please check: 1) Add an IF node after webhook to detect diagnosticMode: true, 2) Create diagnostic workflow branch, 3) Ensure workflow is ACTIVE. See N8N_DIAGNOSTIC_SETUP.md for details.`)
+      }
+      
       throw new Error(`n8n diagnostic webhook returned ${response.status}: ${errorText}`)
     }
 
     const data = await response.json()
     const result = Array.isArray(data) ? data[0] : data
 
+    // Extract response text - handle multiple response formats from n8n
+    let responseText = ''
+    
+    // Case 1: Result itself is the diagnostic object (response, currentCategory, etc. at top level)
+    if (result.response && typeof result.response === 'string' && (result.currentCategory || result.diagnosticData !== undefined)) {
+      // This is the expected format - response is a string, other fields are separate
+      responseText = result.response
+    }
+    // Case 2: Response field is a JSON string containing the full object
+    else if (typeof result.response === 'string') {
+      try {
+        const parsed = JSON.parse(result.response)
+        if (parsed && typeof parsed === 'object' && parsed.response) {
+          // It's a JSON string with nested response field
+          responseText = parsed.response
+        } else {
+          // It's a JSON string but not the expected format, use as-is
+          responseText = result.response
+        }
+      } catch {
+        // Not JSON, use as-is
+        responseText = result.response
+      }
+    }
+    // Case 3: Response field is an object
+    else if (result.response && typeof result.response === 'object') {
+      responseText = result.response.response || result.response.text || result.response.message || ''
+    }
+    // Case 4: Result itself might be the response object (no nested response field)
+    else if (result.response === undefined && result.currentCategory !== undefined) {
+      // This shouldn't happen, but handle it
+      responseText = result.text || result.message || result.output || ''
+    }
+    // Case 5: Fallback to other fields
+    else {
+      responseText = result.response || result.output || result.text || result.message || ''
+    }
+
     return {
-      response: result.response || result.output || result.text || result.message || '',
-      diagnosticData: result.diagnosticData,
-      currentCategory: result.currentCategory,
-      isComplete: result.isComplete || false,
+      response: responseText,
+      diagnosticData: result.diagnosticData || (typeof result.response === 'object' ? result.response.diagnosticData : undefined),
+      currentCategory: result.currentCategory || (typeof result.response === 'object' ? result.response.currentCategory : undefined),
+      isComplete: result.isComplete || (typeof result.response === 'object' ? result.response.isComplete : false) || false,
       nextQuestion: result.nextQuestion,
       progress: result.progress,
       metadata: result.metadata || {},
