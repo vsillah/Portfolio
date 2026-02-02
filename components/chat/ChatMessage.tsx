@@ -1,16 +1,17 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { User, Bot, Headphones } from 'lucide-react'
+import { User, Bot, Headphones, Mic } from 'lucide-react'
 
 export interface ChatMessageProps {
   role: 'user' | 'assistant' | 'support'
   content: string
   timestamp?: string
   isTyping?: boolean
+  isVoice?: boolean
 }
 
-export function ChatMessage({ role, content, timestamp, isTyping }: ChatMessageProps) {
+export function ChatMessage({ role, content, timestamp, isTyping, isVoice }: ChatMessageProps) {
   const isUser = role === 'user'
   const isSupport = role === 'support'
 
@@ -86,11 +87,16 @@ export function ChatMessage({ role, content, timestamp, isTyping }: ChatMessageP
           )}
         </div>
 
-        {/* Timestamp */}
+        {/* Timestamp and Voice Indicator */}
         {timestamp && !isTyping && (
-          <span className="text-[10px] text-platinum-white/30 mt-1 px-1">
-            {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-          </span>
+          <div className={`flex items-center gap-1 mt-1 px-1 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}>
+            {isVoice && (
+              <Mic size={10} className="text-radiant-gold/50" />
+            )}
+            <span className="text-[10px] text-platinum-white/30">
+              {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
+          </div>
         )}
       </div>
     </motion.div>

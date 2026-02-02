@@ -79,6 +79,7 @@ export interface ChatMessage {
   role: 'user' | 'assistant' | 'support'
   content: string
   timestamp?: string
+  source?: 'text' | 'voice'
 }
 
 export interface N8nChatRequest {
@@ -90,6 +91,12 @@ export interface N8nChatRequest {
   diagnosticMode?: boolean
   diagnosticAuditId?: string
   diagnosticProgress?: DiagnosticProgress
+  /** Source channel: 'text' for chat, 'voice' for VAPI */
+  source?: 'text' | 'voice'
+  /** Summary of earlier conversation for long sessions */
+  conversationSummary?: string
+  /** Whether this session has cross-channel history */
+  hasCrossChannelHistory?: boolean
 }
 
 /**
@@ -195,6 +202,34 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
       action: 'sendMessage',
       sessionId: request.sessionId,
       chatInput: request.message,
+    }
+
+    // Add source channel info
+    if (request.source) {
+      payload.source = request.source
+    }
+
+    // Add conversation history for context
+    if (request.history && request.history.length > 0) {
+      payload.history = request.history
+    }
+
+    // Add conversation summary for long sessions
+    if (request.conversationSummary) {
+      payload.conversationSummary = request.conversationSummary
+    }
+
+    // Add cross-channel flag
+    if (request.hasCrossChannelHistory) {
+      payload.hasCrossChannelHistory = true
+    }
+
+    // Add visitor info if provided
+    if (request.visitorEmail) {
+      payload.visitorEmail = request.visitorEmail
+    }
+    if (request.visitorName) {
+      payload.visitorName = request.visitorName
     }
 
     // Add diagnostic mode flags if in diagnostic mode

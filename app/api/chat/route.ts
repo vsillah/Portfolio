@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { sendToN8n, sendDiagnosticToN8n, generateSessionId, triggerDiagnosticCompletionWebhook, triggerLeadQualificationWebhook } from '@/lib/n8n'
+import { sendToN8n, sendDiagnosticToN8n, generateSessionId, triggerDiagnosticCompletionWebhook, triggerLeadQualificationWebhook, type ChatMessage } from '@/lib/n8n'
 import type { DiagnosticProgress, DiagnosticCategory } from '@/lib/n8n'
 import { saveDiagnosticAudit, getDiagnosticAuditBySession, linkDiagnosticToContact } from '@/lib/diagnostic'
+import { fetchConversationContext } from '@/lib/chat-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -121,6 +122,7 @@ export async function POST(request: NextRequest) {
         role: 'user',
         content: message.trim(),
         metadata: { 
+          source: 'text',
           visitorEmail, 
           visitorName,
           diagnosticMode: isDiagnosticMode,
@@ -131,6 +133,20 @@ export async function POST(request: NextRequest) {
     if (userMsgError) {
       console.error('Error saving user message:', userMsgError)
     }
+
+    // Fetch conversation history for context injection
+    const context = await fetchConversationContext(sessionId, 20)
+    
+    // Format history for N8N
+    const history: ChatMessage[] = context?.history.map(msg => ({
+      role: msg.role,
+      content: msg.content,
+      timestamp: msg.timestamp,
+      source: msg.source,
+    })) || []
+
+    // Detect if this is a cross-channel conversation
+    const hasCrossChannelHistory = context?.sessionInfo.hasTextMessages && context?.sessionInfo.hasVoiceMessages
 
     // Send to n8n - use diagnostic workflow if in diagnostic mode
     let n8nResponse
@@ -226,6 +242,10 @@ export async function POST(request: NextRequest) {
             diagnosticMode: true,
             diagnosticAuditId: diagnosticAuditId || undefined,
             diagnosticProgress: currentDiagnosticProgress || undefined,
+            source: 'text',
+            history,
+            conversationSummary: context?.summary,
+            hasCrossChannelHistory,
           })
         } catch (fallbackError) {
           // If even the fallback fails, use regular chat as last resort
@@ -236,6 +256,10 @@ export async function POST(request: NextRequest) {
             visitorEmail,
             visitorName,
             diagnosticMode: false,
+            source: 'text',
+            history,
+            conversationSummary: context?.summary,
+            hasCrossChannelHistory,
           })
         }
       }
@@ -247,6 +271,10 @@ export async function POST(request: NextRequest) {
         visitorEmail,
         visitorName,
         diagnosticMode: false,
+        source: 'text',
+        history,
+        conversationSummary: context?.summary,
+        hasCrossChannelHistory,
       })
     }
 
@@ -258,6 +286,8 @@ export async function POST(request: NextRequest) {
         role: n8nResponse.escalated ? 'support' : 'assistant',
         content: n8nResponse.response,
         metadata: {
+          source: 'text',
+          hasCrossChannelHistory,
           ...n8nResponse.metadata,
           diagnosticMode: isDiagnosticMode,
           diagnosticAuditId: diagnosticAuditId || undefined,
@@ -277,14 +307,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Final safeguard - ensure response is always a string
-    let finalResponse = n8nResponse.response
-    if (typeof finalResponse === 'object' && finalResponse !== null) {
+    let finalResponse: string = n8nResponse.response
+    const responseValue = n8nResponse.response as unknown
+    if (typeof responseValue === 'object' && responseValue !== null) {
       // If response is an object, extract the text field or stringify
-      finalResponse = finalResponse.response || finalResponse.text || finalResponse.message || JSON.stringify(finalResponse)
-    } else if (typeof finalResponse === 'string') {
+      const responseObj = responseValue as Record<string, unknown>
+      finalResponse = String(responseObj.response || responseObj.text || responseObj.message || JSON.stringify(responseValue))
+    } else if (typeof responseValue === 'string') {
+      finalResponse = responseValue
       // Try to parse if it's a JSON string
       try {
-        const parsed = JSON.parse(finalResponse)
+        const parsed = JSON.parse(responseValue)
         if (parsed && typeof parsed === 'object' && parsed.response) {
           finalResponse = parsed.response
         }

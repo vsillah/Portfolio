@@ -19,7 +19,9 @@ When operations are independent, execute them in parallel for maximum performanc
 ❌ BAD: Sequential tool calls (await each one before the next)
 
 ### 3. Templates First
-ALWAYS check templates before building from scratch (2,709 available).
+ALWAYS check templates before building from scratch.
+- **n8n.io API**: ~2,709 templates (via `search_templates()`)
+- **Local repo**: 2,061 templates in `n8n-workflows/community-templates/` (from Zie619/n8n-workflows)
 
 ### 4. Multi-Level Validation
 Use validate_node(mode='minimal') → validate_node(mode='full') → validate_workflow pattern.
@@ -331,7 +333,7 @@ n8n_update_partial_workflow({
 ### Core Behavior
 1. **Silent execution** - No commentary between tools
 2. **Parallel by default** - Execute independent operations simultaneously
-3. **Templates first** - Always check before building (2,709 available)
+3. **Templates first** - Always check before building (~2,709 via n8n.io API, 2,061 in local repo)
 4. **Multi-level validation** - Quick check → Full validation → Workflow validation
 5. **Never trust defaults** - Explicitly configure ALL parameters
 

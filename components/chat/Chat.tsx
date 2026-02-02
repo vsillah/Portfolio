@@ -2,14 +2,20 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, X, Trash2, AlertCircle, ClipboardCheck, Sparkles, BookOpen, Briefcase, Code } from 'lucide-react'
+import { MessageCircle, X, Trash2, AlertCircle, ClipboardCheck, Sparkles, BookOpen, Briefcase, Mic, MessageSquare } from 'lucide-react'
 import { ChatMessage, type ChatMessageProps } from './ChatMessage'
 import { ChatInput } from './ChatInput'
+import { VoiceChat } from './VoiceChat'
 import { generateSessionId, CHAT_STORAGE_KEY } from '@/lib/chat-utils'
 import type { DiagnosticCategory, DiagnosticProgress } from '@/lib/n8n'
+import type { VoiceChatMessage } from '@/lib/vapi'
+import { isVapiConfigured } from '@/lib/vapi'
+
+type ChatMode = 'text' | 'voice'
 
 interface Message extends ChatMessageProps {
   id: string
+  isVoice?: boolean
 }
 
 interface ChatProps {
@@ -47,8 +53,13 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
   const [diagnosticProgress, setDiagnosticProgress] = useState<DiagnosticProgress | null>(null)
   const [currentCategory, setCurrentCategory] = useState<DiagnosticCategory | null>(null)
   const [showSuggestions, setShowSuggestions] = useState(true)
+  const [chatMode, setChatMode] = useState<ChatMode>('text')
+  const [isVoiceCallActive, setIsVoiceCallActive] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const hasLoadedHistory = useRef(false)
+  
+  // Check if voice chat is available
+  const voiceEnabled = isVapiConfigured()
 
   // Suggested actions/questions
   const suggestedActions = [
@@ -86,6 +97,29 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
     setShowSuggestions(false)
     sendMessage(message)
   }
+
+  // Handle voice messages from VoiceChat component
+  const handleVoiceMessage = useCallback((voiceMessage: VoiceChatMessage) => {
+    setShowSuggestions(false)
+    const message: Message = {
+      id: voiceMessage.id,
+      role: voiceMessage.role,
+      content: voiceMessage.content,
+      timestamp: voiceMessage.timestamp,
+      isVoice: true,
+    }
+    setMessages(prev => [...prev, message])
+  }, [])
+
+  // Handle voice call state changes
+  const handleVoiceCallStart = useCallback(() => {
+    setIsVoiceCallActive(true)
+    setShowSuggestions(false)
+  }, [])
+
+  const handleVoiceCallEnd = useCallback(() => {
+    setIsVoiceCallActive(false)
+  }, [])
 
   // Initialize session
   useEffect(() => {
@@ -367,15 +401,46 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
             {/* Chat Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-radiant-gold/10 bg-silicon-slate/20">
               <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <div className={`w-2 h-2 rounded-full ${isVoiceCallActive ? 'bg-radiant-gold' : 'bg-emerald-500'} animate-pulse`} />
                 <span className="text-sm font-heading tracking-wider text-platinum-white">
-                  {isDiagnosticMode ? 'Diagnostic Mode' : 'AI Assistant'}
+                  {isDiagnosticMode ? 'Diagnostic Mode' : isVoiceCallActive ? 'Voice Active' : 'AI Assistant'}
                 </span>
                 {isDiagnosticMode && (
                   <ClipboardCheck size={14} className="text-radiant-gold" />
                 )}
               </div>
               <div className="flex items-center gap-2">
+                {/* Voice/Text Mode Toggle */}
+                {voiceEnabled && !isDiagnosticMode && (
+                  <div className="flex items-center bg-silicon-slate/30 rounded-lg p-0.5 mr-2">
+                    <motion.button
+                      onClick={() => setChatMode('text')}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`p-1.5 rounded-md transition-all duration-200 ${
+                        chatMode === 'text' 
+                          ? 'bg-radiant-gold/20 text-radiant-gold' 
+                          : 'text-platinum-white/50 hover:text-platinum-white'
+                      }`}
+                      title="Text chat"
+                    >
+                      <MessageSquare size={14} />
+                    </motion.button>
+                    <motion.button
+                      onClick={() => setChatMode('voice')}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className={`p-1.5 rounded-md transition-all duration-200 ${
+                        chatMode === 'voice' 
+                          ? 'bg-radiant-gold/20 text-radiant-gold' 
+                          : 'text-platinum-white/50 hover:text-platinum-white'
+                      }`}
+                      title="Voice chat"
+                    >
+                      <Mic size={14} />
+                    </motion.button>
+                  </div>
+                )}
                 <motion.button
                   onClick={clearChat}
                   whileHover={{ scale: 1.1 }}
@@ -454,6 +519,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                   content={message.content}
                   timestamp={message.timestamp}
                   isTyping={message.isTyping}
+                  isVoice={message.isVoice}
                 />
               ))}
               
@@ -505,15 +571,44 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input */}
+            {/* Input Area - Text or Voice */}
             <div className="p-4 border-t border-radiant-gold/10 bg-silicon-slate/10">
-              <ChatInput
-                onSend={sendMessage}
-                isLoading={isLoading}
-                placeholder={isDiagnosticMode ? "Answer the question above..." : "Ask me anything..."}
-                isDiagnosticMode={isDiagnosticMode}
-                currentCategory={currentCategory}
-              />
+              <AnimatePresence mode="wait">
+                {chatMode === 'text' ? (
+                  <motion.div
+                    key="text-input"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <ChatInput
+                      onSend={sendMessage}
+                      isLoading={isLoading}
+                      placeholder={isDiagnosticMode ? "Answer the question above..." : "Ask me anything..."}
+                      isDiagnosticMode={isDiagnosticMode}
+                      currentCategory={currentCategory}
+                    />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="voice-input"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <VoiceChat
+                      sessionId={sessionId}
+                      onMessage={handleVoiceMessage}
+                      onCallStart={handleVoiceCallStart}
+                      onCallEnd={handleVoiceCallEnd}
+                      visitorName={visitorName}
+                      visitorEmail={visitorEmail}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         )}
