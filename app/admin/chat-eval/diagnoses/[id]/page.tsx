@@ -296,7 +296,7 @@ function DiagnosisDetailContent() {
           diagnosis.diagnosis_details.context_clues?.length) && (
           <div className="mb-8 p-5 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl">
             <h3 className="text-md font-semibold mb-3">Diagnosis Details</h3>
-            {diagnosis.diagnosis_details.prompt_issues?.length > 0 && (
+            {(diagnosis.diagnosis_details.prompt_issues?.length ?? 0) > 0 && (
               <div className="mb-3">
                 <h4 className="text-sm font-medium text-cyan-400 mb-1">Prompt Issues:</h4>
                 <ul className="list-disc list-inside text-sm text-platinum-white/70 space-y-1">
@@ -306,7 +306,7 @@ function DiagnosisDetailContent() {
                 </ul>
               </div>
             )}
-            {diagnosis.diagnosis_details.code_issues?.length > 0 && (
+            {(diagnosis.diagnosis_details.code_issues?.length ?? 0) > 0 && (
               <div className="mb-3">
                 <h4 className="text-sm font-medium text-orange-400 mb-1">Code Issues:</h4>
                 <ul className="list-disc list-inside text-sm text-platinum-white/70 space-y-1">
@@ -316,7 +316,7 @@ function DiagnosisDetailContent() {
                 </ul>
               </div>
             )}
-            {diagnosis.diagnosis_details.context_clues?.length > 0 && (
+            {(diagnosis.diagnosis_details.context_clues?.length ?? 0) > 0 && (
               <div>
                 <h4 className="text-sm font-medium text-purple-400 mb-1">Context Clues:</h4>
                 <ul className="list-disc list-inside text-sm text-platinum-white/70 space-y-1">
