@@ -424,3 +424,100 @@ CREATE POLICY "Admins can manage axial code reviews"
 -- Grant permissions
 GRANT ALL ON axial_code_generations TO authenticated;
 GRANT ALL ON axial_code_reviews TO authenticated;
+
+-- ============================================================================
+-- Error Diagnosis Tables
+-- For AI-powered root cause analysis and auto-fix recommendations
+-- ============================================================================
+
+-- Error Diagnoses Table
+-- Tracks AI diagnoses for each admin-confirmed error
+CREATE TABLE IF NOT EXISTS error_diagnoses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  session_id TEXT NOT NULL REFERENCES chat_sessions(session_id) ON DELETE CASCADE,
+  evaluation_id UUID REFERENCES chat_evaluations(id) ON DELETE CASCADE,
+  
+  -- Diagnosis results
+  root_cause TEXT NOT NULL,
+  error_type TEXT CHECK (error_type IN ('prompt', 'code', 'both', 'unknown')) NOT NULL,
+  confidence_score FLOAT CHECK (confidence_score >= 0 AND confidence_score <= 1),
+  diagnosis_details JSONB DEFAULT '{}',
+  
+  -- Recommendations
+  recommendations JSONB NOT NULL, -- Array of {type, description, changes, can_auto_apply}
+  status TEXT CHECK (status IN ('pending', 'reviewed', 'approved', 'applied', 'rejected')) DEFAULT 'pending',
+  
+  -- Application tracking
+  applied_changes JSONB, -- Tracks what was actually applied
+  application_method TEXT CHECK (application_method IN ('auto', 'manual', 'partial')),
+  application_instructions TEXT, -- For manual application
+  
+  -- Audit trail
+  diagnosed_by UUID REFERENCES auth.users(id), -- Admin who triggered
+  reviewed_by UUID REFERENCES auth.users(id),
+  applied_by UUID REFERENCES auth.users(id),
+  diagnosed_at TIMESTAMPTZ DEFAULT NOW(),
+  reviewed_at TIMESTAMPTZ,
+  applied_at TIMESTAMPTZ,
+  
+  -- Model info
+  model_used TEXT NOT NULL,
+  prompt_version TEXT DEFAULT 'v1'
+);
+
+-- Fix Applications Table
+-- Tracks applied fixes for audit trail
+CREATE TABLE IF NOT EXISTS fix_applications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  diagnosis_id UUID REFERENCES error_diagnoses(id) ON DELETE CASCADE,
+  
+  -- What was changed
+  change_type TEXT CHECK (change_type IN ('prompt', 'code_file', 'config')) NOT NULL,
+  target_identifier TEXT NOT NULL, -- prompt key, file path, etc.
+  old_value TEXT,
+  new_value TEXT,
+  
+  -- Application details
+  application_method TEXT CHECK (application_method IN ('auto', 'manual')) NOT NULL,
+  applied_by UUID REFERENCES auth.users(id),
+  applied_at TIMESTAMPTZ DEFAULT NOW(),
+  
+  -- Verification
+  verification_status TEXT CHECK (verification_status IN ('pending', 'verified', 'failed')) DEFAULT 'pending',
+  verification_notes TEXT
+);
+
+-- Indexes for error diagnoses
+CREATE INDEX IF NOT EXISTS idx_error_diagnoses_session_id ON error_diagnoses(session_id);
+CREATE INDEX IF NOT EXISTS idx_error_diagnoses_evaluation_id ON error_diagnoses(evaluation_id);
+CREATE INDEX IF NOT EXISTS idx_error_diagnoses_status ON error_diagnoses(status);
+CREATE INDEX IF NOT EXISTS idx_error_diagnoses_error_type ON error_diagnoses(error_type);
+CREATE INDEX IF NOT EXISTS idx_error_diagnoses_diagnosed_at ON error_diagnoses(diagnosed_at DESC);
+
+-- Indexes for fix applications
+CREATE INDEX IF NOT EXISTS idx_fix_applications_diagnosis_id ON fix_applications(diagnosis_id);
+CREATE INDEX IF NOT EXISTS idx_fix_applications_change_type ON fix_applications(change_type);
+CREATE INDEX IF NOT EXISTS idx_fix_applications_verification_status ON fix_applications(verification_status);
+
+-- RLS for error diagnosis tables
+ALTER TABLE error_diagnoses ENABLE ROW LEVEL SECURITY;
+ALTER TABLE fix_applications ENABLE ROW LEVEL SECURITY;
+
+-- Admin only access for error diagnosis tables
+CREATE POLICY "Admins can manage error diagnoses"
+  ON error_diagnoses
+  FOR ALL
+  TO authenticated
+  USING (is_admin_user())
+  WITH CHECK (is_admin_user());
+
+CREATE POLICY "Admins can manage fix applications"
+  ON fix_applications
+  FOR ALL
+  TO authenticated
+  USING (is_admin_user())
+  WITH CHECK (is_admin_user());
+
+-- Grant permissions
+GRANT ALL ON error_diagnoses TO authenticated;
+GRANT ALL ON fix_applications TO authenticated;

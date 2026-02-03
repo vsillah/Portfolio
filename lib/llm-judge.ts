@@ -690,6 +690,347 @@ export async function generateAxialCodes(
 // End Axial Coding Functions
 // ============================================================================
 
+// ============================================================================
+// Error Diagnosis Functions
+// For AI-powered root cause analysis of admin-confirmed errors
+// ============================================================================
+
+export interface SessionData {
+  session_id: string
+  visitor_name?: string
+  visitor_email?: string
+  is_escalated?: boolean
+  channel: 'text' | 'voice'
+  messages: ChatMessageForJudge[]
+  metadata?: Record<string, unknown>
+}
+
+export interface EvaluationData {
+  id: string
+  rating: 'bad'
+  notes?: string
+  tags?: string[]
+  category_id?: string
+  open_code?: string
+  category?: {
+    name: string
+    description?: string
+  }
+}
+
+export interface ErrorDiagnosis {
+  root_cause: string
+  error_type: 'prompt' | 'code' | 'both' | 'unknown'
+  confidence: number
+  diagnosis_details: {
+    prompt_issues?: string[]
+    code_issues?: string[]
+    context_clues?: string[]
+  }
+  recommendations: Array<{
+    id?: string
+    type: 'prompt' | 'code'
+    priority: 'high' | 'medium' | 'low'
+    description: string
+    changes: {
+      target: string // prompt key or file path
+      old_value?: string
+      new_value: string
+      can_auto_apply: boolean
+    }
+    application_instructions?: string
+  }>
+}
+
+const ERROR_DIAGNOSIS_PROMPT = `You are an expert software engineer and AI systems analyst performing root cause analysis on chat conversation errors.
+
+Your task is to diagnose why an error occurred in a chat session and recommend specific fixes.
+
+## Analysis Framework
+
+1. **Review the Error Context:**
+   - Admin's notes about what went wrong
+   - Error category/classification
+   - Full conversation history
+   - Tool calls and their outcomes
+   - System prompt used
+
+2. **Identify Root Cause:**
+   Determine if the error is:
+   - **Prompt-related**: Misunderstanding, tone issues, format problems, missing instructions
+   - **Code-related**: Tool failures, API errors, logic bugs, missing error handling
+   - **Both**: Prompt leads to code path that fails, or code doesn't handle prompt edge cases
+   - **Unknown**: Insufficient information to determine
+
+3. **Generate Recommendations:**
+   For each identified issue, provide:
+   - Specific fix (prompt change or code change)
+   - Priority level (high/medium/low)
+   - Whether it can be auto-applied
+   - Step-by-step instructions if manual application needed
+
+## Output Format
+
+Provide your analysis as valid JSON only, no additional text.`
+
+/**
+ * Build prompt for error diagnosis
+ */
+function buildErrorDiagnosisPrompt(
+  session: SessionData,
+  evaluation: EvaluationData,
+  systemPrompt?: string
+): string {
+  let prompt = ERROR_DIAGNOSIS_PROMPT + '\n\n'
+  
+  prompt += '## Error Information\n\n'
+  prompt += `**Admin Rating:** ${evaluation.rating}\n`
+  if (evaluation.category) {
+    prompt += `**Error Category:** ${evaluation.category.name}\n`
+    if (evaluation.category.description) {
+      prompt += `**Category Description:** ${evaluation.category.description}\n`
+    }
+  }
+  if (evaluation.open_code) {
+    prompt += `**Open Code:** ${evaluation.open_code}\n`
+  }
+  if (evaluation.notes) {
+    prompt += `**Admin Notes:** ${evaluation.notes}\n`
+  }
+  if (evaluation.tags && evaluation.tags.length > 0) {
+    prompt += `**Tags:** ${evaluation.tags.join(', ')}\n`
+  }
+  prompt += '\n'
+  
+  // Add system prompt for context
+  if (systemPrompt) {
+    prompt += '## System Prompt Used\n'
+    prompt += 'The assistant was configured with this system prompt:\n\n'
+    prompt += '```\n' + systemPrompt.substring(0, 2000) + '\n```\n\n'
+  }
+  
+  // Add conversation context
+  prompt += '## Conversation Context\n'
+  prompt += `- Channel: ${session.channel}\n`
+  prompt += `- Total messages: ${session.messages.length}\n`
+  if (session.visitor_name) prompt += `- Visitor: ${session.visitor_name}\n`
+  if (session.visitor_email) prompt += `- Email: ${session.visitor_email}\n`
+  if (session.is_escalated) prompt += `- Escalated: Yes\n`
+  prompt += '\n'
+  
+  // Add conversation
+  prompt += '## Conversation History\n\n'
+  for (const msg of session.messages) {
+    const role = msg.role === 'user' ? 'USER' : msg.role === 'support' ? 'SUPPORT' : 'ASSISTANT'
+    
+    if (msg.metadata?.isToolCall && msg.metadata?.toolCall) {
+      const tool = msg.metadata.toolCall
+      prompt += `[TOOL CALL: ${tool.name}]\n`
+      prompt += `Arguments: ${JSON.stringify(tool.arguments)}\n`
+      prompt += `Success: ${tool.success ? 'Yes' : 'No'}\n`
+      if (!tool.success) {
+        prompt += `**ERROR:** Tool call failed\n`
+      }
+      if (tool.response) {
+        prompt += `Response: ${JSON.stringify(tool.response).substring(0, 500)}\n`
+      }
+      prompt += '\n'
+    } else {
+      prompt += `${role}: ${msg.content}\n\n`
+    }
+  }
+  
+  prompt += `\n## Expected Output Format
+
+{
+  "root_cause": "Clear explanation of why the error occurred (2-3 sentences)",
+  "error_type": "prompt" | "code" | "both" | "unknown",
+  "confidence": 0.0 to 1.0,
+  "diagnosis_details": {
+    "prompt_issues": ["list of prompt-related issues if applicable"],
+    "code_issues": ["list of code-related issues if applicable"],
+    "context_clues": ["key observations that led to diagnosis"]
+  },
+  "recommendations": [
+    {
+      "type": "prompt" | "code",
+      "priority": "high" | "medium" | "low",
+      "description": "What needs to be fixed and why",
+      "changes": {
+        "target": "prompt key (e.g., 'chatbot') or file path (e.g., 'lib/n8n.ts')",
+        "old_value": "current value (if applicable)",
+        "new_value": "proposed fix",
+        "can_auto_apply": true | false
+      },
+      "application_instructions": "Step-by-step instructions if can_auto_apply is false"
+    }
+  ]
+}
+
+Analyze the error and provide your diagnosis:`
+  
+  return prompt
+}
+
+/**
+ * Parse error diagnosis response
+ */
+function parseErrorDiagnosisResponse(response: string): ErrorDiagnosis {
+  const jsonMatch = response.match(/\{[\s\S]*\}/)
+  
+  if (!jsonMatch) {
+    throw new Error('No valid JSON found in diagnosis response')
+  }
+  
+  try {
+    const parsed = JSON.parse(jsonMatch[0])
+    
+    // Validate required fields
+    if (!parsed.root_cause || !parsed.error_type || !parsed.recommendations) {
+      throw new Error('Missing required fields in diagnosis response')
+    }
+    
+    // Ensure recommendations have IDs
+    const recommendations = Array.isArray(parsed.recommendations) 
+      ? parsed.recommendations.map((rec: any, index: number) => ({
+          ...rec,
+          id: rec.id || `rec_${index}`,
+        }))
+      : []
+    
+    return {
+      root_cause: parsed.root_cause,
+      error_type: ['prompt', 'code', 'both', 'unknown'].includes(parsed.error_type)
+        ? parsed.error_type
+        : 'unknown',
+      confidence: typeof parsed.confidence === 'number'
+        ? Math.max(0, Math.min(1, parsed.confidence))
+        : 0.7,
+      diagnosis_details: {
+        prompt_issues: Array.isArray(parsed.diagnosis_details?.prompt_issues)
+          ? parsed.diagnosis_details.prompt_issues
+          : [],
+        code_issues: Array.isArray(parsed.diagnosis_details?.code_issues)
+          ? parsed.diagnosis_details.code_issues
+          : [],
+        context_clues: Array.isArray(parsed.diagnosis_details?.context_clues)
+          ? parsed.diagnosis_details.context_clues
+          : [],
+      },
+      recommendations,
+    }
+  } catch (e) {
+    throw new Error(`Failed to parse error diagnosis response: ${e}`)
+  }
+}
+
+/**
+ * Diagnose error using Claude
+ */
+async function diagnoseErrorWithClaude(
+  prompt: string,
+  config: JudgeConfig
+): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY environment variable is not configured')
+  }
+  
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: config.model,
+      max_tokens: 4096,
+      system: 'You are an expert software engineer and AI systems analyst. Always respond with valid JSON only, no additional text.',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: config.temperature ?? 0.3,
+    }),
+  })
+  
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Anthropic API error: ${response.status} - ${error}`)
+  }
+  
+  const data = await response.json()
+  return data.content?.[0]?.text || ''
+}
+
+/**
+ * Diagnose error using OpenAI
+ */
+async function diagnoseErrorWithOpenAI(
+  prompt: string,
+  config: JudgeConfig
+): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY
+  
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY environment variable is not configured')
+  }
+  
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: config.model,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert software engineer and AI systems analyst. Always respond with valid JSON only, no additional text.',
+        },
+        { role: 'user', content: prompt },
+      ],
+      temperature: config.temperature ?? 0.3,
+      max_tokens: 4096,
+    }),
+  })
+  
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`OpenAI API error: ${response.status} - ${error}`)
+  }
+  
+  const data = await response.json()
+  return data.choices?.[0]?.message?.content || ''
+}
+
+/**
+ * Diagnose an error in a chat session
+ * Main entry point for error diagnosis
+ */
+export async function diagnoseError(
+  session: SessionData,
+  evaluation: EvaluationData,
+  systemPrompt?: string,
+  config: JudgeConfig = DEFAULT_JUDGE_CONFIG
+): Promise<ErrorDiagnosis> {
+  const prompt = buildErrorDiagnosisPrompt(session, evaluation, systemPrompt)
+  
+  let responseText: string
+  
+  if (config.provider === 'anthropic') {
+    responseText = await diagnoseErrorWithClaude(prompt, config)
+  } else {
+    responseText = await diagnoseErrorWithOpenAI(prompt, config)
+  }
+  
+  return parseErrorDiagnosisResponse(responseText)
+}
+
+// ============================================================================
+// End Error Diagnosis Functions
+// ============================================================================
+
 /**
  * Calculate alignment between human and LLM evaluations
  */

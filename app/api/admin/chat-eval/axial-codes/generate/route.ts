@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Transform evaluations to open codes with context
-    const openCodesWithContext = evaluations.map(e => ({
+    const openCodesWithContext = evaluations.map((e: { open_code: string | null; session_id: string; rating: string | null; notes: string | null }) => ({
       code: e.open_code!,
       sessionId: e.session_id,
       rating: e.rating as 'good' | 'bad' | undefined,

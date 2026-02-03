@@ -8,7 +8,7 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { SessionCard, FilterSidebar } from '@/components/admin/chat-eval'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
-import { MessageCircle, TrendingUp, CheckCircle, FileText, CheckSquare, X, Sparkles, Loader2 } from 'lucide-react'
+import { MessageCircle, TrendingUp, CheckCircle, FileText, CheckSquare, X, Sparkles, Loader2, Bug } from 'lucide-react'
 
 interface Session {
   id: string
@@ -170,6 +170,51 @@ function ChatEvalContent() {
   const selectedWithOpenCodes = sessions.filter(
     s => selectedSessions.has(s.session_id) && s.evaluation?.open_code
   )
+
+  // Get sessions with bad ratings for diagnosis
+  const selectedWithBadRatings = sessions.filter(
+    s => selectedSessions.has(s.session_id) && s.evaluation?.rating === 'bad'
+  )
+
+  // Diagnose errors
+  const handleDiagnoseErrors = async () => {
+    if (selectedWithBadRatings.length === 0) {
+      setDiagnoseError('No selected sessions have bad ratings')
+      return
+    }
+
+    setIsDiagnosing(true)
+    setDiagnoseError(null)
+
+    try {
+      const session = await getCurrentSession()
+      const response = await fetch('/api/admin/chat-eval/diagnose/batch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
+          session_ids: selectedWithBadRatings.map(s => s.session_id),
+          provider: 'anthropic',
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to diagnose errors')
+      }
+
+      const data = await response.json()
+      
+      // Navigate to diagnoses page
+      router.push('/admin/chat-eval/diagnoses')
+    } catch (error) {
+      setDiagnoseError(error instanceof Error ? error.message : 'An error occurred')
+    } finally {
+      setIsDiagnosing(false)
+    }
+  }
 
   // Generate axial codes
   const handleGenerateAxialCodes = async () => {
@@ -404,6 +449,20 @@ function ChatEvalContent() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
+            onClick={() => router.push('/admin/chat-eval/diagnoses')}
+            className="p-4 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl
+              hover:border-radiant-gold/30 transition-all text-left"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Bug size={18} className="text-red-400" />
+              <h3 className="font-heading text-lg">Error Diagnoses</h3>
+            </div>
+            <p className="text-sm text-platinum-white/60">AI-powered root cause analysis</p>
+          </motion.button>
+          
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => router.push('/admin/chat-eval/queue')}
             className="p-4 bg-radiant-gold/10 border border-radiant-gold/30 rounded-xl
               hover:bg-radiant-gold/20 transition-all text-left"
@@ -457,10 +516,33 @@ function ChatEvalContent() {
                   {isGenerating ? 'Generating...' : 'Generate Axial Codes'}
                 </motion.button>
 
-                {/* Error message */}
+                {/* Diagnose Errors button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleDiagnoseErrors}
+                  disabled={selectedWithBadRatings.length === 0 || isDiagnosing}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
+                    disabled:bg-red-600/50 disabled:cursor-not-allowed
+                    rounded-lg text-white font-medium transition-colors"
+                >
+                  {isDiagnosing ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <Bug size={18} />
+                  )}
+                  {isDiagnosing ? 'Diagnosing...' : `Diagnose Errors (${selectedWithBadRatings.length})`}
+                </motion.button>
+
+                {/* Error messages */}
                 {generateError && (
                   <div className="text-red-400 text-sm max-w-48">
                     {generateError}
+                  </div>
+                )}
+                {diagnoseError && (
+                  <div className="text-red-400 text-sm max-w-48">
+                    {diagnoseError}
                   </div>
                 )}
 
