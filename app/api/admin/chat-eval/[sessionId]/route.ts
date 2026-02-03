@@ -260,7 +260,7 @@ export async function PUT(
           // Increment usage count
           return supabaseAdmin.rpc('increment_open_code_usage', { code_text: open_code })
         })
-        .catch(err => console.error('Error tracking open code:', err))
+        .catch((err: unknown) => console.error('Error tracking open code:', err))
     }
 
     return NextResponse.json({
