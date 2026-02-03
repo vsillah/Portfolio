@@ -61,10 +61,10 @@ export async function GET(request: NextRequest) {
 
     // Group by category
     const categoryCounts: Record<string, { name: string; color: string; count: number }> = {}
-    categoryBreakdown?.forEach((eval: any) => {
-      const catId = eval.category_id
-      const catName = eval.evaluation_categories?.name || 'Unknown'
-      const catColor = eval.evaluation_categories?.color || '#6B7280'
+    categoryBreakdown?.forEach((evaluation: any) => {
+      const catId = evaluation.category_id
+      const catName = evaluation.evaluation_categories?.name || 'Unknown'
+      const catColor = evaluation.evaluation_categories?.color || '#6B7280'
       
       if (!categoryCounts[catId]) {
         categoryCounts[catId] = { name: catName, color: catColor, count: 0 }

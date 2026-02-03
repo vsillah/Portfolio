@@ -410,8 +410,8 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                 )}
               </div>
               <div className="flex items-center gap-2">
-                {/* Voice/Text Mode Toggle */}
-                {voiceEnabled && !isDiagnosticMode && (
+                {/* Voice/Text Mode Toggle - available even in diagnostic mode */}
+                {voiceEnabled && (
                   <div className="flex items-center bg-silicon-slate/30 rounded-lg p-0.5 mr-2">
                     <motion.button
                       onClick={() => setChatMode('text')}

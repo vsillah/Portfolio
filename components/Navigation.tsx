@@ -88,7 +88,11 @@ export default function Navigation() {
             {user ? (
               <div className="relative user-menu-container">
                 <motion.button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  onClick={() => {
+                    setIsUserMenuOpen(!isUserMenuOpen)
+                    // Close nav menu when opening user menu
+                    if (!isUserMenuOpen) setIsMenuOpen(false)
+                  }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="flex items-center gap-3 px-4 py-2 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 transition-all duration-300"
@@ -115,7 +119,7 @@ export default function Navigation() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ duration: 0.2 }}
-                      className="absolute right-0 mt-3 w-64 glass-card border border-radiant-gold/20 rounded-xl overflow-hidden shadow-2xl"
+                      className="absolute right-0 mt-3 w-64 glass-card border border-radiant-gold/20 rounded-xl overflow-hidden shadow-2xl z-[60]"
                     >
                       {/* User info header */}
                       <div className="px-4 py-4 border-b border-radiant-gold/10 bg-imperial-navy/50">
@@ -189,7 +193,11 @@ export default function Navigation() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => {
+                setIsMenuOpen(!isMenuOpen)
+                // Close user menu when opening nav menu
+                if (!isMenuOpen) setIsUserMenuOpen(false)
+              }}
               className="flex items-center justify-center w-11 h-11 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 text-platinum-white hover:text-radiant-gold transition-all duration-300"
               aria-label="Toggle menu"
             >
@@ -229,7 +237,7 @@ export default function Navigation() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="absolute top-full left-0 right-0 bg-imperial-navy/95 backdrop-blur-xl border-b border-radiant-gold/10 overflow-hidden"
+            className="absolute top-full left-0 right-0 bg-imperial-navy/95 backdrop-blur-xl border-b border-radiant-gold/10 overflow-hidden z-[40]"
           >
             <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-8">
               {/* Navigation Links Grid */}
