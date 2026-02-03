@@ -345,3 +345,82 @@ LEFT JOIN llm_judge_evaluations lje ON cs.session_id = lje.session_id AND lje.me
 
 -- Grant access to the view
 GRANT SELECT ON chat_eval_session_summary TO authenticated;
+
+-- ============================================================================
+-- Axial Coding Tables
+-- For qualitative research workflow: open codes → axial codes → categories
+-- ============================================================================
+
+-- Extend evaluation_categories to track origin
+ALTER TABLE evaluation_categories 
+ADD COLUMN IF NOT EXISTS source TEXT CHECK (source IN ('manual', 'axial_code')) DEFAULT 'manual';
+
+ALTER TABLE evaluation_categories 
+ADD COLUMN IF NOT EXISTS axial_review_id UUID;
+
+-- Axial Code Generations Table
+-- Tracks each LLM generation batch
+CREATE TABLE IF NOT EXISTS axial_code_generations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  generated_axial_codes JSONB NOT NULL,  -- Array of {code, description, source_open_codes[]}
+  source_session_ids TEXT[] NOT NULL,
+  source_open_codes TEXT[] NOT NULL,
+  model_used TEXT NOT NULL,
+  prompt_version TEXT DEFAULT 'v1',
+  status TEXT CHECK (status IN ('pending', 'reviewed', 'completed')) DEFAULT 'pending',
+  created_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Axial Code Reviews Table
+-- Tracks user decisions on each generated axial code
+CREATE TABLE IF NOT EXISTS axial_code_reviews (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  generation_id UUID REFERENCES axial_code_generations(id) ON DELETE CASCADE,
+  original_code TEXT NOT NULL,
+  original_description TEXT,
+  final_code TEXT,  -- User-modified version (or same as original if approved as-is)
+  final_description TEXT,
+  status TEXT CHECK (status IN ('pending', 'approved', 'rejected', 'modified')) DEFAULT 'pending',
+  mapped_open_codes TEXT[] NOT NULL,
+  mapped_session_ids TEXT[] DEFAULT '{}',
+  category_id UUID REFERENCES evaluation_categories(id),  -- Set when promoted to category
+  reviewed_by UUID REFERENCES auth.users(id),
+  reviewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Add foreign key from evaluation_categories back to axial_code_reviews
+ALTER TABLE evaluation_categories 
+ADD CONSTRAINT fk_axial_review_id 
+FOREIGN KEY (axial_review_id) REFERENCES axial_code_reviews(id) ON DELETE SET NULL;
+
+-- Indexes for axial coding tables
+CREATE INDEX IF NOT EXISTS idx_axial_generations_status ON axial_code_generations(status);
+CREATE INDEX IF NOT EXISTS idx_axial_generations_created_at ON axial_code_generations(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_axial_reviews_generation_id ON axial_code_reviews(generation_id);
+CREATE INDEX IF NOT EXISTS idx_axial_reviews_status ON axial_code_reviews(status);
+CREATE INDEX IF NOT EXISTS idx_axial_reviews_category_id ON axial_code_reviews(category_id);
+
+-- RLS for axial coding tables
+ALTER TABLE axial_code_generations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE axial_code_reviews ENABLE ROW LEVEL SECURITY;
+
+-- Admin only access for axial code tables
+CREATE POLICY "Admins can manage axial code generations"
+  ON axial_code_generations
+  FOR ALL
+  TO authenticated
+  USING (is_admin_user())
+  WITH CHECK (is_admin_user());
+
+CREATE POLICY "Admins can manage axial code reviews"
+  ON axial_code_reviews
+  FOR ALL
+  TO authenticated
+  USING (is_admin_user())
+  WITH CHECK (is_admin_user());
+
+-- Grant permissions
+GRANT ALL ON axial_code_generations TO authenticated;
+GRANT ALL ON axial_code_reviews TO authenticated;

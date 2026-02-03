@@ -8,7 +8,8 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { 
   MessageThread, 
   RatingPanel, 
-  VoiceSessionMeta 
+  VoiceSessionMeta,
+  CategoryBadge
 } from '@/components/admin/chat-eval'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
@@ -88,6 +89,7 @@ interface SessionData {
     confidence_score: number
     model_used: string
     human_alignment?: boolean
+    identified_categories?: string[]
   }>
 }
 
@@ -384,49 +386,6 @@ function SessionDetailContent() {
               <MessageThread messages={session.messages} showMetadata={true} />
             </div>
 
-            {/* LLM Judge evaluations */}
-            {session.llm_evaluations.length > 0 && (
-              <div className="p-4 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl">
-                <h3 className="font-heading text-sm uppercase tracking-wider text-platinum-white/70 mb-4 flex items-center gap-2">
-                  <Bot size={16} className="text-radiant-gold" />
-                  LLM Judge Evaluations
-                </h3>
-                <div className="space-y-3">
-                  {session.llm_evaluations.map((eval_) => (
-                    <div 
-                      key={eval_.id}
-                      className={`p-3 rounded-lg border ${
-                        eval_.rating === 'good' 
-                          ? 'bg-emerald-500/10 border-emerald-500/30' 
-                          : 'bg-red-500/10 border-red-500/30'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className={`font-heading text-sm uppercase ${
-                          eval_.rating === 'good' ? 'text-emerald-400' : 'text-red-400'
-                        }`}>
-                          {eval_.rating}
-                        </span>
-                        <div className="flex items-center gap-2 text-xs text-platinum-white/50">
-                          <span>{eval_.model_used}</span>
-                          <span>•</span>
-                          <span>Confidence: {Math.round(eval_.confidence_score * 100)}%</span>
-                          {eval_.human_alignment !== null && (
-                            <>
-                              <span>•</span>
-                              <span className={eval_.human_alignment ? 'text-emerald-400' : 'text-red-400'}>
-                                {eval_.human_alignment ? 'Aligned' : 'Misaligned'}
-                              </span>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-sm text-platinum-white/70">{eval_.reasoning}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Right side: Rating panel */}
@@ -522,9 +481,78 @@ function SessionDetailContent() {
                 {isRunningLLMJudge ? 'Evaluating...' : 'Run Evaluation'}
               </motion.button>
               
-              <p className="text-xs text-platinum-white/40 text-center">
+              <p className="text-xs text-platinum-white/40 text-center mb-4">
                 A/B test different models to compare with human ratings
               </p>
+
+              {/* LLM Judge Evaluations Display */}
+              {session.llm_evaluations.length > 0 && (
+                <div className="pt-2 border-t border-purple-500/20">
+                  <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-3 block">
+                    LLM Judge Evaluations
+                  </label>
+                  <div className="space-y-3">
+                    {session.llm_evaluations.map((eval_) => (
+                      <div 
+                        key={eval_.id}
+                        className={`p-3 rounded-lg border ${
+                          eval_.rating === 'good' 
+                            ? 'bg-emerald-500/10 border-emerald-500/30' 
+                            : 'bg-red-500/10 border-red-500/30'
+                        }`}
+                      >
+                        {/* Rating and Metadata */}
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={`font-heading text-xs uppercase ${
+                            eval_.rating === 'good' ? 'text-emerald-400' : 'text-red-400'
+                          }`}>
+                            {eval_.rating}
+                          </span>
+                          <div className="flex items-center gap-1.5 text-xs text-platinum-white/50">
+                            <span>{eval_.model_used}</span>
+                            <span>•</span>
+                            <span>Confidence: {Math.round(eval_.confidence_score * 100)}%</span>
+                            {eval_.human_alignment !== null && (
+                              <>
+                                <span>•</span>
+                                <span className={eval_.human_alignment ? 'text-emerald-400' : 'text-red-400'}>
+                                  {eval_.human_alignment ? 'Aligned' : 'Misaligned'}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Reasoning/Notes */}
+                        <div className="mb-2">
+                          <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-1 block">
+                            Notes
+                          </label>
+                          <p className="text-xs text-platinum-white/70 leading-relaxed">{eval_.reasoning}</p>
+                        </div>
+
+                        {/* Categories */}
+                        {eval_.identified_categories && eval_.identified_categories.length > 0 && (
+                          <div className="mt-2 pt-2 border-t border-radiant-gold/10">
+                            <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-1 block">
+                              Categories
+                            </label>
+                            <div className="flex flex-wrap gap-1">
+                              {eval_.identified_categories.map((category, idx) => (
+                                <CategoryBadge
+                                  key={idx}
+                                  name={category}
+                                  color="#F97316" // Orange color for LLM-identified categories
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

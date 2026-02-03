@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { MessageCircle, Mic, Check, X, ChevronRight, AlertTriangle, Clock } from 'lucide-react'
+import { MessageCircle, Mic, Check, X, ChevronRight, AlertTriangle, Clock, Square, CheckSquare } from 'lucide-react'
 
 interface SessionCardProps {
   session: {
@@ -19,13 +19,16 @@ interface SessionCardProps {
       rating?: 'good' | 'bad'
       category_name?: string
       category_color?: string
+      open_code?: string
     } | null
   }
   isSelected?: boolean
+  selectionMode?: boolean
+  onSelect?: (selected: boolean) => void
   onClick?: () => void
 }
 
-export function SessionCard({ session, isSelected, onClick }: SessionCardProps) {
+export function SessionCard({ session, isSelected, selectionMode, onSelect, onClick }: SessionCardProps) {
   const ChannelIcon = session.channel === 'voice' ? Mic : MessageCircle
   
   const formatDate = (dateString: string) => {
@@ -46,9 +49,22 @@ export function SessionCard({ session, isSelected, onClick }: SessionCardProps) 
     return `${mins}:${secs.toString().padStart(2, '0')}`
   }
 
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onSelect?.(!isSelected)
+  }
+
+  const handleCardClick = () => {
+    if (selectionMode) {
+      onSelect?.(!isSelected)
+    } else {
+      onClick?.()
+    }
+  }
+
   return (
     <motion.div
-      onClick={onClick}
+      onClick={handleCardClick}
       whileHover={{ scale: 1.01 }}
       whileTap={{ scale: 0.99 }}
       className={`
@@ -60,6 +76,20 @@ export function SessionCard({ session, isSelected, onClick }: SessionCardProps) 
       `}
     >
       <div className="flex items-start justify-between">
+        {/* Checkbox for selection mode */}
+        {selectionMode && (
+          <div 
+            className="mr-3 flex-shrink-0"
+            onClick={handleCheckboxClick}
+          >
+            {isSelected ? (
+              <CheckSquare size={20} className="text-radiant-gold" />
+            ) : (
+              <Square size={20} className="text-platinum-white/40 hover:text-platinum-white/60" />
+            )}
+          </div>
+        )}
+        
         {/* Left side: Session info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
@@ -110,20 +140,27 @@ export function SessionCard({ session, isSelected, onClick }: SessionCardProps) 
             )}
           </div>
           
-          {/* Category badge if evaluated */}
-          {session.evaluation?.category_name && (
-            <div className="mt-2">
-              <span 
-                className="px-2 py-0.5 rounded text-xs"
-                style={{ 
-                  backgroundColor: `${session.evaluation.category_color}20`,
-                  color: session.evaluation.category_color,
-                  borderColor: `${session.evaluation.category_color}40`,
-                  borderWidth: 1,
-                }}
-              >
-                {session.evaluation.category_name}
-              </span>
+          {/* Category badge or open code if evaluated */}
+          {(session.evaluation?.category_name || session.evaluation?.open_code) && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {session.evaluation?.category_name && (
+                <span 
+                  className="px-2 py-0.5 rounded text-xs"
+                  style={{ 
+                    backgroundColor: `${session.evaluation.category_color}20`,
+                    color: session.evaluation.category_color,
+                    borderColor: `${session.evaluation.category_color}40`,
+                    borderWidth: 1,
+                  }}
+                >
+                  {session.evaluation.category_name}
+                </span>
+              )}
+              {session.evaluation?.open_code && (
+                <span className="px-2 py-0.5 rounded text-xs bg-cyan-500/20 text-cyan-400 border border-cyan-500/40">
+                  {session.evaluation.open_code}
+                </span>
+              )}
             </div>
           )}
         </div>

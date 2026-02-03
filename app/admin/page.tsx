@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, FolderOpen, Video, BookOpen, Music, Download, Sparkles, ArrowRight, MessageCircle } from 'lucide-react'
+import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, FolderOpen, Video, BookOpen, Music, Download, Sparkles, ArrowRight, MessageCircle, FileText } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -194,7 +194,7 @@ function AdminDashboardContent() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link href="/admin/chat-eval">
             <motion.div
               whileHover={{ scale: 1.02 }}
@@ -258,6 +258,23 @@ function AdminDashboardContent() {
                 <div>
                   <h3 className="text-xl font-bold mb-1">User Management</h3>
                   <p className="text-gray-400 text-sm">Manage users and roles</p>
+                </div>
+              </div>
+            </motion.div>
+          </Link>
+
+          <Link href="/admin/prompts">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-6 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border border-cyan-500/50 rounded-xl cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 flex items-center justify-center">
+                  <FileText size={32} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1">System Prompts</h3>
+                  <p className="text-gray-400 text-sm">Configure chatbot and evaluation criteria</p>
                 </div>
               </div>
             </motion.div>

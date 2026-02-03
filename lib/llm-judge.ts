@@ -4,6 +4,8 @@
  * Supports multiple providers (Claude, OpenAI) for A/B testing
  */
 
+import { getLlmJudgePrompt, getChatbotPrompt, getVoiceAgentPrompt, getPromptConfig } from './system-prompts'
+
 export interface ChatMessageForJudge {
   role: 'user' | 'assistant' | 'support'
   content: string
@@ -66,8 +68,8 @@ export const DEFAULT_JUDGE_CONFIG: JudgeConfig = {
   temperature: 0.3,
 }
 
-// Default evaluation criteria
-const EVALUATION_CRITERIA = `
+// Fallback evaluation criteria (used if database is unavailable)
+const FALLBACK_EVALUATION_CRITERIA = `
 You are an expert conversation quality evaluator. Analyze the following chat conversation between a user and an AI assistant.
 
 Evaluate the conversation based on these criteria:
@@ -103,14 +105,102 @@ Issue categories to use (if applicable):
 - "Inappropriate escalation"
 `
 
+// JSON output format instructions (appended to any evaluation criteria)
+const JSON_OUTPUT_INSTRUCTIONS = `
+
+Provide your evaluation in the following JSON format:
+{
+  "rating": "good" or "bad",
+  "reasoning": "Brief explanation of your evaluation (2-3 sentences)",
+  "confidence": 0.0 to 1.0 (how confident you are in this assessment),
+  "categories": ["array of issue categories if rating is bad, empty if good"],
+  "suggestions": ["optional array of improvement suggestions"]
+}
+
+Issue categories to use (if applicable):
+- "Transfer/handoff issues"
+- "Incorrect information provided"
+- "Follow-up capability issues"
+- "Tone or communication issues"
+- "Tool usage errors"
+- "Response too slow/delayed"
+- "Markdown or formatting errors"
+- "Failed to answer question"
+- "Inappropriate escalation"
+- "System prompt violation"
+`
+
+/**
+ * Get the evaluation criteria from database or fallback
+ */
+async function getEvaluationCriteria(): Promise<string> {
+  try {
+    const criteria = await getLlmJudgePrompt()
+    // Ensure JSON output format is included
+    if (!criteria.includes('"rating"')) {
+      return criteria + JSON_OUTPUT_INSTRUCTIONS
+    }
+    return criteria
+  } catch (error) {
+    console.error('Error fetching evaluation criteria, using fallback:', error)
+    return FALLBACK_EVALUATION_CRITERIA
+  }
+}
+
+/**
+ * Get the chatbot's system prompt for context in evaluation
+ */
+async function getChatbotSystemPromptForContext(channel: 'text' | 'voice'): Promise<string | null> {
+  try {
+    if (channel === 'voice') {
+      return await getVoiceAgentPrompt()
+    }
+    return await getChatbotPrompt()
+  } catch (error) {
+    console.error('Error fetching chatbot prompt for context:', error)
+    return null
+  }
+}
+
+/**
+ * Get model config from database
+ */
+async function getJudgeModelConfig(): Promise<JudgeConfig> {
+  try {
+    const config = await getPromptConfig('llm_judge')
+    return {
+      provider: 'anthropic',
+      model: (config.model as string) || DEFAULT_JUDGE_CONFIG.model,
+      promptVersion: 'v1',
+      temperature: (config.temperature as number) || DEFAULT_JUDGE_CONFIG.temperature,
+    }
+  } catch (error) {
+    console.error('Error fetching judge config:', error)
+    return DEFAULT_JUDGE_CONFIG
+  }
+}
+
 /**
  * Build the prompt for the LLM judge
+ * Now async to fetch criteria from database
  */
-export function buildJudgePrompt(
+export async function buildJudgePrompt(
   messages: ChatMessageForJudge[],
   context: JudgeContext
-): string {
-  let prompt = EVALUATION_CRITERIA + '\n\n'
+): Promise<string> {
+  // Get evaluation criteria from database
+  const evaluationCriteria = await getEvaluationCriteria()
+  
+  let prompt = evaluationCriteria + '\n\n'
+  
+  // Add the chatbot's system prompt for context (helps judge alignment)
+  const chatbotPrompt = context.systemPrompt || await getChatbotSystemPromptForContext(context.channel)
+  if (chatbotPrompt) {
+    prompt += '## Chatbot System Prompt (for reference)\n'
+    prompt += 'The assistant was configured with the following system prompt. '
+    prompt += 'Consider whether responses aligned with these guidelines:\n\n'
+    prompt += '```\n' + chatbotPrompt.substring(0, 2000) + '\n```\n\n'
+  }
   
   // Add context
   prompt += '## Conversation Context\n'
@@ -190,18 +280,23 @@ export function parseJudgeResponse(response: string): JudgeEvaluation {
 /**
  * Evaluate a conversation using Claude (default) or OpenAI
  * Supports A/B testing between different models and providers
+ * Now fetches config from database if not provided
  */
 export async function evaluateConversation(
   messages: ChatMessageForJudge[],
   context: JudgeContext,
-  config: JudgeConfig = DEFAULT_JUDGE_CONFIG
+  config?: JudgeConfig
 ): Promise<JudgeEvaluation> {
-  const prompt = buildJudgePrompt(messages, context)
+  // Use provided config or fetch from database
+  const judgeConfig = config || await getJudgeModelConfig()
   
-  if (config.provider === 'anthropic') {
-    return evaluateWithClaude(prompt, config)
+  // Build prompt (now async to fetch criteria from database)
+  const prompt = await buildJudgePrompt(messages, context)
+  
+  if (judgeConfig.provider === 'anthropic') {
+    return evaluateWithClaude(prompt, judgeConfig)
   } else {
-    return evaluateWithOpenAI(prompt, config)
+    return evaluateWithOpenAI(prompt, judgeConfig)
   }
 }
 
@@ -347,6 +442,253 @@ export async function batchEvaluateConversations(
   
   return results
 }
+
+// ============================================================================
+// Axial Coding Functions
+// For qualitative research: generating higher-level categories from open codes
+// ============================================================================
+
+export interface OpenCodeWithContext {
+  code: string
+  sessionId: string
+  rating?: 'good' | 'bad'
+  notes?: string
+}
+
+export interface AxialCodeResult {
+  code: string
+  description: string
+  source_open_codes: string[]
+  source_sessions: string[]
+}
+
+export interface AxialCodeGenerationResult {
+  axial_codes: AxialCodeResult[]
+}
+
+const AXIAL_CODING_PROMPT = `You are a qualitative research analyst performing axial coding on chat evaluation data.
+
+Axial coding is a qualitative research technique where you identify relationships between open codes and group them into higher-level conceptual categories (axial codes).
+
+Given the following open codes from chat evaluation sessions, generate axial codes that:
+1. Group semantically related open codes together
+2. Have clear, concise category names (2-4 words)
+3. Include descriptions explaining what issues each category captures
+4. Map each input open code to exactly one axial code
+
+Guidelines:
+- Create 3-8 axial codes depending on the diversity of input codes
+- Each axial code should represent a distinct theme or issue type
+- Use professional, clear language for category names
+- Ensure all input open codes are mapped to an axial code
+- If an open code doesn't fit well with others, it can be its own axial code
+
+Output your response as valid JSON only, no additional text.`
+
+/**
+ * Build prompt for axial code generation
+ */
+function buildAxialCodingPrompt(openCodes: OpenCodeWithContext[]): string {
+  let prompt = AXIAL_CODING_PROMPT + '\n\n'
+  
+  prompt += '## Input Open Codes\n\n'
+  
+  // Group by unique codes and show their frequency/context
+  const codeMap = new Map<string, { count: number; sessions: string[]; notes: string[] }>()
+  
+  for (const oc of openCodes) {
+    if (!codeMap.has(oc.code)) {
+      codeMap.set(oc.code, { count: 0, sessions: [], notes: [] })
+    }
+    const entry = codeMap.get(oc.code)!
+    entry.count++
+    entry.sessions.push(oc.sessionId)
+    if (oc.notes) entry.notes.push(oc.notes)
+  }
+  
+  for (const [code, data] of codeMap) {
+    prompt += `- "${code}" (used ${data.count} time${data.count > 1 ? 's' : ''})\n`
+    if (data.notes.length > 0) {
+      const uniqueNotes = [...new Set(data.notes)].slice(0, 3)
+      prompt += `  Context from evaluator notes: ${uniqueNotes.join('; ').substring(0, 200)}\n`
+    }
+  }
+  
+  prompt += `\n## Expected Output Format\n
+{
+  "axial_codes": [
+    {
+      "code": "Category Name",
+      "description": "What this category represents and why these codes are grouped together",
+      "source_open_codes": ["code1", "code2", "code3"]
+    }
+  ]
+}
+
+Generate the axial codes now:`
+  
+  return prompt
+}
+
+/**
+ * Parse axial code generation response
+ */
+function parseAxialCodeResponse(response: string, openCodes: OpenCodeWithContext[]): AxialCodeGenerationResult {
+  const jsonMatch = response.match(/\{[\s\S]*\}/)
+  
+  if (!jsonMatch) {
+    throw new Error('No valid JSON found in response')
+  }
+  
+  try {
+    const parsed = JSON.parse(jsonMatch[0])
+    
+    if (!Array.isArray(parsed.axial_codes)) {
+      throw new Error('Response missing axial_codes array')
+    }
+    
+    // Build a map of open code to sessions for mapping
+    const codeToSessions = new Map<string, string[]>()
+    for (const oc of openCodes) {
+      if (!codeToSessions.has(oc.code)) {
+        codeToSessions.set(oc.code, [])
+      }
+      codeToSessions.get(oc.code)!.push(oc.sessionId)
+    }
+    
+    // Enrich results with session mappings
+    const axialCodes: AxialCodeResult[] = parsed.axial_codes.map((ac: any) => {
+      const sourceOpenCodes = Array.isArray(ac.source_open_codes) ? ac.source_open_codes : []
+      
+      // Get all sessions that have any of the source open codes
+      const sourceSessions = new Set<string>()
+      for (const oc of sourceOpenCodes) {
+        const sessions = codeToSessions.get(oc) || []
+        sessions.forEach(s => sourceSessions.add(s))
+      }
+      
+      return {
+        code: ac.code || 'Unnamed Category',
+        description: ac.description || '',
+        source_open_codes: sourceOpenCodes,
+        source_sessions: [...sourceSessions],
+      }
+    })
+    
+    return { axial_codes: axialCodes }
+  } catch (e) {
+    throw new Error(`Failed to parse axial code response: ${e}`)
+  }
+}
+
+/**
+ * Generate axial codes from open codes using Claude
+ */
+async function generateAxialCodesWithClaude(
+  prompt: string,
+  config: JudgeConfig
+): Promise<string> {
+  const apiKey = process.env.ANTHROPIC_API_KEY
+  
+  if (!apiKey) {
+    throw new Error('ANTHROPIC_API_KEY environment variable is not configured')
+  }
+  
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: config.model,
+      max_tokens: 2048,
+      system: 'You are a qualitative research analyst. Always respond with valid JSON only, no additional text.',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: config.temperature ?? 0.3,
+    }),
+  })
+  
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Anthropic API error: ${response.status} - ${error}`)
+  }
+  
+  const data = await response.json()
+  return data.content?.[0]?.text || ''
+}
+
+/**
+ * Generate axial codes from open codes using OpenAI
+ */
+async function generateAxialCodesWithOpenAI(
+  prompt: string,
+  config: JudgeConfig
+): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY
+  
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY environment variable is not configured')
+  }
+  
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: config.model,
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a qualitative research analyst. Always respond with valid JSON only, no additional text.',
+        },
+        { role: 'user', content: prompt },
+      ],
+      temperature: config.temperature ?? 0.3,
+      max_tokens: 2048,
+    }),
+  })
+  
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`OpenAI API error: ${response.status} - ${error}`)
+  }
+  
+  const data = await response.json()
+  return data.choices?.[0]?.message?.content || ''
+}
+
+/**
+ * Generate axial codes from a list of open codes
+ * Main entry point for axial code generation
+ */
+export async function generateAxialCodes(
+  openCodes: OpenCodeWithContext[],
+  config: JudgeConfig = DEFAULT_JUDGE_CONFIG
+): Promise<AxialCodeGenerationResult> {
+  if (openCodes.length === 0) {
+    return { axial_codes: [] }
+  }
+  
+  const prompt = buildAxialCodingPrompt(openCodes)
+  
+  let responseText: string
+  
+  if (config.provider === 'anthropic') {
+    responseText = await generateAxialCodesWithClaude(prompt, config)
+  } else {
+    responseText = await generateAxialCodesWithOpenAI(prompt, config)
+  }
+  
+  return parseAxialCodeResponse(responseText, openCodes)
+}
+
+// ============================================================================
+// End Axial Coding Functions
+// ============================================================================
 
 /**
  * Calculate alignment between human and LLM evaluations

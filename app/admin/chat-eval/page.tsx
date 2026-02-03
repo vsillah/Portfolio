@@ -1,14 +1,14 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { SessionCard, FilterSidebar } from '@/components/admin/chat-eval'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
-import { MessageCircle, TrendingUp, CheckCircle } from 'lucide-react'
+import { MessageCircle, TrendingUp, CheckCircle, FileText, CheckSquare, X, Sparkles, Loader2 } from 'lucide-react'
 
 interface Session {
   id: string
@@ -25,6 +25,7 @@ interface Session {
     rating?: 'good' | 'bad'
     category_name?: string
     category_color?: string
+    open_code?: string
   } | null
 }
 
@@ -54,6 +55,12 @@ function ChatEvalContent() {
   const [selectedRating, setSelectedRating] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  
+  // Selection mode state
+  const [selectionMode, setSelectionMode] = useState(false)
+  const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set())
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generateError, setGenerateError] = useState<string | null>(null)
 
   const fetchSessions = useCallback(async () => {
     setLoading(true)
@@ -126,6 +133,84 @@ function ChatEvalContent() {
     router.push(`/admin/chat-eval/${sessionId}`)
   }
 
+  // Selection mode handlers
+  const toggleSelectionMode = () => {
+    setSelectionMode(!selectionMode)
+    if (selectionMode) {
+      setSelectedSessions(new Set())
+    }
+  }
+
+  const handleSelectSession = (sessionId: string, selected: boolean) => {
+    setSelectedSessions(prev => {
+      const next = new Set(prev)
+      if (selected) {
+        next.add(sessionId)
+      } else {
+        next.delete(sessionId)
+      }
+      return next
+    })
+  }
+
+  const handleSelectAll = () => {
+    if (selectedSessions.size === sessions.length) {
+      setSelectedSessions(new Set())
+    } else {
+      setSelectedSessions(new Set(sessions.map(s => s.session_id)))
+    }
+  }
+
+  const clearSelection = () => {
+    setSelectedSessions(new Set())
+    setSelectionMode(false)
+  }
+
+  // Get sessions with open codes from selection
+  const selectedWithOpenCodes = sessions.filter(
+    s => selectedSessions.has(s.session_id) && s.evaluation?.open_code
+  )
+
+  // Generate axial codes
+  const handleGenerateAxialCodes = async () => {
+    if (selectedWithOpenCodes.length === 0) {
+      setGenerateError('No selected sessions have open codes')
+      return
+    }
+
+    setIsGenerating(true)
+    setGenerateError(null)
+
+    try {
+      const session = await getCurrentSession()
+      const response = await fetch('/api/admin/chat-eval/axial-codes/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({
+          session_ids: selectedWithOpenCodes.map(s => s.session_id),
+          provider: 'anthropic',
+        }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.error || 'Failed to generate axial codes')
+      }
+
+      const data = await response.json()
+      
+      // Navigate to the review page
+      router.push(`/admin/chat-eval/axial-codes/${data.generation_id}`)
+    } catch (error) {
+      setGenerateError(error instanceof Error ? error.message : 'An error occurred')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
       <div className="max-w-7xl mx-auto">
@@ -170,12 +255,34 @@ function ChatEvalContent() {
         <div className="flex gap-8">
           {/* Sessions list */}
           <div className="flex-1">
-            {/* Select All */}
+            {/* Toolbar */}
             <div className="flex items-center justify-between mb-4">
-              <label className="flex items-center gap-2 text-sm text-platinum-white/70 cursor-pointer">
-                <input type="checkbox" className="rounded" />
-                Select All
-              </label>
+              <div className="flex items-center gap-4">
+                {/* Selection mode toggle */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={toggleSelectionMode}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all
+                    ${selectionMode 
+                      ? 'bg-radiant-gold/20 border border-radiant-gold/50 text-radiant-gold' 
+                      : 'bg-silicon-slate/30 border border-radiant-gold/10 text-platinum-white/70 hover:border-radiant-gold/30'
+                    }`}
+                >
+                  <CheckSquare size={16} />
+                  {selectionMode ? 'Exit Selection' : 'Select Sessions'}
+                </motion.button>
+
+                {/* Select All (only in selection mode) */}
+                {selectionMode && (
+                  <button
+                    onClick={handleSelectAll}
+                    className="text-sm text-platinum-white/70 hover:text-platinum-white"
+                  >
+                    {selectedSessions.size === sessions.length ? 'Deselect All' : 'Select All'}
+                  </button>
+                )}
+              </div>
               
               {/* Pagination info */}
               <span className="text-sm text-platinum-white/50">
@@ -198,6 +305,9 @@ function ChatEvalContent() {
                   <SessionCard
                     key={session.id}
                     session={session}
+                    selectionMode={selectionMode}
+                    isSelected={selectedSessions.has(session.session_id)}
+                    onSelect={(selected) => handleSelectSession(session.session_id, selected)}
                     onClick={() => handleSessionClick(session.session_id)}
                   />
                 ))
@@ -254,7 +364,7 @@ function ChatEvalContent() {
         </div>
 
         {/* Quick links */}
-        <div className="mt-8 grid grid-cols-3 gap-4">
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -276,6 +386,20 @@ function ChatEvalContent() {
             <h3 className="font-heading text-lg mb-1">LLM Alignment</h3>
             <p className="text-sm text-platinum-white/60">Human vs LLM judge comparison</p>
           </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => router.push('/admin/chat-eval/axial-codes')}
+            className="p-4 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl
+              hover:border-radiant-gold/30 transition-all text-left"
+          >
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles size={18} className="text-purple-400" />
+              <h3 className="font-heading text-lg">Axial Codes</h3>
+            </div>
+            <p className="text-sm text-platinum-white/60">Review generated categories</p>
+          </motion.button>
           
           <motion.button
             whileHover={{ scale: 1.02 }}
@@ -288,6 +412,69 @@ function ChatEvalContent() {
             <p className="text-sm text-platinum-white/60">Jump into the annotation queue</p>
           </motion.button>
         </div>
+
+        {/* Floating Action Bar - appears when sessions are selected */}
+        <AnimatePresence>
+          {selectedSessions.size > 0 && (
+            <motion.div
+              initial={{ y: 100, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 100, opacity: 0 }}
+              className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50"
+            >
+              <div className="flex items-center gap-4 px-6 py-4 bg-imperial-navy/95 backdrop-blur-lg border border-radiant-gold/30 rounded-2xl shadow-2xl">
+                {/* Selection count */}
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-radiant-gold/20 flex items-center justify-center">
+                    <span className="text-sm font-bold text-radiant-gold">{selectedSessions.size}</span>
+                  </div>
+                  <div className="text-sm">
+                    <div className="text-platinum-white">sessions selected</div>
+                    <div className="text-platinum-white/50">
+                      {selectedWithOpenCodes.length} with open codes
+                    </div>
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="w-px h-10 bg-platinum-white/20" />
+
+                {/* Generate Axial Codes button */}
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleGenerateAxialCodes}
+                  disabled={selectedWithOpenCodes.length === 0 || isGenerating}
+                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 
+                    disabled:bg-purple-600/50 disabled:cursor-not-allowed
+                    rounded-lg text-white font-medium transition-colors"
+                >
+                  {isGenerating ? (
+                    <Loader2 size={18} className="animate-spin" />
+                  ) : (
+                    <Sparkles size={18} />
+                  )}
+                  {isGenerating ? 'Generating...' : 'Generate Axial Codes'}
+                </motion.button>
+
+                {/* Error message */}
+                {generateError && (
+                  <div className="text-red-400 text-sm max-w-48">
+                    {generateError}
+                  </div>
+                )}
+
+                {/* Clear selection */}
+                <button
+                  onClick={clearSelection}
+                  className="p-2 hover:bg-platinum-white/10 rounded-lg transition-colors"
+                >
+                  <X size={18} className="text-platinum-white/60" />
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   )

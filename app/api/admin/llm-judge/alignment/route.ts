@@ -27,8 +27,15 @@ export async function GET(request: NextRequest) {
     const dateFrom = new Date()
     dateFrom.setDate(dateFrom.getDate() - days)
 
-    // Fetch LLM evaluations with linked human evaluations
-    let query = supabaseAdmin
+    // Fetch human evaluations first to see what we have
+    const { data: humanEvals, error: humanError } = await supabaseAdmin
+      .from('chat_evaluations')
+      .select('id, session_id, rating, evaluated_at')
+      .not('rating', 'is', null)
+      .gte('evaluated_at', dateFrom.toISOString())
+
+    // Fetch LLM evaluations (all, not just linked ones)
+    let llmQuery = supabaseAdmin
       .from('llm_judge_evaluations')
       .select(`
         id,
@@ -37,27 +44,52 @@ export async function GET(request: NextRequest) {
         confidence_score,
         model_used,
         prompt_version,
+        human_evaluation_id,
         human_alignment,
-        evaluated_at,
-        chat_evaluations!human_evaluation_id(
-          rating
-        )
+        evaluated_at
       `)
-      .not('human_evaluation_id', 'is', null)
       .gte('evaluated_at', dateFrom.toISOString())
 
     if (model) {
-      query = query.eq('model_used', model)
+      llmQuery = llmQuery.eq('model_used', model)
     }
 
-    const { data: evaluations, error } = await query
+    const { data: llmEvals, error: llmError } = await llmQuery
 
-    if (error) {
-      console.error('Error fetching alignment data:', error)
+    if (humanError || llmError) {
+      console.error('Error fetching alignment data:', humanError || llmError)
       return NextResponse.json(
         { error: 'Failed to fetch alignment data' },
         { status: 500 }
       )
+    }
+
+    // Match human and LLM evaluations by session_id
+    const humanEvalMap = new Map((humanEvals || []).map((h: any) => [h.session_id, h]))
+    const evaluations: any[] = []
+
+    // For each LLM evaluation, find matching human evaluation
+    for (const llmEval of llmEvals || []) {
+      const humanEval = humanEvalMap.get(llmEval.session_id)
+      if (humanEval) {
+        // Link them if not already linked
+        if (!llmEval.human_evaluation_id) {
+          const alignment = llmEval.rating === humanEval.rating
+          await supabaseAdmin
+            .from('llm_judge_evaluations')
+            .update({
+              human_evaluation_id: humanEval.id,
+              human_alignment: alignment,
+            })
+            .eq('id', llmEval.id)
+        }
+        
+        evaluations.push({
+          ...llmEval,
+          chat_evaluations: { rating: humanEval.rating },
+          human_alignment: llmEval.human_alignment ?? (llmEval.rating === humanEval.rating),
+        })
+      }
     }
 
     // Prepare data for alignment calculation
@@ -113,7 +145,7 @@ export async function GET(request: NextRequest) {
       ? misalignedConfidences.reduce((a: number, b: number) => a + b, 0) / misalignedConfidences.length
       : null
 
-    return NextResponse.json({
+    const result = {
       overall: alignment,
       by_model: modelStats,
       disagreements: disagreements.slice(0, 20), // Limit to 20 most recent
@@ -122,7 +154,9 @@ export async function GET(request: NextRequest) {
         avg_misaligned_confidence: avgMisalignedConfidence,
       },
       period_days: days,
-    })
+    }
+
+    return NextResponse.json(result)
   } catch (error) {
     console.error('Error calculating alignment:', error)
     return NextResponse.json(
