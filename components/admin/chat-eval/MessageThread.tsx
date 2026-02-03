@@ -4,25 +4,29 @@ import { motion } from 'framer-motion'
 import { User, Bot, Headphones, Wrench, ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 
+interface ToolCall {
+  name: string
+  arguments: any
+  response: any
+  success: boolean
+  latency_ms?: number
+}
+
+interface MessageMetadata {
+  source?: string
+  latency_ms?: number
+  isToolCall?: boolean
+  toolCall?: ToolCall
+  escalated?: boolean
+  diagnosticMode?: boolean
+}
+
 interface Message {
   id: string
   role: 'user' | 'assistant' | 'support'
   content: string
   timestamp: string
-  metadata?: {
-    source?: string
-    latency_ms?: number
-    isToolCall?: boolean
-    toolCall?: {
-      name: string
-      arguments: any
-      response: any
-      success: boolean
-      latency_ms?: number
-    }
-    escalated?: boolean
-    diagnosticMode?: boolean
-  }
+  metadata?: MessageMetadata
 }
 
 interface MessageThreadProps {
@@ -155,7 +159,7 @@ function MessageBubble({
   )
 }
 
-function ToolCallContent({ toolCall }: { toolCall: Message['metadata']['toolCall'] }) {
+function ToolCallContent({ toolCall }: { toolCall: ToolCall | undefined }) {
   const [showDetails, setShowDetails] = useState(false)
   
   if (!toolCall) return null
