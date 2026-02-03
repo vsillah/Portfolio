@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     const alignmentData = evaluations?.map((eval_: any) => ({
       humanRating: eval_.chat_evaluations?.rating as 'good' | 'bad',
       llmRating: eval_.rating as 'good' | 'bad',
-    })).filter(e => e.humanRating && e.llmRating) || []
+    })).filter((e: any) => e.humanRating && e.llmRating) || []
 
     // Calculate alignment
     const alignment = calculateAlignment(alignmentData)
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
     })
     
     // Calculate rates
-    Object.keys(modelStats).forEach(model => {
+    Object.keys(modelStats).forEach((model: string) => {
       const stats = modelStats[model]
       stats.rate = stats.total > 0 ? Math.round((stats.aligned / stats.total) * 100) : 0
     })

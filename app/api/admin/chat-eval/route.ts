@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
 
     // Filter by channel (derived from message metadata)
     if (channel) {
-      filteredSessions = filteredSessions.filter(session => {
+      filteredSessions = filteredSessions.filter((session: any) => {
         const messages = session.chat_messages || []
         const hasChannelMessages = messages.some((msg: any) => {
           const source = msg.metadata?.source || msg.metadata?.channel
@@ -106,19 +106,19 @@ export async function GET(request: NextRequest) {
 
     // Filter by rating/annotation status
     if (rating === 'good') {
-      filteredSessions = filteredSessions.filter(s => 
+      filteredSessions = filteredSessions.filter((s: any) => 
         s.chat_evaluations?.[0]?.rating === 'good'
       )
     } else if (rating === 'bad') {
-      filteredSessions = filteredSessions.filter(s => 
+      filteredSessions = filteredSessions.filter((s: any) => 
         s.chat_evaluations?.[0]?.rating === 'bad'
       )
     } else if (rating === 'unrated' || annotated === 'false') {
-      filteredSessions = filteredSessions.filter(s => 
+      filteredSessions = filteredSessions.filter((s: any) => 
         !s.chat_evaluations?.[0]?.rating
       )
     } else if (annotated === 'true') {
-      filteredSessions = filteredSessions.filter(s => 
+      filteredSessions = filteredSessions.filter((s: any) => 
         s.chat_evaluations?.[0]?.rating
       )
     }

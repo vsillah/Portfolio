@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     // Validate provider and model
     const selectedProvider: LLMProvider = provider === 'openai' ? 'openai' : 'anthropic'
     const availableModels = AVAILABLE_MODELS[selectedProvider]
-    const selectedModel = model && availableModels.some(m => m.id === model) 
+    const selectedModel = model && availableModels.some((m: any) => m.id === model) 
       ? model 
       : availableModels[0].id
 

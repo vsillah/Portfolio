@@ -42,8 +42,8 @@ export async function GET(request: NextRequest) {
       .select('rating')
       .gte('evaluated_at', dateFrom.toISOString())
 
-    const goodCount = ratingBreakdown?.filter(e => e.rating === 'good').length || 0
-    const badCount = ratingBreakdown?.filter(e => e.rating === 'bad').length || 0
+    const goodCount = ratingBreakdown?.filter((e: any) => e.rating === 'good').length || 0
+    const badCount = ratingBreakdown?.filter((e: any) => e.rating === 'bad').length || 0
 
     // Calculate success rate
     const totalRated = goodCount + badCount
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
       .select('human_alignment')
       .not('human_alignment', 'is', null)
 
-    const totalAligned = llmAlignmentData?.filter(e => e.human_alignment === true).length || 0
+    const totalAligned = llmAlignmentData?.filter((e: any) => e.human_alignment === true).length || 0
     const totalCompared = llmAlignmentData?.length || 0
     const alignmentRate = totalCompared > 0 
       ? Math.round((totalAligned / totalCompared) * 100) 
