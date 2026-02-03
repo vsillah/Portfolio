@@ -82,8 +82,9 @@ export default function About() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8 }}
+              className="text-center"
             >
-              <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6">
+              <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
                 <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
                   Story
                 </span>

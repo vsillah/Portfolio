@@ -157,9 +157,9 @@ export default function Projects() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="max-w-3xl mb-20"
+          className="max-w-3xl mb-auto text-center mb-20"
         >
-          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6">
+          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
             <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
               Portfolio
             </span>
