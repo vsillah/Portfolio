@@ -123,16 +123,21 @@ export async function POST(request: NextRequest) {
         content: message.trim(),
         metadata: { 
           source: 'text',
+          channel: 'text',
           visitorEmail, 
           visitorName,
           diagnosticMode: isDiagnosticMode,
           diagnosticAuditId: diagnosticAuditId || undefined,
+          timestamp: new Date().toISOString(),
         },
       })
 
     if (userMsgError) {
       console.error('Error saving user message:', userMsgError)
     }
+
+    // Track timing for latency measurement
+    const requestStartTime = Date.now()
 
     // Fetch conversation history for context injection
     const context = await fetchConversationContext(sessionId, 20)
@@ -278,7 +283,10 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Save assistant response to database
+    // Calculate response latency
+    const responseLatencyMs = Date.now() - requestStartTime
+
+    // Save assistant response to database with enhanced metadata for evaluation
     const { error: assistantMsgError } = await supabaseAdmin
       .from('chat_messages')
       .insert({
@@ -287,10 +295,18 @@ export async function POST(request: NextRequest) {
         content: n8nResponse.response,
         metadata: {
           source: 'text',
+          channel: 'text',
           hasCrossChannelHistory,
+          // Timing metrics
+          latency_ms: responseLatencyMs,
+          timestamp: new Date().toISOString(),
+          // N8N response metadata
           ...n8nResponse.metadata,
+          // Diagnostic context
           diagnosticMode: isDiagnosticMode,
           diagnosticAuditId: diagnosticAuditId || undefined,
+          // Escalation tracking
+          escalated: n8nResponse.escalated || false,
         },
       })
 

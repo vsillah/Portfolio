@@ -123,8 +123,11 @@ async function handleTranscript(message: VapiWebhookPayload['message']) {
 
   console.log(`[VAPI] Processing transcript: "${transcript.substring(0, 50)}..."`)
 
+  // Track timing for latency measurement
+  const requestStartTime = Date.now()
+
   try {
-    // Save user message to database
+    // Save user message to database with enhanced metadata
     await supabaseAdmin
       .from('chat_messages')
       .insert({
@@ -133,8 +136,10 @@ async function handleTranscript(message: VapiWebhookPayload['message']) {
         content: transcript,
         metadata: {
           source: 'voice',
+          channel: 'voice',
           vapiCallId: callId,
           transcriptType,
+          timestamp: new Date().toISOString(),
         },
       })
 
@@ -166,7 +171,10 @@ async function handleTranscript(message: VapiWebhookPayload['message']) {
       hasCrossChannelHistory,
     })
 
-    // Save assistant response to database
+    // Calculate response latency
+    const responseLatencyMs = Date.now() - requestStartTime
+
+    // Save assistant response to database with enhanced metadata for evaluation
     await supabaseAdmin
       .from('chat_messages')
       .insert({
@@ -175,9 +183,16 @@ async function handleTranscript(message: VapiWebhookPayload['message']) {
         content: n8nResponse.response,
         metadata: {
           source: 'voice',
+          channel: 'voice',
           vapiCallId: callId,
           hasCrossChannelHistory,
+          // Timing metrics
+          latency_ms: responseLatencyMs,
+          timestamp: new Date().toISOString(),
+          // N8N response metadata
           ...n8nResponse.metadata,
+          // Escalation tracking
+          escalated: n8nResponse.escalated || false,
         },
       })
 
@@ -207,33 +222,72 @@ async function handleFunctionCall(message: VapiWebhookPayload['message']) {
   const { name, parameters } = functionCall
   const callId = call?.id || 'unknown'
   const sessionId = extractSessionId(callId, call?.metadata)
+  const functionCallStartTime = Date.now()
 
   console.log(`[VAPI] Function call: ${name}`, parameters)
 
+  // Log the tool call for evaluation purposes
+  const logToolCall = async (result: any, success: boolean) => {
+    const latencyMs = Date.now() - functionCallStartTime
+    try {
+      await supabaseAdmin
+        .from('chat_messages')
+        .insert({
+          session_id: sessionId,
+          role: 'assistant',
+          content: `[Tool Call: ${name}]`,
+          metadata: {
+            source: 'voice',
+            channel: 'voice',
+            vapiCallId: callId,
+            isToolCall: true,
+            toolCall: {
+              name,
+              arguments: parameters,
+              response: result,
+              success,
+              latency_ms: latencyMs,
+            },
+            timestamp: new Date().toISOString(),
+          },
+        })
+    } catch (err) {
+      console.error('[VAPI] Error logging tool call:', err)
+    }
+  }
+
   try {
+    let result: any
+    
     switch (name) {
       case 'startDiagnostic':
         // Start a diagnostic audit
-        return NextResponse.json(createFunctionResponse({
+        result = {
           message: "I'll start the diagnostic assessment now. Let me begin by understanding your current business challenges.",
           diagnosticStarted: true,
-        }))
+        }
+        await logToolCall(result, true)
+        return NextResponse.json(createFunctionResponse(result))
 
       case 'getProjectInfo':
         // Return info about projects
         const projectName = parameters.projectName as string
-        return NextResponse.json(createFunctionResponse({
+        result = {
           message: `Let me tell you about ${projectName || 'my projects'}.`,
           // In a real implementation, you'd fetch project data here
-        }))
+        }
+        await logToolCall(result, true)
+        return NextResponse.json(createFunctionResponse(result))
 
       case 'scheduleCallback':
         // Schedule a callback
         const preferredTime = parameters.preferredTime as string
-        return NextResponse.json(createFunctionResponse({
+        result = {
           message: `I've noted your preference for ${preferredTime}. Someone will reach out to confirm.`,
           scheduled: true,
-        }))
+        }
+        await logToolCall(result, true)
+        return NextResponse.json(createFunctionResponse(result))
 
       case 'transferToHuman':
         // Escalate to human support
@@ -242,10 +296,12 @@ async function handleFunctionCall(message: VapiWebhookPayload['message']) {
           .update({ is_escalated: true })
           .eq('session_id', sessionId)
         
-        return NextResponse.json(createFunctionResponse({
+        result = {
           message: "I'll connect you with a human team member. They'll be in touch shortly.",
           escalated: true,
-        }))
+        }
+        await logToolCall(result, true)
+        return NextResponse.json(createFunctionResponse(result))
 
       case 'sendToN8n':
         // Generic function to send custom data to N8N
@@ -253,16 +309,18 @@ async function handleFunctionCall(message: VapiWebhookPayload['message']) {
           message: JSON.stringify(parameters),
           sessionId,
         })
-        return NextResponse.json(createFunctionResponse({
-          response: n8nResponse.response,
-        }))
+        result = { response: n8nResponse.response }
+        await logToolCall(result, true)
+        return NextResponse.json(createFunctionResponse(result))
 
       default:
         console.warn(`[VAPI] Unknown function: ${name}`)
+        await logToolCall({ error: `Unknown function: ${name}` }, false)
         return NextResponse.json(createErrorResponse(`Unknown function: ${name}`))
     }
   } catch (error) {
     console.error(`[VAPI] Error in function ${name}:`, error)
+    await logToolCall({ error: 'Function execution failed' }, false)
     return NextResponse.json(createErrorResponse('Function execution failed'))
   }
 }
@@ -281,18 +339,47 @@ async function handleEndOfCallReport(message: VapiWebhookPayload['message']) {
   console.log(`[VAPI] End of call report for ${call.id}`)
 
   try {
-    // Update session with call summary
+    // First get existing session to preserve startedAt
+    const { data: existingSession } = await supabaseAdmin
+      .from('chat_sessions')
+      .select('metadata')
+      .eq('session_id', sessionId)
+      .single()
+
+    const startedAt = existingSession?.metadata?.startedAt
+    const endedAt = new Date().toISOString()
+    
+    // Calculate call duration if we have start time
+    let durationSeconds: number | undefined
+    if (startedAt) {
+      durationSeconds = Math.round((new Date(endedAt).getTime() - new Date(startedAt).getTime()) / 1000)
+    }
+
+    // Update session with comprehensive call summary for evaluation
     await supabaseAdmin
       .from('chat_sessions')
       .update({
         metadata: {
+          // Preserve existing metadata
+          ...(existingSession?.metadata || {}),
+          // Voice session identifiers
           source: 'voice',
+          channel: 'voice',
           vapiCallId: call.id,
-          endedAt: new Date().toISOString(),
+          // Timing data
+          startedAt,
+          endedAt,
+          durationSeconds,
+          // Call outcome
           endedReason: message.endedReason,
+          // AI-generated content for evaluation
           summary: message.summary,
           transcript: message.transcript,
+          // Media for review
           recordingUrl: message.recordingUrl,
+          // Additional metrics (if available from VAPI)
+          costBreakdown: (message as any).costBreakdown,
+          analysis: (message as any).analysis,
         },
       })
       .eq('session_id', sessionId)

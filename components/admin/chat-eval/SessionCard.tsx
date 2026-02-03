@@ -1,0 +1,151 @@
+'use client'
+
+import { motion } from 'framer-motion'
+import { MessageCircle, Mic, Check, X, ChevronRight, AlertTriangle, Clock } from 'lucide-react'
+
+interface SessionCardProps {
+  session: {
+    id: string
+    session_id: string
+    visitor_name?: string
+    visitor_email?: string
+    is_escalated?: boolean
+    created_at: string
+    updated_at: string
+    channel: 'text' | 'voice'
+    message_count: number
+    call_duration_seconds?: number
+    evaluation?: {
+      rating?: 'good' | 'bad'
+      category_name?: string
+      category_color?: string
+    } | null
+  }
+  isSelected?: boolean
+  onClick?: () => void
+}
+
+export function SessionCard({ session, isSelected, onClick }: SessionCardProps) {
+  const ChannelIcon = session.channel === 'voice' ? Mic : MessageCircle
+  
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('en-US', {
+      month: 'numeric',
+      day: 'numeric',
+      year: '2-digit',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
+  }
+  
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  return (
+    <motion.div
+      onClick={onClick}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
+      className={`
+        p-4 rounded-xl border cursor-pointer transition-all duration-200
+        ${isSelected 
+          ? 'bg-radiant-gold/10 border-radiant-gold/50' 
+          : 'bg-silicon-slate/20 border-radiant-gold/10 hover:border-radiant-gold/30'
+        }
+      `}
+    >
+      <div className="flex items-start justify-between">
+        {/* Left side: Session info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            {/* Channel icon */}
+            <div className={`
+              w-6 h-6 rounded-md flex items-center justify-center
+              ${session.channel === 'voice' ? 'bg-purple-500/20' : 'bg-blue-500/20'}
+            `}>
+              <ChannelIcon size={14} className={session.channel === 'voice' ? 'text-purple-400' : 'text-blue-400'} />
+            </div>
+            
+            {/* Session ID (truncated) */}
+            <span className="font-mono text-sm text-platinum-white truncate">
+              {session.session_id.substring(0, 20)}...
+            </span>
+            
+            {/* Escalation badge */}
+            {session.is_escalated && (
+              <span className="flex items-center gap-1 px-2 py-0.5 bg-orange-500/20 border border-orange-500/30 rounded text-xs text-orange-400">
+                <AlertTriangle size={10} />
+                Escalated
+              </span>
+            )}
+          </div>
+          
+          {/* Visitor info */}
+          {(session.visitor_name || session.visitor_email) && (
+            <div className="text-xs text-platinum-white/60 mb-2">
+              {session.visitor_name && <span>{session.visitor_name}</span>}
+              {session.visitor_name && session.visitor_email && <span> • </span>}
+              {session.visitor_email && <span>{session.visitor_email}</span>}
+            </div>
+          )}
+          
+          {/* Timestamps and stats */}
+          <div className="flex items-center gap-3 text-xs text-platinum-white/50">
+            <span>Created: {formatDate(session.created_at)}</span>
+            <span>•</span>
+            <span>{session.message_count} messages</span>
+            {session.channel === 'voice' && session.call_duration_seconds && (
+              <>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  <Clock size={10} />
+                  {formatDuration(session.call_duration_seconds)}
+                </span>
+              </>
+            )}
+          </div>
+          
+          {/* Category badge if evaluated */}
+          {session.evaluation?.category_name && (
+            <div className="mt-2">
+              <span 
+                className="px-2 py-0.5 rounded text-xs"
+                style={{ 
+                  backgroundColor: `${session.evaluation.category_color}20`,
+                  color: session.evaluation.category_color,
+                  borderColor: `${session.evaluation.category_color}40`,
+                  borderWidth: 1,
+                }}
+              >
+                {session.evaluation.category_name}
+              </span>
+            </div>
+          )}
+        </div>
+        
+        {/* Right side: Rating status and chevron */}
+        <div className="flex items-center gap-3 ml-4">
+          {/* Rating indicator */}
+          {session.evaluation?.rating === 'good' ? (
+            <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center">
+              <Check size={14} className="text-white" />
+            </div>
+          ) : session.evaluation?.rating === 'bad' ? (
+            <div className="w-6 h-6 rounded-full bg-red-500 flex items-center justify-center">
+              <X size={14} className="text-white" />
+            </div>
+          ) : (
+            <div className="w-6 h-6 rounded-full border-2 border-platinum-white/20" />
+          )}
+          
+          <ChevronRight size={16} className="text-platinum-white/40" />
+        </div>
+      </div>
+    </motion.div>
+  )
+}

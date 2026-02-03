@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, FolderOpen, Video, BookOpen, Music, Download, Sparkles, ArrowRight } from 'lucide-react'
+import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, FolderOpen, Video, BookOpen, Music, Download, Sparkles, ArrowRight, MessageCircle } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -194,7 +194,24 @@ function AdminDashboardContent() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Link href="/admin/chat-eval">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-6 bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/50 rounded-xl cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
+                  <MessageCircle size={32} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1">Chat Eval</h3>
+                  <p className="text-gray-400 text-sm">Evaluate chat conversations with LLM grading</p>
+                </div>
+              </div>
+            </motion.div>
+          </Link>
+
           <Link href="/admin/analytics">
             <motion.div
               whileHover={{ scale: 1.02 }}
@@ -205,8 +222,8 @@ function AdminDashboardContent() {
                   <BarChart3 size={32} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold mb-1">Full Analytics Dashboard</h3>
-                  <p className="text-gray-400 text-sm">View detailed analytics, charts, and insights</p>
+                  <h3 className="text-xl font-bold mb-1">Analytics Dashboard</h3>
+                  <p className="text-gray-400 text-sm">View detailed analytics and insights</p>
                 </div>
               </div>
             </motion.div>
@@ -222,8 +239,8 @@ function AdminDashboardContent() {
                   <Settings size={32} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold mb-1">Content Management Hub</h3>
-                  <p className="text-gray-400 text-sm">Manage all your portfolio content in one place</p>
+                  <h3 className="text-xl font-bold mb-1">Content Hub</h3>
+                  <p className="text-gray-400 text-sm">Manage all portfolio content</p>
                 </div>
               </div>
             </motion.div>
@@ -240,7 +257,7 @@ function AdminDashboardContent() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold mb-1">User Management</h3>
-                  <p className="text-gray-400 text-sm">Manage users, roles, and view purchase history</p>
+                  <p className="text-gray-400 text-sm">Manage users and roles</p>
                 </div>
               </div>
             </motion.div>
