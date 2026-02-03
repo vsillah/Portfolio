@@ -7,6 +7,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { SessionCard, FilterSidebar } from '@/components/admin/chat-eval'
 import { useAuth } from '@/components/AuthProvider'
+import { getCurrentSession } from '@/lib/auth'
 import { MessageCircle, TrendingUp, CheckCircle } from 'lucide-react'
 
 interface Session {
@@ -57,7 +58,7 @@ function ChatEvalContent() {
   const fetchSessions = useCallback(async () => {
     setLoading(true)
     try {
-      const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+      const session = await getCurrentSession()
       
       const params = new URLSearchParams({
         page: page.toString(),
@@ -75,7 +76,7 @@ function ChatEvalContent() {
 
       const response = await fetch(`/api/admin/chat-eval?${params}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
       })
 
@@ -93,11 +94,11 @@ function ChatEvalContent() {
 
   const fetchStats = useCallback(async () => {
     try {
-      const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+      const session = await getCurrentSession()
       
       const response = await fetch('/api/admin/chat-eval/stats?days=30', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
       })
 

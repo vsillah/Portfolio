@@ -12,6 +12,7 @@ import {
   SessionCard
 } from '@/components/admin/chat-eval'
 import { useAuth } from '@/components/AuthProvider'
+import { getCurrentSession } from '@/lib/auth'
 import { 
   Filter,
   Loader2,
@@ -81,7 +82,7 @@ function AnnotationQueueContent() {
 
   const fetchSessions = useCallback(async () => {
     try {
-      const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+      const session = await getCurrentSession()
       
       const params = new URLSearchParams({
         limit: '50',
@@ -93,7 +94,7 @@ function AnnotationQueueContent() {
 
       const response = await fetch(`/api/admin/chat-eval?${params}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
       })
 
@@ -114,11 +115,11 @@ function AnnotationQueueContent() {
   const fetchSessionDetail = async (sessionId: string) => {
     setLoadingDetail(true)
     try {
-      const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+      const session = await getCurrentSession()
       
       const response = await fetch(`/api/admin/chat-eval/${sessionId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
       })
 
@@ -135,11 +136,11 @@ function AnnotationQueueContent() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+      const session = await getCurrentSession()
       
       const response = await fetch('/api/admin/chat-eval/categories', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
       })
 
@@ -173,12 +174,12 @@ function AnnotationQueueContent() {
   }) => {
     if (!currentSession) return
 
-    const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+    const session = await getCurrentSession()
     
     const response = await fetch(`/api/admin/chat-eval/${currentSession.session_id}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${session?.access_token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),

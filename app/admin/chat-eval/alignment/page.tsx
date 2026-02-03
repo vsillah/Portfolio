@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { useAuth } from '@/components/AuthProvider'
+import { getCurrentSession } from '@/lib/auth'
 import { 
   Bot, 
   User, 
@@ -61,11 +62,11 @@ function AlignmentDashboardContent() {
   const fetchAlignment = useCallback(async () => {
     setLoading(true)
     try {
-      const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+      const session = await getCurrentSession()
       
       const response = await fetch(`/api/admin/llm-judge/alignment?days=${days}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
       })
 

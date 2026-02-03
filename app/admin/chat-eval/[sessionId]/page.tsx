@@ -11,6 +11,7 @@ import {
   VoiceSessionMeta 
 } from '@/components/admin/chat-eval'
 import { useAuth } from '@/components/AuthProvider'
+import { getCurrentSession } from '@/lib/auth'
 import { 
   ArrowLeft, 
   Mic, 
@@ -123,11 +124,11 @@ function SessionDetailContent() {
 
   const fetchSession = useCallback(async () => {
     try {
-      const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+      const session = await getCurrentSession()
       
       const response = await fetch(`/api/admin/chat-eval/${sessionId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
       })
 
@@ -144,11 +145,11 @@ function SessionDetailContent() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+      const session = await getCurrentSession()
       
       const response = await fetch('/api/admin/chat-eval/categories', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
       })
 
@@ -163,11 +164,11 @@ function SessionDetailContent() {
 
   const fetchAvailableModels = useCallback(async () => {
     try {
-      const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+      const session = await getCurrentSession()
       
       const response = await fetch('/api/admin/llm-judge?models=true', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
         },
       })
 
@@ -198,12 +199,12 @@ function SessionDetailContent() {
     category_id: string | null
     open_code: string | null
   }) => {
-    const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+    const session = await getCurrentSession()
     
     const response = await fetch(`/api/admin/chat-eval/${sessionId}`, {
       method: 'PUT',
       headers: {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${session?.access_token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(data),
@@ -220,12 +221,12 @@ function SessionDetailContent() {
   const handleRunLLMJudge = async () => {
     setIsRunningLLMJudge(true)
     try {
-      const token = await user?.getIdToken?.() || localStorage.getItem('supabase.auth.token')
+      const session = await getCurrentSession()
       
       const response = await fetch('/api/admin/llm-judge', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${session?.access_token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ 
