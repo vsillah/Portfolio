@@ -300,7 +300,7 @@ function DiagnosisDetailContent() {
               <div className="mb-3">
                 <h4 className="text-sm font-medium text-cyan-400 mb-1">Prompt Issues:</h4>
                 <ul className="list-disc list-inside text-sm text-platinum-white/70 space-y-1">
-                  {diagnosis.diagnosis_details.prompt_issues.map((issue, i) => (
+                  {diagnosis.diagnosis_details.prompt_issues?.map((issue, i) => (
                     <li key={i}>{issue}</li>
                   ))}
                 </ul>
@@ -310,7 +310,7 @@ function DiagnosisDetailContent() {
               <div className="mb-3">
                 <h4 className="text-sm font-medium text-orange-400 mb-1">Code Issues:</h4>
                 <ul className="list-disc list-inside text-sm text-platinum-white/70 space-y-1">
-                  {diagnosis.diagnosis_details.code_issues.map((issue, i) => (
+                  {diagnosis.diagnosis_details.code_issues?.map((issue, i) => (
                     <li key={i}>{issue}</li>
                   ))}
                 </ul>
@@ -320,7 +320,7 @@ function DiagnosisDetailContent() {
               <div>
                 <h4 className="text-sm font-medium text-purple-400 mb-1">Context Clues:</h4>
                 <ul className="list-disc list-inside text-sm text-platinum-white/70 space-y-1">
-                  {diagnosis.diagnosis_details.context_clues.map((clue, i) => (
+                  {diagnosis.diagnosis_details.context_clues?.map((clue, i) => (
                     <li key={i}>{clue}</li>
                   ))}
                 </ul>

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { generateAxialCodes, DEFAULT_JUDGE_CONFIG, AVAILABLE_MODELS, LLMProvider } from '@/lib/llm-judge'
+import { generateAxialCodes, DEFAULT_JUDGE_CONFIG, AVAILABLE_MODELS, LLMProvider, AxialCodeResult } from '@/lib/llm-judge'
 
 export const dynamic = 'force-dynamic'
 
@@ -68,8 +68,8 @@ export async function POST(request: NextRequest) {
     }))
 
     // Get unique open codes for storage
-    const uniqueOpenCodes = [...new Set(openCodesWithContext.map(oc => oc.code))]
-    const uniqueSessionIds = [...new Set(openCodesWithContext.map(oc => oc.sessionId))]
+    const uniqueOpenCodes = [...new Set(openCodesWithContext.map((oc: { code: string; sessionId: string; rating: 'good' | 'bad' | undefined; notes: string | undefined }) => oc.code))]
+    const uniqueSessionIds = [...new Set(openCodesWithContext.map((oc: { code: string; sessionId: string; rating: 'good' | 'bad' | undefined; notes: string | undefined }) => oc.sessionId))]
 
     // Generate axial codes using LLM
     const config = {
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create review entries for each generated axial code
-    const reviewEntries = result.axial_codes.map(ac => ({
+    const reviewEntries = result.axial_codes.map((ac: AxialCodeResult) => ({
       generation_id: generation.id,
       original_code: ac.code,
       original_description: ac.description,

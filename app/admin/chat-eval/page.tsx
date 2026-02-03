@@ -61,6 +61,8 @@ function ChatEvalContent() {
   const [selectedSessions, setSelectedSessions] = useState<Set<string>>(new Set())
   const [isGenerating, setIsGenerating] = useState(false)
   const [generateError, setGenerateError] = useState<string | null>(null)
+  const [isDiagnosing, setIsDiagnosing] = useState(false)
+  const [diagnoseError, setDiagnoseError] = useState<string | null>(null)
 
   const fetchSessions = useCallback(async () => {
     setLoading(true)

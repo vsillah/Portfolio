@@ -136,7 +136,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       .eq('generation_id', review.generation_id)
 
     if (siblings) {
-      const allReviewed = siblings.every(s => s.status !== 'pending')
+      const allReviewed = siblings.every((s: { status: string }) => s.status !== 'pending')
       if (allReviewed) {
         // Update generation status to 'reviewed'
         await supabaseAdmin

@@ -121,8 +121,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       .eq('generation_id', review.generation_id)
 
     if (siblings) {
-      const approvedReviews = siblings.filter(s => s.status === 'approved' || s.status === 'modified')
-      const allPromoted = approvedReviews.every(s => s.category_id !== null)
+      const approvedReviews = siblings.filter((s: { status: string; category_id: string | null }) => s.status === 'approved' || s.status === 'modified')
+      const allPromoted = approvedReviews.every((s: { status: string; category_id: string | null }) => s.category_id !== null)
       
       if (allPromoted && approvedReviews.length > 0) {
         // Update generation status to 'completed'

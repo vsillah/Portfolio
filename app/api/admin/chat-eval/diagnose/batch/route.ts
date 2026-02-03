@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
         const { data: storedDiagnosis, error: storeError } = await supabaseAdmin
           .from('error_diagnoses')
           .insert({
-            session_id,
+            session_id: sessionId,
             evaluation_id: evaluation.id,
             root_cause: diagnosis.root_cause,
             error_type: diagnosis.error_type,

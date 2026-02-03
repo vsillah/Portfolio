@@ -62,9 +62,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     }
 
     // Calculate review stats
-    const pendingCount = reviews?.filter(r => r.status === 'pending').length || 0
-    const approvedCount = reviews?.filter(r => r.status === 'approved' || r.status === 'modified').length || 0
-    const rejectedCount = reviews?.filter(r => r.status === 'rejected').length || 0
+    const pendingCount = reviews?.filter((r: { status: string }) => r.status === 'pending').length || 0
+    const approvedCount = reviews?.filter((r: { status: string }) => r.status === 'approved' || r.status === 'modified').length || 0
+    const rejectedCount = reviews?.filter((r: { status: string }) => r.status === 'rejected').length || 0
 
     return NextResponse.json({
       generation: {
@@ -77,7 +77,19 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         status: generation.status,
         created_at: generation.created_at,
       },
-      reviews: reviews?.map(r => ({
+      reviews: reviews?.map((r: { 
+        id: string; 
+        original_code: string; 
+        original_description: string; 
+        final_code: string | null; 
+        final_description: string | null; 
+        status: string; 
+        mapped_open_codes: string[]; 
+        mapped_session_ids: string[]; 
+        category_id: string | null; 
+        evaluation_categories: { id: string; name: string; color: string } | null; 
+        reviewed_at: string | null 
+      }) => ({
         id: r.id,
         original_code: r.original_code,
         original_description: r.original_description,

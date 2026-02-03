@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
 
     // For each LLM evaluation, find matching human evaluation
     for (const llmEval of llmEvals || []) {
-      const humanEval = humanEvalMap.get(llmEval.session_id)
+      const humanEval = humanEvalMap.get(llmEval.session_id) as { id: string; session_id: string; rating: 'good' | 'bad'; evaluated_at: string } | undefined
       if (humanEval) {
         // Link them if not already linked
         if (!llmEval.human_evaluation_id) {
