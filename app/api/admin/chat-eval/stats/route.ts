@@ -138,7 +138,7 @@ export async function GET(request: NextRequest) {
         aligned_count: totalAligned,
         alignment_rate: alignmentRate,
       },
-      recent_evaluations: recentEvaluations?.map(e => ({
+      recent_evaluations: recentEvaluations?.map((e: any) => ({
         session_id: e.session_id,
         rating: e.rating,
         category: e.evaluation_categories?.name,

@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform to include usage count
-    const transformedCategories = categories?.map(cat => ({
+    const transformedCategories = categories?.map((cat: any) => ({
       id: cat.id,
       name: cat.name,
       description: cat.description,

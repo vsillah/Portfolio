@@ -124,7 +124,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform sessions for response
-    const transformedSessions = filteredSessions.map(session => {
+    const transformedSessions = filteredSessions.map((session: any) => {
       const messages = session.chat_messages || []
       const evaluation = session.chat_evaluations?.[0]
       
