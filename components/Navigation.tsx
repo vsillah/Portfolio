@@ -30,6 +30,9 @@ export default function Navigation() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
+      // Close dropdowns when user scrolls
+      setIsMenuOpen(false)
+      setIsUserMenuOpen(false)
     }
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
