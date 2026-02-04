@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch existing sales sessions for these audits
-    const auditIds = audits?.map(a => a.id) || [];
+    const auditIds = audits?.map((a: { id: string }) => a.id) || [];
     const { data: sessions, error: sessionsError } = await supabaseAdmin
       .from('sales_sessions')
       .select('diagnostic_audit_id, outcome, next_follow_up, funnel_stage')
@@ -63,27 +63,29 @@ export async function GET(request: NextRequest) {
     }
 
     // Map sessions to audits
-    const sessionsByAudit = (sessions || []).reduce((acc, session) => {
+    type SessionRow = { diagnostic_audit_id?: string; outcome?: string; next_follow_up?: string; funnel_stage?: string };
+    const sessionsByAudit = (sessions || []).reduce((acc: Record<string, SessionRow>, session: SessionRow) => {
       if (session.diagnostic_audit_id) {
         acc[session.diagnostic_audit_id] = session;
       }
       return acc;
-    }, {} as Record<string, typeof sessions[0]>);
+    }, {});
 
     // Combine data
-    const enrichedAudits = (audits || []).map(audit => ({
+    const enrichedAudits = (audits || []).map((audit: { id: string; [key: string]: unknown }) => ({
       ...audit,
       sales_session: sessionsByAudit[audit.id] || null,
       has_follow_up: !!sessionsByAudit[audit.id]?.next_follow_up,
     }));
 
     // Calculate summary stats
+    type EnrichedAudit = { id: string; sales_session?: SessionRow | null; urgency_score?: number; opportunity_score?: number; [key: string]: unknown };
     const stats = {
       total_audits: enrichedAudits.length,
-      pending_follow_up: enrichedAudits.filter(a => !a.sales_session || a.sales_session.outcome === 'in_progress').length,
-      converted: enrichedAudits.filter(a => a.sales_session?.outcome === 'converted').length,
-      high_urgency: enrichedAudits.filter(a => (a.urgency_score || 0) >= 7).length,
-      high_opportunity: enrichedAudits.filter(a => (a.opportunity_score || 0) >= 7).length,
+      pending_follow_up: enrichedAudits.filter((a: EnrichedAudit) => !a.sales_session || a.sales_session.outcome === 'in_progress').length,
+      converted: enrichedAudits.filter((a: EnrichedAudit) => a.sales_session?.outcome === 'converted').length,
+      high_urgency: enrichedAudits.filter((a: EnrichedAudit) => (a.urgency_score || 0) >= 7).length,
+      high_opportunity: enrichedAudits.filter((a: EnrichedAudit) => (a.opportunity_score || 0) >= 7).length,
     };
 
     return NextResponse.json({ 

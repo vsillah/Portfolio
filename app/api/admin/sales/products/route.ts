@@ -44,15 +44,15 @@ export async function GET(request: NextRequest) {
         .from('product_offer_roles')
         .select('*');
       
-      const rolesMap = new Map((roles || []).map(r => [r.product_id, r]));
-      productsWithRoles = products.map(p => ({
+      const rolesMap = new Map((roles || []).map((r: { product_id: number; [key: string]: unknown }) => [r.product_id, r]));
+      productsWithRoles = products.map((p: { id: number; [key: string]: unknown }) => ({
         ...p,
         ...(rolesMap.get(p.id) || {}),
       }));
       
       // Filter by role if specified
       if (roleFilter) {
-        productsWithRoles = productsWithRoles.filter(p => p.offer_role === roleFilter);
+        productsWithRoles = productsWithRoles.filter((p: { offer_role?: string }) => p.offer_role === roleFilter);
       }
     }
 
