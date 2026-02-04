@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mic, MicOff, Phone, PhoneOff, Volume2, Loader2, AlertCircle } from 'lucide-react'
 import type { VapiMessage, VoiceChatMessage, VoiceSessionState, VapiEventHandlers } from '@/lib/vapi'
-import { isVapiConfigured, VAPI_CONFIG } from '@/lib/vapi'
+import { isVapiConfigured, getVapiConfig } from '@/lib/vapi'
 
 interface VoiceChatProps {
   sessionId: string
@@ -54,7 +54,8 @@ export function VoiceChat({
       // Dynamically import VAPI SDK (client-side only)
       const { default: Vapi } = await import('@vapi-ai/web')
       
-      const vapi = new Vapi(VAPI_CONFIG.publicKey)
+      const config = getVapiConfig()
+      const vapi = new Vapi(config.publicKey)
       vapiRef.current = vapi
 
       // Set up event handlers
@@ -151,7 +152,8 @@ export function VoiceChat({
       setState(prev => ({ ...prev, error: null }))
       
       // Start the call with assistant overrides
-      await vapiRef.current.start(VAPI_CONFIG.assistantId, {
+      const config = getVapiConfig()
+      await vapiRef.current.start(config.assistantId, {
         metadata: {
           sessionId,
           visitorName,

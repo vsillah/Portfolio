@@ -109,16 +109,51 @@ export interface VoiceSessionState {
 // VAPI Configuration
 // ============================================================================
 
-export const VAPI_CONFIG = {
-  publicKey: process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || '',
-  assistantId: process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID || '',
+/**
+ * Get VAPI configuration at runtime
+ * In Next.js, NEXT_PUBLIC_ variables are replaced at build time.
+ * This function reads them directly to ensure we get the runtime values.
+ * Call this function at runtime rather than using VAPI_CONFIG constant.
+ */
+export function getVapiConfig() {
+  // In Next.js, process.env.NEXT_PUBLIC_* is replaced at build time
+  // So we check it directly - if it wasn't set during build, it will be undefined
+  return {
+    publicKey: process.env.NEXT_PUBLIC_VAPI_PUBLIC_KEY || '',
+    assistantId: process.env.NEXT_PUBLIC_VAPI_ASSISTANT_ID || '',
+  }
 }
+
+// Legacy export for backwards compatibility (evaluated at module load)
+export const VAPI_CONFIG = getVapiConfig()
 
 /**
  * Check if VAPI is configured
+ * Checks environment variables directly at runtime.
+ * In Next.js production, these are embedded at build time.
  */
 export function isVapiConfigured(): boolean {
-  return Boolean(VAPI_CONFIG.publicKey && VAPI_CONFIG.assistantId)
+  // #region agent log
+  // Get config at runtime (reads from process.env which Next.js replaces at build time)
+  const config = getVapiConfig();
+  const hasPublicKey = Boolean(config.publicKey && config.publicKey.trim());
+  const hasAssistantId = Boolean(config.assistantId && config.assistantId.trim());
+  const result = hasPublicKey && hasAssistantId;
+  
+  const logData = {
+    publicKey: config.publicKey ? config.publicKey.substring(0, 20) + '...' : 'empty',
+    assistantId: config.assistantId ? config.assistantId.substring(0, 20) + '...' : 'empty',
+    result,
+    hasPublicKey,
+    hasAssistantId,
+    isClient: typeof window !== 'undefined'
+  };
+  
+  console.log('[VAPI Debug] isVapiConfigured:', logData);
+  fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/vapi.ts:120',message:'isVapiConfigured check',data:logData,timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+  // #endregion
+  
+  return result
 }
 
 // ============================================================================

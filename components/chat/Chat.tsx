@@ -53,6 +53,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
   const [diagnosticProgress, setDiagnosticProgress] = useState<DiagnosticProgress | null>(null)
   const [currentCategory, setCurrentCategory] = useState<DiagnosticCategory | null>(null)
   const [showSuggestions, setShowSuggestions] = useState(true)
+  const [showDiagnosticBanner, setShowDiagnosticBanner] = useState(true)
   const [chatMode, setChatMode] = useState<ChatMode>('text')
   const [isVoiceCallActive, setIsVoiceCallActive] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -150,6 +151,10 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       const response = await fetch(`/api/chat/diagnostic?sessionId=${sessionId}`)
       if (response.ok) {
         const data = await response.json()
+        // #region agent log
+        console.log('[Chat Debug] loadDiagnosticStatus response:', { sessionId, hasAudit: !!data.audit, auditStatus: data.audit?.status, auditId: data.audit?.id });
+        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/chat/Chat.tsx:loadDiagnosticStatus',message:'loadDiagnosticStatus response',data:{sessionId,hasAudit:!!data.audit,auditStatus:data.audit?.status,auditId:data.audit?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+        // #endregion
         if (data.audit) {
           setIsDiagnosticMode(data.audit.status === 'in_progress')
           setDiagnosticAuditId(data.audit.id)
@@ -373,6 +378,39 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
     }
   }
 
+  // Exit diagnostic mode without clearing chat
+  const exitDiagnosticMode = async () => {
+    try {
+      // Update diagnostic audit status to 'abandoned' in database
+      if (diagnosticAuditId) {
+        await fetch('/api/chat/diagnostic', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            auditId: diagnosticAuditId,
+            status: 'abandoned',
+          }),
+        })
+      }
+
+      // Reset local diagnostic state
+      setIsDiagnosticMode(false)
+      setDiagnosticAuditId(null)
+      setDiagnosticProgress(null)
+      setCurrentCategory(null)
+      setShowSuggestions(true)
+      setShowDiagnosticBanner(true) // Reset for next time
+    } catch (err) {
+      console.error('Failed to exit diagnostic mode:', err)
+      // Still reset local state even if API call fails
+      setIsDiagnosticMode(false)
+      setDiagnosticAuditId(null)
+      setDiagnosticProgress(null)
+      setCurrentCategory(null)
+      setShowDiagnosticBanner(true) // Reset for next time
+    }
+  }
+
   return (
     <div className="w-full">
       {/* Chat Toggle Button */}
@@ -401,12 +439,17 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
             {/* Chat Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-radiant-gold/10 bg-silicon-slate/20">
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${isVoiceCallActive ? 'bg-radiant-gold' : 'bg-emerald-500'} animate-pulse`} />
+                <div className={`w-2 h-2 rounded-full ${isVoiceCallActive ? 'bg-radiant-gold' : isDiagnosticMode ? 'bg-radiant-gold' : 'bg-emerald-500'} animate-pulse`} />
                 <span className="text-sm font-heading tracking-wider text-platinum-white">
-                  {isDiagnosticMode ? 'Diagnostic Mode' : isVoiceCallActive ? 'Voice Active' : 'AI Assistant'}
+                  {isDiagnosticMode ? 'AI Assessment' : isVoiceCallActive ? 'Voice Active' : 'AI Assistant'}
                 </span>
                 {isDiagnosticMode && (
-                  <ClipboardCheck size={14} className="text-radiant-gold" />
+                  <>
+                    <ClipboardCheck size={14} className="text-radiant-gold" />
+                    <span className="text-xs text-platinum-white/50">
+                      {diagnosticProgress?.completedCategories?.length || 0}/6
+                    </span>
+                  </>
                 )}
               </div>
               <div className="flex items-center gap-2">
@@ -440,6 +483,17 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                       <Mic size={14} />
                     </motion.button>
                   </div>
+                )}
+                {isDiagnosticMode && (
+                  <motion.button
+                    onClick={exitDiagnosticMode}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-2 py-1 text-xs font-medium bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/30 rounded-md hover:bg-radiant-gold/30 transition-colors"
+                    title="Exit assessment and return to regular chat"
+                  >
+                    Exit Assessment
+                  </motion.button>
                 )}
                 <motion.button
                   onClick={clearChat}
@@ -512,6 +566,34 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
 
             {/* Messages Container */}
             <div className="h-[350px] overflow-y-auto p-4 space-y-4 scrollbar-thin scrollbar-thumb-radiant-gold/20 scrollbar-track-transparent">
+              {/* Diagnostic Entry Banner */}
+              <AnimatePresence>
+                {isDiagnosticMode && showDiagnosticBanner && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="p-3 bg-radiant-gold/10 border border-radiant-gold/30 rounded-lg"
+                  >
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-radiant-gold">AI Readiness Assessment Started</p>
+                        <p className="text-xs text-platinum-white/70 mt-1">
+                          I'll ask questions across 6 categories to understand your needs. 
+                          Click "Exit Assessment" in the header anytime to return to regular chat.
+                        </p>
+                      </div>
+                      <button 
+                        onClick={() => setShowDiagnosticBanner(false)}
+                        className="text-platinum-white/50 hover:text-platinum-white transition-colors flex-shrink-0"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {messages.map((message) => (
                 <ChatMessage
                   key={message.id}

@@ -265,10 +265,16 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
     const data = await response.json()
 
     // Handle different response formats from n8n
-    const result = Array.isArray(data) ? data[0] : data
+    let result = Array.isArray(data) ? data[0] : data
     
+    // Handle n8n's { results: [{ result: "..." }] } format
+    if (result?.results && Array.isArray(result.results) && result.results.length > 0) {
+      result = result.results[0]
+    }
+
     // Extract response text - handle cases where response might be a JSON string or object
-    let responseText = result.output || result.response || result.text || result.message || ''
+    // Also check for 'result' field which is used by n8n's AI Agent node
+    let responseText = result.output || result.response || result.text || result.message || result.result || ''
     
     // If response is a string that looks like JSON, try to parse it
     if (typeof responseText === 'string' && (responseText.trim().startsWith('{') || responseText.trim().startsWith('['))) {
