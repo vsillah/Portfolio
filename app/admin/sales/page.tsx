@@ -17,6 +17,7 @@ import {
   Calendar,
   Package,
   FileText,
+  Layers,
   ArrowRight,
   Phone,
   Clock,
@@ -192,7 +193,14 @@ export default function SalesDashboardPage() {
               className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white hover:border-purple-500/50 transition-colors"
             >
               <Package className="w-4 h-4" />
-              Products
+              Content
+            </Link>
+            <Link
+              href="/admin/sales/bundles"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white hover:border-purple-500/50 transition-colors"
+            >
+              <Layers className="w-4 h-4" />
+              Bundles
             </Link>
             <Link
               href="/admin/sales/scripts"

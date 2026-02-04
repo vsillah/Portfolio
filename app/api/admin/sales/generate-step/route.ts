@@ -9,6 +9,7 @@ import {
   ResponseType,
   OfferStrategy,
   ProductWithRole,
+  ContentWithRole,
   ConversationResponse,
   STRATEGY_TO_STEP_TYPE,
 } from '@/lib/sales-scripts';
@@ -56,7 +57,8 @@ interface GenerateStepRequest {
   previousSteps: DynamicStep[];
   lastResponse?: ResponseType;
   chosenStrategy?: OfferStrategy;
-  availableProducts: ProductWithRole[];
+  availableProducts?: ProductWithRole[]; // Legacy support
+  availableContent?: ContentWithRole[]; // New format
   conversationHistory: ConversationResponse[];
 }
 
@@ -78,8 +80,40 @@ export async function POST(request: NextRequest) {
       lastResponse,
       chosenStrategy,
       availableProducts,
+      availableContent,
       conversationHistory,
     } = body;
+
+    // Convert content to products format for backward compatibility
+    let products: ProductWithRole[] = availableProducts || [];
+    
+    if (availableContent && availableContent.length > 0) {
+      products = availableContent.map(c => ({
+        id: parseInt(c.content_id) || 0,
+        title: c.title,
+        description: c.description,
+        type: c.content_type,
+        price: c.price,
+        file_path: null,
+        image_url: c.image_url,
+        is_active: c.is_active,
+        is_featured: false,
+        display_order: c.display_order,
+        role_id: c.role_id,
+        offer_role: c.offer_role,
+        dream_outcome_description: c.dream_outcome_description,
+        likelihood_multiplier: c.likelihood_multiplier,
+        time_reduction: c.time_reduction,
+        effort_reduction: c.effort_reduction,
+        role_retail_price: c.role_retail_price,
+        offer_price: c.offer_price,
+        perceived_value: c.perceived_value,
+        bonus_name: c.bonus_name,
+        bonus_description: c.bonus_description,
+        qualifying_actions: c.qualifying_actions,
+        payout_type: c.payout_type,
+      }));
+    }
 
     // Generate the step
     const step = generateStep({
@@ -90,7 +124,7 @@ export async function POST(request: NextRequest) {
       previousSteps,
       lastResponse,
       chosenStrategy,
-      availableProducts,
+      availableProducts: products,
       conversationHistory,
     });
 
@@ -133,10 +167,11 @@ function generateStep(context: GenerateStepRequest): DynamicStep {
   const keyInsights = audit?.key_insights || [];
 
   // Get products by role
-  const bonusProducts = availableProducts.filter(p => p.offer_role === 'bonus');
-  const coreProducts = availableProducts.filter(p => p.offer_role === 'core_offer');
-  const decoyProducts = availableProducts.filter(p => p.offer_role === 'decoy');
-  const downsellProducts = availableProducts.filter(p => p.offer_role === 'downsell');
+  const products = availableProducts || [];
+  const bonusProducts = products.filter(p => p.offer_role === 'bonus');
+  const coreProducts = products.filter(p => p.offer_role === 'core_offer');
+  const decoyProducts = products.filter(p => p.offer_role === 'decoy');
+  const downsellProducts = products.filter(p => p.offer_role === 'downsell');
 
   let title = '';
   let objective = '';

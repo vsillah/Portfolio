@@ -67,10 +67,23 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Get customer email for receipt
+    let receiptEmail = order.guest_email
+    if (!receiptEmail && user) {
+      // Fetch email from user profile
+      const { data: profile } = await supabaseAdmin
+        .from('user_profiles')
+        .select('email')
+        .eq('id', user.id)
+        .single()
+      receiptEmail = profile?.email
+    }
+
     // Create Stripe Payment Intent
     const paymentIntent = await stripe.paymentIntents.create({
       amount: formatAmountForStripe(order.final_amount),
       currency: 'usd',
+      receipt_email: receiptEmail || undefined,
       metadata: {
         orderId: order.id.toString(),
         userId: user?.id || 'guest',

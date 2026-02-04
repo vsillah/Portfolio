@@ -6,6 +6,8 @@ import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
 import { 
   ProductWithRole,
+  ContentWithRole,
+  ContentType,
   SalesScript,
   FunnelStage,
   SessionOutcome,
@@ -17,8 +19,13 @@ import {
   OfferStrategy,
   DynamicStep,
   StepType,
+  OfferBundleWithStats,
+  ResolvedBundleItem,
   FUNNEL_STAGE_LABELS,
   OFFER_ROLE_LABELS,
+  CONTENT_TYPE_LABELS,
+  CONTENT_TYPE_ICONS,
+  CONTENT_TYPE_COLORS,
   RESPONSE_TYPE_LABELS,
   OFFER_STRATEGY_LABELS,
   STRATEGY_TO_STEP_TYPE,
@@ -27,7 +34,7 @@ import {
   buildGrandSlamOffer,
 } from '@/lib/sales-scripts';
 import { FunnelStageSelector } from '@/components/admin/sales/FunnelStageSelector';
-import { OfferCard, OfferStack } from '@/components/admin/sales/OfferCard';
+import { OfferCard, OfferStack, ContentOfferCard } from '@/components/admin/sales/OfferCard';
 import { ResponseBar } from '@/components/admin/sales/ResponseBar';
 import { AIRecommendationPanel } from '@/components/admin/sales/AIRecommendationPanel';
 import { ConversationTimeline, ConversationStats } from '@/components/admin/sales/ConversationTimeline';
@@ -57,6 +64,13 @@ import {
   RefreshCw,
   ArrowLeft,
   Send,
+  Layers,
+  Package,
+  GitFork,
+  CreditCard,
+  ExternalLink,
+  Copy,
+  Loader2,
 } from 'lucide-react';
 
 interface DiagnosticAudit {
@@ -209,7 +223,7 @@ export default function ClientWalkthroughPage() {
   const [audit, setAudit] = useState<DiagnosticAudit | null>(null);
   const [contact, setContact] = useState<ContactInfo | null>(null);
   const [salesSession, setSalesSession] = useState<SalesSession | null>(null);
-  const [products, setProducts] = useState<ProductWithRole[]>([]);
+  const [content, setContent] = useState<ContentWithRole[]>([]);
   const [scripts, setScripts] = useState<SalesScript[]>([]);
   
   // UI state
@@ -217,11 +231,28 @@ export default function ClientWalkthroughPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'script' | 'products' | 'objections'>('script');
-  const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
+  const [selectedContent, setSelectedContent] = useState<string[]>([]); // Format: "content_type:content_id"
   const [expandedStep, setExpandedStep] = useState<number>(0);
   const [notes, setNotes] = useState('');
   const [objectionInput, setObjectionInput] = useState('');
   const [selectedScriptId, setSelectedScriptId] = useState<string | null>(null);
+  
+  // Bundle state
+  const [bundles, setBundles] = useState<OfferBundleWithStats[]>([]);
+  const [selectedBundleId, setSelectedBundleId] = useState<string | null>(null);
+  const [showBundleSelector, setShowBundleSelector] = useState(false);
+  const [showSaveAsBundle, setShowSaveAsBundle] = useState(false);
+  
+  // Proposal state
+  const [showProposalModal, setShowProposalModal] = useState(false);
+  const [currentProposal, setCurrentProposal] = useState<{
+    id: string;
+    status: string;
+    proposalLink: string;
+  } | null>(null);
+  
+  // Content group collapse state
+  const [collapsedContentGroups, setCollapsedContentGroups] = useState<Set<string>>(new Set());
   
   // Diagnostic details expansion
   const [expandedDiagnosticSection, setExpandedDiagnosticSection] = useState<string | null>(null);
@@ -256,23 +287,25 @@ export default function ClientWalkthroughPage() {
     const headers = { Authorization: `Bearer ${authSession.access_token}` };
     
     try {
-      // Fetch audit details, products, scripts in parallel
-      const [auditRes, productsRes, scriptsRes, sessionsRes] = await Promise.all([
+      // Fetch audit details, products, scripts, bundles in parallel
+      const [auditRes, productsRes, scriptsRes, sessionsRes, bundlesRes] = await Promise.all([
         fetch(`/api/admin/sales?status=completed`, { headers }),
         fetch('/api/admin/sales/products', { headers }),
         fetch('/api/admin/sales/scripts', { headers }),
         fetch(`/api/admin/sales/sessions?audit_id=${auditId}`, { headers }),
+        fetch('/api/admin/sales/bundles', { headers }),
       ]);
 
       if (!auditRes.ok || !productsRes.ok || !scriptsRes.ok) {
         throw new Error('Failed to fetch data');
       }
 
-      const [auditData, productsData, scriptsData, sessionsData] = await Promise.all([
+      const [auditData, productsData, scriptsData, sessionsData, bundlesData] = await Promise.all([
         auditRes.json(),
         productsRes.json(),
         scriptsRes.json(),
         sessionsRes.json(),
+        bundlesRes.ok ? bundlesRes.json() : { bundles: [] },
       ]);
 
       // Find the specific audit
@@ -283,15 +316,19 @@ export default function ClientWalkthroughPage() {
 
       setAudit(foundAudit);
       setContact(foundAudit.contact_submissions);
-      setProducts(productsData.products || []);
+      // Use content (all content types) instead of just products
+      setContent(productsData.content || []);
       setScripts(scriptsData.scripts || []);
+      setBundles(bundlesData.bundles || []);
 
       // Check for existing session
       const existingSession = sessionsData.sessions?.[0];
       if (existingSession) {
         setSalesSession(existingSession);
         setNotes(existingSession.internal_notes || '');
-        setSelectedProducts(existingSession.products_presented || []);
+        // Convert legacy product IDs to content keys
+        const legacyProducts = existingSession.products_presented || [];
+        setSelectedContent(legacyProducts.map((id: number) => `product:${id}`));
       } else {
         // Create a new session
         const newSessionRes = await fetch('/api/admin/sales/sessions', {
@@ -364,14 +401,95 @@ export default function ClientWalkthroughPage() {
     updateSession({ outcome });
   };
 
-  // Handle product selection
-  const toggleProduct = (productId: number) => {
-    const newSelection = selectedProducts.includes(productId)
-      ? selectedProducts.filter(id => id !== productId)
-      : [...selectedProducts, productId];
+  // Apply a bundle to the current selection
+  const applyBundle = async (bundleId: string) => {
+    const authSession = await getCurrentSession();
+    if (!authSession?.access_token) return;
     
-    setSelectedProducts(newSelection);
-    updateSession({ products_presented: newSelection });
+    try {
+      const response = await fetch(`/api/admin/sales/bundles/${bundleId}/resolve`, {
+        headers: { Authorization: `Bearer ${authSession.access_token}` },
+      });
+      if (!response.ok) throw new Error('Failed to load bundle');
+      
+      const data = await response.json();
+      const bundleContentKeys = data.items.map((item: ResolvedBundleItem) => 
+        `${item.content_type}:${item.content_id}`
+      );
+      
+      setSelectedContent(bundleContentKeys);
+      setSelectedBundleId(bundleId);
+      setShowBundleSelector(false);
+    } catch (err) {
+      console.error('Error applying bundle:', err);
+      setError('Failed to load bundle');
+    }
+  };
+
+  // Save current selection as a new bundle
+  const saveAsBundle = async (name: string, description?: string) => {
+    const authSession = await getCurrentSession();
+    if (!authSession?.access_token) return;
+    
+    try {
+      const items = content
+        .filter(c => selectedContent.includes(`${c.content_type}:${c.content_id}`))
+        .map((c, index) => ({
+          content_type: c.content_type,
+          content_id: c.content_id,
+          display_order: index,
+          title: c.title,
+          offer_role: c.offer_role,
+          role_retail_price: c.role_retail_price,
+          perceived_value: c.perceived_value,
+          has_overrides: false,
+          is_optional: false,
+        }));
+      
+      const response = await fetch('/api/admin/sales/bundles/save-as', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${authSession.access_token}`,
+        },
+        body: JSON.stringify({
+          name,
+          description,
+          items,
+          parent_bundle_id: selectedBundleId,
+        }),
+      });
+      
+      if (!response.ok) throw new Error('Failed to save bundle');
+      
+      setShowSaveAsBundle(false);
+      // Refresh bundles list
+      const bundlesRes = await fetch('/api/admin/sales/bundles', {
+        headers: { Authorization: `Bearer ${authSession.access_token}` },
+      });
+      if (bundlesRes.ok) {
+        const bundlesData = await bundlesRes.json();
+        setBundles(bundlesData.bundles || []);
+      }
+    } catch (err) {
+      console.error('Error saving bundle:', err);
+      setError('Failed to save bundle');
+    }
+  };
+
+  // Handle content selection (for offer stack)
+  const toggleContent = (contentType: ContentType, contentId: string) => {
+    const key = `${contentType}:${contentId}`;
+    const newSelection = selectedContent.includes(key)
+      ? selectedContent.filter(k => k !== key)
+      : [...selectedContent, key];
+    
+    setSelectedContent(newSelection);
+    // For backward compatibility, also update products_presented with product IDs
+    const productIds = newSelection
+      .filter(k => k.startsWith('product:'))
+      .map(k => parseInt(k.split(':')[1]));
+    updateSession({ products_presented: productIds });
   };
 
   // Generate AI insights based on diagnostic data
@@ -392,7 +510,7 @@ export default function ClientWalkthroughPage() {
         body: JSON.stringify({ 
           audit,
           contact,
-          products: products.filter(p => p.is_active),
+          content: content.filter(c => c.is_active),
           currentScript: scripts.find(s => s.id === selectedScriptId),
         }),
       });
@@ -466,8 +584,8 @@ export default function ClientWalkthroughPage() {
           },
           currentObjection: responseType,
           conversationHistory: updatedState.responseHistory,
-          productsPresented: selectedProducts,
-          availableProducts: products.filter(p => p.is_active),
+          contentPresented: selectedContent,
+          availableContent: content.filter(c => c.is_active),
           clientName: contact?.name,
           clientCompany: contact?.company,
         }),
@@ -498,12 +616,17 @@ export default function ClientWalkthroughPage() {
       lastResponse.strategyChosen = recommendation.strategy;
     }
 
-    // If strategy involves showing products, add them to presented list
+    // If strategy involves showing content, add them to presented list
     if (recommendation.products.length > 0) {
-      const productIds = recommendation.products.map(p => p.id);
-      const newPresented = [...new Set([...selectedProducts, ...productIds])];
-      setSelectedProducts(newPresented);
-      updateSession({ products_presented: newPresented });
+      // Note: recommendation.products still uses product format for compatibility
+      const contentKeys = recommendation.products.map(p => `product:${p.id}`);
+      const newPresented = [...new Set([...selectedContent, ...contentKeys])];
+      setSelectedContent(newPresented);
+      // Update session with product IDs for backward compatibility
+      const productIds = newPresented
+        .filter(k => k.startsWith('product:'))
+        .map(k => parseInt(k.split(':')[1]));
+      updateSession({ products_presented: productIds });
     }
 
     // Update offers presented
@@ -559,7 +682,7 @@ export default function ClientWalkthroughPage() {
           previousSteps,
           lastResponse,
           chosenStrategy,
-          availableProducts: products.filter(p => p.is_active),
+          availableContent: content.filter(c => c.is_active),
           conversationHistory: conversationState.responseHistory,
         }),
       });
@@ -641,27 +764,83 @@ export default function ClientWalkthroughPage() {
     }
   };
 
-  // Get recommended products based on funnel stage
+  // Convert content to ProductWithRole format for compatibility with existing helpers
+  const contentAsProducts: ProductWithRole[] = content.map(c => ({
+    id: parseInt(c.content_id) || 0,
+    title: c.title,
+    description: c.description,
+    type: c.content_type,
+    price: c.price,
+    file_path: null,
+    image_url: c.image_url,
+    is_active: c.is_active,
+    is_featured: false,
+    display_order: c.display_order,
+    role_id: c.role_id,
+    offer_role: c.offer_role,
+    dream_outcome_description: c.dream_outcome_description,
+    likelihood_multiplier: c.likelihood_multiplier,
+    time_reduction: c.time_reduction,
+    effort_reduction: c.effort_reduction,
+    role_retail_price: c.role_retail_price,
+    offer_price: c.offer_price,
+    perceived_value: c.perceived_value,
+    bonus_name: c.bonus_name,
+    bonus_description: c.bonus_description,
+    qualifying_actions: c.qualifying_actions,
+    payout_type: c.payout_type,
+  }));
+
+  // Get recommended content based on funnel stage
   const recommendedProducts = salesSession 
-    ? getRecommendedProducts(products, salesSession.funnel_stage)
+    ? getRecommendedProducts(contentAsProducts, salesSession.funnel_stage)
     : [];
 
-  // Build grand slam offer from selected products
-  const selectedProductDetails = products.filter(p => selectedProducts.includes(p.id));
-  const grandSlamOffer = buildGrandSlamOffer(selectedProductDetails);
+  // Build grand slam offer from selected content
+  const selectedContentDetails = content.filter(c => 
+    selectedContent.includes(`${c.content_type}:${c.content_id}`)
+  );
+  const selectedAsProducts: ProductWithRole[] = selectedContentDetails.map(c => ({
+    id: parseInt(c.content_id) || 0,
+    title: c.title,
+    description: c.description,
+    type: c.content_type,
+    price: c.price,
+    file_path: null,
+    image_url: c.image_url,
+    is_active: c.is_active,
+    is_featured: false,
+    display_order: c.display_order,
+    role_id: c.role_id,
+    offer_role: c.offer_role,
+    dream_outcome_description: c.dream_outcome_description,
+    likelihood_multiplier: c.likelihood_multiplier,
+    time_reduction: c.time_reduction,
+    effort_reduction: c.effort_reduction,
+    role_retail_price: c.role_retail_price,
+    offer_price: c.offer_price,
+    perceived_value: c.perceived_value,
+    bonus_name: c.bonus_name,
+    bonus_description: c.bonus_description,
+    qualifying_actions: c.qualifying_actions,
+    payout_type: c.payout_type,
+  }));
+  const grandSlamOffer = buildGrandSlamOffer(selectedAsProducts);
 
   // Find objection handlers
   const objectionHandlers = objectionInput 
     ? findObjectionHandlers(objectionInput)
     : [];
 
-  // Group products by role
-  const productsByRole = products.reduce((acc, product) => {
-    const role = product.offer_role || 'unclassified';
-    if (!acc[role]) acc[role] = [];
-    acc[role].push(product);
+  // Group content by type first, then by role
+  const contentByTypeAndRole = content.reduce((acc, item) => {
+    const type = item.content_type;
+    const role = item.offer_role || 'unclassified';
+    if (!acc[type]) acc[type] = {};
+    if (!acc[type][role]) acc[type][role] = [];
+    acc[type][role].push(item);
     return acc;
-  }, {} as Record<string, ProductWithRole[]>);
+  }, {} as Record<ContentType, Record<string, ContentWithRole[]>>);
 
   if (isLoading) {
     return (
@@ -1221,46 +1400,246 @@ export default function ClientWalkthroughPage() {
 
               {activeTab === 'products' && (
                 <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-medium text-white">
-                      Select Products for Offer
-                    </h3>
-                    <span className="text-sm text-gray-400">
-                      {selectedProducts.length} selected
-                    </span>
-                  </div>
-
-                  {/* Product categories */}
-                  {Object.entries(productsByRole).map(([role, roleProducts]) => (
-                    <div key={role} className="mb-6">
-                      <h4 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
-                        {OFFER_ROLE_LABELS[role as OfferRole] || 'Unclassified'}
-                        <span className="text-gray-500">({roleProducts.length})</span>
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                        {roleProducts.map((product) => (
-                          <OfferCard
-                            key={product.id}
-                            product={product}
-                            compact
-                            showAddButton
-                            isSelected={selectedProducts.includes(product.id)}
-                            onAdd={() => toggleProduct(product.id)}
-                          />
+                  {/* Bundle Quick Start */}
+                  {bundles.length > 0 && (
+                    <div className="mb-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Layers className="w-4 h-4 text-purple-400" />
+                          <span className="text-sm font-medium text-white">Quick Start from Bundle</span>
+                        </div>
+                        {selectedBundleId && (
+                          <span className="text-xs text-purple-400 flex items-center gap-1">
+                            <GitFork className="w-3 h-3" />
+                            Using bundle template
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {bundles.slice(0, 5).map((bundle) => (
+                          <button
+                            key={bundle.id}
+                            onClick={() => applyBundle(bundle.id)}
+                            className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                              selectedBundleId === bundle.id
+                                ? 'bg-purple-900/50 border-purple-500 text-purple-200'
+                                : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500'
+                            }`}
+                          >
+                            {bundle.name}
+                            <span className="ml-1 text-xs text-gray-400">({bundle.item_count})</span>
+                          </button>
                         ))}
+                        {bundles.length > 5 && (
+                          <button
+                            onClick={() => setShowBundleSelector(true)}
+                            className="px-3 py-1.5 text-sm text-gray-400 hover:text-white"
+                          >
+                            +{bundles.length - 5} more
+                          </button>
+                        )}
                       </div>
                     </div>
-                  ))}
+                  )}
+
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-medium text-white">
+                      Select Content for Offer
+                    </h3>
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => {
+                          const allTypes = Object.keys(contentByTypeAndRole);
+                          if (collapsedContentGroups.size === allTypes.length) {
+                            setCollapsedContentGroups(new Set());
+                          } else {
+                            setCollapsedContentGroups(new Set(allTypes));
+                          }
+                        }}
+                        className="text-xs text-gray-400 hover:text-white transition-colors"
+                      >
+                        {collapsedContentGroups.size === Object.keys(contentByTypeAndRole).length 
+                          ? 'Expand All' 
+                          : 'Collapse All'}
+                      </button>
+                      <span className="text-sm text-gray-400">
+                        {selectedContent.length} selected
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Content by type, then by role */}
+                  {Object.entries(contentByTypeAndRole).map(([contentType, roleGroups]) => {
+                    const isCollapsed = collapsedContentGroups.has(contentType);
+                    const itemCount = Object.values(roleGroups).flat().length;
+                    const selectedInGroup = Object.values(roleGroups).flat().filter(
+                      item => selectedContent.includes(`${item.content_type}:${item.content_id}`)
+                    ).length;
+                    
+                    return (
+                      <div key={contentType} className="mb-4">
+                        {/* Content Type Header - Clickable */}
+                        <button
+                          onClick={() => {
+                            setCollapsedContentGroups(prev => {
+                              const next = new Set(prev);
+                              if (next.has(contentType)) {
+                                next.delete(contentType);
+                              } else {
+                                next.add(contentType);
+                              }
+                              return next;
+                            });
+                          }}
+                          className="w-full flex items-center gap-2 p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800 border border-gray-700 transition-colors"
+                        >
+                          {isCollapsed ? (
+                            <ChevronRight className="w-4 h-4 text-gray-500" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 text-gray-500" />
+                          )}
+                          <span className="text-xl">{CONTENT_TYPE_ICONS[contentType as ContentType]}</span>
+                          <h3 className="font-medium text-white">
+                            {CONTENT_TYPE_LABELS[contentType as ContentType]}
+                          </h3>
+                          <span className="text-gray-500 text-sm">
+                            ({itemCount})
+                          </span>
+                          {selectedInGroup > 0 && (
+                            <span className="ml-auto px-2 py-0.5 text-xs bg-blue-900/50 text-blue-300 rounded">
+                              {selectedInGroup} selected
+                            </span>
+                          )}
+                        </button>
+
+                        {/* Roles within this content type - Collapsible */}
+                        {!isCollapsed && (
+                          <div className="mt-3 ml-2 pl-4 border-l border-gray-700">
+                            {Object.entries(roleGroups).map(([role, items]) => (
+                              <div key={`${contentType}-${role}`} className="mb-4">
+                                <h4 className="text-sm font-medium text-gray-400 mb-3 flex items-center gap-2">
+                                  {OFFER_ROLE_LABELS[role as OfferRole] || 'Unclassified'}
+                                  <span className="text-gray-500">({items.length})</span>
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  {items.map((item) => {
+                                    const contentKey = `${item.content_type}:${item.content_id}`;
+                                    return (
+                                      <ContentOfferCard
+                                        key={contentKey}
+                                        content={item}
+                                        compact
+                                        showAddButton
+                                        isSelected={selectedContent.includes(contentKey)}
+                                        onAdd={() => toggleContent(item.content_type, item.content_id)}
+                                      />
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
 
                   {/* Selected Offer Preview */}
-                  {selectedProducts.length > 0 && (
+                  {selectedContent.length > 0 && (
                     <div className="mt-6 pt-6 border-t border-gray-700">
-                      <h4 className="font-medium text-white mb-4">Your Offer Stack</h4>
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-medium text-white">Your Offer Stack</h4>
+                        <button
+                          onClick={() => setShowSaveAsBundle(true)}
+                          className="flex items-center gap-1 px-3 py-1.5 text-sm bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+                        >
+                          <Save className="w-3 h-3" />
+                          Save as Bundle
+                        </button>
+                      </div>
                       <OfferStack
-                        products={selectedProductDetails}
+                        products={selectedAsProducts}
                         totalPrice={grandSlamOffer.offerPrice}
                         totalValue={grandSlamOffer.totalPerceivedValue}
                       />
+                      
+                      {/* Generate Proposal Section */}
+                      <div className="mt-6 pt-6 border-t border-gray-700">
+                        <div className="flex items-center justify-between mb-4">
+                          <div>
+                            <h4 className="font-medium text-white flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-blue-400" />
+                              Convert to Proposal
+                            </h4>
+                            <p className="text-sm text-gray-400 mt-1">
+                              Generate a proposal document for the client to review and accept
+                            </p>
+                          </div>
+                        </div>
+                        
+                        {currentProposal ? (
+                          <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2 py-1 text-xs rounded ${
+                                  currentProposal.status === 'paid' 
+                                    ? 'bg-green-900/50 text-green-300'
+                                    : currentProposal.status === 'accepted'
+                                    ? 'bg-blue-900/50 text-blue-300'
+                                    : currentProposal.status === 'viewed'
+                                    ? 'bg-yellow-900/50 text-yellow-300'
+                                    : 'bg-gray-700 text-gray-300'
+                                }`}>
+                                  {currentProposal.status.charAt(0).toUpperCase() + currentProposal.status.slice(1)}
+                                </span>
+                                <span className="text-sm text-gray-400">
+                                  Proposal #{currentProposal.id.slice(0, 8).toUpperCase()}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={currentProposal.proposalLink}
+                                readOnly
+                                className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-sm text-gray-300"
+                              />
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(currentProposal.proposalLink);
+                                }}
+                                className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+                                title="Copy link"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
+                              <a
+                                href={currentProposal.proposalLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                                title="Open proposal"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            </div>
+                            <button
+                              onClick={() => setShowProposalModal(true)}
+                              className="mt-3 w-full text-sm text-gray-400 hover:text-white transition-colors"
+                            >
+                              Generate new proposal
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setShowProposalModal(true)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+                          >
+                            <CreditCard className="w-4 h-4" />
+                            Generate Proposal & Payment Link
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1328,6 +1707,222 @@ export default function ClientWalkthroughPage() {
           </div>
         </div>
       </div>
+
+      {/* Bundle Selector Modal */}
+      {showBundleSelector && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-lg max-h-[70vh] overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-gray-800">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Layers className="w-5 h-5 text-purple-400" />
+                Select Bundle Template
+              </h3>
+              <button 
+                onClick={() => setShowBundleSelector(false)}
+                className="text-gray-400 hover:text-white"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              {bundles.map((bundle) => (
+                <button
+                  key={bundle.id}
+                  onClick={() => applyBundle(bundle.id)}
+                  className="w-full text-left p-4 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-white">{bundle.name}</span>
+                    <span className="text-sm text-gray-400">{bundle.item_count} items</span>
+                  </div>
+                  {bundle.description && (
+                    <p className="text-sm text-gray-400 mt-1 line-clamp-2">{bundle.description}</p>
+                  )}
+                  {bundle.bundle_price && (
+                    <p className="text-sm text-green-400 mt-2">
+                      ${bundle.bundle_price.toFixed(2)}
+                      {bundle.total_perceived_value && (
+                        <span className="text-gray-500 line-through ml-2">
+                          ${bundle.total_perceived_value.toFixed(2)}
+                        </span>
+                      )}
+                    </p>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Save As Bundle Modal */}
+      {showSaveAsBundle && (
+        <SaveAsBundleModal
+          onClose={() => setShowSaveAsBundle(false)}
+          onSave={saveAsBundle}
+          itemCount={selectedContent.length}
+          parentBundleName={bundles.find(b => b.id === selectedBundleId)?.name}
+        />
+      )}
+      
+      {/* Generate Proposal Modal */}
+      {showProposalModal && (
+        <ProposalModal
+          onClose={() => setShowProposalModal(false)}
+          onGenerate={async (data) => {
+            const authSession = await getCurrentSession();
+            if (!authSession?.access_token) return;
+            
+            // Build line items from selected content
+            const lineItems = selectedContentDetails.map(c => ({
+              content_type: c.content_type,
+              content_id: c.content_id,
+              title: c.title,
+              description: c.description,
+              offer_role: c.offer_role,
+              price: c.role_retail_price || c.price || 0,
+              perceived_value: c.perceived_value || c.role_retail_price || c.price || 0,
+            }));
+            
+            const response = await fetch('/api/proposals', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${authSession.access_token}`,
+              },
+              body: JSON.stringify({
+                sales_session_id: salesSession?.id,
+                client_name: data.clientName,
+                client_email: data.clientEmail,
+                client_company: data.clientCompany,
+                bundle_id: selectedBundleId,
+                bundle_name: bundles.find(b => b.id === selectedBundleId)?.name || 'Custom Offer',
+                line_items: lineItems,
+                subtotal: grandSlamOffer.offerPrice,
+                discount_amount: data.discountAmount,
+                discount_description: data.discountDescription,
+                total_amount: grandSlamOffer.offerPrice - (data.discountAmount || 0),
+                valid_days: data.validDays,
+              }),
+            });
+            
+            if (response.ok) {
+              const result = await response.json();
+              setCurrentProposal({
+                id: result.proposal.id,
+                status: result.proposal.status,
+                proposalLink: result.proposalLink,
+              });
+              setShowProposalModal(false);
+            } else {
+              throw new Error('Failed to create proposal');
+            }
+          }}
+          defaultClientName={contact?.name || ''}
+          defaultClientEmail={contact?.email || ''}
+          defaultClientCompany={contact?.company || ''}
+          totalAmount={grandSlamOffer.offerPrice}
+        />
+      )}
+    </div>
+  );
+}
+
+// Save As Bundle Modal
+function SaveAsBundleModal({
+  onClose,
+  onSave,
+  itemCount,
+  parentBundleName,
+}: {
+  onClose: () => void;
+  onSave: (name: string, description?: string) => void;
+  itemCount: number;
+  parentBundleName?: string;
+}) {
+  const [name, setName] = useState(parentBundleName ? `${parentBundleName} - Modified` : '');
+  const [description, setDescription] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!name.trim()) return;
+    setIsSaving(true);
+    await onSave(name.trim(), description.trim() || undefined);
+    setIsSaving(false);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-md p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Package className="w-5 h-5 text-purple-400" />
+            Save as New Bundle
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <XCircle className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Bundle Name *
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g., Enterprise Premium Pack"
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Description
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe this bundle..."
+              rows={3}
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-purple-500 resize-none"
+            />
+          </div>
+
+          <div className="text-sm text-gray-400">
+            This bundle will contain <span className="text-white font-medium">{itemCount} items</span>
+            {parentBundleName && (
+              <span className="block mt-1 text-purple-400">
+                <GitFork className="w-3 h-3 inline mr-1" />
+                Forked from &quot;{parentBundleName}&quot;
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={!name.trim() || isSaving}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-purple-800 disabled:cursor-not-allowed rounded-lg transition-colors"
+          >
+            {isSaving ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            Save Bundle
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -1373,6 +1968,207 @@ function ScriptStep({ step, title, talkingPoints, isExpanded, onToggle }: Script
           </ul>
         </div>
       )}
+    </div>
+  );
+}
+
+// Proposal Generation Modal
+interface ProposalModalProps {
+  onClose: () => void;
+  onGenerate: (data: {
+    clientName: string;
+    clientEmail: string;
+    clientCompany?: string;
+    discountAmount?: number;
+    discountDescription?: string;
+    validDays: number;
+  }) => Promise<void>;
+  defaultClientName: string;
+  defaultClientEmail: string;
+  defaultClientCompany: string;
+  totalAmount: number;
+}
+
+function ProposalModal({
+  onClose,
+  onGenerate,
+  defaultClientName,
+  defaultClientEmail,
+  defaultClientCompany,
+  totalAmount,
+}: ProposalModalProps) {
+  const [clientName, setClientName] = useState(defaultClientName);
+  const [clientEmail, setClientEmail] = useState(defaultClientEmail);
+  const [clientCompany, setClientCompany] = useState(defaultClientCompany);
+  const [discountAmount, setDiscountAmount] = useState(0);
+  const [discountDescription, setDiscountDescription] = useState('');
+  const [validDays, setValidDays] = useState(30);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleGenerate = async () => {
+    if (!clientName.trim() || !clientEmail.trim()) {
+      setError('Client name and email are required');
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      await onGenerate({
+        clientName: clientName.trim(),
+        clientEmail: clientEmail.trim(),
+        clientCompany: clientCompany.trim() || undefined,
+        discountAmount: discountAmount > 0 ? discountAmount : undefined,
+        discountDescription: discountDescription.trim() || undefined,
+        validDays,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate proposal');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const finalAmount = totalAmount - (discountAmount || 0);
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-400" />
+            Generate Proposal
+          </h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <XCircle className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {error && (
+            <div className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-sm text-red-200">
+              {error}
+            </div>
+          )}
+
+          {/* Client Information */}
+          <div>
+            <h4 className="text-sm font-medium text-gray-300 mb-3">Client Information</h4>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Client Name *</label>
+                <input
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  placeholder="John Smith"
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Email *</label>
+                <input
+                  type="email"
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  placeholder="john@company.com"
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Company</label>
+                <input
+                  type="text"
+                  value={clientCompany}
+                  onChange={(e) => setClientCompany(e.target.value)}
+                  placeholder="Company Inc."
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Pricing */}
+          <div className="pt-4 border-t border-gray-700">
+            <h4 className="text-sm font-medium text-gray-300 mb-3">Pricing</h4>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+                <span className="text-gray-400">Offer Total</span>
+                <span className="font-medium">${totalAmount.toFixed(2)}</span>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Discount Amount ($)</label>
+                <input
+                  type="number"
+                  value={discountAmount}
+                  onChange={(e) => setDiscountAmount(Math.max(0, parseFloat(e.target.value) || 0))}
+                  min="0"
+                  step="0.01"
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                />
+              </div>
+              {discountAmount > 0 && (
+                <div>
+                  <label className="block text-xs text-gray-500 mb-1">Discount Reason</label>
+                  <input
+                    type="text"
+                    value={discountDescription}
+                    onChange={(e) => setDiscountDescription(e.target.value)}
+                    placeholder="e.g., Early bird, Referral, Loyalty"
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                  />
+                </div>
+              )}
+              <div className="flex items-center justify-between p-3 bg-blue-900/30 border border-blue-800 rounded-lg">
+                <span className="text-blue-300 font-medium">Final Amount</span>
+                <span className="text-xl font-bold text-blue-400">${finalAmount.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Validity */}
+          <div className="pt-4 border-t border-gray-700">
+            <h4 className="text-sm font-medium text-gray-300 mb-3">Validity</h4>
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Valid for (days)</label>
+              <select
+                value={validDays}
+                onChange={(e) => setValidDays(parseInt(e.target.value))}
+                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              >
+                <option value={7}>7 days</option>
+                <option value={14}>14 days</option>
+                <option value={30}>30 days</option>
+                <option value={60}>60 days</option>
+                <option value={90}>90 days</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="p-4 border-t border-gray-800 flex items-center gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleGenerate}
+            disabled={isGenerating || !clientName.trim() || !clientEmail.trim()}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed rounded-lg transition-colors"
+          >
+            {isGenerating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <FileText className="w-4 h-4" />
+            )}
+            Generate Proposal
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

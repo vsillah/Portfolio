@@ -133,27 +133,11 @@ export const VAPI_CONFIG = getVapiConfig()
  * In Next.js production, these are embedded at build time.
  */
 export function isVapiConfigured(): boolean {
-  // #region agent log
   // Get config at runtime (reads from process.env which Next.js replaces at build time)
   const config = getVapiConfig();
   const hasPublicKey = Boolean(config.publicKey && config.publicKey.trim());
   const hasAssistantId = Boolean(config.assistantId && config.assistantId.trim());
-  const result = hasPublicKey && hasAssistantId;
-  
-  const logData = {
-    publicKey: config.publicKey ? config.publicKey.substring(0, 20) + '...' : 'empty',
-    assistantId: config.assistantId ? config.assistantId.substring(0, 20) + '...' : 'empty',
-    result,
-    hasPublicKey,
-    hasAssistantId,
-    isClient: typeof window !== 'undefined'
-  };
-  
-  console.log('[VAPI Debug] isVapiConfigured:', logData);
-  fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'lib/vapi.ts:120',message:'isVapiConfigured check',data:logData,timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
-  
-  return result
+  return hasPublicKey && hasAssistantId;
 }
 
 // ============================================================================

@@ -5,13 +5,18 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
 import { 
-  ProductWithRole,
+  ContentWithRole,
+  ContentType,
   OfferRole,
   OFFER_ROLE_LABELS,
   OFFER_ROLE_COLORS,
+  CONTENT_TYPE_LABELS,
+  CONTENT_TYPE_ICONS,
+  CONTENT_TYPE_COLORS,
   buildGrandSlamOffer,
+  ProductWithRole,
 } from '@/lib/sales-scripts';
-import { ProductClassifier, ProductOfferRoleInput } from '@/components/admin/sales/ProductClassifier';
+import { ContentClassifier, ContentOfferRoleInput } from '@/components/admin/sales/ProductClassifier';
 import { OfferStack } from '@/components/admin/sales/OfferCard';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import { 
@@ -23,6 +28,7 @@ import {
   AlertCircle,
   CheckCircle,
   Tag,
+  Layers,
 } from 'lucide-react';
 
 const OFFER_ROLES: OfferRole[] = [
@@ -36,20 +42,31 @@ const OFFER_ROLES: OfferRole[] = [
   'anchor',
 ];
 
+const CONTENT_TYPES: ContentType[] = [
+  'product',
+  'project',
+  'video',
+  'publication',
+  'music',
+  'lead_magnet',
+  'prototype',
+];
+
 export default function ProductClassificationPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [products, setProducts] = useState<ProductWithRole[]>([]);
+  const [content, setContent] = useState<ContentWithRole[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandedProduct, setExpandedProduct] = useState<number | null>(null);
+  const [expandedContent, setExpandedContent] = useState<string | null>(null);
   
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState<OfferRole | 'all' | 'unclassified'>('all');
+  const [contentTypeFilter, setContentTypeFilter] = useState<ContentType | 'all'>('all');
   const [showPreview, setShowPreview] = useState(false);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchContent = useCallback(async () => {
     const session = await getCurrentSession();
     if (!session?.access_token) return;
     
@@ -61,31 +78,34 @@ export default function ProductClassificationPage() {
       if (roleFilter !== 'all' && roleFilter !== 'unclassified') {
         params.append('role', roleFilter);
       }
+      if (contentTypeFilter !== 'all') {
+        params.append('content_type', contentTypeFilter);
+      }
       
       const response = await fetch(`/api/admin/sales/products?${params}`, {
         headers: {
           Authorization: `Bearer ${session.access_token}`,
         },
       });
-      if (!response.ok) throw new Error('Failed to fetch products');
+      if (!response.ok) throw new Error('Failed to fetch content');
       
       const data = await response.json();
-      setProducts(data.products || []);
+      setContent(data.content || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsLoading(false);
     }
-  }, [roleFilter, user]);
+  }, [roleFilter, contentTypeFilter, user]);
 
   // Fetch when user becomes available or filters change
   useEffect(() => {
     if (user) {
-      fetchProducts();
+      fetchContent();
     }
-  }, [user, fetchProducts]);
+  }, [user, fetchContent]);
 
-  const handleSaveRole = async (data: ProductOfferRoleInput) => {
+  const handleSaveRole = async (data: ContentOfferRoleInput) => {
     const session = await getCurrentSession();
     const response = await fetch('/api/admin/sales/products', {
       method: 'POST',
@@ -102,13 +122,13 @@ export default function ProductClassificationPage() {
     }
 
     // Refresh the list
-    await fetchProducts();
-    setExpandedProduct(null);
+    await fetchContent();
+    setExpandedContent(null);
   };
 
-  const handleRemoveRole = async (productId: number) => {
+  const handleRemoveRole = async (contentType: ContentType, contentId: string) => {
     const session = await getCurrentSession();
-    const response = await fetch(`/api/admin/sales/products?product_id=${productId}`, {
+    const response = await fetch(`/api/admin/sales/products?content_type=${contentType}&content_id=${contentId}`, {
       method: 'DELETE',
       headers: {
         Authorization: `Bearer ${session?.access_token}`,
@@ -121,41 +141,71 @@ export default function ProductClassificationPage() {
     }
 
     // Refresh the list
-    await fetchProducts();
+    await fetchContent();
   };
 
-  // Filter products
-  const filteredProducts = products.filter(product => {
+  // Filter content
+  const filteredContent = content.filter(item => {
     // Search filter
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      if (!product.title.toLowerCase().includes(query) && 
-          !product.description?.toLowerCase().includes(query)) {
+      if (!item.title.toLowerCase().includes(query) && 
+          !item.description?.toLowerCase().includes(query)) {
         return false;
       }
     }
     
     // Role filter
-    if (roleFilter === 'unclassified' && product.offer_role) {
+    if (roleFilter === 'unclassified' && item.offer_role) {
       return false;
     }
     
     return true;
   });
 
-  // Get products for Grand Slam Offer preview
-  const classifiedProducts = products.filter(p => p.offer_role);
-  const grandSlamOffer = buildGrandSlamOffer(classifiedProducts);
+  // Convert to ProductWithRole for Grand Slam Offer preview (only classified items)
+  const classifiedAsProducts: ProductWithRole[] = content
+    .filter(c => c.offer_role)
+    .map(c => ({
+      id: parseInt(c.content_id) || 0,
+      title: c.title,
+      description: c.description,
+      type: c.content_type,
+      price: c.price,
+      file_path: null,
+      image_url: c.image_url,
+      is_active: c.is_active,
+      is_featured: false,
+      display_order: c.display_order,
+      role_id: c.role_id,
+      offer_role: c.offer_role,
+      dream_outcome_description: c.dream_outcome_description,
+      likelihood_multiplier: c.likelihood_multiplier,
+      time_reduction: c.time_reduction,
+      effort_reduction: c.effort_reduction,
+      role_retail_price: c.role_retail_price,
+      offer_price: c.offer_price,
+      perceived_value: c.perceived_value,
+      bonus_name: c.bonus_name,
+      bonus_description: c.bonus_description,
+      qualifying_actions: c.qualifying_actions,
+      payout_type: c.payout_type,
+    }));
+  const grandSlamOffer = buildGrandSlamOffer(classifiedAsProducts);
 
   // Stats
   const stats = {
-    total: products.length,
-    classified: products.filter(p => p.offer_role).length,
-    unclassified: products.filter(p => !p.offer_role).length,
+    total: content.length,
+    classified: content.filter(c => c.offer_role).length,
+    unclassified: content.filter(c => !c.offer_role).length,
     byRole: OFFER_ROLES.reduce((acc, role) => {
-      acc[role] = products.filter(p => p.offer_role === role).length;
+      acc[role] = content.filter(c => c.offer_role === role).length;
       return acc;
     }, {} as Record<OfferRole, number>),
+    byContentType: CONTENT_TYPES.reduce((acc, type) => {
+      acc[type] = content.filter(c => c.content_type === type).length;
+      return acc;
+    }, {} as Record<ContentType, number>),
   };
 
   return (
@@ -165,7 +215,7 @@ export default function ProductClassificationPage() {
           items={[
             { label: 'Admin', href: '/admin' },
             { label: 'Sales', href: '/admin/sales' },
-            { label: 'Product Classification' },
+            { label: 'Content Classification' },
           ]} 
         />
 
@@ -173,8 +223,8 @@ export default function ProductClassificationPage() {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-              <Package className="w-7 h-7 text-emerald-500" />
-              Product Classification
+              <Layers className="w-7 h-7 text-emerald-500" />
+              Content Classification
             </h1>
             <p className="text-gray-400 mt-1">
               Classify your products using Alex Hormozi's offer framework
@@ -195,7 +245,7 @@ export default function ProductClassificationPage() {
             </button>
 
             <button
-              onClick={fetchProducts}
+              onClick={fetchContent}
               disabled={isLoading}
               className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white hover:border-purple-500/50"
             >
@@ -252,6 +302,23 @@ export default function ProductClassificationPage() {
                   />
                 </div>
 
+                {/* Content type filter */}
+                <div className="flex items-center gap-2">
+                  <Layers className="w-5 h-5 text-gray-500" />
+                  <select
+                    value={contentTypeFilter}
+                    onChange={(e) => setContentTypeFilter(e.target.value as ContentType | 'all')}
+                    className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                  >
+                    <option value="all">All Content Types</option>
+                    {CONTENT_TYPES.map((type) => (
+                      <option key={type} value={type}>
+                        {CONTENT_TYPE_ICONS[type]} {CONTENT_TYPE_LABELS[type]} ({stats.byContentType[type] || 0})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 {/* Role filter */}
                 <div className="flex items-center gap-2">
                   <Filter className="w-5 h-5 text-gray-500" />
@@ -281,36 +348,39 @@ export default function ProductClassificationPage() {
               </div>
             )}
 
-            {/* Products list */}
+            {/* Content list */}
             {isLoading ? (
               <div className="text-center py-12">
                 <RefreshCw className="w-8 h-8 text-gray-500 animate-spin mx-auto mb-3" />
-                <p className="text-gray-400">Loading products...</p>
+                <p className="text-gray-400">Loading content...</p>
               </div>
-            ) : filteredProducts.length === 0 ? (
+            ) : filteredContent.length === 0 ? (
               <div className="text-center py-12 bg-gray-900 rounded-lg border border-gray-800">
-                <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
-                <h3 className="text-lg font-medium text-white mb-1">No products found</h3>
+                <Layers className="w-12 h-12 text-gray-600 mx-auto mb-3" />
+                <h3 className="text-lg font-medium text-white mb-1">No content found</h3>
                 <p className="text-gray-400">
-                  {searchQuery || roleFilter !== 'all' 
+                  {searchQuery || roleFilter !== 'all' || contentTypeFilter !== 'all'
                     ? 'Try adjusting your filters' 
-                    : 'Add products to your store first'}
+                    : 'Add content to classify'}
                 </p>
               </div>
             ) : (
               <div className="space-y-3">
-                {filteredProducts.map((product) => (
-                  <ProductClassifier
-                    key={product.id}
-                    product={product}
-                    isExpanded={expandedProduct === product.id}
-                    onToggleExpand={() => setExpandedProduct(
-                      expandedProduct === product.id ? null : product.id
-                    )}
-                    onSave={handleSaveRole}
-                    onRemoveRole={() => handleRemoveRole(product.id)}
-                  />
-                ))}
+                {filteredContent.map((item) => {
+                  const itemKey = `${item.content_type}:${item.content_id}`;
+                  return (
+                    <ContentClassifier
+                      key={itemKey}
+                      content={item}
+                      isExpanded={expandedContent === itemKey}
+                      onToggleExpand={() => setExpandedContent(
+                        expandedContent === itemKey ? null : itemKey
+                      )}
+                      onSave={handleSaveRole}
+                      onRemoveRole={() => handleRemoveRole(item.content_type, item.content_id)}
+                    />
+                  );
+                })}
               </div>
             )}
           </div>
@@ -321,11 +391,11 @@ export default function ProductClassificationPage() {
               <div className="sticky top-4">
                 <h3 className="font-semibold text-white mb-4">Grand Slam Offer Preview</h3>
                 
-                {classifiedProducts.length === 0 ? (
+                {stats.classified === 0 ? (
                   <div className="bg-gray-900 rounded-lg border border-gray-800 p-6 text-center">
                     <Package className="w-12 h-12 text-gray-600 mx-auto mb-3" />
                     <p className="text-gray-400">
-                      Classify products to see your offer preview
+                      Classify content to see your offer preview
                     </p>
                   </div>
                 ) : (

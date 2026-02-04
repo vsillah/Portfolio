@@ -8,6 +8,7 @@ import {
   OfferStrategy,
   AIRecommendation,
   ProductWithRole,
+  ContentWithRole,
   ConversationResponse,
   OBJECTION_STRATEGY_MAP,
   OfferRole,
@@ -57,8 +58,10 @@ interface RecommendRequest {
   audit: DiagnosticData;
   currentObjection: ResponseType;
   conversationHistory: ConversationResponse[];
-  productsPresented: number[];
-  availableProducts: ProductWithRole[];
+  productsPresented?: number[]; // Legacy support
+  contentPresented?: string[]; // Format: "content_type:content_id"
+  availableProducts?: ProductWithRole[]; // Legacy support
+  availableContent?: ContentWithRole[]; // New format
   clientName?: string;
   clientCompany?: string;
 }
@@ -77,18 +80,59 @@ export async function POST(request: NextRequest) {
       currentObjection,
       conversationHistory,
       productsPresented,
+      contentPresented,
       availableProducts,
+      availableContent,
       clientName,
       clientCompany,
     } = body;
+
+    // Convert content to products format for backward compatibility
+    let products: ProductWithRole[] = availableProducts || [];
+    let presented: number[] = productsPresented || [];
+    
+    if (availableContent && availableContent.length > 0) {
+      products = availableContent.map(c => ({
+        id: parseInt(c.content_id) || 0,
+        title: c.title,
+        description: c.description,
+        type: c.content_type,
+        price: c.price,
+        file_path: null,
+        image_url: c.image_url,
+        is_active: c.is_active,
+        is_featured: false,
+        display_order: c.display_order,
+        role_id: c.role_id,
+        offer_role: c.offer_role,
+        dream_outcome_description: c.dream_outcome_description,
+        likelihood_multiplier: c.likelihood_multiplier,
+        time_reduction: c.time_reduction,
+        effort_reduction: c.effort_reduction,
+        role_retail_price: c.role_retail_price,
+        offer_price: c.offer_price,
+        perceived_value: c.perceived_value,
+        bonus_name: c.bonus_name,
+        bonus_description: c.bonus_description,
+        qualifying_actions: c.qualifying_actions,
+        payout_type: c.payout_type,
+      }));
+    }
+    
+    if (contentPresented && contentPresented.length > 0) {
+      // Convert content keys to product IDs (for products only)
+      presented = contentPresented
+        .filter(k => k.startsWith('product:'))
+        .map(k => parseInt(k.split(':')[1]));
+    }
 
     // Generate recommendations based on context
     const recommendations = generateRecommendations({
       audit,
       currentObjection,
       conversationHistory,
-      productsPresented,
-      availableProducts,
+      productsPresented: presented,
+      availableProducts: products,
       clientName,
       clientCompany,
     });
@@ -133,8 +177,8 @@ function generateRecommendations(context: RecommendRequest): AIRecommendation[] 
     const recommendation = buildRecommendation(strategy, {
       audit,
       currentObjection,
-      productsPresented,
-      availableProducts,
+      productsPresented: productsPresented || [],
+      availableProducts: availableProducts || [],
       clientName,
       clientCompany,
       urgency,

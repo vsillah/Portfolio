@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, FolderOpen, Video, BookOpen, Music, Download, Sparkles, ArrowRight, MessageCircle, FileText, TrendingUp } from 'lucide-react'
+import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, ArrowRight, MessageCircle, FileText, TrendingUp } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -53,51 +53,6 @@ function AdminDashboardContent() {
     }
     fetchSummary()
   }, [])
-
-  const contentTypes = [
-    {
-      name: 'Projects',
-      href: '/admin/content/projects',
-      icon: <FolderOpen size={24} />,
-      description: 'Manage portfolio projects',
-      color: 'from-blue-500 to-cyan-500',
-    },
-    {
-      name: 'Videos',
-      href: '/admin/content/videos',
-      icon: <Video size={24} />,
-      description: 'Manage video content',
-      color: 'from-red-500 to-pink-500',
-    },
-    {
-      name: 'Publications',
-      href: '/admin/content/publications',
-      icon: <BookOpen size={24} />,
-      description: 'Manage publications',
-      color: 'from-green-500 to-emerald-500',
-    },
-    {
-      name: 'Music',
-      href: '/admin/content/music',
-      icon: <Music size={24} />,
-      description: 'Manage music projects',
-      color: 'from-purple-500 to-pink-500',
-    },
-    {
-      name: 'Lead Magnets',
-      href: '/admin/content/lead-magnets',
-      icon: <Download size={24} />,
-      description: 'Manage downloadable resources',
-      color: 'from-orange-500 to-yellow-500',
-    },
-    {
-      name: 'Prototypes',
-      href: '/admin/content/prototypes',
-      icon: <Sparkles size={24} />,
-      description: 'Manage app prototype demos',
-      color: 'from-purple-500 to-pink-500',
-    },
-  ]
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
@@ -157,44 +112,10 @@ function AdminDashboardContent() {
           )}
         </div>
 
-        {/* Content Management */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Content Management</h2>
-            <Link href="/admin/content">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white hover:border-purple-500/50 transition-colors flex items-center gap-2 text-sm"
-              >
-                View All Content
-                <ArrowRight size={16} />
-              </motion.button>
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {contentTypes.map((type, index) => (
-              <Link key={type.name} href={type.href}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  whileHover={{ scale: 1.02, y: -2 }}
-                  className="p-6 bg-gray-900 border border-gray-800 rounded-xl hover:border-purple-500/50 transition-all cursor-pointer"
-                >
-                  <div className={`w-12 h-12 rounded-lg bg-gradient-to-r ${type.color} flex items-center justify-center text-white mb-3`}>
-                    {type.icon}
-                  </div>
-                  <h3 className="text-lg font-bold text-white mb-1">{type.name}</h3>
-                  <p className="text-gray-400 text-sm">{type.description}</p>
-                </motion.div>
-              </Link>
-            ))}
-          </div>
-        </div>
-
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <Link href="/admin/chat-eval">
             <motion.div
               whileHover={{ scale: 1.02 }}
@@ -296,6 +217,7 @@ function AdminDashboardContent() {
               </div>
             </motion.div>
           </Link>
+          </div>
         </div>
       </div>
     </div>

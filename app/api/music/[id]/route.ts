@@ -111,7 +111,7 @@ export async function DELETE(
 
     if (error) throw error
 
-    return NextResponse.json({ success: true }, { status: 204 })
+    return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error('Error deleting music:', error)
     return NextResponse.json(

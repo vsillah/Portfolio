@@ -62,15 +62,7 @@ function PromptsContent() {
 
   const fetchPrompts = useCallback(async () => {
     try {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/prompts/page.tsx:65',message:'fetchPrompts: Starting',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D,E'})}).catch(()=>{});
-      // #endregion
-      
       const session = await getCurrentSession()
-      
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/prompts/page.tsx:68',message:'fetchPrompts: Session retrieved',data:{hasSession:!!session,hasAccessToken:!!session?.access_token,userId:session?.user?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
 
       const response = await fetch('/api/admin/prompts', {
         headers: {
@@ -78,33 +70,13 @@ function PromptsContent() {
         },
       })
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/prompts/page.tsx:75',message:'fetchPrompts: Response received',data:{status:response.status,statusText:response.statusText,ok:response.ok,headers:Object.fromEntries(response.headers.entries())},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,C,D'})}).catch(()=>{});
-      // #endregion
-
       if (!response.ok) {
-        // #region agent log
-        const errorText = await response.text().catch(() => 'Unable to read error text');
-        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/prompts/page.tsx:79',message:'fetchPrompts: Response not OK',data:{status:response.status,statusText:response.statusText,errorText},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,C,D'})}).catch(()=>{});
-        // #endregion
         throw new Error(`Failed to fetch prompts: ${response.status} ${response.statusText}`)
       }
 
       const data = await response.json()
-      
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/prompts/page.tsx:87',message:'fetchPrompts: Data parsed',data:{hasPrompts:!!data.prompts,promptsCount:data.prompts?.length,dataKeys:Object.keys(data)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
-      
       setPrompts(data.prompts)
-      
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/prompts/page.tsx:90',message:'fetchPrompts: Success',data:{promptsSet:true},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D,E'})}).catch(()=>{});
-      // #endregion
     } catch (err) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/prompts/page.tsx:93',message:'fetchPrompts: Error caught',data:{errorMessage:err instanceof Error ? err.message : String(err),errorName:err instanceof Error ? err.name : 'Unknown',errorStack:err instanceof Error ? err.stack : undefined},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D,E'})}).catch(()=>{});
-      // #endregion
       console.error('Error fetching prompts:', err)
       setError('Failed to load prompts')
     } finally {

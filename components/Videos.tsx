@@ -2,43 +2,111 @@
 
 import { motion } from 'framer-motion'
 import { Play, Youtube, X, ArrowRight } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { analytics } from '@/lib/analytics'
 import ExpandableText from '@/components/ui/ExpandableText'
 
-const videos = [
+interface Video {
+  id: number
+  title: string
+  description: string | null
+  video_url: string | null
+  thumbnail_url: string | null
+  display_order: number
+  is_published: boolean
+}
+
+// Fallback data in case database is empty or fetch fails
+const fallbackVideos = [
   {
     id: 1,
     title: 'Never Know Bar 4 Bar Breakdown, 1st Verse',
     description: 'This is the Bar for Bar Breakdown of "Never Know", the first single release from "Into the Rabbit Hole" album by Mad Hadda',
-    videoId: 'ps5WbgLk4mI',
-    thumbnail: 'https://img.youtube.com/vi/ps5WbgLk4mI/hqdefault.jpg?v=2',
+    video_url: 'https://www.youtube.com/watch?v=ps5WbgLk4mI',
+    thumbnail_url: 'https://img.youtube.com/vi/ps5WbgLk4mI/hqdefault.jpg',
+    display_order: 1,
+    is_published: true,
   },
   {
     id: 2,
     title: 'Never Know Bar 4 Bar Breakdown, 2nd Verse',
     description: 'This is the Bar for Bar Breakdown of "Never Know", the first single release from "Into the Rabbit Hole" album by Mad Hadda',
-    videoId: 'VltoBXKskOE',
-    thumbnail: 'https://img.youtube.com/vi/VltoBXKskOE/hqdefault.jpg?v=2',
+    video_url: 'https://www.youtube.com/watch?v=VltoBXKskOE',
+    thumbnail_url: 'https://img.youtube.com/vi/VltoBXKskOE/hqdefault.jpg',
+    display_order: 2,
+    is_published: true,
   },
   {
     id: 3,
     title: 'Shoulders of Giants short video',
     description: 'This is the short video of "Shoulders of Giants", the second single release from "Into the Rabbit Hole" album by Mad Hadda',
-    videoId: 'V4phmDS8Bik',
-    thumbnail: 'https://img.youtube.com/vi/V4phmDS8Bik/hqdefault.jpg?v=2',
+    video_url: 'https://www.youtube.com/watch?v=V4phmDS8Bik',
+    thumbnail_url: 'https://img.youtube.com/vi/V4phmDS8Bik/hqdefault.jpg',
+    display_order: 3,
+    is_published: true,
   },
 ]
 
+// Extract YouTube video ID from URL
+const getVideoId = (url: string | null): string | null => {
+  if (!url) return null
+  const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s]+)/)
+  return match ? match[1] : null
+}
+
 export default function Videos() {
+  const [videos, setVideos] = useState<Video[]>([])
+  const [loading, setLoading] = useState(true)
+  const [usedFallback, setUsedFallback] = useState(false)
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null)
 
-  const openVideo = (videoId: string, videoTitle: string) => {
-    analytics.videoPlay(videoId, videoTitle)
-    setSelectedVideo(videoId)
+  useEffect(() => {
+    fetchVideos()
+  }, [])
+
+  const fetchVideos = async () => {
+    try {
+      const response = await fetch('/api/videos?published=true')
+      if (response.ok) {
+        const data = await response.json()
+        if (data && data.length > 0) {
+          setVideos(data)
+        } else {
+          setVideos(fallbackVideos)
+          setUsedFallback(true)
+        }
+      } else {
+        setVideos(fallbackVideos)
+        setUsedFallback(true)
+      }
+    } catch (error) {
+      console.error('Error fetching videos:', error)
+      setVideos(fallbackVideos)
+      setUsedFallback(true)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const openVideo = (videoUrl: string | null, videoTitle: string) => {
+    const videoId = getVideoId(videoUrl)
+    if (videoId) {
+      analytics.videoPlay(videoId, videoTitle)
+      setSelectedVideo(videoId)
+    }
   }
 
   const closeVideo = () => setSelectedVideo(null)
+
+  if (loading) {
+    return (
+      <section id="videos" className="py-32 bg-imperial-navy">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <div className="h-10 w-48 bg-silicon-slate/20 mx-auto rounded-full animate-pulse" />
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section id="videos" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
@@ -68,57 +136,64 @@ export default function Videos() {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-          {videos.map((video, index) => (
-            <motion.div
-              key={video.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 flex flex-col"
-            >
-              {/* Thumbnail */}
-              <div className="relative aspect-video overflow-hidden flex-shrink-0">
-                <img
-                  src={video.thumbnail}
-                  alt={video.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent opacity-60" />
-                
-                {/* Play Button */}
-                <motion.button
-                  onClick={() => openVideo(video.videoId, video.title)}
-                  className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all duration-500"
-                >
-                  <motion.div
-                    className="w-20 h-20 bg-radiant-gold/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl scale-90 group-hover:scale-100 transition-transform duration-500"
+          {videos.map((video, index) => {
+            const videoId = getVideoId(video.video_url)
+            const thumbnailUrl = video.thumbnail_url || (videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : '')
+            
+            return (
+              <motion.div
+                key={video.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 flex flex-col"
+              >
+                {/* Thumbnail */}
+                <div className="relative aspect-video overflow-hidden flex-shrink-0">
+                  <img
+                    src={thumbnailUrl}
+                    alt={video.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent opacity-60" />
+                  
+                  {/* Play Button */}
+                  <motion.button
+                    onClick={() => openVideo(video.video_url, video.title)}
+                    className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-all duration-500"
                   >
-                    <Play className="text-imperial-navy ml-1" size={32} fill="currentColor" />
-                  </motion.div>
-                </motion.button>
+                    <motion.div
+                      className="w-20 h-20 bg-radiant-gold/90 backdrop-blur-md rounded-full flex items-center justify-center shadow-2xl scale-90 group-hover:scale-100 transition-transform duration-500"
+                    >
+                      <Play className="text-imperial-navy ml-1" size={32} fill="currentColor" />
+                    </motion.div>
+                  </motion.button>
 
-                <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1 bg-imperial-navy/80 backdrop-blur-md border border-radiant-gold/20 rounded-full text-[10px] font-heading tracking-widest text-radiant-gold uppercase">
-                  <Youtube size={12} />
-                  <span>Watch</span>
+                  <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1 bg-imperial-navy/80 backdrop-blur-md border border-radiant-gold/20 rounded-full text-[10px] font-heading tracking-widest text-radiant-gold uppercase">
+                    <Youtube size={12} />
+                    <span>Watch</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Video Info */}
-              <div className="p-8 flex flex-col flex-grow">
-                <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors mb-4">
-                  {video.title}
-                </h3>
-                
-                <ExpandableText
-                  text={video.description}
-                  maxHeight={80}
-                  className="font-body text-platinum-white/50 text-sm leading-relaxed"
-                  expandButtonColor="text-radiant-gold hover:text-gold-light"
-                />
-              </div>
-            </motion.div>
-          ))}
+                {/* Video Info */}
+                <div className="p-8 flex flex-col flex-grow">
+                  <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors mb-4">
+                    {video.title}
+                  </h3>
+                  
+                  {video.description && (
+                    <ExpandableText
+                      text={video.description}
+                      maxHeight={80}
+                      className="font-body text-platinum-white/50 text-sm leading-relaxed"
+                      expandButtonColor="text-radiant-gold hover:text-gold-light"
+                    />
+                  )}
+                </div>
+              </motion.div>
+            )
+          })}
         </div>
 
         {/* Video Modal */}

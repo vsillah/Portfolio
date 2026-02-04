@@ -5,16 +5,10 @@ import { supabaseAdmin } from '@/lib/supabase'
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
-  // #region agent log
-  fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api/user/profile/route.ts:GET',message:'Profile API called',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'admin-debug',hypothesisId:'A'})}).catch(()=>{});
-  // #endregion
   try {
     // Get the session token from the Authorization header
     const authHeader = request.headers.get('authorization')
     const token = authHeader?.replace('Bearer ', '')
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api/user/profile/route.ts:token',message:'Token extracted',data:{hasToken:!!token,tokenLength:token?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'admin-debug',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -85,9 +79,6 @@ export async function GET(request: NextRequest) {
     
     // Verify we're getting the latest data - log the raw response
     console.log('[API DEBUG] Raw profile data:', JSON.stringify(profile))
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'api/user/profile/route.ts:success',message:'Profile fetched successfully',data:{profileId:profile?.id,profileRole:profile?.role,hasProfile:!!profile},timestamp:Date.now(),sessionId:'debug-session',runId:'admin-debug',hypothesisId:'A'})}).catch(()=>{});
-    // #endregion
 
     // Return with no-cache headers to prevent browser caching
     return NextResponse.json(

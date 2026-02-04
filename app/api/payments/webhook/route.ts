@@ -49,6 +49,92 @@ export async function POST(request: NextRequest) {
 
   try {
     switch (event.type) {
+      case 'checkout.session.completed': {
+        const session = event.data.object as Stripe.Checkout.Session;
+        const proposalId = session.metadata?.proposalId;
+        
+        if (proposalId) {
+          // This is a proposal payment
+          console.log(`Processing proposal payment for proposal ${proposalId}`);
+          
+          // Fetch the proposal
+          const { data: proposal } = await supabaseAdmin
+            .from('proposals')
+            .select('*')
+            .eq('id', proposalId)
+            .single();
+          
+          if (proposal) {
+            // Create order record
+            const { data: order, error: orderError } = await supabaseAdmin
+              .from('orders')
+              .insert({
+                user_id: null, // Proposals are typically for guests
+                guest_email: proposal.client_email,
+                guest_name: proposal.client_name,
+                total_amount: proposal.subtotal,
+                discount_amount: proposal.discount_amount || 0,
+                final_amount: proposal.total_amount,
+                status: 'completed',
+                stripe_payment_intent_id: session.payment_intent as string,
+                proposal_id: proposal.id,
+                sales_session_id: proposal.sales_session_id,
+              })
+              .select()
+              .single();
+            
+            if (orderError) {
+              console.error('Error creating order for proposal:', orderError);
+            } else {
+              // Create order items from proposal line items
+              const orderItems = proposal.line_items.map((item: any) => ({
+                order_id: order.id,
+                product_id: item.content_type === 'product' ? item.content_id : null,
+                quantity: 1,
+                price: item.price,
+                total: item.price,
+                item_type: item.content_type,
+                item_name: item.title,
+                item_metadata: {
+                  content_type: item.content_type,
+                  content_id: item.content_id,
+                  offer_role: item.offer_role,
+                },
+              }));
+              
+              await supabaseAdmin
+                .from('order_items')
+                .insert(orderItems);
+              
+              // Update proposal with order ID and status
+              await supabaseAdmin
+                .from('proposals')
+                .update({
+                  status: 'paid',
+                  paid_at: new Date().toISOString(),
+                  order_id: order.id,
+                  stripe_payment_intent_id: session.payment_intent as string,
+                })
+                .eq('id', proposalId);
+              
+              // Update sales session outcome if linked
+              if (proposal.sales_session_id) {
+                await supabaseAdmin
+                  .from('sales_sessions')
+                  .update({
+                    outcome: 'converted',
+                    actual_revenue: proposal.total_amount,
+                  })
+                  .eq('id', proposal.sales_session_id);
+              }
+              
+              console.log(`Proposal ${proposalId} marked as paid, order ${order.id} created`);
+            }
+          }
+        }
+        break;
+      }
+
       case 'payment_intent.succeeded': {
         const paymentIntent = event.data.object as Stripe.PaymentIntent
         const orderId = paymentIntent.metadata?.orderId

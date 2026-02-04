@@ -7,6 +7,15 @@ import { createClient } from '@supabase/supabase-js';
 // Types
 // ============================================================================
 
+export type ContentType = 
+  | 'product'
+  | 'project'
+  | 'video'
+  | 'publication'
+  | 'music'
+  | 'lead_magnet'
+  | 'prototype';
+
 export type OfferRole = 
   | 'core_offer' 
   | 'bonus' 
@@ -227,6 +236,205 @@ export interface ProductWithRole extends Product {
   payout_type: PayoutType | null;
 }
 
+// Generic content item that can be any content type
+export interface ContentItem {
+  content_type: ContentType;
+  content_id: string;
+  title: string;
+  description: string | null;
+  subtype: string | null;
+  price: number | null;
+  image_url: string | null;
+  is_active: boolean;
+  display_order: number;
+  created_at: string;
+}
+
+export interface ContentWithRole extends ContentItem {
+  role_id: string | null;
+  offer_role: OfferRole | null;
+  dream_outcome_description: string | null;
+  likelihood_multiplier: number | null;
+  time_reduction: number | null;
+  effort_reduction: number | null;
+  role_retail_price: number | null;
+  offer_price: number | null;
+  perceived_value: number | null;
+  bonus_name: string | null;
+  bonus_description: string | null;
+  qualifying_actions: Record<string, unknown> | null;
+  payout_type: PayoutType | null;
+}
+
+// ============================================================================
+// Offer Bundle Types
+// ============================================================================
+
+// Bundle item with override capabilities
+// Overrides take precedence over content_offer_roles - they do NOT modify original content
+export interface BundleItem {
+  content_type: ContentType;
+  content_id: string;
+  display_order: number;
+  is_optional?: boolean;
+  
+  // Override fields - take precedence over content_offer_roles when set
+  // These are LOCAL to the bundle and do NOT affect the canonical classification
+  override_role?: OfferRole;
+  override_price?: number;
+  override_perceived_value?: number;
+  override_dream_outcome?: string;
+  override_bonus_name?: string;
+  override_bonus_goal_relation?: string;
+  override_likelihood?: number;
+  override_time_reduction?: number;
+  override_effort_reduction?: number;
+}
+
+// Resolved item with canonical + override values merged for display
+export interface ResolvedBundleItem extends ContentWithRole {
+  display_order: number;
+  is_optional: boolean;
+  has_overrides: boolean;  // true if any override_* field was applied
+  // Store original values for comparison/display
+  original_role?: OfferRole;
+  original_price?: number;
+  original_perceived_value?: number;
+}
+
+// Offer bundle template
+export interface OfferBundle {
+  id: string;
+  name: string;
+  description?: string;
+  parent_bundle_id?: string;  // For lineage tracking (forked bundles)
+  bundle_type: 'standard' | 'custom';
+  bundle_items: BundleItem[];
+  total_retail_value?: number;
+  total_perceived_value?: number;
+  bundle_price?: number;
+  default_discount_percent?: number;
+  target_funnel_stages?: FunnelStage[];
+  notes?: string;
+  is_active: boolean;
+  created_by?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// Working bundle during a sales session
+export interface SessionBundle {
+  source_bundle_id?: string;  // Original template (if started from one)
+  source_bundle_name?: string;
+  items: ResolvedBundleItem[];
+  is_modified: boolean;       // true if any changes made from source
+  modifications_count: number;
+}
+
+// Bundle with stats for list views
+export interface BundlePreviewItem {
+  content_type: ContentType;
+  content_id: string;
+  title: string;
+}
+
+export interface OfferBundleWithStats extends OfferBundle {
+  item_count: number;
+  parent_name?: string;
+  fork_count: number;
+  preview_items?: BundlePreviewItem[];
+}
+
+// ============================================================================
+// Bundle Helper Functions
+// ============================================================================
+
+// Resolve a single bundle item by merging overrides with canonical classification
+export function resolveBundleItem(
+  item: BundleItem, 
+  contentRole: ContentWithRole
+): ResolvedBundleItem {
+  const hasOverrides = !!(
+    item.override_role !== undefined ||
+    item.override_price !== undefined ||
+    item.override_perceived_value !== undefined ||
+    item.override_dream_outcome !== undefined ||
+    item.override_bonus_name !== undefined
+  );
+  
+  return {
+    ...contentRole,
+    display_order: item.display_order,
+    is_optional: item.is_optional ?? false,
+    has_overrides: hasOverrides,
+    // Apply overrides (or keep canonical)
+    offer_role: item.override_role ?? contentRole.offer_role,
+    role_retail_price: item.override_price ?? contentRole.role_retail_price,
+    perceived_value: item.override_perceived_value ?? contentRole.perceived_value,
+    dream_outcome_description: item.override_dream_outcome ?? contentRole.dream_outcome_description,
+    bonus_name: item.override_bonus_name ?? contentRole.bonus_name,
+    likelihood_multiplier: item.override_likelihood ?? contentRole.likelihood_multiplier,
+    time_reduction: item.override_time_reduction ?? contentRole.time_reduction,
+    effort_reduction: item.override_effort_reduction ?? contentRole.effort_reduction,
+    // Store originals for comparison
+    original_role: contentRole.offer_role ?? undefined,
+    original_price: contentRole.role_retail_price ?? undefined,
+    original_perceived_value: contentRole.perceived_value ?? undefined,
+  };
+}
+
+// Calculate bundle totals from resolved items
+export function calculateBundleTotals(items: ResolvedBundleItem[]): {
+  totalRetailValue: number;
+  totalPerceivedValue: number;
+  itemCount: number;
+  coreOfferCount: number;
+  bonusCount: number;
+} {
+  return items.reduce((acc, item) => {
+    acc.totalRetailValue += item.role_retail_price ?? item.price ?? 0;
+    acc.totalPerceivedValue += item.perceived_value ?? item.role_retail_price ?? item.price ?? 0;
+    acc.itemCount++;
+    if (item.offer_role === 'core_offer') acc.coreOfferCount++;
+    if (item.offer_role === 'bonus') acc.bonusCount++;
+    return acc;
+  }, {
+    totalRetailValue: 0,
+    totalPerceivedValue: 0,
+    itemCount: 0,
+    coreOfferCount: 0,
+    bonusCount: 0,
+  });
+}
+
+// Create a BundleItem from a ResolvedBundleItem (for saving as new bundle)
+export function createBundleItemFromResolved(
+  resolved: ResolvedBundleItem,
+  includeOverrides: boolean = true
+): BundleItem {
+  const item: BundleItem = {
+    content_type: resolved.content_type,
+    content_id: resolved.content_id,
+    display_order: resolved.display_order,
+    is_optional: resolved.is_optional,
+  };
+  
+  if (includeOverrides && resolved.has_overrides) {
+    // Only include overrides if they differ from originals
+    if (resolved.offer_role !== resolved.original_role) {
+      item.override_role = resolved.offer_role ?? undefined;
+    }
+    if (resolved.role_retail_price !== resolved.original_price) {
+      item.override_price = resolved.role_retail_price ?? undefined;
+    }
+    if (resolved.perceived_value !== resolved.original_perceived_value) {
+      item.override_perceived_value = resolved.perceived_value ?? undefined;
+    }
+  }
+  
+  return item;
+}
+
 export interface ScriptStep {
   id: string;
   title: string;
@@ -320,14 +528,48 @@ export const OFFER_ROLE_DESCRIPTIONS: Record<OfferRole, string> = {
 };
 
 export const OFFER_ROLE_COLORS: Record<OfferRole, string> = {
-  core_offer: 'bg-blue-100 text-blue-800 border-blue-300',
-  bonus: 'bg-green-100 text-green-800 border-green-300',
-  upsell: 'bg-purple-100 text-purple-800 border-purple-300',
-  downsell: 'bg-orange-100 text-orange-800 border-orange-300',
-  continuity: 'bg-teal-100 text-teal-800 border-teal-300',
-  lead_magnet: 'bg-pink-100 text-pink-800 border-pink-300',
-  decoy: 'bg-gray-100 text-gray-800 border-gray-300',
-  anchor: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+  core_offer: 'bg-blue-900/50 text-blue-300 border-blue-500',
+  bonus: 'bg-green-900/50 text-green-300 border-green-500',
+  upsell: 'bg-purple-900/50 text-purple-300 border-purple-500',
+  downsell: 'bg-orange-900/50 text-orange-300 border-orange-500',
+  continuity: 'bg-teal-900/50 text-teal-300 border-teal-500',
+  lead_magnet: 'bg-pink-900/50 text-pink-300 border-pink-500',
+  decoy: 'bg-gray-700/50 text-gray-300 border-gray-500',
+  anchor: 'bg-yellow-900/50 text-yellow-300 border-yellow-500',
+};
+
+// ============================================================================
+// Content Type Display Helpers
+// ============================================================================
+
+export const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
+  product: 'Merchandise',
+  project: 'Project',
+  video: 'Video',
+  publication: 'Publication',
+  music: 'Music',
+  lead_magnet: 'Lead Magnet',
+  prototype: 'Prototype',
+};
+
+export const CONTENT_TYPE_ICONS: Record<ContentType, string> = {
+  product: '🛍️',
+  project: '📁',
+  video: '🎬',
+  publication: '📚',
+  music: '🎵',
+  lead_magnet: '📥',
+  prototype: '✨',
+};
+
+export const CONTENT_TYPE_COLORS: Record<ContentType, string> = {
+  product: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50',
+  project: 'bg-blue-500/20 text-blue-400 border-blue-500/50',
+  video: 'bg-red-500/20 text-red-400 border-red-500/50',
+  publication: 'bg-teal-500/20 text-teal-400 border-teal-500/50',
+  music: 'bg-purple-500/20 text-purple-400 border-purple-500/50',
+  lead_magnet: 'bg-orange-500/20 text-orange-400 border-orange-500/50',
+  prototype: 'bg-pink-500/20 text-pink-400 border-pink-500/50',
 };
 
 export const FUNNEL_STAGE_LABELS: Record<FunnelStage, string> = {

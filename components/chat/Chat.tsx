@@ -151,10 +151,6 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       const response = await fetch(`/api/chat/diagnostic?sessionId=${sessionId}`)
       if (response.ok) {
         const data = await response.json()
-        // #region agent log
-        console.log('[Chat Debug] loadDiagnosticStatus response:', { sessionId, hasAudit: !!data.audit, auditStatus: data.audit?.status, auditId: data.audit?.id });
-        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'components/chat/Chat.tsx:loadDiagnosticStatus',message:'loadDiagnosticStatus response',data:{sessionId,hasAudit:!!data.audit,auditStatus:data.audit?.status,auditId:data.audit?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-        // #endregion
         if (data.audit) {
           setIsDiagnosticMode(data.audit.status === 'in_progress')
           setDiagnosticAuditId(data.audit.id)
