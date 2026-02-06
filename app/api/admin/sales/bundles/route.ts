@@ -15,6 +15,7 @@ const CONTENT_TABLE_MAP: Record<ContentType, string> = {
   music: 'music',
   lead_magnet: 'lead_magnets',
   prototype: 'app_prototypes',
+  service: 'services',
 };
 
 // Preview item type

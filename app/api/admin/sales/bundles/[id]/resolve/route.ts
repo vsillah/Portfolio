@@ -20,6 +20,7 @@ const CONTENT_TABLE_MAP: Record<ContentType, { table: string; imageField: string
   music: { table: 'music', imageField: null },
   lead_magnet: { table: 'lead_magnets', imageField: null },
   prototype: { table: 'app_prototypes', imageField: 'thumbnail_url' },
+  service: { table: 'services', imageField: 'image_url' },
 };
 
 // GET - Resolve bundle items with canonical + override values

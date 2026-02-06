@@ -1,0 +1,74 @@
+---
+description: Guidelines for creating admin functionality
+globs:
+  - app/admin/**/*
+---
+
+# Admin Feature Development Guidelines
+
+When creating new admin functionality (pages, dashboards, tools) under `/app/admin/`, you MUST complete ALL of the following steps:
+
+## Required Checklist
+
+### 1. Create the Admin Page
+- Create the page at `app/admin/{feature}/page.tsx`
+- Use the existing admin UI patterns (dark theme, gradient cards, etc.)
+- Wrap with `<ProtectedRoute requireAdmin>` for access control
+
+### 2. Add Navigation to Admin Dashboard
+**CRITICAL: This step is mandatory and must not be skipped.**
+
+After creating any new admin page, you MUST add a Quick Action card to the main admin dashboard at `app/admin/page.tsx`:
+
+```tsx
+<Link href="/admin/{feature}">
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    className="p-6 bg-gradient-to-r from-{color}-600/20 to-{color2}-600/20 border border-{color}-500/50 rounded-xl cursor-pointer"
+  >
+    <div className="flex items-center gap-4">
+      <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-{color}-600 to-{color2}-600 flex items-center justify-center">
+        <{Icon} size={32} className="text-white" />
+      </div>
+      <div>
+        <h3 className="text-xl font-bold mb-1">{Feature Name}</h3>
+        <p className="text-gray-400 text-sm">{Brief description}</p>
+      </div>
+    </div>
+  </motion.div>
+</Link>
+```
+
+Also add the icon import at the top of the file from `lucide-react`.
+
+### 3. Update Any Relevant Documentation
+- If the feature requires setup (database schema, env vars, etc.), document it
+- Update README or create a setup guide if needed
+
+## Color Palette for Admin Cards
+
+Use these gradient combinations for consistency:
+- **Chat/Communication**: amber → orange
+- **Analytics/Data**: purple → pink  
+- **Content/Settings**: blue → cyan
+- **Users/Management**: green → teal
+- **System/Config**: cyan → blue
+- **Sales/Revenue**: emerald → teal
+- **Testing/QA**: rose → red
+- **Alerts/Warnings**: yellow → orange
+
+## Plan Template
+
+When planning new admin features, include this section:
+
+```
+### Admin Dashboard Integration
+- [ ] Add Quick Action card to `/app/admin/page.tsx`
+- [ ] Import icon from lucide-react
+- [ ] Choose appropriate gradient colors
+- [ ] Write concise description
+```
+
+## Why This Matters
+
+Admin features that aren't visible from the dashboard are effectively hidden and unusable. Users expect to discover and access all admin functionality from the central dashboard.

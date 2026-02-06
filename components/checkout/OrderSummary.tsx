@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { DollarSign, Plus, Minus, Trash2, Edit2, X, Check } from 'lucide-react'
+import { DollarSign, Plus, Minus, Trash2, Edit2, X, Check, Clock, Users } from 'lucide-react'
 
 export interface ProductVariant {
   id: number
@@ -24,23 +24,41 @@ interface Product {
   is_print_on_demand?: boolean
 }
 
+interface Service {
+  id: string
+  title: string
+  description: string | null
+  service_type: string
+  delivery_method: string
+  duration_description: string | null
+  price: number | null
+  is_quote_based: boolean
+  image_url: string | null
+}
+
 interface CartItem {
-  productId: number
+  productId?: number
+  serviceId?: string
   quantity: number
   variantId?: number
   printfulVariantId?: number
+  itemType: 'product' | 'service'
 }
 
 interface OrderSummaryProps {
   cartItems: CartItem[]
   products: Record<number, Product>
+  services?: Record<string, Service>
   variants?: Record<number, ProductVariant[]> // productId -> variants
   subtotal: number
   discountAmount: number
   finalTotal: number
+  hasQuoteBasedItems?: boolean
   editable?: boolean
   onQuantityChange?: (productId: number, quantity: number, variantId?: number) => void
+  onServiceQuantityChange?: (serviceId: string, quantity: number) => void
   onRemoveItem?: (productId: number, variantId?: number) => void
+  onRemoveService?: (serviceId: string) => void
   onVariantChange?: (productId: number, oldVariantId: number | undefined, newVariantId: number, printfulVariantId: number) => void
 }
 
@@ -64,38 +82,55 @@ const sortSizes = (sizes: string[]): string[] => {
 export default function OrderSummary({
   cartItems,
   products,
+  services = {},
   variants = {},
   subtotal,
   discountAmount,
   finalTotal,
+  hasQuoteBasedItems = false,
   editable = false,
   onQuantityChange,
+  onServiceQuantityChange,
   onRemoveItem,
+  onRemoveService,
   onVariantChange,
 }: OrderSummaryProps) {
   const hasPaidItems = subtotal > 0
   const [editingItem, setEditingItem] = useState<{ productId: number; variantId?: number } | null>(null)
 
   const getItemPrice = (item: CartItem): number | null => {
-    const product = products[item.productId]
-    if (!product) return null
-
-    // For merchandise with variants, get variant price
-    if (item.variantId && variants[item.productId]) {
-      const variant = variants[item.productId].find(v => v.id === item.variantId)
-      if (variant) return variant.price
+    if (item.itemType === 'service' && item.serviceId) {
+      const service = services[item.serviceId]
+      if (!service || service.is_quote_based) return null
+      return service.price
     }
 
-    return product.price
+    if (item.itemType === 'product' && item.productId) {
+      const product = products[item.productId]
+      if (!product) return null
+
+      // For merchandise with variants, get variant price
+      if (item.variantId && variants[item.productId]) {
+        const variant = variants[item.productId].find(v => v.id === item.variantId)
+        if (variant) return variant.price
+      }
+
+      return product.price
+    }
+
+    return null
   }
 
   const getItemVariant = (item: CartItem): ProductVariant | null => {
-    if (!item.variantId || !variants[item.productId]) return null
+    if (!item.productId || !item.variantId || !variants[item.productId]) return null
     return variants[item.productId].find(v => v.id === item.variantId) || null
   }
 
   const getUniqueKey = (item: CartItem): string => {
-    return `${item.productId}-${item.variantId || 'no-variant'}`
+    if (item.itemType === 'service' && item.serviceId) {
+      return `service-${item.serviceId}`
+    }
+    return `product-${item.productId}-${item.variantId || 'no-variant'}`
   }
 
   return (
@@ -105,133 +140,247 @@ export default function OrderSummary({
       {/* Items */}
       <div className="space-y-4 mb-4 max-h-96 overflow-y-auto">
         {cartItems.map((item) => {
-          const product = products[item.productId]
-          if (!product) return null
+          // Render service item
+          if (item.itemType === 'service' && item.serviceId) {
+            const service = services[item.serviceId]
+            if (!service) return null
 
-          const price = getItemPrice(item)
-          const variant = getItemVariant(item)
-          const productVariants = variants[item.productId] || []
-          const isEditing = editingItem?.productId === item.productId && editingItem?.variantId === item.variantId
-          const hasVariants = productVariants.length > 0
+            const price = service.is_quote_based ? null : service.price
 
-          return (
-            <motion.div
-              key={getUniqueKey(item)}
-              layout
-              className="bg-gray-800/50 rounded-lg p-3"
-            >
-              <div className="flex items-start gap-3">
-                {/* Product Image */}
-                <div className="w-14 h-14 bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
-                  {product.image_url ? (
-                    <img
-                      src={product.image_url}
-                      alt={product.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <DollarSign className="text-gray-600" size={20} />
-                  )}
-                </div>
+            return (
+              <motion.div
+                key={getUniqueKey(item)}
+                layout
+                className="bg-gray-800/50 rounded-lg p-3"
+              >
+                <div className="flex items-start gap-3">
+                  {/* Service Image */}
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-900/20 to-green-900/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    {service.image_url ? (
+                      <img
+                        src={service.image_url}
+                        alt={service.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Users className="text-gray-600" size={20} />
+                    )}
+                  </div>
 
-                {/* Product Info */}
-                <div className="flex-1 min-w-0">
-                  <p className="text-white font-medium text-sm line-clamp-1">{product.title}</p>
-                  
-                  {/* Variant info */}
-                  {variant && (
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {variant.size && <span>{variant.size}</span>}
-                      {variant.size && variant.color && <span> / </span>}
-                      {variant.color && <span>{variant.color}</span>}
+                  {/* Service Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-white font-medium text-sm line-clamp-1">{service.title}</p>
+                      <span className="px-1.5 py-0.5 text-[10px] bg-blue-600/20 text-blue-400 rounded">
+                        Service
+                      </span>
+                    </div>
+                    
+                    {/* Duration info */}
+                    {service.duration_description && (
+                      <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+                        <Clock size={10} />
+                        {service.duration_description}
+                      </p>
+                    )}
+
+                    {/* Price per item */}
+                    <p className="text-xs text-gray-500 mt-1">
+                      {service.is_quote_based 
+                        ? 'Contact for Pricing' 
+                        : price !== null 
+                          ? `$${price.toFixed(2)} each` 
+                          : 'Free'}
                     </p>
-                  )}
 
-                  {/* Price per item */}
-                  <p className="text-xs text-gray-500 mt-1">
-                    {price !== null ? `$${price.toFixed(2)} each` : 'Free'}
-                  </p>
+                    {/* Quantity and Actions */}
+                    {editable ? (
+                      <div className="flex items-center gap-2 mt-2">
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-1 bg-gray-700 rounded">
+                          <button
+                            onClick={() => onServiceQuantityChange?.(item.serviceId!, Math.max(1, item.quantity - 1))}
+                            className="p-1 hover:bg-gray-600 rounded-l transition-colors"
+                            title="Decrease quantity"
+                          >
+                            <Minus size={12} />
+                          </button>
+                          <span className="text-xs text-white w-6 text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => onServiceQuantityChange?.(item.serviceId!, item.quantity + 1)}
+                            className="p-1 hover:bg-gray-600 rounded-r transition-colors"
+                            title="Increase quantity"
+                          >
+                            <Plus size={12} />
+                          </button>
+                        </div>
 
-                  {/* Quantity and Actions */}
-                  {editable ? (
-                    <div className="flex items-center gap-2 mt-2">
-                      {/* Quantity Controls */}
-                      <div className="flex items-center gap-1 bg-gray-700 rounded">
+                        {/* Delete Button */}
                         <button
-                          onClick={() => onQuantityChange?.(item.productId, Math.max(1, item.quantity - 1), item.variantId)}
-                          className="p-1 hover:bg-gray-600 rounded-l transition-colors"
-                          title="Decrease quantity"
+                          onClick={() => onRemoveService?.(item.serviceId!)}
+                          className="p-1.5 bg-gray-700 hover:bg-red-600/20 text-gray-400 hover:text-red-400 rounded transition-colors ml-auto"
+                          title="Remove item"
                         >
-                          <Minus size={12} />
-                        </button>
-                        <span className="text-xs text-white w-6 text-center">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => onQuantityChange?.(item.productId, item.quantity + 1, item.variantId)}
-                          className="p-1 hover:bg-gray-600 rounded-r transition-colors"
-                          title="Increase quantity"
-                        >
-                          <Plus size={12} />
+                          <Trash2 size={12} />
                         </button>
                       </div>
+                    ) : (
+                      <p className="text-xs text-gray-400 mt-1">Qty: {item.quantity}</p>
+                    )}
+                  </div>
 
-                      {/* Edit Variant Button */}
-                      {hasVariants && (
+                  {/* Item Total */}
+                  <div className="text-white font-semibold text-sm">
+                    {service.is_quote_based
+                      ? 'Quote'
+                      : price !== null
+                        ? `$${(price * item.quantity).toFixed(2)}`
+                        : 'Free'}
+                  </div>
+                </div>
+              </motion.div>
+            )
+          }
+
+          // Render product item
+          if (item.itemType === 'product' && item.productId) {
+            const product = products[item.productId]
+            if (!product) return null
+
+            const price = getItemPrice(item)
+            const variant = getItemVariant(item)
+            const productVariants = variants[item.productId] || []
+            const isEditing = editingItem?.productId === item.productId && editingItem?.variantId === item.variantId
+            const hasVariants = productVariants.length > 0
+
+            return (
+              <motion.div
+                key={getUniqueKey(item)}
+                layout
+                className="bg-gray-800/50 rounded-lg p-3"
+              >
+                <div className="flex items-start gap-3">
+                  {/* Product Image */}
+                  <div className="w-14 h-14 bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                    {product.image_url ? (
+                      <img
+                        src={product.image_url}
+                        alt={product.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <DollarSign className="text-gray-600" size={20} />
+                    )}
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-white font-medium text-sm line-clamp-1">{product.title}</p>
+                    
+                    {/* Variant info */}
+                    {variant && (
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {variant.size && <span>{variant.size}</span>}
+                        {variant.size && variant.color && <span> / </span>}
+                        {variant.color && <span>{variant.color}</span>}
+                      </p>
+                    )}
+
+                    {/* Price per item */}
+                    <p className="text-xs text-gray-500 mt-1">
+                      {price !== null ? `$${price.toFixed(2)} each` : 'Free'}
+                    </p>
+
+                    {/* Quantity and Actions */}
+                    {editable ? (
+                      <div className="flex items-center gap-2 mt-2">
+                        {/* Quantity Controls */}
+                        <div className="flex items-center gap-1 bg-gray-700 rounded">
+                          <button
+                            onClick={() => onQuantityChange?.(item.productId!, Math.max(1, item.quantity - 1), item.variantId)}
+                            className="p-1 hover:bg-gray-600 rounded-l transition-colors"
+                            title="Decrease quantity"
+                          >
+                            <Minus size={12} />
+                          </button>
+                          <span className="text-xs text-white w-6 text-center">
+                            {item.quantity}
+                          </span>
+                          <button
+                            onClick={() => onQuantityChange?.(item.productId!, item.quantity + 1, item.variantId)}
+                            className="p-1 hover:bg-gray-600 rounded-r transition-colors"
+                            title="Increase quantity"
+                          >
+                            <Plus size={12} />
+                          </button>
+                        </div>
+
+                        {/* Edit Variant Button */}
+                        {hasVariants && (
+                          <button
+                            onClick={() => setEditingItem(isEditing ? null : { productId: item.productId!, variantId: item.variantId })}
+                            className={`p-1.5 rounded transition-colors ${
+                              isEditing ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                            }`}
+                            title="Edit size/color"
+                          >
+                            <Edit2 size={12} />
+                          </button>
+                        )}
+
+                        {/* Delete Button */}
                         <button
-                          onClick={() => setEditingItem(isEditing ? null : { productId: item.productId, variantId: item.variantId })}
-                          className={`p-1.5 rounded transition-colors ${
-                            isEditing ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
-                          }`}
-                          title="Edit size/color"
+                          onClick={() => onRemoveItem?.(item.productId!, item.variantId)}
+                          className="p-1.5 bg-gray-700 hover:bg-red-600/20 text-gray-400 hover:text-red-400 rounded transition-colors ml-auto"
+                          title="Remove item"
                         >
-                          <Edit2 size={12} />
+                          <Trash2 size={12} />
                         </button>
-                      )}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-400 mt-1">Qty: {item.quantity}</p>
+                    )}
+                  </div>
 
-                      {/* Delete Button */}
-                      <button
-                        onClick={() => onRemoveItem?.(item.productId, item.variantId)}
-                        className="p-1.5 bg-gray-700 hover:bg-red-600/20 text-gray-400 hover:text-red-400 rounded transition-colors ml-auto"
-                        title="Remove item"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-gray-400 mt-1">Qty: {item.quantity}</p>
+                  {/* Item Total */}
+                  <div className="text-white font-semibold text-sm">
+                    {price !== null
+                      ? `$${(price * item.quantity).toFixed(2)}`
+                      : 'Free'}
+                  </div>
+                </div>
+
+                {/* Variant Editor */}
+                <AnimatePresence>
+                  {isEditing && hasVariants && (
+                    <VariantEditor
+                      variants={productVariants}
+                      currentVariantId={item.variantId}
+                      onSelect={(newVariant) => {
+                        onVariantChange?.(item.productId!, item.variantId, newVariant.id, newVariant.printful_variant_id)
+                        setEditingItem(null)
+                      }}
+                      onClose={() => setEditingItem(null)}
+                    />
                   )}
-                </div>
+                </AnimatePresence>
+              </motion.div>
+            )
+          }
 
-                {/* Item Total */}
-                <div className="text-white font-semibold text-sm">
-                  {price !== null
-                    ? `$${(price * item.quantity).toFixed(2)}`
-                    : 'Free'}
-                </div>
-              </div>
-
-              {/* Variant Editor */}
-              <AnimatePresence>
-                {isEditing && hasVariants && (
-                  <VariantEditor
-                    variants={productVariants}
-                    currentVariantId={item.variantId}
-                    onSelect={(newVariant) => {
-                      onVariantChange?.(item.productId, item.variantId, newVariant.id, newVariant.printful_variant_id)
-                      setEditingItem(null)
-                    }}
-                    onClose={() => setEditingItem(null)}
-                  />
-                )}
-              </AnimatePresence>
-            </motion.div>
-          )
+          return null
         })}
       </div>
 
       {/* Totals */}
       <div className="border-t border-gray-800 pt-4 space-y-2">
+        {hasQuoteBasedItems && (
+          <div className="p-2 bg-yellow-600/10 border border-yellow-600/30 rounded text-xs text-yellow-400 mb-2">
+            Some items require a custom quote
+          </div>
+        )}
         <div className="flex justify-between text-gray-400">
           <span>Subtotal</span>
           <span>{hasPaidItems ? `$${subtotal.toFixed(2)}` : 'Free'}</span>
@@ -248,7 +397,13 @@ export default function OrderSummary({
         )}
         <div className="flex justify-between text-xl font-bold text-white pt-2 border-t border-gray-800">
           <span>Total</span>
-          <span>{hasPaidItems ? `$${finalTotal.toFixed(2)}` : 'Free'}</span>
+          <span>
+            {hasQuoteBasedItems 
+              ? `$${finalTotal.toFixed(2)}+`
+              : hasPaidItems 
+                ? `$${finalTotal.toFixed(2)}` 
+                : 'Free'}
+          </span>
         </div>
       </div>
     </div>

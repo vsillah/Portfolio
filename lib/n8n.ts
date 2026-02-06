@@ -4,6 +4,150 @@
  */
 
 // ============================================================================
+// Mock Mode Configuration
+// ============================================================================
+
+/**
+ * Check if mock mode is enabled
+ * Set MOCK_N8N=true to bypass n8n calls and return mock responses for testing
+ */
+const MOCK_N8N = process.env.MOCK_N8N === 'true'
+
+/**
+ * Generate mock chat response for testing
+ */
+function generateMockChatResponse(message: string, diagnosticMode?: boolean): {
+  response: string
+  escalated: boolean
+  metadata: Record<string, unknown>
+} {
+  const lowerMessage = message.toLowerCase()
+  
+  // Simulate escalation for certain keywords
+  if (lowerMessage.includes('urgent') || lowerMessage.includes('speak to someone')) {
+    return {
+      response: "I understand this is urgent. Let me connect you with our team right away. Someone will reach out within the hour.",
+      escalated: true,
+      metadata: { mock: true, escalationReason: 'urgent_request' }
+    }
+  }
+  
+  // Simulate diagnostic trigger
+  if (lowerMessage.includes('audit') || lowerMessage.includes('diagnostic') || lowerMessage.includes('assessment')) {
+    return {
+      response: "I'd be happy to help you with a business diagnostic assessment. This will help us understand your current challenges and identify opportunities for improvement. Let's start with your business challenges - what are the main pain points you're facing right now?",
+      escalated: false,
+      metadata: { mock: true, diagnosticTriggered: true }
+    }
+  }
+  
+  // Default responses based on intent
+  if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+    return {
+      response: "Hello! Welcome to our consulting services. I'm here to help you explore how we can support your business goals. What brings you here today?",
+      escalated: false,
+      metadata: { mock: true, intent: 'greeting' }
+    }
+  }
+  
+  if (lowerMessage.includes('services') || lowerMessage.includes('help')) {
+    return {
+      response: "We offer a range of consulting services including AI strategy, automation implementation, and business process optimization. Would you like to learn more about any specific service, or would you prefer to do a quick diagnostic to identify your biggest opportunities?",
+      escalated: false,
+      metadata: { mock: true, intent: 'inquiry' }
+    }
+  }
+  
+  // Generic response
+  return {
+    response: "Thank you for your message. Based on what you've shared, I can help guide you to the right solution. Would you like to tell me more about your specific needs or challenges?",
+    escalated: false,
+    metadata: { mock: true, intent: 'general' }
+  }
+}
+
+/**
+ * Generate mock diagnostic response for testing
+ * Simulates a complete diagnostic flow with realistic data
+ */
+function generateMockDiagnosticResponse(
+  message: string,
+  currentCategory?: string,
+  progress?: DiagnosticProgress
+): DiagnosticResponse {
+  const categories: DiagnosticCategory[] = [
+    'business_challenges',
+    'tech_stack', 
+    'automation_needs',
+    'ai_readiness',
+    'budget_timeline',
+    'decision_making'
+  ]
+  
+  const completedCategories = progress?.completedCategories || []
+  const nextCategoryIndex = completedCategories.length
+  
+  // Check if all categories are complete
+  if (nextCategoryIndex >= categories.length) {
+    return {
+      response: "Thank you for completing the diagnostic assessment! Based on your responses, I've identified several key opportunities for improvement. Your overall readiness score is strong, and I recommend focusing on automation and AI integration as your next steps. I'll send you a detailed report with specific recommendations.",
+      diagnosticData: {
+        diagnostic_summary: 'Business shows strong potential for AI/automation adoption',
+        urgency_score: 7,
+        opportunity_score: 8,
+        recommended_actions: ['ai_strategy', 'automation_audit', 'process_optimization'],
+        key_insights: [
+          'Multiple manual processes identified for automation',
+          'Strong leadership buy-in for digital transformation',
+          'Clear budget allocation for technology investments'
+        ],
+        business_challenges: { primary: ['manual_processes', 'scaling_issues'], impact: 'high' },
+        tech_stack: { current: ['spreadsheets', 'basic_crm'], readiness: 'medium' },
+        automation_needs: { priority_areas: ['data_entry', 'reporting'], potential_savings: 'significant' },
+        ai_readiness: { data_quality: 'good', team_readiness: 'moderate' },
+        budget_timeline: { budget_range: '$10k-50k', timeline: 'Q2 2026' },
+        decision_making: { decision_maker: true, stakeholders: ['CEO', 'CTO'] }
+      },
+      currentCategory: undefined,
+      isComplete: true,
+      nextQuestion: undefined,
+      progress: {
+        completedCategories: categories,
+        currentCategory: undefined,
+        questionsAsked: [],
+        responsesReceived: {}
+      },
+      metadata: { mock: true, diagnosticComplete: true }
+    }
+  }
+  
+  const nextCategory = categories[nextCategoryIndex]
+  const questionMap: Record<DiagnosticCategory, string> = {
+    business_challenges: "Let's start by understanding your business challenges. What are the main pain points or inefficiencies you're currently facing?",
+    tech_stack: "What tools and systems are you currently using? This includes CRM, project management, communication tools, etc.",
+    automation_needs: "Which processes or tasks take up the most time that you'd like to automate?",
+    ai_readiness: "How would you describe your organization's readiness for AI adoption? Do you have clean data and processes documented?",
+    budget_timeline: "What budget range are you considering for improvements, and what's your ideal timeline?",
+    decision_making: "Are you the decision maker for technology investments, or who else would be involved?"
+  }
+  
+  return {
+    response: questionMap[nextCategory],
+    diagnosticData: undefined,
+    currentCategory: nextCategory,
+    isComplete: false,
+    nextQuestion: questionMap[nextCategory],
+    progress: {
+      completedCategories: [...completedCategories, currentCategory].filter(Boolean) as DiagnosticCategory[],
+      currentCategory: nextCategory,
+      questionsAsked: [],
+      responsesReceived: {}
+    },
+    metadata: { mock: true, categoryIndex: nextCategoryIndex }
+  }
+}
+
+// ============================================================================
 // Lead Qualification Types and Functions
 // ============================================================================
 
@@ -193,6 +337,12 @@ const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL
  * - chatInput: The user's message
  */
 export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatResponse> {
+  // Mock mode for testing - bypass n8n and return mock responses
+  if (MOCK_N8N) {
+    console.log('[MOCK_N8N] Returning mock response for chat')
+    return generateMockChatResponse(request.message, request.diagnosticMode)
+  }
+
   if (!N8N_WEBHOOK_URL) {
     throw new Error('N8N_WEBHOOK_URL environment variable is not configured')
   }
@@ -262,7 +412,30 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
       throw new Error(`n8n webhook returned ${response.status}: ${errorText}`)
     }
 
-    const data = await response.json()
+    // Read body text to check for empty response
+    const bodyText = await response.text()
+
+    // Handle empty response body gracefully
+    if (bodyText.length === 0) {
+      console.warn('n8n webhook returned empty response - check workflow configuration')
+      return {
+        response: "I apologize, but I'm having trouble processing your request right now. Please try again or use the contact form for assistance.",
+        escalated: false,
+        metadata: { emptyResponse: true, fallback: true }
+      }
+    }
+
+    let data: unknown
+    try {
+      data = JSON.parse(bodyText)
+    } catch (parseError) {
+      console.error('Failed to parse n8n response:', bodyText.substring(0, 200))
+      return {
+        response: "I apologize, but I received an unexpected response. Please try again.",
+        escalated: false,
+        metadata: { parseError: true, fallback: true }
+      }
+    }
 
     // Handle different response formats from n8n
     let result = Array.isArray(data) ? data[0] : data
@@ -314,6 +487,16 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
  * Can use separate webhook URL or same webhook with routing
  */
 export async function sendDiagnosticToN8n(request: DiagnosticAuditRequest): Promise<DiagnosticResponse> {
+  // Mock mode for testing - bypass n8n and return mock diagnostic responses
+  if (MOCK_N8N) {
+    console.log('[MOCK_N8N] Returning mock response for diagnostic')
+    return generateMockDiagnosticResponse(
+      request.message,
+      request.currentCategory,
+      request.progress
+    )
+  }
+
   const diagnosticWebhookUrl = process.env.N8N_DIAGNOSTIC_WEBHOOK_URL || N8N_WEBHOOK_URL
   
   if (!diagnosticWebhookUrl) {
@@ -357,7 +540,39 @@ export async function sendDiagnosticToN8n(request: DiagnosticAuditRequest): Prom
       throw new Error(`n8n diagnostic webhook returned ${response.status}: ${errorText}`)
     }
 
-    const data = await response.json()
+    // Read body text first to check for empty response
+    const bodyText = await response.text()
+    
+    // Handle empty response body gracefully
+    if (bodyText.length === 0) {
+      console.warn('n8n diagnostic webhook returned empty response - check workflow configuration')
+      return {
+        response: "I apologize, but I'm having trouble processing your diagnostic request right now. Please try again.",
+        diagnosticData: undefined,
+        currentCategory: undefined,
+        isComplete: false,
+        nextQuestion: undefined,
+        progress: undefined,
+        metadata: { emptyResponse: true, fallback: true }
+      }
+    }
+
+    let data: unknown
+    try {
+      data = JSON.parse(bodyText)
+    } catch (parseError) {
+      console.error('Failed to parse n8n diagnostic response:', bodyText.substring(0, 200))
+      return {
+        response: "I apologize, but I received an unexpected response. Please try again.",
+        diagnosticData: undefined,
+        currentCategory: undefined,
+        isComplete: false,
+        nextQuestion: undefined,
+        progress: undefined,
+        metadata: { parseError: true, fallback: true }
+      }
+    }
+
     const result = Array.isArray(data) ? data[0] : data
 
     // Extract response text - handle multiple response formats from n8n

@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
       shippingAddress,
       shippingCost,
       tax,
+      hasQuoteBasedItems,
     } = body
 
     if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
@@ -52,24 +53,46 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Separate product and service items
+    const productItems = cartItems.filter((item: any) => item.itemType === 'product')
+    const serviceItems = cartItems.filter((item: any) => item.itemType === 'service')
+
     // Fetch products and variants to get prices
-    const productIds = cartItems.map((item: { productId: number }) => item.productId)
-    const { data: products, error: productsError } = await supabaseAdmin
-      .from('products')
-      .select('id, price, is_print_on_demand')
-      .in('id', productIds)
+    const productIds = productItems.map((item: any) => item.productId)
+    const productMap = new Map<number, { price: number | null; isPrintOnDemand: boolean }>()
+    
+    if (productIds.length > 0) {
+      const { data: products, error: productsError } = await supabaseAdmin
+        .from('products')
+        .select('id, price, is_print_on_demand')
+        .in('id', productIds)
 
-    if (productsError) throw productsError
+      if (productsError) throw productsError
 
-    const productMap = new Map<number, { price: number | null; isPrintOnDemand: boolean }>(
-      products.map((p: { id: number; price: number | null; is_print_on_demand: boolean }) => [
-        p.id,
-        { price: p.price, isPrintOnDemand: p.is_print_on_demand },
-      ])
-    )
+      products.forEach((p: { id: number; price: number | null; is_print_on_demand: boolean }) => {
+        productMap.set(p.id, { price: p.price, isPrintOnDemand: p.is_print_on_demand })
+      })
+    }
+
+    // Fetch services to get prices
+    const serviceIds = serviceItems.map((item: any) => item.serviceId)
+    const serviceMap = new Map<string, { price: number | null; isQuoteBased: boolean }>()
+
+    if (serviceIds.length > 0) {
+      const { data: services, error: servicesError } = await supabaseAdmin
+        .from('services')
+        .select('id, price, is_quote_based')
+        .in('id', serviceIds)
+
+      if (servicesError) throw servicesError
+
+      services.forEach((s: { id: string; price: number | null; is_quote_based: boolean }) => {
+        serviceMap.set(s.id, { price: s.price, isQuoteBased: s.is_quote_based })
+      })
+    }
 
     // Fetch variants for merchandise items
-    const variantIds = cartItems
+    const variantIds = productItems
       .filter((item: any) => item.variantId)
       .map((item: any) => item.variantId)
     const variantMap = new Map<number, { price: number; printfulVariantId: string | null }>()
@@ -95,7 +118,7 @@ export async function POST(request: NextRequest) {
       total_amount: subtotal,
       discount_amount: discountAmount,
       final_amount: finalTotal,
-      status: finalTotal > 0 ? 'pending' : 'completed',
+      status: hasQuoteBasedItems ? 'quote_pending' : (finalTotal > 0 ? 'pending' : 'completed'),
       discount_code_id: discountCodeId,
     }
 
@@ -115,8 +138,8 @@ export async function POST(request: NextRequest) {
 
     if (orderError) throw orderError
 
-    // Create order items
-    const orderItems = cartItems.map((item: any) => {
+    // Create order items for products
+    const productOrderItems = productItems.map((item: any) => {
       let price = 0
       let productVariantId = null
       let printfulVariantId = null
@@ -136,6 +159,7 @@ export async function POST(request: NextRequest) {
       return {
         order_id: order.id,
         product_id: item.productId,
+        service_id: null,
         product_variant_id: productVariantId,
         printful_variant_id: printfulVariantId,
         quantity: item.quantity,
@@ -143,15 +167,37 @@ export async function POST(request: NextRequest) {
       }
     })
 
-    const { error: itemsError } = await supabaseAdmin
-      .from('order_items')
-      .insert(orderItems)
+    // Create order items for services
+    const serviceOrderItems = serviceItems.map((item: any) => {
+      const service = serviceMap.get(item.serviceId)
+      const price = service?.isQuoteBased ? 0 : (service?.price || 0)
 
-    if (itemsError) throw itemsError
+      return {
+        order_id: order.id,
+        product_id: null,
+        service_id: item.serviceId,
+        product_variant_id: null,
+        printful_variant_id: null,
+        quantity: item.quantity,
+        price_at_purchase: price,
+      }
+    })
+
+    // Insert all order items
+    const allOrderItems = [...productOrderItems, ...serviceOrderItems]
+    
+    if (allOrderItems.length > 0) {
+      const { error: itemsError } = await supabaseAdmin
+        .from('order_items')
+        .insert(allOrderItems)
+
+      if (itemsError) throw itemsError
+    }
 
     return NextResponse.json({
       success: true,
       order,
+      hasQuoteBasedItems,
     })
   } catch (error: any) {
     console.error('Error processing checkout:', error)

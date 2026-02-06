@@ -50,6 +50,7 @@ const CONTENT_TYPES: ContentType[] = [
   'music',
   'lead_magnet',
   'prototype',
+  'service',
 ];
 
 export default function ProductClassificationPage() {

@@ -14,7 +14,8 @@ export type ContentType =
   | 'publication'
   | 'music'
   | 'lead_magnet'
-  | 'prototype';
+  | 'prototype'
+  | 'service';
 
 export type OfferRole = 
   | 'core_offer' 
@@ -550,6 +551,7 @@ export const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
   music: 'Music',
   lead_magnet: 'Lead Magnet',
   prototype: 'Prototype',
+  service: 'Service',
 };
 
 export const CONTENT_TYPE_ICONS: Record<ContentType, string> = {
@@ -560,6 +562,7 @@ export const CONTENT_TYPE_ICONS: Record<ContentType, string> = {
   music: '🎵',
   lead_magnet: '📥',
   prototype: '✨',
+  service: '🎯',
 };
 
 export const CONTENT_TYPE_COLORS: Record<ContentType, string> = {
@@ -570,6 +573,7 @@ export const CONTENT_TYPE_COLORS: Record<ContentType, string> = {
   music: 'bg-purple-500/20 text-purple-400 border-purple-500/50',
   lead_magnet: 'bg-orange-500/20 text-orange-400 border-orange-500/50',
   prototype: 'bg-pink-500/20 text-pink-400 border-pink-500/50',
+  service: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/50',
 };
 
 export const FUNNEL_STAGE_LABELS: Record<FunnelStage, string> = {

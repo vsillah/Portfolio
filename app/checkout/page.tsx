@@ -114,6 +114,7 @@ export default function CheckoutPage() {
   }
 
   const getItemPrice = (item: CartItem): number | null => {
+    if (item.productId === undefined) return null
     const product = products[item.productId]
     if (!product) return null
 

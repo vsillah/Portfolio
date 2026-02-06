@@ -16,6 +16,7 @@ const CONTENT_TABLE_MAP: Record<ContentType, { table: string; idField: string; a
   music: { table: 'music', idField: 'id', activeField: 'is_published', imageField: null },
   lead_magnet: { table: 'lead_magnets', idField: 'id', activeField: 'is_active', imageField: null },
   prototype: { table: 'app_prototypes', idField: 'id', activeField: null, imageField: 'thumbnail_url' },
+  service: { table: 'services', idField: 'id', activeField: 'is_active', imageField: 'image_url' },
 };
 
 // GET - Fetch all content with their offer roles

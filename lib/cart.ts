@@ -1,13 +1,25 @@
 // Cart utilities for managing shopping cart state
 
 export interface CartItem {
-  productId: number
+  productId?: number          // For products (optional now)
+  serviceId?: string          // For services (UUID)
   quantity: number
-  variantId?: number // For merchandise variants
-  printfulVariantId?: number // Printful variant ID for fulfillment
+  variantId?: number          // For merchandise variants
+  printfulVariantId?: number  // Printful variant ID for fulfillment
+  itemType: 'product' | 'service' // Discriminator field
 }
 
 const CART_STORAGE_KEY = 'cart'
+
+// Helper to check if item is a product
+export function isProductItem(item: CartItem): item is CartItem & { productId: number } {
+  return item.itemType === 'product' && item.productId !== undefined
+}
+
+// Helper to check if item is a service
+export function isServiceItem(item: CartItem): item is CartItem & { serviceId: string } {
+  return item.itemType === 'service' && item.serviceId !== undefined
+}
 
 // Get cart from localStorage
 export function getCart(): CartItem[] {
@@ -34,7 +46,7 @@ export function saveCart(cart: CartItem[]): void {
   }
 }
 
-// Add item to cart
+// Add product to cart
 export function addToCart(
   productId: number,
   quantity: number = 1,
@@ -45,6 +57,7 @@ export function addToCart(
   // For merchandise with variants, check both productId and variantId
   const existingItem = cart.find(
     item =>
+      item.itemType === 'product' &&
       item.productId === productId &&
       (variantId ? item.variantId === variantId : !item.variantId)
   )
@@ -55,6 +68,7 @@ export function addToCart(
     cart.push({
       productId,
       quantity,
+      itemType: 'product',
       ...(variantId && { variantId }),
       ...(printfulVariantId && { printfulVariantId }),
     })
@@ -64,18 +78,52 @@ export function addToCart(
   return cart
 }
 
-// Remove item from cart
+// Add service to cart
+export function addServiceToCart(
+  serviceId: string,
+  quantity: number = 1
+): CartItem[] {
+  const cart = getCart()
+  const existingItem = cart.find(
+    item => item.itemType === 'service' && item.serviceId === serviceId
+  )
+
+  if (existingItem) {
+    existingItem.quantity += quantity
+  } else {
+    cart.push({
+      serviceId,
+      quantity,
+      itemType: 'service',
+    })
+  }
+
+  saveCart(cart)
+  return cart
+}
+
+// Remove product from cart
 export function removeFromCart(productId: number, variantId?: number): CartItem[] {
   const cart = getCart()
   const filtered = cart.filter(
     item =>
-      !(item.productId === productId && (variantId ? item.variantId === variantId : !item.variantId))
+      !(item.itemType === 'product' && item.productId === productId && (variantId ? item.variantId === variantId : !item.variantId))
   )
   saveCart(filtered)
   return filtered
 }
 
-// Update item quantity
+// Remove service from cart
+export function removeServiceFromCart(serviceId: string): CartItem[] {
+  const cart = getCart()
+  const filtered = cart.filter(
+    item => !(item.itemType === 'service' && item.serviceId === serviceId)
+  )
+  saveCart(filtered)
+  return filtered
+}
+
+// Update product quantity
 export function updateCartItemQuantity(
   productId: number,
   quantity: number,
@@ -88,8 +136,31 @@ export function updateCartItemQuantity(
   const cart = getCart()
   const item = cart.find(
     item =>
+      item.itemType === 'product' &&
       item.productId === productId &&
       (variantId ? item.variantId === variantId : !item.variantId)
+  )
+
+  if (item) {
+    item.quantity = quantity
+  }
+
+  saveCart(cart)
+  return cart
+}
+
+// Update service quantity
+export function updateServiceQuantity(
+  serviceId: string,
+  quantity: number
+): CartItem[] {
+  if (quantity <= 0) {
+    return removeServiceFromCart(serviceId)
+  }
+
+  const cart = getCart()
+  const item = cart.find(
+    item => item.itemType === 'service' && item.serviceId === serviceId
   )
 
   if (item) {
