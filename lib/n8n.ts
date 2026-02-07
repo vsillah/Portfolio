@@ -181,6 +181,7 @@ export interface LeadQualificationRequest {
 }
 
 const N8N_LEAD_WEBHOOK_URL = process.env.N8N_LEAD_WEBHOOK_URL
+const N8N_PROGRESS_UPDATE_WEBHOOK_URL = process.env.N8N_PROGRESS_UPDATE_WEBHOOK_URL
 
 /**
  * Trigger the n8n lead qualification workflow

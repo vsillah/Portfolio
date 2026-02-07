@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, ArrowRight, MessageCircle, FileText, TrendingUp, FlaskConical } from 'lucide-react'
+import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, ArrowRight, MessageCircle, FileText, TrendingUp, FlaskConical, FolderKanban } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -213,6 +213,23 @@ function AdminDashboardContent() {
                 <div>
                   <h3 className="text-xl font-bold mb-1">Sales Dashboard</h3>
                   <p className="text-gray-400 text-sm">Manage leads and sales conversations</p>
+                </div>
+              </div>
+            </motion.div>
+          </Link>
+
+          <Link href="/admin/client-projects">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-6 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/50 rounded-xl cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
+                  <FolderKanban size={32} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1">Client Projects</h3>
+                  <p className="text-gray-400 text-sm">Track milestones and send progress updates</p>
                 </div>
               </div>
             </motion.div>
