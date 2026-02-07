@@ -1,0 +1,439 @@
+{
+  "name": "Warm Lead Enrichment Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "warm-lead-enrich",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Webhook - Receive Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 300],
+      "webhookId": "warm-lead-enrich"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"accepted\", \"warm_lead_id\": $json.warm_lead_id } }}",
+        "options": {}
+      },
+      "id": "respond-accepted",
+      "name": "Respond - Accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [200, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ !!$json.email || (!!$json.full_name && !!$json.company) }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "if-can-apollo",
+      "name": "IF - Can Query Apollo",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [400, 200]
+    },
+    {
+      "parameters": {
+        "url": "https://api.apollo.io/api/v1/people/match",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.APOLLO_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $json.email || '' }}"
+            },
+            {
+              "name": "linkedin_url",
+              "value": "={{ $json.linkedin_url || '' }}"
+            },
+            {
+              "name": "first_name",
+              "value": "={{ $json.full_name ? $json.full_name.split(' ')[0] : '' }}"
+            },
+            {
+              "name": "last_name",
+              "value": "={{ $json.full_name ? $json.full_name.split(' ').slice(1).join(' ') : '' }}"
+            },
+            {
+              "name": "organization_name",
+              "value": "={{ $json.company || '' }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000,
+          "redirect": { "followRedirects": true },
+          "response": { "response": { "fullResponse": false } }
+        }
+      },
+      "id": "apollo-enrich",
+      "name": "HTTP - Apollo People Match",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [600, 100],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract useful fields from Apollo response\nconst apolloResponse = $input.first().json;\nconst person = apolloResponse?.person || apolloResponse || {};\n\nconst apollo_data = {\n  headline: person.headline || '',\n  seniority: person.seniority || '',\n  departments: person.departments || [],\n  company_name: person.organization?.name || '',\n  company_industry: person.organization?.industry || '',\n  company_size: person.organization?.estimated_num_employees || '',\n  company_revenue: person.organization?.annual_revenue_printed || '',\n  company_technologies: person.organization?.technologies || [],\n  emails: (person.email_addresses || []).map(e => ({\n    email: e.email,\n    type: e.type,\n    status: e.status\n  })),\n  phone_numbers: (person.phone_numbers || []).map(p => ({\n    number: p.number,\n    type: p.type\n  })),\n  linkedin_url: person.linkedin_url || '',\n  twitter_url: person.twitter_url || '',\n  employment_history: (person.employment_history || []).slice(0, 5).map(e => ({\n    title: e.title,\n    company: e.organization_name,\n    start: e.start_date,\n    end: e.end_date,\n    current: e.current\n  }))\n};\n\n// Extract verified email if found\nconst verifiedEmail = apollo_data.emails.find(e => e.status === 'verified');\n\nreturn [{\n  json: {\n    apollo_data,\n    apollo_person_id: person.id || null,\n    enriched_email: verifiedEmail?.email || person.email || null,\n    enriched_phone: apollo_data.phone_numbers[0]?.number || null,\n    enriched_company: apollo_data.company_name || null,\n    enriched_job_title: person.title || null,\n    enriched_company_domain: person.organization?.primary_domain || null,\n    enriched_location: [person.city, person.state, person.country].filter(Boolean).join(', ') || null\n  }\n}];"
+      },
+      "id": "code-parse-apollo",
+      "name": "Code - Parse Apollo",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 100]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ !!$('Webhook - Receive Lead').first().json.linkedin_url }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "if-has-linkedin",
+      "name": "IF - Has LinkedIn URL",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [400, 400]
+    },
+    {
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/apify~linkedin-profile-scraper/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.APIFY_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ \"startUrls\": [{ \"url\": $('Webhook - Receive Lead').first().json.linkedin_url }], \"proxy\": { \"useApifyProxy\": true } }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "apify-linkedin",
+      "name": "HTTP - Apify LinkedIn Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [600, 400],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Apify LinkedIn scraper results\nconst results = $input.first().json;\nconst profile = Array.isArray(results) ? results[0] : results;\n\nif (!profile || profile.error) {\n  return [{ json: { linkedin: null } }];\n}\n\nconst linkedin = {\n  headline: profile.headline || '',\n  summary: profile.summary || '',\n  experience: (profile.experience || []).slice(0, 5).map(e => ({\n    title: e.title,\n    company: e.companyName,\n    duration: e.duration,\n    description: (e.description || '').substring(0, 200)\n  })),\n  education: (profile.education || []).slice(0, 3).map(e => ({\n    school: e.schoolName,\n    degree: e.degreeName,\n    field: e.fieldOfStudy\n  })),\n  skills: (profile.skills || []).slice(0, 20),\n  recent_posts: (profile.posts || []).slice(0, 5).map(p => ({\n    text: (p.text || '').substring(0, 300),\n    likes: p.likesCount || 0,\n    comments: p.commentsCount || 0,\n    date: p.postedDate || ''\n  })),\n  connections_count: profile.connectionsCount || 0,\n  followers_count: profile.followersCount || 0,\n  scraped_at: new Date().toISOString()\n};\n\nreturn [{ json: { linkedin } }];"
+      },
+      "id": "code-parse-linkedin",
+      "name": "Code - Parse LinkedIn",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ !!$('Webhook - Receive Lead').first().json.twitter_url }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "if-has-twitter",
+      "name": "IF - Has Twitter URL",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [400, 600]
+    },
+    {
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/apify~twitter-scraper/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $env.APIFY_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ \"startUrls\": [{ \"url\": $('Webhook - Receive Lead').first().json.twitter_url }], \"maxTweets\": 10, \"proxy\": { \"useApifyProxy\": true } }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "apify-twitter",
+      "name": "HTTP - Apify Twitter Scraper",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [600, 600],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse Apify Twitter scraper results\nconst results = $input.first().json;\nconst data = Array.isArray(results) ? results : [results];\nconst profile = data.find(d => d.user) || data[0];\n\nif (!profile || profile.error) {\n  return [{ json: { twitter: null } }];\n}\n\nconst user = profile.user || profile;\nconst tweets = data.filter(d => d.text).slice(0, 10);\n\nconst twitter = {\n  bio: user.description || user.bio || '',\n  followers: user.followers_count || user.followersCount || 0,\n  following: user.friends_count || user.followingCount || 0,\n  recent_tweets: tweets.map(t => ({\n    text: (t.text || t.full_text || '').substring(0, 280),\n    likes: t.favorite_count || t.likeCount || 0,\n    retweets: t.retweet_count || t.retweetCount || 0,\n    date: t.created_at || t.createdAt || ''\n  })),\n  topics: [...new Set(\n    tweets.flatMap(t => (t.entities?.hashtags || []).map(h => h.text || h.tag))\n  )].slice(0, 10),\n  scraped_at: new Date().toISOString()\n};\n\nreturn [{ json: { twitter } }];"
+      },
+      "id": "code-parse-twitter",
+      "name": "Code - Parse Twitter",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 600]
+    },
+    {
+      "parameters": {
+        "mode": "multiplex",
+        "mergeByFields": {},
+        "options": {}
+      },
+      "id": "merge-all",
+      "name": "Merge - Combine Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [1000, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine all enrichment data into a single object\nconst webhookData = $('Webhook - Receive Lead').first().json;\nconst items = $input.all().map(i => i.json);\n\n// Merge all data\nlet apollo_data = {};\nlet apollo_person_id = null;\nlet social_data = {};\nlet enriched = {};\n\nfor (const item of items) {\n  if (item.apollo_data) {\n    apollo_data = item.apollo_data;\n    apollo_person_id = item.apollo_person_id;\n    enriched = {\n      email: item.enriched_email,\n      phone: item.enriched_phone,\n      company: item.enriched_company,\n      job_title: item.enriched_job_title,\n      company_domain: item.enriched_company_domain,\n      location: item.enriched_location\n    };\n  }\n  if (item.linkedin) social_data.linkedin = item.linkedin;\n  if (item.twitter) social_data.twitter = item.twitter;\n}\n\nreturn [{\n  json: {\n    warm_lead_id: webhookData.warm_lead_id,\n    full_name: webhookData.full_name,\n    ...enriched,\n    apollo_data,\n    apollo_person_id,\n    social_data,\n    // Pass original data for commonality analysis\n    original: webhookData,\n    callback_url: webhookData.callback_url\n  }\n}];"
+      },
+      "id": "code-combine",
+      "name": "Code - Combine All Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 300]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are a networking research assistant. Given two professional profiles, identify genuine commonalities and craft authentic talking points.\n\n## My Profile (the business owner)\n{\n  \"name\": \"[YOUR NAME]\",\n  \"title\": \"Founder & AI Consultant\",\n  \"company\": \"ATAS\",\n  \"location\": \"[YOUR CITY]\",\n  \"interests\": [\"AI automation\", \"n8n workflows\", \"indie hacking\", \"SaaS\", \"music production\"],\n  \"skills\": [\"Next.js\", \"React\", \"n8n\", \"Supabase\", \"AI/ML\", \"sales automation\", \"TypeScript\"],\n  \"industries\": [\"SaaS\", \"consulting\", \"AI/ML\"],\n  \"groups\": [\"AI Builders Club\"],\n  \"recent_content\": [\"Built AI-powered sales pipeline\", \"Published on AI automation\"]\n}\n\n## Lead Profile\nName: {{ $json.full_name }}\nTitle: {{ $json.job_title || 'Unknown' }} at {{ $json.company || 'Unknown' }}\nLocation: {{ $json.location || 'Unknown' }}\n\nApollo Data:\n{{ JSON.stringify($json.apollo_data || {}, null, 2) }}\n\nLinkedIn Data:\n{{ JSON.stringify($json.social_data?.linkedin || {}, null, 2) }}\n\nTwitter Data:\n{{ JSON.stringify($json.social_data?.twitter || {}, null, 2) }}\n\n## Your Task\nAnalyze both profiles and return ONLY a valid JSON object (no markdown, no explanation) with this structure:\n{\n  \"shared_connections\": [],\n  \"shared_interests\": [],\n  \"shared_industries\": [],\n  \"shared_skills\": [],\n  \"shared_groups\": [],\n  \"shared_events\": [],\n  \"geographic_proximity\": \"\",\n  \"talking_points\": [],\n  \"icebreakers\": [],\n  \"relevance_score\": 0\n}\n\nRules:\n- Only include genuine, verifiable commonalities\n- Talking points should reference specific posts, skills, or experiences\n- Icebreakers should be conversational and ready to use\n- relevance_score: 0-100 (70+ = strong, 40-69 = moderate, <40 = weak)\n- Return 3-5 talking points and 2-3 icebreakers",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "ai-commonalities",
+      "name": "AI Agent - Commonality Analysis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [1400, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the AI commonality analysis output\nconst aiOutput = $input.first().json.output || $input.first().json.text || $input.first().json.response || '';\nconst previousData = $('Code - Combine All Data').first().json;\n\nlet commonalities;\ntry {\n  // Try to extract JSON from the AI response\n  const jsonMatch = aiOutput.match(/\\{[\\s\\S]*\\}/);\n  commonalities = jsonMatch ? JSON.parse(jsonMatch[0]) : {};\n} catch (e) {\n  commonalities = {\n    shared_connections: [],\n    shared_interests: [],\n    shared_industries: [],\n    shared_skills: [],\n    shared_groups: [],\n    shared_events: [],\n    geographic_proximity: '',\n    talking_points: ['Unable to parse commonalities - manual review needed'],\n    icebreakers: [],\n    relevance_score: 0\n  };\n}\n\ncommonalities.analyzed_at = new Date().toISOString();\n\nreturn [{\n  json: {\n    ...previousData,\n    commonalities\n  }\n}];"
+      },
+      "id": "code-parse-commonalities",
+      "name": "Code - Parse Commonalities",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1600, 300]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Write a personalized, warm outreach message to {{ $json.full_name }}.\n\n## Lead Context\n- Title: {{ $json.job_title || 'Unknown' }} at {{ $json.company || 'Unknown' }}\n- Location: {{ $json.location || 'Unknown' }}\n\n## What We Have in Common\n{{ ($json.commonalities?.talking_points || []).map((tp, i) => `${i+1}. ${tp}`).join('\\n') }}\n\n## Icebreaker Ideas\n{{ ($json.commonalities?.icebreakers || []).map((ib, i) => `${i+1}. ${ib}`).join('\\n') }}\n\n## Instructions\n- Keep it under 150 words\n- Lead with the strongest commonality or icebreaker\n- Be genuine and conversational, not salesy\n- End with a low-pressure question or soft CTA\n- Do NOT mention scraping, AI, or data enrichment\n- Write as if you naturally discovered this person\n- Output ONLY the message text, no subject line or metadata",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "ai-outreach",
+      "name": "AI Agent - Draft Outreach",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1,
+      "position": [1800, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Calculate lead score based on enrichment data\nconst data = $('Code - Parse Commonalities').first().json;\nconst aiMessage = $input.first().json.output || $input.first().json.text || $input.first().json.response || '';\n\nlet score = 0;\nconst factors = [];\n\n// Relevance score from commonality analysis (0-40 points)\nconst relevance = data.commonalities?.relevance_score || 0;\nscore += Math.round(relevance * 0.4);\nfactors.push(`Relevance: ${relevance}/100 → ${Math.round(relevance * 0.4)} pts`);\n\n// Has verified email (10 points)\nif (data.apollo_data?.emails?.some(e => e.status === 'verified')) {\n  score += 10;\n  factors.push('Verified email: +10');\n}\n\n// Seniority level (0-15 points)\nconst seniority = (data.apollo_data?.seniority || '').toLowerCase();\nif (['c_suite', 'vp', 'director', 'founder', 'owner'].some(s => seniority.includes(s))) {\n  score += 15;\n  factors.push(`Senior: ${seniority} → +15`);\n} else if (['manager', 'head'].some(s => seniority.includes(s))) {\n  score += 10;\n  factors.push(`Mid-level: ${seniority} → +10`);\n} else if (seniority) {\n  score += 5;\n  factors.push(`Junior: ${seniority} → +5`);\n}\n\n// Company size signals (0-10 points)\nconst companySize = parseInt(data.apollo_data?.company_size) || 0;\nif (companySize >= 11 && companySize <= 500) {\n  score += 10; // SMB sweet spot\n  factors.push(`Company size ${companySize}: +10`);\n} else if (companySize > 500) {\n  score += 5;\n  factors.push(`Large company ${companySize}: +5`);\n}\n\n// Has social engagement (0-10 points)\nconst linkedinPosts = data.social_data?.linkedin?.recent_posts?.length || 0;\nconst twitterTweets = data.social_data?.twitter?.recent_tweets?.length || 0;\nif (linkedinPosts > 0 || twitterTweets > 0) {\n  score += 10;\n  factors.push(`Active on social (${linkedinPosts} LI posts, ${twitterTweets} tweets): +10`);\n}\n\n// Talking points quality (0-15 points)\nconst talkingPoints = data.commonalities?.talking_points?.length || 0;\nscore += Math.min(talkingPoints * 5, 15);\nfactors.push(`${talkingPoints} talking points: +${Math.min(talkingPoints * 5, 15)}`);\n\n// Cap at 100\nscore = Math.min(score, 100);\n\n// Determine temperature\nlet temperature = 'cold';\nif (score >= 70) temperature = 'hot';\nelse if (score >= 40) temperature = 'warm';\n\nreturn [{\n  json: {\n    warm_lead_id: data.warm_lead_id,\n    apollo_person_id: data.apollo_person_id,\n    apollo_data: data.apollo_data,\n    social_data: data.social_data,\n    commonalities: data.commonalities,\n    personalized_message: aiMessage.trim(),\n    email: data.email || null,\n    phone: data.phone || null,\n    company: data.company || null,\n    job_title: data.job_title || null,\n    company_domain: data.company_domain || null,\n    location: data.location || null,\n    lead_score: score,\n    lead_temperature: temperature,\n    enrichment_status: 'enriched',\n    scoring_factors: factors,\n    callback_url: data.callback_url\n  }\n}];"
+      },
+      "id": "code-score",
+      "name": "Code - Calculate Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.callback_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-webhook-secret",
+              "value": "={{ $env.WARM_LEAD_WEBHOOK_SECRET || '' }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "http-callback",
+      "name": "HTTP - Callback to App",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [2200, 300]
+    },
+    {
+      "parameters": {
+        "content": "## Warm Lead Enrichment Pipeline\n\n**Trigger:** Webhook from app when a warm lead is created or needs enrichment.\n\n**Flow:**\n1. Receive lead data via webhook\n2. Query Apollo for company/contact enrichment\n3. Scrape LinkedIn profile via Apify (if URL provided)\n4. Scrape Twitter profile via Apify (if URL provided)\n5. Combine all data\n6. AI analyzes commonalities between you and the lead\n7. AI drafts a personalized outreach message\n8. Calculate lead score\n9. Send results back to app via callback URL\n\n**Setup:**\n- Set APOLLO_API_KEY in n8n environment variables\n- Set APIFY_API_TOKEN in n8n environment variables\n- Set WARM_LEAD_WEBHOOK_SECRET in n8n environment variables\n- Update \"My Profile\" in the AI Commonality node with your actual info\n- Connect an LLM (OpenAI/Anthropic) to the AI Agent nodes",
+        "height": 400,
+        "width": 500
+      },
+      "id": "sticky-note",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-400, 100]
+    }
+  ],
+  "connections": {
+    "Webhook - Receive Lead": {
+      "main": [
+        [
+          { "node": "Respond - Accepted", "type": "main", "index": 0 },
+          { "node": "IF - Can Query Apollo", "type": "main", "index": 0 },
+          { "node": "IF - Has LinkedIn URL", "type": "main", "index": 0 },
+          { "node": "IF - Has Twitter URL", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "IF - Can Query Apollo": {
+      "main": [
+        [{ "node": "HTTP - Apollo People Match", "type": "main", "index": 0 }],
+        [{ "node": "Merge - Combine Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "HTTP - Apollo People Match": {
+      "main": [
+        [{ "node": "Code - Parse Apollo", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code - Parse Apollo": {
+      "main": [
+        [{ "node": "Merge - Combine Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "IF - Has LinkedIn URL": {
+      "main": [
+        [{ "node": "HTTP - Apify LinkedIn Scraper", "type": "main", "index": 0 }],
+        [{ "node": "Merge - Combine Data", "type": "main", "index": 1 }]
+      ]
+    },
+    "HTTP - Apify LinkedIn Scraper": {
+      "main": [
+        [{ "node": "Code - Parse LinkedIn", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code - Parse LinkedIn": {
+      "main": [
+        [{ "node": "Merge - Combine Data", "type": "main", "index": 1 }]
+      ]
+    },
+    "IF - Has Twitter URL": {
+      "main": [
+        [{ "node": "HTTP - Apify Twitter Scraper", "type": "main", "index": 0 }],
+        [{ "node": "Merge - Combine Data", "type": "main", "index": 2 }]
+      ]
+    },
+    "HTTP - Apify Twitter Scraper": {
+      "main": [
+        [{ "node": "Code - Parse Twitter", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code - Parse Twitter": {
+      "main": [
+        [{ "node": "Merge - Combine Data", "type": "main", "index": 2 }]
+      ]
+    },
+    "Merge - Combine Data": {
+      "main": [
+        [{ "node": "Code - Combine All Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code - Combine All Data": {
+      "main": [
+        [{ "node": "AI Agent - Commonality Analysis", "type": "main", "index": 0 }]
+      ]
+    },
+    "AI Agent - Commonality Analysis": {
+      "main": [
+        [{ "node": "Code - Parse Commonalities", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code - Parse Commonalities": {
+      "main": [
+        [{ "node": "AI Agent - Draft Outreach", "type": "main", "index": 0 }]
+      ]
+    },
+    "AI Agent - Draft Outreach": {
+      "main": [
+        [{ "node": "Code - Calculate Score", "type": "main", "index": 0 }]
+      ]
+    },
+    "Code - Calculate Score": {
+      "main": [
+        [{ "node": "HTTP - Callback to App", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "description": "Enriches warm leads with Apollo company data, Apify social media scraping, AI commonality analysis, and personalized outreach drafting. Results are sent back to the app via callback webhook.",
+    "templateCredsSetupCompleted": false
+  },
+  "tags": [
+    { "name": "warm-leads" },
+    { "name": "enrichment" },
+    { "name": "sales" }
+  ]
+}
