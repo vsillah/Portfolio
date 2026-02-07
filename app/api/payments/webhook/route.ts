@@ -129,6 +129,32 @@ export async function POST(request: NextRequest) {
               }
               
               console.log(`Proposal ${proposalId} marked as paid, order ${order.id} created`);
+              
+              // Create client project + onboarding plan
+              try {
+                const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+                
+                const projectResponse = await fetch(`${baseUrl}/api/client-projects`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ proposal_id: proposalId }),
+                });
+                
+                if (projectResponse.ok) {
+                  const projectData = await projectResponse.json();
+                  console.log(
+                    `Client project ${projectData.client_project_id} created with onboarding plan ${projectData.onboarding_plan_id}`
+                  );
+                } else if (projectResponse.status === 409) {
+                  console.log('Client project already exists for this proposal');
+                } else {
+                  console.error('Failed to create client project:', await projectResponse.text());
+                }
+              } catch (projectError: any) {
+                console.error('Error creating client project from webhook:', projectError);
+                // Don't fail the webhook for project creation errors
+              }
             }
           }
         }

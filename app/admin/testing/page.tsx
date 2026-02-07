@@ -24,6 +24,7 @@ import {
   ChevronDown,
   ChevronUp
 } from 'lucide-react'
+import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 // Types
 interface LiveClientActivity {
@@ -614,6 +615,12 @@ export default function TestingDashboard() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-7xl mx-auto">
+        {/* Breadcrumb Navigation */}
+        <Breadcrumbs items={[
+          { label: 'Admin Dashboard', href: '/admin' },
+          { label: 'E2E Testing' }
+        ]} />
+
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div>

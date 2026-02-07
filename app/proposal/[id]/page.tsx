@@ -99,6 +99,7 @@ function ProposalPageContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [isAccepting, setIsAccepting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [onboardingPlanId, setOnboardingPlanId] = useState<string | null>(null);
   
   // Check for payment status from URL params
   const paymentStatus = searchParams.get('payment');
@@ -119,10 +120,30 @@ function ProposalPageContent() {
       setCanAccept(data.canAccept);
       setCanPay(data.canPay);
       setIsExpired(data.isExpired);
+      
+      // If proposal is paid, look up the onboarding plan
+      if (data.proposal?.status === 'paid') {
+        fetchOnboardingPlan(data.proposal.id);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load proposal');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchOnboardingPlan = async (propId: string) => {
+    try {
+      // Check if a client project exists for this proposal with an onboarding plan
+      const response = await fetch(`/api/proposals/${propId}/onboarding-plan`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.onboarding_plan_id) {
+          setOnboardingPlanId(data.onboarding_plan_id);
+        }
+      }
+    } catch {
+      // Silently fail - just won't show the onboarding link
     }
   };
 
@@ -235,7 +256,7 @@ function ProposalPageContent() {
         color: 'text-green-500',
         bgColor: 'bg-green-900/20 border-green-800',
         title: 'Payment Complete',
-        message: 'Thank you for your payment! You will receive a receipt via email.',
+        message: 'Thank you for your payment! Book your onboarding call below to get started.',
       };
     }
     if (paymentStatus === 'cancelled') {
@@ -282,6 +303,41 @@ function ProposalPageContent() {
                 <h3 className="font-semibold">{statusDisplay.title}</h3>
                 <p className="text-sm text-gray-400">{statusDisplay.message}</p>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Post-Payment Onboarding CTA */}
+        {(paymentStatus === 'success' || proposal.status === 'paid') && (
+          <div className="mb-6 p-6 rounded-xl border bg-blue-900/20 border-blue-800">
+            <div className="text-center">
+              <Calendar className="w-10 h-10 text-blue-400 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold mb-2">Next Step: View Your Onboarding Plan</h3>
+              <p className="text-sm text-gray-400 mb-4 max-w-md mx-auto">
+                Your personalized onboarding plan is ready. It includes your project timeline,
+                milestones, communication schedule, and everything you need to get started.
+              </p>
+              {onboardingPlanId ? (
+                <a
+                  href={`/onboarding/${onboardingPlanId}`}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-lg font-semibold transition-colors"
+                >
+                  <Calendar className="w-5 h-5" />
+                  View Onboarding Plan
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              ) : (
+                <a
+                  href={`https://calendly.com/amadutown/atas-onboarding-call?name=${encodeURIComponent(proposal.client_name)}&email=${encodeURIComponent(proposal.client_email)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-lg font-semibold transition-colors"
+                >
+                  <Calendar className="w-5 h-5" />
+                  Book Onboarding Call
+                  <ExternalLink className="w-4 h-4" />
+                </a>
+              )}
             </div>
           </div>
         )}

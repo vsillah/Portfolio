@@ -61,6 +61,16 @@ ADD COLUMN IF NOT EXISTS quick_wins TEXT;
 ALTER TABLE contact_submissions 
 ADD COLUMN IF NOT EXISTS key_stakeholders TEXT;
 
+-- Discovery call tracking (Calendly integration)
+ALTER TABLE contact_submissions 
+ADD COLUMN IF NOT EXISTS calendly_event_uri TEXT;
+
+ALTER TABLE contact_submissions 
+ADD COLUMN IF NOT EXISTS discovery_call_scheduled TIMESTAMPTZ;
+
+ALTER TABLE contact_submissions 
+ADD COLUMN IF NOT EXISTS discovery_call_completed_at TIMESTAMPTZ;
+
 -- Add indexes for filtering/searching
 CREATE INDEX IF NOT EXISTS idx_contact_submissions_company 
 ON contact_submissions(company) 
@@ -97,3 +107,40 @@ COMMENT ON COLUMN contact_submissions.ai_readiness_score IS 'AI Readiness Score 
 COMMENT ON COLUMN contact_submissions.competitive_pressure_score IS 'Competitive AI Pressure Score 1-10 (extracted from Research Agent report)';
 COMMENT ON COLUMN contact_submissions.quick_wins IS 'Quick-win AI opportunities with 90-day ROI potential';
 COMMENT ON COLUMN contact_submissions.key_stakeholders IS 'Identified AI champions and key decision makers';
+COMMENT ON COLUMN contact_submissions.calendly_event_uri IS 'Calendly event URI for the discovery call booking';
+COMMENT ON COLUMN contact_submissions.discovery_call_scheduled IS 'Timestamp when the discovery call was scheduled via Calendly';
+COMMENT ON COLUMN contact_submissions.discovery_call_completed_at IS 'Timestamp when the discovery call was completed';
+
+-- ============================================================
+-- Qualified Leads VIEW
+-- Provides a filtered view of contact_submissions for leads
+-- that have been scored and qualified (warm + hot leads).
+-- ============================================================
+CREATE OR REPLACE VIEW qualified_leads AS
+SELECT
+  id,
+  name,
+  email,
+  company,
+  company_domain,
+  linkedin_url,
+  annual_revenue,
+  interest_summary,
+  lead_score,
+  ai_readiness_score,
+  competitive_pressure_score,
+  qualification_status,
+  quick_wins,
+  key_stakeholders,
+  full_report,
+  calendly_event_uri,
+  discovery_call_scheduled,
+  discovery_call_completed_at,
+  created_at
+FROM contact_submissions
+WHERE lead_score IS NOT NULL
+  AND lead_score >= 40
+  AND qualification_status IN ('hot', 'warm', 'qualified')
+ORDER BY lead_score DESC, created_at DESC;
+
+COMMENT ON VIEW qualified_leads IS 'Filtered view of contact_submissions showing scored leads (40+) with hot/warm/qualified status. Used as the "qualified leads database" without table duplication.';
