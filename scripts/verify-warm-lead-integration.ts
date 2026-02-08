@@ -137,7 +137,7 @@ async function verifyE2EScenario() {
     
     // Check for required step types
     const stepTypes = warmLeadPipelineScenario.steps.map(s => s.type)
-    const requiredTypes = ['apiCall', 'waitForData', 'adminAction', 'validateDatabase']
+    const requiredTypes: Array<typeof stepTypes[number]> = ['apiCall', 'waitForData', 'adminAction', 'validateDatabase']
     
     for (const type of requiredTypes) {
       if (!stepTypes.includes(type)) {
