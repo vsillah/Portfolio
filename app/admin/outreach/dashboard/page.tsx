@@ -239,6 +239,12 @@ function DashboardContent() {
         })
       })
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: `HTTP ${response.status}` }))
+        setTriggerMessage({ type: 'error', text: `API error: ${errorData.error || response.statusText}` })
+        return
+      }
+
       const data = await response.json()
 
       if (data.success) {
@@ -249,11 +255,12 @@ function DashboardContent() {
           fetchTriggerHistory()
         }, 2000)
       } else {
-        setTriggerMessage({ type: 'error', text: data.error || data.message })
+        setTriggerMessage({ type: 'error', text: data.error || data.message || 'Trigger returned unsuccessful' })
       }
     } catch (error) {
       console.error('Failed to trigger scraping:', error)
-      setTriggerMessage({ type: 'error', text: 'Failed to trigger scraping' })
+      const errMsg = error instanceof Error ? error.message : String(error)
+      setTriggerMessage({ type: 'error', text: `Failed to trigger scraping: ${errMsg}` })
     } finally {
       setTriggeringSource(null)
     }
