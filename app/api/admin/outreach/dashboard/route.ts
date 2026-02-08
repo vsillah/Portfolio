@@ -85,7 +85,14 @@ export async function GET(request: NextRequest) {
       .select('id, lead_source, outreach_status, lead_score, qualification_status, created_at')
       .or('lead_source.like.cold_%,lead_source.like.warm_%')
 
-    const contacts = allContacts || []
+    const contacts: Array<{
+      id: string
+      lead_source: string | null
+      outreach_status: string
+      lead_score: number | null
+      qualification_status: string | null
+      created_at: string
+    }> = allContacts || []
 
     // Split into cold and warm
     const coldContacts = contacts.filter(c => c.lead_source?.startsWith('cold_'))
