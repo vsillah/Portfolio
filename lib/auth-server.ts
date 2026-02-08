@@ -3,8 +3,30 @@
 
 import { NextRequest } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import { supabaseAdmin } from './supabase'
 import { User } from '@supabase/supabase-js'
+
+// Direct PostgREST fetch for profile lookups.
+// Uses the user's own JWT token (role=authenticated) so that the RLS policy
+// "Users can read own profile" (USING id = auth.uid()) grants access.
+// This avoids Supabase JS client auth state issues that can cause intermittent failures.
+const _supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const _anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+
+async function profileLookup(userId: string, userJwt: string): Promise<{ role: string } | null> {
+  const url = `${_supabaseUrl}/rest/v1/user_profiles?select=role&id=eq.${userId}&limit=1`
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'apikey': _anonKey,
+      'Authorization': `Bearer ${userJwt}`,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  })
+  if (!res.ok) return null
+  const rows = await res.json()
+  return Array.isArray(rows) && rows.length > 0 ? rows[0] : null
+}
 
 export interface AuthResult {
   user: User
@@ -39,12 +61,8 @@ export async function verifyAuth(request: NextRequest): Promise<AuthResult | Aut
     return { error: 'Authentication required', status: 401 }
   }
 
-  // Check if user is admin
-  const { data: profile } = await supabaseAdmin
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Check if user is admin using the user's own JWT (authenticated role + RLS "own profile" policy)
+  const profile = await profileLookup(user.id, token)
 
   return {
     user,
@@ -100,12 +118,8 @@ export async function tryVerifyAuth(request: NextRequest): Promise<AuthResult | 
     return null // Invalid token - treat as unauthenticated
   }
 
-  // Check if user is admin
-  const { data: profile } = await supabaseAdmin
-    .from('user_profiles')
-    .select('role')
-    .eq('id', user.id)
-    .single()
+  // Check if user is admin using the user's own JWT
+  const profile = await profileLookup(user.id, token)
 
   return {
     user,

@@ -95,7 +95,8 @@ const SCENARIOS = [
   { id: 'full_funnel', name: 'Full Funnel Journey', tags: ['critical'] },
   { id: 'abandoned_cart', name: 'Abandoned Cart', tags: ['e-commerce'] },
   { id: 'support_escalation', name: 'Support Escalation', tags: ['chat'] },
-  { id: 'quick_browse', name: 'Quick Browse (Smoke)', tags: ['smoke'] }
+  { id: 'quick_browse', name: 'Quick Browse (Smoke)', tags: ['smoke'] },
+  { id: 'warm_lead_pipeline', name: 'Warm Lead Pipeline', tags: ['warm-leads', 'outreach', 'critical'] }
 ]
 
 const PERSONAS = [

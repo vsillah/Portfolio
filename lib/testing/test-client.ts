@@ -25,7 +25,10 @@ import type {
   WaitForWebhookStep,
   ValidateDatabaseStep,
   ScreenshotStep,
-  DelayStep
+  DelayStep,
+  ApiCallStep,
+  AdminActionStep,
+  WaitForDataStep
 } from './types'
 import { ChatAgent, createChatAgent, createMockChatAgent } from './chat-agent'
 import { createClient } from '@supabase/supabase-js'
@@ -249,6 +252,12 @@ export class SimulatedClient {
         return 'Taking screenshot'
       case 'delay':
         return 'Waiting...'
+      case 'apiCall':
+        return `API: ${(step as ApiCallStep).method} ${(step as ApiCallStep).endpoint}`
+      case 'adminAction':
+        return `Admin action: ${(step as AdminActionStep).action}`
+      case 'waitForData':
+        return `Waiting for data in ${(step as WaitForDataStep).table}`
       default:
         return (step as { type: string }).type
     }
@@ -298,6 +307,15 @@ export class SimulatedClient {
           break
         case 'delay':
           data = await this.executeDelay(step)
+          break
+        case 'apiCall':
+          data = await this.executeApiCall(step)
+          break
+        case 'adminAction':
+          data = await this.executeAdminAction(step)
+          break
+        case 'waitForData':
+          data = await this.executeWaitForData(step)
           break
         default:
           throw new Error(`Unknown step type: ${(step as ScenarioStep).type}`)
@@ -718,6 +736,213 @@ export class SimulatedClient {
     await this.delay(duration)
     
     return { duration: Math.round(duration) }
+  }
+  
+  private async executeApiCall(step: ApiCallStep): Promise<Record<string, unknown>> {
+    this.lastAction = `API call: ${step.method} ${step.endpoint}`
+    
+    // Get admin session token (for admin actions)
+    const sessionResponse = await fetch(`${BASE_URL}/api/auth/session`)
+    let authToken = ''
+    
+    if (sessionResponse.ok) {
+      const sessionData = await sessionResponse.json()
+      authToken = sessionData?.access_token || ''
+    }
+    
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
+      ...(step.headers || {})
+    }
+    
+    const response = await fetch(`${BASE_URL}${step.endpoint}`, {
+      method: step.method,
+      headers,
+      body: step.body ? JSON.stringify(step.body) : undefined
+    })
+    
+    const responseText = await response.text()
+    let responseData: unknown
+    
+    try {
+      responseData = JSON.parse(responseText)
+    } catch {
+      responseData = responseText
+    }
+    
+    // Validate status if expected
+    if (step.expectedStatus && response.status !== step.expectedStatus) {
+      throw new Error(`Expected status ${step.expectedStatus}, got ${response.status}. Response: ${responseText}`)
+    }
+    
+    // Validate response if expected
+    if (step.expectedResponse) {
+      for (const [key, value] of Object.entries(step.expectedResponse)) {
+        if (typeof responseData === 'object' && responseData !== null) {
+          const actualValue = (responseData as Record<string, unknown>)[key]
+          if (actualValue !== value) {
+            throw new Error(`Expected response.${key} to be ${value}, got ${actualValue}`)
+          }
+        }
+      }
+    }
+    
+    return {
+      status: response.status,
+      response: responseData
+    }
+  }
+  
+  private async executeAdminAction(step: AdminActionStep): Promise<Record<string, unknown>> {
+    this.lastAction = `Admin action: ${step.action}`
+    
+    // Get admin session token
+    const sessionResponse = await fetch(`${BASE_URL}/api/auth/session`)
+    if (!sessionResponse.ok) {
+      throw new Error('Failed to get admin session')
+    }
+    
+    const sessionData = await sessionResponse.json()
+    const authToken = sessionData?.access_token
+    
+    if (!authToken) {
+      throw new Error('No auth token available')
+    }
+    
+    const headers = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authToken}`
+    }
+    
+    switch (step.action) {
+      case 'approve_outreach': {
+        // Fetch first draft
+        const response = await fetch(`${BASE_URL}/api/admin/outreach?status=draft&limit=1`, { headers })
+        if (!response.ok) throw new Error('Failed to fetch drafts')
+        
+        const data = await response.json()
+        const draft = data.items?.[0]
+        
+        if (!draft) throw new Error('No draft found to approve')
+        
+        // Approve it
+        const approveRes = await fetch(`${BASE_URL}/api/admin/outreach`, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ action: 'approve', ids: [draft.id] })
+        })
+        
+        if (!approveRes.ok) throw new Error('Failed to approve outreach')
+        
+        return { approved: draft.id, contact: draft.contact_submission_id }
+      }
+      
+      case 'reject_outreach': {
+        // Fetch first draft
+        const response = await fetch(`${BASE_URL}/api/admin/outreach?status=draft&limit=1`, { headers })
+        if (!response.ok) throw new Error('Failed to fetch drafts')
+        
+        const data = await response.json()
+        const draft = data.items?.[0]
+        
+        if (!draft) throw new Error('No draft found to reject')
+        
+        // Reject it
+        const rejectRes = await fetch(`${BASE_URL}/api/admin/outreach`, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ action: 'reject', ids: [draft.id] })
+        })
+        
+        if (!rejectRes.ok) throw new Error('Failed to reject outreach')
+        
+        return { rejected: draft.id }
+      }
+      
+      case 'send_outreach': {
+        // Fetch first approved
+        const response = await fetch(`${BASE_URL}/api/admin/outreach?status=approved&limit=1`, { headers })
+        if (!response.ok) throw new Error('Failed to fetch approved')
+        
+        const data = await response.json()
+        const approved = data.items?.[0]
+        
+        if (!approved) throw new Error('No approved outreach found to send')
+        
+        // Send it
+        const sendRes = await fetch(`${BASE_URL}/api/admin/outreach/${approved.id}/send`, {
+          method: 'POST',
+          headers
+        })
+        
+        if (!sendRes.ok) throw new Error('Failed to send outreach')
+        
+        return { sent: approved.id }
+      }
+      
+      case 'trigger_scraping': {
+        const triggerRes = await fetch(`${BASE_URL}/api/admin/outreach/trigger`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(step.options || { source: 'facebook' })
+        })
+        
+        if (!triggerRes.ok) throw new Error('Failed to trigger scraping')
+        
+        const result = await triggerRes.json()
+        return result
+      }
+      
+      default:
+        throw new Error(`Unknown admin action: ${step.action}`)
+    }
+  }
+  
+  private async executeWaitForData(step: WaitForDataStep): Promise<Record<string, unknown>> {
+    this.lastAction = `Waiting for data in ${step.table}`
+    
+    const startTime = Date.now()
+    const timeout = step.timeout || 30000
+    const pollInterval = step.pollInterval || 1000
+    
+    while (Date.now() - startTime < timeout) {
+      let query = this.supabase.from(step.table).select('*')
+      
+      // Apply conditions
+      for (const [field, value] of Object.entries(step.conditions)) {
+        if (typeof value === 'object' && value !== null && 'not' in value) {
+          // Handle { not: null } condition
+          query = query.not(field, 'is', (value as { not: unknown }).not)
+        } else {
+          query = query.eq(field, value)
+        }
+      }
+      
+      // Execute query
+      const { data, error } = await query
+      
+      if (error) {
+        throw new Error(`Database query failed: ${error.message}`)
+      }
+      
+      // Check if data meets expectations
+      if (data && data.length > 0) {
+        if (step.expectedCount === undefined || data.length === step.expectedCount) {
+          return {
+            found: true,
+            count: data.length,
+            elapsedMs: Date.now() - startTime,
+            data: data
+          }
+        }
+      }
+      
+      // Wait before polling again
+      await this.delay(pollInterval)
+    }
+    
+    throw new Error(`Timeout waiting for data in ${step.table} after ${timeout}ms`)
   }
   
   // ============================================================================

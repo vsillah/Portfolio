@@ -724,3 +724,170 @@ export function formatHistoryForN8n(messages: ChatMessage[]): ChatMessage[] {
     timestamp: msg.timestamp,
   }))
 }
+
+// ============================================================================
+// Cold Lead Pipeline Webhook Functions
+// ============================================================================
+
+const N8N_CLG002_WEBHOOK_URL = process.env.N8N_CLG002_WEBHOOK_URL
+const N8N_CLG003_WEBHOOK_URL = process.env.N8N_CLG003_WEBHOOK_URL
+
+// ============================================================================
+// Warm Lead Pipeline Webhook URLs
+// ============================================================================
+
+const N8N_WRM001_WEBHOOK_URL = process.env.N8N_WRM001_WEBHOOK_URL  // Facebook scraper trigger
+const N8N_WRM002_WEBHOOK_URL = process.env.N8N_WRM002_WEBHOOK_URL  // Google Contacts sync trigger
+const N8N_WRM003_WEBHOOK_URL = process.env.N8N_WRM003_WEBHOOK_URL  // LinkedIn warm scraper trigger
+
+/**
+ * Trigger the outreach generation workflow (WF-CLG-002)
+ * Called after lead enrichment for hot/warm leads
+ */
+export async function triggerOutreachGeneration(params: {
+  contact_id: number | string
+  score_tier: 'hot' | 'warm'
+  lead_score: number
+  sequence_step?: number
+  is_followup?: boolean
+}): Promise<void> {
+  if (!N8N_CLG002_WEBHOOK_URL) {
+    console.warn('N8N_CLG002_WEBHOOK_URL not configured - skipping outreach generation')
+    return
+  }
+
+  try {
+    const response = await fetch(N8N_CLG002_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(params),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Outreach gen webhook error:', response.status, errorText)
+    }
+  } catch (error) {
+    console.error('Outreach gen webhook failed:', error)
+    // Fire-and-forget
+  }
+}
+
+/**
+ * Trigger the send workflow (WF-CLG-003)
+ * Called when admin approves an outreach item
+ */
+export async function triggerOutreachSend(params: {
+  outreach_id: string
+  contact_submission_id: number | string
+  channel: 'email' | 'linkedin'
+  subject?: string | null
+  body: string
+  sequence_step: number
+  contact: {
+    name: string
+    email: string
+    company?: string
+    linkedin_url?: string
+    lead_score?: number
+    qualification_status?: string
+  }
+}): Promise<void> {
+  if (!N8N_CLG003_WEBHOOK_URL) {
+    console.warn('N8N_CLG003_WEBHOOK_URL not configured - skipping outreach send')
+    return
+  }
+
+  try {
+    const response = await fetch(N8N_CLG003_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(params),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Outreach send webhook error:', response.status, errorText)
+    }
+  } catch (error) {
+    console.error('Outreach send webhook failed:', error)
+    // Fire-and-forget
+  }
+}
+
+// ============================================================================
+// Warm Lead Pipeline Webhook Functions
+// ============================================================================
+
+/**
+ * Trigger a warm lead scraping workflow
+ * WF-WRM-001: Facebook (friends, groups, engagement)
+ * WF-WRM-002: Google Contacts sync
+ * WF-WRM-003: LinkedIn (connections, engagement)
+ *
+ * Each workflow will scrape the relevant platform and POST results
+ * to /api/admin/outreach/ingest
+ */
+export async function triggerWarmLeadScrape(params: {
+  source: 'facebook' | 'google_contacts' | 'linkedin'
+  options?: {
+    /** For Facebook: list of group UIDs to scrape */
+    group_uids?: string[]
+    /** For Facebook: your profile URL to scrape friends/engagement */
+    profile_url?: string
+    /** For LinkedIn: your LinkedIn profile URL */
+    linkedin_profile_url?: string
+    /** Max leads to import per run */
+    max_leads?: number
+  }
+}): Promise<{ triggered: boolean; message: string }> {
+  const webhookMap: Record<string, string | undefined> = {
+    facebook: N8N_WRM001_WEBHOOK_URL,
+    google_contacts: N8N_WRM002_WEBHOOK_URL,
+    linkedin: N8N_WRM003_WEBHOOK_URL,
+  }
+
+  const webhookUrl = webhookMap[params.source]
+
+  if (!webhookUrl) {
+    const envVar = {
+      facebook: 'N8N_WRM001_WEBHOOK_URL',
+      google_contacts: 'N8N_WRM002_WEBHOOK_URL',
+      linkedin: 'N8N_WRM003_WEBHOOK_URL',
+    }[params.source]
+    console.warn(`${envVar} not configured - skipping warm lead scrape`)
+    return { triggered: false, message: `${envVar} not configured` }
+  }
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        source: params.source,
+        triggered_at: new Date().toISOString(),
+        ...params.options,
+      }),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error(`Warm lead scrape (${params.source}) webhook error:`, response.status, errorText)
+      return { triggered: false, message: `Webhook returned ${response.status}` }
+    }
+
+    return { triggered: true, message: `${params.source} scrape triggered successfully` }
+  } catch (error) {
+    console.error(`Warm lead scrape (${params.source}) webhook failed:`, error)
+    return { triggered: false, message: 'Webhook call failed' }
+  }
+}

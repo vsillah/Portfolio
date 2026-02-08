@@ -325,6 +325,192 @@ export const quickBrowseScenario: TestScenario = {
   tags: ['smoke-test', 'navigation', 'quick']
 }
 
+/**
+ * Scenario 8: Warm Lead Pipeline
+ * Test complete warm lead workflow from trigger to outreach send
+ */
+export const warmLeadPipelineScenario: TestScenario = {
+  id: 'warm_lead_pipeline',
+  name: 'Warm Lead Pipeline',
+  description: 'Complete warm lead workflow: trigger scraping → ingest → enrich → generate outreach → review → approve → send',
+  
+  steps: [
+    // Step 1: Trigger warm lead scraping via API
+    {
+      type: 'apiCall',
+      endpoint: '/api/admin/outreach/trigger',
+      method: 'POST',
+      body: { 
+        source: 'facebook',
+        options: { max_leads: 5 }
+      },
+      expectedStatus: 200,
+      description: 'Trigger Facebook warm lead scraping'
+    },
+    
+    // Step 2: Wait for trigger to be logged
+    {
+      type: 'waitForData',
+      table: 'warm_lead_trigger_audit',
+      conditions: { source: 'facebook', status: 'running' },
+      timeout: 10000,
+      expectedCount: 1,
+      description: 'Verify trigger was logged'
+    },
+    
+    // Step 3: Ingest mock warm leads (simulating n8n webhook)
+    {
+      type: 'apiCall',
+      endpoint: '/api/admin/outreach/ingest',
+      method: 'POST',
+      body: {
+        leads: [
+          {
+            name: 'Test Lead FB1',
+            email: 'test-fb1@example.com',
+            company: 'Test Company A',
+            job_title: 'Product Manager',
+            lead_source: 'warm_facebook_friends',
+            relationship_strength: 'strong',
+            warm_source_detail: 'Direct Facebook friend'
+          },
+          {
+            name: 'Test Lead FB2',
+            email: 'test-fb2@example.com',
+            company: 'Test Company B',
+            job_title: 'CTO',
+            lead_source: 'warm_facebook_groups',
+            relationship_strength: 'moderate',
+            warm_source_detail: 'Tech Founders Network'
+          }
+        ]
+      },
+      expectedStatus: 200,
+      description: 'Ingest mock warm leads'
+    },
+    
+    // Step 4: Wait for leads to be inserted
+    {
+      type: 'waitForData',
+      table: 'contact_submissions',
+      conditions: { 
+        lead_source: 'warm_facebook_friends'
+      },
+      timeout: 15000,
+      expectedCount: 1,
+      description: 'Verify leads were inserted'
+    },
+    
+    // Step 5: Wait for enrichment to complete
+    {
+      type: 'delay',
+      duration: 5000,
+      description: 'Allow time for enrichment workflow'
+    },
+    
+    // Step 6: Verify enriched data
+    {
+      type: 'validateDatabase',
+      table: 'contact_submissions',
+      conditions: { 
+        lead_source: 'warm_facebook_friends',
+        outreach_status: { not: null }
+      },
+      expectedCount: 1
+    },
+    
+    // Step 7: Wait for outreach message to be generated
+    {
+      type: 'waitForData',
+      table: 'outreach_queue',
+      conditions: { 
+        status: 'draft'
+      },
+      timeout: 30000,
+      expectedCount: 1,
+      description: 'Wait for AI to generate outreach message'
+    },
+    
+    // Step 8: Validate draft outreach content
+    {
+      type: 'validateDatabase',
+      table: 'outreach_queue',
+      conditions: { 
+        status: 'draft'
+      },
+      expectedCount: 1
+    },
+    
+    // Step 9: Admin approves the draft outreach
+    {
+      type: 'adminAction',
+      action: 'approve_outreach',
+      description: 'Admin approves first draft'
+    },
+    
+    // Step 10: Verify outreach is now approved
+    {
+      type: 'waitForData',
+      table: 'outreach_queue',
+      conditions: { 
+        status: 'approved'
+      },
+      timeout: 5000,
+      expectedCount: 1,
+      description: 'Verify outreach is approved'
+    },
+    
+    // Step 11: Send the approved outreach
+    {
+      type: 'adminAction',
+      action: 'send_outreach',
+      description: 'Send approved outreach'
+    },
+    
+    // Step 12: Verify outreach was sent
+    {
+      type: 'waitForData',
+      table: 'outreach_queue',
+      conditions: { 
+        status: 'sent'
+      },
+      timeout: 10000,
+      expectedCount: 1,
+      description: 'Verify outreach was sent'
+    },
+    
+    // Step 13: Validate contact outreach status updated
+    {
+      type: 'validateDatabase',
+      table: 'contact_submissions',
+      conditions: { 
+        outreach_status: 'contacted'
+      },
+      expectedCount: 1
+    }
+  ],
+  
+  variability: {
+    skipProbability: {},
+    delayRange: [1000, 3000],
+    responseVariation: false
+  },
+  
+  expectedOutcomes: {
+    mustComplete: ['apiCall', 'adminAction', 'waitForData'],
+    mustNotError: ['validateDatabase'],
+    dataValidation: [
+      { table: 'contact_submissions', field: 'lead_source', condition: 'equals', value: 'warm_facebook_friends' },
+      { table: 'contact_submissions', field: 'outreach_status', condition: 'equals', value: 'contacted' },
+      { table: 'outreach_queue', field: 'status', condition: 'equals', value: 'sent' },
+      { table: 'warm_lead_trigger_audit', field: 'source', condition: 'equals', value: 'facebook' }
+    ]
+  },
+  
+  estimatedDuration: 90000, // ~90 seconds for full pipeline
+  tags: ['warm-leads', 'outreach', 'pipeline', 'critical-path', 'admin']
+}
+
 // ============================================================================
 // Scenario Collections
 // ============================================================================
@@ -336,7 +522,8 @@ export const ALL_SCENARIOS: TestScenario[] = [
   fullFunnelScenario,
   abandonedCartScenario,
   supportEscalationScenario,
-  quickBrowseScenario
+  quickBrowseScenario,
+  warmLeadPipelineScenario
 ]
 
 export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
@@ -346,7 +533,8 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   full_funnel: fullFunnelScenario,
   abandoned_cart: abandonedCartScenario,
   support_escalation: supportEscalationScenario,
-  quick_browse: quickBrowseScenario
+  quick_browse: quickBrowseScenario,
+  warm_lead_pipeline: warmLeadPipelineScenario
 }
 
 /**

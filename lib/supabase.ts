@@ -29,6 +29,8 @@ if (!serviceRoleKey && typeof window === 'undefined') {
 }
 
 // Ensure supabaseAdmin is only created on the server to avoid client-side auth warnings
+// CRITICAL: Force Authorization header via global.headers to prevent auth state contamination
+// from other Supabase clients sharing the same in-memory auth store (same URL = same storageKey)
 export const supabaseAdmin = typeof window === 'undefined'
   ? createClient(
       supabaseUrl,
@@ -37,6 +39,11 @@ export const supabaseAdmin = typeof window === 'undefined'
         auth: {
           autoRefreshToken: false,
           persistSession: false
+        },
+        global: {
+          headers: {
+            Authorization: `Bearer ${serviceRoleKey || supabaseAnonKey}`
+          }
         }
       }
     )

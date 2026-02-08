@@ -65,6 +65,9 @@ export type ScenarioStepType =
   | 'validateDatabase'
   | 'screenshot'
   | 'delay'
+  | 'apiCall'
+  | 'adminAction'
+  | 'waitForData'
 
 export interface NavigateStep {
   type: 'navigate'
@@ -144,6 +147,35 @@ export interface DelayStep {
   randomize?: boolean  // Add ±20% randomization
 }
 
+export interface ApiCallStep {
+  type: 'apiCall'
+  endpoint: string
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE'
+  body?: Record<string, unknown>
+  headers?: Record<string, string>
+  expectedStatus?: number
+  expectedResponse?: Record<string, unknown>
+  description?: string  // Human-readable description for logging
+}
+
+export interface AdminActionStep {
+  type: 'adminAction'
+  action: 'approve_outreach' | 'reject_outreach' | 'send_outreach' | 'trigger_scraping'
+  target?: 'first_draft' | 'first_approved' | 'all' | string
+  options?: Record<string, unknown>
+  description?: string  // Human-readable description for logging
+}
+
+export interface WaitForDataStep {
+  type: 'waitForData'
+  table: string
+  conditions: Record<string, unknown>
+  timeout: number  // ms
+  pollInterval?: number  // ms, default 1000
+  expectedCount?: number  // Expected number of rows
+  description?: string  // Human-readable description for logging
+}
+
 export type ScenarioStep = 
   | NavigateStep
   | BrowseStep
@@ -156,6 +188,9 @@ export type ScenarioStep =
   | ValidateDatabaseStep
   | ScreenshotStep
   | DelayStep
+  | ApiCallStep
+  | AdminActionStep
+  | WaitForDataStep
 
 export interface ValidationRule {
   table: string
