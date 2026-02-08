@@ -120,22 +120,32 @@ export async function GET(request: NextRequest) {
     const warmSourceBreakdown = computeFunnelBySource(warmContacts)
 
     // 8. Outreach queue stats
-    const { data: queueItems } = await supabaseAdmin
+    type QueueItem = {
+      id: string
+      status: string
+      channel: string
+      sequence_step: number
+      sent_at: string | null
+      replied_at: string | null
+      created_at: string
+    }
+    const { data: rawQueueItems } = await supabaseAdmin
       .from('outreach_queue')
       .select('id, status, channel, sequence_step, sent_at, replied_at, created_at')
+    const queueItems: QueueItem[] = rawQueueItems || []
 
     const queueStats = {
-      total: queueItems?.length || 0,
-      draft: queueItems?.filter(q => q.status === 'draft').length || 0,
-      approved: queueItems?.filter(q => q.status === 'approved').length || 0,
-      sent: queueItems?.filter(q => q.status === 'sent').length || 0,
-      replied: queueItems?.filter(q => q.status === 'replied').length || 0,
-      bounced: queueItems?.filter(q => q.status === 'bounced').length || 0,
+      total: queueItems.length,
+      draft: queueItems.filter(q => q.status === 'draft').length,
+      approved: queueItems.filter(q => q.status === 'approved').length,
+      sent: queueItems.filter(q => q.status === 'sent').length,
+      replied: queueItems.filter(q => q.status === 'replied').length,
+      bounced: queueItems.filter(q => q.status === 'bounced').length,
     }
 
     // 9. Channel breakdown
-    const emailItems = queueItems?.filter(q => q.channel === 'email') || []
-    const linkedinItems = queueItems?.filter(q => q.channel === 'linkedin') || []
+    const emailItems = queueItems.filter(q => q.channel === 'email')
+    const linkedinItems = queueItems.filter(q => q.channel === 'linkedin')
 
     const channelStats = {
       email: {
@@ -164,7 +174,7 @@ export async function GET(request: NextRequest) {
 
     // 10. Sequence step performance
     const stepStats: Record<number, { sent: number; replied: number }> = {}
-    for (const item of queueItems || []) {
+    for (const item of queueItems) {
       const step = item.sequence_step
       if (!stepStats[step]) stepStats[step] = { sent: 0, replied: 0 }
       if (item.status === 'sent' || item.status === 'replied') stepStats[step].sent++
