@@ -145,6 +145,7 @@ export interface DelayStep {
   type: 'delay'
   duration: number  // ms
   randomize?: boolean  // Add ±20% randomization
+  description?: string  // Human-readable description for logging
 }
 
 export interface ApiCallStep {
