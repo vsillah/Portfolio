@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       // If table doesn't exist yet, return empty array
-      if (error.code === '42P01' || error.message?.includes('does not exist')) {
+      if (error.code === '42P01' || error.code === 'PGRST205' || error.message?.includes('does not exist')) {
         return NextResponse.json([])
       }
       throw error

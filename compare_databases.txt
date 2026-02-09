@@ -1,0 +1,46 @@
+# DATABASE COMPARISON INSTRUCTIONS
+
+## The Simplest Way (Manual but Reliable)
+
+### In Feb 7th Restored Database:
+Run each of these queries ONE AT A TIME and note the count:
+
+```sql
+SELECT COUNT(*) FROM projects;
+SELECT COUNT(*) FROM music;
+SELECT COUNT(*) FROM videos;
+SELECT COUNT(*) FROM publications;
+SELECT COUNT(*) FROM products;
+SELECT COUNT(*) FROM app_prototypes;
+SELECT COUNT(*) FROM orders;
+SELECT COUNT(*) FROM order_items;
+SELECT COUNT(*) FROM client_projects;
+SELECT COUNT(*) FROM user_profiles;
+```
+
+Write down each result like:
+- projects: 3
+- music: 3  
+- videos: 5
+- etc.
+
+### In Current Database:
+Run the EXACT SAME queries and write down the counts.
+
+### Compare:
+Look for differences. Any table where Feb 7th has MORE rows than current = data loss.
+
+---
+
+## Alternative: List All Tables First
+
+If you want to see what tables exist, run this first:
+
+```sql
+SELECT table_name 
+FROM information_schema.tables
+WHERE table_schema = 'public' 
+ORDER BY table_name;
+```
+
+This shows you all tables in the database.

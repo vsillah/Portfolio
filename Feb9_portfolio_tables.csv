@@ -1,0 +1,49 @@
+Feb 9 Portfolio
+| table_name       | row_count |
+| ---------------- | --------- |
+| analytics_events | 0         |
+
+| table_name     | row_count |
+| -------------- | --------- |
+| app_prototypes | 3         |
+
+| table_name      | row_count |
+| --------------- | --------- |
+| client_projects | 1         |
+
+diagnostic_audits: MISSING
+
+Discount_codes: MISSING
+
+downloads: MISSING
+
+
+| table_name | row_count |
+| ---------- | --------- |
+| music      | 3         |
+
+Order_items: MISSING
+
+| table_name | row_count |
+| ---------- | --------- |
+| products   | 10        |
+
+Product_links: MISSING
+
+| table_name | row_count |
+| ---------- | --------- |
+| projects   | 3         |
+
+| table_name   | row_count |
+| ------------ | --------- |
+| publications | 0         |
+
+Referrals: MISSING
+
+| table_name    | row_count |
+| ------------- | --------- |
+| user_profiles | 1         |
+
+| table_name | row_count |
+| ---------- | --------- |
+| videos     | 0         |

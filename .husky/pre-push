@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running database health check before push..."
+npm run db:health-check || {
+  echo ""
+  echo "❌ Database health check failed!"
+  echo ""
+  echo "Options:"
+  echo "  1. Fix the database issues"
+  echo "  2. Update baseline if changes are intentional: npm run db:health-check:update"
+  echo "  3. Skip this check (NOT RECOMMENDED): git push --no-verify"
+  echo ""
+  exit 1
+}
