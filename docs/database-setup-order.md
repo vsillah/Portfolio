@@ -28,7 +28,19 @@ database_schema_cold_lead_pipeline.sql
 ```
 Adds warm/cold lead tracking, outreach queue, and the `warm_lead_trigger_audit` table.
 
-### 5. **Other Schemas** (Order doesn't matter)
+### 5. **Client Projects** (RUN FIFTH)
+```
+database_schema_client_projects.sql
+```
+Creates `client_projects` and `project_reminders` tables for WF-006 Milestone Planning.
+
+### 6. **Meeting Records** (RUN SIXTH)
+```
+database_schema_meeting_records.sql
+```
+Creates `meeting_records` table for WF-MCH (Meeting Complete Handler). Depends on `client_projects`.
+
+### 7. **Other Schemas** (Order doesn't matter)
 - `database_schema_chat.sql` - Chat sessions and messages
 - `database_schema_diagnostic.sql` - AI diagnostic audits
 - `database_schema_testing.sql` - E2E testing framework

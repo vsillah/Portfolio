@@ -1,0 +1,169 @@
+{
+  "name": "WF-WRM-002: Google Contacts Sync",
+  "nodes": [
+    {
+      "id": "trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "parameters": {
+        "path": "wrm-002-google-contacts",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "responseCode": 200
+      }
+    },
+    {
+      "id": "schedule",
+      "name": "Daily Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 500],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fetch_contacts",
+      "name": "Fetch Google Contacts",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 400],
+      "parameters": {
+        "method": "GET",
+        "url": "https://people.googleapis.com/v1/people/me/connections",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.GOOGLE_CONTACTS_TOKEN}}"
+            }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "personFields",
+              "value": "names,emailAddresses,phoneNumbers,organizations,occupations,locations"
+            },
+            {
+              "name": "pageSize",
+              "value": "1000"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      }
+    },
+    {
+      "id": "normalize",
+      "name": "Normalize Contacts",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 400],
+      "parameters": {
+        "jsCode": "// Normalize Google Contacts API response into lead format\nconst connections = $json.connections || [];\nconst leads = [];\n\nfor (const person of connections) {\n  const names = person.names || [];\n  const emails = person.emailAddresses || [];\n  const phones = person.phoneNumbers || [];\n  const orgs = person.organizations || [];\n  const locations = person.locations || [];\n  \n  const name = names[0]?.displayName || '';\n  if (!name || name.length < 2) continue;\n  \n  const email = emails[0]?.value || '';\n  const phone = phones[0]?.value || '';\n  const company = orgs[0]?.name || '';\n  const jobTitle = orgs[0]?.title || '';\n  const location = locations[0]?.value || '';\n  \n  // Skip contacts without useful business info\n  // (keep those with email, company, or job title)\n  if (!email && !company && !jobTitle) continue;\n  \n  leads.push({\n    name,\n    email: email || undefined,\n    company: company || undefined,\n    job_title: jobTitle || undefined,\n    phone_number: phone || undefined,\n    location: location || undefined,\n    lead_source: 'warm_google_contacts',\n    warm_source_detail: 'Google Contacts sync',\n  });\n}\n\nreturn [{ json: { leads, count: leads.length } }];"
+      }
+    },
+    {
+      "id": "post_ingest",
+      "name": "POST to Ingest API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 400],
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.APP_BASE_URL}}/api/admin/outreach/ingest",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.N8N_INGEST_SECRET}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ leads: $json.leads }) }}"
+      }
+    },
+    {
+      "id": "note",
+      "name": "WF-WRM-002 Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 100],
+      "parameters": {
+        "content": "## WF-WRM-002: Google Contacts Sync\n\n**Triggers:** Daily schedule (8am) or manual webhook\n\n**Steps:**\n1. Fetch contacts from Google People API\n2. Filter for contacts with business info (email, company, job title)\n3. Normalize data format\n4. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- GOOGLE_CONTACTS_TOKEN (OAuth2 access token)\n- APP_BASE_URL\n- N8N_INGEST_SECRET\n\n**Note:** For production, use n8n's built-in Google OAuth2 credential with People API scope."
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Google Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Schedule": {
+      "main": [
+        [
+          {
+            "node": "Fetch Google Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Google Contacts": {
+      "main": [
+        [
+          {
+            "node": "Normalize Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Contacts": {
+      "main": [
+        [
+          {
+            "node": "POST to Ingest API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

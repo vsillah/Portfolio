@@ -1,0 +1,207 @@
+{
+  "name": "WF-WRM-003: LinkedIn Warm Lead Scraper",
+  "nodes": [
+    {
+      "id": "trigger",
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [200, 300],
+      "parameters": {
+        "path": "wrm-003-linkedin",
+        "httpMethod": "POST",
+        "responseMode": "onReceived",
+        "responseCode": 200
+      }
+    },
+    {
+      "id": "schedule",
+      "name": "Weekly Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 500],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [3],
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "scrape_connections",
+      "name": "Scrape LI Connections (Apify)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 250],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.apify.com/v2/acts/addeus~get-connections/runs?token={{$env.APIFY_TOKEN}}&waitForFinish=180",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ cookie: $env.LINKEDIN_COOKIE || '' }) }}",
+        "options": {
+          "timeout": 240000
+        }
+      }
+    },
+    {
+      "id": "scrape_engagement",
+      "name": "Scrape LI Post Engagement (Apify)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 500],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.apify.com/v2/acts/harvestapi~linkedin-profile-posts/runs?token={{$env.APIFY_TOKEN}}&waitForFinish=180",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ profileUrls: [$json.linkedin_profile_url || $env.LINKEDIN_PROFILE_URL], maxPosts: 20, includeComments: true }) }}",
+        "options": {
+          "timeout": 240000
+        }
+      }
+    },
+    {
+      "id": "normalize",
+      "name": "Normalize & Deduplicate",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 400],
+      "parameters": {
+        "jsCode": "// Normalize LinkedIn scraper results into lead format\nconst allItems = $input.all();\nconst seen = new Set();\nconst leads = [];\n\nfor (const item of allItems) {\n  const d = item.json;\n  \n  // Handle connections format (name, headline, profileUrl)\n  // Handle engagement format (commenters, reactors from posts)\n  const name = d.name || d.fullName || d.authorName || d.firstName + ' ' + (d.lastName || '') || '';\n  const profileUrl = d.profileUrl || d.url || d.authorProfileUrl || '';\n  const headline = d.headline || d.title || '';\n  const company = d.company || d.companyName || '';\n  \n  if (!name || name.trim().length < 2) continue;\n  \n  // Extract LinkedIn username from URL\n  let linkedinUsername = '';\n  if (profileUrl) {\n    const match = profileUrl.match(/linkedin\\.com\\/in\\/([^/?]+)/);\n    if (match) linkedinUsername = match[1];\n  }\n  \n  // Deduplicate by LinkedIn username or name\n  const dedupeKey = linkedinUsername || name.toLowerCase().trim();\n  if (seen.has(dedupeKey)) continue;\n  seen.add(dedupeKey);\n  \n  // Determine source type\n  let leadSource = 'warm_linkedin_connections';\n  let sourceDetail = 'LinkedIn 1st-degree connection';\n  \n  if (d.commentText || d.reactionType || d.engagementType) {\n    leadSource = 'warm_linkedin_engagement';\n    sourceDetail = d.commentText\n      ? 'Commented on LinkedIn post'\n      : 'Engaged with LinkedIn post';\n  }\n  \n  leads.push({\n    name: name.trim(),\n    company: company || undefined,\n    job_title: headline || undefined,\n    linkedin_url: profileUrl || undefined,\n    linkedin_username: linkedinUsername || undefined,\n    lead_source: leadSource,\n    warm_source_detail: sourceDetail,\n    location: d.location || d.geoLocation || undefined,\n  });\n}\n\nreturn [{ json: { leads, count: leads.length } }];"
+      }
+    },
+    {
+      "id": "post_ingest",
+      "name": "POST to Ingest API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 400],
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.APP_BASE_URL}}/api/admin/outreach/ingest",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$env.N8N_INGEST_SECRET}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ leads: $json.leads }) }}"
+      }
+    },
+    {
+      "id": "note",
+      "name": "WF-WRM-003 Info",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [100, 100],
+      "parameters": {
+        "content": "## WF-WRM-003: LinkedIn Warm Lead Scraper\n\n**Triggers:** Weekly schedule (Wed 9am) or manual webhook\n\n**Steps:**\n1. Scrape LinkedIn 1st-degree connections via Apify (addeus/get-connections)\n2. Scrape LinkedIn post engagement via Apify (harvestapi/linkedin-profile-posts)\n3. Normalize & deduplicate all results\n4. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- APIFY_TOKEN\n- LINKEDIN_COOKIE (li_at cookie for connections scraper)\n- LINKEDIN_PROFILE_URL\n- APP_BASE_URL\n- N8N_INGEST_SECRET\n\n**Note:** LinkedIn profile viewers data is only accessible within LinkedIn's logged-in UI and cannot be reliably scraped. This workflow covers connections + post engagement."
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Scrape LI Connections (Apify)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scrape LI Post Engagement (Apify)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Schedule": {
+      "main": [
+        [
+          {
+            "node": "Scrape LI Connections (Apify)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scrape LI Post Engagement (Apify)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape LI Connections (Apify)": {
+      "main": [
+        [
+          {
+            "node": "Normalize & Deduplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape LI Post Engagement (Apify)": {
+      "main": [
+        [
+          {
+            "node": "Normalize & Deduplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize & Deduplicate": {
+      "main": [
+        [
+          {
+            "node": "POST to Ingest API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
