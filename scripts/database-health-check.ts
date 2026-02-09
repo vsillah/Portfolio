@@ -10,6 +10,11 @@
  * Usage: npx tsx scripts/database-health-check.ts
  */
 
+// Load environment variables from .env.local
+import { config } from 'dotenv'
+import { resolve } from 'path'
+config({ path: resolve(process.cwd(), '.env.local') })
+
 import { createClient } from '@supabase/supabase-js'
 import * as fs from 'fs'
 import * as path from 'path'
