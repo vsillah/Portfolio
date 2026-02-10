@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     // Trigger based on source
     if (source === 'all') {
-      // Trigger all sources sequentially
+      // Trigger all sources in parallel
       const [fbResult, gcResult, liResult] = await Promise.all([
         triggerSource('facebook'),
         triggerSource('google_contacts'),

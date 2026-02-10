@@ -134,7 +134,6 @@ export async function POST(request: NextRequest) {
     const stats = orchestrator.getStats()
     
     activeOrchestrators.set(stats.runId, orchestrator)
-    // #endregion
     
     // Schedule cleanup of orchestrator reference
     setTimeout(() => {

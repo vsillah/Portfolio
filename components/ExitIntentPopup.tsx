@@ -10,18 +10,25 @@ interface ExitIntentPopupProps {
   discountCode?: string
   discountAmount?: number
   onApplyDiscount?: () => void
+  appliedDiscountCode?: string | null
 }
 
 export default function ExitIntentPopup({
   discountCode,
   discountAmount = 20,
   onApplyDiscount,
+  appliedDiscountCode,
 }: ExitIntentPopupProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [hasShown, setHasShown] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
+    // Don't show if discount already applied
+    if (appliedDiscountCode) {
+      return
+    }
+    
     // Check if already shown in this session
     if (typeof window !== 'undefined') {
       const shown = sessionStorage.getItem('exitIntentShown')
@@ -32,7 +39,7 @@ export default function ExitIntentPopup({
     }
 
     const cleanup = detectExitIntent(() => {
-      if (!hasShown && !isOpen) {
+      if (!hasShown && !isOpen && !appliedDiscountCode) {
         setIsOpen(true)
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('exitIntentShown', 'true')
@@ -41,7 +48,7 @@ export default function ExitIntentPopup({
     })
 
     return cleanup
-  }, [hasShown, isOpen])
+  }, [hasShown, isOpen, appliedDiscountCode])
 
   const handleClose = () => {
     setIsOpen(false)

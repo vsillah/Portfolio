@@ -225,9 +225,231 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     marginTop: 5,
   },
+  // Value Assessment styles
+  vaPage: {
+    padding: 40,
+    fontSize: 11,
+    fontFamily: 'Helvetica',
+    color: '#1a1a1a',
+  },
+  vaBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  vaBadgeText: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#059669',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    backgroundColor: '#ecfdf5',
+    padding: '4 8',
+    borderRadius: 3,
+  },
+  vaTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#065f46',
+    marginBottom: 6,
+  },
+  vaSubtitle: {
+    fontSize: 11,
+    color: '#6b7280',
+    marginBottom: 24,
+    lineHeight: 1.6,
+  },
+  vaStatRow: {
+    flexDirection: 'row',
+    marginBottom: 20,
+    gap: 12,
+  },
+  vaStatCard: {
+    flex: 1,
+    padding: 14,
+    backgroundColor: '#f0fdf4',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#bbf7d0',
+  },
+  vaStatLabel: {
+    fontSize: 8,
+    fontWeight: 'bold',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 4,
+  },
+  vaStatValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#065f46',
+  },
+  vaStatNote: {
+    fontSize: 8,
+    color: '#059669',
+    marginTop: 2,
+  },
+  vaPainPointHeader: {
+    flexDirection: 'row',
+    backgroundColor: '#065f46',
+    padding: 10,
+    borderTopLeftRadius: 4,
+    borderTopRightRadius: 4,
+  },
+  vaPainPointHeaderText: {
+    fontSize: 9,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    textTransform: 'uppercase',
+  },
+  vaPainPointRow: {
+    flexDirection: 'row',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+  },
+  vaPainPointRowAlt: {
+    flexDirection: 'row',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e7eb',
+    backgroundColor: '#f9fafb',
+  },
+  vaPpColName: {
+    flex: 3,
+  },
+  vaPpColMethod: {
+    flex: 2,
+    textAlign: 'center',
+  },
+  vaPpColValue: {
+    flex: 1.5,
+    textAlign: 'right',
+  },
+  vaPpColConfidence: {
+    flex: 1,
+    textAlign: 'center',
+  },
+  vaPpName: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#1a1a1a',
+  },
+  vaPpFormula: {
+    fontSize: 8,
+    color: '#6b7280',
+    marginTop: 2,
+  },
+  vaPpMethod: {
+    fontSize: 9,
+    color: '#6b7280',
+  },
+  vaPpValue: {
+    fontSize: 10,
+    fontWeight: 'bold',
+    color: '#065f46',
+  },
+  vaPpConfHigh: {
+    fontSize: 8,
+    color: '#059669',
+    backgroundColor: '#ecfdf5',
+    padding: '2 6',
+    borderRadius: 3,
+    textAlign: 'center',
+  },
+  vaPpConfMedium: {
+    fontSize: 8,
+    color: '#d97706',
+    backgroundColor: '#fffbeb',
+    padding: '2 6',
+    borderRadius: 3,
+    textAlign: 'center',
+  },
+  vaPpConfLow: {
+    fontSize: 8,
+    color: '#6b7280',
+    backgroundColor: '#f3f4f6',
+    padding: '2 6',
+    borderRadius: 3,
+    textAlign: 'center',
+  },
+  vaTotalRow: {
+    flexDirection: 'row',
+    padding: 12,
+    backgroundColor: '#065f46',
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
+  },
+  vaTotalLabel: {
+    flex: 5,
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  vaTotalValue: {
+    flex: 2.5,
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    textAlign: 'right',
+  },
+  vaBridge: {
+    marginTop: 24,
+    padding: 16,
+    backgroundColor: '#f0fdf4',
+    borderRadius: 6,
+    borderLeftWidth: 4,
+    borderLeftColor: '#059669',
+  },
+  vaBridgeText: {
+    fontSize: 11,
+    color: '#065f46',
+    lineHeight: 1.6,
+  },
+  vaBridgeBold: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#065f46',
+  },
+  vaDisclaimer: {
+    marginTop: 16,
+    fontSize: 8,
+    color: '#9ca3af',
+    fontStyle: 'italic',
+    lineHeight: 1.4,
+  },
+  vaFooter: {
+    position: 'absolute',
+    bottom: 30,
+    left: 40,
+    right: 40,
+    textAlign: 'center',
+    fontSize: 9,
+    color: '#9ca3af',
+  },
 });
 
 // Types
+export interface ProposalValueStatement {
+  painPoint: string;
+  painPointId?: string;
+  annualValue: number;
+  calculationMethod: string;
+  formulaReadable: string;
+  evidenceSummary: string;
+  confidence: 'high' | 'medium' | 'low';
+}
+
+export interface ProposalValueAssessment {
+  totalAnnualValue: number;
+  industry: string;
+  companySizeRange: string;
+  valueStatements: ProposalValueStatement[];
+  roi?: number;
+  roiStatement?: string;
+}
+
 export interface ProposalLineItem {
   content_type: string;
   content_id: string;
@@ -255,6 +477,7 @@ export interface ProposalData {
   valid_until?: string;
   created_at: string;
   company_name?: string;
+  value_assessment?: ProposalValueAssessment;
 }
 
 // Role display labels
@@ -269,11 +492,35 @@ const ROLE_LABELS: Record<string, string> = {
   continuity: 'Ongoing',
 };
 
+// Calculation method display labels
+const CALC_METHOD_LABELS: Record<string, string> = {
+  time_saved: 'Time Savings',
+  error_reduction: 'Error Reduction',
+  revenue_acceleration: 'Revenue Acceleration',
+  opportunity_cost: 'Opportunity Cost',
+  replacement_cost: 'Replacement Cost',
+};
+
+const CONFIDENCE_DISPLAY: Record<string, string> = {
+  high: 'High',
+  medium: 'Medium',
+  low: 'Low',
+};
+
 // Format currency
 const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
+  }).format(amount);
+};
+
+// Format currency short (no decimals)
+const formatCurrencyShort = (amount: number): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
   }).format(amount);
 };
 
@@ -286,7 +533,153 @@ const formatDate = (dateString: string): string => {
   });
 };
 
+// ============================================================================
+// Value Assessment PDF Page
+// ============================================================================
+
+const ValueAssessmentPage: React.FC<{
+  assessment: ProposalValueAssessment;
+  totalAmount: number;
+  clientCompany?: string;
+}> = ({ assessment, totalAmount, clientCompany }) => {
+  const companyRef = clientCompany || 'your business';
+  const roi = assessment.roi ?? (
+    totalAmount > 0 ? Math.round((assessment.totalAnnualValue / totalAmount) * 10) / 10 : 0
+  );
+  const roiStatement = assessment.roiStatement ?? (
+    `For every $1 invested, ${companyRef} stands to recover $${roi.toFixed(1)} in annual value.`
+  );
+  const monthlyCost = assessment.totalAnnualValue / 12;
+
+  return (
+    <Page size="A4" style={styles.vaPage}>
+      {/* Badge */}
+      <View style={styles.vaBadge}>
+        <Text style={styles.vaBadgeText}>Value Assessment</Text>
+      </View>
+
+      {/* Title */}
+      <Text style={styles.vaTitle}>Why This Matters</Text>
+      <Text style={styles.vaSubtitle}>
+        Based on our analysis of businesses in {assessment.industry || 'your industry'} with{' '}
+        {assessment.companySizeRange || '11-50'} employees, we have identified{' '}
+        {assessment.valueStatements.length} area{assessment.valueStatements.length !== 1 ? 's' : ''}{' '}
+        where {companyRef} may be losing an estimated{' '}
+        {formatCurrencyShort(assessment.totalAnnualValue)} per year to operational inefficiencies
+        and missed opportunities.
+      </Text>
+
+      {/* Stat Cards */}
+      <View style={styles.vaStatRow}>
+        <View style={styles.vaStatCard}>
+          <Text style={styles.vaStatLabel}>Annual Cost of Inaction</Text>
+          <Text style={styles.vaStatValue}>{formatCurrencyShort(assessment.totalAnnualValue)}</Text>
+          <Text style={styles.vaStatNote}>{formatCurrencyShort(monthlyCost)}/month</Text>
+        </View>
+        <View style={styles.vaStatCard}>
+          <Text style={styles.vaStatLabel}>Your Investment</Text>
+          <Text style={styles.vaStatValue}>{formatCurrencyShort(totalAmount)}</Text>
+          <Text style={styles.vaStatNote}>One-time</Text>
+        </View>
+        <View style={styles.vaStatCard}>
+          <Text style={styles.vaStatLabel}>Return on Investment</Text>
+          <Text style={styles.vaStatValue}>{roi.toFixed(1)}x</Text>
+          <Text style={styles.vaStatNote}>{roiStatement}</Text>
+        </View>
+      </View>
+
+      {/* Pain Points Table */}
+      <View>
+        <View style={styles.vaPainPointHeader}>
+          <View style={styles.vaPpColName}>
+            <Text style={styles.vaPainPointHeaderText}>Pain Point</Text>
+          </View>
+          <View style={styles.vaPpColMethod}>
+            <Text style={styles.vaPainPointHeaderText}>Method</Text>
+          </View>
+          <View style={styles.vaPpColConfidence}>
+            <Text style={styles.vaPainPointHeaderText}>Confidence</Text>
+          </View>
+          <View style={styles.vaPpColValue}>
+            <Text style={styles.vaPainPointHeaderText}>Annual Impact</Text>
+          </View>
+        </View>
+
+        {assessment.valueStatements.map((stmt, index) => (
+          <View
+            key={index}
+            style={index % 2 === 0 ? styles.vaPainPointRow : styles.vaPainPointRowAlt}
+          >
+            <View style={styles.vaPpColName}>
+              <Text style={styles.vaPpName}>{stmt.painPoint}</Text>
+              <Text style={styles.vaPpFormula}>{stmt.evidenceSummary}</Text>
+            </View>
+            <View style={styles.vaPpColMethod}>
+              <Text style={styles.vaPpMethod}>
+                {CALC_METHOD_LABELS[stmt.calculationMethod] || stmt.calculationMethod}
+              </Text>
+            </View>
+            <View style={styles.vaPpColConfidence}>
+              <Text
+                style={
+                  stmt.confidence === 'high'
+                    ? styles.vaPpConfHigh
+                    : stmt.confidence === 'medium'
+                    ? styles.vaPpConfMedium
+                    : styles.vaPpConfLow
+                }
+              >
+                {CONFIDENCE_DISPLAY[stmt.confidence] || stmt.confidence}
+              </Text>
+            </View>
+            <View style={styles.vaPpColValue}>
+              <Text style={styles.vaPpValue}>{formatCurrencyShort(stmt.annualValue)}/yr</Text>
+            </View>
+          </View>
+        ))}
+
+        {/* Total Row */}
+        <View style={styles.vaTotalRow}>
+          <Text style={styles.vaTotalLabel}>
+            Total Estimated Annual Impact
+          </Text>
+          <Text style={styles.vaTotalValue}>
+            {formatCurrencyShort(assessment.totalAnnualValue)}/yr
+          </Text>
+        </View>
+      </View>
+
+      {/* Bridge to Solution */}
+      <View style={styles.vaBridge}>
+        <Text style={styles.vaBridgeText}>
+          The proposed solution on the following page directly addresses these pain points.{' '}
+        </Text>
+        <Text style={styles.vaBridgeBold}>
+          At {formatCurrencyShort(totalAmount)}, your investment pays for itself in as little as{' '}
+          {Math.max(1, Math.ceil(totalAmount / (assessment.totalAnnualValue / 12)))} month
+          {Math.ceil(totalAmount / (assessment.totalAnnualValue / 12)) !== 1 ? 's' : ''}.
+        </Text>
+      </View>
+
+      {/* Disclaimer */}
+      <Text style={styles.vaDisclaimer}>
+        Values calculated using industry benchmarks, proprietary analysis, and market intelligence.
+        Actual results may vary based on implementation and business-specific factors.
+        Full methodology available upon request.
+      </Text>
+
+      {/* Footer */}
+      <Text style={styles.vaFooter}>
+        Value Assessment - Confidential
+      </Text>
+    </Page>
+  );
+};
+
+// ============================================================================
 // Proposal Document Component
+// ============================================================================
+
 export const ProposalDocument: React.FC<{ data: ProposalData }> = ({ data }) => {
   const totalPerceivedValue = data.line_items.reduce(
     (sum, item) => sum + (item.perceived_value || item.price),
@@ -296,6 +689,15 @@ export const ProposalDocument: React.FC<{ data: ProposalData }> = ({ data }) => 
 
   return (
     <Document>
+      {/* Value Assessment Page (inserted before the main proposal if data exists) */}
+      {data.value_assessment && data.value_assessment.valueStatements.length > 0 && (
+        <ValueAssessmentPage
+          assessment={data.value_assessment}
+          totalAmount={data.total_amount}
+          clientCompany={data.client_company}
+        />
+      )}
+
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header}>

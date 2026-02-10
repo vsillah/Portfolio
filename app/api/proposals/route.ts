@@ -1,10 +1,11 @@
 // API Route: Create Proposal
 // POST - Create a new proposal from sales session data
+// Now supports optional value_report_id to embed value evidence into the proposal
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
-import { generateProposalPDF, ProposalData } from '@/lib/proposal-pdf';
+import { generateProposalPDF, ProposalData, ProposalValueAssessment } from '@/lib/proposal-pdf';
 
 export async function POST(request: NextRequest) {
   try {
@@ -29,6 +30,7 @@ export async function POST(request: NextRequest) {
       total_amount,
       terms_text,
       valid_days = 30, // Default 30 day validity
+      value_report_id, // Optional: link to a value evidence report
     } = body;
 
     // Validate required fields
@@ -39,30 +41,84 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // =========================================================================
+    // Fetch and snapshot value assessment if a value_report_id is provided
+    // =========================================================================
+    let valueAssessment: ProposalValueAssessment | null = null;
+
+    if (value_report_id) {
+      try {
+        const { data: valueReport, error: vrError } = await supabaseAdmin
+          .from('value_reports')
+          .select('*')
+          .eq('id', value_report_id)
+          .single();
+
+        if (!vrError && valueReport) {
+          const statements = (valueReport.value_statements || []) as Array<{
+            painPoint: string;
+            painPointId?: string;
+            annualValue: number;
+            calculationMethod: string;
+            formulaReadable: string;
+            evidenceSummary: string;
+            confidence: 'high' | 'medium' | 'low';
+          }>;
+
+          const totalAnnualValue = valueReport.total_annual_value || 0;
+          const roi = total_amount > 0
+            ? Math.round((totalAnnualValue / total_amount) * 10) / 10
+            : 0;
+
+          valueAssessment = {
+            totalAnnualValue,
+            industry: valueReport.industry || '',
+            companySizeRange: valueReport.company_size_range || '11-50',
+            valueStatements: statements,
+            roi,
+            roiStatement: `For every $1 invested, ${client_company || 'your business'} stands to recover $${roi.toFixed(1)} in annual value.`,
+          };
+        }
+      } catch (vaError) {
+        console.error('Error fetching value report for proposal:', vaError);
+        // Continue without value assessment - not critical
+      }
+    }
+
     // Calculate valid_until
     const valid_until = new Date();
     valid_until.setDate(valid_until.getDate() + valid_days);
 
-    // Create proposal record
+    // Create proposal record (with value assessment snapshot)
+    const insertData: Record<string, unknown> = {
+      sales_session_id,
+      client_name,
+      client_email,
+      client_company,
+      bundle_id,
+      bundle_name,
+      line_items,
+      subtotal: subtotal || total_amount,
+      discount_amount: discount_amount || 0,
+      discount_description,
+      total_amount,
+      terms_text: terms_text || getDefaultTerms(),
+      valid_until: valid_until.toISOString(),
+      status: 'draft',
+      created_by: adminResult.user.id,
+    };
+
+    // Attach value evidence columns if available
+    if (value_report_id) {
+      insertData.value_report_id = value_report_id;
+    }
+    if (valueAssessment) {
+      insertData.value_assessment = valueAssessment;
+    }
+
     const { data: proposal, error: createError } = await supabaseAdmin
       .from('proposals')
-      .insert({
-        sales_session_id,
-        client_name,
-        client_email,
-        client_company,
-        bundle_id,
-        bundle_name,
-        line_items,
-        subtotal: subtotal || total_amount,
-        discount_amount: discount_amount || 0,
-        discount_description,
-        total_amount,
-        terms_text: terms_text || getDefaultTerms(),
-        valid_until: valid_until.toISOString(),
-        status: 'draft',
-        created_by: adminResult.user.id,
-      })
+      .insert(insertData)
       .select()
       .single();
 
@@ -71,7 +127,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create proposal' }, { status: 500 });
     }
 
-    // Generate PDF
+    // Generate PDF (now with value assessment if present)
     try {
       const pdfData: ProposalData = {
         id: proposal.id,
@@ -87,6 +143,7 @@ export async function POST(request: NextRequest) {
         terms_text: proposal.terms_text,
         valid_until: proposal.valid_until,
         created_at: proposal.created_at,
+        value_assessment: valueAssessment || undefined,
       };
 
       const pdfBuffer = await generateProposalPDF(pdfData);

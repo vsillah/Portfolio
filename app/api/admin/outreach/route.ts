@@ -22,6 +22,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') || 'draft'
     const channel = searchParams.get('channel')
     const search = searchParams.get('search')
+    const contactId = searchParams.get('contact') // Filter by specific contact
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '50', 10)
     const offset = (page - 1) * limit
@@ -79,6 +80,10 @@ export async function GET(request: NextRequest) {
 
     if (channel && channel !== 'all') {
       query = query.eq('channel', channel)
+    }
+
+    if (contactId) {
+      query = query.eq('contact_submission_id', parseInt(contactId))
     }
 
     if (search) {

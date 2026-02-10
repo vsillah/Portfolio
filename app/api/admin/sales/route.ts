@@ -30,6 +30,8 @@ export async function GET(request: NextRequest) {
           name,
           email,
           company,
+          industry,
+          employee_count,
           created_at
         )
       `)

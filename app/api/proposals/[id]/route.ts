@@ -46,11 +46,19 @@ export async function GET(
     const canAccept = !isExpired && ['draft', 'sent', 'viewed'].includes(proposal.status);
     const canPay = proposal.status === 'accepted';
 
+    // Check if this proposal has value evidence embedded
+    const hasValueAssessment = !!(
+      proposal.value_assessment &&
+      proposal.value_assessment.valueStatements &&
+      proposal.value_assessment.valueStatements.length > 0
+    );
+
     return NextResponse.json({
       proposal,
       canAccept,
       canPay,
       isExpired,
+      hasValueAssessment,
     });
 
   } catch (error) {

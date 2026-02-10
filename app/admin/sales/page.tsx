@@ -403,13 +403,24 @@ export default function SalesDashboardPage() {
                       )}
                     </td>
                     <td className="px-4 py-4 text-right">
-                      <Link
-                        href={`/admin/sales/${audit.id}`}
-                        className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700"
-                      >
-                        {audit.sales_session ? 'Continue' : 'Start Call'}
-                        <ArrowRight className="w-4 h-4" />
-                      </Link>
+                      <div className="flex items-center justify-end gap-2">
+                        {audit.contact_id && (
+                          <Link
+                            href={`/admin/outreach?tab=leads&id=${audit.contact_id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-900/30 hover:bg-purple-800/50 text-purple-400 rounded-lg text-sm transition-colors"
+                          >
+                            <Users className="w-4 h-4" />
+                            View Lead
+                          </Link>
+                        )}
+                        <Link
+                          href={`/admin/sales/${audit.id}`}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700"
+                        >
+                          {audit.sales_session ? 'Continue' : 'Start Call'}
+                          <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

@@ -866,17 +866,19 @@ export async function triggerWarmLeadScrape(params: {
   }
 
   try {
+    const payload = {
+      source: params.source,
+      triggered_at: new Date().toISOString(),
+      ...params.options,
+    }
+    
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({
-        source: params.source,
-        triggered_at: new Date().toISOString(),
-        ...params.options,
-      }),
+      body: JSON.stringify(payload),
     })
 
     if (!response.ok) {
@@ -888,6 +890,90 @@ export async function triggerWarmLeadScrape(params: {
     return { triggered: true, message: `${params.source} scrape triggered successfully` }
   } catch (error) {
     console.error(`Warm lead scrape (${params.source}) webhook failed:`, error)
+    return { triggered: false, message: 'Webhook call failed' }
+  }
+}
+
+// ============================================================================
+// Value Evidence Pipeline Webhook Functions
+// ============================================================================
+
+const N8N_VEP001_WEBHOOK_URL = process.env.N8N_VEP001_WEBHOOK_URL  // Internal extraction
+const N8N_VEP002_WEBHOOK_URL = process.env.N8N_VEP002_WEBHOOK_URL  // Social listening
+
+/**
+ * Trigger the internal value evidence extraction workflow (WF-VEP-001)
+ * Extracts pain points from diagnostic audits, quick wins, lead reports, and outreach replies
+ * Results are POSTed back to /api/admin/value-evidence/ingest
+ */
+export async function triggerValueEvidenceExtraction(): Promise<{ triggered: boolean; message: string }> {
+  if (!N8N_VEP001_WEBHOOK_URL) {
+    console.warn('N8N_VEP001_WEBHOOK_URL not configured - skipping value evidence extraction')
+    return { triggered: false, message: 'N8N_VEP001_WEBHOOK_URL not configured' }
+  }
+
+  try {
+    const response = await fetch(N8N_VEP001_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        triggered_at: new Date().toISOString(),
+        workflow: 'WF-VEP-001',
+        action: 'extract_internal_evidence',
+      }),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('VEP-001 webhook error:', response.status, errorText)
+      return { triggered: false, message: `Webhook returned ${response.status}` }
+    }
+
+    return { triggered: true, message: 'Internal extraction workflow triggered successfully' }
+  } catch (error) {
+    console.error('VEP-001 webhook failed:', error)
+    return { triggered: false, message: 'Webhook call failed' }
+  }
+}
+
+/**
+ * Trigger the social listening workflow (WF-VEP-002)
+ * Scrapes LinkedIn, Reddit, G2, Capterra, etc. for pain point mentions
+ * Results are POSTed back to /api/admin/value-evidence/ingest-market
+ * then classified and sent to /api/admin/value-evidence/ingest
+ */
+export async function triggerSocialListening(): Promise<{ triggered: boolean; message: string }> {
+  if (!N8N_VEP002_WEBHOOK_URL) {
+    console.warn('N8N_VEP002_WEBHOOK_URL not configured - skipping social listening')
+    return { triggered: false, message: 'N8N_VEP002_WEBHOOK_URL not configured' }
+  }
+
+  try {
+    const response = await fetch(N8N_VEP002_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        triggered_at: new Date().toISOString(),
+        workflow: 'WF-VEP-002',
+        action: 'social_listening_scrape',
+      }),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('VEP-002 webhook error:', response.status, errorText)
+      return { triggered: false, message: `Webhook returned ${response.status}` }
+    }
+
+    return { triggered: true, message: 'Social listening workflow triggered successfully' }
+  } catch (error) {
+    console.error('VEP-002 webhook failed:', error)
     return { triggered: false, message: 'Webhook call failed' }
   }
 }

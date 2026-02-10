@@ -31,6 +31,7 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import Link from 'next/link'
 
 interface FunnelData {
   total: number
@@ -75,6 +76,7 @@ interface RecentActivity {
   sent_at: string | null
   replied_at: string | null
   contact_submissions: {
+    id: number
     name: string
     company: string
     lead_score: number
@@ -522,7 +524,7 @@ function DashboardContent() {
                 </div>
               </div>
 
-              {/* Trigger All Button */}
+              {/* Trigger All Warm Sources Button */}
               <button
                 onClick={() => triggerScraping('all')}
                 disabled={triggeringSource !== null}
@@ -531,9 +533,9 @@ function DashboardContent() {
                 {triggeringSource === 'all' ? (
                   <RefreshCw size={20} className="animate-spin" />
                 ) : (
-                  <Play size={20} />
+                  <Flame size={20} />
                 )}
-                {triggeringSource === 'all' ? 'Triggering All Sources...' : 'Trigger All Sources'}
+                {triggeringSource === 'all' ? 'Triggering All Warm Sources...' : 'Trigger All Warm Sources'}
               </button>
             </div>
           )}
@@ -541,18 +543,19 @@ function DashboardContent() {
 
         {/* Lead Temperature Summary */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-gradient-to-br from-orange-900/30 to-amber-800/10 border border-orange-700/30 rounded-xl p-5"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Flame size={20} className="text-orange-400" />
-                <span className="font-semibold text-orange-300">Warm Leads</span>
+          <Link href="/admin/outreach?tab=leads&filter=warm">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-gradient-to-br from-orange-900/30 to-amber-800/10 border border-orange-700/30 rounded-xl p-5 cursor-pointer hover:border-orange-600/50 transition-all"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Flame size={20} className="text-orange-400" />
+                  <span className="font-semibold text-orange-300">Warm Leads</span>
+                </div>
+                <span className="text-2xl font-bold">{data.warmFunnel.total}</span>
               </div>
-              <span className="text-2xl font-bold">{data.warmFunnel.total}</span>
-            </div>
             <div className="grid grid-cols-4 gap-3 text-xs">
               <div>
                 <div className="text-gray-500">Enriched</div>
@@ -571,20 +574,22 @@ function DashboardContent() {
                 <div className="font-medium text-emerald-400">{data.warmFunnel.booked}</div>
               </div>
             </div>
-          </motion.div>
+            </motion.div>
+          </Link>
 
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-gradient-to-br from-blue-900/30 to-cyan-800/10 border border-blue-700/30 rounded-xl p-5"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Snowflake size={20} className="text-blue-400" />
-                <span className="font-semibold text-blue-300">Cold Leads</span>
+          <Link href="/admin/outreach?tab=leads&filter=cold">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="bg-gradient-to-br from-blue-900/30 to-cyan-800/10 border border-blue-700/30 rounded-xl p-5 cursor-pointer hover:border-blue-600/50 transition-all"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Snowflake size={20} className="text-blue-400" />
+                  <span className="font-semibold text-blue-300">Cold Leads</span>
+                </div>
+                <span className="text-2xl font-bold">{data.coldFunnel.total}</span>
               </div>
-              <span className="text-2xl font-bold">{data.coldFunnel.total}</span>
-            </div>
             <div className="grid grid-cols-4 gap-3 text-xs">
               <div>
                 <div className="text-gray-500">Enriched</div>
@@ -603,7 +608,8 @@ function DashboardContent() {
                 <div className="font-medium text-emerald-400">{data.coldFunnel.booked}</div>
               </div>
             </div>
-          </motion.div>
+            </motion.div>
+          </Link>
         </div>
 
         {/* Funnel Visualization */}
@@ -622,28 +628,42 @@ function DashboardContent() {
             )}
           </h2>
           <div className="flex items-center gap-2">
-            {funnelSteps.map((step, index) => (
-              <div key={step.label} className="flex items-center flex-1">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="flex-1 bg-white/5 border border-white/10 rounded-xl p-4 text-center"
-                >
-                  <step.icon size={24} className={`mx-auto mb-2 ${step.color}`} />
-                  <div className="text-2xl font-bold">{step.value}</div>
-                  <div className="text-xs text-gray-400 mt-1">{step.label}</div>
-                  {index > 0 && step.value > 0 && funnelSteps[index - 1].value > 0 && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      {Math.round((step.value / funnelSteps[index - 1].value) * 100)}%
-                    </div>
+            {funnelSteps.map((step, index) => {
+              const statusMap: Record<string, string> = {
+                'Sourced': 'all',
+                'Enriched': 'all', // enriched is determined by lead_score not null
+                'Contacted': 'sequence_active',
+                'Replied': 'replied',
+                'Booked': 'booked'
+              }
+              const statusFilter = statusMap[step.label] || 'all'
+              const filterParam = tempFilter !== 'all' ? `&filter=${tempFilter}` : ''
+              
+              return (
+                <div key={step.label} className="flex items-center flex-1">
+                  <Link href={`/admin/outreach?tab=leads${filterParam}${statusFilter !== 'all' ? `&status=${statusFilter}` : ''}`} className="flex-1">
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="flex-1 bg-white/5 border border-white/10 rounded-xl p-4 text-center cursor-pointer hover:bg-white/10 hover:border-blue-500/50 transition-all"
+                    >
+                      <step.icon size={24} className={`mx-auto mb-2 ${step.color}`} />
+                      <div className="text-2xl font-bold">{step.value}</div>
+                      <div className="text-xs text-gray-400 mt-1">{step.label}</div>
+                      {index > 0 && step.value > 0 && funnelSteps[index - 1].value > 0 && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          {Math.round((step.value / funnelSteps[index - 1].value) * 100)}%
+                        </div>
+                      )}
+                    </motion.div>
+                  </Link>
+                  {index < funnelSteps.length - 1 && (
+                    <ArrowRight size={16} className="text-gray-600 mx-1 flex-shrink-0" />
                   )}
-                </motion.div>
-                {index < funnelSteps.length - 1 && (
-                  <ArrowRight size={16} className="text-gray-600 mx-1 flex-shrink-0" />
-                )}
-              </div>
-            ))}
+                </div>
+              )
+            })}
           </div>
         </div>
 
@@ -759,21 +779,22 @@ function DashboardContent() {
                   const { Icon: SourceIcon, color: iconColor } = getSourceIcon(source)
                   const isWarm = source.startsWith('warm_')
                   return (
-                    <div key={source} className="p-3 bg-black/30 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <SourceIcon size={14} className={iconColor} />
-                          <span className="font-medium text-sm">{formatSourceLabel(source)}</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                            isWarm
-                              ? 'bg-orange-900/50 text-orange-400 border border-orange-800'
-                              : 'bg-blue-900/50 text-blue-400 border border-blue-800'
-                          }`}>
-                            {isWarm ? 'WARM' : 'COLD'}
-                          </span>
+                    <Link key={source} href={`/admin/outreach?tab=leads&source=${source}`}>
+                      <div className="p-3 bg-black/30 rounded-lg hover:bg-black/50 cursor-pointer transition-all hover:border hover:border-blue-500/50">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <SourceIcon size={14} className={iconColor} />
+                            <span className="font-medium text-sm">{formatSourceLabel(source)}</span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                              isWarm
+                                ? 'bg-orange-900/50 text-orange-400 border border-orange-800'
+                                : 'bg-blue-900/50 text-blue-400 border border-blue-800'
+                            }`}>
+                              {isWarm ? 'WARM' : 'COLD'}
+                            </span>
+                          </div>
+                          <span className="text-xs text-gray-400">{stats.total} leads</span>
                         </div>
-                        <span className="text-xs text-gray-400">{stats.total} leads</span>
-                      </div>
                       <div className="grid grid-cols-5 gap-2 text-xs">
                         <div>
                           <div className="text-gray-500">Enriched</div>
@@ -796,7 +817,8 @@ function DashboardContent() {
                           <div className="font-medium text-red-400">{stats.opted_out}</div>
                         </div>
                       </div>
-                    </div>
+                      </div>
+                    </Link>
                   )
                 })}
               </div>
@@ -874,25 +896,23 @@ function DashboardContent() {
           {data.recentActivity.length > 0 ? (
             <div className="space-y-2">
               {data.recentActivity.map((activity) => (
-                <div
-                  key={activity.id}
-                  className="flex items-center justify-between p-3 bg-black/30 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    {activity.channel === 'email' ? (
-                      <Mail size={16} className="text-blue-400" />
-                    ) : (
-                      <Linkedin size={16} className="text-sky-400" />
-                    )}
-                    <div>
-                      <span className="font-medium text-sm">
-                        {activity.contact_submissions?.name || 'Unknown'}
-                      </span>
-                      <span className="text-gray-500 text-sm mx-2">
-                        {activity.contact_submissions?.company || ''}
-                      </span>
+                <Link key={activity.id} href={`/admin/outreach?tab=leads&id=${activity.contact_submissions?.id || ''}`}>
+                  <div className="flex items-center justify-between p-3 bg-black/30 rounded-lg hover:bg-black/50 cursor-pointer transition-all hover:border hover:border-blue-500/50">
+                    <div className="flex items-center gap-3">
+                      {activity.channel === 'email' ? (
+                        <Mail size={16} className="text-blue-400" />
+                      ) : (
+                        <Linkedin size={16} className="text-sky-400" />
+                      )}
+                      <div>
+                        <span className="font-medium text-sm">
+                          {activity.contact_submissions?.name || 'Unknown'}
+                        </span>
+                        <span className="text-gray-500 text-sm mx-2">
+                          {activity.contact_submissions?.company || ''}
+                        </span>
+                      </div>
                     </div>
-                  </div>
                   <div className="flex items-center gap-3 text-xs">
                     <span className={`px-2 py-0.5 rounded ${
                       activity.status === 'replied'
@@ -910,7 +930,8 @@ function DashboardContent() {
                         : ''}
                     </span>
                   </div>
-                </div>
+                  </div>
+                </Link>
               ))}
             </div>
           ) : (

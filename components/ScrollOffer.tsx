@@ -10,29 +10,36 @@ interface ScrollOfferProps {
   scrollThreshold?: number // Percentage of page scrolled
   discountAmount?: number
   onApplyDiscount?: () => void
+  appliedDiscountCode?: string | null
 }
 
 export default function ScrollOffer({
   scrollThreshold = 60,
   discountAmount = 15,
   onApplyDiscount,
+  appliedDiscountCode,
 }: ScrollOfferProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [hasShown, setHasShown] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
+    // Don't show if discount already applied
+    if (appliedDiscountCode) {
+      return
+    }
+    
     if (hasShown) return
 
     const cleanup = detectScrollPercentage((percentage) => {
-      if (percentage >= scrollThreshold && !isOpen && !hasShown) {
+      if (percentage >= scrollThreshold && !isOpen && !hasShown && !appliedDiscountCode) {
         setIsOpen(true)
         setHasShown(true)
       }
     })
 
     return cleanup
-  }, [scrollThreshold, isOpen, hasShown])
+  }, [scrollThreshold, isOpen, hasShown, appliedDiscountCode])
 
   const handleClose = () => {
     setIsOpen(false)

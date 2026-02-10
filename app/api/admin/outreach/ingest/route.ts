@@ -165,6 +165,9 @@ export async function POST(request: NextRequest) {
           if (lead.linkedin_url) updatePayload.linkedin_url = lead.linkedin_url
           if (lead.linkedin_username) updatePayload.linkedin_username = lead.linkedin_username
 
+          // Update lead_source to reflect the most recent source
+          updatePayload.lead_source = lead.lead_source
+
           // Only update relationship_strength if the new one is stronger
           const newStrength = getRelationshipStrength(lead.lead_source)
           updatePayload.relationship_strength = newStrength

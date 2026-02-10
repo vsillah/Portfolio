@@ -47,30 +47,35 @@ export default function DiscountCodeForm({
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-4 bg-green-600/20 border border-green-600/50 rounded-lg"
+        className="space-y-2"
       >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Check className="text-green-400" size={20} />
-            <div>
-              <p className="text-sm text-green-400 font-semibold">
-                Code {appliedCode} applied
-              </p>
-              {discountAmount !== undefined && discountAmount > 0 && (
-                <p className="text-xs text-gray-400">
-                  Discount: ${discountAmount.toFixed(2)}
+        <div className="p-4 bg-green-600/20 border border-green-600/50 rounded-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Check className="text-green-400" size={20} />
+              <div>
+                <p className="text-sm text-green-400 font-semibold">
+                  Code {appliedCode} applied
                 </p>
-              )}
+                {discountAmount !== undefined && discountAmount > 0 && (
+                  <p className="text-xs text-gray-400">
+                    Discount: ${discountAmount.toFixed(2)}
+                  </p>
+                )}
+              </div>
             </div>
+            <button
+              onClick={onRemove}
+              className="p-1 text-gray-400 hover:text-white transition-colors"
+              title="Remove discount code"
+            >
+              <X size={18} />
+            </button>
           </div>
-          <button
-            onClick={onRemove}
-            className="p-1 text-gray-400 hover:text-white transition-colors"
-            title="Remove discount code"
-          >
-            <X size={18} />
-          </button>
         </div>
+        <p className="text-xs text-gray-400 italic">
+          Only one discount code can be applied per order
+        </p>
       </motion.div>
     )
   }

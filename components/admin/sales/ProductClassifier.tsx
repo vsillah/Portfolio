@@ -26,7 +26,10 @@ import {
   Save,
   X,
   Info,
+  Sparkles,
+  RefreshCw,
 } from 'lucide-react';
+import { getCurrentSession } from '@/lib/auth';
 
 // Legacy interface for backward compatibility
 interface ProductClassifierProps {
@@ -740,6 +743,19 @@ export function ContentClassifier({
                 </div>
               </div>
             </div>
+
+            {/* Suggest from Evidence button */}
+            <EvidencePricingSuggestion
+              contentType={content.content_type}
+              contentId={content.content_id}
+              onApply={(retailPrice, perceivedValue) => {
+                setFormData({
+                  ...formData,
+                  retail_price: retailPrice,
+                  perceived_value: perceivedValue,
+                });
+              }}
+            />
           </div>
 
           {/* Bonus-specific fields */}
@@ -832,6 +848,86 @@ export function ContentClassifier({
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ============================================================================
+// Evidence-Based Pricing Suggestion Component
+// ============================================================================
+
+function EvidencePricingSuggestion({ contentType, contentId, onApply }: {
+  contentType: string;
+  contentId: string;
+  onApply: (retailPrice: number, perceivedValue: number) => void;
+}) {
+  const [loading, setLoading] = useState(false);
+  const [suggestion, setSuggestion] = useState<{
+    suggestedRetailPrice: number;
+    suggestedPerceivedValue: number;
+    painPointsAddressed: Array<{ categoryDisplayName: string; adjustedValue: number; confidenceLevel: string; calculationMethod: string }>;
+    totalEvidenceCount: number;
+    overallConfidence: string;
+  } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchSuggestion = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const session = await getCurrentSession();
+      if (!session?.access_token) return;
+      const res = await fetch('/api/admin/value-evidence/suggest-pricing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({ content_type: contentType, content_id: contentId }),
+      });
+      if (res.ok) { setSuggestion((await res.json()).pricing); }
+      else { setError((await res.json()).detail || 'No suggestions available'); }
+    } catch (err: any) { setError(err.message); }
+    finally { setLoading(false); }
+  };
+
+  if (!suggestion) {
+    return (
+      <div className="mt-3">
+        <button onClick={fetchSuggestion} disabled={loading}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-green-900/30 border border-green-700/50 rounded-lg text-green-400 hover:bg-green-900/50 disabled:opacity-50">
+          {loading ? <RefreshCw size={12} className="animate-spin" /> : <Sparkles size={12} />}
+          Suggest from Evidence
+        </button>
+        {error && <p className="text-xs text-gray-500 mt-1">{error}</p>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3 p-3 bg-green-900/20 border border-green-800/50 rounded-lg space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-green-300 flex items-center gap-1"><Sparkles size={12} /> Evidence-Based Pricing</span>
+        <span className={`text-[10px] px-1.5 py-0.5 rounded ${suggestion.overallConfidence === 'high' ? 'bg-green-900/50 text-green-400' : suggestion.overallConfidence === 'medium' ? 'bg-yellow-900/50 text-yellow-400' : 'bg-gray-700 text-gray-400'}`}>
+          {suggestion.overallConfidence} confidence
+        </span>
+      </div>
+      <div className="space-y-1">
+        {suggestion.painPointsAddressed.map((pp, i) => (
+          <div key={i} className="flex items-center justify-between text-xs">
+            <span className="text-gray-400">{pp.categoryDisplayName}</span>
+            <span className="text-green-400 font-medium">${pp.adjustedValue.toLocaleString()}/yr</span>
+          </div>
+        ))}
+      </div>
+      <div className="flex items-center justify-between pt-2 border-t border-green-800/30">
+        <div>
+          <div className="text-xs text-gray-400">Suggested anchor</div>
+          <div className="text-sm font-bold text-green-400">${suggestion.suggestedRetailPrice.toLocaleString()}</div>
+        </div>
+        <button onClick={() => onApply(suggestion.suggestedRetailPrice, suggestion.suggestedPerceivedValue)}
+          className="px-3 py-1.5 text-xs bg-green-600/30 border border-green-500/50 rounded-lg text-green-300 hover:bg-green-600/50">
+          Apply
+        </button>
+      </div>
+      <p className="text-[10px] text-gray-500">Based on {suggestion.totalEvidenceCount} evidence data points</p>
     </div>
   );
 }

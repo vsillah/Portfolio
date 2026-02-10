@@ -10,18 +10,25 @@ interface TimeBasedPopupProps {
   delay?: number // Milliseconds before showing
   discountAmount?: number
   onApplyDiscount?: () => void
+  appliedDiscountCode?: string | null
 }
 
 export default function TimeBasedPopup({
   delay = 30000, // 30 seconds default
   discountAmount = 10,
   onApplyDiscount,
+  appliedDiscountCode,
 }: TimeBasedPopupProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [hasShown, setHasShown] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
+    // Don't show if discount already applied
+    if (appliedDiscountCode) {
+      return
+    }
+    
     if (hasShown) return
 
     // Check if already shown in this session
@@ -34,7 +41,7 @@ export default function TimeBasedPopup({
     }
 
     const cleanup = createTimer(() => {
-      if (!hasShown) {
+      if (!hasShown && !appliedDiscountCode) {
         setIsOpen(true)
         setHasShown(true)
         if (typeof window !== 'undefined') {
@@ -44,7 +51,7 @@ export default function TimeBasedPopup({
     }, delay)
 
     return cleanup
-  }, [delay, hasShown])
+  }, [delay, hasShown, appliedDiscountCode])
 
   const handleClose = () => {
     setIsOpen(false)

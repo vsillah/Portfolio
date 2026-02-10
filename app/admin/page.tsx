@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, ArrowRight, MessageCircle, FileText, TrendingUp, FlaskConical, FolderKanban, Send } from 'lucide-react'
+import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, ArrowRight, MessageCircle, FileText, TrendingUp, FlaskConical, FolderKanban, Send, DollarSign } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -212,7 +212,7 @@ function AdminDashboardContent() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold mb-1">Sales Dashboard</h3>
-                  <p className="text-gray-400 text-sm">Manage leads and sales conversations</p>
+                  <p className="text-gray-400 text-sm">Track diagnostic audits and sales conversations</p>
                 </div>
               </div>
             </motion.div>
@@ -246,7 +246,24 @@ function AdminDashboardContent() {
                 </div>
                 <div>
                   <h3 className="text-xl font-bold mb-1">Lead Pipeline</h3>
-                  <p className="text-gray-400 text-sm">Review and manage warm & cold lead outreach pipeline</p>
+                  <p className="text-gray-400 text-sm">Manage all leads, outreach messages, and pipeline metrics</p>
+                </div>
+              </div>
+            </motion.div>
+          </Link>
+
+          <Link href="/admin/value-evidence">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="p-6 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/50 rounded-xl cursor-pointer"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center">
+                  <DollarSign size={32} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-1">Value Evidence</h3>
+                  <p className="text-gray-400 text-sm">Pain points, monetary calculations, and value reports</p>
                 </div>
               </div>
             </motion.div>

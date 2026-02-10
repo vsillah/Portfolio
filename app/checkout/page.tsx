@@ -58,6 +58,7 @@ export default function CheckoutPage() {
 
   const loadCart = async () => {
     const cart = getCart()
+    
     if (cart.length === 0) {
       router.push('/store')
       return
@@ -70,19 +71,42 @@ export default function CheckoutPage() {
       const response = await fetch('/api/products?active=true')
       if (response.ok) {
         const allProducts: Product[] = await response.json()
+        
         const productMap: Record<number, Product> = {}
         const merchandiseProductIds: number[] = []
+        const orphanedItems: CartItem[] = []
         
         cart.forEach(item => {
-          const product = allProducts.find(p => p.id === item.productId)
-          if (product) {
-            productMap[product.id] = product
-            // Track merchandise products that need variant fetching
-            if (product.is_print_on_demand) {
-              merchandiseProductIds.push(product.id)
+          if (item.itemType === 'product' && item.productId) {
+            const product = allProducts.find(p => p.id === item.productId)
+            if (product) {
+              productMap[product.id] = product
+              // Track merchandise products that need variant fetching
+              if (product.is_print_on_demand) {
+                merchandiseProductIds.push(product.id)
+              }
+            } else {
+              orphanedItems.push(item)
             }
           }
         })
+        
+        // Clean orphaned items from cart
+        if (orphanedItems.length > 0) {
+          const cleanedCart = cart.filter(item => 
+            item.itemType === 'service' || 
+            (item.itemType === 'product' && item.productId && productMap[item.productId])
+          )
+          saveCart(cleanedCart)
+          setCartItems(cleanedCart)
+          
+          // Redirect if cart is now empty
+          if (cleanedCart.length === 0) {
+            router.push('/store')
+            return
+          }
+        }
+        
         setProducts(productMap)
 
         // Fetch variants for merchandise products
@@ -414,6 +438,7 @@ export default function CheckoutPage() {
           <>
             <ExitIntentPopup
               discountAmount={20}
+              appliedDiscountCode={appliedDiscountCode}
               onApplyDiscount={() => {
                 // Could auto-apply a discount code here
                 handleDiscountApply('EXIT20').catch(console.error)
@@ -422,6 +447,7 @@ export default function CheckoutPage() {
             <ScrollOffer
               scrollThreshold={60}
               discountAmount={15}
+              appliedDiscountCode={appliedDiscountCode}
               onApplyDiscount={() => {
                 handleDiscountApply('SCROLL15').catch(console.error)
               }}
@@ -429,6 +455,7 @@ export default function CheckoutPage() {
             <TimeBasedPopup
               delay={30000}
               discountAmount={10}
+              appliedDiscountCode={appliedDiscountCode}
               onApplyDiscount={() => {
                 handleDiscountApply('TIME10').catch(console.error)
               }}

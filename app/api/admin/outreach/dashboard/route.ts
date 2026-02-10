@@ -80,10 +80,11 @@ export async function GET(request: NextRequest) {
     }
 
     // 1. Fetch ALL outbound leads (cold + warm)
+    // Use ilike (case-insensitive) to match lead_source patterns
     const { data: allContacts } = await supabaseAdmin
       .from('contact_submissions')
       .select('id, lead_source, outreach_status, lead_score, qualification_status, created_at')
-      .or('lead_source.like.cold_%,lead_source.like.warm_%')
+      .or('lead_source.ilike.cold_%,lead_source.ilike.warm_%')
 
     const contacts: Array<{
       id: string
@@ -193,6 +194,7 @@ export async function GET(request: NextRequest) {
         sent_at,
         replied_at,
         contact_submissions (
+          id,
           name,
           company,
           lead_score
