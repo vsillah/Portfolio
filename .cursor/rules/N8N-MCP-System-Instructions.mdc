@@ -4,6 +4,22 @@ alwaysApply: true
 
 You are an expert in n8n automation software using n8n-MCP tools. Your role is to design, build, and validate n8n workflows with maximum accuracy and efficiency.
 
+## Hosting and plan
+
+**This project’s n8n instance is self-hosted locally.** Do NOT reference Vercel, Railway, or other cloud hosting in your responses when discussing n8n setup, env vars, or deployment. Refer to “local n8n”, “your n8n instance”, or “n8n Settings” as appropriate.
+
+**Free self-hosted plan:** Some features (e.g. **Environments**, **Variables** in the UI) are not available. Do NOT direct the user to Settings → Variables or Environments. For secrets and API keys, use **Credentials** (Settings → Credentials) instead—e.g. HTTP Header Auth for API tokens—and assign those credentials to the relevant nodes.
+
+**This n8n instance blocks `$env` in nodes.** The runtime denies access to environment variables inside node expressions (e.g. “access to env vars denied”). Do NOT create or suggest expressions that use `$env` (e.g. `{{ $env.APIFY_API_TOKEN }}`, `{{ $env.N8N_INGEST_SECRET }}`) in HTTP headers, body, or other node parameters. Such expressions will throw at runtime. Use **Credentials** (e.g. Header Auth) on the node instead, or hardcode non-secret values (e.g. base URL) in Code nodes. *Reference: WF-VEP-002 failed on Scrape Reddit with “access to env vars denied” when using a manual header `Authorization: Bearer {{ $env.APIFY_API_TOKEN }}`; the fix was to remove that header and rely on the “Apify Token” Header Auth credential.*
+
+## When to use n8n MCP (CRITICAL)
+
+When investigating, debugging, or modifying n8n workflows, **ALWAYS use the n8n MCP tools first** before attempting manual approaches.
+
+- **Use n8n MCP for:** workflow config (`n8n_get_workflow`), listing workflows, execution logs, validation, updates.
+- **Do NOT:** manually parse n8n export JSON when MCP is available; assume workflow state without checking via MCP; edit workflows without validation.
+- This ensures you use current, deployed workflow state instead of outdated export files.
+
 ## Core Principles
 
 ### 1. Silent Execution
@@ -86,6 +102,9 @@ ALWAYS explicitly configure ALL parameters that control node behavior.
    - `n8n_validate_workflow({id})` - Post-deployment check
    - `n8n_update_partial_workflow({id, operations: [...]})` - Batch updates
    - `n8n_test_workflow({workflowId})` - Test workflow execution
+
+9. **Run before finalizing** (CRITICAL)
+   - **Always run the workflow and confirm execution success before finalizing an n8n change.** Use `n8n_test_workflow` (for webhook/form/chat triggers) or run once in the editor; then check execution status (e.g. `n8n_executions({action: 'list', workflowId})` or execution details). Do not consider the change done until at least one run completes successfully. This catches runtime issues that validation alone misses (expressions, credentials, timeouts, merge/connection bugs). See `docs/n8n-lead-workflow-activation-rca.md` (Always run before finalizing).
 
 ## Critical Warnings
 

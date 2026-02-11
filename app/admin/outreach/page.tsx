@@ -27,6 +27,7 @@ import {
   Flame,
   Snowflake,
   X,
+  Plus,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -172,6 +173,19 @@ function OutreachContent() {
   })
   const [leadsPage, setLeadsPage] = useState(1)
   const leadsPerPage = 50
+
+  // Add lead modal (manual entry)
+  const [showAddLeadModal, setShowAddLeadModal] = useState(false)
+  const [addLeadName, setAddLeadName] = useState('')
+  const [addLeadEmail, setAddLeadEmail] = useState('')
+  const [addLeadCompany, setAddLeadCompany] = useState('')
+  const [addLeadLinkedInUrl, setAddLeadLinkedInUrl] = useState('')
+  const [addLeadJobTitle, setAddLeadJobTitle] = useState('')
+  const [addLeadMessage, setAddLeadMessage] = useState('')
+  const [addLeadInputType, setAddLeadInputType] = useState('other')
+  const [addLeadLoading, setAddLeadLoading] = useState(false)
+  const [addLeadError, setAddLeadError] = useState<string | null>(null)
+  const [addLeadSuccessId, setAddLeadSuccessId] = useState<number | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -354,6 +368,60 @@ function OutreachContent() {
     setEditingId(item.id)
     setEditSubject(item.subject || '')
     setEditBody(item.body)
+  }
+
+  const resetAddLeadForm = () => {
+    setAddLeadName('')
+    setAddLeadEmail('')
+    setAddLeadCompany('')
+    setAddLeadLinkedInUrl('')
+    setAddLeadJobTitle('')
+    setAddLeadMessage('')
+    setAddLeadInputType('other')
+    setAddLeadError(null)
+  }
+
+  const handleAddLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setAddLeadError(null)
+    setAddLeadLoading(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        setAddLeadError('Not authenticated')
+        return
+      }
+      const response = await fetch('/api/admin/outreach/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          name: addLeadName.trim(),
+          email: addLeadEmail.trim() || undefined,
+          company: addLeadCompany.trim() || undefined,
+          linkedin_url: addLeadLinkedInUrl.trim() || undefined,
+          job_title: addLeadJobTitle.trim() || undefined,
+          message: addLeadMessage.trim() || undefined,
+          input_type: addLeadInputType,
+        }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        setAddLeadError(data.error || `Request failed (${response.status})`)
+        return
+      }
+      setAddLeadSuccessId(data.id ?? null)
+      setShowAddLeadModal(false)
+      resetAddLeadForm()
+      await fetchLeads()
+      if (data.id != null) setExpandedLeadId(data.id)
+    } catch (err) {
+      setAddLeadError(err instanceof Error ? err.message : 'Failed to add lead')
+    } finally {
+      setAddLeadLoading(false)
+    }
   }
 
   const getScoreBadgeColor = (score: number | null) => {
@@ -957,7 +1025,171 @@ function OutreachContent() {
                 <option value="warm_linkedin">LinkedIn</option>
                 <option value="cold_apollo">Apollo</option>
               </select>
+
+              {/* Add lead (manual entry) */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddLeadModal(true)
+                  setAddLeadError(null)
+                  setAddLeadSuccessId(null)
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 border border-purple-500/50 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-colors font-medium"
+              >
+                <Plus size={16} />
+                Add lead
+              </button>
             </div>
+
+            {/* Add lead modal */}
+            <AnimatePresence>
+              {showAddLeadModal && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
+                  onClick={() => !addLeadLoading && setShowAddLeadModal(false)}
+                >
+                  <motion.div
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full max-w-md bg-gray-900 border border-white/10 rounded-xl shadow-xl p-6"
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <h3 className="text-lg font-semibold text-white">Add lead</h3>
+                      <button
+                        type="button"
+                        onClick={() => !addLeadLoading && setShowAddLeadModal(false)}
+                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                    <form onSubmit={handleAddLeadSubmit} className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Name *</label>
+                        <input
+                          type="text"
+                          value={addLeadName}
+                          onChange={(e) => setAddLeadName(e.target.value)}
+                          required
+                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          placeholder="Full name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                        <input
+                          type="email"
+                          value={addLeadEmail}
+                          onChange={(e) => setAddLeadEmail(e.target.value)}
+                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          placeholder="email@company.com"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Company</label>
+                        <input
+                          type="text"
+                          value={addLeadCompany}
+                          onChange={(e) => setAddLeadCompany(e.target.value)}
+                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          placeholder="Company name"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">LinkedIn URL</label>
+                        <input
+                          type="url"
+                          value={addLeadLinkedInUrl}
+                          onChange={(e) => setAddLeadLinkedInUrl(e.target.value)}
+                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          placeholder="https://linkedin.com/in/..."
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Job title</label>
+                        <input
+                          type="text"
+                          value={addLeadJobTitle}
+                          onChange={(e) => setAddLeadJobTitle(e.target.value)}
+                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          placeholder="Job title"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">How did you get this lead?</label>
+                        <select
+                          value={addLeadInputType}
+                          onChange={(e) => setAddLeadInputType(e.target.value)}
+                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                        >
+                          <option value="linkedin">LinkedIn</option>
+                          <option value="referral">Referral</option>
+                          <option value="business_card">Business card</option>
+                          <option value="event">Event</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-400 mb-1">Message / notes</label>
+                        <textarea
+                          value={addLeadMessage}
+                          onChange={(e) => setAddLeadMessage(e.target.value)}
+                          rows={3}
+                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
+                          placeholder="Optional notes"
+                        />
+                      </div>
+                      {addLeadError && (
+                        <div className="p-3 rounded-lg bg-red-900/30 border border-red-800 text-red-300 text-sm flex items-center gap-2">
+                          <AlertTriangle size={16} />
+                          {addLeadError}
+                        </div>
+                      )}
+                      <div className="flex gap-3 pt-2">
+                        <button
+                          type="submit"
+                          disabled={addLeadLoading || !addLeadName.trim()}
+                          className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+                        >
+                          {addLeadLoading ? 'Adding...' : 'Add lead'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => !addLeadLoading && setShowAddLeadModal(false)}
+                          className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Success toast when lead was just added */}
+            {addLeadSuccessId != null && !showAddLeadModal && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 rounded-lg bg-green-900/30 border border-green-800 text-green-300 text-sm flex items-center gap-2"
+              >
+                <CheckCircle size={16} />
+                Lead added successfully.
+                <button
+                  type="button"
+                  onClick={() => setAddLeadSuccessId(null)}
+                  className="ml-auto p-1 hover:bg-white/10 rounded"
+                >
+                  <X size={14} />
+                </button>
+              </motion.div>
+            )}
 
             {/* Leads List */}
             {leadsLoading ? (

@@ -1,0 +1,16 @@
+---
+description: Do not make code edits when in plan mode
+alwaysApply: true
+---
+
+# Plan Mode — No Code Edits
+
+When the user has asked for a **plan** (e.g. "plan this out", "create a plan", "design the approach") or has attached a **plan file** for reference only:
+
+- **Do not edit** application code, migrations, or config files.
+- **Only** create or update plan documents (e.g. CreatePlan, or edits to `.plan.md` files if the user explicitly asks to update the plan).
+- Output should be an outline, architecture, task list, or plan document — not implementation.
+
+When the user explicitly asks to **implement** the plan (e.g. "Implement the plan", "Do the todos", "Build it"), then proceed with code changes and mark todos as you go.
+
+If unsure, ask: "Do you want a plan only, or should I implement it now?"

@@ -373,12 +373,18 @@ COMMENT ON TABLE content_pain_point_map IS 'Explicit mapping between products/se
 COMMENT ON COLUMN content_pain_point_map.impact_percentage IS 'What percentage of the pain point this content solves (default 100). Allows a bundle to partially address multiple pain points.';
 
 -- ============================================================================
--- 8. Add value_report_id to proposals table
+-- 8. Add value_report_id to proposals table (if proposals exists)
+-- Skip if proposals has not been created yet (e.g. database_schema_proposals.sql
+-- not run). You can add the column later via migrations/proposal_value_assessment.sql.
 -- ============================================================================
-ALTER TABLE proposals
-ADD COLUMN IF NOT EXISTS value_report_id UUID REFERENCES value_reports(id) ON DELETE SET NULL;
-
-COMMENT ON COLUMN proposals.value_report_id IS 'Links proposal to its auto-generated value assessment for client-facing evidence';
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'proposals') THEN
+    ALTER TABLE proposals
+      ADD COLUMN IF NOT EXISTS value_report_id UUID REFERENCES value_reports(id) ON DELETE SET NULL;
+    COMMENT ON COLUMN proposals.value_report_id IS 'Links proposal to its auto-generated value assessment for client-facing evidence';
+  END IF;
+END $$;
 
 -- ============================================================================
 -- Enable Row Level Security

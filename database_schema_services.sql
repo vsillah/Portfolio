@@ -229,7 +229,7 @@ SELECT
   id::text as content_id,
   title,
   description,
-  file_type as subtype,
+  type as subtype,
   NULL::decimal as price,
   NULL as image_url,
   is_active,

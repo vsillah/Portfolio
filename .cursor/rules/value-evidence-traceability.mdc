@@ -1,0 +1,32 @@
+---
+description: Value evidence pipeline and monetary calculation conventions
+globs:
+  - lib/value-*.ts
+  - app/api/admin/value-evidence/**/*.ts
+alwaysApply: false
+---
+
+# Value Evidence & Traceability
+
+When adding or changing value evidence, monetary calculations, or value reports:
+
+## Evidence chain
+
+- Every dollar value shown to users must be traceable to raw sources.
+- Store the full path in `evidence_chain` JSONB: `raw_sources` → `classifications` → `calculations`.
+- Reports and suggestion APIs should expose evidence summary (e.g. "Based on N data points") and optional drill-down to sources.
+
+## Formulas
+
+- Persist a **human-readable** formula string (e.g. `formula_expression` or `formulaReadable`): e.g. `"10 hrs/week × $45/hr × 52 weeks"`, not only expression keys.
+- Use this for tooltips, reports, and client-facing "How we calculated this" sections.
+
+## Benchmarks
+
+- Use a clear fallback order when resolving benchmarks: exact (industry + size) → same industry any size → `_default` + size → `_default`.
+- Implement this in a single helper (e.g. `findBestBenchmark`) and reuse it for all value calculations and suggestion endpoints.
+
+## Server-side Supabase
+
+- Use `supabaseAdmin` from `@/lib/supabase` for all server-side DB access in value evidence code.
+- In libs that may run outside API routes (e.g. report generator), guard with `if (!supabaseAdmin) return null` and avoid throwing in non-API contexts.

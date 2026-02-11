@@ -41,13 +41,18 @@ database_schema_meeting_records.sql
 Creates `meeting_records` table for WF-MCH (Meeting Complete Handler). Depends on `client_projects`.
 
 ### 7. **Other Schemas** (Order doesn't matter)
+- `database_schema_system_prompts.sql` - System prompts for chatbot, voice agent, evaluation (required for Admin → System Prompts)
 - `database_schema_chat.sql` - Chat sessions and messages
 - `database_schema_diagnostic.sql` - AI diagnostic audits
 - `database_schema_testing.sql` - E2E testing framework
 - `database_schema_proposals.sql` - Proposal tracking
 - `database_schema_sales.sql` - Sales funnel
+- `database_schema_bundles.sql` - Offer bundles (extends sales)
 - `database_schema_services.sql` - Service catalog
 - etc.
+
+### 8. **Migrations** (if not using full schema files)
+- `migrations/2026_02_10_offer_bundles.sql` - Creates `offer_bundles` only (use if Sales/Bundles UI fails with "table offer_bundles not found").
 
 ## Quick Setup Command
 

@@ -120,7 +120,7 @@ export default function TestingDashboard() {
   // Config state
   const [selectedScenarios, setSelectedScenarios] = useState<string[]>([])
   const [selectedPersonas, setSelectedPersonas] = useState<string[]>([])
-  const [maxConcurrent, setMaxConcurrent] = useState(3)
+  const [maxConcurrent, setMaxConcurrent] = useState(1)
   const [runDuration, setRunDuration] = useState(60)
   const [cleanupAfter, setCleanupAfter] = useState(true)
   

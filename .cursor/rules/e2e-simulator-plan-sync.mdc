@@ -1,0 +1,24 @@
+---
+description: Review and update E2E Client Simulator plan when introducing major enhancements
+alwaysApply: true
+---
+
+# E2E Client Simulator Plan — Keep in Sync
+
+When introducing **major enhancements** to the project (new user journeys, new pages, new checkout or sales flows, new admin features, new API surfaces used by the site, or significant changes to chat, store, diagnostics, or proposals):
+
+1. **Review** the E2E Client Simulator plan:
+   - `.cursor/plans/e2e_client_simulator_tool_acd6dda4.plan.md`
+
+2. **Decide** whether the new functionality should be covered by the simulator:
+   - New public-facing flows (e.g. lead magnets, onboarding, proposal accept) → add or extend scenarios/personas if needed.
+   - New admin/sales flows (e.g. value evidence, new dashboards) → consider whether the plan’s “targets” or test scope should include them.
+   - New chat or diagnostic behavior → ensure scenarios and persona behavior still match.
+
+3. **Update the plan file** when required:
+   - Add or adjust scenarios in the plan to cover the new journey.
+   - Extend the system overview (e.g. mermaid diagram) if new endpoints or flows exist.
+   - Add or update todos if new implementation work is needed for the simulator to support the enhancement.
+   - Do not remove or contradict existing completed work unless the enhancement explicitly replaces it.
+
+If the change is minor (e.g. copy, styling, or internal refactor with no new user-facing or admin flow), skip this review.

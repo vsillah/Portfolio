@@ -1,0 +1,14 @@
+{
+  "submissionId": "99999",
+  "submittedAt": "2026-02-10T20:00:00.000Z",
+  "name": "Test User",
+  "email": "test@example.com",
+  "company": "Test Co",
+  "companyDomain": "test.com",
+  "linkedinUrl": "https://linkedin.com/in/test",
+  "annualRevenue": "100k_500k",
+  "interestSummary": "AI adoption, process automation, lead qualification",
+  "message": "Interested in exploring AI automation for our sales team.",
+  "isDecisionMaker": true,
+  "source": "contact_form"
+}

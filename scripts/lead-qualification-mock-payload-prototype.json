@@ -1,0 +1,14 @@
+{
+  "submissionId": 88883,
+  "submittedAt": "2026-02-10T22:30:00.000Z",
+  "name": "Jordan Chen",
+  "email": "jordan.chen@acme-saas.io",
+  "company": "Acme SaaS Inc",
+  "companyDomain": "acme-saas.io",
+  "linkedinUrl": "https://www.linkedin.com/in/jordan-chen-ai",
+  "annualRevenue": "500k_1m",
+  "interestSummary": "AI for customer success, lead scoring, and sales automation. Looking to reduce manual follow-up and improve pipeline visibility.",
+  "message": "We're a Series A B2B SaaS company exploring AI to scale our outbound and qualify leads faster. Interested in a discovery call.",
+  "isDecisionMaker": true,
+  "source": "mock_prototype"
+}

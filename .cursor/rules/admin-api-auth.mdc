@@ -1,0 +1,47 @@
+---
+description: Admin and ingest API authentication patterns
+globs:
+  - app/api/admin/**/*.ts
+  - app/api/**/ingest/route.ts
+  - app/api/**/trigger/route.ts
+alwaysApply: false
+---
+
+# Admin & Ingest API Authentication
+
+## Admin routes (browser / dashboard)
+
+For routes under `app/api/admin/**` that are called by the admin UI or authenticated users:
+
+- Use `verifyAdmin(request)` from `@/lib/auth-server`.
+- Return `NextResponse.json({ error: auth.error }, { status: auth.status })` when `isAuthError(auth)` is true.
+
+```ts
+import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+
+export async function GET(request: NextRequest) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+  // ... handler
+}
+```
+
+## Ingest / webhook routes (n8n or external)
+
+For routes that n8n or other automation call (e.g. `**/ingest/route.ts`, `**/trigger/route.ts`):
+
+- Authenticate via **Bearer token** using a dedicated env var (e.g. `N8N_INGEST_SECRET`).
+- Follow the same pattern as `app/api/admin/outreach/ingest/route.ts`: read `Authorization` header, strip `Bearer `, compare to env secret, return 401 if missing or invalid.
+
+```ts
+const authHeader = request.headers.get('authorization')
+const token = authHeader?.replace('Bearer ', '')
+const expectedSecret = process.env.N8N_INGEST_SECRET
+if (!expectedSecret || token !== expectedSecret) {
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+}
+```
+
+Do not use `verifyAdmin` for ingest endpoints; they are called by n8n with a shared secret, not a user session.

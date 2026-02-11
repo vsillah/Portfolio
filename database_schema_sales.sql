@@ -96,7 +96,8 @@ CREATE TABLE IF NOT EXISTS sales_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   
   -- Link to diagnostic audit (if coming from assessment)
-  diagnostic_audit_id UUID REFERENCES diagnostic_audits(id) ON DELETE SET NULL,
+  -- Note: diagnostic_audits.id is BIGINT in some environments; use BIGINT to match
+  diagnostic_audit_id BIGINT REFERENCES diagnostic_audits(id) ON DELETE SET NULL,
   
   -- Client info (if no diagnostic audit)
   client_name TEXT,
@@ -320,18 +321,7 @@ SELECT
 FROM products p
 LEFT JOIN product_offer_roles por ON p.id = por.product_id;
 
--- View to get diagnostic audits ready for sales follow-up
-CREATE OR REPLACE VIEW sales_ready_audits AS
-SELECT 
-  da.*,
-  cs.email as contact_email,
-  cs.name as contact_name,
-  cs.company as contact_company,
-  ss.id as existing_session_id,
-  ss.outcome as session_outcome,
-  ss.next_follow_up
-FROM diagnostic_audits da
-LEFT JOIN contact_submissions cs ON da.contact_submission_id = cs.id
-LEFT JOIN sales_sessions ss ON da.id = ss.diagnostic_audit_id
-WHERE da.status = 'completed'
-ORDER BY da.started_at DESC;
+-- NOTE: sales_ready_audits view removed from this schema.
+-- It depends on diagnostic_audits columns (contact_submission_id, started_at)
+-- that may not exist in all environments. Recreate the view manually after
+-- ensuring diagnostic_audits has the expected schema (database_schema_diagnostic.sql).

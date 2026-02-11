@@ -1,0 +1,27 @@
+---
+description: Supabase RLS and policy design — avoid circular references
+globs:
+  - migrations/**/*.sql
+  - lib/supabase*.ts
+  - app/api/**/*
+---
+
+# Supabase Row Level Security (RLS)
+
+## Circular reference gotcha
+
+**Supabase/Postgres RLS can hit circular reference errors** when policy conditions query other tables that themselves have RLS. Evaluating the policy on table A may require reading table B, and B’s RLS may (directly or via other tables) require reading A again, causing recursion or "circular reference" failures.
+
+### Typical pattern that causes it
+
+- Policy on table **T**: `USING (EXISTS (SELECT 1 FROM user_profiles WHERE id = auth.uid() AND role = 'admin'))`
+- **user_profiles** has RLS that references another table (e.g. `contact_submissions` or a join) which in turn is protected by RLS that touches **user_profiles** or **T**.
+
+### How to avoid or fix
+
+1. **Prefer `auth.uid()` (and JWT claims) in RLS** — Use `auth.uid()`, `auth.jwt() ->> 'claim'`, or other auth functions that don’t query other tables. No circular dependency.
+2. **Use `SECURITY DEFINER` helpers for role checks** — Create a small function with `SECURITY DEFINER` that returns e.g. `is_admin()` by reading `user_profiles` (or a single lookup table). Use that in RLS: `USING (is_admin())`. The function runs with definer rights and bypasses RLS on the tables it reads, breaking the cycle.
+3. **Minimize cross-table checks in RLS** — If a policy must look at another table, ensure that table’s RLS does not depend (directly or indirectly) on the current table. Document the dependency so future policies don’t introduce a cycle.
+4. **Service role for backend** — Server-side code that must bypass RLS should use the Supabase **service role** client (e.g. `supabaseAdmin`). Do not rely on RLS for that path; use application-level auth (e.g. `verifyAdmin`) before calling the service client.
+
+When writing or reviewing migrations that add RLS policies, check for chains of table references and apply one of the above to avoid circular reference errors.

@@ -1,0 +1,24 @@
+---
+description: Remove temporary debug instrumentation before considering a task complete
+alwaysApply: true
+---
+
+# Debug Instrumentation Cleanup
+
+When you add **temporary** debug instrumentation to investigate or verify behavior, remove it before considering the task complete.
+
+## What counts as temporary instrumentation
+
+- `// #region agent log` / `// #endregion` blocks that send to a debug ingest URL (e.g. `http://127.0.0.1:7242/ingest/...`) or write to a debug log
+- `console.log` (or similar) with `[DEBUG]` or hypothesis IDs used only for one-off debugging
+- Writing to or relying on `.cursor/debug.log` or other one-off log files for evidence
+
+## Before finishing a debugging or “fix and verify” task
+
+1. Search the changed (or relevant) files for: `#region agent log`, `127.0.0.1:7242`, `[DEBUG]`, and any debug log file path you introduced.
+2. Remove all such instrumentation (and delete any temporary debug log file) unless the user explicitly asked to keep it.
+3. Do not leave `#region agent log` blocks or fetch calls to local debug ingest URLs in committed code.
+
+## When instrumentation is intentional
+
+If the user asks to add persistent logging, observability, or a permanent debug endpoint, that is not “temporary instrumentation” and should not be removed by this rule.

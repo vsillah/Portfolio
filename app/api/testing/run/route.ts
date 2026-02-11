@@ -33,7 +33,7 @@ const activeOrchestrators = new Map<string, ReturnType<typeof createOrchestrator
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    
+
     const {
       // Scenario selection
       scenarioIds,  // Specific scenario IDs to run
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       personaIds,  // Specific persona IDs to use
       
       // Configuration
-      maxConcurrentClients = 3,
+      maxConcurrentClients = 1,
       spawnInterval = 5000,
       runDuration = 60000,
       maxClients,
@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       screenshotOnFailure: true,
       captureNetworkHar: false
     }
-    
+
     // Create and start orchestrator
     const orchestrator = createOrchestrator(config)
     

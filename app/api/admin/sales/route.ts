@@ -20,23 +20,12 @@ export async function GET(request: NextRequest) {
     const minOpportunity = parseInt(searchParams.get('min_opportunity') || '0');
     const status = searchParams.get('status') || 'completed';
 
-    // Fetch completed diagnostic audits with contact info
+    // Fetch completed diagnostic audits (no embed: avoid PostgREST FK requirement)
+    // No order: started_at/updated_at may not exist in all DB versions
     let auditQuery = supabaseAdmin
       .from('diagnostic_audits')
-      .select(`
-        *,
-        contact_submissions (
-          id,
-          name,
-          email,
-          company,
-          industry,
-          employee_count,
-          created_at
-        )
-      `)
-      .eq('status', status)
-      .order('started_at', { ascending: false });
+      .select('*')
+      .eq('status', status);
 
     if (minUrgency > 0) {
       auditQuery = auditQuery.gte('urgency_score', minUrgency);
@@ -53,8 +42,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch audits' }, { status: 500 });
     }
 
+    // Fetch contact_submissions for linked contacts (avoids PostgREST embed / FK requirement)
+    const contactIds = [...new Set((audits || []).map((a: { contact_submission_id?: number | null }) => a.contact_submission_id).filter((id: number | null | undefined): id is number => id != null))];
+    let contactsById: Record<number, { id: number; name: string | null; email: string | null; company: string | null; industry: string | null; employee_count: string | null; created_at: string | null }> = {};
+    if (contactIds.length > 0) {
+      const { data: contacts } = await supabaseAdmin
+        .from('contact_submissions')
+        .select('id, name, email, company, industry, employee_count, created_at')
+        .in('id', contactIds);
+      type ContactRow = { id: number; name: string | null; email: string | null; company: string | null; industry: string | null; employee_count: string | null; created_at: string | null };
+      contactsById = (contacts || []).reduce((acc: Record<number, ContactRow>, c: ContactRow) => {
+        acc[c.id] = c;
+        return acc;
+      }, {} as Record<number, ContactRow>);
+    }
+    const auditsWithContacts = (audits || []).map((audit: { contact_submission_id?: number | null; [k: string]: unknown }) => ({
+      ...audit,
+      contact_submissions: audit.contact_submission_id ? contactsById[audit.contact_submission_id] ?? null : null,
+    }));
+
     // Fetch existing sales sessions for these audits
-    const auditIds = audits?.map((a: { id: string }) => a.id) || [];
+    const auditIds = auditsWithContacts.map((a: { id: string }) => a.id);
     const { data: sessions, error: sessionsError } = await supabaseAdmin
       .from('sales_sessions')
       .select('diagnostic_audit_id, outcome, next_follow_up, funnel_stage')
@@ -74,7 +82,7 @@ export async function GET(request: NextRequest) {
     }, {});
 
     // Combine data
-    const enrichedAudits = (audits || []).map((audit: { id: string; [key: string]: unknown }) => ({
+    const enrichedAudits = auditsWithContacts.map((audit: { id: string; [key: string]: unknown }) => ({
       ...audit,
       sales_session: sessionsByAudit[audit.id] || null,
       has_follow_up: !!sessionsByAudit[audit.id]?.next_follow_up,

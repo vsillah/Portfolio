@@ -79,7 +79,22 @@ This document describes the complete warm lead workflow integration, including m
 - Supports single source or all sources
 - Returns execution IDs for tracking
 
-### 2. Admin Dashboard UI
+### 2. Manual lead entry (salesperson)
+
+Salespeople can add a single lead from non-automated inputs (e.g. LinkedIn conversation, business card, referral, event) without using the ingest API or any shared secret.
+
+**Where:** Admin → Lead Pipeline → **All Leads** tab → **Add lead** button.
+
+**Flow:**
+1. Open the Lead Pipeline page (`/admin/outreach`), switch to the **All Leads** tab.
+2. Click **Add lead**. A modal opens with fields: Name (required), Email, Company, LinkedIn URL, Job title, **How did you get this lead?** (LinkedIn, Referral, Business card, Event, Other), and Message/notes.
+3. Submit the form. The app creates or updates a contact in `contact_submissions` (deduplication by email, LinkedIn URL, or LinkedIn username) and optionally triggers the lead qualification workflow.
+
+**API:** `POST /api/admin/outreach/leads` with **session auth only** (same as GET leads). No ingest API or `N8N_INGEST_SECRET` is used; only logged-in admins can add leads.
+
+**Lead source:** Manually added leads are stored with `lead_source: cold_referral` and appear in the cold leads list and in the main pipeline.
+
+### 3. Admin Dashboard UI
 
 **File:** `app/admin/outreach/dashboard/page.tsx`
 
@@ -99,7 +114,7 @@ This document describes the complete warm lead workflow integration, including m
 4. View success/error message
 5. Dashboard auto-refreshes with new leads
 
-### 3. Database Schema
+### 4. Database Schema
 
 **File:** `database_schema_cold_lead_pipeline.sql`
 
@@ -126,7 +141,7 @@ CREATE TABLE warm_lead_trigger_audit (
 - `idx_warm_trigger_audit_user` - Query by user
 - `idx_warm_trigger_audit_status` - Query running/pending
 
-### 4. E2E Testing Framework
+### 5. E2E Testing Framework
 
 #### New Test Step Types
 
@@ -231,7 +246,7 @@ await ingestMockWarmLeads(leads, authToken)
 - Timeout handling
 - Detailed error messages
 
-### 5. Admin Testing Dashboard
+### 6. Admin Testing Dashboard
 
 **File:** `app/admin/testing/page.tsx`
 

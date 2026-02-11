@@ -1,0 +1,48 @@
+---
+description: Database health check baseline management reminders
+globs:
+  - migrations/**/*
+  - scripts/database-health-check.ts
+  - .database-baseline.json
+  - app/api/**/*
+---
+
+# Database Health Check — Baseline Management
+
+This project uses a database health check (`scripts/database-health-check.ts`) that runs automatically on `git push` (via a Husky pre-push hook). It compares current row counts for critical tables against `.database-baseline.json` and **blocks the push** if data loss is detected.
+
+## When to Rebaseline
+
+After any of the following, remind the user to update the baseline:
+
+1. **Running migrations that seed or delete data** — e.g., inserting seed rows, truncating tables, or altering data as part of a migration.
+2. **Intentionally deleting rows** from monitored tables — e.g., cleaning up test orders, removing products, pruning user profiles.
+3. **Database restore or reset** — if the database is restored from a backup and row counts differ from the baseline.
+4. **Adding new critical tables** — if a new table should be monitored, remind the user to add it to the `CRITICAL_TABLES` array in `scripts/database-health-check.ts` and then rebaseline.
+
+## Rebaseline Command
+
+```bash
+npx tsx scripts/database-health-check.ts --update
+```
+
+Then commit the updated baseline:
+
+```bash
+git add .database-baseline.json && git commit -m "Update database baseline"
+```
+
+## Monitored Tables (as of Feb 2026)
+
+`projects`, `music`, `videos`, `publications`, `products`, `app_prototypes`, `orders`, `order_items`, `discount_codes`, `user_profiles`, `client_projects`
+
+## When NOT to Rebaseline
+
+- Row counts only **increased** from normal usage (new orders, new signups) — the health check only flags **drops**.
+- Nothing changed — `±0` is healthy, no action needed.
+
+## Reminder Trigger
+
+When creating or reviewing migrations, seed scripts, or any code that modifies row counts in the monitored tables, **always remind the user**:
+
+> "This change may affect database row counts. After applying, run `npx tsx scripts/database-health-check.ts --update` to rebaseline, then commit `.database-baseline.json`."
