@@ -39,6 +39,8 @@ import { ResponseBar } from '@/components/admin/sales/ResponseBar';
 import { AIRecommendationPanel } from '@/components/admin/sales/AIRecommendationPanel';
 import { ConversationTimeline, ConversationStats } from '@/components/admin/sales/ConversationTimeline';
 import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
+import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
+import { ProposalModal } from '@/components/admin/sales/ProposalModal';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import { 
   User, 
@@ -247,6 +249,7 @@ export default function ClientWalkthroughPage() {
   
   // Proposal state
   const [showProposalModal, setShowProposalModal] = useState(false);
+  const [valueReportId, setValueReportId] = useState<string | null>(null);
   const [currentProposal, setCurrentProposal] = useState<{
     id: string;
     status: string;
@@ -277,6 +280,14 @@ export default function ClientWalkthroughPage() {
   const [aiRecommendations, setAiRecommendations] = useState<AIRecommendation[]>([]);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
   const [isLoadingNextStep, setIsLoadingNextStep] = useState(false);
+  /** Value evidence summary for script (pain points + total value) to guide the conversation */
+  const [scriptValueEvidence, setScriptValueEvidence] = useState<{
+    painPoints: { display_name: string | null; monetary_indicator: number; monetary_context: string | null }[];
+    totalAnnualValue: number | null;
+  } | null>(null);
+  /** Evidence-based price overrides per content key (retail_price, perceived_value) for proposal line items */
+  const [priceOverrides, setPriceOverrides] = useState<Record<string, { retail_price: number; perceived_value: number }>>({});
+  const [isApplyingEvidencePricing, setIsApplyingEvidencePricing] = useState(false);
 
   // Load initial data
   const fetchData = useCallback(async () => {
@@ -342,6 +353,7 @@ export default function ClientWalkthroughPage() {
             client_email: foundAudit.contact_submissions?.email,
             client_company: foundAudit.contact_submissions?.company,
             funnel_stage: 'prospect',
+            contact_submission_id: foundAudit.contact_submission_id ?? foundAudit.contact_submissions?.id ?? null,
           }),
         });
 
@@ -363,6 +375,40 @@ export default function ClientWalkthroughPage() {
       fetchData();
     }
   }, [user, fetchData]);
+
+  // Fetch value evidence for script (pain points + total value) when contact is set
+  useEffect(() => {
+    if (!contact?.id) {
+      setScriptValueEvidence(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const session = await getCurrentSession();
+      if (!session?.access_token) return;
+      const res = await fetch(
+        `/api/admin/value-evidence/evidence?contact_id=${encodeURIComponent(contact.id)}`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } }
+      );
+      if (!res.ok || cancelled) return;
+      const data = await res.json();
+      if (cancelled) return;
+      const painPoints = (data.evidence || [])
+        .filter((e: { monetary_indicator?: number }) => e.monetary_indicator != null)
+        .map((e: { display_name: string | null; monetary_indicator: number; monetary_context: string | null }) => ({
+          display_name: e.display_name ?? null,
+          monetary_indicator: Number(e.monetary_indicator),
+          monetary_context: e.monetary_context ?? null,
+        }))
+        .slice(0, 8);
+      const report = (data.reports || [])[0];
+      setScriptValueEvidence({
+        painPoints,
+        totalAnnualValue: report?.total_annual_value != null ? Number(report.total_annual_value) : null,
+      });
+    })();
+    return () => { cancelled = true; };
+  }, [contact?.id]);
 
   // Update session
   const updateSession = async (updates: Partial<SalesSession>) => {
@@ -686,6 +732,7 @@ export default function ClientWalkthroughPage() {
           chosenStrategy,
           availableContent: content.filter(c => c.is_active),
           conversationHistory: conversationState.responseHistory,
+          contactSubmissionId: contact?.id ? parseInt(contact.id, 10) : null,
         }),
       });
 
@@ -802,31 +849,36 @@ export default function ClientWalkthroughPage() {
   const selectedContentDetails = content.filter(c => 
     selectedContent.includes(`${c.content_type}:${c.content_id}`)
   );
-  const selectedAsProducts: ProductWithRole[] = selectedContentDetails.map(c => ({
-    id: parseInt(c.content_id) || 0,
-    title: c.title,
-    description: c.description,
-    type: c.content_type,
-    price: c.price,
-    file_path: null,
-    image_url: c.image_url,
-    is_active: c.is_active,
-    is_featured: false,
-    display_order: c.display_order,
-    role_id: c.role_id,
-    offer_role: c.offer_role,
-    dream_outcome_description: c.dream_outcome_description,
-    likelihood_multiplier: c.likelihood_multiplier,
-    time_reduction: c.time_reduction,
-    effort_reduction: c.effort_reduction,
-    role_retail_price: c.role_retail_price,
-    offer_price: c.offer_price,
-    perceived_value: c.perceived_value,
-    bonus_name: c.bonus_name,
-    bonus_description: c.bonus_description,
-    qualifying_actions: c.qualifying_actions,
-    payout_type: c.payout_type,
-  }));
+  const contentKey = (c: ContentWithRole) => `${c.content_type}:${c.content_id}`;
+  const selectedAsProducts: ProductWithRole[] = selectedContentDetails.map(c => {
+    const key = contentKey(c);
+    const override = priceOverrides[key];
+    return {
+      id: parseInt(c.content_id) || 0,
+      title: c.title,
+      description: c.description,
+      type: c.content_type,
+      price: c.price,
+      file_path: null,
+      image_url: c.image_url,
+      is_active: c.is_active,
+      is_featured: false,
+      display_order: c.display_order,
+      role_id: c.role_id,
+      offer_role: c.offer_role,
+      dream_outcome_description: c.dream_outcome_description,
+      likelihood_multiplier: c.likelihood_multiplier,
+      time_reduction: c.time_reduction,
+      effort_reduction: c.effort_reduction,
+      role_retail_price: override?.retail_price ?? c.role_retail_price,
+      offer_price: c.offer_price,
+      perceived_value: override?.perceived_value ?? c.perceived_value,
+      bonus_name: c.bonus_name,
+      bonus_description: c.bonus_description,
+      qualifying_actions: c.qualifying_actions,
+      payout_type: c.payout_type,
+    };
+  });
   const grandSlamOffer = buildGrandSlamOffer(selectedAsProducts);
 
   // Find objection handlers
@@ -1318,6 +1370,7 @@ export default function ClientWalkthroughPage() {
               industry={contact?.industry || null}
               companySize={contact?.employee_count || null}
               companyName={contact?.company || null}
+              onReportGenerated={(id: string) => setValueReportId(id)}
             />
           </div>
 
@@ -1364,6 +1417,29 @@ export default function ClientWalkthroughPage() {
             <div className="bg-gray-900 rounded-lg border border-gray-800 p-6">
               {activeTab === 'script' && (
                 <div>
+                  {/* Value evidence summary for conversation guidance */}
+                  {scriptValueEvidence && (scriptValueEvidence.painPoints.length > 0 || scriptValueEvidence.totalAnnualValue != null) && (
+                    <div className="mb-4 p-4 rounded-lg border border-green-800/50 bg-green-950/30">
+                      <h4 className="text-sm font-medium text-green-300 mb-2 flex items-center gap-2">
+                        <DollarSign className="w-4 h-4" />
+                        Value evidence for this call
+                      </h4>
+                      <ul className="text-sm text-gray-300 space-y-1">
+                        {scriptValueEvidence.painPoints.map((pp, i) => (
+                          <li key={i}>
+                            {pp.display_name || 'Pain point'}: ${pp.monetary_indicator.toLocaleString()}/yr
+                            {pp.monetary_context && <span className="text-gray-500"> — {pp.monetary_context}</span>}
+                          </li>
+                        ))}
+                        {scriptValueEvidence.totalAnnualValue != null && (
+                          <li className="font-medium text-green-400 pt-1 border-t border-green-800/30 mt-2">
+                            Total value (report): ${scriptValueEvidence.totalAnnualValue.toLocaleString()}/yr
+                          </li>
+                        )}
+                      </ul>
+                      <p className="text-xs text-gray-500 mt-2">Use these numbers to guide the conversation and price the offer.</p>
+                    </div>
+                  )}
                   {/* Dynamic Script Header */}
                   <div className="flex items-center justify-between mb-6">
                     <div>
@@ -1557,15 +1633,63 @@ export default function ClientWalkthroughPage() {
                   {/* Selected Offer Preview */}
                   {selectedContent.length > 0 && (
                     <div className="mt-6 pt-6 border-t border-gray-700">
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
                         <h4 className="font-medium text-white">Your Offer Stack</h4>
-                        <button
-                          onClick={() => setShowSaveAsBundle(true)}
-                          className="flex items-center gap-1 px-3 py-1.5 text-sm bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
-                        >
-                          <Save className="w-3 h-3" />
-                          Save as Bundle
-                        </button>
+                        <div className="flex items-center gap-2">
+                          {contact?.id && (
+                            <button
+                              onClick={async () => {
+                                const session = await getCurrentSession();
+                                if (!session?.access_token || selectedContentDetails.length === 0) return;
+                                setIsApplyingEvidencePricing(true);
+                                try {
+                                  const next: Record<string, { retail_price: number; perceived_value: number }> = {};
+                                  for (const c of selectedContentDetails) {
+                                    const res = await fetch('/api/admin/value-evidence/suggest-pricing', {
+                                      method: 'POST',
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                        Authorization: `Bearer ${session.access_token}`,
+                                      },
+                                      body: JSON.stringify({
+                                        content_type: c.content_type,
+                                        content_id: c.content_id,
+                                        contact_submission_id: parseInt(contact.id, 10),
+                                        industry: contact.industry || undefined,
+                                        company_size: contact.employee_count || undefined,
+                                      }),
+                                    });
+                                    if (res.ok) {
+                                      const data = await res.json();
+                                      const p = data.pricing;
+                                      if (p?.suggestedRetailPrice != null && p?.suggestedPerceivedValue != null) {
+                                        next[`${c.content_type}:${c.content_id}`] = {
+                                          retail_price: Number(p.suggestedRetailPrice),
+                                          perceived_value: Number(p.suggestedPerceivedValue),
+                                        };
+                                      }
+                                    }
+                                  }
+                                  setPriceOverrides(prev => ({ ...prev, ...next }));
+                                } finally {
+                                  setIsApplyingEvidencePricing(false);
+                                }
+                              }}
+                              disabled={isApplyingEvidencePricing}
+                              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-green-900/50 border border-green-700/50 text-green-300 hover:bg-green-900/70 rounded-lg transition-colors disabled:opacity-50"
+                            >
+                              {isApplyingEvidencePricing ? <RefreshCw className="w-3 h-3 animate-spin" /> : <DollarSign className="w-3 h-3" />}
+                              Apply evidence-based pricing
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setShowSaveAsBundle(true)}
+                            className="flex items-center gap-1 px-3 py-1.5 text-sm bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors"
+                          >
+                            <Save className="w-3 h-3" />
+                            Save as Bundle
+                          </button>
+                        </div>
                       </div>
                       <OfferStack
                         products={selectedAsProducts}
@@ -1779,20 +1903,26 @@ export default function ClientWalkthroughPage() {
       {showProposalModal && (
         <ProposalModal
           onClose={() => setShowProposalModal(false)}
+          contactId={contact?.id ? parseInt(contact.id, 10) : null}
+          defaultValueReportId={valueReportId}
           onGenerate={async (data) => {
             const authSession = await getCurrentSession();
             if (!authSession?.access_token) return;
             
-            // Build line items from selected content
-            const lineItems = selectedContentDetails.map(c => ({
-              content_type: c.content_type,
-              content_id: c.content_id,
-              title: c.title,
-              description: c.description,
-              offer_role: c.offer_role,
-              price: c.role_retail_price || c.price || 0,
-              perceived_value: c.perceived_value || c.role_retail_price || c.price || 0,
-            }));
+            // Build line items from selected content (use evidence-based overrides when set)
+            const lineItems = selectedContentDetails.map(c => {
+              const key = `${c.content_type}:${c.content_id}`;
+              const override = priceOverrides[key];
+              return {
+                content_type: c.content_type,
+                content_id: c.content_id,
+                title: c.title,
+                description: c.description,
+                offer_role: c.offer_role,
+                price: override?.retail_price ?? c.role_retail_price ?? c.price ?? 0,
+                perceived_value: override?.perceived_value ?? c.perceived_value ?? c.role_retail_price ?? c.price ?? 0,
+              };
+            });
             
             const response = await fetch('/api/proposals', {
               method: 'POST',
@@ -1813,6 +1943,7 @@ export default function ClientWalkthroughPage() {
                 discount_description: data.discountDescription,
                 total_amount: grandSlamOffer.offerPrice - (data.discountAmount || 0),
                 valid_days: data.validDays,
+                value_report_id: data.valueReportId || undefined,
               }),
             });
             
@@ -1976,387 +2107,6 @@ function ScriptStep({ step, title, talkingPoints, isExpanded, onToggle }: Script
               </li>
             ))}
           </ul>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Proposal Generation Modal
-interface ProposalModalProps {
-  onClose: () => void;
-  onGenerate: (data: {
-    clientName: string;
-    clientEmail: string;
-    clientCompany?: string;
-    discountAmount?: number;
-    discountDescription?: string;
-    validDays: number;
-  }) => Promise<void>;
-  defaultClientName: string;
-  defaultClientEmail: string;
-  defaultClientCompany: string;
-  totalAmount: number;
-}
-
-function ProposalModal({
-  onClose,
-  onGenerate,
-  defaultClientName,
-  defaultClientEmail,
-  defaultClientCompany,
-  totalAmount,
-}: ProposalModalProps) {
-  const [clientName, setClientName] = useState(defaultClientName);
-  const [clientEmail, setClientEmail] = useState(defaultClientEmail);
-  const [clientCompany, setClientCompany] = useState(defaultClientCompany);
-  const [discountAmount, setDiscountAmount] = useState(0);
-  const [discountDescription, setDiscountDescription] = useState('');
-  const [validDays, setValidDays] = useState(30);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleGenerate = async () => {
-    if (!clientName.trim() || !clientEmail.trim()) {
-      setError('Client name and email are required');
-      return;
-    }
-
-    setIsGenerating(true);
-    setError(null);
-
-    try {
-      await onGenerate({
-        clientName: clientName.trim(),
-        clientEmail: clientEmail.trim(),
-        clientCompany: clientCompany.trim() || undefined,
-        discountAmount: discountAmount > 0 ? discountAmount : undefined,
-        discountDescription: discountDescription.trim() || undefined,
-        validDays,
-      });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate proposal');
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
-  const finalAmount = totalAmount - (discountAmount || 0);
-
-  return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <FileText className="w-5 h-5 text-blue-400" />
-            Generate Proposal
-          </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
-            <XCircle className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {error && (
-            <div className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-sm text-red-200">
-              {error}
-            </div>
-          )}
-
-          {/* Client Information */}
-          <div>
-            <h4 className="text-sm font-medium text-gray-300 mb-3">Client Information</h4>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Client Name *</label>
-                <input
-                  type="text"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  placeholder="John Smith"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Email *</label>
-                <input
-                  type="email"
-                  value={clientEmail}
-                  onChange={(e) => setClientEmail(e.target.value)}
-                  placeholder="john@company.com"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Company</label>
-                <input
-                  type="text"
-                  value={clientCompany}
-                  onChange={(e) => setClientCompany(e.target.value)}
-                  placeholder="Company Inc."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Pricing */}
-          <div className="pt-4 border-t border-gray-700">
-            <h4 className="text-sm font-medium text-gray-300 mb-3">Pricing</h4>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
-                <span className="text-gray-400">Offer Total</span>
-                <span className="font-medium">${totalAmount.toFixed(2)}</span>
-              </div>
-              <div>
-                <label className="block text-xs text-gray-500 mb-1">Discount Amount ($)</label>
-                <input
-                  type="number"
-                  value={discountAmount}
-                  onChange={(e) => setDiscountAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-                  min="0"
-                  step="0.01"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-                />
-              </div>
-              {discountAmount > 0 && (
-                <div>
-                  <label className="block text-xs text-gray-500 mb-1">Discount Reason</label>
-                  <input
-                    type="text"
-                    value={discountDescription}
-                    onChange={(e) => setDiscountDescription(e.target.value)}
-                    placeholder="e.g., Early bird, Referral, Loyalty"
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
-                  />
-                </div>
-              )}
-              <div className="flex items-center justify-between p-3 bg-blue-900/30 border border-blue-800 rounded-lg">
-                <span className="text-blue-300 font-medium">Final Amount</span>
-                <span className="text-xl font-bold text-blue-400">${finalAmount.toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Validity */}
-          <div className="pt-4 border-t border-gray-700">
-            <h4 className="text-sm font-medium text-gray-300 mb-3">Validity</h4>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Valid for (days)</label>
-              <select
-                value={validDays}
-                onChange={(e) => setValidDays(parseInt(e.target.value))}
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              >
-                <option value={7}>7 days</option>
-                <option value={14}>14 days</option>
-                <option value={30}>30 days</option>
-                <option value={60}>60 days</option>
-                <option value={90}>90 days</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 border-t border-gray-800 flex items-center gap-3">
-          <button
-            onClick={onClose}
-            className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleGenerate}
-            disabled={isGenerating || !clientName.trim() || !clientEmail.trim()}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed rounded-lg transition-colors"
-          >
-            {isGenerating ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <FileText className="w-4 h-4" />
-            )}
-            Generate Proposal
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// Value Evidence Panel
-// ============================================================================
-
-function ValueEvidencePanel({ contactId, industry, companySize, companyName }: {
-  contactId: number | null;
-  industry: string | null;
-  companySize: string | null;
-  companyName: string | null;
-}) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [calculations, setCalculations] = useState<any[]>([]);
-  const [generating, setGenerating] = useState(false);
-  const [reportGenerated, setReportGenerated] = useState<string | null>(null);
-
-  const fetchCalculations = useCallback(async () => {
-    if (!industry) return;
-    setLoading(true);
-    try {
-      const session = await getCurrentSession();
-      if (!session?.access_token) return;
-
-      const params = new URLSearchParams();
-      if (industry) params.set('industry', industry);
-      if (companySize) params.set('company_size', companySize);
-
-      const res = await fetch(`/api/admin/value-evidence/calculations?${params}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setCalculations(data.calculations || []);
-      }
-    } catch (error) {
-      console.error('Value evidence fetch error:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [industry, companySize]);
-
-  useEffect(() => {
-    if (isExpanded && calculations.length === 0) {
-      fetchCalculations();
-    }
-  }, [isExpanded, fetchCalculations, calculations.length]);
-
-  const handleGenerateReport = async () => {
-    setGenerating(true);
-    try {
-      const session = await getCurrentSession();
-      if (!session?.access_token) return;
-
-      const res = await fetch('/api/admin/value-evidence/reports/generate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          contact_submission_id: contactId,
-          industry,
-          company_size: companySize,
-          company_name: companyName,
-          report_type: 'client_facing',
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setReportGenerated(data.report?.id || 'generated');
-      }
-    } catch (error) {
-      console.error('Report generation error:', error);
-    } finally {
-      setGenerating(false);
-    }
-  };
-
-  const totalValue = calculations.reduce((sum: number, c: any) => sum + (parseFloat(c.annual_value) || 0), 0);
-  const formatCurrency = (v: number) =>
-    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
-
-  return (
-    <div className="bg-gray-900 rounded-lg border border-green-800/50 overflow-hidden">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors"
-      >
-        <div className="flex items-center gap-2">
-          <DollarSign className="w-5 h-5 text-green-500" />
-          <h3 className="font-medium text-white text-sm">Value Evidence</h3>
-          {calculations.length > 0 && (
-            <span className="px-2 py-0.5 text-xs bg-green-900/50 text-green-300 rounded-full">
-              {formatCurrency(totalValue)}/yr
-            </span>
-          )}
-        </div>
-        {isExpanded ? (
-          <ChevronUp className="w-4 h-4 text-gray-400" />
-        ) : (
-          <ChevronDown className="w-4 h-4 text-gray-400" />
-        )}
-      </button>
-
-      {isExpanded && (
-        <div className="px-4 pb-4 space-y-3 border-t border-gray-800">
-          {loading ? (
-            <div className="flex items-center justify-center py-4">
-              <RefreshCw className="w-4 h-4 animate-spin text-gray-400" />
-            </div>
-          ) : calculations.length > 0 ? (
-            <>
-              {calculations.slice(0, 5).map((calc: any) => (
-                <div key={calc.id} className="p-2 bg-gray-800/50 rounded-lg">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-gray-300">
-                      {calc.pain_point_categories?.display_name || 'Unknown'}
-                    </span>
-                    <span className="text-xs font-bold text-green-400">
-                      {formatCurrency(calc.annual_value)}/yr
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                      calc.confidence_level === 'high' ? 'bg-green-900/50 text-green-400' :
-                      calc.confidence_level === 'medium' ? 'bg-yellow-900/50 text-yellow-400' :
-                      'bg-gray-700 text-gray-400'
-                    }`}>
-                      {calc.confidence_level}
-                    </span>
-                    <span className="text-[10px] text-gray-500">
-                      {calc.calculation_method?.replace(/_/g, ' ')}
-                    </span>
-                  </div>
-                </div>
-              ))}
-
-              {calculations.length > 5 && (
-                <p className="text-xs text-gray-500 text-center">
-                  +{calculations.length - 5} more calculations
-                </p>
-              )}
-
-              <div className="p-2 bg-green-900/20 border border-green-800/50 rounded-lg text-center">
-                <div className="text-xs text-gray-400">Cost of Doing Nothing</div>
-                <div className="text-lg font-bold text-green-400">{formatCurrency(totalValue)}/yr</div>
-              </div>
-
-              <button
-                onClick={handleGenerateReport}
-                disabled={generating || !!reportGenerated}
-                className="w-full px-3 py-2 text-xs bg-green-600/20 border border-green-500/50 rounded-lg text-green-300 hover:bg-green-600/30 disabled:opacity-50 flex items-center justify-center gap-1"
-              >
-                {generating ? (
-                  <><RefreshCw className="w-3 h-3 animate-spin" /> Generating...</>
-                ) : reportGenerated ? (
-                  <><CheckCircle className="w-3 h-3" /> Report Generated</>
-                ) : (
-                  <><FileText className="w-3 h-3" /> Generate Client Report</>
-                )}
-              </button>
-            </>
-          ) : (
-            <div className="py-3 text-center">
-              <p className="text-xs text-gray-500">
-                {industry ? 'No calculations for this industry yet.' : 'Industry not detected.'}
-              </p>
-              <p className="text-[10px] text-gray-600 mt-1">
-                Generate calculations in the Value Evidence admin page.
-              </p>
-            </div>
-          )}
         </div>
       )}
     </div>

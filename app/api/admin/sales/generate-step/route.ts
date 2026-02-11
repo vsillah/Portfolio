@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
+import { supabaseAdmin } from '@/lib/supabase';
 import {
   StepType,
   DynamicStep,
@@ -60,6 +61,8 @@ interface GenerateStepRequest {
   availableProducts?: ProductWithRole[]; // Legacy support
   availableContent?: ContentWithRole[]; // New format
   conversationHistory: ConversationResponse[];
+  /** When set, value evidence (pain points + dollar impact) is fetched and used in script steps */
+  contactSubmissionId?: number | null;
 }
 
 export async function POST(request: NextRequest) {
@@ -82,7 +85,50 @@ export async function POST(request: NextRequest) {
       availableProducts,
       availableContent,
       conversationHistory,
+      contactSubmissionId,
     } = body;
+
+    // Fetch value evidence for this contact so script steps can reference quantified pain and value
+    let valueEvidenceSummary: string | null = null;
+    if (contactSubmissionId && Number.isInteger(contactSubmissionId)) {
+      const [
+        { data: evidenceRows },
+        { data: reports },
+      ] = await Promise.all([
+        supabaseAdmin
+          .from('pain_point_evidence')
+          .select(`
+            source_excerpt,
+            confidence_score,
+            monetary_indicator,
+            monetary_context,
+            pain_point_categories(display_name)
+          `)
+          .eq('contact_submission_id', contactSubmissionId)
+          .order('confidence_score', { ascending: false })
+          .limit(20),
+        supabaseAdmin
+          .from('value_reports')
+          .select('title, total_annual_value')
+          .eq('contact_submission_id', contactSubmissionId)
+          .order('created_at', { ascending: false })
+          .limit(1),
+      ]);
+      const parts: string[] = [];
+      if (evidenceRows?.length) {
+        const painPoints = evidenceRows
+          .filter((r: { monetary_indicator?: number }) => r.monetary_indicator != null)
+          .map((r: { pain_point_categories: { display_name: string } | null; monetary_indicator: number; monetary_context?: string }) =>
+            `${r.pain_point_categories?.display_name ?? 'Pain point'}: $${Number(r.monetary_indicator).toLocaleString()}/yr${r.monetary_context ? ` (${r.monetary_context})` : ''}`
+          );
+        if (painPoints.length) parts.push(`Quantified pain points: ${painPoints.slice(0, 5).join('; ')}.`);
+      }
+      const report = reports?.[0] as { title?: string; total_annual_value?: number } | undefined;
+      if (report?.total_annual_value != null) {
+        parts.push(`Total value from report: $${Number(report.total_annual_value).toLocaleString()}/yr.`);
+      }
+      if (parts.length) valueEvidenceSummary = parts.join(' ');
+    }
 
     // Convert content to products format for backward compatibility
     let products: ProductWithRole[] = availableProducts || [];
@@ -115,7 +161,7 @@ export async function POST(request: NextRequest) {
       }));
     }
 
-    // Generate the step
+    // Generate the step (include value evidence so script steps reference quantified pain and value)
     const step = generateStep({
       stepType,
       audit,
@@ -126,6 +172,7 @@ export async function POST(request: NextRequest) {
       chosenStrategy,
       availableProducts: products,
       conversationHistory,
+      valueEvidenceSummary,
     });
 
     return NextResponse.json({ step });
@@ -135,7 +182,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function generateStep(context: GenerateStepRequest): DynamicStep {
+function generateStep(context: GenerateStepRequest & { valueEvidenceSummary?: string | null }): DynamicStep {
   const {
     stepType,
     audit,
@@ -145,6 +192,7 @@ function generateStep(context: GenerateStepRequest): DynamicStep {
     lastResponse,
     chosenStrategy,
     availableProducts,
+    valueEvidenceSummary,
   } = context;
 
   const stepNumber = previousSteps.length + 1;
@@ -190,11 +238,13 @@ function generateStep(context: GenerateStepRequest): DynamicStep {
           : `"Before we dive into solutions, I'd love to understand a bit more about what's happening at ${clientCompany} right now."`,
         `"My goal for our call today is to understand your situation, show you some options, and see if there's a fit. Sound good?"`,
       ];
+      if (valueEvidenceSummary) talkingPoints.push(`[Use value evidence during call: ${valueEvidenceSummary}]`);
       suggestedActions = [
         'Let them talk - take notes on specific pain points',
         'Listen for emotional triggers (frustration, urgency)',
         'Identify their primary motivation',
       ];
+      if (valueEvidenceSummary) suggestedActions.push('Reference quantified pain/value from evidence when relevant');
       break;
 
     case 'discovery':
@@ -206,17 +256,19 @@ function generateStep(context: GenerateStepRequest): DynamicStep {
           : `"Tell me about the biggest challenge you're facing right now with your business."`,
         impact 
           ? `"You noted this is costing you ${impact.toLowerCase()}. How did you arrive at that number?"` 
-          : `"What's this problem costing you - in time, money, or missed opportunities?"`,
+          : (valueEvidenceSummary ? `"We've identified some areas that may be costing you. What's this problem costing you - in time, money, or missed opportunities?"` : `"What's this problem costing you - in time, money, or missed opportunities?"`),
         `"If we could solve this completely, what would that mean for ${clientCompany}?"`,
         desiredOutcomes.length > 0 
           ? `"You said you want to ${desiredOutcomes[0].toLowerCase()}. What's stopped you from achieving that so far?"` 
           : `"What have you tried before to solve this?"`,
       ];
+      if (valueEvidenceSummary) talkingPoints.push(`[Evidence summary to reference: ${valueEvidenceSummary}]`);
       suggestedActions = [
         'Quantify the pain (get specific numbers)',
         'Understand timeline urgency',
         'Identify who else is affected',
       ];
+      if (valueEvidenceSummary) suggestedActions.push('Use evidence numbers to anchor the cost of inaction');
       break;
 
     case 'presentation':
@@ -235,11 +287,13 @@ function generateStep(context: GenerateStepRequest): DynamicStep {
           ? `"This directly addresses your goal to ${desiredOutcomes[0].toLowerCase()}."` 
           : `"This will help you achieve the outcomes you're looking for."`,
       ];
+      if (valueEvidenceSummary) talkingPoints.push(`"The value we've identified for you aligns with what we're solving—use the evidence numbers when presenting."`);
       suggestedActions = [
         'Connect each feature to their specific pain point',
         'Use their language back to them',
         'Watch for buying signals (nodding, questions)',
       ];
+      if (valueEvidenceSummary) suggestedActions.push('Anchor offer value to evidence-based pain/value numbers');
       break;
 
     case 'value_stack':
@@ -338,16 +392,18 @@ function generateStep(context: GenerateStepRequest): DynamicStep {
           : '',
         impact 
           ? `"Remember, you mentioned this problem is costing you ${impact.toLowerCase()}. This investment pays for itself when we solve that."` 
-          : `"This investment typically pays for itself within 90 days."`,
+          : (valueEvidenceSummary ? `"Based on the value we've identified for your situation, this investment pays for itself when we address those areas."` : `"This investment typically pays for itself within 90 days."`),
         budgetRange 
           ? `"You mentioned a budget of ${budgetRange}. This fits right in that range, and here's how we can structure it..."` 
           : '',
       ].filter(Boolean);
+      if (valueEvidenceSummary) talkingPoints.push(`[Use evidence-based retail/perceived value for this contact when stating "value" or "worth"].`);
       suggestedActions = [
         'Present 2-3 options with clear differentiation',
         'Highlight the recommended option',
         'Connect price to the cost of not solving their problem',
       ];
+      if (valueEvidenceSummary) suggestedActions.push('Price using evidence-based retail and perceived value for this contact');
       break;
 
     case 'close':

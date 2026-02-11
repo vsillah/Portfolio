@@ -81,9 +81,23 @@ const OUTCOME_LABELS: Record<SessionOutcome, string> = {
   in_progress: 'In Progress',
 };
 
+interface ConversationSession {
+  id: string;
+  contact_submission_id: number | null;
+  client_name: string | null;
+  client_email: string | null;
+  client_company: string | null;
+  funnel_stage: FunnelStage;
+  outcome: SessionOutcome;
+  next_follow_up: string | null;
+  created_at: string;
+  diagnostic_audit_id: string | null;
+}
+
 export default function SalesDashboardPage() {
   const { user } = useAuth();
   const [audits, setAudits] = useState<DiagnosticAudit[]>([]);
+  const [conversationSessions, setConversationSessions] = useState<ConversationSession[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -101,19 +115,28 @@ export default function SalesDashboardPage() {
     setError(null);
     
     try {
+      const headers = { Authorization: `Bearer ${session.access_token}` };
       const params = new URLSearchParams();
       if (minUrgency > 0) params.append('min_urgency', minUrgency.toString());
       
-      const response = await fetch(`/api/admin/sales?${params}`, {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      });
-      if (!response.ok) throw new Error('Failed to fetch data');
+      const [auditsResponse, sessionsResponse] = await Promise.all([
+        fetch(`/api/admin/sales?${params}`, { headers }),
+        fetch('/api/admin/sales/sessions', { headers }),
+      ]);
+      if (!auditsResponse.ok) throw new Error('Failed to fetch data');
       
-      const data = await response.json();
+      const data = await auditsResponse.json();
       setAudits(data.audits || []);
       setStats(data.stats || null);
+
+      if (sessionsResponse.ok) {
+        const sessionsData = await sessionsResponse.json();
+        // Only show sessions that don't have a diagnostic audit (conversation-only)
+        const convOnly = (sessionsData.sessions || []).filter(
+          (s: ConversationSession) => !s.diagnostic_audit_id
+        );
+        setConversationSessions(convOnly);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -426,6 +449,77 @@ export default function SalesDashboardPage() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+
+        {/* Active Conversations (no diagnostic audit) */}
+        {conversationSessions.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <Phone className="w-5 h-5 text-purple-500" />
+              Active Conversations
+              <span className="text-sm font-normal text-gray-400">({conversationSessions.length})</span>
+            </h2>
+            <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-gray-800 border-b border-gray-700">
+                  <tr>
+                    <th className="text-left px-4 py-3 text-sm font-medium text-gray-400">Contact</th>
+                    <th className="text-left px-4 py-3 text-sm font-medium text-gray-400">Stage</th>
+                    <th className="text-left px-4 py-3 text-sm font-medium text-gray-400">Status</th>
+                    <th className="text-left px-4 py-3 text-sm font-medium text-gray-400">Date</th>
+                    <th className="text-right px-4 py-3 text-sm font-medium text-gray-400">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-800">
+                  {conversationSessions
+                    .filter(s => {
+                      if (!searchQuery) return true;
+                      const q = searchQuery.toLowerCase();
+                      return (
+                        s.client_name?.toLowerCase().includes(q) ||
+                        s.client_email?.toLowerCase().includes(q) ||
+                        s.client_company?.toLowerCase().includes(q)
+                      );
+                    })
+                    .map(s => (
+                    <tr key={s.id} className="hover:bg-gray-800/50">
+                      <td className="px-4 py-4">
+                        <div className="font-medium text-white">{s.client_name || 'Unknown'}</div>
+                        <div className="text-sm text-gray-400">{s.client_email}</div>
+                        {s.client_company && <div className="text-sm text-gray-500">{s.client_company}</div>}
+                      </td>
+                      <td className="px-4 py-4">
+                        <FunnelStageBadge stage={s.funnel_stage} size="sm" />
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-2">
+                          {OUTCOME_ICONS[s.outcome]}
+                          <span className="text-sm text-gray-300">{OUTCOME_LABELS[s.outcome]}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 text-sm text-gray-400">
+                        {formatDate(s.created_at)}
+                        {s.next_follow_up && (
+                          <div className="text-xs text-blue-400 mt-1 flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            Follow-up: {formatDate(s.next_follow_up)}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <Link
+                          href={`/admin/sales/conversation/${s.id}`}
+                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700"
+                        >
+                          Continue <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

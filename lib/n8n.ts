@@ -152,28 +152,34 @@ function generateMockDiagnosticResponse(
 // ============================================================================
 
 /**
- * Input fields captured from the contact form
+ * Input fields captured from the contact form or manual lead add/edit.
+ * companyDomain = company website domain (e.g. company.com) used for enrichment lookup.
  */
 export interface LeadQualificationRequest {
   // Contact Information
   name: string
   email: string
   company?: string
+  /** Company website domain (e.g. company.com) for enrichment lookup */
   companyDomain?: string
   linkedinUrl?: string
   message: string
-  
+  /** Phone number; used for enrichment and CRM */
+  phone?: string
+  /** Industry classification; used for enrichment and scoring */
+  industry?: string
+
   // Lead Qualification Fields (from form)
   annualRevenue?: string
   interestAreas?: string[]
   interestSummary?: string  // Derived from interestAreas for n8n
   isDecisionMaker?: boolean
-  
+
   // Metadata
   submissionId: string
   submittedAt: string
   source: string
-  
+
   // Placeholder fields for n8n to populate (included for schema completeness)
   // These will be filled by the Research Agent and Lead Scoring Agent
   leadScore?: number
@@ -902,28 +908,52 @@ const N8N_VEP001_WEBHOOK_URL = process.env.N8N_VEP001_WEBHOOK_URL  // Internal e
 const N8N_VEP002_WEBHOOK_URL = process.env.N8N_VEP002_WEBHOOK_URL  // Social listening
 
 /**
+ * Options for value evidence extraction (selected leads and rep-supplied enrichments).
+ */
+export interface ValueEvidenceExtractionOptions {
+  /** When provided and non-empty, workflow fetches only these contacts. */
+  contactSubmissionIds?: number[]
+  /** Rep-supplied pain point text per contact ID; workflow can use as classifier input or pre-classified evidence. */
+  enrichments?: Record<number, { pain_points_freetext?: string }>
+}
+
+/**
  * Trigger the internal value evidence extraction workflow (WF-VEP-001)
  * Extracts pain points from diagnostic audits, quick wins, lead reports, and outreach replies
  * Results are POSTed back to /api/admin/value-evidence/ingest
+ *
+ * When options.contactSubmissionIds is provided, the webhook body includes contact_submission_ids
+ * so the workflow can limit extraction to those contacts. When options.enrichments is provided,
+ * it is included for the workflow to use rep-supplied pain point text.
  */
-export async function triggerValueEvidenceExtraction(): Promise<{ triggered: boolean; message: string }> {
+export async function triggerValueEvidenceExtraction(
+  options?: ValueEvidenceExtractionOptions
+): Promise<{ triggered: boolean; message: string }> {
   if (!N8N_VEP001_WEBHOOK_URL) {
     console.warn('N8N_VEP001_WEBHOOK_URL not configured - skipping value evidence extraction')
     return { triggered: false, message: 'N8N_VEP001_WEBHOOK_URL not configured' }
   }
 
   try {
+    const body: Record<string, unknown> = {
+      triggered_at: new Date().toISOString(),
+      workflow: 'WF-VEP-001',
+      action: 'extract_internal_evidence',
+    }
+    if (options?.contactSubmissionIds?.length) {
+      body.contact_submission_ids = options.contactSubmissionIds
+    }
+    if (options?.enrichments && Object.keys(options.enrichments).length > 0) {
+      body.enrichments = options.enrichments
+    }
+
     const response = await fetch(N8N_VEP001_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({
-        triggered_at: new Date().toISOString(),
-        workflow: 'WF-VEP-001',
-        action: 'extract_internal_evidence',
-      }),
+      body: JSON.stringify(body),
     })
 
     if (!response.ok) {

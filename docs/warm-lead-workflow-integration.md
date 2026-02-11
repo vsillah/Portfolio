@@ -16,34 +16,40 @@ This document describes the complete warm lead workflow integration, including m
    │  └─ POST /api/admin/outreach/trigger
    └─ n8n Scheduled Workflows (daily)
 
-2. SCRAPING (n8n Workflows)
+2. 24-HOUR GATE (limit API calls)
+   └─ At workflow start: GET /api/admin/outreach/last-run?source=<source>
+      ├─ If last success < 24h ago → skip external API, end successfully
+      └─ Else → proceed to scraping
+   └─ After successful ingest: POST /api/admin/outreach/run-complete (or ingest updates audit)
+
+3. SCRAPING (n8n Workflows)
    ├─ WF-WRM-001: Facebook (Friends, Groups, Engagement)
    ├─ WF-WRM-002: Google Contacts
    └─ WF-WRM-003: LinkedIn (Connections, Engagement)
 
-3. INGESTION
+4. INGESTION
    └─ POST /api/admin/outreach/ingest
       ├─ Validates N8N_INGEST_SECRET
       ├─ Deduplicates by email/linkedin
       └─ Inserts to contact_submissions table
 
-4. ENRICHMENT (Automatic)
+5. ENRICHMENT (Automatic)
    └─ Background workflow enriches lead data
       ├─ Company lookup
       ├─ Social profiles
       └─ Contact validation
 
-5. OUTREACH GENERATION (AI)
+6. OUTREACH GENERATION (AI)
    └─ Background workflow generates personalized messages
       └─ Inserts to outreach_queue (status: draft)
 
-6. HUMAN REVIEW
+7. HUMAN REVIEW
    └─ /admin/outreach page
       ├─ Review AI-generated messages
       ├─ Approve/Reject/Edit
       └─ Batch operations
 
-7. SENDING
+8. SENDING
    └─ Manual or automated send
       ├─ Updates outreach_queue (status: sent)
       └─ Updates contact_submissions (outreach_status: contacted)
@@ -78,6 +84,19 @@ This document describes the complete warm lead workflow integration, including m
 - Creates audit log entries
 - Supports single source or all sources
 - Returns execution IDs for tracking
+- **24-hour gate:** If the last successful run for that source was within 24 hours, the trigger returns success with `skipped: true` and does not call the n8n webhook (avoids redundant API calls).
+
+### 1b. Last-run and run-complete (24-hour gate)
+
+To limit external API calls (e.g. Apify) to at most one per 24 hours per source, n8n workflows call these endpoints. Auth: `Authorization: Bearer <N8N_INGEST_SECRET>` (same as ingest).
+
+- **GET /api/admin/outreach/last-run?source=facebook|google_contacts|linkedin**  
+  Returns `{ lastSuccessAt: string | null, shouldRun: boolean }`. `shouldRun` is false when the last successful run was within the last 24 hours. n8n uses this at the start of a run to skip the external API and end successfully when within the window.
+
+- **POST /api/admin/outreach/run-complete**  
+  Body: `{ source: "facebook" | "google_contacts" | "linkedin" }`. Records a successful run in `warm_lead_trigger_audit` so the next run sees "last run within 24h". Call this at the end of the workflow after ingest (or rely on the ingest endpoint updating the most recent `running` audit row when the run was app-triggered).
+
+**Trigger strategy:** Remove any redundant 10-minute webhook caller; keep one run-on-wake or schedule per workflow. The 24-hour gate ensures at most one API call per 24 hours.
 
 ### 2. Manual lead entry (salesperson)
 
@@ -87,12 +106,25 @@ Salespeople can add a single lead from non-automated inputs (e.g. LinkedIn conve
 
 **Flow:**
 1. Open the Lead Pipeline page (`/admin/outreach`), switch to the **All Leads** tab.
-2. Click **Add lead**. A modal opens with fields: Name (required), Email, Company, LinkedIn URL, Job title, **How did you get this lead?** (LinkedIn, Referral, Business card, Event, Other), and Message/notes.
-3. Submit the form. The app creates or updates a contact in `contact_submissions` (deduplication by email, LinkedIn URL, or LinkedIn username) and optionally triggers the lead qualification workflow.
+2. Click **Add lead**. A modal opens with fields: Name (required), Email, Company, **Company website** (domain or URL), LinkedIn URL, Job title, **Industry**, **Phone**, **How did you get this lead?** (LinkedIn, Referral, Business card, Event, Other), and Message/notes.
+3. Submit the form. The app creates or updates a contact in `contact_submissions` (deduplication by email, LinkedIn URL, or LinkedIn username) and triggers the lead qualification workflow.
 
 **API:** `POST /api/admin/outreach/leads` with **session auth only** (same as GET leads). No ingest API or `N8N_INGEST_SECRET` is used; only logged-in admins can add leads.
 
-**Lead source:** Manually added leads are stored with `lead_source: cold_referral` and appear in the cold leads list and in the main pipeline.
+**Lead source:** Manually added leads are stored with `lead_source: cold_referral` (or a value derived from "How did you get this lead?") and appear in the cold leads list and in the main pipeline.
+
+**Enrichment:** Phone, industry, and company website (stored as `company_domain`) are sent to the lead qualification webhook (`N8N_LEAD_WEBHOOK_URL`) so the n8n workflow can use them for company lookup, industry-based scoring, and contact enrichment. The ingest endpoint can write enriched data (scores, quick_wins, etc.) back to `contact_submissions`.
+
+### 2b. Editing leads
+
+Leads in the pipeline can be edited from the **All Leads** tab.
+
+**Flow:**
+1. On any lead row, click **Edit**. An edit modal opens with the same fields as Add lead (Name, Email, Company, Company website, LinkedIn URL, Job title, Industry, Phone, How did you get this lead?, Message/notes), pre-filled with the lead’s current data.
+2. Optionally check **Re-run enrichment** (default on) to send the updated lead to the lead qualification webhook after save.
+3. Click **Save changes**. The app updates the contact via `PATCH /api/admin/outreach/leads/[id]` and, if Re-run enrichment is checked, triggers the lead qualification webhook with the updated data.
+
+**API:** `PATCH /api/admin/outreach/leads/[id]` with **session auth**. Request body may include any of: name, email, company, company_domain, job_title, industry, location, phone_number, linkedin_url, linkedin_username, message, input_type, and `re_run_enrichment` (boolean, default true). Only provided fields are updated. Returns `{ id, updated: true }` or 404 if the lead is not found.
 
 ### 3. Admin Dashboard UI
 

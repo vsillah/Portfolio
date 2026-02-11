@@ -3,6 +3,14 @@ import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
+// UUID v4 regex (optional hyphens)
+const UUID_REGEX = /^[0-9a-f]{8}-?[0-9a-f]{4}-?4[0-9a-f]{3}-?[89ab][0-9a-f]{3}-?[0-9a-f]{12}$/i
+
+function asUUIDOrNull(value: unknown): string | null {
+  if (value == null || typeof value !== 'string') return null
+  return UUID_REGEX.test(value) ? value : null
+}
+
 // Anonymize IP address (remove last octet)
 function anonymizeIP(ip: string | null): string | null {
   if (!ip) return null
@@ -41,7 +49,7 @@ export async function POST(request: NextRequest) {
                null
     const anonymizedIP = anonymizeIP(ip)
 
-    // Insert analytics event
+    // Insert analytics event (user_id must be UUID or null; client often sends anonymous ids like "user_...")
     const { error: eventError } = await supabaseAdmin
       .from('analytics_events')
       .insert([
@@ -54,7 +62,7 @@ export async function POST(request: NextRequest) {
           referrer,
           ip_address: anonymizedIP,
           session_id,
-          user_id,
+          user_id: asUUIDOrNull(user_id),
         },
       ])
 
@@ -80,13 +88,13 @@ export async function POST(request: NextRequest) {
           })
           .eq('session_id', session_id)
       } else {
-        // Create new session
+        // Create new session (user_id must be UUID or null)
         await supabaseAdmin
           .from('analytics_sessions')
           .insert([
             {
               session_id,
-              user_id,
+              user_id: asUUIDOrNull(user_id),
               referrer,
               user_agent,
               device_type,

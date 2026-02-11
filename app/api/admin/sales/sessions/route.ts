@@ -17,6 +17,8 @@ export async function GET(request: NextRequest) {
     // Get filter parameters
     const { searchParams } = new URL(request.url);
     const auditId = searchParams.get('audit_id');
+    const contactSubmissionId = searchParams.get('contact_submission_id');
+    const sessionId = searchParams.get('id');
     const outcome = searchParams.get('outcome') as SessionOutcome | null;
     const hasFollowUp = searchParams.get('has_follow_up') === 'true';
 
@@ -35,8 +37,14 @@ export async function GET(request: NextRequest) {
       `)
       .order('created_at', { ascending: false });
 
+    if (sessionId) {
+      query = query.eq('id', sessionId);
+    }
     if (auditId) {
       query = query.eq('diagnostic_audit_id', auditId);
+    }
+    if (contactSubmissionId) {
+      query = query.eq('contact_submission_id', contactSubmissionId);
     }
 
     if (outcome) {
@@ -77,6 +85,7 @@ export async function POST(request: NextRequest) {
       client_company,
       funnel_stage = 'prospect',
       current_script_id,
+      contact_submission_id,
     } = body;
 
     // Either diagnostic_audit_id or client info is required
@@ -98,6 +107,7 @@ export async function POST(request: NextRequest) {
         current_script_id,
         sales_agent_id: adminResult.user.id,
         outcome: 'in_progress',
+        ...(contact_submission_id != null && { contact_submission_id }),
       })
       .select()
       .single();
@@ -105,6 +115,14 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('Error creating session:', error);
       return NextResponse.json({ error: 'Failed to create session' }, { status: 500 });
+    }
+
+    // When starting a conversation from a lead, set outreach_status so sequence is paused
+    if (contact_submission_id != null) {
+      await supabaseAdmin
+        .from('contact_submissions')
+        .update({ outreach_status: 'in_conversation' })
+        .eq('id', contact_submission_id);
     }
 
     return NextResponse.json({ success: true, data });

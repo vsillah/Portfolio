@@ -5,7 +5,19 @@ import { triggerLeadQualificationWebhook } from '@/lib/n8n'
 
 export const dynamic = 'force-dynamic'
 
-const LEAD_SOURCE_MANUAL = 'cold_referral' as const
+const INPUT_TYPE_TO_LEAD_SOURCE: Record<string, string> = {
+  linkedin: 'cold_linkedin',
+  referral: 'cold_referral',
+  business_card: 'cold_business_card',
+  event: 'cold_event',
+  other: 'other',
+}
+function leadSourceFromInputType(inputType: string | undefined): string {
+  if (inputType && inputType in INPUT_TYPE_TO_LEAD_SOURCE) {
+    return INPUT_TYPE_TO_LEAD_SOURCE[inputType]
+  }
+  return 'cold_referral'
+}
 
 function normalizeUrl(url: string | undefined): string | null {
   if (!url || !url.trim()) return null
@@ -40,9 +52,13 @@ export async function POST(request: NextRequest) {
       job_title,
       industry,
       location,
+      phone_number,
       message: bodyMessage,
       notes,
       input_type,
+      employee_count,
+      quick_wins,
+      rep_pain_points,
     } = body as {
       name?: string
       email?: string
@@ -53,11 +69,16 @@ export async function POST(request: NextRequest) {
       job_title?: string
       industry?: string
       location?: string
+      phone_number?: string
       message?: string
       notes?: string
       input_type?: string
+      employee_count?: string
+      quick_wins?: string
+      rep_pain_points?: string
     }
 
+    const leadSource = leadSourceFromInputType(input_type)
     const message = bodyMessage ?? notes ?? ''
 
     if (!name || typeof name !== 'string' || !name.trim()) {
@@ -123,11 +144,15 @@ export async function POST(request: NextRequest) {
         job_title: job_title?.trim() || null,
         industry: industry?.trim() || null,
         location: location?.trim() || null,
+        phone_number: phone_number?.trim() || null,
         linkedin_url: normalizedLinkedinUrl,
         linkedin_username: linkedin_username?.trim() || null,
-        lead_source: LEAD_SOURCE_MANUAL,
+        lead_source: leadSource,
         warm_source_detail: input_type ? `Manual entry: ${input_type}` : null,
         message: displayMessage,
+        employee_count: employee_count?.trim() || null,
+        quick_wins: quick_wins?.trim() || null,
+        rep_pain_points: rep_pain_points?.trim() || null,
       }
       if (email !== undefined) updatePayload.email = email?.trim()?.toLowerCase() || null
 
@@ -158,13 +183,17 @@ export async function POST(request: NextRequest) {
       job_title: job_title?.trim() || null,
       industry: industry?.trim() || null,
       location: location?.trim() || null,
-      lead_source: LEAD_SOURCE_MANUAL,
+      phone_number: phone_number?.trim() || null,
+      lead_source: leadSource,
       outreach_status: 'not_contacted',
       relationship_strength: 'weak',
       linkedin_url: normalizedLinkedinUrl,
       linkedin_username: linkedin_username?.trim() || null,
       warm_source_detail: input_type ? `Manual entry: ${input_type}` : null,
       message: displayMessage,
+      employee_count: employee_count?.trim() || null,
+      quick_wins: quick_wins?.trim() || null,
+      rep_pain_points: rep_pain_points?.trim() || null,
     }
 
     const { data: inserted, error: insertError } = await supabaseAdmin
@@ -190,6 +219,8 @@ export async function POST(request: NextRequest) {
       email: email?.trim() || '',
       company: company?.trim() || undefined,
       companyDomain: company_domain?.trim() || undefined,
+      industry: industry?.trim() || undefined,
+      phone: phone_number?.trim() || undefined,
       linkedinUrl: normalizedLinkedinUrl || undefined,
       message: displayMessage,
       source: 'manual_entry',
@@ -240,7 +271,10 @@ export async function GET(request: NextRequest) {
         name,
         email,
         company,
+        company_domain,
         job_title,
+        industry,
+        phone_number,
         lead_source,
         lead_score,
         outreach_status,
@@ -249,7 +283,12 @@ export async function GET(request: NextRequest) {
         linkedin_url,
         ai_readiness_score,
         competitive_pressure_score,
-        quick_wins
+        quick_wins,
+        message,
+        full_report,
+        rep_pain_points,
+        last_vep_triggered_at,
+        last_vep_status
       `, { count: 'exact' })
 
     // Filter by temperature (warm/cold)
@@ -295,14 +334,66 @@ export async function GET(request: NextRequest) {
       throw error
     }
 
-    // For each lead, get aggregated message and sales data
+    const contactIds = (contacts || []).map((c: { id: number }) => c.id)
+    if (contactIds.length === 0) {
+      return NextResponse.json({
+        leads: [],
+        total: count || 0,
+        page: Math.floor(offset / limit) + 1,
+      })
+    }
+
+    // Batch: evidence count per contact_submission_id
+    const { data: evidenceRows } = await supabaseAdmin
+      .from('pain_point_evidence')
+      .select('contact_submission_id')
+      .in('contact_submission_id', contactIds)
+
+    const evidenceCountByContact: Record<number, number> = {}
+    for (const row of evidenceRows || []) {
+      const id = row.contact_submission_id as number
+      if (id != null) {
+        evidenceCountByContact[id] = (evidenceCountByContact[id] || 0) + 1
+      }
+    }
+
+    // Batch: completed diagnostic per contact
+    const { data: completedAudits } = await supabaseAdmin
+      .from('diagnostic_audits')
+      .select('contact_submission_id')
+      .in('contact_submission_id', contactIds)
+      .eq('status', 'completed')
+
+    const hasCompletedDiagnostic = new Set(
+      (completedAudits || []).map((a: { contact_submission_id: number }) => a.contact_submission_id)
+    )
+
+    // Batch: sales sessions per contact (for "View in Sales" link and has_sales_conversation)
+    const { data: sessionsRows } = await supabaseAdmin
+      .from('sales_sessions')
+      .select('id, contact_submission_id, created_at')
+      .in('contact_submission_id', contactIds)
+      .order('created_at', { ascending: false })
+
+    const sessionsByContact: Record<number, { id: string; created_at: string }[]> = {}
+    for (const row of sessionsRows || []) {
+      const cid = row.contact_submission_id as number
+      if (cid == null) continue
+      if (!sessionsByContact[cid]) sessionsByContact[cid] = []
+      sessionsByContact[cid].push({ id: row.id, created_at: row.created_at })
+    }
+
+    // For each lead, get aggregated message data (outreach_queue still per-lead)
     const leadsWithMetadata = await Promise.all(
       (contacts || []).map(async (contact: {
         id: number
         name: string
         email: string
         company: string | null
+        company_domain: string | null
         job_title: string | null
+        industry: string | null
+        phone_number: string | null
         lead_source: string
         lead_score: number | null
         outreach_status: string
@@ -312,8 +403,12 @@ export async function GET(request: NextRequest) {
         ai_readiness_score: number | null
         competitive_pressure_score: number | null
         quick_wins: string | null
+        message: string | null
+        full_report: string | null
+        rep_pain_points: string | null
+        last_vep_triggered_at: string | null
+        last_vep_status: string | null
       }) => {
-        // Get message counts
         const { data: messages } = await supabaseAdmin
           .from('outreach_queue')
           .select('id, status')
@@ -323,14 +418,22 @@ export async function GET(request: NextRequest) {
         const messages_sent = messages?.filter((m: { id: string; status: string }) => m.status === 'sent').length || 0
         const has_reply = messages?.some((m: { id: string; status: string }) => m.status === 'replied') || false
 
-        // Check for sales conversation
         const { data: audits } = await supabaseAdmin
           .from('diagnostic_audits')
           .select('id')
           .eq('contact_submission_id', contact.id)
           .limit(1)
 
-        const has_sales_conversation = (audits?.length || 0) > 0
+        const leadSessions = sessionsByContact[contact.id] || []
+        const has_sales_conversation = (audits?.length || 0) > 0 || leadSessions.length > 0
+        const latest_session_id = leadSessions.length > 0 ? leadSessions[0].id : null
+        const session_count = leadSessions.length
+        const hasText =
+          (contact.message?.trim()?.length ?? 0) > 0 ||
+          (contact.quick_wins?.trim()?.length ?? 0) > 0 ||
+          (contact.full_report?.trim()?.length ?? 0) > 0 ||
+          (contact.rep_pain_points?.trim()?.length ?? 0) > 0
+        const has_extractable_text = hasText || hasCompletedDiagnostic.has(contact.id)
 
         return {
           ...contact,
@@ -338,6 +441,12 @@ export async function GET(request: NextRequest) {
           messages_sent,
           has_reply,
           has_sales_conversation,
+          latest_session_id,
+          session_count,
+          evidence_count: evidenceCountByContact[contact.id] ?? 0,
+          last_vep_triggered_at: contact.last_vep_triggered_at ?? null,
+          last_vep_status: contact.last_vep_status ?? null,
+          has_extractable_text,
         }
       })
     )

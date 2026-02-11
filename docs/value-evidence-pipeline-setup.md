@@ -252,6 +252,21 @@ WF-VEP-001 is already active; no change needed there.
 3. Click **Run Internal Extraction** (this calls `N8N_VEP001_WEBHOOK_URL` → WF-VEP-001). Then click **Run Social Listening** (this calls `N8N_VEP002_WEBHOOK_URL` → WF-VEP-002).
 4. **Confirm:** In n8n, open **Executions** (or the workflow’s run history). You should see new runs for each trigger. If the app shows success and n8n shows executions, the webhook and app config are correct. If ingest nodes fail with 401/400, go back to Steps 5–7.
 
+### Webhook body for selected leads (Outreach “Push to Value Evidence”)
+
+When the app triggers WF-VEP-001 for **selected leads** (from **Outreach → All Leads → Push to Value Evidence**), the webhook receives:
+
+- `contact_submission_ids`: array of contact IDs to process (only these contacts are fetched).
+- `enrichments` (optional): `{ [contactId]: { pain_points_freetext: "..." } }` — rep-supplied pain point text per contact for the classifier.
+
+WF-VEP-001 should:
+
+1. If `contact_submission_ids` is present and non-empty, fetch only those contacts (and their completed diagnostic audits) from Supabase; otherwise run a full extraction as before.
+2. If `enrichments` is present, use the rep-supplied pain point text (e.g. as classifier input or pre-classified evidence) for the corresponding contact.
+3. POST each evidence item to `/api/admin/value-evidence/ingest` with `contact_submission_id` set so the ingest API can update push status.
+
+**Ingest callback:** After successfully inserting evidence rows, the ingest API updates `contact_submissions.last_vep_status` to `'success'` for each distinct `contact_submission_id` in the batch (only where status was `'pending'`). Lead cards in Outreach then show “Evidence: N” on next refresh.
+
 ---
 
 ## Step 10: Verify end-to-end
@@ -283,7 +298,7 @@ WF-VEP-001 is already active; no change needed there.
 | 401 on ingest | `N8N_INGEST_SECRET` identical in Next.js and n8n; use header `Authorization: Bearer <secret>` (no `x-ingest-secret`). |
 | 400 “evidence array is required” | Ingest body is `{ evidence: [ ... ] }` with at least one object; each has `pain_point_category_name`, `source_type`, `source_id`, `source_excerpt`. |
 | 400 “items array is required” | Ingest-market body is `{ items: [ ... ] }`; each item has `source_platform`, `content_text`, `content_type`. |
-| No data from WF-VEP-001 | Diagnostic audits with status `completed` and contact submissions with non-empty `message`; Supabase credential has service role. |
+| No data from WF-VEP-001 | Diagnostic audits with status `completed` and contact submissions with non-empty `message`, `quick_wins`, `full_report`, or `rep_pain_points`; Supabase credential has service role. When using “Push to Value Evidence” from Outreach, the webhook body must include `contact_submission_ids`; the workflow should fetch only those contacts. |
 | Apify errors in WF-VEP-002 | `APIFY_API_TOKEN` set in n8n; actor names/inputs correct (e.g. `trudax~reddit-scraper-lite`, `compass~crawler-google-places`). |
 | Webhook 404 | Workflow is **Active**; URL path matches (e.g. `/webhook/vep-001-extract`, `/webhook/vep-002-social`). |
 

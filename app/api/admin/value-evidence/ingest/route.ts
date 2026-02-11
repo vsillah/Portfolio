@@ -54,6 +54,8 @@ export async function POST(request: NextRequest) {
       errors: [] as string[],
     }
 
+    const insertedContactIds = new Set<number>()
+
     for (const item of evidenceItems) {
       try {
         // Validate required fields
@@ -116,6 +118,9 @@ export async function POST(request: NextRequest) {
         }
 
         results.inserted++
+        if (item.contact_submission_id != null) {
+          insertedContactIds.add(item.contact_submission_id)
+        }
 
         // Update frequency count on category
         await supabaseAdmin.rpc('increment_counter', {
@@ -160,6 +165,15 @@ export async function POST(request: NextRequest) {
       } catch (itemError: any) {
         results.errors.push(`Unexpected error: ${itemError.message}`)
       }
+    }
+
+    if (insertedContactIds.size > 0) {
+      const ids = [...insertedContactIds]
+      await supabaseAdmin
+        .from('contact_submissions')
+        .update({ last_vep_status: 'success' })
+        .eq('last_vep_status', 'pending')
+        .in('id', ids)
     }
 
     return NextResponse.json(results)

@@ -106,6 +106,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Link the sales session to this client project (lifecycle: lead → session → client)
+    if (proposal.sales_session_id) {
+      await supabaseAdmin
+        .from('sales_sessions')
+        .update({ client_project_id: project.id })
+        .eq('id', proposal.sales_session_id)
+    }
+
     // 5. Build proposal context for template resolution
     const proposalContext: ProposalContext = {
       id: proposal.id,

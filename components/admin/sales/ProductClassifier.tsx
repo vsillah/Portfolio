@@ -47,6 +47,10 @@ interface ContentClassifierProps {
   onRemoveRole: () => Promise<void>;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  /** When set, Suggest from Evidence uses this contact's value evidence for pricing */
+  contactSubmissionId?: number | null;
+  industry?: string | null;
+  companySize?: string | null;
 }
 
 // Legacy input type
@@ -471,6 +475,9 @@ export function ContentClassifier({
   onRemoveRole,
   isExpanded = false,
   onToggleExpand,
+  contactSubmissionId,
+  industry,
+  companySize,
 }: ContentClassifierProps) {
   const [formData, setFormData] = useState<ContentOfferRoleInput>({
     content_type: content.content_type,
@@ -755,6 +762,9 @@ export function ContentClassifier({
                   perceived_value: perceivedValue,
                 });
               }}
+              contactSubmissionId={contactSubmissionId}
+              industry={industry}
+              companySize={companySize}
             />
           </div>
 
@@ -856,10 +866,20 @@ export function ContentClassifier({
 // Evidence-Based Pricing Suggestion Component
 // ============================================================================
 
-function EvidencePricingSuggestion({ contentType, contentId, onApply }: {
+function EvidencePricingSuggestion({
+  contentType,
+  contentId,
+  onApply,
+  contactSubmissionId,
+  industry,
+  companySize,
+}: {
   contentType: string;
   contentId: string;
   onApply: (retailPrice: number, perceivedValue: number) => void;
+  contactSubmissionId?: number | null;
+  industry?: string | null;
+  companySize?: string | null;
 }) {
   const [loading, setLoading] = useState(false);
   const [suggestion, setSuggestion] = useState<{
@@ -880,7 +900,13 @@ function EvidencePricingSuggestion({ contentType, contentId, onApply }: {
       const res = await fetch('/api/admin/value-evidence/suggest-pricing', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({ content_type: contentType, content_id: contentId }),
+        body: JSON.stringify({
+          content_type: contentType,
+          content_id: contentId,
+          ...(contactSubmissionId != null && { contact_submission_id: contactSubmissionId }),
+          ...(industry != null && industry !== '' && { industry }),
+          ...(companySize != null && companySize !== '' && { company_size: companySize }),
+        }),
       });
       if (res.ok) { setSuggestion((await res.json()).pricing); }
       else { setError((await res.json()).detail || 'No suggestions available'); }

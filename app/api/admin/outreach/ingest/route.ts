@@ -219,6 +219,34 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Record successful run for 24h gate: update most recent 'running' audit row for this source (app-triggered runs)
+    const firstLeadSource = leads[0]?.lead_source
+    const auditSource =
+      firstLeadSource?.startsWith('warm_facebook_')
+        ? 'facebook'
+        : firstLeadSource?.startsWith('warm_google_')
+          ? 'google_contacts'
+          : firstLeadSource?.startsWith('warm_linkedin_')
+            ? 'linkedin'
+            : null
+    if (auditSource) {
+      const completedAt = new Date().toISOString()
+      const { data: runningRow } = await supabaseAdmin
+        .from('warm_lead_trigger_audit')
+        .select('id')
+        .eq('source', auditSource)
+        .eq('status', 'running')
+        .order('triggered_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (runningRow) {
+        await supabaseAdmin
+          .from('warm_lead_trigger_audit')
+          .update({ status: 'success', completed_at: completedAt })
+          .eq('id', runningRow.id)
+      }
+    }
+
     return NextResponse.json({
       success: true,
       summary: {
