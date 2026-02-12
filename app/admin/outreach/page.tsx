@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { isWarmLeadSource, inputTypeFromLeadSource } from '@/lib/constants/lead-source'
 import {
   Mail,
   Linkedin,
@@ -127,6 +128,34 @@ interface LeadsResponse {
 
 type TabType = 'queue' | 'leads'
 
+function EvidenceCard({ evidence }: { evidence: { id: string; display_name: string | null; source_excerpt: string; confidence_score: number; monetary_indicator?: number | null } }) {
+  const [expanded, setExpanded] = useState(false)
+  const isLong = evidence.source_excerpt.length > 100
+  return (
+    <li className="p-3 rounded-lg bg-white/5 border border-white/10 text-sm">
+      <div className="flex items-center justify-between">
+        <span className="font-medium text-white">{evidence.display_name ?? 'Unknown'}</span>
+        <span className="text-xs text-gray-500 ml-2 shrink-0">
+          {(evidence.confidence_score * 100).toFixed(0)}%
+          {evidence.monetary_indicator != null && ` · $${Number(evidence.monetary_indicator).toLocaleString()}`}
+        </span>
+      </div>
+      <p className={`text-gray-400 mt-1 ${isLong && !expanded ? 'line-clamp-2' : ''}`}>
+        {evidence.source_excerpt}
+      </p>
+      {isLong && (
+        <button
+          type="button"
+          onClick={() => setExpanded(!expanded)}
+          className="text-xs text-purple-400 hover:text-purple-300 mt-1"
+        >
+          {expanded ? 'Show less' : 'Show more'}
+        </button>
+      )}
+    </li>
+  )
+}
+
 export default function OutreachAdminPage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -212,8 +241,14 @@ function OutreachContent() {
   const [enrichModalLeads, setEnrichModalLeads] = useState<Array<{
     id: number
     name: string
+    email: string | null
     company: string | null
+    company_domain: string | null
     industry: string | null
+    job_title: string | null
+    phone_number: string | null
+    linkedin_url: string | null
+    lead_source: string | null
     employee_count: string | null
     message: string | null
     quick_wins: string | null
@@ -223,12 +258,19 @@ function OutreachContent() {
     has_extractable_text: boolean
   }>>([])
   const [enrichModalForm, setEnrichModalForm] = useState<Record<number, {
-    rep_pain_points?: string
-    message?: string
-    quick_wins?: string
-    industry?: string
-    employee_count?: string
+    name?: string
+    email?: string
     company?: string
+    company_domain?: string
+    linkedin_url?: string
+    job_title?: string
+    industry?: string
+    phone_number?: string
+    input_type?: string
+    message?: string
+    rep_pain_points?: string
+    quick_wins?: string
+    employee_count?: string
   }>>({})
   const [pushLoading, setPushLoading] = useState(false)
   const [evidenceDrawerContactId, setEvidenceDrawerContactId] = useState<number | null>(null)
@@ -239,21 +281,14 @@ function OutreachContent() {
   } | null>(null)
   const [evidenceDrawerLoading, setEvidenceDrawerLoading] = useState(false)
 
-  // Edit lead modal
-  const [editingLeadId, setEditingLeadId] = useState<number | null>(null)
-  const [editLeadName, setEditLeadName] = useState('')
-  const [editLeadEmail, setEditLeadEmail] = useState('')
-  const [editLeadCompany, setEditLeadCompany] = useState('')
-  const [editLeadCompanyWebsite, setEditLeadCompanyWebsite] = useState('')
-  const [editLeadLinkedInUrl, setEditLeadLinkedInUrl] = useState('')
-  const [editLeadJobTitle, setEditLeadJobTitle] = useState('')
-  const [editLeadIndustry, setEditLeadIndustry] = useState('')
-  const [editLeadPhone, setEditLeadPhone] = useState('')
-  const [editLeadMessage, setEditLeadMessage] = useState('')
-  const [editLeadInputType, setEditLeadInputType] = useState('other')
-  const [editLeadReRunEnrichment, setEditLeadReRunEnrichment] = useState(true)
-  const [editLeadLoading, setEditLeadLoading] = useState(false)
-  const [editLeadError, setEditLeadError] = useState<string | null>(null)
+  // VEP extraction polling: track IDs being extracted
+  const vepPollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [vepPollingActive, setVepPollingActive] = useState(false)
+
+  // Unified lead modal: re-run enrichment (for Save), loading, error
+  const [unifiedModalReRunEnrichment, setUnifiedModalReRunEnrichment] = useState(true)
+  const [unifiedModalSaveLoading, setUnifiedModalSaveLoading] = useState(false)
+  const [unifiedModalSaveError, setUnifiedModalSaveError] = useState<string | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -274,13 +309,14 @@ function OutreachContent() {
 
       if (response.ok) {
         const data = await response.json()
-        setItems(data.items)
-        setStats(data.stats)
-        
-        // Set the contact name if filtering by contact
-        if (contactFilter && data.items.length > 0 && data.items[0].contact_submissions) {
-          setFilteredContactName(data.items[0].contact_submissions.name)
-        }
+        setItems(Array.isArray(data.items) ? data.items : [])
+        setStats(data.stats ?? { draft: 0, approved: 0, sent: 0, replied: 0, bounced: 0, cancelled: 0, rejected: 0, total: 0 })
+        const contact = contactFilter && Array.isArray(data.items) && data.items.length > 0
+          ? data.items[0].contact_submissions
+          : null
+        setFilteredContactName(contact && typeof contact === 'object' && !Array.isArray(contact) && contact.name != null
+          ? String(contact.name)
+          : null)
       }
     } catch (error) {
       console.error('Failed to fetch outreach data:', error)
@@ -320,6 +356,49 @@ function OutreachContent() {
     }
   }, [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsSearch, leadsPage, leadsPerPage])
 
+  // VEP extraction polling: start/stop based on vepPollingActive flag
+  const startVepPolling = useCallback(() => {
+    if (vepPollingRef.current) return // already polling
+    setVepPollingActive(true)
+    vepPollingRef.current = setInterval(async () => {
+      const session = await getCurrentSession()
+      if (!session) return
+      const params = new URLSearchParams({
+        filter: leadsTempFilter,
+        ...(leadsStatusFilter !== 'all' && { status: leadsStatusFilter }),
+        ...(leadsSourceFilter !== 'all' && { source: leadsSourceFilter }),
+        ...(leadsSearch && { search: leadsSearch }),
+        limit: leadsPerPage.toString(),
+        offset: ((leadsPage - 1) * leadsPerPage).toString(),
+      })
+      const response = await fetch(`/api/admin/outreach/leads?${params}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (response.ok) {
+        const data: LeadsResponse = await response.json()
+        setLeads(data.leads)
+        setLeadsTotal(data.total)
+        // Stop polling if no leads are pending
+        const hasPending = data.leads.some((l: Lead) => l.last_vep_status === 'pending')
+        if (!hasPending && vepPollingRef.current) {
+          clearInterval(vepPollingRef.current)
+          vepPollingRef.current = null
+          setVepPollingActive(false)
+        }
+      }
+    }, 4000)
+  }, [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsSearch, leadsPage, leadsPerPage])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (vepPollingRef.current) {
+        clearInterval(vepPollingRef.current)
+        vepPollingRef.current = null
+      }
+    }
+  }, [])
+
   useEffect(() => {
     if (activeTab === 'queue') {
       fetchData()
@@ -335,6 +414,35 @@ function OutreachContent() {
     params.set('tab', tab)
     router.push(`/admin/outreach?${params.toString()}`)
   }
+
+  // Open Review & Enrich modal (same flow for bulk "Push" and per-lead "Retry")
+  const openReviewEnrichModal = useCallback(async (contactSubmissionIds: number[]) => {
+    if (contactSubmissionIds.length === 0) return
+    const session = await getCurrentSession()
+    if (!session) return
+    setPushLoading(true)
+    try {
+      const res = await fetch('/api/admin/value-evidence/extract-leads/preflight', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ contact_submission_ids: contactSubmissionIds }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Preflight failed')
+      setEnrichModalLeads(data.leads || [])
+      setEnrichModalForm({})
+      setUnifiedModalReRunEnrichment(true)
+      setUnifiedModalSaveError(null)
+      setShowEnrichModal(true)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      setPushLoading(false)
+    }
+  }, [])
 
   const handleAction = async (action: 'approve' | 'reject', ids: string[]) => {
     setActionLoading(true)
@@ -454,75 +562,6 @@ function OutreachContent() {
     setAddLeadPainPoints('')
     setShowVepSection(false)
     setAddLeadError(null)
-  }
-
-  const openEditLead = (lead: Lead) => {
-    setEditingLeadId(lead.id)
-    setEditLeadName(lead.name)
-    setEditLeadEmail(lead.email ?? '')
-    setEditLeadCompany(lead.company ?? '')
-    setEditLeadCompanyWebsite(lead.company_domain ?? '')
-    setEditLeadLinkedInUrl(lead.linkedin_url ?? '')
-    setEditLeadJobTitle(lead.job_title ?? '')
-    setEditLeadIndustry(lead.industry ?? '')
-    setEditLeadPhone(lead.phone_number ?? '')
-    setEditLeadMessage('')
-    setEditLeadInputType('other')
-    setEditLeadReRunEnrichment(true)
-    setEditLeadError(null)
-  }
-
-  const closeEditLead = () => {
-    if (!editLeadLoading) {
-      setEditingLeadId(null)
-      setEditLeadError(null)
-    }
-  }
-
-  const handleEditLeadSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setEditLeadError(null)
-    if (editingLeadId == null) return
-    setEditLeadLoading(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session) {
-        setEditLeadError('Not authenticated')
-        return
-      }
-      const payload = {
-        name: editLeadName.trim(),
-        email: editLeadEmail.trim() || undefined,
-        company: editLeadCompany.trim() || undefined,
-        company_domain: editLeadCompanyWebsite.trim() || undefined,
-        linkedin_url: editLeadLinkedInUrl.trim() || undefined,
-        job_title: editLeadJobTitle.trim() || undefined,
-        industry: editLeadIndustry.trim() || undefined,
-        phone_number: editLeadPhone.trim() || undefined,
-        message: editLeadMessage.trim() || undefined,
-        input_type: editLeadInputType,
-        re_run_enrichment: editLeadReRunEnrichment,
-      }
-      const response = await fetch(`/api/admin/outreach/leads/${editingLeadId}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify(payload),
-      })
-      const data = await response.json().catch(() => ({}))
-      if (!response.ok) {
-        setEditLeadError(data.error || `Request failed (${response.status})`)
-        return
-      }
-      setEditingLeadId(null)
-      await fetchLeads()
-    } catch (err) {
-      setEditLeadError(err instanceof Error ? err.message : 'Failed to update lead')
-    } finally {
-      setEditLeadLoading(false)
-    }
   }
 
   const handleAddLeadSubmit = async (e: React.FormEvent) => {
@@ -1403,180 +1442,6 @@ function OutreachContent() {
               )}
             </AnimatePresence>
 
-            {/* Edit lead modal */}
-            <AnimatePresence>
-              {editingLeadId != null && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
-                  onClick={closeEditLead}
-                >
-                  <motion.div
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.95, opacity: 0 }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full max-w-md bg-gray-900 border border-white/10 rounded-xl shadow-xl p-6 max-h-[90vh] overflow-y-auto"
-                  >
-                    <div className="flex items-center justify-between mb-6">
-                      <h3 className="text-lg font-semibold text-white">Edit lead</h3>
-                      <button
-                        type="button"
-                        onClick={closeEditLead}
-                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400"
-                      >
-                        <X size={18} />
-                      </button>
-                    </div>
-                    <form onSubmit={handleEditLeadSubmit} className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Name *</label>
-                        <input
-                          type="text"
-                          value={editLeadName}
-                          onChange={(e) => setEditLeadName(e.target.value)}
-                          required
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                          placeholder="Full name"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
-                        <input
-                          type="email"
-                          value={editLeadEmail}
-                          onChange={(e) => setEditLeadEmail(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                          placeholder="email@company.com"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Company</label>
-                        <input
-                          type="text"
-                          value={editLeadCompany}
-                          onChange={(e) => setEditLeadCompany(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                          placeholder="Company name"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Company website</label>
-                        <input
-                          type="text"
-                          value={editLeadCompanyWebsite}
-                          onChange={(e) => setEditLeadCompanyWebsite(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                          placeholder="company.com or https://..."
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">LinkedIn URL</label>
-                        <input
-                          type="url"
-                          value={editLeadLinkedInUrl}
-                          onChange={(e) => setEditLeadLinkedInUrl(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                          placeholder="https://linkedin.com/in/..."
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Job title</label>
-                        <input
-                          type="text"
-                          value={editLeadJobTitle}
-                          onChange={(e) => setEditLeadJobTitle(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                          placeholder="Job title"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Industry</label>
-                        <input
-                          type="text"
-                          value={editLeadIndustry}
-                          onChange={(e) => setEditLeadIndustry(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                          placeholder="e.g. Technology, Healthcare"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Phone</label>
-                        <input
-                          type="tel"
-                          value={editLeadPhone}
-                          onChange={(e) => setEditLeadPhone(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
-                          placeholder="+1 234 567 8900"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">How did you get this lead?</label>
-                        <select
-                          value={editLeadInputType}
-                          onChange={(e) => setEditLeadInputType(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                        >
-                          <option value="linkedin">LinkedIn</option>
-                          <option value="referral">Referral</option>
-                          <option value="business_card">Business card</option>
-                          <option value="event">Event</option>
-                          <option value="other">Other</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Message / notes</label>
-                        <textarea
-                          value={editLeadMessage}
-                          onChange={(e) => setEditLeadMessage(e.target.value)}
-                          rows={3}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
-                          placeholder="Optional notes"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          id="edit-lead-rerun-enrichment"
-                          checked={editLeadReRunEnrichment}
-                          onChange={(e) => setEditLeadReRunEnrichment(e.target.checked)}
-                          className="rounded border-gray-600 bg-white/5 text-purple-500 focus:ring-purple-500"
-                        />
-                        <label htmlFor="edit-lead-rerun-enrichment" className="text-sm text-gray-400">
-                          Re-run enrichment (send updated data to lead qualification workflow)
-                        </label>
-                      </div>
-                      {editLeadError && (
-                        <div className="p-3 rounded-lg bg-red-900/30 border border-red-800 text-red-300 text-sm flex items-center gap-2">
-                          <AlertTriangle size={16} />
-                          {editLeadError}
-                        </div>
-                      )}
-                      <div className="flex gap-3 pt-2">
-                        <button
-                          type="submit"
-                          disabled={editLeadLoading || !editLeadName.trim()}
-                          className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
-                        >
-                          {editLeadLoading ? 'Saving...' : 'Save changes'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={closeEditLead}
-                          disabled={editLeadLoading}
-                          className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors disabled:opacity-50"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             {/* Success toast when lead was just added */}
             {addLeadSuccessId != null && !showAddLeadModal && (
               <motion.div
@@ -1596,7 +1461,7 @@ function OutreachContent() {
               </motion.div>
             )}
 
-            {/* Review & Enrich modal (value evidence push) */}
+            {/* Unified Lead modal (Edit + Review & Enrich) */}
             <AnimatePresence>
               {showEnrichModal && enrichModalLeads.length > 0 && (
                 <motion.div
@@ -1604,7 +1469,7 @@ function OutreachContent() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
-                  onClick={() => !pushLoading && setShowEnrichModal(false)}
+                  onClick={() => !pushLoading && !unifiedModalSaveLoading && setShowEnrichModal(false)}
                 >
                   <motion.div
                     initial={{ scale: 0.95, opacity: 0 }}
@@ -1614,139 +1479,272 @@ function OutreachContent() {
                     className="w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col bg-gray-900 border border-white/10 rounded-xl shadow-xl"
                   >
                     <div className="flex items-center justify-between p-4 border-b border-white/10">
-                      <h3 className="text-lg font-semibold text-white">Review & Enrich</h3>
+                      <h3 className="text-lg font-semibold text-white">
+                        {enrichModalLeads.length === 1 ? enrichModalLeads[0].name : 'Lead'}
+                      </h3>
                       <button
                         type="button"
-                        onClick={() => !pushLoading && setShowEnrichModal(false)}
+                        onClick={() => !pushLoading && !unifiedModalSaveLoading && setShowEnrichModal(false)}
                         className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400"
                       >
                         <X size={18} />
                       </button>
                     </div>
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-[20rem]">
                       {enrichModalLeads.map((l) => (
                         <div
                           key={l.id}
-                          className={`p-3 rounded-lg border ${l.has_extractable_text ? 'border-white/10 bg-white/5' : 'border-amber-700/50 bg-amber-900/20'}`}
+                          className={`p-4 rounded-lg border ${l.has_extractable_text ? 'border-white/10 bg-white/5' : 'border-amber-700/50 bg-amber-900/20'}`}
                         >
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-medium text-white">{l.name}</span>
-                            {!l.has_extractable_text && (
-                              <span className="text-xs text-amber-400">Needs enrichment</span>
-                            )}
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+                          {enrichModalLeads.length > 1 && (
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="font-medium text-white">{l.name}</span>
+                              {!l.has_extractable_text && (
+                                <span className="text-xs text-amber-400">Needs enrichment</span>
+                              )}
+                            </div>
+                          )}
+                          {/* Lead details section */}
+                          <div className="space-y-3 mb-4">
                             <div>
-                              <label className="block text-xs text-gray-500 mb-0.5">Pain points</label>
-                              <textarea
-                                value={enrichModalForm[l.id]?.rep_pain_points ?? l.rep_pain_points ?? ''}
-                                onChange={(e) =>
-                                  setEnrichModalForm((f) => ({
-                                    ...f,
-                                    [l.id]: { ...f[l.id], rep_pain_points: e.target.value },
-                                  }))
-                                }
-                                rows={2}
-                                className="w-full px-2 py-1.5 bg-black/30 border border-white/10 rounded text-white text-xs resize-y"
-                                placeholder="Known pain points"
+                              <label className="block text-sm font-medium text-gray-400 mb-1">Name *</label>
+                              <input
+                                type="text"
+                                value={enrichModalForm[l.id]?.name ?? l.name ?? ''}
+                                onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], name: e.target.value } }))}
+                                required
+                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                placeholder="Full name"
                               />
                             </div>
                             <div>
-                              <label className="block text-xs text-gray-500 mb-0.5">Notes / message</label>
-                              <textarea
-                                value={enrichModalForm[l.id]?.message ?? l.message ?? ''}
-                                onChange={(e) =>
-                                  setEnrichModalForm((f) => ({
-                                    ...f,
-                                    [l.id]: { ...f[l.id], message: e.target.value },
-                                  }))
-                                }
-                                rows={2}
-                                className="w-full px-2 py-1.5 bg-black/30 border border-white/10 rounded text-white text-xs resize-y"
-                                placeholder="Notes"
+                              <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                              <input
+                                type="email"
+                                value={enrichModalForm[l.id]?.email ?? l.email ?? ''}
+                                onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], email: e.target.value } }))}
+                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                placeholder="email@company.com"
                               />
                             </div>
-                            <div>
-                              <label className="block text-xs text-gray-500 mb-0.5">Quick wins</label>
-                              <textarea
-                                value={enrichModalForm[l.id]?.quick_wins ?? l.quick_wins ?? ''}
-                                onChange={(e) =>
-                                  setEnrichModalForm((f) => ({
-                                    ...f,
-                                    [l.id]: { ...f[l.id], quick_wins: e.target.value },
-                                  }))
-                                }
-                                rows={2}
-                                className="w-full px-2 py-1.5 bg-black/30 border border-white/10 rounded text-white text-xs resize-y"
-                                placeholder="Quick wins"
-                              />
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Company</label>
+                                <input
+                                  type="text"
+                                  value={enrichModalForm[l.id]?.company ?? l.company ?? ''}
+                                  onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], company: e.target.value } }))}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  placeholder="Company name"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Company website</label>
+                                <input
+                                  type="text"
+                                  value={enrichModalForm[l.id]?.company_domain ?? l.company_domain ?? ''}
+                                  onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], company_domain: e.target.value } }))}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  placeholder="company.com or https://..."
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">LinkedIn URL</label>
+                                <input
+                                  type="url"
+                                  value={enrichModalForm[l.id]?.linkedin_url ?? l.linkedin_url ?? ''}
+                                  onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], linkedin_url: e.target.value } }))}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  placeholder="https://linkedin.com/in/..."
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Job title</label>
+                                <input
+                                  type="text"
+                                  value={enrichModalForm[l.id]?.job_title ?? l.job_title ?? ''}
+                                  onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], job_title: e.target.value } }))}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  placeholder="Job title"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Industry</label>
+                                <input
+                                  type="text"
+                                  value={enrichModalForm[l.id]?.industry ?? l.industry ?? ''}
+                                  onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], industry: e.target.value } }))}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  placeholder="e.g. Technology, Healthcare"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Phone</label>
+                                <input
+                                  type="tel"
+                                  value={enrichModalForm[l.id]?.phone_number ?? l.phone_number ?? ''}
+                                  onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], phone_number: e.target.value } }))}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  placeholder="+1 234 567 8900"
+                                />
+                              </div>
                             </div>
                             <div>
-                              <label className="block text-xs text-gray-500 mb-0.5">Company size</label>
+                              <label className="block text-sm font-medium text-gray-400 mb-1">How did you get this lead?</label>
                               <select
-                                value={enrichModalForm[l.id]?.employee_count ?? l.employee_count ?? ''}
-                                onChange={(e) =>
-                                  setEnrichModalForm((f) => ({
-                                    ...f,
-                                    [l.id]: { ...f[l.id], employee_count: e.target.value },
-                                  }))
-                                }
-                                className="w-full px-2 py-1.5 bg-black/30 border border-white/10 rounded text-white text-xs"
+                                value={enrichModalForm[l.id]?.input_type ?? inputTypeFromLeadSource(l.lead_source)}
+                                onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], input_type: e.target.value } }))}
+                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-purple-500"
                               >
-                                <option value="">Select</option>
-                                <option value="1-10">1-10</option>
-                                <option value="11-50">11-50</option>
-                                <option value="51-200">51-200</option>
-                                <option value="201-500">201-500</option>
-                                <option value="501-1000">501-1000</option>
-                                <option value="1000+">1000+</option>
+                                <option value="linkedin">LinkedIn</option>
+                                <option value="referral">Referral</option>
+                                <option value="business_card">Business card</option>
+                                <option value="event">Event</option>
+                                <option value="other">Other</option>
                               </select>
                             </div>
                             <div>
-                              <label className="block text-xs text-gray-500 mb-0.5">Industry</label>
-                              <input
-                                type="text"
-                                value={enrichModalForm[l.id]?.industry ?? l.industry ?? ''}
-                                onChange={(e) =>
-                                  setEnrichModalForm((f) => ({
-                                    ...f,
-                                    [l.id]: { ...f[l.id], industry: e.target.value },
-                                  }))
-                                }
-                                className="w-full px-2 py-1.5 bg-black/30 border border-white/10 rounded text-white text-xs"
-                                placeholder="Industry"
+                              <label className="block text-sm font-medium text-gray-400 mb-1">Message / notes</label>
+                              <textarea
+                                value={enrichModalForm[l.id]?.message ?? l.message ?? ''}
+                                onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], message: e.target.value } }))}
+                                rows={2}
+                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
+                                placeholder="Optional notes"
                               />
                             </div>
-                            <div>
-                              <label className="block text-xs text-gray-500 mb-0.5">Company</label>
-                              <input
-                                type="text"
-                                value={enrichModalForm[l.id]?.company ?? l.company ?? ''}
-                                onChange={(e) =>
-                                  setEnrichModalForm((f) => ({
-                                    ...f,
-                                    [l.id]: { ...f[l.id], company: e.target.value },
-                                  }))
-                                }
-                                className="w-full px-2 py-1.5 bg-black/30 border border-white/10 rounded text-white text-xs"
-                                placeholder="Company"
-                              />
+                          </div>
+                          {/* Value Evidence section */}
+                          <div className="pt-3 border-t border-white/10 space-y-3">
+                            <h4 className="text-sm font-medium text-gray-400">Value Evidence</h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Pain points</label>
+                                <textarea
+                                  value={enrichModalForm[l.id]?.rep_pain_points ?? l.rep_pain_points ?? ''}
+                                  onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], rep_pain_points: e.target.value } }))}
+                                  rows={2}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
+                                  placeholder="Known pain points"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Quick wins</label>
+                                <textarea
+                                  value={enrichModalForm[l.id]?.quick_wins ?? l.quick_wins ?? ''}
+                                  onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], quick_wins: e.target.value } }))}
+                                  rows={2}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
+                                  placeholder="Quick wins"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-400 mb-1">Company size</label>
+                                <select
+                                  value={enrichModalForm[l.id]?.employee_count ?? l.employee_count ?? ''}
+                                  onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], employee_count: e.target.value } }))}
+                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                                >
+                                  <option value="">Select</option>
+                                  <option value="1-10">1-10</option>
+                                  <option value="11-50">11-50</option>
+                                  <option value="51-200">51-200</option>
+                                  <option value="201-500">201-500</option>
+                                  <option value="501-1000">501-1000</option>
+                                  <option value="1000+">1000+</option>
+                                </select>
+                              </div>
                             </div>
                           </div>
                         </div>
                       ))}
+                      {enrichModalLeads.length === 1 && (
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id="unified-rerun-enrichment"
+                            checked={unifiedModalReRunEnrichment}
+                            onChange={(e) => setUnifiedModalReRunEnrichment(e.target.checked)}
+                            className="rounded border-gray-600 bg-white/5 text-purple-500 focus:ring-purple-500"
+                          />
+                          <label htmlFor="unified-rerun-enrichment" className="text-sm text-gray-400">
+                            Re-run enrichment (send updated data to lead qualification workflow)
+                          </label>
+                        </div>
+                      )}
+                      {unifiedModalSaveError && (
+                        <div className="p-3 rounded-lg bg-red-900/30 border border-red-800 text-red-300 text-sm flex items-center gap-2">
+                          <AlertTriangle size={16} />
+                          {unifiedModalSaveError}
+                        </div>
+                      )}
                     </div>
-                    <div className="p-4 border-t border-white/10 flex justify-end gap-2">
+                    <div className="p-4 border-t border-white/10 flex flex-wrap justify-end gap-2">
                       <button
                         type="button"
-                        onClick={() => !pushLoading && setShowEnrichModal(false)}
-                        className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg"
+                        onClick={() => !pushLoading && !unifiedModalSaveLoading && setShowEnrichModal(false)}
+                        disabled={pushLoading || unifiedModalSaveLoading}
+                        className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg disabled:opacity-50"
                       >
                         Cancel
                       </button>
                       <button
                         type="button"
-                        disabled={pushLoading}
+                        disabled={pushLoading || unifiedModalSaveLoading || enrichModalLeads.some((l) => !(enrichModalForm[l.id]?.name ?? l.name)?.trim())}
+                        onClick={async () => {
+                          const session = await getCurrentSession()
+                          if (!session) return
+                          setUnifiedModalSaveError(null)
+                          setUnifiedModalSaveLoading(true)
+                          try {
+                            for (const l of enrichModalLeads) {
+                              const f = enrichModalForm[l.id]
+                              const name = (f?.name ?? l.name ?? '').trim()
+                              if (!name) continue
+                              const payload = {
+                                name,
+                                email: (f?.email ?? l.email ?? '').trim() || undefined,
+                                company: (f?.company ?? l.company ?? '').trim() || undefined,
+                                company_domain: (f?.company_domain ?? l.company_domain ?? '').trim() || undefined,
+                                linkedin_url: (f?.linkedin_url ?? l.linkedin_url ?? '').trim() || undefined,
+                                job_title: (f?.job_title ?? l.job_title ?? '').trim() || undefined,
+                                industry: (f?.industry ?? l.industry ?? '').trim() || undefined,
+                                phone_number: (f?.phone_number ?? l.phone_number ?? '').trim() || undefined,
+                                message: (f?.message ?? l.message ?? '').trim() || undefined,
+                                input_type: f?.input_type ?? inputTypeFromLeadSource(l.lead_source),
+                                employee_count: (f?.employee_count ?? l.employee_count ?? '').trim() || undefined,
+                                quick_wins: (f?.quick_wins ?? l.quick_wins ?? '').trim() || undefined,
+                                rep_pain_points: (f?.rep_pain_points ?? l.rep_pain_points ?? '').trim() || undefined,
+                                re_run_enrichment: enrichModalLeads.length === 1 ? unifiedModalReRunEnrichment : false,
+                              }
+                              const res = await fetch(`/api/admin/outreach/leads/${l.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+                                body: JSON.stringify(payload),
+                              })
+                              const data = await res.json().catch(() => ({}))
+                              if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
+                            }
+                            setShowEnrichModal(false)
+                            setSelectedLeadIds(new Set())
+                            await fetchLeads()
+                          } catch (err) {
+                            setUnifiedModalSaveError(err instanceof Error ? err.message : 'Failed to save')
+                          } finally {
+                            setUnifiedModalSaveLoading(false)
+                          }
+                        }}
+                        className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg font-medium disabled:opacity-50"
+                      >
+                        {unifiedModalSaveLoading ? 'Saving...' : 'Save changes'}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={pushLoading || unifiedModalSaveLoading}
                         onClick={async () => {
                           const session = await getCurrentSession()
                           if (!session) return
@@ -1754,27 +1752,28 @@ function OutreachContent() {
                           try {
                             const leadsPayload = enrichModalLeads.map((l) => {
                               const form = enrichModalForm[l.id]
-                              return {
-                                contact_submission_id: l.id,
-                                ...(form?.rep_pain_points !== undefined && { rep_pain_points: form.rep_pain_points }),
-                                ...(form?.message !== undefined && { message: form.message }),
-                                ...(form?.quick_wins !== undefined && { quick_wins: form.quick_wins }),
-                                ...(form?.industry !== undefined && { industry: form.industry }),
-                                ...(form?.employee_count !== undefined && { employee_count: form.employee_count }),
-                                ...(form?.company !== undefined && { company: form.company }),
+                              const base = { contact_submission_id: l.id }
+                              const vals = {
+                                rep_pain_points: form?.rep_pain_points ?? l.rep_pain_points,
+                                message: form?.message ?? l.message,
+                                quick_wins: form?.quick_wins ?? l.quick_wins,
+                                industry: form?.industry ?? l.industry,
+                                employee_count: form?.employee_count ?? l.employee_count,
+                                company: form?.company ?? l.company,
+                                company_domain: form?.company_domain ?? l.company_domain,
                               }
+                              return { ...base, ...Object.fromEntries(Object.entries(vals).filter(([, v]) => v != null && String(v).trim())) }
                             })
                             const res = await fetch('/api/admin/value-evidence/extract-leads', {
                               method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: `Bearer ${session.access_token}`,
-                              },
+                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
                               body: JSON.stringify({ leads: leadsPayload }),
                             })
                             const data = await res.json()
                             if (!res.ok) throw new Error(data.error || 'Request failed')
                             setShowEnrichModal(false)
+                            // Start polling for extraction status
+                            startVepPolling()
                             setSelectedLeadIds(new Set())
                             await fetchLeads()
                           } catch (e) {
@@ -1834,17 +1833,7 @@ function OutreachContent() {
                             ) : (
                               <ul className="space-y-2">
                                 {evidenceDrawerData.evidence.map((e) => (
-                                  <li
-                                    key={e.id}
-                                    className="p-2 rounded-lg bg-white/5 border border-white/10 text-sm"
-                                  >
-                                    <span className="font-medium text-white">{e.display_name ?? 'Unknown'}</span>
-                                    <p className="text-gray-400 mt-1 line-clamp-2">{e.source_excerpt}</p>
-                                    <span className="text-xs text-gray-500">
-                                      Confidence: {(e.confidence_score * 100).toFixed(0)}%
-                                      {e.monetary_indicator != null && ` · $${e.monetary_indicator}`}
-                                    </span>
-                                  </li>
+                                  <EvidenceCard key={e.id} evidence={e} />
                                 ))}
                               </ul>
                             )}
@@ -1905,7 +1894,7 @@ function OutreachContent() {
                               onClick={async () => {
                                 const session = await getCurrentSession()
                                 if (!session) return
-                                await fetch('/api/admin/value-evidence/extract-leads', {
+                                const extractRes = await fetch('/api/admin/value-evidence/extract-leads', {
                                   method: 'POST',
                                   headers: {
                                     'Content-Type': 'application/json',
@@ -1915,6 +1904,10 @@ function OutreachContent() {
                                     leads: [{ contact_submission_id: evidenceDrawerContactId }],
                                   }),
                                 })
+                                if (extractRes.ok) {
+                                  startVepPolling()
+                                  await fetchLeads()
+                                }
                                 const r = await fetch(
                                   `/api/admin/value-evidence/evidence?contact_id=${evidenceDrawerContactId}`,
                                   { headers: { Authorization: `Bearer ${session.access_token}` } }
@@ -1926,6 +1919,28 @@ function OutreachContent() {
                             >
                               <RefreshCw size={14} />
                               Refresh evidence
+                            </button>
+                          )}
+                          {evidenceDrawerContactId && evidenceDrawerData && evidenceDrawerData.evidence.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (!confirm('Clear all evidence for this lead? This cannot be undone.')) return
+                                const session = await getCurrentSession()
+                                if (!session) return
+                                const res = await fetch(
+                                  `/api/admin/value-evidence/evidence?contact_id=${evidenceDrawerContactId}`,
+                                  { method: 'DELETE', headers: { Authorization: `Bearer ${session.access_token}` } }
+                                )
+                                if (res.ok) {
+                                  setEvidenceDrawerData({ evidence: [], reports: evidenceDrawerData.reports, totalEvidenceCount: 0 })
+                                  await fetchLeads()
+                                }
+                              }}
+                              className="w-full px-4 py-2 bg-red-900/30 hover:bg-red-900/50 border border-red-800/50 rounded-lg font-medium text-sm text-red-400 flex items-center justify-center gap-1"
+                            >
+                              <X size={14} />
+                              Clear evidence
                             </button>
                           )}
                         </>
@@ -1963,33 +1978,8 @@ function OutreachContent() {
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={async () => {
-                          const session = await getCurrentSession()
-                          if (!session || selectedLeadIds.size === 0) return
-                          setPushLoading(true)
-                          try {
-                            const res = await fetch('/api/admin/value-evidence/extract-leads/preflight', {
-                              method: 'POST',
-                              headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: `Bearer ${session.access_token}`,
-                              },
-                              body: JSON.stringify({
-                                contact_submission_ids: [...selectedLeadIds],
-                              }),
-                            })
-                            const data = await res.json()
-                            if (!res.ok) throw new Error(data.error || 'Preflight failed')
-                            setEnrichModalLeads(data.leads || [])
-                            setEnrichModalForm({})
-                            setShowEnrichModal(true)
-                          } catch (e) {
-                            console.error(e)
-                          } finally {
-                            setPushLoading(false)
-                          }
-                        }}
-                        disabled={pushLoading || selectedLeadIds.size > 50}
+                        onClick={() => openReviewEnrichModal([...selectedLeadIds])}
+                        disabled={pushLoading || selectedLeadIds.size === 0 || selectedLeadIds.size > 50}
                         className="px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 rounded-lg font-medium text-sm"
                       >
                         {pushLoading ? 'Loading...' : 'Push to Value Evidence'}
@@ -2054,12 +2044,12 @@ function OutreachContent() {
                           {/* Temperature Icon */}
                           <div
                             className={`p-2 rounded-lg ${
-                              lead.lead_source?.startsWith('warm_')
+                              isWarmLeadSource(lead.lead_source)
                                 ? 'bg-orange-900/30 text-orange-400'
                                 : 'bg-blue-900/30 text-blue-400'
                             }`}
                           >
-                            {lead.lead_source?.startsWith('warm_') ? (
+                            {isWarmLeadSource(lead.lead_source) ? (
                               <Flame size={20} />
                             ) : (
                               <Snowflake size={20} />
@@ -2142,9 +2132,9 @@ function OutreachContent() {
                               )}
                               {lead.last_vep_status === 'pending' && lead.evidence_count === 0 && (
                                 <span className="px-2 py-1 rounded text-xs font-medium bg-amber-900/50 text-amber-400 border border-amber-700 flex items-center gap-1">
-                                  <RefreshCw size={12} className="animate-spin" />
-                                  Extracting...
-                                </span>
+                                    <RefreshCw size={12} className="animate-spin" />
+                                    Extracting...
+                                  </span>
                               )}
                               {lead.last_vep_status === 'pending' &&
                                 lead.evidence_count === 0 &&
@@ -2193,6 +2183,8 @@ function OutreachContent() {
                                     })
                                     const data = await res.json()
                                     if (res.ok) {
+                                      // Start polling for extraction status
+                                      startVepPolling()
                                       await fetchLeads()
                                       if (evidenceDrawerContactId === lead.id) {
                                         const r = await fetch(
@@ -2214,37 +2206,14 @@ function OutreachContent() {
                                 Refresh evidence
                               </button>
                             )}
-                            {(lead.evidence_count === 0 ||
-                              lead.last_vep_status === 'failed' ||
-                              (lead.last_vep_status === 'pending' &&
-                                lead.last_vep_triggered_at &&
-                                Date.now() - new Date(lead.last_vep_triggered_at).getTime() > 10 * 60 * 1000)) && (
+                            {/* Show Push/Retry only when not pending, or pending and >10min (then Retry) */}
+                            {lead.evidence_count === 0 &&
+                              (lead.last_vep_status !== 'pending' ||
+                                (lead.last_vep_triggered_at &&
+                                  Date.now() - new Date(lead.last_vep_triggered_at).getTime() > 10 * 60 * 1000)) && (
                               <button
                                 type="button"
-                                onClick={async () => {
-                                  const session = await getCurrentSession()
-                                  if (!session) return
-                                  setPushLoading(true)
-                                  try {
-                                    const res = await fetch('/api/admin/value-evidence/extract-leads/preflight', {
-                                      method: 'POST',
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                        Authorization: `Bearer ${session.access_token}`,
-                                      },
-                                      body: JSON.stringify({
-                                        contact_submission_ids: [lead.id],
-                                      }),
-                                    })
-                                    const pre = await res.json()
-                                    if (!res.ok) throw new Error(pre.error || 'Preflight failed')
-                                    setEnrichModalLeads(pre.leads || [])
-                                    setEnrichModalForm({})
-                                    setShowEnrichModal(true)
-                                  } finally {
-                                    setPushLoading(false)
-                                  }
-                                }}
+                                onClick={() => openReviewEnrichModal([lead.id])}
                                 disabled={pushLoading || !lead.has_extractable_text}
                                 className="px-3 py-2 bg-purple-600/80 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
                               >
@@ -2257,10 +2226,37 @@ function OutreachContent() {
                               </button>
                             )}
                             {lead.last_vep_status === 'pending' && lead.evidence_count === 0 && (
-                              <span className="px-3 py-2 text-sm text-gray-500">Extracting...</span>
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    const session = await getCurrentSession()
+                                    if (!session) return
+                                    setPushLoading(true)
+                                    try {
+                                      const res = await fetch('/api/admin/value-evidence/extract-leads/cancel', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          Authorization: `Bearer ${session.access_token}`,
+                                        },
+                                        body: JSON.stringify({ contact_submission_ids: [lead.id] }),
+                                      })
+                                      if (res.ok) await fetchLeads()
+                                    } finally {
+                                      setPushLoading(false)
+                                    }
+                                  }}
+                                  disabled={pushLoading}
+                                  className="px-3 py-2 bg-amber-900/50 hover:bg-amber-800/50 text-amber-300 border border-amber-700 rounded-lg text-sm font-medium transition-colors"
+                                >
+                                  Cancel extraction
+                                </button>
+                                <span className="px-3 py-2 text-sm text-gray-500">Extracting...</span>
+                              </>
                             )}
                             <button
-                              onClick={() => openEditLead(lead)}
+                              onClick={() => openReviewEnrichModal([lead.id])}
                               className="px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
                             >
                               <Edit3 size={14} />

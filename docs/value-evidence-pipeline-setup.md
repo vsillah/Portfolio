@@ -81,9 +81,9 @@ Migrations are **SQL that you run in Supabase**, not in your terminal. The termi
 ### 3.2 Anthropic (both workflows)
 
 - **Where to get the key:** Your Anthropic account (API keys); value starts with `sk-ant-`.
-- **Where to create the credential:** n8n → **Settings → Credentials** → Add credential → **HTTP Header Auth**.
-- **What to enter:** Name = e.g. `Anthropic API Key`; Header Name = `x-api-key`; Value = your Anthropic API key.
-- **Where to assign it:** In **WF-VEP-001**, open **“AI Pain Point Classifier”** and select this credential. In **WF-VEP-002**, open **“AI Classify Social Content”** and select this credential.
+- **WF-VEP-001 (AI Pain Point Classifier):** The classifier is a **native Anthropic node**. Create the credential in n8n → **Settings → Credentials** → Add credential → **Anthropic API**. Enter your API key and base URL `https://api.anthropic.com`; **Save** so n8n assigns it an ID. In the workflow, open **“AI Pain Point Classifier”** and set the credential to this **Anthropic account**.
+- **WF-VEP-002 (AI Classify Social Content):** If that node uses HTTP Request with a header, use **HTTP Header Auth** (Name = e.g. `Anthropic API Key`; Header Name = `x-api-key`; Value = your key). Save, then assign it to **“AI Classify Social Content”**.
+- **If you see “Found credential with no ID”:** The node is using a credential that was never saved or was corrupted. In **Settings → Credentials**, open the Anthropic credential, re-enter the key if needed, and **Save**. Then in the workflow, open **AI Pain Point Classifier**, clear the credential field and re-select your **Anthropic account** (or create a new Anthropic API credential, save it, then assign it to the node).
 
 ### 3.3 Apify (WF-VEP-002 only)
 
@@ -301,6 +301,36 @@ WF-VEP-001 should:
 | No data from WF-VEP-001 | Diagnostic audits with status `completed` and contact submissions with non-empty `message`, `quick_wins`, `full_report`, or `rep_pain_points`; Supabase credential has service role. When using “Push to Value Evidence” from Outreach, the webhook body must include `contact_submission_ids`; the workflow should fetch only those contacts. |
 | Apify errors in WF-VEP-002 | `APIFY_API_TOKEN` set in n8n; actor names/inputs correct (e.g. `trudax~reddit-scraper-lite`, `compass~crawler-google-places`). |
 | Webhook 404 | Workflow is **Active**; URL path matches (e.g. `/webhook/vep-001-extract`, `/webhook/vep-002-social`). |
+| **Extraction stuck ("Extracting..." / "Push may have failed")** | See **Why extraction stays stuck** below. |
+| **Classifier returns "Found credential with no ID"** | AI Pain Point Classifier uses a credential with no ID. In n8n → Settings → Credentials, re-save your **Anthropic API** credential (or create a new one), then in the workflow re-select **Anthropic account** on the **AI Pain Point Classifier** node. |
+
+### Why extraction stays stuck
+
+When you click **Push to Value Evidence** (or Retry), the app sets the lead’s status to `pending`, calls the WF-VEP-001 webhook, then waits for the n8n workflow to POST evidence to `/api/admin/value-evidence/ingest`. The UI only moves to **Evidence: N** or **Push failed** when ingest runs or you cancel. If it stays on "Extracting..." for many minutes, the pipeline is breaking somewhere after the app triggers n8n.
+
+**Chain:** App (extract-leads) → **n8n webhook** → WF-VEP-001 runs → fetches contact/diagnostic data → AI classifier → **POST to Ingest** → App (ingest) sets `last_vep_status = success`.
+
+**Check in this order:**
+
+1. **Webhook reachable**  
+   In `.env.local`, `N8N_VEP001_WEBHOOK_URL` must be the full URL (e.g. `https://n8n.amadutown.com/webhook/vep-001-extract`). From the same machine that runs Next.js, `curl -X POST "$N8N_VEP001_WEBHOOK_URL" -H "Content-Type: application/json" -d '{"contact_submission_ids":[YOUR_LEAD_ID]}'` should return 200 (or n8n’s normal webhook response), not connection/timeout errors.
+
+2. **Workflow is Active**  
+   In n8n, WF-VEP-001 must be **Active**. If it’s off, the webhook returns 404 and the app never gets a failure; the run simply never starts.
+
+3. **Webhook body when pushing one lead**  
+   The app sends `contact_submission_ids: [id]` (and optional `enrichments`). The workflow must use this to limit which contacts it fetches. If it ignores the body and runs a “full” extraction with different filters, it might not process that contact or might not include `contact_submission_id` in the evidence it sends to ingest.
+
+4. **n8n execution runs and succeeds**  
+   In n8n → **Executions**, trigger a push for one lead, then open the latest WF-VEP-001 run. Confirm: no red nodes; the **POST to Ingest** (or equivalent) node runs and returns 200. If it errors (401, 400, 500), fix auth/body per the table above.
+
+5. **Ingest receives evidence with `contact_submission_id`**  
+   The ingest API only sets `last_vep_status = success` for contacts that appear in the **evidence** payload (each item can have `contact_submission_id`). If the workflow POSTs evidence without `contact_submission_id`, or with a different ID, the lead you pushed will stay `pending`. In the workflow, ensure the body to ingest is `{ evidence: [ { ..., contact_submission_id: <id> } ] }` for the contact(s) you triggered.
+
+6. **Same secret for ingest**  
+   n8n must call the ingest endpoint with `Authorization: Bearer <N8N_INGEST_SECRET>` and that value must match `N8N_INGEST_SECRET` in the app’s env. Mismatch → 401 → ingest never runs → status stays `pending`.
+
+**Quick test:** From **Value Evidence → Dashboard**, click **Run Internal Extraction** (no lead filter). If that run appears in n8n and completes and new evidence shows in Pain Points, the workflow and ingest are fine; the issue is likely step 3 or 5 (body/contact_submission_ids) when pushing a single lead from Outreach.
 
 ---
 
@@ -311,7 +341,7 @@ WF-VEP-001 should:
 - [ ] Value Evidence + proposal value assessment migrations applied; tables present in Supabase.
 - [ ] `.env.local` has `N8N_INGEST_SECRET`, `N8N_VEP001_WEBHOOK_URL`, `N8N_VEP002_WEBHOOK_URL`.
 - [ ] n8n: Supabase credential on both Supabase nodes (WF-VEP-001).
-- [ ] n8n: Anthropic HTTP Header Auth on both AI classifier nodes.
+- [ ] n8n: Anthropic API credential (“Anthropic account”) on **AI Pain Point Classifier** (WF-VEP-001); HTTP Header Auth or native credential on **AI Classify Social Content** (WF-VEP-002) as configured.
 - [ ] n8n: Variables `N8N_INGEST_SECRET`, `PORTFOLIO_BASE_URL`, `APIFY_API_TOKEN` set.
 - [ ] n8n: Ingest nodes use **Authorization: Bearer** (no `x-ingest-secret`).
 - [ ] n8n: Ingest body is `{ evidence: [ { pain_point_category_name, ... } ] }` (WF-VEP-001 and WF-VEP-002 Parse and POST).

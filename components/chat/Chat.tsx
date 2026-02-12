@@ -265,6 +265,10 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
 
       const data = await response.json()
 
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'components/chat/Chat.tsx:sendMessage', message: 'client received API response', data: { ok: response.ok, status: response.status, hasResponse: data?.response !== undefined, responseType: typeof data?.response, responseLen: typeof data?.response === 'string' ? data.response.length : 0 }, timestamp: Date.now(), hypothesisId: 'H4' }) }).catch(() => {})
+      // #endregion
+
       // Remove typing indicator
       setMessages(prev => prev.filter(m => m.id !== typingId))
 
@@ -313,7 +317,11 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       if (typeof responseText === 'object' && responseText !== null) {
         responseText = JSON.stringify(responseText)
       }
-      
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'components/chat/Chat.tsx:sendMessage', message: 'client display text', data: { displayLen: String(responseText || '').length, displayPreview: String(responseText || '').substring(0, 60) }, timestamp: Date.now(), hypothesisId: 'H5' }) }).catch(() => {})
+      // #endregion
+
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
         role: data.escalated ? 'support' : 'assistant',
@@ -323,9 +331,13 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       setMessages(prev => [...prev, assistantMessage])
 
     } catch (err) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'components/chat/Chat.tsx:sendMessage catch', message: 'client error', data: { errorMessage: err instanceof Error ? err.message : String(err) }, timestamp: Date.now(), hypothesisId: 'H5' }) }).catch(() => {})
+      // #endregion
+
       // Remove typing indicator on error
       setMessages(prev => prev.filter(m => m.id !== typingId))
-      
+
       const errorMessage = err instanceof Error ? err.message : 'Something went wrong'
       setError(errorMessage)
       

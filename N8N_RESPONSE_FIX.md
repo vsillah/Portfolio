@@ -1,5 +1,7 @@
 # Fixing n8n Webhook Empty Response Issue
 
+**Quick fix:** In your chat workflow, add a **Respond to Webhook** node as the **last node**, set the Webhook trigger to **Response Mode: "Using Respond to Webhook Node"**, then return JSON with a `"response"` field. Details below.
+
 ## Problem
 The n8n workflow at `https://n8n.amadutown.com/webhook/.../chat` is returning HTTP 200 OK but with an **empty response body**. This causes the chat/diagnostic flow to fail.
 

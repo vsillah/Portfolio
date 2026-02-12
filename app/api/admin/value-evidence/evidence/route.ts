@@ -107,3 +107,53 @@ export async function GET(request: NextRequest) {
     totalEvidenceCount: evidenceCount ?? 0,
   })
 }
+
+/**
+ * DELETE /api/admin/value-evidence/evidence?contact_id=<id>
+ * Clears all pain point evidence for a contact and resets VEP status.
+ */
+export async function DELETE(request: NextRequest) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const contactIdParam = searchParams.get('contact_id')
+  if (!contactIdParam) {
+    return NextResponse.json(
+      { error: 'contact_id query parameter is required' },
+      { status: 400 }
+    )
+  }
+
+  const contactId = parseInt(contactIdParam, 10)
+  if (!Number.isInteger(contactId) || contactId <= 0) {
+    return NextResponse.json(
+      { error: 'contact_id must be a positive integer' },
+      { status: 400 }
+    )
+  }
+
+  const { error: deleteError, count } = await supabaseAdmin
+    .from('pain_point_evidence')
+    .delete()
+    .eq('contact_submission_id', contactId)
+    .select('id', { count: 'exact', head: true })
+
+  if (deleteError) {
+    console.error('Evidence delete error:', deleteError)
+    return NextResponse.json(
+      { error: 'Failed to delete evidence' },
+      { status: 500 }
+    )
+  }
+
+  // Reset VEP status so the lead can be re-pushed
+  await supabaseAdmin
+    .from('contact_submissions')
+    .update({ last_vep_status: null, last_vep_triggered_at: null })
+    .eq('id', contactId)
+
+  return NextResponse.json({ deleted: count ?? 0 })
+}

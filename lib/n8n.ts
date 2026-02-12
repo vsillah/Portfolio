@@ -423,8 +423,11 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
     const bodyText = await response.text()
 
     // Handle empty response body gracefully
+    // n8n returned 200 but no body — workflow must use "Respond to Webhook" and return JSON. See N8N_RESPONSE_FIX.md.
     if (bodyText.length === 0) {
-      console.warn('n8n webhook returned empty response - check workflow configuration')
+      console.warn(
+        '[n8n] Webhook returned empty response body. Add a "Respond to Webhook" node as the final node and return JSON with a "response" field. See N8N_RESPONSE_FIX.md.'
+      )
       return {
         response: "I apologize, but I'm having trouble processing your request right now. Please try again or use the contact form for assistance.",
         escalated: false,
@@ -446,7 +449,7 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
 
     // Handle different response formats from n8n
     let result = Array.isArray(data) ? data[0] : data
-    
+
     // Handle n8n's { results: [{ result: "..." }] } format
     if (result?.results && Array.isArray(result.results) && result.results.length > 0) {
       result = result.results[0]

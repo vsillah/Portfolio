@@ -28,15 +28,16 @@ function detectDiagnosticIntent(message: string): boolean {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { 
-      message, 
-      sessionId: providedSessionId, 
-      visitorEmail, 
+    const {
+      message,
+      sessionId: providedSessionId,
+      visitorEmail,
       visitorName,
       diagnosticMode: providedDiagnosticMode,
       diagnosticAuditId: providedDiagnosticAuditId,
       diagnosticProgress: providedDiagnosticProgress
     } = body
+
 
     // Validate message
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
@@ -355,7 +356,7 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Chat API error:', error)
-    
+
     // Return a friendly error message
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     

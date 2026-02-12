@@ -12,6 +12,8 @@ When adding, removing, or renaming a value in any enum-like set (`service_type`,
 3. **Frontend** — dropdown options, form schemas, TypeScript union types.
 4. **Seed / test data** — if any fixtures reference the set.
 
+**Key enum locations:** For `lead_source`, `outreach_status`, `service_type`, and similar, see `docs/regression-smoke-checklist.md` (Section 3) for where each is used so you can grep and update all layers.
+
 ## Verification
 
 Before considering the change complete, grep the codebase for the old set of values:

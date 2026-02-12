@@ -66,28 +66,90 @@ export async function POST(request: NextRequest) {
     const normalizedCompanyDomain = normalizeUrl(companyDomain)
     const normalizedLinkedinUrl = normalizeUrl(linkedinUrl)
 
-    // Insert into database using admin client (bypasses RLS)
-    const { data, error } = await supabaseAdmin
+    // Deduplicate by email before inserting
+    const normalizedEmail = email.trim().toLowerCase()
+    const { data: existing } = await supabaseAdmin
       .from('contact_submissions')
-      .insert([
-        {
-          name: name.trim(),
-          email: email.trim().toLowerCase(),
-          company: company?.trim() || null,
-          company_domain: normalizedCompanyDomain,
-          linkedin_url: normalizedLinkedinUrl,
-          annual_revenue: annualRevenue || null,
-          interest_areas: interestAreasArray.length > 0 ? interestAreasArray : null,
-          interest_summary: interestSummary || null,
-          is_decision_maker: isDecisionMaker || false,
-          message: message.trim(),
-        },
-      ])
-      .select()
+      .select('id')
+      .eq('email', normalizedEmail)
+      .limit(1)
       .single()
 
-    if (error) {
-      console.error('Database error:', error)
+    let data: { id: number } | null = null
+
+    if (existing) {
+      // Update existing contact with latest message and any new fields
+      const updatePayload: Record<string, unknown> = {
+        name: name.trim(),
+        message: message.trim(),
+        lead_source: 'website_form',
+      }
+      if (company?.trim()) updatePayload.company = company.trim()
+      if (normalizedCompanyDomain) updatePayload.company_domain = normalizedCompanyDomain
+      if (normalizedLinkedinUrl) updatePayload.linkedin_url = normalizedLinkedinUrl
+      if (annualRevenue) updatePayload.annual_revenue = annualRevenue
+      if (interestAreasArray.length > 0) updatePayload.interest_areas = interestAreasArray
+      if (interestSummary) updatePayload.interest_summary = interestSummary
+      if (isDecisionMaker !== undefined) updatePayload.is_decision_maker = isDecisionMaker
+
+      const { error: updateError } = await supabaseAdmin
+        .from('contact_submissions')
+        .update(updatePayload)
+        .eq('id', existing.id)
+
+      if (updateError) {
+        console.error('Database update error:', updateError)
+        return NextResponse.json(
+          { error: 'Failed to save message' },
+          { status: 500 }
+        )
+      }
+      data = { id: existing.id }
+    } else {
+      // Insert new contact submission
+      const { data: inserted, error } = await supabaseAdmin
+        .from('contact_submissions')
+        .insert([
+          {
+            name: name.trim(),
+            email: normalizedEmail,
+            company: company?.trim() || null,
+            company_domain: normalizedCompanyDomain,
+            linkedin_url: normalizedLinkedinUrl,
+            annual_revenue: annualRevenue || null,
+            interest_areas: interestAreasArray.length > 0 ? interestAreasArray : null,
+            interest_summary: interestSummary || null,
+            is_decision_maker: isDecisionMaker || false,
+            message: message.trim(),
+            lead_source: 'website_form',
+          },
+        ])
+        .select()
+        .single()
+
+      if (error) {
+        // Handle race condition: unique constraint violation → treat as success
+        if (error.code === '23505') {
+          const { data: raced } = await supabaseAdmin
+            .from('contact_submissions')
+            .select('id')
+            .eq('email', normalizedEmail)
+            .limit(1)
+            .single()
+          data = raced ? { id: raced.id } : null
+        } else {
+          console.error('Database error:', error)
+          return NextResponse.json(
+            { error: 'Failed to save message' },
+            { status: 500 }
+          )
+        }
+      } else {
+        data = inserted
+      }
+    }
+
+    if (!data) {
       return NextResponse.json(
         { error: 'Failed to save message' },
         { status: 500 }
@@ -107,7 +169,7 @@ export async function POST(request: NextRequest) {
       interestAreas: interestAreasArray.length > 0 ? interestAreasArray : undefined,
       interestSummary,
       isDecisionMaker: isDecisionMaker || false,
-      submissionId: data.id,
+      submissionId: String(data.id),
       submittedAt: new Date().toISOString(),
       source: 'portfolio_contact_form',
     }).catch((err) => {

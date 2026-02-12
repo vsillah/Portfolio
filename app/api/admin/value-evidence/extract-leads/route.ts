@@ -22,6 +22,7 @@ interface LeadEnrichment {
   industry?: string
   employee_count?: string
   company?: string
+  company_domain?: string
 }
 
 /**
@@ -138,6 +139,9 @@ export async function POST(request: NextRequest) {
       }
       if (lead.company !== undefined) {
         updatePayload.company = lead.company?.trim() || null
+      }
+      if (lead.company_domain !== undefined) {
+        updatePayload.company_domain = lead.company_domain?.trim() || null
       }
 
       if (Object.keys(updatePayload).length > 0) {

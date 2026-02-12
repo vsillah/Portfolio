@@ -2,22 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { triggerLeadQualificationWebhook } from '@/lib/n8n'
+import { leadSourceFromInputType } from '@/lib/constants/lead-source'
 
 export const dynamic = 'force-dynamic'
-
-const INPUT_TYPE_TO_LEAD_SOURCE: Record<string, string> = {
-  linkedin: 'cold_linkedin',
-  referral: 'cold_referral',
-  business_card: 'cold_business_card',
-  event: 'cold_event',
-  other: 'other',
-}
-function leadSourceFromInputType(inputType: string | undefined): string {
-  if (inputType && inputType in INPUT_TYPE_TO_LEAD_SOURCE) {
-    return INPUT_TYPE_TO_LEAD_SOURCE[inputType]
-  }
-  return 'cold_referral'
-}
 
 function normalizeUrl(url: string | undefined): string | null {
   if (!url || !url.trim()) return null
@@ -291,15 +278,13 @@ export async function GET(request: NextRequest) {
         last_vep_status
       `, { count: 'exact' })
 
-    // Filter by temperature (warm/cold)
+    // Filter by temperature (warm/cold). "all" = no lead_source filter so every lead is shown.
     if (filter === 'warm') {
       query = query.like('lead_source', 'warm_%')
     } else if (filter === 'cold') {
       query = query.like('lead_source', 'cold_%')
-    } else {
-      // All leads - both warm and cold
-      query = query.or('lead_source.like.warm_%,lead_source.like.cold_%')
     }
+    // else filter === 'all': do not filter by lead_source (include website_form, other, etc.)
 
     // Filter by specific source (supports partial matching)
     if (source && source !== 'all') {

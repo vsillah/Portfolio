@@ -1,0 +1,14 @@
+---
+description: When a filter has an "all" option, the API must not apply that dimension
+alwaysApply: true
+---
+
+# Filter "All" Option — API Contract
+
+When a list or search API supports a filter dimension that has an **"all"** option (e.g. temperature = all, status = all, source = all):
+
+1. **Backend:** When the client sends "all" (or omits the param), do **not** apply any condition for that dimension. Do not substitute "all" with a subset (e.g. do not restrict to `lead_source.like.warm_%,cold_%` when filter is "all").
+2. **Comment in code:** Add a one-line comment where the filter is applied, e.g. `// filter === 'all' → no restriction on lead_source`.
+3. **Verification:** For list endpoints, run the request with the "all" param and confirm rows that would be excluded by a subset filter still appear (e.g. a lead with `lead_source = 'other'` appears when filter=all).
+
+See `docs/regression-smoke-checklist.md` for the full contract and critical paths.

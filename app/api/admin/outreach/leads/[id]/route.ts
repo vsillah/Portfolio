@@ -111,6 +111,9 @@ export async function PATCH(
       notes,
       input_type,
       re_run_enrichment,
+      employee_count,
+      quick_wins,
+      rep_pain_points,
     } = body as {
       name?: string
       email?: string
@@ -126,6 +129,9 @@ export async function PATCH(
       notes?: string
       input_type?: string
       re_run_enrichment?: boolean
+      employee_count?: string
+      quick_wins?: string
+      rep_pain_points?: string
     }
 
     const { data: existing, error: fetchError } = await supabaseAdmin
@@ -175,6 +181,9 @@ export async function PATCH(
       updatePayload.lead_source = leadSource
       updatePayload.warm_source_detail = input_type ? `Manual entry: ${input_type}` : null
     }
+    if (employee_count !== undefined) updatePayload.employee_count = typeof employee_count === 'string' && employee_count.trim() ? employee_count.trim() : null
+    if (quick_wins !== undefined) updatePayload.quick_wins = typeof quick_wins === 'string' && quick_wins.trim() ? quick_wins.trim() : null
+    if (rep_pain_points !== undefined) updatePayload.rep_pain_points = typeof rep_pain_points === 'string' && rep_pain_points.trim() ? rep_pain_points.trim() : null
 
     if (Object.keys(updatePayload).length === 0) {
       return NextResponse.json(

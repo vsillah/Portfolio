@@ -1,0 +1,29 @@
+---
+description: Reference the regression checklist, filter-all rule, and enum-sync checklist when working on filters, enums, or critical paths
+alwaysApply: true
+---
+
+# Reference Quality Framework When Applicable
+
+When the task involves any of the following, **reference** (and follow) these resources before implementing or debugging:
+
+## When to reference
+
+1. **Adding, changing, or fixing a list/search filter** that has an "all" option (e.g. temperature, status, source)
+   → Read and apply **`.cursor/rules/filter-all-option.mdc`** and the filter contract in **`docs/regression-smoke-checklist.md`** (Section 2). Ensure the API does not apply that dimension when "all" is selected.
+
+2. **Adding, removing, or renaming an enum-like value** (e.g. `lead_source`, `outreach_status`, `service_type`, `content_type`)
+   → Read and apply **`.cursor/rules/enum-sync-checklist.mdc`**. Use **`docs/regression-smoke-checklist.md`** Section 3 ("Where key enums / values live") to grep and update DB, **`lib/constants/lead-source.ts`**, API (leads + ingest), and UI in one change.
+
+3. **Working on leads list, outreach queue, or value-evidence flows** (Review & Enrich, push, retry)
+   → Skim **`docs/regression-smoke-checklist.md`** Section 1 (critical paths) so behavior matches the documented flows and you don’t regress them.
+
+4. **Planning tests or regression coverage** after a change to admin outreach, leads, or value evidence
+   → Use **`docs/regression-smoke-checklist.md`** Section 1 and Section 4 for manual steps and existing automated tests (Vitest + Playwright).
+
+## How to reference
+
+- **Before editing:** If the task matches (1)–(4) above, open the listed rule or doc and apply its guidance.
+- **In replies:** When your change touches filters, enums, or critical paths, briefly note that you followed the checklist/rule (e.g. "Per filter-all-option rule, filter=all applies no lead_source condition").
+
+This keeps filter behavior, enum sync, and critical paths consistent without the user having to remember when to use each resource.

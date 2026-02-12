@@ -9,8 +9,14 @@ const MAX_IDS = 50
 export interface PreflightLead {
   id: number
   name: string
+  email: string | null
   company: string | null
+  company_domain: string | null
   industry: string | null
+  job_title: string | null
+  phone_number: string | null
+  linkedin_url: string | null
+  lead_source: string | null
   employee_count: string | null
   message: string | null
   quick_wins: string | null
@@ -64,7 +70,7 @@ export async function POST(request: NextRequest) {
 
     const { data: contacts, error: fetchError } = await supabaseAdmin
       .from('contact_submissions')
-      .select('id, name, company, industry, employee_count, message, quick_wins, full_report, rep_pain_points')
+      .select('id, name, email, company, company_domain, industry, job_title, phone_number, linkedin_url, lead_source, employee_count, message, quick_wins, full_report, rep_pain_points')
       .in('id', uniqueIds)
 
     if (fetchError) {
@@ -90,8 +96,14 @@ export async function POST(request: NextRequest) {
     const leads: PreflightLead[] = (contacts || []).map((c: {
       id: number
       name: string
+      email: string | null
       company: string | null
+      company_domain: string | null
       industry: string | null
+      job_title: string | null
+      phone_number: string | null
+      linkedin_url: string | null
+      lead_source: string | null
       employee_count: string | null
       message: string | null
       quick_wins: string | null
@@ -118,8 +130,14 @@ export async function POST(request: NextRequest) {
       return {
         id: c.id,
         name: c.name || '',
+        email: c.email?.trim() || null,
         company: c.company || null,
+        company_domain: c.company_domain?.trim() || null,
         industry: c.industry || null,
+        job_title: c.job_title?.trim() || null,
+        phone_number: c.phone_number?.trim() || null,
+        linkedin_url: c.linkedin_url?.trim() || null,
+        lead_source: c.lead_source || null,
         employee_count: c.employee_count?.trim() || null,
         message,
         quick_wins,

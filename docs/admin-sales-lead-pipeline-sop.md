@@ -164,7 +164,7 @@ flowchart TB
 ### Add lead / Edit lead
 
 - **Where:** Admin → Lead Pipeline → All Leads → Add lead (or Edit on a row).
-- **Inputs:** Name (required), Email, Company, Company website (domain), LinkedIn URL, Job title, Industry, Location, Phone, Message/notes, How did you get this lead? (input_type). Optional **Value Evidence** section (collapsible): Company size, Quick wins, Known pain points — these are stored and pre-fill the Review & Enrich modal when pushing to the value evidence pipeline.
+- **Inputs:** Name (required), Email, Company, Company website (domain), LinkedIn URL, Job title, Industry, Location, Phone, Message/notes, How did you get this lead? (input_type). Optional **Value Evidence** section (collapsible): Company size, Quick wins, Known pain points — these are stored and pre-fill the unified Lead modal when pushing to the value evidence pipeline.
 - **Stored in:** `contact_submissions`. Deduplication by email, LinkedIn URL, or LinkedIn username.
 - **Side effect:** On create (and on edit when "Re-run enrichment" is checked), the app calls the lead qualification webhook (`N8N_LEAD_WEBHOOK_URL`) with the lead payload. n8n may write back to `contact_submissions` (e.g. lead_score, quick_wins).
 
@@ -191,7 +191,7 @@ flowchart TB
 ### Pushing leads to the value evidence pipeline
 
 - **Where:** Admin → Lead Pipeline → **All Leads**.
-- **Steps:** Select one or more leads (checkboxes; “Select all on this page” available). Click **Push to Value Evidence**. A **Review & Enrich** modal opens with per-lead fields (pain points, notes, quick wins, company size, industry, company). Pre-populated from the database (including data from Add Lead “Value Evidence” section). Edit as needed, then click **Push to Value Evidence** in the modal.
+- **Steps:** Select one or more leads (checkboxes; "Select all on this page" available). Click **Push to Value Evidence**. The same **unified Lead modal** opens for Edit, Push, and Retry — with Lead details (name, email, company, etc.) and Value Evidence (pain points, quick wins, company size). Pre-populated from the database. Edit as needed, then click **Save changes** to persist edits, or **Push to Value Evidence** to push to the extraction pipeline.
 - **Result:** The app persists enrichment to `contact_submissions`, sets push status to “pending,” and triggers WF-VEP-001 with `contact_submission_ids` (and optional `enrichments`). When evidence is ingested, the app updates status to “success.” Lead cards show: **Evidence: N** (click to open evidence drawer), **Extracting...**, **Push may have failed**, **Push failed**, or **No evidence**. Use **Retry** or **Refresh evidence** per lead as needed. Evidence drawer shows pain point evidence and value reports; you can generate a report or refresh evidence from there.
 - **Prerequisite for “Suggest from Evidence” pricing:** The `content_pain_point_map` table must map products/services to pain points. If it is empty, suggest-from-evidence will return an error; value reports and proposal value assessments still work.
 

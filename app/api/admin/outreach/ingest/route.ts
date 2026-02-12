@@ -1,43 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { LEAD_SOURCE_VALUES, getRelationshipStrength } from '@/lib/constants/lead-source'
 
 export const dynamic = 'force-dynamic'
-
-/**
- * Valid warm lead source values
- */
-const VALID_LEAD_SOURCES = [
-  'warm_facebook_friends',
-  'warm_facebook_groups',
-  'warm_facebook_engagement',
-  'warm_google_contacts',
-  'warm_linkedin_connections',
-  'warm_linkedin_engagement',
-  // Also allow cold sources for reuse
-  'cold_apollo',
-  'cold_linkedin',
-  'cold_referral',
-  'cold_google_maps',
-] as const
-
-/**
- * Relationship strength mapping from lead source
- */
-function getRelationshipStrength(leadSource: string): 'strong' | 'moderate' | 'weak' {
-  switch (leadSource) {
-    case 'warm_facebook_friends':
-    case 'warm_linkedin_connections':
-    case 'warm_google_contacts':
-      return 'strong'
-    case 'warm_facebook_groups':
-      return 'moderate'
-    case 'warm_facebook_engagement':
-    case 'warm_linkedin_engagement':
-      return 'weak'
-    default:
-      return 'weak'
-  }
-}
 
 interface IngestLead {
   name: string
@@ -95,7 +60,7 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
-      if (!VALID_LEAD_SOURCES.includes(lead.lead_source as typeof VALID_LEAD_SOURCES[number])) {
+      if (!LEAD_SOURCE_VALUES.includes(lead.lead_source as (typeof LEAD_SOURCE_VALUES)[number])) {
         return NextResponse.json(
           { error: `Invalid lead_source: ${lead.lead_source}` },
           { status: 400 }
@@ -110,14 +75,17 @@ export async function POST(request: NextRequest) {
 
     for (const lead of leads) {
       try {
-        // Check for duplicates by email, linkedin_username, or facebook_profile_url
+        // Normalize email to lowercase for consistent matching
+        const normalizedEmail = lead.email?.trim().toLowerCase() || null
+
+        // Check for duplicates: email → linkedin_username → linkedin_url → facebook → name+source+company
         let existingId: number | null = null
 
-        if (lead.email) {
+        if (normalizedEmail) {
           const { data } = await supabaseAdmin
             .from('contact_submissions')
             .select('id')
-            .eq('email', lead.email)
+            .eq('email', normalizedEmail)
             .limit(1)
             .single()
           if (data) existingId = data.id
@@ -127,7 +95,7 @@ export async function POST(request: NextRequest) {
           const { data } = await supabaseAdmin
             .from('contact_submissions')
             .select('id')
-            .eq('linkedin_username', lead.linkedin_username)
+            .eq('linkedin_username', lead.linkedin_username.trim())
             .limit(1)
             .single()
           if (data) existingId = data.id
@@ -137,7 +105,7 @@ export async function POST(request: NextRequest) {
           const { data } = await supabaseAdmin
             .from('contact_submissions')
             .select('id')
-            .eq('linkedin_url', lead.linkedin_url)
+            .eq('linkedin_url', lead.linkedin_url.trim())
             .limit(1)
             .single()
           if (data) existingId = data.id
@@ -147,14 +115,27 @@ export async function POST(request: NextRequest) {
           const { data } = await supabaseAdmin
             .from('contact_submissions')
             .select('id')
-            .eq('facebook_profile_url', lead.facebook_profile_url)
+            .eq('facebook_profile_url', lead.facebook_profile_url.trim())
+            .limit(1)
+            .single()
+          if (data) existingId = data.id
+        }
+
+        // Fallback: name + source + company match for leads with no unique identifiers
+        // Prevents re-importing the same Google Contact, business card, etc.
+        if (!existingId && !normalizedEmail && !lead.linkedin_username && !lead.linkedin_url && !lead.facebook_profile_url) {
+          const { data } = await supabaseAdmin
+            .from('contact_submissions')
+            .select('id')
+            .ilike('name', lead.name.trim())
+            .eq('lead_source', lead.lead_source)
             .limit(1)
             .single()
           if (data) existingId = data.id
         }
 
         if (existingId) {
-          // Update existing contact with any new warm lead data
+          // Update existing contact with any new data
           const updatePayload: Record<string, unknown> = {}
           if (lead.facebook_profile_url) updatePayload.facebook_profile_url = lead.facebook_profile_url
           if (lead.phone_number) updatePayload.phone_number = lead.phone_number
@@ -184,22 +165,22 @@ export async function POST(request: NextRequest) {
         } else {
           // Insert new contact submission
           const insertPayload = {
-            name: lead.name,
-            email: lead.email || null,
-            company: lead.company || null,
-            company_domain: lead.company_domain || null,
-            job_title: lead.job_title || null,
-            industry: lead.industry || null,
-            location: lead.location || null,
-            employee_count: lead.employee_count || null,
+            name: lead.name.trim(),
+            email: normalizedEmail,
+            company: lead.company?.trim() || null,
+            company_domain: lead.company_domain?.trim() || null,
+            job_title: lead.job_title?.trim() || null,
+            industry: lead.industry?.trim() || null,
+            location: lead.location?.trim() || null,
+            employee_count: lead.employee_count?.trim() || null,
             lead_source: lead.lead_source,
             outreach_status: 'not_contacted',
-            linkedin_url: lead.linkedin_url || null,
-            linkedin_username: lead.linkedin_username || null,
-            facebook_profile_url: lead.facebook_profile_url || null,
-            phone_number: lead.phone_number || null,
+            linkedin_url: lead.linkedin_url?.trim() || null,
+            linkedin_username: lead.linkedin_username?.trim() || null,
+            facebook_profile_url: lead.facebook_profile_url?.trim() || null,
+            phone_number: lead.phone_number?.trim() || null,
             relationship_strength: getRelationshipStrength(lead.lead_source),
-            warm_source_detail: lead.warm_source_detail || null,
+            warm_source_detail: lead.warm_source_detail?.trim() || null,
             message: lead.message || `Imported from ${lead.lead_source}`,
           }
 
@@ -208,7 +189,12 @@ export async function POST(request: NextRequest) {
             .insert(insertPayload)
 
           if (insertError) {
-            errors.push(`Failed to insert ${lead.name}: ${insertError.message}`)
+            // If unique constraint violation (race condition), treat as update/skip
+            if (insertError.code === '23505') {
+              skipped++
+            } else {
+              errors.push(`Failed to insert ${lead.name}: ${insertError.message}`)
+            }
           } else {
             inserted++
           }

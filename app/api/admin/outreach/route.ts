@@ -22,7 +22,14 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status') || 'draft'
     const channel = searchParams.get('channel')
     const search = searchParams.get('search')
-    const contactId = searchParams.get('contact') // Filter by specific contact
+    const contactParam = searchParams.get('contact') // Filter by specific contact
+    const contactId = contactParam ? parseInt(contactParam, 10) : null
+    if (contactParam != null && contactParam !== '' && (contactId === null || Number.isNaN(contactId) || contactId < 1)) {
+      return NextResponse.json(
+        { error: 'contact must be a positive integer' },
+        { status: 400 }
+      )
+    }
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '50', 10)
     const offset = (page - 1) * limit
@@ -82,8 +89,8 @@ export async function GET(request: NextRequest) {
       query = query.eq('channel', channel)
     }
 
-    if (contactId) {
-      query = query.eq('contact_submission_id', parseInt(contactId))
+    if (contactId != null && contactId > 0) {
+      query = query.eq('contact_submission_id', contactId)
     }
 
     if (search) {
