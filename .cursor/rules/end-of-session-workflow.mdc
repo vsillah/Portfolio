@@ -1,0 +1,27 @@
+---
+description: Standardize the verify-commit-push workflow at the end of an implementation session
+alwaysApply: true
+---
+
+# End-of-Session Workflow
+
+When the implementation phase is complete and the user signals readiness to commit (or the agent determines all todos are done), follow this sequence:
+
+## 1. Verify (Agent mode)
+- `npm run build` — must pass
+- `npm run lint` — must pass
+- `npm test` — if test runner is configured
+- `ReadLints` on all modified files
+
+## 2. Commit (Agent mode required)
+- Ensure you are in Agent mode before committing. If in Ask or Plan mode, switch first.
+- Follow the incremental commit cadence rule if the changeset is large.
+- Use descriptive commit messages with scope prefixes.
+
+## 3. Push
+- Run any pre-push health checks (e.g. database table verification).
+- Push to remote.
+- Confirm push succeeded.
+
+## Mode reminder
+Committing and pushing require Agent mode. If the user asks to commit while in a read-only mode, prompt them to switch before proceeding rather than silently failing.

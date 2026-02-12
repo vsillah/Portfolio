@@ -1,0 +1,53 @@
+---
+description: Update the salesperson SOP after builds that change sales-facing flows
+alwaysApply: true
+---
+
+# Salesperson SOP — Update After Build
+
+After a successful build that introduces or modifies **sales-facing functionality**, review and update the salesperson SOP:
+
+**SOP location:** `docs/admin-sales-lead-pipeline-sop.md`
+
+## When to update
+
+Update the SOP when the build includes any of the following:
+
+- **New admin pages or routes** in the sales, leads, proposals, bundles, scripts, or client-projects areas.
+- **New or changed API endpoints** that admin/sales associates interact with (directly or via UI).
+- **New sales flows or entry points** (e.g. new ways to start a conversation, new proposal types, new checkout paths).
+- **Changes to offer roles, payout types, or pricing models** (e.g. adding guarantee rollover options, continuity plans).
+- **New or changed webhook behavior** that affects post-sale lifecycle (payment, onboarding, milestones, subscriptions).
+- **New admin tools** (dashboards, configuration screens, evaluation tools).
+- **Changes to the data model** that affect what admin inputs or sees (new fields, renamed statuses, new tables surfaced in the UI).
+- **New inbound lead channels** or changes to existing ones (contact form, chat, voice, diagnostic).
+
+## What to update
+
+1. **Process diagram** (Section 2) — Add new subgraphs, nodes, or connections if the flow changed.
+2. **Data input table** (Section 3) — Add new input fields or screens where admin enters data.
+3. **Behind-the-scenes sections** (Sections 4–6) — Update pipeline, sales, or proposal mechanics.
+4. **Sales asset configuration** (Section 7) — Add new asset types or classification options.
+5. **Post-sale lifecycle** (Section 10) — Update payment, onboarding, or milestone flows.
+6. **Workflow reference table** (Section 12) — Add new workflows or update triggers/inputs/outputs.
+7. **Human-in-the-loop summary** (Section 13) — Add new admin actions or client-visible outcomes.
+8. **Quick reference** (Section 17) — Add new admin or client-facing routes.
+
+## How to update
+
+- Keep the existing structure and section numbering intact.
+- Add new content inline where it fits; do not reorganize unless the user asks.
+- Use the same formatting conventions (tables, mermaid diagrams, bold field names).
+- If a new feature is large enough to warrant its own section, add it after the last numbered section and update the quick reference.
+
+## What NOT to update
+
+- Do not update the SOP for internal refactors, style changes, or test-only changes that have no user-facing or admin-facing impact.
+- Do not remove existing content unless it describes behavior that has been explicitly replaced or removed.
+
+## Verification
+
+After updating, confirm:
+- The mermaid diagram still renders correctly (no syntax errors).
+- New routes mentioned in the SOP match the actual routes in the codebase.
+- New env var names (if any) are listed in the quick reference section.

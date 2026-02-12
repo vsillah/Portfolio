@@ -1,0 +1,24 @@
+---
+description: Run type checks on new files during development, not just at the end
+alwaysApply: true
+---
+
+# Inline Type Checking
+
+After creating or substantially editing a TypeScript file, run `ReadLints` on that file **before moving to the next file**. This catches type errors (implicit any, missing imports, wrong signatures) at the point of authorship rather than deferring them to the final `npm run build`.
+
+## When to check
+
+- After creating a new `.ts` or `.tsx` file.
+- After adding a new function signature, type, or interface that other files will consume.
+- After editing a shared lib file that API routes or components import.
+
+## What to look for
+
+- `noImplicitAny` violations (callback parameters, destructured objects).
+- Missing imports or unresolved modules.
+- Type mismatches at function boundaries.
+
+## Why
+
+Deferred type checking creates a batch of errors at the end of a session. Fixing them in bulk is slower, riskier, and harder to attribute to specific changes.

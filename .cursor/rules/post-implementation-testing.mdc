@@ -7,6 +7,19 @@ alwaysApply: true
 
 After completing a **significant development effort** (new feature, multi-file change, new API surface, schema migration, or any change touching 3+ files), run the following verification steps before considering the work complete.
 
+## 0. Baseline Build Check (start of session)
+
+At the **start** of a significant implementation session (before writing any code), run:
+
+```bash
+npm run build
+```
+
+If the build fails, note the pre-existing errors. This establishes a baseline so that:
+- You know which errors are yours vs. inherited.
+- You can fix inherited errors in a separate commit (not mixed with feature work).
+- The user is informed early if the codebase has tech debt blocking clean verification.
+
 ## 1. Build Verification (always)
 
 ```bash

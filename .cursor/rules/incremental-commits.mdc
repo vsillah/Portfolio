@@ -1,0 +1,30 @@
+---
+description: Break large implementations into incremental commits by layer
+alwaysApply: true
+---
+
+# Incremental Commit Cadence
+
+When an implementation session touches **10+ files** or **3+ architectural layers** (DB, lib, API, UI, tests), commit incrementally rather than in a single batch.
+
+## Recommended commit boundaries
+
+1. **Migrations** — commit after all SQL files are written and verified.
+2. **Shared libraries** — commit after lib files pass type checking.
+3. **API routes** — commit after routes build cleanly and pass smoke tests.
+4. **UI components/pages** — commit after pages render without errors.
+5. **Tests** — commit after all tests pass.
+6. **Cursor rules/config** — commit alongside the layer they govern, or as a final "process" commit.
+
+## Commit message convention
+
+Use a scoped prefix: `db:`, `lib:`, `api:`, `ui:`, `test:`, `config:`.
+Example: `db: add guarantee and continuity subscription tables`
+
+## When to batch
+
+A single commit is acceptable when:
+- Total changes are < 10 files across <= 2 layers.
+- The feature is atomic and cannot function without all layers present.
+
+When in doubt, prefer smaller commits. They are easier to review, revert, and bisect.

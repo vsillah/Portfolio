@@ -1,7 +1,7 @@
 ---
-description: Require migration rollout order and risk notes for schema-coupled changes
+description: Require migration rollout order, risk notes, and execution verification for schema-coupled changes
 globs: migrations/**/*.sql
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Migration Rollout Checklist
@@ -18,3 +18,14 @@ Every schema-coupled change summary must include:
 ## Guardrail
 
 If API code assumes new columns/tables, do not present task as complete without calling out migration dependency.
+
+## Execution Verification
+
+Before committing migration files:
+
+1. Apply each migration to a development database (e.g. `supabase db push` or `psql -f`).
+2. Confirm the migration succeeds without errors.
+3. Verify new tables/columns exist with a quick query (e.g. `\dt` or `SELECT * FROM information_schema.columns WHERE table_name = '...'`).
+4. If migrations have ordering dependencies, apply them in the documented order and confirm each step.
+
+A migration that has not been executed against a real database is untested code.
