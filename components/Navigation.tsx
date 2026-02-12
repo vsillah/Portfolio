@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, User, LogOut, Shield, Download } from 'lucide-react'
+import Link from 'next/link'
 import { analytics } from '@/lib/analytics'
 import { useAuth } from '@/components/AuthProvider'
 import { signOut } from '@/lib/auth'
@@ -12,11 +13,12 @@ const navItems = [
   { name: 'Home', href: '#home' },
   { name: 'Projects', href: '#projects' },
   { name: 'Prototypes', href: '#prototypes' },
-  { name: 'Services', href: '/services' },
+  { name: 'Services', href: '#services' },
   { name: 'Publications', href: '#publications' },
   { name: 'Music', href: '#music' },
   { name: 'Videos', href: '#videos' },
-  { name: 'Store', href: '#store' },
+  { name: 'Merchandise', href: '#merchandise' },
+  { name: 'Store', href: '/store' },
   { name: 'About', href: '#about' },
   { name: 'Contact', href: '#contact' },
 ]
@@ -246,23 +248,47 @@ export default function Navigation() {
             <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-8">
               {/* Navigation Links Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
-                {navItems.map((item, index) => (
-                  <motion.a
-                    key={item.name}
-                    href={item.href}
-                    onClick={() => {
-                      analytics.navClick(item.href)
-                      setIsMenuOpen(false)
-                    }}
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="group relative px-4 py-3 rounded-xl text-platinum-white/70 hover:text-radiant-gold hover:bg-radiant-gold/5 transition-all duration-300"
-                  >
-                    <span className="text-sm font-medium tracking-wide">{item.name}</span>
-                    <span className="absolute bottom-2 left-4 right-4 h-[1px] bg-radiant-gold/0 group-hover:bg-radiant-gold/40 transition-all duration-300" />
-                  </motion.a>
-                ))}
+                {navItems.map((item, index) => {
+                  const isRoutePath = item.href.startsWith('/')
+                  const handleNavClick = () => {
+                    analytics.navClick(item.href)
+                    setIsMenuOpen(false)
+                  }
+                  const linkClassName = "group relative block px-4 py-3 rounded-xl text-platinum-white/70 hover:text-radiant-gold hover:bg-radiant-gold/5 transition-all duration-300"
+                  const linkContent = (
+                    <>
+                      <span className="text-sm font-medium tracking-wide">{item.name}</span>
+                      <span className="absolute bottom-2 left-4 right-4 h-[1px] bg-radiant-gold/0 group-hover:bg-radiant-gold/40 transition-all duration-300" />
+                    </>
+                  )
+
+                  return (
+                    <motion.div
+                      key={item.name}
+                      initial={{ opacity: 0, y: -20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                    >
+                      {isRoutePath ? (
+                        <Link
+                          href={item.href}
+                          onClick={handleNavClick}
+                          className={linkClassName}
+                        >
+                          {linkContent}
+                        </Link>
+                      ) : (
+                        <a
+                          href={item.href}
+                          onClick={handleNavClick}
+                          className={linkClassName}
+                        >
+                          {linkContent}
+                        </a>
+                      )}
+                    </motion.div>
+                  )
+                })}
               </div>
 
               {/* CTA Section */}

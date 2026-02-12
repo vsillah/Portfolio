@@ -1,24 +1,9 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ShoppingCart, DollarSign, Clock, Users, MapPin, Video, Building, MessageSquare, Image as ImageIcon } from 'lucide-react'
-import { useState } from 'react'
-
-interface Service {
-  id: string
-  title: string
-  description: string | null
-  service_type: string
-  delivery_method: string
-  duration_hours: number | null
-  duration_description: string | null
-  price: number | null
-  is_quote_based: boolean
-  min_participants: number
-  max_participants: number | null
-  image_url: string | null
-  is_featured: boolean
-}
+import { ShoppingCart, DollarSign, Clock, Users, MapPin, Video, Building, MessageSquare, Image as ImageIcon, Check } from 'lucide-react'
+import { useState, useRef } from 'react'
+import type { Service } from '@/lib/types/store'
 
 interface ServiceCardProps {
   service: Service
@@ -50,12 +35,17 @@ const DELIVERY_ICONS: Record<string, { icon: React.ReactNode; label: string }> =
 
 export default function ServiceCard({ service, onAddToCart, onRequestQuote }: ServiceCardProps) {
   const [imageError, setImageError] = useState(false)
+  const [showAdded, setShowAdded] = useState(false)
+  const addedTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   const handleAction = () => {
     if (service.is_quote_based && onRequestQuote) {
       onRequestQuote(service.id)
     } else {
       onAddToCart(service.id)
+      setShowAdded(true)
+      if (addedTimerRef.current) clearTimeout(addedTimerRef.current)
+      addedTimerRef.current = setTimeout(() => setShowAdded(false), 1000)
     }
   }
 
@@ -156,6 +146,11 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote }: Se
               <>
                 <MessageSquare size={18} />
                 Request Quote
+              </>
+            ) : showAdded ? (
+              <>
+                <Check size={18} />
+                Added!
               </>
             ) : (
               <>

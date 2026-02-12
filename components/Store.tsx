@@ -5,16 +5,7 @@ import { motion } from 'framer-motion'
 import { ShoppingBag, ArrowRight, ShoppingCart, DollarSign } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-
-interface Product {
-  id: number
-  title: string
-  description: string | null
-  type: string
-  price: number | null
-  image_url: string | null
-  is_featured: boolean
-}
+import type { Product } from '@/lib/types/store'
 
 const TYPE_LABELS: Record<string, string> = {
   ebook: 'E-Book',
@@ -63,7 +54,7 @@ export default function Store() {
 
   if (loading) {
     return (
-      <section id="store" className="py-32 bg-silicon-slate/10">
+      <section id="merchandise" className="py-32 bg-silicon-slate/10">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <div className="h-10 w-48 bg-silicon-slate/20 mx-auto rounded-full animate-pulse" />
         </div>
@@ -72,7 +63,7 @@ export default function Store() {
   }
 
   return (
-    <section id="store" className="py-32 px-6 sm:px-10 lg:px-12 bg-silicon-slate/10 relative overflow-hidden">
+    <section id="merchandise" className="py-32 px-6 sm:px-10 lg:px-12 bg-silicon-slate/10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
         <motion.div
@@ -85,14 +76,14 @@ export default function Store() {
           <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
             <ShoppingBag className="w-3 h-3 text-radiant-gold" />
             <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
-              Store
+              Merchandise
             </span>
           </div>
           <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
-            <span className="italic text-radiant-gold">Store</span>
+            <span className="italic text-radiant-gold">Merchandise</span>
           </h2>
           <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
-            Premium products and digital tools designed to elevate your professional workflow.
+            Premium merchandise and digital products designed to elevate your professional workflow.
           </p>
         </motion.div>
 
@@ -168,7 +159,7 @@ export default function Store() {
               href="/store"
               className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
             >
-              <span>Explore Boutique</span>
+              <span>Browse Store</span>
               <ArrowRight size={14} />
             </Link>
           </div>

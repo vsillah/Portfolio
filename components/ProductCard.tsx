@@ -1,19 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ShoppingCart, DollarSign, Download, File, Image as ImageIcon } from 'lucide-react'
-import { useState } from 'react'
+import { ShoppingCart, DollarSign, Download, File, Image as ImageIcon, Check } from 'lucide-react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-
-interface Product {
-  id: number
-  title: string
-  description: string | null
-  type: string
-  price: number | null
-  image_url: string | null
-  is_featured: boolean
-}
+import type { Product } from '@/lib/types/store'
 
 interface ProductCardProps {
   product: Product
@@ -31,6 +22,8 @@ const TYPE_LABELS: Record<string, string> = {
 
 export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const [imageError, setImageError] = useState(false)
+  const [showAdded, setShowAdded] = useState(false)
+  const addedTimerRef = useRef<NodeJS.Timeout | null>(null)
   const router = useRouter()
 
   const handleAddToCart = () => {
@@ -40,6 +33,9 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
       return
     }
     onAddToCart(product.id)
+    setShowAdded(true)
+    if (addedTimerRef.current) clearTimeout(addedTimerRef.current)
+    addedTimerRef.current = setTimeout(() => setShowAdded(false), 1000)
   }
 
   const handleCardClick = () => {
@@ -107,8 +103,8 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
             whileTap={{ scale: 0.95 }}
             className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg flex items-center gap-2 hover:from-blue-700 hover:to-purple-700 transition-colors"
           >
-            <ShoppingCart size={18} />
-            {product.type === 'merchandise' ? 'View Details' : 'Add to Cart'}
+            {showAdded ? <Check size={18} /> : <ShoppingCart size={18} />}
+            {showAdded ? 'Added!' : product.type === 'merchandise' ? 'View Details' : 'Add to Cart'}
           </motion.button>
         </div>
       </div>

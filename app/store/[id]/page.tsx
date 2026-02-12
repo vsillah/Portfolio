@@ -62,9 +62,13 @@ export default function ProductDetailPage() {
   }
 
   const handleAddToCart = async () => {
-    if (!selectedVariant || !product) return
+    if (!product) return
 
-    if (!selectedVariant.is_available) {
+    // Require variant selection only for merchandise with available variants
+    const needsVariant = product.is_print_on_demand && variants.length > 0
+    if (needsVariant && !selectedVariant) return
+
+    if (selectedVariant && !selectedVariant.is_available) {
       alert('This variant is currently unavailable')
       return
     }
@@ -72,12 +76,11 @@ export default function ProductDetailPage() {
     setAddingToCart(true)
 
     try {
-      // Use the updated addToCart function that supports variants
       addToCart(
         product.id,
         1,
-        selectedVariant.id,
-        selectedVariant.printful_variant_id
+        selectedVariant?.id,
+        selectedVariant?.printful_variant_id
       )
 
       // Update cart count
@@ -231,7 +234,7 @@ export default function ProductDetailPage() {
             {/* Add to Cart Button */}
             <motion.button
               onClick={handleAddToCart}
-              disabled={addingToCart || (isMerchandise && (!selectedVariant || !selectedVariant.is_available))}
+              disabled={addingToCart || (isMerchandise && variants.length > 0 && (!selectedVariant || !selectedVariant.is_available))}
               whileHover={{ scale: addingToCart ? 1 : 1.02 }}
               whileTap={{ scale: addingToCart ? 1 : 0.98 }}
               className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
@@ -239,9 +242,9 @@ export default function ProductDetailPage() {
               <ShoppingCart size={20} />
               {addingToCart
                 ? 'Adding...'
-                : isMerchandise && !selectedVariant
+                : isMerchandise && variants.length > 0 && !selectedVariant
                 ? 'Select a variant'
-                : isMerchandise && !selectedVariant?.is_available
+                : isMerchandise && variants.length > 0 && selectedVariant && !selectedVariant.is_available
                 ? 'Variant Unavailable'
                 : 'Add to Cart'}
             </motion.button>

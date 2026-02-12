@@ -21,14 +21,47 @@ export function isServiceItem(item: CartItem): item is CartItem & { serviceId: s
   return item.itemType === 'service' && item.serviceId !== undefined
 }
 
-// Get cart from localStorage
+// Get cart from localStorage (normalizes legacy formats)
 export function getCart(): CartItem[] {
   if (typeof window === 'undefined') return []
   
   try {
     const cart = localStorage.getItem(CART_STORAGE_KEY)
     if (!cart) return []
-    return JSON.parse(cart)
+    const parsed: unknown[] = JSON.parse(cart)
+    if (!Array.isArray(parsed)) return []
+
+    let needsSave = false
+    const normalized: CartItem[] = parsed.map((entry): CartItem | null => {
+      // Handle raw number entries (legacy store page format)
+      if (typeof entry === 'number') {
+        needsSave = true
+        return { productId: entry, quantity: 1, itemType: 'product' }
+      }
+      if (typeof entry !== 'object' || entry === null) return null
+
+      const item = entry as Record<string, unknown>
+
+      // Backfill missing itemType based on which ID field is present
+      if (!item.itemType) {
+        needsSave = true
+        if (item.productId !== undefined) {
+          item.itemType = 'product'
+        } else if (item.serviceId !== undefined) {
+          item.itemType = 'service'
+        } else {
+          return null // unrecognizable entry — drop it
+        }
+      }
+      return item as unknown as CartItem
+    }).filter((item): item is CartItem => item !== null)
+
+    // Persist the normalized cart so the fix is permanent
+    if (needsSave) {
+      saveCart(normalized)
+    }
+
+    return normalized
   } catch (e) {
     console.error('Error reading cart from localStorage:', e)
     return []

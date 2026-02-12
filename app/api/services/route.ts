@@ -91,15 +91,8 @@ export async function POST(request: NextRequest) {
       display_order,
     } = body
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/api/services/route.ts:POST', message: 'POST body', data: { title, service_type, delivery_method }, hypothesisId: 'payload', timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
-
     // Validation
     if (!title || !service_type) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/api/services/route.ts:POST', message: 'validation: missing title or service_type', data: { title, service_type }, hypothesisId: 'A', timestamp: Date.now() }) }).catch(() => {});
-      // #endregion
       return NextResponse.json(
         { error: 'Title and service type are required' },
         { status: 400 }
@@ -107,9 +100,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (!VALID_SERVICE_TYPES.includes(service_type)) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/api/services/route.ts:POST', message: 'validation: invalid service_type', data: { service_type, valid: VALID_SERVICE_TYPES }, hypothesisId: 'B', timestamp: Date.now() }) }).catch(() => {});
-      // #endregion
       return NextResponse.json(
         { error: `Invalid service type. Must be one of: ${VALID_SERVICE_TYPES.join(', ')}` },
         { status: 400 }
@@ -117,9 +107,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (delivery_method && !VALID_DELIVERY_METHODS.includes(delivery_method)) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'app/api/services/route.ts:POST', message: 'validation: invalid delivery_method', data: { delivery_method, valid: VALID_DELIVERY_METHODS }, hypothesisId: 'C', timestamp: Date.now() }) }).catch(() => {});
-      // #endregion
       return NextResponse.json(
         { error: `Invalid delivery method. Must be one of: ${VALID_DELIVERY_METHODS.join(', ')}` },
         { status: 400 }
