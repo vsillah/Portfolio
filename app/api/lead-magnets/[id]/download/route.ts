@@ -56,8 +56,16 @@ export async function GET(
       return NextResponse.json({ error: 'Lead magnet not found' }, { status: 404 })
     }
 
+    const storagePath = leadMagnet.file_path || leadMagnet.file_url
+    if (!storagePath) {
+      return NextResponse.json(
+        { error: 'Lead magnet file path is missing' },
+        { status: 500 }
+      )
+    }
+
     // Get signed URL for download (valid for 1 hour)
-    const signedUrl = await getSignedUrl('lead-magnets', leadMagnet.file_path, 3600)
+    const signedUrl = await getSignedUrl('lead-magnets', storagePath, 3600)
 
     // Track download
     const ip = request.headers.get('x-forwarded-for') || 

@@ -1,0 +1,23 @@
+---
+description: After first DB fix, run required-field sweep to prevent follow-on failures
+globs: app/api/**/route.ts
+alwaysApply: false
+---
+
+# Required-Field Sweep
+
+Use this rule during DB incident resolution.
+
+After fixing the first DB/runtime error, proactively sweep the same flow for:
+
+- other NOT NULL columns not being populated
+- missing columns referenced by SELECT/INSERT/UPDATE
+- check constraints on candidate values
+- required relationship fields (FKs)
+
+## Exit Criteria
+
+Before closing the incident, confirm:
+
+1. create/read/update path succeeds end-to-end
+2. no next-likely schema error remains in the same flow

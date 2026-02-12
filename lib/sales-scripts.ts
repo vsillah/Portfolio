@@ -50,7 +50,7 @@ export type SessionOutcome =
   | 'lost' 
   | 'in_progress';
 
-export type PayoutType = 'credit' | 'refund' | 'rollover';
+export type PayoutType = 'credit' | 'refund' | 'rollover' | 'rollover_upsell' | 'rollover_continuity';
 
 // ============================================================================
 // Response Tracking Types (for Dynamic Sales Flow)

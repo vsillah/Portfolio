@@ -112,12 +112,16 @@ async function resolveItem(item: BundleItem): Promise<ResolvedBundleItem | null>
     .single();
 
   // Build ContentWithRole object
+  const subtype = item.content_type === 'service'
+    ? (content.service_type ?? null)
+    : (content.type || content.category || null);
+
   const contentWithRole = {
     content_type: item.content_type,
     content_id: item.content_id,
     title: content.title || content.name || 'Untitled',
     description: content.description,
-    subtype: content.type || content.category || null,
+    subtype,
     price: content.price,
     image_url: config.imageField ? content[config.imageField] : null,
     is_active: content.is_active ?? content.is_published ?? true,

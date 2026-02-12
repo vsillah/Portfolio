@@ -41,7 +41,12 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch lead magnets' }, { status: 500 })
     }
 
-    return NextResponse.json({ leadMagnets })
+    const normalized = (leadMagnets || []).map((m: any) => ({
+      ...m,
+      file_path: m.file_path ?? m.file_url ?? null,
+    }))
+
+    return NextResponse.json({ leadMagnets: normalized })
   } catch (error) {
     console.error('Lead magnets API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -87,24 +92,61 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const { data, error } = await supabaseAdmin
-      .from('lead_magnets')
-      .insert([
-        {
-          title,
-          description,
-          file_path,
-          file_type,
-          file_size,
-          is_active: true,
-        },
-      ])
-      .select()
-      .single()
+    const basePayload = {
+      title,
+      description,
+      file_type,
+      file_size,
+      is_active: true,
+    }
 
-    if (error) {
-      console.error('Error creating lead magnet:', error)
-      return NextResponse.json({ error: 'Failed to create lead magnet' }, { status: 500 })
+    // Support legacy/new schema variants:
+    // - file_path vs file_url
+    // - required type column vs no type column
+    const insertCandidates = [
+      { ...basePayload, file_path, type: 'ebook' },
+      { ...basePayload, file_path, type: 'pdf' },
+      { ...basePayload, file_path, type: 'lead_magnet' },
+      { ...basePayload, file_path },
+      { ...basePayload, file_url: file_path, type: 'ebook' },
+      { ...basePayload, file_url: file_path, type: 'pdf' },
+      { ...basePayload, file_url: file_path, type: 'lead_magnet' },
+      { ...basePayload, file_url: file_path },
+    ]
+
+    let data: any = null
+    let lastError: any = null
+
+    for (const candidate of insertCandidates) {
+      const result = await supabaseAdmin
+        .from('lead_magnets')
+        .insert([candidate])
+        .select()
+        .single()
+
+      if (!result.error) {
+        data = result.data
+        lastError = null
+        break
+      }
+
+      lastError = result.error
+      const msg = String((result.error as any)?.message || '')
+      // If the error is not a missing-column mismatch, fail fast.
+      if (!msg.includes('Could not find the') && !msg.includes('column') && !msg.includes('schema cache')) {
+        break
+      }
+    }
+
+    if (lastError) {
+      console.error('Error creating lead magnet:', lastError)
+      return NextResponse.json(
+        {
+          error: 'Failed to create lead magnet',
+          details: (lastError as any).message || null,
+        },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json({ leadMagnet: data }, { status: 201 })

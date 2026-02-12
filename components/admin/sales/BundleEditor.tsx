@@ -407,7 +407,7 @@ function ContentPickerModal({
             className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
           >
             <option value="all">All Types</option>
-            {(['product', 'project', 'video', 'publication', 'music', 'lead_magnet', 'prototype'] as ContentType[]).map(type => (
+            {(['product', 'project', 'video', 'publication', 'music', 'lead_magnet', 'prototype', 'service'] as ContentType[]).map(type => (
               <option key={type} value={type}>
                 {CONTENT_TYPE_ICONS[type]} {CONTENT_TYPE_LABELS[type]}
               </option>

@@ -8,6 +8,7 @@ import Publications from '@/components/Publications'
 import Music from '@/components/Music'
 import Videos from '@/components/Videos'
 import Store from '@/components/Store'
+import Services from '@/components/Services'
 import About from '@/components/About'
 import Contact from '@/components/Contact'
 import Navigation from '@/components/Navigation'
@@ -44,7 +45,7 @@ export default function Home() {
     }, observerOptions)
 
     // Observe all sections
-    const sections = ['home', 'projects', 'prototypes', 'publications', 'music', 'videos', 'store', 'about', 'contact']
+    const sections = ['home', 'projects', 'prototypes', 'publications', 'music', 'videos', 'store', 'services', 'about', 'contact']
     sections.forEach((id) => {
       const element = document.getElementById(id)
       if (element) observer.observe(element)
@@ -67,6 +68,7 @@ export default function Home() {
       <Music />
       <Videos />
       <Store />
+      <Services />
       <About />
       <Contact />
     </main>

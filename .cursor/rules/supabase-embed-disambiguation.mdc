@@ -1,0 +1,27 @@
+---
+description: Use explicit FK-qualified embeds when Supabase/PostgREST relations are ambiguous
+alwaysApply: false
+---
+
+# Supabase Embed Disambiguation
+
+When selecting embedded relations in Supabase/PostgREST, multiple foreign keys may exist between the same two tables. PostgREST cannot infer which relationship to use and returns `PGRST201` ("Could not embed because more than one relationship was found").
+
+## Rule
+
+When multiple FK paths exist between two tables, **always** use explicit FK-qualified embed syntax:
+
+```
+related_table!fk_constraint_name (column1, column2, ...)
+```
+
+Example: `diagnostic_audits!sales_sessions_diagnostic_audit_id_fkey (id, session_id, status)` instead of `diagnostic_audits (id, session_id, status)`.
+
+## How to find the FK name
+
+- From the PostgREST error `details` or `hint`: it suggests `related_table!fk_name`.
+- From schema: `information_schema.table_constraints` or migration files (e.g. `REFERENCES table(id)` with `ON DELETE SET NULL`).
+
+## If you see PGRST201
+
+Fix by naming the FK explicitly in the select; do not rely on implicit relationship inference.

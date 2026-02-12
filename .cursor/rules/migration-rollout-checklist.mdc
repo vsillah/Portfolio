@@ -1,0 +1,20 @@
+---
+description: Require migration rollout order and risk notes for schema-coupled changes
+globs: migrations/**/*.sql
+alwaysApply: false
+---
+
+# Migration Rollout Checklist
+
+Use this rule for migrations tied to API/UI behavior.
+
+Every schema-coupled change summary must include:
+
+- required migration files
+- explicit apply order
+- which runtime paths depend on each migration
+- rollback/fallback note if migration is delayed
+
+## Guardrail
+
+If API code assumes new columns/tables, do not present task as complete without calling out migration dependency.

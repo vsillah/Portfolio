@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, DollarSign, Image as ImageIcon, Clock, Users, Star } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -36,6 +36,7 @@ const SERVICE_TYPES = [
   { value: 'consulting', label: 'Consulting/Advisory' },
   { value: 'coaching', label: 'Coaching Sessions' },
   { value: 'workshop', label: 'Workshop' },
+  { value: 'warranty', label: 'Warranty/Guarantee' },
 ]
 
 const DELIVERY_METHODS = [
@@ -49,6 +50,7 @@ export default function ServicesManagementPage() {
   const [loading, setLoading] = useState(true)
   const [editingService, setEditingService] = useState<Service | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
+  const formRef = useRef<HTMLDivElement>(null)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -182,21 +184,22 @@ export default function ServicesManagementPage() {
     if (newIndex < 0 || newIndex >= services.length) return
 
     const targetService = services[newIndex]
-    const newOrder = targetService.display_order
+    // Use array indices as display_order — always clean sequential values (0, 1, 2, ...)
+    const orderForCurrent = newIndex
+    const orderForTarget = currentIndex
 
     try {
       const session = await getCurrentSession()
       if (!session) return
 
-      // Swap display orders
-      await Promise.all([
+      const [res1, res2] = await Promise.all([
         fetch(`/api/services/${service.id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ display_order: newOrder }),
+          body: JSON.stringify({ display_order: orderForCurrent }),
         }),
         fetch(`/api/services/${targetService.id}`, {
           method: 'PUT',
@@ -204,10 +207,16 @@ export default function ServicesManagementPage() {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ display_order: service.display_order }),
+          body: JSON.stringify({ display_order: orderForTarget }),
         }),
       ])
 
+      if (!res1.ok || !res2.ok) {
+        const err1 = await res1.json().catch(() => ({}))
+        const err2 = await res2.json().catch(() => ({}))
+        alert(err1?.error || err2?.error || 'Failed to reorder service')
+        return
+      }
       fetchServices()
     } catch (error) {
       console.error('Error moving service:', error)
@@ -316,8 +325,8 @@ export default function ServicesManagementPage() {
       min_participants: service.min_participants.toString(),
       max_participants: service.max_participants?.toString() || '',
       prerequisites: service.prerequisites || '',
-      deliverables: service.deliverables?.join(', ') || '',
-      topics: service.topics?.join(', ') || '',
+      deliverables: Array.isArray(service.deliverables) ? service.deliverables.join(', ') : '',
+      topics: Array.isArray(service.topics) ? service.topics.join(', ') : '',
       image_url: service.image_url || '',
       is_active: service.is_active,
       is_featured: service.is_featured,
@@ -325,6 +334,13 @@ export default function ServicesManagementPage() {
     })
     setShowAddForm(true)
   }
+
+  // Scroll form into view when opening for edit so it's visible
+  useEffect(() => {
+    if (showAddForm && editingService && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [showAddForm, editingService])
 
   const handleCancel = () => {
     setShowAddForm(false)
@@ -370,6 +386,7 @@ export default function ServicesManagementPage() {
 
           {showAddForm && (
             <motion.div
+              ref={formRef}
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-8 p-6 bg-gray-900 border border-gray-800 rounded-xl"

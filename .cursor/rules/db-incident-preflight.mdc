@@ -1,0 +1,26 @@
+---
+description: Preflight DB schema before fixing DB-backed API incidents
+globs: app/api/**/route.ts
+alwaysApply: false
+---
+
+# DB Incident Preflight
+
+Use this rule only for database-backed incident/debug work.
+
+Before changing API logic, verify live schema assumptions for touched tables:
+
+1. Confirm table exists.
+2. Confirm required columns exist.
+3. Confirm nullability/defaults/check constraints for required fields.
+4. Confirm relevant FK/index presence for new write paths.
+
+## Required Output in incident responses
+
+- List tables/columns/constraints checked.
+- Note mismatches between expected schema and live schema.
+- State whether fix is code-only, migration-only, or both.
+
+## Guardrail
+
+Do not ship API fixes for DB errors until schema preflight evidence is captured.

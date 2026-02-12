@@ -1,0 +1,23 @@
+---
+description: Require compatibility matrix for schema-evolving API fixes
+globs: app/api/**/route.ts
+alwaysApply: false
+---
+
+# DB/API Compatibility Matrix
+
+Use this rule when API handlers touch fields that were renamed, added, removed, or made required.
+
+Include a short compatibility matrix in the work summary:
+
+- old_field -> new_field
+- read fallback behavior
+- write target behavior
+- migration dependency
+- sunset/removal condition
+
+## Minimum compatibility behavior
+
+- Reads should tolerate old and new schemas during transition.
+- Writes should fail with actionable errors if required schema is missing.
+- Avoid silent data loss when field names differ across environments.

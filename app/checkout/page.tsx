@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Lock } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
-import { getCart, clearCart, saveCart, updateCartItemQuantity, removeFromCart, type CartItem } from '@/lib/cart'
+import { getCart, clearCart, saveCart, updateCartItemQuantity, updateServiceQuantity, removeFromCart, removeServiceFromCart, isServiceItem, type CartItem } from '@/lib/cart'
 import ContactForm from '@/components/checkout/ContactForm'
 import DiscountCodeForm from '@/components/checkout/DiscountCodeForm'
 import OrderSummary, { type ProductVariant } from '@/components/checkout/OrderSummary'
@@ -24,6 +24,18 @@ interface Product {
   is_print_on_demand?: boolean
 }
 
+interface Service {
+  id: string
+  title: string
+  description: string | null
+  service_type: string
+  delivery_method: string
+  duration_description: string | null
+  price: number | null
+  is_quote_based: boolean
+  image_url: string | null
+}
+
 interface DiscountCode {
   id: number
   code: string
@@ -38,6 +50,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<'contact' | 'review' | 'payment' | 'complete'>('contact')
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [products, setProducts] = useState<Record<number, Product>>({})
+  const [services, setServices] = useState<Record<string, Service>>({})
   const [variants, setVariants] = useState<Record<number, ProductVariant[]>>({})
   const [loading, setLoading] = useState(true)
   const [contactInfo, setContactInfo] = useState<{ name: string; email: string } | null>(null)
@@ -130,14 +143,35 @@ export default function CheckoutPage() {
           setVariants(variantMap)
         }
       }
+
+      // Fetch services when cart has service items
+      const serviceIds = cart.filter(isServiceItem).map(item => item.serviceId)
+      if (serviceIds.length > 0) {
+        const servicesResponse = await fetch('/api/services?active=true')
+        if (servicesResponse.ok) {
+          const allServices: Service[] = await servicesResponse.json()
+          const serviceMap: Record<string, Service> = {}
+          allServices.forEach(service => {
+            if (serviceIds.includes(service.id)) {
+              serviceMap[service.id] = service
+            }
+          })
+          setServices(serviceMap)
+        }
+      }
     } catch (error) {
-      console.error('Failed to fetch products:', error)
+      console.error('Failed to fetch cart items:', error)
     } finally {
       setLoading(false)
     }
   }
 
   const getItemPrice = (item: CartItem): number | null => {
+    if (isServiceItem(item)) {
+      const service = services[item.serviceId]
+      if (!service || service.is_quote_based) return null
+      return service.price
+    }
     if (item.productId === undefined) return null
     const product = products[item.productId]
     if (!product) return null
@@ -150,6 +184,14 @@ export default function CheckoutPage() {
 
     return product.price
   }
+
+  const hasQuoteBasedItems = cartItems.some(item => {
+    if (isServiceItem(item)) {
+      const service = services[item.serviceId]
+      return service?.is_quote_based ?? false
+    }
+    return false
+  })
 
   const calculateSubtotal = () => {
     return cartItems.reduce((total, item) => {
@@ -185,6 +227,18 @@ export default function CheckoutPage() {
     if (updated.length === 0) {
       router.push('/store')
     }
+  }
+
+  const handleServiceQuantityChange = (serviceId: string, quantity: number) => {
+    const updated = updateServiceQuantity(serviceId, quantity)
+    setCartItems(updated)
+    if (updated.length === 0) router.push('/store')
+  }
+
+  const handleRemoveService = (serviceId: string) => {
+    const updated = removeServiceFromCart(serviceId)
+    setCartItems(updated)
+    if (updated.length === 0) router.push('/store')
   }
 
   const handleVariantChange = (
@@ -265,7 +319,7 @@ export default function CheckoutPage() {
       const session = await getCurrentSession()
       const subtotal = calculateSubtotal()
       const finalTotal = calculateFinalTotal()
-      const hasPaidItems = subtotal > 0
+      const hasPaidItems = subtotal > 0 || hasQuoteBasedItems
 
       // Create order
       const orderData = {
@@ -275,6 +329,7 @@ export default function CheckoutPage() {
         subtotal,
         discountAmount,
         finalTotal,
+        hasQuoteBasedItems,
       }
 
       const response = await fetch('/api/checkout', {
@@ -321,7 +376,7 @@ export default function CheckoutPage() {
 
   const subtotal = calculateSubtotal()
   const finalTotal = calculateFinalTotal()
-  const hasPaidItems = subtotal > 0
+  const hasPaidItems = subtotal > 0 || hasQuoteBasedItems
 
   return (
     <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
@@ -421,13 +476,17 @@ export default function CheckoutPage() {
             <OrderSummary
               cartItems={cartItems}
               products={products}
+              services={services}
               variants={variants}
               subtotal={subtotal}
               discountAmount={discountAmount}
               finalTotal={finalTotal}
+              hasQuoteBasedItems={hasQuoteBasedItems}
               editable={true}
               onQuantityChange={handleQuantityChange}
+              onServiceQuantityChange={handleServiceQuantityChange}
               onRemoveItem={handleRemoveItem}
+              onRemoveService={handleRemoveService}
               onVariantChange={handleVariantChange}
             />
           </div>

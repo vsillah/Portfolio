@@ -5,18 +5,19 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 export const dynamic = 'force-dynamic'
 
 // Valid service types and delivery methods
-const VALID_SERVICE_TYPES = ['training', 'speaking', 'consulting', 'coaching', 'workshop']
+const VALID_SERVICE_TYPES = ['training', 'speaking', 'consulting', 'coaching', 'workshop', 'warranty']
 const VALID_DELIVERY_METHODS = ['in_person', 'virtual', 'hybrid']
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const { id } = await Promise.resolve(params)
     const { data: service, error } = await supabaseAdmin
       .from('services')
       .select('*')
-      .eq('id', params.id)
+      .eq('id', id)
       .single()
 
     if (error) {
@@ -41,9 +42,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const { id } = await Promise.resolve(params)
     const authResult = await verifyAdmin(request)
     if (isAuthError(authResult)) {
       return NextResponse.json(
@@ -115,7 +117,7 @@ export async function PUT(
     const { data, error } = await supabaseAdmin
       .from('services')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single()
 
@@ -141,9 +143,10 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const { id } = await Promise.resolve(params)
     const authResult = await verifyAdmin(request)
     if (isAuthError(authResult)) {
       return NextResponse.json(
@@ -155,7 +158,7 @@ export async function DELETE(
     const { error } = await supabaseAdmin
       .from('services')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       if (error.code === 'PGRST116') {

@@ -1,0 +1,82 @@
+---
+description: Require regression, unit, and E2E testing after significant development efforts
+alwaysApply: true
+---
+
+# Post-Implementation Testing Requirement
+
+After completing a **significant development effort** (new feature, multi-file change, new API surface, schema migration, or any change touching 3+ files), run the following verification steps before considering the work complete.
+
+## 1. Build Verification (always)
+
+```bash
+npm run build
+```
+
+A clean build proves there are no TypeScript compilation errors, missing imports, or broken module resolution across the entire project.
+
+## 2. Lint Check (always)
+
+```bash
+npm run lint
+```
+
+Then use `ReadLints` on every file you created or modified to catch anything the CLI misses.
+
+## 3. Unit / Integration Tests
+
+If a test runner is configured (Jest, Vitest, etc.):
+
+```bash
+npm test
+```
+
+If no test runner exists yet, **state explicitly** that unit tests were not run and why, so the user can decide whether to add them.
+
+For library/helper files (`lib/*.ts`), verify key functions manually if no runner exists:
+- Import the function in a scratch script or Node REPL.
+- Call it with representative inputs and confirm outputs.
+
+## 4. API Smoke Tests
+
+For new or modified API routes, run at least one request per method (GET, POST, PUT, DELETE) using `curl`, `fetch`, or the browser network tab:
+- Confirm 200/201 for valid requests.
+- Confirm 400/401/404 for invalid/unauthorized/missing requests.
+- Confirm database rows were created/updated as expected.
+
+## 5. E2E / UI Smoke Tests
+
+For new or modified UI pages:
+- Navigate to the page in a browser (or use `browser_navigate` / `browser_snapshot`).
+- Verify the page renders without console errors.
+- Interact with primary actions (buttons, forms, navigation) and confirm expected behavior.
+
+If an E2E simulator plan exists (`.cursor/plans/e2e_client_simulator_tool_acd6dda4.plan.md`), check whether new scenarios should be added.
+
+## What Counts as "Significant"
+
+- New database tables or migrations
+- New API routes (1+ files)
+- New UI pages or components with data fetching
+- Changes to webhook handlers or payment flows
+- Refactors touching 3+ files
+
+## What Does NOT Require Full Testing
+
+- Copy/text-only changes
+- CSS/style-only tweaks
+- Adding comments or documentation
+- Single-file, single-function bug fixes (still run build + lint)
+
+## Output Format
+
+At the end of a significant implementation, include a summary:
+
+```
+## Verification Results
+- Build: PASS / FAIL (error details)
+- Lint: PASS / FAIL (error details)
+- Unit tests: PASS / SKIP (reason)
+- API smoke: PASS / SKIP (reason)
+- E2E smoke: PASS / SKIP (reason)
+```

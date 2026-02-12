@@ -178,6 +178,8 @@ function getSubtype(contentType: ContentType, item: Record<string, unknown>): st
       return (item.file_type as string) || null;
     case 'prototype':
       return (item.product_type as string) || null;
+    case 'service':
+      return (item.service_type as string) || null;
     default:
       return contentType;
   }

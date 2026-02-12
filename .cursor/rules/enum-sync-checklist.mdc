@@ -1,0 +1,30 @@
+---
+description: When adding/removing values in enum-like sets, update all layers in the same change
+alwaysApply: true
+---
+
+# Enum / Union Value Sync Checklist
+
+When adding, removing, or renaming a value in any enum-like set (`service_type`, `status`, `role`, `content_type`, etc.), update **all** layers in the same change:
+
+1. **Database** — CHECK constraint or enum type (use `ALTER … DROP/ADD CONSTRAINT`, not `CREATE TABLE IF NOT EXISTS`).
+2. **API validation** — every route file that validates the field (grep for the constant name across all route files).
+3. **Frontend** — dropdown options, form schemas, TypeScript union types.
+4. **Seed / test data** — if any fixtures reference the set.
+
+## Verification
+
+Before considering the change complete, grep the codebase for the old set of values:
+
+```bash
+rg "VALID_SERVICE_TYPES|service_type.*IN" --type ts --type sql
+```
+
+If any file still has the old list, update it.
+
+## Why
+
+Mismatched enum values across layers cause:
+- API 400s (value allowed in UI but rejected by API)
+- DB 23514 constraint violations (value allowed by API but rejected by DB)
+- Silent data loss (value accepted but not displayed in UI)

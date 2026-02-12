@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe'
 import { supabaseAdmin } from '@/lib/supabase'
 import { printful } from '@/lib/printful'
 import Stripe from 'stripe'
+import type { GuaranteeCondition } from '@/lib/guarantees'
 
 export const dynamic = 'force-dynamic'
 
@@ -11,6 +12,102 @@ type OrderItemRow = {
   product_variant_id: number | null
   printful_variant_id: string | null
   quantity: number
+}
+
+// ============================================================================
+// Guarantee Activation Helper
+// ============================================================================
+async function activateGuaranteesForOrder(orderId: number, clientEmail: string, clientName: string | null, userId: string | null) {
+  try {
+    // Fetch order items with their content_offer_roles and guarantee templates
+    const { data: orderItems } = await supabaseAdmin
+      .from('order_items')
+      .select('id, product_id, service_id, price_at_purchase')
+      .eq('order_id', orderId)
+
+    if (!orderItems || orderItems.length === 0) return
+
+    for (const item of orderItems) {
+      // Determine content_type and content_id
+      const contentType = item.service_id ? 'service' : item.product_id ? 'product' : null
+      const contentId = item.service_id || item.product_id?.toString()
+
+      if (!contentType || !contentId) continue
+
+      // Look up content_offer_role with guarantee template
+      const { data: offerRole } = await supabaseAdmin
+        .from('content_offer_roles')
+        .select('guarantee_template_id')
+        .eq('content_type', contentType)
+        .eq('content_id', contentId)
+        .not('guarantee_template_id', 'is', null)
+        .single()
+
+      if (!offerRole?.guarantee_template_id) continue
+
+      // Fetch the guarantee template
+      const { data: template } = await supabaseAdmin
+        .from('guarantee_templates')
+        .select('*')
+        .eq('id', offerRole.guarantee_template_id)
+        .eq('is_active', true)
+        .single()
+
+      if (!template) continue
+
+      const conditions = (template.conditions || []) as GuaranteeCondition[]
+      const expiresAt = new Date()
+      expiresAt.setDate(expiresAt.getDate() + template.duration_days)
+
+      // Create guarantee instance
+      const { data: instance, error: instanceError } = await supabaseAdmin
+        .from('guarantee_instances')
+        .insert({
+          order_id: orderId,
+          order_item_id: item.id,
+          guarantee_template_id: template.id,
+          client_email: clientEmail,
+          client_name: clientName,
+          user_id: userId,
+          purchase_amount: item.price_at_purchase || 0,
+          payout_type: template.default_payout_type,
+          status: 'active',
+          conditions_snapshot: conditions,
+          starts_at: new Date().toISOString(),
+          expires_at: expiresAt.toISOString(),
+        })
+        .select()
+        .single()
+
+      if (instanceError) {
+        console.error(`Error creating guarantee instance for order item ${item.id}:`, instanceError)
+        continue
+      }
+
+      // Create milestones for each condition
+      if (instance && conditions.length > 0) {
+        const milestones = conditions.map((c: GuaranteeCondition) => ({
+          guarantee_instance_id: instance.id,
+          condition_id: c.id,
+          condition_label: c.label,
+          status: 'pending',
+        }))
+
+        const { error: milestoneError } = await supabaseAdmin
+          .from('guarantee_milestones')
+          .insert(milestones)
+
+        if (milestoneError) {
+          console.error(`Error creating milestones for guarantee ${instance.id}:`, milestoneError)
+        }
+      }
+
+      console.log(`Guarantee instance ${instance?.id} activated for order ${orderId}, item ${item.id}`)
+    }
+  } catch (error: any) {
+    console.error('Error activating guarantees for order:', error)
+    // Don't fail the webhook for guarantee activation errors
+  }
 }
 
 export async function POST(request: NextRequest) {
@@ -130,6 +227,14 @@ export async function POST(request: NextRequest) {
               
               console.log(`Proposal ${proposalId} marked as paid, order ${order.id} created`);
               
+              // Activate guarantees for purchased items
+              await activateGuaranteesForOrder(
+                order.id,
+                proposal.client_email,
+                proposal.client_name,
+                null // Proposals are typically for guests
+              );
+              
               // Create client project + onboarding plan
               try {
                 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
@@ -176,6 +281,16 @@ export async function POST(request: NextRequest) {
             .eq('id', parseInt(orderId))
             .select()
             .single()
+
+          // Activate guarantees for purchased items
+          if (order) {
+            await activateGuaranteesForOrder(
+              order.id,
+              order.guest_email || '',
+              order.guest_name || null,
+              order.user_id || null
+            )
+          }
 
           // If order has merchandise items, submit to Printful
           if (order && order.shipping_address && !order.printful_order_id) {
@@ -270,6 +385,108 @@ export async function POST(request: NextRequest) {
             .eq('id', parseInt(orderId))
             .eq('stripe_payment_intent_id', paymentIntent.id)
         }
+        break
+      }
+
+      // ================================================================
+      // Subscription webhook events (for continuity billing)
+      // ================================================================
+
+      case 'invoice.paid': {
+        const invoice = event.data.object as Stripe.Invoice
+        const subscriptionId = invoice.subscription as string
+
+        if (subscriptionId) {
+          // Update client_subscriptions with new period info
+          const { data: sub } = await supabaseAdmin
+            .from('client_subscriptions')
+            .select('id, cycles_completed, credit_remaining, continuity_plan_id')
+            .eq('stripe_subscription_id', subscriptionId)
+            .single()
+
+          if (sub) {
+            const amountPaid = (invoice.amount_paid || 0) / 100 // cents to dollars
+            const newCreditRemaining = Math.max(0, (sub.credit_remaining || 0) - amountPaid)
+
+            await supabaseAdmin
+              .from('client_subscriptions')
+              .update({
+                status: 'active',
+                cycles_completed: (sub.cycles_completed || 0) + 1,
+                credit_remaining: newCreditRemaining,
+                current_period_start: invoice.period_start
+                  ? new Date(invoice.period_start * 1000).toISOString()
+                  : undefined,
+                current_period_end: invoice.period_end
+                  ? new Date(invoice.period_end * 1000).toISOString()
+                  : undefined,
+              })
+              .eq('id', sub.id)
+
+            console.log(`Subscription ${subscriptionId} invoice paid. Cycle ${sub.cycles_completed + 1}. Credit remaining: $${newCreditRemaining.toFixed(2)}`)
+          }
+        }
+        break
+      }
+
+      case 'invoice.payment_failed': {
+        const invoice = event.data.object as Stripe.Invoice
+        const subscriptionId = invoice.subscription as string
+
+        if (subscriptionId) {
+          await supabaseAdmin
+            .from('client_subscriptions')
+            .update({ status: 'past_due' })
+            .eq('stripe_subscription_id', subscriptionId)
+
+          console.log(`Subscription ${subscriptionId} payment failed. Marked past_due.`)
+        }
+        break
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription
+
+        const updateData: Record<string, unknown> = {
+          cancel_at_period_end: subscription.cancel_at_period_end,
+        }
+
+        if (subscription.status === 'active') updateData.status = 'active'
+        if (subscription.status === 'past_due') updateData.status = 'past_due'
+        if (subscription.status === 'trialing') updateData.status = 'trialing'
+        if (subscription.status === 'paused') updateData.status = 'paused'
+
+        if (subscription.current_period_start) {
+          updateData.current_period_start = new Date(subscription.current_period_start * 1000).toISOString()
+        }
+        if (subscription.current_period_end) {
+          updateData.current_period_end = new Date(subscription.current_period_end * 1000).toISOString()
+        }
+
+        await supabaseAdmin
+          .from('client_subscriptions')
+          .update(updateData)
+          .eq('stripe_subscription_id', subscription.id)
+
+        console.log(`Subscription ${subscription.id} updated. Status: ${subscription.status}`)
+        break
+      }
+
+      case 'customer.subscription.deleted': {
+        const subscription = event.data.object as Stripe.Subscription
+
+        await supabaseAdmin
+          .from('client_subscriptions')
+          .update({
+            status: subscription.status === 'canceled' ? 'canceled' : 'expired',
+            canceled_at: subscription.canceled_at
+              ? new Date(subscription.canceled_at * 1000).toISOString()
+              : new Date().toISOString(),
+            ended_at: new Date().toISOString(),
+          })
+          .eq('stripe_subscription_id', subscription.id)
+
+        console.log(`Subscription ${subscription.id} deleted/canceled.`)
         break
       }
 

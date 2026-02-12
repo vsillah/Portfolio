@@ -1,0 +1,31 @@
+---
+description: Always instrument and reproduce before fixing behavioral bugs
+alwaysApply: true
+---
+
+# Evidence Before Fix
+
+Before applying a code fix for a behavioral bug (wrong data, silent failure, race condition, unexpected state):
+
+1. **Instrument** — add targeted logging that will confirm or reject the suspected cause.
+2. **Reproduce** — run the failing scenario and read the logs.
+3. **Cite evidence** — state which log line or value proves the root cause.
+4. **Then fix** — change only what the evidence points to.
+
+## When code-review-only fixes are acceptable
+
+- Obvious errors: typos, missing imports, syntax errors, wrong variable name.
+- The fix is adding something clearly absent (e.g. a missing entry in a list).
+
+## When they are NOT acceptable
+
+- The failure is behavioral (e.g. "button doesn't work", "data doesn't update", "request returns wrong status").
+- Multiple possible causes exist — guessing risks fixing a symptom while the real cause persists.
+- The fix involves changing logic, adding guards, or restructuring control flow.
+
+## Why
+
+Skipping instrumentation leads to:
+- Fixing symptoms instead of causes (wasted iterations).
+- Accumulating defensive code from rejected hypotheses.
+- False confidence that the bug is resolved.

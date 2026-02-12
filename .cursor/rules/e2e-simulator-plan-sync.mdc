@@ -22,3 +22,7 @@ When introducing **major enhancements** to the project (new user journeys, new p
    - Do not remove or contradict existing completed work unless the enhancement explicitly replaces it.
 
 If the change is minor (e.g. copy, styling, or internal refactor with no new user-facing or admin flow), skip this review.
+
+## Bug fixes in lead or conversation flows
+
+When fixing bugs in the lead pipeline or sales conversation flows (e.g. Start Conversation, session fetch, conversation page load), add or adjust a simulator scenario in the same change set, or create a tracked TODO with owner and date before closing the fix. This ensures the bug does not regress and the E2E coverage stays aligned with production behavior.

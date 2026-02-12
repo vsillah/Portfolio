@@ -1,0 +1,22 @@
+---
+description: Enforce regression coverage updates for lead and sales conversation incident fixes
+globs: app/**/sales/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Lead/Conversation Regression Coverage
+
+Use this rule when fixing bugs in lead pipeline or sales conversation flows.
+
+Before closing a fix, do one of the following:
+
+1. add/update an E2E simulator scenario for the fixed path, or
+2. add a tracked TODO with owner/date in the simulator plan for follow-up coverage
+
+## Required Reference
+
+- `.cursor/plans/e2e_client_simulator_tool_acd6dda4.plan.md`
+
+## Guardrail
+
+Do not mark the incident done without explicit regression coverage action.

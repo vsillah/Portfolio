@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS services (
     'speaking',     -- Speaking engagements
     'consulting',   -- Consulting/advisory services
     'coaching',     -- One-on-one or group coaching
-    'workshop'      -- Hands-on workshops
+    'workshop',     -- Hands-on workshops
+    'warranty'      -- Warranty/guarantee offers
   )),
   
   -- Delivery details

@@ -1,0 +1,52 @@
+---
+description: Assign sequential display_order on insert and use index-based reordering
+globs: app/api/**/route.ts,app/admin/**/page.tsx
+alwaysApply: false
+---
+
+# Ordering / Rank Column Defaults
+
+When a table has a `display_order`, `sort_order`, `rank`, or `position` column:
+
+## On INSERT (API POST handler)
+
+Assign the next sequential value — never rely on a column default of 0:
+
+```typescript
+// ✅ GOOD — sequential on insert
+const { data: maxRow } = await supabase
+  .from('services')
+  .select('display_order')
+  .order('display_order', { ascending: false })
+  .limit(1)
+  .single()
+const nextOrder = (maxRow?.display_order ?? -1) + 1
+```
+
+```typescript
+// ❌ BAD — all rows get 0, swap-based reorder becomes a no-op
+display_order: display_order || 0
+```
+
+## On Reorder (move up / move down)
+
+Use **array-index reassignment**, not pairwise value swap:
+
+```typescript
+// ✅ GOOD — always produces clean sequential values
+const orderForCurrent = newIndex
+const orderForTarget = currentIndex
+```
+
+```typescript
+// ❌ BAD — swap of equal values is a no-op
+const orderForCurrent = targetService.display_order  // both could be 0
+const orderForTarget = service.display_order
+
+// ❌ BAD — +1 arithmetic causes unbounded growth
+const orderForCurrent = targetService.display_order + 1
+```
+
+## Why
+
+Multiple rows with the same `display_order` make swap-based reordering invisible. Arithmetic (+1) causes order values to grow without bound. Index-based assignment is always correct.

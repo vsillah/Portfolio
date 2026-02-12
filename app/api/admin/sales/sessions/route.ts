@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       .from('sales_sessions')
       .select(`
         *,
-        diagnostic_audits (
+        diagnostic_audits!sales_sessions_diagnostic_audit_id_fkey (
           id,
           session_id,
           urgency_score,
@@ -61,7 +61,6 @@ export async function GET(request: NextRequest) {
       console.error('Error fetching sessions:', error);
       return NextResponse.json({ error: 'Failed to fetch sessions' }, { status: 500 });
     }
-
     return NextResponse.json({ sessions: sessions || [] });
   } catch (error) {
     console.error('Sessions API error:', error);
@@ -88,10 +87,11 @@ export async function POST(request: NextRequest) {
       contact_submission_id,
     } = body;
 
-    // Either diagnostic_audit_id or client info is required
-    if (!diagnostic_audit_id && !client_email) {
+    // Either diagnostic audit, client email, or a lead link is required.
+    // Lead-driven "Start Conversation" uses contact_submission_id and may not have email.
+    if (!diagnostic_audit_id && !client_email && contact_submission_id == null) {
       return NextResponse.json(
-        { error: 'Either diagnostic_audit_id or client_email is required' },
+        { error: 'Either diagnostic_audit_id, client_email, or contact_submission_id is required' },
         { status: 400 }
       );
     }
@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
 
     // When starting a conversation from a lead, set outreach_status so sequence is paused
     if (contact_submission_id != null) {
-      await supabaseAdmin
+      const { error: contactUpdateError } = await supabaseAdmin
         .from('contact_submissions')
         .update({ outreach_status: 'in_conversation' })
         .eq('id', contact_submission_id);

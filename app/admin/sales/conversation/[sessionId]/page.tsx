@@ -155,7 +155,9 @@ export default function ConversationPage() {
         fetch('/api/admin/sales/bundles', { headers }),
       ]);
 
-      if (!sessionsRes.ok) throw new Error('Failed to fetch session');
+      if (!sessionsRes.ok) {
+        throw new Error('Failed to fetch session');
+      }
       const sessionsData = await sessionsRes.json();
       const session: SalesSessionRow | undefined = (sessionsData.sessions || [])[0];
       if (!session) { setError('Session not found'); setIsLoading(false); return; }

@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FolderOpen, Video, BookOpen, Music, Download, Sparkles, Package, Tag } from 'lucide-react'
+import { FolderOpen, Video, BookOpen, Music, Download, Sparkles, Package, Tag, Briefcase } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -35,6 +35,13 @@ export default function ContentManagementPage() {
       icon: <Music size={32} />,
       description: 'Manage music projects',
       color: 'from-purple-500 to-pink-500',
+    },
+    {
+      name: 'Services',
+      href: '/admin/content/services',
+      icon: <Briefcase size={32} />,
+      description: 'Manage services and offerings',
+      color: 'from-teal-500 to-cyan-500',
     },
     {
       name: 'Lead Magnets',

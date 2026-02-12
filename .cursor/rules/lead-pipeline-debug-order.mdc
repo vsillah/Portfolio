@@ -1,0 +1,19 @@
+---
+description: Debug lead pipeline incidents in a fixed order to avoid chasing wrong layers
+alwaysApply: false
+---
+
+# Lead Pipeline Debug Order
+
+For lead pipeline incidents (Start Conversation, session creation, conversation page load failures), always debug in this order:
+
+1. **Request payload and validation result** — Confirm what the client sends and whether the API accepts or rejects it (4xx vs proceed to DB).
+2. **Write path result** — If validation passes, did the insert/update succeed? Check API response and DB error codes (e.g. PGRST204).
+3. **Read/query result** — Did the GET/fetch for the created resource succeed? Check for PostgREST relationship ambiguity (PGRST201) and schema cache issues.
+4. **UI mapping/render** — Does the client correctly parse the response and render the page?
+
+## Rules
+
+- Do **not** treat downstream DB or PostgREST errors as the primary blocker until request validation outcome is confirmed for the same attempt.
+- Require one full reproduce trace (frontend + API logs) before implementing fixes.
+- If multiple failures exist (e.g. 400 then 500), fix and re-verify in the order above before moving on.

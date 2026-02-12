@@ -107,6 +107,8 @@ const PAYOUT_TYPES: { value: PayoutType; label: string }[] = [
   { value: 'credit', label: 'Credit (toward future purchase)' },
   { value: 'refund', label: 'Refund (money back)' },
   { value: 'rollover', label: 'Rollover (apply to upgrade)' },
+  { value: 'rollover_upsell', label: 'Rollover Upsell (one-time credit toward premium service)' },
+  { value: 'rollover_continuity', label: 'Rollover Continuity (credit spread over subscription)' },
 ];
 
 export function ProductClassifier({ 

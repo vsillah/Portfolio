@@ -31,6 +31,7 @@ const SERVICE_TYPES = [
   { value: 'consulting', label: 'Consulting' },
   { value: 'coaching', label: 'Coaching' },
   { value: 'workshop', label: 'Workshops' },
+  { value: 'warranty', label: 'Warranty & Guarantees' },
 ]
 
 const DELIVERY_METHODS = [
