@@ -35,11 +35,14 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get('search')
 
     // Build the query using the view
+    // IMPORTANT: Use explicit FK-qualified embeds to prevent PostgREST ambiguity.
+    // chat_evaluations has FKs to BOTH chat_sessions (session_id) AND chat_messages (message_id),
+    // so PostgREST can't auto-resolve which path to use when chat_messages is also embedded.
     let query = supabaseAdmin
       .from('chat_sessions')
       .select(`
         *,
-        chat_evaluations!left(
+        chat_evaluations!chat_evaluations_session_id_fkey(
           id,
           rating,
           notes,
@@ -48,7 +51,7 @@ export async function GET(request: NextRequest) {
           evaluated_at,
           evaluation_categories(name, color)
         ),
-        chat_messages(
+        chat_messages!chat_messages_session_id_fkey(
           id,
           role,
           content,

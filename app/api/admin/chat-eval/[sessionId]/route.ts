@@ -25,11 +25,13 @@ export async function GET(
 
   try {
     // Fetch session with all messages and evaluation
+    // IMPORTANT: Use explicit FK-qualified embeds to prevent PostgREST ambiguity.
+    // chat_evaluations has FKs to BOTH chat_sessions (session_id) AND chat_messages (message_id).
     const { data: session, error: sessionError } = await supabaseAdmin
       .from('chat_sessions')
       .select(`
         *,
-        chat_evaluations(
+        chat_evaluations!chat_evaluations_session_id_fkey(
           id,
           rating,
           notes,
@@ -40,7 +42,7 @@ export async function GET(
           evaluated_at,
           evaluation_categories(id, name, description, color)
         ),
-        chat_messages(
+        chat_messages!chat_messages_session_id_fkey(
           id,
           role,
           content,

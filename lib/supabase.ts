@@ -43,7 +43,10 @@ export const supabaseAdmin = typeof window === 'undefined'
         global: {
           headers: {
             Authorization: `Bearer ${serviceRoleKey || supabaseAnonKey}`
-          }
+          },
+          // Prevent Next.js from caching PostgREST responses in Route Handlers.
+          // Without this, stale data can be served from the fetch cache.
+          fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' })
         }
       }
     )
