@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, X, Trash2, AlertCircle, ClipboardCheck, Sparkles, BookOpen, Briefcase, Mic, MessageSquare } from 'lucide-react'
+import { MessageCircle, X, Trash2, AlertCircle, ClipboardCheck, Sparkles, BookOpen, Briefcase, Mic, MessageSquare, RefreshCw } from 'lucide-react'
 import { ChatMessage, type ChatMessageProps } from './ChatMessage'
 import { ChatInput } from './ChatInput'
 import { VoiceChat } from './VoiceChat'
@@ -16,6 +16,10 @@ type ChatMode = 'text' | 'voice'
 interface Message extends ChatMessageProps {
   id: string
   isVoice?: boolean
+  /** If true, this message has a retry button (for fallback/error responses) */
+  isRetriable?: boolean
+  /** The original user message that can be retried */
+  retriableContent?: string
 }
 
 interface ChatProps {
@@ -218,16 +222,16 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
     if (!content.trim() || isLoading) return
 
     setError(null)
-    
+
     // Detect diagnostic intent if not already in diagnostic mode
     const shouldStartDiagnostic = !isDiagnosticMode && detectDiagnosticIntent(content)
     if (shouldStartDiagnostic) {
       setIsDiagnosticMode(true)
     }
-    
+
     // Hide suggestions when user sends a message
     setShowSuggestions(false)
-    
+
     // Add user message immediately
     const userMessage: Message = {
       id: `user-${Date.now()}`,
@@ -265,10 +269,6 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
 
       const data = await response.json()
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'components/chat/Chat.tsx:sendMessage', message: 'client received API response', data: { ok: response.ok, status: response.status, hasResponse: data?.response !== undefined, responseType: typeof data?.response, responseLen: typeof data?.response === 'string' ? data.response.length : 0 }, timestamp: Date.now(), hypothesisId: 'H4' }) }).catch(() => {})
-      // #endregion
-
       // Remove typing indicator
       setMessages(prev => prev.filter(m => m.id !== typingId))
 
@@ -294,15 +294,12 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
         }
       }
 
-      // Add assistant response
       // Extract response text - handle cases where response might be an object or JSON string
       let responseText = data.response
-      
+
       if (typeof responseText === 'object' && responseText !== null) {
-        // If response is an object, try to extract the text field
         responseText = responseText.response || responseText.text || responseText.message || ''
       } else if (typeof responseText === 'string') {
-        // Try to parse if it's a JSON string
         try {
           const parsed = JSON.parse(responseText)
           if (parsed && typeof parsed === 'object' && parsed.response) {
@@ -312,46 +309,56 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
           // Not JSON, use as-is
         }
       }
-      
+
       // Final safeguard - ensure we never display raw JSON objects
       if (typeof responseText === 'object' && responseText !== null) {
         responseText = JSON.stringify(responseText)
       }
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'components/chat/Chat.tsx:sendMessage', message: 'client display text', data: { displayLen: String(responseText || '').length, displayPreview: String(responseText || '').substring(0, 60) }, timestamp: Date.now(), hypothesisId: 'H5' }) }).catch(() => {})
-      // #endregion
+      // Determine if this is a fallback / retriable response
+      const isFallback = !!(data.metadata?.fallback || data.metadata?.retriable)
 
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
         role: data.escalated ? 'support' : 'assistant',
         content: String(responseText || ''),
         timestamp: new Date().toISOString(),
+        isRetriable: isFallback,
+        retriableContent: isFallback ? content : undefined,
       }
       setMessages(prev => [...prev, assistantMessage])
 
     } catch (err) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'components/chat/Chat.tsx:sendMessage catch', message: 'client error', data: { errorMessage: err instanceof Error ? err.message : String(err) }, timestamp: Date.now(), hypothesisId: 'H5' }) }).catch(() => {})
-      // #endregion
-
       // Remove typing indicator on error
       setMessages(prev => prev.filter(m => m.id !== typingId))
 
       const errorMessage = err instanceof Error ? err.message : 'Something went wrong'
       setError(errorMessage)
-      
-      // Add error message to chat
+
+      // Add error message to chat with retry button
       setMessages(prev => [...prev, {
         id: `error-${Date.now()}`,
         role: 'assistant',
         content: "I apologize, but I'm having trouble connecting right now. Please try again or use the contact form to reach out directly.",
         timestamp: new Date().toISOString(),
+        isRetriable: true,
+        retriableContent: content,
       }])
     } finally {
       setIsLoading(false)
     }
   }, [sessionId, isLoading, visitorEmail, visitorName, isDiagnosticMode, diagnosticAuditId, diagnosticProgress])
+
+  // Retry a failed message
+  const retryMessage = useCallback((messageId: string) => {
+    const msg = messages.find(m => m.id === messageId)
+    if (!msg?.retriableContent) return
+
+    const content = msg.retriableContent
+    // Remove the failed response message before retrying
+    setMessages(prev => prev.filter(m => m.id !== messageId))
+    sendMessage(content)
+  }, [messages, sendMessage])
 
   const clearChat = async () => {
     if (!sessionId) return
@@ -603,14 +610,27 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
               </AnimatePresence>
 
               {messages.map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  role={message.role}
-                  content={message.content}
-                  timestamp={message.timestamp}
-                  isTyping={message.isTyping}
-                  isVoice={message.isVoice}
-                />
+                <div key={message.id}>
+                  <ChatMessage
+                    role={message.role}
+                    content={message.content}
+                    timestamp={message.timestamp}
+                    isTyping={message.isTyping}
+                    isVoice={message.isVoice}
+                  />
+                  {/* Retry button for fallback/error responses */}
+                  {message.isRetriable && message.retriableContent && !isLoading && (
+                    <motion.button
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      onClick={() => retryMessage(message.id)}
+                      className="mt-1 ml-10 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-radiant-gold bg-radiant-gold/10 border border-radiant-gold/20 rounded-lg hover:bg-radiant-gold/20 hover:border-radiant-gold/30 transition-all duration-200"
+                    >
+                      <RefreshCw size={12} />
+                      Try again
+                    </motion.button>
+                  )}
+                </div>
               ))}
               
               {/* Suggested Actions */}

@@ -154,12 +154,19 @@ export default function Store() {
 
         {/* View All */}
         {products.length > 0 && (
-          <div className="text-center mt-20">
+          <div className="text-center mt-20 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/store"
               className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
             >
               <span>Browse Store</span>
+              <ArrowRight size={14} />
+            </Link>
+            <Link
+              href="/pricing"
+              className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
+            >
+              <span>See Pricing &amp; Packages</span>
               <ArrowRight size={14} />
             </Link>
           </div>

@@ -4,6 +4,119 @@
  */
 
 // ============================================================================
+// Configuration
+// ============================================================================
+
+/** Timeout for n8n webhook calls in milliseconds (30 seconds) */
+const N8N_TIMEOUT_MS = 30_000
+
+/** Maximum number of retry attempts for transient failures */
+const N8N_MAX_RETRIES = 1
+
+/** Delay before retry in milliseconds */
+const N8N_RETRY_DELAY_MS = 2_000
+
+// ============================================================================
+// Resilient Fetch Helper
+// ============================================================================
+
+/**
+ * Fetch with an AbortController timeout.
+ * Throws a descriptive error if the request exceeds N8N_TIMEOUT_MS.
+ */
+async function fetchWithTimeout(
+  url: string,
+  init: RequestInit,
+  timeoutMs: number = N8N_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+
+  try {
+    const response = await fetch(url, { ...init, signal: controller.signal })
+    return response
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error(`n8n request timed out after ${timeoutMs / 1000}s — the workflow may be overloaded or unreachable`)
+    }
+    throw error
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
+/**
+ * Sleep helper for retry delay
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+/**
+ * Determine whether an error is transient (worth retrying)
+ */
+function isTransientError(error: unknown): boolean {
+  if (error instanceof Error) {
+    const msg = error.message.toLowerCase()
+    // Network-level failures, timeouts, 502/503/504 gateway errors
+    return (
+      msg.includes('timed out') ||
+      msg.includes('econnrefused') ||
+      msg.includes('econnreset') ||
+      msg.includes('enotfound') ||
+      msg.includes('fetch failed') ||
+      msg.includes('network') ||
+      msg.includes('502') ||
+      msg.includes('503') ||
+      msg.includes('504')
+    )
+  }
+  return false
+}
+
+// ============================================================================
+// Smart Fallback Response Generator
+// ============================================================================
+
+/**
+ * Generate a context-aware fallback response when n8n is unreachable.
+ * Instead of a generic error, give the user actionable next steps.
+ */
+function generateSmartFallback(
+  userMessage: string,
+  errorReason: string,
+  isDiagnostic: boolean = false
+): { response: string; escalated: boolean; metadata: Record<string, unknown> } {
+  const lowerMessage = userMessage.toLowerCase()
+
+  // Determine the best action to suggest based on user intent
+  let contextualSuggestion = ''
+  if (lowerMessage.includes('service') || lowerMessage.includes('help') || lowerMessage.includes('offer')) {
+    contextualSuggestion = 'In the meantime, you can [browse our services](/services) to see how we can help.'
+  } else if (lowerMessage.includes('project') || lowerMessage.includes('portfolio') || lowerMessage.includes('work')) {
+    contextualSuggestion = 'While you wait, feel free to [explore the portfolio](/projects) to see recent work.'
+  } else if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('quote')) {
+    contextualSuggestion = 'For pricing inquiries, the quickest route is the [contact form](/contact) — we usually respond within a few hours.'
+  } else if (lowerMessage.includes('book') || lowerMessage.includes('publication') || lowerMessage.includes('article')) {
+    contextualSuggestion = 'You can [browse publications](/publications) directly while the assistant reconnects.'
+  } else if (isDiagnostic || lowerMessage.includes('audit') || lowerMessage.includes('diagnostic') || lowerMessage.includes('assessment')) {
+    contextualSuggestion = 'To start a business assessment once the service is back, just say "I want to perform an AI audit" in the chat.'
+  } else {
+    contextualSuggestion = 'You can also reach us directly via the [contact form](/contact) for a personal response.'
+  }
+
+  return {
+    response: `I'm temporarily unable to connect to my knowledge base, so I can't give you a full answer right now. ${contextualSuggestion}\n\nPlease try again in a moment — this is usually resolved quickly.`,
+    escalated: false,
+    metadata: {
+      fallback: true,
+      fallbackReason: errorReason,
+      retriable: true,
+    },
+  }
+}
+
+// ============================================================================
 // Mock Mode Configuration
 // ============================================================================
 
@@ -351,145 +464,175 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
   }
 
   if (!N8N_WEBHOOK_URL) {
-    throw new Error('N8N_WEBHOOK_URL environment variable is not configured')
+    console.warn('[n8n] N8N_WEBHOOK_URL not configured — returning smart fallback')
+    return generateSmartFallback(request.message, 'N8N_WEBHOOK_URL not configured', request.diagnosticMode)
   }
 
-  try {
-    const payload: Record<string, unknown> = {
-      action: 'sendMessage',
-      sessionId: request.sessionId,
-      chatInput: request.message,
-    }
+  const payload: Record<string, unknown> = {
+    action: 'sendMessage',
+    sessionId: request.sessionId,
+    chatInput: request.message,
+  }
 
-    // Add source channel info
-    if (request.source) {
-      payload.source = request.source
-    }
+  // Add source channel info
+  if (request.source) payload.source = request.source
+  // Add conversation history for context
+  if (request.history && request.history.length > 0) payload.history = request.history
+  // Add conversation summary for long sessions
+  if (request.conversationSummary) payload.conversationSummary = request.conversationSummary
+  // Add cross-channel flag
+  if (request.hasCrossChannelHistory) payload.hasCrossChannelHistory = true
+  // Add visitor info if provided
+  if (request.visitorEmail) payload.visitorEmail = request.visitorEmail
+  if (request.visitorName) payload.visitorName = request.visitorName
+  // Add diagnostic mode flags if in diagnostic mode
+  if (request.diagnosticMode) {
+    payload.diagnosticMode = true
+    if (request.diagnosticAuditId) payload.diagnosticAuditId = request.diagnosticAuditId
+    if (request.diagnosticProgress) payload.diagnosticProgress = request.diagnosticProgress
+  }
 
-    // Add conversation history for context
-    if (request.history && request.history.length > 0) {
-      payload.history = request.history
-    }
-
-    // Add conversation summary for long sessions
-    if (request.conversationSummary) {
-      payload.conversationSummary = request.conversationSummary
-    }
-
-    // Add cross-channel flag
-    if (request.hasCrossChannelHistory) {
-      payload.hasCrossChannelHistory = true
-    }
-
-    // Add visitor info if provided
-    if (request.visitorEmail) {
-      payload.visitorEmail = request.visitorEmail
-    }
-    if (request.visitorName) {
-      payload.visitorName = request.visitorName
-    }
-
-    // Add diagnostic mode flags if in diagnostic mode
-    if (request.diagnosticMode) {
-      payload.diagnosticMode = true
-      if (request.diagnosticAuditId) {
-        payload.diagnosticAuditId = request.diagnosticAuditId
-      }
-      if (request.diagnosticProgress) {
-        payload.diagnosticProgress = request.diagnosticProgress
-      }
-    }
-
-    const response = await fetch(N8N_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('n8n webhook error:', response.status, errorText)
-      
-      if (response.status === 404) {
-        throw new Error(`n8n workflow not found (404). Please ensure: 1) The workflow is ACTIVE in n8n, 2) The webhook URL is correct`)
-      }
-      throw new Error(`n8n webhook returned ${response.status}: ${errorText}`)
-    }
-
-    // Read body text to check for empty response
-    const bodyText = await response.text()
-
-    // Handle empty response body gracefully
-    // n8n returned 200 but no body — workflow must use "Respond to Webhook" and return JSON. See N8N_RESPONSE_FIX.md.
-    if (bodyText.length === 0) {
-      console.warn(
-        '[n8n] Webhook returned empty response body. Add a "Respond to Webhook" node as the final node and return JSON with a "response" field. See N8N_RESPONSE_FIX.md.'
-      )
-      return {
-        response: "I apologize, but I'm having trouble processing your request right now. Please try again or use the contact form for assistance.",
-        escalated: false,
-        metadata: { emptyResponse: true, fallback: true }
-      }
-    }
-
-    let data: unknown
+  // Attempt the request with retry logic
+  let lastError: Error | null = null
+  for (let attempt = 0; attempt <= N8N_MAX_RETRIES; attempt++) {
     try {
-      data = JSON.parse(bodyText)
-    } catch (parseError) {
-      console.error('Failed to parse n8n response:', bodyText.substring(0, 200))
-      return {
-        response: "I apologize, but I received an unexpected response. Please try again.",
-        escalated: false,
-        metadata: { parseError: true, fallback: true }
+      if (attempt > 0) {
+        console.log(`[n8n] Retry attempt ${attempt}/${N8N_MAX_RETRIES} after ${N8N_RETRY_DELAY_MS}ms`)
+        await sleep(N8N_RETRY_DELAY_MS)
       }
-    }
 
-    // Handle different response formats from n8n
-    let result = Array.isArray(data) ? data[0] : data
+      const response = await fetchWithTimeout(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
 
-    // Handle n8n's { results: [{ result: "..." }] } format
-    if (result?.results && Array.isArray(result.results) && result.results.length > 0) {
-      result = result.results[0]
-    }
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error(`[n8n] Webhook error (attempt ${attempt}):`, response.status, errorText.substring(0, 200))
 
-    // Extract response text - handle cases where response might be a JSON string or object
-    // Also check for 'result' field which is used by n8n's AI Agent node
-    let responseText = result.output || result.response || result.text || result.message || result.result || ''
-    
-    // If response is a string that looks like JSON, try to parse it
-    if (typeof responseText === 'string' && (responseText.trim().startsWith('{') || responseText.trim().startsWith('['))) {
-      try {
-        const parsed = JSON.parse(responseText)
-        if (parsed && typeof parsed === 'object') {
-          // If it's a diagnostic response object, extract the response field
-          if (parsed.response && typeof parsed.response === 'string') {
-            responseText = parsed.response
-          } else if (parsed.currentCategory !== undefined) {
-            // It's a diagnostic object but response might be nested or missing
-            responseText = parsed.response || parsed.text || parsed.message || responseText
-          }
+        // 404 means the workflow URL is wrong or workflow is inactive — not transient
+        if (response.status === 404) {
+          return generateSmartFallback(
+            request.message,
+            'n8n workflow not found (404) — workflow may be inactive',
+            request.diagnosticMode
+          )
         }
+
+        // 500 from n8n usually means a node error (e.g. expired credentials)
+        if (response.status === 500) {
+          lastError = new Error(`n8n workflow error (500): ${errorText.substring(0, 200)}`)
+          // Only retry 500s once — if the workflow has a credential issue it won't self-heal
+          if (attempt >= N8N_MAX_RETRIES) {
+            return generateSmartFallback(
+              request.message,
+              'n8n workflow returned 500 — a node in the workflow may have an error',
+              request.diagnosticMode
+            )
+          }
+          continue
+        }
+
+        // 502/503/504 are gateway/proxy errors — transient, worth retrying
+        if ([502, 503, 504].includes(response.status)) {
+          lastError = new Error(`n8n gateway error (${response.status})`)
+          continue
+        }
+
+        // Other status codes — don't retry
+        return generateSmartFallback(
+          request.message,
+          `n8n returned unexpected status ${response.status}`,
+          request.diagnosticMode
+        )
+      }
+
+      // ── Parse the response body ──
+      const bodyText = await response.text()
+
+      // Handle empty response body
+      if (bodyText.length === 0) {
+        console.warn('[n8n] Webhook returned empty body — workflow may be missing a "Respond to Webhook" node')
+        return {
+          response: "I apologize, but I'm having trouble processing your request right now. Please try again or use the contact form for assistance.",
+          escalated: false,
+          metadata: { emptyResponse: true, fallback: true, retriable: true }
+        }
+      }
+
+      let data: unknown
+      try {
+        data = JSON.parse(bodyText)
       } catch {
-        // Not valid JSON, use as-is
+        console.error('[n8n] Failed to parse response JSON:', bodyText.substring(0, 200))
+        return {
+          response: "I apologize, but I received an unexpected response. Please try again.",
+          escalated: false,
+          metadata: { parseError: true, fallback: true, retriable: true }
+        }
+      }
+
+      // Handle different response formats from n8n
+      let result: Record<string, unknown> = (Array.isArray(data) ? data[0] : data) as Record<string, unknown>
+
+      // Handle n8n's { results: [{ result: "..." }] } format
+      if (result?.results && Array.isArray(result.results) && result.results.length > 0) {
+        result = result.results[0] as Record<string, unknown>
+      }
+
+      // Extract response text — handle cases where response might be a JSON string or object
+      // Also check for 'result' field which is used by n8n's AI Agent node
+      let responseText: unknown = result.output || result.response || result.text || result.message || result.result || ''
+
+      // If response is a string that looks like JSON, try to parse it
+      if (typeof responseText === 'string' && (responseText.trim().startsWith('{') || responseText.trim().startsWith('['))) {
+        try {
+          const parsed = JSON.parse(responseText)
+          if (parsed && typeof parsed === 'object') {
+            if (parsed.response && typeof parsed.response === 'string') {
+              responseText = parsed.response
+            } else if (parsed.currentCategory !== undefined) {
+              responseText = parsed.response || parsed.text || parsed.message || responseText
+            }
+          }
+        } catch {
+          // Not valid JSON, use as-is
+        }
+      }
+      // If response is an object, extract text field
+      else if (typeof responseText === 'object' && responseText !== null) {
+        const obj = responseText as Record<string, unknown>
+        responseText = obj.response || obj.text || obj.message || ''
+      }
+
+      return {
+        response: String(responseText) || 'I apologize, but I could not process your request. Please try again.',
+        escalated: !!(result.escalated || result.escalate),
+        metadata: (result.metadata as Record<string, unknown>) || {},
+      }
+
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error))
+      console.error(`[n8n] sendToN8n error (attempt ${attempt}):`, lastError.message)
+
+      // Only retry transient errors
+      if (!isTransientError(error) || attempt >= N8N_MAX_RETRIES) {
+        break
       }
     }
-    // If response is an object, extract text field
-    else if (typeof responseText === 'object' && responseText !== null) {
-      responseText = responseText.response || responseText.text || responseText.message || ''
-    }
-
-    return {
-      response: responseText || 'I apologize, but I could not process your request. Please try again.',
-      escalated: result.escalated || result.escalate || false,
-      metadata: result.metadata || {},
-    }
-  } catch (error) {
-    console.error('Error communicating with n8n:', error)
-    throw error
   }
+
+  // All attempts exhausted — return smart fallback instead of throwing
+  console.error('[n8n] All attempts failed, returning smart fallback. Last error:', lastError?.message)
+  return generateSmartFallback(
+    request.message,
+    lastError?.message || 'unknown error',
+    request.diagnosticMode
+  )
 }
 
 /**
@@ -513,129 +656,138 @@ export async function sendDiagnosticToN8n(request: DiagnosticAuditRequest): Prom
     throw new Error('N8N_DIAGNOSTIC_WEBHOOK_URL or N8N_WEBHOOK_URL environment variable is not configured')
   }
 
-  try {
-    const payload = {
-      action: 'sendMessage',
-      sessionId: request.sessionId,
-      chatInput: request.message,
-      diagnosticMode: true,
-      diagnosticAuditId: request.diagnosticAuditId,
-      currentCategory: request.currentCategory,
-      progress: request.progress,
-      visitorEmail: request.visitorEmail,
-      visitorName: request.visitorName,
-    }
+  const payload = {
+    action: 'sendMessage',
+    sessionId: request.sessionId,
+    chatInput: request.message,
+    diagnosticMode: true,
+    diagnosticAuditId: request.diagnosticAuditId,
+    currentCategory: request.currentCategory,
+    progress: request.progress,
+    visitorEmail: request.visitorEmail,
+    visitorName: request.visitorName,
+  }
 
-    const response = await fetch(diagnosticWebhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
+  const diagnosticFallback: DiagnosticResponse = {
+    response: "I'm temporarily unable to connect to the diagnostic service. Please try again in a moment, or use the [contact form](/contact) to schedule an assessment with our team directly.",
+    diagnosticData: undefined,
+    currentCategory: request.currentCategory,
+    isComplete: false,
+    nextQuestion: undefined,
+    progress: request.progress,
+    metadata: { fallback: true, retriable: true },
+  }
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('n8n diagnostic webhook error:', response.status, errorText)
-      
-      if (response.status === 404) {
-        throw new Error(`n8n diagnostic workflow not found (404). Please ensure: 1) The workflow is ACTIVE in n8n, 2) The webhook URL is correct`)
-      }
-      
-      if (response.status === 500) {
-        throw new Error(`n8n diagnostic workflow error (500): ${errorText}. The workflow may not have a diagnostic branch configured. Please check: 1) Add an IF node after webhook to detect diagnosticMode: true, 2) Create diagnostic workflow branch, 3) Ensure workflow is ACTIVE. See N8N_DIAGNOSTIC_SETUP.md for details.`)
-      }
-      
-      throw new Error(`n8n diagnostic webhook returned ${response.status}: ${errorText}`)
-    }
-
-    // Read body text first to check for empty response
-    const bodyText = await response.text()
-    
-    // Handle empty response body gracefully
-    if (bodyText.length === 0) {
-      console.warn('n8n diagnostic webhook returned empty response - check workflow configuration')
-      return {
-        response: "I apologize, but I'm having trouble processing your diagnostic request right now. Please try again.",
-        diagnosticData: undefined,
-        currentCategory: undefined,
-        isComplete: false,
-        nextQuestion: undefined,
-        progress: undefined,
-        metadata: { emptyResponse: true, fallback: true }
-      }
-    }
-
-    let data: unknown
+  let lastError: Error | null = null
+  for (let attempt = 0; attempt <= N8N_MAX_RETRIES; attempt++) {
     try {
-      data = JSON.parse(bodyText)
-    } catch (parseError) {
-      console.error('Failed to parse n8n diagnostic response:', bodyText.substring(0, 200))
-      return {
-        response: "I apologize, but I received an unexpected response. Please try again.",
-        diagnosticData: undefined,
-        currentCategory: undefined,
-        isComplete: false,
-        nextQuestion: undefined,
-        progress: undefined,
-        metadata: { parseError: true, fallback: true }
+      if (attempt > 0) {
+        console.log(`[n8n] Diagnostic retry attempt ${attempt}/${N8N_MAX_RETRIES}`)
+        await sleep(N8N_RETRY_DELAY_MS)
       }
-    }
 
-    const result = Array.isArray(data) ? data[0] : data
+      const response = await fetchWithTimeout(diagnosticWebhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
 
-    // Extract response text - handle multiple response formats from n8n
-    let responseText = ''
-    
-    // Case 1: Result itself is the diagnostic object (response, currentCategory, etc. at top level)
-    if (result.response && typeof result.response === 'string' && (result.currentCategory || result.diagnosticData !== undefined)) {
-      // This is the expected format - response is a string, other fields are separate
-      responseText = result.response
-    }
-    // Case 2: Response field is a JSON string containing the full object
-    else if (typeof result.response === 'string') {
-      try {
-        const parsed = JSON.parse(result.response)
-        if (parsed && typeof parsed === 'object' && parsed.response) {
-          // It's a JSON string with nested response field
-          responseText = parsed.response
-        } else {
-          // It's a JSON string but not the expected format, use as-is
-          responseText = result.response
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error(`[n8n] Diagnostic webhook error (attempt ${attempt}):`, response.status, errorText.substring(0, 200))
+
+        // Non-transient errors — return fallback immediately
+        if (response.status === 404 || response.status === 500) {
+          return { ...diagnosticFallback, metadata: { ...diagnosticFallback.metadata, errorStatus: response.status } }
         }
+
+        // Transient — retry
+        if ([502, 503, 504].includes(response.status)) {
+          lastError = new Error(`Diagnostic gateway error (${response.status})`)
+          continue
+        }
+
+        return diagnosticFallback
+      }
+
+      // ── Parse response body ──
+      const bodyText = await response.text()
+
+      if (bodyText.length === 0) {
+        console.warn('[n8n] Diagnostic webhook returned empty body')
+        return { ...diagnosticFallback, metadata: { ...diagnosticFallback.metadata, emptyResponse: true } }
+      }
+
+      let data: unknown
+      try {
+        data = JSON.parse(bodyText)
       } catch {
-        // Not JSON, use as-is
+        console.error('[n8n] Failed to parse diagnostic response:', bodyText.substring(0, 200))
+        return { ...diagnosticFallback, metadata: { ...diagnosticFallback.metadata, parseError: true } }
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result: any = Array.isArray(data) ? data[0] : data
+
+      // Extract response text - handle multiple response formats from n8n
+      let responseText = ''
+
+      // Case 1: Result itself is the diagnostic object (response, currentCategory, etc. at top level)
+      if (result.response && typeof result.response === 'string' && (result.currentCategory || result.diagnosticData !== undefined)) {
         responseText = result.response
       }
-    }
-    // Case 3: Response field is an object
-    else if (result.response && typeof result.response === 'object') {
-      responseText = result.response.response || result.response.text || result.response.message || ''
-    }
-    // Case 4: Result itself might be the response object (no nested response field)
-    else if (result.response === undefined && result.currentCategory !== undefined) {
-      // This shouldn't happen, but handle it
-      responseText = result.text || result.message || result.output || ''
-    }
-    // Case 5: Fallback to other fields
-    else {
-      responseText = result.response || result.output || result.text || result.message || ''
-    }
+      // Case 2: Response field is a JSON string containing the full object
+      else if (typeof result.response === 'string') {
+        try {
+          const parsed = JSON.parse(result.response)
+          if (parsed && typeof parsed === 'object' && parsed.response) {
+            responseText = parsed.response
+          } else {
+            responseText = result.response
+          }
+        } catch {
+          responseText = result.response
+        }
+      }
+      // Case 3: Response field is an object
+      else if (result.response && typeof result.response === 'object') {
+        responseText = result.response.response || result.response.text || result.response.message || ''
+      }
+      // Case 4: Result itself might be the response object (no nested response field)
+      else if (result.response === undefined && result.currentCategory !== undefined) {
+        responseText = result.text || result.message || result.output || ''
+      }
+      // Case 5: Fallback to other fields
+      else {
+        responseText = result.response || result.output || result.text || result.message || ''
+      }
 
-    return {
-      response: responseText,
-      diagnosticData: result.diagnosticData || (typeof result.response === 'object' ? result.response.diagnosticData : undefined),
-      currentCategory: result.currentCategory || (typeof result.response === 'object' ? result.response.currentCategory : undefined),
-      isComplete: result.isComplete || (typeof result.response === 'object' ? result.response.isComplete : false) || false,
-      nextQuestion: result.nextQuestion,
-      progress: result.progress,
-      metadata: result.metadata || {},
+      return {
+        response: responseText || diagnosticFallback.response,
+        diagnosticData: result.diagnosticData || (typeof result.response === 'object' ? result.response.diagnosticData : undefined),
+        currentCategory: result.currentCategory || (typeof result.response === 'object' ? result.response.currentCategory : undefined),
+        isComplete: result.isComplete || (typeof result.response === 'object' ? result.response.isComplete : false) || false,
+        nextQuestion: result.nextQuestion,
+        progress: result.progress,
+        metadata: result.metadata || {},
+      }
+
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error))
+      console.error(`[n8n] Diagnostic error (attempt ${attempt}):`, lastError.message)
+
+      if (!isTransientError(error) || attempt >= N8N_MAX_RETRIES) {
+        break
+      }
     }
-  } catch (error) {
-    console.error('Error communicating with n8n diagnostic workflow:', error)
-    throw error
   }
+
+  // All attempts exhausted — return fallback instead of throwing
+  console.error('[n8n] All diagnostic attempts failed. Last error:', lastError?.message)
+  return diagnosticFallback
 }
 
 /**

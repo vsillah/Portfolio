@@ -3,7 +3,8 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ShoppingBag, Loader } from 'lucide-react'
+import { ShoppingBag, Loader, HelpCircle } from 'lucide-react'
+import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
 import DownloadManager from '@/components/DownloadManager'
@@ -194,7 +195,12 @@ function PurchasesContent() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <h1 className="text-4xl font-bold mb-8">My Purchases</h1>
+          <div className="flex items-center justify-between mb-8">
+            <h1 className="text-4xl font-bold">My Purchases</h1>
+            <Link href="/help" className="text-gray-400 hover:text-white transition-colors" aria-label="Help">
+              <HelpCircle size={20} />
+            </Link>
+          </div>
 
           {orders.length === 0 ? (
             <div className="text-center py-12">

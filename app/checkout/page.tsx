@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Lock } from 'lucide-react'
+import { ArrowLeft, Lock, HelpCircle } from 'lucide-react'
+import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { getCart, clearCart, saveCart, updateCartItemQuantity, updateServiceQuantity, removeFromCart, removeServiceFromCart, isServiceItem, type CartItem } from '@/lib/cart'
 import ContactForm from '@/components/checkout/ContactForm'
@@ -387,13 +388,18 @@ export default function CheckoutPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <button
-            onClick={() => router.push('/store')}
-            className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
-          >
-            <ArrowLeft size={20} />
-            Back to Store
-          </button>
+          <div className="flex items-center justify-between mb-4">
+            <button
+              onClick={() => router.push('/store')}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft size={20} />
+              Back to Store
+            </button>
+            <Link href="/help" className="text-gray-400 hover:text-white transition-colors" aria-label="Help">
+              <HelpCircle size={20} />
+            </Link>
+          </div>
           <h1 className="text-4xl font-bold mb-2">Checkout</h1>
           <p className="text-gray-400">Review your order and complete your purchase</p>
         </motion.div>

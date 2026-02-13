@@ -140,9 +140,14 @@ export async function POST(request: NextRequest) {
     // Track timing for latency measurement
     const requestStartTime = Date.now()
 
-    // Fetch conversation history for context injection
-    const context = await fetchConversationContext(sessionId, 20)
-    
+    // Fetch conversation history for context injection (non-fatal if it fails)
+    let context: Awaited<ReturnType<typeof fetchConversationContext>> = null
+    try {
+      context = await fetchConversationContext(sessionId, 20)
+    } catch (ctxErr) {
+      console.warn('Context fetch failed (non-fatal):', ctxErr instanceof Error ? ctxErr.message : ctxErr)
+    }
+
     // Format history for N8N
     const history: ChatMessage[] = context?.history.map(msg => ({
       role: msg.role,
@@ -154,123 +159,84 @@ export async function POST(request: NextRequest) {
     // Detect if this is a cross-channel conversation
     const hasCrossChannelHistory = context?.sessionInfo.hasTextMessages && context?.sessionInfo.hasVoiceMessages
 
-    // Send to n8n - use diagnostic workflow if in diagnostic mode
+    // ── Send to n8n (all paths now return fallback responses instead of throwing) ──
     let n8nResponse
     let diagnosticResponse = null
     let diagnosticComplete = false
     let currentCategory: DiagnosticCategory | undefined = undefined
 
     if (isDiagnosticMode && diagnosticAuditId) {
-      // Use diagnostic-specific n8n workflow
-      try {
-        diagnosticResponse = await sendDiagnosticToN8n({
-          sessionId,
+      // Diagnostic mode — sendDiagnosticToN8n already handles retries + fallback internally
+      diagnosticResponse = await sendDiagnosticToN8n({
+        sessionId,
+        diagnosticAuditId,
+        message: message.trim(),
+        currentCategory: currentDiagnosticProgress?.currentCategory,
+        progress: currentDiagnosticProgress || undefined,
+        visitorEmail,
+        visitorName,
+      })
+
+      // Update diagnostic progress
+      if (diagnosticResponse.progress) {
+        currentDiagnosticProgress = diagnosticResponse.progress
+      }
+      if (diagnosticResponse.currentCategory) {
+        currentCategory = diagnosticResponse.currentCategory
+      }
+      if (diagnosticResponse.isComplete) {
+        diagnosticComplete = true
+      }
+
+      // Save diagnostic data incrementally (only if we got real data, not a fallback)
+      if (diagnosticResponse.diagnosticData && diagnosticAuditId && !diagnosticResponse.metadata?.fallback) {
+        await saveDiagnosticAudit(sessionId, {
           diagnosticAuditId,
-          message: message.trim(),
-          currentCategory: currentDiagnosticProgress?.currentCategory,
-          progress: currentDiagnosticProgress || undefined,
-          visitorEmail,
-          visitorName,
+          currentCategory: diagnosticResponse.currentCategory,
+          progress: diagnosticResponse.progress,
+          diagnosticData: diagnosticResponse.diagnosticData,
+          status: diagnosticResponse.isComplete ? 'completed' : 'in_progress',
         })
+      }
 
-        // Update diagnostic progress
-        if (diagnosticResponse.progress) {
-          currentDiagnosticProgress = diagnosticResponse.progress
-        }
-        if (diagnosticResponse.currentCategory) {
-          currentCategory = diagnosticResponse.currentCategory
-        }
-        if (diagnosticResponse.isComplete) {
-          diagnosticComplete = true
-        }
+      // Handle diagnostic completion (only if not a fallback response)
+      if (diagnosticComplete && diagnosticAuditId && diagnosticResponse.diagnosticData && !diagnosticResponse.metadata?.fallback) {
+        if (visitorEmail) {
+          const { data: contactSubmissions } = await supabaseAdmin
+            .from('contact_submissions')
+            .select('id')
+            .eq('email', visitorEmail.toLowerCase())
+            .order('created_at', { ascending: false })
+            .limit(1)
 
-        // Save diagnostic data incrementally
-        if (diagnosticResponse.diagnosticData && diagnosticAuditId) {
-          await saveDiagnosticAudit(sessionId, {
-            diagnosticAuditId,
-            currentCategory: diagnosticResponse.currentCategory,
-            progress: diagnosticResponse.progress,
-            diagnosticData: diagnosticResponse.diagnosticData,
-            status: diagnosticResponse.isComplete ? 'completed' : 'in_progress',
-          })
-        }
+          if (contactSubmissions && contactSubmissions.length > 0) {
+            await linkDiagnosticToContact(diagnosticAuditId, contactSubmissions[0].id)
 
-        // Handle diagnostic completion
-        if (diagnosticComplete && diagnosticAuditId && diagnosticResponse.diagnosticData) {
-          // Link to contact submission if email provided
-          if (visitorEmail) {
-            // Find or create contact submission
-            const { data: contactSubmissions } = await supabaseAdmin
-              .from('contact_submissions')
-              .select('id')
-              .eq('email', visitorEmail.toLowerCase())
-              .order('created_at', { ascending: false })
-              .limit(1)
-
-            if (contactSubmissions && contactSubmissions.length > 0) {
-              await linkDiagnosticToContact(diagnosticAuditId, contactSubmissions[0].id)
-              
-              // Trigger lead qualification with diagnostic insights
-              triggerLeadQualificationWebhook({
-                name: visitorName || 'Unknown',
-                email: visitorEmail,
-                message: `Diagnostic completed. ${diagnosticResponse.diagnosticData.diagnostic_summary || 'See diagnostic audit for details.'}`,
-                submissionId: contactSubmissions[0].id.toString(),
-                submittedAt: new Date().toISOString(),
-                source: 'chat_diagnostic',
-              }).catch(err => console.error('Lead qualification webhook failed:', err))
-            }
+            triggerLeadQualificationWebhook({
+              name: visitorName || 'Unknown',
+              email: visitorEmail,
+              message: `Diagnostic completed. ${diagnosticResponse.diagnosticData.diagnostic_summary || 'See diagnostic audit for details.'}`,
+              submissionId: contactSubmissions[0].id.toString(),
+              submittedAt: new Date().toISOString(),
+              source: 'chat_diagnostic',
+            }).catch(err => console.error('Lead qualification webhook failed:', err))
           }
-
-          // Trigger diagnostic completion webhook for sales enablement
-          triggerDiagnosticCompletionWebhook(
-            diagnosticAuditId,
-            diagnosticResponse.diagnosticData as any,
-            { email: visitorEmail, name: visitorName }
-          ).catch(err => console.error('Diagnostic completion webhook failed:', err))
         }
 
-        n8nResponse = {
-          response: diagnosticResponse.response,
-          escalated: false,
-          metadata: diagnosticResponse.metadata || {},
-        }
-      } catch (error) {
-        console.error('Diagnostic n8n error, trying regular workflow with diagnostic flags:', error)
-        // Fall back to regular workflow but with diagnostic mode flags
-        // This allows the workflow to detect diagnosticMode if it has the IF node configured
-        try {
-          n8nResponse = await sendToN8n({
-            message: message.trim(),
-            sessionId,
-            visitorEmail,
-            visitorName,
-            diagnosticMode: true,
-            diagnosticAuditId: diagnosticAuditId || undefined,
-            diagnosticProgress: currentDiagnosticProgress || undefined,
-            source: 'text',
-            history,
-            conversationSummary: context?.summary,
-            hasCrossChannelHistory,
-          })
-        } catch (fallbackError) {
-          // If even the fallback fails, use regular chat as last resort
-          console.error('Fallback also failed, using regular chat:', fallbackError)
-          n8nResponse = await sendToN8n({
-            message: message.trim(),
-            sessionId,
-            visitorEmail,
-            visitorName,
-            diagnosticMode: false,
-            source: 'text',
-            history,
-            conversationSummary: context?.summary,
-            hasCrossChannelHistory,
-          })
-        }
+        triggerDiagnosticCompletionWebhook(
+          diagnosticAuditId,
+          diagnosticResponse.diagnosticData as any,
+          { email: visitorEmail, name: visitorName }
+        ).catch(err => console.error('Diagnostic completion webhook failed:', err))
+      }
+
+      n8nResponse = {
+        response: diagnosticResponse.response,
+        escalated: false,
+        metadata: diagnosticResponse.metadata || {},
       }
     } else {
-      // Regular chat mode
+      // Regular chat mode — sendToN8n handles retries + fallback internally
       n8nResponse = await sendToN8n({
         message: message.trim(),
         sessionId,
@@ -298,15 +264,11 @@ export async function POST(request: NextRequest) {
           source: 'text',
           channel: 'text',
           hasCrossChannelHistory,
-          // Timing metrics
           latency_ms: responseLatencyMs,
           timestamp: new Date().toISOString(),
-          // N8N response metadata
           ...n8nResponse.metadata,
-          // Diagnostic context
           diagnosticMode: isDiagnosticMode,
           diagnosticAuditId: diagnosticAuditId || undefined,
-          // Escalation tracking
           escalated: n8nResponse.escalated || false,
         },
       })
@@ -327,12 +289,10 @@ export async function POST(request: NextRequest) {
     let finalResponse: string = n8nResponse.response
     const responseValue = n8nResponse.response as unknown
     if (typeof responseValue === 'object' && responseValue !== null) {
-      // If response is an object, extract the text field or stringify
       const responseObj = responseValue as Record<string, unknown>
       finalResponse = String(responseObj.response || responseObj.text || responseObj.message || JSON.stringify(responseValue))
     } else if (typeof responseValue === 'string') {
       finalResponse = responseValue
-      // Try to parse if it's a JSON string
       try {
         const parsed = JSON.parse(responseValue)
         if (parsed && typeof parsed === 'object' && parsed.response) {
@@ -357,24 +317,11 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Chat API error:', error)
 
-    // Return a friendly error message
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    
-    // Check if it's an n8n configuration error
-    if (errorMessage.includes('N8N_WEBHOOK_URL')) {
-      return NextResponse.json(
-        { 
-          error: 'Chat service is not configured. Please try the contact form instead.',
-          fallback: true 
-        },
-        { status: 503 }
-      )
-    }
-
     return NextResponse.json(
-      { 
+      {
         error: 'Unable to process your message. Please try again or use the contact form.',
-        fallback: true
+        fallback: true,
+        retriable: true,
       },
       { status: 500 }
     )

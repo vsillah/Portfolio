@@ -39,6 +39,9 @@ const CRITICAL_TABLES = [
   'client_projects',
 ]
 
+// Tables that may not exist yet (app returns empty when missing). Still checked, but missing is not warned/fatal.
+const OPTIONAL_TABLES = new Set(['projects', 'music', 'videos'])
+
 interface TableCount {
   table_name: string
   row_count: number
@@ -63,7 +66,9 @@ async function getTableCounts(): Promise<TableCount[]> {
         .select('*', { count: 'exact', head: true })
 
       if (error) {
-        console.warn(`⚠️  Table '${table}' not found or inaccessible`)
+        if (!OPTIONAL_TABLES.has(table)) {
+          console.warn(`⚠️  Table '${table}' not found or inaccessible`)
+        }
         counts.push({
           table_name: table,
           row_count: -1, // -1 indicates table doesn't exist
@@ -124,8 +129,8 @@ function compareWithBaseline(
       continue // New table, not an issue
     }
 
-    // Table disappeared
-    if (currentTable.row_count === -1 && baselineTable.row_count >= 0) {
+    // Table disappeared (skip for optional tables that may not exist yet)
+    if (currentTable.row_count === -1 && baselineTable.row_count >= 0 && !OPTIONAL_TABLES.has(currentTable.table_name)) {
       issues.push(
         `🚨 CRITICAL: Table '${currentTable.table_name}' no longer exists! (had ${baselineTable.row_count} rows)`
       )

@@ -1,0 +1,49 @@
+---
+description: Update the user help guide after builds that change user-facing functionality
+alwaysApply: true
+---
+
+# User Help Guide — Update After Build
+
+After a successful build that introduces or modifies **user-facing functionality**, review and update the user help guide:
+
+**Help doc location:** `docs/user-help-guide.md`
+**Help page route:** `/help`
+
+## When to update
+
+Update the help doc when the build includes any of the following:
+
+- **New user-facing pages or routes** (store, services, checkout, proposals, onboarding, etc.).
+- **New or changed navigation entries** or user flows (menu items, links, breadcrumbs).
+- **Changes to cart, checkout, payment, or order lifecycle** (new steps, changed flows, new payment methods).
+- **New product or service types** or changes to filter/search options.
+- **Changes to account features** (login, signup, user menu items, OAuth providers).
+- **New lead magnet types or download flows**.
+- **Changes to proposal or onboarding structure** (new sections, changed statuses, new actions).
+- **New or changed discount/referral/sharing features**.
+
+## What to update
+
+1. **Relevant section** — Add or revise the section describing the changed feature.
+2. **Table of Contents** — Add new section links if a new section was created.
+3. **FAQ / Troubleshooting** — Add entries if the change introduces new edge cases or common questions.
+4. **Tables** — Update any feature/type tables (product types, service types, proposal statuses, etc.) if values changed.
+
+## How to update
+
+- Keep the existing section structure and numbering intact.
+- Add new content inline where it fits; do not reorganize unless the user asks.
+- Use the same formatting conventions (tables, blockquotes, bold field names).
+
+## What NOT to update
+
+- Internal refactors, admin-only changes, style-only tweaks, or test-only changes with no user-facing impact.
+- Do not remove existing content unless it describes behavior that has been explicitly replaced or removed.
+
+## Verification
+
+After updating, confirm:
+- The help doc still renders correctly via `/help`.
+- New routes or features mentioned in the doc match the actual codebase.
+- Links within the doc (anchor links, etc.) are valid.

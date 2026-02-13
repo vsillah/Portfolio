@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, User, LogOut, Shield, Download } from 'lucide-react'
+import { Menu, X, User, LogOut, Shield, Download, HelpCircle } from 'lucide-react'
 import Link from 'next/link'
 import { analytics } from '@/lib/analytics'
 import { useAuth } from '@/components/AuthProvider'
 import { signOut } from '@/lib/auth'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -19,6 +19,7 @@ const navItems = [
   { name: 'Videos', href: '#videos' },
   { name: 'Merchandise', href: '#merchandise' },
   { name: 'Store', href: '/store' },
+  { name: 'Pricing', href: '/pricing' },
   { name: 'About', href: '#about' },
   { name: 'Contact', href: '#contact' },
 ]
@@ -29,6 +30,8 @@ export default function Navigation() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const { user, isAdmin } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
+  const isHomePage = pathname === '/'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -75,7 +78,7 @@ export default function Navigation() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <motion.a
-            href="#home"
+            href={isHomePage ? "#home" : "/"}
             className="flex items-center"
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
@@ -195,6 +198,15 @@ export default function Navigation() {
               </motion.a>
             )}
 
+            {/* Help Link */}
+            <Link
+              href="/help"
+              className="flex items-center justify-center w-11 h-11 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 text-platinum-white hover:text-radiant-gold transition-all duration-300"
+              aria-label="Help"
+            >
+              <HelpCircle size={18} />
+            </Link>
+
             {/* Hamburger Menu Button */}
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -249,9 +261,14 @@ export default function Navigation() {
               {/* Navigation Links Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 {navItems.map((item, index) => {
-                  const isRoutePath = item.href.startsWith('/')
+                  let href = item.href
+                  if (!isHomePage && href.startsWith('#')) {
+                    href = '/' + href
+                  }
+                  
+                  const isRoutePath = href.startsWith('/')
                   const handleNavClick = () => {
-                    analytics.navClick(item.href)
+                    analytics.navClick(href)
                     setIsMenuOpen(false)
                   }
                   const linkClassName = "group relative block px-4 py-3 rounded-xl text-platinum-white/70 hover:text-radiant-gold hover:bg-radiant-gold/5 transition-all duration-300"
@@ -271,7 +288,7 @@ export default function Navigation() {
                     >
                       {isRoutePath ? (
                         <Link
-                          href={item.href}
+                          href={href}
                           onClick={handleNavClick}
                           className={linkClassName}
                         >
@@ -279,7 +296,7 @@ export default function Navigation() {
                         </Link>
                       ) : (
                         <a
-                          href={item.href}
+                          href={href}
                           onClick={handleNavClick}
                           className={linkClassName}
                         >

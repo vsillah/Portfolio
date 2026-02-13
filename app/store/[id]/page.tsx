@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ShoppingCart, ArrowLeft, Package, Info } from 'lucide-react'
+import { ShoppingCart, ArrowLeft, Package, Info, HelpCircle } from 'lucide-react'
 import VariantSelector, { ProductVariant } from '@/components/VariantSelector'
 import MockupViewer from '@/components/MockupViewer'
 import { addToCart, getCartCount } from '@/lib/cart'
+import Link from 'next/link'
 
 interface Product {
   id: number
@@ -143,6 +144,10 @@ export default function ProductDetailPage() {
             Back to Store
           </button>
 
+          <div className="flex items-center gap-3">
+          <Link href="/help" className="text-gray-400 hover:text-white transition-colors" aria-label="Help">
+            <HelpCircle size={20} />
+          </Link>
           {/* Cart Button */}
           <motion.button
             onClick={() => router.push('/checkout')}
@@ -165,6 +170,7 @@ export default function ProductDetailPage() {
               )}
             </AnimatePresence>
           </motion.button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">

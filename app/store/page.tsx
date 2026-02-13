@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useMemo, useRef, useCallback, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, ShoppingCart, ArrowLeft, AlertCircle } from 'lucide-react'
+import { Search, Filter, ShoppingCart, ArrowLeft, AlertCircle, HelpCircle } from 'lucide-react'
 import ProductCard from '@/components/ProductCard'
 import ServiceCard from '@/components/ServiceCard'
 import { useAuth } from '@/components/AuthProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { addToCart, addServiceToCart, getCartCount } from '@/lib/cart'
+import Link from 'next/link'
 import type { Product, Service } from '@/lib/types/store'
 
 type ItemCategory = 'all' | 'products' | 'services'
@@ -263,6 +264,10 @@ function StoreContent() {
               <h1 className="text-4xl font-bold mb-2">Store</h1>
               <p className="text-gray-400">Browse our collection of products, merchandise, and services</p>
             </div>
+            <div className="flex items-center gap-3">
+              <Link href="/help" className="text-gray-400 hover:text-white transition-colors" aria-label="Help">
+                <HelpCircle size={20} />
+              </Link>
             {cartCount > 0 && (
               <motion.button
                 onClick={handleViewCart}
@@ -281,6 +286,7 @@ function StoreContent() {
                 )}
               </motion.button>
             )}
+            </div>
           </div>
 
           {/* Error Banner */}

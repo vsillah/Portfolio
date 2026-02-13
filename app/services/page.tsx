@@ -2,11 +2,12 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, ShoppingCart, ArrowLeft, Users, Video, MapPin, Building } from 'lucide-react'
+import { Search, Filter, ShoppingCart, ArrowLeft, Users, Video, MapPin, Building, HelpCircle } from 'lucide-react'
 import ServiceCard from '@/components/ServiceCard'
 import { useAuth } from '@/components/AuthProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { addServiceToCart, getCart } from '@/lib/cart'
+import Link from 'next/link'
 
 interface Service {
   id: string
@@ -209,6 +210,10 @@ function ServicesContent() {
               </h1>
               <p className="text-gray-400">Training, consulting, coaching, and speaking engagements</p>
             </div>
+            <div className="flex items-center gap-3">
+              <Link href="/help" className="text-gray-400 hover:text-white transition-colors" aria-label="Help">
+                <HelpCircle size={20} />
+              </Link>
             {cartCount > 0 && (
               <motion.button
                 onClick={handleViewCart}
@@ -227,6 +232,7 @@ function ServicesContent() {
                 )}
               </motion.button>
             )}
+            </div>
           </div>
 
           {/* Search and Filters */}

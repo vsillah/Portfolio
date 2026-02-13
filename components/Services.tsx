@@ -200,12 +200,19 @@ export default function Services() {
         </div>
 
         {/* View All */}
-        <div className="text-center mt-20">
+        <div className="text-center mt-20 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/services"
             className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-cyan-400 transition-colors pb-2 border-b border-platinum-white/10"
           >
             <span>View All Services</span>
+            <ArrowRight size={14} />
+          </Link>
+          <Link
+            href="/pricing"
+            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-cyan-400 transition-colors pb-2 border-b border-platinum-white/10"
+          >
+            <span>See Pricing &amp; Packages</span>
             <ArrowRight size={14} />
           </Link>
         </div>

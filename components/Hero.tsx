@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { ArrowRight, ArrowDown, Sparkles, Brain, Rocket, Music } from 'lucide-react'
 import { useRef } from 'react'
+import Link from 'next/link'
 import { MagneticButton } from './ui/MagneticButton'
 
 const FloatingCard = ({ children, delay = 0, x = 0, y = 0, className = "" }: any) => (
@@ -214,6 +215,13 @@ export default function Hero() {
               </div>
             </a>
           </MagneticButton>
+          
+          <Link
+            href="/pricing"
+            className="text-platinum-white/80 hover:text-platinum-white text-xs font-heading tracking-widest transition-colors border-b border-platinum-white/20 pb-1"
+          >
+            VIEW PRICING
+          </Link>
           
           <a
             href="#projects"
