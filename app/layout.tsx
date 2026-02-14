@@ -35,8 +35,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${orbitron.variable} ${inter.variable} ${cormorant.variable}`}>
-      <body className="font-body selection:bg-radiant-gold/30 selection:text-white">
+    <html lang="en" className={`${orbitron.variable} ${inter.variable} ${cormorant.variable} relative`}>
+      <body className="font-body selection:bg-radiant-gold/30 selection:text-white relative">
         <AuthProvider>{children}</AuthProvider>
         <SpeedInsights />
       </body>

@@ -48,6 +48,7 @@ interface DiagnosticData {
   opportunity_score?: number;
   key_insights?: string[];
   sales_notes?: string;
+  org_type?: 'for_profit' | 'nonprofit' | 'education';
 }
 
 interface GenerateStepRequest {
@@ -374,37 +375,64 @@ function generateStep(context: GenerateStepRequest & { valueEvidenceSummary?: st
       }
       break;
 
-    case 'pricing':
-      title = 'Present Pricing Options';
-      objective = 'Frame the investment in context of value and ROI';
+    case 'pricing': {
+      const isNonprofitOrg = audit?.org_type === 'nonprofit' || audit?.org_type === 'education';
+      title = isNonprofitOrg ? 'Present Community Impact Options' : 'Present Pricing Options';
+      objective = isNonprofitOrg
+        ? 'Present budget-friendly Community Impact tiers while showing the premium upgrade path'
+        : 'Frame the investment in context of value and ROI';
       productsToPresent = [
         ...coreProducts.slice(0, 1).map(p => p.id),
         ...decoyProducts.slice(0, 1).map(p => p.id),
       ];
       const corePrice = coreProducts[0]?.offer_price || coreProducts[0]?.price || 0;
-      talkingPoints = [
-        `"Let's talk about the investment. You have a few options..."`,
-        decoyProducts.length > 0 
-          ? `"Option 1: ${decoyProducts[0].title} at $${decoyProducts[0].price} - this gives you [basic features]."` 
-          : '',
-        coreProducts.length > 0 
-          ? `"Option 2 (recommended): ${coreProducts[0].title} at $${corePrice} - this includes everything we discussed plus all the bonuses."` 
-          : '',
-        impact 
-          ? `"Remember, you mentioned this problem is costing you ${impact.toLowerCase()}. This investment pays for itself when we solve that."` 
-          : (valueEvidenceSummary ? `"Based on the value we've identified for your situation, this investment pays for itself when we address those areas."` : `"This investment typically pays for itself within 90 days."`),
-        budgetRange 
-          ? `"You mentioned a budget of ${budgetRange}. This fits right in that range, and here's how we can structure it..."` 
-          : '',
-      ].filter(Boolean);
-      if (valueEvidenceSummary) talkingPoints.push(`[Use evidence-based retail/perceived value for this contact when stating "value" or "worth"].`);
-      suggestedActions = [
-        'Present 2-3 options with clear differentiation',
-        'Highlight the recommended option',
-        'Connect price to the cost of not solving their problem',
-      ];
-      if (valueEvidenceSummary) suggestedActions.push('Price using evidence-based retail and perceived value for this contact');
+
+      if (isNonprofitOrg) {
+        // Auto-present CI tiers for nonprofit/education orgs
+        talkingPoints = [
+          `"We have a Community Impact program specifically designed for organizations like yours."`,
+          `"These packages deliver the same outcomes as our full-service tiers, with self-paced and template-based delivery to keep costs accessible."`,
+          decoyProducts.length > 0
+            ? `"Let me walk you through the options: starting at $${decoyProducts[0].price} for ${decoyProducts[0].title}."`
+            : `"Let me walk you through the Community Impact options and help you find the right fit."`,
+          `"The main difference from our premium tiers is delivery method — self-paced instead of live, templates instead of custom builds, and community support instead of dedicated 1-on-1."`,
+          `"I also want you to know about our full-service options in case your budget allows or you secure additional funding."`,
+          budgetRange
+            ? `"You mentioned a budget of ${budgetRange}. Let me find the best fit within that range."`
+            : '',
+        ].filter(Boolean);
+        suggestedActions = [
+          'Present CI Starter, CI Accelerator, and CI Growth side by side',
+          'Show side-by-side comparison of CI vs premium tiers',
+          'Ask about budget range and decision timeline',
+          'Mention grant funding or professional development budgets as potential funding sources',
+        ];
+      } else {
+        talkingPoints = [
+          `"Let's talk about the investment. You have a few options..."`,
+          decoyProducts.length > 0 
+            ? `"Option 1: ${decoyProducts[0].title} at $${decoyProducts[0].price} - this gives you [basic features]."` 
+            : '',
+          coreProducts.length > 0 
+            ? `"Option 2 (recommended): ${coreProducts[0].title} at $${corePrice} - this includes everything we discussed plus all the bonuses."` 
+            : '',
+          impact 
+            ? `"Remember, you mentioned this problem is costing you ${impact.toLowerCase()}. This investment pays for itself when we solve that."` 
+            : (valueEvidenceSummary ? `"Based on the value we've identified for your situation, this investment pays for itself when we address those areas."` : `"This investment typically pays for itself within 90 days."`),
+          budgetRange 
+            ? `"You mentioned a budget of ${budgetRange}. This fits right in that range, and here's how we can structure it..."` 
+            : '',
+        ].filter(Boolean);
+        if (valueEvidenceSummary) talkingPoints.push(`[Use evidence-based retail/perceived value for this contact when stating "value" or "worth"].`);
+        suggestedActions = [
+          'Present 2-3 options with clear differentiation',
+          'Highlight the recommended option',
+          'Connect price to the cost of not solving their problem',
+        ];
+        if (valueEvidenceSummary) suggestedActions.push('Price using evidence-based retail and perceived value for this contact');
+      }
       break;
+    }
 
     case 'close':
       title = 'Ask for the Decision';

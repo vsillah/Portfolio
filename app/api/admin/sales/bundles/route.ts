@@ -85,6 +85,18 @@ export async function GET(request: NextRequest) {
     
     const parentNameMap = new Map(parents?.map((p: { id: string; name: string }) => [p.id, p.name]) || []);
 
+    // Fetch base bundle names for bundles that build on another
+    const baseBundleIds = [...new Set(
+      (bundles || []).map((b: { base_bundle_id?: string }) => b.base_bundle_id).filter(Boolean)
+    )] as string[];
+    const { data: baseBundles } = baseBundleIds.length > 0
+      ? await supabaseAdmin
+          .from('offer_bundles')
+          .select('id, name')
+          .in('id', baseBundleIds)
+      : { data: [] };
+    const baseBundleNameMap = new Map(baseBundles?.map((b: { id: string; name: string }) => [b.id, b.name]) || []);
+
     // Collect all unique content items for preview resolution (limit to first 3 per bundle)
     const contentToFetch: Map<string, { type: ContentType; id: string }[]> = new Map();
     for (const bundle of bundles || []) {
@@ -100,19 +112,36 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch content titles in batch per table
+    // products.id is bigint — Supabase .in() needs numeric ids for correct matching
+    // services.id is UUID — use strings. Map keys always use String(id) for consistent lookup.
     const contentTitleMap = new Map<string, string>(); // key: "type:id", value: title
     for (const [table, items] of contentToFetch.entries()) {
-      const ids = [...new Set(items.map(i => i.id))];
-      if (ids.length > 0) {
-        const { data: contents } = await supabaseAdmin
+      const rawIds = [...new Set(items.map((i) => i.id))];
+      const ids: (string | number)[] =
+        table === 'products'
+          ? rawIds.map((id) => {
+              const n = parseInt(String(id), 10);
+              return isNaN(n) ? String(id) : n;
+            })
+          : rawIds.map((id) => String(id));
+      const uniqueIds = [...new Set(ids)];
+
+      if (uniqueIds.length > 0) {
+        // Use select('*') — tables vary: products/services have title, others may have name
+        const { data: contents, error: fetchError } = await supabaseAdmin
           .from(table)
-          .select('id, title, name')
-          .in('id', ids);
-        
+          .select('id, title')
+          .in('id', uniqueIds);
+
+        if (fetchError) {
+          console.error(`[bundles] Failed to fetch ${table} for preview:`, fetchError.message);
+        }
+
         for (const content of contents || []) {
-          const matchingItems = items.filter(i => i.id === content.id);
+          const contentIdStr = String(content.id);
+          const matchingItems = items.filter((i) => String(i.id) === contentIdStr);
           for (const item of matchingItems) {
-            contentTitleMap.set(`${item.type}:${content.id}`, content.title || content.name || 'Untitled');
+            contentTitleMap.set(`${item.type}:${contentIdStr}`, (content.title ?? content.name) || 'Untitled');
           }
         }
       }
@@ -121,11 +150,16 @@ export async function GET(request: NextRequest) {
     // Transform to OfferBundleWithStats with preview items
     const bundlesWithStats = (bundles || []).map((bundle: OfferBundle) => {
       const bundleItems = bundle.bundle_items || [];
-      const previewItems: PreviewItem[] = bundleItems.slice(0, 3).map((item: BundleItem) => ({
-        content_type: item.content_type,
-        content_id: item.content_id,
-        title: contentTitleMap.get(`${item.content_type}:${item.content_id}`) || 'Unknown',
-      }));
+      const previewItems: PreviewItem[] = bundleItems.slice(0, 3).map((item: BundleItem) => {
+        const key = `${item.content_type}:${String(item.content_id)}`;
+        const title =
+          contentTitleMap.get(key) || item.override_dream_outcome || 'Unknown';
+        return {
+          content_type: item.content_type,
+          content_id: item.content_id,
+          title,
+        };
+      });
 
       return {
         id: bundle.id,
@@ -144,10 +178,30 @@ export async function GET(request: NextRequest) {
         created_by: bundle.created_by,
         created_at: bundle.created_at,
         updated_at: bundle.updated_at,
+        is_decoy: bundle.is_decoy,
+        mirrors_tier_id: bundle.mirrors_tier_id,
+        has_guarantee: bundle.has_guarantee,
+        target_audience: bundle.target_audience,
+        // Pricing page
+        pricing_page_segments: bundle.pricing_page_segments ?? [],
+        pricing_tier_slug: bundle.pricing_tier_slug,
+        tagline: bundle.tagline,
+        target_audience_display: bundle.target_audience_display,
+        pricing_display_order: bundle.pricing_display_order ?? 0,
+        is_featured: bundle.is_featured ?? false,
+        guarantee_name: bundle.guarantee_name,
+        guarantee_description: bundle.guarantee_description,
+        cta_text: bundle.cta_text,
+        cta_href: bundle.cta_href,
         // Stats
         item_count: bundleItems.length,
         parent_name: bundle.parent_bundle_id ? parentNameMap.get(bundle.parent_bundle_id) : undefined,
         fork_count: forkCountMap.get(bundle.id) || 0,
+        // Base bundle (inherits items from another)
+        base_bundle_id: (bundle as { base_bundle_id?: string }).base_bundle_id ?? undefined,
+        base_bundle_name: (bundle as { base_bundle_id?: string }).base_bundle_id
+          ? baseBundleNameMap.get((bundle as { base_bundle_id: string }).base_bundle_id)
+          : undefined,
         // Preview
         preview_items: previewItems,
       };
@@ -171,40 +225,76 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { 
-      name, 
-      description, 
-      bundle_items = [], 
+    const {
+      name,
+      description,
+      bundle_items = [],
       bundle_price,
       default_discount_percent,
       notes,
       parent_bundle_id,
+      // Pricing page fields (only for standard/decoy; custom bundles never get these)
+      pricing_page_segments,
+      pricing_tier_slug,
+      tagline,
+      target_audience_display,
+      pricing_display_order,
+      is_featured,
+      guarantee_name,
+      guarantee_description,
+      cta_text,
+      cta_href,
+      bundle_type,
+      is_decoy,
+      mirrors_tier_id,
+      has_guarantee,
+      target_audience,
     } = body;
 
     if (!name) {
       return NextResponse.json({ error: 'Bundle name is required' }, { status: 400 });
     }
 
+    const willBeCustom = !!parent_bundle_id;
+
     // Calculate totals from items
     const totals = await calculateBundleTotals(bundle_items);
 
-    // Insert bundle
+    const insertData: Record<string, unknown> = {
+      name,
+      description,
+      bundle_items,
+      total_retail_value: totals.totalRetailValue,
+      total_perceived_value: totals.totalPerceivedValue,
+      bundle_price: bundle_price ?? totals.totalRetailValue,
+      default_discount_percent,
+      notes,
+      parent_bundle_id,
+      bundle_type: willBeCustom ? 'custom' : (bundle_type ?? 'standard'),
+      created_by: adminResult.user.id,
+      is_active: true,
+    };
+
+    if (!willBeCustom) {
+      if (pricing_page_segments !== undefined) insertData.pricing_page_segments = pricing_page_segments;
+      if (pricing_tier_slug !== undefined) insertData.pricing_tier_slug = pricing_tier_slug;
+      if (tagline !== undefined) insertData.tagline = tagline;
+      if (target_audience_display !== undefined) insertData.target_audience_display = target_audience_display;
+      if (pricing_display_order !== undefined) insertData.pricing_display_order = pricing_display_order;
+      if (is_featured !== undefined) insertData.is_featured = is_featured;
+      if (guarantee_name !== undefined) insertData.guarantee_name = guarantee_name;
+      if (guarantee_description !== undefined) insertData.guarantee_description = guarantee_description;
+      if (cta_text !== undefined) insertData.cta_text = cta_text;
+      if (cta_href !== undefined) insertData.cta_href = cta_href;
+    }
+    if (is_decoy !== undefined) insertData.is_decoy = is_decoy;
+    if (mirrors_tier_id !== undefined) insertData.mirrors_tier_id = mirrors_tier_id;
+    if (has_guarantee !== undefined) insertData.has_guarantee = has_guarantee;
+    if (target_audience !== undefined) insertData.target_audience = target_audience;
+
     const { data: bundle, error } = await supabaseAdmin
       .from('offer_bundles')
-      .insert({
-        name,
-        description,
-        bundle_items,
-        total_retail_value: totals.totalRetailValue,
-        total_perceived_value: totals.totalPerceivedValue,
-        bundle_price: bundle_price ?? totals.totalRetailValue,
-        default_discount_percent,
-        notes,
-        parent_bundle_id,
-        bundle_type: parent_bundle_id ? 'custom' : 'standard',
-        created_by: adminResult.user.id,
-        is_active: true,
-      })
+      .insert(insertData)
       .select()
       .single();
 

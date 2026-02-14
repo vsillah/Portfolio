@@ -7,16 +7,18 @@ interface ROICalculatorProps {
   className?: string;
 }
 
+// Industries with isNonprofit flag for CI tier recommendations
 const INDUSTRIES = [
-  { value: 'technology', label: 'Technology', hourlyRate: 55, dealSize: 8000, employeeCost: 85000 },
-  { value: 'professional_services', label: 'Professional Services', hourlyRate: 65, dealSize: 10000, employeeCost: 75000 },
-  { value: 'healthcare', label: 'Healthcare', hourlyRate: 50, dealSize: 6000, employeeCost: 65000 },
-  { value: 'financial_services', label: 'Financial Services', hourlyRate: 70, dealSize: 15000, employeeCost: 90000 },
-  { value: 'retail', label: 'Retail / E-Commerce', hourlyRate: 35, dealSize: 3000, employeeCost: 45000 },
-  { value: 'manufacturing', label: 'Manufacturing', hourlyRate: 40, dealSize: 12000, employeeCost: 55000 },
-  { value: 'real_estate', label: 'Real Estate', hourlyRate: 45, dealSize: 8000, employeeCost: 60000 },
-  { value: 'education', label: 'Education', hourlyRate: 35, dealSize: 4000, employeeCost: 50000 },
-  { value: 'other', label: 'Other', hourlyRate: 40, dealSize: 5000, employeeCost: 60000 },
+  { value: 'technology', label: 'Technology', hourlyRate: 55, dealSize: 8000, employeeCost: 85000, isNonprofit: false },
+  { value: 'professional_services', label: 'Professional Services', hourlyRate: 65, dealSize: 10000, employeeCost: 75000, isNonprofit: false },
+  { value: 'healthcare', label: 'Healthcare', hourlyRate: 50, dealSize: 6000, employeeCost: 65000, isNonprofit: false },
+  { value: 'financial_services', label: 'Financial Services', hourlyRate: 70, dealSize: 15000, employeeCost: 90000, isNonprofit: false },
+  { value: 'retail', label: 'Retail / E-Commerce', hourlyRate: 35, dealSize: 3000, employeeCost: 45000, isNonprofit: false },
+  { value: 'manufacturing', label: 'Manufacturing', hourlyRate: 40, dealSize: 12000, employeeCost: 55000, isNonprofit: false },
+  { value: 'real_estate', label: 'Real Estate', hourlyRate: 45, dealSize: 8000, employeeCost: 60000, isNonprofit: false },
+  { value: 'education', label: 'Education', hourlyRate: 35, dealSize: 4000, employeeCost: 50000, isNonprofit: true },
+  { value: 'nonprofit', label: 'Nonprofit / NGO', hourlyRate: 30, dealSize: 3000, employeeCost: 45000, isNonprofit: true },
+  { value: 'other', label: 'Other', hourlyRate: 40, dealSize: 5000, employeeCost: 60000, isNonprofit: false },
 ];
 
 const COMPANY_SIZES = [
@@ -41,14 +43,12 @@ export function ROICalculator({ className = '' }: ROICalculatorProps) {
     const totalWaste = manualProcessWaste + missedLeadValue + redirectedLabor;
     const potentialSavings = Math.round(totalWaste * sz.savingsRate);
 
-    // Recommend investment level based on company size
-    const investmentMap: Record<string, number> = {
-      '1-10': 7497,
-      '11-50': 14997,
-      '51-200': 29997,
-      '201-1000': 29997,
-    };
-    const investment = investmentMap[size] || 14997;
+    // Recommend investment level based on company size and org type
+    const isNonprofitOrg = ind.isNonprofit;
+    const investmentMap: Record<string, number> = isNonprofitOrg
+      ? { '1-10': 1997, '11-50': 1997, '51-200': 4997, '201-1000': 4997 }
+      : { '1-10': 7497, '11-50': 14997, '51-200': 29997, '201-1000': 29997 };
+    const investment = investmentMap[size] || (isNonprofitOrg ? 1997 : 14997);
     const roiMultiple = Math.round((potentialSavings / investment) * 10) / 10;
     const paybackMonths = Math.round((investment / (potentialSavings / 12)) * 10) / 10;
 
@@ -63,6 +63,7 @@ export function ROICalculator({ className = '' }: ROICalculatorProps) {
       investment,
       roiMultiple,
       paybackMonths: Math.min(paybackMonths, 24), // cap display at 24
+      isNonprofit: isNonprofitOrg,
     };
   }, [industry, size]);
 
@@ -160,6 +161,17 @@ export function ROICalculator({ className = '' }: ROICalculatorProps) {
               <p className="text-xs text-green-600/70 dark:text-green-400/70">Payback Period</p>
             </div>
           </div>
+
+          {/* CI program note for nonprofit/education */}
+          {results.isNonprofit && (
+            <div className="rounded-lg bg-emerald-50 p-3 dark:bg-emerald-900/20">
+              <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                As a nonprofit/education organization, you qualify for our{' '}
+                <span className="font-semibold">Community Impact</span> pricing — same outcomes, budget-friendly delivery.{' '}
+                Recommended investment: <span className="font-semibold">{formatCurrency(results.investment)}</span> (CI tier).
+              </p>
+            </div>
+          )}
 
           {/* Disclaimer */}
           <p className="text-xs text-gray-400 dark:text-gray-500">

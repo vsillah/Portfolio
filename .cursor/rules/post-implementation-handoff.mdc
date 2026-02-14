@@ -1,0 +1,37 @@
+---
+description: Explicitly document manual follow-up steps after implementation work
+alwaysApply: true
+---
+
+# Post-Implementation Handoff
+
+When completing an implementation or enhancement, **always** append a clear section that distinguishes what the agent did from what the user must do.
+
+## Required Section: "Your follow-up steps"
+
+At the end of any significant implementation, include a section titled **"Your follow-up steps"** (or equivalent) that lists all manual actions the user must perform. If there are none, say so explicitly.
+
+### Examples of follow-up steps
+
+- **Database migrations**: "Run the migration" — e.g. `supabase db push`, or execute `migrations/YYYY_MM_DD_*.sql` in the Supabase SQL Editor. The migration file was **created** but **not applied** unless the agent explicitly ran a Supabase MCP tool or migration command.
+- **Environment variables**: "Add `FOO=bar` to `.env.local`" or "Create a Supabase credential for X"
+- **Deploy / build**: "Run `npm run build` and deploy" or "Push to production"
+- **Third-party setup**: "Configure the webhook in Stripe Dashboard" or "Create an n8n workflow"
+- **Seeding**: "Run `npm run seed`" if data was added via a seed script the user must execute
+
+### Wording clarity
+
+- **"Implemented"** or **"Created"** = the agent wrote files or code. The user does not need to write anything.
+- **"Applied"** or **"Executed"** = the agent ran a command or tool and the change is live. The user does not need to run it.
+- If the agent only created a migration file, say: "Migration file created. **You must run it** (e.g. `supabase db push` or SQL Editor) before the schema changes take effect."
+
+### Template
+
+```markdown
+## Your follow-up steps
+
+1. [Action required]: [Specific command or instruction]
+2. [Optional]: [Any optional steps]
+
+If there are no follow-up steps, the implementation is complete and nothing else is required.
+```

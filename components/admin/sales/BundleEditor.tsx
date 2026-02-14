@@ -87,6 +87,28 @@ export function BundleEditor({ bundleId, items, onItemsChange, readOnly = false 
     onItemsChange(newItems);
   };
 
+  const updateItemTitle = (index: number, title: string) => {
+    const newItems = [...items];
+    newItems[index] = {
+      ...newItems[index],
+      title: title || newItems[index].title,
+      override_title: title || undefined,
+      has_overrides: true,
+    };
+    onItemsChange(newItems);
+  };
+
+  const updateItemDescription = (index: number, description: string) => {
+    const newItems = [...items];
+    newItems[index] = {
+      ...newItems[index],
+      description: description || newItems[index].description,
+      override_description: description || undefined,
+      has_overrides: true,
+    };
+    onItemsChange(newItems);
+  };
+
   return (
     <div className="space-y-4">
       {/* Items list */}
@@ -106,6 +128,8 @@ export function BundleEditor({ bundleId, items, onItemsChange, readOnly = false 
             onMoveDown={() => moveItem(index, 'down')}
             onRoleChange={(role) => updateItemRole(index, role)}
             onPriceChange={(price) => updateItemPrice(index, price)}
+            onTitleChange={(title) => updateItemTitle(index, title)}
+            onDescriptionChange={(desc) => updateItemDescription(index, desc)}
           />
         ))}
         
@@ -154,6 +178,8 @@ function BundleItemRow({
   onMoveDown,
   onRoleChange,
   onPriceChange,
+  onTitleChange,
+  onDescriptionChange,
 }: {
   item: ResolvedBundleItem;
   index: number;
@@ -167,8 +193,12 @@ function BundleItemRow({
   onMoveDown: () => void;
   onRoleChange: (role: OfferRole) => void;
   onPriceChange: (price: number) => void;
+  onTitleChange: (title: string) => void;
+  onDescriptionChange: (description: string) => void;
 }) {
   const [editPrice, setEditPrice] = useState(item.role_retail_price?.toString() || '');
+  const [editTitle, setEditTitle] = useState(item.override_title || '');
+  const [editDescription, setEditDescription] = useState(item.override_description || '');
   
   const handlePriceSave = () => {
     const price = parseFloat(editPrice);
@@ -256,6 +286,80 @@ function BundleItemRow({
       {/* Expanded edit panel */}
       {isEditing && !readOnly && (
         <div className="px-4 pb-4 pt-2 border-t border-gray-700 space-y-4">
+          {/* Title override */}
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-2">
+              Title Override
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                placeholder={item.title}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm placeholder-gray-500"
+              />
+              <button
+                onClick={() => { onTitleChange(editTitle); }}
+                className="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors whitespace-nowrap"
+              >
+                Apply
+              </button>
+              {editTitle && (
+                <button
+                  onClick={() => { setEditTitle(''); onTitleChange(''); }}
+                  className="px-3 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-sm transition-colors whitespace-nowrap"
+                  title="Revert to original title"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
+            {item.override_title && (
+              <p className="text-xs text-yellow-400 mt-2">
+                Custom title applied (clear to revert)
+              </p>
+            )}
+          </div>
+
+          {/* Description override */}
+          <div>
+            <label className="block text-xs font-medium text-gray-400 mb-2">
+              Description Override
+            </label>
+            <div className="flex items-start gap-2">
+              <textarea
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+                placeholder={item.description || 'Enter custom description...'}
+                rows={3}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm placeholder-gray-500 resize-y"
+              />
+              <div className="flex flex-col gap-1">
+                <button
+                  onClick={() => { onDescriptionChange(editDescription); }}
+                  className="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors whitespace-nowrap"
+                >
+                  Apply
+                </button>
+                {editDescription && (
+                  <button
+                    onClick={() => { setEditDescription(''); onDescriptionChange(''); }}
+                    className="px-3 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-sm transition-colors whitespace-nowrap"
+                    title="Revert to original description"
+                  >
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+            {item.override_description && (
+              <p className="text-xs text-yellow-400 mt-2">
+                Custom description applied (clear to revert)
+              </p>
+            )}
+          </div>
+
           {/* Role selector */}
           <div>
             <label className="block text-xs font-medium text-gray-400 mb-2">

@@ -65,7 +65,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create the new bundle
+    // Create the new bundle. Custom bundles must never appear on the pricing page:
+    // we do NOT set pricing_page_segments (stays empty/default), and the pricing
+    // API filters by bundle_type != 'custom' and .contains(pricing_page_segments, [segment]).
     const { data: bundle, error } = await supabaseAdmin
       .from('offer_bundles')
       .insert({

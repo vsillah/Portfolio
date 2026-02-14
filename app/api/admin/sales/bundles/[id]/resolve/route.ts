@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
+import { expandBundleItems } from '@/lib/bundle-expand';
 import { 
   BundleItem, 
   ResolvedBundleItem, 
@@ -48,7 +49,7 @@ export async function GET(
       return NextResponse.json({ error: 'Bundle not found' }, { status: 404 });
     }
 
-    const bundleItems: BundleItem[] = bundle.bundle_items || [];
+    const bundleItems: BundleItem[] = await expandBundleItems(id);
     const resolvedItems: ResolvedBundleItem[] = [];
 
     // Resolve each item

@@ -42,7 +42,7 @@ export const Timeline = ({
 
   return (
     <div
-      className={cn("w-full bg-slate-950 font-sans md:px-10", className)}
+      className={cn("w-full relative bg-slate-950 font-sans md:px-10", className)}
       ref={containerRef}
     >
       <div className="max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10">

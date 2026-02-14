@@ -375,6 +375,233 @@ const SERVICES = [
     topics: ['Bug Fixes', 'Minor Adjustments', 'Technical Support', 'Performance Monitoring'],
     deliverables: ['Bug fix coverage', 'Email support', 'Performance monitoring', 'Adjustment credits'],
   },
+  // --- Enterprise / Mid-Market Add-on Services ---
+  {
+    title: 'Enterprise SLA',
+    service_type: 'warranty',
+    price: 0,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Guaranteed response times and uptime commitments for all deployed AI tools. Includes 99.9% uptime SLA, 4-hour critical response, and 24-hour standard response.',
+    duration_hours: null,
+    duration_description: 'Ongoing (contract term)',
+    display_order: 20,
+    is_featured: false,
+    topics: ['Uptime SLA', 'Response Time Guarantees', 'Escalation Procedures', 'Incident Reporting'],
+    deliverables: ['SLA agreement', 'Uptime monitoring dashboard', 'Incident response playbook', 'Monthly SLA reports'],
+  },
+  {
+    title: 'Priority Support Channel',
+    service_type: 'consulting',
+    price: 2500.00,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Dedicated Slack or Microsoft Teams channel with your team and ours. 4-hour response during business hours, direct access to engineering.',
+    duration_hours: null,
+    duration_description: 'Ongoing (monthly)',
+    display_order: 21,
+    is_featured: false,
+    topics: ['Dedicated Channel Setup', 'Response SLA', 'Direct Engineering Access', 'Issue Triage'],
+    deliverables: ['Private Slack/Teams channel', '4-hour response SLA', 'Named support contacts', 'Weekly status updates'],
+  },
+  {
+    title: 'Data Migration & Onboarding',
+    service_type: 'consulting',
+    price: 5000.00,
+    is_quote_based: false,
+    delivery_method: 'hybrid',
+    description: 'Full-service data migration from existing systems and structured onboarding for your team. We handle the heavy lifting so your team can focus on adoption.',
+    duration_hours: 40,
+    duration_description: '2-4 weeks',
+    display_order: 22,
+    is_featured: false,
+    topics: ['Data Audit', 'Migration Planning', 'ETL Execution', 'Team Onboarding'],
+    deliverables: ['Migration plan', 'Data validation report', 'Onboarding sessions', 'Runbook documentation'],
+  },
+  {
+    title: 'Custom API / ERP Integrations',
+    service_type: 'consulting',
+    price: 7500.00,
+    is_quote_based: false,
+    delivery_method: 'hybrid',
+    description: 'Connect deployed AI tools to your existing enterprise systems — Salesforce, HubSpot, SAP, NetSuite, or custom APIs. Bi-directional data sync included.',
+    duration_hours: 60,
+    duration_description: '3-6 weeks',
+    display_order: 23,
+    is_featured: false,
+    topics: ['Integration Architecture', 'API Development', 'Data Mapping', 'Testing & Validation'],
+    deliverables: ['Integration architecture doc', 'Deployed connectors', 'Data sync monitoring', 'Error handling & retry logic'],
+  },
+  {
+    title: 'Custom Reporting & Analytics Dashboard',
+    service_type: 'consulting',
+    price: 5000.00,
+    is_quote_based: false,
+    delivery_method: 'hybrid',
+    description: 'Tailored dashboards and KPI tracking for your AI tools. Executive summaries, department-level views, and automated reporting.',
+    duration_hours: 40,
+    duration_description: '2-4 weeks',
+    display_order: 24,
+    is_featured: false,
+    topics: ['KPI Definition', 'Dashboard Design', 'Data Pipeline', 'Automated Reports'],
+    deliverables: ['Custom dashboard', 'Automated weekly/monthly reports', 'KPI tracking setup', 'Executive summary template'],
+  },
+  // --- Community Impact (CI) stub services ---
+  // Used by CI bundles; also created by nonprofit migration. Seed ensures they exist for UUID-based bundle_items.
+  {
+    title: 'AI Strategy Workshop — Recorded (Self-Paced)',
+    service_type: 'workshop',
+    price: 297.00,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Self-paced recorded version of our half-day AI Strategy Workshop. Discover where AI fits in your organization at your own pace.',
+    duration_hours: 4,
+    duration_description: 'Self-paced (approx. 4 hours of content)',
+    display_order: 30,
+    is_featured: false,
+    topics: ['AI Opportunity Assessment', 'ROI Prioritization', 'Implementation Roadmap'],
+    deliverables: ['Recorded workshop videos', 'AI opportunity worksheet', 'ROI template spreadsheets'],
+  },
+  {
+    title: 'Pre-Built Chatbot Template — Self-Install',
+    service_type: 'consulting',
+    price: 997.00,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Ready-to-deploy AI chatbot template with step-by-step self-installation guide.',
+    duration_hours: 2,
+    duration_description: 'Self-install (2 hours estimated setup)',
+    display_order: 31,
+    is_featured: false,
+    topics: ['Template Configuration', 'Self-Install Guide'],
+    deliverables: ['Chatbot template package', 'Step-by-step install guide'],
+  },
+  {
+    title: 'Group Implementation Program — 6 Weeks',
+    service_type: 'training',
+    price: 2497.00,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Bi-weekly group implementation calls over 6 weeks. Deploy template-based AI tools alongside peers.',
+    duration_hours: 12,
+    duration_description: '6 weeks (bi-weekly 2-hour sessions)',
+    display_order: 32,
+    is_featured: false,
+    topics: ['Group Deployment', 'Template Configuration'],
+    deliverables: ['6 group call recordings', 'Template tool configurations'],
+  },
+  {
+    title: 'AI Training Library — Recorded Access',
+    service_type: 'training',
+    price: 197.00,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Full access to our recorded AI training library. Covers fundamentals, tool usage, and best practices.',
+    duration_hours: 20,
+    duration_description: '20+ hours of recorded content',
+    display_order: 33,
+    is_featured: false,
+    topics: ['AI Fundamentals', 'Prompt Engineering'],
+    deliverables: ['Training video library access', '12-month access'],
+  },
+  {
+    title: 'Community Forum Access',
+    service_type: 'consulting',
+    price: 0,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Peer support community for nonprofits and educational institutions using AI tools.',
+    duration_hours: null,
+    duration_description: 'Ongoing',
+    display_order: 34,
+    is_featured: false,
+    topics: ['Peer Support', 'Resource Sharing'],
+    deliverables: ['Community forum access'],
+  },
+  {
+    title: '30-Day Email Support',
+    service_type: 'consulting',
+    price: 0,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Email support for setup questions during the first 30 days.',
+    duration_hours: null,
+    duration_description: '30 days',
+    display_order: 35,
+    is_featured: false,
+    topics: ['Setup Support'],
+    deliverables: ['Email support for questions'],
+  },
+  {
+    title: '60-Day Email Support',
+    service_type: 'consulting',
+    price: 0,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Extended email support for setup and usage questions during the first 60 days.',
+    duration_hours: null,
+    duration_description: '60 days',
+    display_order: 36,
+    is_featured: false,
+    topics: ['Setup Support', 'Usage Support'],
+    deliverables: ['Extended email support'],
+  },
+  {
+    title: 'Lead Tracking Templates',
+    service_type: 'consulting',
+    price: 997.00,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Template-based lead tracking system for nonprofits. Self-install with step-by-step guide.',
+    duration_hours: 4,
+    duration_description: 'Self-install',
+    display_order: 37,
+    is_featured: false,
+    topics: ['Lead Tracking', 'Template Setup'],
+    deliverables: ['Lead tracking templates', 'Configuration guide'],
+  },
+  {
+    title: 'Content Automation Templates',
+    service_type: 'consulting',
+    price: 997.00,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Social media content templates and automation guides for nonprofits.',
+    duration_hours: 4,
+    duration_description: 'Self-install',
+    display_order: 38,
+    is_featured: false,
+    topics: ['Content Automation', 'Social Media'],
+    deliverables: ['Content templates', 'Automation guide'],
+  },
+  {
+    title: 'Shared Analytics Dashboard',
+    service_type: 'consulting',
+    price: 0,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Shared (not custom) analytics dashboard for tracking AI tool performance.',
+    duration_hours: null,
+    duration_description: 'Ongoing',
+    display_order: 39,
+    is_featured: false,
+    topics: ['Analytics'],
+    deliverables: ['Shared dashboard access'],
+  },
+  {
+    title: 'AI Email Sequence Templates',
+    service_type: 'consulting',
+    price: 497.00,
+    is_quote_based: false,
+    delivery_method: 'virtual',
+    description: 'Template-based AI email sequence pack for nonprofits. Self-configure with provided guide.',
+    duration_hours: 2,
+    duration_description: 'Self-configure',
+    display_order: 40,
+    is_featured: false,
+    topics: ['Email Templates', 'Sequence Setup'],
+    deliverables: ['Email sequence templates', 'Configuration guide'],
+  },
 ];
 
 // ============================================================================
@@ -493,6 +720,7 @@ interface BundleItemRef {
   productTitle?: string;
   role: string;
   perceivedValue: number;
+  dreamOutcome?: string;
 }
 
 interface BundleDef {
@@ -502,6 +730,13 @@ interface BundleDef {
   totalRetailValue: number;
   totalPerceivedValue: number;
   targetFunnelStages: string[];
+  baseBundleName?: string; // When set, items are add-ons only; base bundle is included
+  pricingPageSegments?: string[];  // smb, midmarket, nonprofit
+  pricingTierSlug?: string;
+  tagline?: string;
+  targetAudienceDisplay?: string;
+  pricingDisplayOrder?: number;
+  isFeatured?: boolean;
   items: BundleItemRef[];
 }
 
@@ -527,11 +762,8 @@ const BUNDLES: BundleDef[] = [
     totalRetailValue: 39850,
     totalPerceivedValue: 39850,
     targetFunnelStages: ['interested', 'informed'],
+    baseBundleName: 'AI Quick Win',
     items: [
-      { productTitle: 'AI Audit Calculator', role: 'lead_magnet', perceivedValue: 500 },
-      { productTitle: 'AI Implementation Playbook', role: 'bonus', perceivedValue: 200 },
-      { productTitle: 'Automation ROI Templates Pack', role: 'bonus', perceivedValue: 150 },
-      { serviceTitle: 'AI Strategy Workshop — Half-Day', role: 'core_offer', perceivedValue: 3500 },
       { serviceTitle: 'AI Customer Support Chatbot', role: 'core_offer', perceivedValue: 15000 },
       { serviceTitle: 'Inbound Lead Tracking System', role: 'core_offer', perceivedValue: 12000 },
       { serviceTitle: 'Team AI Training — 3-Session Program', role: 'bonus', perceivedValue: 2500 },
@@ -546,18 +778,12 @@ const BUNDLES: BundleDef[] = [
     totalRetailValue: 127850,
     totalPerceivedValue: 127850,
     targetFunnelStages: ['informed', 'converted'],
+    baseBundleName: 'AI Accelerator',
     items: [
-      { productTitle: 'AI Audit Calculator', role: 'lead_magnet', perceivedValue: 500 },
-      { productTitle: 'AI Implementation Playbook', role: 'bonus', perceivedValue: 200 },
-      { productTitle: 'Automation ROI Templates Pack', role: 'bonus', perceivedValue: 150 },
-      { serviceTitle: 'AI Strategy Workshop — Half-Day', role: 'core_offer', perceivedValue: 3500 },
-      { serviceTitle: 'AI Customer Support Chatbot', role: 'core_offer', perceivedValue: 15000 },
-      { serviceTitle: 'Inbound Lead Tracking System', role: 'core_offer', perceivedValue: 12000 },
       { serviceTitle: 'Lead Generation Workflow Agent', role: 'core_offer', perceivedValue: 25000 },
       { serviceTitle: 'Social Media Content Agent', role: 'core_offer', perceivedValue: 18000 },
       { serviceTitle: 'Client Onboarding Automation', role: 'bonus', perceivedValue: 15000 },
       { serviceTitle: 'AI Email Sequence Builder', role: 'bonus', perceivedValue: 10000 },
-      { serviceTitle: 'Team AI Training — 3-Session Program', role: 'bonus', perceivedValue: 2500 },
       { serviceTitle: 'Monthly Advisory Retainer', role: 'bonus', perceivedValue: 7500 },
       { serviceTitle: 'Implementation Warranty', role: 'bonus', perceivedValue: 3000 },
     ],
@@ -569,24 +795,153 @@ const BUNDLES: BundleDef[] = [
     totalRetailValue: 254350,
     totalPerceivedValue: 254350,
     targetFunnelStages: ['informed', 'converted', 'active'],
+    baseBundleName: 'Growth Engine',
     items: [
-      { productTitle: 'AI Audit Calculator', role: 'lead_magnet', perceivedValue: 500 },
-      { productTitle: 'AI Implementation Playbook', role: 'bonus', perceivedValue: 200 },
-      { productTitle: 'Automation ROI Templates Pack', role: 'bonus', perceivedValue: 150 },
       { serviceTitle: 'AI Strategy Workshop — Full-Day', role: 'core_offer', perceivedValue: 7500 },
-      { serviceTitle: 'AI Customer Support Chatbot', role: 'core_offer', perceivedValue: 15000 },
-      { serviceTitle: 'Inbound Lead Tracking System', role: 'core_offer', perceivedValue: 12000 },
-      { serviceTitle: 'Lead Generation Workflow Agent', role: 'core_offer', perceivedValue: 25000 },
-      { serviceTitle: 'Social Media Content Agent', role: 'core_offer', perceivedValue: 18000 },
-      { serviceTitle: 'Client Onboarding Automation', role: 'bonus', perceivedValue: 15000 },
-      { serviceTitle: 'AI Email Sequence Builder', role: 'bonus', perceivedValue: 10000 },
       { serviceTitle: 'AI Voice Agent — Inbound', role: 'core_offer', perceivedValue: 20000 },
       { serviceTitle: 'Mobile App Generation', role: 'core_offer', perceivedValue: 35000 },
       { serviceTitle: 'Website Development', role: 'core_offer', perceivedValue: 20000 },
       { serviceTitle: 'RAG Knowledge Base System', role: 'bonus', perceivedValue: 20000 },
       { serviceTitle: 'Team AI Training — 3-Session Program', role: 'bonus', perceivedValue: 7500 },
-      { serviceTitle: 'Monthly Advisory Retainer', role: 'bonus', perceivedValue: 7500 },
       { serviceTitle: 'Implementation Warranty', role: 'bonus', perceivedValue: 9000 },
+    ],
+  },
+  // --- Mid-Market Bundles (enterprise add-ons on top of SMB tiers) ---
+  {
+    name: 'MM Accelerator',
+    description: 'Everything in the Accelerator plus enterprise SLA, priority support, and full data migration. Built for teams of 50+.',
+    bundlePrice: 14997,
+    totalRetailValue: 47350,
+    totalPerceivedValue: 47350,
+    targetFunnelStages: ['interested', 'informed'],
+    baseBundleName: 'AI Accelerator',
+    pricingPageSegments: ['midmarket'],
+    pricingTierSlug: 'mm-accelerator',
+    tagline: 'Deploy AI with enterprise-grade support',
+    targetAudienceDisplay: 'Mid-Market Companies (50-500 Employees)',
+    pricingDisplayOrder: 1,
+    items: [
+      { serviceTitle: 'Enterprise SLA', role: 'bonus', perceivedValue: 5000 },
+      { serviceTitle: 'Priority Support Channel', role: 'bonus', perceivedValue: 2500 },
+      { serviceTitle: 'Data Migration & Onboarding', role: 'core_offer', perceivedValue: 5000 },
+    ],
+  },
+  {
+    name: 'MM Growth Engine',
+    description: 'Full pipeline automation with enterprise integrations, priority support, and dedicated data migration. Scale AI across departments.',
+    bundlePrice: 24997,
+    totalRetailValue: 147850,
+    totalPerceivedValue: 147850,
+    targetFunnelStages: ['informed', 'converted'],
+    baseBundleName: 'Growth Engine',
+    pricingPageSegments: ['midmarket'],
+    pricingTierSlug: 'mm-growth-engine',
+    tagline: 'AI across your entire pipeline with enterprise integrations',
+    targetAudienceDisplay: 'Mid-Market Companies (50-500 Employees)',
+    pricingDisplayOrder: 2,
+    isFeatured: true,
+    items: [
+      { serviceTitle: 'Enterprise SLA', role: 'bonus', perceivedValue: 5000 },
+      { serviceTitle: 'Priority Support Channel', role: 'bonus', perceivedValue: 2500 },
+      { serviceTitle: 'Data Migration & Onboarding', role: 'core_offer', perceivedValue: 5000 },
+      { serviceTitle: 'Custom API / ERP Integrations', role: 'core_offer', perceivedValue: 7500 },
+    ],
+  },
+  {
+    name: 'MM Digital Transformation',
+    description: 'Comprehensive AI transformation with full enterprise integration suite, custom reporting, and white-glove onboarding.',
+    bundlePrice: 49997,
+    totalRetailValue: 279350,
+    totalPerceivedValue: 279350,
+    targetFunnelStages: ['informed', 'converted', 'active'],
+    baseBundleName: 'Digital Transformation',
+    pricingPageSegments: ['midmarket'],
+    pricingTierSlug: 'mm-digital-transformation',
+    tagline: 'Full enterprise AI transformation',
+    targetAudienceDisplay: 'Mid-Market Companies (50-500 Employees)',
+    pricingDisplayOrder: 3,
+    items: [
+      { serviceTitle: 'Enterprise SLA', role: 'bonus', perceivedValue: 5000 },
+      { serviceTitle: 'Priority Support Channel', role: 'bonus', perceivedValue: 2500 },
+      { serviceTitle: 'Data Migration & Onboarding', role: 'core_offer', perceivedValue: 5000 },
+      { serviceTitle: 'Custom API / ERP Integrations', role: 'core_offer', perceivedValue: 7500 },
+      { serviceTitle: 'Custom Reporting & Analytics Dashboard', role: 'core_offer', perceivedValue: 5000 },
+    ],
+  },
+];
+
+// Community Impact (CI) bundles — decoy tiers for nonprofit/education. Use UUID-based bundle_items
+// for proper admin UI resolution. Migration may create these with slug-based items; seed updates them.
+interface CIBundleDef {
+  name: string;
+  description: string;
+  bundlePrice: number;
+  totalRetailValue: number;
+  totalPerceivedValue: number;
+  targetFunnelStages: string[];
+  mirrorsTierId: string;
+  hasGuarantee: boolean;
+  items: BundleItemRef[];
+}
+
+const CI_BUNDLES: CIBundleDef[] = [
+  {
+    name: 'Community Impact Starter',
+    description: 'Discover where AI fits in your organization. Self-paced delivery designed for nonprofits and educational institutions.',
+    bundlePrice: 297,
+    totalRetailValue: 1350,
+    totalPerceivedValue: 1500,
+    targetFunnelStages: ['prospect', 'interested'],
+    mirrorsTierId: 'quick-win',
+    hasGuarantee: false,
+    items: [
+      { serviceTitle: 'AI Strategy Workshop — Recorded (Self-Paced)', role: 'core_offer', perceivedValue: 500, dreamOutcome: 'Discover your top AI opportunities at your own pace' },
+      { serviceTitle: 'AI Training Library — Recorded Access', role: 'bonus', perceivedValue: 200, dreamOutcome: 'Team-wide AI literacy' },
+      { productTitle: 'Automation ROI Templates Pack', role: 'bonus', perceivedValue: 150, dreamOutcome: 'Quantify your AI ROI' },
+      { serviceTitle: 'Community Forum Access', role: 'bonus', perceivedValue: 300, dreamOutcome: 'Peer support from similar organizations' },
+      { productTitle: 'AI Implementation Playbook', role: 'bonus', perceivedValue: 200, dreamOutcome: 'Step-by-step implementation guide' },
+    ],
+  },
+  {
+    name: 'Community Impact Accelerator',
+    description: 'Deploy your first AI tool with template-based delivery. Self-install chatbot, group onboarding, and recorded training.',
+    bundlePrice: 1997,
+    totalRetailValue: 6500,
+    totalPerceivedValue: 8000,
+    targetFunnelStages: ['prospect', 'interested', 'informed'],
+    mirrorsTierId: 'accelerator',
+    hasGuarantee: false,
+    items: [
+      { serviceTitle: 'AI Strategy Workshop — Recorded (Self-Paced)', role: 'bonus', perceivedValue: 500, dreamOutcome: 'AI strategy foundation' },
+      { serviceTitle: 'Pre-Built Chatbot Template — Self-Install', role: 'core_offer', perceivedValue: 3000, dreamOutcome: '24/7 AI chatbot handling FAQs and routing' },
+      { serviceTitle: 'AI Training Library — Recorded Access', role: 'bonus', perceivedValue: 500, dreamOutcome: 'Team AI training at your own pace' },
+      { serviceTitle: 'Group Implementation Program — 6 Weeks', role: 'bonus', perceivedValue: 1500, dreamOutcome: 'Guided group deployment over 6 weeks' },
+      { serviceTitle: '30-Day Email Support', role: 'bonus', perceivedValue: 500, dreamOutcome: '30-day email support for questions' },
+      { serviceTitle: 'Community Forum Access', role: 'bonus', perceivedValue: 300, dreamOutcome: 'Peer support community access' },
+      { productTitle: 'AI Implementation Playbook', role: 'bonus', perceivedValue: 200, dreamOutcome: 'Implementation playbook' },
+    ],
+  },
+  {
+    name: 'Community Impact Growth',
+    description: 'AI across lead gen, content, and operations. Template-based tools with group implementation and shared analytics.',
+    bundlePrice: 4997,
+    totalRetailValue: 20000,
+    totalPerceivedValue: 25000,
+    targetFunnelStages: ['prospect', 'interested', 'informed'],
+    mirrorsTierId: 'growth-engine',
+    hasGuarantee: false,
+    items: [
+      { serviceTitle: 'AI Strategy Workshop — Recorded (Self-Paced)', role: 'bonus', perceivedValue: 500, dreamOutcome: 'AI strategy foundation' },
+      { serviceTitle: 'Pre-Built Chatbot Template — Self-Install', role: 'core_offer', perceivedValue: 3000, dreamOutcome: '24/7 AI chatbot for your organization' },
+      { serviceTitle: 'Lead Tracking Templates', role: 'core_offer', perceivedValue: 4000, dreamOutcome: 'Template-based lead tracking system' },
+      { serviceTitle: 'Content Automation Templates', role: 'core_offer', perceivedValue: 3000, dreamOutcome: 'Social media content templates and automation' },
+      { serviceTitle: 'Group Implementation Program — 6 Weeks', role: 'bonus', perceivedValue: 3500, dreamOutcome: '6-week group implementation program' },
+      { serviceTitle: 'AI Training Library — Recorded Access', role: 'bonus', perceivedValue: 500, dreamOutcome: 'Full training library access' },
+      { serviceTitle: 'Shared Analytics Dashboard', role: 'bonus', perceivedValue: 2000, dreamOutcome: 'Shared analytics dashboard' },
+      { serviceTitle: '60-Day Email Support', role: 'bonus', perceivedValue: 1000, dreamOutcome: '60-day email support' },
+      { serviceTitle: 'Community Forum Access', role: 'bonus', perceivedValue: 300, dreamOutcome: 'Peer community access' },
+      { serviceTitle: 'AI Email Sequence Templates', role: 'bonus', perceivedValue: 2000, dreamOutcome: 'AI email sequence templates' },
+      { productTitle: 'AI Implementation Playbook', role: 'bonus', perceivedValue: 200, dreamOutcome: 'Implementation playbook' },
     ],
   },
 ];
@@ -741,6 +1096,7 @@ async function seed() {
 
   // --- 5. Offer Bundles ---
   console.log('5. Creating offer bundles...');
+  const bundleMap = new Map<string, string>();
   for (const bundle of BUNDLES) {
     const { data: existing } = await supabase
       .from('offer_bundles')
@@ -750,10 +1106,29 @@ async function seed() {
 
     if (existing) {
       console.log(`  [SKIP] Bundle already exists: "${bundle.name}" (id: ${existing.id})`);
+      bundleMap.set(existing.name, existing.id);
       continue;
     }
 
-    // Resolve item references to actual IDs
+    // Resolve base_bundle_id when bundle builds on another
+    let baseBundleId: string | undefined;
+    if (bundle.baseBundleName) {
+      baseBundleId = bundleMap.get(bundle.baseBundleName);
+      if (!baseBundleId) {
+        const { data: baseRow } = await supabase
+          .from('offer_bundles')
+          .select('id')
+          .eq('name', bundle.baseBundleName)
+          .maybeSingle();
+        baseBundleId = baseRow?.id;
+        if (baseBundleId) bundleMap.set(bundle.baseBundleName, baseBundleId);
+      }
+      if (!baseBundleId) {
+        console.warn(`    [WARN] Base bundle "${bundle.baseBundleName}" not found for "${bundle.name}" — inserting without base_bundle_id`);
+      }
+    }
+
+    // Resolve item references to actual IDs (delta items only when baseBundleName is set)
     const bundleItems = bundle.items.map((item, index) => {
       let contentType = '';
       let contentId: string | number = '';
@@ -770,7 +1145,7 @@ async function seed() {
         console.warn(`    [WARN] Could not resolve: ${item.productTitle || item.serviceTitle}`);
       }
 
-      return {
+      const bi: Record<string, unknown> = {
         content_type: contentType,
         content_id: String(contentId),
         display_order: index,
@@ -778,28 +1153,121 @@ async function seed() {
         override_role: item.role,
         override_perceived_value: item.perceivedValue,
       };
-    }).filter(i => i.content_id);
+      if (item.dreamOutcome) {
+        bi.override_dream_outcome = item.dreamOutcome;
+      }
+      return bi;
+    }).filter((i) => (i as { content_id?: string }).content_id);
+
+    const insertPayload: Record<string, unknown> = {
+      name: bundle.name,
+      description: bundle.description,
+      bundle_items: bundleItems,
+      bundle_price: bundle.bundlePrice,
+      total_retail_value: bundle.totalRetailValue,
+      total_perceived_value: bundle.totalPerceivedValue,
+      target_funnel_stages: bundle.targetFunnelStages,
+      bundle_type: 'standard',
+      is_active: true,
+    };
+    if (baseBundleId) {
+      insertPayload.base_bundle_id = baseBundleId;
+    }
+    // Pricing page display fields
+    if (bundle.pricingPageSegments) insertPayload.pricing_page_segments = bundle.pricingPageSegments;
+    if (bundle.pricingTierSlug) insertPayload.pricing_tier_slug = bundle.pricingTierSlug;
+    if (bundle.tagline) insertPayload.tagline = bundle.tagline;
+    if (bundle.targetAudienceDisplay) insertPayload.target_audience_display = bundle.targetAudienceDisplay;
+    if (bundle.pricingDisplayOrder !== undefined) insertPayload.pricing_display_order = bundle.pricingDisplayOrder;
+    if (bundle.isFeatured !== undefined) insertPayload.is_featured = bundle.isFeatured;
 
     const { data, error } = await supabase
       .from('offer_bundles')
-      .insert({
-        name: bundle.name,
-        description: bundle.description,
-        bundle_items: bundleItems,
-        bundle_price: bundle.bundlePrice,
-        total_retail_value: bundle.totalRetailValue,
-        total_perceived_value: bundle.totalPerceivedValue,
-        target_funnel_stages: bundle.targetFunnelStages,
-        bundle_type: 'standard',
-        is_active: true,
-      })
+      .insert(insertPayload)
       .select('id, name')
       .single();
 
     if (error) {
       console.error(`  [ERROR] Failed to create bundle "${bundle.name}":`, error.message);
     } else {
-      console.log(`  [OK] Created bundle: "${data.name}" (id: ${data.id})`);
+      console.log(`  [OK] Created bundle: "${data.name}" (id: ${data.id})${baseBundleId ? ` [base: ${bundle.baseBundleName}]` : ''}`);
+      bundleMap.set(data.name, data.id);
+    }
+  }
+
+  // --- 5b. Community Impact (CI) bundles — create or update with UUID-based bundle_items ---
+  console.log('\n5b. Creating/updating Community Impact bundles...');
+  for (const cb of CI_BUNDLES) {
+    const { data: existing } = await supabase
+      .from('offer_bundles')
+      .select('id, name, bundle_items')
+      .eq('name', cb.name)
+      .maybeSingle();
+
+    const bundleItems = cb.items.map((item, index) => {
+      let contentType = '';
+      let contentId: string | number = '';
+      if (item.productTitle) {
+        contentType = 'product';
+        contentId = productMap.get(item.productTitle) ?? '';
+      } else if (item.serviceTitle) {
+        contentType = 'service';
+        contentId = serviceMap.get(item.serviceTitle) ?? '';
+      }
+      if (!contentId) {
+        console.warn(`    [WARN] CI bundle "${cb.name}": could not resolve: ${item.productTitle || item.serviceTitle}`);
+      }
+      const bi: Record<string, unknown> = {
+        content_type: contentType,
+        content_id: String(contentId),
+        display_order: index,
+        is_optional: false,
+        override_role: item.role,
+        override_perceived_value: item.perceivedValue,
+      };
+      if (item.dreamOutcome) {
+        bi.override_dream_outcome = item.dreamOutcome;
+      }
+      return bi;
+    }).filter((i) => (i as { content_id?: string }).content_id);
+
+    if (existing) {
+      const { error } = await supabase
+        .from('offer_bundles')
+        .update({ bundle_items: bundleItems })
+        .eq('id', existing.id);
+
+      if (error) {
+        console.error(`  [ERROR] Failed to update CI bundle "${cb.name}":`, error.message);
+      } else {
+        console.log(`  [OK] Updated CI bundle "${cb.name}" (id: ${existing.id}) — UUID-based bundle_items`);
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('offer_bundles')
+        .insert({
+          name: cb.name,
+          description: cb.description,
+          bundle_items: bundleItems,
+          bundle_price: cb.bundlePrice,
+          total_retail_value: cb.totalRetailValue,
+          total_perceived_value: cb.totalPerceivedValue,
+          target_funnel_stages: cb.targetFunnelStages,
+          bundle_type: 'decoy',
+          is_active: true,
+          is_decoy: true,
+          target_audience: ['nonprofit', 'education'],
+          mirrors_tier_id: cb.mirrorsTierId,
+          has_guarantee: cb.hasGuarantee,
+        })
+        .select('id, name')
+        .single();
+
+      if (error) {
+        console.error(`  [ERROR] Failed to create CI bundle "${cb.name}":`, error.message);
+      } else {
+        console.log(`  [OK] Created CI bundle "${data.name}" (id: ${data.id})`);
+      }
     }
   }
 

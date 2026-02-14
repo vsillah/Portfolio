@@ -42,6 +42,17 @@ export async function GET(
       parentName = parent?.name;
     }
 
+    // Fetch base bundle name if this bundle builds on another
+    let baseBundleName: string | undefined;
+    if (bundle.base_bundle_id) {
+      const { data: baseBundle } = await supabaseAdmin
+        .from('offer_bundles')
+        .select('name')
+        .eq('id', bundle.base_bundle_id)
+        .single();
+      baseBundleName = baseBundle?.name;
+    }
+
     // Fetch fork count
     const { count: forkCount } = await supabaseAdmin
       .from('offer_bundles')
@@ -53,6 +64,7 @@ export async function GET(
         ...bundle,
         item_count: (bundle.bundle_items || []).length,
         parent_name: parentName,
+        base_bundle_name: baseBundleName,
         fork_count: forkCount || 0,
       }
     });
@@ -78,14 +90,36 @@ export async function PUT(
     const { id } = params;
     const body = await request.json();
 
-    const { 
-      name, 
-      description, 
-      bundle_items, 
+    // Fetch existing bundle to enforce custom-bundle pricing exclusion
+    const { data: existing } = await supabaseAdmin
+      .from('offer_bundles')
+      .select('bundle_type')
+      .eq('id', id)
+      .single();
+
+    const isCustomBundle = existing?.bundle_type === 'custom';
+
+    const {
+      name,
+      description,
+      bundle_items,
       bundle_price,
       default_discount_percent,
       notes,
       is_active,
+      // Base bundle
+      base_bundle_id,
+      // Pricing page fields
+      pricing_page_segments,
+      pricing_tier_slug,
+      tagline,
+      target_audience_display,
+      pricing_display_order,
+      is_featured,
+      guarantee_name,
+      guarantee_description,
+      cta_text,
+      cta_href,
     } = body;
 
     // Build update object (only include provided fields)
@@ -103,6 +137,20 @@ export async function PUT(
     if (default_discount_percent !== undefined) updateData.default_discount_percent = default_discount_percent;
     if (notes !== undefined) updateData.notes = notes;
     if (is_active !== undefined) updateData.is_active = is_active;
+    if (base_bundle_id !== undefined) updateData.base_bundle_id = base_bundle_id;
+    // Pricing page fields (custom bundles must never appear on pricing page)
+    if (pricing_page_segments !== undefined && !isCustomBundle) {
+      updateData.pricing_page_segments = pricing_page_segments;
+    }
+    if (pricing_tier_slug !== undefined) updateData.pricing_tier_slug = pricing_tier_slug;
+    if (tagline !== undefined) updateData.tagline = tagline;
+    if (target_audience_display !== undefined) updateData.target_audience_display = target_audience_display;
+    if (pricing_display_order !== undefined) updateData.pricing_display_order = pricing_display_order;
+    if (is_featured !== undefined) updateData.is_featured = is_featured;
+    if (guarantee_name !== undefined) updateData.guarantee_name = guarantee_name;
+    if (guarantee_description !== undefined) updateData.guarantee_description = guarantee_description;
+    if (cta_text !== undefined) updateData.cta_text = cta_text;
+    if (cta_href !== undefined) updateData.cta_href = cta_href;
 
     // Update bundle
     const { data: bundle, error } = await supabaseAdmin

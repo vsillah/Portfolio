@@ -1,16 +1,25 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Sparkles, ArrowRight, Check, Shield, Zap, BarChart } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Breadcrumbs from '@/components/Breadcrumbs';
+import { Heart } from 'lucide-react';
 import { PricingCard } from '@/components/pricing/PricingCard';
 import { ROICalculator } from '@/components/pricing/ROICalculator';
 import { ComparisonChecklist } from '@/components/pricing/ComparisonChecklist';
 import { ContinuityPlans } from '@/components/pricing/ContinuityPlans';
-import { PRICING_TIERS, CONTINUITY_PLANS } from '@/lib/pricing-model';
+import { CommunityImpactComparison } from '@/components/pricing/CommunityImpactComparison';
+import {
+  PRICING_TIERS,
+  CONTINUITY_PLANS,
+  COMMUNITY_IMPACT_TIERS,
+  DECOY_COMPARISONS,
+  type PricingTier,
+  type DecoyComparison,
+} from '@/lib/pricing-model';
 
 // --- Animation Components (Adapted from Hero.tsx) ---
 
@@ -56,20 +65,64 @@ const PulsingNode = ({ cx, cy, delay = 0 }: { cx: number, cy: number, delay?: nu
 
 // --- Main Page Component ---
 
-type Segment = 'smb' | 'midmarket';
+type Segment = 'smb' | 'midmarket' | 'nonprofit';
 
 const SEGMENT_TIERS: Record<Segment, string[]> = {
   smb: ['quick-win', 'accelerator', 'growth-engine'],
-  midmarket: ['accelerator', 'growth-engine', 'digital-transformation'],
+  midmarket: ['mm-accelerator', 'mm-growth-engine', 'mm-digital-transformation'],
+  nonprofit: ['ci-starter', 'ci-accelerator', 'ci-growth'],
 };
 
 export default function PricingPage() {
   const [segment, setSegment] = useState<Segment>('smb');
+  const [showNonprofitComparison, setShowNonprofitComparison] = useState(false);
   const [showFAQ, setShowFAQ] = useState<string | null>(null);
   const containerRef = useRef(null);
 
+  // API-driven tiers; fallback to lib/pricing-model on error or empty
+  const [apiTiers, setApiTiers] = useState<PricingTier[] | null>(null);
+  const [apiDecoyComparisons, setApiDecoyComparisons] = useState<DecoyComparison[] | null>(null);
+  useEffect(() => {
+    fetch(`/api/pricing/tiers?segment=${segment}`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Fetch failed');
+        return res.json();
+      })
+      .then((data) => {
+        if (Array.isArray(data.tiers) && data.tiers.length > 0) {
+          setApiTiers(data.tiers);
+          setApiDecoyComparisons(data.decoyComparisons ?? null);
+        } else {
+          setApiTiers(null);
+          setApiDecoyComparisons(null);
+        }
+      })
+      .catch(() => {
+        setApiTiers(null);
+        setApiDecoyComparisons(null);
+      });
+  }, [segment]);
+
+  // Reset comparison view when switching away from nonprofit
+  const handleSegmentChange = (newSegment: Segment) => {
+    if (newSegment !== 'nonprofit') setShowNonprofitComparison(false);
+    setSegment(newSegment);
+  };
+
+  // Use API tiers when available; fallback to lib/pricing-model
   const visibleTierIds = SEGMENT_TIERS[segment];
-  const visibleTiers = PRICING_TIERS.filter(t => visibleTierIds.includes(t.id));
+  const fallbackTiers = [...PRICING_TIERS, ...COMMUNITY_IMPACT_TIERS];
+  const fallbackVisible = fallbackTiers.filter((t) => visibleTierIds.includes(t.id));
+  const visibleTiers =
+    apiTiers && apiTiers.length > 0
+      ? apiTiers
+      : fallbackVisible;
+
+  // Use API decoy comparisons when segment=nonprofit and available; else fallback
+  const decoyComparisons =
+    segment === 'nonprofit' && showNonprofitComparison && apiDecoyComparisons && apiDecoyComparisons.length > 0
+      ? apiDecoyComparisons
+      : DECOY_COMPARISONS;
 
   const faqs = [
     {
@@ -231,7 +284,7 @@ export default function PricingPage() {
         <div className="flex justify-center">
           <div className="inline-flex rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg dark:border-gray-800 dark:bg-gray-900/90 dark:backdrop-blur-md">
             <button
-              onClick={() => setSegment('smb')}
+              onClick={() => handleSegmentChange('smb')}
               className={`rounded-lg px-6 py-2.5 text-sm font-heading tracking-wide transition-all duration-300 ${
                 segment === 'smb'
                   ? 'bg-imperial-navy text-radiant-gold shadow-md'
@@ -241,7 +294,7 @@ export default function PricingPage() {
               Small Business (1-50)
             </button>
             <button
-              onClick={() => setSegment('midmarket')}
+              onClick={() => handleSegmentChange('midmarket')}
               className={`rounded-lg px-6 py-2.5 text-sm font-heading tracking-wide transition-all duration-300 ${
                 segment === 'midmarket'
                   ? 'bg-imperial-navy text-radiant-gold shadow-md'
@@ -250,23 +303,83 @@ export default function PricingPage() {
             >
               Mid-Market (50-500)
             </button>
+            <button
+              onClick={() => handleSegmentChange('nonprofit')}
+              className={`rounded-lg px-6 py-2.5 text-sm font-heading tracking-wide transition-all duration-300 flex items-center gap-1.5 ${
+                segment === 'nonprofit'
+                  ? 'bg-emerald-700 text-white shadow-md'
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-platinum-white'
+              }`}
+            >
+              <Heart className="w-3.5 h-3.5" />
+              Nonprofit / Education
+            </button>
           </div>
         </div>
       </section>
 
       {/* Pricing Cards */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:py-24">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="grid gap-8 md:grid-cols-3"
-        >
-          {visibleTiers.map((tier) => (
-            <PricingCard key={tier.id} tier={tier} />
-          ))}
-        </motion.div>
+        {segment === 'nonprofit' && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-12 text-center max-w-2xl mx-auto"
+          >
+            <h2 className="font-premium text-3xl text-gray-900 dark:text-white mb-3">
+              Community Impact Program
+            </h2>
+            <p className="text-lg text-gray-500 dark:text-gray-400">
+              Same outcomes. Budget-friendly. No guarantees. Designed for nonprofits and educational institutions to access AI tools through self-serve delivery.
+            </p>
+          </motion.div>
+        )}
+
+        {segment === 'nonprofit' && showNonprofitComparison ? (
+          /* Side-by-side CI vs Full-Service comparison (opt-in) */
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <CommunityImpactComparison comparisons={decoyComparisons} showIntroHeader />
+            <div className="mt-8 text-center">
+              <button
+                onClick={() => setShowNonprofitComparison(false)}
+                className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline transition-colors"
+              >
+                View Community Impact only
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="grid gap-8 md:grid-cols-3"
+          >
+            {visibleTiers.map((tier) => (
+              <PricingCard key={tier.id} tier={tier} />
+            ))}
+            {segment === 'nonprofit' && (
+              <div className="md:col-span-3 flex flex-col items-center justify-center py-8 px-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center max-w-md">
+                  Want to see how Community Impact compares to our full-service packages?
+                </p>
+                <button
+                  onClick={() => setShowNonprofitComparison(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border-2 border-radiant-gold bg-transparent px-6 py-3 text-sm font-heading font-bold uppercase tracking-wide text-radiant-gold transition-all hover:bg-radiant-gold hover:text-imperial-navy"
+                >
+                  Compare with full-service options
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </motion.div>
+        )}
         
         <div className="mt-12 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -278,6 +391,17 @@ export default function PricingPage() {
             <Link href="/store" className="text-imperial-navy dark:text-radiant-gold underline hover:opacity-80 transition-opacity">
               browse our store
             </Link>.
+            {segment === 'nonprofit' && (
+              <>
+                {' '}Looking for our full-service packages?{' '}
+                <button
+                  onClick={() => handleSegmentChange('smb')}
+                  className="text-imperial-navy dark:text-radiant-gold underline hover:opacity-80 transition-opacity"
+                >
+                  View premium tiers
+                </button>.
+              </>
+            )}
           </p>
         </div>
       </section>

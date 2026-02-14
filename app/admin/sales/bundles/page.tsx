@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { TIER_OPTIONS } from '@/lib/constants/bundle-tiers';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
 import { 
@@ -35,6 +36,8 @@ import {
   X,
   Save,
   AlertCircle,
+  Heart,
+  Shield,
 } from 'lucide-react';
 
 export default function BundleManagementPage() {
@@ -327,6 +330,19 @@ export default function BundleManagementPage() {
           />
         )}
 
+        {/* Edit Bundle Modal */}
+        {editingBundle && (
+          <EditBundleModal
+            bundle={editingBundle}
+            allBundles={bundles}
+            onClose={() => setEditingBundle(null)}
+            onSave={() => {
+              fetchBundles();
+              setEditingBundle(null);
+            }}
+          />
+        )}
+
         {/* View Bundle Modal */}
         {viewingBundle && (
           <ViewBundleModal
@@ -372,13 +388,46 @@ function BundleCard({
               Forked from {bundle.parent_name}
             </p>
           )}
+          {bundle.base_bundle_name && (
+            <p className="text-xs text-blue-400 flex items-center gap-1 mt-1">
+              <Layers className="w-3 h-3" />
+              Builds on: {bundle.base_bundle_name}
+            </p>
+          )}
+          {bundle.bundle_type !== 'custom' && (
+            <p className="text-xs text-gray-500 mt-1">
+              Tier: {bundle.pricing_tier_slug
+                ? (TIER_OPTIONS.find((t) => t.value === bundle.pricing_tier_slug)?.label ?? bundle.pricing_tier_slug)
+                : '—'}
+            </p>
+          )}
+          {bundle.is_decoy && (
+            <p className="text-xs text-emerald-400 flex items-center gap-1 mt-1">
+              <Heart className="w-3 h-3" />
+              Community Impact{bundle.mirrors_tier_id ? ` · mirrors ${bundle.mirrors_tier_id}` : ''}
+            </p>
+          )}
         </div>
-        <div className={`px-2 py-1 text-xs font-medium rounded ${
-          bundle.bundle_type === 'standard' 
-            ? 'bg-green-900/50 text-green-300' 
-            : 'bg-purple-900/50 text-purple-300'
-        }`}>
-          {bundle.bundle_type}
+        <div className="flex items-center gap-1.5">
+          {bundle.is_decoy && (
+            <div className="px-2 py-1 text-xs font-medium rounded bg-emerald-900/50 text-emerald-300">
+              decoy
+            </div>
+          )}
+          {bundle.has_guarantee === false && (
+            <div className="px-2 py-1 text-xs font-medium rounded bg-gray-700/50 text-gray-400" title="No guarantee">
+              <Shield className="w-3 h-3" />
+            </div>
+          )}
+          <div className={`px-2 py-1 text-xs font-medium rounded ${
+            bundle.bundle_type === 'standard' 
+              ? 'bg-green-900/50 text-green-300' 
+              : bundle.bundle_type === 'decoy'
+              ? 'bg-emerald-900/50 text-emerald-300'
+              : 'bg-purple-900/50 text-purple-300'
+          }`}>
+            {bundle.bundle_type}
+          </div>
         </div>
       </div>
       
@@ -474,8 +523,40 @@ function CreateBundleModal({
 }) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [isDecoy, setIsDecoy] = useState(false);
+  const [targetAudience, setTargetAudience] = useState<string[]>([]);
+  const [mirrorsTierId, setMirrorsTierId] = useState('');
+  const [showOnPricingPage, setShowOnPricingPage] = useState(false);
+  const [pricingSegments, setPricingSegments] = useState<string[]>([]);
+  const [pricingTierSlug, setPricingTierSlug] = useState('');
+  const [tagline, setTagline] = useState('');
+  const [targetAudienceDisplay, setTargetAudienceDisplay] = useState('');
+  const [pricingDisplayOrder, setPricingDisplayOrder] = useState(0);
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [guaranteeName, setGuaranteeName] = useState('');
+  const [guaranteeDescription, setGuaranteeDescription] = useState('');
+  const [ctaText, setCtaText] = useState('Get Started');
+  const [ctaHref, setCtaHref] = useState('#contact');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const SEGMENTS = ['smb', 'midmarket', 'nonprofit'] as const;
+  const togglePricingSegment = (seg: string) => {
+    setPricingSegments((prev) =>
+      prev.includes(seg) ? prev.filter((s) => s !== seg) : [...prev, seg]
+    );
+  };
+
+
+  const AUDIENCE_OPTIONS = ['nonprofit', 'education'];
+
+  const toggleAudience = (audience: string) => {
+    setTargetAudience(prev => 
+      prev.includes(audience) 
+        ? prev.filter(a => a !== audience)
+        : [...prev, audience]
+    );
+  };
 
   const handleSave = async () => {
     if (!name.trim()) {
@@ -500,6 +581,21 @@ function CreateBundleModal({
           name: name.trim(),
           description: description.trim() || null,
           bundle_items: [],
+          bundle_type: isDecoy ? 'decoy' : 'standard',
+          is_decoy: isDecoy,
+          target_audience: isDecoy ? targetAudience : [],
+          mirrors_tier_id: isDecoy && mirrorsTierId ? mirrorsTierId : null,
+          has_guarantee: !isDecoy,
+          pricing_page_segments: showOnPricingPage ? pricingSegments : [],
+          pricing_tier_slug: pricingTierSlug || null,
+          tagline: tagline || null,
+          target_audience_display: targetAudienceDisplay || null,
+          pricing_display_order: pricingDisplayOrder,
+          is_featured: isFeatured,
+          guarantee_name: guaranteeName || null,
+          guarantee_description: guaranteeDescription || null,
+          cta_text: ctaText || 'Get Started',
+          cta_href: ctaHref || '#contact',
         }),
       });
 
@@ -559,6 +655,162 @@ function CreateBundleModal({
               className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 resize-none"
             />
           </div>
+
+          {/* Community Impact / Decoy toggle */}
+          <div className="border-t border-gray-800 pt-4">
+            <label className="flex items-center gap-3 cursor-pointer">
+              <div className={`relative w-10 h-5 rounded-full transition-colors ${isDecoy ? 'bg-emerald-600' : 'bg-gray-700'}`}>
+                <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${isDecoy ? 'translate-x-5' : ''}`} />
+              </div>
+              <div>
+                <span className="text-sm font-medium text-gray-300 flex items-center gap-1.5">
+                  <Heart className="w-3.5 h-3.5 text-emerald-400" />
+                  Community Impact (Decoy) Offer
+                </span>
+                <span className="text-xs text-gray-500 block mt-0.5">
+                  Lower price, self-serve delivery, no guarantee
+                </span>
+              </div>
+            </label>
+
+            {isDecoy && (
+              <div className="mt-4 space-y-3 pl-1">
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                    Target Audience
+                  </label>
+                  <div className="flex gap-2">
+                    {AUDIENCE_OPTIONS.map(audience => (
+                      <button
+                        key={audience}
+                        type="button"
+                        onClick={() => toggleAudience(audience)}
+                        className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                          targetAudience.includes(audience)
+                            ? 'bg-emerald-900/50 text-emerald-300 border-emerald-700'
+                            : 'bg-gray-800 text-gray-400 border-gray-700 hover:border-gray-600'
+                        }`}
+                      >
+                        {audience.charAt(0).toUpperCase() + audience.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                    Mirrors Premium Tier
+                  </label>
+                  <select
+                    value={mirrorsTierId}
+                    onChange={(e) => setMirrorsTierId(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-emerald-500"
+                  >
+                    <option value="">None (standalone)</option>
+                    {TIER_OPTIONS.map(tier => (
+                      <option key={tier.value} value={tier.value}>{tier.label}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Pricing page (standard/decoy only; custom comes from save-as) */}
+          <div className="border-t border-gray-800 pt-4">
+            <h3 className="text-sm font-medium text-gray-300 mb-3">Pricing Page</h3>
+            <label className="flex items-center gap-3 cursor-pointer mb-3">
+              <input
+                type="checkbox"
+                checked={showOnPricingPage}
+                onChange={(e) => setShowOnPricingPage(e.target.checked)}
+                className="rounded border-gray-600"
+              />
+              <span className="text-sm text-gray-300">Show on pricing page</span>
+            </label>
+            {showOnPricingPage && (
+              <div className="space-y-3 pl-1">
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Segments</label>
+                  <div className="flex gap-2">
+                    {SEGMENTS.map((seg) => (
+                      <button
+                        key={seg}
+                        type="button"
+                        onClick={() => togglePricingSegment(seg)}
+                        className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                          pricingSegments.includes(seg)
+                            ? 'bg-blue-900/50 text-blue-300 border-blue-700'
+                            : 'bg-gray-800 text-gray-400 border-gray-700'
+                        }`}
+                      >
+                        {seg}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                    Tier
+                  </label>
+                  <select
+                    value={pricingTierSlug}
+                    onChange={(e) => setPricingTierSlug(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="">— No tier</option>
+                    {TIER_OPTIONS.map((tier) => (
+                      <option key={tier.value} value={tier.value}>{tier.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Tagline</label>
+                  <input
+                    type="text"
+                    value={tagline}
+                    onChange={(e) => setTagline(e.target.value)}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                    Target audience (display)
+                  </label>
+                  <input
+                    type="text"
+                    value={targetAudienceDisplay}
+                    onChange={(e) => setTargetAudienceDisplay(e.target.value)}
+                    placeholder="e.g. Nonprofits & educational institutions"
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                    Display order
+                  </label>
+                  <input
+                    type="number"
+                    value={pricingDisplayOrder}
+                    onChange={(e) =>
+                      setPricingDisplayOrder(parseInt(e.target.value, 10) || 0)
+                    }
+                    min={0}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={isFeatured}
+                    onChange={(e) => setIsFeatured(e.target.checked)}
+                    className="rounded border-gray-600"
+                  />
+                  <span className="text-sm text-gray-300">Featured (Most Popular)</span>
+                </label>
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center gap-3 mt-6">
@@ -590,6 +842,341 @@ function CreateBundleModal({
   );
 }
 
+// Edit Bundle Modal (metadata + pricing page fields)
+function EditBundleModal({
+  bundle,
+  allBundles,
+  onClose,
+  onSave,
+}: {
+  bundle: OfferBundleWithStats;
+  allBundles: OfferBundleWithStats[];
+  onClose: () => void;
+  onSave: () => void;
+}) {
+  const isCustom = bundle.bundle_type === 'custom';
+  const [name, setName] = useState(bundle.name);
+  const [description, setDescription] = useState(bundle.description ?? '');
+  const [baseBundleId, setBaseBundleId] = useState<string>(bundle.base_bundle_id ?? '');
+  const [showOnPricingPage, setShowOnPricingPage] = useState(
+    Array.isArray(bundle.pricing_page_segments) && bundle.pricing_page_segments.length > 0
+  );
+  const [pricingSegments, setPricingSegments] = useState<string[]>(
+    (bundle.pricing_page_segments as string[]) ?? []
+  );
+  const [pricingTierSlug, setPricingTierSlug] = useState(bundle.pricing_tier_slug ?? '');
+  const [tagline, setTagline] = useState(bundle.tagline ?? '');
+  const [targetAudienceDisplay, setTargetAudienceDisplay] = useState(
+    bundle.target_audience_display ?? ''
+  );
+  const [pricingDisplayOrder, setPricingDisplayOrder] = useState(
+    bundle.pricing_display_order ?? 0
+  );
+  const [isFeatured, setIsFeatured] = useState(bundle.is_featured ?? false);
+  const [guaranteeName, setGuaranteeName] = useState(bundle.guarantee_name ?? '');
+  const [guaranteeDescription, setGuaranteeDescription] = useState(
+    bundle.guarantee_description ?? ''
+  );
+  const [ctaText, setCtaText] = useState(bundle.cta_text ?? 'Get Started');
+  const [ctaHref, setCtaHref] = useState(bundle.cta_href ?? '#contact');
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const SEGMENTS = ['smb', 'midmarket', 'nonprofit'] as const;
+
+  const toggleSegment = (seg: string) => {
+    setPricingSegments((prev) =>
+      prev.includes(seg) ? prev.filter((s) => s !== seg) : [...prev, seg]
+    );
+  };
+
+  const handleSave = async () => {
+    if (!name.trim()) {
+      setError('Bundle name is required');
+      return;
+    }
+
+    const session = await getCurrentSession();
+    if (!session?.access_token) return;
+
+    setIsSaving(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/admin/sales/bundles/${bundle.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          name: name.trim(),
+          description: description.trim() || null,
+          base_bundle_id: baseBundleId || null,
+          pricing_page_segments: isCustom ? undefined : showOnPricingPage ? pricingSegments : [],
+          pricing_tier_slug: isCustom ? undefined : pricingTierSlug || null,
+          tagline: isCustom ? undefined : tagline || null,
+          target_audience_display: isCustom ? undefined : targetAudienceDisplay || null,
+          pricing_display_order: isCustom ? undefined : pricingDisplayOrder,
+          is_featured: isCustom ? undefined : isFeatured,
+          guarantee_name: guaranteeName || null,
+          guarantee_description: guaranteeDescription || null,
+          cta_text: ctaText || 'Get Started',
+          cta_href: ctaHref || '#contact',
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to save bundle');
+      }
+
+      onSave();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save bundle');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold">Edit Bundle</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-white">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-900/50 border border-red-800 rounded-lg text-sm text-red-200">
+            {error}
+          </div>
+        )}
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Bundle Name *</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 resize-none"
+            />
+          </div>
+
+          {/* Base bundle - hidden for custom bundles */}
+          {!isCustom && (
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">Base bundle</label>
+              <p className="text-xs text-gray-500 mb-2">
+                {bundle.base_bundle_name ? `Currently based on: ${bundle.base_bundle_name}` : 'Currently: None'}
+              </p>
+              <select
+                value={baseBundleId}
+                onChange={(e) => setBaseBundleId(e.target.value)}
+                className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+              >
+                <option value="">— None</option>
+                {allBundles
+                  .filter((b) => b.id !== bundle.id)
+                  .map((b) => (
+                    <option key={b.id} value={b.id}>{b.name}</option>
+                  ))}
+              </select>
+            </div>
+          )}
+
+          {/* Pricing page section - hidden for custom bundles */}
+          {!isCustom && (
+            <div className="border-t border-gray-800 pt-4 space-y-4">
+              <h3 className="text-sm font-medium text-gray-300">Pricing Page</h3>
+
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showOnPricingPage}
+                  onChange={(e) => setShowOnPricingPage(e.target.checked)}
+                  className="rounded border-gray-600"
+                />
+                <span className="text-sm text-gray-300">Show on pricing page</span>
+              </label>
+
+              {showOnPricingPage && (
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                      Segments
+                    </label>
+                    <div className="flex gap-2">
+                      {SEGMENTS.map((seg) => (
+                        <button
+                          key={seg}
+                          type="button"
+                          onClick={() => toggleSegment(seg)}
+                          className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
+                            pricingSegments.includes(seg)
+                              ? 'bg-blue-900/50 text-blue-300 border-blue-700'
+                              : 'bg-gray-800 text-gray-400 border-gray-700'
+                          }`}
+                        >
+                          {seg}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1.5">Tier</label>
+                    <select
+                      value={pricingTierSlug}
+                      onChange={(e) => setPricingTierSlug(e.target.value)}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="">— No tier</option>
+                      {TIER_OPTIONS.map((tier) => (
+                        <option key={tier.value} value={tier.value}>{tier.label}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1.5">Tagline</label>
+                    <input
+                      type="text"
+                      value={tagline}
+                      onChange={(e) => setTagline(e.target.value)}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                      Target audience (display)
+                    </label>
+                    <input
+                      type="text"
+                      value={targetAudienceDisplay}
+                      onChange={(e) => setTargetAudienceDisplay(e.target.value)}
+                      placeholder="e.g. Nonprofits & educational institutions"
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                      Display order
+                    </label>
+                    <input
+                      type="number"
+                      value={pricingDisplayOrder}
+                      onChange={(e) => setPricingDisplayOrder(parseInt(e.target.value, 10) || 0)}
+                      min={0}
+                      className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={isFeatured}
+                      onChange={(e) => setIsFeatured(e.target.checked)}
+                      className="rounded border-gray-600"
+                    />
+                    <span className="text-sm text-gray-300">Featured (Most Popular)</span>
+                  </label>
+                </>
+              )}
+
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  Guarantee name
+                </label>
+                <input
+                  type="text"
+                  value={guaranteeName}
+                  onChange={(e) => setGuaranteeName(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                  Guarantee description
+                </label>
+                <input
+                  type="text"
+                  value={guaranteeDescription}
+                  onChange={(e) => setGuaranteeDescription(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">CTA text</label>
+                <input
+                  type="text"
+                  value={ctaText}
+                  onChange={(e) => setCtaText(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1.5">CTA href</label>
+                <input
+                  type="text"
+                  value={ctaHref}
+                  onChange={(e) => setCtaHref(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {isCustom && (
+            <p className="text-xs text-gray-500 italic">
+              Custom bundles do not appear on the pricing page.
+            </p>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3 mt-6">
+          <button
+            onClick={onClose}
+            className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed rounded-lg transition-colors"
+          >
+            {isSaving ? (
+              <RefreshCw className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // View/Edit Bundle Modal
 function ViewBundleModal({
   bundle,
@@ -606,12 +1193,22 @@ function ViewBundleModal({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasChanges, setHasChanges] = useState(false);
+  const [bundleName, setBundleName] = useState(bundle.name);
+  const [bundleDescription, setBundleDescription] = useState(bundle.description || '');
+  const [isEditingHeader, setIsEditingHeader] = useState(false);
   
   const totals = calculateBundleTotals(items);
   
   const handleItemsChange = (newItems: ResolvedBundleItem[]) => {
     setItems(newItems);
     setHasChanges(true);
+  };
+
+  const handleHeaderChange = () => {
+    if (bundleName !== bundle.name || bundleDescription !== (bundle.description || '')) {
+      setHasChanges(true);
+    }
+    setIsEditingHeader(false);
   };
   
   const handleSave = async () => {
@@ -626,6 +1223,13 @@ function ViewBundleModal({
       const bundleItems: BundleItem[] = items.map(item => 
         createBundleItemFromResolved(item, true)
       );
+
+      // Build payload — include name/description if changed
+      const payload: Record<string, unknown> = {
+        bundle_items: bundleItems,
+      };
+      if (bundleName !== bundle.name) payload.name = bundleName;
+      if (bundleDescription !== (bundle.description || '')) payload.description = bundleDescription;
       
       const response = await fetch(`/api/admin/sales/bundles/${bundle.id}`, {
         method: 'PUT',
@@ -633,9 +1237,7 @@ function ViewBundleModal({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          bundle_items: bundleItems,
-        }),
+        body: JSON.stringify(payload),
       });
       
       if (!response.ok) {
@@ -656,17 +1258,64 @@ function ViewBundleModal({
     <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
       <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-800">
-          <div>
-            <h2 className="text-xl font-semibold">{bundle.name}</h2>
-            {bundle.description && (
-              <p className="text-sm text-gray-400 mt-1">{bundle.description}</p>
-            )}
-          </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
+        <div className="flex items-start justify-between p-6 border-b border-gray-800">
+          {isEditingHeader ? (
+            <div className="flex-1 mr-4 space-y-3">
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Bundle Name</label>
+                <input
+                  type="text"
+                  value={bundleName}
+                  onChange={(e) => setBundleName(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-lg font-semibold"
+                  autoFocus
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Description</label>
+                <textarea
+                  value={bundleDescription}
+                  onChange={(e) => setBundleDescription(e.target.value)}
+                  placeholder="Enter bundle description..."
+                  rows={2}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-sm text-gray-300 resize-y"
+                />
+              </div>
+              <button
+                onClick={handleHeaderChange}
+                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          ) : (
+            <div className="flex-1 min-w-0 group cursor-pointer" onClick={() => setIsEditingHeader(true)}>
+              <div className="flex items-center gap-2">
+                <h2 className="text-xl font-semibold">{bundleName}</h2>
+                <Edit className="w-4 h-4 text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              {bundleDescription ? (
+                <p className="text-sm text-gray-400 mt-1">{bundleDescription}</p>
+              ) : (
+                <p className="text-sm text-gray-600 mt-1 italic opacity-0 group-hover:opacity-100 transition-opacity">Click to add description...</p>
+              )}
+            </div>
+          )}
+          <button onClick={onClose} className="text-gray-400 hover:text-white ml-2 mt-1">
             <X className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Base bundle info */}
+        {bundle.base_bundle_name && (
+          <div className="px-6 py-2 bg-gray-950/50 border-b border-gray-800">
+            <p className="text-sm text-blue-400">
+              <Layers className="w-4 h-4 inline-block mr-1.5 align-middle" />
+              Based on: {bundle.base_bundle_name}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">This bundle includes all items from the base bundle plus the items below.</p>
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 p-4 bg-gray-950 border-b border-gray-800">

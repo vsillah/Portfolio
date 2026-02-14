@@ -45,10 +45,26 @@ export interface PricingTier {
   totalRetailValue: number;
   savingsPercent: number;
   items: TierItem[];
-  guarantee: GuaranteeDef;
+  guarantee: GuaranteeDef | null; // null for Community Impact (no guarantee) tiers
   ctaText: string;
   ctaHref: string;
   featured?: boolean; // highlight this tier
+  isDecoy?: boolean; // true for Community Impact decoy tiers
+  mirrorsTierId?: string; // the premium tier this decoy contrasts against
+}
+
+/**
+ * Pairs a Community Impact (decoy) tier with its premium counterpart
+ * for side-by-side comparison rendering.
+ */
+export interface DecoyComparison {
+  decoyTier: PricingTier;
+  premiumTier: PricingTier;
+  keyDifferences: {
+    feature: string;
+    decoyValue: string;
+    premiumValue: string;
+  }[];
 }
 
 export interface ContinuityPlan {
@@ -215,6 +231,120 @@ export const PRICING_TIERS: PricingTier[] = [
   },
 ];
 
+// ============================================================================
+// Community Impact (Decoy) Tier Definitions
+// Same outcomes, self-serve delivery, no guarantees, lower prices.
+// Designed for nonprofits and educational institutions.
+// ============================================================================
+
+export const COMMUNITY_IMPACT_TIERS: PricingTier[] = [
+  {
+    id: 'ci-starter',
+    name: 'CI Starter',
+    tagline: 'Discover where AI fits in your organization',
+    targetAudience: 'Nonprofits & educational institutions',
+    price: 0,
+    isCustomPricing: false,
+    totalRetailValue: 1350,
+    savingsPercent: 100,
+    isDecoy: true,
+    mirrorsTierId: 'quick-win',
+    items: [
+      { title: 'AI Strategy Workshop (Recorded)', perceivedValue: 500, offerRole: 'core_offer', description: 'Self-paced recorded workshop — discover your top AI opportunities' },
+      { title: 'AI Implementation Playbook (PDF)', perceivedValue: 200, offerRole: 'bonus', description: 'Downloadable step-by-step guide' },
+      { title: 'ROI Template Spreadsheets', perceivedValue: 150, offerRole: 'bonus', description: 'Ready-to-use templates for calculating automation ROI' },
+      { title: 'Community Forum Access', perceivedValue: 300, offerRole: 'bonus', description: 'Peer support from similar organizations' },
+      { title: 'AI Training Library Access', perceivedValue: 200, offerRole: 'bonus', description: '20+ hours of recorded AI training content' },
+    ],
+    guarantee: null,
+    ctaText: 'Get Started',
+    ctaHref: '#contact',
+  },
+  {
+    id: 'ci-accelerator',
+    name: 'CI Accelerator',
+    tagline: 'Deploy your first AI tool',
+    targetAudience: 'Nonprofits & educational institutions',
+    price: 1997,
+    isCustomPricing: false,
+    totalRetailValue: 6500,
+    savingsPercent: 69,
+    isDecoy: true,
+    mirrorsTierId: 'accelerator',
+    items: [
+      { title: 'Everything in CI Starter', perceivedValue: 1350, offerRole: 'bonus', description: 'Full CI Starter package included' },
+      { title: 'Pre-Built Chatbot Template', perceivedValue: 3000, offerRole: 'core_offer', description: 'Self-install AI chatbot with step-by-step guide' },
+      { title: 'Group Onboarding Webinar', perceivedValue: 1500, offerRole: 'bonus', description: 'Bi-weekly group calls over 6 weeks' },
+      { title: '30-Day Email Support', perceivedValue: 500, offerRole: 'bonus', description: 'Email support for setup questions' },
+    ],
+    guarantee: null,
+    ctaText: 'Start Building',
+    ctaHref: '#contact',
+  },
+  {
+    id: 'ci-growth',
+    name: 'CI Growth',
+    tagline: 'AI across lead gen, content, and operations',
+    targetAudience: 'Nonprofits & educational institutions',
+    price: 4997,
+    isCustomPricing: false,
+    totalRetailValue: 20000,
+    savingsPercent: 75,
+    isDecoy: true,
+    mirrorsTierId: 'growth-engine',
+    items: [
+      { title: 'Everything in CI Accelerator', perceivedValue: 6500, offerRole: 'bonus', description: 'Full CI Accelerator package included' },
+      { title: 'Lead Tracking Templates', perceivedValue: 4000, offerRole: 'core_offer', description: 'Template-based lead tracking system' },
+      { title: 'Content Automation Templates', perceivedValue: 3000, offerRole: 'core_offer', description: 'Social media content templates and automation guides' },
+      { title: 'Group Implementation Program (6 Weeks)', perceivedValue: 3500, offerRole: 'bonus', description: 'Bi-weekly group implementation calls' },
+      { title: 'Shared Analytics Dashboard', perceivedValue: 2000, offerRole: 'bonus', description: 'Shared (not custom) performance dashboard' },
+      { title: '60-Day Email Support', perceivedValue: 1000, offerRole: 'bonus', description: 'Extended email support for your team' },
+    ],
+    guarantee: null,
+    ctaText: 'Start Growing',
+    ctaHref: '#contact',
+  },
+];
+
+// Pre-built comparisons between CI and premium tiers
+export const DECOY_COMPARISONS: DecoyComparison[] = COMMUNITY_IMPACT_TIERS.map((ciTier) => {
+  const premiumTier = PRICING_TIERS.find(t => t.id === ciTier.mirrorsTierId)!;
+  return {
+    decoyTier: ciTier,
+    premiumTier,
+    keyDifferences: ciTier.id === 'ci-starter'
+      ? [
+          { feature: 'Workshop', decoyValue: 'Recorded (self-paced)', premiumValue: 'Live half-day session' },
+          { feature: 'Follow-up', decoyValue: 'Community forum only', premiumValue: '2 personal strategy calls' },
+          { feature: 'Support', decoyValue: 'None', premiumValue: '30-day email support' },
+          { feature: 'Guarantee', decoyValue: 'None', premiumValue: '30-day money-back guarantee' },
+        ]
+      : ciTier.id === 'ci-accelerator'
+      ? [
+          { feature: 'Chatbot', decoyValue: 'Template (self-install)', premiumValue: 'Custom-deployed & configured' },
+          { feature: 'Coaching', decoyValue: 'Group webinar (6 weeks)', premiumValue: '4-week 1-on-1 coaching' },
+          { feature: 'Training', decoyValue: 'Recorded library', premiumValue: 'Live team session' },
+          { feature: 'Support', decoyValue: '30-day email', premiumValue: '90-day priority support' },
+          { feature: 'Guarantee', decoyValue: 'None', premiumValue: '90-day outcome guarantee' },
+        ]
+      : [
+          { feature: 'Tools', decoyValue: 'Template-based (self-setup)', premiumValue: 'Custom-deployed & running' },
+          { feature: 'Implementation', decoyValue: 'Group calls (6 weeks)', premiumValue: '12-week dedicated program' },
+          { feature: 'Advisory', decoyValue: 'None', premiumValue: 'Monthly advisory calls (3 months)' },
+          { feature: 'Dashboard', decoyValue: 'Shared template', premiumValue: 'Custom analytics dashboard' },
+          { feature: 'Support', decoyValue: '60-day email', premiumValue: 'Priority support channel' },
+          { feature: 'Guarantee', decoyValue: 'None', premiumValue: '365-day ROI guarantee' },
+        ],
+  };
+});
+
+// Hormozi scores for CI tiers (lower likelihood + more effort = lower value score)
+export const CI_TIER_HORMOZI_SCORES: Record<string, HormoziScore> = {
+  'ci-starter': calculateHormoziScore({ dreamOutcome: 6, likelihood: 6, timeDelay: 7, effortSacrifice: 5 }),
+  'ci-accelerator': calculateHormoziScore({ dreamOutcome: 8, likelihood: 5, timeDelay: 6, effortSacrifice: 4 }),
+  'ci-growth': calculateHormoziScore({ dreamOutcome: 9, likelihood: 5, timeDelay: 5, effortSacrifice: 4 }),
+};
+
 export const CONTINUITY_PLANS: ContinuityPlan[] = [
   {
     id: 'growth-partner',
@@ -364,15 +494,28 @@ export function generatePublicROI(
 
 /**
  * Recommend a tier based on company size, opportunity score, and budget signals.
+ * For nonprofit/education orgs, recommends Community Impact tiers instead.
  */
 export function determineTier(params: {
   companySize: string;
   opportunityScore?: number; // 1-10 from diagnostic
   urgencyScore?: number;     // 1-10 from diagnostic
   budgetSignal?: 'low' | 'medium' | 'high' | 'enterprise';
+  orgType?: 'for_profit' | 'nonprofit' | 'education';
 }): string {
-  const { companySize, opportunityScore = 5, budgetSignal } = params;
+  const { companySize, opportunityScore = 5, budgetSignal, orgType } = params;
   const size = normalizeCompanySize(companySize);
+
+  // Nonprofit/education orgs get Community Impact tiers
+  if (orgType === 'nonprofit' || orgType === 'education') {
+    if (budgetSignal === 'high' || budgetSignal === 'enterprise') {
+      // If they signal high budget, offer premium despite org type
+      return 'accelerator';
+    }
+    if (size === '1-10' || budgetSignal === 'low') return 'ci-starter';
+    if (size === '11-50') return 'ci-accelerator';
+    return 'ci-growth';
+  }
 
   // Budget signal overrides
   if (budgetSignal === 'enterprise') return 'digital-transformation';
@@ -459,6 +602,11 @@ export function formatCurrency(amount: number): string {
     currency: 'USD',
     maximumFractionDigits: 0,
   }).format(amount);
+}
+
+/** Format price for display; returns "Free" when amount is 0 */
+export function formatPriceOrFree(amount: number): string {
+  return amount === 0 ? 'Free' : formatCurrency(amount);
 }
 
 export function formatPercent(value: number): string {

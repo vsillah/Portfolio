@@ -633,7 +633,7 @@ export default function ScrollAdventure() {
                     {/* Scrollable Container for Timeline */}
                     <div 
                         ref={isActive ? fullPageScrollRef : null}
-                        className="w-full h-full overflow-y-auto scroll-smooth"
+                        className="w-full h-full overflow-y-auto scroll-smooth relative"
                     >
                          <Timeline data={timelineData} scrollContainerRef={fullPageScrollRef} />
                          <div className="h-20 w-full flex items-center justify-center text-slate-600 text-sm">
@@ -655,7 +655,7 @@ export default function ScrollAdventure() {
                    {/* Scrollable Container for Parallax */}
                    <div 
                        ref={isActive ? fullPageScrollRef : null}
-                       className="w-full h-full overflow-y-auto scroll-smooth"
+                       className="w-full h-full overflow-y-auto scroll-smooth relative"
                    >
                         <HeroParallax products={productsData} scrollContainerRef={fullPageScrollRef} />
                         <div className="h-20 w-full flex items-center justify-center text-slate-600 text-sm">

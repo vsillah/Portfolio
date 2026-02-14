@@ -186,9 +186,11 @@ function CustomPricingContent() {
           </div>
 
           {/* Guarantee */}
-          <div className="mt-6">
-            <GuaranteeBadge guarantee={recommendedTier.guarantee} size="lg" />
-          </div>
+          {recommendedTier.guarantee && (
+            <div className="mt-6">
+              <GuaranteeBadge guarantee={recommendedTier.guarantee} size="lg" />
+            </div>
+          )}
         </div>
 
         {/* ROI */}

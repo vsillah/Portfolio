@@ -65,7 +65,8 @@ export type ResponseType =
   | 'past_failure'       // Had bad experience before
   | 'diy'                // Wants to do it themselves
   | 'competitor'         // Considering alternatives
-  | 'neutral';           // No clear signal
+  | 'neutral'            // No clear signal
+  | 'budget_constrained_nonprofit'; // Nonprofit/education with budget constraints
 
 export type OfferStrategy = 
   | 'stack_bonuses'      // Add more value with bonuses
@@ -281,6 +282,8 @@ export interface BundleItem {
   
   // Override fields - take precedence over content_offer_roles when set
   // These are LOCAL to the bundle and do NOT affect the canonical classification
+  override_title?: string;
+  override_description?: string;
   override_role?: OfferRole;
   override_price?: number;
   override_perceived_value?: number;
@@ -301,6 +304,9 @@ export interface ResolvedBundleItem extends ContentWithRole {
   original_role?: OfferRole;
   original_price?: number;
   original_perceived_value?: number;
+  // Override fields for admin editing (stored in bundle_items JSONB)
+  override_title?: string;
+  override_description?: string;
 }
 
 // Offer bundle template
@@ -309,7 +315,8 @@ export interface OfferBundle {
   name: string;
   description?: string;
   parent_bundle_id?: string;  // For lineage tracking (forked bundles)
-  bundle_type: 'standard' | 'custom';
+  base_bundle_id?: string;    // When set, includes all items from base bundle plus bundle_items (add-ons)
+  bundle_type: 'standard' | 'custom' | 'decoy';
   bundle_items: BundleItem[];
   total_retail_value?: number;
   total_perceived_value?: number;
@@ -321,6 +328,22 @@ export interface OfferBundle {
   created_by?: string;
   created_at?: string;
   updated_at?: string;
+  // Community Impact (decoy) fields
+  is_decoy?: boolean;
+  target_audience?: string[];     // e.g. ['nonprofit', 'education']
+  mirrors_tier_id?: string;       // The premium tier this decoy contrasts against
+  has_guarantee?: boolean;
+  // Pricing page display
+  pricing_page_segments?: string[];  // smb, midmarket, nonprofit
+  pricing_tier_slug?: string;
+  tagline?: string;
+  target_audience_display?: string;
+  pricing_display_order?: number;
+  is_featured?: boolean;
+  guarantee_name?: string;
+  guarantee_description?: string;
+  cta_text?: string;
+  cta_href?: string;
 }
 
 // Working bundle during a sales session
@@ -342,6 +365,7 @@ export interface BundlePreviewItem {
 export interface OfferBundleWithStats extends OfferBundle {
   item_count: number;
   parent_name?: string;
+  base_bundle_name?: string;
   fork_count: number;
   preview_items?: BundlePreviewItem[];
 }
@@ -356,6 +380,8 @@ export function resolveBundleItem(
   contentRole: ContentWithRole
 ): ResolvedBundleItem {
   const hasOverrides = !!(
+    item.override_title !== undefined ||
+    item.override_description !== undefined ||
     item.override_role !== undefined ||
     item.override_price !== undefined ||
     item.override_perceived_value !== undefined ||
@@ -369,6 +395,8 @@ export function resolveBundleItem(
     is_optional: item.is_optional ?? false,
     has_overrides: hasOverrides,
     // Apply overrides (or keep canonical)
+    title: item.override_title ?? contentRole.title,
+    description: item.override_description ?? contentRole.description,
     offer_role: item.override_role ?? contentRole.offer_role,
     role_retail_price: item.override_price ?? contentRole.role_retail_price,
     perceived_value: item.override_perceived_value ?? contentRole.perceived_value,
@@ -381,6 +409,9 @@ export function resolveBundleItem(
     original_role: contentRole.offer_role ?? undefined,
     original_price: contentRole.role_retail_price ?? undefined,
     original_perceived_value: contentRole.perceived_value ?? undefined,
+    // Preserve override fields for admin UI round-tripping
+    override_title: item.override_title,
+    override_description: item.override_description,
   };
 }
 
@@ -430,6 +461,13 @@ export function createBundleItemFromResolved(
     }
     if (resolved.perceived_value !== resolved.original_perceived_value) {
       item.override_perceived_value = resolved.perceived_value ?? undefined;
+    }
+    // Title and description overrides
+    if (resolved.override_title) {
+      item.override_title = resolved.override_title;
+    }
+    if (resolved.override_description) {
+      item.override_description = resolved.override_description;
     }
   }
   
@@ -668,6 +706,7 @@ export const RESPONSE_TYPE_LABELS: Record<ResponseType, string> = {
   diy: 'DIY',
   competitor: 'Competitor',
   neutral: 'Neutral',
+  budget_constrained_nonprofit: 'Nonprofit Budget',
 };
 
 export const RESPONSE_TYPE_ICONS: Record<ResponseType, string> = {
@@ -680,6 +719,7 @@ export const RESPONSE_TYPE_ICONS: Record<ResponseType, string> = {
   diy: '🛠️',
   competitor: '🏢',
   neutral: '➖',
+  budget_constrained_nonprofit: '🏛️',
 };
 
 export const RESPONSE_TYPE_COLORS: Record<ResponseType, string> = {
@@ -692,6 +732,7 @@ export const RESPONSE_TYPE_COLORS: Record<ResponseType, string> = {
   diy: 'bg-gray-500/20 text-gray-400 border-gray-500/50',
   competitor: 'bg-pink-500/20 text-pink-400 border-pink-500/50',
   neutral: 'bg-gray-500/20 text-gray-400 border-gray-500/50',
+  budget_constrained_nonprofit: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50',
 };
 
 export const OFFER_STRATEGY_LABELS: Record<OfferStrategy, string> = {
@@ -737,6 +778,7 @@ export const OBJECTION_STRATEGY_MAP: Record<ResponseType, OfferStrategy[]> = {
   diy: ['roi_calculator', 'case_study', 'trial_offer'],
   competitor: ['stack_bonuses', 'show_anchor', 'guarantee'],
   neutral: ['continue_script', 'roi_calculator', 'case_study'],
+  budget_constrained_nonprofit: ['show_decoy', 'payment_plan', 'roi_calculator'],
 };
 
 // ============================================================================

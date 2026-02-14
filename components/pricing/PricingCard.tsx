@@ -1,6 +1,6 @@
 'use client';
 
-import { type PricingTier, formatCurrency, formatPercent } from '@/lib/pricing-model';
+import { type PricingTier, formatCurrency, formatPercent, formatPriceOrFree } from '@/lib/pricing-model';
 import Link from 'next/link';
 import { Check, Zap, Shield } from 'lucide-react';
 
@@ -38,7 +38,7 @@ export function PricingCard({ tier, onSelect }: PricingCardProps) {
             <span className="text-sm font-medium text-gray-500">from</span>
           )}
           <span className="font-premium text-5xl font-bold text-gray-900 dark:text-white">
-            {formatCurrency(tier.price)}
+            {formatPriceOrFree(tier.price)}
           </span>
         </div>
         <div className="mt-3 flex items-center gap-3">
@@ -86,17 +86,25 @@ export function PricingCard({ tier, onSelect }: PricingCardProps) {
       </ul>
 
       {/* Guarantee */}
-      <div className="mb-6 rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
-        <div className="flex items-center gap-2 mb-1">
-          <Shield className="w-4 h-4 text-radiant-gold" />
-          <span className="text-xs font-bold uppercase tracking-wide text-gray-900 dark:text-white">
-            {tier.guarantee.name}
-          </span>
+      {tier.guarantee ? (
+        <div className="mb-6 rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+          <div className="flex items-center gap-2 mb-1">
+            <Shield className="w-4 h-4 text-radiant-gold" />
+            <span className="text-xs font-bold uppercase tracking-wide text-gray-900 dark:text-white">
+              {tier.guarantee.name}
+            </span>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+            {tier.guarantee.description}
+          </p>
         </div>
-        <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-          {tier.guarantee.description}
-        </p>
-      </div>
+      ) : (
+        <div className="mb-6 rounded-xl bg-gray-50 p-4 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700">
+          <p className="text-xs text-gray-400 dark:text-gray-500">
+            No money-back guarantee — as-is delivery
+          </p>
+        </div>
+      )}
 
       {/* CTA */}
       {onSelect ? (

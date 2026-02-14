@@ -1,0 +1,54 @@
+---
+alwaysApply: false
+---
+
+# n8n OAuth Callback Debugging — Check Runtime First
+
+When an n8n OAuth credential callback fails (401 Unauthorized, redirect errors, or "Error: Unauthorized" on the callback URL):
+
+## Check order (do NOT skip to Google Cloud Console first)
+
+1. **Verify n8n was started with the correct startup script.**
+   - This project uses `start-n8n.sh` (located at `/Users/mac15/Kinflo-n8n-on-Cursor/start-n8n.sh`).
+   - The script exports critical env vars including `N8N_SKIP_AUTH_ON_OAUTH_CALLBACK=true`
+     (required because n8n runs behind a Cloudflare tunnel).
+   - If n8n was started with `npm exec n8n start` or `n8n start` directly, it will be
+     missing these env vars and OAuth callbacks will return 401.
+   - **How to check:** Inspect the running process (`ps aux | grep n8n`) and look at the
+     startup command. If it's not `bash ./start-n8n.sh` (or equivalent), restart n8n:
+     ```bash
+     cd /Users/mac15/Kinflo-n8n-on-Cursor && kill <pid> && sleep 3 && bash ./start-n8n.sh &
+     ```
+   - **Quick verification:** `curl -s -o /dev/null -w "%{http_code}" https://n8n.amadutown.com/rest/oauth2-credential/callback`
+     should return `200`, not `401`.
+
+2. **Verify the Cloudflare tunnel is running** and routing to the correct local port (5678).
+   - Process: `cloudflared tunnel run n8n-permanent`
+
+3. **Then** check Google Cloud Console:
+   - Redirect URI matches `https://n8n.amadutown.com/rest/oauth2-credential/callback`
+   - OAuth consent screen has `amadutown.com` in authorized domains
+   - Client ID matches what's configured in the n8n credential
+
+4. **Then** check browser/session issues (incognito, cookies, etc.).
+
+## Why this order matters
+
+In this project, the #1 cause of OAuth callback failures is n8n being restarted without
+the startup script. Google Cloud Console misconfiguration is less common because it rarely
+changes. Checking the runtime first saves 30+ minutes of misdirected debugging.
+
+## Key environment variables set by start-n8n.sh
+
+| Variable | Value | Purpose |
+|---|---|---|
+| `N8N_SKIP_AUTH_ON_OAUTH_CALLBACK` | `true` | Allow OAuth popup callback without n8n session |
+| `WEBHOOK_URL` | `https://n8n.amadutown.com` | Public URL for webhook/OAuth redirects |
+| `N8N_EDITOR_BASE_URL` | `https://n8n.amadutown.com` | Editor URL for session cookies |
+| `N8N_PROTOCOL` | `https` | Force HTTPS in generated URLs |
+| `N8N_HOST` | `n8n.amadutown.com` | Public hostname |
+
+## Reference
+
+- Incident: 2026-02-13 — OAuth callback returned 401 for ~40 minutes because n8n was restarted with bare `npm exec n8n start` instead of `start-n8n.sh`.
+- Custom OAuth patches: `/Users/mac15/Kinflo-n8n-on-Cursor/scripts/apply-oauth-patches.sh`

@@ -42,6 +42,35 @@ export async function POST(request: NextRequest) {
     }
 
     // =========================================================================
+    // For nonprofit/education leads: include a "Compare to Full Service" note
+    // in the terms if the bundle is a Community Impact (decoy) bundle
+    // =========================================================================
+    let isNonprofitProposal = false;
+    if (sales_session_id) {
+      try {
+        const { data: session } = await supabaseAdmin
+          .from('sales_sessions')
+          .select('diagnostic_audit:diagnostic_audits(org_type)')
+          .eq('id', sales_session_id)
+          .single();
+
+        const audit = session?.diagnostic_audit as { org_type?: string } | null;
+        if (audit?.org_type === 'nonprofit' || audit?.org_type === 'education') {
+          isNonprofitProposal = true;
+        }
+      } catch {
+        // Non-critical — continue without nonprofit detection
+      }
+    }
+
+    // If this is a nonprofit proposal, check if the bundle is a CI bundle
+    // and add upgrade path information to the terms
+    let effectiveTerms = body.terms_text;
+    if (isNonprofitProposal && !effectiveTerms) {
+      effectiveTerms = getDefaultTerms() + `\n\n7. Community Impact Program: This proposal uses our Community Impact pricing, designed for nonprofits and educational institutions. The same outcomes are available through our full-service tiers, which include custom-deployed tools, dedicated coaching, outcome-based guarantees, and priority support. Contact us to discuss upgrading if your budget allows or if you secure additional funding.`;
+    }
+
+    // =========================================================================
     // Fetch and snapshot value assessment if a value_report_id is provided
     // =========================================================================
     let valueAssessment: ProposalValueAssessment | null = null;
@@ -102,7 +131,7 @@ export async function POST(request: NextRequest) {
       discount_amount: discount_amount || 0,
       discount_description,
       total_amount,
-      terms_text: terms_text || getDefaultTerms(),
+      terms_text: effectiveTerms || terms_text || getDefaultTerms(),
       valid_until: valid_until.toISOString(),
       status: 'draft',
       created_by: adminResult.user.id,
