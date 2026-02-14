@@ -43,6 +43,25 @@ export interface GenerateDraftInput {
   userId?: string
 }
 
+export interface CreateDraftDirectInput {
+  /** Which project this draft is for */
+  clientProjectId: string
+  /** Email subject */
+  subject: string
+  /** Email body */
+  body: string
+  /** Client email address */
+  clientEmail: string
+  /** Client name */
+  clientName: string
+  /** Optional: link to a meeting record */
+  meetingRecordId?: string
+  /** Optional: source identifier (e.g. 'gmail_reply', 'manual') */
+  source?: string
+  /** Who is creating the draft */
+  userId?: string
+}
+
 export interface SendDraftInput {
   /** Draft ID to send */
   draftId: string
@@ -176,6 +195,54 @@ export async function generateUpdateDraft(
 
   if (insertErr || !draft) {
     console.error('[Draft] Insert failed:', insertErr?.message)
+    return null
+  }
+
+  return draft as ClientUpdateDraft
+}
+
+// ============================================================================
+// Create draft directly (subject + body, no task generation)
+// ============================================================================
+
+/**
+ * Create a draft directly from a subject and body.
+ * Used by the Gmail reply workflow and any external system that provides
+ * pre-composed email content (e.g. LLM-generated replies).
+ */
+export async function createDraftDirect(
+  input: CreateDraftDirectInput
+): Promise<ClientUpdateDraft | null> {
+  const {
+    clientProjectId,
+    subject,
+    body,
+    clientEmail,
+    clientName,
+    meetingRecordId,
+    source,
+    userId,
+  } = input
+
+  const { data: draft, error: insertErr } = await supabaseAdmin
+    .from('client_update_drafts')
+    .insert({
+      client_project_id: clientProjectId,
+      meeting_record_id: meetingRecordId || null,
+      subject,
+      body,
+      client_email: clientEmail,
+      client_name: clientName,
+      task_ids: [], // No tasks — this is a direct draft
+      status: 'draft',
+      created_by: userId || null,
+      ...(source ? { source } : {}),
+    })
+    .select('*')
+    .single()
+
+  if (insertErr || !draft) {
+    console.error('[Draft direct] Insert failed:', insertErr?.message)
     return null
   }
 

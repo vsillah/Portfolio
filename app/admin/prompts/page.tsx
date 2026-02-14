@@ -16,7 +16,8 @@ import {
   CheckCircle,
   XCircle,
   Plus,
-  Settings
+  Settings,
+  Mail
 } from 'lucide-react'
 
 interface SystemPrompt {
@@ -37,6 +38,7 @@ const PROMPT_ICONS: Record<string, typeof MessageSquare> = {
   voice_agent: Mic,
   diagnostic: ClipboardCheck,
   llm_judge: Scale,
+  client_email_reply: Mail,
 }
 
 const PROMPT_COLORS: Record<string, string> = {
@@ -44,6 +46,7 @@ const PROMPT_COLORS: Record<string, string> = {
   voice_agent: 'from-purple-500 to-pink-500',
   diagnostic: 'from-amber-500 to-orange-500',
   llm_judge: 'from-emerald-500 to-teal-500',
+  client_email_reply: 'from-violet-500 to-indigo-500',
 }
 
 export default function PromptsPage() {
@@ -125,7 +128,7 @@ function PromptsContent() {
           <div>
             <h1 className="text-4xl font-heading tracking-wider mb-2">System Prompts</h1>
             <p className="text-platinum-white/60">
-              Configure prompts for chatbot, voice agent, and evaluation criteria
+              Configure prompts for chatbot, voice agent, evaluation criteria, and communications (e.g. client email draft replies)
             </p>
           </div>
           
@@ -280,7 +283,7 @@ function PromptsContent() {
           <h3 className="font-heading text-lg text-radiant-gold mb-3">
             How System Prompts Work
           </h3>
-          <div className="grid md:grid-cols-2 gap-4 text-sm text-platinum-white/70">
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-platinum-white/70">
             <div>
               <p className="font-semibold text-platinum-white mb-1">Chatbot Prompt</p>
               <p>Controls how the AI responds to visitors on the portfolio website.</p>
@@ -296,6 +299,10 @@ function PromptsContent() {
             <div>
               <p className="font-semibold text-platinum-white mb-1">Diagnostic Prompt</p>
               <p>Guides the diagnostic/audit conversation flow.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-platinum-white mb-1">Client Email Draft Reply</p>
+              <p>Used when generating draft email replies to inbound client emails (Gmail workflow and in-app drafts).</p>
             </div>
           </div>
         </div>

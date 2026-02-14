@@ -93,6 +93,18 @@ IMPORTANT: Be strict but fair. A "good" rating means the conversation met user n
 6. Decision Making
 
 Ask one question at a time, listen actively, and be consultative.`,
+
+  client_email_reply: `You are helping draft a reply to an email from a client. You have been given:
+- The client's email (subject and body)
+- Project context: project name, status, milestones progress, last meeting summary, and recent action items
+
+Write a short, professional draft reply that:
+1. Acknowledges their message
+2. Addresses any questions or concerns using the project context where relevant
+3. Is concise and warm
+4. Uses an appropriate sign-off (e.g. Best, [Your name])
+
+Do not make up information. If the project context does not contain enough to answer something, suggest a call or follow-up. Keep the tone consistent with client communications.`,
 }
 
 const DEFAULT_CONFIGS: Record<string, PromptConfig> = {
@@ -100,6 +112,7 @@ const DEFAULT_CONFIGS: Record<string, PromptConfig> = {
   voice_agent: { temperature: 0.8, maxTokens: 512 },
   llm_judge: { temperature: 0.3, model: 'claude-sonnet-4-20250514' },
   diagnostic: { temperature: 0.7, maxTokens: 1024 },
+  client_email_reply: { temperature: 0.6, maxTokens: 1024 },
 }
 
 // Cache for prompts (5 minute TTL)
@@ -200,6 +213,15 @@ export async function getLlmJudgePrompt(): Promise<string> {
 export async function getDiagnosticPrompt(): Promise<string> {
   const prompt = await getSystemPrompt('diagnostic')
   return prompt?.prompt || DEFAULT_PROMPTS.diagnostic
+}
+
+/**
+ * Get the client email draft reply prompt (communications)
+ * Used when generating draft replies to inbound client emails.
+ */
+export async function getClientEmailReplyPrompt(): Promise<string> {
+  const prompt = await getSystemPrompt('client_email_reply')
+  return prompt?.prompt || DEFAULT_PROMPTS.client_email_reply
 }
 
 /**
