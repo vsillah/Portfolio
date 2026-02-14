@@ -379,6 +379,9 @@ When the client completes Stripe checkout, the **Stripe webhook** (`/api/payment
 | N8N_ONBOARDING_WEBHOOK | Auto after client project creation | Send onboarding email with plan link + PDF | onboarding_plan_id, client info, milestones_summary, pdf_url | Email to client |
 | VAPI Webhook Handler | VAPI voice call events | Route voice transcripts to n8n, handle function calls | VAPI event payload (transcript, function-call, etc.) | AI response for VAPI to speak; chat_sessions + chat_messages updated |
 | Milestone progress update | Admin "Mark Complete" on project milestone | Send progress update to client via email/Slack | milestone_index, attachments, note, sender_name | Email or Slack message to client; progress_updates log |
+| Promote meeting tasks | WF-MCH (via HTTP Request) or admin manually | Promote action_items from meeting_records into meeting_action_tasks | meeting_record_id | meeting_action_tasks rows created; optionally synced to Slack |
+| WF-TSK (Task Slack Sync) | App (after promote or task status change) | Post/update task messages in Slack Kanban channels | task list with status | Slack messages in #meeting-actions-todo / done |
+| Client update draft (send) | Admin "Send" on draft | Send action-items update email via progress-update webhook | draft subject, body, client info | Email to client; client_update_drafts marked sent |
 
 **Note:** Outreach generation (WF-CLG-002) is not triggered by the app; n8n invokes it (e.g. after enrichment or on schedule). The app only displays the resulting drafts in the Message Queue.
 
@@ -396,6 +399,11 @@ When the client completes Stripe checkout, the **Stripe webhook** (`/api/payment
 | Proposal | Generate proposal, share link | Proposal link → view PDF, accept, pay |
 | Create project | (Optional) Create project from eligible paid proposal if not auto-created | — |
 | Milestone | Mark milestone complete (optional attachments/note) | Progress update email or Slack |
+| Promote tasks | Click "Promote" on meeting record (or auto via WF-MCH) | — |
+| Manage tasks | Change status, assign, set due date on `/admin/meeting-tasks` | — |
+| Generate draft | Click "Generate update" for a project with completed tasks | — |
+| Edit draft | Edit subject/body of unsent draft | — |
+| Send update | Click "Send to Client" on draft | Email with action-items status |
 
 ---
 
@@ -422,6 +430,7 @@ Inbound leads can also come from **voice calls** via VAPI. The app receives even
 - **User Management** (`/admin/users`): Manage admin users and roles.
 - **System Prompts** (`/admin/prompts`): Configure chatbot system prompts and evaluation criteria.
 - **E2E Testing** (`/admin/testing`): Automated client simulation tool for testing flows (e.g. warm lead pipeline, contact form, checkout).
+- **Meeting Tasks** (`/admin/meeting-tasks`): Track action items between meetings. Tasks promoted from meeting records, synced to Slack Kanban channels. Generate and send client-update emails when tasks are completed.
 
 ---
 
@@ -461,7 +470,7 @@ Example embed in the SOP: `![Admin Dashboard](./images/admin-dashboard.png)`.
 
 ## 17. Quick reference
 
-- **Admin:** `/admin` — Dashboard; `/admin/outreach` — Message Queue & All Leads; `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/analytics` — Analytics; `/admin/chat-eval` — Chat Eval; `/admin/content` — Content Hub.
+- **Admin:** `/admin` — Dashboard; `/admin/outreach` — Message Queue & All Leads; `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/analytics` — Analytics; `/admin/chat-eval` — Chat Eval; `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts.
 - **Client-facing:** `/proposal/[id]` — View/accept/pay proposal; `/checkout` — Checkout; `/onboarding/[id]` — Onboarding plan.
-- **Key env var names (no secrets):** N8N_LEAD_WEBHOOK_URL, N8N_CLG002_WEBHOOK_URL, N8N_CLG003_WEBHOOK_URL, N8N_WRM001/002/003_WEBHOOK_URL, N8N_INGEST_SECRET, N8N_DIAGNOSTIC_WEBHOOK_URL, N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL, N8N_VEP001_WEBHOOK_URL, N8N_VEP002_WEBHOOK_URL, and onboarding webhook used by `fireOnboardingWebhook` in `lib/onboarding-templates`.
+- **Key env var names (no secrets):** N8N_LEAD_WEBHOOK_URL, N8N_CLG002_WEBHOOK_URL, N8N_CLG003_WEBHOOK_URL, N8N_WRM001/002/003_WEBHOOK_URL, N8N_INGEST_SECRET, N8N_DIAGNOSTIC_WEBHOOK_URL, N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL, N8N_VEP001_WEBHOOK_URL, N8N_VEP002_WEBHOOK_URL, N8N_TASK_SLACK_SYNC_WEBHOOK_URL, N8N_PROGRESS_UPDATE_WEBHOOK_URL, and onboarding webhook used by `fireOnboardingWebhook` in `lib/onboarding-templates`.
 - **Troubleshooting:** See [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md) and [n8n-lead-workflow-activation-rca.md](./n8n-lead-workflow-activation-rca.md).
