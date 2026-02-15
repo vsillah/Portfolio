@@ -1,8 +1,9 @@
 'use client';
 
 import { type DecoyComparison, formatCurrency, formatPriceOrFree } from '@/lib/pricing-model';
-import { Check, X, ArrowRight, Shield, Heart } from 'lucide-react';
+import { Check, X, ArrowRight, Shield, Heart, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import { PricingMethodologyNote } from '@/components/pricing/PricingMethodologyNote';
 
 interface CommunityImpactComparisonProps {
   comparisons: DecoyComparison[];
@@ -65,6 +66,7 @@ function ComparisonPair({ comparison }: { comparison: DecoyComparison }) {
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
             {formatCurrency(decoyTier.totalRetailValue)} total value
           </p>
+          <PricingMethodologyNote variant="retail" compact />
         </div>
 
         {/* Feature highlights */}
@@ -135,6 +137,7 @@ function ComparisonPair({ comparison }: { comparison: DecoyComparison }) {
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
             {formatCurrency(premiumTier.totalRetailValue)} total value — {premiumTier.savingsPercent}% savings
           </p>
+          <PricingMethodologyNote variant="retail" compact />
         </div>
 
         {/* Feature highlights */}
@@ -176,6 +179,44 @@ function ComparisonPair({ comparison }: { comparison: DecoyComparison }) {
           Upgrade to full-service: Only {formatCurrency(premiumTier.price - decoyTier.price)} more for hands-on delivery + guarantee
         </p>
       </div>
+
+      {/* Upsell context — "Why upgrade?" callout from offer_upsell_paths */}
+      {comparison.upsellContext && (
+        <div className="lg:col-span-2 mt-2 rounded-xl border border-amber-200/60 bg-gradient-to-r from-amber-50/50 to-white p-5 dark:from-amber-900/10 dark:to-gray-900 dark:border-amber-700/30">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40">
+              <TrendingUp className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            </span>
+            <div className="flex-1">
+              <h4 className="font-heading text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wide mb-1">
+                Why Upgrade?
+              </h4>
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                {comparison.upsellContext.nextProblem}
+              </p>
+              {comparison.upsellContext.valueFrame && (
+                <p className="text-sm text-amber-700 dark:text-amber-300 font-medium mb-1">
+                  {comparison.upsellContext.valueFrame}
+                </p>
+              )}
+              <div className="flex flex-wrap gap-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                {comparison.upsellContext.riskReversal && (
+                  <span className="inline-flex items-center gap-1">
+                    <Shield className="w-3 h-3 text-amber-500" />
+                    {comparison.upsellContext.riskReversal}
+                  </span>
+                )}
+                {comparison.upsellContext.creditNote && (
+                  <span className="inline-flex items-center gap-1">
+                    <Check className="w-3 h-3 text-emerald-500" />
+                    {comparison.upsellContext.creditNote}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

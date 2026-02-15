@@ -10,6 +10,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { resolveBundleItemsToTierItems } from '@/lib/bundle-resolve';
 import { expandBundleItems } from '@/lib/bundle-expand';
+import { getUpsellPathsForTier } from '@/lib/upsell-paths';
+import { applyDynamicPricing, type CalculationContext } from '@/lib/dynamic-pricing';
+import type { IndustryBenchmark } from '@/lib/value-calculations';
 import type {
   PricingTier,
   GuaranteeDef,
@@ -46,6 +49,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const segment = searchParams.get('segment') as Segment | null;
+    const industry = searchParams.get('industry') || undefined;
+    const companySize = searchParams.get('companySize') || undefined;
 
     if (!segment || !['smb', 'midmarket', 'nonprofit'].includes(segment)) {
       return NextResponse.json(
@@ -53,6 +58,12 @@ export async function GET(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Fetch industry benchmarks for dynamic retail value calculation
+    const { data: benchmarks } = await supabaseAdmin
+      .from('industry_benchmarks')
+      .select('*');
+    const allBenchmarks: IndustryBenchmark[] = (benchmarks || []) as IndustryBenchmark[];
 
     // Fetch bundles for this segment; exclude custom bundles.
     // Include bundles where pricing_page_segments contains segment, or is null/empty
@@ -139,6 +150,21 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Apply dynamic retail values based on segment + optional industry/companySize
+    let calculationContext: CalculationContext | undefined;
+    if (allBenchmarks.length > 0 || segment) {
+      const dynamicResult = applyDynamicPricing(
+        tiers,
+        allBenchmarks,
+        segment,
+        industry,
+        companySize
+      );
+      // Replace tiers array contents with dynamically-priced versions
+      tiers.splice(0, tiers.length, ...dynamicResult.tiers);
+      calculationContext = dynamicResult.context;
+    }
+
     // For nonprofit, build decoy comparisons (need premium tiers from smb)
     let decoyComparisons: DecoyComparison[] | undefined;
     if (segment === 'nonprofit') {
@@ -207,11 +233,33 @@ export async function GET(request: NextRequest) {
           };
         })
         .filter((c): c is DecoyComparison => c !== null);
+
+      // Enrich each comparison with upsell context from offer_upsell_paths
+      for (const comparison of decoyComparisons) {
+        try {
+          const paths = await getUpsellPathsForTier(comparison.decoyTier.id);
+          if (paths.length > 0) {
+            const path = paths[0]; // Use the first (highest priority) upsell path
+            comparison.upsellContext = {
+              nextProblem: path.next_problem,
+              valueFrame: path.value_frame_text,
+              riskReversal: path.risk_reversal_text,
+              creditNote: path.credit_previous_investment ? path.credit_note : null,
+              incrementalCost: path.incremental_cost,
+              incrementalValue: path.incremental_value,
+            };
+          }
+        } catch (upsellErr) {
+          // Non-critical — continue without upsell context
+          console.error(`[Pricing] Error fetching upsell context for ${comparison.decoyTier.id}:`, upsellErr);
+        }
+      }
     }
 
     return NextResponse.json({
       tiers,
       decoyComparisons: decoyComparisons ?? null,
+      calculationContext: calculationContext ?? null,
     });
   } catch (err) {
     console.error('Pricing tiers API error:', err);

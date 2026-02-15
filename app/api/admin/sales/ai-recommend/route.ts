@@ -13,6 +13,7 @@ import {
   OBJECTION_STRATEGY_MAP,
   OfferRole,
 } from '@/lib/sales-scripts';
+import { getAllActiveUpsellPaths, UpsellPath } from '@/lib/upsell-paths';
 
 interface DiagnosticData {
   business_challenges?: {
@@ -126,7 +127,7 @@ export async function POST(request: NextRequest) {
         .map(k => parseInt(k.split(':')[1]));
     }
 
-    // Generate recommendations based on context
+    // Generate base recommendations from objection strategies
     const recommendations = generateRecommendations({
       audit,
       currentObjection,
@@ -137,7 +138,21 @@ export async function POST(request: NextRequest) {
       clientCompany,
     });
 
-    return NextResponse.json({ recommendations });
+    // Enrich with offer-level upsell paths (two-touch prescription model)
+    const upsellPaths = await getAllActiveUpsellPaths();
+    const upsellRecommendations = generateUpsellRecommendations({
+      upsellPaths,
+      contentPresented: contentPresented || [],
+      currentObjection,
+      clientName: clientName || 'the client',
+    });
+
+    // Merge: upsell recommendations get a slight boost, then re-sort
+    const merged = [...recommendations, ...upsellRecommendations]
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, 3);
+
+    return NextResponse.json({ recommendations: merged });
   } catch (error) {
     console.error('AI recommend API error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -398,4 +413,74 @@ function buildRecommendation(
     talkingPoint,
     why,
   };
+}
+
+// ============================================================================
+// Offer-Level Upsell Recommendations (Two-Touch Prescription Model)
+// ============================================================================
+
+interface UpsellRecommendContext {
+  upsellPaths: UpsellPath[];
+  contentPresented: string[]; // Format: "content_type:content_id"
+  currentObjection: ResponseType;
+  clientName: string;
+}
+
+function generateUpsellRecommendations(context: UpsellRecommendContext): AIRecommendation[] {
+  const { upsellPaths, contentPresented, currentObjection, clientName } = context;
+  const recommendations: AIRecommendation[] = [];
+
+  // For each content item already presented, check if there is an upsell path
+  for (const contentKey of contentPresented) {
+    const [contentType, contentId] = contentKey.split(':');
+    if (!contentType || !contentId) continue;
+
+    const matchingPaths = upsellPaths.filter(
+      (p) => p.source_content_type === contentType && p.source_content_id === contentId
+    );
+
+    for (const path of matchingPaths) {
+      // Only suggest if the path has point-of-sale steps (we are at point of sale)
+      if (path.point_of_sale_steps.length === 0) continue;
+
+      let confidence = 0.70; // Base confidence for offer-level upsell
+      let talkingPoint = '';
+
+      // Boost confidence based on objection type
+      if (currentObjection === 'positive') {
+        confidence = 0.85; // Client is receptive — great time for upsell
+      } else if (currentObjection === 'price_objection') {
+        confidence = 0.45; // Price concern — upsell may not land
+      } else if (currentObjection === 'feature_concern') {
+        confidence = 0.80; // Feature concern — upsell may address it
+      }
+
+      // Use the first point-of-sale step's talking points
+      const firstStep = path.point_of_sale_steps[0];
+      if (firstStep?.talking_points?.length > 0) {
+        talkingPoint = firstStep.talking_points[0];
+      } else if (path.value_frame_text) {
+        talkingPoint = path.value_frame_text;
+      } else {
+        talkingPoint = `"${clientName}, let me tell you about the ${path.upsell_title} — it solves the exact problem you will hit next."`;
+      }
+
+      recommendations.push({
+        strategy: 'different_product' as OfferStrategy,
+        offerRole: 'upsell',
+        products: [{
+          id: 0,
+          name: path.upsell_title,
+          reason: `Solves the predicted next problem: "${path.next_problem.substring(0, 100)}..."`,
+        }],
+        confidence: Math.round(confidence * 100) / 100,
+        talkingPoint,
+        why: `Offer-level upsell: ${path.source_title} → ${path.upsell_title}. ${
+          path.credit_previous_investment ? 'Previous investment applies as credit.' : ''
+        }`,
+      });
+    }
+  }
+
+  return recommendations;
 }

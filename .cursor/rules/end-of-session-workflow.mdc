@@ -12,6 +12,7 @@ When the implementation phase is complete and the user signals readiness to comm
 - `npm run lint` — must pass
 - `npm test` — if test runner is configured
 - `ReadLints` on all modified files
+- **Migration file parity** — if any schema changes were applied via MCP tools (e.g. `execute_sql`, `apply_migration`) during this session, confirm a corresponding `migrations/*.sql` file exists on disk for each one. Run `git status` and compare against any schema-altering MCP calls made during the session.
 
 ## 2. Commit (Agent mode required)
 - Ensure you are in Agent mode before committing. If in Ask or Plan mode, switch first.

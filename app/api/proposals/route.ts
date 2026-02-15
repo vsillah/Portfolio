@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
 import { generateProposalPDF, ProposalData, ProposalValueAssessment } from '@/lib/proposal-pdf';
+import { getUpsellPathsForOffer, formatUpsellAsProposalAddon } from '@/lib/upsell-paths';
 
 export async function POST(request: NextRequest) {
   try {
@@ -114,6 +115,34 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // =========================================================================
+    // Auto-include upsell recommendations for decoy/entry-level items
+    // Each matching upsell path becomes an optional add-on line item
+    // =========================================================================
+    let upsellAddons: Array<{
+      title: string;
+      description: string;
+      price: number | null;
+      perceived_value: number | null;
+      is_optional: boolean;
+      risk_reversal: string | null;
+      credit_note: string | null;
+    }> = [];
+
+    try {
+      for (const item of line_items || []) {
+        if (item.content_type && item.content_id) {
+          const paths = await getUpsellPathsForOffer(item.content_type, item.content_id);
+          for (const path of paths) {
+            upsellAddons.push(formatUpsellAsProposalAddon(path));
+          }
+        }
+      }
+    } catch (upsellError) {
+      console.error('Error fetching upsell paths for proposal:', upsellError);
+      // Non-critical — continue without upsell add-ons
+    }
+
     // Calculate valid_until
     const valid_until = new Date();
     valid_until.setDate(valid_until.getDate() + valid_days);
@@ -143,6 +172,10 @@ export async function POST(request: NextRequest) {
     }
     if (valueAssessment) {
       insertData.value_assessment = valueAssessment;
+    }
+    // Attach upsell add-ons (stored as JSONB, not included in total by default)
+    if (upsellAddons.length > 0) {
+      insertData.upsell_addons = upsellAddons;
     }
 
     const { data: proposal, error: createError } = await supabaseAdmin

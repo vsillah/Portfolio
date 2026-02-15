@@ -29,3 +29,13 @@ Before committing migration files:
 4. If migrations have ordering dependencies, apply them in the documented order and confirm each step.
 
 A migration that has not been executed against a real database is untested code.
+
+## File-on-Disk Requirement
+
+When a schema change is applied via an MCP tool (e.g. `supabase apply_migration`, `execute_sql`), a corresponding migration file MUST also be written to `migrations/` in the same session.
+
+- The file name must follow the project's naming convention (e.g. `YYYY_MM_DD_description.sql`).
+- The file content must match what was executed.
+- If the MCP tool was used to apply the migration, state explicitly in the handoff: "Migration applied via MCP tool. File written to `migrations/YYYY_MM_DD_*.sql` for traceability."
+
+A schema change with no migration file on disk is **untracked schema drift** and will cause environment divergence on rebuild or team onboarding.

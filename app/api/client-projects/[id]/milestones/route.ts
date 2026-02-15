@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { triggerProgressUpdate } from '@/lib/progress-update-templates'
+import { getUpsellPathsForOffer, scheduleUpsellFollowUp } from '@/lib/upsell-paths'
 import type { Milestone } from '@/lib/onboarding-templates'
 
 export const dynamic = 'force-dynamic'
@@ -145,6 +146,51 @@ export async function PATCH(
       })
     }
 
+    // Schedule upsell follow-up tasks when all milestones are complete
+    // Looks up the project's proposal line items and creates follow-up tasks
+    // timed to each upsell path's next_problem_timing
+    let upsellFollowUps: string[] = []
+    if (allComplete) {
+      try {
+        // Fetch the proposal linked to this project
+        const { data: project } = await supabaseAdmin
+          .from('client_projects')
+          .select('proposal_id')
+          .eq('id', clientProjectId)
+          .single()
+
+        if (project?.proposal_id) {
+          const { data: proposal } = await supabaseAdmin
+            .from('proposals')
+            .select('line_items')
+            .eq('id', project.proposal_id)
+            .single()
+
+          type LineItem = { content_type?: string; content_id?: string }
+          const lineItems = (proposal?.line_items || []) as LineItem[]
+
+          for (const item of lineItems) {
+            if (item.content_type && item.content_id) {
+              const paths = await getUpsellPathsForOffer(
+                item.content_type,
+                String(item.content_id)
+              )
+              for (const path of paths) {
+                const taskId = await scheduleUpsellFollowUp(
+                  clientProjectId,
+                  path
+                )
+                if (taskId) upsellFollowUps.push(taskId)
+              }
+            }
+          }
+        }
+      } catch (upsellErr) {
+        // Non-critical — continue without upsell follow-ups
+        console.error('[Milestones] Error scheduling upsell follow-ups:', upsellErr)
+      }
+    }
+
     return NextResponse.json({
       success: true,
       milestone: milestones[milestone_index],
@@ -160,6 +206,7 @@ export async function PATCH(
             update_type: progressResult.updateType,
           }
         : null,
+      upsell_follow_ups: upsellFollowUps.length > 0 ? upsellFollowUps : null,
     })
   } catch (error) {
     console.error(

@@ -2,12 +2,17 @@
 
 import { useState, useCallback } from 'react';
 import { formatCurrency } from '@/lib/pricing-model';
+import { PricingMethodologyNote } from '@/components/pricing/PricingMethodologyNote';
 
 interface ROICalculatorProps {
   className?: string;
+  /** Called when user selects industry + company size, so pricing page can refine tier retail values */
+  onContextChange?: (industry: string, companySize: string) => void;
 }
 
-// Industries with isNonprofit flag for CI tier recommendations
+// Industries with isNonprofit flag for CI tier recommendations.
+// Rates are per-industry estimates aligned with industry_benchmarks DB table values.
+// These drive the ROI estimate; dynamic tier retail values use lib/dynamic-pricing.ts instead.
 const INDUSTRIES = [
   { value: 'technology', label: 'Technology', hourlyRate: 55, dealSize: 8000, employeeCost: 85000, isNonprofit: false },
   { value: 'professional_services', label: 'Professional Services', hourlyRate: 65, dealSize: 10000, employeeCost: 75000, isNonprofit: false },
@@ -28,7 +33,7 @@ const COMPANY_SIZES = [
   { value: '201-1000', label: '201-1000 employees', hoursWasted: 120, missedLeads: 300, fteRedirect: 2.0, savingsRate: 0.60 },
 ];
 
-export function ROICalculator({ className = '' }: ROICalculatorProps) {
+export function ROICalculator({ className = '', onContextChange }: ROICalculatorProps) {
   const [industry, setIndustry] = useState('technology');
   const [size, setSize] = useState('11-50');
   const [showResults, setShowResults] = useState(false);
@@ -115,7 +120,11 @@ export function ROICalculator({ className = '' }: ROICalculatorProps) {
 
         {/* Calculate Button */}
         <button
-          onClick={() => setShowResults(true)}
+          onClick={() => {
+            setShowResults(true);
+            // Notify pricing page to refine tier retail values based on user's context
+            onContextChange?.(industry, size);
+          }}
           className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
         >
           Calculate My ROI
@@ -173,8 +182,9 @@ export function ROICalculator({ className = '' }: ROICalculatorProps) {
             </div>
           )}
 
-          {/* Disclaimer */}
-          <p className="text-xs text-gray-400 dark:text-gray-500">
+          {/* Disclaimer + methodology note */}
+          <PricingMethodologyNote variant="roi" />
+          <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
             Estimates based on industry benchmarks. Actual results depend on your specific situation.{' '}
             <a href="#contact" className="text-blue-500 underline hover:text-blue-600">
               Schedule a free AI audit

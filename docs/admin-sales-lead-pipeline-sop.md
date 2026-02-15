@@ -121,6 +121,12 @@ flowchart TB
   enrichment --> outreach_gen
   human_review --> send
 
+  subgraph upsellPaths [Upsell path engine]
+    UpsellDB[(offer_upsell_paths)]
+    UpsellAdmin[Admin: Upsell Paths config]
+    UpsellAdmin --> UpsellDB
+  end
+
   subgraph postSale [Post-sale lifecycle]
     StripeWebhook[Stripe payment webhook]
     OrderCreated[orders + order_items]
@@ -133,6 +139,7 @@ flowchart TB
     ClientOnboarding[Client: onboarding page]
     MilestoneComplete[Admin: mark milestone complete]
     ProgressUpdate[Progress update to client]
+    UpsellFollowUp[Auto-schedule upsell follow-up]
     ClientProposal --> StripeWebhook
     StripeWebhook --> OrderCreated
     StripeWebhook --> ProposalPaid
@@ -144,7 +151,14 @@ flowchart TB
     OnboardingEmail --> ClientOnboarding
     ClientProject --> MilestoneComplete
     MilestoneComplete --> ProgressUpdate
+    MilestoneComplete -->|all complete| UpsellFollowUp
   end
+
+  UpsellDB -->|enrich proposals| ProposalAPI
+  UpsellDB -->|enrich onboarding| OnboardingPlan
+  UpsellDB -->|enrich progress updates| ProgressUpdate
+  UpsellDB -->|schedule follow-ups| UpsellFollowUp
+  UpsellDB -->|AI recommendations| Bundle
 ```
 
 **Subgraph summary:**
@@ -155,7 +169,8 @@ flowchart TB
 - **Outreach gen:** WF-CLG-002 writes drafts to `outreach_queue`; not triggered by the app (n8n runs it after enrichment or on schedule).
 - **Human review / Send:** Admin approves or edits in Message Queue; "Send Now" calls WF-CLG-003 to send email or LinkedIn and update status.
 - **Sales path:** Admin configures products, bundles, and scripts; runs sales session from a completed audit **or starts a conversation directly from a lead** (no audit required). Outreach is automatically paused when a conversation starts. Admin selects bundle and line items; generates proposal; client gets link and pays.
-- **Post-sale:** Stripe webhook creates order, marks proposal paid, and calls `/api/client-projects`; app creates client project, onboarding plan, PDF, and fires onboarding webhook; admin tracks milestones and sends progress updates to the client.
+- **Upsell path engine:** Admin configures decoy-to-premium upgrade pairings with two-touch prescription scripts (point-of-sale and point-of-pain). These feed into proposals (optional add-ons), onboarding plans (upgrade milestone), AI recommendations, progress updates (signal matching), pricing page (comparison context), and follow-up scheduling.
+- **Post-sale:** Stripe webhook creates order, marks proposal paid, and calls `/api/client-projects`; app creates client project, onboarding plan, PDF, and fires onboarding webhook; admin tracks milestones and sends progress updates to the client. When all milestones are complete, the system auto-schedules upsell follow-up tasks based on `next_problem_timing` from matching upsell paths.
 
 ---
 
@@ -269,6 +284,7 @@ Visitor uses the site chat. If they enter diagnostic/audit mode, the app creates
 ### Bundles, line items, and proposals
 
 - **Bundles and line items:** Admin selects an offer bundle and content (products/services) as line items. "Generate proposal" opens the proposal modal (client name, email, company, discount, valid days, **value report**). In the modal, choose a **Value Report** from the dropdown (lists reports for the current contact); the report’s value assessment is attached to the proposal. Then POST to `/api/proposals` with line items and optional `value_report_id`. Line items are built from the selected content (content_type, content_id, title, description, offer_role, price, perceived_value). The client-facing proposal page shows the value assessment section when a value report was attached.
+- **Upsell add-ons:** When a proposal is created, the system automatically checks each line item against `offer_upsell_paths`. If a matching upsell path exists, it is attached as an optional add-on (`upsell_addons` JSONB column on proposals) with the upsell title, description (next problem), price, perceived value, risk reversal, and credit note. These are presented as "Recommended" optional items on the proposal.
 - **Proposal output:** PDF is generated and stored; proposal link is returned. Admin shares the link with the client. Client sees `/proposal/[id]`, can view PDF and accept (Stripe checkout). After payment, the Stripe webhook creates the order, marks the proposal paid, and calls `POST /api/client-projects` to create the client project and onboarding (see Post-sale section).
 
 ---
@@ -291,6 +307,31 @@ Before sales sessions and proposals work correctly, these admin tools must be se
 
 - **Where:** Admin → Sales → Scripts (`/admin/sales/scripts`).
 - **Purpose:** Create and edit **sales scripts** with structured steps (title, talking points, actions), objection handlers (trigger, response, category), and success metrics. Scripts are typed by **offer_type** (attraction, upsell, downsell, continuity, core, objection) and **target funnel stage** (prospect, interested, informed, converted, active, upgraded). The sales session page loads scripts and uses them in the guided walkthrough; the generate-step API adapts steps to the current client/audit.
+
+### Upsell Path Management (Two-Touch Prescription Model)
+
+- **Where:** Admin → Sales → Upsell Paths (`/admin/sales/upsell-paths`).
+- **Purpose:** Configure **decoy-to-premium upgrade pairings** using a two-touch prescription model inspired by Alex Hormozi's $100M Offers framework. Each upsell path defines:
+  - **Source offer** (content_type, content_id, tier_slug) — the initial/decoy offer the client purchased.
+  - **Next problem** — the predicted pain point the client will experience after using the source offer.
+  - **Timing** (next_problem_timing) — when the pain point typically surfaces (e.g. "2-4 weeks").
+  - **Signals** (next_problem_signals) — observable indicators that the client is hitting the predicted pain point (used by progress update signal matching).
+  - **Upsell offer** (content_type, content_id, tier_slug) — the premium solution that solves the next problem.
+  - **Point-of-sale steps** — script steps for prescribing the upsell at the time of the initial sale.
+  - **Point-of-pain steps** — script steps for re-offering the upsell when the client experiences the predicted friction.
+  - **Value frame** — the positioning statement for the incremental investment.
+  - **Risk reversal** — guarantee or safety net for the upsell.
+  - **Credit policy** — whether the initial investment applies as credit toward the upgrade, and the credit note text.
+- **How it integrates (seven touchpoints):**
+  1. **Sales scripts / AI recommendations:** The AI recommendation engine (`/api/admin/sales/ai-recommend`) fetches active upsell paths and generates recommendations when the source offer is being presented.
+  2. **Proposals:** When a proposal is created (`POST /api/proposals`), matching upsell paths are auto-attached as optional add-on line items (`upsell_addons` JSONB column).
+  3. **Onboarding plans:** When an onboarding plan is generated, matching upsell paths add a "Recommended Upgrade Review" milestone at the end.
+  4. **Progress updates:** When generating a client update draft, completed task titles/descriptions are matched against `next_problem_signals`; if a match is found, an upgrade recommendation is appended to the email.
+  5. **Follow-up scheduling:** When all milestones are marked complete, the system auto-creates `meeting_action_tasks` with due dates based on `next_problem_timing`, containing the point-of-pain script summary.
+  6. **Pricing page:** The decoy-vs-premium comparison on the public pricing page is enriched with `nextProblem`, `valueFrame`, `riskReversal`, and `creditNote` from matching upsell paths.
+  7. **Sales conversation flow:** Scripts and talking points from upsell paths are available in the sales walkthrough context.
+- **Database:** `offer_upsell_paths` table with RLS (admin full access, public read for active paths).
+- **API:** Admin CRUD at `/api/admin/sales/upsell-paths` and `/api/admin/sales/upsell-paths/[id]`; public lookup at `/api/upsell-paths?source_content_type=...&source_content_id=...`.
 
 ---
 
@@ -354,6 +395,22 @@ When the client completes Stripe checkout, the **Stripe webhook** (`/api/payment
 
 - **Where:** Admin → Onboarding Templates (`/admin/onboarding-templates`).
 - **Purpose:** Manage reusable **onboarding_plan_templates** that drive auto-generated plans. Each template has name, content_type, service_type, setup_requirements, milestones_template, communication_plan, win_conditions, warranty, artifacts_handoff, estimated_duration_weeks, and is_active. When a client project is created, the app matches the proposal (bundle/content) to a template and instantiates the plan from it.
+- **Upsell milestone:** If any proposal line items have matching entries in `offer_upsell_paths`, a "Recommended Upgrade Review" milestone is automatically added at the end of the onboarding plan with upgrade notes.
+
+### Upsell follow-up scheduling
+
+When **all milestones** on a client project are marked complete, the system automatically:
+
+1. Fetches the project's proposal line items.
+2. Checks each line item against `offer_upsell_paths` for matching upsell paths.
+3. For each match, creates a **meeting_action_task** with:
+   - Title: "Upsell check-in: [upsell title]"
+   - Due date: calculated from `next_problem_timing` (e.g. "2-4 weeks" → midpoint from completion date)
+   - Description: predicted problem, value frame, risk reversal, credit policy, and point-of-pain script summary
+   - Owner: "Sales Lead"
+4. These tasks appear in Admin → Meeting Tasks and can be managed, assigned, and synced to Slack like any other action task.
+
+This implements the **point-of-pain** touch of the two-touch prescription model: the follow-up is timed to when the client is predicted to experience friction with the initial offer.
 
 ---
 
@@ -382,6 +439,8 @@ When the client completes Stripe checkout, the **Stripe webhook** (`/api/payment
 | Promote meeting tasks | WF-MCH (via HTTP Request) or admin manually | Promote action_items from meeting_records into meeting_action_tasks | meeting_record_id | meeting_action_tasks rows created; optionally synced to Slack |
 | WF-TSK (Task Slack Sync) | App (after promote or task status change) | Post/update task messages in Slack Kanban channels | task list with status | Slack messages in #meeting-actions-todo / done |
 | Client update draft (send) | Admin "Send" on draft | Send action-items update email via progress-update webhook | draft subject, body, client info | Email to client; client_update_drafts marked sent |
+| Upsell follow-up scheduling | All milestones complete on a client project | Auto-create follow-up tasks timed to next_problem_timing | client_project_id, proposal line_items, offer_upsell_paths | meeting_action_tasks rows with due dates and point-of-pain scripts |
+| Upsell signal matching | Generate client update draft | Match completed task titles against next_problem_signals | completed tasks, offer_upsell_paths | Upgrade recommendation appended to email body if signals match |
 
 **Note:** Outreach generation (WF-CLG-002) is not triggered by the app; n8n invokes it (e.g. after enrichment or on schedule). The app only displays the resulting drafts in the Message Queue.
 
@@ -404,6 +463,7 @@ When the client completes Stripe checkout, the **Stripe webhook** (`/api/payment
 | Generate draft | Click "Generate update" for a project with completed tasks | — |
 | Edit draft | Edit subject/body of unsent draft | — |
 | Send update | Click "Send to Client" on draft | Email with action-items status |
+| Configure upsell paths | Create/edit upsell paths in Admin → Sales → Upsell Paths | — (affects proposals, onboarding, progress updates, follow-ups, pricing page, AI recommendations) |
 
 ---
 
@@ -470,7 +530,7 @@ Example embed in the SOP: `![Admin Dashboard](./images/admin-dashboard.png)`.
 
 ## 17. Quick reference
 
-- **Admin:** `/admin` — Dashboard; `/admin/outreach` — Message Queue & All Leads; `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/analytics` — Analytics; `/admin/chat-eval` — Chat Eval; `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts.
+- **Admin:** `/admin` — Dashboard; `/admin/outreach` — Message Queue & All Leads; `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/sales/upsell-paths` — Upsell Paths (two-touch prescription); `/admin/analytics` — Analytics; `/admin/chat-eval` — Chat Eval; `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts.
 - **Client-facing:** `/proposal/[id]` — View/accept/pay proposal; `/checkout` — Checkout; `/onboarding/[id]` — Onboarding plan.
 - **Key env var names (no secrets):** N8N_LEAD_WEBHOOK_URL, N8N_CLG002_WEBHOOK_URL, N8N_CLG003_WEBHOOK_URL, N8N_WRM001/002/003_WEBHOOK_URL, N8N_INGEST_SECRET, N8N_DIAGNOSTIC_WEBHOOK_URL, N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL, N8N_VEP001_WEBHOOK_URL, N8N_VEP002_WEBHOOK_URL, N8N_TASK_SLACK_SYNC_WEBHOOK_URL, N8N_PROGRESS_UPDATE_WEBHOOK_URL, N8N_FOLLOW_UP_SCHEDULER_WEBHOOK_URL, and onboarding webhook used by `fireOnboardingWebhook` in `lib/onboarding-templates`.
 - **Troubleshooting:** See [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md) and [n8n-lead-workflow-activation-rca.md](./n8n-lead-workflow-activation-rca.md).

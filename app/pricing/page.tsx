@@ -79,11 +79,27 @@ export default function PricingPage() {
   const [showFAQ, setShowFAQ] = useState<string | null>(null);
   const containerRef = useRef(null);
 
+  // Dynamic pricing context — set when ROI Calculator provides industry/size
+  const [pricingIndustry, setPricingIndustry] = useState<string | undefined>();
+  const [pricingCompanySize, setPricingCompanySize] = useState<string | undefined>();
+  const [calculationContext, setCalculationContext] = useState<{
+    segment: string;
+    industry: string;
+    companySize: string;
+    hourlyWageUsed: number;
+    benchmarkSource: string;
+    isDefault: boolean;
+  } | null>(null);
+
   // API-driven tiers; fallback to lib/pricing-model on error or empty
   const [apiTiers, setApiTiers] = useState<PricingTier[] | null>(null);
   const [apiDecoyComparisons, setApiDecoyComparisons] = useState<DecoyComparison[] | null>(null);
   useEffect(() => {
-    fetch(`/api/pricing/tiers?segment=${segment}`)
+    const params = new URLSearchParams({ segment });
+    if (pricingIndustry) params.set('industry', pricingIndustry);
+    if (pricingCompanySize) params.set('companySize', pricingCompanySize);
+
+    fetch(`/api/pricing/tiers?${params.toString()}`)
       .then((res) => {
         if (!res.ok) throw new Error('Fetch failed');
         return res.json();
@@ -92,16 +108,25 @@ export default function PricingPage() {
         if (Array.isArray(data.tiers) && data.tiers.length > 0) {
           setApiTiers(data.tiers);
           setApiDecoyComparisons(data.decoyComparisons ?? null);
+          setCalculationContext(data.calculationContext ?? null);
         } else {
           setApiTiers(null);
           setApiDecoyComparisons(null);
+          setCalculationContext(null);
         }
       })
       .catch(() => {
         setApiTiers(null);
         setApiDecoyComparisons(null);
+        setCalculationContext(null);
       });
-  }, [segment]);
+  }, [segment, pricingIndustry, pricingCompanySize]);
+
+  /** Called by ROI Calculator when user selects industry + company size */
+  const handlePricingContextChange = (industry: string, companySize: string) => {
+    setPricingIndustry(industry);
+    setPricingCompanySize(companySize);
+  };
 
   // Reset comparison view when switching away from nonprofit
   const handleSegmentChange = (newSegment: Segment) => {
@@ -362,7 +387,7 @@ export default function PricingPage() {
             className="grid gap-8 md:grid-cols-3"
           >
             {visibleTiers.map((tier) => (
-              <PricingCard key={tier.id} tier={tier} />
+              <PricingCard key={tier.id} tier={tier} calculationContext={calculationContext} />
             ))}
             {segment === 'nonprofit' && (
               <div className="md:col-span-3 flex flex-col items-center justify-center py-8 px-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30">
@@ -463,7 +488,7 @@ export default function PricingPage() {
             <div className="relative">
               <div className="absolute -inset-4 bg-gradient-to-r from-radiant-gold/20 to-imperial-navy/20 rounded-2xl blur-xl opacity-50" />
               <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-                <ROICalculator />
+                <ROICalculator onContextChange={handlePricingContextChange} />
               </div>
             </div>
           </div>

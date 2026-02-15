@@ -3,13 +3,15 @@
 import { type PricingTier, formatCurrency, formatPercent, formatPriceOrFree } from '@/lib/pricing-model';
 import Link from 'next/link';
 import { Check, Zap, Shield } from 'lucide-react';
+import { PricingMethodologyNote, type CalculationContextDisplay } from '@/components/pricing/PricingMethodologyNote';
 
 interface PricingCardProps {
   tier: PricingTier;
   onSelect?: (tierId: string) => void;
+  calculationContext?: CalculationContextDisplay | null;
 }
 
-export function PricingCard({ tier, onSelect }: PricingCardProps) {
+export function PricingCard({ tier, onSelect, calculationContext }: PricingCardProps) {
   return (
     <div
       className={`relative flex flex-col rounded-2xl border-2 p-6 shadow-sm transition-all duration-300 hover:shadow-xl ${
@@ -49,6 +51,11 @@ export function PricingCard({ tier, onSelect }: PricingCardProps) {
             Save {formatPercent(tier.savingsPercent)}
           </span>
         </div>
+        <PricingMethodologyNote
+          variant="retail"
+          compact
+          calculationContext={calculationContext}
+        />
       </div>
 
       {/* Items */}

@@ -15,10 +15,13 @@ At the **start** of a significant implementation session (before writing any cod
 npm run build
 ```
 
-If the build fails, note the pre-existing errors. This establishes a baseline so that:
-- You know which errors are yours vs. inherited.
-- You can fix inherited errors in a separate commit (not mixed with feature work).
-- The user is informed early if the codebase has tech debt blocking clean verification.
+- If the build **passes**, proceed.
+- If the build **fails**:
+  1. **Fix pre-existing errors first** in a separate commit (e.g. `fix: resolve pre-existing type errors from prior session`).
+  2. If the errors are complex and unrelated to the current task, **document them** in a TODO comment or issue and inform the user — but do NOT proceed with new feature work on a broken build.
+  3. The current session's final `npm run build` must reflect **only** the current session's changes, not inherited debt.
+
+Rationale: Inherited build errors discovered at the end of a session waste time on triage ("is this mine?") and risk being attributed to the wrong changeset.
 
 ## 1. Build Verification (always)
 

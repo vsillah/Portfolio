@@ -29,6 +29,7 @@ import {
   Filter,
   Search,
   Star,
+  ArrowUpRight,
 } from 'lucide-react';
 
 interface DiagnosticAudit {
@@ -231,6 +232,13 @@ export default function SalesDashboardPage() {
             >
               <FileText className="w-4 h-4" />
               Scripts
+            </Link>
+            <Link
+              href="/admin/sales/upsell-paths"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white hover:border-amber-500/50 transition-colors"
+            >
+              <ArrowUpRight className="w-4 h-4" />
+              Upsell Paths
             </Link>
             <button
               onClick={fetchData}

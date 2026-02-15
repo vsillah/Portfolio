@@ -7,6 +7,7 @@
  */
 
 import { supabaseAdmin } from './supabase'
+import { getUpsellPathsForOffer, formatUpsellAsOnboardingNote, type UpsellPath } from './upsell-paths'
 
 // ============================================================================
 // Types
@@ -450,6 +451,35 @@ export async function createOnboardingPlanForProject(
 
   // 2. Generate the populated plan
   const plan = generateOnboardingPlan(template, project, proposal)
+
+  // 2b. Inject upsell upgrade milestone if any line items have upsell paths
+  try {
+    const upsellNotes: string[] = []
+    for (const item of proposal.line_items) {
+      if (item.content_type && item.content_id) {
+        const paths = await getUpsellPathsForOffer(item.content_type, String(item.content_id))
+        for (const path of paths) {
+          upsellNotes.push(formatUpsellAsOnboardingNote(path))
+        }
+      }
+    }
+    if (upsellNotes.length > 0) {
+      // Add as the final milestone
+      const lastMilestone = plan.milestones[plan.milestones.length - 1]
+      const lastWeek = typeof lastMilestone?.week === 'number' ? lastMilestone.week : 8
+      plan.milestones.push({
+        week: lastWeek + 1,
+        title: 'Recommended Upgrade Review',
+        description: 'Review upgrade options based on your experience with the current deliverables.',
+        deliverables: upsellNotes,
+        phase: (lastMilestone?.phase || 3) + 1,
+        status: 'pending',
+      })
+    }
+  } catch (upsellError) {
+    console.error('Error injecting upsell milestones:', upsellError)
+    // Non-critical — continue without upsell milestones
+  }
 
   // 3. Save to database
   const result = await saveOnboardingPlan(project.id, plan)

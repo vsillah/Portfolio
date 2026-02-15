@@ -21,15 +21,15 @@ Two automations: (1) After each meeting, use the Calendly API in n8n to check yo
 ## Implementation status
 
 
-| Phase | Deliverable                                                                          | Status                                                                                                                                                 |
-| ----- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 3.1   | App: `GET /api/meetings/[id]/follow-up-context`                                      | **DONE** — `app/api/meetings/[id]/follow-up-context/route.ts`                                                                                          |
+| Phase | Deliverable                                                                          | Status                                                                                                                                                                   |
+| ----- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 3.1   | App: `GET /api/meetings/[id]/follow-up-context`                                      | **DONE** — `app/api/meetings/[id]/follow-up-context/route.ts`                                                                                                            |
 | 3.2   | n8n: WF-FUP — Follow-Up Meeting Scheduler                                            | **DONE** — ID: `HyVGDTStTaWYL4Do`. Validation fixes applied (URL expression, webhook onError, Calendly credential, Slack select). Inactive until credentials configured. |
-| 3.3   | WF-MCH: HTTP call to WF-FUP after Parse and Store                                    | **DONE** — "Call Follow-Up Scheduler" node added to WF-MCH (ID: `94mqmLgS9GkomPIf`), connected to "Parse and Store", `onError: continueRegularOutput`. |
-| 3.4   | App: `GET /api/client-email-context?email=...`                                       | **DONE** — `app/api/client-email-context/route.ts`                                                                                                     |
-| 3.5   | App: extend client_update_drafts — `createDraftDirect()` + POST accepts subject+body | **DONE** — `lib/client-update-drafts.ts` + `app/api/client-update-drafts/route.ts`                                                                     |
-| 3.6   | n8n: Gmail draft workflow                                                            | **DONE** — WF-GDR: Gmail Draft Reply (ID: `7dsXnjup9zi5rf8N`). Inactive until Gmail OAuth2 + OpenRouter credentials configured.                        |
-| 3.7   | Docs: meeting-follow-up guide, SOP updates                                           | **DONE** — `docs/meeting-follow-up-communications-guide.md` updated, SOP env vars updated.                                                             |
+| 3.3   | WF-MCH: HTTP call to WF-FUP after Parse and Store                                    | **DONE** — "Call Follow-Up Scheduler" node added to WF-MCH (ID: `94mqmLgS9GkomPIf`), connected to "Parse and Store", `onError: continueRegularOutput`.                   |
+| 3.4   | App: `GET /api/client-email-context?email=...`                                       | **DONE** — `app/api/client-email-context/route.ts`                                                                                                                       |
+| 3.5   | App: extend client_update_drafts — `createDraftDirect()` + POST accepts subject+body | **DONE** — `lib/client-update-drafts.ts` + `app/api/client-update-drafts/route.ts`                                                                                       |
+| 3.6   | n8n: Gmail draft workflow                                                            | **DONE** — WF-GDR: Gmail Draft Reply (ID: `7dsXnjup9zi5rf8N`). Inactive until Gmail OAuth2 + OpenRouter credentials configured.                                          |
+| 3.7   | Docs: meeting-follow-up guide, SOP updates                                           | **DONE** — `docs/meeting-follow-up-communications-guide.md` updated, SOP env vars updated.                                                                               |
 
 
 ---
@@ -60,6 +60,7 @@ Two automations: (1) After each meeting, use the Calendly API in n8n to check yo
 ### 3.2 WF-FUP validation fixes — DONE
 
 Applied via `n8n_update_partial_workflow`:
+
 1. **Post to Slack** node: changed `select` to `"channel"` with resource locator format.
 2. **Follow-Up Webhook** node: added `onError: "continueRegularOutput"`.
 3. **Fetch Follow-Up Context** node: fixed URL expression (replaced optional chaining with concatenation).
@@ -68,6 +69,7 @@ Applied via `n8n_update_partial_workflow`:
 ### 3.3 WF-MCH update — DONE
 
 Added "Call Follow-Up Scheduler" HTTP Request node to WF-MCH:
+
 - URL: `https://n8n.amadutown.com/webhook/follow-up-scheduler`
 - Method: POST
 - Body: `{ "meeting_record_id", "base_url" }`
@@ -76,6 +78,7 @@ Added "Call Follow-Up Scheduler" HTTP Request node to WF-MCH:
 ### 3.6 Gmail draft workflow — DONE
 
 Created **WF-GDR: Gmail Draft Reply** (ID: `7dsXnjup9zi5rf8N`):
+
 1. Gmail Trigger (new unread message)
 2. Extract Sender (Code node)
 3. Fetch Client Context (HTTP Request to `/api/client-email-context`)

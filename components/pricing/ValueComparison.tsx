@@ -2,15 +2,17 @@
 
 import type { PricingTier } from '@/lib/pricing-model';
 import { formatCurrency, formatPercent } from '@/lib/pricing-model';
+import { PricingMethodologyNote, type CalculationContextDisplay } from '@/components/pricing/PricingMethodologyNote';
 
 interface ValueComparisonProps {
   tiers: PricingTier[];
   recommendedTierId: string;
   onSelect?: (tierId: string) => void;
   className?: string;
+  calculationContext?: CalculationContextDisplay | null;
 }
 
-export function ValueComparison({ tiers, recommendedTierId, onSelect, className = '' }: ValueComparisonProps) {
+export function ValueComparison({ tiers, recommendedTierId, onSelect, className = '', calculationContext }: ValueComparisonProps) {
   return (
     <div className={`rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-900 ${className}`}>
       <h3 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -21,6 +23,7 @@ export function ValueComparison({ tiers, recommendedTierId, onSelect, className 
       </p>
 
       <div className="mt-6 space-y-3">
+        <PricingMethodologyNote variant="retail" compact calculationContext={calculationContext} className="mb-2" />
         {tiers.map((tier) => {
           const isRecommended = tier.id === recommendedTierId;
           return (

@@ -1,6 +1,7 @@
 'use client';
 
 import { formatCurrency } from '@/lib/pricing-model';
+import { PricingMethodologyNote } from '@/components/pricing/PricingMethodologyNote';
 
 interface PainPointCostCardProps {
   painPoints: Array<{
@@ -41,6 +42,7 @@ export function PainPointCostCard({ painPoints, totalAnnualWaste, className = ''
         <div className="text-right">
           <p className="text-sm text-gray-500 dark:text-gray-400">Total Annual Cost</p>
           <p className="text-2xl font-bold text-red-600 dark:text-red-400">{formatCurrency(totalAnnualWaste)}</p>
+          <PricingMethodologyNote variant="painpoint" compact />
         </div>
       </div>
 

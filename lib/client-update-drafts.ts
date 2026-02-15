@@ -8,6 +8,7 @@
 
 import { supabaseAdmin } from './supabase'
 import type { MeetingActionTask } from './meeting-action-tasks'
+import { getAllActiveUpsellPaths, matchesNextProblemSignals, formatUpsellRecommendation } from './upsell-paths'
 
 // ============================================================================
 // Types
@@ -168,13 +169,36 @@ export async function generateUpdateDraft(
   }
 
   // 4. Render subject + body
-  const { subject, body } = renderUpdateEmail({
+  const { subject, body: baseBody } = renderUpdateEmail({
     clientName: project.client_name,
     projectName: project.project_name || 'your project',
     completedTasks,
     meetingType,
     customNote,
   })
+
+  // 4b. Check if completed tasks match any upsell path signals
+  // If so, append an upgrade recommendation to the email body
+  let body = baseBody
+  try {
+    const upsellPaths = await getAllActiveUpsellPaths()
+    const taskTitles = completedTasks.map(t => t.title)
+    const taskDescriptions = completedTasks.map(t => t.description || t.title)
+    const observedSignals = [...taskTitles, ...taskDescriptions]
+
+    for (const path of upsellPaths) {
+      const { matches } = matchesNextProblemSignals(path, observedSignals)
+      if (matches) {
+        body += '\n\n---\n\n'
+        body += formatUpsellRecommendation(path)
+        body += '\n\n*This recommendation is based on your current progress. Reply to this email or schedule a call to discuss.*'
+        break // Only include one recommendation per update
+      }
+    }
+  } catch (upsellErr) {
+    // Non-critical — continue without upsell recommendation
+    console.error('[Draft] Error checking upsell signals:', upsellErr)
+  }
 
   // 5. Insert draft
   const { data: draft, error: insertErr } = await supabaseAdmin

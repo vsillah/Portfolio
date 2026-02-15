@@ -1,0 +1,24 @@
+---
+description: Inspect table schema before writing INSERT/UPSERT code to catch NOT NULL and CHECK constraint issues early
+alwaysApply: true
+---
+
+# Schema Before Insert
+
+Before writing code that INSERTs or UPSERTs into an existing database table:
+
+1. **Inspect the table schema** — run `execute_sql` with:
+   ```sql
+   SELECT column_name, is_nullable, column_default
+   FROM information_schema.columns
+   WHERE table_name = '...'
+   ORDER BY ordinal_position;
+   ```
+   Or check via the Supabase Table Editor.
+2. **Identify NOT NULL columns without defaults** — these MUST be provided in the INSERT.
+3. **Identify CHECK constraints** — values must satisfy them.
+4. **If a column needs to be nullable for the new use case**, create a migration to ALTER the column BEFORE writing the insert code.
+
+## Why
+
+Runtime INSERT failures (23502 not-null violation, 23514 check violation) are silent until the code path is hit in production. A 30-second schema check prevents a class of bugs that are hard to reproduce and easy to miss in testing.

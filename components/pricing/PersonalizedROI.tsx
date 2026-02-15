@@ -1,6 +1,7 @@
 'use client';
 
 import { formatCurrency } from '@/lib/pricing-model';
+import { PricingMethodologyNote } from '@/components/pricing/PricingMethodologyNote';
 
 interface PersonalizedROIProps {
   roi: {
@@ -42,6 +43,8 @@ export function PersonalizedROI({ roi, tierPrice, tierName, className = '' }: Pe
           <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">{roi.paybackFormatted}</p>
         </div>
       </div>
+
+      <PricingMethodologyNote variant="roi" compact />
 
       {roi.netFirstYearValue > 0 && (
         <div className="mt-4 rounded-lg bg-green-100 p-3 dark:bg-green-900/30">
