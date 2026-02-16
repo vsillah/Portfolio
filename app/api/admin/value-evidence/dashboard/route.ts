@@ -89,6 +89,46 @@ export async function GET(request: NextRequest) {
     .from('content_pain_point_map')
     .select('*', { count: 'exact', head: true })
 
+  // Market intel by platform (for progress/stages display)
+  const { data: marketIntelByPlatform } = await supabaseAdmin
+    .from('market_intelligence')
+    .select('source_platform, scraped_at')
+
+  const platformStats: Record<string, { count: number; lastScraped: string | null }> = {}
+  const platforms = ['reddit', 'google_maps', 'g2', 'capterra', 'linkedin', 'youtube', 'quora']
+  for (const p of platforms) platformStats[p] = { count: 0, lastScraped: null }
+  for (const m of marketIntelByPlatform || []) {
+    const p = (m as { source_platform?: string }).source_platform || 'other'
+    if (!platformStats[p]) platformStats[p] = { count: 0, lastScraped: null }
+    platformStats[p].count++
+    const scraped = (m as { scraped_at?: string }).scraped_at
+    if (scraped && (!platformStats[p].lastScraped || scraped > platformStats[p].lastScraped!)) {
+      platformStats[p].lastScraped = scraped
+    }
+  }
+
+  // Workflow runs (for last run + progress)
+  let workflowRuns: { vep001: any; vep002: any } = { vep001: null, vep002: null }
+  try {
+    const { data: vep001 } = await supabaseAdmin
+      .from('value_evidence_workflow_runs')
+      .select('id, workflow_id, triggered_at, completed_at, status, stages, items_inserted, error_message')
+      .eq('workflow_id', 'vep001')
+      .order('triggered_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    const { data: vep002 } = await supabaseAdmin
+      .from('value_evidence_workflow_runs')
+      .select('id, workflow_id, triggered_at, completed_at, status, stages, items_inserted, error_message')
+      .eq('workflow_id', 'vep002')
+      .order('triggered_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    workflowRuns = { vep001: vep001 || null, vep002: vep002 || null }
+  } catch {
+    // Table may not exist yet
+  }
+
   return NextResponse.json({
     overview: {
       totalPainPoints: categories?.length || 0,
@@ -104,5 +144,7 @@ export async function GET(request: NextRequest) {
     topCalculations: topCalculations || [],
     evidenceBySource: sourceBreakdown,
     industryBreakdown: industryTotals,
+    marketIntelByPlatform: platformStats,
+    workflowRuns,
   })
 }

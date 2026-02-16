@@ -51,11 +51,30 @@ export async function POST(request: NextRequest) {
       errors: [] as string[],
     }
 
+    const VALID_PLATFORMS = ['linkedin', 'reddit', 'g2', 'capterra', 'trustradius', 'facebook', 'twitter', 'google_maps', 'youtube', 'quora', 'other']
+    const VALID_CONTENT_TYPES = ['post', 'comment', 'review', 'question', 'article', 'other']
+
     for (const item of items) {
       try {
         if (!item.source_platform || !item.content_text || !item.content_type) {
           results.errors.push('Missing required fields: source_platform, content_text, content_type')
           continue
+        }
+
+        if (!VALID_PLATFORMS.includes(item.source_platform)) {
+          results.errors.push(`Invalid source_platform "${item.source_platform}". Must be one of: ${VALID_PLATFORMS.join(', ')}`)
+          continue
+        }
+        if (!VALID_CONTENT_TYPES.includes(item.content_type)) {
+          results.errors.push(`Invalid content_type "${item.content_type}". Must be one of: ${VALID_CONTENT_TYPES.join(', ')}`)
+          continue
+        }
+
+        // Clamp relevance_score to 0-10 (DB CHECK constraint: BETWEEN 0 AND 10)
+        let relevanceScore: number | null = item.relevance_score ?? null
+        if (relevanceScore != null) {
+          relevanceScore = Math.round(relevanceScore)
+          if (relevanceScore < 0 || relevanceScore > 10) relevanceScore = null
         }
 
         // Dedup by source_url if provided
@@ -81,12 +100,12 @@ export async function POST(request: NextRequest) {
             source_author: item.source_author || null,
             content_text: item.content_text,
             content_type: item.content_type,
-            industry_detected: item.industry_detected || null,
-            company_size_detected: item.company_size_detected || null,
-            author_role_detected: item.author_role_detected || null,
-            monetary_mentions: item.monetary_mentions || [],
-            sentiment_score: item.sentiment_score || null,
-            relevance_score: item.relevance_score || null,
+            industry_detected: item.industry_detected ?? null,
+            company_size_detected: item.company_size_detected ?? null,
+            author_role_detected: item.author_role_detected ?? null,
+            monetary_mentions: item.monetary_mentions ?? [],
+            sentiment_score: item.sentiment_score ?? null,
+            relevance_score: relevanceScore,
             is_processed: false,
           })
 

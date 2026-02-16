@@ -1070,6 +1070,8 @@ export interface ValueEvidenceExtractionOptions {
   contactSubmissionIds?: number[]
   /** Rep-supplied pain point text per contact ID; workflow can use as classifier input or pre-classified evidence. */
   enrichments?: Record<number, { pain_points_freetext?: string }>
+  /** Run ID for progress/complete callbacks; n8n can echo this back to update run status. */
+  runId?: string
 }
 
 /**
@@ -1101,6 +1103,9 @@ export async function triggerValueEvidenceExtraction(
     if (options?.enrichments && Object.keys(options.enrichments).length > 0) {
       body.enrichments = options.enrichments
     }
+    if (options?.runId) {
+      body.run_id = options.runId
+    }
 
     const response = await fetch(N8N_VEP001_WEBHOOK_URL, {
       method: 'POST',
@@ -1130,24 +1135,33 @@ export async function triggerValueEvidenceExtraction(
  * Results are POSTed back to /api/admin/value-evidence/ingest-market
  * then classified and sent to /api/admin/value-evidence/ingest
  */
-export async function triggerSocialListening(): Promise<{ triggered: boolean; message: string }> {
+export interface SocialListeningOptions {
+  /** Run ID for progress/complete callbacks; n8n can echo this back to update run status. */
+  runId?: string
+}
+
+export async function triggerSocialListening(options?: SocialListeningOptions): Promise<{ triggered: boolean; message: string }> {
   if (!N8N_VEP002_WEBHOOK_URL) {
     console.warn('N8N_VEP002_WEBHOOK_URL not configured - skipping social listening')
     return { triggered: false, message: 'N8N_VEP002_WEBHOOK_URL not configured' }
   }
 
   try {
+    const body: Record<string, unknown> = {
+      triggered_at: new Date().toISOString(),
+      workflow: 'WF-VEP-002',
+      action: 'social_listening_scrape',
+    }
+    if (options?.runId) {
+      body.run_id = options.runId
+    }
     const response = await fetch(N8N_VEP002_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       },
-      body: JSON.stringify({
-        triggered_at: new Date().toISOString(),
-        workflow: 'WF-VEP-002',
-        action: 'social_listening_scrape',
-      }),
+      body: JSON.stringify(body),
     })
 
     if (!response.ok) {

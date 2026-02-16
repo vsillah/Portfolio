@@ -18,7 +18,15 @@ When creating new admin functionality (pages, dashboards, tools) under `/app/adm
 ### 2. Add Navigation to Admin Dashboard
 **CRITICAL: This step is mandatory and must not be skipped.**
 
-After creating any new admin page, you MUST add a Quick Action card to the main admin dashboard at `app/admin/page.tsx`:
+After creating any new admin page, you MUST add a Quick Action card to the main admin dashboard at `app/admin/page.tsx` in the **appropriate section** (workflow grouping):
+
+- **Pipeline** — Lead Pipeline, Value Evidence
+- **Sales** — Sales Dashboard
+- **Post-sale** — Client Projects, Meeting Tasks, Continuity Plans, Onboarding Templates, Guarantees
+- **Quality & insights** — Chat Eval, Analytics, E2E Testing
+- **Configuration** — Content Hub, User Management, System Prompts
+
+Place the new card inside the matching `<section>` and use the same card pattern:
 
 ```tsx
 <Link href="/admin/{feature}">

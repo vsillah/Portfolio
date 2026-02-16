@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart3, Users, MousePointerClick, Mail, Eye } from 'lucide-react'
+import { BarChart3, Users, MousePointerClick, Mail, Eye, Activity } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import AnalyticsActions from '@/components/admin/AnalyticsActions'
@@ -96,11 +96,18 @@ function AnalyticsPageContent() {
         ]} />
         
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-4xl font-bold mb-2">Analytics Dashboard</h1>
             <p className="text-gray-400">Portfolio performance insights</p>
           </div>
+          <Link
+            href="/admin/analytics/funnel"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-indigo-600/20 to-cyan-600/20 border border-indigo-500/50 text-white hover:border-indigo-400/70 transition-colors"
+          >
+            <Activity size={20} />
+            <span>Sales Funnel</span>
+          </Link>
         </div>
 
         {/* Admin Actions */}

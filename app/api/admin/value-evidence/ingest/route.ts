@@ -40,11 +40,16 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const evidenceItems: IngestEvidence[] = body.evidence || []
 
-    if (!Array.isArray(evidenceItems) || evidenceItems.length === 0) {
+    if (!Array.isArray(evidenceItems)) {
       return NextResponse.json(
-        { error: 'evidence array is required and must not be empty' },
+        { error: 'evidence must be an array' },
         { status: 400 }
       )
+    }
+
+    // Accept empty arrays gracefully (e.g. n8n AI classifier found no pain points)
+    if (evidenceItems.length === 0) {
+      return NextResponse.json({ total: 0, inserted: 0, categoriesCreated: 0, errors: [] })
     }
 
     const results = {
@@ -105,11 +110,11 @@ export async function POST(request: NextRequest) {
             source_excerpt: item.source_excerpt,
             industry: item.industry || null,
             company_size: item.company_size || null,
-            monetary_indicator: item.monetary_indicator || null,
-            monetary_context: item.monetary_context || null,
-            confidence_score: item.confidence_score || 0.5,
-            extracted_by: item.extracted_by || 'ai_classifier',
-            contact_submission_id: item.contact_submission_id || null,
+            monetary_indicator: item.monetary_indicator ?? null,
+            monetary_context: item.monetary_context ?? null,
+            confidence_score: item.confidence_score ?? 0.5,
+            extracted_by: item.extracted_by ?? 'ai_classifier',
+            contact_submission_id: item.contact_submission_id ?? null,
           })
 
         if (insertError) {
@@ -138,7 +143,7 @@ export async function POST(request: NextRequest) {
               if (data) {
                 supabaseAdmin
                   .from('pain_point_categories')
-                  .update({ frequency_count: (data.frequency_count || 0) + 1 })
+                  .update({ frequency_count: (data.frequency_count ?? 0) + 1 })
                   .eq('id', categoryId)
                   .then(() => {})
               }
@@ -169,11 +174,14 @@ export async function POST(request: NextRequest) {
 
     if (insertedContactIds.size > 0) {
       const ids = [...insertedContactIds]
-      await supabaseAdmin
+      const { error: statusError } = await supabaseAdmin
         .from('contact_submissions')
         .update({ last_vep_status: 'success' })
         .eq('last_vep_status', 'pending')
         .in('id', ids)
+      if (statusError) {
+        console.warn('Failed to update last_vep_status:', statusError.message)
+      }
     }
 
     return NextResponse.json(results)

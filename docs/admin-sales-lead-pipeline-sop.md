@@ -263,6 +263,10 @@ Visitor uses the site chat. If they enter diagnostic/audit mode, the app creates
 - **Pause:** Automatic when "Start Conversation" is clicked (sets `outreach_status = 'in_conversation'`).
 - **Resume:** When the session outcome is updated to `converted`, `lost`, or `deferred`, the outreach status can be cleared or updated (manual or via future automation).
 
+### Loss reason tracking
+
+When the session **outcome** is set to **"Lost"**, a **loss_reason** dropdown appears with options: Price Too High, Bad Timing, Feature Gap, Chose Competitor, No Budget, No Need, Ghosted, Other. This data feeds the **Sales Funnel Analytics** dashboard (`/admin/analytics/funnel`) and its loss-reason breakdown.
+
 ### Multi-session
 
 - Each "Start Conversation" click creates a **new** session (no reuse). The lead card shows the session count and links to the latest session.
@@ -420,6 +424,18 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 - **Sales sessions:** Sales sessions track **next_follow_up** date and **follow_up_count** for post-session nurture.
 - **Scheduling:** Multi-step sequence timing is managed by n8n (schedules); the app stores and displays the current step and sends it on each send.
 
+### Sales Funnel Analytics
+
+- **Where:** Admin → Sales Funnel (`/admin/analytics/funnel`).
+- **Purpose:** End-to-end visibility into how leads progress through the pipeline: **Opt-in → Outreach → Diagnostic → Sales → Proposal → Paid → Acquired**. Shows conversion rates between adjacent stages, conversion from top of funnel, pipeline dollar values, and attention items that need follow-up.
+- **Filters:** Time range (7/30/90 days) and channel (All/Warm/Cold). "All" applies no lead_source restriction.
+- **Key metrics:** Total leads, pipeline value (proposals sent but not paid), closed revenue (paid proposals), average deal size, win/loss ratio, median cycle time, and loss-reason breakdown.
+- **Attention items:** Priority-sorted alerts for overdue follow-ups, stale proposals (sent but not viewed), proposals viewed but not accepted, and conversion drops vs. the previous period.
+- **Self-benchmarking:** Each summary card shows a delta (up/down/flat arrow with percentage) comparing the current period to the same-length prior period (e.g. last 30 days vs. prior 30 days).
+- **Loss reasons:** When a session outcome is set to "Lost", the admin selects a reason (price, timing, feature_gap, competitor, no_budget, no_need, ghosted, other). The funnel dashboard aggregates these into a collapsible breakdown with progress bars.
+- **API:** `GET /api/admin/analytics/funnel?days=30&channel=all` — admin-only.
+- **Data sources:** `contact_submissions`, `outreach_queue`, `diagnostic_audits`, `sales_sessions`, `proposals`, `client_projects`.
+
 ---
 
 ## 12. Workflow reference table
@@ -484,13 +500,16 @@ Inbound leads can also come from **voice calls** via VAPI. The app receives even
 
 ## 15. Other admin tools
 
-- **Analytics Dashboard** (`/admin/analytics`): Site-wide metrics (events, sessions, page views, clicks, form submits), event breakdowns by type and section, top projects/videos, social clicks. Time range: 7 / 30 / 90 days.
+- **Analytics** (`/admin/analytics`): Site-wide metrics (events, sessions, page views, clicks, form submits), event breakdowns by type and section, top projects/videos, social clicks. Time range: 7 / 30 / 90 days. A prominent link to **Sales Funnel** (`/admin/analytics/funnel`) appears in the header.
 - **Chat Eval** (`/admin/chat-eval`): Review and evaluate chat and voice sessions. Filter by channel (text/voice), rating (good/bad). Batch evaluation. Shows success rate, total sessions, evaluated count.
 - **Content Hub** (`/admin/content`): Central management for content types: Projects, Videos, Publications, Music, Lead Magnets, Prototypes, Merchandise, Tags.
 - **User Management** (`/admin/users`): Manage admin users and roles.
 - **System Prompts** (`/admin/prompts`): Configure chatbot system prompts and evaluation criteria.
 - **E2E Testing** (`/admin/testing`): Automated client simulation tool for testing flows (e.g. warm lead pipeline, contact form, checkout).
 - **Meeting Tasks** (`/admin/meeting-tasks`): Track action items between meetings. Tasks promoted from meeting records, synced to Slack Kanban channels. Generate and send client-update emails when tasks are completed.
+- **Guarantees** (`/admin/guarantees`): Manage guarantee instances and rollover.
+
+The main admin dashboard (`/admin`) groups these tools by workflow: **Pipeline**, **Sales**, **Post-sale**, **Quality & insights**, **Configuration**.
 
 ---
 
@@ -530,7 +549,7 @@ Example embed in the SOP: `![Admin Dashboard](./images/admin-dashboard.png)`.
 
 ## 17. Quick reference
 
-- **Admin:** `/admin` — Dashboard; `/admin/outreach` — Message Queue & All Leads; `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/sales/upsell-paths` — Upsell Paths (two-touch prescription); `/admin/analytics` — Analytics; `/admin/chat-eval` — Chat Eval; `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts.
+- **Admin:** `/admin` — Dashboard (grouped by workflow: Pipeline, Sales, Post-sale, Quality & insights, Configuration); `/admin/outreach` — Message Queue & All Leads; `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/guarantees` — Guarantee instances; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/sales/upsell-paths` — Upsell Paths (two-touch prescription); `/admin/analytics` — Analytics (with Sales Funnel link); `/admin/analytics/funnel` — **Sales Funnel Analytics** (conversion rates, pipeline value, deal flow, attention items, loss reasons); `/admin/chat-eval` — Chat Eval; `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts.
 - **Client-facing:** `/proposal/[id]` — View/accept/pay proposal; `/checkout` — Checkout; `/onboarding/[id]` — Onboarding plan.
 - **Key env var names (no secrets):** N8N_LEAD_WEBHOOK_URL, N8N_CLG002_WEBHOOK_URL, N8N_CLG003_WEBHOOK_URL, N8N_WRM001/002/003_WEBHOOK_URL, N8N_INGEST_SECRET, N8N_DIAGNOSTIC_WEBHOOK_URL, N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL, N8N_VEP001_WEBHOOK_URL, N8N_VEP002_WEBHOOK_URL, N8N_TASK_SLACK_SYNC_WEBHOOK_URL, N8N_PROGRESS_UPDATE_WEBHOOK_URL, N8N_FOLLOW_UP_SCHEDULER_WEBHOOK_URL, and onboarding webhook used by `fireOnboardingWebhook` in `lib/onboarding-templates`.
 - **Troubleshooting:** See [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md) and [n8n-lead-workflow-activation-rca.md](./n8n-lead-workflow-activation-rca.md).

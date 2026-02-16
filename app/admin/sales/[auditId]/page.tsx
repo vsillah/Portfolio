@@ -175,6 +175,7 @@ interface SalesSession {
   objections_handled: Record<string, unknown>[];
   internal_notes: string | null;
   outcome: SessionOutcome;
+  loss_reason: string | null;
   next_follow_up: string | null;
 }
 
@@ -447,6 +448,15 @@ export default function ClientWalkthroughPage() {
   // Handle outcome change
   const handleOutcomeChange = (outcome: SessionOutcome) => {
     updateSession({ outcome });
+    // Clear loss_reason if outcome is no longer 'lost'
+    if (outcome !== 'lost' && salesSession?.loss_reason) {
+      updateSession({ loss_reason: null });
+    }
+  };
+
+  // Handle loss reason change
+  const handleLossReasonChange = (lossReason: string | null) => {
+    updateSession({ loss_reason: lossReason });
   };
 
   // Apply a bundle to the current selection
@@ -973,6 +983,25 @@ export default function ClientWalkthroughPage() {
               <option value="deferred">Needs Follow-up</option>
               <option value="lost">Lost</option>
             </select>
+
+            {/* Loss reason dropdown — shown only when outcome is 'lost' */}
+            {salesSession?.outcome === 'lost' && (
+              <select
+                value={salesSession?.loss_reason || ''}
+                onChange={(e) => handleLossReasonChange(e.target.value || null)}
+                className="px-3 py-2 bg-gray-800 border border-red-700/50 rounded-lg text-white"
+              >
+                <option value="">Select reason...</option>
+                <option value="price">Price Too High</option>
+                <option value="timing">Bad Timing</option>
+                <option value="feature_gap">Feature Gap</option>
+                <option value="competitor">Chose Competitor</option>
+                <option value="no_budget">No Budget</option>
+                <option value="no_need">No Need</option>
+                <option value="ghosted">Ghosted</option>
+                <option value="other">Other</option>
+              </select>
+            )}
           </div>
         </div>
 

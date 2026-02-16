@@ -334,11 +334,40 @@ When you click **Push to Value Evidence** (or Retry), the app sets the lead’s 
 
 ---
 
+## (Optional) Workflow progress callbacks
+
+**Where:** n8n workflows → add HTTP Request nodes that call your app.  
+**What you're doing:** Enabling the progress bar and "last run" display in the Value Evidence Dashboard. The app records when you trigger a workflow and, if n8n calls these endpoints, shows stage completion and last run date/time.
+
+1. **Apply the migration** — Run `migrations/2026_02_15_value_evidence_workflow_runs.sql` in Supabase SQL Editor. This creates the `value_evidence_workflow_runs` table.
+
+2. **Trigger passes `run_id`** — When you click "Run Social Listening" or "Run Internal Extraction", the app inserts a row and includes `run_id` in the webhook body. Your n8n workflow receives this in `$json.run_id`.
+
+3. **Report stage progress** — Add an HTTP Request node after each scraper/step in WF-VEP-002 (e.g. after Reddit scrape, after G2 scrape). POST to:
+   ```
+   {{ $env.PORTFOLIO_BASE_URL }}/api/admin/value-evidence/workflow-progress
+   ```
+   Body: `{ "run_id": "{{ $json.run_id }}", "workflow_id": "vep002", "stage": "reddit", "status": "complete", "items_count": 5 }`
+   Headers: `Authorization: Bearer {{ $env.N8N_INGEST_SECRET }}`
+
+4. **Report completion** — At the end of the workflow, add an HTTP Request node. POST to:
+   ```
+   {{ $env.PORTFOLIO_BASE_URL }}/api/admin/value-evidence/workflow-complete
+   ```
+   Body: `{ "run_id": "{{ $json.run_id }}", "workflow_id": "vep002", "status": "success", "items_inserted": 12 }`
+   Headers: `Authorization: Bearer {{ $env.N8N_INGEST_SECRET }}`
+
+   On error paths, use `"status": "failed"` and `"error_message": "..."`.
+
+**Without callbacks:** The Dashboard still shows "Last triggered" and inferred stages from `market_intelligence` (count per platform, last scraped) for Social Listening.
+
+---
+
 ## Summary checklist
 
 **Where:** Use this after you’ve done the steps to confirm nothing was skipped. Each item maps to a place (Supabase, `.env.local`, n8n credentials, n8n variables, n8n nodes, n8n workflow toggle, app UI).
 
-- [ ] Value Evidence + proposal value assessment migrations applied; tables present in Supabase.
+- [ ] Value Evidence + proposal value assessment + value_evidence_workflow_runs migrations applied; tables present in Supabase.
 - [ ] `.env.local` has `N8N_INGEST_SECRET`, `N8N_VEP001_WEBHOOK_URL`, `N8N_VEP002_WEBHOOK_URL`.
 - [ ] n8n: Supabase credential on both Supabase nodes (WF-VEP-001).
 - [ ] n8n: Anthropic API credential (“Anthropic account”) on **AI Pain Point Classifier** (WF-VEP-001); HTTP Header Auth or native credential on **AI Classify Social Content** (WF-VEP-002) as configured.

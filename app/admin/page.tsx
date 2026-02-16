@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, ArrowRight, MessageCircle, FileText, TrendingUp, FlaskConical, FolderKanban, Send, DollarSign, RefreshCw, ClipboardCheck } from 'lucide-react'
+import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, ArrowRight, MessageCircle, FileText, TrendingUp, FlaskConical, FolderKanban, Send, DollarSign, RefreshCw, ClipboardCheck, LayoutTemplate, ShieldCheck } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -112,214 +112,266 @@ function AdminDashboardContent() {
           )}
         </div>
 
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Link href="/admin/chat-eval">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
-                  <MessageCircle size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Chat Eval</h3>
-                  <p className="text-gray-400 text-sm">Evaluate chat conversations with LLM grading</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
+        {/* Quick Actions — grouped by workflow */}
+        <div className="mb-8 space-y-10">
+          {/* Pipeline */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Pipeline</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Link href="/admin/outreach">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-sky-600/20 to-blue-600/20 border border-sky-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-sky-600 to-blue-600 flex items-center justify-center">
+                      <Send size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Lead Pipeline</h3>
+                      <p className="text-gray-400 text-sm">Message Queue, All Leads, and trigger scrape</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+              <Link href="/admin/value-evidence">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center">
+                      <DollarSign size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Value Evidence</h3>
+                      <p className="text-gray-400 text-sm">Pain points, monetary calculations, and value reports</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            </div>
+          </section>
 
-          <Link href="/admin/analytics">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
-                  <BarChart3 size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Analytics Dashboard</h3>
-                  <p className="text-gray-400 text-sm">View detailed analytics and insights</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
+          {/* Sales */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Sales</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Link href="/admin/sales">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-emerald-600/20 to-teal-600/20 border border-emerald-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 flex items-center justify-center">
+                      <TrendingUp size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Sales Dashboard</h3>
+                      <p className="text-gray-400 text-sm">Track diagnostic audits and sales conversations</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            </div>
+          </section>
 
-          <Link href="/admin/content">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
-                  <Settings size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Content Hub</h3>
-                  <p className="text-gray-400 text-sm">Manage all portfolio content</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
+          {/* Post-sale */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Post-sale</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Link href="/admin/client-projects">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
+                      <FolderKanban size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Client Projects</h3>
+                      <p className="text-gray-400 text-sm">Track milestones and send progress updates</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+              <Link href="/admin/meeting-tasks">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-violet-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 flex items-center justify-center">
+                      <ClipboardCheck size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Meeting Tasks</h3>
+                      <p className="text-gray-400 text-sm">Track action items between meetings and send client updates</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+              <Link href="/admin/continuity-plans">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border border-cyan-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 flex items-center justify-center">
+                      <RefreshCw size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Continuity Plans</h3>
+                      <p className="text-gray-400 text-sm">Manage recurring subscription plans for ongoing support</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+              <Link href="/admin/onboarding-templates">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-slate-600/20 to-indigo-600/20 border border-slate-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-slate-600 to-indigo-600 flex items-center justify-center">
+                      <LayoutTemplate size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Onboarding Templates</h3>
+                      <p className="text-gray-400 text-sm">Reusable onboarding plans for client projects</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+              <Link href="/admin/guarantees">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
+                      <ShieldCheck size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Guarantees</h3>
+                      <p className="text-gray-400 text-sm">Manage guarantee instances and rollover</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            </div>
+          </section>
 
-          <Link href="/admin/users">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-green-600/20 to-teal-600/20 border border-green-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 flex items-center justify-center">
-                  <Users size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">User Management</h3>
-                  <p className="text-gray-400 text-sm">Manage users and roles</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
+          {/* Quality & insights */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Quality & insights</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Link href="/admin/chat-eval">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
+                      <MessageCircle size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Chat Eval</h3>
+                      <p className="text-gray-400 text-sm">Evaluate chat conversations with LLM grading</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+              <Link href="/admin/analytics">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
+                      <BarChart3 size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Analytics</h3>
+                      <p className="text-gray-400 text-sm">Site analytics and sales funnel</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+              <Link href="/admin/testing">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-rose-600/20 to-red-600/20 border border-rose-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-rose-600 to-red-600 flex items-center justify-center">
+                      <FlaskConical size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">E2E Testing</h3>
+                      <p className="text-gray-400 text-sm">Run automated client simulations</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            </div>
+          </section>
 
-          <Link href="/admin/prompts">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border border-cyan-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 flex items-center justify-center">
-                  <FileText size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">System Prompts</h3>
-                  <p className="text-gray-400 text-sm">Configure chatbot and evaluation criteria</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
-
-          <Link href="/admin/sales">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-emerald-600/20 to-teal-600/20 border border-emerald-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 flex items-center justify-center">
-                  <TrendingUp size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Sales Dashboard</h3>
-                  <p className="text-gray-400 text-sm">Track diagnostic audits and sales conversations</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
-
-          <Link href="/admin/client-projects">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
-                  <FolderKanban size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Client Projects</h3>
-                  <p className="text-gray-400 text-sm">Track milestones and send progress updates</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
-
-          <Link href="/admin/outreach">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-sky-600/20 to-blue-600/20 border border-sky-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-sky-600 to-blue-600 flex items-center justify-center">
-                  <Send size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Lead Pipeline</h3>
-                  <p className="text-gray-400 text-sm">Manage all leads, outreach messages, and pipeline metrics</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
-
-          <Link href="/admin/value-evidence">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center">
-                  <DollarSign size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Value Evidence</h3>
-                  <p className="text-gray-400 text-sm">Pain points, monetary calculations, and value reports</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
-
-          <Link href="/admin/continuity-plans">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border border-cyan-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 flex items-center justify-center">
-                  <RefreshCw size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Continuity Plans</h3>
-                  <p className="text-gray-400 text-sm">Manage recurring subscription plans for ongoing support</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
-
-          <Link href="/admin/meeting-tasks">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-violet-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 flex items-center justify-center">
-                  <ClipboardCheck size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">Meeting Tasks</h3>
-                  <p className="text-gray-400 text-sm">Track action items between meetings and send client updates</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
-
-          <Link href="/admin/testing">
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="p-6 bg-gradient-to-r from-rose-600/20 to-red-600/20 border border-rose-500/50 rounded-xl cursor-pointer"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-rose-600 to-red-600 flex items-center justify-center">
-                  <FlaskConical size={32} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold mb-1">E2E Testing</h3>
-                  <p className="text-gray-400 text-sm">Run automated client simulations</p>
-                </div>
-              </div>
-            </motion.div>
-          </Link>
-          </div>
+          {/* Configuration */}
+          <section>
+            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Configuration</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Link href="/admin/content">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
+                      <Settings size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Content Hub</h3>
+                      <p className="text-gray-400 text-sm">Manage all portfolio content</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+              <Link href="/admin/users">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-green-600/20 to-teal-600/20 border border-green-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 flex items-center justify-center">
+                      <Users size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">User Management</h3>
+                      <p className="text-gray-400 text-sm">Manage users and roles</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+              <Link href="/admin/prompts">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border border-cyan-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 flex items-center justify-center">
+                      <FileText size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">System Prompts</h3>
+                      <p className="text-gray-400 text-sm">Configure chatbot and evaluation criteria</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            </div>
+          </section>
         </div>
       </div>
     </div>
