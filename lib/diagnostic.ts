@@ -34,6 +34,9 @@ export interface DiagnosticAuditRecord {
 /**
  * Save or update a diagnostic audit record
  */
+/** Questions grouped by assessment category for lead dashboard "what will strengthen confidence" */
+export type QuestionsByCategory = Partial<Record<string, string[]>>
+
 export async function saveDiagnosticAudit(
   sessionId: string,
   data: {
@@ -43,6 +46,8 @@ export async function saveDiagnosticAudit(
     progress?: DiagnosticProgress
     diagnosticData?: Partial<DiagnosticAuditData>
     contactSubmissionId?: number
+    /** Optional: questions per category for lead dashboard; persisted when status is completed */
+    questionsByCategory?: QuestionsByCategory
   }
 ): Promise<{ id: string; error?: Error }> {
   try {
@@ -117,6 +122,11 @@ export async function saveDiagnosticAudit(
     // Link to contact submission if provided
     if (data.contactSubmissionId) {
       updateData.contact_submission_id = data.contactSubmissionId
+    }
+
+    // Lead dashboard: questions per category (e.g. from n8n or chat flow)
+    if (data.questionsByCategory && typeof data.questionsByCategory === 'object') {
+      updateData.questions_by_category = data.questionsByCategory
     }
 
     let auditId: string

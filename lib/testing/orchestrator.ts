@@ -19,6 +19,7 @@ import { SimulatedClient, createSimulatedClient } from './test-client'
 import { createPersonaInstance, getRandomPersona } from './personas'
 import { getRandomScenario } from './scenarios'
 import { createClient } from '@supabase/supabase-js'
+import { testDb } from './test-db-cast'
 
 // ============================================================================
 // Configuration
@@ -33,8 +34,7 @@ const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 export class TestOrchestrator {
   private config: OrchestratorConfig
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private supabase: any
+  private supabase: ReturnType<typeof createClient>
   
   private runId: string = ''
   private dbRunId: string = ''
@@ -453,7 +453,8 @@ export class TestOrchestrator {
   
   private async createDbRecord(): Promise<void> {
     try {
-      const { data, error } = await this.supabase
+      const db = testDb(this.supabase)
+      const { data, error } = await db
         .from('test_runs')
         .insert({
           run_id: this.runId,
@@ -468,7 +469,7 @@ export class TestOrchestrator {
       
       if (error) {
         console.error('[Orchestrator] Failed to create DB record:', error)
-      } else {
+      } else if (data?.id) {
         this.dbRunId = data.id
       }
     } catch (error) {
@@ -480,7 +481,8 @@ export class TestOrchestrator {
     if (!this.dbRunId) return
     
     try {
-      await this.supabase
+      const db = testDb(this.supabase)
+      await db
         .from('test_runs')
         .update({
           completed_at: this.completedAt,
@@ -504,7 +506,8 @@ export class TestOrchestrator {
     if (!this.dbRunId) return
     
     try {
-      await this.supabase
+      const db = testDb(this.supabase)
+      await db
         .from('test_client_sessions')
         .insert({
           test_run_id: this.dbRunId,
@@ -525,7 +528,8 @@ export class TestOrchestrator {
     if (!this.dbRunId) return
     
     try {
-      await this.supabase
+      const db = testDb(this.supabase)
+      await db
         .from('test_client_sessions')
         .update({
           completed_at: result.completedAt,
@@ -540,9 +544,10 @@ export class TestOrchestrator {
         .eq('client_id', clientId)
         .eq('test_run_id', this.dbRunId)
       
-      // Also record errors to the dedicated table
+      // Also record errors to the dedicated table (cast: app schema has no test_errors)
       if (result.errors.length > 0) {
-        await this.supabase
+        const db = testDb(this.supabase)
+        await db
           .from('test_errors')
           .insert(result.errors.map(e => ({
             error_id: e.errorId,

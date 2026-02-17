@@ -11,3 +11,10 @@ export const TIER_OPTIONS = [
 ] as const;
 
 export type PricingTierSlug = (typeof TIER_OPTIONS)[number]['value'];
+
+/** Pricing page segment options: which tab(s) on /pricing show this bundle. */
+export const PRICING_SEGMENT_OPTIONS = [
+  { value: 'smb', label: 'Small Business (1-50)' },
+  { value: 'midmarket', label: 'Mid-Market (50-500)' },
+  { value: 'nonprofit', label: 'Nonprofit / Education' },
+] as const;

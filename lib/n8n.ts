@@ -729,8 +729,7 @@ export async function sendDiagnosticToN8n(request: DiagnosticAuditRequest): Prom
         return { ...diagnosticFallback, metadata: { ...diagnosticFallback.metadata, parseError: true } }
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const result: any = Array.isArray(data) ? data[0] : data
+      const result = (Array.isArray(data) ? data[0] : data) as Record<string, unknown>
 
       // Extract response text - handle multiple response formats from n8n
       let responseText = ''
@@ -754,25 +753,27 @@ export async function sendDiagnosticToN8n(request: DiagnosticAuditRequest): Prom
       }
       // Case 3: Response field is an object
       else if (result.response && typeof result.response === 'object') {
-        responseText = result.response.response || result.response.text || result.response.message || ''
+        const res = result.response as Record<string, unknown>
+        responseText = (res.response as string) || (res.text as string) || (res.message as string) || ''
       }
       // Case 4: Result itself might be the response object (no nested response field)
       else if (result.response === undefined && result.currentCategory !== undefined) {
-        responseText = result.text || result.message || result.output || ''
+        responseText = String(result.text ?? result.message ?? result.output ?? '')
       }
       // Case 5: Fallback to other fields
       else {
-        responseText = result.response || result.output || result.text || result.message || ''
+        responseText = String(result.response ?? result.output ?? result.text ?? result.message ?? '')
       }
 
+      const resObj = typeof result.response === 'object' ? (result.response as Record<string, unknown>) : null
       return {
         response: responseText || diagnosticFallback.response,
-        diagnosticData: result.diagnosticData || (typeof result.response === 'object' ? result.response.diagnosticData : undefined),
-        currentCategory: result.currentCategory || (typeof result.response === 'object' ? result.response.currentCategory : undefined),
-        isComplete: result.isComplete || (typeof result.response === 'object' ? result.response.isComplete : false) || false,
-        nextQuestion: result.nextQuestion,
-        progress: result.progress,
-        metadata: result.metadata || {},
+        diagnosticData: (result.diagnosticData || resObj?.diagnosticData) as Partial<DiagnosticAuditData> | undefined,
+        currentCategory: (result.currentCategory ?? resObj?.currentCategory) as DiagnosticCategory | undefined,
+        isComplete: Boolean(result.isComplete || resObj?.isComplete),
+        nextQuestion: result.nextQuestion as string | undefined,
+        progress: result.progress as DiagnosticProgress | undefined,
+        metadata: (result.metadata || {}) as Record<string, unknown>,
       }
 
     } catch (error) {

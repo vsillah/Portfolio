@@ -16,6 +16,7 @@ import type {
   CodeSnippet
 } from './types'
 import { createClient } from '@supabase/supabase-js'
+import { testDb } from './test-db-cast'
 
 // ============================================================================
 // Configuration
@@ -31,8 +32,7 @@ const GITHUB_REPO = process.env.GITHUB_REPO || 'owner/my-portfolio'
 // ============================================================================
 
 export class RemediationEngine {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private supabase: any
+  private supabase: ReturnType<typeof createClient>
   
   constructor() {
     this.supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
@@ -59,23 +59,27 @@ export class RemediationEngine {
       status: 'pending'
     }
     
-    // Save to database and get the generated ID
-    const { data: inserted, error: insertError } = await this.supabase
+    // Save to database and get the generated ID (test table not in app schema)
+    const db = testDb(this.supabase)
+    const { data: inserted, error: insertError } = await db
       .from('test_remediation_requests')
       .insert(insertData)
       .select('id')
       .single()
     
     if (insertError || !inserted) {
-      throw new Error(`Failed to create remediation request: ${insertError?.message || 'Unknown error'}`)
+      const msg = insertError && typeof insertError === 'object' && 'message' in insertError
+        ? String((insertError as { message: unknown }).message)
+        : 'Unknown error'
+      throw new Error(`Failed to create remediation request: ${msg}`)
     }
     
     // Link errors to this remediation request
     const errorIds = errors.map(e => e.errorId)
     if (errorIds.length > 0) {
-      await this.supabase
+      await db
         .from('test_errors')
-        .update({ 
+        .update({
           remediation_request_id: inserted.id,
           remediation_status: 'in_progress'
         })
@@ -103,19 +107,21 @@ export class RemediationEngine {
     // Update status
     await this.updateStatus(requestId, 'analyzing')
     
-    // Fetch the request
-    const { data: request } = await this.supabase
+    const db = testDb(this.supabase)
+    // Fetch the request (row shape from test_remediation_requests)
+    const { data: requestData } = await db
       .from('test_remediation_requests')
       .select('*')
       .eq('id', requestId)
       .single()
     
-    if (!request) {
+    if (!requestData) {
       throw new Error(`Remediation request ${requestId} not found`)
     }
+    const request = requestData as { id: string; error_ids: string[]; options: RemediationOptions }
     
     // Fetch error details
-    const { data: errors } = await this.supabase
+    const { data: errors } = await db
       .from('test_errors')
       .select('*')
       .in('error_id', request.error_ids)
@@ -125,7 +131,7 @@ export class RemediationEngine {
     // Analyze the errors
     const analysis = await this.analyzeErrors(errorContexts)
     
-    await this.supabase
+    await db
       .from('test_remediation_requests')
       .update({ analysis, status: 'generating_fix' })
       .eq('id', requestId)
@@ -133,7 +139,7 @@ export class RemediationEngine {
     // Generate fixes
     const fixes = await this.generateFixes(errorContexts, analysis)
     
-    await this.supabase
+    await db
       .from('test_remediation_requests')
       .update({ fixes, status: 'review_required' })
       .eq('id', requestId)
@@ -141,14 +147,14 @@ export class RemediationEngine {
     // Route to appropriate output
     const result = await this.routeToOutput(
       requestId,
-      request.options as RemediationOptions,
+      request.options,
       analysis,
       fixes,
       errorContexts
     )
     
     // Update final status
-    await this.supabase
+    await db
       .from('test_remediation_requests')
       .update({
         status: result.status,
@@ -637,7 +643,8 @@ ${f.fixedContent.substring(0, 500)}${f.fixedContent.length > 500 ? '...' : ''}
     requestId: string,
     task: { id: string; prompt: string }
   ): Promise<void> {
-    await this.supabase
+    const db = testDb(this.supabase)
+    await db
       .from('test_remediation_requests')
       .update({
         cursor_task_id: task.id
@@ -700,7 +707,8 @@ ${f.fixedContent.substring(0, 500)}${f.fixedContent.length > 500 ? '...' : ''}
     requestId: string,
     status: RemediationResult['status']
   ): Promise<void> {
-    await this.supabase
+    const db = testDb(this.supabase)
+    await db
       .from('test_remediation_requests')
       .update({ status, started_at: new Date().toISOString() })
       .eq('id', requestId)
@@ -710,7 +718,8 @@ ${f.fixedContent.substring(0, 500)}${f.fixedContent.length > 500 ? '...' : ''}
    * Get remediation request by ID
    */
   async getRequest(requestId: string): Promise<RemediationRequest | null> {
-    const { data } = await this.supabase
+    const db = testDb(this.supabase)
+    const { data } = await db
       .from('test_remediation_requests')
       .select('*')
       .eq('id', requestId)
@@ -723,13 +732,15 @@ ${f.fixedContent.substring(0, 500)}${f.fixedContent.length > 500 ? '...' : ''}
    * Get Cursor task prompt for a request
    */
   async getCursorTaskPrompt(requestId: string): Promise<string | null> {
-    const { data } = await this.supabase
+    const db = testDb(this.supabase)
+    const { data: raw } = await db
       .from('test_remediation_requests')
       .select('error_ids, analysis, fixes, status')
       .eq('id', requestId)
       .single()
     
-    if (!data) return null
+    if (!raw) return null
+    const data = raw as { error_ids: string[]; analysis: RemediationAnalysis | null; fixes: CodeFix[] | null; status: string }
     
     // Don't generate prompt if still processing
     if (!data.analysis) {
@@ -737,15 +748,15 @@ ${f.fixedContent.substring(0, 500)}${f.fixedContent.length > 500 ? '...' : ''}
     }
     
     // Fetch errors
-    const { data: errors } = await this.supabase
+    const { data: errors } = await db
       .from('test_errors')
       .select('*')
       .in('error_id', data.error_ids)
     
     const task = this.buildCursorTask(
       errors as unknown as TestErrorContext[],
-      data.analysis as RemediationAnalysis,
-      data.fixes as CodeFix[] || []
+      data.analysis,
+      data.fixes ?? []
     )
     
     return task.prompt

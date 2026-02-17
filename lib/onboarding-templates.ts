@@ -238,6 +238,29 @@ async function findTemplate(
   }
 }
 
+/**
+ * Returns milestone titles from the first active onboarding template.
+ * Used by the lead dashboard "steps during engagement" section.
+ */
+export async function getDefaultOnboardingMilestoneTitles(): Promise<string[]> {
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('onboarding_plan_templates')
+      .select('milestones_template')
+      .eq('is_active', true)
+      .limit(1)
+      .maybeSingle()
+
+    if (error || !data?.milestones_template || !Array.isArray(data.milestones_template)) {
+      return []
+    }
+    const template = data.milestones_template as MilestoneTemplate[]
+    return template.map((m) => (m.title ?? '')).filter(Boolean)
+  } catch {
+    return []
+  }
+}
+
 // ============================================================================
 // Plan Generation
 // ============================================================================

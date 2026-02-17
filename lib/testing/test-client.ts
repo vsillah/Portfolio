@@ -53,8 +53,7 @@ export class SimulatedClient {
   private clientId: string
   
   private chatAgent: ChatAgent
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private supabase: any
+  private supabase: ReturnType<typeof createClient>
   
   private stepResults: StepResult[] = []
   private errors: TestErrorContext[] = []
@@ -507,12 +506,13 @@ export class SimulatedClient {
     if (!productId && step.productType) {
       // Fetch a product of the specified type
       searchDetails = `product_type="${step.productType}"`
-      const { data: products, error } = await this.supabase
+      const { data, error } = await this.supabase
         .from('products')
         .select('id, name')
         .eq('product_type', step.productType)
         .eq('active', true)
         .limit(1)
+      const products = data as { id: string; name: string }[] | null
       
       if (error) {
         throw new Error(`Database error querying products (${searchDetails}): ${error.message}`)
@@ -526,11 +526,12 @@ export class SimulatedClient {
     if (!productId) {
       // Get any active product
       searchDetails = searchDetails || 'any active product'
-      const { data: products, error } = await this.supabase
+      const { data, error } = await this.supabase
         .from('products')
         .select('id, name')
         .eq('active', true)
         .limit(1)
+      const products = data as { id: string; name: string }[] | null
       
       if (error) {
         throw new Error(`Database error querying products (${searchDetails}): ${error.message}`)
@@ -633,7 +634,8 @@ export class SimulatedClient {
               .select('status')
               .eq('id', this.createdResources.diagnosticId)
               .single()
-            found = data?.status === 'completed'
+            const row = data as { status?: string } | null
+            found = row?.status === 'completed'
           }
           break
           
@@ -644,7 +646,8 @@ export class SimulatedClient {
               .select('lead_score')
               .eq('id', this.createdResources.contactId)
               .single()
-            found = data?.lead_score !== null
+            const row = data as { lead_score: unknown } | null
+            found = row?.lead_score !== null
           }
           break
           
@@ -673,9 +676,9 @@ export class SimulatedClient {
   private async executeValidateDatabase(step: ValidateDatabaseStep): Promise<Record<string, unknown>> {
     let query = this.supabase.from(step.table).select('*')
     
-    // Apply conditions
+    // Apply conditions (Supabase eq accepts string; coerce for dynamic conditions)
     for (const [field, value] of Object.entries(step.conditions)) {
-      query = query.eq(field, value)
+      query = query.eq(field, value as string)
     }
     
     // Add session/contact filters for test isolation
@@ -909,13 +912,13 @@ export class SimulatedClient {
     while (Date.now() - startTime < timeout) {
       let query = this.supabase.from(step.table).select('*')
       
-      // Apply conditions
+      // Apply conditions (Supabase eq/not accept string; coerce for dynamic conditions)
       for (const [field, value] of Object.entries(step.conditions)) {
         if (typeof value === 'object' && value !== null && 'not' in value) {
           // Handle { not: null } condition
           query = query.not(field, 'is', (value as { not: unknown }).not)
         } else {
-          query = query.eq(field, value)
+          query = query.eq(field, value as string)
         }
       }
       
