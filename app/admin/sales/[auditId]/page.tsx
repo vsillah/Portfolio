@@ -73,12 +73,14 @@ import {
   ExternalLink,
   Copy,
   Loader2,
+  LayoutDashboard,
 } from 'lucide-react';
 
 interface DiagnosticAudit {
   id: string;
   session_id: string;
   contact_id: string | null;
+  contact_submission_id?: number | null;
   status: string;
   urgency_score: number | null;
   opportunity_score: number | null;
@@ -289,6 +291,9 @@ export default function ClientWalkthroughPage() {
   /** Evidence-based price overrides per content key (retail_price, perceived_value) for proposal line items */
   const [priceOverrides, setPriceOverrides] = useState<Record<string, { retail_price: number; perceived_value: number }>>({});
   const [isApplyingEvidencePricing, setIsApplyingEvidencePricing] = useState(false);
+  const [leadDashboardUrl, setLeadDashboardUrl] = useState<string | null>(null);
+  const [leadDashboardCopied, setLeadDashboardCopied] = useState(false);
+  const [isCreatingLeadDashboard, setIsCreatingLeadDashboard] = useState(false);
 
   // Load initial data
   const fetchData = useCallback(async () => {
@@ -969,6 +974,71 @@ export default function ClientWalkthroughPage() {
                 <RefreshCw className="w-4 h-4 animate-spin" />
                 Saving...
               </span>
+            )}
+
+            {/* Lead dashboard link (when diagnostic completed and has contact) */}
+            {audit?.status === 'completed' && (contact || audit.contact_submission_id) && (
+              <div className="flex items-center gap-2">
+                {leadDashboardUrl ? (
+                  <>
+                    <a
+                      href={leadDashboardUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-2 bg-blue-600/20 border border-blue-500/50 rounded-lg text-blue-300 text-sm hover:bg-blue-600/30 flex items-center gap-2"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      Open dashboard
+                    </a>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        await navigator.clipboard.writeText(leadDashboardUrl);
+                        setLeadDashboardCopied(true);
+                        setTimeout(() => setLeadDashboardCopied(false), 2000);
+                      }}
+                      className="px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 text-sm hover:bg-gray-700 flex items-center gap-2"
+                    >
+                      <Copy className="w-4 h-4" />
+                      {leadDashboardCopied ? 'Copied' : 'Copy link'}
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    disabled={isCreatingLeadDashboard}
+                    onClick={async () => {
+                      const authSession = await getCurrentSession();
+                      if (!authSession?.access_token) return;
+                      setIsCreatingLeadDashboard(true);
+                      try {
+                        const res = await fetch('/api/admin/lead-dashboard', {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${authSession.access_token}`,
+                          },
+                          body: JSON.stringify({ diagnostic_audit_id: auditId }),
+                        });
+                        const data = await res.json();
+                        if (res.ok && data.url) {
+                          setLeadDashboardUrl(data.url);
+                        }
+                      } finally {
+                        setIsCreatingLeadDashboard(false);
+                      }
+                    }}
+                    className="px-3 py-2 bg-blue-600/20 border border-blue-500/50 rounded-lg text-blue-300 text-sm hover:bg-blue-600/30 flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {isCreatingLeadDashboard ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <LayoutDashboard className="w-4 h-4" />
+                    )}
+                    Share lead dashboard
+                  </button>
+                )}
+              </div>
             )}
             
             {/* Outcome selector */}

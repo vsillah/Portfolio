@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { TIER_OPTIONS } from '@/lib/constants/bundle-tiers';
+import { TIER_OPTIONS, PRICING_SEGMENT_OPTIONS } from '@/lib/constants/bundle-tiers';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
 import { 
@@ -400,6 +400,13 @@ function BundleCard({
                 ? (TIER_OPTIONS.find((t) => t.value === bundle.pricing_tier_slug)?.label ?? bundle.pricing_tier_slug)
                 : '—'}
             </p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Pricing segments: {Array.isArray(bundle.pricing_page_segments) && bundle.pricing_page_segments.length > 0
+                ? (bundle.pricing_page_segments as string[])
+                    .map((seg) => PRICING_SEGMENT_OPTIONS.find((o) => o.value === seg)?.label ?? seg)
+                    .join(', ')
+                : 'Not on pricing page'}
+            </p>
           )}
           {bundle.is_decoy && (
             <p className="text-xs text-emerald-400 flex items-center gap-1 mt-1">
@@ -540,7 +547,6 @@ function CreateBundleModal({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const SEGMENTS = ['smb', 'midmarket', 'nonprofit'] as const;
   const togglePricingSegment = (seg: string) => {
     setPricingSegments((prev) =>
       prev.includes(seg) ? prev.filter((s) => s !== seg) : [...prev, seg]
@@ -731,20 +737,22 @@ function CreateBundleModal({
             {showOnPricingPage && (
               <div className="space-y-3 pl-1">
                 <div>
-                  <label className="block text-xs font-medium text-gray-400 mb-1.5">Segments</label>
-                  <div className="flex gap-2">
-                    {SEGMENTS.map((seg) => (
+                  <label className="block text-xs font-medium text-gray-400 mb-1.5">
+                    Show on which pricing tab(s)
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {PRICING_SEGMENT_OPTIONS.map((opt) => (
                       <button
-                        key={seg}
+                        key={opt.value}
                         type="button"
-                        onClick={() => togglePricingSegment(seg)}
+                        onClick={() => togglePricingSegment(opt.value)}
                         className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
-                          pricingSegments.includes(seg)
+                          pricingSegments.includes(opt.value)
                             ? 'bg-blue-900/50 text-blue-300 border-blue-700'
                             : 'bg-gray-800 text-gray-400 border-gray-700'
                         }`}
                       >
-                        {seg}
+                        {opt.label}
                       </button>
                     ))}
                   </div>
@@ -882,8 +890,6 @@ function EditBundleModal({
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const SEGMENTS = ['smb', 'midmarket', 'nonprofit'] as const;
-
   const toggleSegment = (seg: string) => {
     setPricingSegments((prev) =>
       prev.includes(seg) ? prev.filter((s) => s !== seg) : [...prev, seg]
@@ -1017,21 +1023,21 @@ function EditBundleModal({
                 <>
                   <div>
                     <label className="block text-xs font-medium text-gray-400 mb-1.5">
-                      Segments
+                      Show on which pricing tab(s)
                     </label>
-                    <div className="flex gap-2">
-                      {SEGMENTS.map((seg) => (
+                    <div className="flex flex-wrap gap-2">
+                      {PRICING_SEGMENT_OPTIONS.map((opt) => (
                         <button
-                          key={seg}
+                          key={opt.value}
                           type="button"
-                          onClick={() => toggleSegment(seg)}
+                          onClick={() => toggleSegment(opt.value)}
                           className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
-                            pricingSegments.includes(seg)
+                            pricingSegments.includes(opt.value)
                               ? 'bg-blue-900/50 text-blue-300 border-blue-700'
                               : 'bg-gray-800 text-gray-400 border-gray-700'
                           }`}
                         >
-                          {seg}
+                          {opt.label}
                         </button>
                       ))}
                     </div>

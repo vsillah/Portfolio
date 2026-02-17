@@ -32,6 +32,9 @@ import {
   Phone,
   Globe,
   Briefcase,
+  ShieldOff,
+  Trash2,
+  RotateCcw,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -118,6 +121,8 @@ interface Lead {
   last_vep_triggered_at: string | null
   last_vep_status: string | null
   has_extractable_text: boolean
+  do_not_contact?: boolean
+  removed_at?: string | null
 }
 
 interface LeadsResponse {
@@ -207,6 +212,10 @@ function OutreachContent() {
   const [leadsSourceFilter, setLeadsSourceFilter] = useState<string>(() => {
     return searchParams?.get('source') || 'all'
   })
+  const [leadsVisibilityFilter, setLeadsVisibilityFilter] = useState<'active' | 'do_not_contact' | 'removed' | 'all'>(() => {
+    const v = searchParams?.get('visibility')
+    return (v === 'do_not_contact' || v === 'removed' || v === 'all') ? v : 'active'
+  })
   const [leadsSearch, setLeadsSearch] = useState('')
   const [expandedLeadId, setExpandedLeadId] = useState<number | null>(() => {
     const id = searchParams?.get('id')
@@ -214,6 +223,7 @@ function OutreachContent() {
   })
   const [leadsPage, setLeadsPage] = useState(1)
   const leadsPerPage = 50
+  const [leadActionId, setLeadActionId] = useState<number | null>(null)
 
   // Add lead modal (manual entry)
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
@@ -333,6 +343,7 @@ function OutreachContent() {
 
       const params = new URLSearchParams({
         filter: leadsTempFilter,
+        visibility: leadsVisibilityFilter,
         ...(leadsStatusFilter !== 'all' && { status: leadsStatusFilter }),
         ...(leadsSourceFilter !== 'all' && { source: leadsSourceFilter }),
         ...(leadsSearch && { search: leadsSearch }),
@@ -354,7 +365,7 @@ function OutreachContent() {
     } finally {
       setLeadsLoading(false)
     }
-  }, [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsSearch, leadsPage, leadsPerPage])
+  }, [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsVisibilityFilter, leadsSearch, leadsPage, leadsPerPage])
 
   // VEP extraction polling: start/stop based on vepPollingActive flag
   const startVepPolling = useCallback(() => {
@@ -365,6 +376,7 @@ function OutreachContent() {
       if (!session) return
       const params = new URLSearchParams({
         filter: leadsTempFilter,
+        visibility: leadsVisibilityFilter,
         ...(leadsStatusFilter !== 'all' && { status: leadsStatusFilter }),
         ...(leadsSourceFilter !== 'all' && { source: leadsSourceFilter }),
         ...(leadsSearch && { search: leadsSearch }),
@@ -387,7 +399,7 @@ function OutreachContent() {
         }
       }
     }, 4000)
-  }, [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsSearch, leadsPage, leadsPerPage])
+  }, [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsVisibilityFilter, leadsSearch, leadsPage, leadsPerPage])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -443,6 +455,30 @@ function OutreachContent() {
       setPushLoading(false)
     }
   }, [])
+
+  const updateLeadDncOrRemoved = useCallback(
+    async (leadId: number, payload: { do_not_contact?: boolean; removed_at?: string | null }) => {
+      const session = await getCurrentSession()
+      if (!session) return
+      setLeadActionId(leadId)
+      try {
+        const res = await fetch(`/api/admin/outreach/leads/${leadId}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify(payload),
+        })
+        if (res.ok) await fetchLeads()
+      } catch (e) {
+        console.error('Update lead DNC/removed failed:', e)
+      } finally {
+        setLeadActionId(null)
+      }
+    },
+    [fetchLeads]
+  )
 
   const handleAction = async (action: 'approve' | 'reject', ids: string[]) => {
     setActionLoading(true)
@@ -1216,6 +1252,19 @@ function OutreachContent() {
                 <option value="cold_apollo">Apollo</option>
               </select>
 
+              {/* Visibility: Active | Do not contact | Removed | All */}
+              <select
+                value={leadsVisibilityFilter}
+                onChange={(e) => setLeadsVisibilityFilter(e.target.value as 'active' | 'do_not_contact' | 'removed' | 'all')}
+                className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                title="Show leads by contact status"
+              >
+                <option value="active">Active only</option>
+                <option value="do_not_contact">Do not contact</option>
+                <option value="removed">Removed</option>
+                <option value="all">All</option>
+              </select>
+
               {/* Add lead (manual entry) */}
               <button
                 type="button"
@@ -1845,14 +1894,17 @@ function OutreachContent() {
                             ) : (
                               <ul className="space-y-2">
                                 {evidenceDrawerData.reports.map((r) => (
-                                  <li
-                                    key={r.id}
-                                    className="p-2 rounded-lg bg-white/5 border border-white/10 text-sm"
-                                  >
-                                    <span className="text-white">{r.title ?? 'Report'}</span>
-                                    <span className="text-gray-400 ml-2">
-                                      {r.total_annual_value != null ? `$${r.total_annual_value}` : ''} · {new Date(r.created_at).toLocaleDateString()}
-                                    </span>
+                                  <li key={r.id}>
+                                    <Link
+                                      href={`/admin/value-evidence/reports/${r.id}`}
+                                      className="block p-2 rounded-lg bg-white/5 border border-white/10 text-sm hover:bg-white/10 hover:border-white/20 transition-colors"
+                                      onClick={() => setEvidenceDrawerContactId(null)}
+                                    >
+                                      <span className="text-white">{r.title ?? 'Report'}</span>
+                                      <span className="text-gray-400 ml-2">
+                                        {r.total_annual_value != null ? `$${r.total_annual_value}` : ''} · {new Date(r.created_at).toLocaleDateString()}
+                                      </span>
+                                    </Link>
                                   </li>
                                 ))}
                               </ul>
@@ -2074,6 +2126,12 @@ function OutreachContent() {
                                   .replace(/\b\w/g, (char) => char.toUpperCase()) // Capitalize first letter of each word
                                 }
                               </span>
+                              {lead.do_not_contact && (
+                                <span className="px-2 py-0.5 bg-amber-900/50 text-amber-300 rounded text-xs">Do not contact</span>
+                              )}
+                              {lead.removed_at && (
+                                <span className="px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-xs">Removed</span>
+                              )}
                             </div>
                             <div className="flex items-center gap-3 mt-1 text-sm text-gray-400">
                               {lead.job_title && (
@@ -2262,6 +2320,46 @@ function OutreachContent() {
                               <Edit3 size={14} />
                               Edit
                             </button>
+                            {!lead.do_not_contact && !lead.removed_at && (
+                              <button
+                                type="button"
+                                onClick={() => updateLeadDncOrRemoved(lead.id, { do_not_contact: true })}
+                                disabled={leadActionId === lead.id}
+                                className="px-3 py-2 bg-amber-900/30 hover:bg-amber-800/50 text-amber-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
+                                title="Do not contact: will not be overwritten by future ingest"
+                              >
+                                <ShieldOff size={14} />
+                                Do not contact
+                              </button>
+                            )}
+                            {!lead.removed_at && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (window.confirm(`Remove "${lead.name}" from the lead list? You can restore from "Removed" view.`)) {
+                                    updateLeadDncOrRemoved(lead.id, { removed_at: new Date().toISOString() })
+                                  }
+                                }}
+                                disabled={leadActionId === lead.id}
+                                className="px-3 py-2 bg-red-900/30 hover:bg-red-800/50 text-red-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
+                                title="Remove from active list"
+                              >
+                                <Trash2 size={14} />
+                                Remove
+                              </button>
+                            )}
+                            {lead.removed_at && (
+                              <button
+                                type="button"
+                                onClick={() => updateLeadDncOrRemoved(lead.id, { removed_at: null })}
+                                disabled={leadActionId === lead.id}
+                                className="px-3 py-2 bg-green-900/30 hover:bg-green-800/50 text-green-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
+                                title="Restore to active list"
+                              >
+                                <RotateCcw size={14} />
+                                Restore
+                              </button>
+                            )}
                             <Link
                               href={`/admin/outreach?tab=queue&contact=${lead.id}`}
                               className="px-3 py-2 bg-blue-900/30 hover:bg-blue-800/50 text-blue-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"

@@ -626,7 +626,7 @@ export default function PrototypeEditPage({ params }: { params: { id: string } }
               >
                 <h3 className="text-xl font-bold text-white mb-2">Delete Prototype</h3>
                 <p className="text-gray-400 mb-6">
-                  Are you sure you want to delete "<span className="text-white">{formData.title}</span>"? 
+                  Are you sure you want to delete &quot;<span className="text-white">{formData.title}</span>&quot;? 
                   This will also delete all demos, feedback, and analytics.
                 </p>
                 <div className="flex gap-3">

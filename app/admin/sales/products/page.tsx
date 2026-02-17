@@ -228,7 +228,7 @@ export default function ProductClassificationPage() {
               Content Classification
             </h1>
             <p className="text-gray-400 mt-1">
-              Classify your products using Alex Hormozi's offer framework
+              Classify your products using Alex Hormozi&apos;s offer framework
             </p>
           </div>
 

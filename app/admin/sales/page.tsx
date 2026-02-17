@@ -30,6 +30,7 @@ import {
   Search,
   Star,
   ArrowUpRight,
+  Trash2,
 } from 'lucide-react';
 
 interface DiagnosticAudit {
@@ -102,6 +103,7 @@ export default function SalesDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
   
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -180,6 +182,29 @@ export default function SalesDashboardPage() {
       day: 'numeric',
       year: 'numeric',
     });
+  };
+
+  const handleDeleteConversation = async (sessionId: string) => {
+    if (!confirm('Remove this conversation from the list? This cannot be undone.')) return;
+    const session = await getCurrentSession();
+    if (!session?.access_token) return;
+    setDeletingSessionId(sessionId);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/sales/sessions?id=${encodeURIComponent(sessionId)}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to remove conversation');
+      }
+      await fetchData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to remove conversation');
+    } finally {
+      setDeletingSessionId(null);
+    }
   };
 
   const getScoreColor = (score: number | null) => {
@@ -516,12 +541,24 @@ export default function SalesDashboardPage() {
                         )}
                       </td>
                       <td className="px-4 py-4 text-right">
-                        <Link
-                          href={`/admin/sales/conversation/${s.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700"
-                        >
-                          Continue <ArrowRight className="w-4 h-4" />
-                        </Link>
+                        <div className="flex items-center justify-end gap-2">
+                          <Link
+                            href={`/admin/sales/conversation/${s.id}`}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700"
+                          >
+                            Continue <ArrowRight className="w-4 h-4" />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteConversation(s.id)}
+                            disabled={deletingSessionId === s.id}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-900/50 text-red-400 rounded-lg text-sm hover:bg-red-800/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Remove conversation"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                            Remove
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

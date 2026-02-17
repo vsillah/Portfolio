@@ -18,6 +18,10 @@ import {
   FileText,
   MessageSquare,
   AlertCircle,
+  LayoutDashboard,
+  Copy,
+  ExternalLink,
+  Loader2,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -276,6 +280,9 @@ function ProjectDetailContent() {
             <p className="text-gray-500 mt-1">{project.product_purchased}</p>
           )}
         </div>
+
+        {/* Client Dashboard Management */}
+        <DashboardManagement projectId={projectId} accessToken={accessToken || ''} />
 
         {/* Progress Bar */}
         <div className="mb-8 p-4 bg-gray-900 border border-gray-800 rounded-xl">
@@ -893,5 +900,134 @@ function MilestoneCompleteModal({
         </div>
       </motion.div>
     </motion.div>
+  )
+}
+
+// ============================================================================
+// Dashboard Management Section
+// ============================================================================
+
+function DashboardManagement({
+  projectId,
+  accessToken,
+}: {
+  projectId: string
+  accessToken: string
+}) {
+  const [dashboardToken, setDashboardToken] = useState<string | null>(null)
+  const [generating, setGenerating] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [checking, setChecking] = useState(true)
+
+  // Check if dashboard already exists
+  useEffect(() => {
+    async function check() {
+      try {
+        const res = await fetch(`/api/admin/client-projects/${projectId}`, {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          // Check for existing dashboard access
+          if (data.dashboard_token) {
+            setDashboardToken(data.dashboard_token)
+          }
+        }
+      } catch {
+        // Ignore
+      } finally {
+        setChecking(false)
+      }
+    }
+    if (accessToken) check()
+  }, [projectId, accessToken])
+
+  const handleGenerate = async () => {
+    setGenerating(true)
+    try {
+      const res = await fetch(`/api/admin/client-projects/${projectId}/dashboard`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setDashboardToken(data.accessToken)
+      }
+    } catch {
+      // Ignore
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  const handleCopy = () => {
+    if (!dashboardToken) return
+    const url = `${window.location.origin}/client/dashboard/${dashboardToken}`
+    navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (checking) return null
+
+  return (
+    <div className="mb-8 p-4 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-500/30 rounded-xl">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-blue-600/20 flex items-center justify-center">
+            <LayoutDashboard size={20} className="text-blue-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-blue-300">Client Dashboard</h3>
+            <p className="text-xs text-gray-500">
+              {dashboardToken
+                ? 'Dashboard active — share the link with your client'
+                : 'Generate a personalized dashboard for this client'}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {dashboardToken ? (
+            <>
+              <button
+                onClick={handleCopy}
+                className="px-3 py-1.5 bg-blue-500/20 border border-blue-500/50 rounded-lg text-blue-300 text-xs font-medium hover:bg-blue-500/30 flex items-center gap-1.5 transition-colors"
+              >
+                <Copy size={12} />
+                {copied ? 'Copied!' : 'Copy Link'}
+              </button>
+              <a
+                href={`/client/dashboard/${dashboardToken}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 text-xs font-medium hover:bg-gray-700 flex items-center gap-1.5 transition-colors"
+              >
+                <ExternalLink size={12} />
+                View as Client
+              </a>
+            </>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleGenerate}
+              disabled={generating}
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg text-white text-sm font-medium disabled:opacity-50 flex items-center gap-2"
+            >
+              {generating ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <LayoutDashboard size={14} />
+              )}
+              {generating ? 'Generating...' : 'Generate Dashboard'}
+            </motion.button>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }
