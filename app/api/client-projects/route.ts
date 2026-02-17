@@ -107,11 +107,41 @@ export async function POST(request: NextRequest) {
     }
 
     // Link the sales session to this client project (lifecycle: lead → session → client)
+    let diagnosticAuditId: string | number | null = null
     if (proposal.sales_session_id) {
       await supabaseAdmin
         .from('sales_sessions')
         .update({ client_project_id: project.id })
         .eq('id', proposal.sales_session_id)
+
+      const { data: session } = await supabaseAdmin
+        .from('sales_sessions')
+        .select('diagnostic_audit_id')
+        .eq('id', proposal.sales_session_id)
+        .single()
+      diagnosticAuditId = session?.diagnostic_audit_id ?? null
+    }
+
+    // Backfill contact_submission_id from diagnostic (so dashboard can load assessment)
+    if (diagnosticAuditId != null) {
+      const { data: audit } = await supabaseAdmin
+        .from('diagnostic_audits')
+        .select('contact_submission_id')
+        .eq('id', diagnosticAuditId)
+        .single()
+      if (audit?.contact_submission_id != null) {
+        await supabaseAdmin
+          .from('client_projects')
+          .update({ contact_submission_id: audit.contact_submission_id })
+          .eq('id', project.id)
+      }
+
+      // Promote lead dashboard to client: same token now serves full dashboard
+      await supabaseAdmin
+        .from('client_dashboard_access')
+        .update({ client_project_id: project.id })
+        .eq('diagnostic_audit_id', diagnosticAuditId)
+        .is('client_project_id', null)
     }
 
     // 5. Build proposal context for template resolution

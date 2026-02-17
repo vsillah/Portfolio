@@ -196,6 +196,7 @@ export async function POST(request: NextRequest) {
           progress: diagnosticResponse.progress,
           diagnosticData: diagnosticResponse.diagnosticData,
           status: diagnosticResponse.isComplete ? 'completed' : 'in_progress',
+          questionsByCategory: diagnosticResponse.metadata?.questionsByCategory as import('@/lib/diagnostic').QuestionsByCategory | undefined,
         })
       }
 

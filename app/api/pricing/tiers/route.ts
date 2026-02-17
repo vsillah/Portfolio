@@ -1,7 +1,7 @@
 /**
  * Public API: Pricing Tiers
  * Returns pricing tiers from offer_bundles for the pricing page.
- * Only bundles with pricing_page_segments set and bundle_type != 'custom' are included.
+ * Only bundles whose pricing_page_segments array contains the requested segment (smb, midmarket, or nonprofit) are included. Empty or null = not shown on any tab. Custom bundles are excluded.
  */
 
 export const dynamic = 'force-dynamic';
@@ -66,27 +66,16 @@ export async function GET(request: NextRequest) {
     const allBenchmarks: IndustryBenchmark[] = (benchmarks || []) as IndustryBenchmark[];
 
     // Fetch bundles for this segment; exclude custom bundles.
-    // Include bundles where pricing_page_segments contains segment, or is null/empty
-    // (null/empty = "show for all segments" so standard bundles created without
-    // "Show on pricing page" still appear).
-    const [{ data: withSegment, error: err1 }, { data: nullOrEmpty, error: err2 }] = await Promise.all([
-      supabaseAdmin
-        .from('offer_bundles')
-        .select('*')
-        .contains('pricing_page_segments', [segment])
-        .neq('bundle_type', 'custom')
-        .eq('is_active', true)
-        .order('pricing_display_order', { ascending: true, nullsFirst: false }),
-      supabaseAdmin
-        .from('offer_bundles')
-        .select('*')
-        .or('pricing_page_segments.is.null,pricing_page_segments.eq.{}')
-        .neq('bundle_type', 'custom')
-        .eq('is_active', true)
-        .order('pricing_display_order', { ascending: true, nullsFirst: false }),
-    ]);
+    // Only include bundles that explicitly list this segment in pricing_page_segments.
+    // Empty/null = not shown on any segment (per offer_bundles column comment).
+    const { data: withSegment, error } = await supabaseAdmin
+      .from('offer_bundles')
+      .select('*')
+      .contains('pricing_page_segments', [segment])
+      .neq('bundle_type', 'custom')
+      .eq('is_active', true)
+      .order('pricing_display_order', { ascending: true, nullsFirst: false });
 
-    const error = err1 ?? err2;
     if (error) {
       console.error('Error fetching pricing tiers:', error);
       return NextResponse.json(
@@ -95,19 +84,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Merge and dedupe by id, preserving order (withSegment first, then nullOrEmpty)
-    const seen = new Set<string>();
-    const dbBundles: DbBundle[] = [];
-    for (const b of [...(withSegment || []), ...(nullOrEmpty || [])]) {
-      const row = b as DbBundle;
-      if (seen.has(row.id)) continue;
-      seen.add(row.id);
-      dbBundles.push(row);
-    }
-    dbBundles.sort((a, b) => (a.pricing_display_order ?? 0) - (b.pricing_display_order ?? 0));
-    const tiers: PricingTier[] = [];
+    const dbBundles: DbBundle[] = (withSegment || []) as DbBundle[];
 
-    for (const b of dbBundles) {
+    const tierPromises = dbBundles.map(async (b): Promise<PricingTier> => {
       const expandedItems = await expandBundleItems(b.id);
       const items = await resolveBundleItemsToTierItems(expandedItems);
       const price = Number(b.bundle_price) ?? 0;
@@ -131,7 +110,7 @@ export async function GET(request: NextRequest) {
         };
       }
 
-      tiers.push({
+      return {
         id: b.pricing_tier_slug ?? b.id,
         name: b.name,
         tagline: b.tagline ?? '',
@@ -147,8 +126,9 @@ export async function GET(request: NextRequest) {
         featured: b.is_featured ?? false,
         isDecoy: b.is_decoy ?? false,
         mirrorsTierId: b.mirrors_tier_id ?? undefined,
-      });
-    }
+      };
+    });
+    const tiers: PricingTier[] = await Promise.all(tierPromises);
 
     // Apply dynamic retail values based on segment + optional industry/companySize
     let calculationContext: CalculationContext | undefined;
@@ -171,16 +151,16 @@ export async function GET(request: NextRequest) {
       const decoys = tiers.filter((t) => t.isDecoy);
       let premiums = tiers.filter((t) => !t.isDecoy);
       if (premiums.length === 0 && decoys.length > 0) {
-        // Fetch premium tiers from smb for comparison (same segment logic: contains smb or null/empty)
-        const [withSmb, smbNullEmpty] = await Promise.all([
-          supabaseAdmin.from('offer_bundles').select('*').contains('pricing_page_segments', ['smb']).neq('bundle_type', 'custom').eq('is_active', true).order('pricing_display_order', { ascending: true }),
-          supabaseAdmin.from('offer_bundles').select('*').or('pricing_page_segments.is.null,pricing_page_segments.eq.{}').neq('bundle_type', 'custom').eq('is_active', true).order('pricing_display_order', { ascending: true }),
-        ]);
-        const smbById = new Map<string, DbBundle>();
-        [...(withSmb.data || []), ...(smbNullEmpty.data || [])].forEach((b) => smbById.set((b as DbBundle).id, b as DbBundle));
-        const smbBundles = Array.from(smbById.values()).sort((a, b) => (a.pricing_display_order ?? 0) - (b.pricing_display_order ?? 0));
-        const smbDb = smbBundles;
-        for (const b of smbDb) {
+        // Fetch premium tiers that explicitly show on SMB segment only
+        const { data: smbData } = await supabaseAdmin
+          .from('offer_bundles')
+          .select('*')
+          .contains('pricing_page_segments', ['smb'])
+          .neq('bundle_type', 'custom')
+          .eq('is_active', true)
+          .order('pricing_display_order', { ascending: true });
+        const smbBundles = (smbData || []) as DbBundle[];
+        const smbTierPromises = smbBundles.map(async (b): Promise<PricingTier> => {
           const expandedItems = await expandBundleItems(b.id);
           const items = await resolveBundleItemsToTierItems(expandedItems);
           const price = Number(b.bundle_price) ?? 0;
@@ -202,7 +182,7 @@ export async function GET(request: NextRequest) {
               payoutType: 'refund',
             };
           }
-          premiums.push({
+          return {
             id: b.pricing_tier_slug ?? b.id,
             name: b.name,
             tagline: b.tagline ?? '',
@@ -217,8 +197,9 @@ export async function GET(request: NextRequest) {
             ctaHref: b.cta_href ?? '#contact',
             featured: b.is_featured ?? false,
             isDecoy: false,
-          });
-        }
+          };
+        });
+        premiums = await Promise.all(smbTierPromises);
       }
       decoyComparisons = decoys
         .filter((d) => d.mirrorsTierId)
