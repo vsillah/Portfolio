@@ -30,7 +30,9 @@ This document describes the complete warm lead workflow integration, including m
 4. INGESTION
    └─ POST /api/admin/outreach/ingest
       ├─ Validates N8N_INGEST_SECRET
-      ├─ Deduplicates by email/linkedin
+      ├─ Skips leads that look like organizations (company-name heuristics; see lib/lead-filters.ts)
+      ├─ Skips existing leads marked Do Not Contact (no overwrite on re-push)
+      ├─ Deduplicates by email/linkedin/facebook
       └─ Inserts to contact_submissions table
 
 5. ENRICHMENT (Automatic)

@@ -7,7 +7,9 @@ Use this for releases, after large changes, or when hardening a flow. Run manual
 - **Leads list**
   - Admin → Outreach → **Leads** tab.
   - Temperature filter = **All leads** → Refresh → at least one lead appears (or empty state if none).
+  - Visibility = **Active only** (default), **Do not contact**, **Removed**, or **All** → list updates.
   - Search by name → expected rows (e.g. "Rasheed Meadows").
+  - Per-lead **Do not contact** / **Remove** / **Restore** (when viewing Removed) work and refresh the list.
 - **Outreach queue**
   - **Queue** tab loads; filter by status (e.g. Draft / Approved) → list updates.
 - **Value evidence**
