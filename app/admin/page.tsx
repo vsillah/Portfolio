@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, ArrowRight, MessageCircle, FileText, TrendingUp, FlaskConical, FolderKanban, Send, DollarSign, RefreshCw, ClipboardCheck, LayoutTemplate, ShieldCheck } from 'lucide-react'
+import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, ArrowRight, MessageCircle, FileText, TrendingUp, FlaskConical, FolderKanban, Send, DollarSign, RefreshCw, ClipboardCheck, LayoutTemplate, ShieldCheck, LayoutDashboard } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -169,6 +169,22 @@ function AdminDashboardContent() {
                     <div>
                       <h3 className="text-xl font-bold mb-1">Sales Dashboard</h3>
                       <p className="text-gray-400 text-sm">Track diagnostic audits and sales conversations</p>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+              <Link href="/admin/lead-dashboards">
+                <motion.div
+                  whileHover={{ scale: 1.02 }}
+                  className="p-6 bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/50 rounded-xl cursor-pointer"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
+                      <LayoutDashboard size={32} className="text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold mb-1">Lead Dashboards</h3>
+                      <p className="text-gray-400 text-sm">Share lead dashboard links; same link after they convert</p>
                     </div>
                   </div>
                 </motion.div>

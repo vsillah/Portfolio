@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   DollarSign,
@@ -25,7 +25,11 @@ import {
   Globe,
   BookOpen,
   Layers,
+  ExternalLink,
 } from 'lucide-react'
+import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -99,6 +103,45 @@ const CONFIDENCE_COLORS: Record<string, string> = {
   high: 'text-green-400 bg-green-500/20',
   medium: 'text-yellow-400 bg-yellow-500/20',
   low: 'text-gray-400 bg-gray-500/20',
+}
+
+/**
+ * Strip the "Cost of Doing Nothing" section from the markdown since the
+ * structured opportunity-area cards already cover the same content.
+ */
+function stripDuplicateCostSection(md: string): string {
+  return md.replace(
+    /## The Cost of Doing Nothing\n[\s\S]*?(?=\n---|\n## |\n$)/,
+    ''
+  )
+}
+
+const reportMarkdownComponents: Record<string, React.ComponentType<{ children?: React.ReactNode; [key: string]: unknown }>> = {
+  h1: ({ children, ...props }) => <h1 className="text-xl font-bold text-white mb-3 mt-4" {...props}>{children}</h1>,
+  h2: ({ children, ...props }) => <h2 className="text-lg font-semibold text-white mb-2 mt-4 border-b border-gray-700/50 pb-1" {...props}>{children}</h2>,
+  h3: ({ children, ...props }) => <h3 className="text-base font-semibold text-gray-200 mb-1 mt-3" {...props}>{children}</h3>,
+  p: ({ children, ...props }) => <p className="text-sm text-gray-300 mb-2 leading-relaxed" {...props}>{children}</p>,
+  strong: ({ children, ...props }) => <strong className="text-white font-semibold" {...props}>{children}</strong>,
+  em: ({ children, ...props }) => <em className="text-gray-400" {...props}>{children}</em>,
+  ul: ({ children, ...props }) => <ul className="list-disc list-inside text-sm text-gray-300 mb-2 space-y-0.5" {...props}>{children}</ul>,
+  ol: ({ children, ...props }) => <ol className="list-decimal list-inside text-sm text-gray-300 mb-2 space-y-0.5" {...props}>{children}</ol>,
+  table: ({ children, ...props }) => <div className="overflow-x-auto my-3"><table className="min-w-full text-sm" {...props}>{children}</table></div>,
+  thead: ({ children, ...props }) => <thead className="border-b border-gray-600" {...props}>{children}</thead>,
+  th: ({ children, ...props }) => <th className="px-3 py-1.5 text-left text-gray-400 font-medium text-xs" {...props}>{children}</th>,
+  td: ({ children, ...props }) => <td className="px-3 py-1.5 text-gray-300 border-t border-gray-700/50" {...props}>{children}</td>,
+  hr: () => <hr className="border-gray-700 my-4" />,
+  blockquote: ({ children, ...props }) => <blockquote className="border-l-2 border-emerald-500/40 pl-3 my-2 text-gray-400 italic text-sm" {...props}>{children}</blockquote>,
+}
+
+function normalizeStatementForTab(vs: Record<string, unknown>) {
+  return {
+    painPoint: (vs.pain_point ?? vs.painPoint ?? 'Unnamed opportunity') as string,
+    annualValue: (vs.annual_value ?? vs.annualValue ?? 0) as number,
+    calculationMethod: (vs.calculation_method ?? vs.calculationMethod) as string | undefined,
+    formulaReadable: (vs.formula_readable ?? vs.formulaReadable) as string | undefined,
+    evidenceSummary: (vs.evidence_summary ?? vs.evidenceSummary) as string | undefined,
+    confidence: vs.confidence as string | undefined,
+  }
 }
 
 // ============================================================================
@@ -1357,27 +1400,90 @@ function ReportsTab() {
         </div>
 
         {selectedReport && reportDetail && (
-          <div className="bg-gray-800/50 border border-gray-700 rounded-xl p-5 max-h-[65vh] overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-2">{selectedReport.title}</h3>
-            {reportDetail.contact && (
-              <div className="text-sm text-gray-400 mb-4">
-                {reportDetail.contact.name} · {reportDetail.contact.company} · {reportDetail.contact.industry}
-              </div>
-            )}
-            <div className="prose prose-invert prose-sm max-w-none">
-              <pre className="whitespace-pre-wrap text-sm text-gray-300 font-sans bg-gray-900/50 p-4 rounded-lg overflow-x-auto">
-                {selectedReport.summary_markdown}
-              </pre>
-            </div>
-            {(selectedReport.value_statements as any[])?.length > 0 && (
-              <div className="mt-4 space-y-2">
-                <h4 className="font-medium text-amber-300">Value statements</h4>
-                {(selectedReport.value_statements as any[]).map((vs: any, i: number) => (
-                  <div key={i} className="p-2 bg-gray-900/50 rounded-lg text-sm">
-                    <span className="font-medium text-green-400">{vs.pain_point}</span>
-                    {' '}— {formatCurrency(vs.annual_value || 0)}/yr ({vs.calculation_method?.replace(/_/g, ' ')})
+          <div className="bg-gray-800/50 border border-gray-700 rounded-xl max-h-[65vh] overflow-y-auto">
+            {/* Header */}
+            <div className="p-5 border-b border-gray-700/80">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{selectedReport.title}</h3>
+                  {reportDetail.contact && (
+                    <div className="text-sm text-gray-400 mt-1">
+                      {reportDetail.contact.name} · {reportDetail.contact.company} · {reportDetail.contact.industry}
+                    </div>
+                  )}
+                  <div className="flex items-center gap-3 mt-2">
+                    <span className="text-emerald-400 font-bold text-lg">
+                      {formatCurrency(parseFloat(selectedReport.total_annual_value))}/yr
+                    </span>
+                    <span className="text-xs px-2 py-0.5 bg-gray-700 rounded capitalize">
+                      {selectedReport.report_type?.replace(/_/g, ' ')}
+                    </span>
                   </div>
-                ))}
+                </div>
+                <Link
+                  href={`/admin/value-evidence/reports/${selectedReport.id}`}
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600/20 border border-emerald-500/40 rounded-lg text-emerald-300 text-sm hover:bg-emerald-600/30 transition-colors whitespace-nowrap"
+                >
+                  <ExternalLink size={14} />
+                  Full Report
+                </Link>
+              </div>
+            </div>
+
+            {/* Rendered markdown (without Cost of Doing Nothing) */}
+            <div className="p-5">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={reportMarkdownComponents}
+              >
+                {stripDuplicateCostSection(selectedReport.summary_markdown)}
+              </ReactMarkdown>
+            </div>
+
+            {/* Value statements - structured cards */}
+            {(selectedReport.value_statements as Record<string, unknown>[])?.length > 0 && (
+              <div className="px-5 pb-5">
+                <h4 className="font-medium text-amber-300 mb-3 flex items-center gap-2">
+                  <DollarSign size={16} />
+                  Opportunity Areas ({(selectedReport.value_statements as Record<string, unknown>[]).length})
+                </h4>
+                <div className="space-y-2">
+                  {(selectedReport.value_statements as Record<string, unknown>[]).map((vs, i) => {
+                    const s = normalizeStatementForTab(vs)
+                    const Icon = METHOD_ICONS[s.calculationMethod ?? ''] || DollarSign
+                    return (
+                      <div key={i} className="p-3 bg-gray-900/50 rounded-lg border border-gray-700/50">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-2.5 min-w-0">
+                            <div className="w-7 h-7 rounded bg-emerald-600/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <Icon size={14} className="text-emerald-400" />
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-medium text-white text-sm">
+                                {i + 1}. {s.painPoint}
+                              </div>
+                              {s.formulaReadable && (
+                                <div className="text-xs text-gray-500 mt-0.5 truncate" title={s.formulaReadable}>
+                                  {s.formulaReadable}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-right flex-shrink-0">
+                            <div className="text-emerald-400 font-semibold text-sm">
+                              {formatCurrency(s.annualValue)}/yr
+                            </div>
+                            {s.confidence && (
+                              <span className={`text-xs px-1.5 py-0.5 rounded ${CONFIDENCE_COLORS[s.confidence] || 'text-gray-400 bg-gray-500/20'}`}>
+                                {s.confidence}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
               </div>
             )}
           </div>
