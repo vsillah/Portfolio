@@ -1,0 +1,43 @@
+---
+description: Detect n8n 502 errors and recover by restarting via launchd
+alwaysApply: true
+---
+
+# n8n 502 Recovery
+
+When any n8n webhook call returns **502 Bad Gateway**, the cause is almost always that the n8n process is not running while the Cloudflare tunnel (`https://n8n.amadutown.com`) is still active.
+
+## Diagnosis
+
+Before attempting code fixes, check whether n8n is actually reachable:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:5678/healthz
+```
+
+- **200** → n8n is running; the 502 is a different issue (stale webhook, tunnel misconfiguration).
+- **000 / connection refused** → n8n is down. Restart it (see below).
+
+## Restart command
+
+**Always restart via launchd**, never with `bash ./start-n8n.sh` in a terminal. Terminal-spawned n8n dies when the terminal closes (SIGTERM → exit 0 → launchd won't restart).
+
+```bash
+launchctl kickstart -k gui/$(id -u)/com.n8n.local
+```
+
+Wait ~10 seconds, then verify:
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:5678/healthz
+```
+
+## Never do
+
+- `bash ./start-n8n.sh` in a Cursor terminal or agent shell — the process dies when the session ends.
+- `npx n8n start` directly — missing required env vars from the startup script.
+
+## When to apply
+
+- Any time an API route, MCP tool, or `curl` to `https://n8n.amadutown.com` returns 502.
+- Any time warm lead triggers, cold lead workflows, or value evidence pipelines report "Webhook returned 502".
