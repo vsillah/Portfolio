@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { LEAD_SOURCE_VALUES, getRelationshipStrength } from '@/lib/constants/lead-source'
+import { isLikelyOrganization } from '@/lib/lead-filters'
 
 export const dynamic = 'force-dynamic'
 
@@ -71,68 +72,85 @@ export async function POST(request: NextRequest) {
     let inserted = 0
     let skipped = 0
     let updated = 0
+    let skippedCompany = 0
+    let skippedDnc = 0
     const errors: string[] = []
 
     for (const lead of leads) {
       try {
+        // Filter out companies/organizations so they are not pushed to the lead dashboard
+        if (isLikelyOrganization(lead.name.trim(), lead.company)) {
+          skippedCompany++
+          continue
+        }
+
         // Normalize email to lowercase for consistent matching
         const normalizedEmail = lead.email?.trim().toLowerCase() || null
 
         // Check for duplicates: email → linkedin_username → linkedin_url → facebook → name+source+company
-        let existingId: number | null = null
+        // Select id and do_not_contact so we can skip re-ingesting DNC leads
+        let existingRow: { id: number; do_not_contact: boolean } | null = null
 
         if (normalizedEmail) {
           const { data } = await supabaseAdmin
             .from('contact_submissions')
-            .select('id')
+            .select('id, do_not_contact')
             .eq('email', normalizedEmail)
             .limit(1)
             .single()
-          if (data) existingId = data.id
+          if (data) existingRow = { id: data.id, do_not_contact: data.do_not_contact === true }
         }
 
-        if (!existingId && lead.linkedin_username) {
+        if (!existingRow && lead.linkedin_username) {
           const { data } = await supabaseAdmin
             .from('contact_submissions')
-            .select('id')
+            .select('id, do_not_contact')
             .eq('linkedin_username', lead.linkedin_username.trim())
             .limit(1)
             .single()
-          if (data) existingId = data.id
+          if (data) existingRow = { id: data.id, do_not_contact: data.do_not_contact === true }
         }
 
-        if (!existingId && lead.linkedin_url) {
+        if (!existingRow && lead.linkedin_url) {
           const { data } = await supabaseAdmin
             .from('contact_submissions')
-            .select('id')
+            .select('id, do_not_contact')
             .eq('linkedin_url', lead.linkedin_url.trim())
             .limit(1)
             .single()
-          if (data) existingId = data.id
+          if (data) existingRow = { id: data.id, do_not_contact: data.do_not_contact === true }
         }
 
-        if (!existingId && lead.facebook_profile_url) {
+        if (!existingRow && lead.facebook_profile_url) {
           const { data } = await supabaseAdmin
             .from('contact_submissions')
-            .select('id')
+            .select('id, do_not_contact')
             .eq('facebook_profile_url', lead.facebook_profile_url.trim())
             .limit(1)
             .single()
-          if (data) existingId = data.id
+          if (data) existingRow = { id: data.id, do_not_contact: data.do_not_contact === true }
         }
 
         // Fallback: name + source + company match for leads with no unique identifiers
         // Prevents re-importing the same Google Contact, business card, etc.
-        if (!existingId && !normalizedEmail && !lead.linkedin_username && !lead.linkedin_url && !lead.facebook_profile_url) {
+        if (!existingRow && !normalizedEmail && !lead.linkedin_username && !lead.linkedin_url && !lead.facebook_profile_url) {
           const { data } = await supabaseAdmin
             .from('contact_submissions')
-            .select('id')
+            .select('id, do_not_contact')
             .ilike('name', lead.name.trim())
             .eq('lead_source', lead.lead_source)
             .limit(1)
             .single()
-          if (data) existingId = data.id
+          if (data) existingRow = { id: data.id, do_not_contact: data.do_not_contact === true }
         }
+
+        // Do not overwrite leads marked Do Not Contact when re-pushing from n8n
+        if (existingRow?.do_not_contact) {
+          skippedDnc++
+          continue
+        }
+
+        const existingId = existingRow?.id ?? null
 
         if (existingId) {
           // Update existing contact with any new data
@@ -240,6 +258,8 @@ export async function POST(request: NextRequest) {
         inserted,
         updated,
         skipped,
+        skipped_company: skippedCompany,
+        skipped_dnc: skippedDnc,
         errors: errors.length,
       },
       errors: errors.length > 0 ? errors : undefined,

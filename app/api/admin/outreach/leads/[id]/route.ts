@@ -51,7 +51,7 @@ export async function GET(
 
     const { data, error } = await supabaseAdmin
       .from('contact_submissions')
-      .select('id, name, email, company, company_domain, job_title, industry, phone_number, linkedin_url, message, lead_source, employee_count')
+      .select('id, name, email, company, company_domain, job_title, industry, phone_number, linkedin_url, message, lead_source, employee_count, do_not_contact, removed_at')
       .eq('id', id)
       .single()
 
@@ -114,6 +114,8 @@ export async function PATCH(
       employee_count,
       quick_wins,
       rep_pain_points,
+      do_not_contact,
+      removed_at,
     } = body as {
       name?: string
       email?: string
@@ -132,6 +134,8 @@ export async function PATCH(
       employee_count?: string
       quick_wins?: string
       rep_pain_points?: string
+      do_not_contact?: boolean
+      removed_at?: string | null
     }
 
     const { data: existing, error: fetchError } = await supabaseAdmin
@@ -185,6 +189,11 @@ export async function PATCH(
     if (quick_wins !== undefined) updatePayload.quick_wins = typeof quick_wins === 'string' && quick_wins.trim() ? quick_wins.trim() : null
     if (rep_pain_points !== undefined) updatePayload.rep_pain_points = typeof rep_pain_points === 'string' && rep_pain_points.trim() ? rep_pain_points.trim() : null
 
+    // Do Not Contact: prevent re-ingest and exclude from outreach
+    if (do_not_contact !== undefined) updatePayload.do_not_contact = Boolean(do_not_contact)
+    // Removed: soft-delete; clear to restore
+    if (removed_at !== undefined) updatePayload.removed_at = removed_at === null || removed_at === '' ? null : (typeof removed_at === 'string' ? removed_at : null)
+
     if (Object.keys(updatePayload).length === 0) {
       return NextResponse.json(
         { id, updated: true },
@@ -205,7 +214,8 @@ export async function PATCH(
       )
     }
 
-    const shouldReRunEnrichment = re_run_enrichment !== false
+    const onlyDncOrRemoved = Object.keys(updatePayload).every((k) => k === 'do_not_contact' || k === 'removed_at')
+    const shouldReRunEnrichment = !onlyDncOrRemoved && re_run_enrichment !== false
     if (shouldReRunEnrichment) {
       const finalName = (typeof name === 'string' ? name.trim() : null) ?? existing.name
       const finalEmail = (typeof email === 'string' && email.trim() ? email.trim().toLowerCase() : null) ?? existing.email ?? ''

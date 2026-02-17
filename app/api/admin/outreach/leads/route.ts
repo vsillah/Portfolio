@@ -246,6 +246,7 @@ export async function GET(request: NextRequest) {
     const filter = searchParams.get('filter') || 'all' // 'all' | 'warm' | 'cold'
     const status = searchParams.get('status') // 'new' | 'contacted' | 'replied' | 'booked' | 'opted_out'
     const source = searchParams.get('source') // specific source like 'warm_facebook'
+    const visibility = searchParams.get('visibility') || 'active' // 'active' | 'do_not_contact' | 'removed' | 'all'
     const search = searchParams.get('search') // text search
     const limit = parseInt(searchParams.get('limit') || '50')
     const offset = parseInt(searchParams.get('offset') || '0')
@@ -275,8 +276,20 @@ export async function GET(request: NextRequest) {
         full_report,
         rep_pain_points,
         last_vep_triggered_at,
-        last_vep_status
+        last_vep_status,
+        do_not_contact,
+        removed_at
       `, { count: 'exact' })
+
+    // Visibility: active (default) = show only contactable leads; do_not_contact | removed | all
+    if (visibility === 'active') {
+      query = query.eq('do_not_contact', false).is('removed_at', null)
+    } else if (visibility === 'do_not_contact') {
+      query = query.eq('do_not_contact', true).is('removed_at', null)
+    } else if (visibility === 'removed') {
+      query = query.not('removed_at', 'is', null)
+    }
+    // visibility === 'all': no filter on do_not_contact/removed_at
 
     // Filter by temperature (warm/cold). "all" = no lead_source filter so every lead is shown.
     if (filter === 'warm') {

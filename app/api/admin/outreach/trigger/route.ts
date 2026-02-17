@@ -138,6 +138,11 @@ export async function POST(request: NextRequest) {
       const anySucceeded = fbResult.triggered || gcResult.triggered || liResult.triggered
       const allSkipped = [fbResult, gcResult, liResult].every((r) => (r as { skipped?: boolean }).skipped)
 
+      const firstMessage = fbResult.message || gcResult.message || liResult.message
+      const failureMessage = firstMessage
+        ? `All warm lead scrapers failed: ${firstMessage}. Check that n8n is running and webhook URLs are reachable.`
+        : 'Failed to trigger warm lead scrapers'
+
       return NextResponse.json({
         success: anySucceeded || allSkipped,
         triggered,
@@ -147,7 +152,7 @@ export async function POST(request: NextRequest) {
           ? 'All skipped: last run within 24 hours'
           : anySucceeded
           ? 'Some warm lead scrapers triggered successfully'
-          : 'Failed to trigger warm lead scrapers'
+          : failureMessage
       })
     } else {
       // Trigger single source
