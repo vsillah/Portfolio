@@ -157,7 +157,7 @@ export default function Projects() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="max-w-3xl mb-auto text-center mb-20"
+          className="text-center mb-20"
         >
           <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
             <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
@@ -167,7 +167,7 @@ export default function Projects() {
           <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
             <span className="italic text-radiant-gold">Projects</span>
           </h2>
-          <p className="font-body text-platinum-white/50 text-lg leading-relaxed">
+          <p className="font-body text-platinum-white/50 text-lg leading-relaxed max-w-2xl mx-auto">
             A curated selection of strategic initiatives and digital products built for the modern era.
           </p>
         </motion.div>

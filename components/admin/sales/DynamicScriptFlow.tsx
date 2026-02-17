@@ -69,7 +69,7 @@ export function DynamicScriptFlow({
         </div>
         <h3 className="text-xl font-semibold text-white mb-2">Ready to Start Call</h3>
         <p className="text-gray-400 mb-6 max-w-md mx-auto">
-          Click below to generate your personalized opening based on the client's diagnostic data.
+          Click below to generate your personalized opening based on the client&apos;s diagnostic data.
           The script will adapt to their responses throughout the conversation.
         </p>
         <button

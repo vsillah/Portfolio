@@ -124,7 +124,7 @@ function TimelineItem({ response, index, isLast, isCurrent }: TimelineItemProps)
             {response.notes && (
               <div className="mt-1 flex items-start gap-1.5 text-xs text-gray-400">
                 <MessageSquare className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                <span>"{response.notes}"</span>
+                <span>&quot;{response.notes}&quot;</span>
               </div>
             )}
 

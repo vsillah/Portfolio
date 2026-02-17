@@ -99,7 +99,7 @@ export default function ExitIntentPopup({
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-600/20 rounded-full mb-4">
                   <Tag className="text-purple-400" size={32} />
                 </div>
-                <h2 className="text-3xl font-bold mb-2">Wait! Don't Go Yet!</h2>
+                <h2 className="text-3xl font-bold mb-2">Wait! Don&apos;t Go Yet!</h2>
                 <p className="text-gray-400">
                   Get {discountAmount}% off your order when you checkout now!
                 </p>

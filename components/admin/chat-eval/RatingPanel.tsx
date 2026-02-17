@@ -213,7 +213,7 @@ export function RatingPanel({
               focus:outline-none focus:border-radiant-gold/30"
           />
           <p className="text-xs text-platinum-white/40 mt-1">
-            Use for issues that don't fit existing categories
+            Use for issues that don&apos;t fit existing categories
           </p>
         </div>
       )}

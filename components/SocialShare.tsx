@@ -143,7 +143,7 @@ export default function SocialShare({ orderId, productTitle, onShareComplete }: 
           className="mt-4 p-3 bg-green-600/20 border border-green-600/50 rounded-lg text-center"
         >
           <p className="text-sm text-green-400">
-            Thanks for sharing! You've earned a discount on your next purchase.
+            Thanks for sharing! You&apos;ve earned a discount on your next purchase.
           </p>
         </motion.div>
       )}

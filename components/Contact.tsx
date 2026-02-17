@@ -146,7 +146,7 @@ export default function Contact() {
           </h2>
           <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto leading-relaxed">
             Whether you have a specific inquiry or just want to explore possibilities, 
-            I'm here to bridge the gap between your vision and reality.
+            I&apos;m here to bridge the gap between your vision and reality.
           </p>
         </motion.div>
 

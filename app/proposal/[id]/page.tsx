@@ -461,7 +461,7 @@ function ProposalPageContent() {
           <div className="p-4 border-b border-gray-800">
             <h2 className="font-semibold flex items-center gap-2">
               <Package className="w-5 h-5" />
-              What's Included
+              What&apos;s Included
             </h2>
           </div>
           

@@ -594,8 +594,8 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                       <div className="flex-1">
                         <p className="text-sm font-medium text-radiant-gold">AI Readiness Assessment Started</p>
                         <p className="text-xs text-platinum-white/70 mt-1">
-                          I'll ask questions across 6 categories to understand your needs. 
-                          Click "Exit Assessment" in the header anytime to return to regular chat.
+                          I&apos;ll ask questions across 6 categories to understand your needs. 
+                          Click &quot;Exit Assessment&quot; in the header anytime to return to regular chat.
                         </p>
                       </div>
                       <button 

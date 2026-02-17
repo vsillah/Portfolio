@@ -160,7 +160,7 @@ export function OfferCard({
 
         {product.dream_outcome_description && (
           <p className="text-sm text-gray-600 mb-3 italic">
-            "{product.dream_outcome_description}"
+            &quot;{product.dream_outcome_description}&quot;
           </p>
         )}
 
@@ -441,7 +441,7 @@ export function ContentOfferCard({
 
         {content.dream_outcome_description && (
           <p className="text-sm text-gray-400 mb-3 italic">
-            "{content.dream_outcome_description}"
+            &quot;{content.dream_outcome_description}&quot;
           </p>
         )}
 

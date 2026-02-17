@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight, Check, Shield, Zap, BarChart } from 'lucide-react';
 import Navigation from '@/components/Navigation';
 import Breadcrumbs from '@/components/Breadcrumbs';
@@ -73,11 +73,48 @@ const SEGMENT_TIERS: Record<Segment, string[]> = {
   nonprofit: ['ci-starter', 'ci-accelerator', 'ci-growth'],
 };
 
+const SEGMENT_INTRO: Record<Segment, { title: string; description: string }> = {
+  smb: {
+    title: 'Small Business Packages',
+    description:
+      'Outcome-backed AI solutions for teams of 1–50. Start with a quick win, scale to full deployment with guarantees and dedicated support.',
+  },
+  midmarket: {
+    title: 'Mid-Market Programs',
+    description:
+      'Enterprise-grade AI deployment for 50–500 employees. Accelerate operations, growth, and digital transformation with dedicated delivery.',
+  },
+  nonprofit: {
+    title: 'Community Impact Program',
+    description:
+      'Same outcomes. Budget-friendly. No guarantees. Designed for nonprofits and educational institutions to access AI tools through self-serve delivery.',
+  },
+};
+
+function PricingCardSkeleton() {
+  return (
+    <div className="relative flex flex-col rounded-2xl border-2 border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 animate-pulse">
+      <div className="h-6 w-3/4 rounded bg-gray-200 dark:bg-gray-700 mb-2" />
+      <div className="h-4 w-full rounded bg-gray-100 dark:bg-gray-800 mb-4" />
+      <div className="h-12 w-1/2 rounded bg-gray-200 dark:bg-gray-700 mb-6" />
+      <div className="h-4 w-1/3 rounded bg-gray-100 dark:bg-gray-800 mb-2" />
+      <div className="space-y-3 mt-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="h-4 rounded bg-gray-100 dark:bg-gray-800" style={{ width: `${80 - i * 10}%` }} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function PricingPage() {
   const [segment, setSegment] = useState<Segment>('smb');
+  const [tiersLoading, setTiersLoading] = useState(true);
   const [showNonprofitComparison, setShowNonprofitComparison] = useState(false);
   const [showFAQ, setShowFAQ] = useState<string | null>(null);
   const containerRef = useRef(null);
+  const segmentRef = useRef<Segment>(segment);
+  segmentRef.current = segment;
 
   // Dynamic pricing context — set when ROI Calculator provides industry/size
   const [pricingIndustry, setPricingIndustry] = useState<string | undefined>();
@@ -95,7 +132,8 @@ export default function PricingPage() {
   const [apiTiers, setApiTiers] = useState<PricingTier[] | null>(null);
   const [apiDecoyComparisons, setApiDecoyComparisons] = useState<DecoyComparison[] | null>(null);
   useEffect(() => {
-    const params = new URLSearchParams({ segment });
+    const requestedSegment = segment;
+    const params = new URLSearchParams({ segment: requestedSegment });
     if (pricingIndustry) params.set('industry', pricingIndustry);
     if (pricingCompanySize) params.set('companySize', pricingCompanySize);
 
@@ -105,6 +143,7 @@ export default function PricingPage() {
         return res.json();
       })
       .then((data) => {
+        if (segmentRef.current !== requestedSegment) return;
         if (Array.isArray(data.tiers) && data.tiers.length > 0) {
           setApiTiers(data.tiers);
           setApiDecoyComparisons(data.decoyComparisons ?? null);
@@ -114,11 +153,14 @@ export default function PricingPage() {
           setApiDecoyComparisons(null);
           setCalculationContext(null);
         }
+        setTiersLoading(false);
       })
       .catch(() => {
+        if (segmentRef.current !== requestedSegment) return;
         setApiTiers(null);
         setApiDecoyComparisons(null);
         setCalculationContext(null);
+        setTiersLoading(false);
       });
   }, [segment, pricingIndustry, pricingCompanySize]);
 
@@ -132,6 +174,10 @@ export default function PricingPage() {
   const handleSegmentChange = (newSegment: Segment) => {
     if (newSegment !== 'nonprofit') setShowNonprofitComparison(false);
     setSegment(newSegment);
+    setTiersLoading(true);
+    setApiTiers(null);
+    setApiDecoyComparisons(null);
+    setCalculationContext(null);
   };
 
   // Use API tiers when available; fallback to lib/pricing-model
@@ -345,21 +391,20 @@ export default function PricingPage() {
 
       {/* Pricing Cards */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:py-24">
-        {segment === 'nonprofit' && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-12 text-center max-w-2xl mx-auto"
-          >
-            <h2 className="font-premium text-3xl text-gray-900 dark:text-white mb-3">
-              Community Impact Program
-            </h2>
-            <p className="text-lg text-gray-500 dark:text-gray-400">
-              Same outcomes. Budget-friendly. No guarantees. Designed for nonprofits and educational institutions to access AI tools through self-serve delivery.
-            </p>
-          </motion.div>
-        )}
+        <motion.div
+          key={segment}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="mb-12 text-center max-w-2xl mx-auto"
+        >
+          <h2 className="font-premium text-3xl text-gray-900 dark:text-white mb-3">
+            {SEGMENT_INTRO[segment].title}
+          </h2>
+          <p className="text-lg text-gray-500 dark:text-gray-400">
+            {SEGMENT_INTRO[segment].description}
+          </p>
+        </motion.div>
 
         {segment === 'nonprofit' && showNonprofitComparison ? (
           /* Side-by-side CI vs Full-Service comparison (opt-in) */
@@ -386,9 +431,11 @@ export default function PricingPage() {
             transition={{ duration: 0.6 }}
             className="grid gap-8 md:grid-cols-3"
           >
-            {visibleTiers.map((tier) => (
-              <PricingCard key={tier.id} tier={tier} calculationContext={calculationContext} />
-            ))}
+            {tiersLoading
+              ? [1, 2, 3].map((i) => <PricingCardSkeleton key={i} />)
+              : visibleTiers.map((tier) => (
+                  <PricingCard key={tier.id} tier={tier} calculationContext={calculationContext} />
+                ))}
             {segment === 'nonprofit' && (
               <div className="md:col-span-3 flex flex-col items-center justify-center py-8 px-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center max-w-md">

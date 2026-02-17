@@ -205,7 +205,7 @@ function PurchasesContent() {
           {orders.length === 0 ? (
             <div className="text-center py-12">
               <ShoppingBag className="mx-auto text-gray-600 mb-4" size={64} />
-              <p className="text-gray-400 mb-6">You haven't made any purchases yet.</p>
+              <p className="text-gray-400 mb-6">You haven&apos;t made any purchases yet.</p>
               <button
                 onClick={() => router.push('/store')}
                 className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg"

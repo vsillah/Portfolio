@@ -82,7 +82,7 @@ const pages = [
             <ul className="list-disc pl-5 space-y-3 text-slate-300 text-sm md:text-base">
                 <li>Conducted market analysis and developed business case frameworks to assess the viability of new offerings.</li>
                 <li>Established cooperative partnerships with Product Area Leaders and consulted with subject matter experts across Finance, Market Research, and Strategy.</li>
-                <li>Synthesized "voice of the client" inputs and developed client segmentation frameworks to inform adoption and delivery strategies.</li>
+                <li>Synthesized &quot;voice of the client&quot; inputs and developed client segmentation frameworks to inform adoption and delivery strategies.</li>
                 <li>Facilitated capability sizing sessions and collaborated with senior leadership to articulate strategic outputs.</li>
             </ul>
         </div>
@@ -248,7 +248,7 @@ const timelineData = [
             <p>Leading strategic initiatives and product evolution.</p>
             <ul className="list-disc pl-4 space-y-2">
                 <li>Conducted market analysis and developed business case frameworks to assess viability of new offerings.</li>
-                <li>Synthesized "voice of the client" inputs to develop client segmentation frameworks.</li>
+                <li>Synthesized &quot;voice of the client&quot; inputs to develop client segmentation frameworks.</li>
                 <li>Partnered with procurement teams for vendor analysis and cost-benefit models.</li>
                 <li>Designed and executed a squad lead cohort training program, empowering 15 squad leaders.</li>
             </ul>
@@ -285,7 +285,7 @@ const timelineData = [
                 <li>Led delivery of a reusable error handling platform, addressing 10% of raised defects.</li>
                 <li>Simplified complex client configurations with new data flow diagrams.</li>
                 <li>Established a professional development forum for subject matter experts.</li>
-                <li>Identified 22% of team's enhancements through incident management reporting.</li>
+                <li>Identified 22% of team&apos;s enhancements through incident management reporting.</li>
             </ul>
           </div>
           <img 

@@ -95,7 +95,7 @@ export default function About() {
               
               <div className="space-y-6">
                 <p className="font-body text-platinum-white/70 text-lg leading-relaxed">
-                  I'm an IT Product Manager with a proven track record of applying agile methodology to continuously evolve products to delight customers. Skilled facilitator with a passion for inspiring teams to deliver innovative solutions.
+                  I&apos;m an IT Product Manager with a proven track record of applying agile methodology to continuously evolve products to delight customers. Skilled facilitator with a passion for inspiring teams to deliver innovative solutions.
                 </p>
                 <p className="font-body text-platinum-white/70 text-lg leading-relaxed">
                   My entrepreneurial mindset drives a bias for customer-focused innovation, transforming complex data into actionable insights that lead to market leadership.
@@ -109,7 +109,7 @@ export default function About() {
                 </div>
                 <div>
                   <p className="text-[10px] font-heading tracking-widest text-radiant-gold uppercase mb-2">Creative</p>
-                  <p className="text-sm font-body text-platinum-white/60">Mad Hadda - "Into the Rabbit Hole" (2025)</p>
+                  <p className="text-sm font-body text-platinum-white/60">Mad Hadda - &quot;Into the Rabbit Hole&quot; (2025)</p>
                 </div>
               </div>
             </motion.div>

@@ -75,7 +75,7 @@ export default function SignupForm() {
         <div className="p-8 bg-green-500/20 border border-green-500/50 rounded-lg">
           <h2 className="text-2xl font-bold text-white mb-2">Check your email!</h2>
           <p className="text-gray-300">
-            We've sent you a confirmation link. Please check your inbox to verify your account.
+            We&apos;ve sent you a confirmation link. Please check your inbox to verify your account.
           </p>
         </div>
       </motion.div>

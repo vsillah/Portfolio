@@ -267,7 +267,7 @@ export function VoiceChat({
                 animate={{ opacity: 1 }}
                 className="mt-2 text-sm text-platinum-white/50 italic text-center"
               >
-                "{partialTranscript}..."
+                &quot;{partialTranscript}&quot;...
               </motion.div>
             )}
           </motion.div>
