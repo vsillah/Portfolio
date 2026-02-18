@@ -613,6 +613,14 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
+/** Formatted dollar amount without symbol (commas, no cents). Use with DollarSign icon or when building "$" + amount. */
+export function formatDollarAmount(amount: number): string {
+  return new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  }).format(Math.round(amount));
+}
+
 /** Format price for display; returns "Free" when amount is 0 */
 export function formatPriceOrFree(amount: number): string {
   return amount === 0 ? 'Free' : formatCurrency(amount);

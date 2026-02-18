@@ -112,17 +112,17 @@ describe('formatBillingInterval', () => {
 // formatCurrency
 // ============================================================================
 describe('formatCurrency', () => {
-  it('formats USD by default', () => {
+  it('formats USD by default with commas and no cents', () => {
     const result = formatCurrency(1234.56)
-    expect(result).toBe('$1,234.56')
+    expect(result).toBe('$1,235')
   })
 
   it('formats zero', () => {
-    expect(formatCurrency(0)).toBe('$0.00')
+    expect(formatCurrency(0)).toBe('$0')
   })
 
   it('accepts explicit currency', () => {
     const result = formatCurrency(99.99, 'usd')
-    expect(result).toContain('99.99')
+    expect(result).toContain('100')
   })
 })

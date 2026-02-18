@@ -807,6 +807,7 @@ function buildErrorDiagnosisPrompt(
     prompt += '## System Prompt Used\n'
     prompt += 'The assistant was configured with this system prompt:\n\n'
     prompt += '```\n' + systemPrompt.substring(0, 2000) + '\n```\n\n'
+    prompt += 'When recommending prompt changes for this assistant, use target "chatbot" for text chat or "voice_agent" for voice (not "system_prompt").\n\n'
   }
   
   // Add conversation context

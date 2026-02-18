@@ -96,12 +96,16 @@ export async function signOut() {
   return { error }
 }
 
-// Sign in with OAuth provider
-export async function signInWithOAuth(provider: 'google' | 'github') {
+// Sign in with OAuth provider. Pass nextPath to land on that page after OAuth (e.g. /checkout).
+export async function signInWithOAuth(provider: 'google' | 'github', nextPath?: string) {
+  const base = `${window.location.origin}/auth/callback`
+  const redirectTo = nextPath
+    ? `${base}?next=${encodeURIComponent(nextPath)}`
+    : base
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
+      redirectTo,
     },
   })
   return { data, error }
