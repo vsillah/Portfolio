@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
+import { formatCurrency } from '@/lib/pricing-model'
 
 export interface ProductVariant {
   id: number
@@ -233,7 +234,7 @@ export default function VariantSelector({
           <div className="flex items-center justify-between">
             <span className="text-gray-400">Price:</span>
             <span className="text-2xl font-bold text-green-400">
-              ${selectedVariant.price.toFixed(2)}
+              {formatCurrency(selectedVariant.price)}
             </span>
           </div>
           {!selectedVariant.is_available && (

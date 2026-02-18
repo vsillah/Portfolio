@@ -11,15 +11,12 @@ import { useRouter, usePathname } from 'next/navigation'
 
 const navItems = [
   { name: 'Home', href: '#home' },
-  { name: 'Projects', href: '#projects' },
-  { name: 'Prototypes', href: '#prototypes' },
+  { name: 'Products', href: '#products' },
   { name: 'Services', href: '#services' },
-  { name: 'Publications', href: '#publications' },
-  { name: 'Music', href: '#music' },
-  { name: 'Videos', href: '#videos' },
   { name: 'Merchandise', href: '#merchandise' },
   { name: 'Store', href: '/store' },
   { name: 'Pricing', href: '/pricing' },
+  { name: 'Publications', href: '#publications' },
   { name: 'About', href: '#about' },
   { name: 'Contact', href: '#contact' },
 ]

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Users, Copy, CheckCircle, Gift } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
+import { formatCurrency } from '@/lib/pricing-model'
 
 interface Referral {
   id: number
@@ -172,7 +173,7 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
                 <Gift className="text-green-400" size={20} />
                 <span className="text-sm text-gray-400">Discount Earned</span>
               </div>
-              <p className="text-2xl font-bold text-white">${totalDiscountEarned.toFixed(2)}</p>
+              <p className="text-2xl font-bold text-white">{formatCurrency(totalDiscountEarned)}</p>
             </div>
           </div>
 
@@ -190,7 +191,7 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
                       {referral.referred_email || 'Anonymous'}
                     </span>
                     <span className="text-green-400 font-semibold">
-                      ${referral.discount_applied.toFixed(2)}
+                      {formatCurrency(referral.discount_applied)}
                     </span>
                   </div>
                 ))}

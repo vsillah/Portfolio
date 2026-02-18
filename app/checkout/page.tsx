@@ -3,11 +3,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Lock, HelpCircle } from 'lucide-react'
+import { ArrowLeft, Lock, HelpCircle, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { getCart, clearCart, saveCart, updateCartItemQuantity, updateServiceQuantity, removeFromCart, removeServiceFromCart, isServiceItem, type CartItem } from '@/lib/cart'
-import ContactForm from '@/components/checkout/ContactForm'
 import DiscountCodeForm from '@/components/checkout/DiscountCodeForm'
 import OrderSummary, { type ProductVariant } from '@/components/checkout/OrderSummary'
 import ExitIntentPopup from '@/components/ExitIntentPopup'
@@ -54,7 +53,6 @@ export default function CheckoutPage() {
   const [services, setServices] = useState<Record<string, Service>>({})
   const [variants, setVariants] = useState<Record<number, ProductVariant[]>>({})
   const [loading, setLoading] = useState(true)
-  const [contactInfo, setContactInfo] = useState<{ name: string; email: string } | null>(null)
   const [appliedDiscountCode, setAppliedDiscountCode] = useState<string | null>(null)
   const [discountAmount, setDiscountAmount] = useState(0)
   const [discountCodeData, setDiscountCodeData] = useState<DiscountCode | null>(null)
@@ -63,7 +61,7 @@ export default function CheckoutPage() {
     loadCart()
   }, [])
 
-  // Auto-advance to review step for logged-in users
+  // Logged-in users start at review step
   useEffect(() => {
     if (user && step === 'contact') {
       setStep('review')
@@ -263,11 +261,6 @@ export default function CheckoutPage() {
     setCartItems(updatedCart)
   }
 
-  const handleContactSubmit = (data: { name: string; email: string }) => {
-    setContactInfo(data)
-    setStep('review')
-  }
-
   const handleDiscountApply = async (code: string) => {
     try {
       const session = await getCurrentSession()
@@ -325,7 +318,6 @@ export default function CheckoutPage() {
       // Create order
       const orderData = {
         cartItems,
-        contactInfo: user ? null : contactInfo,
         discountCode: appliedDiscountCode,
         subtotal,
         discountAmount,
@@ -344,6 +336,11 @@ export default function CheckoutPage() {
 
       if (!response.ok) {
         const error = await response.json()
+        if (response.status === 401) {
+          router.push('/auth/login?redirect=/checkout')
+          router.refresh()
+          return
+        }
         alert(error.error || 'Failed to process checkout')
         return
       }
@@ -371,6 +368,53 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-gray-400">Loading checkout...</div>
+      </div>
+    )
+  }
+
+  // Require sign-in so we can deliver orders and follow up / upsell
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center justify-between mb-8">
+            <button
+              onClick={() => router.push('/store')}
+              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+            >
+              <ArrowLeft size={20} />
+              Back to Store
+            </button>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-xl"
+          >
+            <div className="flex items-center gap-3 mb-4">
+              <Lock className="text-amber-400 flex-shrink-0" size={28} />
+              <h2 className="text-2xl font-bold">Sign in to checkout</h2>
+            </div>
+            <p className="text-gray-400 mb-6">
+              We require an account so we can deliver your order and follow up with you. Sign in or create an account to continue.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/auth/login?redirect=/checkout"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:from-blue-700 hover:to-purple-700 transition-colors"
+              >
+                <LogIn size={20} />
+                Sign in
+              </Link>
+              <Link
+                href="/auth/signup?redirect=/checkout"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-600 text-white font-semibold hover:border-purple-500 hover:bg-gray-800/50 transition-colors"
+              >
+                Create account
+              </Link>
+            </div>
+          </motion.div>
+        </div>
       </div>
     )
   }
@@ -407,45 +451,13 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Contact Info Step (for guests) */}
-            {!user && step === 'contact' && (
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="bg-gray-900 border border-gray-800 rounded-xl p-6"
-              >
-                <h2 className="text-2xl font-bold mb-4">Contact Information</h2>
-                <p className="text-gray-400 mb-6">
-                  Please provide your contact information to continue
-                </p>
-                <ContactForm onSubmit={handleContactSubmit} />
-              </motion.div>
-            )}
-
-            {/* Review Step */}
-            {(user || contactInfo) && step === 'review' && (
+            {/* Review Step (user is always set here) */}
+            {step === 'review' && (
               <motion.div
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="space-y-6"
               >
-                {/* Contact Info Display */}
-                {contactInfo && (
-                  <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-                    <h2 className="text-xl font-bold mb-4">Contact Information</h2>
-                    <div className="space-y-2 text-gray-400">
-                      <p><span className="text-white">Name:</span> {contactInfo.name}</p>
-                      <p><span className="text-white">Email:</span> {contactInfo.email}</p>
-                    </div>
-                    <button
-                      onClick={() => setStep('contact')}
-                      className="mt-4 text-purple-400 hover:text-purple-300 text-sm"
-                    >
-                      Edit
-                    </button>
-                  </div>
-                )}
-
                 {/* Discount Code */}
                 <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
                   <h2 className="text-xl font-bold mb-4">Discount Code</h2>

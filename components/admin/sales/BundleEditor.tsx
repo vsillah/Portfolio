@@ -15,6 +15,7 @@ import {
   resolveBundleItem,
   createBundleItemFromResolved,
 } from '@/lib/sales-scripts';
+import { formatCurrency } from '@/lib/pricing-model';
 import {
   Plus,
   X,
@@ -258,7 +259,7 @@ function BundleItemRow({
         {/* Price */}
         <div className="text-right min-w-[80px]">
           <p className="text-sm font-medium text-white">
-            ${(item.role_retail_price ?? item.price ?? 0).toFixed(2)}
+            {formatCurrency(item.role_retail_price ?? item.price ?? 0)}
           </p>
         </div>
         
@@ -413,7 +414,7 @@ function BundleItemRow({
             </div>
             {item.original_price !== undefined && item.role_retail_price !== item.original_price && (
               <p className="text-xs text-yellow-400 mt-2">
-                Original price: ${item.original_price.toFixed(2)}
+                Original price: {formatCurrency(item.original_price)}
               </p>
             )}
           </div>
@@ -555,7 +556,7 @@ function ContentPickerModal({
                           </span>
                         )}
                         {item.price && (
-                          <span className="text-sm text-gray-300">${item.price.toFixed(2)}</span>
+                          <span className="text-sm text-gray-300">{formatCurrency(item.price)}</span>
                         )}
                         <Plus className="w-4 h-4 text-gray-400" />
                       </button>

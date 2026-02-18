@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Tag, X, Check } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { formatCurrency } from '@/lib/pricing-model'
 
 interface DiscountCodeFormProps {
   onApply: (code: string) => Promise<{ success: boolean; discount?: number; error?: string }>
@@ -59,7 +60,7 @@ export default function DiscountCodeForm({
                 </p>
                 {discountAmount !== undefined && discountAmount > 0 && (
                   <p className="text-xs text-gray-400">
-                    Discount: ${discountAmount.toFixed(2)}
+                    Discount: {formatCurrency(discountAmount)}
                   </p>
                 )}
               </div>

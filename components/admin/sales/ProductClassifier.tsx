@@ -14,6 +14,7 @@ import {
   CONTENT_TYPE_COLORS,
   ProductWithRole,
 } from '@/lib/sales-scripts';
+import { formatCurrency } from '@/lib/pricing-model';
 import { 
   Tag, 
   DollarSign, 
@@ -188,7 +189,7 @@ export function ProductClassifier({
           
           <div>
             <h3 className="font-medium text-gray-900">{product.title}</h3>
-            <p className="text-sm text-gray-500">{product.type} • ${product.price || 0}</p>
+            <p className="text-sm text-gray-500">{product.type} • {formatCurrency(product.price || 0)}</p>
           </div>
         </div>
 
@@ -564,7 +565,7 @@ export function ContentClassifier({
                 <span className="text-gray-500">{content.subtype}</span>
               )}
               {content.price !== null && content.price > 0 && (
-                <span className="text-gray-400">• ${content.price}</span>
+                <span className="text-gray-400">• {formatCurrency(content.price)}</span>
               )}
             </div>
           </div>

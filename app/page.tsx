@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Hero from '@/components/Hero'
-import Projects from '@/components/Projects'
-import AppPrototypes from '@/components/AppPrototypes'
 import Publications from '@/components/Publications'
-import Music from '@/components/Music'
-import Videos from '@/components/Videos'
 import Store from '@/components/Store'
 import Services from '@/components/Services'
 import About from '@/components/About'
@@ -44,8 +40,8 @@ export default function Home() {
       })
     }, observerOptions)
 
-    // Observe all sections
-    const sections = ['home', 'projects', 'prototypes', 'publications', 'music', 'videos', 'store', 'services', 'about', 'contact']
+    // Observe all sections (offerings-first home: no projects, prototypes, music, videos)
+    const sections = ['home', 'products', 'services', 'merchandise', 'publications', 'about', 'contact']
     sections.forEach((id) => {
       const element = document.getElementById(id)
       if (element) observer.observe(element)
@@ -62,13 +58,10 @@ export default function Home() {
     <main className="min-h-screen relative">
       <Navigation />
       <Hero />
-      <Projects />
-      <AppPrototypes />
-      <Publications />
-      <Music />
-      <Videos />
-      <Store />
+      <Store section="products" />
       <Services />
+      <Store section="merchandise" />
+      <Publications />
       <About />
       <Contact />
     </main>

@@ -1,14 +1,18 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { ShoppingCart, DollarSign, Clock, Users, MapPin, Video, Building, MessageSquare, Image as ImageIcon, Check } from 'lucide-react'
+import { ShoppingCart, DollarSign, Clock, Users, MapPin, Video, Building, MessageSquare, Image as ImageIcon, Check, ArrowRight } from 'lucide-react'
 import { useState, useRef } from 'react'
+import Link from 'next/link'
 import type { Service } from '@/lib/types/store'
+import { formatDollarAmount } from '@/lib/pricing-model'
 
 interface ServiceCardProps {
   service: Service
   onAddToCart: (serviceId: string) => void
   onRequestQuote?: (serviceId: string) => void
+  /** When set, shows a "View details" link to the service detail page */
+  viewDetailsHref?: string
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -33,7 +37,7 @@ const DELIVERY_ICONS: Record<string, { icon: React.ReactNode; label: string }> =
   hybrid: { icon: <Building size={14} />, label: 'Hybrid' },
 }
 
-export default function ServiceCard({ service, onAddToCart, onRequestQuote }: ServiceCardProps) {
+export default function ServiceCard({ service, onAddToCart, onRequestQuote, viewDetailsHref }: ServiceCardProps) {
   const [imageError, setImageError] = useState(false)
   const [showAdded, setShowAdded] = useState(false)
   const addedTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -118,6 +122,19 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote }: Se
           <p className="text-gray-400 text-sm mb-4 line-clamp-3">{service.description}</p>
         )}
 
+        {/* View details link */}
+        {viewDetailsHref && (
+          <div className="mb-3">
+            <Link
+              href={viewDetailsHref}
+              className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center gap-1"
+            >
+              View details
+              <ArrowRight size={14} />
+            </Link>
+          </div>
+        )}
+
         {/* Price and Action Button */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -126,7 +143,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote }: Se
             ) : service.price !== null ? (
               <>
                 <DollarSign className="text-green-400" size={20} />
-                <span className="text-2xl font-bold text-white">${service.price.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-white">{formatDollarAmount(service.price)}</span>
               </>
             ) : (
               <span className="text-lg font-semibold text-green-400">Free</span>

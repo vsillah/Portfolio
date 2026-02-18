@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { Code, Users, Target, BarChart3, Lightbulb, Award } from 'lucide-react'
+import Link from 'next/link'
 
 const skills = [
   { icon: Target, name: 'Strategic Planning', level: 95 },
@@ -99,6 +100,11 @@ export default function About() {
                 </p>
                 <p className="font-body text-platinum-white/70 text-lg leading-relaxed">
                   My entrepreneurial mindset drives a bias for customer-focused innovation, transforming complex data into actionable insights that lead to market leadership.
+                </p>
+                <p className="font-body text-platinum-white/60 text-base pt-2">
+                  <Link href="/work" className="text-radiant-gold hover:text-gold-light underline underline-offset-2 transition-colors">View my previous work</Link>
+                  {' · '}
+                  <Link href="/personal" className="text-radiant-gold hover:text-gold-light underline underline-offset-2 transition-colors">Music & videos</Link>
                 </p>
               </div>
 

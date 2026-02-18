@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { Suspense, useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight, Check, Shield, Zap, BarChart } from 'lucide-react';
 import Navigation from '@/components/Navigation';
@@ -107,14 +108,40 @@ function PricingCardSkeleton() {
   );
 }
 
-export default function PricingPage() {
-  const [segment, setSegment] = useState<Segment>('smb');
+function PricingPageContent() {
+  const searchParams = useSearchParams();
+  const [segment, setSegment] = useState<Segment>(() => {
+    const s = searchParams.get('segment');
+    if (s === 'smb' || s === 'midmarket' || s === 'nonprofit') return s;
+    return 'smb';
+  });
   const [tiersLoading, setTiersLoading] = useState(true);
   const [showNonprofitComparison, setShowNonprofitComparison] = useState(false);
   const [showFAQ, setShowFAQ] = useState<string | null>(null);
   const containerRef = useRef(null);
   const segmentRef = useRef<Segment>(segment);
   segmentRef.current = segment;
+
+  // Deep link: read ?segment= on mount
+  useEffect(() => {
+    const seg = searchParams.get('segment');
+    if (seg === 'smb' || seg === 'midmarket' || seg === 'nonprofit') {
+      setSegment(seg);
+    }
+  }, [searchParams]);
+
+  // Scroll to tier when #tier-slug or ?tier=tier-slug (after tiers load)
+  useEffect(() => {
+    if (tiersLoading) return;
+    const tierFromQuery = searchParams.get('tier');
+    const tierFromHash = typeof window !== 'undefined' ? window.location.hash?.slice(1) || null : null;
+    const slug = tierFromQuery || tierFromHash;
+    if (!slug) return;
+    const el = document.getElementById(slug);
+    if (el) {
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    }
+  }, [tiersLoading, searchParams]);
 
   // Dynamic pricing context — set when ROI Calculator provides industry/size
   const [pricingIndustry, setPricingIndustry] = useState<string | undefined>();
@@ -434,7 +461,9 @@ export default function PricingPage() {
             {tiersLoading
               ? [1, 2, 3].map((i) => <PricingCardSkeleton key={i} />)
               : visibleTiers.map((tier) => (
-                  <PricingCard key={tier.id} tier={tier} calculationContext={calculationContext} />
+                  <div key={tier.id} id={tier.id} className="scroll-mt-32">
+                    <PricingCard tier={tier} calculationContext={calculationContext} />
+                  </div>
                 ))}
             {segment === 'nonprofit' && (
               <div className="md:col-span-3 flex flex-col items-center justify-center py-8 px-4 rounded-2xl border-2 border-dashed border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/30">
@@ -640,5 +669,28 @@ export default function PricingPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+function PricingPageFallback() {
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-body">
+      <div className="h-16 bg-imperial-navy" />
+      <div className="mx-auto max-w-7xl px-4 py-16">
+        <div className="grid gap-8 md:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <PricingCardSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={<PricingPageFallback />}>
+      <PricingPageContent />
+    </Suspense>
   );
 }

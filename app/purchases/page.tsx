@@ -7,6 +7,7 @@ import { ShoppingBag, Loader, HelpCircle } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
+import { formatCurrency } from '@/lib/pricing-model'
 import DownloadManager from '@/components/DownloadManager'
 import SocialShare from '@/components/SocialShare'
 import ReferralProgram from '@/components/ReferralProgram'
@@ -160,7 +161,7 @@ function PurchasesContent() {
               <div className="flex items-center gap-4 text-lg">
                 <span className="text-gray-400">Total:</span>
                 <span className="text-2xl font-bold text-white">
-                  ${selectedOrder.final_amount.toFixed(2)}
+                  {formatCurrency(selectedOrder.final_amount)}
                 </span>
               </div>
             </div>
@@ -238,7 +239,7 @@ function PurchasesContent() {
                     </div>
                     <div className="text-right">
                       <p className="text-2xl font-bold text-white mb-2">
-                        ${order.final_amount.toFixed(2)}
+                        {formatCurrency(order.final_amount)}
                       </p>
                       <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         order.status === 'completed'

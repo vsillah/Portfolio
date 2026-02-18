@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { FileText, XCircle, Loader2 } from 'lucide-react';
 import { getCurrentSession } from '@/lib/auth';
+import { formatCurrency } from '@/lib/pricing-model';
 
 export interface ProposalModalProps {
   onClose: () => void;
@@ -165,7 +166,7 @@ export function ProposalModal({
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                 <span className="text-gray-400">Offer Total</span>
-                <span className="font-medium">${totalAmount.toFixed(2)}</span>
+                <span className="font-medium">{formatCurrency(totalAmount)}</span>
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Discount Amount ($)</label>
@@ -192,7 +193,7 @@ export function ProposalModal({
               )}
               <div className="flex items-center justify-between p-3 bg-blue-900/30 border border-blue-800 rounded-lg">
                 <span className="text-blue-300 font-medium">Final Amount</span>
-                <span className="text-xl font-bold text-blue-400">${finalAmount.toFixed(2)}</span>
+                <span className="text-xl font-bold text-blue-400">{formatCurrency(finalAmount)}</span>
               </div>
             </div>
           </div>

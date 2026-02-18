@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { BookOpen, ExternalLink, ShoppingCart, ArrowRight } from 'lucide-react'
 import ExpandableText from '@/components/ui/ExpandableText'
+import { formatPriceOrFree } from '@/lib/pricing-model'
 import Link from 'next/link'
 
 interface Publication {
@@ -155,9 +156,7 @@ export default function Publications() {
                     href={`/store/${publication.linked_product.id}`}
                     className="absolute top-6 left-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold"
                   >
-                    {publication.linked_product.price !== null 
-                      ? `$${publication.linked_product.price.toFixed(2)}` 
-                      : 'Free'}
+                    {formatPriceOrFree(publication.linked_product.price ?? 0)}
                   </Link>
                 )}
               </div>

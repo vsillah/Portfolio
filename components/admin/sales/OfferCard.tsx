@@ -11,6 +11,7 @@ import {
   CONTENT_TYPE_COLORS,
   calculateValueScore,
 } from '@/lib/sales-scripts';
+import { formatCurrency } from '@/lib/pricing-model';
 import { 
   Gift, 
   Star, 
@@ -85,10 +86,10 @@ export function OfferCard({
             )}
           </div>
           <div className="text-sm text-gray-500">
-            ${displayPrice.toFixed(2)}
+            {displayPrice === 0 ? 'Free' : formatCurrency(displayPrice)}
             {savings > 0 && (
               <span className="text-green-600 ml-2">
-                (${perceivedValue.toFixed(0)} value)
+                ({formatCurrency(perceivedValue)} value)
               </span>
             )}
           </div>
@@ -193,17 +194,17 @@ export function OfferCard({
           <div>
             {savings > 0 && (
               <div className="text-sm text-gray-400 line-through">
-                ${perceivedValue.toFixed(2)} value
+                {formatCurrency(perceivedValue)} value
               </div>
             )}
             <div className="text-lg font-bold text-gray-900">
-              {displayPrice === 0 ? 'FREE' : `$${displayPrice.toFixed(2)}`}
+              {displayPrice === 0 ? 'FREE' : formatCurrency(displayPrice)}
             </div>
           </div>
 
           {savings > 0 && (
             <div className="px-2 py-1 bg-green-100 text-green-700 text-sm font-medium rounded">
-              Save ${savings.toFixed(0)}
+              Save {formatCurrency(savings)}
             </div>
           )}
         </div>
@@ -257,7 +258,7 @@ export function OfferStack({ products, totalPrice, totalValue }: OfferStackProps
               <span>{product.bonus_name || product.title}</span>
             </div>
             <span className="text-white/70">
-              ${(product.perceived_value || product.price || 0).toFixed(0)} value
+              {formatCurrency(product.perceived_value || product.price || 0)} value
             </span>
           </div>
         ))}
@@ -266,18 +267,18 @@ export function OfferStack({ products, totalPrice, totalValue }: OfferStackProps
       <div className="border-t border-white/20 pt-4">
         <div className="flex justify-between text-lg mb-2">
           <span className="text-white/80">Total Value:</span>
-          <span className="line-through text-white/60">${totalValue.toFixed(0)}</span>
+          <span className="line-through text-white/60">{formatCurrency(totalValue)}</span>
         </div>
         
         <div className="flex justify-between text-2xl font-bold mb-2">
           <span>Your Price:</span>
-          <span className="text-green-400">${totalPrice.toFixed(0)}</span>
+          <span className="text-green-400">{formatCurrency(totalPrice)}</span>
         </div>
 
         {savings > 0 && (
           <div className="text-center mt-4 py-2 bg-green-500/20 rounded-lg">
             <span className="text-green-300 font-medium">
-              You Save ${savings.toFixed(0)} ({savingsPercent}% off!)
+              You Save {formatCurrency(savings)} ({savingsPercent}% off!)
             </span>
           </div>
         )}
@@ -359,12 +360,12 @@ export function ContentOfferCard({
             </span>
             {displayPrice > 0 && (
               <span className="text-gray-400">
-                ${displayPrice.toFixed(2)}
+                {formatCurrency(displayPrice)}
               </span>
             )}
             {savings > 0 && (
               <span className="text-green-400 text-xs">
-                (${perceivedValue.toFixed(0)} value)
+                ({formatCurrency(perceivedValue)} value)
               </span>
             )}
           </div>
@@ -474,17 +475,17 @@ export function ContentOfferCard({
           <div>
             {savings > 0 && (
               <div className="text-sm text-gray-500 line-through">
-                ${perceivedValue.toFixed(2)} value
+                {formatCurrency(perceivedValue)} value
               </div>
             )}
             <div className="text-lg font-bold text-white">
-              {displayPrice === 0 ? 'FREE' : `$${displayPrice.toFixed(2)}`}
+              {displayPrice === 0 ? 'FREE' : formatCurrency(displayPrice)}
             </div>
           </div>
 
           {savings > 0 && (
             <div className="px-2 py-1 bg-green-500/20 text-green-400 text-sm font-medium rounded">
-              Save ${savings.toFixed(0)}
+              Save {formatCurrency(savings)}
             </div>
           )}
         </div>

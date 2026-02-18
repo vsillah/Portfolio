@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Mail, Lock, LogIn, Github } from 'lucide-react'
 import { signIn, signInWithOAuth } from '@/lib/auth'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function LoginForm() {
   const [email, setEmail] = useState('')
@@ -12,6 +12,8 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const redirectTo = searchParams.get('redirect') || '/'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,7 +25,7 @@ export default function LoginForm() {
       if (error) {
         setError(error.message)
       } else {
-        router.push('/')
+        router.push(redirectTo)
         router.refresh()
       }
     } catch (err: any) {
@@ -37,7 +39,7 @@ export default function LoginForm() {
     setError('')
     setLoading(true)
     try {
-      const { error } = await signInWithOAuth(provider)
+      const { error } = await signInWithOAuth(provider, redirectTo)
       if (error) {
         setError(error.message)
         setLoading(false)
@@ -180,7 +182,7 @@ export default function LoginForm() {
 
         <p className="text-center text-sm text-gray-400">
           Don&apos;t have an account?{' '}
-          <a href="/auth/signup" className="text-purple-400 hover:text-purple-300 transition-colors">
+          <a href={redirectTo ? `/auth/signup?redirect=${encodeURIComponent(redirectTo)}` : '/auth/signup'} className="text-purple-400 hover:text-purple-300 transition-colors">
             Sign up
           </a>
         </p>

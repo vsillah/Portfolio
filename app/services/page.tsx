@@ -323,6 +323,7 @@ function ServicesContent() {
                 service={service}
                 onAddToCart={handleAddToCart}
                 onRequestQuote={handleRequestQuote}
+                viewDetailsHref={`/services/${service.id}`}
               />
             ))}
           </div>

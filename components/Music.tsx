@@ -6,6 +6,7 @@ import { Music2, ExternalLink, Play, ShoppingCart, ArrowRight } from 'lucide-rea
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import ExpandableText from '@/components/ui/ExpandableText'
+import { formatPriceOrFree } from '@/lib/pricing-model'
 
 interface MusicEntry {
   id: number
@@ -137,7 +138,7 @@ export default function Music() {
                       href={`/store/${entry.linked_product.id}`}
                       className="absolute top-6 left-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold"
                     >
-                      {entry.linked_product.price !== null ? `$${entry.linked_product.price.toFixed(2)}` : 'Free'}
+                      {formatPriceOrFree(entry.linked_product.price ?? 0)}
                     </Link>
                   )}
                 </div>

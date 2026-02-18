@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DollarSign, Plus, Minus, Trash2, Edit2, X, Check, Clock, Users } from 'lucide-react'
+import { formatCurrency } from '@/lib/pricing-model'
 
 export interface ProductVariant {
   id: number
@@ -189,7 +190,7 @@ export default function OrderSummary({
                       {service.is_quote_based 
                         ? 'Contact for Pricing' 
                         : price !== null 
-                          ? `$${price.toFixed(2)} each` 
+                          ? `${formatCurrency(price)} each` 
                           : 'Free'}
                     </p>
 
@@ -236,7 +237,7 @@ export default function OrderSummary({
                     {service.is_quote_based
                       ? 'Quote'
                       : price !== null
-                        ? `$${(price * item.quantity).toFixed(2)}`
+                        ? formatCurrency(price * item.quantity)
                         : 'Free'}
                   </div>
                 </div>
@@ -290,7 +291,7 @@ export default function OrderSummary({
 
                     {/* Price per item */}
                     <p className="text-xs text-gray-500 mt-1">
-                      {price !== null ? `$${price.toFixed(2)} each` : 'Free'}
+                      {price !== null ? `${formatCurrency(price)} each` : 'Free'}
                     </p>
 
                     {/* Quantity and Actions */}
@@ -347,7 +348,7 @@ export default function OrderSummary({
                   {/* Item Total */}
                   <div className="text-white font-semibold text-sm">
                     {price !== null
-                      ? `$${(price * item.quantity).toFixed(2)}`
+                      ? formatCurrency(price * item.quantity)
                       : 'Free'}
                   </div>
                 </div>
@@ -383,7 +384,7 @@ export default function OrderSummary({
         )}
         <div className="flex justify-between text-gray-400">
           <span>Subtotal</span>
-          <span>{hasPaidItems ? `$${subtotal.toFixed(2)}` : 'Free'}</span>
+          <span>{hasPaidItems ? formatCurrency(subtotal) : 'Free'}</span>
         </div>
         {discountAmount > 0 && (
           <motion.div
@@ -392,16 +393,16 @@ export default function OrderSummary({
             className="flex justify-between text-green-400"
           >
             <span>Discount</span>
-            <span>-${discountAmount.toFixed(2)}</span>
+            <span>-{formatCurrency(discountAmount)}</span>
           </motion.div>
         )}
         <div className="flex justify-between text-xl font-bold text-white pt-2 border-t border-gray-800">
           <span>Total</span>
           <span>
             {hasQuoteBasedItems 
-              ? `$${finalTotal.toFixed(2)}+`
+              ? `${formatCurrency(finalTotal)}+`
               : hasPaidItems 
-                ? `$${finalTotal.toFixed(2)}` 
+                ? formatCurrency(finalTotal) 
                 : 'Free'}
           </span>
         </div>
@@ -557,7 +558,7 @@ function VariantEditor({
       >
         <Check size={14} />
         {selectedVariant && selectedVariant.id !== currentVariantId
-          ? `Update to ${selectedVariant.size ? selectedVariant.size + ' / ' : ''}${selectedVariant.color} - $${selectedVariant.price.toFixed(2)}`
+          ? `Update to ${selectedVariant.size ? selectedVariant.size + ' / ' : ''}${selectedVariant.color} - ${formatCurrency(selectedVariant.price)}`
           : 'Select different options'}
       </button>
     </motion.div>

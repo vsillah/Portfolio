@@ -5,6 +5,7 @@ import { ShoppingCart, DollarSign, Download, File, Image as ImageIcon, Check } f
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Product } from '@/lib/types/store'
+import { formatDollarAmount } from '@/lib/pricing-model'
 
 interface ProductCardProps {
   product: Product
@@ -88,7 +89,7 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
             {product.price !== null ? (
               <>
                 <DollarSign className="text-green-400" size={20} />
-                <span className="text-2xl font-bold text-white">${product.price.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-white">{formatDollarAmount(product.price)}</span>
               </>
             ) : (
               <span className="text-lg font-semibold text-green-400">Free</span>

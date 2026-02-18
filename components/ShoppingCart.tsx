@@ -14,6 +14,7 @@ import {
   isServiceItem,
   type CartItem 
 } from '@/lib/cart'
+import { formatCurrency } from '@/lib/pricing-model'
 
 interface Product {
   id: number
@@ -283,7 +284,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                 {product.title}
                               </h3>
                               <p className="text-sm text-gray-400 mb-2">
-                                {product.price !== null ? `$${product.price.toFixed(2)}` : 'Free'}
+                                {product.price !== null ? formatCurrency(product.price) : 'Free'}
                               </p>
 
                               {/* Quantity Controls */}
@@ -315,7 +316,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               {/* Subtotal */}
                               <p className="text-sm text-gray-300 mt-2">
                                 Subtotal: {product.price !== null
-                                  ? `$${(product.price * item.quantity).toFixed(2)}`
+                                  ? formatCurrency(product.price * item.quantity)
                                   : 'Free'}
                               </p>
                             </div>
@@ -374,7 +375,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                 {service.is_quote_based 
                                   ? 'Contact for Pricing'
                                   : service.price !== null 
-                                    ? `$${service.price.toFixed(2)}` 
+                                    ? formatCurrency(service.price) 
                                     : 'Free'}
                               </p>
 
@@ -409,7 +410,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                 Subtotal: {service.is_quote_based
                                   ? 'Quote Required'
                                   : service.price !== null
-                                    ? `$${(service.price * item.quantity).toFixed(2)}`
+                                    ? formatCurrency(service.price * item.quantity)
                                     : 'Free'}
                               </p>
                             </div>
@@ -438,9 +439,9 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                   <span className="text-gray-400">Total:</span>
                   <span className="text-2xl font-bold text-white">
                     {hasQuoteBasedItems 
-                      ? `$${calculateTotal().toFixed(2)}+`
+                      ? `${formatCurrency(calculateTotal())}+`
                       : hasPaidItems 
-                        ? `$${calculateTotal().toFixed(2)}` 
+                        ? formatCurrency(calculateTotal()) 
                         : 'Free'}
                   </span>
                 </div>
