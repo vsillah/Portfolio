@@ -1,3 +1,13 @@
+/**
+ * Products API (single product by ID)
+ *
+ * Contract:
+ * - Admin (verified via verifyAdmin): Returns full product including asset_url
+ *   and instructions_file_path. Used by Admin → Content → Products edit form.
+ * - Public (unauthenticated or non-admin): Returns sanitized product with
+ *   asset_url and instructions_file_path set to null. Sensitive fields are
+ *   only available after purchase via order APIs and purchases page.
+ */
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'

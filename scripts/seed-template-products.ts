@@ -16,6 +16,10 @@
  * Requires:
  *   NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local
  *
+ * Important: Asset URLs point to GitHub (client-templates/*, n8n-exports/).
+ * Ensure these folders are committed and pushed—do not add them to .gitignore,
+ * or asset links will 404.
+ *
  * Note: created_by is left null for seeded template products (no admin user lookup).
  */
 
