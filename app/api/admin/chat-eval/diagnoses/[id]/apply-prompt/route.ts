@@ -61,7 +61,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       )
     }
 
-    const targetKey = prompt_key || recommendation.changes.target
+    // Map LLM output "system_prompt" to actual DB key "chatbot" (portfolio chatbot)
+    let targetKey = prompt_key || recommendation.changes.target
+    if (targetKey === 'system_prompt') {
+      targetKey = 'chatbot'
+    }
     const promptValue = new_prompt || recommendation.changes.new_value
 
     // Update the prompt

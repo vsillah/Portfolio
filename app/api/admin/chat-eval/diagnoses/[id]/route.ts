@@ -25,18 +25,17 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params
 
-    // Fetch diagnosis with related data
+    // Fetch diagnosis with related data. Use explicit FK names (error_diagnoses has FKs to chat_sessions, chat_evaluations; fix_applications references error_diagnoses).
     const { data: diagnosis, error: diagError } = await supabaseAdmin
       .from('error_diagnoses')
       .select(`
         *,
-        chat_sessions(
+        chat_sessions!error_diagnoses_session_id_fkey(
           session_id,
           visitor_name,
-          visitor_email,
-          channel
+          visitor_email
         ),
-        chat_evaluations(
+        chat_evaluations!error_diagnoses_evaluation_id_fkey(
           id,
           rating,
           notes,

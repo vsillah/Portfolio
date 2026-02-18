@@ -84,18 +84,34 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       try {
         if (rec.changes?.can_auto_apply && auto_apply) {
           // Auto-apply prompt change directly via database
-          const promptKey = rec.changes.target
+          // Map LLM output "system_prompt" to actual DB key "chatbot" (portfolio chatbot)
+          let promptKey = rec.changes.target
+          if (promptKey === 'system_prompt') {
+            promptKey = 'chatbot'
+          }
           const newPrompt = rec.changes.new_value
 
-          const { error: updateError } = await supabaseAdmin
+          const { data: updatedPrompt, error: updateError } = await supabaseAdmin
             .from('system_prompts')
             .update({
               prompt: newPrompt,
               updated_by: authResult.user.id,
             })
             .eq('key', promptKey)
+            .select('id, version')
+            .single()
 
-          if (!updateError) {
+          if (!updateError && updatedPrompt) {
+            // Tie the new history row (just created by trigger) to this diagnosis
+            await supabaseAdmin
+              .from('system_prompt_history')
+              .update({
+                diagnosis_id: id,
+                change_reason: 'Applied from Error Diagnosis',
+              })
+              .eq('prompt_id', updatedPrompt.id)
+              .eq('version', updatedPrompt.version - 1)
+
             // Clear cache
             clearPromptCache(promptKey)
 

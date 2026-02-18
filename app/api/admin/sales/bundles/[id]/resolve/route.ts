@@ -9,6 +9,7 @@ import {
   BundleItem, 
   ResolvedBundleItem, 
   ContentType,
+  ContentWithRole,
   resolveBundleItem 
 } from '@/lib/sales-scripts';
 
@@ -50,14 +51,50 @@ export async function GET(
     }
 
     const bundleItems: BundleItem[] = await expandBundleItems(id);
-    const resolvedItems: ResolvedBundleItem[] = [];
 
-    // Resolve each item
+    // Batch-fetch all content and roles by content_type to avoid N+1 (was 48 sequential queries for 24 items)
+    const { contentByKey, rolesByKey } = await batchFetchContentAndRoles(bundleItems);
+
+    const resolvedItems: ResolvedBundleItem[] = [];
     for (const item of bundleItems) {
-      const resolved = await resolveItem(item);
-      if (resolved) {
-        resolvedItems.push(resolved);
+      const key = `${item.content_type}:${item.content_id}`;
+      const content = contentByKey.get(key);
+      const role = rolesByKey.get(key);
+      if (!content) {
+        console.error(`Content not found: ${key}`);
+        continue;
       }
+      const config = CONTENT_TABLE_MAP[item.content_type];
+      if (!config) continue;
+      const subtype = item.content_type === 'service'
+        ? (content.service_type ?? null)
+        : (content.type || content.category || null);
+      const contentWithRole: ContentWithRole = {
+        content_type: item.content_type,
+        content_id: item.content_id,
+        title: String(content.title ?? content.name ?? 'Untitled'),
+        description: content.description != null ? String(content.description) : null,
+        subtype: subtype != null ? String(subtype) : null,
+        price: typeof content.price === 'number' ? content.price : null,
+        image_url: config.imageField && content[config.imageField] != null ? String(content[config.imageField]) : null,
+        is_active: Boolean(content.is_active ?? content.is_published ?? true),
+        display_order: Number(content.display_order ?? 0),
+        created_at: String(content.created_at ?? ''),
+        role_id: role?.id != null ? String(role.id) : null,
+        offer_role: (role?.offer_role as ContentWithRole['offer_role']) ?? null,
+        dream_outcome_description: role?.dream_outcome_description != null ? String(role.dream_outcome_description) : null,
+        likelihood_multiplier: typeof role?.likelihood_multiplier === 'number' ? role.likelihood_multiplier : null,
+        time_reduction: typeof role?.time_reduction === 'number' ? role.time_reduction : null,
+        effort_reduction: typeof role?.effort_reduction === 'number' ? role.effort_reduction : null,
+        role_retail_price: typeof role?.retail_price === 'number' ? role.retail_price : null,
+        offer_price: typeof role?.offer_price === 'number' ? role.offer_price : null,
+        perceived_value: typeof role?.perceived_value === 'number' ? role.perceived_value : null,
+        bonus_name: role?.bonus_name != null ? String(role.bonus_name) : null,
+        bonus_description: role?.bonus_description != null ? String(role.bonus_description) : null,
+        qualifying_actions: role?.qualifying_actions != null && typeof role.qualifying_actions === 'object' ? (role.qualifying_actions as Record<string, unknown>) : null,
+        payout_type: (role?.payout_type as ContentWithRole['payout_type']) ?? null,
+      };
+      resolvedItems.push(resolveBundleItem(item, contentWithRole));
     }
 
     // Sort by display_order
@@ -87,63 +124,79 @@ export async function GET(
   }
 }
 
-// Helper: Resolve a single bundle item
-async function resolveItem(item: BundleItem): Promise<ResolvedBundleItem | null> {
-  const config = CONTENT_TABLE_MAP[item.content_type];
-  if (!config) return null;
+// Batch-fetch all content and offer roles for bundle items (by content_type) to avoid N+1 queries.
+async function batchFetchContentAndRoles(
+  bundleItems: BundleItem[]
+): Promise<{
+  contentByKey: Map<string, Record<string, unknown>>;
+  rolesByKey: Map<string, Record<string, unknown> | null>;
+}> {
+  const contentByKey = new Map<string, Record<string, unknown>>();
+  const rolesByKey = new Map<string, Record<string, unknown> | null>();
 
-  // Fetch the content item
-  const { data: content, error: contentError } = await supabaseAdmin
-    .from(config.table)
-    .select('*')
-    .eq('id', item.content_id)
-    .single();
-
-  if (contentError || !content) {
-    console.error(`Content not found: ${item.content_type}:${item.content_id}`);
-    return null;
+  // Group (content_type, content_id) by content_type for batched queries
+  const byType = new Map<ContentType, Set<string>>();
+  for (const item of bundleItems) {
+    const config = CONTENT_TABLE_MAP[item.content_type];
+    if (!config) continue;
+    if (!byType.has(item.content_type)) byType.set(item.content_type, new Set());
+    byType.get(item.content_type)!.add(item.content_id);
   }
 
-  // Fetch the canonical offer role
-  const { data: role } = await supabaseAdmin
-    .from('content_offer_roles')
-    .select('*')
-    .eq('content_type', item.content_type)
-    .eq('content_id', item.content_id)
-    .single();
+  // One query per content_type for content table + one for roles
+  const contentTypes = Array.from(byType.keys());
+  const contentPromises = contentTypes.map(async (contentType) => {
+    const config = CONTENT_TABLE_MAP[contentType];
+    if (!config) return { contentType, rows: [] };
+    const ids = Array.from(byType.get(contentType)!);
+    const { data: rows, error } = await supabaseAdmin
+      .from(config.table)
+      .select('*')
+      .in('id', ids);
+    if (error) {
+      console.error(`batchFetchContent ${config.table}:`, error);
+      return { contentType, rows: [] };
+    }
+    return { contentType, rows: (rows ?? []) as Record<string, unknown>[] };
+  });
+  const rolePromises = contentTypes.map(async (contentType) => {
+    const ids = Array.from(byType.get(contentType)!);
+    const { data: rows, error } = await supabaseAdmin
+      .from('content_offer_roles')
+      .select('*')
+      .eq('content_type', contentType)
+      .in('content_id', ids);
+    if (error) {
+      console.error('batchFetchRoles content_offer_roles:', error);
+      return { contentType, rows: [] };
+    }
+    return { contentType, rows: (rows ?? []) as Record<string, unknown>[] };
+  });
 
-  // Build ContentWithRole object
-  const subtype = item.content_type === 'service'
-    ? (content.service_type ?? null)
-    : (content.type || content.category || null);
+  const [contentResults, roleResults] = await Promise.all([
+    Promise.all(contentPromises),
+    Promise.all(rolePromises),
+  ]);
 
-  const contentWithRole = {
-    content_type: item.content_type,
-    content_id: item.content_id,
-    title: content.title || content.name || 'Untitled',
-    description: content.description,
-    subtype,
-    price: content.price,
-    image_url: config.imageField ? content[config.imageField] : null,
-    is_active: content.is_active ?? content.is_published ?? true,
-    display_order: content.display_order ?? 0,
-    created_at: content.created_at,
-    // Role fields (canonical values)
-    role_id: role?.id || null,
-    offer_role: role?.offer_role || null,
-    dream_outcome_description: role?.dream_outcome_description || null,
-    likelihood_multiplier: role?.likelihood_multiplier || null,
-    time_reduction: role?.time_reduction || null,
-    effort_reduction: role?.effort_reduction || null,
-    role_retail_price: role?.retail_price || null,
-    offer_price: role?.offer_price || null,
-    perceived_value: role?.perceived_value || null,
-    bonus_name: role?.bonus_name || null,
-    bonus_description: role?.bonus_description || null,
-    qualifying_actions: role?.qualifying_actions || null,
-    payout_type: role?.payout_type || null,
-  };
+  for (const { contentType, rows } of contentResults) {
+    const config = CONTENT_TABLE_MAP[contentType];
+    if (!config) continue;
+    for (const row of rows) {
+      const id = row.id as string;
+      contentByKey.set(`${contentType}:${id}`, row);
+    }
+  }
+  for (const { contentType, rows } of roleResults) {
+    for (const row of rows) {
+      const contentId = row.content_id as string;
+      rolesByKey.set(`${contentType}:${contentId}`, row);
+    }
+  }
+  // Ensure every bundle item has a rolesByKey entry (null if no role)
+  for (const item of bundleItems) {
+    const key = `${item.content_type}:${item.content_id}`;
+    if (!rolesByKey.has(key)) rolesByKey.set(key, null);
+  }
 
-  // Apply resolution with overrides
-  return resolveBundleItem(item, contentWithRole);
+  return { contentByKey, rolesByKey };
 }

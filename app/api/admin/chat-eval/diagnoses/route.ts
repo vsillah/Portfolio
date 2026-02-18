@@ -26,17 +26,17 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '20')
     const offset = (page - 1) * limit
 
+    // Use explicit FK names: error_diagnoses has FKs to both chat_sessions and chat_evaluations
     let query = supabaseAdmin
       .from('error_diagnoses')
       .select(`
         *,
-        chat_sessions(
+        chat_sessions!error_diagnoses_session_id_fkey(
           session_id,
           visitor_name,
-          visitor_email,
-          channel
+          visitor_email
         ),
-        chat_evaluations(
+        chat_evaluations!error_diagnoses_evaluation_id_fkey(
           id,
           notes,
           evaluation_categories(name, color)
@@ -56,6 +56,10 @@ export async function GET(request: NextRequest) {
       .range(offset, offset + limit - 1)
 
     const { data: diagnoses, error, count } = await query
+
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/chat-eval/diagnoses/route.ts:list',message:'Diagnoses list result',data:{status,error_type,total:count ?? 0,rowsReturned:(diagnoses||[]).length},hypothesisId:'H5',timestamp:Date.now()})}).catch(()=>{});
+    // #endregion
 
     if (error) {
       console.error('Error fetching diagnoses:', error)

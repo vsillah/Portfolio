@@ -36,10 +36,10 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: 'Prompt not found' }, { status: 404 })
     }
 
-    // Fetch history
+    // Fetch history (include diagnosis_id for traceability to Error Diagnosis)
     const { data: history, error } = await supabaseAdmin
       .from('system_prompt_history')
-      .select('*')
+      .select('id, prompt_id, version, prompt, config, changed_by, changed_at, change_reason, diagnosis_id')
       .eq('prompt_id', prompt.id)
       .order('version', { ascending: false })
 
