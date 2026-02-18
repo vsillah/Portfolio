@@ -63,8 +63,6 @@ Every pricing element maps to this equation:
 | AI Implementation Playbook | ebook | $29 | $200 | lead_magnet / bonus |
 | Business Automation Toolkit | ebook | $49 | $350 | bonus |
 | Automation ROI Templates Pack | ebook | $19 | $150 | lead_magnet / bonus |
-| AI Training Course (Self-Paced) | training | $297 | $1,500 | core_offer |
-| Premium AI Masterclass | training | $497 | $2,500 | core_offer |
 
 ### AI Automation Build Services
 
@@ -86,6 +84,8 @@ Every pricing element maps to this equation:
 
 | Service | Type | Price | Perceived Value | Delivery |
 |---------|------|-------|-----------------|----------|
+| AI Training Course (Self-Paced) | training | $297 | $1,500 | virtual |
+| Premium AI Masterclass | training | $497 | $2,500 | virtual |
 | AI Strategy Workshop (Half-Day) | workshop | $1,500 | $3,500 | virtual/hybrid |
 | AI Strategy Workshop (Full-Day) | workshop | $3,500 | $7,500 | in_person/hybrid |
 | Speaking Engagement | speaking | $3,500 | $7,500 | in_person/virtual |

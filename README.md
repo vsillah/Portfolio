@@ -62,6 +62,20 @@ npm run build
 npm start
 ```
 
+**Network required:** `npm run build` needs internet access (e.g. Google Fonts). Run it in an environment where outbound requests are allowed.
+
+### If the build reports a "missing" page
+
+If you see an error like **"Cannot find module for page: /admin/analytics/funnel"** (or any route), **do not assume the page was deleted.** Often the cause is a stale or corrupted Next.js cache.
+
+1. **Clear the cache and rebuild** (with network available):
+   ```bash
+   rm -rf .next
+   npm run build
+   ```
+2. Confirm the route file exists (e.g. `app/admin/analytics/funnel/page.tsx`) and is tracked in git.
+3. Only after trying the above, treat the route as missing or report it.
+
 ## Tech Stack
 
 - **Next.js 14** - React framework
