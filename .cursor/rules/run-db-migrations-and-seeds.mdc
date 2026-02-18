@@ -1,0 +1,11 @@
+# Run DB migrations and seeds
+
+When the user asks to run migrations, apply SQL, or seed the database:
+
+1. **Check Supabase MCP:** If tools `apply_migration` or `execute_sql` (or equivalent) are available in the session, use them to apply the migration and, if needed, run seed logic (e.g. via execute_sql for idempotent inserts). Prefer MCP over local scripts when available.
+
+2. **If Supabase MCP is not available:**
+   - For **migrations:** Do not run DDL locally. Output the exact SQL from the relevant file in `migrations/` and tell the user to run it in Supabase Dashboard → SQL Editor. Optionally suggest delegating to the **database-runner** subagent for future runs.
+   - For **seed scripts:** Run `npx tsx scripts/<name>.ts` (with network) only after confirming the migration that the seed depends on has been applied. If the seed fails with a schema error (e.g. column not found), output the migration SQL and steps first, then ask the user to apply it and re-run the seed (or run the seed again after they confirm).
+
+3. **Order:** Always apply migrations before running seeds that depend on the new schema. If the user said "run the scripts" and the migration is not yet applied, provide the migration SQL and steps first, then run the seed once the user has applied it (or run the seed and, on schema error, follow step 2).

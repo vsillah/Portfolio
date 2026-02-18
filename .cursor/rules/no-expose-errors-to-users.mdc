@@ -1,0 +1,31 @@
+---
+description: Never expose raw or technical errors to end users as the final implementation
+alwaysApply: true
+---
+
+# No Expose Errors to End Users
+
+**Rule:** Do not surface technical errors, stack traces, API error messages, or implementation details to end users as the final UX.
+
+## What to do instead
+
+- **API / server:** Return generic, safe messages in JSON (e.g. `{ error: 'Something went wrong. Please try again.' }`). Log the real error (and stack if available) server-side only.
+- **UI:** Show short, user-friendly copy (e.g. "We couldn't complete that. Please try again or contact support."). Do not display `error.message`, `err.toString()`, or response body text directly to the user unless it is a curated, non-technical string.
+- **Auth / 401 / 403:** Prefer redirects or inline prompts (e.g. "Please sign in to continue") over showing the HTTP status or backend error text.
+- **Validation:** You may show **curated** field-level messages (e.g. "Email is required") that are written for users, not raw validation library output.
+
+## What counts as "exposing" (avoid)
+
+- `alert(error.message)` or `alert(error.error)` with API/exception text
+- Rendering `err.toString()` or `error?.message` in the UI
+- Showing stack traces, status codes, or file paths in production UI
+- Passing through backend error bodies unchanged to the client display
+
+## Acceptable
+
+- Logging full errors server-side or in dev-only code
+- Generic user-facing messages that do not reveal internals
+- Redirecting to login or a safe page instead of showing a 401/403 message
+- Curated, non-technical validation or status messages
+
+When in doubt, show a generic message and log the real error; never treat raw errors as the final user-facing implementation.

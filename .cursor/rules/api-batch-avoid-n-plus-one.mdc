@@ -1,0 +1,21 @@
+---
+description: Batch-fetch related data in list/resolve APIs to avoid N+1 query patterns
+alwaysApply: false
+---
+
+# API Batch-Fetch — Avoid N+1
+
+When an API **resolves a list of items** and each item requires related data from the database (e.g. a content row plus a role row, or a parent plus children):
+
+1. **Batch-fetch by dimension** — Group items by the key that determines the table or query (e.g. `content_type`, parent id, tenant id). For each group, run one query with `.in('id', ids)` or equivalent (e.g. `.eq('content_type', type).in('content_id', ids)` for a roles table). Execute these batched queries in parallel (e.g. `Promise.all`) where possible.
+2. **Resolve in memory** — Build maps (e.g. `Map<key, row>`) from the batch results, then loop over the original list and resolve each item using the maps. Do **not** add `await` or per-item DB calls inside this loop.
+3. **Document in code** — In resolve-style handlers, add a one-line comment where batching is used, e.g. `// Batch-fetch to avoid N+1; do not add per-item DB calls in the loop.`
+
+## Why
+
+A loop that does one or two queries per item (e.g. 24 items × 2 = 48 sequential round-trips) causes severe latency (multi-second) and poor UX. Batching reduces round-trips to roughly one or two per dimension (e.g. per content type), then one in-memory pass.
+
+## Reference
+
+- Example: `app/api/admin/sales/bundles/[id]/resolve/route.ts` — `batchFetchContentAndRoles()` + in-memory resolve loop.
+- Postmortem: `docs/postmortems/2026-02-17-bundle-modal-resolve-api-lag.md`
