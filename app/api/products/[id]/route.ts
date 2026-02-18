@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import { PRODUCT_TYPES } from '@/lib/constants/products'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,7 +10,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const { data: product, error } = await supabaseAdmin
+    const { data: row, error } = await supabaseAdmin
       .from('products')
       .select('*')
       .eq('id', params.id)
@@ -24,6 +25,17 @@ export async function GET(
       }
       throw error
     }
+
+    // Admins get full product including asset_url and instructions_file_path.
+    // Public requests omit these so repo/instructions are only available after purchase.
+    const authResult = await verifyAdmin(request)
+    const isAdmin = !isAuthError(authResult)
+    const product = isAdmin
+      ? row
+      : (() => {
+          const { asset_url: _au, instructions_file_path: _ifp, ...rest } = row
+          return { ...rest, asset_url: null, instructions_file_path: null }
+        })()
 
     // If merchandise, fetch variants
     let variants = []
@@ -92,8 +104,7 @@ export async function PUT(
     if (title !== undefined) updateData.title = title
     if (description !== undefined) updateData.description = description || null
     if (type !== undefined) {
-      const validTypes = ['ebook', 'training', 'calculator', 'music', 'app', 'merchandise']
-      if (!validTypes.includes(type)) {
+      if (!(PRODUCT_TYPES as readonly string[]).includes(type)) {
         return NextResponse.json(
           { error: 'Invalid product type' },
           { status: 400 }
@@ -103,6 +114,8 @@ export async function PUT(
     }
     if (price !== undefined) updateData.price = price ? parseFloat(price) : null
     if (file_path !== undefined) updateData.file_path = file_path || null
+    if (body.asset_url !== undefined) updateData.asset_url = body.asset_url || null
+    if (body.instructions_file_path !== undefined) updateData.instructions_file_path = body.instructions_file_path || null
     if (image_url !== undefined) updateData.image_url = image_url || null
     if (is_active !== undefined) updateData.is_active = is_active
     if (is_featured !== undefined) updateData.is_featured = is_featured

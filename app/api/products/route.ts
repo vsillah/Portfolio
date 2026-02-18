@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import { PRODUCT_TYPES } from '@/lib/constants/products'
 
 export const dynamic = 'force-dynamic'
 
@@ -98,13 +99,17 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const validTypes = ['ebook', 'training', 'calculator', 'music', 'app', 'merchandise']
-    if (!validTypes.includes(type)) {
+    if (!(PRODUCT_TYPES as readonly string[]).includes(type)) {
       return NextResponse.json(
         { error: 'Invalid product type' },
         { status: 400 }
       )
     }
+
+    const {
+      asset_url: assetUrl,
+      instructions_file_path: instructionsFilePath,
+    } = body
 
     const { data, error } = await supabaseAdmin
       .from('products')
@@ -119,6 +124,8 @@ export async function POST(request: NextRequest) {
         is_featured: is_featured !== undefined ? is_featured : false,
         display_order: display_order || 0,
         created_by: user.id,
+        asset_url: assetUrl || null,
+        instructions_file_path: instructionsFilePath || null,
         // Linked content entity IDs
         music_id: music_id || null,
         publication_id: publication_id || null,

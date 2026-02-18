@@ -17,6 +17,8 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const productId = formData.get('productId') as string | null
+    const purposeRaw = formData.get('purpose') as string | null
+    const purpose = purposeRaw === 'instructions' ? 'instructions' : 'product'
 
     if (!file) {
       return NextResponse.json(
@@ -25,10 +27,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique file path
+    // Generate unique file path; instructions go in instructions/ subfolder
     const fileExt = file.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-    const filePath = productId ? `product-${productId}/${fileName}` : `uploads/${fileName}`
+    const filePath = purpose === 'instructions'
+      ? (productId ? `product-${productId}/instructions/${fileName}` : `uploads/instructions/${fileName}`)
+      : (productId ? `product-${productId}/${fileName}` : `uploads/${fileName}`)
 
     // Upload file to Supabase Storage (products bucket)
     const { data, error } = await supabaseAdmin.storage
