@@ -28,6 +28,12 @@ export async function POST(request: NextRequest) {
     }
 
     const user = await getCurrentUser()
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Please sign in to complete your purchase. We use your account to deliver your order and to follow up with you.' },
+        { status: 401 }
+      )
+    }
 
     // Get discount code ID if provided
     let discountCodeId = null
@@ -110,11 +116,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Create order
+    // Create order (user is required above)
     const orderData: any = {
-      user_id: user?.id || null,
-      guest_email: contactInfo?.email || null,
-      guest_name: contactInfo?.name || null,
+      user_id: user.id,
+      guest_email: null,
+      guest_name: null,
       total_amount: subtotal,
       discount_amount: discountAmount,
       final_amount: finalTotal,

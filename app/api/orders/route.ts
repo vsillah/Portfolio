@@ -26,7 +26,9 @@ export async function GET(request: NextRequest) {
             id,
             title,
             type,
-            file_path
+            file_path,
+            asset_url,
+            instructions_file_path
           )
         )
       `)

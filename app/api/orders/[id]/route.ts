@@ -22,7 +22,9 @@ export async function GET(
             id,
             title,
             type,
-            file_path
+            file_path,
+            asset_url,
+            instructions_file_path
           )
         )
       `)
