@@ -17,6 +17,7 @@ import {
   BarChart3,
   Loader2
 } from 'lucide-react'
+import { getPromptDisplayName } from '@/lib/constants/prompt-keys'
 
 interface QueueStats {
   channels: {
@@ -84,7 +85,7 @@ function QueuesOverviewContent() {
     },
     {
       id: 'voice',
-      name: 'All Voice',
+      name: `All ${getPromptDisplayName('voice_agent')}`,
       icon: Mic,
       color: 'purple',
       count: stats?.channels.voice || 0,
@@ -98,7 +99,7 @@ function QueuesOverviewContent() {
     },
     {
       id: 'chatbot',
-      name: 'All ChatBot',
+      name: `All ${getPromptDisplayName('chatbot')}`,
       icon: Bot,
       color: 'orange',
       count: 0, // Placeholder
@@ -196,9 +197,9 @@ function QueuesOverviewContent() {
               >
                 <option value="all">All</option>
                 <option value="text">Text Messages</option>
-                <option value="voice">Voice</option>
+                <option value="voice">{getPromptDisplayName('voice_agent')}</option>
                 <option value="email">Emails</option>
-                <option value="chatbot">ChatBot</option>
+                <option value="chatbot">{getPromptDisplayName('chatbot')}</option>
               </select>
 
               <motion.button

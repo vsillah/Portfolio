@@ -33,6 +33,7 @@ import {
   getRecommendedProducts,
   buildGrandSlamOffer,
 } from '@/lib/sales-scripts';
+import { formatCurrency } from '@/lib/pricing-model';
 import { FunnelStageSelector } from '@/components/admin/sales/FunnelStageSelector';
 import { OfferCard, OfferStack, ContentOfferCard } from '@/components/admin/sales/OfferCard';
 import { ResponseBar } from '@/components/admin/sales/ResponseBar';
@@ -1973,10 +1974,10 @@ export default function ClientWalkthroughPage() {
                   )}
                   {bundle.bundle_price && (
                     <p className="text-sm text-green-400 mt-2">
-                      ${bundle.bundle_price.toFixed(2)}
+                      {formatCurrency(bundle.bundle_price)}
                       {bundle.total_perceived_value && (
                         <span className="text-gray-500 line-through ml-2">
-                          ${bundle.total_perceived_value.toFixed(2)}
+                          {formatCurrency(bundle.total_perceived_value)}
                         </span>
                       )}
                     </p>

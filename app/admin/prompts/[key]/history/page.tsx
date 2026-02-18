@@ -12,8 +12,10 @@ import {
   CheckCircle,
   ChevronDown,
   ChevronUp,
-  Clock
+  Clock,
+  Bug
 } from 'lucide-react'
+import { getPromptDisplayName } from '@/lib/constants/prompt-keys'
 
 interface PromptHistory {
   id: string
@@ -22,6 +24,7 @@ interface PromptHistory {
   config: Record<string, unknown>
   changed_at: string
   change_reason: string | null
+  diagnosis_id: string | null
 }
 
 interface SystemPrompt {
@@ -158,7 +161,7 @@ function PromptHistoryContent() {
             Version History
           </h1>
           <p className="text-platinum-white/60">
-            {prompt?.name} • Current version: {prompt?.version}
+            {prompt ? getPromptDisplayName(prompt.key) : getPromptDisplayName(promptKey)} • Current version: {prompt?.version ?? '—'}
           </p>
         </div>
 
@@ -218,6 +221,20 @@ function PromptHistoryContent() {
                       <span className="text-platinum-white/40 text-sm">
                         • {h.change_reason}
                       </span>
+                    )}
+                    {h.diagnosis_id && (
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          router.push(`/admin/chat-eval/diagnoses/${h.diagnosis_id}`)
+                        }}
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-500/20 border border-red-500/30 text-xs text-red-400 hover:bg-red-500/30"
+                      >
+                        <Bug size={12} />
+                        View source diagnosis
+                      </motion.button>
                     )}
                   </div>
                   <div className="flex items-center gap-3">

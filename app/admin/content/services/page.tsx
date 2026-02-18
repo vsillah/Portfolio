@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, DollarSign, Image as ImageIcon, Clock, Users, Star } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
+import { formatCurrency } from '@/lib/pricing-model'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 interface Service {
@@ -50,7 +51,6 @@ export default function ServicesManagementPage() {
   const [loading, setLoading] = useState(true)
   const [editingService, setEditingService] = useState<Service | null>(null)
   const [showAddForm, setShowAddForm] = useState(false)
-  const formRef = useRef<HTMLDivElement>(null)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -335,13 +335,6 @@ export default function ServicesManagementPage() {
     setShowAddForm(true)
   }
 
-  // Scroll form into view when opening for edit so it's visible
-  useEffect(() => {
-    if (showAddForm && editingService && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  }, [showAddForm, editingService])
-
   const handleCancel = () => {
     setShowAddForm(false)
     setEditingService(null)
@@ -386,7 +379,6 @@ export default function ServicesManagementPage() {
 
           {showAddForm && (
             <motion.div
-              ref={formRef}
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-8 p-6 bg-gray-900 border border-gray-800 rounded-xl"
@@ -714,7 +706,7 @@ export default function ServicesManagementPage() {
                         </span>
                       ) : service.price !== null ? (
                         <span className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded text-xs">
-                          ${service.price.toFixed(2)}
+                          {formatCurrency(service.price)}
                         </span>
                       ) : (
                         <span className="px-2 py-1 bg-green-600/20 text-green-400 rounded text-xs">

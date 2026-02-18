@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FolderOpen, Video, BookOpen, Music, Download, Sparkles, Package, Tag, Briefcase } from 'lucide-react'
+import { FolderOpen, Video, BookOpen, Music, Sparkles, Package, Tag, Briefcase, Layers, ShoppingBag } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -44,11 +44,11 @@ export default function ContentManagementPage() {
       color: 'from-teal-500 to-cyan-500',
     },
     {
-      name: 'Lead Magnets',
-      href: '/admin/content/lead-magnets',
-      icon: <Download size={32} />,
-      description: 'Manage downloadable resources',
-      color: 'from-orange-500 to-yellow-500',
+      name: 'Products',
+      href: '/admin/products',
+      icon: <ShoppingBag size={32} />,
+      description: 'Products, templates, and lead magnets',
+      color: 'from-emerald-500 to-teal-500',
     },
     {
       name: 'Prototypes',
@@ -70,6 +70,13 @@ export default function ContentManagementPage() {
       icon: <Tag size={32} />,
       description: 'Manage discount codes and promotions',
       color: 'from-green-500 to-teal-500',
+    },
+    {
+      name: 'Bundles',
+      href: '/admin/sales/bundles',
+      icon: <Layers size={32} />,
+      description: 'Manage product bundles',
+      color: 'from-amber-500 to-orange-500',
     },
   ]
 

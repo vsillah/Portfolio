@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit, Tag, Calendar, Users } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
+import { formatCurrency } from '@/lib/pricing-model'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 interface DiscountCode {
@@ -410,7 +411,7 @@ export default function DiscountCodesManagementPage() {
                           <p className="text-white font-semibold">
                             {code.discount_type === 'percentage'
                               ? `${code.discount_value}%`
-                              : `$${code.discount_value.toFixed(2)}`}
+                              : formatCurrency(code.discount_value)}
                           </p>
                         </div>
                         <div>

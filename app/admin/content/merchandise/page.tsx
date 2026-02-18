@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { RefreshCw, Eye, EyeOff, Settings, Package, CheckCircle, XCircle, Loader, Upload, Image as ImageIcon, X } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
+import { formatCurrency } from '@/lib/pricing-model'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 interface MerchandiseProduct {
@@ -566,7 +567,7 @@ export default function MerchandiseManagementPage() {
                       {product.base_cost !== null && (
                         <div className="flex justify-between">
                           <span className="text-gray-500">Base Cost:</span>
-                          <span className="text-white">${product.base_cost.toFixed(2)}</span>
+                          <span className="text-white">{formatCurrency(product.base_cost)}</span>
                         </div>
                       )}
                       {product.markup_percentage !== null && (
@@ -579,11 +580,9 @@ export default function MerchandiseManagementPage() {
                         <div className="flex justify-between font-semibold pt-2 border-t border-gray-800">
                           <span className="text-gray-400">Price:</span>
                           <span className="text-green-400">
-                            $
-                            {(
-                              product.base_cost *
-                              (1 + product.markup_percentage / 100)
-                            ).toFixed(2)}
+                            {formatCurrency(
+                              product.base_cost * (1 + product.markup_percentage / 100)
+                            )}
                           </span>
                         </div>
                       )}

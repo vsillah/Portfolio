@@ -19,6 +19,7 @@ import {
   Settings,
   Mail
 } from 'lucide-react'
+import { getPromptDisplayName } from '@/lib/constants/prompt-keys'
 
 interface SystemPrompt {
   id: string
@@ -199,7 +200,7 @@ function PromptsContent() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className="font-heading text-xl text-platinum-white mb-1">
-                        {prompt.name}
+                        {getPromptDisplayName(prompt.key)}
                       </h3>
                       <p className="text-sm text-platinum-white/50 truncate">
                         {prompt.description || `Key: ${prompt.key}`}

@@ -18,6 +18,7 @@ import {
   Ban,
 } from 'lucide-react';
 import MilestoneTracker from '@/components/admin/guarantees/MilestoneTracker';
+import { formatCurrency } from '@/lib/pricing-model';
 import {
   INSTANCE_STATUS_LABELS,
   INSTANCE_STATUS_COLORS,
@@ -195,7 +196,7 @@ export default function GuaranteeInstanceDetailPage() {
               Purchase Amount
             </div>
             <p className="text-sm text-white font-medium">
-              ${parseFloat(instance.purchase_amount).toFixed(2)}
+              {formatCurrency(parseFloat(instance.purchase_amount))}
             </p>
             <p className="text-xs text-gray-400">
               {PAYOUT_TYPE_LABELS[instance.payout_type as keyof typeof PAYOUT_TYPE_LABELS]}
@@ -231,7 +232,7 @@ export default function GuaranteeInstanceDetailPage() {
         {instance.rollover_credit_amount && (
           <div className="p-4 bg-indigo-900/20 border border-indigo-700 rounded-lg">
             <p className="text-sm text-indigo-300">
-              Rollover credit: <strong>${parseFloat(instance.rollover_credit_amount).toFixed(2)}</strong>
+              Rollover credit: <strong>{formatCurrency(parseFloat(instance.rollover_credit_amount))}</strong>
               {template?.rollover_bonus_multiplier > 1 && (
                 <span className="text-xs text-indigo-400 ml-2">
                   ({template.rollover_bonus_multiplier}x bonus multiplier applied)

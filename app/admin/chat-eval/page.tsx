@@ -190,6 +190,15 @@ function ChatEvalContent() {
 
     try {
       const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setDiagnoseError('Please sign in again to run diagnosis.')
+        setIsDiagnosing(false)
+        return
+      }
+      const sessionIds = selectedWithBadRatings.map(s => s.session_id)
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/chat-eval/page.tsx:diagnose-before',message:'Diagnose batch request',data:{sessionIdsCount:sessionIds.length,sessionIds:sessionIds.slice(0,3)},hypothesisId:'H1',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
       const response = await fetch('/api/admin/chat-eval/diagnose/batch', {
         method: 'POST',
         headers: {
@@ -197,17 +206,26 @@ function ChatEvalContent() {
           'Authorization': `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
-          session_ids: selectedWithBadRatings.map(s => s.session_id),
+          session_ids: sessionIds,
           provider: 'anthropic',
         }),
       })
 
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to diagnose errors')
+      const rawText = await response.text()
+      let data: { error?: string; message?: string; detail?: string; summary?: unknown } = {}
+      try {
+        if (rawText) data = JSON.parse(rawText)
+      } catch {
+        data = { error: rawText?.slice(0, 200) || response.statusText }
       }
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/chat-eval/page.tsx:diagnose-after',message:'Diagnose batch response',data:{ok:response.ok,status:response.status,statusText:response.statusText,error:data.error,summary:data.summary,fullBody:data,rawSlice:rawText?.slice(0,300)},hypothesisId:'H1',timestamp:Date.now()})}).catch(()=>{});
+      // #endregion
 
-      const data = await response.json()
+      if (!response.ok) {
+        const msg = data?.error || data?.message || (typeof data?.detail === 'string' ? data.detail : null) || `Request failed (${response.status})`
+        throw new Error(msg)
+      }
       
       // Navigate to diagnoses page
       router.push('/admin/chat-eval/diagnoses')

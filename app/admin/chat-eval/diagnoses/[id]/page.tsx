@@ -23,6 +23,7 @@ import {
   AlertTriangle,
   Sparkles
 } from 'lucide-react'
+import { getPromptDisplayName } from '@/lib/constants/prompt-keys'
 
 interface Recommendation {
   id: string
@@ -91,6 +92,7 @@ function DiagnosisDetailContent() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [applying, setApplying] = useState(false)
+  const [appliedPromptKeys, setAppliedPromptKeys] = useState<string[]>([])
   const [selectedRecommendations, setSelectedRecommendations] = useState<Set<string>>(new Set())
   const [showDiff, setShowDiff] = useState<Record<string, boolean>>({})
 
@@ -171,9 +173,21 @@ function DiagnosisDetailContent() {
       if (response.ok) {
         const data = await response.json()
         await fetchDiagnosis()
-        
-        // Show success message
-        alert(`Applied ${data.applied.length} fixes automatically. ${data.instructions.length} require manual steps.`)
+        const promptKeysApplied: string[] = (data.applied || [])
+          .filter((a: { changes?: { target?: string } }) => a.changes?.target)
+          .map((a: { changes: { target: string } }) => a.changes.target)
+        const promptKeysUnique = [...new Set(promptKeysApplied)]
+        const successMsg = data.instructions?.length
+          ? `Applied ${data.applied.length} fixes. ${data.instructions.length} require manual steps.`
+          : `Applied ${data.applied.length} fixes.`
+        alert(
+          promptKeysUnique.length > 0
+            ? `${successMsg}\n\nYou can view the updated prompt(s) in Admin → System Prompts.`
+            : successMsg
+        )
+        if (promptKeysUnique.length > 0) {
+          setAppliedPromptKeys(promptKeysUnique)
+        }
       }
     } catch (error) {
       console.error('Error applying fixes:', error)
@@ -501,6 +515,32 @@ function DiagnosisDetailContent() {
                 </div>
               </div>
             )}
+            <div className="mt-4 pt-4 border-t border-purple-500/20">
+              <p className="text-sm text-platinum-white/80 mb-2">
+                Prompt changes are saved to the same prompts used by the chatbot and admin. View or edit them here:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => router.push('/admin/prompts')}
+                  className="px-4 py-2 bg-silicon-slate/50 border border-radiant-gold/30 rounded-lg text-sm text-radiant-gold hover:bg-silicon-slate/70 transition-colors"
+                >
+                  Open System Prompts
+                </motion.button>
+                {[...new Set(appliedPromptKeys.length > 0 ? appliedPromptKeys : ['chatbot', 'voice_agent'])].map((key) => (
+                  <motion.button
+                    key={key}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => router.push(`/admin/prompts/${key}`)}
+                    className="px-4 py-2 bg-silicon-slate/50 border border-platinum-white/20 rounded-lg text-sm text-platinum-white/90 hover:bg-silicon-slate/70 transition-colors"
+                  >
+                    View {getPromptDisplayName(key)} prompt
+                  </motion.button>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
