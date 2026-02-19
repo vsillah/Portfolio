@@ -320,7 +320,7 @@ export default function ProjectsManagementPage() {
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-black text-white p-8">
+      <div className="min-h-screen bg-background text-foreground p-8">
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[
             { label: 'Admin Dashboard', href: '/admin' },

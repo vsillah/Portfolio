@@ -17,6 +17,7 @@ import {
   Play,
   Ban,
 } from 'lucide-react';
+import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import MilestoneTracker from '@/components/admin/guarantees/MilestoneTracker';
 import { formatCurrency } from '@/lib/pricing-model';
 import {
@@ -150,6 +151,13 @@ export default function GuaranteeInstanceDetailPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white p-6">
       <div className="max-w-4xl mx-auto space-y-6">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin Dashboard', href: '/admin' },
+            { label: 'Guarantees', href: '/admin/guarantees' },
+            { label: template?.name || 'Instance' },
+          ]}
+        />
         {/* Header */}
         <div className="flex items-center gap-3">
           <Link

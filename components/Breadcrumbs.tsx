@@ -17,23 +17,23 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
     <nav className="mb-6 flex items-center gap-2 text-sm">
       <Link
         href="/"
-        className="flex items-center gap-1 text-gray-400 hover:text-white transition-colors"
+        className="flex items-center gap-1 text-platinum-white/80 hover:text-foreground transition-colors"
       >
         <Home size={16} />
         <span>Home</span>
       </Link>
       {items.map((item, index) => (
         <div key={index} className="flex items-center gap-2">
-          <ChevronRight size={16} className="text-gray-600" />
+          <ChevronRight size={16} className="text-platinum-white/60" />
           {item.href ? (
             <Link
               href={item.href}
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-platinum-white/80 hover:text-foreground transition-colors"
             >
               {item.label}
             </Link>
           ) : (
-            <span className="text-white font-medium">{item.label}</span>
+            <span className="text-foreground font-medium">{item.label}</span>
           )}
         </div>
       ))}

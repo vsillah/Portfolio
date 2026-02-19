@@ -55,14 +55,14 @@ function AdminDashboardContent() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs items={[{ label: 'Admin Dashboard' }]} />
         
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-gray-400">Manage your portfolio and view analytics</p>
+          <p className="text-platinum-white/80">Manage your portfolio and view analytics</p>
         </div>
 
         {/* Quick Stats - Analytics Summary */}
@@ -73,7 +73,7 @@ function AdminDashboardContent() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white hover:border-purple-500/50 transition-colors flex items-center gap-2 text-sm"
+                className="px-4 py-2 btn-ghost rounded-lg flex items-center gap-2 text-sm"
               >
                 View Full Analytics
                 <ArrowRight size={16} />
@@ -81,7 +81,7 @@ function AdminDashboardContent() {
             </Link>
           </div>
           {loading ? (
-            <div className="text-gray-400">Loading analytics...</div>
+            <div className="text-platinum-white/80">Loading analytics...</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatCard
@@ -116,16 +116,16 @@ function AdminDashboardContent() {
         <div className="mb-8 space-y-10">
           {/* Pipeline */}
           <section>
-            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Pipeline</h2>
+            <h2 className="text-lg font-semibold text-platinum-white/80 uppercase tracking-wide mb-4">Pipeline</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Link href="/admin/outreach">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-sky-600/20 to-blue-600/20 border border-sky-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-sky-600 to-blue-600 flex items-center justify-center">
-                      <Send size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <Send size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Lead Pipeline</h3>
@@ -137,11 +137,11 @@ function AdminDashboardContent() {
               <Link href="/admin/value-evidence">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 flex items-center justify-center">
-                      <DollarSign size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <DollarSign size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Value Evidence</h3>
@@ -155,16 +155,16 @@ function AdminDashboardContent() {
 
           {/* Sales */}
           <section>
-            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Sales</h2>
+            <h2 className="text-lg font-semibold text-platinum-white/80 uppercase tracking-wide mb-4">Sales</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Link href="/admin/sales">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-emerald-600/20 to-teal-600/20 border border-emerald-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 flex items-center justify-center">
-                      <TrendingUp size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <TrendingUp size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Sales Dashboard</h3>
@@ -176,11 +176,11 @@ function AdminDashboardContent() {
               <Link href="/admin/lead-dashboards">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
-                      <LayoutDashboard size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <LayoutDashboard size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Lead Dashboards</h3>
@@ -194,16 +194,16 @@ function AdminDashboardContent() {
 
           {/* Post-sale */}
           <section>
-            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Post-sale</h2>
+            <h2 className="text-lg font-semibold text-platinum-white/80 uppercase tracking-wide mb-4">Post-sale</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Link href="/admin/client-projects">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
-                      <FolderKanban size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <FolderKanban size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Client Projects</h3>
@@ -215,11 +215,11 @@ function AdminDashboardContent() {
               <Link href="/admin/meeting-tasks">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-violet-600/20 to-purple-600/20 border border-violet-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 flex items-center justify-center">
-                      <ClipboardCheck size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <ClipboardCheck size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Meeting Tasks</h3>
@@ -231,11 +231,11 @@ function AdminDashboardContent() {
               <Link href="/admin/continuity-plans">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border border-cyan-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 flex items-center justify-center">
-                      <RefreshCw size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <RefreshCw size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Continuity Plans</h3>
@@ -247,11 +247,11 @@ function AdminDashboardContent() {
               <Link href="/admin/onboarding-templates">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-slate-600/20 to-indigo-600/20 border border-slate-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-slate-600 to-indigo-600 flex items-center justify-center">
-                      <LayoutTemplate size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <LayoutTemplate size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Onboarding Templates</h3>
@@ -263,11 +263,11 @@ function AdminDashboardContent() {
               <Link href="/admin/guarantees">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
-                      <ShieldCheck size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <ShieldCheck size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Guarantees</h3>
@@ -281,16 +281,16 @@ function AdminDashboardContent() {
 
           {/* Quality & insights */}
           <section>
-            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Quality & insights</h2>
+            <h2 className="text-lg font-semibold text-platinum-white/80 uppercase tracking-wide mb-4">Quality & insights</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Link href="/admin/chat-eval">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
-                      <MessageCircle size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <MessageCircle size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Chat Eval</h3>
@@ -302,11 +302,11 @@ function AdminDashboardContent() {
               <Link href="/admin/analytics">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 flex items-center justify-center">
-                      <BarChart3 size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <BarChart3 size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Analytics</h3>
@@ -318,11 +318,11 @@ function AdminDashboardContent() {
               <Link href="/admin/testing">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-rose-600/20 to-red-600/20 border border-rose-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-rose-600 to-red-600 flex items-center justify-center">
-                      <FlaskConical size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <FlaskConical size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">E2E Testing</h3>
@@ -336,16 +336,16 @@ function AdminDashboardContent() {
 
           {/* Configuration */}
           <section>
-            <h2 className="text-lg font-semibold text-gray-400 uppercase tracking-wide mb-4">Configuration</h2>
+            <h2 className="text-lg font-semibold text-platinum-white/80 uppercase tracking-wide mb-4">Configuration</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <Link href="/admin/content">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-blue-600/20 to-cyan-600/20 border border-blue-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 flex items-center justify-center">
-                      <Settings size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <Settings size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">Content Hub</h3>
@@ -357,11 +357,11 @@ function AdminDashboardContent() {
               <Link href="/admin/users">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-green-600/20 to-teal-600/20 border border-green-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-green-600 to-teal-600 flex items-center justify-center">
-                      <Users size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <Users size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">User Management</h3>
@@ -373,11 +373,11 @@ function AdminDashboardContent() {
               <Link href="/admin/prompts">
                 <motion.div
                   whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-cyan-600/20 to-blue-600/20 border border-cyan-500/50 rounded-xl cursor-pointer"
+                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 flex items-center justify-center">
-                      <FileText size={32} className="text-white" />
+                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
+                      <FileText size={32} className="text-imperial-navy" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold mb-1">System Prompts</h3>
@@ -405,18 +405,12 @@ function StatCard({
   value: string
   color: 'blue' | 'green' | 'purple' | 'pink'
 }) {
-  const colorClasses = {
-    blue: 'bg-blue-500/20 border-blue-500/50',
-    green: 'bg-green-500/20 border-green-500/50',
-    purple: 'bg-purple-500/20 border-purple-500/50',
-    pink: 'bg-pink-500/20 border-pink-500/50',
-  }
-
+  void color // unused; all cards use brand palette
   return (
-    <div className={`p-6 rounded-xl border ${colorClasses[color]}`}>
+    <div className="p-6 rounded-xl border bg-radiant-gold/20 border-radiant-gold/50">
       <div className="flex items-center gap-3 mb-2">
         {icon}
-        <span className="text-gray-400 text-sm">{label}</span>
+        <span className="text-platinum-white/80 text-sm">{label}</span>
       </div>
       <div className="text-3xl font-bold">{value}</div>
     </div>

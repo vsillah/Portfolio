@@ -11,6 +11,7 @@ import {
   Check,
   X,
 } from 'lucide-react';
+import Breadcrumbs from '@/components/admin/Breadcrumbs';
 
 interface ContinuityPlan {
   id: string;
@@ -135,9 +136,15 @@ export default function ContinuityPlansAdminPage() {
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 to-gray-900 p-6 text-white">
-      {/* Header */}
+    <div className="min-h-screen bg-background text-foreground p-6">
       <div className="mx-auto max-w-5xl">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin Dashboard', href: '/admin' },
+            { label: 'Continuity Plans' },
+          ]}
+        />
+        {/* Header */}
         <div className="mb-6 flex items-center gap-3">
           <Link href="/admin" className="rounded-lg p-2 hover:bg-gray-800">
             <ArrowLeft size={20} />

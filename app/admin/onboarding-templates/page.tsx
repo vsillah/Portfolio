@@ -20,6 +20,7 @@ import {
   Wrench,
   Bot,
 } from 'lucide-react';
+import Breadcrumbs from '@/components/admin/Breadcrumbs';
 
 // ============================================================================
 // Types
@@ -111,6 +112,12 @@ export default function OnboardingTemplatesPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       <div className="max-w-6xl mx-auto px-4 py-8">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin Dashboard', href: '/admin' },
+            { label: 'Onboarding Templates' },
+          ]}
+        />
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>

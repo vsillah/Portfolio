@@ -40,10 +40,10 @@ const SERVICE_TYPES = [
 // Loading fallback component
 function StoreLoading() {
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center py-12">
-          <div className="text-gray-400">Loading store...</div>
+          <div className="text-platinum-white/80">Loading store...</div>
         </div>
       </div>
     </div>
@@ -242,7 +242,7 @@ function StoreContent() {
   const totalItems = filteredProducts.length + filteredServices.length
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <motion.div
@@ -253,7 +253,7 @@ function StoreContent() {
           {/* Back to Home Link */}
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
+            className="flex items-center gap-2 text-platinum-white/80 hover:text-foreground mb-4 transition-colors"
           >
             <ArrowLeft size={20} />
             Back to Home
@@ -262,10 +262,10 @@ function StoreContent() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-4xl font-bold mb-2">Store</h1>
-              <p className="text-gray-400">Browse our collection of products, merchandise, and services</p>
+              <p className="text-platinum-white/80">Browse our collection of products, merchandise, and services</p>
             </div>
             <div className="flex items-center gap-3">
-              <Link href="/help" className="text-gray-400 hover:text-white transition-colors" aria-label="Help">
+              <Link href="/help" className="text-platinum-white/80 hover:text-foreground transition-colors" aria-label="Help">
                 <HelpCircle size={20} />
               </Link>
             {cartCount > 0 && (
@@ -275,7 +275,7 @@ function StoreContent() {
                 animate={{ scale: 1 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="relative px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg flex items-center gap-2"
+                className="relative px-6 py-3 btn-gold font-semibold rounded-lg flex items-center gap-2"
               >
                 <ShoppingCart size={20} />
                 View Cart
@@ -315,8 +315,8 @@ function StoreContent() {
                 onClick={() => handleCategoryChange(cat.value)}
                 className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                   itemCategory === cat.value
-                    ? 'bg-purple-600 border-purple-500 text-white'
-                    : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-700 hover:text-white'
+                    ? 'bg-radiant-gold border-radiant-gold text-imperial-navy'
+                    : 'bg-silicon-slate border-silicon-slate text-platinum-white/80 hover:border-radiant-gold/50 hover:text-foreground'
                 }`}
               >
                 {cat.label}
@@ -327,13 +327,13 @@ function StoreContent() {
           {/* Search and Filters */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
               <input
                 type="text"
                 placeholder="Search store..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                className="w-full pl-10 pr-4 py-2 input-brand"
               />
             </div>
             <div className="flex gap-2">
@@ -351,7 +351,7 @@ function StoreContent() {
                     }
                     router.replace(url.pathname + url.search, { scroll: false })
                   }}
-                  className="px-4 py-2 bg-gray-900 border border-gray-800 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                  className="px-4 py-2 input-brand"
                 >
                   {activeTypeFilters.map(type => (
                     <option key={type.value} value={type.value}>{type.label}</option>
@@ -364,8 +364,8 @@ function StoreContent() {
                 whileTap={{ scale: 0.95 }}
                 className={`px-4 py-2 rounded-lg border transition-colors ${
                   showFeaturedOnly
-                    ? 'bg-purple-600 border-purple-500 text-white'
-                    : 'bg-gray-900 border-gray-800 text-gray-400 hover:border-gray-700'
+                    ? 'bg-radiant-gold border-radiant-gold text-imperial-navy'
+                    : 'bg-silicon-slate border-silicon-slate text-platinum-white/80 hover:border-radiant-gold/50'
                 }`}
               >
                 <Filter size={18} className="inline mr-2" />
@@ -378,11 +378,11 @@ function StoreContent() {
         {/* Store Items */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="text-gray-400">Loading store...</div>
+            <div className="text-platinum-white/80">Loading store...</div>
           </div>
         ) : totalItems === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-400 mb-4">No items found.</p>
+            <p className="text-platinum-white/80 mb-4">No items found.</p>
             {searchQuery || selectedType !== 'all' || showFeaturedOnly || itemCategory !== 'all' ? (
               <button
                 onClick={() => {
@@ -391,7 +391,7 @@ function StoreContent() {
                   setShowFeaturedOnly(false)
                   handleCategoryChange('all')
                 }}
-                className="text-purple-400 hover:text-purple-300"
+                className="text-radiant-gold hover:text-gold-light"
               >
                 Clear filters
               </button>
@@ -403,7 +403,7 @@ function StoreContent() {
             {filteredProducts.length > 0 && (
               <div>
                 {itemCategory === 'all' && (
-                  <h2 className="text-2xl font-bold mb-6 text-gray-200">Products</h2>
+                  <h2 className="text-2xl font-bold mb-6 text-platinum-white">Products</h2>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredProducts.map((product) => (
@@ -421,7 +421,7 @@ function StoreContent() {
             {filteredServices.length > 0 && (
               <div>
                 {itemCategory === 'all' && (
-                  <h2 className="text-2xl font-bold mb-6 text-gray-200">Services</h2>
+                  <h2 className="text-2xl font-bold mb-6 text-platinum-white">Services</h2>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredServices.map((service) => (

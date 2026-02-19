@@ -1,20 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
+import {
+  LEAD_MAGNET_FUNNEL_STAGES,
+  FUNNEL_STAGE_LABELS,
+  isValidFunnelStage,
+} from '@/lib/constants/lead-magnet-funnel'
+import { isValidCategory, isValidAccessType } from '@/lib/constants/lead-magnet-category'
 
 export const dynamic = 'force-dynamic'
 
+/** Canonical funnel order index for sorting */
+const FUNNEL_ORDER: Record<string, number> = Object.fromEntries(
+  LEAD_MAGNET_FUNNEL_STAGES.map((s, i) => [s, i])
+)
+
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication - try header first, then cookie
     const authHeader = request.headers.get('authorization')
-    let token = authHeader?.replace('Bearer ', '')
-    
-    // If no token in header, try to get from cookie
+    const token = authHeader?.replace('Bearer ', '')
     if (!token) {
-      const cookies = request.cookies
-      // Supabase stores session in cookies - we'll need to extract it
-      // For now, we'll require the token in the header
       return NextResponse.json({ error: 'Unauthorized - token required' }, { status: 401 })
     }
 
@@ -22,29 +27,70 @@ export async function GET(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
-
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
-    
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Fetch active lead magnets
-    const { data: leadMagnets, error } = await supabaseAdmin
+    const { searchParams } = new URL(request.url)
+    const adminMode = searchParams.get('admin') === '1'
+    let category = searchParams.get('category') ?? undefined
+    let accessType = searchParams.get('access_type') ?? undefined
+    const funnelStageParam = searchParams.get('funnel_stage') ?? undefined
+    // filter === 'all' or omitted → no restriction on funnel_stage
+    const funnelStage =
+      funnelStageParam && funnelStageParam !== 'all' && isValidFunnelStage(funnelStageParam)
+        ? funnelStageParam
+        : undefined
+
+    if (adminMode) {
+      const { data: profile } = await supabaseAdmin
+        .from('user_profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      if (profile?.role !== 'admin') {
+        return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+      }
+    }
+
+    let query = supabaseAdmin
       .from('lead_magnets')
       .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
+
+    if (!adminMode) {
+      query = query.eq('is_active', true)
+    }
+    if (category) query = query.eq('category', category)
+    if (accessType) query = query.eq('access_type', accessType)
+    if (funnelStage) query = query.eq('funnel_stage', funnelStage)
+
+    const { data: rows, error } = await query.order('display_order', { ascending: true }).order('created_at', { ascending: true })
 
     if (error) {
       console.error('Error fetching lead magnets:', error)
       return NextResponse.json({ error: 'Failed to fetch lead magnets' }, { status: 500 })
     }
 
-    const normalized = (leadMagnets || []).map((m: any) => ({
+    const leadMagnets = (rows || []) as Array<Record<string, unknown> & { funnel_stage?: string }>
+    const normalized = leadMagnets.map((m) => ({
       ...m,
-      file_path: m.file_path ?? m.file_url ?? null,
-    }))
+      file_path: (m.file_path ?? m.file_url ?? null) as string | null,
+      funnel_stage_label: m.funnel_stage ? FUNNEL_STAGE_LABELS[m.funnel_stage as keyof typeof FUNNEL_STAGE_LABELS] ?? m.funnel_stage : undefined,
+    })) as Array<Record<string, unknown> & { funnel_stage?: string; funnel_stage_label?: string; file_path: string | null; display_order?: number; created_at?: string }>
+
+    // Sort by canonical funnel order, then display_order, then created_at
+    normalized.sort((a, b) => {
+      const stageA = (a.funnel_stage as string) ?? ''
+      const stageB = (b.funnel_stage as string) ?? ''
+      const orderA = FUNNEL_ORDER[stageA] ?? 999
+      const orderB = FUNNEL_ORDER[stageB] ?? 999
+      if (orderA !== orderB) return orderA - orderB
+      const dispA = (a.display_order as number) ?? 0
+      const dispB = (b.display_order as number) ?? 0
+      if (dispA !== dispB) return dispA - dispB
+      return new Date((a.created_at as string) ?? 0).getTime() - new Date((b.created_at as string) ?? 0).getTime()
+    })
 
     return NextResponse.json({ leadMagnets: normalized })
   } catch (error) {
@@ -86,36 +132,59 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { title, description, file_path, file_type, file_size } = body
+    const {
+      title,
+      description,
+      file_path,
+      file_type,
+      file_size,
+      category: bodyCategory,
+      access_type: bodyAccessType,
+      funnel_stage: bodyFunnelStage,
+      display_order: bodyDisplayOrder,
+      slug,
+    } = body as Record<string, unknown>
 
     if (!title || !file_path || !file_type) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    const basePayload = {
-      title,
-      description,
-      file_type,
-      file_size,
-      is_active: true,
+    const category = typeof bodyCategory === 'string' && isValidCategory(bodyCategory) ? bodyCategory : 'gate_keeper'
+    const accessType = typeof bodyAccessType === 'string' && isValidAccessType(bodyAccessType) ? bodyAccessType : 'public_gated'
+    const funnelStage = typeof bodyFunnelStage === 'string' && isValidFunnelStage(bodyFunnelStage) ? bodyFunnelStage : 'attention_capture'
+
+    let displayOrder = typeof bodyDisplayOrder === 'number' && Number.isInteger(bodyDisplayOrder) ? bodyDisplayOrder : undefined
+    if (displayOrder === undefined) {
+      const { data: maxRow } = await supabaseAdmin
+        .from('lead_magnets')
+        .select('display_order')
+        .eq('funnel_stage', funnelStage)
+        .order('display_order', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      displayOrder = ((maxRow as { display_order?: number } | null)?.display_order ?? -1) + 1
     }
 
-    // Support legacy/new schema variants:
-    // - file_path vs file_url
-    // - required type column vs no type column
+    const basePayload = {
+      title,
+      description: description ?? null,
+      file_type,
+      file_size: file_size ?? null,
+      is_active: true,
+      category,
+      access_type: accessType,
+      funnel_stage: funnelStage,
+      display_order: displayOrder,
+      ...(typeof slug === 'string' && slug ? { slug } : {}),
+    }
+
     const insertCandidates = [
-      { ...basePayload, file_path, type: 'ebook' },
-      { ...basePayload, file_path, type: 'pdf' },
-      { ...basePayload, file_path, type: 'lead_magnet' },
       { ...basePayload, file_path },
-      { ...basePayload, file_url: file_path, type: 'ebook' },
-      { ...basePayload, file_url: file_path, type: 'pdf' },
-      { ...basePayload, file_url: file_path, type: 'lead_magnet' },
       { ...basePayload, file_url: file_path },
     ]
 
-    let data: any = null
-    let lastError: any = null
+    let data: unknown = null
+    let lastError: unknown = null
 
     for (const candidate of insertCandidates) {
       const result = await supabaseAdmin
@@ -131,8 +200,7 @@ export async function POST(request: NextRequest) {
       }
 
       lastError = result.error
-      const msg = String((result.error as any)?.message || '')
-      // If the error is not a missing-column mismatch, fail fast.
+      const msg = String((result.error as Error)?.message || '')
       if (!msg.includes('Could not find the') && !msg.includes('column') && !msg.includes('schema cache')) {
         break
       }
@@ -143,13 +211,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: 'Failed to create lead magnet',
-          details: (lastError as any).message || null,
+          details: (lastError as Error)?.message ?? null,
         },
         { status: 500 }
       )
     }
 
-    return NextResponse.json({ leadMagnet: data }, { status: 201 })
+    const normalized = data && typeof data === 'object' && 'file_path' in data
+      ? { ...data, file_path: (data as { file_path?: string; file_url?: string }).file_path ?? (data as { file_url?: string }).file_url ?? null }
+      : data
+    return NextResponse.json({ leadMagnet: normalized }, { status: 201 })
   } catch (error) {
     console.error('Lead magnets POST error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

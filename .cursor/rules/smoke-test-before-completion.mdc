@@ -1,0 +1,55 @@
+---
+description: Run a user-journey smoke test after significant changes and validate the new functionality works before claiming success
+alwaysApply: true
+---
+
+# Smoke Test Before Claiming Completion
+
+After a **significant code change** that adds or changes user-facing functionality, run a **smoke test** that exercises the new component or flow and confirm it works end-to-end. **Do not claim successful completion** until this smoke test passes.
+
+## When This Applies
+
+Run the smoke test when the change includes any of the following:
+
+- **New lead magnet or resource** (e.g. new row in seed, new resource card, new "Open tool" link)
+- **New page or route** that users can navigate to (e.g. new tool page, new admin page, new store product)
+- **New or changed user flow** (e.g. audit capture, checkout step, onboarding, download flow)
+- **New or changed API** that a specific UI or integration depends on (e.g. lead-magnets list, audit submit)
+- **New integration point** (e.g. link from Resources to a tool, link from chat to diagnostic)
+
+If in doubt, treat the change as significant and run the smoke test.
+
+## What the Smoke Test Must Do
+
+1. **Exercise the user journey** that the change enables — not just "the page exists," but "the user can do the thing."
+2. **Validate success** — the primary action (open tool, start audit, submit form, load list, etc.) completes without error (no runtime error, no failed request, no blank or broken screen).
+3. **Use the same path the user would use** — e.g. for a new lead magnet: go to Resources → find the resource → click the primary CTA (e.g. "Open tool") → confirm the target page loads and the next step (e.g. "Begin audit") works.
+
+## How to Run It
+
+- **Preferred — Admin E2E tool:** Use the E2E functionality in **Admin → Testing**. Ensure the new or changed functionality is covered by a scenario (add a scenario to `lib/testing/scenarios.ts` and register it in the admin testing UI if it does not exist). Run the relevant scenario(s) via Admin → Testing (e.g. select "Standalone Audit Tool" for the audit tool / Resources → Open tool flow), confirm the run completes successfully, and that the test case is visible and runnable in the admin UI. This validates the flow in the same way the E2E framework does and keeps the test case documented and repeatable.
+- **Alternative — Browser MCP:** Use the browser MCP (`browser_navigate`, `browser_snapshot`, `browser_click`, etc.) to navigate the flow and confirm the target page loads and the key action succeeds.
+- **Fallback:** Document the exact steps for the user to run manually; then **do not claim completion** until the user confirms the smoke test passed, or run it yourself in the browser if possible.
+
+## Before Saying "Successfully Implemented" or "Done"
+
+1. **Add or select an E2E scenario** that covers the new functionality (e.g. "Standalone Audit Tool" for the audit tool / Resources → Open tool flow). If no scenario exists, add it to `lib/testing/scenarios.ts`, register it in `lib/testing/index.ts` and in the admin testing page's scenario list, then run it.
+2. **Run the smoke test** via Admin → Testing (run the relevant scenario and confirm the run completes successfully) or via browser MCP / manual steps.
+3. If the test **fails** (E2E run failed, error on click, blank page, 4xx/5xx, console error): fix the issue and re-run the smoke test. Do not hand off as complete until it passes.
+4. If the test **passes**: you may then state that the implementation is complete and include the verification result in your summary (e.g. "Smoke test: ran Admin → Testing scenario 'Standalone Audit Tool' — passed; audit page loads successfully").
+
+## Example: New Lead Magnet (e.g. AI Audit Calculator)
+
+1. **Ensure E2E coverage:** The scenario "Standalone Audit Tool" in Admin → Testing covers the audit tool page load (navigate to `/tools/audit`). Use it for smoke testing the Resources → Open tool → audit flow.
+2. **Run via Admin → Testing:** Go to Admin → Testing, select the "Standalone Audit Tool" scenario (and optionally "Quick Browse (Smoke)"), start a run, and confirm the run completes successfully with no failed steps.
+3. **Or run manually / via browser:** Navigate to Resources → find "AI Audit Calculator" → click "Open tool" → confirm `/tools/audit` loads → start the first audit step and confirm it proceeds without error.
+4. If any step errors or the E2E run fails, the implementation is not complete — fix and re-test.
+
+## Relation to Other Rules
+
+- **Post-implementation testing** — Build, lint, and (where applicable) API/E2E checks remain required; this rule adds the explicit requirement to **validate the new functionality’s user journey** and to **not claim success** until that validation passes.
+- **End-of-session workflow** — Verification before commit should include the smoke test when the change is significant as above.
+
+## Summary
+
+**Goal:** Avoid telling the user the feature is complete when the first real use (e.g. clicking "Open tool" and starting the audit) would immediately hit an error. Prefer running the smoke test via **Admin → Testing** (E2E) so the test case is covered in the admin UI and runs in the same way as the rest of the test suite. Add or use an existing scenario for the new functionality, run it, and confirm it passes before claiming successful completion.

@@ -8,6 +8,8 @@ import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
 import { formatCurrency } from '@/lib/pricing-model'
+import Navigation from '@/components/Navigation'
+import Breadcrumbs from '@/components/Breadcrumbs'
 import DownloadManager from '@/components/DownloadManager'
 import SocialShare from '@/components/SocialShare'
 import ReferralProgram from '@/components/ReferralProgram'
@@ -103,13 +105,15 @@ function PurchasesContent() {
 
   if (!user && !orderIdParam) {
     return (
-      <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+      <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+        <Navigation />
         <div className="max-w-4xl mx-auto text-center">
+          <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'My Purchases' }]} />
           <h1 className="text-4xl font-bold mb-4">My Purchases</h1>
-          <p className="text-gray-400 mb-6">Please sign in to view your purchases</p>
+          <p className="text-platinum-white/80 mb-6">Please sign in to view your purchases</p>
           <button
             onClick={() => router.push('/auth/login')}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg"
+            className="px-6 py-3 bg-gradient-to-r btn-gold font-semibold rounded-lg"
           >
             Sign In
           </button>
@@ -120,16 +124,19 @@ function PurchasesContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-gray-400">Loading purchases...</div>
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center pt-24 pb-12 px-4">
+        <Navigation />
+        <div className="text-platinum-white/80">Loading purchases...</div>
       </div>
     )
   }
 
   if (selectedOrder) {
     return (
-      <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+      <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+        <Navigation />
         <div className="max-w-4xl mx-auto">
+          <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'My Purchases', href: '/purchases' }, { label: `Order #${selectedOrder.id}` }]} />
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -139,12 +146,12 @@ function PurchasesContent() {
                 setSelectedOrder(null)
                 router.push('/purchases')
               }}
-              className="text-gray-400 hover:text-white mb-6 transition-colors"
+              className="text-platinum-white/80 hover:text-foreground mb-6 transition-colors"
             >
               ← Back to All Purchases
             </button>
 
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 mb-6">
+            <div className="bg-silicon-slate border border-silicon-slate/80 rounded-xl p-6 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h1 className="text-3xl font-bold">Order #{selectedOrder.id}</h1>
                 <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
@@ -155,12 +162,12 @@ function PurchasesContent() {
                   {selectedOrder.status}
                 </span>
               </div>
-              <p className="text-gray-400 mb-4">
+              <p className="text-platinum-white/80 mb-4">
                 Placed on {new Date(selectedOrder.created_at).toLocaleDateString()}
               </p>
               <div className="flex items-center gap-4 text-lg">
-                <span className="text-gray-400">Total:</span>
-                <span className="text-2xl font-bold text-white">
+                <span className="text-platinum-white/80">Total:</span>
+                <span className="text-2xl font-bold text-foreground">
                   {formatCurrency(selectedOrder.final_amount)}
                 </span>
               </div>
@@ -190,26 +197,28 @@ function PurchasesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+      <Navigation />
       <div className="max-w-4xl mx-auto">
+        <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'My Purchases' }]} />
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
           <div className="flex items-center justify-between mb-8">
             <h1 className="text-4xl font-bold">My Purchases</h1>
-            <Link href="/help" className="text-gray-400 hover:text-white transition-colors" aria-label="Help">
+            <Link href="/help" className="text-platinum-white/80 hover:text-foreground transition-colors" aria-label="Help">
               <HelpCircle size={20} />
             </Link>
           </div>
 
           {orders.length === 0 ? (
             <div className="text-center py-12">
-              <ShoppingBag className="mx-auto text-gray-600 mb-4" size={64} />
-              <p className="text-gray-400 mb-6">You haven&apos;t made any purchases yet.</p>
+              <ShoppingBag className="mx-auto text-platinum-white/70 mb-4" size={64} />
+              <p className="text-platinum-white/80 mb-6">You haven&apos;t made any purchases yet.</p>
               <button
                 onClick={() => router.push('/store')}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg"
+                className="px-6 py-3 bg-gradient-to-r btn-gold font-semibold rounded-lg"
               >
                 Browse Store
               </button>
@@ -225,15 +234,15 @@ function PurchasesContent() {
                     setSelectedOrder(order)
                     router.push(`/purchases?orderId=${order.id}`)
                   }}
-                  className="bg-gray-900 border border-gray-800 rounded-xl p-6 cursor-pointer hover:border-purple-500/50 transition-colors"
+                  className="bg-silicon-slate border border-silicon-slate/80 rounded-xl p-6 cursor-pointer hover:border-radiant-gold/50 transition-colors"
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xl font-bold mb-2">Order #{order.id}</h3>
-                      <p className="text-gray-400 text-sm mb-2">
+                      <p className="text-platinum-white/80 text-sm mb-2">
                         {new Date(order.created_at).toLocaleDateString()}
                       </p>
-                      <p className="text-gray-400 text-sm">
+                      <p className="text-platinum-white/80 text-sm">
                         {order.order_items.length} item{order.order_items.length !== 1 ? 's' : ''}
                       </p>
                     </div>
@@ -263,10 +272,11 @@ function PurchasesContent() {
 export default function PurchasesPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center pt-24 pb-12">
+        <Navigation />
         <div className="text-center">
           <Loader className="animate-spin mx-auto mb-4" size={48} />
-          <div className="text-gray-400">Loading...</div>
+          <div className="text-platinum-white/80">Loading...</div>
         </div>
       </div>
     }>

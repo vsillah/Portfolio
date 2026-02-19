@@ -62,6 +62,7 @@ export default function ProductEditPage() {
     file_size: number
     file_name: string
   } | null>(null)
+  const [imageSource, setImageSource] = useState<'local' | 'external'>('local')
 
   useEffect(() => {
     if (isNew) return
@@ -92,6 +93,7 @@ export default function ProductEditPage() {
             is_featured: p.is_featured,
             display_order: p.display_order,
           })
+          setImageSource(p.image_url?.startsWith('http') ? 'external' : 'local')
           if (p.file_path) {
             setUploadedFile({
               file_path: p.file_path,
@@ -224,8 +226,8 @@ export default function ProductEditPage() {
   if (!isNew && loading) {
     return (
       <ProtectedRoute requireAdmin>
-        <div className="min-h-screen bg-black text-white p-8 flex items-center justify-center">
-          <div className="text-gray-400">Loading product...</div>
+        <div className="min-h-screen bg-background text-foreground p-8 flex items-center justify-center">
+          <div className="text-platinum-white/80">Loading product...</div>
         </div>
       </ProtectedRoute>
     )
@@ -235,7 +237,7 @@ export default function ProductEditPage() {
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-black text-white p-8">
+      <div className="min-h-screen bg-background text-foreground p-8">
         <div className="max-w-3xl mx-auto">
           <Breadcrumbs
             items={[
@@ -248,7 +250,7 @@ export default function ProductEditPage() {
           <div className="mb-6">
             <Link
               href="/admin/content/products"
-              className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-platinum-white/80 hover:text-foreground transition-colors"
             >
               <ArrowLeft size={20} />
               Back to Products
@@ -257,7 +259,7 @@ export default function ProductEditPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="p-6 bg-gray-900 border border-gray-800 rounded-xl"
+            className="p-6 bg-silicon-slate border border-silicon-slate/80 rounded-xl"
           >
             <h2 className="text-2xl font-bold mb-4">
               {isNew ? 'Add New Product' : 'Edit Product'}
@@ -269,7 +271,7 @@ export default function ProductEditPage() {
                   type="text"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-4 py-2 input-brand"
                   required
                 />
               </div>
@@ -278,7 +280,7 @@ export default function ProductEditPage() {
                 <textarea
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                  className="w-full px-4 py-2 input-brand"
                   rows={3}
                 />
               </div>
@@ -288,7 +290,7 @@ export default function ProductEditPage() {
                   <select
                     value={formData.type}
                     onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2 input-brand"
                     required
                   >
                     {PRODUCT_TYPE_OPTIONS.map((opt) => (
@@ -299,31 +301,68 @@ export default function ProductEditPage() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Price (leave empty for free)</label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
                     <input
                       type="number"
                       step="0.01"
                       min="0"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full pl-10 pr-4 py-2 input-brand"
                       placeholder="0.00"
                     />
                   </div>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-2">Image URL</label>
-                <div className="relative">
-                  <ImageIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <label className="block text-sm font-medium mb-2">Image</label>
+                <div className="flex gap-2 mb-2">
+                  <button
+                    type="button"
+                    onClick={() => setImageSource('local')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      imageSource === 'local'
+                        ? 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50'
+                        : 'bg-silicon-slate/50 text-platinum-white/80 border border-silicon-slate/80 hover:border-silicon-slate'
+                    }`}
+                  >
+                    Local (/public/)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setImageSource('external')}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      imageSource === 'external'
+                        ? 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50'
+                        : 'bg-silicon-slate/50 text-platinum-white/80 border border-silicon-slate/80 hover:border-silicon-slate'
+                    }`}
+                  >
+                    External URL
+                  </button>
+                </div>
+                <div className="flex items-center rounded-lg overflow-hidden border border-silicon-slate/80 bg-transparent focus-within:border-radiant-gold/50 focus-within:ring-1 focus-within:ring-radiant-gold/30">
+                  <span className="pl-4 py-2 text-platinum-white/80 bg-silicon-slate/50 border-r border-silicon-slate/80 min-w-[4rem]">
+                    {imageSource === 'local' ? '/' : 'https://'}
+                  </span>
                   <input
-                    type="url"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                    placeholder="https://example.com/image.jpg"
+                    type="text"
+                    value={
+                      imageSource === 'local'
+                        ? (formData.image_url.startsWith('/') ? formData.image_url.slice(1) : formData.image_url)
+                        : formData.image_url.replace(/^https?:\/\//, '').replace(/^\//, '')
+                    }
+                    onChange={(e) => {
+                      const v = e.target.value.trim()
+                      const imageUrl = imageSource === 'local' ? (v ? `/${v}` : '') : (v ? `https://${v.replace(/^https?:\/\//, '')}` : '')
+                      setFormData({ ...formData, image_url: imageUrl })
+                    }}
+                    className="flex-1 px-4 py-2 input-brand border-0 focus:ring-0"
+                    placeholder={imageSource === 'local' ? 'Chatbot_N8N_img.png' : 'example.com/path/to/image.jpg'}
                   />
                 </div>
+                <p className="mt-1 text-xs text-platinum-white/60">
+                  {imageSource === 'local' ? 'Filename or path in /public/ (e.g. Chatbot_N8N_img.png)' : 'Domain and path only (https:// is added automatically)'}
+                </p>
               </div>
               {formData.type === 'template' && (
                 <>
@@ -333,19 +372,19 @@ export default function ProductEditPage() {
                       type="url"
                       value={formData.asset_url}
                       onChange={(e) => setFormData({ ...formData, asset_url: e.target.value })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 input-brand"
                       placeholder="https://github.com/... or link to template asset"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Install instructions (PDF or doc)</label>
                     {uploadedInstructionsFile ? (
-                      <div className="flex items-center justify-between p-3 bg-gray-800 border border-gray-700 rounded-lg">
+                      <div className="flex items-center justify-between p-3 bg-silicon-slate/80 border border-silicon-slate rounded-lg">
                         <div className="flex items-center gap-3">
-                          <File size={20} className="text-cyan-400" />
+                          <File size={20} className="text-radiant-gold" />
                           <div>
-                            <p className="text-sm text-white">{uploadedInstructionsFile.file_name}</p>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-sm text-foreground">{uploadedInstructionsFile.file_name}</p>
+                            <p className="text-xs text-platinum-white/80">
                               {(uploadedInstructionsFile.file_size / 1024).toFixed(2)} KB
                             </p>
                           </div>
@@ -359,10 +398,10 @@ export default function ProductEditPage() {
                         </button>
                       </div>
                     ) : (
-                      <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-800 hover:border-cyan-500/50 transition-colors">
+                      <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-silicon-slate border-dashed rounded-lg cursor-pointer bg-silicon-slate/80 hover:border-radiant-gold/50 transition-colors">
                         <div className="flex flex-col items-center justify-center py-3">
-                          <Upload className="w-6 h-6 mb-1 text-gray-400" />
-                          <p className="text-xs text-gray-400">Upload install guide (PDF, etc.)</p>
+                          <Upload className="w-6 h-6 mb-1 text-platinum-white/80" />
+                          <p className="text-xs text-platinum-white/80">Upload install guide (PDF, etc.)</p>
                         </div>
                         <input
                           type="file"
@@ -373,19 +412,19 @@ export default function ProductEditPage() {
                         />
                       </label>
                     )}
-                    {uploadingInstructions && <p className="mt-2 text-sm text-gray-400">Uploading...</p>}
+                    {uploadingInstructions && <p className="mt-2 text-sm text-platinum-white/80">Uploading...</p>}
                   </div>
                 </>
               )}
               <div>
                 <label className="block text-sm font-medium mb-2">Product File (PDF, Document, Audio, etc.)</label>
                 {uploadedFile ? (
-                  <div className="flex items-center justify-between p-3 bg-gray-800 border border-gray-700 rounded-lg">
+                  <div className="flex items-center justify-between p-3 bg-silicon-slate/80 border border-silicon-slate rounded-lg">
                     <div className="flex items-center gap-3">
-                      <File size={20} className="text-blue-400" />
+                      <File size={20} className="text-radiant-gold" />
                       <div>
-                        <p className="text-sm text-white">{uploadedFile.file_name}</p>
-                        <p className="text-xs text-gray-400">
+                        <p className="text-sm text-foreground">{uploadedFile.file_name}</p>
+                        <p className="text-xs text-platinum-white/80">
                           {(uploadedFile.file_size / 1024).toFixed(2)} KB • {uploadedFile.file_type}
                         </p>
                       </div>
@@ -399,13 +438,13 @@ export default function ProductEditPage() {
                     </button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-750 hover:border-purple-500 transition-colors">
+                  <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-silicon-slate border-dashed rounded-lg cursor-pointer bg-silicon-slate/80 hover:border-radiant-gold/50 transition-colors">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 mb-2 text-gray-400" />
-                      <p className="mb-2 text-sm text-gray-400">
+                      <Upload className="w-8 h-8 mb-2 text-platinum-white/80" />
+                      <p className="mb-2 text-sm text-platinum-white/80">
                         <span className="font-semibold">Click to upload</span> or drag and drop
                       </p>
-                      <p className="text-xs text-gray-500">PDF, DOC, MP3, ZIP, etc. (MAX. 50MB)</p>
+                      <p className="text-xs text-platinum-white/70">PDF, DOC, MP3, ZIP, etc. (MAX. 50MB)</p>
                     </div>
                     <input
                       type="file"
@@ -416,7 +455,7 @@ export default function ProductEditPage() {
                     />
                   </label>
                 )}
-                {uploadingFile && <p className="mt-2 text-sm text-gray-400">Uploading file...</p>}
+                {uploadingFile && <p className="mt-2 text-sm text-platinum-white/80">Uploading file...</p>}
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>
@@ -425,7 +464,7 @@ export default function ProductEditPage() {
                     type="number"
                     value={formData.display_order}
                     onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2 input-brand"
                   />
                 </div>
                 <div className="flex items-center gap-4">
@@ -456,13 +495,13 @@ export default function ProductEditPage() {
                   type="submit"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg"
+                  className="px-6 py-2 bg-gradient-to-r btn-gold font-semibold rounded-lg"
                 >
                   {isNew ? 'Create Product' : 'Update Product'}
                 </motion.button>
                 <Link
                   href="/admin/content/products"
-                  className="px-6 py-2 bg-gray-800 border border-gray-700 text-white font-semibold rounded-lg hover:border-gray-600 inline-flex items-center"
+                  className="px-6 py-2 btn-ghost font-semibold rounded-lg inline-flex items-center inline-flex items-center"
                 >
                   Cancel
                 </Link>

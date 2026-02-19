@@ -200,7 +200,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-40"
+            className="fixed inset-0 bg-imperial-navy/60 z-40"
           />
 
           {/* Cart Sidebar */}
@@ -209,22 +209,22 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed right-0 top-0 h-full w-full max-w-md bg-gray-900 border-l border-gray-800 z-50 flex flex-col"
+            className="fixed right-0 top-0 h-full w-full max-w-md bg-silicon-slate border-l border-silicon-slate z-50 flex flex-col"
           >
             {/* Header */}
-            <div className="p-6 border-b border-gray-800 flex items-center justify-between">
+            <div className="p-6 border-b border-silicon-slate flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <CartIcon size={24} />
                 <h2 className="text-2xl font-bold">Shopping Cart</h2>
                 {cartItems.length > 0 && (
-                  <span className="px-2 py-1 bg-purple-600 text-white text-xs font-semibold rounded">
+                  <span className="px-2 py-1 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded">
                     {cartItems.length}
                   </span>
                 )}
               </div>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-silicon-slate/80 rounded-lg transition-colors"
               >
                 <X size={20} />
               </button>
@@ -234,15 +234,15 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
             <div className="flex-1 overflow-y-auto p-6">
               {loading ? (
                 <div className="text-center py-12">
-                  <div className="text-gray-400">Loading cart...</div>
+                  <div className="text-platinum-white/80">Loading cart...</div>
                 </div>
               ) : cartItems.length === 0 ? (
                 <div className="text-center py-12">
-                  <CartIcon className="mx-auto text-gray-600 mb-4" size={48} />
-                  <p className="text-gray-400 mb-4">Your cart is empty</p>
+                  <CartIcon className="mx-auto text-platinum-white/60 mb-4" size={48} />
+                  <p className="text-platinum-white/80 mb-4">Your cart is empty</p>
                   <button
                     onClick={onClose}
-                    className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white hover:border-purple-500 transition-colors"
+                    className="px-4 py-2 bg-silicon-slate border border-silicon-slate rounded-lg btn-ghost transition-colors"
                   >
                     Continue Shopping
                   </button>
@@ -260,11 +260,11 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                           key={`product-${item.productId}`}
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          className="bg-gray-800 border border-gray-700 rounded-lg p-4"
+                          className="bg-silicon-slate border border-silicon-slate rounded-lg p-4"
                         >
                           <div className="flex gap-4">
                             {/* Product Image */}
-                            <div className="w-20 h-20 bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                            <div className="w-20 h-20 bg-gradient-to-br from-bronze/20 to-radiant-gold/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
                               {product.image_url ? (
                                 <img
                                   src={product.image_url}
@@ -272,7 +272,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="text-gray-600 text-xs text-center p-2">
+                                <div className="text-platinum-white/60 text-xs text-center p-2">
                                   {product.type}
                                 </div>
                               )}
@@ -283,7 +283,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               <h3 className="font-semibold text-white mb-1 line-clamp-2">
                                 {product.title}
                               </h3>
-                              <p className="text-sm text-gray-400 mb-2">
+                              <p className="text-sm text-platinum-white/80 mb-2">
                                 {product.price !== null ? formatCurrency(product.price) : 'Free'}
                               </p>
 
@@ -291,7 +291,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               <div className="flex items-center gap-2">
                                 <button
                                   onClick={() => handleProductQuantityChange(item.productId, -1)}
-                                  className="p-1 bg-gray-700 hover:bg-gray-600 rounded"
+                                  className="p-1 bg-silicon-slate/80 hover:bg-radiant-gold/30 rounded"
                                 >
                                   <Minus size={14} />
                                 </button>
@@ -300,7 +300,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                 </span>
                                 <button
                                   onClick={() => handleProductQuantityChange(item.productId, 1)}
-                                  className="p-1 bg-gray-700 hover:bg-gray-600 rounded"
+                                  className="p-1 bg-silicon-slate/80 hover:bg-radiant-gold/30 rounded"
                                 >
                                   <Plus size={14} />
                                 </button>
@@ -314,7 +314,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               </div>
 
                               {/* Subtotal */}
-                              <p className="text-sm text-gray-300 mt-2">
+                              <p className="text-sm text-platinum-white mt-2">
                                 Subtotal: {product.price !== null
                                   ? formatCurrency(product.price * item.quantity)
                                   : 'Free'}
@@ -335,11 +335,11 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                           key={`service-${item.serviceId}`}
                           initial={{ opacity: 0, x: 20 }}
                           animate={{ opacity: 1, x: 0 }}
-                          className="bg-gray-800 border border-gray-700 rounded-lg p-4"
+                          className="bg-silicon-slate border border-silicon-slate rounded-lg p-4"
                         >
                           <div className="flex gap-4">
                             {/* Service Image */}
-                            <div className="w-20 h-20 bg-gradient-to-br from-blue-900/20 to-green-900/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                            <div className="w-20 h-20 bg-gradient-to-br from-bronze/20 to-radiant-gold/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
                               {service.image_url ? (
                                 <img
                                   src={service.image_url}
@@ -347,7 +347,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="text-gray-600 text-xs text-center p-2">
+                                <div className="text-platinum-white/60 text-xs text-center p-2">
                                   {service.service_type}
                                 </div>
                               )}
@@ -359,19 +359,19 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                 <h3 className="font-semibold text-white line-clamp-2">
                                   {service.title}
                                 </h3>
-                                <span className="px-2 py-0.5 text-xs bg-blue-600/20 text-blue-400 rounded">
+                                <span className="px-2 py-0.5 text-xs bg-radiant-gold/20 text-radiant-gold rounded">
                                   Service
                                 </span>
                               </div>
                               
                               {service.duration_description && (
-                                <p className="text-xs text-gray-500 mb-1 flex items-center gap-1">
+                                <p className="text-xs text-platinum-white/70 mb-1 flex items-center gap-1">
                                   <Clock size={12} />
                                   {service.duration_description}
                                 </p>
                               )}
                               
-                              <p className="text-sm text-gray-400 mb-2">
+                              <p className="text-sm text-platinum-white/80 mb-2">
                                 {service.is_quote_based 
                                   ? 'Contact for Pricing'
                                   : service.price !== null 
@@ -383,7 +383,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               <div className="flex items-center gap-2">
                                 <button
                                   onClick={() => handleServiceQuantityChange(item.serviceId, -1)}
-                                  className="p-1 bg-gray-700 hover:bg-gray-600 rounded"
+                                  className="p-1 bg-silicon-slate/80 hover:bg-radiant-gold/30 rounded"
                                 >
                                   <Minus size={14} />
                                 </button>
@@ -392,7 +392,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                 </span>
                                 <button
                                   onClick={() => handleServiceQuantityChange(item.serviceId, 1)}
-                                  className="p-1 bg-gray-700 hover:bg-gray-600 rounded"
+                                  className="p-1 bg-silicon-slate/80 hover:bg-radiant-gold/30 rounded"
                                 >
                                   <Plus size={14} />
                                 </button>
@@ -406,7 +406,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               </div>
 
                               {/* Subtotal */}
-                              <p className="text-sm text-gray-300 mt-2">
+                              <p className="text-sm text-platinum-white mt-2">
                                 Subtotal: {service.is_quote_based
                                   ? 'Quote Required'
                                   : service.price !== null
@@ -427,16 +427,16 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
 
             {/* Footer */}
             {cartItems.length > 0 && (
-              <div className="p-6 border-t border-gray-800 space-y-4">
+              <div className="p-6 border-t border-silicon-slate space-y-4">
                 {hasQuoteBasedItems && (
-                  <div className="p-3 bg-yellow-600/10 border border-yellow-600/30 rounded-lg">
-                    <p className="text-sm text-yellow-400">
+                  <div className="p-3 bg-radiant-gold/10 border border-radiant-gold/30 rounded-lg">
+                    <p className="text-sm text-radiant-gold">
                       Some items require a custom quote. We will contact you to finalize pricing.
                     </p>
                   </div>
                 )}
                 <div className="flex items-center justify-between text-lg">
-                  <span className="text-gray-400">Total:</span>
+                  <span className="text-platinum-white/80">Total:</span>
                   <span className="text-2xl font-bold text-white">
                     {hasQuoteBasedItems 
                       ? `${formatCurrency(calculateTotal())}+`
@@ -449,14 +449,14 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                   {cartItems.length > 0 && (
                     <button
                       onClick={handleClear}
-                      className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white hover:border-red-500 transition-colors"
+                      className="flex-1 px-4 py-2 bg-silicon-slate border border-silicon-slate rounded-lg btn-ghost hover:border-red-500 transition-colors"
                     >
                       Clear Cart
                     </button>
                   )}
                   <button
                     onClick={onCheckout}
-                    className="flex-1 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-colors"
+                    className="flex-1 px-6 py-2 bg-gradient-to-r btn-gold font-semibold rounded-lg transition-colors"
                   >
                     {hasQuoteBasedItems ? 'Request Quote' : 'Proceed to Checkout'}
                   </button>

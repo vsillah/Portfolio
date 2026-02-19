@@ -82,7 +82,7 @@ export default function ContentManagementPage() {
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-black text-white p-8">
+      <div className="min-h-screen bg-background text-foreground p-8">
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[
             { label: 'Admin Dashboard', href: '/admin' },
@@ -91,7 +91,7 @@ export default function ContentManagementPage() {
           
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">Content Management</h1>
-            <p className="text-gray-400">Manage your portfolio content</p>
+            <p className="text-platinum-white/80">Manage your portfolio content</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -102,13 +102,13 @@ export default function ContentManagementPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="p-6 bg-gray-900 border border-gray-800 rounded-xl hover:border-purple-500/50 transition-all cursor-pointer"
+                  className="p-6 bg-silicon-slate border border-silicon-slate rounded-xl hover:border-radiant-gold/50 transition-all cursor-pointer"
                 >
-                  <div className={`w-16 h-16 rounded-lg bg-gradient-to-r ${type.color} flex items-center justify-center text-white mb-4`}>
+                  <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center text-imperial-navy mb-4">
                     {type.icon}
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">{type.name}</h3>
-                  <p className="text-gray-400 text-sm">{type.description}</p>
+                  <h3 className="text-xl font-bold text-foreground mb-2">{type.name}</h3>
+                  <p className="text-platinum-white/80 text-sm">{type.description}</p>
                 </motion.div>
               </Link>
             ))}

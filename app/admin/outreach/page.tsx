@@ -137,15 +137,15 @@ function EvidenceCard({ evidence }: { evidence: { id: string; display_name: stri
   const [expanded, setExpanded] = useState(false)
   const isLong = evidence.source_excerpt.length > 100
   return (
-    <li className="p-3 rounded-lg bg-white/5 border border-white/10 text-sm">
+    <li className="p-3 rounded-lg bg-silicon-slate/50 border border-silicon-slate text-sm">
       <div className="flex items-center justify-between">
         <span className="font-medium text-white">{evidence.display_name ?? 'Unknown'}</span>
-        <span className="text-xs text-gray-500 ml-2 shrink-0">
+        <span className="text-xs text-platinum-white/60 ml-2 shrink-0">
           {(evidence.confidence_score * 100).toFixed(0)}%
           {evidence.monetary_indicator != null && ` · $${Number(evidence.monetary_indicator).toLocaleString()}`}
         </span>
       </div>
-      <p className={`text-gray-400 mt-1 ${isLong && !expanded ? 'line-clamp-2' : ''}`}>
+      <p className={`text-platinum-white/80 mt-1 ${isLong && !expanded ? 'line-clamp-2' : ''}`}>
         {evidence.source_excerpt}
       </p>
       {isLong && (
@@ -651,7 +651,7 @@ function OutreachContent() {
   }
 
   const getScoreBadgeColor = (score: number | null) => {
-    if (!score) return 'bg-gray-700 text-gray-300'
+    if (!score) return 'bg-silicon-slate text-platinum-white'
     if (score >= 70) return 'bg-green-900/50 text-green-400 border border-green-700'
     if (score >= 40) return 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
     return 'bg-red-900/50 text-red-400 border border-red-700'
@@ -659,19 +659,19 @@ function OutreachContent() {
 
   const getStatusBadge = (status: string) => {
     const colors: Record<string, string> = {
-      draft: 'bg-blue-900/50 text-blue-400 border border-blue-700',
+      draft: 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50',
       approved: 'bg-green-900/50 text-green-400 border border-green-700',
-      sent: 'bg-purple-900/50 text-purple-400 border border-purple-700',
+      sent: 'bg-silicon-slate text-platinum-white border border-silicon-slate',
       replied: 'bg-emerald-900/50 text-emerald-400 border border-emerald-700',
       bounced: 'bg-red-900/50 text-red-400 border border-red-700',
-      cancelled: 'bg-gray-800 text-gray-400 border border-gray-600',
+      cancelled: 'bg-silicon-slate/70 text-platinum-white/80 border border-silicon-slate',
       rejected: 'bg-red-900/50 text-red-400 border border-red-700',
     }
-    return colors[status] || 'bg-gray-800 text-gray-400'
+    return colors[status] || 'bg-silicon-slate/70 text-platinum-white/80'
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs
           items={[
@@ -683,10 +683,10 @@ function OutreachContent() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold gradient-text">
               Lead Pipeline
             </h1>
-            <p className="text-gray-400 mt-1">
+            <p className="text-platinum-white/80 mt-1">
               {activeTab === 'queue' 
                 ? 'Review and approve AI-generated outreach messages before sending'
                 : 'Manage all leads, view details, and track progress'}
@@ -694,14 +694,14 @@ function OutreachContent() {
           </div>
           <div className="flex items-center gap-3">
             <Link href="/admin/outreach/dashboard">
-              <button className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-orange-600 to-purple-600 border border-orange-500/50 rounded-lg hover:from-orange-700 hover:to-purple-700 transition-colors">
+              <button className="flex items-center gap-2 px-4 py-2 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors">
                 <BarChart3 size={16} />
                 Dashboard & Triggers
               </button>
             </Link>
             <button
               onClick={activeTab === 'queue' ? fetchData : fetchLeads}
-              className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 btn-ghost rounded-lg transition-colors"
             >
               <RefreshCw size={16} className={(loading || leadsLoading) ? 'animate-spin' : ''} />
               Refresh
@@ -710,19 +710,19 @@ function OutreachContent() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-2 mb-8 border-b border-white/10">
+        <div className="flex items-center gap-2 mb-8 border-b border-silicon-slate">
           <button
             onClick={() => handleTabChange('queue')}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
               activeTab === 'queue'
-                ? 'border-blue-500 text-white'
-                : 'border-transparent text-gray-400 hover:text-white'
+                ? 'border-radiant-gold text-foreground'
+                : 'border-transparent text-platinum-white/80 hover:text-foreground'
             }`}
           >
             <MessageSquare size={18} />
             <span className="font-medium">Message Queue</span>
             {stats && stats.draft > 0 && (
-              <span className="px-2 py-0.5 bg-blue-600 text-white text-xs rounded-full">
+              <span className="px-2 py-0.5 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded-full">
                 {stats.draft}
               </span>
             )}
@@ -731,14 +731,14 @@ function OutreachContent() {
             onClick={() => handleTabChange('leads')}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
               activeTab === 'leads'
-                ? 'border-purple-500 text-white'
-                : 'border-transparent text-gray-400 hover:text-white'
+                ? 'border-radiant-gold text-foreground'
+                : 'border-transparent text-platinum-white/80 hover:text-foreground'
             }`}
           >
             <Users size={18} />
             <span className="font-medium">All Leads</span>
             {leadsTotal > 0 && (
-              <span className="px-2 py-0.5 bg-purple-600 text-white text-xs rounded-full">
+              <span className="px-2 py-0.5 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded-full">
                 {leadsTotal}
               </span>
             )}
@@ -759,12 +759,12 @@ function OutreachContent() {
                   onClick={() => setStatusFilter(key)}
                   className={`p-3 rounded-lg border transition-all ${
                     statusFilter === key
-                      ? 'bg-white/10 border-blue-500'
-                      : 'bg-white/5 border-white/10 hover:bg-white/10'
+                      ? 'bg-silicon-slate border-radiant-gold'
+                      : 'bg-silicon-slate/50 border-silicon-slate hover:bg-silicon-slate'
                   }`}
                 >
                   <div className="text-2xl font-bold">{value}</div>
-                  <div className="text-xs text-gray-400 capitalize">{key}</div>
+                  <div className="text-xs text-platinum-white/80 capitalize">{key}</div>
                 </button>
               ))}
           </div>
@@ -773,22 +773,22 @@ function OutreachContent() {
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-4 mb-6">
           <div className="relative flex-1 min-w-[200px]">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-platinum-white/60" />
             <input
               type="text"
               placeholder="Search by name, email, or company..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <Filter size={16} className="text-gray-500" />
+            <Filter size={16} className="text-platinum-white/60" />
             <select
               value={channelFilter}
               onChange={(e) => setChannelFilter(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+              className="bg-silicon-slate/50 border border-silicon-slate rounded-lg px-3 py-2 text-white focus:outline-none focus:border-radiant-gold"
             >
               <option value="all">All Channels</option>
               <option value="email">Email Only</option>
@@ -798,7 +798,7 @@ function OutreachContent() {
 
           {/* Contact Filter Badge */}
           {contactFilter && filteredContactName && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-blue-900/30 border border-blue-500/50 rounded-lg">
+            <div className="flex items-center gap-2 px-3 py-2 bg-silicon-slate border border-radiant-gold/50 rounded-lg">
               <Users size={14} className="text-blue-400" />
               <span className="text-sm text-blue-400">
                 Filtered by: <span className="font-medium">{filteredContactName}</span>
@@ -811,7 +811,7 @@ function OutreachContent() {
                   params.delete('contact')
                   router.push(`/admin/outreach?${params.toString()}`)
                 }}
-                className="p-0.5 hover:bg-blue-500/20 rounded transition-colors"
+                className="p-0.5 hover:bg-radiant-gold/20 rounded transition-colors"
               >
                 <X size={14} className="text-blue-400" />
               </button>
@@ -821,7 +821,7 @@ function OutreachContent() {
           {/* Bulk Actions */}
           {selectedIds.size > 0 && statusFilter === 'draft' && (
             <div className="flex items-center gap-2 ml-auto">
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-platinum-white/80">
                 {selectedIds.size} selected
               </span>
               <button
@@ -853,22 +853,22 @@ function OutreachContent() {
               onChange={toggleSelectAll}
               className="w-4 h-4 rounded border-gray-600 bg-gray-800"
             />
-            <span className="text-sm text-gray-400">Select all</span>
+            <span className="text-sm text-platinum-white/80">Select all</span>
           </div>
         )}
 
         {/* Items List */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <RefreshCw size={24} className="animate-spin text-gray-500" />
+            <RefreshCw size={24} className="animate-spin text-platinum-white/60" />
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-20">
-            <MessageSquare size={48} className="mx-auto text-gray-600 mb-4" />
-            <h3 className="text-xl font-medium text-gray-400">
+            <MessageSquare size={48} className="mx-auto text-platinum-white/60 mb-4" />
+            <h3 className="text-xl font-medium text-platinum-white/80">
               No {statusFilter} messages
             </h3>
-            <p className="text-gray-500 mt-2">
+            <p className="text-platinum-white/60 mt-2">
               {statusFilter === 'draft'
                 ? 'New drafts will appear here when leads are processed'
                 : `No messages with status "${statusFilter}"`}
@@ -883,7 +883,7 @@ function OutreachContent() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="bg-white/5 border border-white/10 rounded-xl overflow-hidden"
+                  className="bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-hidden"
                 >
                   {/* Card Header */}
                   <div className="p-4 flex items-start gap-3">
@@ -900,7 +900,7 @@ function OutreachContent() {
                     <div
                       className={`p-2 rounded-lg ${
                         item.channel === 'email'
-                          ? 'bg-blue-900/30 text-blue-400'
+                          ? 'bg-silicon-slate text-radiant-gold'
                           : 'bg-sky-900/30 text-sky-400'
                       }`}
                     >
@@ -923,11 +923,11 @@ function OutreachContent() {
                         <span className={`px-2 py-0.5 rounded text-xs ${getStatusBadge(item.status)}`}>
                           {item.status}
                         </span>
-                        <span className="text-xs text-gray-500">
+                        <span className="text-xs text-platinum-white/60">
                           Step {item.sequence_step}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-sm text-gray-400">
+                      <div className="flex items-center gap-3 mt-1 text-sm text-platinum-white/80">
                         {item.contact_submissions?.job_title && (
                           <span className="flex items-center gap-1">
                             <User size={12} />
@@ -948,8 +948,8 @@ function OutreachContent() {
                         )}
                       </div>
                       {item.channel === 'email' && item.subject && (
-                        <p className="mt-2 text-sm text-gray-300">
-                          <span className="text-gray-500">Subject:</span>{' '}
+                        <p className="mt-2 text-sm text-platinum-white">
+                          <span className="text-platinum-white/60">Subject:</span>{' '}
                           {item.subject}
                         </p>
                       )}
@@ -959,7 +959,7 @@ function OutreachContent() {
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/admin/outreach?tab=leads&id=${item.contact_submission_id}`}
-                        className="p-2 rounded-lg bg-purple-900/30 hover:bg-purple-800/50 text-purple-400 transition-colors"
+                        className="p-2 rounded-lg bg-silicon-slate hover:bg-silicon-slate/80 text-radiant-gold transition-colors"
                         title="View Lead Profile"
                       >
                         <User size={16} />
@@ -968,7 +968,7 @@ function OutreachContent() {
                         <>
                           <button
                             onClick={() => startEditing(item)}
-                            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
+                            className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-platinum-white/80 hover:text-white"
                             title="Edit"
                           >
                             <Edit3 size={16} />
@@ -995,7 +995,7 @@ function OutreachContent() {
                         <button
                           onClick={() => handleSend(item.id)}
                           disabled={actionLoading}
-                          className="flex items-center gap-1 px-3 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                          className="flex items-center gap-1 px-3 py-2 btn-gold text-imperial-navy hover:opacity-90 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                         >
                           <Send size={14} />
                           Send Now
@@ -1005,7 +1005,7 @@ function OutreachContent() {
                         onClick={() =>
                           setExpandedId(expandedId === item.id ? null : item.id)
                         }
-                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-gray-400"
+                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-platinum-white/80"
                       >
                         {expandedId === item.id ? (
                           <ChevronUp size={16} />
@@ -1023,12 +1023,12 @@ function OutreachContent() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        className="border-t border-white/10"
+                        className="border-t border-silicon-slate"
                       >
                         <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
                           {/* Message Preview */}
                           <div>
-                            <h4 className="text-sm font-medium text-gray-400 mb-2 flex items-center gap-1">
+                            <h4 className="text-sm font-medium text-platinum-white/80 mb-2 flex items-center gap-1">
                               <Eye size={14} />
                               Message Preview
                             </h4>
@@ -1041,7 +1041,7 @@ function OutreachContent() {
                                     onChange={(e) =>
                                       setEditSubject(e.target.value)
                                     }
-                                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white focus:outline-none focus:border-radiant-gold"
                                     placeholder="Subject"
                                   />
                                 )}
@@ -1049,26 +1049,26 @@ function OutreachContent() {
                                   value={editBody}
                                   onChange={(e) => setEditBody(e.target.value)}
                                   rows={8}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-blue-500 resize-y"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white focus:outline-none focus:border-radiant-gold resize-y"
                                 />
                                 <div className="flex gap-2">
                                   <button
                                     onClick={() => handleEdit(item.id)}
                                     disabled={actionLoading}
-                                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                                    className="px-3 py-1.5 btn-gold text-imperial-navy hover:opacity-90 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                                   >
                                     Save Changes
                                   </button>
                                   <button
                                     onClick={() => setEditingId(null)}
-                                    className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-sm transition-colors"
+                                    className="px-3 py-1.5 bg-silicon-slate/50 hover:bg-silicon-slate rounded-lg text-sm transition-colors"
                                   >
                                     Cancel
                                   </button>
                                 </div>
                               </div>
                             ) : (
-                              <div className="bg-black/50 rounded-lg p-4 text-sm whitespace-pre-wrap text-gray-300 max-h-64 overflow-y-auto">
+                              <div className="bg-imperial-navy/60 rounded-lg p-4 text-sm whitespace-pre-wrap text-platinum-white max-h-64 overflow-y-auto">
                                 {item.body}
                               </div>
                             )}
@@ -1089,32 +1089,32 @@ function OutreachContent() {
 
                           {/* Lead Research Brief */}
                           <div>
-                            <h4 className="text-sm font-medium text-gray-400 mb-2 flex items-center gap-1">
+                            <h4 className="text-sm font-medium text-platinum-white/80 mb-2 flex items-center gap-1">
                               <Star size={14} />
                               Lead Research Brief
                             </h4>
                             <div className="space-y-3">
                               <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div className="bg-black/50 rounded-lg p-3">
-                                  <div className="text-gray-500 text-xs">Lead Score</div>
+                                <div className="bg-imperial-navy/60 rounded-lg p-3">
+                                  <div className="text-platinum-white/60 text-xs">Lead Score</div>
                                   <div className="text-lg font-bold">
                                     {item.contact_submissions?.lead_score || 'N/A'}
                                   </div>
                                 </div>
-                                <div className="bg-black/50 rounded-lg p-3">
-                                  <div className="text-gray-500 text-xs">AI Readiness</div>
+                                <div className="bg-imperial-navy/60 rounded-lg p-3">
+                                  <div className="text-platinum-white/60 text-xs">AI Readiness</div>
                                   <div className="text-lg font-bold">
                                     {item.contact_submissions?.ai_readiness_score || 'N/A'}/10
                                   </div>
                                 </div>
-                                <div className="bg-black/50 rounded-lg p-3">
-                                  <div className="text-gray-500 text-xs">Competitive Pressure</div>
+                                <div className="bg-imperial-navy/60 rounded-lg p-3">
+                                  <div className="text-platinum-white/60 text-xs">Competitive Pressure</div>
                                   <div className="text-lg font-bold">
                                     {item.contact_submissions?.competitive_pressure_score || 'N/A'}/10
                                   </div>
                                 </div>
-                                <div className="bg-black/50 rounded-lg p-3">
-                                  <div className="text-gray-500 text-xs">Source</div>
+                                <div className="bg-imperial-navy/60 rounded-lg p-3">
+                                  <div className="text-platinum-white/60 text-xs">Source</div>
                                   <div className="text-sm font-medium">
                                     {item.contact_submissions?.lead_source || 'N/A'}
                                   </div>
@@ -1122,9 +1122,9 @@ function OutreachContent() {
                               </div>
 
                               {item.contact_submissions?.quick_wins && (
-                                <div className="bg-black/50 rounded-lg p-3">
-                                  <div className="text-gray-500 text-xs mb-1">Quick Wins</div>
-                                  <div className="text-sm text-gray-300 whitespace-pre-wrap max-h-24 overflow-y-auto">
+                                <div className="bg-imperial-navy/60 rounded-lg p-3">
+                                  <div className="text-platinum-white/60 text-xs mb-1">Quick Wins</div>
+                                  <div className="text-sm text-platinum-white whitespace-pre-wrap max-h-24 overflow-y-auto">
                                     {item.contact_submissions.quick_wins}
                                   </div>
                                 </div>
@@ -1155,7 +1155,7 @@ function OutreachContent() {
                             </div>
 
                             {/* Metadata */}
-                            <div className="mt-4 text-xs text-gray-600 space-y-1">
+                            <div className="mt-4 text-xs text-platinum-white/60 space-y-1">
                               <div className="flex items-center gap-1">
                                 <Clock size={12} />
                                 Created: {new Date(item.created_at).toLocaleString()}
@@ -1200,8 +1200,8 @@ function OutreachContent() {
                     onClick={() => setLeadsTempFilter(key)}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
                       leadsTempFilter === key
-                        ? 'bg-white/10 border-blue-500 text-white'
-                        : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                        ? 'bg-silicon-slate border-blue-500 text-white'
+                        : 'bg-silicon-slate/50 border-silicon-slate text-platinum-white/80 hover:bg-silicon-slate'
                     }`}
                   >
                     <Icon size={14} />
@@ -1212,23 +1212,23 @@ function OutreachContent() {
 
               {/* Search */}
               <div className="relative flex-1 min-w-[200px]">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-platinum-white/60" />
                 <input
                   type="text"
                   placeholder="Search by name, email, or company..."
                   value={leadsSearch}
                   onChange={(e) => setLeadsSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                  className="w-full pl-10 pr-4 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                 />
               </div>
 
               {/* Status Filter */}
               <div className="flex items-center gap-2">
-                <Filter size={16} className="text-gray-500" />
+                <Filter size={16} className="text-platinum-white/60" />
                 <select
                   value={leadsStatusFilter}
                   onChange={(e) => setLeadsStatusFilter(e.target.value)}
-                  className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                  className="bg-silicon-slate/50 border border-silicon-slate rounded-lg px-3 py-2 text-white focus:outline-none focus:border-radiant-gold"
                 >
                   <option value="all">All Status</option>
                   <option value="new">New</option>
@@ -1243,7 +1243,7 @@ function OutreachContent() {
               <select
                 value={leadsSourceFilter}
                 onChange={(e) => setLeadsSourceFilter(e.target.value)}
-                className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                className="bg-silicon-slate/50 border border-silicon-slate rounded-lg px-3 py-2 text-white focus:outline-none focus:border-radiant-gold"
               >
                 <option value="all">All Sources</option>
                 <option value="warm_facebook">Facebook</option>
@@ -1256,7 +1256,7 @@ function OutreachContent() {
               <select
                 value={leadsVisibilityFilter}
                 onChange={(e) => setLeadsVisibilityFilter(e.target.value as 'active' | 'do_not_contact' | 'removed' | 'all')}
-                className="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-blue-500"
+                className="bg-silicon-slate/50 border border-silicon-slate rounded-lg px-3 py-2 text-white focus:outline-none focus:border-radiant-gold"
                 title="Show leads by contact status"
               >
                 <option value="active">Active only</option>
@@ -1273,7 +1273,7 @@ function OutreachContent() {
                   setAddLeadError(null)
                   setAddLeadSuccessId(null)
                 }}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 border border-purple-500/50 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-colors font-medium"
+                className="flex items-center gap-2 px-4 py-2 btn-gold text-imperial-navy rounded-lg transition-colors font-medium"
               >
                 <Plus size={16} />
                 Add lead
@@ -1295,106 +1295,106 @@ function OutreachContent() {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-full max-w-md bg-gray-900 border border-white/10 rounded-xl shadow-xl p-6"
+                    className="w-full max-w-md bg-background border border-silicon-slate rounded-xl shadow-xl p-6"
                   >
                     <div className="flex items-center justify-between mb-6">
                       <h3 className="text-lg font-semibold text-white">Add lead</h3>
                       <button
                         type="button"
                         onClick={() => !addLeadLoading && setShowAddLeadModal(false)}
-                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400"
+                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white/80"
                       >
                         <X size={18} />
                       </button>
                     </div>
                     <form onSubmit={handleAddLeadSubmit} className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Name *</label>
+                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Name *</label>
                         <input
                           type="text"
                           value={addLeadName}
                           onChange={(e) => setAddLeadName(e.target.value)}
                           required
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="Full name"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Email</label>
                         <input
                           type="email"
                           value={addLeadEmail}
                           onChange={(e) => setAddLeadEmail(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="email@company.com"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Company</label>
+                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company</label>
                         <input
                           type="text"
                           value={addLeadCompany}
                           onChange={(e) => setAddLeadCompany(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="Company name"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Company website</label>
+                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company website</label>
                         <input
                           type="text"
                           value={addLeadCompanyWebsite}
                           onChange={(e) => setAddLeadCompanyWebsite(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="company.com or https://..."
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">LinkedIn URL</label>
+                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">LinkedIn URL</label>
                         <input
                           type="url"
                           value={addLeadLinkedInUrl}
                           onChange={(e) => setAddLeadLinkedInUrl(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="https://linkedin.com/in/..."
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Job title</label>
+                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Job title</label>
                         <input
                           type="text"
                           value={addLeadJobTitle}
                           onChange={(e) => setAddLeadJobTitle(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="Job title"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Industry</label>
+                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Industry</label>
                         <input
                           type="text"
                           value={addLeadIndustry}
                           onChange={(e) => setAddLeadIndustry(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="e.g. Technology, Healthcare"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Phone</label>
+                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Phone</label>
                         <input
                           type="tel"
                           value={addLeadPhone}
                           onChange={(e) => setAddLeadPhone(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="+1 234 567 8900"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">How did you get this lead?</label>
+                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">How did you get this lead?</label>
                         <select
                           value={addLeadInputType}
                           onChange={(e) => setAddLeadInputType(e.target.value)}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white focus:outline-none focus:border-radiant-gold"
                         >
                           <option value="linkedin">LinkedIn</option>
                           <option value="referral">Referral</option>
@@ -1404,32 +1404,32 @@ function OutreachContent() {
                         </select>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-400 mb-1">Message / notes</label>
+                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Message / notes</label>
                         <textarea
                           value={addLeadMessage}
                           onChange={(e) => setAddLeadMessage(e.target.value)}
                           rows={3}
-                          className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
                           placeholder="Optional notes"
                         />
                       </div>
-                      <div className="border border-white/10 rounded-lg overflow-hidden">
+                      <div className="border border-silicon-slate rounded-lg overflow-hidden">
                         <button
                           type="button"
                           onClick={() => setShowVepSection((v) => !v)}
-                          className="w-full flex items-center justify-between px-3 py-2 bg-white/5 hover:bg-white/10 text-left text-sm font-medium text-gray-400"
+                          className="w-full flex items-center justify-between px-3 py-2 bg-silicon-slate/50 hover:bg-silicon-slate text-left text-sm font-medium text-platinum-white/80"
                         >
                           Value Evidence (optional)
                           {showVepSection ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         </button>
                         {showVepSection && (
-                          <div className="p-3 space-y-3 border-t border-white/10">
+                          <div className="p-3 space-y-3 border-t border-silicon-slate">
                             <div>
-                              <label className="block text-sm font-medium text-gray-400 mb-1">Company size</label>
+                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company size</label>
                               <select
                                 value={addLeadEmployeeCount}
                                 onChange={(e) => setAddLeadEmployeeCount(e.target.value)}
-                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white focus:outline-none focus:border-radiant-gold"
                               >
                                 <option value="">Select range</option>
                                 <option value="1-10">1-10</option>
@@ -1441,22 +1441,22 @@ function OutreachContent() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-400 mb-1">Quick wins</label>
+                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Quick wins</label>
                               <textarea
                                 value={addLeadQuickWins}
                                 onChange={(e) => setAddLeadQuickWins(e.target.value)}
                                 rows={2}
-                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
                                 placeholder="Quick-win AI opportunities with 90-day ROI potential"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-400 mb-1">Known pain points</label>
+                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Known pain points</label>
                               <textarea
                                 value={addLeadPainPoints}
                                 onChange={(e) => setAddLeadPainPoints(e.target.value)}
                                 rows={2}
-                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
                                 placeholder="Known challenges, bottlenecks, or pain points for this lead"
                               />
                             </div>
@@ -1473,14 +1473,14 @@ function OutreachContent() {
                         <button
                           type="submit"
                           disabled={addLeadLoading || !addLeadName.trim()}
-                          className="flex-1 px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+                          className="flex-1 px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
                         >
                           {addLeadLoading ? 'Adding...' : 'Add lead'}
                         </button>
                         <button
                           type="button"
                           onClick={() => !addLeadLoading && setShowAddLeadModal(false)}
-                          className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg transition-colors"
+                          className="px-4 py-2 bg-silicon-slate/50 hover:bg-silicon-slate rounded-lg transition-colors"
                         >
                           Cancel
                         </button>
@@ -1503,7 +1503,7 @@ function OutreachContent() {
                 <button
                   type="button"
                   onClick={() => setAddLeadSuccessId(null)}
-                  className="ml-auto p-1 hover:bg-white/10 rounded"
+                  className="ml-auto p-1 hover:bg-silicon-slate rounded"
                 >
                   <X size={14} />
                 </button>
@@ -1525,16 +1525,16 @@ function OutreachContent() {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col bg-gray-900 border border-white/10 rounded-xl shadow-xl"
+                    className="w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col bg-background border border-silicon-slate rounded-xl shadow-xl"
                   >
-                    <div className="flex items-center justify-between p-4 border-b border-white/10">
+                    <div className="flex items-center justify-between p-4 border-b border-silicon-slate">
                       <h3 className="text-lg font-semibold text-white">
                         {enrichModalLeads.length === 1 ? enrichModalLeads[0].name : 'Lead'}
                       </h3>
                       <button
                         type="button"
                         onClick={() => !pushLoading && !unifiedModalSaveLoading && setShowEnrichModal(false)}
-                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400"
+                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white/80"
                       >
                         <X size={18} />
                       </button>
@@ -1543,7 +1543,7 @@ function OutreachContent() {
                       {enrichModalLeads.map((l) => (
                         <div
                           key={l.id}
-                          className={`p-4 rounded-lg border ${l.has_extractable_text ? 'border-white/10 bg-white/5' : 'border-amber-700/50 bg-amber-900/20'}`}
+                          className={`p-4 rounded-lg border ${l.has_extractable_text ? 'border-silicon-slate bg-silicon-slate/50' : 'border-radiant-gold/50 bg-radiant-gold/10'}`}
                         >
                           {enrichModalLeads.length > 1 && (
                             <div className="flex items-center justify-between mb-3">
@@ -1556,98 +1556,98 @@ function OutreachContent() {
                           {/* Lead details section */}
                           <div className="space-y-3 mb-4">
                             <div>
-                              <label className="block text-sm font-medium text-gray-400 mb-1">Name *</label>
+                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Name *</label>
                               <input
                                 type="text"
                                 value={enrichModalForm[l.id]?.name ?? l.name ?? ''}
                                 onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], name: e.target.value } }))}
                                 required
-                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                                 placeholder="Full name"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Email</label>
                               <input
                                 type="email"
                                 value={enrichModalForm[l.id]?.email ?? l.email ?? ''}
                                 onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], email: e.target.value } }))}
-                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                                 placeholder="email@company.com"
                               />
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Company</label>
+                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company</label>
                                 <input
                                   type="text"
                                   value={enrichModalForm[l.id]?.company ?? l.company ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], company: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="Company name"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Company website</label>
+                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company website</label>
                                 <input
                                   type="text"
                                   value={enrichModalForm[l.id]?.company_domain ?? l.company_domain ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], company_domain: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="company.com or https://..."
                                 />
                               </div>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">LinkedIn URL</label>
+                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">LinkedIn URL</label>
                                 <input
                                   type="url"
                                   value={enrichModalForm[l.id]?.linkedin_url ?? l.linkedin_url ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], linkedin_url: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="https://linkedin.com/in/..."
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Job title</label>
+                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Job title</label>
                                 <input
                                   type="text"
                                   value={enrichModalForm[l.id]?.job_title ?? l.job_title ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], job_title: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="Job title"
                                 />
                               </div>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Industry</label>
+                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Industry</label>
                                 <input
                                   type="text"
                                   value={enrichModalForm[l.id]?.industry ?? l.industry ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], industry: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="e.g. Technology, Healthcare"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Phone</label>
+                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Phone</label>
                                 <input
                                   type="tel"
                                   value={enrichModalForm[l.id]?.phone_number ?? l.phone_number ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], phone_number: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="+1 234 567 8900"
                                 />
                               </div>
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-400 mb-1">How did you get this lead?</label>
+                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">How did you get this lead?</label>
                               <select
                                 value={enrichModalForm[l.id]?.input_type ?? inputTypeFromLeadSource(l.lead_source)}
                                 onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], input_type: e.target.value } }))}
-                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white focus:outline-none focus:border-radiant-gold"
                               >
                                 <option value="linkedin">LinkedIn</option>
                                 <option value="referral">Referral</option>
@@ -1657,46 +1657,46 @@ function OutreachContent() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-400 mb-1">Message / notes</label>
+                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Message / notes</label>
                               <textarea
                                 value={enrichModalForm[l.id]?.message ?? l.message ?? ''}
                                 onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], message: e.target.value } }))}
                                 rows={2}
-                                className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
                                 placeholder="Optional notes"
                               />
                             </div>
                           </div>
                           {/* Value Evidence section */}
-                          <div className="pt-3 border-t border-white/10 space-y-3">
-                            <h4 className="text-sm font-medium text-gray-400">Value Evidence</h4>
+                          <div className="pt-3 border-t border-silicon-slate space-y-3">
+                            <h4 className="text-sm font-medium text-platinum-white/80">Value Evidence</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Pain points</label>
+                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Pain points</label>
                                 <textarea
                                   value={enrichModalForm[l.id]?.rep_pain_points ?? l.rep_pain_points ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], rep_pain_points: e.target.value } }))}
                                   rows={2}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
                                   placeholder="Known pain points"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Quick wins</label>
+                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Quick wins</label>
                                 <textarea
                                   value={enrichModalForm[l.id]?.quick_wins ?? l.quick_wins ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], quick_wins: e.target.value } }))}
                                   rows={2}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 resize-y"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
                                   placeholder="Quick wins"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-400 mb-1">Company size</label>
+                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company size</label>
                                 <select
                                   value={enrichModalForm[l.id]?.employee_count ?? l.employee_count ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], employee_count: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white focus:outline-none focus:border-radiant-gold"
                                 >
                                   <option value="">Select</option>
                                   <option value="1-10">1-10</option>
@@ -1718,9 +1718,9 @@ function OutreachContent() {
                             id="unified-rerun-enrichment"
                             checked={unifiedModalReRunEnrichment}
                             onChange={(e) => setUnifiedModalReRunEnrichment(e.target.checked)}
-                            className="rounded border-gray-600 bg-white/5 text-purple-500 focus:ring-purple-500"
+                            className="rounded border-silicon-slate bg-silicon-slate/50 text-radiant-gold focus:ring-radiant-gold"
                           />
-                          <label htmlFor="unified-rerun-enrichment" className="text-sm text-gray-400">
+                          <label htmlFor="unified-rerun-enrichment" className="text-sm text-platinum-white/80">
                             Re-run enrichment (send updated data to lead qualification workflow)
                           </label>
                         </div>
@@ -1732,12 +1732,12 @@ function OutreachContent() {
                         </div>
                       )}
                     </div>
-                    <div className="p-4 border-t border-white/10 flex flex-wrap justify-end gap-2">
+                    <div className="p-4 border-t border-silicon-slate flex flex-wrap justify-end gap-2">
                       <button
                         type="button"
                         onClick={() => !pushLoading && !unifiedModalSaveLoading && setShowEnrichModal(false)}
                         disabled={pushLoading || unifiedModalSaveLoading}
-                        className="px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg disabled:opacity-50"
+                        className="px-4 py-2 bg-silicon-slate/50 hover:bg-silicon-slate rounded-lg disabled:opacity-50"
                       >
                         Cancel
                       </button>
@@ -1787,7 +1787,7 @@ function OutreachContent() {
                             setUnifiedModalSaveLoading(false)
                           }
                         }}
-                        className="px-4 py-2 bg-white/10 hover:bg-white/15 rounded-lg font-medium disabled:opacity-50"
+                        className="px-4 py-2 bg-silicon-slate hover:bg-silicon-slate rounded-lg font-medium disabled:opacity-50"
                       >
                         {unifiedModalSaveLoading ? 'Saving...' : 'Save changes'}
                       </button>
@@ -1831,7 +1831,7 @@ function OutreachContent() {
                             setPushLoading(false)
                           }
                         }}
-                        className="px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 rounded-lg font-medium"
+                        className="px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 rounded-lg font-medium"
                       >
                         {pushLoading ? 'Pushing...' : 'Push to Value Evidence'}
                       </button>
@@ -1848,7 +1848,7 @@ function OutreachContent() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex justify-end bg-black/50"
+                  className="fixed inset-0 z-50 flex justify-end bg-imperial-navy/60"
                   onClick={() => setEvidenceDrawerContactId(null)}
                 >
                   <motion.div
@@ -1856,14 +1856,14 @@ function OutreachContent() {
                     animate={{ x: 0 }}
                     exit={{ x: 400 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-full max-w-md bg-gray-900 border-l border-white/10 shadow-xl flex flex-col max-h-full"
+                    className="w-full max-w-md bg-background border-l border-silicon-slate shadow-xl flex flex-col max-h-full"
                   >
-                    <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                    <div className="p-4 border-b border-silicon-slate flex items-center justify-between">
                       <h3 className="text-lg font-semibold text-white">Value Evidence</h3>
                       <button
                         type="button"
                         onClick={() => setEvidenceDrawerContactId(null)}
-                        className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400"
+                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white/80"
                       >
                         <X size={18} />
                       </button>
@@ -1871,14 +1871,14 @@ function OutreachContent() {
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
                       {evidenceDrawerLoading ? (
                         <div className="flex justify-center py-8">
-                          <RefreshCw size={24} className="animate-spin text-gray-500" />
+                          <RefreshCw size={24} className="animate-spin text-platinum-white/60" />
                         </div>
                       ) : evidenceDrawerData ? (
                         <>
                           <div>
-                            <h4 className="text-sm font-medium text-gray-400 mb-2">Pain point evidence</h4>
+                            <h4 className="text-sm font-medium text-platinum-white/80 mb-2">Pain point evidence</h4>
                             {evidenceDrawerData.evidence.length === 0 ? (
-                              <p className="text-sm text-gray-500">No evidence yet.</p>
+                              <p className="text-sm text-platinum-white/60">No evidence yet.</p>
                             ) : (
                               <ul className="space-y-2">
                                 {evidenceDrawerData.evidence.map((e) => (
@@ -1888,20 +1888,20 @@ function OutreachContent() {
                             )}
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-gray-400 mb-2">Value reports</h4>
+                            <h4 className="text-sm font-medium text-platinum-white/80 mb-2">Value reports</h4>
                             {evidenceDrawerData.reports.length === 0 ? (
-                              <p className="text-sm text-gray-500">No reports yet.</p>
+                              <p className="text-sm text-platinum-white/60">No reports yet.</p>
                             ) : (
                               <ul className="space-y-2">
                                 {evidenceDrawerData.reports.map((r) => (
                                   <li key={r.id}>
                                     <Link
                                       href={`/admin/value-evidence/reports/${r.id}`}
-                                      className="block p-2 rounded-lg bg-white/5 border border-white/10 text-sm hover:bg-white/10 hover:border-white/20 transition-colors"
+                                      className="block p-2 rounded-lg bg-silicon-slate/50 border border-silicon-slate text-sm hover:bg-silicon-slate hover:border-white/20 transition-colors"
                                       onClick={() => setEvidenceDrawerContactId(null)}
                                     >
                                       <span className="text-white">{r.title ?? 'Report'}</span>
-                                      <span className="text-gray-400 ml-2">
+                                      <span className="text-platinum-white/80 ml-2">
                                         {r.total_annual_value != null ? `$${r.total_annual_value}` : ''} · {new Date(r.created_at).toLocaleDateString()}
                                       </span>
                                     </Link>
@@ -1935,7 +1935,7 @@ function OutreachContent() {
                                   if (r.ok) setEvidenceDrawerData(d)
                                 }
                               }}
-                              className="w-full px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-lg font-medium text-sm"
+                              className="w-full px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 rounded-lg font-medium text-sm"
                             >
                               Generate report
                             </button>
@@ -1967,7 +1967,7 @@ function OutreachContent() {
                                 const d = await r.json()
                                 if (r.ok) setEvidenceDrawerData(d)
                               }}
-                              className="w-full px-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg font-medium text-sm flex items-center justify-center gap-1"
+                              className="w-full px-4 py-2 bg-silicon-slate/50 hover:bg-silicon-slate rounded-lg font-medium text-sm flex items-center justify-center gap-1"
                             >
                               <RefreshCw size={14} />
                               Refresh evidence
@@ -1997,7 +1997,7 @@ function OutreachContent() {
                           )}
                         </>
                       ) : (
-                        <p className="text-sm text-gray-500">Could not load evidence.</p>
+                        <p className="text-sm text-platinum-white/60">Could not load evidence.</p>
                       )}
                     </div>
                   </motion.div>
@@ -2008,23 +2008,23 @@ function OutreachContent() {
             {/* Leads List */}
             {leadsLoading ? (
               <div className="flex items-center justify-center py-20">
-                <RefreshCw size={24} className="animate-spin text-gray-500" />
+                <RefreshCw size={24} className="animate-spin text-platinum-white/60" />
               </div>
             ) : leads.length === 0 ? (
               <div className="text-center py-20">
-                <Users size={48} className="mx-auto text-gray-600 mb-4" />
-                <h3 className="text-xl font-medium text-gray-400">
+                <Users size={48} className="mx-auto text-platinum-white/60 mb-4" />
+                <h3 className="text-xl font-medium text-platinum-white/80">
                   No leads found
                 </h3>
-                <p className="text-gray-500 mt-2">
+                <p className="text-platinum-white/60 mt-2">
                   Try adjusting your filters or trigger lead scraping from the dashboard
                 </p>
               </div>
             ) : (
               <>
                 {selectedLeadIds.size > 0 && (
-                  <div className="sticky top-0 z-10 mb-4 p-3 bg-gray-900/95 border border-white/10 rounded-xl flex items-center justify-between gap-4">
-                    <span className="text-sm text-gray-300">
+                  <div className="sticky top-0 z-10 mb-4 p-3 bg-background/95 border border-silicon-slate rounded-xl flex items-center justify-between gap-4">
+                    <span className="text-sm text-platinum-white">
                       {selectedLeadIds.size} lead(s) selected
                     </span>
                     <div className="flex items-center gap-2">
@@ -2032,14 +2032,14 @@ function OutreachContent() {
                         type="button"
                         onClick={() => openReviewEnrichModal([...selectedLeadIds])}
                         disabled={pushLoading || selectedLeadIds.size === 0 || selectedLeadIds.size > 50}
-                        className="px-4 py-2 bg-purple-600 hover:bg-purple-500 disabled:opacity-50 rounded-lg font-medium text-sm"
+                        className="px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 rounded-lg font-medium text-sm"
                       >
                         {pushLoading ? 'Loading...' : 'Push to Value Evidence'}
                       </button>
                       <button
                         type="button"
                         onClick={() => setSelectedLeadIds(new Set())}
-                        className="text-sm text-gray-400 hover:text-white"
+                        className="text-sm text-platinum-white/80 hover:text-white"
                       >
                         Clear selection
                       </button>
@@ -2047,7 +2047,7 @@ function OutreachContent() {
                   </div>
                 )}
                 <div className="flex items-center gap-2 mb-3">
-                  <label className="flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm text-platinum-white/80 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={leads.length > 0 && leads.every((l) => selectedLeadIds.has(l.id))}
@@ -2071,7 +2071,7 @@ function OutreachContent() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="bg-white/5 border border-white/10 rounded-xl overflow-hidden"
+                        className="bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-hidden"
                       >
                         {/* Lead Card Header */}
                         <div className="p-4 flex items-start gap-3">
@@ -2119,7 +2119,7 @@ function OutreachContent() {
                                   Score: {lead.lead_score}
                                 </span>
                               )}
-                              <span className="px-2 py-0.5 bg-gray-800 text-gray-300 rounded text-xs">
+                              <span className="px-2 py-0.5 bg-gray-800 text-platinum-white rounded text-xs">
                                 {lead.lead_source
                                   ?.replace(/^(warm|cold)_/i, '') // Remove warm_ or cold_ prefix
                                   .replace(/_/g, ' ') // Replace all underscores with spaces
@@ -2133,7 +2133,7 @@ function OutreachContent() {
                                 <span className="px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-xs">Removed</span>
                               )}
                             </div>
-                            <div className="flex items-center gap-3 mt-1 text-sm text-gray-400">
+                            <div className="flex items-center gap-3 mt-1 text-sm text-platinum-white/80">
                               {lead.job_title && (
                                 <span className="flex items-center gap-1">
                                   <User size={12} />
@@ -2212,7 +2212,7 @@ function OutreachContent() {
                                 lead.last_vep_status !== 'failed' &&
                                 (!lead.last_vep_triggered_at ||
                                   (lead.last_vep_status !== 'pending' && lead.last_vep_status !== 'success')) && (
-                                  <span className="px-2 py-1 rounded text-xs font-medium bg-gray-700 text-gray-400">
+                                  <span className="px-2 py-1 rounded text-xs font-medium bg-gray-700 text-platinum-white/80">
                                     No evidence
                                   </span>
                                 )}
@@ -2258,7 +2258,7 @@ function OutreachContent() {
                                   }
                                 }}
                                 disabled={pushLoading}
-                                className="px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                                className="px-3 py-2 bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
                               >
                                 <RefreshCw size={14} />
                                 Refresh evidence
@@ -2310,12 +2310,12 @@ function OutreachContent() {
                                 >
                                   Cancel extraction
                                 </button>
-                                <span className="px-3 py-2 text-sm text-gray-500">Extracting...</span>
+                                <span className="px-3 py-2 text-sm text-platinum-white/60">Extracting...</span>
                               </>
                             )}
                             <button
                               onClick={() => openReviewEnrichModal([lead.id])}
-                              className="px-3 py-2 bg-white/5 hover:bg-white/10 text-gray-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                              className="px-3 py-2 bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
                             >
                               <Edit3 size={14} />
                               Edit
@@ -2371,7 +2371,7 @@ function OutreachContent() {
                               onClick={() =>
                                 setExpandedLeadId(expandedLeadId === lead.id ? null : lead.id)
                               }
-                              className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-gray-400"
+                              className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-platinum-white/80"
                             >
                               {expandedLeadId === lead.id ? (
                                 <ChevronUp size={16} />
@@ -2389,16 +2389,16 @@ function OutreachContent() {
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="border-t border-white/10"
+                              className="border-t border-silicon-slate"
                             >
                               <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 {/* Contact Info */}
                                 <div>
-                                  <h4 className="text-sm font-medium text-gray-400 mb-3">Contact Information</h4>
+                                  <h4 className="text-sm font-medium text-platinum-white/80 mb-3">Contact Information</h4>
                                   <div className="space-y-2 text-sm">
                                     {lead.email && (
                                       <div className="flex items-center gap-2">
-                                        <Mail size={14} className="text-gray-500" />
+                                        <Mail size={14} className="text-platinum-white/60" />
                                         <a href={`mailto:${lead.email}`} className="text-blue-400 hover:text-blue-300">
                                           {lead.email}
                                         </a>
@@ -2406,7 +2406,7 @@ function OutreachContent() {
                                     )}
                                     {lead.linkedin_url && (
                                       <div className="flex items-center gap-2">
-                                        <Linkedin size={14} className="text-gray-500" />
+                                        <Linkedin size={14} className="text-platinum-white/60" />
                                         <a
                                           href={lead.linkedin_url}
                                           target="_blank"
@@ -2420,33 +2420,33 @@ function OutreachContent() {
                                     )}
                                     {lead.company && (
                                       <div className="flex items-center gap-2">
-                                        <Building2 size={14} className="text-gray-500" />
-                                        <span className="text-gray-300">{lead.company}</span>
+                                        <Building2 size={14} className="text-platinum-white/60" />
+                                        <span className="text-platinum-white">{lead.company}</span>
                                       </div>
                                     )}
                                     {lead.job_title && (
                                       <div className="flex items-center gap-2">
-                                        <User size={14} className="text-gray-500" />
-                                        <span className="text-gray-300">{lead.job_title}</span>
+                                        <User size={14} className="text-platinum-white/60" />
+                                        <span className="text-platinum-white">{lead.job_title}</span>
                                       </div>
                                     )}
                                     {lead.phone_number && (
                                       <div className="flex items-center gap-2">
-                                        <Phone size={14} className="text-gray-500" />
-                                        <a href={`tel:${lead.phone_number}`} className="text-gray-300 hover:text-white">
+                                        <Phone size={14} className="text-platinum-white/60" />
+                                        <a href={`tel:${lead.phone_number}`} className="text-platinum-white hover:text-white">
                                           {lead.phone_number}
                                         </a>
                                       </div>
                                     )}
                                     {lead.industry && (
                                       <div className="flex items-center gap-2">
-                                        <Briefcase size={14} className="text-gray-500" />
-                                        <span className="text-gray-300">{lead.industry}</span>
+                                        <Briefcase size={14} className="text-platinum-white/60" />
+                                        <span className="text-platinum-white">{lead.industry}</span>
                                       </div>
                                     )}
                                     {lead.company_domain && (
                                       <div className="flex items-center gap-2">
-                                        <Globe size={14} className="text-gray-500" />
+                                        <Globe size={14} className="text-platinum-white/60" />
                                         <a
                                           href={lead.company_domain.startsWith('http') ? lead.company_domain : `https://${lead.company_domain}`}
                                           target="_blank"
@@ -2463,36 +2463,36 @@ function OutreachContent() {
 
                                 {/* Scores & Status */}
                                 <div>
-                                  <h4 className="text-sm font-medium text-gray-400 mb-3">Lead Intelligence</h4>
+                                  <h4 className="text-sm font-medium text-platinum-white/80 mb-3">Lead Intelligence</h4>
                                   <div className="grid grid-cols-2 gap-2">
                                     {lead.lead_score !== null && (
-                                      <div className="bg-black/50 rounded-lg p-3">
-                                        <div className="text-gray-500 text-xs">Lead Score</div>
+                                      <div className="bg-imperial-navy/60 rounded-lg p-3">
+                                        <div className="text-platinum-white/60 text-xs">Lead Score</div>
                                         <div className="text-lg font-bold">{lead.lead_score}</div>
                                       </div>
                                     )}
                                     {lead.ai_readiness_score !== null && (
-                                      <div className="bg-black/50 rounded-lg p-3">
-                                        <div className="text-gray-500 text-xs">AI Readiness</div>
+                                      <div className="bg-imperial-navy/60 rounded-lg p-3">
+                                        <div className="text-platinum-white/60 text-xs">AI Readiness</div>
                                         <div className="text-lg font-bold">{lead.ai_readiness_score}/10</div>
                                       </div>
                                     )}
                                     {lead.competitive_pressure_score !== null && (
-                                      <div className="bg-black/50 rounded-lg p-3">
-                                        <div className="text-gray-500 text-xs">Competitive Pressure</div>
+                                      <div className="bg-imperial-navy/60 rounded-lg p-3">
+                                        <div className="text-platinum-white/60 text-xs">Competitive Pressure</div>
                                         <div className="text-lg font-bold">{lead.competitive_pressure_score}/10</div>
                                       </div>
                                     )}
-                                    <div className="bg-black/50 rounded-lg p-3">
-                                      <div className="text-gray-500 text-xs">Status</div>
+                                    <div className="bg-imperial-navy/60 rounded-lg p-3">
+                                      <div className="text-platinum-white/60 text-xs">Status</div>
                                       <div className="text-sm font-medium capitalize">{lead.outreach_status.replace('_', ' ')}</div>
                                     </div>
                                   </div>
 
                                   {lead.quick_wins && (
-                                    <div className="mt-3 bg-black/50 rounded-lg p-3">
-                                      <div className="text-gray-500 text-xs mb-1">Quick Wins</div>
-                                      <div className="text-sm text-gray-300 whitespace-pre-wrap max-h-24 overflow-y-auto">
+                                    <div className="mt-3 bg-imperial-navy/60 rounded-lg p-3">
+                                      <div className="text-platinum-white/60 text-xs mb-1">Quick Wins</div>
+                                      <div className="text-sm text-platinum-white whitespace-pre-wrap max-h-24 overflow-y-auto">
                                         {lead.quick_wins}
                                       </div>
                                     </div>
@@ -2506,7 +2506,7 @@ function OutreachContent() {
                                       >
                                         <CheckCircle size={14} />
                                         View Sales Conversation
-                                        {lead.session_count > 1 && <span className="text-xs text-gray-500">({lead.session_count} sessions)</span>}
+                                        {lead.session_count > 1 && <span className="text-xs text-platinum-white/60">({lead.session_count} sessions)</span>}
                                       </Link>
                                     </div>
                                   ) : (
@@ -2556,24 +2556,24 @@ function OutreachContent() {
                 {/* Pagination */}
                 {leadsTotal > leadsPerPage && (
                   <div className="mt-6 flex items-center justify-between">
-                    <div className="text-sm text-gray-400">
+                    <div className="text-sm text-platinum-white/80">
                       Showing {(leadsPage - 1) * leadsPerPage + 1} to {Math.min(leadsPage * leadsPerPage, leadsTotal)} of {leadsTotal} leads
                     </div>
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setLeadsPage(p => Math.max(1, p - 1))}
                         disabled={leadsPage === 1}
-                        className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Previous
                       </button>
-                      <span className="text-sm text-gray-400">
+                      <span className="text-sm text-platinum-white/80">
                         Page {leadsPage} of {Math.ceil(leadsTotal / leadsPerPage)}
                       </span>
                       <button
                         onClick={() => setLeadsPage(p => p + 1)}
                         disabled={leadsPage >= Math.ceil(leadsTotal / leadsPerPage)}
-                        className="px-3 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Next
                       </button>

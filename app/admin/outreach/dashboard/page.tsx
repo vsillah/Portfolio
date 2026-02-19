@@ -275,15 +275,15 @@ function DashboardContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <RefreshCw size={32} className="animate-spin text-gray-500" />
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <RefreshCw size={32} className="animate-spin text-platinum-white/60" />
       </div>
     )
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-black text-white p-8">
+      <div className="min-h-screen bg-background text-foreground p-8">
         <div className="max-w-7xl mx-auto text-center py-20">
           <p className="text-gray-400">Failed to load dashboard data</p>
         </div>
@@ -313,7 +313,7 @@ function DashboardContent() {
   ]
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs
           items={[
@@ -335,7 +335,7 @@ function DashboardContent() {
           </div>
           <button
             onClick={fetchData}
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors"
           >
             <RefreshCw size={16} />
             Refresh
@@ -354,8 +354,8 @@ function DashboardContent() {
               onClick={() => setTempFilter(key)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all ${
                 tempFilter === key
-                  ? `bg-gradient-to-r ${gradient} border-white/20 text-white shadow-lg`
-                  : 'bg-white/5 border-white/10 text-gray-400 hover:bg-white/10'
+                  ? `bg-gradient-to-r ${gradient} border-radiant-gold/50 text-white shadow-lg`
+                  : 'bg-silicon-slate/50 border-silicon-slate text-gray-400 hover:bg-silicon-slate'
               }`}
             >
               <FilterIcon size={16} />
@@ -370,10 +370,10 @@ function DashboardContent() {
         </div>
 
         {/* Trigger Warm Lead Scraping Section */}
-        <div className="mb-8 bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+        <div className="mb-8 bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-hidden">
           <button
             onClick={() => setShowTriggerSection(!showTriggerSection)}
-            className="w-full p-4 flex items-center justify-between hover:bg-white/5 transition-colors"
+            className="w-full p-4 flex items-center justify-between hover:bg-silicon-slate/50 transition-colors"
           >
             <div className="flex items-center gap-3">
               <Zap size={20} className="text-yellow-400" />
@@ -383,7 +383,7 @@ function DashboardContent() {
           </button>
 
           {showTriggerSection && (
-            <div className="p-6 border-t border-white/10 space-y-6">
+            <div className="p-6 border-t border-silicon-slate space-y-6">
               {/* Trigger Message */}
               {triggerMessage && (
                 <motion.div
@@ -407,7 +407,7 @@ function DashboardContent() {
               {/* Trigger Sources */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Facebook */}
-                <div className="p-4 bg-blue-900/10 border border-blue-800/30 rounded-lg">
+                <div className="p-4 bg-silicon-slate/50 border border-radiant-gold/30 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <Facebook size={20} className="text-blue-400" />
                     <h3 className="font-semibold">Facebook</h3>
@@ -416,25 +416,25 @@ function DashboardContent() {
                     Friends, group members, post engagement
                   </p>
                   <div className="mb-3">
-                    <label className="text-xs text-gray-500">Max Leads</label>
+                    <label className="text-xs text-platinum-white/60">Max Leads</label>
                     <input
                       type="number"
                       value={maxLeads.facebook}
                       onChange={(e) => setMaxLeads({ ...maxLeads, facebook: parseInt(e.target.value) || 100 })}
-                      className="w-full mt-1 px-3 py-2 bg-white/5 border border-white/10 rounded text-sm"
+                      className="w-full mt-1 px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded text-sm"
                       min={10}
                       max={500}
                     />
                   </div>
                   {triggerHistory.filter(h => h.source === 'facebook')[0] && (
-                    <div className="text-xs text-gray-500 mb-3">
+                    <div className="text-xs text-platinum-white/60 mb-3">
                       Last run: {new Date(triggerHistory.filter(h => h.source === 'facebook')[0].triggered_at).toLocaleString()}
                     </div>
                   )}
                   <button
                     onClick={() => triggerScraping('facebook')}
                     disabled={triggeringSource !== null}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
                   >
                     {triggeringSource === 'facebook' ? (
                       <RefreshCw size={16} className="animate-spin" />
@@ -446,7 +446,7 @@ function DashboardContent() {
                 </div>
 
                 {/* Google Contacts */}
-                <div className="p-4 bg-green-900/10 border border-green-800/30 rounded-lg">
+                <div className="p-4 bg-silicon-slate/50 border border-radiant-gold/30 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <Phone size={20} className="text-green-400" />
                     <h3 className="font-semibold">Google Contacts</h3>
@@ -455,25 +455,25 @@ function DashboardContent() {
                     Contacts with business information
                   </p>
                   <div className="mb-3">
-                    <label className="text-xs text-gray-500">Max Contacts</label>
+                    <label className="text-xs text-platinum-white/60">Max Contacts</label>
                     <input
                       type="number"
                       value={maxLeads.google_contacts}
                       onChange={(e) => setMaxLeads({ ...maxLeads, google_contacts: parseInt(e.target.value) || 500 })}
-                      className="w-full mt-1 px-3 py-2 bg-white/5 border border-white/10 rounded text-sm"
+                      className="w-full mt-1 px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded text-sm"
                       min={10}
                       max={1000}
                     />
                   </div>
                   {triggerHistory.filter(h => h.source === 'google_contacts')[0] && (
-                    <div className="text-xs text-gray-500 mb-3">
+                    <div className="text-xs text-platinum-white/60 mb-3">
                       Last run: {new Date(triggerHistory.filter(h => h.source === 'google_contacts')[0].triggered_at).toLocaleString()}
                     </div>
                   )}
                   <button
                     onClick={() => triggerScraping('google_contacts')}
                     disabled={triggeringSource !== null}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
                   >
                     {triggeringSource === 'google_contacts' ? (
                       <RefreshCw size={16} className="animate-spin" />
@@ -485,7 +485,7 @@ function DashboardContent() {
                 </div>
 
                 {/* LinkedIn */}
-                <div className="p-4 bg-sky-900/10 border border-sky-800/30 rounded-lg">
+                <div className="p-4 bg-silicon-slate/50 border border-radiant-gold/30 rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <Linkedin size={20} className="text-sky-400" />
                     <h3 className="font-semibold">LinkedIn</h3>
@@ -494,25 +494,25 @@ function DashboardContent() {
                     Connections and post engagement
                   </p>
                   <div className="mb-3">
-                    <label className="text-xs text-gray-500">Max Leads</label>
+                    <label className="text-xs text-platinum-white/60">Max Leads</label>
                     <input
                       type="number"
                       value={maxLeads.linkedin}
                       onChange={(e) => setMaxLeads({ ...maxLeads, linkedin: parseInt(e.target.value) || 200 })}
-                      className="w-full mt-1 px-3 py-2 bg-white/5 border border-white/10 rounded text-sm"
+                      className="w-full mt-1 px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded text-sm"
                       min={10}
                       max={1000}
                     />
                   </div>
                   {triggerHistory.filter(h => h.source === 'linkedin')[0] && (
-                    <div className="text-xs text-gray-500 mb-3">
+                    <div className="text-xs text-platinum-white/60 mb-3">
                       Last run: {new Date(triggerHistory.filter(h => h.source === 'linkedin')[0].triggered_at).toLocaleString()}
                     </div>
                   )}
                   <button
                     onClick={() => triggerScraping('linkedin')}
                     disabled={triggeringSource !== null}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-700 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed disabled:cursor-not-allowed rounded-lg text-sm font-medium transition-colors"
                   >
                     {triggeringSource === 'linkedin' ? (
                       <RefreshCw size={16} className="animate-spin" />
@@ -547,7 +547,7 @@ function DashboardContent() {
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-gradient-to-br from-orange-900/30 to-amber-800/10 border border-orange-700/30 rounded-xl p-5 cursor-pointer hover:border-orange-600/50 transition-all"
+              className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-5 cursor-pointer hover:border-radiant-gold/50 transition-all"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -558,19 +558,19 @@ function DashboardContent() {
               </div>
             <div className="grid grid-cols-4 gap-3 text-xs">
               <div>
-                <div className="text-gray-500">Enriched</div>
+                <div className="text-platinum-white/60">Enriched</div>
                 <div className="font-medium text-orange-200">{data.warmFunnel.enriched}</div>
               </div>
               <div>
-                <div className="text-gray-500">Contacted</div>
+                <div className="text-platinum-white/60">Contacted</div>
                 <div className="font-medium text-orange-200">{data.warmFunnel.contacted}</div>
               </div>
               <div>
-                <div className="text-gray-500">Reply Rate</div>
+                <div className="text-platinum-white/60">Reply Rate</div>
                 <div className="font-medium text-green-400">{data.warmFunnel.reply_rate}%</div>
               </div>
               <div>
-                <div className="text-gray-500">Booked</div>
+                <div className="text-platinum-white/60">Booked</div>
                 <div className="font-medium text-emerald-400">{data.warmFunnel.booked}</div>
               </div>
             </div>
@@ -581,7 +581,7 @@ function DashboardContent() {
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="bg-gradient-to-br from-blue-900/30 to-cyan-800/10 border border-blue-700/30 rounded-xl p-5 cursor-pointer hover:border-blue-600/50 transition-all"
+              className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-5 cursor-pointer hover:border-radiant-gold/50 transition-all"
             >
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -592,19 +592,19 @@ function DashboardContent() {
               </div>
             <div className="grid grid-cols-4 gap-3 text-xs">
               <div>
-                <div className="text-gray-500">Enriched</div>
+                <div className="text-platinum-white/60">Enriched</div>
                 <div className="font-medium text-blue-200">{data.coldFunnel.enriched}</div>
               </div>
               <div>
-                <div className="text-gray-500">Contacted</div>
+                <div className="text-platinum-white/60">Contacted</div>
                 <div className="font-medium text-blue-200">{data.coldFunnel.contacted}</div>
               </div>
               <div>
-                <div className="text-gray-500">Reply Rate</div>
+                <div className="text-platinum-white/60">Reply Rate</div>
                 <div className="font-medium text-green-400">{data.coldFunnel.reply_rate}%</div>
               </div>
               <div>
-                <div className="text-gray-500">Booked</div>
+                <div className="text-platinum-white/60">Booked</div>
                 <div className="font-medium text-emerald-400">{data.coldFunnel.booked}</div>
               </div>
             </div>
@@ -646,20 +646,20 @@ function DashboardContent() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="flex-1 bg-white/5 border border-white/10 rounded-xl p-4 text-center cursor-pointer hover:bg-white/10 hover:border-blue-500/50 transition-all"
+                      className="flex-1 bg-silicon-slate/50 border border-silicon-slate rounded-xl p-4 text-center cursor-pointer hover:bg-silicon-slate hover:border-radiant-gold/50 transition-all"
                     >
                       <step.icon size={24} className={`mx-auto mb-2 ${step.color}`} />
                       <div className="text-2xl font-bold">{step.value}</div>
                       <div className="text-xs text-gray-400 mt-1">{step.label}</div>
                       {index > 0 && step.value > 0 && funnelSteps[index - 1].value > 0 && (
-                        <div className="text-xs text-gray-500 mt-1">
+                        <div className="text-xs text-platinum-white/60 mt-1">
                           {Math.round((step.value / funnelSteps[index - 1].value) * 100)}%
                         </div>
                       )}
                     </motion.div>
                   </Link>
                   {index < funnelSteps.length - 1 && (
-                    <ArrowRight size={16} className="text-gray-600 mx-1 flex-shrink-0" />
+                    <ArrowRight size={16} className="text-platinum-white/60 mx-1 flex-shrink-0" />
                   )}
                 </div>
               )
@@ -669,19 +669,19 @@ function DashboardContent() {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gradient-to-br from-blue-900/30 to-blue-800/10 border border-blue-800/30 rounded-xl p-4">
+          <div className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-4">
             <div className="text-sm text-blue-400">Reply Rate</div>
             <div className="text-3xl font-bold mt-1">{activeFunnel.reply_rate}%</div>
           </div>
-          <div className="bg-gradient-to-br from-green-900/30 to-green-800/10 border border-green-800/30 rounded-xl p-4">
+          <div className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-4">
             <div className="text-sm text-green-400">Booking Rate</div>
             <div className="text-3xl font-bold mt-1">{activeFunnel.booking_rate}%</div>
           </div>
-          <div className="bg-gradient-to-br from-yellow-900/30 to-yellow-800/10 border border-yellow-800/30 rounded-xl p-4">
+          <div className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-4">
             <div className="text-sm text-yellow-400">Drafts Pending</div>
             <div className="text-3xl font-bold mt-1">{data.queueStats.draft || 0}</div>
           </div>
-          <div className="bg-gradient-to-br from-purple-900/30 to-purple-800/10 border border-purple-800/30 rounded-xl p-4">
+          <div className="bg-gradient-to-br bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl p-4">
             <div className="text-sm text-purple-400">Active Sequences</div>
             <div className="text-3xl font-bold mt-1">
               {activeFunnel.contacted}
@@ -691,13 +691,13 @@ function DashboardContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Channel Performance */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+          <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <BarChart3 size={20} className="text-purple-400" />
               Channel Performance
             </h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-black/30 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-silicon-slate/50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Mail size={20} className="text-blue-400" />
                   <div>
@@ -712,7 +712,7 @@ function DashboardContent() {
                   <div className="text-xs text-gray-400">reply rate</div>
                 </div>
               </div>
-              <div className="flex items-center justify-between p-3 bg-black/30 rounded-lg">
+              <div className="flex items-center justify-between p-3 bg-silicon-slate/50 rounded-lg">
                 <div className="flex items-center gap-3">
                   <Linkedin size={20} className="text-sky-400" />
                   <div>
@@ -731,7 +731,7 @@ function DashboardContent() {
           </div>
 
           {/* Sequence Step Performance */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+          <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Target size={20} className="text-green-400" />
               Sequence Step Performance
@@ -749,7 +749,7 @@ function DashboardContent() {
                         <span className="text-gray-400">{stat.sent} sent</span>
                         <span className="text-green-400">{stat.replied} replied ({replyRate}%)</span>
                       </div>
-                      <div className="w-full bg-gray-800 rounded-full h-2">
+                      <div className="w-full bg-silicon-slate rounded-full h-2">
                         <div
                           className="bg-gradient-to-r from-green-600 to-green-400 h-2 rounded-full transition-all"
                           style={{ width: `${replyRate}%` }}
@@ -760,7 +760,7 @@ function DashboardContent() {
                 )
               })}
               {Object.keys(data.stepStats).length === 0 && (
-                <p className="text-gray-500 text-sm">No sequence data yet</p>
+                <p className="text-platinum-white/60 text-sm">No sequence data yet</p>
               )}
             </div>
           </div>
@@ -768,7 +768,7 @@ function DashboardContent() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Source Breakdown */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+          <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Building2 size={20} className="text-yellow-400" />
               Source Breakdown
@@ -780,15 +780,15 @@ function DashboardContent() {
                   const isWarm = source.startsWith('warm_')
                   return (
                     <Link key={source} href={`/admin/outreach?tab=leads&source=${source}`}>
-                      <div className="p-3 bg-black/30 rounded-lg hover:bg-black/50 cursor-pointer transition-all hover:border hover:border-blue-500/50">
+                      <div className="p-3 bg-silicon-slate/50 rounded-lg hover:bg-silicon-slate/70 cursor-pointer transition-all hover:border hover:border-radiant-gold/50">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-2">
                             <SourceIcon size={14} className={iconColor} />
                             <span className="font-medium text-sm">{formatSourceLabel(source)}</span>
                             <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                               isWarm
-                                ? 'bg-orange-900/50 text-orange-400 border border-orange-800'
-                                : 'bg-blue-900/50 text-blue-400 border border-blue-800'
+                                ? 'bg-radiant-gold/30 text-radiant-gold border border-radiant-gold/50'
+                                : 'bg-silicon-slate text-radiant-gold border border-radiant-gold/50'
                             }`}>
                               {isWarm ? 'WARM' : 'COLD'}
                             </span>
@@ -797,23 +797,23 @@ function DashboardContent() {
                         </div>
                       <div className="grid grid-cols-5 gap-2 text-xs">
                         <div>
-                          <div className="text-gray-500">Enriched</div>
+                          <div className="text-platinum-white/60">Enriched</div>
                           <div className="font-medium">{stats.enriched}</div>
                         </div>
                         <div>
-                          <div className="text-gray-500">Contacted</div>
+                          <div className="text-platinum-white/60">Contacted</div>
                           <div className="font-medium">{stats.contacted}</div>
                         </div>
                         <div>
-                          <div className="text-gray-500">Replied</div>
+                          <div className="text-platinum-white/60">Replied</div>
                           <div className="font-medium text-green-400">{stats.replied}</div>
                         </div>
                         <div>
-                          <div className="text-gray-500">Booked</div>
+                          <div className="text-platinum-white/60">Booked</div>
                           <div className="font-medium text-emerald-400">{stats.booked}</div>
                         </div>
                         <div>
-                          <div className="text-gray-500">Opted Out</div>
+                          <div className="text-platinum-white/60">Opted Out</div>
                           <div className="font-medium text-red-400">{stats.opted_out}</div>
                         </div>
                       </div>
@@ -823,7 +823,7 @@ function DashboardContent() {
                 })}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">
+              <p className="text-platinum-white/60 text-sm">
                 {tempFilter === 'warm'
                   ? 'No warm leads sourced yet'
                   : tempFilter === 'cold'
@@ -834,7 +834,7 @@ function DashboardContent() {
           </div>
 
           {/* Lead Sources */}
-          <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+          <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-6">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
               <Search size={20} className="text-blue-400" />
               Lead Sources
@@ -844,7 +844,7 @@ function DashboardContent() {
                 {data.leadSources.map((source) => {
                   const isWarmPlatform = ['facebook', 'google_contacts'].includes(source.platform)
                   return (
-                    <div key={source.id} className="p-3 bg-black/30 rounded-lg">
+                    <div key={source.id} className="p-3 bg-silicon-slate/50 rounded-lg">
                       <div className="flex items-center justify-between mb-1">
                         <div className="flex items-center gap-2">
                           <span className="font-medium text-sm">{source.name}</span>
@@ -854,8 +854,8 @@ function DashboardContent() {
                         </div>
                         <span className={`px-2 py-0.5 rounded text-xs ${
                           source.is_active
-                            ? 'bg-green-900/50 text-green-400 border border-green-700'
-                            : 'bg-gray-800 text-gray-400'
+                            ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50'
+                            : 'bg-silicon-slate text-gray-400'
                         }`}>
                           {source.is_active ? 'Active' : 'Paused'}
                         </span>
@@ -882,13 +882,13 @@ function DashboardContent() {
                 })}
               </div>
             ) : (
-              <p className="text-gray-500 text-sm">No lead sources configured yet</p>
+              <p className="text-platinum-white/60 text-sm">No lead sources configured yet</p>
             )}
           </div>
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white/5 border border-white/10 rounded-xl p-6">
+        <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-6">
           <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Clock size={20} className="text-gray-400" />
             Recent Activity
@@ -897,7 +897,7 @@ function DashboardContent() {
             <div className="space-y-2">
               {data.recentActivity.map((activity) => (
                 <Link key={activity.id} href={`/admin/outreach?tab=leads&id=${activity.contact_submissions?.id || ''}`}>
-                  <div className="flex items-center justify-between p-3 bg-black/30 rounded-lg hover:bg-black/50 cursor-pointer transition-all hover:border hover:border-blue-500/50">
+                  <div className="flex items-center justify-between p-3 bg-silicon-slate/50 rounded-lg hover:bg-silicon-slate/70 cursor-pointer transition-all hover:border hover:border-radiant-gold/50">
                     <div className="flex items-center gap-3">
                       {activity.channel === 'email' ? (
                         <Mail size={16} className="text-blue-400" />
@@ -908,7 +908,7 @@ function DashboardContent() {
                         <span className="font-medium text-sm">
                           {activity.contact_submissions?.name || 'Unknown'}
                         </span>
-                        <span className="text-gray-500 text-sm mx-2">
+                        <span className="text-platinum-white/60 text-sm mx-2">
                           {activity.contact_submissions?.company || ''}
                         </span>
                       </div>
@@ -921,10 +921,10 @@ function DashboardContent() {
                     }`}>
                       {activity.status}
                     </span>
-                    <span className="text-gray-500">
+                    <span className="text-platinum-white/60">
                       Step {activity.sequence_step}
                     </span>
-                    <span className="text-gray-500">
+                    <span className="text-platinum-white/60">
                       {activity.sent_at
                         ? new Date(activity.sent_at).toLocaleDateString()
                         : ''}
@@ -935,7 +935,7 @@ function DashboardContent() {
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-sm">No outreach activity yet</p>
+            <p className="text-platinum-white/60 text-sm">No outreach activity yet</p>
           )}
         </div>
       </div>

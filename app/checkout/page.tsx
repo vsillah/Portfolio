@@ -45,7 +45,7 @@ interface DiscountCode {
 }
 
 export default function CheckoutPage() {
-  const { user } = useAuth()
+  const { user, session: authSession, loading: authLoading } = useAuth()
   const router = useRouter()
   const [step, setStep] = useState<'contact' | 'review' | 'payment' | 'complete'>('contact')
   const [cartItems, setCartItems] = useState<CartItem[]>([])
@@ -310,12 +310,15 @@ export default function CheckoutPage() {
 
   const handleCheckout = async () => {
     try {
-      const session = await getCurrentSession()
+      const session = authSession ?? (await getCurrentSession())
+      if (!session?.access_token) {
+        router.push('/auth/login?redirect=/checkout')
+        return
+      }
       const subtotal = calculateSubtotal()
       const finalTotal = calculateFinalTotal()
       const hasPaidItems = subtotal > 0 || hasQuoteBasedItems
 
-      // Create order
       const orderData = {
         cartItems,
         discountCode: appliedDiscountCode,
@@ -329,7 +332,7 @@ export default function CheckoutPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(session && { Authorization: `Bearer ${session.access_token}` }),
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify(orderData),
       })
@@ -364,23 +367,32 @@ export default function CheckoutPage() {
     }
   }
 
-  if (loading) {
+  // Wait for both cart and auth to be ready before showing sign-in gate or checkout
+  if (loading || authLoading) {
     return (
-      <div className="min-h-screen bg-black text-white flex items-center justify-center">
-        <div className="text-gray-400">Loading checkout...</div>
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="text-platinum-white/80">Loading checkout...</div>
       </div>
     )
   }
 
   // Require sign-in so we can deliver orders and follow up / upsell
+  // #region agent log
+  if (typeof window !== 'undefined') {
+    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'checkout/page.tsx:auth-check',message:'auth decision',data:{user:!!user,userId:user?.id ?? null,authLoading},timestamp:Date.now(),hypothesisId:'A',runId:'post-fix'})}).catch(()=>{});
+  }
+  // #endregion
   if (!user) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'checkout/page.tsx:render-signin',message:'rendering sign-in block',data:{authLoading},timestamp:Date.now(),hypothesisId:'A',runId:'post-fix'})}).catch(()=>{});
+    // #endregion
     return (
-      <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+      <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => router.push('/store')}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-platinum-white/80 hover:text-white transition-colors"
             >
               <ArrowLeft size={20} />
               Back to Store
@@ -389,26 +401,26 @@ export default function CheckoutPage() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-gray-900 border border-gray-800 rounded-xl p-8 max-w-xl"
+            className="bg-silicon-slate border border-silicon-slate rounded-xl p-8 max-w-xl"
           >
             <div className="flex items-center gap-3 mb-4">
-              <Lock className="text-amber-400 flex-shrink-0" size={28} />
+              <Lock className="text-radiant-gold flex-shrink-0" size={28} />
               <h2 className="text-2xl font-bold">Sign in to checkout</h2>
             </div>
-            <p className="text-gray-400 mb-6">
+            <p className="text-platinum-white/80 mb-6">
               We require an account so we can deliver your order and follow up with you. Sign in or create an account to continue.
             </p>
             <div className="flex flex-wrap gap-3">
               <Link
                 href="/auth/login?redirect=/checkout"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold hover:from-blue-700 hover:to-purple-700 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-gradient-to-r btn-gold transition-colors"
               >
                 <LogIn size={20} />
                 Sign in
               </Link>
               <Link
                 href="/auth/signup?redirect=/checkout"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg border border-gray-600 text-white font-semibold hover:border-purple-500 hover:bg-gray-800/50 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg btn-ghost transition-colors"
               >
                 Create account
               </Link>
@@ -424,7 +436,7 @@ export default function CheckoutPage() {
   const hasPaidItems = subtotal > 0 || hasQuoteBasedItems
 
   return (
-    <div className="min-h-screen bg-black text-white pt-24 pb-12 px-4">
+    <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <motion.div
@@ -435,17 +447,17 @@ export default function CheckoutPage() {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => router.push('/store')}
-              className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-platinum-white/80 hover:text-white transition-colors"
             >
               <ArrowLeft size={20} />
               Back to Store
             </button>
-            <Link href="/help" className="text-gray-400 hover:text-white transition-colors" aria-label="Help">
+            <Link href="/help" className="text-platinum-white/80 hover:text-white transition-colors" aria-label="Help">
               <HelpCircle size={20} />
             </Link>
           </div>
           <h1 className="text-4xl font-bold mb-2">Checkout</h1>
-          <p className="text-gray-400">Review your order and complete your purchase</p>
+          <p className="text-platinum-white/80">Review your order and complete your purchase</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -459,7 +471,7 @@ export default function CheckoutPage() {
                 className="space-y-6"
               >
                 {/* Discount Code */}
-                <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
                   <h2 className="text-xl font-bold mb-4">Discount Code</h2>
                   <DiscountCodeForm
                     onApply={handleDiscountApply}
@@ -470,10 +482,10 @@ export default function CheckoutPage() {
                 </div>
 
                 {/* Checkout Button */}
-                <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+                <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
                   <button
                     onClick={handleCheckout}
-                    className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-colors flex items-center justify-center gap-2"
+                    className="w-full px-6 py-4 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors flex items-center justify-center gap-2"
                   >
                     {hasPaidItems ? (
                       <>
@@ -510,14 +522,14 @@ export default function CheckoutPage() {
           </div>
         </div>
 
-        {/* Exit Intent Components */}
+        {/* Exit Intent Components — only one popup per session; none for free-only carts */}
         {step === 'review' && (
           <>
             <ExitIntentPopup
               discountAmount={20}
               appliedDiscountCode={appliedDiscountCode}
+              showDiscountPopups={subtotal > 0}
               onApplyDiscount={() => {
-                // Could auto-apply a discount code here
                 handleDiscountApply('EXIT20').catch(console.error)
               }}
             />
@@ -525,6 +537,7 @@ export default function CheckoutPage() {
               scrollThreshold={60}
               discountAmount={15}
               appliedDiscountCode={appliedDiscountCode}
+              showDiscountPopups={subtotal > 0}
               onApplyDiscount={() => {
                 handleDiscountApply('SCROLL15').catch(console.error)
               }}
@@ -533,6 +546,7 @@ export default function CheckoutPage() {
               delay={30000}
               discountAmount={10}
               appliedDiscountCode={appliedDiscountCode}
+              showDiscountPopups={subtotal > 0}
               onApplyDiscount={() => {
                 handleDiscountApply('TIME10').catch(console.error)
               }}

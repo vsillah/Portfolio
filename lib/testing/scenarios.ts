@@ -511,6 +511,38 @@ export const warmLeadPipelineScenario: TestScenario = {
   tags: ['warm-leads', 'outreach', 'pipeline', 'critical-path', 'admin']
 }
 
+/**
+ * Scenario 9: Standalone Audit Tool (Resources → Open tool → audit page)
+ * Smoke test for the AI Audit Calculator resource: audit tool page loads and is reachable.
+ * Covers the path: Resources page lists the resource; user clicks "Open tool" → /tools/audit.
+ */
+export const standaloneAuditToolScenario: TestScenario = {
+  id: 'standalone_audit_tool',
+  name: 'Standalone Audit Tool',
+  description: 'Smoke test: audit tool page (/tools/audit) loads. Covers Resources → Open tool → audit flow.',
+
+  steps: [
+    { type: 'navigate', path: '/tools/audit', waitForSelector: undefined },
+    { type: 'delay', duration: 2000, randomize: true },
+    { type: 'screenshot', name: 'audit-tool-loaded' }
+  ],
+
+  variability: {
+    skipProbability: {},
+    delayRange: [500, 1500],
+    responseVariation: false
+  },
+
+  expectedOutcomes: {
+    mustComplete: [],
+    mustNotError: ['navigate'],
+    dataValidation: []
+  },
+
+  estimatedDuration: 10000,
+  tags: ['smoke-test', 'resources', 'audit', 'lead-magnet', 'critical-path']
+}
+
 // ============================================================================
 // Scenario Collections
 // ============================================================================
@@ -523,7 +555,8 @@ export const ALL_SCENARIOS: TestScenario[] = [
   abandonedCartScenario,
   supportEscalationScenario,
   quickBrowseScenario,
-  warmLeadPipelineScenario
+  warmLeadPipelineScenario,
+  standaloneAuditToolScenario
 ]
 
 export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
@@ -534,7 +567,8 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   abandoned_cart: abandonedCartScenario,
   support_escalation: supportEscalationScenario,
   quick_browse: quickBrowseScenario,
-  warm_lead_pipeline: warmLeadPipelineScenario
+  warm_lead_pipeline: warmLeadPipelineScenario,
+  standalone_audit_tool: standaloneAuditToolScenario
 }
 
 /**
@@ -550,7 +584,8 @@ export const CRITICAL_SCENARIOS: TestScenario[] = [
  * Quick smoke test scenarios
  */
 export const SMOKE_TEST_SCENARIOS: TestScenario[] = [
-  quickBrowseScenario
+  quickBrowseScenario,
+  standaloneAuditToolScenario
 ]
 
 /**

@@ -46,14 +46,14 @@ export default function ContactForm({ onSubmit, initialData }: ContactFormProps)
           Full Name *
         </label>
         <div className="relative">
-          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
           <input
             type="text"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            className={`w-full pl-10 pr-4 py-2 bg-gray-800 border ${
-              errors.name ? 'border-red-500' : 'border-gray-700'
-            } rounded-lg text-white focus:outline-none focus:border-purple-500`}
+            className={`w-full pl-10 pr-4 py-2 input-brand ${
+              errors.name ? 'border-red-500' : ''
+            }`}
             placeholder="John Doe"
           />
         </div>
@@ -67,14 +67,14 @@ export default function ContactForm({ onSubmit, initialData }: ContactFormProps)
           Email Address *
         </label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
           <input
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className={`w-full pl-10 pr-4 py-2 bg-gray-800 border ${
-              errors.email ? 'border-red-500' : 'border-gray-700'
-            } rounded-lg text-white focus:outline-none focus:border-purple-500`}
+            className={`w-full pl-10 pr-4 py-2 input-brand ${
+            errors.email ? 'border-red-500' : ''
+          }`}
             placeholder="john@example.com"
           />
         </div>
@@ -85,7 +85,7 @@ export default function ContactForm({ onSubmit, initialData }: ContactFormProps)
 
       <button
         type="submit"
-        className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-colors"
+        className="w-full px-6 py-3 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors"
       >
         Continue to Checkout
       </button>

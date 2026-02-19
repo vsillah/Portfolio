@@ -196,7 +196,7 @@ export default function DiscountCodesManagementPage() {
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-black text-white p-8">
+      <div className="min-h-screen bg-background text-foreground p-8">
         <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[
             { label: 'Admin Dashboard', href: '/admin' },
@@ -207,14 +207,14 @@ export default function DiscountCodesManagementPage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">Discount Codes</h1>
-              <p className="text-gray-400">Manage discount codes and promotions</p>
+              <p className="text-platinum-white/80">Manage discount codes and promotions</p>
             </div>
             {!showAddForm && (
               <motion.button
                 onClick={() => setShowAddForm(true)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg flex items-center gap-2"
+                className="px-6 py-3 btn-gold font-semibold rounded-lg flex items-center gap-2"
               >
                 <Plus size={20} />
                 Add Discount Code
@@ -226,7 +226,7 @@ export default function DiscountCodesManagementPage() {
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-8 p-6 bg-gray-900 border border-gray-800 rounded-xl"
+              className="mb-8 p-6 bg-silicon-slate border border-silicon-slate/80 rounded-xl"
             >
               <h2 className="text-2xl font-bold mb-4">
                 {editingCode ? 'Edit Discount Code' : 'Add New Discount Code'}
@@ -239,7 +239,7 @@ export default function DiscountCodesManagementPage() {
                       type="text"
                       value={formData.code}
                       onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500 font-mono"
+                      className="w-full px-4 py-2 input-brand font-mono"
                       placeholder="SAVE20"
                       required
                     />
@@ -249,7 +249,7 @@ export default function DiscountCodesManagementPage() {
                     <select
                       value={formData.discount_type}
                       onChange={(e) => setFormData({ ...formData, discount_type: e.target.value as 'percentage' | 'fixed' })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 input-brand"
                       required
                     >
                       <option value="percentage">Percentage (%)</option>
@@ -267,7 +267,7 @@ export default function DiscountCodesManagementPage() {
                     min="0"
                     value={formData.discount_value}
                     onChange={(e) => setFormData({ ...formData, discount_value: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2 input-brand"
                     required
                   />
                 </div>
@@ -279,7 +279,7 @@ export default function DiscountCodesManagementPage() {
                     type="text"
                     value={formData.applicable_product_ids}
                     onChange={(e) => setFormData({ ...formData, applicable_product_ids: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2 input-brand"
                     placeholder="1, 2, 3"
                   />
                 </div>
@@ -291,10 +291,10 @@ export default function DiscountCodesManagementPage() {
                     type="text"
                     value={formData.applicable_user_ids}
                     onChange={(e) => setFormData({ ...formData, applicable_user_ids: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500 font-mono text-sm"
+                    className="w-full px-4 py-2 input-brand font-mono text-sm"
                     placeholder="uuid-1, uuid-2"
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-platinum-white/70 mt-1">
                     Enter user UUIDs to restrict this code to specific users
                   </p>
                 </div>
@@ -306,7 +306,7 @@ export default function DiscountCodesManagementPage() {
                       min="1"
                       value={formData.max_uses}
                       onChange={(e) => setFormData({ ...formData, max_uses: e.target.value })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 input-brand"
                     />
                   </div>
                   <div>
@@ -315,7 +315,7 @@ export default function DiscountCodesManagementPage() {
                       type="date"
                       value={formData.valid_from}
                       onChange={(e) => setFormData({ ...formData, valid_from: e.target.value })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 input-brand"
                       required
                     />
                   </div>
@@ -325,7 +325,7 @@ export default function DiscountCodesManagementPage() {
                       type="date"
                       value={formData.valid_until}
                       onChange={(e) => setFormData({ ...formData, valid_until: e.target.value })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 input-brand"
                     />
                   </div>
                 </div>
@@ -345,7 +345,7 @@ export default function DiscountCodesManagementPage() {
                     type="submit"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg"
+                    className="btn-gold px-6 py-2 font-semibold rounded-lg"
                   >
                     {editingCode ? 'Update Code' : 'Create Code'}
                   </motion.button>
@@ -354,7 +354,7 @@ export default function DiscountCodesManagementPage() {
                     onClick={handleCancel}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="px-6 py-2 bg-gray-800 border border-gray-700 text-white font-semibold rounded-lg hover:border-gray-600"
+                    className="btn-ghost px-6 py-2 font-semibold rounded-lg"
                   >
                     Cancel
                   </motion.button>
@@ -365,10 +365,10 @@ export default function DiscountCodesManagementPage() {
 
           {loading ? (
             <div className="text-center py-12">
-              <div className="text-gray-400">Loading discount codes...</div>
+              <div className="text-platinum-white/80">Loading discount codes...</div>
             </div>
           ) : codes.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-platinum-white/70">
               <p className="mb-4">No discount codes found. Create your first one!</p>
             </div>
           ) : (
@@ -378,19 +378,19 @@ export default function DiscountCodesManagementPage() {
                   key={code.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-6 bg-gray-900 border border-gray-800 rounded-xl"
+                  className="p-6 bg-silicon-slate border border-silicon-slate/80 rounded-xl"
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-grow">
                       <div className="flex items-center gap-3 mb-2">
-                        <Tag className="text-purple-400" size={24} />
+                        <Tag className="text-radiant-gold" size={24} />
                         <h3 className="text-xl font-bold text-white font-mono">{code.code}</h3>
                         {code.is_active ? (
                           <span className="px-2 py-1 text-xs bg-green-600/20 text-green-400 rounded border border-green-600/50">
                             Active
                           </span>
                         ) : (
-                          <span className="px-2 py-1 text-xs bg-gray-600/20 text-gray-400 rounded border border-gray-600/50">
+                          <span className="px-2 py-1 text-xs bg-silicon-slate/80 text-platinum-white/80 rounded border border-silicon-slate">
                             Inactive
                           </span>
                         )}
@@ -407,7 +407,7 @@ export default function DiscountCodesManagementPage() {
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
-                          <p className="text-gray-400 mb-1">Discount</p>
+                          <p className="text-platinum-white/80 mb-1">Discount</p>
                           <p className="text-white font-semibold">
                             {code.discount_type === 'percentage'
                               ? `${code.discount_value}%`
@@ -415,19 +415,19 @@ export default function DiscountCodesManagementPage() {
                           </p>
                         </div>
                         <div>
-                          <p className="text-gray-400 mb-1">Usage</p>
+                          <p className="text-platinum-white/80 mb-1">Usage</p>
                           <p className="text-white font-semibold">
                             {code.used_count} / {code.max_uses || '∞'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-gray-400 mb-1">Valid From</p>
+                          <p className="text-platinum-white/80 mb-1">Valid From</p>
                           <p className="text-white">
                             {new Date(code.valid_from).toLocaleDateString()}
                           </p>
                         </div>
                         <div>
-                          <p className="text-gray-400 mb-1">Valid Until</p>
+                          <p className="text-platinum-white/80 mb-1">Valid Until</p>
                           <p className="text-white">
                             {code.valid_until
                               ? new Date(code.valid_until).toLocaleDateString()
@@ -436,12 +436,12 @@ export default function DiscountCodesManagementPage() {
                         </div>
                       </div>
                       {code.applicable_product_ids && code.applicable_product_ids.length > 0 && (
-                        <p className="text-sm text-gray-400 mt-2">
+                        <p className="text-sm text-platinum-white/80 mt-2">
                           Applies to products: {code.applicable_product_ids.join(', ')}
                         </p>
                       )}
                       {code.applicable_user_ids && code.applicable_user_ids.length > 0 && (
-                        <p className="text-sm text-purple-400 mt-2">
+                        <p className="text-sm text-radiant-gold mt-2">
                           <Users className="inline-block mr-1" size={14} />
                           Restricted to {code.applicable_user_ids.length} user{code.applicable_user_ids.length !== 1 ? 's' : ''}
                         </p>
@@ -450,7 +450,7 @@ export default function DiscountCodesManagementPage() {
                     <div className="flex items-center gap-2 ml-4">
                       <button
                         onClick={() => handleEdit(code)}
-                        className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700"
+                        className="p-2 bg-silicon-slate rounded-lg hover:bg-radiant-gold/20"
                         title="Edit"
                       >
                         <Edit size={18} />

@@ -163,7 +163,7 @@ flowchart TB
 
 **Subgraph summary:**
 
-- **Inbound:** Contact form, chat, and voice (VAPI) create or link to contacts and diagnostics; diagnostic completion triggers lead webhook and diagnostic-completion webhook.
+- **Inbound:** Contact form, AI Readiness Scorecard (Resources page), chat, and voice (VAPI) create or link to contacts and diagnostics; diagnostic completion triggers lead webhook and diagnostic-completion webhook.
 - **Entry / Ingest:** Manual add uses Leads API; trigger starts scrapers that POST to ingest API; both write to `contact_submissions`.
 - **Enrichment:** Lead webhook runs per lead (from add, edit re-run, contact form, or diagnostic completion); n8n can update scores/quick_wins on the contact.
 - **Outreach gen:** WF-CLG-002 writes drafts to `outreach_queue`; not triggered by the app (n8n runs it after enrichment or on schedule).
@@ -231,6 +231,10 @@ flowchart TB
 
 Visitor submits the form (name, email, company, domain, LinkedIn, message, etc.). The app inserts a row into **contact_submissions** (direct insert, no ingest API), then asynchronously calls **triggerLeadQualificationWebhook** with source `portfolio_contact_form` and the submission id. So: **Website contact form → contact_submissions → N8N_LEAD_WEBHOOK_URL**. The lead appears in Lead Pipeline → All Leads like any other; enrichment and outreach generation follow the normal flow.
 
+### AI Readiness Scorecard (Resources page)
+
+Visitor completes the **AI Readiness Scorecard** on the Resources page (`/resources`): answers a few questions, gets a score (0–10), then enters email (and optionally name) to unlock the full result. The app upserts **contact_submissions** with `lead_source: website_form`, `submission_source: scorecard`, and `ai_readiness_score` (0–10); optional `full_report` stores the answer payload as JSON. The app then asynchronously calls **triggerLeadQualificationWebhook** with source `scorecard` and `aiReadinessScore` so the n8n workflow can use it for routing or scoring. So: **Resources page Scorecard → contact_submissions (submission_source scorecard) → N8N_LEAD_WEBHOOK_URL**. These leads appear in Lead Pipeline → All Leads; filter or identify by submission_source or ai_readiness_score as needed.
+
 ### Chat and diagnostic path
 
 Visitor uses the site chat. If they enter diagnostic/audit mode, the app creates or updates **chat_sessions** and **diagnostic_audits**. Messages in diagnostic mode are sent to n8n via the diagnostic webhook; n8n returns the next question or completion with diagnostic data. When the diagnostic **completes** (n8n returns isComplete + diagnosticData):
@@ -242,6 +246,10 @@ Visitor uses the site chat. If they enter diagnostic/audit mode, the app creates
 **Where admin sees inbound:** Inbound contacts appear in **Lead Pipeline → All Leads**. Completed **diagnostic_audits** are visible from the **Sales Dashboard**; admin can open a **sales session** tied to a diagnostic (`/admin/sales/[auditId]`) and run the walkthrough (scripts, bundle, proposal). So: **Visitor → contact form and/or chat/diagnostic → contact_submissions + diagnostic_audits → lead webhook + diagnostic completion webhook → admin sees leads and audits → sales session from audit → proposal**.
 
 **Note:** Contact form is the primary way visitors become leads in the DB. Chat/diagnostic enriches and links to that lead; if a visitor only chats and never submits the form, they must be identified by email and a contact_submissions row must exist (e.g. from a prior form submit or manual add) for the link and lead webhook to run.
+
+### Standalone audit tool (same diagnostic data, different entry)
+
+Visitors can complete the **AI & Automation Audit** form at **/tools/audit** without using chat. The app creates a **chat_sessions** row and a **diagnostic_audits** row (`audit_type = 'standalone'`) and saves the same six categories (business challenges, tech stack, automation needs, AI readiness, budget & timeline, decision making). When all six sections are submitted, the audit is marked **completed** and **urgency_score** and **opportunity_score** are computed. These audits appear on the **Sales Dashboard** alongside chat and in-person diagnostics; admin can open any of them to start a sales session (`/admin/sales/[auditId]`). Standalone audits do **not** capture email on the form today, so `contact_submission_id` is null unless we add optional email capture and linking. For a full map of **how audit and other client inputs tie into sales and where they are used in the codebase**, see **[audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md)**.
 
 ---
 
@@ -550,6 +558,7 @@ Example embed in the SOP: `![Admin Dashboard](./images/admin-dashboard.png)`.
 ## 17. Quick reference
 
 - **Admin:** `/admin` — Dashboard (grouped by workflow: Pipeline, Sales, Post-sale, Quality & insights, Configuration); `/admin/outreach` — Message Queue & All Leads; `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/guarantees` — Guarantee instances; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/sales/upsell-paths` — Upsell Paths (two-touch prescription); `/admin/analytics` — Analytics (with Sales Funnel link); `/admin/analytics/funnel` — **Sales Funnel Analytics** (conversion rates, pipeline value, deal flow, attention items, loss reasons); `/admin/chat-eval` — Chat Eval; `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts.
-- **Client-facing:** `/proposal/[id]` — View/accept/pay proposal; `/checkout` — Checkout; `/onboarding/[id]` — Onboarding plan.
+- **Client-facing:** `/resources` — Resources (AI Readiness Scorecard + templates/playbooks); `/tools/audit` — **AI & Automation Audit** (standalone form → diagnostic_audits); `/proposal/[id]` — View/accept/pay proposal; `/checkout` — Checkout; `/onboarding/[id]` — Onboarding plan.
+- **How audit/client input ties to sales:** [audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md) — map of audit sources, sales flow, and every place in the codebase that uses diagnostic/contact input.
 - **Key env var names (no secrets):** N8N_LEAD_WEBHOOK_URL, N8N_CLG002_WEBHOOK_URL, N8N_CLG003_WEBHOOK_URL, N8N_WRM001/002/003_WEBHOOK_URL, N8N_INGEST_SECRET, N8N_DIAGNOSTIC_WEBHOOK_URL, N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL, N8N_VEP001_WEBHOOK_URL, N8N_VEP002_WEBHOOK_URL, N8N_TASK_SLACK_SYNC_WEBHOOK_URL, N8N_PROGRESS_UPDATE_WEBHOOK_URL, N8N_FOLLOW_UP_SCHEDULER_WEBHOOK_URL, and onboarding webhook used by `fireOnboardingWebhook` in `lib/onboarding-templates`.
 - **Troubleshooting:** See [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md) and [n8n-lead-workflow-activation-rca.md](./n8n-lead-workflow-activation-rca.md).

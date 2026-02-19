@@ -1,11 +1,12 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from 'react'
 import { User, Session } from '@supabase/supabase-js'
 import { getCurrentUser, getCurrentSession, onAuthStateChange, UserProfile } from '@/lib/auth'
 
 interface AuthContextType {
   user: User | null
+  session: Session | null
   profile: UserProfile | null
   loading: boolean
   isAdmin: boolean
@@ -13,6 +14,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
+  session: null,
   profile: null,
   loading: true,
   isAdmin: false,
@@ -24,8 +26,10 @@ export function useAuth() {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const initialAuthDoneRef = useRef(false)
 
   // Helper function to fetch profile from API
   const fetchProfileFromAPI = async (session: Session | null, forceRefresh = false): Promise<UserProfile | null> => {
@@ -59,28 +63,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    // Get initial session
+    // Get initial session: restore from storage first so we don't flash sign-in
+    // while getUser() (server round-trip) is in flight
     const initAuth = async () => {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthProvider.tsx:initAuth',message:'initAuth started',data:{},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
       try {
-        const user = await getCurrentUser()
-        setUser(user)
-        if (user) {
+        const session = await getCurrentSession()
+        if (session?.user) {
+          setUser(session.user)
+          setSession(session)
           try {
-            const session = await getCurrentSession()
-            if (session) {
-              const userProfile = await fetchProfileFromAPI(session, true) // Force refresh on init
-              setProfile(userProfile)
-            }
+            const userProfile = await fetchProfileFromAPI(session, true)
+            setProfile(userProfile)
           } catch (profileError) {
-            // Silently handle profile errors - profile might not exist yet or will be created by trigger
             console.warn('Profile fetch error:', profileError)
           }
         }
+        const user = await getCurrentUser()
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthProvider.tsx:getCurrentUser',message:'getCurrentUser resolved',data:{userId:user?.id ?? null,hasUser:!!user},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+        setUser(user)
+        if (user) {
+          const currentSession = await getCurrentSession()
+          if (currentSession) {
+            setSession(currentSession)
+            if (!session?.user) {
+              try {
+                const userProfile = await fetchProfileFromAPI(currentSession, true)
+                setProfile(userProfile)
+              } catch (profileError) {
+                console.warn('Profile fetch error:', profileError)
+              }
+            }
+          }
+        } else {
+          setSession(null)
+        }
       } catch (error) {
-        // Only log unexpected errors
         console.error('Auth init error:', error)
       } finally {
-        // Only set loading false after profile fetch completes (or if no user)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthProvider.tsx:finally',message:'auth loading set false',data:{},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
+        // #endregion
+        initialAuthDoneRef.current = true
         setLoading(false)
       }
     }
@@ -113,8 +141,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }, 100)
       } else {
         setUser(null)
+        setSession(null)
         setProfile(null)
-        setLoading(false)
+        // Don't set loading false until initAuth has run; otherwise we flash "signed out"
+        // before getCurrentUser() has restored the session from storage
+        if (initialAuthDoneRef.current) {
+          setLoading(false)
+        }
       }
     })
 
@@ -137,6 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = {
     user,
+    session,
     profile,
     loading,
     isAdmin,

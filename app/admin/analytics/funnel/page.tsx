@@ -90,7 +90,7 @@ function FunnelAnalyticsContent() {
   const isEmptyFunnel = data && data.stages.every((s) => s.count === 0)
 
   return (
-    <div className="min-h-screen bg-black text-white p-4 md:p-8">
+    <div className="min-h-screen bg-background text-foreground p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs
           items={[

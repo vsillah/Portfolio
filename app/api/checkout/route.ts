@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabaseAdmin } from '@/lib/supabase'
-import { getCurrentUser } from '@/lib/auth'
+import { supabase, supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
+    const authHeader = request.headers.get('Authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    const { data: { user }, error: authError } = token
+      ? await supabase.auth.getUser(token)
+      : { data: { user: null }, error: null }
+
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'Please sign in to complete your purchase. We use your account to deliver your order and to follow up with you.' },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
     const {
       cartItems,
@@ -24,14 +36,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Cart is empty' },
         { status: 400 }
-      )
-    }
-
-    const user = await getCurrentUser()
-    if (!user) {
-      return NextResponse.json(
-        { error: 'Please sign in to complete your purchase. We use your account to deliver your order and to follow up with you.' },
-        { status: 401 }
       )
     }
 

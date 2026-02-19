@@ -489,7 +489,7 @@ export default function ConversationPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="text-center">
           <RefreshCw className="w-8 h-8 text-gray-500 animate-spin mx-auto mb-3" />
           <p className="text-gray-400">Loading conversation...</p>
@@ -500,7 +500,7 @@ export default function ConversationPage() {
 
   if (error || !salesSession) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
           <h2 className="text-lg font-medium text-white mb-2">Error</h2>
@@ -518,7 +518,7 @@ export default function ConversationPage() {
   /* ================================================================ */
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Sales', href: '/admin/sales' }, { label: contact?.name || 'Conversation' }]} />
 

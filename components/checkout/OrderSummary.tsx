@@ -135,7 +135,7 @@ export default function OrderSummary({
   }
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+    <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
       <h2 className="text-xl font-bold mb-4">Order Summary</h2>
 
       {/* Items */}
@@ -152,11 +152,11 @@ export default function OrderSummary({
               <motion.div
                 key={getUniqueKey(item)}
                 layout
-                className="bg-gray-800/50 rounded-lg p-3"
+                className="bg-silicon-slate/50 rounded-lg p-3"
               >
                 <div className="flex items-start gap-3">
                   {/* Service Image */}
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-900/20 to-green-900/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                  <div className="w-14 h-14 bg-gradient-to-br from-bronze/20 to-radiant-gold/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
                     {service.image_url ? (
                       <img
                         src={service.image_url}
@@ -164,7 +164,7 @@ export default function OrderSummary({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <Users className="text-gray-600" size={20} />
+                      <Users className="text-platinum-white/60" size={20} />
                     )}
                   </div>
 
@@ -172,21 +172,21 @@ export default function OrderSummary({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-white font-medium text-sm line-clamp-1">{service.title}</p>
-                      <span className="px-1.5 py-0.5 text-[10px] bg-blue-600/20 text-blue-400 rounded">
+                      <span className="px-1.5 py-0.5 text-[10px] bg-radiant-gold/20 text-radiant-gold rounded">
                         Service
                       </span>
                     </div>
                     
                     {/* Duration info */}
                     {service.duration_description && (
-                      <p className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
+                      <p className="text-xs text-platinum-white/80 mt-0.5 flex items-center gap-1">
                         <Clock size={10} />
                         {service.duration_description}
                       </p>
                     )}
 
                     {/* Price per item */}
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-platinum-white/70 mt-1">
                       {service.is_quote_based 
                         ? 'Contact for Pricing' 
                         : price !== null 
@@ -198,10 +198,10 @@ export default function OrderSummary({
                     {editable ? (
                       <div className="flex items-center gap-2 mt-2">
                         {/* Quantity Controls */}
-                        <div className="flex items-center gap-1 bg-gray-700 rounded">
+                        <div className="flex items-center gap-1 bg-silicon-slate rounded">
                           <button
                             onClick={() => onServiceQuantityChange?.(item.serviceId!, Math.max(1, item.quantity - 1))}
-                            className="p-1 hover:bg-gray-600 rounded-l transition-colors"
+                            className="p-1 hover:bg-radiant-gold/30 rounded-l transition-colors"
                             title="Decrease quantity"
                           >
                             <Minus size={12} />
@@ -211,7 +211,7 @@ export default function OrderSummary({
                           </span>
                           <button
                             onClick={() => onServiceQuantityChange?.(item.serviceId!, item.quantity + 1)}
-                            className="p-1 hover:bg-gray-600 rounded-r transition-colors"
+                            className="p-1 hover:bg-radiant-gold/30 rounded-r transition-colors"
                             title="Increase quantity"
                           >
                             <Plus size={12} />
@@ -221,14 +221,14 @@ export default function OrderSummary({
                         {/* Delete Button */}
                         <button
                           onClick={() => onRemoveService?.(item.serviceId!)}
-                          className="p-1.5 bg-gray-700 hover:bg-red-600/20 text-gray-400 hover:text-red-400 rounded transition-colors ml-auto"
+                          className="p-1.5 bg-silicon-slate hover:bg-red-600/20 text-platinum-white/80 hover:text-red-400 rounded transition-colors ml-auto"
                           title="Remove item"
                         >
                           <Trash2 size={12} />
                         </button>
                       </div>
                     ) : (
-                      <p className="text-xs text-gray-400 mt-1">Qty: {item.quantity}</p>
+                      <p className="text-xs text-platinum-white/80 mt-1">Qty: {item.quantity}</p>
                     )}
                   </div>
 
@@ -260,11 +260,11 @@ export default function OrderSummary({
               <motion.div
                 key={getUniqueKey(item)}
                 layout
-                className="bg-gray-800/50 rounded-lg p-3"
+                className="bg-silicon-slate/50 rounded-lg p-3"
               >
                 <div className="flex items-start gap-3">
                   {/* Product Image */}
-                  <div className="w-14 h-14 bg-gradient-to-br from-purple-900/20 to-blue-900/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                  <div className="w-14 h-14 bg-gradient-to-br from-bronze/20 to-radiant-gold/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
@@ -272,7 +272,7 @@ export default function OrderSummary({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <DollarSign className="text-gray-600" size={20} />
+                      <DollarSign className="text-platinum-white/60" size={20} />
                     )}
                   </div>
 
@@ -282,7 +282,7 @@ export default function OrderSummary({
                     
                     {/* Variant info */}
                     {variant && (
-                      <p className="text-xs text-gray-400 mt-0.5">
+                      <p className="text-xs text-platinum-white/80 mt-0.5">
                         {variant.size && <span>{variant.size}</span>}
                         {variant.size && variant.color && <span> / </span>}
                         {variant.color && <span>{variant.color}</span>}
@@ -290,7 +290,7 @@ export default function OrderSummary({
                     )}
 
                     {/* Price per item */}
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-platinum-white/70 mt-1">
                       {price !== null ? `${formatCurrency(price)} each` : 'Free'}
                     </p>
 
@@ -298,10 +298,10 @@ export default function OrderSummary({
                     {editable ? (
                       <div className="flex items-center gap-2 mt-2">
                         {/* Quantity Controls */}
-                        <div className="flex items-center gap-1 bg-gray-700 rounded">
+                        <div className="flex items-center gap-1 bg-silicon-slate rounded">
                           <button
                             onClick={() => onQuantityChange?.(item.productId!, Math.max(1, item.quantity - 1), item.variantId)}
-                            className="p-1 hover:bg-gray-600 rounded-l transition-colors"
+                            className="p-1 hover:bg-radiant-gold/30 rounded-l transition-colors"
                             title="Decrease quantity"
                           >
                             <Minus size={12} />
@@ -311,7 +311,7 @@ export default function OrderSummary({
                           </span>
                           <button
                             onClick={() => onQuantityChange?.(item.productId!, item.quantity + 1, item.variantId)}
-                            className="p-1 hover:bg-gray-600 rounded-r transition-colors"
+                            className="p-1 hover:bg-radiant-gold/30 rounded-r transition-colors"
                             title="Increase quantity"
                           >
                             <Plus size={12} />
@@ -323,7 +323,7 @@ export default function OrderSummary({
                           <button
                             onClick={() => setEditingItem(isEditing ? null : { productId: item.productId!, variantId: item.variantId })}
                             className={`p-1.5 rounded transition-colors ${
-                              isEditing ? 'bg-purple-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                              isEditing ? 'bg-radiant-gold text-imperial-navy' : 'bg-silicon-slate hover:bg-radiant-gold/30 text-platinum-white'
                             }`}
                             title="Edit size/color"
                           >
@@ -334,14 +334,14 @@ export default function OrderSummary({
                         {/* Delete Button */}
                         <button
                           onClick={() => onRemoveItem?.(item.productId!, item.variantId)}
-                          className="p-1.5 bg-gray-700 hover:bg-red-600/20 text-gray-400 hover:text-red-400 rounded transition-colors ml-auto"
+                          className="p-1.5 bg-silicon-slate hover:bg-red-600/20 text-platinum-white/80 hover:text-red-400 rounded transition-colors ml-auto"
                           title="Remove item"
                         >
                           <Trash2 size={12} />
                         </button>
                       </div>
                     ) : (
-                      <p className="text-xs text-gray-400 mt-1">Qty: {item.quantity}</p>
+                      <p className="text-xs text-platinum-white/80 mt-1">Qty: {item.quantity}</p>
                     )}
                   </div>
 
@@ -376,13 +376,13 @@ export default function OrderSummary({
       </div>
 
       {/* Totals */}
-      <div className="border-t border-gray-800 pt-4 space-y-2">
+      <div className="border-t border-silicon-slate pt-4 space-y-2">
         {hasQuoteBasedItems && (
           <div className="p-2 bg-yellow-600/10 border border-yellow-600/30 rounded text-xs text-yellow-400 mb-2">
             Some items require a custom quote
           </div>
         )}
-        <div className="flex justify-between text-gray-400">
+        <div className="flex justify-between text-platinum-white/80">
           <span>Subtotal</span>
           <span>{hasPaidItems ? formatCurrency(subtotal) : 'Free'}</span>
         </div>
@@ -390,13 +390,13 @@ export default function OrderSummary({
           <motion.div
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            className="flex justify-between text-green-400"
+            className="flex justify-between text-radiant-gold"
           >
             <span>Discount</span>
             <span>-{formatCurrency(discountAmount)}</span>
           </motion.div>
         )}
-        <div className="flex justify-between text-xl font-bold text-white pt-2 border-t border-gray-800">
+        <div className="flex justify-between text-xl font-bold text-foreground pt-2 border-t border-silicon-slate">
           <span>Total</span>
           <span>
             {hasQuoteBasedItems 
@@ -474,22 +474,22 @@ function VariantEditor({
       initial={{ opacity: 0, height: 0 }}
       animate={{ opacity: 1, height: 'auto' }}
       exit={{ opacity: 0, height: 0 }}
-      className="mt-3 pt-3 border-t border-gray-700"
+      className="mt-3 pt-3 border-t border-silicon-slate"
     >
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-medium text-gray-400">Edit Options</span>
+        <span className="text-xs font-medium text-platinum-white/80">Edit Options</span>
         <button
           onClick={onClose}
-          className="p-1 hover:bg-gray-700 rounded transition-colors"
+          className="p-1 hover:bg-silicon-slate rounded transition-colors"
         >
-          <X size={14} className="text-gray-400" />
+          <X size={14} className="text-platinum-white/80" />
         </button>
       </div>
 
       {/* Size Selection */}
       {sortedSizes.length > 0 && (
         <div className="mb-3">
-          <label className="text-xs text-gray-500 mb-1.5 block">Size</label>
+          <label className="text-xs text-platinum-white/70 mb-1.5 block">Size</label>
           <div className="flex flex-wrap gap-1.5">
             {availableSizesForColor.map((size) => {
               const isSelected = selectedSize === size
@@ -502,10 +502,10 @@ function VariantEditor({
                   disabled={!isAvailable}
                   className={`px-2.5 py-1 text-xs rounded transition-all ${
                     isSelected
-                      ? 'bg-purple-600 text-white'
+                      ? 'bg-radiant-gold text-imperial-navy'
                       : isAvailable
-                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                      ? 'bg-silicon-slate text-platinum-white hover:bg-radiant-gold/30'
+                      : 'bg-silicon-slate text-platinum-white/60 cursor-not-allowed'
                   }`}
                 >
                   {size}
@@ -519,7 +519,7 @@ function VariantEditor({
       {/* Color Selection */}
       {allColors.length > 0 && (
         <div className="mb-3">
-          <label className="text-xs text-gray-500 mb-1.5 block">Color</label>
+          <label className="text-xs text-platinum-white/70 mb-1.5 block">Color</label>
           <div className="flex flex-wrap gap-1.5">
             {availableColorsForSize.map((color) => {
               const isSelected = selectedColor === color
@@ -532,10 +532,10 @@ function VariantEditor({
                   disabled={!isAvailable}
                   className={`px-2.5 py-1 text-xs rounded transition-all ${
                     isSelected
-                      ? 'bg-purple-600 text-white'
+                      ? 'bg-radiant-gold text-imperial-navy'
                       : isAvailable
-                      ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                      : 'bg-gray-800 text-gray-600 cursor-not-allowed'
+                      ? 'bg-silicon-slate text-platinum-white hover:bg-radiant-gold/30'
+                      : 'bg-silicon-slate text-platinum-white/60 cursor-not-allowed'
                   }`}
                 >
                   {color}
@@ -552,8 +552,8 @@ function VariantEditor({
         disabled={!selectedVariant || selectedVariant.id === currentVariantId}
         className={`w-full py-2 text-xs font-medium rounded transition-colors flex items-center justify-center gap-1.5 ${
           selectedVariant && selectedVariant.id !== currentVariantId
-            ? 'bg-purple-600 hover:bg-purple-700 text-white'
-            : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+            ? 'btn-gold'
+            : 'bg-silicon-slate text-platinum-white/70 cursor-not-allowed'
         }`}
       >
         <Check size={14} />

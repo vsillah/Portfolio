@@ -73,22 +73,22 @@ function AnalyticsPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-white">Loading analytics...</div>
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="text-foreground">Loading analytics...</div>
       </div>
     )
   }
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="text-red-500">Failed to load analytics. Please check your Supabase connection.</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },

@@ -61,7 +61,7 @@ export default function LeadDashboardsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-background text-foreground">
         <div className="max-w-6xl mx-auto px-4 py-6">
           <Breadcrumbs
             items={[
@@ -70,10 +70,10 @@ export default function LeadDashboardsPage() {
             ]}
           />
           <div className="flex items-center gap-3 mt-4 mb-6">
-            <LayoutDashboard className="w-8 h-8 text-blue-400" />
+            <LayoutDashboard className="w-8 h-8 text-radiant-gold" />
             <div>
-              <h1 className="text-xl font-bold text-white">Lead dashboards</h1>
-              <p className="text-sm text-gray-400">
+              <h1 className="text-xl font-bold gradient-text">Lead dashboards</h1>
+              <p className="text-sm text-platinum-white/80">
                 Share these links with leads after they complete the diagnostic. Same link works after they convert to clients.
               </p>
             </div>
@@ -81,7 +81,7 @@ export default function LeadDashboardsPage() {
 
           {loading && (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+              <Loader2 className="w-8 h-8 animate-spin text-radiant-gold" />
             </div>
           )}
 
@@ -92,32 +92,32 @@ export default function LeadDashboardsPage() {
           )}
 
           {!loading && !error && list.length === 0 && (
-            <div className="rounded-xl border border-gray-800 bg-gray-900/50 p-8 text-center text-gray-400">
+            <div className="rounded-xl border border-silicon-slate bg-silicon-slate/50 p-8 text-center text-platinum-white/80">
               No lead dashboards yet. Create one from a completed diagnostic (Sales → open audit → Share lead dashboard).
             </div>
           )}
 
           {!loading && !error && list.length > 0 && (
-            <div className="rounded-xl border border-gray-800 overflow-hidden">
+            <div className="rounded-xl border border-silicon-slate overflow-hidden">
               <table className="w-full text-left">
-                <thead className="bg-gray-900 border-b border-gray-800">
+                <thead className="bg-silicon-slate border-b border-silicon-slate">
                   <tr>
-                    <th className="px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Client email</th>
-                    <th className="px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Diagnostic ID</th>
-                    <th className="px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Created</th>
-                    <th className="px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Last accessed</th>
-                    <th className="px-4 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider w-48">Actions</th>
+                    <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase tracking-wider">Client email</th>
+                    <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase tracking-wider">Diagnostic ID</th>
+                    <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase tracking-wider">Created</th>
+                    <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase tracking-wider">Last accessed</th>
+                    <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase tracking-wider w-48">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800">
+                <tbody className="divide-y divide-silicon-slate">
                   {list.map((row) => (
-                    <tr key={row.id} className="bg-gray-900/30 hover:bg-gray-800/30">
-                      <td className="px-4 py-3 text-sm text-gray-300">{row.client_email}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500 font-mono">{row.diagnostic_audit_id}</td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
+                    <tr key={row.id} className="bg-silicon-slate/30 hover:bg-silicon-slate/50">
+                      <td className="px-4 py-3 text-sm text-platinum-white">{row.client_email}</td>
+                      <td className="px-4 py-3 text-sm text-platinum-white/60 font-mono">{row.diagnostic_audit_id}</td>
+                      <td className="px-4 py-3 text-sm text-platinum-white/60">
                         {row.created_at ? new Date(row.created_at).toLocaleDateString() : '—'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-500">
+                      <td className="px-4 py-3 text-sm text-platinum-white/60">
                         {row.last_accessed_at ? new Date(row.last_accessed_at).toLocaleString() : '—'}
                       </td>
                       <td className="px-4 py-3">
@@ -125,7 +125,7 @@ export default function LeadDashboardsPage() {
                           <button
                             type="button"
                             onClick={() => handleCopy(row.url, row.id)}
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-gray-300 text-xs hover:bg-gray-700"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg btn-ghost text-xs"
                           >
                             <Copy className="w-3.5 h-3.5" />
                             {copiedId === row.id ? 'Copied' : 'Copy link'}
@@ -134,7 +134,7 @@ export default function LeadDashboardsPage() {
                             href={row.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-600/20 border border-blue-500/50 text-blue-300 text-xs hover:bg-blue-600/30"
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-radiant-gold/20 border border-radiant-gold/50 text-radiant-gold text-xs hover:bg-radiant-gold/30"
                           >
                             <ExternalLink className="w-3.5 h-3.5" />
                             Open as lead

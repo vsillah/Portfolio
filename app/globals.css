@@ -196,10 +196,10 @@ body {
    Brand Button Styles
    ======================================== */
 
-/* Primary Gold Button */
+/* Primary Gold Button – navy text for readability on gold */
 .btn-gold {
   background: linear-gradient(135deg, var(--bronze) 0%, var(--radiant-gold) 50%, var(--gold-light) 100%);
-  color: var(--imperial-navy);
+  color: var(--imperial-navy) !important;
   font-weight: 600;
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;

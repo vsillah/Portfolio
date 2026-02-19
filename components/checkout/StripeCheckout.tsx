@@ -73,7 +73,7 @@ function CheckoutForm({ clientSecret, orderId, onSuccess, onError }: StripeCheck
       <button
         type="submit"
         disabled={!stripe || loading}
-        className="w-full px-6 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full px-6 py-4 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {loading ? (
           'Processing...'
@@ -94,11 +94,11 @@ export default function StripeCheckout({ clientSecret, orderId, onSuccess, onErr
     appearance: {
       theme: 'night',
       variables: {
-        colorPrimary: '#9333ea',
-        colorBackground: '#111827',
-        colorText: '#ffffff',
+        colorPrimary: '#D4AF37',
+        colorBackground: '#2C3E50',
+        colorText: '#EAECEE',
         colorDanger: '#ef4444',
-        fontFamily: 'system-ui, sans-serif',
+        fontFamily: 'var(--font-cormorant), system-ui, sans-serif',
         spacingUnit: '4px',
         borderRadius: '8px',
       },

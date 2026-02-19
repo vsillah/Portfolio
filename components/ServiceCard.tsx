@@ -60,10 +60,10 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -5 }}
-      className="bg-gray-900 border border-gray-800 rounded-xl overflow-hidden hover:border-cyan-500/50 transition-colors"
+      className="bg-silicon-slate border border-silicon-slate rounded-xl overflow-hidden hover:border-radiant-gold/50 transition-colors"
     >
       {/* Image */}
-      <div className="relative h-48 bg-gradient-to-br from-cyan-900/20 to-blue-900/20">
+      <div className="relative h-48 bg-gradient-to-br from-bronze/20 to-radiant-gold/20">
         {service.image_url && !imageError ? (
           <img
             src={service.image_url}
@@ -73,17 +73,17 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <div className="text-cyan-600">
+            <div className="text-radiant-gold">
               {TYPE_ICONS[service.service_type] || <Users size={48} />}
             </div>
           </div>
         )}
         {service.is_featured && (
-          <div className="absolute top-2 right-2 px-2 py-1 bg-cyan-600 text-white text-xs font-semibold rounded">
+          <div className="absolute top-2 right-2 px-2 py-1 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded">
             Featured
           </div>
         )}
-        <div className="absolute top-2 left-2 px-2 py-1 bg-gray-900/80 text-white text-xs rounded flex items-center gap-1">
+        <div className="absolute top-2 left-2 px-2 py-1 bg-silicon-slate/80 text-foreground text-xs rounded flex items-center gap-1">
           {TYPE_ICONS[service.service_type]}
           {TYPE_LABELS[service.service_type] || service.service_type}
         </div>
@@ -96,14 +96,14 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
         {/* Service Details */}
         <div className="flex flex-wrap gap-2 mb-3">
           {/* Delivery Method */}
-          <span className="px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded flex items-center gap-1">
+          <span className="px-2 py-1 bg-silicon-slate text-platinum-white text-xs rounded flex items-center gap-1">
             {delivery.icon}
             {delivery.label}
           </span>
           
           {/* Duration */}
           {service.duration_description && (
-            <span className="px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded flex items-center gap-1">
+            <span className="px-2 py-1 bg-silicon-slate text-platinum-white text-xs rounded flex items-center gap-1">
               <Clock size={12} />
               {service.duration_description}
             </span>
@@ -111,7 +111,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
           
           {/* Participants */}
           {service.max_participants && (
-            <span className="px-2 py-1 bg-gray-800 text-gray-300 text-xs rounded flex items-center gap-1">
+            <span className="px-2 py-1 bg-silicon-slate text-platinum-white text-xs rounded flex items-center gap-1">
               <Users size={12} />
               {service.min_participants}-{service.max_participants}
             </span>
@@ -119,7 +119,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
         </div>
 
         {service.description && (
-          <p className="text-gray-400 text-sm mb-4 line-clamp-3">{service.description}</p>
+          <p className="text-platinum-white/80 text-sm mb-4 line-clamp-3">{service.description}</p>
         )}
 
         {/* View details link */}
@@ -127,7 +127,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
           <div className="mb-3">
             <Link
               href={viewDetailsHref}
-              className="text-cyan-400 hover:text-cyan-300 text-sm flex items-center gap-1"
+              className="text-radiant-gold hover:text-gold-light text-sm flex items-center gap-1"
             >
               View details
               <ArrowRight size={14} />
@@ -156,7 +156,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
             className={`px-4 py-2 font-semibold rounded-lg flex items-center gap-2 transition-colors ${
               service.is_quote_based
                 ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white hover:from-yellow-700 hover:to-orange-700'
-                : 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-700 hover:to-blue-700'
+                : 'btn-gold'
             }`}
           >
             {service.is_quote_based ? (

@@ -112,7 +112,7 @@ export default function DownloadManager({ orderId, orderItems }: DownloadManager
 
   if (!hasFileDownloads && !hasTemplateDeliverables) {
     return (
-      <div className="text-center py-8 text-gray-400">
+      <div className="text-center py-8 text-platinum-white/80">
         <p>No downloadable files or template access for this order.</p>
       </div>
     )
@@ -127,7 +127,7 @@ export default function DownloadManager({ orderId, orderItems }: DownloadManager
             {orderItems.filter(item => item.products.file_path).length > 1 && (
               <button
                 onClick={handleDownloadAll}
-                className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white hover:border-purple-500 transition-colors text-sm"
+                className="px-4 py-2 btn-ghost transition-colors text-sm"
               >
                 Download All
               </button>
@@ -143,13 +143,13 @@ export default function DownloadManager({ orderId, orderItems }: DownloadManager
                   key={`file-${item.id}`}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="bg-gray-900 border border-gray-800 rounded-lg p-4 flex items-center justify-between"
+                  className="bg-silicon-slate border border-silicon-slate rounded-lg p-4 flex items-center justify-between"
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <File className="text-blue-400 flex-shrink-0" size={24} />
+                    <File className="text-radiant-gold flex-shrink-0" size={24} />
                     <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-white truncate">{item.products.title}</h4>
-                      <p className="text-sm text-gray-400 capitalize">{item.products.type}</p>
+                      <h4 className="font-semibold text-foreground truncate">{item.products.title}</h4>
+                      <p className="text-sm text-platinum-white/80 capitalize">{item.products.type}</p>
                     </div>
                   </div>
                   <button
@@ -158,7 +158,7 @@ export default function DownloadManager({ orderId, orderItems }: DownloadManager
                     className={`px-4 py-2 rounded-lg font-semibold transition-colors flex items-center gap-2 ${
                       isDownloaded
                         ? 'bg-green-600/20 text-green-400 border border-green-600/50'
-                        : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                        : 'btn-gold'
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {isDownloading ? (
@@ -185,16 +185,16 @@ export default function DownloadManager({ orderId, orderItems }: DownloadManager
                 key={`template-${item.id}`}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-gray-900 border border-gray-800 rounded-lg p-4 space-y-3"
+                className="bg-silicon-slate border border-silicon-slate rounded-lg p-4 space-y-3"
               >
-                <h4 className="font-semibold text-white">{item.products.title}</h4>
+                <h4 className="font-semibold text-foreground">{item.products.title}</h4>
                 <div className="flex flex-wrap gap-2">
                   {item.products.asset_url && (
                     <a
                       href={item.products.asset_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-900/30 border border-cyan-500/50 text-cyan-400 hover:bg-cyan-900/50 text-sm font-medium"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-radiant-gold/20 border border-radiant-gold/50 text-radiant-gold hover:bg-radiant-gold/30 text-sm font-medium"
                     >
                       <ExternalLink size={16} />
                       Repo / asset link
@@ -204,7 +204,7 @@ export default function DownloadManager({ orderId, orderItems }: DownloadManager
                     <button
                       onClick={() => handleInstructionsDownload(item.products.id)}
                       disabled={instructionsLoading[item.products.id]}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-900/30 border border-amber-500/50 text-amber-400 hover:bg-amber-900/50 text-sm font-medium disabled:opacity-50"
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gold-light/20 border border-radiant-gold/50 text-gold-light hover:bg-gold-light/30 text-sm font-medium disabled:opacity-50"
                     >
                       {instructionsLoading[item.products.id] ? (
                         <Loader className="animate-spin" size={16} />

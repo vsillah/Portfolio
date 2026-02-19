@@ -59,7 +59,7 @@ export default function DiscountCodeForm({
                   Code {appliedCode} applied
                 </p>
                 {discountAmount !== undefined && discountAmount > 0 && (
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-platinum-white/80">
                     Discount: {formatCurrency(discountAmount)}
                   </p>
                 )}
@@ -67,14 +67,14 @@ export default function DiscountCodeForm({
             </div>
             <button
               onClick={onRemove}
-              className="p-1 text-gray-400 hover:text-white transition-colors"
+              className="p-1 text-platinum-white/80 hover:text-foreground transition-colors"
               title="Remove discount code"
             >
               <X size={18} />
             </button>
           </div>
         </div>
-        <p className="text-xs text-gray-400 italic">
+        <p className="text-xs text-platinum-white/80 italic">
           Only one discount code can be applied per order
         </p>
       </motion.div>
@@ -88,7 +88,7 @@ export default function DiscountCodeForm({
       </label>
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
           <input
             type="text"
             value={code}
@@ -96,9 +96,9 @@ export default function DiscountCodeForm({
               setCode(e.target.value.toUpperCase())
               setError(null)
             }}
-            className={`w-full pl-10 pr-4 py-2 bg-gray-800 border ${
-              error ? 'border-red-500' : 'border-gray-700'
-            } rounded-lg text-white focus:outline-none focus:border-purple-500`}
+            className={`w-full pl-10 pr-4 py-2 input-brand ${
+              error ? 'border-red-500' : ''
+            }`}
             placeholder="Enter code"
             disabled={loading}
           />
@@ -106,7 +106,7 @@ export default function DiscountCodeForm({
         <button
           type="submit"
           disabled={loading || !code.trim()}
-          className="px-6 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white font-semibold hover:border-purple-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2 btn-ghost font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {loading ? 'Applying...' : 'Apply'}
         </button>

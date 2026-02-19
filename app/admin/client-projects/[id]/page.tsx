@@ -218,7 +218,7 @@ function ProjectDetailContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white p-8">
+      <div className="min-h-screen bg-background text-foreground p-8">
         <div className="max-w-7xl mx-auto text-center py-20 text-gray-400">
           Loading project...
         </div>
@@ -228,7 +228,7 @@ function ProjectDetailContent() {
 
   if (!data) {
     return (
-      <div className="min-h-screen bg-black text-white p-8">
+      <div className="min-h-screen bg-background text-foreground p-8">
         <div className="max-w-7xl mx-auto text-center py-20 text-gray-400">
           Project not found.
         </div>
@@ -247,7 +247,7 @@ function ProjectDetailContent() {
   const channel = project.slack_channel ? 'Slack' : 'Email'
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs
           items={[

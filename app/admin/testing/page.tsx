@@ -96,6 +96,7 @@ const SCENARIOS = [
   { id: 'abandoned_cart', name: 'Abandoned Cart', tags: ['e-commerce'] },
   { id: 'support_escalation', name: 'Support Escalation', tags: ['chat'] },
   { id: 'quick_browse', name: 'Quick Browse (Smoke)', tags: ['smoke'] },
+  { id: 'standalone_audit_tool', name: 'Standalone Audit Tool', tags: ['smoke', 'resources', 'audit', 'lead-magnet'] },
   { id: 'warm_lead_pipeline', name: 'Warm Lead Pipeline', tags: ['warm-leads', 'outreach', 'critical'] }
 ]
 

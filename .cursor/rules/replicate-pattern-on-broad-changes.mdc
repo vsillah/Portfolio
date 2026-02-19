@@ -1,0 +1,31 @@
+---
+description: When applying a change that could affect the whole codebase, ask about replication and search for similar occurrences
+alwaysApply: true
+---
+
+# Replicate Pattern on Broad Changes
+
+When you apply a change that could have **implications across the codebase** (e.g. adding a shared nav pattern, changing a design token, fixing a convention, or introducing a new component usage):
+
+1. **Ask first**: Before finishing, ask the user: *"Should this pattern be applied elsewhere in the codebase?"*
+2. **If yes (or user agrees)**: Search for other occurrences of the same pattern (same component, same class, same structure, or same anti-pattern) and apply the change there too. Report what you found and what you updated.
+
+## What counts as "could have implications"
+
+- Adding or changing navigation, layout, or shared UI (e.g. Breadcrumbs, headers).
+- Changing design tokens, utility classes, or color/typography usage.
+- Fixing a bug or convention in one place that likely exists in similar code.
+- Introducing a new API usage, validation pattern, or error-handling approach in one file.
+
+## What to do
+
+- **Before** treating the task as complete, consider whether the change is a one-off or a pattern.
+- **Ask** whether to replicate.
+- **Search** (grep, codebase search) for the same pattern; apply the change to other occurrences when the user wants replication.
+- **Summarize** which files were updated so the user can review.
+
+## Example
+
+User: "Add Breadcrumbs to the guarantees page."
+
+After adding Breadcrumbs to that page: ask "Should other admin deep-link pages also get Breadcrumbs?" If yes, search for admin `page.tsx` files that don’t use Breadcrumbs and add them there; then list the updated pages.

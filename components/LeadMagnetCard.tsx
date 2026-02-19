@@ -1,7 +1,8 @@
 'use client'
 
+import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Download, FileText, Video, File } from 'lucide-react'
+import { Download, FileText, Video, File, ExternalLink } from 'lucide-react'
 import { useState } from 'react'
 
 interface LeadMagnet {
@@ -12,6 +13,8 @@ interface LeadMagnet {
   file_size: number | null
   download_count: number
   created_at: string
+  file_path?: string | null
+  type?: string | null
 }
 
 interface LeadMagnetCardProps {
@@ -21,9 +24,18 @@ interface LeadMagnetCardProps {
 
 export default function LeadMagnetCard({ leadMagnet, onDownload }: LeadMagnetCardProps) {
   const [downloading, setDownloading] = useState(false)
+  const isToolLink =
+    leadMagnet.file_path != null &&
+    leadMagnet.file_path !== '' &&
+    leadMagnet.file_path.startsWith('/')
+  const isInteractive =
+    leadMagnet.type === 'interactive' ||
+    leadMagnet.type === 'link' ||
+    (isToolLink && (leadMagnet.type === 'document' || leadMagnet.type === 'ebook'))
 
   const getFileIcon = () => {
-    switch (leadMagnet.file_type.toLowerCase()) {
+    if (isInteractive) return <ExternalLink className="text-amber-400" size={24} />
+    switch (leadMagnet.file_type?.toLowerCase()) {
       case 'pdf':
         return <FileText className="text-red-400" size={24} />
       case 'video':
@@ -65,20 +77,34 @@ export default function LeadMagnetCard({ leadMagnet, onDownload }: LeadMagnetCar
             <p className="text-gray-400 text-sm mb-4">{leadMagnet.description}</p>
           )}
           <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-            <span>{formatFileSize(leadMagnet.file_size)}</span>
-            <span>•</span>
+            {!isInteractive && (
+              <>
+                <span>{formatFileSize(leadMagnet.file_size)}</span>
+                <span>•</span>
+              </>
+            )}
             <span>{leadMagnet.download_count} downloads</span>
           </div>
-          <motion.button
-            onClick={handleDownload}
-            disabled={downloading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Download size={18} />
-            {downloading ? 'Downloading...' : 'Download'}
-          </motion.button>
+          {isInteractive ? (
+            <Link
+              href={leadMagnet.file_path!.startsWith('/') ? leadMagnet.file_path! : `/${leadMagnet.file_path!}`}
+              className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-semibold rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            >
+              <ExternalLink size={18} />
+              Open tool
+            </Link>
+          ) : (
+            <motion.button
+              onClick={handleDownload}
+              disabled={downloading}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download size={18} />
+              {downloading ? 'Downloading...' : 'Download'}
+            </motion.button>
+          )}
         </div>
       </div>
     </motion.div>

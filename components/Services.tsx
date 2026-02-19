@@ -48,22 +48,22 @@ const DELIVERY_LABELS: Record<string, string> = {
 
 const SUBSECTION_ACCENTS: Record<string, { border: string; badge: string; icon: string; hover: string }> = {
   build: {
-    border: 'border-cyan-500/30',
-    badge: 'border-cyan-500/30 text-cyan-400',
-    icon: 'text-cyan-500/40',
-    hover: 'hover:border-cyan-500/40 group-hover:text-cyan-400',
+    border: 'border-radiant-gold/30',
+    badge: 'border-radiant-gold/30 text-radiant-gold',
+    icon: 'text-radiant-gold/40',
+    hover: 'hover:border-radiant-gold/40 group-hover:text-radiant-gold',
   },
   advisory: {
-    border: 'border-amber-500/30',
-    badge: 'border-amber-500/30 text-amber-400',
-    icon: 'text-amber-500/40',
-    hover: 'hover:border-amber-500/40 group-hover:text-amber-400',
+    border: 'border-gold-light/30',
+    badge: 'border-gold-light/30 text-gold-light',
+    icon: 'text-gold-light/40',
+    hover: 'hover:border-gold-light/40 group-hover:text-gold-light',
   },
   warranty: {
-    border: 'border-slate-500/30',
-    badge: 'border-slate-400/30 text-slate-400',
-    icon: 'text-slate-500/40',
-    hover: 'hover:border-slate-500/40 group-hover:text-slate-400',
+    border: 'border-silicon-slate/30',
+    badge: 'border-platinum-white/30 text-platinum-white/80',
+    icon: 'text-silicon-slate/40',
+    hover: 'hover:border-silicon-slate/40 group-hover:text-platinum-white/80',
   },
 }
 
@@ -200,11 +200,11 @@ export default function Services() {
                     {service.description}
                   </p>
                 )}
-                <div className={`w-full flex items-center justify-center gap-3 py-3 border rounded-full transition-all duration-300 ${category === 'build' ? 'border-cyan-500/20 group-hover:bg-cyan-500/10 group-hover:border-cyan-500/40' : category === 'advisory' ? 'border-amber-500/20 group-hover:bg-amber-500/10 group-hover:border-amber-500/40' : 'border-slate-500/20 group-hover:bg-slate-500/10 group-hover:border-slate-500/40'}`}>
-                  <span className={`text-[10px] font-heading tracking-widest uppercase ${accent.badge.split(' ')[1] || 'text-cyan-400'}`}>
+                <div className={`w-full flex items-center justify-center gap-3 py-3 border rounded-full transition-all duration-300 ${category === 'build' ? 'border-radiant-gold/20 group-hover:bg-radiant-gold/10 group-hover:border-radiant-gold/40' : category === 'advisory' ? 'border-gold-light/20 group-hover:bg-gold-light/10 group-hover:border-gold-light/40' : 'border-silicon-slate/20 group-hover:bg-silicon-slate/10 group-hover:border-silicon-slate/40'}`}>
+                  <span className={`text-[10px] font-heading tracking-widest uppercase ${accent.badge.split(' ')[1] || 'text-radiant-gold'}`}>
                     View Details
                   </span>
-                  <ArrowRight size={14} className={accent.badge.split(' ')[1] || 'text-cyan-400'} />
+                  <ArrowRight size={14} className={accent.badge.split(' ')[1] || 'text-radiant-gold'} />
                 </div>
               </div>
             </motion.div>
@@ -239,14 +239,14 @@ export default function Services() {
           transition={{ duration: 0.8 }}
           className="text-center mb-20"
         >
-          <div className="pill-badge bg-silicon-slate/30 border-cyan-500/30 mb-6 mx-auto">
-            <Briefcase className="w-3 h-3 text-cyan-400" />
-            <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-cyan-400">
+          <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/30 mb-6 mx-auto">
+            <Briefcase className="w-3 h-3 text-radiant-gold" />
+            <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
               Services
             </span>
           </div>
           <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
-            <span className="italic text-cyan-400">Services</span>
+            <span className="italic text-radiant-gold">Services</span>
           </h2>
           <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
             Trainings, speaking engagements, consulting, and more—delivered in-person or virtually.
@@ -262,14 +262,14 @@ export default function Services() {
         <div className="text-center mt-20 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/services"
-            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-cyan-400 transition-colors pb-2 border-b border-platinum-white/10"
+            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
           >
             <span>View All Services</span>
             <ArrowRight size={14} />
           </Link>
           <Link
             href="/pricing"
-            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-cyan-400 transition-colors pb-2 border-b border-platinum-white/10"
+            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
           >
             <span>See Pricing &amp; Packages</span>
             <ArrowRight size={14} />

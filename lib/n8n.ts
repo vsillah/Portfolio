@@ -293,6 +293,9 @@ export interface LeadQualificationRequest {
   submittedAt: string
   source: string
 
+  /** AI Readiness Scorecard score (0–10) when source is scorecard */
+  aiReadinessScore?: number
+
   // Placeholder fields for n8n to populate (included for schema completeness)
   // These will be filled by the Research Agent and Lead Scoring Agent
   leadScore?: number

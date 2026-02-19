@@ -91,21 +91,21 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
   )
 
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
+    <div className="bg-silicon-slate border border-silicon-slate/80 rounded-xl p-6">
       <div className="flex items-center gap-2 mb-4">
-        <Users className="text-purple-400" size={24} />
+        <Users className="text-radiant-gold" size={24} />
         <h3 className="text-xl font-bold">Referral Program</h3>
       </div>
 
-      <p className="text-gray-400 mb-6 text-sm">
+      <p className="text-platinum-white/80 mb-6 text-sm">
         Share your referral code with friends and earn discounts when they make a purchase!
       </p>
 
       {referralCode ? (
         <div className="space-y-4">
           {/* Referral Code */}
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-            <label className="block text-sm font-medium text-gray-400 mb-2">
+          <div className="bg-silicon-slate/80 border border-silicon-slate rounded-lg p-4">
+            <label className="block text-sm font-medium text-platinum-white/80 mb-2">
               Your Referral Code
             </label>
             <div className="flex items-center gap-2">
@@ -113,11 +113,11 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
                 type="text"
                 value={referralCode}
                 readOnly
-                className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white font-mono"
+                className="flex-1 input-brand font-mono"
               />
               <button
                 onClick={handleCopy}
-                className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white hover:border-purple-500 transition-colors flex items-center gap-2"
+                className="px-4 py-2 bg-silicon-slate/80 border border-silicon-slate rounded-lg text-white btn-ghost transition-colors flex items-center gap-2"
               >
                 {copied ? (
                   <>
@@ -135,8 +135,8 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
           </div>
 
           {/* Referral URL */}
-          <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-            <label className="block text-sm font-medium text-gray-400 mb-2">
+          <div className="bg-silicon-slate/80 border border-silicon-slate rounded-lg p-4">
+            <label className="block text-sm font-medium text-platinum-white/80 mb-2">
               Referral Link
             </label>
             <div className="flex items-center gap-2">
@@ -144,7 +144,7 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
                 type="text"
                 value={referralUrl}
                 readOnly
-                className="flex-1 px-4 py-2 bg-gray-900 border border-gray-700 rounded-lg text-white text-sm"
+                className="flex-1 input-brand text-sm"
               />
               <button
                 onClick={() => {
@@ -152,7 +152,7 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
                   setCopied(true)
                   setTimeout(() => setCopied(false), 2000)
                 }}
-                className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white hover:border-purple-500 transition-colors"
+                className="px-4 py-2 bg-silicon-slate/80 border border-silicon-slate rounded-lg text-white btn-ghost transition-colors"
               >
                 <Copy size={18} />
               </button>
@@ -161,17 +161,17 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
 
           {/* Stats */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+            <div className="bg-silicon-slate/80 border border-silicon-slate rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
-                <Users className="text-blue-400" size={20} />
-                <span className="text-sm text-gray-400">Referrals</span>
+                <Users className="text-radiant-gold" size={20} />
+                <span className="text-sm text-platinum-white/80">Referrals</span>
               </div>
               <p className="text-2xl font-bold text-white">{referrals.length}</p>
             </div>
-            <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+            <div className="bg-silicon-slate/80 border border-silicon-slate rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Gift className="text-green-400" size={20} />
-                <span className="text-sm text-gray-400">Discount Earned</span>
+                <span className="text-sm text-platinum-white/80">Discount Earned</span>
               </div>
               <p className="text-2xl font-bold text-white">{formatCurrency(totalDiscountEarned)}</p>
             </div>
@@ -180,14 +180,14 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
           {/* Recent Referrals */}
           {referrals.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-gray-400 mb-2">Recent Referrals</h4>
+              <h4 className="text-sm font-semibold text-platinum-white/80 mb-2">Recent Referrals</h4>
               <div className="space-y-2">
                 {referrals.slice(0, 5).map((referral) => (
                   <div
                     key={referral.id}
-                    className="flex items-center justify-between p-2 bg-gray-800 rounded text-sm"
+                    className="flex items-center justify-between p-2 bg-silicon-slate/80 rounded text-sm"
                   >
-                    <span className="text-gray-300">
+                    <span className="text-foreground">
                       {referral.referred_email || 'Anonymous'}
                     </span>
                     <span className="text-green-400 font-semibold">
@@ -200,7 +200,7 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
           )}
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-400">
+        <div className="text-center py-8 text-platinum-white/80">
           {loading ? 'Loading...' : 'No referral code available'}
         </div>
       )}

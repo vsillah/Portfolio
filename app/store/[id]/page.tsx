@@ -130,10 +130,10 @@ export default function ProductDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-background text-foreground">
         <Navigation />
         <div className="pt-24 pb-12 px-4 flex items-center justify-center">
-          <div className="text-gray-400">Loading product...</div>
+          <div className="text-platinum-white/80">Loading product...</div>
         </div>
       </div>
     )
@@ -141,14 +141,14 @@ export default function ProductDetailPage() {
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-background text-foreground">
         <Navigation />
         <div className="pt-24 pb-12 px-4">
           <div className="max-w-7xl mx-auto text-center">
-            <p className="text-gray-400 mb-4">Product not found</p>
+            <p className="text-platinum-white/80 mb-4">Product not found</p>
             <Link
               href="/store"
-              className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300"
+              className="inline-flex items-center gap-2 text-radiant-gold hover:text-gold-light"
             >
               <ArrowLeft size={20} />
               Back to Store
@@ -183,7 +183,7 @@ export default function ProductDetailPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-black text-white">
+    <div className="min-h-screen bg-background text-foreground">
       <Navigation />
       <div className="pt-24 pb-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
@@ -193,7 +193,7 @@ export default function ProductDetailPage() {
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <Link
               href="/store"
-              className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 text-platinum-white/80 hover:text-foreground transition-colors"
             >
               <ArrowLeft size={20} />
               Back to Store
@@ -201,7 +201,7 @@ export default function ProductDetailPage() {
             <div className="flex items-center gap-3">
               <Link
                 href="/help"
-                className="text-gray-400 hover:text-white transition-colors"
+                className="text-platinum-white/80 hover:text-foreground transition-colors"
                 aria-label="Help"
               >
                 <HelpCircle size={20} />
@@ -210,7 +210,7 @@ export default function ProductDetailPage() {
                 onClick={() => router.push('/checkout')}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="relative flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 border border-gray-700 hover:border-gray-600 rounded-lg transition-colors"
+                className="relative flex items-center gap-2 px-4 py-2 bg-silicon-slate hover:bg-silicon-slate/80 border border-silicon-slate hover:border-radiant-gold/50 rounded-lg transition-colors"
               >
                 <ShoppingCart size={20} />
                 <span className="hidden sm:inline">Cart</span>
@@ -220,7 +220,7 @@ export default function ProductDetailPage() {
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       exit={{ scale: 0 }}
-                      className="absolute -top-2 -right-2 w-5 h-5 bg-cyan-600 text-white text-xs font-bold rounded-full flex items-center justify-center"
+                      className="absolute -top-2 -right-2 w-5 h-5 bg-radiant-gold text-imperial-navy text-xs font-bold rounded-full flex items-center justify-center"
                     >
                       {cartCount > 99 ? '99+' : cartCount}
                     </motion.span>
@@ -234,10 +234,10 @@ export default function ProductDetailPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="bg-gray-900/50 border border-gray-800 rounded-2xl overflow-hidden"
+            className="bg-silicon-slate/50 border border-silicon-slate rounded-2xl overflow-hidden"
           >
             {/* Hero */}
-            <div className="relative h-64 md:h-80 bg-gradient-to-br from-cyan-900/20 to-blue-900/20">
+            <div className="relative h-64 md:h-80 bg-gradient-to-br from-bronze/20 to-radiant-gold/20">
               {(product.image_url || (mockupImages.length > 0 && mockupImages[0])) ? (
                 <img
                   src={product.image_url || mockupImages[0]}
@@ -246,21 +246,21 @@ export default function ProductDetailPage() {
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
-                  <Package className="text-cyan-500/40" size={80} />
+                  <Package className="text-radiant-gold/40" size={80} />
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
-                <span className="px-3 py-1 bg-gray-900/80 rounded-full text-xs font-heading tracking-wider text-cyan-400 uppercase">
+                <span className="px-3 py-1 bg-silicon-slate/80 rounded-full text-xs font-heading tracking-wider text-radiant-gold uppercase">
                   {PRODUCT_TYPE_LABELS[product.type as keyof typeof PRODUCT_TYPE_LABELS] || product.type}
                 </span>
                 {product.category && (
-                  <span className="ml-2 px-3 py-1 bg-gray-800 rounded-full text-xs text-gray-300">
+                  <span className="ml-2 px-3 py-1 bg-silicon-slate rounded-full text-xs text-platinum-white">
                     {CATEGORY_LABELS[product.category] || product.category}
                   </span>
                 )}
                 {product.is_featured && (
-                  <span className="ml-2 px-3 py-1 bg-cyan-500/90 text-imperial-navy rounded-full text-xs font-bold uppercase">
+                  <span className="ml-2 px-3 py-1 bg-radiant-gold/90 text-imperial-navy rounded-full text-xs font-bold uppercase">
                     Featured
                   </span>
                 )}
@@ -273,8 +273,8 @@ export default function ProductDetailPage() {
             <div className="p-8 md:p-10">
               {/* Meta row */}
               {product.category && (
-                <div className="flex flex-wrap gap-4 mb-6 text-gray-400">
-                  <span className="px-3 py-1 bg-gray-800 text-gray-300 rounded-full text-sm">
+                <div className="flex flex-wrap gap-4 mb-6 text-platinum-white/80">
+                  <span className="px-3 py-1 bg-silicon-slate text-platinum-white rounded-full text-sm">
                     {CATEGORY_LABELS[product.category] || product.category}
                   </span>
                 </div>
@@ -282,7 +282,7 @@ export default function ProductDetailPage() {
 
               {/* Description */}
               {product.description && (
-                <p className="text-gray-300 text-lg leading-relaxed mb-8">
+                <p className="text-platinum-white text-lg leading-relaxed mb-8">
                   {product.description}
                 </p>
               )}
@@ -290,14 +290,14 @@ export default function ProductDetailPage() {
               {/* What's included / Deliverables */}
               {deliverablesList.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="text-sm font-heading uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                  <h3 className="text-sm font-heading uppercase tracking-wider text-platinum-white/80 mb-3 flex items-center gap-2">
                     <Package size={16} />
                     What&apos;s Included
                   </h3>
                   <ul className="space-y-2">
                     {deliverablesList.map((d) => (
-                      <li key={d} className="flex items-center gap-2 text-gray-300">
-                        <Check className="text-green-500 flex-shrink-0" size={18} />
+                      <li key={d} className="flex items-center gap-2 text-platinum-white">
+                        <Check className="text-radiant-gold flex-shrink-0" size={18} />
                         {d}
                       </li>
                     ))}
@@ -305,10 +305,37 @@ export default function ProductDetailPage() {
                 </div>
               )}
 
+              {/* Template: not included (DIY disclaimer) */}
+              {product.type === 'template' && (
+                <div className="mb-8 p-4 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
+                  <h3 className="text-sm font-heading uppercase tracking-wider text-platinum-white/80 mb-3">
+                    Not Included
+                  </h3>
+                  <p className="text-platinum-white/80 text-sm mb-2">
+                    Templates are self-serve. Installation is completely DIY.
+                  </p>
+                  <ul className="space-y-1 text-sm text-platinum-white/80 list-disc list-inside">
+                    <li>Warranties and guarantees are not included</li>
+                    <li>Consulting services are not included</li>
+                    <li>Customer support is not included</li>
+                  </ul>
+                  <p className="text-platinum-white text-sm mt-4">
+                    Our{' '}
+                    <Link
+                      href="/pricing?segment=smb"
+                      className="text-radiant-gold hover:text-gold-light underline font-medium"
+                    >
+                      full-service packages
+                    </Link>
+                    {' '}include installation support, outcome guarantees, and dedicated consulting—ideal if you prefer hands-on delivery.
+                  </p>
+                </div>
+              )}
+
               {/* Template: install instructions link */}
               {product.type === 'template' && product.instructions_file_path && (
-                <div className="mb-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                  <p className="text-sm text-gray-400 mb-2">
+                <div className="mb-8 p-4 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
+                  <p className="text-sm text-platinum-white/80 mb-2">
                     Install instructions are available after purchase.
                   </p>
                 </div>
@@ -326,21 +353,23 @@ export default function ProductDetailPage() {
                 </div>
               )}
 
-              {/* Available in packages */}
+              {/* Available in packages (same component for products and templates; data from /api/products/[id]/bundles) */}
               {bundles.length > 0 && (
-                <div className="mb-8 p-6 bg-gray-800/50 rounded-xl border border-gray-700">
-                  <h3 className="text-sm font-heading uppercase tracking-wider text-gray-400 mb-3">
+                <div className="mb-8 p-6 bg-silicon-slate/50 rounded-xl border border-silicon-slate">
+                  <h3 className="text-sm font-heading uppercase tracking-wider text-platinum-white/80 mb-3">
                     Available in Packages
                   </h3>
-                  <p className="text-gray-300 text-sm mb-4">
-                    This product is included in the following pricing tiers:
+                  <p className="text-platinum-white text-sm mb-4">
+                    {product.type === 'template'
+                      ? 'This template is included in the following pricing tiers:'
+                      : 'This product is included in the following pricing tiers:'}
                   </p>
                   <div className="flex flex-wrap gap-2">
                     {bundles.map((b) => (
                       <Link
                         key={`${b.slug}-${b.segment}`}
                         href={b.pricingUrl}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-cyan-900/30 border border-cyan-500/50 rounded-lg text-cyan-400 hover:bg-cyan-900/50 hover:border-cyan-400 transition-colors text-sm"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-radiant-gold/20 border border-radiant-gold/50 rounded-lg text-radiant-gold hover:bg-radiant-gold/30 hover:border-gold-light transition-colors text-sm"
                       >
                         {b.name}
                         <ExternalLink size={14} />
@@ -352,10 +381,10 @@ export default function ProductDetailPage() {
 
               {/* Merchandise info */}
               {isMerchandise && (
-                <div className="mb-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                <div className="mb-8 p-4 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
                   <div className="flex items-start gap-3">
-                    <Info className="text-cyan-400 flex-shrink-0 mt-0.5" size={20} />
-                    <div className="text-sm text-gray-400">
+                    <Info className="text-radiant-gold flex-shrink-0 mt-0.5" size={20} />
+                    <div className="text-sm text-platinum-white/80">
                       <p className="mb-2">
                         Print-on-demand. Fulfilled by Printful; typically ships within 2–7 business days.
                       </p>
@@ -367,15 +396,15 @@ export default function ProductDetailPage() {
 
               {/* Size chart (apparel) */}
               {isMerchandise && product.category === 'apparel' && (
-                <details className="mb-8 bg-gray-800/50 rounded-lg border border-gray-700">
+                <details className="mb-8 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
                   <summary className="px-4 py-3 cursor-pointer font-medium">
                     Size Chart
                   </summary>
                   <div className="px-4 pb-4 pt-2">
-                    <p className="text-sm text-gray-400 mb-2">
+                    <p className="text-sm text-platinum-white/80 mb-2">
                       Please refer to the product description for detailed sizing information.
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-platinum-white/70">
                       Sizes may vary by product.
                     </p>
                   </div>
@@ -383,7 +412,7 @@ export default function ProductDetailPage() {
               )}
 
               {/* Price and CTA */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pt-6 border-t border-gray-800">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 pt-6 border-t border-silicon-slate">
                 <div>
                   {selectedVariant?.price != null ? (
                     <span className="text-3xl font-bold text-white">
@@ -394,7 +423,7 @@ export default function ProductDetailPage() {
                       {formatCurrency(product.price)}
                     </span>
                   ) : (
-                    <span className="text-xl font-semibold text-green-400">Free</span>
+                    <span className="text-xl font-semibold text-radiant-gold">Free</span>
                   )}
                 </div>
                 <motion.button
@@ -402,7 +431,7 @@ export default function ProductDetailPage() {
                   disabled={addingToCart || (isMerchandise && variants.length > 0 && (!selectedVariant || !selectedVariant.is_available))}
                   whileHover={{ scale: addingToCart ? 1 : 1.02 }}
                   whileTap={{ scale: addingToCart ? 1 : 0.98 }}
-                  className="px-8 py-4 font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-8 py-4 font-semibold rounded-xl flex items-center justify-center gap-2 transition-colors btn-gold disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {showAdded ? (
                     <>

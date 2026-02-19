@@ -14,6 +14,7 @@ import {
   Filter,
   RefreshCw,
 } from 'lucide-react';
+import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import GuaranteeTemplateEditor from '@/components/admin/guarantees/GuaranteeTemplateEditor';
 import {
   INSTANCE_STATUS_LABELS,
@@ -126,6 +127,12 @@ export default function GuaranteesAdminPage() {
   return (
     <div className="min-h-screen bg-gray-950 text-white p-6">
       <div className="max-w-7xl mx-auto space-y-6">
+        <Breadcrumbs
+          items={[
+            { label: 'Admin Dashboard', href: '/admin' },
+            { label: 'Guarantees' },
+          ]}
+        />
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

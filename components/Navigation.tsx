@@ -141,12 +141,12 @@ export default function Navigation() {
                       {/* Menu items */}
                       <div className="p-2">
                         <a
-                          href="/lead-magnets"
+                          href="/resources"
                           onClick={() => setIsUserMenuOpen(false)}
                           className="flex items-center gap-3 px-3 py-2.5 text-sm text-platinum-white/80 hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
                         >
                           <Download size={16} />
-                          Lead Magnets
+                          Resources
                         </a>
 
                         <a

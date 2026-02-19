@@ -16,8 +16,9 @@ Welcome! This guide covers everything you need to know to navigate and use the s
 8. [Proposals](#proposals)
 9. [Onboarding](#onboarding)
 10. [Lead Magnets](#lead-magnets)
-11. [Your Account](#your-account)
-12. [FAQ & Troubleshooting](#faq--troubleshooting)
+11. [AI Readiness Scorecard](#ai-readiness-scorecard)
+12. [Your Account](#your-account)
+13. [FAQ & Troubleshooting](#faq--troubleshooting)
 
 ---
 
@@ -314,7 +315,7 @@ Click the **Download PDF** link to save a copy of your onboarding plan.
 
 ## Lead Magnets
 
-The Lead Magnets page (`/lead-magnets`) provides access to free downloadable resources.
+The Lead Magnets page (`/lead-magnets`) provides access to free downloadable resources. You can also use the **Resources** page (`/resources`), which includes the AI Readiness Scorecard and the same templates and playbooks.
 
 > **Note**: You must be logged in to access lead magnets. If you are not logged in, you will be redirected to the login page.
 
@@ -324,6 +325,22 @@ The Lead Magnets page (`/lead-magnets`) provides access to free downloadable res
 2. Click the download button on any item.
 3. The file will be downloaded to your device.
 4. Download counts are tracked per resource.
+
+---
+
+## AI Readiness Scorecard
+
+On the **Resources** page (`/resources`) you can take the **AI Readiness Scorecard**: a short assessment that scores how ready your organization is for AI (0–10) and gives you tailored next steps.
+
+### How It Works
+
+1. **Start** — Click to begin the scorecard on the Resources page.
+2. **Answer** — Answer a few questions about your data, team, goals, and resources. You can move back and forth between questions.
+3. **See your score** — You’ll see your score out of 10 and a short teaser.
+4. **Get full results** — Enter your email (and optionally your name) to unlock the full result: a band (Getting started / Building / Ready) with a summary and recommended actions.
+5. **Results** — The full result is shown on the same page. You can use it to plan next steps or share with your team.
+
+Your response is saved with your email so we can follow up with relevant resources. The same lead qualification workflow used for the contact form may use your score to tailor outreach.
 
 ---
 

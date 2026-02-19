@@ -48,12 +48,21 @@ export async function saveDiagnosticAudit(
     contactSubmissionId?: number
     /** Optional: questions per category for lead dashboard; persisted when status is completed */
     questionsByCategory?: QuestionsByCategory
+    /** Required on insert in DB: 'chat' | 'standalone' | 'in_person'. Defaults to 'chat' when creating. */
+    auditType?: string
   }
 ): Promise<{ id: string; error?: Error }> {
   try {
     const updateData: Record<string, unknown> = {
       session_id: sessionId,
       updated_at: new Date().toISOString(),
+    }
+
+    // audit_type is NOT NULL on diagnostic_audits; set when creating (and optionally on update)
+    if (data.auditType) {
+      updateData.audit_type = data.auditType
+    } else if (!data.diagnosticAuditId) {
+      updateData.audit_type = 'chat'
     }
 
     // Update status
@@ -166,9 +175,16 @@ export async function saveDiagnosticAudit(
     return { id: auditId }
   } catch (error) {
     console.error('Error saving diagnostic audit:', error)
+    const errObj = error as Error & { message?: string }
+    const message =
+      errObj instanceof Error
+        ? errObj.message
+        : typeof (error as { message?: string })?.message === 'string'
+          ? (error as { message: string }).message
+          : 'Unknown error saving diagnostic audit'
     return {
       id: data.diagnosticAuditId || '',
-      error: error instanceof Error ? error : new Error('Unknown error saving diagnostic audit'),
+      error: new Error(message),
     }
   }
 }

@@ -340,7 +340,7 @@ export default function PrototypeDemosPage({ params }: { params: { id: string } 
   if (loading) {
     return (
       <ProtectedRoute requireAdmin>
-        <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
           <div className="flex items-center gap-3">
             <Loader2 className="animate-spin" size={24} />
             <span>Loading demos...</span>
@@ -352,7 +352,7 @@ export default function PrototypeDemosPage({ params }: { params: { id: string } 
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-black text-white">
+      <div className="min-h-screen bg-background text-foreground">
         {/* Notification */}
         <AnimatePresence>
           {notification && (

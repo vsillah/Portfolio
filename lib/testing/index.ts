@@ -128,7 +128,8 @@ export {
   abandonedCartScenario,
   supportEscalationScenario,
   quickBrowseScenario,
-  
+  standaloneAuditToolScenario,
+
   // Collections
   ALL_SCENARIOS,
   SCENARIOS_BY_ID,
