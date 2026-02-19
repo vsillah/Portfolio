@@ -48,7 +48,25 @@ export async function GET(request: NextRequest) {
 
     const tasks = await listTasks({ meetingRecordId, clientProjectId, status })
 
-    return NextResponse.json({ tasks })
+    // Enrich with project_name and client_name for display
+    const projectIds = [...new Set((tasks || []).map(t => t.client_project_id).filter(Boolean))] as string[]
+    let projectMap: Record<string, { project_name: string | null; client_name: string | null }> = {}
+    if (projectIds.length > 0) {
+      const { data: projects } = await supabaseAdmin
+        .from('client_projects')
+        .select('id, project_name, client_name')
+        .in('id', projectIds)
+      for (const p of projects || []) {
+        projectMap[p.id] = { project_name: p.project_name ?? null, client_name: p.client_name ?? null }
+      }
+    }
+    const enrichedTasks = tasks.map(t => ({
+      ...t,
+      project_name: t.client_project_id ? projectMap[t.client_project_id]?.project_name ?? null : null,
+      client_name: t.client_project_id ? projectMap[t.client_project_id]?.client_name ?? null : null,
+    }))
+
+    return NextResponse.json({ tasks: enrichedTasks })
   } catch (error) {
     console.error('[Meeting action tasks GET] Error:', error)
     const message = error instanceof Error ? error.message : String(error)

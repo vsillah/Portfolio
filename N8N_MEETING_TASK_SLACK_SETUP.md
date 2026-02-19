@@ -6,6 +6,10 @@ This guide explains how to connect the Meeting Action Tasks feature to Slack
 so tasks from meetings appear as messages in Slack Kanban channels and
 status changes are reflected when tasks are completed.
 
+## Contract: Dashboard primary, Slack read-only mirror
+
+**Meeting task state is managed only in the admin dashboard.** Slack is a **read-only mirror**. Status, assignee, and due date changes must be done in the app (Admin → Meeting Tasks). Slack does not trigger updates back to the app in the default setup; use the dashboard for traceability, "by client" filtering, and client update drafts / upsell.
+
 ## Architecture
 
 ```
@@ -26,13 +30,13 @@ Admin marks task complete (app or Slack)
 
 Create these channels in your Slack workspace:
 
-| Channel | Purpose |
-|---------|---------|
-| `#meeting-actions-todo` | New / pending action items |
-| `#meeting-actions-in-progress` | Tasks being worked on |
-| `#meeting-actions-done` | Completed tasks |
+| Channel | Purpose | Used by WF-TSK today |
+|---------|---------|----------------------|
+| `#meeting-actions-todo` | New / pending action items | Yes — new tasks (`action: create`) |
+| `#meeting-actions-in-progress` | Tasks being worked on | No — optional for a future three-column Kanban |
+| `#meeting-actions-done` | Completed tasks | Yes — status updates (`action: update_status`) |
 
-Get the **channel IDs** from Slack (right-click channel → View channel details → copy ID at bottom).
+WF-TSK currently posts only to **todo** (on create) and **done** (on any status update). The in-progress channel is not wired; add it in n8n if you want a three-column Kanban. Get the **channel IDs** from Slack (right-click channel → View channel details → copy ID at bottom).
 
 ## Step 2: n8n Workflow — Task Slack Sync (WF-TSK)
 

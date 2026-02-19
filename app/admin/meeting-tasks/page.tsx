@@ -41,6 +41,14 @@ interface MeetingActionTask {
   completed_at: string | null
   display_order: number
   created_at: string
+  project_name?: string | null
+  client_name?: string | null
+}
+
+interface TaskProject {
+  id: string
+  project_name: string | null
+  client_name: string | null
 }
 
 interface ClientUpdateDraft {
@@ -113,6 +121,8 @@ function MeetingTasksContent() {
   const [activeTab, setActiveTab] = useState<Tab>('tasks')
   const [tasks, setTasks] = useState<MeetingActionTask[]>([])
   const [drafts, setDrafts] = useState<ClientUpdateDraft[]>([])
+  const [projects, setProjects] = useState<TaskProject[]>([])
+  const [selectedClientProjectId, setSelectedClientProjectId] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [taskFilter, setTaskFilter] = useState<TaskFilter>('all')
   const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set())
@@ -131,12 +141,29 @@ function MeetingTasksContent() {
     }
   }, [])
 
+  // ── Fetch projects (for client filter dropdown) ──
+  const fetchProjects = useCallback(async () => {
+    try {
+      const headers = await getHeaders()
+      const res = await fetch('/api/meeting-action-tasks/projects', { headers })
+      if (res.ok) {
+        const data = await res.json()
+        setProjects(data.projects || [])
+      }
+    } catch (err) {
+      console.error('Failed to fetch projects:', err)
+    }
+  }, [getHeaders])
+
   // ── Fetch tasks ──
   const fetchTasks = useCallback(async () => {
     try {
       const headers = await getHeaders()
-      const params = taskFilter !== 'all' ? `?status=${taskFilter}` : ''
-      const res = await fetch(`/api/meeting-action-tasks${params}`, { headers })
+      const params = new URLSearchParams()
+      if (taskFilter !== 'all') params.set('status', taskFilter)
+      if (selectedClientProjectId) params.set('client_project_id', selectedClientProjectId)
+      const qs = params.toString()
+      const res = await fetch(`/api/meeting-action-tasks${qs ? `?${qs}` : ''}`, { headers })
       if (res.ok) {
         const data = await res.json()
         setTasks(data.tasks || [])
@@ -144,7 +171,7 @@ function MeetingTasksContent() {
     } catch (err) {
       console.error('Failed to fetch tasks:', err)
     }
-  }, [getHeaders, taskFilter])
+  }, [getHeaders, taskFilter, selectedClientProjectId])
 
   // ── Fetch drafts ──
   const fetchDrafts = useCallback(async () => {
@@ -164,11 +191,11 @@ function MeetingTasksContent() {
   useEffect(() => {
     const load = async () => {
       setLoading(true)
-      await Promise.all([fetchTasks(), fetchDrafts()])
+      await Promise.all([fetchProjects(), fetchTasks(), fetchDrafts()])
       setLoading(false)
     }
     load()
-  }, [fetchTasks, fetchDrafts])
+  }, [fetchProjects, fetchTasks, fetchDrafts])
 
   // ── Update task status ──
   const updateTaskStatus = async (taskId: string, newStatus: MeetingActionTask['status']) => {
@@ -346,8 +373,20 @@ function MeetingTasksContent() {
             {activeTab === 'tasks' && (
               <div>
                 {/* Filter row */}
-                <div className="flex items-center gap-2 mb-6">
+                <div className="flex flex-wrap items-center gap-2 mb-6">
                   <Filter size={16} className="text-gray-500" />
+                  <select
+                    value={selectedClientProjectId}
+                    onChange={e => setSelectedClientProjectId(e.target.value)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700 hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                  >
+                    <option value="">All clients</option>
+                    {projects.map(p => (
+                      <option key={p.id} value={p.id}>
+                        {[p.client_name, p.project_name].filter(Boolean).join(' — ') || p.id.slice(0, 8)}
+                      </option>
+                    ))}
+                  </select>
                   {(['all', 'pending', 'in_progress', 'complete', 'cancelled'] as TaskFilter[]).map(f => (
                     <button
                       key={f}
@@ -362,7 +401,7 @@ function MeetingTasksContent() {
                     </button>
                   ))}
                   <button
-                    onClick={() => fetchTasks()}
+                    onClick={() => { fetchProjects(); fetchTasks() }}
                     className="ml-auto px-3 py-1.5 rounded-lg text-xs bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-600 flex items-center gap-1"
                   >
                     <RefreshCw size={12} /> Refresh
@@ -412,6 +451,11 @@ function MeetingTasksContent() {
 
                               {/* Content */}
                               <div className="flex-1 min-w-0">
+                                {(task.client_name || task.project_name) && (
+                                  <div className="text-xs text-gray-500 mb-0.5">
+                                    {[task.client_name, task.project_name].filter(Boolean).join(' — ')}
+                                  </div>
+                                )}
                                 <div className={`font-medium ${task.status === 'complete' ? 'line-through text-gray-500' : ''}`}>
                                   {task.title}
                                 </div>
@@ -469,21 +513,27 @@ function MeetingTasksContent() {
                       Create a draft email summarising completed action items for a client.
                     </p>
                     <div className="space-y-2">
-                      {Object.entries(completedByProject).map(([pid, projectTasks]) => (
-                        <button
-                          key={pid}
-                          onClick={() => generateDraft(pid)}
-                          disabled={generatingDraft}
-                          className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 hover:border-amber-500/50 text-sm transition-colors"
-                        >
-                          <span>
-                            Project {pid.slice(0, 8)}... — {projectTasks.length} completed task(s)
-                          </span>
-                          {generatingDraft
-                            ? <Loader2 size={14} className="animate-spin text-amber-400" />
-                            : <FileText size={14} className="text-amber-400" />}
-                        </button>
-                      ))}
+                      {Object.entries(completedByProject).map(([pid, projectTasks]) => {
+                        const first = projectTasks[0]
+                        const label = (first?.client_name || first?.project_name)
+                          ? [first.client_name, first.project_name].filter(Boolean).join(' — ')
+                          : `Project ${pid.slice(0, 8)}...`
+                        return (
+                          <button
+                            key={pid}
+                            onClick={() => generateDraft(pid)}
+                            disabled={generatingDraft}
+                            className="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-gray-800 border border-gray-700 hover:border-amber-500/50 text-sm transition-colors"
+                          >
+                            <span>
+                              {label} — {projectTasks.length} completed task(s)
+                            </span>
+                            {generatingDraft
+                              ? <Loader2 size={14} className="animate-spin text-amber-400" />
+                              : <FileText size={14} className="text-amber-400" />}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
                 )}
