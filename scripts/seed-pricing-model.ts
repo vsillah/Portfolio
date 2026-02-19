@@ -46,6 +46,7 @@ const PRODUCTS = [
     is_active: true,
     is_featured: true,
     display_order: 1,
+    image_url: '/audit_calculator_img.png',
   },
   {
     title: 'AI Implementation Playbook',
