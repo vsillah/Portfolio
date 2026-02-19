@@ -48,6 +48,40 @@ function ProductCard({
             src={product.image_url}
             alt={product.title}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            onLoad={() => {
+              // #region agent log
+              if ((product.title || '').includes('AI Audit Calculator')) {
+                const origin = typeof window !== 'undefined' ? window.location.origin : ''
+                fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    location: 'components/Store.tsx:ProductCard img onLoad',
+                    message: 'AI Audit Calculator image loaded OK',
+                    data: { title: product.title, image_url: product.image_url, origin, effectiveUrl: product.image_url?.startsWith('http') ? product.image_url : `${origin}${product.image_url?.startsWith('/') ? '' : '/'}${product.image_url || ''}` },
+                    hypothesisId: 'prod-only',
+                    timestamp: Date.now(),
+                  }),
+                }).catch(() => {})
+              }
+              // #endregion
+            }}
+            onError={() => {
+              // #region agent log
+              const origin = typeof window !== 'undefined' ? window.location.origin : ''
+              fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  location: 'components/Store.tsx:ProductCard img onError',
+                  message: 'Image load failed for product',
+                  data: { title: product.title, image_url: product.image_url, origin, effectiveUrl: product.image_url?.startsWith('http') ? product.image_url : `${origin}${product.image_url?.startsWith('/') ? '' : '/'}${product.image_url || ''}` },
+                  hypothesisId: 'prod-only',
+                  timestamp: Date.now(),
+                }),
+              }).catch(() => {})
+              // #endregion
+            }}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-imperial-navy">

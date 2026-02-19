@@ -45,6 +45,25 @@ export async function GET(request: NextRequest) {
 
     const { data: products, error } = await query
 
+    // #region agent log
+    if (Array.isArray(products)) {
+      const auditProduct = products.find((p: { title?: string }) => (p?.title || '').includes('AI Audit Calculator'))
+      if (auditProduct) {
+        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            location: 'app/api/products/route.ts:GET',
+            message: 'AI Audit Calculator product image_url from API',
+            data: { productId: (auditProduct as { id?: number }).id, title: (auditProduct as { title?: string }).title, image_url: (auditProduct as { image_url?: string | null }).image_url },
+            hypothesisId: 'H1-H5',
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {})
+      }
+    }
+    // #endregion
+
     if (error) {
       // If table doesn't exist yet, return empty array
       if (error.code === '42P01' || error.message?.includes('does not exist')) {
