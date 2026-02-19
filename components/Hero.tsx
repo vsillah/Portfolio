@@ -1,10 +1,16 @@
 'use client'
 
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { ArrowRight, ArrowDown, Sparkles, Brain, Rocket, Music } from 'lucide-react'
+import { motion, useScroll, useTransform, useReducedMotion, type MotionStyle } from 'framer-motion'
+import { ArrowRight, ArrowDown, Sparkles, Brain, Rocket, Music, Heart, Building2, RefreshCw } from 'lucide-react'
 import { useRef } from 'react'
 import Link from 'next/link'
 import { MagneticButton } from './ui/MagneticButton'
+
+const MISSION_CARDS = [
+  { id: 'community', label: 'Community', line: 'Free or at-cost for nonprofits—we give back.', img: '/mission-community.png', alt: 'Illustration: community and giving back to nonprofits.', Icon: Heart },
+  { id: 'funding', label: 'Funding', line: 'Mid-size and larger organizations help make it possible.', img: '/mission-partners.png', alt: 'Illustration: partnership and growth with organizations.', Icon: Building2 },
+  { id: 'dogfooding', label: 'Dogfooding', line: 'We use our own tools; improvements flow to everyone.', img: '/mission-tools.png', alt: 'Illustration: feedback loop of using our own tools.', Icon: RefreshCw },
+]
 
 const FloatingCard = ({ children, delay = 0, x = 0, y = 0, className = "" }: any) => (
   <motion.div
@@ -67,8 +73,51 @@ const PulsingNode = ({ cx, cy, delay = 0 }: { cx: number, cy: number, delay?: nu
   />
 )
 
+function MissionCard({
+  index,
+  label,
+  line,
+  img,
+  alt,
+  Icon,
+  motionStyle,
+  reduceMotion,
+}: {
+  index: number
+  label: string
+  line: string
+  img: string
+  alt: string
+  Icon: React.ComponentType<{ className?: string }>
+  motionStyle: MotionStyle
+  reduceMotion: boolean
+}) {
+  return (
+    <motion.div
+      className="glass-card border border-radiant-gold/20 rounded-2xl overflow-hidden origin-center"
+      style={reduceMotion ? {} : motionStyle}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: reduceMotion ? 0.2 : 0.6,
+        delay: reduceMotion ? 0 : index * 0.1,
+      }}
+    >
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-imperial-navy flex items-center justify-center">
+        <Icon className="w-14 h-14 sm:w-16 sm:h-16 text-radiant-gold/30" aria-hidden />
+        <span className="sr-only">{alt}</span>
+      </div>
+      <div className="p-4 sm:p-5">
+        <p className="text-[10px] font-heading uppercase tracking-[0.2em] text-radiant-gold mb-1.5">{label}</p>
+        <p className="font-body text-sm sm:text-base text-platinum-white/80 leading-snug">{line}</p>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function Hero() {
   const containerRef = useRef(null)
+  const reduceMotion = useReducedMotion() ?? false
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
@@ -77,6 +126,20 @@ export default function Hero() {
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"])
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
   const scale = useTransform(scrollYProgress, [0, 1], [1, 0.95])
+
+  // Stacked-at-start → fan-out-on-scroll: at 0 cards overlap at center; by 0.15 they're in a row
+  const card0X = useTransform(scrollYProgress, [0, 0.15], ['100%', '0%'])   // left: move right to center when stacked
+  const card2X = useTransform(scrollYProgress, [0, 0.15], ['-100%', '0%'])  // right: move left to center when stacked
+  const card0Y = useTransform(scrollYProgress, [0, 0.15], [8, 0])          // back of deck
+  const card1Y = useTransform(scrollYProgress, [0, 0.15], [4, 0])          // middle
+  const card2Y = useTransform(scrollYProgress, [0, 0.15], [0, 0])         // front of deck
+  const card0Rotate = useTransform(scrollYProgress, [0, 0.15], [-2, 0])
+  const card2Rotate = useTransform(scrollYProgress, [0, 0.15], [2, 0])
+  const missionCardStyles = [
+    { x: card0X, y: card0Y, rotate: card0Rotate, zIndex: 0 },
+    { y: card1Y, zIndex: 1 },
+    { x: card2X, y: card2Y, rotate: card2Rotate, zIndex: 2 },
+  ]
 
   return (
     <section
@@ -191,11 +254,36 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="font-body text-base sm:text-lg text-platinum-white/60 mb-10 max-w-2xl mx-auto leading-relaxed"
+          className="font-body text-base sm:text-lg text-platinum-white/60 mb-8 max-w-2xl mx-auto leading-relaxed"
         >
           Empowering minority-owned businesses and nonprofits with data-driven strategy, 
           AI automation, and full-spectrum digital support.
         </motion.p>
+
+        {/* Mission cards — scroll fan-out + parallax */}
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 w-full max-w-4xl mx-auto mb-10 sm:mb-12"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: { transition: { staggerChildren: 0.1 } },
+            hidden: {},
+          }}
+        >
+          {MISSION_CARDS.map((card, index) => (
+            <MissionCard
+              key={card.id}
+              index={index}
+              label={card.label}
+              line={card.line}
+              img={card.img}
+              alt={card.alt}
+              Icon={card.Icon}
+              motionStyle={reduceMotion ? {} : missionCardStyles[index]}
+              reduceMotion={!!reduceMotion}
+            />
+          ))}
+        </motion.div>
 
         {/* CTAs */}
         <motion.div 

@@ -40,7 +40,7 @@ The home page is a single scrollable portfolio page with the following sections:
 
 | Section | What You'll Find |
 |---------|-----------------|
-| **Hero** | Introduction and call-to-action |
+| **Hero** | Introduction, three mission cards (Community, Funding, Dogfooding), and call-to-action |
 | **Projects** | Featured projects and case studies |
 | **Prototypes** | Interactive app prototypes and demos |
 | **Services** | Overview of available services |
