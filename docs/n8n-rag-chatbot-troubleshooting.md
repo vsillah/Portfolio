@@ -82,3 +82,20 @@ So from MCP we don’t see recent **chat** webhook failures; the fallback you se
 | Fetch Dynamic Prompt URL without `$env` | n8n workflow (optional hardening) |
 
 See also: **N8N_PROMPT_SYNC.md** (§ "Our chat service isn't responding") and **lib/n8n.ts** (fallback comment and `generateSmartFallback`).
+
+## "Not referencing the right things" / "No detailed list of products"
+
+If the chatbot answers but doesn’t cite the right info (e.g. says "there is no detailed list of specific products" when asked what you offer):
+
+1. **Knowledge base (app)**  
+   The app serves knowledge from `GET /api/knowledge`, built from:
+   - **docs/chatbot-products-and-services-overview.md** (product/service types and links to /store, /services)
+   - docs/user-help-guide.md, docs/admin-sales-lead-pipeline-sop.md, README.md  
+   After changing those docs, run `npm run build:knowledge` and redeploy so the bundle includes the new content.
+
+2. **RAG Query path (n8n)**  
+   When the app uses `N8N_WEBHOOK_URL=.../amadutown-rag-query`, the **RAG Query** path runs. As of the latest update:
+   - **Fetch and Merge Knowledge (RAG)** runs first: it calls `GET https://amadutown.com/api/knowledge` and merges the result into the webhook payload as `dynamicKnowledge`, and sets `query` from `chatInput` so the agent sees the user’s actual question.
+   - **RAG Query Agent** system message includes that knowledge and instructs the agent to direct users to https://amadutown.com/store and https://amadutown.com/services for the full product/service list.
+
+   So the RAG path now uses the same knowledge as the chat path and answers the question that was sent (chatInput). If answers are still wrong, check that the "Fetch and Merge Knowledge (RAG)" node runs without error and that the production site returns the expected content from `/api/knowledge`.

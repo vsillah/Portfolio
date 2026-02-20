@@ -7,6 +7,7 @@ import { readFile, writeFile } from 'fs/promises'
 import path from 'path'
 
 const SOURCES: { path: string; sectionTitle?: string }[] = [
+  { path: 'docs/chatbot-products-and-services-overview.md', sectionTitle: 'What AmaduTown Offers (products and services)' },
   { path: 'docs/user-help-guide.md', sectionTitle: 'User Help Guide' },
   { path: 'docs/admin-sales-lead-pipeline-sop.md', sectionTitle: 'Admin & Sales Lead Pipeline (overview)' },
   { path: 'README.md', sectionTitle: 'Project overview' },
