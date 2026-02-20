@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { RefreshCw, Eye, EyeOff, Settings, Package, CheckCircle, XCircle, Loader, Upload, Image as ImageIcon, X } from 'lucide-react'
+import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
 import { formatCurrency } from '@/lib/pricing-model'
@@ -387,15 +388,16 @@ export default function MerchandiseManagementPage() {
                   </div>
                   
                   {/* URL Input */}
-                  <input
-                    type="url"
+                  <ImageUrlInput
                     value={syncConfig.logoUrl}
-                    onChange={(e) => {
-                      setSyncConfig({ ...syncConfig, logoUrl: e.target.value })
+                    onChange={(logoUrl) => {
+                      setSyncConfig({ ...syncConfig, logoUrl })
                       clearLogoFile() // Clear file if URL is entered
                     }}
-                    placeholder="https://your-logo-url.com/logo.png"
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500 text-sm"
+                    label="Logo URL"
+                    placeholderLocal="logo.png"
+                    placeholderExternal="your-logo-url.com/logo.png"
+                    variant="neutral"
                   />
                 </div>
                 

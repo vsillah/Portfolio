@@ -10,6 +10,7 @@ import {
   Smartphone, Globe, Wrench, Sparkles, RefreshCw, Plus,
   Video, GripVertical, Star, Play, User
 } from 'lucide-react'
+import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -877,16 +878,13 @@ export default function PrototypeEditPage({ params }: { params: { id: string } }
                     )}
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Or enter URL directly</label>
-                    <input
-                      type="url"
-                      value={formData.thumbnail_url || ''}
-                      onChange={(e) => handleInputChange('thumbnail_url', e.target.value || null)}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                      placeholder="https://example.com/image.jpg"
-                    />
-                  </div>
+                  <ImageUrlInput
+                    value={formData.thumbnail_url || ''}
+                    onChange={(v) => handleInputChange('thumbnail_url', v || null)}
+                    label="Or enter URL directly"
+                    placeholderExternal="example.com/image.jpg"
+                    variant="neutral"
+                  />
                 </div>
               </motion.div>
 

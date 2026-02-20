@@ -4,7 +4,10 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { ArrowRight, Send, DollarSign, TrendingUp, FolderKanban, BarChart3, Settings, RefreshCw } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import { getCurrentSession } from '@/lib/auth'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import AdminPieChart from '@/components/admin/AdminPieChart'
+import AdminBarChart from '@/components/admin/AdminBarChart'
 
 export default function AdminDashboard() {
   return (
@@ -15,9 +18,12 @@ export default function AdminDashboard() {
 }
 
 // --- Feed types (minimal shapes from APIs) ---
+type FunnelStats = { total: number; contacted: number; replied: number; booked: number }
 type OutreachDashboard = {
-  funnel?: { total: number; contacted: number; replied: number; booked: number }
-  queueStats?: { total: number; draft: number; sent: number; replied: number }
+  funnel?: FunnelStats
+  funnelByTemperature?: { cold?: FunnelStats; warm?: FunnelStats }
+  queueStats?: { total: number; draft: number; approved?: number; sent: number; replied: number; bounced?: number }
+  channelStats?: { email?: { total: number }; linkedin?: { total: number } }
   recentActivity?: Array<{
     channel?: string
     subject?: string
@@ -27,7 +33,15 @@ type OutreachDashboard = {
     replied_at?: string | null
   }>
 }
-type ValueEvidenceDashboard = { overview?: { totalReports?: number; totalEvidence?: number; totalCalculations?: number } }
+type ValueEvidenceDashboard = {
+  overview?: {
+    totalReports?: number
+    totalEvidence?: number
+    totalCalculations?: number
+    totalPainPoints?: number
+    totalMarketIntel?: number
+  }
+}
 type ValueReportsRes = { reports?: Array<{ title?: string; industry?: string; company_size_range?: string; total_annual_value?: number; created_at?: string }> }
 type SalesRes = { stats?: { total_audits: number; pending_follow_up: number; converted: number; high_urgency: number }; audits?: Array<{ id: string; contact_submissions?: { name?: string } | null; urgency_score?: number; opportunity_score?: number }> }
 type CampaignsRes = { data?: Array<{ id: string; name?: string; status?: string; enrollment_count?: number; created_at?: string }> }
@@ -36,7 +50,13 @@ type MeetingTasksRes = { tasks?: Array<{ id: string; title?: string; status?: st
 type GuaranteesRes = { data?: Array<{ id: string; status?: string; client_email?: string; created_at?: string; guarantee_templates?: { name?: string } }> }
 type ChatEvalStats = { overview?: { total_sessions?: number; evaluated_sessions?: number; success_rate?: number } }
 type ChatEvalSessionsRes = { sessions?: Array<{ session_id?: string; visitor_email?: string; created_at?: string }> }
-type AnalyticsStats = { totalSessions?: number; totalPageViews?: number; totalClicks?: number; totalFormSubmits?: number }
+type AnalyticsStats = {
+  totalSessions?: number
+  totalPageViews?: number
+  totalClicks?: number
+  totalFormSubmits?: number
+  eventsByType?: Record<string, number>
+}
 
 function AdminDashboardContent() {
   const [pipeline, setPipeline] = useState<{ outreach: OutreachDashboard | null; valueEvidence: ValueEvidenceDashboard | null; reports: ValueReportsRes['reports'] | null }>({ outreach: null, valueEvidence: null, reports: null })
@@ -48,9 +68,14 @@ function AdminDashboardContent() {
   const [postSaleError, setPostSaleError] = useState(false)
   const [qualityError, setQualityError] = useState(false)
 
-  const fetchPipeline = useCallback(() => {
+  const fetchPipeline = useCallback(async () => {
     setPipelineError(false)
-    const headers = { credentials: 'include' as RequestCredentials }
+    const session = await getCurrentSession()
+    if (!session?.access_token) {
+      setPipelineError(true)
+      return
+    }
+    const headers = { Authorization: `Bearer ${session.access_token}` }
     Promise.all([
       fetch('/api/admin/outreach/dashboard', { headers }).then((r) => r.ok ? r.json() : null),
       fetch('/api/admin/value-evidence/dashboard', { headers }).then((r) => r.ok ? r.json() : null),
@@ -66,9 +91,14 @@ function AdminDashboardContent() {
       .catch(() => setPipelineError(true))
   }, [])
 
-  const fetchSales = useCallback(() => {
+  const fetchSales = useCallback(async () => {
     setSalesError(false)
-    const headers = { credentials: 'include' as RequestCredentials }
+    const session = await getCurrentSession()
+    if (!session?.access_token) {
+      setSalesError(true)
+      return
+    }
+    const headers = { Authorization: `Bearer ${session.access_token}` }
     Promise.all([
       fetch('/api/admin/sales', { headers }).then((r) => r.ok ? r.json() : null),
       fetch('/api/admin/campaigns?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
@@ -82,9 +112,14 @@ function AdminDashboardContent() {
       .catch(() => setSalesError(true))
   }, [])
 
-  const fetchPostSale = useCallback(() => {
+  const fetchPostSale = useCallback(async () => {
     setPostSaleError(false)
-    const headers = { credentials: 'include' as RequestCredentials }
+    const session = await getCurrentSession()
+    if (!session?.access_token) {
+      setPostSaleError(true)
+      return
+    }
+    const headers = { Authorization: `Bearer ${session.access_token}` }
     Promise.all([
       fetch('/api/admin/client-projects?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
       fetch('/api/meeting-action-tasks', { headers }).then((r) => r.ok ? r.json() : null),
@@ -101,9 +136,14 @@ function AdminDashboardContent() {
       .catch(() => setPostSaleError(true))
   }, [])
 
-  const fetchQuality = useCallback(() => {
+  const fetchQuality = useCallback(async () => {
     setQualityError(false)
-    const headers = { credentials: 'include' as RequestCredentials }
+    const session = await getCurrentSession()
+    if (!session?.access_token) {
+      setQualityError(true)
+      return
+    }
+    const headers = { Authorization: `Bearer ${session.access_token}` }
     Promise.all([
       fetch('/api/admin/chat-eval/stats?days=7', { headers }).then((r) => r.ok ? r.json() : null),
       fetch('/api/admin/chat-eval?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
@@ -154,6 +194,27 @@ function AdminDashboardContent() {
                   <span>Replied: {pipeline.outreach.funnel?.replied ?? 0}</span>
                   <span>Queue: {pipeline.outreach.queueStats?.sent ?? 0} sent / {pipeline.outreach.queueStats?.replied ?? 0} replied</span>
                 </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                  <AdminPieChart
+                    data={[
+                      { name: 'Cold', value: pipeline.outreach.funnelByTemperature?.cold?.total ?? 0 },
+                      { name: 'Warm', value: pipeline.outreach.funnelByTemperature?.warm?.total ?? 0 },
+                    ].filter((d) => d.value > 0)}
+                    ariaLabel="Lead temperature breakdown: cold vs warm"
+                    height={120}
+                    title="Cold vs Warm Leads"
+                  />
+                  <AdminBarChart
+                    data={[
+                      { name: 'Draft', value: pipeline.outreach.queueStats?.draft ?? 0 },
+                      { name: 'Sent', value: pipeline.outreach.queueStats?.sent ?? 0 },
+                      { name: 'Replied', value: pipeline.outreach.queueStats?.replied ?? 0 },
+                    ].filter((d) => d.value > 0)}
+                    ariaLabel="Outreach queue status breakdown"
+                    height={120}
+                    title="Queue Status"
+                  />
+                </div>
                 <ul className="space-y-1.5 text-sm">
                   {(pipeline.outreach.recentActivity ?? []).slice(0, 5).map((a, i) => (
                     <li key={i} className="flex justify-between gap-2">
@@ -185,6 +246,18 @@ function AdminDashboardContent() {
                   <span>Reports: {pipeline.valueEvidence?.overview?.totalReports ?? 0}</span>
                   <span>Evidence: {pipeline.valueEvidence?.overview?.totalEvidence ?? 0}</span>
                   <span>Calculations: {pipeline.valueEvidence?.overview?.totalCalculations ?? 0}</span>
+                </div>
+                <div className="mb-3">
+                  <AdminPieChart
+                    data={[
+                      { name: 'Reports', value: pipeline.valueEvidence?.overview?.totalReports ?? 0 },
+                      { name: 'Evidence', value: pipeline.valueEvidence?.overview?.totalEvidence ?? 0 },
+                      { name: 'Calculations', value: pipeline.valueEvidence?.overview?.totalCalculations ?? 0 },
+                    ].filter((d) => d.value > 0)}
+                    ariaLabel="Value evidence breakdown: reports, evidence, calculations"
+                    height={120}
+                    title="Value Evidence Breakdown"
+                  />
                 </div>
                 <ul className="space-y-1.5 text-sm">
                   {(pipeline.reports ?? []).slice(0, 5).map((r, i) => (
@@ -219,6 +292,19 @@ function AdminDashboardContent() {
                   <span>Pending follow-up: {sales.stats?.pending_follow_up ?? 0}</span>
                   <span>Converted: {sales.stats?.converted ?? 0}</span>
                   <span>High urgency: {sales.stats?.high_urgency ?? 0}</span>
+                </div>
+                <div className="mb-3">
+                  <AdminBarChart
+                    data={[
+                      { name: 'Total', value: sales.stats?.total_audits ?? 0 },
+                      { name: 'Pending', value: sales.stats?.pending_follow_up ?? 0 },
+                      { name: 'Converted', value: sales.stats?.converted ?? 0 },
+                      { name: 'High urgency', value: sales.stats?.high_urgency ?? 0 },
+                    ].filter((d) => d.value > 0)}
+                    ariaLabel="Sales audits by status"
+                    height={120}
+                    title="Sales Pipeline"
+                  />
                 </div>
                 <ul className="space-y-1.5 text-sm">
                   {(sales.campaigns ?? []).slice(0, 5).map((c) => (
@@ -259,6 +345,18 @@ function AdminDashboardContent() {
                     ))}
                   </ul>
                 </div>
+                <div className="mb-3">
+                  <AdminPieChart
+                    data={[
+                      { name: 'Projects', value: postSale.projects?.length ?? 0 },
+                      { name: 'Pending tasks', value: Array.isArray(postSale.tasks) ? postSale.tasks.filter((t) => t.status === 'pending' || t.status === 'in_progress').length : 0 },
+                      { name: 'Guarantees', value: postSale.guarantees?.length ?? 0 },
+                    ].filter((d) => d.value > 0)}
+                    ariaLabel="Post-sale breakdown: projects, pending tasks, guarantees"
+                    height={120}
+                    title="Post-sale Overview"
+                  />
+                </div>
                 <div className="flex flex-wrap gap-2 text-sm text-platinum-white/70">
                   {Array.isArray(postSale.tasks) && <span>{postSale.tasks.filter((t) => t.status === 'pending' || t.status === 'in_progress').length} pending tasks</span>}
                   {(postSale.guarantees?.length ?? 0) > 0 && <span>{postSale.guarantees!.length} recent guarantees</span>}
@@ -290,6 +388,28 @@ function AdminDashboardContent() {
                   <span>Chat sessions (7d): {quality.chatStats?.overview?.total_sessions ?? 0}</span>
                   <span>Evaluated: {quality.chatStats?.overview?.evaluated_sessions ?? 0}</span>
                   <span>Success rate: {quality.chatStats?.overview?.success_rate ?? 0}%</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                  <AdminPieChart
+                    data={[
+                      { name: 'Evaluated', value: quality.chatStats?.overview?.evaluated_sessions ?? 0 },
+                      { name: 'Not evaluated', value: Math.max(0, (quality.chatStats?.overview?.total_sessions ?? 0) - (quality.chatStats?.overview?.evaluated_sessions ?? 0)) },
+                    ].filter((d) => d.value > 0)}
+                    ariaLabel="Chat sessions: evaluated vs not evaluated"
+                    height={120}
+                    title="Chat Evaluation"
+                  />
+                  <AdminBarChart
+                    data={[
+                      { name: 'Sessions', value: quality.analytics?.totalSessions ?? 0 },
+                      { name: 'Page views', value: quality.analytics?.totalPageViews ?? 0 },
+                      { name: 'Clicks', value: quality.analytics?.totalClicks ?? 0 },
+                      { name: 'Form submits', value: quality.analytics?.totalFormSubmits ?? 0 },
+                    ].filter((d) => d.value > 0)}
+                    ariaLabel="Analytics events by type (7 days)"
+                    height={120}
+                    title="Analytics (7d)"
+                  />
                 </div>
                 <div className="flex flex-wrap gap-3 text-sm text-platinum-white/70 mb-2">
                   <span>Analytics (7d): {quality.analytics?.totalSessions ?? 0} sessions</span>

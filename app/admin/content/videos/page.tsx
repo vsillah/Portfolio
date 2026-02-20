@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, Upload, File, X, Video as VideoIcon } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
 import { getCurrentSession } from '@/lib/auth'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
@@ -380,16 +381,13 @@ export default function VideosManagementPage() {
                       placeholder="https://youtube.com/watch?v=..."
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Thumbnail URL</label>
-                    <input
-                      type="url"
-                      value={formData.thumbnail_url}
-                      onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                      placeholder="https://..."
-                    />
-                  </div>
+                  <ImageUrlInput
+                    value={formData.thumbnail_url || ''}
+                    onChange={(thumbnail_url) => setFormData({ ...formData, thumbnail_url })}
+                    label="Thumbnail URL"
+                    placeholderExternal="example.com/thumbnail.jpg"
+                    variant="neutral"
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>

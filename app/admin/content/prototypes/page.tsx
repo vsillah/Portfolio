@@ -7,6 +7,7 @@ import {
   Plus, Trash2, Edit, History, BarChart3, Film, X, 
   Upload, Loader2, Image as ImageIcon, Smartphone, Globe, Wrench, Sparkles
 } from 'lucide-react'
+import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import { getCurrentSession } from '@/lib/auth'
@@ -53,7 +54,7 @@ const ANALYTICS_SOURCES = [
 export default function PrototypesManagementPage() {
   const [prototypes, setPrototypes] = useState<AppPrototype[]>([])
   const [loading, setLoading] = useState(true)
-  const [showAddForm, setShowAddForm] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [uploadingThumbnail, setUploadingThumbnail] = useState(false)
@@ -100,11 +101,11 @@ export default function PrototypesManagementPage() {
 
   const getStageColor = (stage: string) => {
     switch (stage) {
-      case 'Dev': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/50'
-      case 'QA': return 'bg-blue-500/20 text-blue-400 border-blue-500/50'
-      case 'Pilot': return 'bg-purple-500/20 text-purple-400 border-purple-500/50'
-      case 'Production': return 'bg-green-500/20 text-green-400 border-green-500/50'
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/50'
+      case 'Dev': return 'bg-amber-500/20 text-amber-400 border-amber-500/50'
+      case 'QA': return 'bg-sky-500/20 text-sky-400 border-sky-500/50'
+      case 'Pilot': return 'bg-radiant-gold/20 text-radiant-gold border-radiant-gold/50'
+      case 'Production': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
+      default: return 'bg-silicon-slate/80 text-platinum-white/60 border-silicon-slate'
     }
   }
 
@@ -187,7 +188,7 @@ export default function PrototypesManagementPage() {
       })
 
       if (response.ok) {
-        setShowAddForm(false)
+        setShowAddModal(false)
         resetForm()
         fetchPrototypes()
       } else {
@@ -219,8 +220,8 @@ export default function PrototypesManagementPage() {
     })
   }
 
-  const handleCancel = () => {
-    setShowAddForm(false)
+  const handleCloseAddModal = () => {
+    setShowAddModal(false)
     resetForm()
   }
 
@@ -271,36 +272,42 @@ export default function PrototypesManagementPage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">Prototypes Management</h1>
-              <p className="text-gray-400">Manage app prototype demos</p>
+              <p className="text-platinum-white/70">Manage app prototype demos</p>
             </div>
-            {!showAddForm && (
-              <motion.button
-                onClick={() => setShowAddForm(true)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg flex items-center gap-2"
-              >
-                <Plus size={20} />
-                Add Prototype
-              </motion.button>
-            )}
+            <motion.button
+              onClick={() => { resetForm(); setShowAddModal(true) }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex items-center gap-2 px-6 py-3 btn-gold font-semibold rounded-lg"
+            >
+              <Plus size={20} />
+              Add Prototype
+            </motion.button>
           </div>
 
-          {showAddForm && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8 p-6 bg-gray-900 border border-gray-800 rounded-xl"
+          {showAddModal && (
+            <div
+              className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+              onClick={handleCloseAddModal}
+              role="dialog"
+              aria-modal="true"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Add New Prototype</h2>
-                <button
-                  onClick={handleCancel}
-                  className="p-2 hover:bg-gray-800 rounded-lg transition-colors"
-                >
-                  <X size={20} />
-                </button>
-              </div>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                onClick={(e) => e.stopPropagation()}
+                className="glass-card border border-radiant-gold/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl"
+              >
+                <div className="flex items-center justify-between mb-6 sticky top-0 bg-silicon-slate/95 backdrop-blur py-4 -mx-4 px-6 border-b border-silicon-slate z-10">
+                  <h2 className="text-xl font-semibold">Add New Prototype</h2>
+                  <button
+                    onClick={handleCloseAddModal}
+                    className="p-2 rounded-lg text-platinum-white/80 hover:text-foreground hover:bg-silicon-slate transition-colors"
+                    aria-label="Close"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Basic Information */}
@@ -496,21 +503,13 @@ export default function PrototypesManagementPage() {
                       )}
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">
-                        Or enter URL directly
-                      </label>
-                      <input
-                        type="url"
-                        value={formData.thumbnail_url}
-                        onChange={(e) => setFormData({ ...formData, thumbnail_url: e.target.value })}
-                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500 transition-colors"
-                        placeholder="https://example.com/image.jpg"
-                      />
-                      <p className="mt-2 text-xs text-gray-500">
-                        Upload an image or paste a URL to an existing image
-                      </p>
-                    </div>
+                    <ImageUrlInput
+                      value={formData.thumbnail_url || ''}
+                      onChange={(thumbnail_url) => setFormData({ ...formData, thumbnail_url })}
+                      label="Or enter URL directly"
+                      placeholderExternal="example.com/image.jpg"
+                      variant="neutral"
+                    />
                   </div>
                 </div>
 
@@ -608,7 +607,7 @@ export default function PrototypesManagementPage() {
                     disabled={submitting || uploadingThumbnail}
                     whileHover={{ scale: submitting ? 1 : 1.02 }}
                     whileTap={{ scale: submitting ? 1 : 0.98 }}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-3 btn-gold font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {submitting ? (
                       <>
@@ -624,43 +623,42 @@ export default function PrototypesManagementPage() {
                   </motion.button>
                   <motion.button
                     type="button"
-                    onClick={handleCancel}
+                    onClick={handleCloseAddModal}
                     disabled={submitting}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-6 py-3 bg-gray-800 border border-gray-700 text-white font-semibold rounded-lg hover:border-gray-600 transition-colors"
+                    className="px-6 py-3 btn-ghost font-semibold rounded-lg"
                   >
                     Cancel
                   </motion.button>
                 </div>
               </form>
             </motion.div>
+          </div>
           )}
 
           {loading ? (
             <div className="text-center py-12">
-              <Loader2 className="animate-spin mx-auto mb-2" size={24} />
-              <div className="text-gray-400">Loading prototypes...</div>
+              <Loader2 className="animate-spin mx-auto mb-2 text-radiant-gold" size={24} />
+              <div className="text-platinum-white/70">Loading prototypes...</div>
             </div>
           ) : (
             <div className="space-y-4">
               {prototypes.length === 0 ? (
-                <div className="text-center py-12 text-gray-500">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-800 rounded-full flex items-center justify-center">
-                    <Sparkles size={32} className="text-gray-600" />
+                <div className="text-center py-12 text-platinum-white/70">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-silicon-slate/80 rounded-full flex items-center justify-center">
+                    <Sparkles size={32} className="text-radiant-gold/60" />
                   </div>
                   <p className="mb-4">No prototypes yet. Create your first prototype!</p>
-                  {!showAddForm && (
-                    <motion.button
-                      onClick={() => setShowAddForm(true)}
+                  <motion.button
+                    onClick={() => { resetForm(); setShowAddModal(true) }}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="px-6 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white hover:border-purple-500/50 transition-colors inline-flex items-center gap-2"
+                      className="px-6 py-3 btn-gold font-semibold rounded-lg inline-flex items-center gap-2"
                     >
                       <Plus size={20} />
                       Add New Prototype
                     </motion.button>
-                  )}
                 </div>
               ) : (
                 prototypes.map((prototype) => (
@@ -668,12 +666,12 @@ export default function PrototypesManagementPage() {
                     key={prototype.id}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-6 bg-gray-900 border border-gray-800 rounded-xl flex items-center justify-between hover:border-gray-700 transition-colors"
+                    className="card-brand p-6 rounded-xl flex items-center justify-between"
                   >
                     <div className="flex items-center gap-4 flex-1">
                       {/* Thumbnail Preview */}
                       {prototype.thumbnail_url ? (
-                        <div className="w-20 h-14 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0 relative">
+                        <div className="w-20 h-14 rounded-lg overflow-hidden bg-silicon-slate/80 flex-shrink-0 relative">
                           <Image
                             src={prototype.thumbnail_url}
                             alt={prototype.title}
@@ -684,28 +682,28 @@ export default function PrototypesManagementPage() {
                           />
                         </div>
                       ) : (
-                        <div className="w-20 h-14 rounded-lg bg-gray-800 flex items-center justify-center flex-shrink-0">
-                          <ImageIcon size={20} className="text-gray-600" />
+                        <div className="w-20 h-14 rounded-lg bg-silicon-slate/80 flex items-center justify-center flex-shrink-0">
+                          <ImageIcon size={20} className="text-platinum-white/50" />
                         </div>
                       )}
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2 flex-wrap">
-                          <h3 className="text-xl font-bold text-white truncate">{prototype.title}</h3>
+                          <h3 className="text-xl font-bold truncate">{prototype.title}</h3>
                           <span className={`px-2 py-1 rounded text-xs font-semibold border ${getStageColor(prototype.production_stage)}`}>
                             {prototype.production_stage}
                           </span>
-                          <span className="px-2 py-1 rounded text-xs bg-gray-800 text-gray-300 flex items-center gap-1">
+                          <span className="px-2 py-1 rounded text-xs bg-silicon-slate/60 text-platinum-white/80 flex items-center gap-1">
                             {prototype.channel === 'Mobile' ? <Smartphone size={12} /> : <Globe size={12} />}
                             {prototype.channel}
                           </span>
-                          <span className="px-2 py-1 rounded text-xs bg-gray-800 text-gray-300 flex items-center gap-1">
+                          <span className="px-2 py-1 rounded text-xs bg-silicon-slate/60 text-platinum-white/80 flex items-center gap-1">
                             {prototype.product_type === 'Utility' ? <Wrench size={12} /> : <Sparkles size={12} />}
                             {prototype.product_type}
                           </span>
                         </div>
-                        <p className="text-gray-400 text-sm mb-2 line-clamp-1">{prototype.description}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-platinum-white/70 text-sm mb-2 line-clamp-1">{prototype.description}</p>
+                        <p className="text-xs text-platinum-white/50">
                           Created: {new Date(prototype.created_at).toLocaleDateString()}
                         </p>
                       </div>
@@ -713,29 +711,29 @@ export default function PrototypesManagementPage() {
 
                     <div className="flex items-center gap-2 ml-4">
                       <Link href={`/admin/content/prototypes/${prototype.id}`}>
-                        <button className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors" title="Edit">
+                        <button className="p-2 bg-silicon-slate/50 hover:bg-radiant-gold/20 border border-silicon-slate hover:border-radiant-gold/50 rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors" title="Edit">
                           <Edit size={18} />
                         </button>
                       </Link>
                       <Link href={`/admin/content/prototypes/${prototype.id}/history`}>
-                        <button className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors" title="History">
+                        <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors" title="History">
                           <History size={18} />
                         </button>
                       </Link>
                       <Link href={`/admin/content/prototypes/${prototype.id}/demos`}>
-                        <button className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors" title="Demos">
+                        <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors" title="Demos">
                           <Film size={18} />
                         </button>
                       </Link>
                       <Link href={`/admin/content/prototypes/${prototype.id}/analytics`}>
-                        <button className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors" title="Analytics">
+                        <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors" title="Analytics">
                           <BarChart3 size={18} />
                         </button>
                       </Link>
                       <button 
                         onClick={() => handleDelete(prototype)}
                         disabled={deletingId === prototype.id}
-                        className="p-2 bg-red-600 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className="p-2 bg-red-600/20 hover:bg-red-600/40 border border-red-600/50 rounded-lg text-red-400 hover:text-red-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                         title="Delete"
                       >
                         {deletingId === prototype.id ? (

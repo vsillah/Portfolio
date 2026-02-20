@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Upload, File, X, DollarSign, Image as ImageIcon } from 'lucide-react'
+import { ArrowLeft, Upload, File, X, DollarSign } from 'lucide-react'
+import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -72,8 +73,6 @@ export default function ProductEditPage() {
     file_size: number
     file_name: string
   } | null>(null)
-  const [imageSource, setImageSource] = useState<'local' | 'external'>('local')
-
   useEffect(() => {
     if (isNew) return
     const session = getCurrentSession()
@@ -104,7 +103,6 @@ export default function ProductEditPage() {
             display_order: p.display_order,
             outcome_group_id: p.outcome_group_id ?? '',
           })
-          setImageSource(p.image_url?.startsWith('http') ? 'external' : 'local')
           if (p.file_path) {
             setUploadedFile({
               file_path: p.file_path,
@@ -336,56 +334,12 @@ export default function ProductEditPage() {
                   </div>
                 </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-2">Image</label>
-                <div className="flex gap-2 mb-2">
-                  <button
-                    type="button"
-                    onClick={() => setImageSource('local')}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                      imageSource === 'local'
-                        ? 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50'
-                        : 'bg-silicon-slate/50 text-platinum-white/80 border border-silicon-slate/80 hover:border-silicon-slate'
-                    }`}
-                  >
-                    Local (/public/)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setImageSource('external')}
-                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                      imageSource === 'external'
-                        ? 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50'
-                        : 'bg-silicon-slate/50 text-platinum-white/80 border border-silicon-slate/80 hover:border-silicon-slate'
-                    }`}
-                  >
-                    External URL
-                  </button>
-                </div>
-                <div className="flex items-center rounded-lg overflow-hidden border border-silicon-slate/80 bg-transparent focus-within:border-radiant-gold/50 focus-within:ring-1 focus-within:ring-radiant-gold/30">
-                  <span className="pl-4 py-2 text-platinum-white/80 bg-silicon-slate/50 border-r border-silicon-slate/80 min-w-[4rem]">
-                    {imageSource === 'local' ? '/' : 'https://'}
-                  </span>
-                  <input
-                    type="text"
-                    value={
-                      imageSource === 'local'
-                        ? (formData.image_url.startsWith('/') ? formData.image_url.slice(1) : formData.image_url)
-                        : formData.image_url.replace(/^https?:\/\//, '').replace(/^\//, '')
-                    }
-                    onChange={(e) => {
-                      const v = e.target.value.trim()
-                      const imageUrl = imageSource === 'local' ? (v ? `/${v}` : '') : (v ? `https://${v.replace(/^https?:\/\//, '')}` : '')
-                      setFormData({ ...formData, image_url: imageUrl })
-                    }}
-                    className="flex-1 px-4 py-2 input-brand border-0 focus:ring-0"
-                    placeholder={imageSource === 'local' ? 'Chatbot_N8N_img.png' : 'example.com/path/to/image.jpg'}
-                  />
-                </div>
-                <p className="mt-1 text-xs text-platinum-white/60">
-                  {imageSource === 'local' ? 'Filename or path in /public/ (e.g. Chatbot_N8N_img.png)' : 'Domain and path only (https:// is added automatically)'}
-                </p>
-              </div>
+              <ImageUrlInput
+                value={formData.image_url}
+                onChange={(image_url) => setFormData({ ...formData, image_url })}
+                label="Image"
+                variant="brand"
+              />
               {formData.type === 'template' && (
                 <>
                   <div>

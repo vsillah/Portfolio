@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, DollarSign, Image as ImageIcon, Clock, Users, Star } from 'lucide-react'
+import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, DollarSign, Clock, Users, Star, X } from 'lucide-react'
+import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
 import { formatCurrency } from '@/lib/pricing-model'
@@ -58,7 +59,7 @@ export default function ServicesManagementPage() {
   const [services, setServices] = useState<Service[]>([])
   const [loading, setLoading] = useState(true)
   const [editingService, setEditingService] = useState<Service | null>(null)
-  const [showAddForm, setShowAddForm] = useState(false)
+  const [showAddModal, setShowAddModal] = useState(false)
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -296,7 +297,7 @@ export default function ServicesManagementPage() {
       })
 
       if (response.ok) {
-        setShowAddForm(false)
+        setShowAddModal(false)
         setEditingService(null)
         resetForm()
         fetchServices()
@@ -355,11 +356,10 @@ export default function ServicesManagementPage() {
       display_order: service.display_order,
       outcome_group_id: service.outcome_group_id ?? '',
     })
-    setShowAddForm(true)
   }
 
-  const handleCancel = () => {
-    setShowAddForm(false)
+  const handleCloseModal = () => {
+    setShowAddModal(false)
     setEditingService(null)
     resetForm()
   }
@@ -385,31 +385,46 @@ export default function ServicesManagementPage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">Services Management</h1>
-              <p className="text-gray-400">Manage trainings, speaking engagements, consulting, and more</p>
+              <p className="text-platinum-white/70">Manage trainings, speaking engagements, consulting, and more</p>
             </div>
-            {!showAddForm && (
-              <motion.button
-                onClick={() => setShowAddForm(true)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg flex items-center gap-2"
-              >
-                <Plus size={20} />
-                Add Service
-              </motion.button>
-            )}
+            <motion.button
+              onClick={() => { resetForm(); setShowAddModal(true) }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="inline-flex items-center gap-2 px-6 py-3 btn-gold font-semibold rounded-lg"
+            >
+              <Plus size={20} />
+              Add Service
+            </motion.button>
           </div>
 
-          {showAddForm && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8 p-6 bg-gray-900 border border-gray-800 rounded-xl"
+          {(showAddModal || editingService) && (
+            <div
+              className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
+              onClick={handleCloseModal}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="service-modal-title"
             >
-              <h2 className="text-2xl font-bold mb-4">
-                {editingService ? 'Edit Service' : 'Add New Service'}
-              </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <motion.div
+                onClick={(e) => e.stopPropagation()}
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="glass-card border border-radiant-gold/20 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-xl"
+              >
+                <div className="flex items-center justify-between mb-6 sticky top-0 bg-silicon-slate/95 backdrop-blur py-4 -mx-4 px-6 border-b border-silicon-slate z-10">
+                  <h2 id="service-modal-title" className="text-xl font-semibold">
+                    {editingService ? 'Edit Service' : 'Add New Service'}
+                  </h2>
+                  <button
+                    onClick={handleCloseModal}
+                    className="p-2 rounded-lg text-platinum-white/80 hover:text-foreground hover:bg-silicon-slate transition-colors"
+                    aria-label="Close"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Title */}
                 <div>
                   <label className="block text-sm font-medium mb-2">Title *</label>
@@ -417,7 +432,7 @@ export default function ServicesManagementPage() {
                     type="text"
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2 input-brand"
                     required
                     placeholder="e.g., AI Strategy Consulting"
                   />
@@ -429,7 +444,7 @@ export default function ServicesManagementPage() {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2 input-brand"
                     rows={3}
                     placeholder="Describe what this service includes..."
                   />
@@ -442,7 +457,7 @@ export default function ServicesManagementPage() {
                     <select
                       value={formData.service_type}
                       onChange={(e) => setFormData({ ...formData, service_type: e.target.value })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 input-brand"
                       required
                     >
                       {SERVICE_TYPES.map(type => (
@@ -455,7 +470,7 @@ export default function ServicesManagementPage() {
                     <select
                       value={formData.delivery_method}
                       onChange={(e) => setFormData({ ...formData, delivery_method: e.target.value })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 input-brand"
                     >
                       {DELIVERY_METHODS.map(method => (
                         <option key={method.value} value={method.value}>{method.label}</option>
@@ -469,14 +484,14 @@ export default function ServicesManagementPage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">Duration (hours)</label>
                     <div className="relative">
-                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/60" size={20} />
                       <input
                         type="number"
                         step="0.5"
                         min="0"
                         value={formData.duration_hours}
                         onChange={(e) => setFormData({ ...formData, duration_hours: e.target.value })}
-                        className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                        className="w-full pl-10 pr-4 py-2 input-brand"
                         placeholder="e.g., 2"
                       />
                     </div>
@@ -487,7 +502,7 @@ export default function ServicesManagementPage() {
                       type="text"
                       value={formData.duration_description}
                       onChange={(e) => setFormData({ ...formData, duration_description: e.target.value })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 input-brand"
                       placeholder="e.g., 2-day workshop, 6 weekly sessions"
                     />
                   </div>
@@ -498,21 +513,21 @@ export default function ServicesManagementPage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">Price (leave empty if quote-based)</label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/60" size={20} />
                       <input
                         type="number"
                         step="0.01"
                         min="0"
                         value={formData.price}
                         onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                        className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                        className="w-full pl-10 pr-4 py-2 input-brand"
                         placeholder="0.00"
                         disabled={formData.is_quote_based}
                       />
                     </div>
                   </div>
                   <div className="flex items-end pb-2">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
                       <input
                         type="checkbox"
                         checked={formData.is_quote_based}
@@ -521,7 +536,7 @@ export default function ServicesManagementPage() {
                           is_quote_based: e.target.checked,
                           price: e.target.checked ? '' : formData.price
                         })}
-                        className="w-4 h-4 rounded"
+                        className="w-4 h-4 rounded accent-radiant-gold"
                       />
                       <span>Quote-based pricing (contact for pricing)</span>
                     </label>
@@ -533,26 +548,26 @@ export default function ServicesManagementPage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">Min Participants</label>
                     <div className="relative">
-                      <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/60" size={20} />
                       <input
                         type="number"
                         min="1"
                         value={formData.min_participants}
                         onChange={(e) => setFormData({ ...formData, min_participants: e.target.value })}
-                        className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                        className="w-full pl-10 pr-4 py-2 input-brand"
                       />
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">Max Participants (leave empty for unlimited)</label>
                     <div className="relative">
-                      <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                      <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/60" size={20} />
                       <input
                         type="number"
                         min="1"
                         value={formData.max_participants}
                         onChange={(e) => setFormData({ ...formData, max_participants: e.target.value })}
-                        className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                        className="w-full pl-10 pr-4 py-2 input-brand"
                         placeholder="Unlimited"
                       />
                     </div>
@@ -565,7 +580,7 @@ export default function ServicesManagementPage() {
                   <textarea
                     value={formData.prerequisites}
                     onChange={(e) => setFormData({ ...formData, prerequisites: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2 input-brand"
                     rows={2}
                     placeholder="What participants need before starting..."
                   />
@@ -578,7 +593,7 @@ export default function ServicesManagementPage() {
                     type="text"
                     value={formData.deliverables}
                     onChange={(e) => setFormData({ ...formData, deliverables: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2 input-brand"
                     placeholder="e.g., Recorded sessions, Workbook, Certificate"
                   />
                 </div>
@@ -590,25 +605,18 @@ export default function ServicesManagementPage() {
                     type="text"
                     value={formData.topics}
                     onChange={(e) => setFormData({ ...formData, topics: e.target.value })}
-                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    className="w-full px-4 py-2 input-brand"
                     placeholder="e.g., AI Strategy, Implementation, ROI Analysis"
                   />
                 </div>
 
                 {/* Image URL */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">Image URL</label>
-                  <div className="relative">
-                    <ImageIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                    <input
-                      type="url"
-                      value={formData.image_url}
-                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                      className="w-full pl-10 pr-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                      placeholder="https://example.com/image.jpg"
-                    />
-                  </div>
-                </div>
+                <ImageUrlInput
+                  value={formData.image_url}
+                  onChange={(image_url) => setFormData({ ...formData, image_url })}
+                  label="Image URL"
+                  variant="brand"
+                />
 
                 {/* Display options */}
                 <div className="grid grid-cols-3 gap-4">
@@ -618,15 +626,15 @@ export default function ServicesManagementPage() {
                       type="number"
                       value={formData.display_order}
                       onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 input-brand"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Outcome group (pricing chart)</label>
+                    <label className="block text-sm font-medium mb-2">Outcome group (pricing chart)</label>
                     <select
                       value={formData.outcome_group_id}
                       onChange={(e) => setFormData({ ...formData, outcome_group_id: e.target.value })}
-                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      className="w-full px-4 py-2 input-brand"
                     >
                       <option value="">None</option>
                       {outcomeGroups.map((og) => (
@@ -635,23 +643,23 @@ export default function ServicesManagementPage() {
                     </select>
                   </div>
                   <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
                       <input
                         type="checkbox"
                         checked={formData.is_active}
                         onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                        className="w-4 h-4 rounded"
+                        className="w-4 h-4 rounded accent-radiant-gold"
                       />
                       <span>Active</span>
                     </label>
                   </div>
                   <div className="flex items-center gap-4">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer text-sm">
                       <input
                         type="checkbox"
                         checked={formData.is_featured}
                         onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                        className="w-4 h-4 rounded"
+                        className="w-4 h-4 rounded accent-radiant-gold"
                       />
                       <span>Featured</span>
                     </label>
@@ -659,41 +667,40 @@ export default function ServicesManagementPage() {
                 </div>
 
                 {/* Form buttons */}
-                <div className="flex gap-4">
+                <div className="flex gap-4 pt-4">
                   <motion.button
                     type="submit"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="px-6 py-2 btn-gold font-semibold rounded-lg"
                   >
                     {editingService ? 'Update Service' : 'Create Service'}
                   </motion.button>
-                  <motion.button
+                  <button
                     type="button"
-                    onClick={handleCancel}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-6 py-2 bg-gray-800 border border-gray-700 text-white font-semibold rounded-lg hover:border-gray-600"
+                    onClick={handleCloseModal}
+                    className="px-6 py-2 btn-ghost font-semibold rounded-lg"
                   >
                     Cancel
-                  </motion.button>
+                  </button>
                 </div>
               </form>
             </motion.div>
+          </div>
           )}
 
           {loading ? (
             <div className="text-center py-12">
-              <div className="text-gray-400">Loading services...</div>
+              <div className="text-platinum-white/70">Loading services...</div>
             </div>
           ) : services.length === 0 ? (
-            <div className="text-center py-12 text-gray-500">
+            <div className="text-center py-12 text-platinum-white/70">
               <p className="mb-4">No services found. Add your first one!</p>
               <motion.button
-                onClick={() => setShowAddForm(true)}
+                onClick={() => { resetForm(); setShowAddModal(true) }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white hover:border-blue-500/50 transition-colors flex items-center gap-2 mx-auto"
+                className="px-6 py-3 btn-gold font-semibold rounded-lg flex items-center gap-2 mx-auto"
               >
                 <Plus size={20} />
                 Add New Service
@@ -706,46 +713,46 @@ export default function ServicesManagementPage() {
                   key={service.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="p-6 bg-gray-900 border border-gray-800 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+                  className="card-brand p-6 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
                 >
                   <div className="flex-grow">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-bold text-white">{service.title}</h3>
+                      <h3 className="text-xl font-bold">{service.title}</h3>
                       {service.is_active ? (
-                        <span className="px-2 py-1 text-xs bg-green-600/20 text-green-400 rounded border border-green-600/50">
+                        <span className="px-2 py-1 text-xs bg-emerald-500/20 text-emerald-400 rounded border border-emerald-500/50">
                           Active
                         </span>
                       ) : (
-                        <span className="px-2 py-1 text-xs bg-gray-600/20 text-gray-400 rounded border border-gray-600/50">
+                        <span className="px-2 py-1 text-xs bg-silicon-slate/80 text-platinum-white/60 rounded border border-silicon-slate">
                           Inactive
                         </span>
                       )}
                       {service.is_featured && (
-                        <span className="px-2 py-1 text-xs bg-purple-600/20 text-purple-400 rounded border border-purple-600/50">
+                        <span className="px-2 py-1 text-xs bg-radiant-gold/20 text-radiant-gold rounded border border-radiant-gold/50">
                           Featured
                         </span>
                       )}
                     </div>
                     {service.description && (
-                      <p className="text-gray-400 text-sm mb-2 line-clamp-2">{service.description}</p>
+                      <p className="text-platinum-white/70 text-sm mb-2 line-clamp-2">{service.description}</p>
                     )}
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500">
-                      <span className="px-2 py-1 bg-gray-800 rounded text-xs">
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-platinum-white/60">
+                      <span className="px-2 py-1 bg-silicon-slate/60 rounded text-xs">
                         {getTypeLabel(service.service_type)}
                       </span>
-                      <span className="px-2 py-1 bg-gray-800 rounded text-xs">
+                      <span className="px-2 py-1 bg-silicon-slate/60 rounded text-xs">
                         {getDeliveryLabel(service.delivery_method)}
                       </span>
                       {service.is_quote_based ? (
-                        <span className="px-2 py-1 bg-yellow-600/20 text-yellow-400 rounded text-xs">
+                        <span className="px-2 py-1 bg-radiant-gold/20 text-radiant-gold rounded text-xs">
                           Contact for Pricing
                         </span>
                       ) : service.price !== null ? (
-                        <span className="px-2 py-1 bg-blue-600/20 text-blue-400 rounded text-xs">
+                        <span className="px-2 py-1 bg-radiant-gold/20 text-radiant-gold rounded text-xs">
                           {formatCurrency(service.price)}
                         </span>
                       ) : (
-                        <span className="px-2 py-1 bg-green-600/20 text-green-400 rounded text-xs">
+                        <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs">
                           Free
                         </span>
                       )}
@@ -774,42 +781,42 @@ export default function ServicesManagementPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleMoveOrder(service, 'up')}
-                      className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700"
+                      className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors"
                       title="Move up"
                     >
                       <ArrowUp size={18} />
                     </button>
                     <button
                       onClick={() => handleMoveOrder(service, 'down')}
-                      className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700"
+                      className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors"
                       title="Move down"
                     >
                       <ArrowDown size={18} />
                     </button>
                     <button
                       onClick={() => handleToggleFeatured(service)}
-                      className={`p-2 rounded-lg ${service.is_featured ? 'bg-purple-600 hover:bg-purple-700' : 'bg-gray-800 hover:bg-gray-700'}`}
+                      className={`p-2 rounded-lg transition-colors ${service.is_featured ? 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50' : 'bg-silicon-slate/50 border border-silicon-slate text-platinum-white/80 hover:text-radiant-gold'}`}
                       title={service.is_featured ? 'Remove Featured' : 'Mark as Featured'}
                     >
                       <Star size={18} />
                     </button>
                     <button
                       onClick={() => handleToggleActive(service)}
-                      className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700"
+                      className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors"
                       title={service.is_active ? 'Deactivate' : 'Activate'}
                     >
                       {service.is_active ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                     <button
                       onClick={() => handleEdit(service)}
-                      className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700"
+                      className="p-2 bg-silicon-slate/50 hover:bg-radiant-gold/20 border border-silicon-slate hover:border-radiant-gold/50 rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors"
                       title="Edit"
                     >
                       <Edit size={18} />
                     </button>
                     <button
                       onClick={() => handleDelete(service.id)}
-                      className="p-2 bg-red-600 rounded-lg hover:bg-red-700"
+                      className="p-2 bg-red-600/20 hover:bg-red-600/40 border border-red-600/50 rounded-lg text-red-400 hover:text-red-300 transition-colors"
                       title="Delete"
                     >
                       <Trash2 size={18} />
