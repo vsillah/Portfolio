@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ShoppingCart, DollarSign, Clock, Users, MapPin, Video, Building, MessageSquare, Image as ImageIcon, Check, ArrowRight } from 'lucide-react'
 import { useState, useRef } from 'react'
@@ -65,10 +66,13 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
       {/* Image */}
       <div className="relative h-48 bg-gradient-to-br from-bronze/20 to-radiant-gold/20">
         {service.image_url && !imageError ? (
-          <img
+          <Image
             src={service.image_url}
             alt={service.title}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 320px"
+            unoptimized
             onError={() => setImageError(true)}
           />
         ) : (

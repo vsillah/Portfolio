@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -239,10 +240,13 @@ export default function ProductDetailPage() {
             {/* Hero */}
             <div className="relative h-64 md:h-80 bg-gradient-to-br from-bronze/20 to-radiant-gold/20">
               {(product.image_url || (mockupImages.length > 0 && mockupImages[0])) ? (
-                <img
+                <Image
                   src={product.image_url || mockupImages[0]}
                   alt={product.title}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">

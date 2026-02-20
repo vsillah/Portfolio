@@ -1,8 +1,11 @@
 /**
  * Chatbot knowledge source configuration.
  * Ordered list of repo doc paths (relative to project root) and optional section titles.
- * The homepage chatbot fetches concatenated content from these files via GET /api/knowledge or GET /api/knowledge/chatbot.
- * Edit this list to add or remove docs; source of truth stays in git.
+ * The homepage chatbot fetches concatenated content from GET /api/knowledge or GET /api/knowledge/chatbot.
+ *
+ * On Vercel, doc files are not in the serverless bundle, so we rely on build-time embedded content
+ * (lib/chatbot-knowledge-content.generated.ts from scripts/build-chatbot-knowledge.ts).
+ * Locally, we fall back to reading from the filesystem when the generated file is missing.
  */
 
 import { readFile } from 'fs/promises'
@@ -15,7 +18,7 @@ export interface ChatbotKnowledgeEntry {
   sectionTitle?: string
 }
 
-/** Ordered list of docs included in chatbot knowledge. */
+/** Ordered list of docs included in chatbot knowledge (used for runtime fallback and by build script). */
 export const CHATBOT_KNOWLEDGE_SOURCES: ChatbotKnowledgeEntry[] = [
   { path: 'docs/user-help-guide.md', sectionTitle: 'User Help Guide' },
   { path: 'docs/admin-sales-lead-pipeline-sop.md', sectionTitle: 'Admin & Sales Lead Pipeline (overview)' },
@@ -23,10 +26,20 @@ export const CHATBOT_KNOWLEDGE_SOURCES: ChatbotKnowledgeEntry[] = [
 ]
 
 /**
- * Build concatenated markdown from CHATBOT_KNOWLEDGE_SOURCES (reads from filesystem).
- * Used by GET /api/knowledge and GET /api/knowledge/chatbot.
+ * Build concatenated markdown for the chatbot.
+ * Uses embedded content from build script when available (production/Vercel); otherwise reads from filesystem (local dev).
  */
 export async function getChatbotKnowledgeBody(): Promise<{ body: string } | { error: string; status: 404 | 500 }> {
+  try {
+    const mod = await import('./chatbot-knowledge-content.generated')
+    const body = mod.CHATBOT_KNOWLEDGE_BODY
+    if (body && typeof body === 'string') {
+      return { body }
+    }
+  } catch {
+    // Generated file missing (e.g. dev without running build:knowledge) — fall back to fs
+  }
+
   const cwd = process.cwd()
   const parts: string[] = []
 

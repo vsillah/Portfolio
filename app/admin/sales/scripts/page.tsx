@@ -122,14 +122,14 @@ export default function ScriptsManagementPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [typeFilter, user]);
+  }, [typeFilter]);
 
   // Fetch when user becomes available or filters change
   useEffect(() => {
     if (user) {
       fetchScripts();
     }
-  }, [user, fetchScripts]);
+  }, [fetchScripts]);
 
   const handleSave = async () => {
     setIsSaving(true);

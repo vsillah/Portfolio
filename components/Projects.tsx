@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ExternalLink, Code2, Download } from 'lucide-react'
 import { useState, useEffect, useRef } from 'react'
@@ -51,10 +52,13 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
 
       {/* Project Image */}
       <div className="relative h-56 overflow-hidden flex-shrink-0">
-        <img
+        <Image
           src={project.image || 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800'}
           alt={project.title}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[40%] group-hover:grayscale-0"
+          fill
+          className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[40%] group-hover:grayscale-0"
+          sizes="(max-width: 768px) 100vw, 400px"
+          unoptimized
         />
         <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-60" />
       </div>

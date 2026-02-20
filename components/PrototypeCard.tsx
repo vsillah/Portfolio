@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { 
   Smartphone, Globe, Wrench, Sparkles, 
@@ -102,10 +103,13 @@ export default function PrototypeCard({ prototype, user, index, onEnrollmentSucc
             onDemoChange={setSelectedDemoId}
           />
         ) : (
-          <img
+          <Image
             src={prototype.thumbnail_url || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800'}
             alt={prototype.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"
+            sizes="(max-width: 768px) 100vw, 400px"
+            unoptimized
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-60" />

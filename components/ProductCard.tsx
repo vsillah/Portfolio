@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { ShoppingCart, DollarSign, Download, File, Image as ImageIcon, Check } from 'lucide-react'
 import { useState, useRef } from 'react'
@@ -55,10 +56,13 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
       {/* Image */}
       <div className="relative h-48 bg-gradient-to-br from-bronze/20 to-radiant-gold/20">
         {product.image_url && !imageError ? (
-          <img
+          <Image
             src={product.image_url}
             alt={product.title}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 320px"
+            unoptimized
             onError={() => setImageError(true)}
           />
         ) : (

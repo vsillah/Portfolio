@@ -161,7 +161,7 @@ function ClientProjectsContent() {
       if (response.ok) {
         const data = await response.json()
         setProjects(data.projects || [])
-        setStats(data.stats || stats)
+        setStats(prev => data.stats ?? prev)
       }
     } catch (error) {
       console.error('Failed to fetch projects:', error)

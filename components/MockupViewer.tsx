@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react'
 
@@ -102,11 +103,9 @@ export default function MockupViewer({ images, alt = 'Product mockup', className
                     : 'border-gray-700 hover:border-gray-600'
                 }`}
               >
-                <img
-                  src={image}
-                  alt={`${alt} thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
-                />
+                <div className="relative w-full h-full">
+                  <Image src={image} alt={`${alt} thumbnail ${index + 1}`} fill className="object-cover" sizes="80px" unoptimized />
+                </div>
               </button>
             ))}
           </div>
@@ -127,13 +126,16 @@ export default function MockupViewer({ images, alt = 'Product mockup', className
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="relative max-w-7xl max-h-full"
+              className="relative max-w-7xl max-h-[90vh] w-full min-h-[50vh]"
               onClick={(e) => e.stopPropagation()}
             >
-              <img
+              <Image
                 src={images[currentIndex]}
                 alt={`${alt} zoomed`}
-                className="max-w-full max-h-[90vh] object-contain"
+                fill
+                className="object-contain"
+                sizes="100vw"
+                unoptimized
               />
               <button
                 onClick={() => setIsZoomed(false)}

@@ -145,14 +145,14 @@ export default function SalesDashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [minUrgency, user]);
+  }, [minUrgency]);
 
   // Fetch when user becomes available or filters change
   useEffect(() => {
     if (user) {
       fetchData();
     }
-  }, [user, fetchData]);
+  }, [fetchData]);
 
   // Filter and sort audits
   const filteredAudits = audits

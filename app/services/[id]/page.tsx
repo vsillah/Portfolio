@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import {
@@ -188,10 +189,13 @@ export default function ServiceDetailPage() {
             {/* Hero */}
             <div className="relative h-64 md:h-80 bg-gradient-to-br from-cyan-900/20 to-blue-900/20">
               {service.image_url ? (
-                <img
+                <Image
                   src={service.image_url}
                   alt={service.title}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">

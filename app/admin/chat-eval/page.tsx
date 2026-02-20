@@ -99,7 +99,7 @@ function ChatEvalContent() {
     } finally {
       setLoading(false)
     }
-  }, [user, page, selectedChannel, selectedRating])
+  }, [page, selectedChannel, selectedRating])
 
   const fetchStats = useCallback(async () => {
     try {
@@ -118,7 +118,7 @@ function ChatEvalContent() {
     } catch (error) {
       console.error('Error fetching stats:', error)
     }
-  }, [user])
+  }, [])
 
   useEffect(() => {
     fetchSessions()

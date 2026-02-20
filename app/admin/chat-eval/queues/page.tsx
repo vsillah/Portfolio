@@ -69,7 +69,7 @@ function QueuesOverviewContent() {
     } finally {
       setLoading(false)
     }
-  }, [user])
+  }, [])
 
   useEffect(() => {
     fetchStats()

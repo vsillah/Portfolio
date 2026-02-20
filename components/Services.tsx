@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Briefcase, ArrowRight, Building, Users, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
@@ -148,10 +149,13 @@ export default function Services() {
             >
               <div className="relative h-64 overflow-hidden">
                 {service.image_url ? (
-                  <img
+                  <Image
                     src={service.image_url}
                     alt={service.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    sizes="(max-width: 768px) 100vw, 320px"
+                    unoptimized
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-imperial-navy">

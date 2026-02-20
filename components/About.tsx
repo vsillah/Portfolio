@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Code, Users, Target, BarChart3, Lightbulb, Award } from 'lucide-react'
 import Link from 'next/link'
@@ -55,10 +56,12 @@ export default function About() {
               <div 
                 className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-radiant-gold/10"
               >
-                <img
+                <Image
                   src="/V Profile Autumn_Replicate.jpg"
                   alt="Vambah Sillah"
-                  className="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700 hover:scale-105"
+                  fill
+                  className="object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-700 hover:scale-105"
+                  sizes="400px"
                   onError={(e) => { e.currentTarget.src = '/V Profile_Replicate.jpg' }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent opacity-40" />

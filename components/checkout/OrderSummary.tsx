@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { DollarSign, Plus, Minus, Trash2, Edit2, X, Check, Clock, Users } from 'lucide-react'
 import { formatCurrency } from '@/lib/pricing-model'
@@ -156,12 +157,15 @@ export default function OrderSummary({
               >
                 <div className="flex items-start gap-3">
                   {/* Service Image */}
-                  <div className="w-14 h-14 bg-gradient-to-br from-bronze/20 to-radiant-gold/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                  <div className="w-14 h-14 bg-gradient-to-br from-bronze/20 to-radiant-gold/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden relative">
                     {service.image_url ? (
-                      <img
+                      <Image
                         src={service.image_url}
                         alt={service.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                        unoptimized
                       />
                     ) : (
                       <Users className="text-platinum-white/60" size={20} />
@@ -264,12 +268,15 @@ export default function OrderSummary({
               >
                 <div className="flex items-start gap-3">
                   {/* Product Image */}
-                  <div className="w-14 h-14 bg-gradient-to-br from-bronze/20 to-radiant-gold/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden">
+                  <div className="w-14 h-14 bg-gradient-to-br from-bronze/20 to-radiant-gold/20 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden relative">
                     {product.image_url ? (
-                      <img
+                      <Image
                         src={product.image_url}
                         alt={product.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="56px"
+                        unoptimized
                       />
                     ) : (
                       <DollarSign className="text-platinum-white/60" size={20} />

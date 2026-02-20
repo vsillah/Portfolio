@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { Mail, Phone, MapPin, Linkedin, ChevronDown, ChevronUp, Award, BookOpen, Briefcase } from 'lucide-react';
 import { Timeline } from './timeline';
 import { HeroParallax } from './hero-parallax';
@@ -254,22 +255,12 @@ const timelineData = [
             </ul>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <img 
-                src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&fit=crop&q=60" 
-                className="rounded-lg object-cover h-32 w-full border border-silicon-slate"
-                alt="Strategic Meeting"
-             />
-             <img 
-                src="/vs-autumn.jpg"
-                className="rounded-lg object-cover h-32 w-full border border-silicon-slate"
-                alt="Vambah Sillah"
-                onError={(e) => {
-                  // Fallback if local image not found - use abstract pattern instead of wrong person
-                  console.warn("Local image /vs-autumn.jpg not found, using fallback.");
-                  e.currentTarget.src = "https://images.unsplash.com/photo-1557683316-973673baf926?w=600&auto=format&fit=crop&q=60";
-                  e.currentTarget.onerror = null;
-                }}
-             />
+             <div className="relative h-32 w-full rounded-lg overflow-hidden border border-silicon-slate">
+               <Image src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&fit=crop&q=60" fill className="object-cover rounded-lg" sizes="(max-width: 768px) 100vw, 50vw" unoptimized alt="Strategic Meeting" />
+             </div>
+             <div className="relative h-32 w-full rounded-lg overflow-hidden border border-silicon-slate">
+               <Image src="/vs-autumn.jpg" fill className="object-cover rounded-lg" sizes="(max-width: 768px) 100vw, 50vw" alt="Vambah Sillah" onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1557683316-973673baf926?w=600&auto=format&fit=crop&q=60"; e.currentTarget.onerror = null; }} />
+             </div>
           </div>
         </div>
       ),
@@ -288,11 +279,9 @@ const timelineData = [
                 <li>Identified 22% of team&apos;s enhancements through incident management reporting.</li>
             </ul>
           </div>
-          <img 
-                src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=60" 
-                className="rounded-lg object-cover h-40 w-full border border-silicon-slate"
-                alt="Team Collaboration"
-             />
+          <div className="relative h-40 w-full rounded-lg overflow-hidden border border-silicon-slate">
+            <Image src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=60" fill className="object-cover rounded-lg" sizes="100vw" unoptimized alt="Team Collaboration" />
+          </div>
         </div>
       ),
     },
@@ -683,16 +672,17 @@ export default function ScrollAdventure() {
               <div className="w-full h-full relative border-b md:border-b-0 md:border-r border-silicon-slate/50 bg-silicon-slate overflow-hidden">
                  {/* BG Image with Error Fallback */}
                  {page.leftBgImage && (
-                    <img 
-                        src={page.leftBgImage}
-                        alt="Background"
-                        className="absolute inset-0 w-full h-full object-cover"
-                        onError={(e) => {
-                            console.warn("Local image load failed, switching to fallback.");
-                            // Fallback to abstract pattern if local image fails - NO WRONG PERSON
-                            e.currentTarget.src = "https://images.unsplash.com/photo-1557683316-973673baf926?w=900&auto=format&fit=crop&q=80";
-                            e.currentTarget.onerror = null;
-                        }}
+                    <Image
+                      src={page.leftBgImage}
+                      alt="Background"
+                      fill
+                      className="object-cover"
+                      sizes="100vw"
+                      unoptimized
+                      onError={(e) => {
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1557683316-973673baf926?w=900&auto=format&fit=crop&q=80";
+                        e.currentTarget.onerror = null;
+                      }}
                     />
                  )}
                  
@@ -725,15 +715,17 @@ export default function ScrollAdventure() {
                 
                  {/* BG Image with Error Fallback */}
                  {page.rightBgImage && (
-                    <img 
-                        src={page.rightBgImage}
-                        alt="Background"
-                        className="absolute inset-0 w-full h-full object-cover"
-                        onError={(e) => {
-                            // Generic fallback
-                            e.currentTarget.src = "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=900&auto=format&fit=crop&q=80";
-                            e.currentTarget.onerror = null;
-                        }}
+                    <Image
+                      src={page.rightBgImage}
+                      alt="Background"
+                      fill
+                      className="object-cover"
+                      sizes="100vw"
+                      unoptimized
+                      onError={(e) => {
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=900&auto=format&fit=crop&q=80";
+                        e.currentTarget.onerror = null;
+                      }}
                     />
                  )}
                  

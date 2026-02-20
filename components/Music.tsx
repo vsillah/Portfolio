@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Music2, ExternalLink, Play, ShoppingCart, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
@@ -115,10 +116,13 @@ export default function Music() {
               >
                 {/* Album Image */}
                 <div className="relative aspect-square overflow-hidden flex-shrink-0">
-                  <img
+                  <Image
                     src={imageUrl || '/V 9T Sitting.jpg'}
                     alt={entry.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    sizes="(max-width: 768px) 100vw, 320px"
+                    unoptimized
                     onError={(e) => { e.currentTarget.src = '/V 9T Sitting.jpg' }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent opacity-60" />

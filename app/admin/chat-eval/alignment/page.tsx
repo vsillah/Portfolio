@@ -79,7 +79,7 @@ function AlignmentDashboardContent() {
     } finally {
       setLoading(false)
     }
-  }, [user, days])
+  }, [days])
 
   useEffect(() => {
     fetchAlignment()

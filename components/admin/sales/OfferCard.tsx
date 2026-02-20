@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { 
   ProductWithRole, 
   ContentWithRole,
@@ -65,11 +66,9 @@ export function OfferCard({
         }`}
       >
         {product.image_url ? (
-          <img 
-            src={product.image_url} 
-            alt={product.title}
-            className="w-10 h-10 rounded object-cover"
-          />
+          <div className="relative w-10 h-10 rounded overflow-hidden flex-shrink-0">
+            <Image src={product.image_url} alt={product.title} fill className="object-cover" sizes="40px" unoptimized />
+          </div>
         ) : (
           <div className="w-10 h-10 rounded bg-gray-200 flex items-center justify-center">
             <Gift className="w-5 h-5 text-gray-400" />
@@ -120,13 +119,9 @@ export function OfferCard({
       }`}
     >
       {/* Header with image */}
-      <div className="relative">
+      <div className="relative h-32">
         {product.image_url ? (
-          <img 
-            src={product.image_url} 
-            alt={product.title}
-            className="w-full h-32 object-cover"
-          />
+          <Image src={product.image_url} alt={product.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 320px" unoptimized />
         ) : (
           <div className="w-full h-32 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
             <Gift className="w-12 h-12 text-gray-400" />
@@ -334,11 +329,9 @@ export function ContentOfferCard({
         }`}
       >
         {content.image_url ? (
-          <img 
-            src={content.image_url} 
-            alt={content.title}
-            className="w-10 h-10 rounded object-cover"
-          />
+          <div className="relative w-10 h-10 rounded overflow-hidden flex-shrink-0">
+            <Image src={content.image_url} alt={content.title} fill className="object-cover" sizes="40px" unoptimized />
+          </div>
         ) : (
           <div className="w-10 h-10 rounded bg-gray-700 flex items-center justify-center text-lg">
             {contentTypeIcon}
@@ -396,13 +389,9 @@ export function ContentOfferCard({
       }`}
     >
       {/* Header with image */}
-      <div className="relative">
+      <div className="relative h-32">
         {content.image_url ? (
-          <img 
-            src={content.image_url} 
-            alt={content.title}
-            className="w-full h-32 object-cover"
-          />
+          <Image src={content.image_url} alt={content.title} fill className="object-cover" sizes="(max-width: 768px) 100vw, 320px" unoptimized />
         ) : (
           <div className="w-full h-32 bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center">
             <span className="text-4xl">{contentTypeIcon}</span>

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, Github, Linkedin, Send, Music, BookOpen, ArrowRight, MessageCircle, FileText } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -161,10 +162,12 @@ export default function Contact() {
             {/* Profile Photo */}
             <div className="relative">
               <div className="relative w-28 h-36 mx-auto lg:mx-0 rounded-2xl overflow-hidden border border-radiant-gold/20 shadow-xl">
-                <img
+                <Image
                   src="/Profile_Photo_1.jpg"
                   alt="Vambah Sillah"
-                  className="w-full h-full object-cover object-top grayscale-[20%] hover:grayscale-0 transition-all duration-500"
+                  fill
+                  className="object-cover object-top grayscale-[20%] hover:grayscale-0 transition-all duration-500"
+                  sizes="112px"
                   onError={(e) => { e.currentTarget.src = '/Profile Photo.png' }}
                 />
               </div>

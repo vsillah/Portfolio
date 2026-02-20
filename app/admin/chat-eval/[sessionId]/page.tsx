@@ -143,7 +143,7 @@ function SessionDetailContent() {
     } finally {
       setLoading(false)
     }
-  }, [sessionId, user])
+  }, [sessionId])
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -162,7 +162,7 @@ function SessionDetailContent() {
     } catch (error) {
       console.error('Error fetching categories:', error)
     }
-  }, [user])
+  }, [])
 
   const fetchAvailableModels = useCallback(async () => {
     try {
@@ -186,7 +186,7 @@ function SessionDetailContent() {
     } catch (error) {
       console.error('Error fetching available models:', error)
     }
-  }, [user])
+  }, [])
 
   useEffect(() => {
     fetchSession()

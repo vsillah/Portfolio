@@ -1,5 +1,6 @@
 
 import React from "react";
+import Image from "next/image";
 import {
   motion,
   useScroll,
@@ -141,12 +142,15 @@ export const ProductCard = ({
     >
       <a
         href={product.link}
-        className="block group-hover/product:shadow-2xl h-full"
+        className="block relative group-hover/product:shadow-2xl h-full min-h-[200px]"
         onClick={(e) => e.preventDefault()} // Prevent actual navigation for demo
       >
-        <img
+        <Image
           src={product.thumbnail}
-          className="object-cover object-left-top absolute h-full w-full inset-0 rounded-xl"
+          fill
+          className="object-cover object-left-top rounded-xl"
+          sizes="(max-width: 768px) 100vw, 400px"
+          unoptimized
           alt={product.title}
         />
       </a>

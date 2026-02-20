@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, User, LogOut, Shield, Download, HelpCircle } from 'lucide-react'
 import Link from 'next/link'
@@ -80,11 +81,12 @@ export default function Navigation() {
             whileHover={{ scale: 1.05 }}
             transition={{ type: "spring", stiffness: 400, damping: 17 }}
           >
-            <img 
-              src="/logo.png" 
-              alt="AmaduTown" 
-              className="object-contain"
-              style={{ width: 'auto', height: '60px' }}
+            <Image
+              src="/logo.png"
+              alt="AmaduTown"
+              width={120}
+              height={60}
+              className="object-contain h-[60px] w-auto"
             />
           </motion.a>
 

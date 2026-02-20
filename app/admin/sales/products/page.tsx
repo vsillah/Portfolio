@@ -97,14 +97,14 @@ export default function ProductClassificationPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [roleFilter, contentTypeFilter, user]);
+  }, [roleFilter, contentTypeFilter]);
 
   // Fetch when user becomes available or filters change
   useEffect(() => {
     if (user) {
       fetchContent();
     }
-  }, [user, fetchContent]);
+  }, [fetchContent]);
 
   const handleSaveRole = async (data: ContentOfferRoleInput) => {
     const session = await getCurrentSession();

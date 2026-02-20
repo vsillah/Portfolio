@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+
+export const dynamic = 'force-dynamic';
 import { determineTier, PRICING_TIERS, formatCurrency } from '@/lib/pricing-model';
 import { calculateROI, findBestBenchmark, normalizeCompanySize, autoGenerateCalculation, type IndustryBenchmark, type CalculationResult } from '@/lib/value-calculations';
 

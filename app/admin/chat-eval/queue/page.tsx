@@ -110,7 +110,7 @@ function AnnotationQueueContent() {
     } finally {
       setLoading(false)
     }
-  }, [user, showUnannotated])
+  }, [selectedIndex, showUnannotated])
 
   const fetchSessionDetail = async (sessionId: string) => {
     setLoadingDetail(true)
@@ -151,7 +151,7 @@ function AnnotationQueueContent() {
     } catch (error) {
       console.error('Error fetching categories:', error)
     }
-  }, [user])
+  }, [])
 
   useEffect(() => {
     fetchSessions()

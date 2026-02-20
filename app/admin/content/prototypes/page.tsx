@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { 
   Plus, Trash2, Edit, History, BarChart3, Film, X, 
@@ -437,10 +438,13 @@ export default function PrototypesManagementPage() {
                       {formData.thumbnail_url ? (
                         <div className="space-y-3">
                           <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-700">
-                            <img
+                            <Image
                               src={formData.thumbnail_url}
                               alt="Thumbnail preview"
-                              className="w-full h-full object-cover"
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                              unoptimized
                             />
                             <button
                               type="button"
@@ -669,11 +673,14 @@ export default function PrototypesManagementPage() {
                     <div className="flex items-center gap-4 flex-1">
                       {/* Thumbnail Preview */}
                       {prototype.thumbnail_url ? (
-                        <div className="w-20 h-14 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0">
-                          <img
+                        <div className="w-20 h-14 rounded-lg overflow-hidden bg-gray-800 flex-shrink-0 relative">
+                          <Image
                             src={prototype.thumbnail_url}
                             alt={prototype.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
+                            sizes="80px"
+                            unoptimized
                           />
                         </div>
                       ) : (

@@ -2,6 +2,8 @@
 // Generates customized talking points, objections, and product recommendations
 
 import { NextRequest, NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
 
 interface DiagnosticData {

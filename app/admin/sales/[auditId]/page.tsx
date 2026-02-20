@@ -374,14 +374,14 @@ export default function ClientWalkthroughPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [auditId, user]);
+  }, [auditId]);
 
   // Fetch when user becomes available
   useEffect(() => {
     if (user) {
       fetchData();
     }
-  }, [user, fetchData]);
+  }, [fetchData]);
 
   // Fetch value evidence for script (pain points + total value) when contact is set
   useEffect(() => {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { RefreshCw, Eye, EyeOff, Settings, Package, CheckCircle, XCircle, Loader, Upload, Image as ImageIcon, X } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -330,11 +331,14 @@ export default function MerchandiseManagementPage() {
                     />
                     
                     {logoPreview ? (
-                      <div className="relative">
-                        <img 
-                          src={logoPreview} 
-                          alt="Logo preview" 
-                          className="max-h-32 mx-auto rounded-lg"
+                      <div className="relative max-h-32 w-32 mx-auto rounded-lg overflow-hidden">
+                        <Image
+                          src={logoPreview}
+                          alt="Logo preview"
+                          width={128}
+                          height={128}
+                          className="object-contain rounded-lg"
+                          unoptimized
                         />
                         <button
                           onClick={(e) => {
@@ -348,11 +352,14 @@ export default function MerchandiseManagementPage() {
                         <p className="mt-2 text-sm text-purple-400">{logoFile?.name}</p>
                       </div>
                     ) : syncConfig.logoUrl ? (
-                      <div className="relative">
-                        <img 
-                          src={syncConfig.logoUrl} 
-                          alt="Current logo" 
-                          className="max-h-32 mx-auto rounded-lg"
+                      <div className="relative max-h-32 w-32 mx-auto rounded-lg overflow-hidden">
+                        <Image
+                          src={syncConfig.logoUrl}
+                          alt="Current logo"
+                          width={128}
+                          height={128}
+                          className="object-contain rounded-lg"
+                          unoptimized
                           onError={(e) => {
                             e.currentTarget.style.display = 'none'
                           }}
@@ -517,10 +524,13 @@ export default function MerchandiseManagementPage() {
                   {/* Image */}
                   <div className="relative h-48 bg-gradient-to-br from-purple-900/20 to-blue-900/20">
                     {product.image_url ? (
-                      <img
+                      <Image
                         src={product.image_url}
                         alt={product.title}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 320px"
+                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

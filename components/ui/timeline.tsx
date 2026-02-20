@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import {
   useScroll,
   useTransform,
@@ -61,19 +62,20 @@ export const Timeline = ({
             className="flex justify-start pt-10 md:pt-40 md:gap-10"
           >
             <div className="sticky flex flex-col md:flex-row z-40 items-center top-40 self-start max-w-xs lg:max-w-sm md:w-full">
-              <div className="h-10 absolute left-3 md:left-3 w-10 rounded-full bg-background flex items-center justify-center border border-silicon-slate overflow-hidden shadow-xl shadow-gold-glow">
-                <img 
-                    src="/vs-autumn.jpg" 
-                    alt="VS" 
-                    className="object-cover w-full h-full"
-                    onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                        // Fallback to initials if image fails
-                        const parent = e.currentTarget.parentElement;
-                        if (parent) {
-                            parent.innerHTML = '<div class="w-full h-full bg-silicon-slate flex items-center justify-center text-xs font-bold text-radiant-gold">VS</div>';
-                        }
-                    }}
+              <div className="h-10 absolute left-3 md:left-3 w-10 rounded-full bg-background flex items-center justify-center border border-silicon-slate overflow-hidden shadow-xl shadow-gold-glow relative">
+                <Image
+                  src="/vs-autumn.jpg"
+                  alt="VS"
+                  fill
+                  className="object-cover"
+                  sizes="40px"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    const parent = e.currentTarget.parentElement;
+                    if (parent) {
+                      parent.innerHTML = '<div class="w-full h-full bg-silicon-slate flex items-center justify-center text-xs font-bold text-radiant-gold">VS</div>';
+                    }
+                  }}
                 />
               </div>
               <h3 className="hidden md:block text-xl md:pl-20 md:text-5xl font-bold text-platinum-white/50">

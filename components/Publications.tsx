@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { BookOpen, ExternalLink, ShoppingCart, ArrowRight } from 'lucide-react'
 import ExpandableText from '@/components/ui/ExpandableText'
@@ -138,10 +139,13 @@ export default function Publications() {
             >
               {/* Publication Image */}
               <div className="relative h-80 overflow-hidden flex-shrink-0">
-                <img
+                <Image
                   src={getImageUrl(publication)}
                   alt={publication.title}
-                  className="w-full h-full object-contain p-8 transition-transform duration-700 group-hover:scale-105"
+                  fill
+                  className="object-contain p-8 transition-transform duration-700 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 400px"
+                  unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-40" />
                 

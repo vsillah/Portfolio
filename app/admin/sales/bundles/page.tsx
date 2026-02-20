@@ -85,13 +85,13 @@ export default function BundleManagementPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [showInactive, user]);
+  }, [showInactive]);
 
   useEffect(() => {
     if (user) {
       fetchBundles();
     }
-  }, [user, fetchBundles]);
+  }, [fetchBundles]);
 
   const viewBundleDetails = async (bundle: OfferBundleWithStats) => {
     const session = await getCurrentSession();

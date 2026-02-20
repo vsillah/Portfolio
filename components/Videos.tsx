@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Play, Youtube, X, ArrowRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -151,10 +152,13 @@ export default function Videos() {
               >
                 {/* Thumbnail */}
                 <div className="relative aspect-video overflow-hidden flex-shrink-0">
-                  <img
+                  <Image
                     src={thumbnailUrl}
                     alt={video.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    sizes="(max-width: 768px) 100vw, 400px"
+                    unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent opacity-60" />
                   
