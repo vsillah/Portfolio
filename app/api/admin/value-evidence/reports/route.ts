@@ -17,6 +17,8 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const reportType = searchParams.get('type')
   const contactId = searchParams.get('contact_id')
+  const rawLimit = parseInt(searchParams.get('limit') || '50', 10)
+  const limit = Number.isNaN(rawLimit) ? 50 : Math.min(Math.max(1, rawLimit), 100)
 
   let query = supabaseAdmin
     .from('value_reports')
@@ -26,7 +28,7 @@ export async function GET(request: NextRequest) {
   if (reportType) query = query.eq('report_type', reportType)
   if (contactId) query = query.eq('contact_submission_id', parseInt(contactId))
 
-  const { data, error } = await query.limit(50)
+  const { data, error } = await query.limit(limit)
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })

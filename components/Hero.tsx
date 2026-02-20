@@ -123,18 +123,20 @@ export default function Hero() {
     offset: ["start start", "end start"]
   })
 
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "30%"])
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0])
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.95])
+  // Plateau: keep content fixed and fully visible while cards fan out and user can read (0 → 0.28),
+  // then allow fade/move so scroll continues (0.28 → 0.6+).
+  const y = useTransform(scrollYProgress, [0, 0.28, 1], ['0%', '0%', '30%'])
+  const opacity = useTransform(scrollYProgress, [0, 0.28, 0.6], [1, 1, 0])
+  const scale = useTransform(scrollYProgress, [0, 0.28, 1], [1, 1, 0.95])
 
-  // Stacked-at-start → fan-out-on-scroll: at 0 cards overlap at center; by 0.15 they're in a row
-  const card0X = useTransform(scrollYProgress, [0, 0.15], ['100%', '0%'])   // left: move right to center when stacked
-  const card2X = useTransform(scrollYProgress, [0, 0.15], ['-100%', '0%'])  // right: move left to center when stacked
-  const card0Y = useTransform(scrollYProgress, [0, 0.15], [8, 0])          // back of deck
-  const card1Y = useTransform(scrollYProgress, [0, 0.15], [4, 0])          // middle
-  const card2Y = useTransform(scrollYProgress, [0, 0.15], [0, 0])         // front of deck
-  const card0Rotate = useTransform(scrollYProgress, [0, 0.15], [-2, 0])
-  const card2Rotate = useTransform(scrollYProgress, [0, 0.15], [2, 0])
+  // Fan-out completes by 0.2; plateau 0.2→0.28 gives time to see cards and read before content moves/fades
+  const card0X = useTransform(scrollYProgress, [0, 0.2], ['100%', '0%'])
+  const card2X = useTransform(scrollYProgress, [0, 0.2], ['-100%', '0%'])
+  const card0Y = useTransform(scrollYProgress, [0, 0.2], [8, 0])
+  const card1Y = useTransform(scrollYProgress, [0, 0.2], [4, 0])
+  const card2Y = useTransform(scrollYProgress, [0, 0.2], [0, 0])
+  const card0Rotate = useTransform(scrollYProgress, [0, 0.2], [-2, 0])
+  const card2Rotate = useTransform(scrollYProgress, [0, 0.2], [2, 0])
   const missionCardStyles = [
     { x: card0X, y: card0Y, rotate: card0Rotate, zIndex: 0 },
     { y: card1Y, zIndex: 1 },

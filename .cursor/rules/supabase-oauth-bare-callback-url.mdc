@@ -1,0 +1,46 @@
+---
+description: Supabase OAuth redirect must use only the bare callback URL (no query params) so dev does not redirect to prod
+alwaysApply: true
+---
+
+# Supabase OAuth — Bare Callback URL Only
+
+When integrating with Supabase Auth (OAuth or redirect-based flows), **never** append query parameters to the redirect/callback URL sent to Supabase. Use only the **exact** callback path for the current origin.
+
+## Why this matters
+
+- Supabase **matches redirect URLs exactly** against the allowlist in **Authentication → URL Configuration → Redirect URLs**.
+- If the URL you send (e.g. `http://localhost:3000/auth/callback?next=%2Fadmin`) is **not** in that list, Supabase may redirect to the **Site URL** instead (often production).
+- Result: user authenticates in **dev** but lands on **prod** after OAuth, or the reverse. Session and origin get out of sync.
+
+## Required behavior
+
+1. **Code:** The value passed to Supabase as `redirectTo` (or equivalent) must be exactly:
+   - `{origin}/auth/callback` (e.g. `http://localhost:3000/auth/callback` or `https://amadutown.com/auth/callback`)
+   - No `?next=`, `?redirect=`, or any other query string.
+
+2. **Post-login path:** To send the user to a specific path after login (e.g. `/admin`, `/checkout`):
+   - **Do not** put that path in the callback URL.
+   - Store the intended path in **sessionStorage** (or equivalent) before starting OAuth, then read it on the callback page and redirect client-side.
+   - In this project: use the existing pattern in [lib/auth.ts](lib/auth.ts) (`AUTH_NEXT_PATH_KEY`, `getStoredAuthNextPath()`) and [app/auth/callback/page.tsx](app/auth/callback/page.tsx) (read stored path first, then `next` query, then `/`).
+
+3. **Supabase Dashboard:** Under **Authentication → URL Configuration → Redirect URLs**, list only the **bare** callback URLs, for example:
+   - `http://localhost:3000/auth/callback`
+   - `https://amadutown.com/auth/callback`
+   - (Any other dev/prod origins you use, with no query params.)
+
+## What not to do
+
+- Do **not** set `redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(path)}`` when calling `signInWithOAuth` or similar.
+- Do **not** add entries like `http://localhost:3000/auth/callback?next=*` to the Supabase allowlist; match is exact, not pattern-based.
+- Do **not** rely on the `next` (or `redirect`) query param on the **callback URL** for post-login navigation; use sessionStorage (or the existing helper) so the callback URL stays bare.
+
+## Verification
+
+- In dev: log in with OAuth from `http://localhost:3000/auth/login?redirect=/admin` → after OAuth you must land on `http://localhost:3000/admin`, not production.
+- In Supabase Dashboard, ensure Redirect URLs contain only `{origin}/auth/callback` entries with no query strings.
+
+## References
+
+- Implementation: [lib/auth.ts](lib/auth.ts) (`signInWithOAuth`, `getStoredAuthNextPath`), [app/auth/callback/page.tsx](app/auth/callback/page.tsx).
+- Docs: [OAUTH_PROD_FIX.md](OAUTH_PROD_FIX.md), [OAUTH_PRODUCTION_FIX.md](OAUTH_PRODUCTION_FIX.md).

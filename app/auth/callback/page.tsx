@@ -1,11 +1,11 @@
 'use client'
 
 import { useEffect, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { getStoredAuthNextPath } from '@/lib/auth'
 
 function AuthCallbackContent() {
-  const router = useRouter()
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -37,16 +37,9 @@ function AuthCallbackContent() {
           }
 
           if (data?.session) {
-            // Success! Wait a moment for session to be stored
             await new Promise(resolve => setTimeout(resolve, 200))
-            
-            // Get next URL or default to home
-            const next = searchParams.get('next') || '/'
-            
-            // Clear the hash from URL
+            const next = getStoredAuthNextPath() || searchParams.get('next') || '/'
             window.history.replaceState(null, '', window.location.pathname + window.location.search)
-            
-            // Use window.location for production - ensures full page reload
             window.location.href = next
             return
           }
@@ -63,10 +56,8 @@ function AuthCallbackContent() {
           }
 
           if (data?.session) {
-            // Wait for session to be stored
             await new Promise(resolve => setTimeout(resolve, 200))
-            
-            const next = searchParams.get('next') || '/'
+            const next = getStoredAuthNextPath() || searchParams.get('next') || '/'
             window.location.href = next
             return
           }
@@ -75,7 +66,7 @@ function AuthCallbackContent() {
         // Check if we already have a session (might have been set automatically)
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
-          const next = searchParams.get('next') || '/'
+          const next = getStoredAuthNextPath() || searchParams.get('next') || '/'
           window.location.href = next
           return
         }
@@ -93,7 +84,7 @@ function AuthCallbackContent() {
     }, 100)
 
     return () => clearTimeout(timer)
-  }, [router, searchParams])
+  }, [searchParams])
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center">

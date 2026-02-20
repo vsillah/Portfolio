@@ -1,18 +1,10 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { motion } from 'framer-motion'
-import { BarChart3, Settings, Users, Eye, MousePointerClick, Mail, ArrowRight, MessageCircle, FileText, TrendingUp, FlaskConical, FolderKanban, Send, DollarSign, RefreshCw, ClipboardCheck, LayoutTemplate, ShieldCheck, LayoutDashboard, Megaphone } from 'lucide-react'
-import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
+import { ArrowRight, Send, DollarSign, TrendingUp, FolderKanban, BarChart3, Settings, RefreshCw } from 'lucide-react'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
-
-interface AnalyticsSummary {
-  totalSessions: number
-  totalPageViews: number
-  totalClicks: number
-  totalFormSubmits: number
-}
 
 export default function AdminDashboard() {
   return (
@@ -22,413 +14,379 @@ export default function AdminDashboard() {
   )
 }
 
-function AdminDashboardContent() {
-  const [analytics, setAnalytics] = useState<AnalyticsSummary | null>(null)
-  const [loading, setLoading] = useState(true)
+// --- Feed types (minimal shapes from APIs) ---
+type OutreachDashboard = {
+  funnel?: { total: number; contacted: number; replied: number; booked: number }
+  queueStats?: { total: number; draft: number; sent: number; replied: number }
+  recentActivity?: Array<{
+    channel?: string
+    subject?: string
+    status?: string
+    contact_submissions?: { name?: string } | null
+    sent_at?: string | null
+    replied_at?: string | null
+  }>
+}
+type ValueEvidenceDashboard = { overview?: { totalReports?: number; totalEvidence?: number; totalCalculations?: number } }
+type ValueReportsRes = { reports?: Array<{ title?: string; industry?: string; company_size_range?: string; total_annual_value?: number; created_at?: string }> }
+type SalesRes = { stats?: { total_audits: number; pending_follow_up: number; converted: number; high_urgency: number }; audits?: Array<{ id: string; contact_submissions?: { name?: string } | null; urgency_score?: number; opportunity_score?: number }> }
+type CampaignsRes = { data?: Array<{ id: string; name?: string; status?: string; enrollment_count?: number; created_at?: string }> }
+type ClientProjectsRes = { projects?: Array<{ client_name?: string; project_status?: string; current_phase?: string; created_at?: string }>; stats?: unknown }
+type MeetingTasksRes = { tasks?: Array<{ id: string; title?: string; status?: string; due_date?: string | null; client_name?: string }> }
+type GuaranteesRes = { data?: Array<{ id: string; status?: string; client_email?: string; created_at?: string; guarantee_templates?: { name?: string } }> }
+type ChatEvalStats = { overview?: { total_sessions?: number; evaluated_sessions?: number; success_rate?: number } }
+type ChatEvalSessionsRes = { sessions?: Array<{ session_id?: string; visitor_email?: string; created_at?: string }> }
+type AnalyticsStats = { totalSessions?: number; totalPageViews?: number; totalClicks?: number; totalFormSubmits?: number }
 
-  useEffect(() => {
-    const fetchSummary = async () => {
-      try {
-        const response = await fetch('/api/analytics/stats?days=7')
-        if (response.ok) {
-          const data = await response.json()
-          setAnalytics({
-            totalSessions: data.totalSessions || 0,
-            totalPageViews: data.totalPageViews || 0,
-            totalClicks: data.totalClicks || 0,
-            totalFormSubmits: data.totalFormSubmits || 0,
-          })
-        }
-      } catch (error) {
-        console.error('Failed to fetch analytics summary:', error)
-        setAnalytics({
-          totalSessions: 0,
-          totalPageViews: 0,
-          totalClicks: 0,
-          totalFormSubmits: 0,
+function AdminDashboardContent() {
+  const [pipeline, setPipeline] = useState<{ outreach: OutreachDashboard | null; valueEvidence: ValueEvidenceDashboard | null; reports: ValueReportsRes['reports'] | null }>({ outreach: null, valueEvidence: null, reports: null })
+  const [sales, setSales] = useState<{ stats: SalesRes['stats'] | null; campaigns: CampaignsRes['data'] | null }>({ stats: null, campaigns: null })
+  const [postSale, setPostSale] = useState<{ projects: ClientProjectsRes['projects'] | null; tasks: MeetingTasksRes['tasks'] | null; guarantees: GuaranteesRes['data'] | null }>({ projects: null, tasks: null, guarantees: null })
+  const [quality, setQuality] = useState<{ chatStats: ChatEvalStats | null; chatSessions: ChatEvalSessionsRes['sessions'] | null; analytics: AnalyticsStats | null }>({ chatStats: null, chatSessions: null, analytics: null })
+  const [pipelineError, setPipelineError] = useState(false)
+  const [salesError, setSalesError] = useState(false)
+  const [postSaleError, setPostSaleError] = useState(false)
+  const [qualityError, setQualityError] = useState(false)
+
+  const fetchPipeline = useCallback(() => {
+    setPipelineError(false)
+    const headers = { credentials: 'include' as RequestCredentials }
+    Promise.all([
+      fetch('/api/admin/outreach/dashboard', { headers }).then((r) => r.ok ? r.json() : null),
+      fetch('/api/admin/value-evidence/dashboard', { headers }).then((r) => r.ok ? r.json() : null),
+      fetch('/api/admin/value-evidence/reports?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
+    ])
+      .then(([outreach, valueEvidence, reportsRes]) => {
+        setPipeline({
+          outreach: outreach ?? null,
+          valueEvidence: valueEvidence ?? null,
+          reports: (reportsRes as ValueReportsRes)?.reports ?? null,
         })
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchSummary()
+      })
+      .catch(() => setPipelineError(true))
   }, [])
 
+  const fetchSales = useCallback(() => {
+    setSalesError(false)
+    const headers = { credentials: 'include' as RequestCredentials }
+    Promise.all([
+      fetch('/api/admin/sales', { headers }).then((r) => r.ok ? r.json() : null),
+      fetch('/api/admin/campaigns?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
+    ])
+      .then(([salesRes, campaignsRes]) => {
+        setSales({
+          stats: (salesRes as SalesRes)?.stats ?? null,
+          campaigns: (campaignsRes as CampaignsRes)?.data ?? null,
+        })
+      })
+      .catch(() => setSalesError(true))
+  }, [])
+
+  const fetchPostSale = useCallback(() => {
+    setPostSaleError(false)
+    const headers = { credentials: 'include' as RequestCredentials }
+    Promise.all([
+      fetch('/api/admin/client-projects?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
+      fetch('/api/meeting-action-tasks', { headers }).then((r) => r.ok ? r.json() : null),
+      fetch('/api/admin/guarantees?limit=3', { headers }).then((r) => r.ok ? r.json() : null),
+    ])
+      .then(([projectsRes, tasksRes, guaranteesRes]) => {
+        const tasks = (tasksRes as MeetingTasksRes)?.tasks ?? []
+        setPostSale({
+          projects: (projectsRes as ClientProjectsRes)?.projects ?? null,
+          tasks: Array.isArray(tasks) ? tasks.slice(0, 5) : null,
+          guarantees: (guaranteesRes as GuaranteesRes)?.data ?? null,
+        })
+      })
+      .catch(() => setPostSaleError(true))
+  }, [])
+
+  const fetchQuality = useCallback(() => {
+    setQualityError(false)
+    const headers = { credentials: 'include' as RequestCredentials }
+    Promise.all([
+      fetch('/api/admin/chat-eval/stats?days=7', { headers }).then((r) => r.ok ? r.json() : null),
+      fetch('/api/admin/chat-eval?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
+      fetch('/api/analytics/stats?days=7', { headers }).then((r) => r.ok ? r.json() : null),
+    ])
+      .then(([chatStats, chatSessionsRes, analytics]) => {
+        const sess = (chatSessionsRes as ChatEvalSessionsRes)?.sessions ?? null
+        setQuality({
+          chatStats: chatStats ?? null,
+          chatSessions: sess ?? null,
+          analytics: analytics ?? null,
+        })
+      })
+      .catch(() => setQualityError(true))
+  }, [])
+
+  useEffect(() => { fetchPipeline() }, [fetchPipeline])
+  useEffect(() => { fetchSales() }, [fetchSales])
+  useEffect(() => { fetchPostSale() }, [fetchPostSale])
+  useEffect(() => { fetchQuality() }, [fetchQuality])
+
   return (
-    <div className="min-h-screen bg-background text-foreground p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+      <div className="max-w-6xl mx-auto">
         <Breadcrumbs items={[{ label: 'Admin Dashboard' }]} />
-        
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-          <p className="text-platinum-white/80">Manage your portfolio and view analytics</p>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold mb-1">Admin Dashboard</h1>
+          <p className="text-platinum-white/80 text-sm">Snapshot by category — use the sidebar or links below for details.</p>
         </div>
 
-        {/* Quick Stats - Analytics Summary */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">Analytics Overview</h2>
-            <Link href="/admin/analytics">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-4 py-2 btn-ghost rounded-lg flex items-center gap-2 text-sm"
-              >
-                View Full Analytics
-                <ArrowRight size={16} />
-              </motion.button>
-            </Link>
-          </div>
-          {loading ? (
-            <div className="text-platinum-white/80">Loading analytics...</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <StatCard
-                icon={<Users />}
-                label="Sessions (7d)"
-                value={analytics?.totalSessions.toLocaleString() || '0'}
-                color="blue"
-              />
-              <StatCard
-                icon={<Eye />}
-                label="Page Views (7d)"
-                value={analytics?.totalPageViews.toLocaleString() || '0'}
-                color="green"
-              />
-              <StatCard
-                icon={<MousePointerClick />}
-                label="Clicks (7d)"
-                value={analytics?.totalClicks.toLocaleString() || '0'}
-                color="purple"
-              />
-              <StatCard
-                icon={<Mail />}
-                label="Form Submissions (7d)"
-                value={analytics?.totalFormSubmits.toLocaleString() || '0'}
-                color="pink"
-              />
-            </div>
-          )}
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Pipeline: Lead Pipeline */}
+          <CategoryCard
+            title="Lead Pipeline"
+            icon={<Send size={24} />}
+            href="/admin/outreach"
+            linkLabel="View Lead Pipeline"
+            error={pipelineError}
+            onRetry={fetchPipeline}
+          >
+            {pipelineError ? (
+              <FeedError onRetry={fetchPipeline} />
+            ) : pipeline.outreach ? (
+              <>
+                <div className="flex flex-wrap gap-3 text-sm text-platinum-white/80 mb-3">
+                  <span>Leads: {pipeline.outreach.funnel?.total ?? 0}</span>
+                  <span>Contacted: {pipeline.outreach.funnel?.contacted ?? 0}</span>
+                  <span>Replied: {pipeline.outreach.funnel?.replied ?? 0}</span>
+                  <span>Queue: {pipeline.outreach.queueStats?.sent ?? 0} sent / {pipeline.outreach.queueStats?.replied ?? 0} replied</span>
+                </div>
+                <ul className="space-y-1.5 text-sm">
+                  {(pipeline.outreach.recentActivity ?? []).slice(0, 5).map((a, i) => (
+                    <li key={i} className="flex justify-between gap-2">
+                      <span className="truncate">{a.contact_submissions?.name ?? a.subject ?? a.channel ?? '—'}</span>
+                      <span className="text-platinum-white/60 shrink-0">{a.status}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="text-sm text-platinum-white/60">Loading…</p>
+            )}
+          </CategoryCard>
 
-        {/* Quick Actions — grouped by workflow */}
-        <div className="mb-8 space-y-10">
-          {/* Pipeline */}
-          <section>
-            <h2 className="text-lg font-semibold text-platinum-white/80 uppercase tracking-wide mb-4">Pipeline</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/admin/outreach">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <Send size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Lead Pipeline</h3>
-                      <p className="text-gray-400 text-sm">Message Queue, All Leads, and trigger scrape</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/value-evidence">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <DollarSign size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Value Evidence</h3>
-                      <p className="text-gray-400 text-sm">Pain points, monetary calculations, and value reports</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-            </div>
-          </section>
+          {/* Pipeline: Value Evidence */}
+          <CategoryCard
+            title="Value Evidence"
+            icon={<DollarSign size={24} />}
+            href="/admin/value-evidence"
+            linkLabel="View Value Evidence"
+            error={pipelineError}
+            onRetry={fetchPipeline}
+          >
+            {pipelineError ? (
+              <FeedError onRetry={fetchPipeline} />
+            ) : pipeline.valueEvidence != null || pipeline.reports != null ? (
+              <>
+                <div className="flex flex-wrap gap-3 text-sm text-platinum-white/80 mb-3">
+                  <span>Reports: {pipeline.valueEvidence?.overview?.totalReports ?? 0}</span>
+                  <span>Evidence: {pipeline.valueEvidence?.overview?.totalEvidence ?? 0}</span>
+                  <span>Calculations: {pipeline.valueEvidence?.overview?.totalCalculations ?? 0}</span>
+                </div>
+                <ul className="space-y-1.5 text-sm">
+                  {(pipeline.reports ?? []).slice(0, 5).map((r, i) => (
+                    <li key={i} className="flex justify-between gap-2">
+                      <span className="truncate">{r.title ?? r.industry ?? '—'}</span>
+                      {r.total_annual_value != null && <span className="text-platinum-white/60 shrink-0">${(r.total_annual_value / 1000).toFixed(0)}k</span>}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="text-sm text-platinum-white/60">Loading…</p>
+            )}
+          </CategoryCard>
 
           {/* Sales */}
-          <section>
-            <h2 className="text-lg font-semibold text-platinum-white/80 uppercase tracking-wide mb-4">Sales</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/admin/sales">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <TrendingUp size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Sales Dashboard</h3>
-                      <p className="text-gray-400 text-sm">Track diagnostic audits and sales conversations</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/lead-dashboards">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <LayoutDashboard size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Lead Dashboards</h3>
-                      <p className="text-gray-400 text-sm">Share lead dashboard links; same link after they convert</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/campaigns">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-amber-600/20 to-orange-600/20 border border-amber-500/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
-                      <Megaphone size={32} className="text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Attraction Campaigns</h3>
-                      <p className="text-gray-400 text-sm">Manage promotional offers, enrollments, and progress tracking</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-            </div>
-          </section>
+          <CategoryCard
+            title="Sales"
+            icon={<TrendingUp size={24} />}
+            href="/admin/sales"
+            linkLabel="Sales Dashboard"
+            secondaryLinks={[{ label: 'Campaigns', href: '/admin/campaigns' }]}
+            error={salesError}
+            onRetry={fetchSales}
+          >
+            {salesError ? (
+              <FeedError onRetry={fetchSales} />
+            ) : sales.stats != null || (sales.campaigns && sales.campaigns.length > 0) ? (
+              <>
+                <div className="flex flex-wrap gap-3 text-sm text-platinum-white/80 mb-3">
+                  <span>Audits: {sales.stats?.total_audits ?? 0}</span>
+                  <span>Pending follow-up: {sales.stats?.pending_follow_up ?? 0}</span>
+                  <span>Converted: {sales.stats?.converted ?? 0}</span>
+                  <span>High urgency: {sales.stats?.high_urgency ?? 0}</span>
+                </div>
+                <ul className="space-y-1.5 text-sm">
+                  {(sales.campaigns ?? []).slice(0, 5).map((c) => (
+                    <li key={c.id} className="flex justify-between gap-2">
+                      <span className="truncate">{c.name ?? c.id}</span>
+                      <span className="text-platinum-white/60 shrink-0">{c.enrollment_count ?? 0} enrollments</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="text-sm text-platinum-white/60">Loading…</p>
+            )}
+          </CategoryCard>
 
           {/* Post-sale */}
-          <section>
-            <h2 className="text-lg font-semibold text-platinum-white/80 uppercase tracking-wide mb-4">Post-sale</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/admin/client-projects">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <FolderKanban size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Client Projects</h3>
-                      <p className="text-gray-400 text-sm">Track milestones and send progress updates</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/meeting-tasks">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <ClipboardCheck size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Meeting Tasks</h3>
-                      <p className="text-gray-400 text-sm">Track action items between meetings and send client updates</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/continuity-plans">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <RefreshCw size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Continuity Plans</h3>
-                      <p className="text-gray-400 text-sm">Manage recurring subscription plans for ongoing support</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/onboarding-templates">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <LayoutTemplate size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Onboarding Templates</h3>
-                      <p className="text-gray-400 text-sm">Reusable onboarding plans for client projects</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/guarantees">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <ShieldCheck size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Guarantees</h3>
-                      <p className="text-gray-400 text-sm">Manage guarantee instances and rollover</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-            </div>
-          </section>
+          <CategoryCard
+            title="Post-sale"
+            icon={<FolderKanban size={24} />}
+            href="/admin/client-projects"
+            linkLabel="Client Projects"
+            secondaryLinks={[
+              { label: 'Meeting Tasks', href: '/admin/meeting-tasks' },
+              { label: 'Guarantees', href: '/admin/guarantees' },
+            ]}
+            error={postSaleError}
+            onRetry={fetchPostSale}
+          >
+            {postSaleError ? (
+              <FeedError onRetry={fetchPostSale} />
+            ) : postSale.projects != null || postSale.tasks != null || postSale.guarantees != null ? (
+              <>
+                <div className="space-y-2 mb-3">
+                  <p className="text-sm font-medium text-platinum-white/90">Recent projects</p>
+                  <ul className="space-y-1 text-sm text-platinum-white/80">
+                    {(postSale.projects ?? []).slice(0, 5).map((p, i) => (
+                      <li key={i} className="truncate">{p.client_name ?? p.project_status ?? '—'}</li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex flex-wrap gap-2 text-sm text-platinum-white/70">
+                  {Array.isArray(postSale.tasks) && <span>{postSale.tasks.filter((t) => t.status === 'pending' || t.status === 'in_progress').length} pending tasks</span>}
+                  {(postSale.guarantees?.length ?? 0) > 0 && <span>{postSale.guarantees!.length} recent guarantees</span>}
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-platinum-white/60">Loading…</p>
+            )}
+          </CategoryCard>
 
           {/* Quality & insights */}
-          <section>
-            <h2 className="text-lg font-semibold text-platinum-white/80 uppercase tracking-wide mb-4">Quality & insights</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/admin/chat-eval">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <MessageCircle size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Chat Eval</h3>
-                      <p className="text-gray-400 text-sm">Evaluate chat conversations with LLM grading</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/analytics">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <BarChart3 size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Analytics</h3>
-                      <p className="text-gray-400 text-sm">Site analytics and sales funnel</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/testing">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <FlaskConical size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">E2E Testing</h3>
-                      <p className="text-gray-400 text-sm">Run automated client simulations</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-            </div>
-          </section>
+          <CategoryCard
+            title="Quality & insights"
+            icon={<BarChart3 size={24} />}
+            href="/admin/chat-eval"
+            linkLabel="Chat Eval"
+            secondaryLinks={[
+              { label: 'Analytics', href: '/admin/analytics' },
+              { label: 'E2E Testing', href: '/admin/testing' },
+            ]}
+            error={qualityError}
+            onRetry={fetchQuality}
+          >
+            {qualityError ? (
+              <FeedError onRetry={fetchQuality} />
+            ) : quality.chatStats != null || quality.analytics != null ? (
+              <>
+                <div className="flex flex-wrap gap-3 text-sm text-platinum-white/80 mb-3">
+                  <span>Chat sessions (7d): {quality.chatStats?.overview?.total_sessions ?? 0}</span>
+                  <span>Evaluated: {quality.chatStats?.overview?.evaluated_sessions ?? 0}</span>
+                  <span>Success rate: {quality.chatStats?.overview?.success_rate ?? 0}%</span>
+                </div>
+                <div className="flex flex-wrap gap-3 text-sm text-platinum-white/70 mb-2">
+                  <span>Analytics (7d): {quality.analytics?.totalSessions ?? 0} sessions</span>
+                  <span>{quality.analytics?.totalPageViews ?? 0} page views</span>
+                </div>
+                <ul className="space-y-1.5 text-sm">
+                  {(quality.chatSessions ?? []).slice(0, 5).map((s, i) => (
+                    <li key={i} className="truncate text-platinum-white/80">{s?.visitor_email ?? s?.session_id ?? '—'}</li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="text-sm text-platinum-white/60">Loading…</p>
+            )}
+          </CategoryCard>
 
           {/* Configuration */}
-          <section>
-            <h2 className="text-lg font-semibold text-platinum-white/80 uppercase tracking-wide mb-4">Configuration</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/admin/content">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <Settings size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">Content Hub</h3>
-                      <p className="text-gray-400 text-sm">Manage all portfolio content</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/users">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <Users size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">User Management</h3>
-                      <p className="text-gray-400 text-sm">Manage users and roles</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-              <Link href="/admin/prompts">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="p-6 bg-gradient-to-r from-bronze/20 to-radiant-gold/20 border border-radiant-gold/50 rounded-xl cursor-pointer"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-bronze to-radiant-gold flex items-center justify-center">
-                      <FileText size={32} className="text-imperial-navy" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">System Prompts</h3>
-                      <p className="text-gray-400 text-sm">Configure chatbot and evaluation criteria</p>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-            </div>
-          </section>
+          <CategoryCard
+            title="Configuration"
+            icon={<Settings size={24} />}
+            href="/admin/content"
+            linkLabel="Content Hub"
+            secondaryLinks={[
+              { label: 'User Management', href: '/admin/users' },
+              { label: 'System Prompts', href: '/admin/prompts' },
+            ]}
+          >
+            <p className="text-sm text-platinum-white/80">Content hub, users, and system prompts. Use the links below or the sidebar.</p>
+          </CategoryCard>
         </div>
       </div>
     </div>
   )
 }
 
-function StatCard({
-  icon,
-  label,
-  value,
-  color,
-}: {
-  icon: React.ReactNode
-  label: string
-  value: string
-  color: 'blue' | 'green' | 'purple' | 'pink'
-}) {
-  void color // unused; all cards use brand palette
+function FeedError({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="p-6 rounded-xl border bg-radiant-gold/20 border-radiant-gold/50">
-      <div className="flex items-center gap-3 mb-2">
-        {icon}
-        <span className="text-platinum-white/80 text-sm">{label}</span>
+    <div className="flex flex-col gap-2">
+      <p className="text-sm text-platinum-white/70">Unable to load.</p>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="inline-flex items-center gap-2 text-sm font-medium text-radiant-gold hover:text-amber-400 transition-colors"
+      >
+        <RefreshCw size={14} />
+        Retry
+      </button>
+    </div>
+  )
+}
+
+function CategoryCard({
+  title,
+  icon,
+  href,
+  linkLabel,
+  secondaryLinks,
+  error,
+  onRetry,
+  children,
+}: {
+  title: string
+  icon: React.ReactNode
+  href: string
+  linkLabel: string
+  secondaryLinks?: Array<{ label: string; href: string }>
+  error?: boolean
+  onRetry?: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <div className="p-5 rounded-xl border border-silicon-slate bg-silicon-slate/30 flex flex-col">
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-lg bg-radiant-gold/20 flex items-center justify-center text-radiant-gold">
+          {icon}
+        </div>
+        <h2 className="text-lg font-semibold">{title}</h2>
       </div>
-      <div className="text-3xl font-bold">{value}</div>
+      <div className="flex-1 min-h-[80px] mb-4">{children}</div>
+      <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-silicon-slate">
+        <Link
+          href={href}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-radiant-gold hover:text-amber-400 transition-colors"
+        >
+          {linkLabel}
+          <ArrowRight size={14} />
+        </Link>
+        {secondaryLinks?.map((s) => (
+          <Link
+            key={s.href}
+            href={s.href}
+            className="text-sm text-platinum-white/70 hover:text-foreground transition-colors"
+          >
+            {s.label}
+          </Link>
+        ))}
+      </div>
     </div>
   )
 }

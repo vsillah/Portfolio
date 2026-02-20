@@ -15,39 +15,13 @@ When creating new admin functionality (pages, dashboards, tools) under `/app/adm
 - Use the existing admin UI patterns (dark theme, gradient cards, etc.)
 - Wrap with `<ProtectedRoute requireAdmin>` for access control
 
-### 2. Add Navigation to Admin Dashboard
+### 2. Add Navigation to Admin Sidebar and (Optional) Dashboard
 **CRITICAL: This step is mandatory and must not be skipped.**
 
-After creating any new admin page, you MUST add a Quick Action card to the main admin dashboard at `app/admin/page.tsx` in the **appropriate section** (workflow grouping):
+Admin navigation is driven by a **persistent left sidebar** (see `components/admin/AdminSidebar.tsx`). The nav tree is defined in **`lib/admin-nav.ts`**.
 
-- **Pipeline** — Lead Pipeline, Value Evidence
-- **Sales** — Sales Dashboard
-- **Post-sale** — Client Projects, Meeting Tasks, Continuity Plans, Onboarding Templates, Guarantees
-- **Quality & insights** — Chat Eval, Analytics, E2E Testing
-- **Configuration** — Content Hub, User Management, System Prompts
-
-Place the new card inside the matching `<section>` and use the same card pattern:
-
-```tsx
-<Link href="/admin/{feature}">
-  <motion.div
-    whileHover={{ scale: 1.02 }}
-    className="p-6 bg-gradient-to-r from-{color}-600/20 to-{color2}-600/20 border border-{color}-500/50 rounded-xl cursor-pointer"
-  >
-    <div className="flex items-center gap-4">
-      <div className="w-16 h-16 rounded-lg bg-gradient-to-r from-{color}-600 to-{color2}-600 flex items-center justify-center">
-        <{Icon} size={32} className="text-white" />
-      </div>
-      <div>
-        <h3 className="text-xl font-bold mb-1">{Feature Name}</h3>
-        <p className="text-gray-400 text-sm">{Brief description}</p>
-      </div>
-    </div>
-  </motion.div>
-</Link>
-```
-
-Also add the icon import at the top of the file from `lucide-react`.
+- **Add your new page to the sidebar:** Edit `lib/admin-nav.ts` and add an entry under the appropriate category’s `items` (or under `children` for Content Hub sub-pages). Categories: Pipeline, Sales, Post-sale, Quality & insights, Configuration.
+- **Dashboard home** (`app/admin/page.tsx`) shows category-snapshot cards with feeds. If the new feature is a primary destination (e.g. a new top-level hub), consider adding a card or feed for it in the matching category; otherwise the sidebar link is sufficient for discovery.
 
 ### 3. Update Any Relevant Documentation
 - If the feature requires setup (database schema, env vars, etc.), document it
@@ -71,12 +45,10 @@ When planning new admin features, include this section:
 
 ```
 ### Admin Dashboard Integration
-- [ ] Add Quick Action card to `/app/admin/page.tsx`
-- [ ] Import icon from lucide-react
-- [ ] Choose appropriate gradient colors
-- [ ] Write concise description
+- [ ] Add entry to `lib/admin-nav.ts` in the correct category (items or Content children)
+- [ ] If a primary hub: add or extend a dashboard category card/feed in `app/admin/page.tsx`
 ```
 
 ## Why This Matters
 
-Admin features that aren't visible from the dashboard are effectively hidden and unusable. Users expect to discover and access all admin functionality from the central dashboard.
+Admin features that aren’t in the sidebar are hard to discover. The sidebar is the single source of truth; the dashboard home provides a snapshot and quick links. Users expect to reach all admin functionality from the sidebar or from the dashboard category cards.
