@@ -109,6 +109,7 @@ export async function POST(request: NextRequest) {
       music_id,
       publication_id,
       prototype_id,
+      outcome_group_id,
     } = body
 
     if (!title || !type) {
@@ -149,6 +150,7 @@ export async function POST(request: NextRequest) {
         music_id: music_id || null,
         publication_id: publication_id || null,
         prototype_id: prototype_id || null,
+        outcome_group_id: outcome_group_id || null,
       }])
       .select()
       .single()

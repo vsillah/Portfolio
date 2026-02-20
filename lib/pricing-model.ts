@@ -19,12 +19,21 @@ import {
 // Types
 // ============================================================================
 
+/** Outcome group for pricing chart grouping (from outcome_groups table). */
+export interface TierItemOutcomeGroup {
+  id: string;
+  label: string;
+  display_order?: number;
+}
+
 export interface TierItem {
   title: string;
   perceivedValue: number;
   offerRole: 'core_offer' | 'bonus' | 'lead_magnet' | 'upsell' | 'continuity';
   description: string;
   isDeployed?: boolean; // true for AI tools that are actually built and deployed
+  /** When set, pricing UI groups this item under this outcome (e.g. "Capture & Convert Leads"). */
+  outcomeGroup?: TierItemOutcomeGroup | null;
 }
 
 export interface GuaranteeDef {

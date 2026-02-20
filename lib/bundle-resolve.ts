@@ -5,7 +5,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase';
 import { type BundleItem, type ContentType } from '@/lib/sales-scripts';
-import type { TierItem } from '@/lib/pricing-model';
+import type { TierItem, TierItemOutcomeGroup } from '@/lib/pricing-model';
 
 const CONTENT_TABLE_MAP: Record<
   ContentType,
@@ -66,9 +66,13 @@ export async function resolveBundleItemForPricing(
     const id = item.content_type === 'product' && isNumericId
       ? parseInt(String(item.content_id), 10)
       : item.content_id;
+    const hasOutcomeGroup = ['products', 'services', 'lead_magnets'].includes(config.table);
+    const selectFields = hasOutcomeGroup
+      ? 'id, title, price, description, outcome_groups(id, label, display_order)'
+      : 'id, title, price, description';
     const { data } = await supabaseAdmin
       .from(config.table)
-      .select('id, title, price, description')
+      .select(selectFields)
       .eq('id', id)
       .maybeSingle();
     resolvedContent = data as Record<string, unknown> | null;
@@ -96,12 +100,19 @@ export async function resolveBundleItemForPricing(
 
   const offerRole = mapOfferRole(item.override_role);
 
+  let outcomeGroup: TierItemOutcomeGroup | null = null;
+  if (resolvedContent?.outcome_groups && typeof resolvedContent.outcome_groups === 'object') {
+    const og = resolvedContent.outcome_groups as { id?: string; label?: string; display_order?: number };
+    if (og?.id && og?.label) outcomeGroup = { id: og.id, label: og.label, display_order: og.display_order };
+  }
+
   return {
     title,
     perceivedValue: Number(perceivedValue),
     offerRole,
     description,
     isDeployed: false, // Could be derived from service type if needed
+    outcomeGroup: outcomeGroup ?? undefined,
   };
 }
 

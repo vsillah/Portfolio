@@ -81,6 +81,9 @@ export async function PATCH(
     if (typeof body.private_link_token === 'string' || body.private_link_token === null) {
       updates.private_link_token = body.private_link_token || null
     }
+    if (body.outcome_group_id !== undefined) {
+      updates.outcome_group_id = body.outcome_group_id === null || body.outcome_group_id === '' ? null : (typeof body.outcome_group_id === 'string' ? body.outcome_group_id : null)
+    }
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })

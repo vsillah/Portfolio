@@ -1,8 +1,9 @@
 'use client';
 
-import { type PricingTier, formatCurrency, formatPercent, formatPriceOrFree } from '@/lib/pricing-model';
+import { type PricingTier, type TierItem, formatCurrency, formatPercent, formatPriceOrFree } from '@/lib/pricing-model';
 import Link from 'next/link';
-import { Check, Zap, Shield } from 'lucide-react';
+import { Check, Zap, Shield, Target, UserPlus, Lightbulb, TrendingUp } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { PricingMethodologyNote, type CalculationContextDisplay } from '@/components/pricing/PricingMethodologyNote';
 
 interface PricingCardProps {
@@ -11,7 +12,74 @@ interface PricingCardProps {
   calculationContext?: CalculationContextDisplay | null;
 }
 
+/** Icon per outcome group label (default seed labels). */
+const OUTCOME_ICONS: Record<string, LucideIcon> = {
+  'Capture & Convert Leads': UserPlus,
+  'Save Time & Scale Ops': Zap,
+  'Strategy & Support': Lightbulb,
+  'Grow Your Presence': TrendingUp,
+};
+const DEFAULT_OUTCOME_ICON = Target;
+
+/** Group tier items by outcome for pricing chart; preserves item order within groups. */
+function groupItemsByOutcome(items: TierItem[]): { label: string; items: TierItem[]; displayOrder: number }[] {
+  const sectionMap = new Map<string, { label: string; items: TierItem[]; displayOrder: number }>();
+  const sectionOrder: string[] = [];
+
+  for (const item of items) {
+    const key = item.outcomeGroup?.id ?? '__none__';
+    const label = item.outcomeGroup?.label ?? 'Included';
+    const displayOrder = item.outcomeGroup?.display_order ?? 999;
+
+    if (!sectionMap.has(key)) {
+      sectionMap.set(key, { label, items: [], displayOrder });
+      sectionOrder.push(key);
+    }
+    sectionMap.get(key)!.items.push(item);
+  }
+
+  return sectionOrder
+    .map((key) => sectionMap.get(key)!)
+    .sort((a, b) => a.displayOrder - b.displayOrder || a.label.localeCompare(b.label));
+}
+
+function TierItemRow({ item }: { item: TierItem }) {
+  return (
+    <li className="flex items-start gap-3">
+      <span className={`mt-0.5 flex-shrink-0 ${
+        item.isDeployed
+          ? 'text-radiant-gold'
+          : item.offerRole === 'core_offer'
+            ? 'text-imperial-navy dark:text-white'
+            : 'text-gray-400'
+      }`}>
+        {item.isDeployed ? <Zap className="w-4 h-4 fill-current" /> : <Check className="w-4 h-4" />}
+      </span>
+      <div className="flex-1">
+        <span className={`text-sm leading-tight block ${
+          item.offerRole === 'core_offer'
+            ? 'font-medium text-gray-900 dark:text-white'
+            : 'text-gray-600 dark:text-gray-300'
+        }`}>
+          {item.title}
+        </span>
+        <div className="flex flex-wrap gap-2 mt-1">
+          {item.isDeployed && (
+            <span className="text-[10px] font-bold uppercase tracking-wider text-radiant-gold bg-radiant-gold/10 px-1.5 py-0.5 rounded">Deployed</span>
+          )}
+          <span className="text-[10px] text-gray-400">
+            Valued at {formatCurrency(item.perceivedValue)}
+          </span>
+        </div>
+      </div>
+    </li>
+  );
+}
+
 export function PricingCard({ tier, onSelect, calculationContext }: PricingCardProps) {
+  const sections = groupItemsByOutcome(tier.items);
+  const showOutcomeHeadings = sections.length > 1 || (sections.length === 1 && sections[0].label !== 'Included');
+
   return (
     <div
       className={`relative flex flex-col rounded-2xl border-2 p-6 shadow-sm transition-all duration-300 hover:shadow-xl ${
@@ -58,39 +126,29 @@ export function PricingCard({ tier, onSelect, calculationContext }: PricingCardP
         />
       </div>
 
-      {/* Items */}
-      <ul className="mb-8 flex-1 space-y-4">
-        {tier.items.map((item, idx) => (
-          <li key={idx} className="flex items-start gap-3">
-            <span className={`mt-0.5 flex-shrink-0 ${
-              item.isDeployed
-                ? 'text-radiant-gold'
-                : item.offerRole === 'core_offer'
-                  ? 'text-imperial-navy dark:text-white'
-                  : 'text-gray-400'
-            }`}>
-              {item.isDeployed ? <Zap className="w-4 h-4 fill-current" /> : <Check className="w-4 h-4" />}
-            </span>
-            <div className="flex-1">
-              <span className={`text-sm leading-tight block ${
-                item.offerRole === 'core_offer'
-                  ? 'font-medium text-gray-900 dark:text-white'
-                  : 'text-gray-600 dark:text-gray-300'
-              }`}>
-                {item.title}
-              </span>
-              <div className="flex flex-wrap gap-2 mt-1">
-                {item.isDeployed && (
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-radiant-gold bg-radiant-gold/10 px-1.5 py-0.5 rounded">Deployed</span>
-                )}
-                <span className="text-[10px] text-gray-400">
-                  Valued at {formatCurrency(item.perceivedValue)}
+      {/* Items: grouped by outcome when present */}
+      <div className="mb-8 flex-1 space-y-5">
+        {sections.map((section, idx) => {
+          const OutcomeIcon = showOutcomeHeadings ? (OUTCOME_ICONS[section.label] ?? DEFAULT_OUTCOME_ICON) : null;
+          return (
+          <div key={section.label === 'Included' ? 'included' : section.items[0]?.outcomeGroup?.id ?? `section-${idx}`}>
+            {showOutcomeHeadings && OutcomeIcon && (
+              <div className="flex items-center gap-2 mb-2">
+                <OutcomeIcon className="w-3.5 h-3.5 text-imperial-navy/70 dark:text-radiant-gold/70" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+                  {section.label}
                 </span>
               </div>
-            </div>
-          </li>
-        ))}
-      </ul>
+            )}
+            <ul className="space-y-4">
+              {section.items.map((item, idx) => (
+                <TierItemRow key={idx} item={item} />
+              ))}
+            </ul>
+          </div>
+          );
+        })}
+      </div>
 
       {/* Guarantee */}
       {tier.guarantee ? (

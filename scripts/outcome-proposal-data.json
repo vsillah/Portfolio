@@ -1,0 +1,492 @@
+{
+  "products": [
+    {
+      "id": 8,
+      "title": "Tote bag",
+      "description": " ",
+      "type": "merchandise"
+    },
+    {
+      "id": 9,
+      "title": "Cuffed Beanie",
+      "description": " ",
+      "type": "merchandise"
+    },
+    {
+      "id": 10,
+      "title": "Laptop Sleeve",
+      "description": " ",
+      "type": "merchandise"
+    },
+    {
+      "id": 4,
+      "title": "All-Over Print Large Tote Bag",
+      "description": " ",
+      "type": "merchandise"
+    },
+    {
+      "id": 5,
+      "title": "All-over print gym bag",
+      "description": " ",
+      "type": "merchandise"
+    },
+    {
+      "id": 6,
+      "title": "Under Armour® men's polo",
+      "description": " ",
+      "type": "merchandise"
+    },
+    {
+      "id": 7,
+      "title": "Flip straw water bottle",
+      "description": " ",
+      "type": "merchandise"
+    },
+    {
+      "id": 2,
+      "title": "Snapback Hat",
+      "description": " ",
+      "type": "merchandise"
+    },
+    {
+      "id": 3,
+      "title": "Kids crew neck t-shirt",
+      "description": " ",
+      "type": "merchandise"
+    },
+    {
+      "id": 1,
+      "title": "Premium AmaduTown full zip hoodie",
+      "description": " ",
+      "type": "merchandise"
+    },
+    {
+      "id": 11,
+      "title": "AI Audit Calculator",
+      "description": "Comprehensive AI readiness assessment tool. Identify where AI can save you time and money.",
+      "type": "calculator"
+    },
+    {
+      "id": 12,
+      "title": "AI Implementation Playbook",
+      "description": "Step-by-step guide to implementing AI in your business. Covers strategy, tool selection, and deployment.",
+      "type": "ebook"
+    },
+    {
+      "id": 13,
+      "title": "Business Automation Toolkit",
+      "description": "Premium guide with templates, checklists, and frameworks for automating your business processes.",
+      "type": "ebook"
+    },
+    {
+      "id": 14,
+      "title": "Automation ROI Templates Pack",
+      "description": "Ready-to-use spreadsheets and templates for calculating the ROI of any automation project.",
+      "type": "ebook"
+    },
+    {
+      "id": 15,
+      "title": "AI Training Course — Self-Paced",
+      "description": "Comprehensive self-paced course covering AI fundamentals, prompt engineering, and practical business applications.",
+      "type": "training"
+    },
+    {
+      "id": 16,
+      "title": "Premium AI Masterclass",
+      "description": "Advanced masterclass on building and deploying AI solutions. Includes hands-on projects and certification.",
+      "type": "training"
+    },
+    {
+      "id": 17,
+      "title": "Chatbot Template",
+      "description": "AI-powered chatbot with n8n integration for RAG, optional voice (VAPI), conversation history, and dynamic system prompts. Use when a client needs an AI assistant on their website.",
+      "type": "template"
+    },
+    {
+      "id": 18,
+      "title": "Lead Generation Template",
+      "description": "Complete lead capture and qualification system: contact form, lead magnet delivery, exit intent, n8n webhook for enrichment, diagnostic assessments, and sales session tracking.",
+      "type": "template"
+    },
+    {
+      "id": 19,
+      "title": "Eval Template",
+      "description": "Chat evaluation system for quality assessment: human annotation interface, LLM-as-Judge automated evaluations, multiple model support (Claude, GPT-4), and human-LLM alignment tracking.",
+      "type": "template"
+    },
+    {
+      "id": 20,
+      "title": "Diagnostic Template",
+      "description": "Client-facing diagnostic (audit) flow that captures pain points and routes to sales. Includes audit storage, completion webhook, and optional n8n integration.",
+      "type": "template"
+    },
+    {
+      "id": 21,
+      "title": "n8n Warm Lead Pack",
+      "description": "Three n8n workflows: Facebook warm lead scraper, Google Contacts sync, and LinkedIn warm lead scraper. All normalize and POST to your ingest API. Ready for n8n Cloud import.",
+      "type": "template"
+    }
+  ],
+  "services": [
+    {
+      "id": "c13e9f1c-7932-4e11-8459-a11e0ef7a070",
+      "title": "Product Innovation Workshop",
+      "description": null,
+      "service_type": "training"
+    },
+    {
+      "id": "1313650b-1afb-44f7-8118-21f05b1ae8a0",
+      "title": "AI Customer Support Chatbot",
+      "description": "Custom AI-powered chatbot for 24/7 customer support. Handles FAQs, ticket routing, and escalation. Deployed and running in your business.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "a278e803-9328-490b-bf57-8fbee7d129ee",
+      "title": "Speaking Engagement",
+      "description": null,
+      "service_type": "speaking"
+    },
+    {
+      "id": "a479ce70-4856-4d3f-917b-c37bfff1f0a2",
+      "title": "AI Inbound Lead Chatbot",
+      "description": "AI chatbot that qualifies inbound leads, captures contact info, and routes to your sales team. Never miss a lead again.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "4ea3afc8-2ecc-4928-a5e6-35e82388ee10",
+      "title": "Management Consulting",
+      "description": null,
+      "service_type": "consulting"
+    },
+    {
+      "id": "ee03425c-2d00-41e3-ad5b-18f14bfb53b3",
+      "title": "AI Voice Agent — Inbound",
+      "description": "AI-powered voice agent that handles inbound phone calls. Greets callers, answers questions, routes calls, and captures information automatically.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "f463891c-e703-403b-97c2-e122aca42f29",
+      "title": "Lead Generation Workflow Agent",
+      "description": "Automated lead generation pipeline that scrapes, qualifies, and delivers leads to your CRM. Your pipeline fills itself.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "6cb60c1f-6b7c-4bce-9335-fbc99063f9a9",
+      "title": "Social Media Content Agent",
+      "description": "AI agent that generates, schedules, and posts content across your social media channels. Save 20+ hours per week on content creation.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "8dc13175-02b9-4ee2-90fe-f6dd5dd151b3",
+      "title": "Client Onboarding Automation",
+      "description": "Automated client onboarding system. Welcome emails, document collection, task assignments, and progress tracking — all automated.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "7d0c9d47-116a-48a5-b31d-dbe966f30044",
+      "title": "Inbound Lead Tracking System",
+      "description": "Comprehensive lead tracking system that captures leads from all channels, scores them, and ensures no opportunity falls through the cracks.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "5e8d9f3d-8dbe-4380-b566-e284ac95a3c7",
+      "title": "Mobile App Generation",
+      "description": "Custom mobile application built with AI-assisted development. Cross-platform (iOS and Android) with your branding.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "b988910a-4db7-4c7f-b4ec-00ae35e915bf",
+      "title": "Website Development",
+      "description": "Modern, conversion-optimized website built with the latest technology. SEO-ready, mobile-responsive, and fast.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "3977c48a-23ba-4e3c-8513-d17b91e61c5c",
+      "title": "AI Email Sequence Builder",
+      "description": "AI-powered email nurture sequences that convert. Automated drip campaigns, follow-ups, and re-engagement flows.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "7c4bf4ec-a9d4-454e-933b-e22430be8ed7",
+      "title": "RAG Knowledge Base System",
+      "description": "AI-powered internal knowledge management system. Your team asks questions in natural language and gets instant, accurate answers from your documents.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "0f7324b7-ba9e-440c-a282-f01b2919d2a4",
+      "title": "AI Strategy Workshop — Half-Day",
+      "description": "Intensive half-day workshop to identify your top AI opportunities. Walk away with a prioritized roadmap.",
+      "service_type": "workshop"
+    },
+    {
+      "id": "457da6b5-92db-4b5b-a895-ee8571a47c8c",
+      "title": "AI Strategy Workshop — Full-Day",
+      "description": "Comprehensive full-day workshop with deep-dive analysis, hands-on exercises, and detailed implementation planning.",
+      "service_type": "workshop"
+    },
+    {
+      "id": "d1d32ad7-5cb6-4d6c-8f15-d9ccf24f9e78",
+      "title": "Monthly Advisory Retainer",
+      "description": "Ongoing strategic AI advisory. Monthly 1-on-1 calls, priority support, and quarterly strategy reviews.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "b42244d8-8322-4fbd-887f-3c6b3152db50",
+      "title": "1-on-1 AI Coaching",
+      "description": "Personalized 1-on-1 coaching to help you implement AI in your business. Weekly calls with actionable homework.",
+      "service_type": "coaching"
+    },
+    {
+      "id": "9df08654-6522-4299-92ae-68b3b80060e9",
+      "title": "Group AI Coaching",
+      "description": "Learn alongside peers in a small group setting. Monthly group calls with Q&A and community access.",
+      "service_type": "coaching"
+    },
+    {
+      "id": "7e6fe1c0-af7d-4f01-9025-953c1d91300c",
+      "title": "Team AI Training — 3-Session Program",
+      "description": "Get your whole team up to speed on AI tools and best practices. Three sessions covering fundamentals, hands-on practice, and advanced techniques.",
+      "service_type": "training"
+    },
+    {
+      "id": "78b49ebd-ba8b-4922-8f54-8738a76214a9",
+      "title": "Implementation Warranty",
+      "description": "Included with all build services. Covers bug fixes, minor adjustments, and support for deployed AI tools.",
+      "service_type": "warranty"
+    },
+    {
+      "id": "f1978dc0-cd5c-4a8d-b28a-b5d0ab452131",
+      "title": "Enterprise SLA",
+      "description": "Guaranteed response times and uptime commitments for all deployed AI tools. Includes 99.9% uptime SLA, 4-hour critical response, and 24-hour standard response.",
+      "service_type": "warranty"
+    },
+    {
+      "id": "5c0ee962-4e59-47ce-8374-e77083cd3af8",
+      "title": "Priority Support Channel",
+      "description": "Dedicated Slack or Microsoft Teams channel with your team and ours. 4-hour response during business hours, direct access to engineering.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "42dec7ad-4b54-4fed-8288-15d350c33c9e",
+      "title": "Data Migration & Onboarding",
+      "description": "Full-service data migration from existing systems and structured onboarding for your team.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "1d3cbddd-3d36-41be-bbff-484740f33089",
+      "title": "Custom API / ERP Integrations",
+      "description": "Connect deployed AI tools to your existing enterprise systems — Salesforce, HubSpot, SAP, NetSuite, or custom APIs.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "b8887d29-52a7-47a1-bdb1-192068f43ccb",
+      "title": "Custom Reporting & Analytics Dashboard",
+      "description": "Tailored dashboards and KPI tracking for your AI tools. Executive summaries, department-level views, and automated reporting.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "e5c198bd-1276-45ee-abe3-9d9f85e1e3d2",
+      "title": "AI Training Course — Self-Paced",
+      "description": "Comprehensive self-paced course covering AI fundamentals, prompt engineering, and practical business applications.",
+      "service_type": "training"
+    },
+    {
+      "id": "1d797450-f350-457e-b7c4-d75164a76654",
+      "title": "Premium AI Masterclass",
+      "description": "Advanced masterclass on building and deploying AI solutions. Includes hands-on projects and certification.",
+      "service_type": "training"
+    },
+    {
+      "id": "0aeccef3-eae9-4a4a-b90d-053560e53e85",
+      "title": "AI Strategy Workshop — Recorded (Self-Paced)",
+      "description": "Self-paced recorded version of our half-day AI Strategy Workshop. Discover where AI fits in your organization at your own pace.",
+      "service_type": "workshop"
+    },
+    {
+      "id": "e65898be-4121-4f98-a441-381a56ab5467",
+      "title": "Pre-Built Chatbot Template — Self-Install",
+      "description": "Ready-to-deploy AI chatbot template with step-by-step self-installation guide. Handles FAQs, basic routing, and information capture.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "4fa75994-7603-4af0-acd0-d1d4523ea3ab",
+      "title": "Group Implementation Program — 6 Weeks",
+      "description": "Bi-weekly group implementation calls over 6 weeks. Deploy template-based AI tools alongside peers with shared guidance and accountability.",
+      "service_type": "training"
+    },
+    {
+      "id": "3024f215-4cae-422b-b92d-38a800302c58",
+      "title": "AI Training Library — Recorded Access",
+      "description": "Full access to our recorded AI training library. Covers fundamentals, tool usage, prompt engineering, and best practices for your team.",
+      "service_type": "training"
+    },
+    {
+      "id": "6fb4fb87-0ca5-49cc-8117-31295ee861b2",
+      "title": "Community Forum Access",
+      "description": "Peer support community for nonprofits and educational institutions using AI tools.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "4d7d7cbd-5d0f-4420-b93b-7c08a44dbbeb",
+      "title": "30-Day Email Support",
+      "description": "Email support for setup questions during the first 30 days.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "0129f6d2-0c09-4ab8-a01d-6ead6819747e",
+      "title": "60-Day Email Support",
+      "description": "Extended email support for setup and usage questions during the first 60 days.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "eaa36f0b-a20f-40cb-9d82-749c914251cd",
+      "title": "Lead Tracking Templates",
+      "description": "Template-based lead tracking system for nonprofits. Self-install with step-by-step guide.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "c9774a8b-3cc7-4237-a668-6f02a6dc37c0",
+      "title": "Content Automation Templates",
+      "description": "Social media content templates and automation guides for nonprofits.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "7cd3e7d5-31f0-4ee3-bf27-242c92935b1e",
+      "title": "Shared Analytics Dashboard",
+      "description": "Shared (not custom) analytics dashboard for tracking AI tool performance.",
+      "service_type": "consulting"
+    },
+    {
+      "id": "312e597d-d250-4c41-aff0-0eca38ddb885",
+      "title": "AI Email Sequence Templates",
+      "description": "Template-based AI email sequence pack for nonprofits. Self-configure with provided guide.",
+      "service_type": "consulting"
+    }
+  ],
+  "lead_magnets": [
+    {
+      "id": "b9f6579e-e4ef-4825-ba04-3f0365f0761e",
+      "title": "No-Show Eliminator",
+      "description": "Tactics and scripts to reduce no-shows and improve show rate.",
+      "type": "ebook",
+      "funnel_stage": "scheduling_show_rate"
+    },
+    {
+      "id": "4f9e4b96-623f-4184-84f2-1475247ce843",
+      "title": "ROI Calculator",
+      "description": "Use your numbers from the discovery call. Private link.",
+      "type": "ebook",
+      "funnel_stage": "sales_call_process"
+    },
+    {
+      "id": "4b7922f0-7a47-4e99-8c7f-2fd7ecd0025c",
+      "title": "Case Study Builder",
+      "description": "Structured prompts to turn client results into case studies.",
+      "type": "ebook",
+      "funnel_stage": "flywheel_reinvestment"
+    },
+    {
+      "id": "d6197bc0-b433-451c-8293-8f38b8bf79c7",
+      "title": "Activation Tracker",
+      "description": "Track client activation and first-value milestones.",
+      "type": "ebook",
+      "funnel_stage": "delivery_results"
+    },
+    {
+      "id": "e2ce1b31-ad4e-4dbb-ba14-39a45b911f13",
+      "title": "Equity Code eBook",
+      "description": null,
+      "type": "ebook",
+      "funnel_stage": "attention_capture"
+    },
+    {
+      "id": "1d716987-ddcf-4b26-931c-2a0ddb844fd6",
+      "title": "Expectations Alignment Doc",
+      "description": "Align scope and expectations before close. Private link or sales-sent.",
+      "type": "ebook",
+      "funnel_stage": "sales_call_process"
+    },
+    {
+      "id": "69d8382f-5bc9-417c-a6e3-95b033618863",
+      "title": "Hook Library",
+      "description": "Curated hooks for openings and follow-ups.",
+      "type": "ebook",
+      "funnel_stage": "attention_capture"
+    },
+    {
+      "id": "a67786db-f9c7-4504-83a4-2fda03efe98a",
+      "title": "Automation Audit",
+      "description": "Audit current automation and identify quick wins.",
+      "type": "ebook",
+      "funnel_stage": "delivery_results"
+    },
+    {
+      "id": "6367cba3-64ef-484c-a2c1-0a390426e82b",
+      "title": "Renewal Guide",
+      "description": "Renewal conversation guide and timing checklist.",
+      "type": "ebook",
+      "funnel_stage": "flywheel_reinvestment"
+    },
+    {
+      "id": "a58b3386-ac7c-4a30-a3fd-377e25b7e614",
+      "title": "Win Tracker",
+      "description": "Log and celebrate wins; feed case studies and renewal.",
+      "type": "ebook",
+      "funnel_stage": "delivery_results"
+    },
+    {
+      "id": "7b442d3e-1fe7-4040-ab49-267f31f1b120",
+      "title": "VSL Script Template",
+      "description": "Video sales letter script template with fill-in slots.",
+      "type": "ebook",
+      "funnel_stage": "attention_capture"
+    },
+    {
+      "id": "71378e95-4e63-435c-acd4-f201d825ac4b",
+      "title": "Retargeting Roadmap",
+      "description": "Step-by-step retargeting setup and creative roadmap.",
+      "type": "ebook",
+      "funnel_stage": "attention_capture"
+    },
+    {
+      "id": "a47cbe3c-ae77-4e04-8d2d-c4b8bb7ae62b",
+      "title": "Referral Playbook",
+      "description": "How to turn wins into referrals with scripts and checklists.",
+      "type": "ebook",
+      "funnel_stage": "attention_capture"
+    },
+    {
+      "id": "f7858f96-9937-4df2-8232-b730a25cd41c",
+      "title": "AI Audit Calculator",
+      "description": "Comprehensive AI & automation readiness assessment tool.",
+      "type": "ebook",
+      "funnel_stage": "attention_capture"
+    }
+  ],
+  "outcome_groups": [
+    {
+      "id": "a3fb170e-dbf6-4b2d-bf05-71b02d1ad8c3",
+      "slug": "capture_convert",
+      "label": "Capture & Convert Leads",
+      "display_order": 0
+    },
+    {
+      "id": "1eb303c5-5df2-4b09-92f0-232f1e8efc60",
+      "slug": "save_time_scale",
+      "label": "Save Time & Scale Ops",
+      "display_order": 1
+    },
+    {
+      "id": "4a21a0ad-a1a3-4269-b0e1-330b1fba054a",
+      "slug": "strategy_support",
+      "label": "Strategy & Support",
+      "display_order": 2
+    },
+    {
+      "id": "a50e6f17-3d30-47f5-9f25-ccf9ce3aaf63",
+      "slug": "grow_presence",
+      "label": "Grow Your Presence",
+      "display_order": 3
+    }
+  ]
+}

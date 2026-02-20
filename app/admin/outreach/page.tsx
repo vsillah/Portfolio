@@ -131,7 +131,23 @@ interface LeadsResponse {
   page: number
 }
 
-type TabType = 'queue' | 'leads'
+type TabType = 'queue' | 'leads' | 'escalations'
+
+interface ChatEscalationRow {
+  id: number
+  session_id: string
+  escalated_at: string
+  source: string
+  reason: string | null
+  visitor_name: string | null
+  visitor_email: string | null
+  transcript: string | null
+  contact_submission_id: number | null
+  slack_sent_at: string | null
+  created_at: string
+  updated_at: string
+  contact_submissions: { name: string | null; email: string | null } | null
+}
 
 function EvidenceCard({ evidence }: { evidence: { id: string; display_name: string | null; source_excerpt: string; confidence_score: number; monetary_indicator?: number | null } }) {
   const [expanded, setExpanded] = useState(false)
@@ -176,7 +192,7 @@ function OutreachContent() {
   // Tab management
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     const tab = searchParams?.get('tab')
-    return (tab === 'leads' || tab === 'queue') ? tab : 'queue'
+    return (tab === 'leads' || tab === 'queue' || tab === 'escalations') ? tab : 'queue'
   })
 
   // Queue state
@@ -224,6 +240,18 @@ function OutreachContent() {
   const [leadsPage, setLeadsPage] = useState(1)
   const leadsPerPage = 50
   const [leadActionId, setLeadActionId] = useState<number | null>(null)
+
+  // Escalations tab state
+  const [escalations, setEscalations] = useState<ChatEscalationRow[]>([])
+  const [escalationsLoading, setEscalationsLoading] = useState(false)
+  const [escalationsTotal, setEscalationsTotal] = useState(0)
+  const [escalationsPage, setEscalationsPage] = useState(1)
+  const [escalationsLinkedFilter, setEscalationsLinkedFilter] = useState<'all' | 'linked' | 'unlinked'>('all')
+  const escalationsPerPage = 20
+
+  // Escalations for expanded lead (lead detail "Chat escalations for this contact")
+  const [leadEscalations, setLeadEscalations] = useState<ChatEscalationRow[]>([])
+  const [leadEscalationsLoading, setLeadEscalationsLoading] = useState(false)
 
   // Add lead modal (manual entry)
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
@@ -367,6 +395,32 @@ function OutreachContent() {
     }
   }, [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsVisibilityFilter, leadsSearch, leadsPage, leadsPerPage])
 
+  const fetchEscalations = useCallback(async () => {
+    setEscalationsLoading(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const params = new URLSearchParams({
+        page: escalationsPage.toString(),
+        limit: escalationsPerPage.toString(),
+        ...(escalationsLinkedFilter === 'linked' && { linked: 'true' }),
+        ...(escalationsLinkedFilter === 'unlinked' && { linked: 'false' }),
+      })
+      const response = await fetch(`/api/admin/chat-escalations?${params}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setEscalations(data.escalations ?? [])
+        setEscalationsTotal(data.total ?? 0)
+      }
+    } catch (error) {
+      console.error('Failed to fetch escalations:', error)
+    } finally {
+      setEscalationsLoading(false)
+    }
+  }, [escalationsPage, escalationsLinkedFilter])
+
   // VEP extraction polling: start/stop based on vepPollingActive flag
   const startVepPolling = useCallback(() => {
     if (vepPollingRef.current) return // already polling
@@ -416,8 +470,33 @@ function OutreachContent() {
       fetchData()
     } else if (activeTab === 'leads') {
       fetchLeads()
+    } else if (activeTab === 'escalations') {
+      fetchEscalations()
     }
-  }, [activeTab, fetchData, fetchLeads])
+  }, [activeTab, fetchData, fetchLeads, fetchEscalations])
+
+  // Fetch escalations for the expanded lead (for "Chat escalations for this contact")
+  useEffect(() => {
+    if (activeTab !== 'leads' || !expandedLeadId) {
+      setLeadEscalations([])
+      return
+    }
+    let cancelled = false
+    setLeadEscalationsLoading(true)
+    getCurrentSession().then((session) => {
+      if (!session?.access_token || cancelled) return
+      fetch(`/api/admin/chat-escalations?contact=${expandedLeadId}&limit=50`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+        .then((res) => res.ok ? res.json() : { escalations: [] })
+        .then((data) => {
+          if (!cancelled) setLeadEscalations(data.escalations ?? [])
+        })
+        .catch(() => { if (!cancelled) setLeadEscalations([]) })
+        .finally(() => { if (!cancelled) setLeadEscalationsLoading(false) })
+    })
+    return () => { cancelled = true }
+  }, [activeTab, expandedLeadId])
 
   // Handle tab changes with URL updates
   const handleTabChange = (tab: TabType) => {
@@ -687,9 +766,11 @@ function OutreachContent() {
               Lead Pipeline
             </h1>
             <p className="text-platinum-white/80 mt-1">
-              {activeTab === 'queue' 
+              {activeTab === 'queue'
                 ? 'Review and approve AI-generated outreach messages before sending'
-                : 'Manage all leads, view details, and track progress'}
+                : activeTab === 'escalations'
+                  ? 'Chat and voice escalations — link to leads and view transcripts'
+                  : 'Manage all leads, view details, and track progress'}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -700,10 +781,10 @@ function OutreachContent() {
               </button>
             </Link>
             <button
-              onClick={activeTab === 'queue' ? fetchData : fetchLeads}
+              onClick={activeTab === 'queue' ? fetchData : activeTab === 'leads' ? fetchLeads : fetchEscalations}
               className="flex items-center gap-2 px-4 py-2 btn-ghost rounded-lg transition-colors"
             >
-              <RefreshCw size={16} className={(loading || leadsLoading) ? 'animate-spin' : ''} />
+              <RefreshCw size={16} className={(loading || leadsLoading || escalationsLoading) ? 'animate-spin' : ''} />
               Refresh
             </button>
           </div>
@@ -740,6 +821,22 @@ function OutreachContent() {
             {leadsTotal > 0 && (
               <span className="px-2 py-0.5 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded-full">
                 {leadsTotal}
+              </span>
+            )}
+          </button>
+          <button
+            onClick={() => handleTabChange('escalations')}
+            className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
+              activeTab === 'escalations'
+                ? 'border-radiant-gold text-foreground'
+                : 'border-transparent text-platinum-white/80 hover:text-foreground'
+            }`}
+          >
+            <AlertTriangle size={18} />
+            <span className="font-medium">Escalations</span>
+            {escalationsTotal > 0 && (
+              <span className="px-2 py-0.5 bg-orange-500/80 text-white text-xs font-semibold rounded-full">
+                {escalationsTotal}
               </span>
             )}
           </button>
@@ -2543,6 +2640,35 @@ function OutreachContent() {
                                       </button>
                                     </div>
                                   )}
+
+                                  {/* Chat escalations for this contact */}
+                                  <div className="mt-4 pt-4 border-t border-silicon-slate">
+                                    <h4 className="text-sm font-medium text-platinum-white/80 mb-2 flex items-center gap-2">
+                                      <AlertTriangle size={14} />
+                                      Chat escalations for this contact
+                                    </h4>
+                                    {leadEscalationsLoading ? (
+                                      <div className="flex items-center gap-2 text-sm text-platinum-white/60">
+                                        <RefreshCw size={14} className="animate-spin" />
+                                        Loading…
+                                      </div>
+                                    ) : leadEscalations.length === 0 ? (
+                                      <p className="text-sm text-platinum-white/60">None</p>
+                                    ) : (
+                                      <ul className="space-y-1">
+                                        {leadEscalations.map((e) => (
+                                          <li key={e.id}>
+                                            <Link
+                                              href={`/admin/outreach/escalations/${e.id}`}
+                                              className="text-sm text-radiant-gold hover:text-amber-400"
+                                            >
+                                              {new Date(e.escalated_at).toLocaleString()} — {e.source} · {e.reason ?? 'escalation'}
+                                            </Link>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </motion.div>
@@ -2581,6 +2707,114 @@ function OutreachContent() {
                   </div>
                 )}
               </>
+            )}
+            </>
+            )}
+
+        {/* Escalations Tab Content */}
+        {activeTab === 'escalations' && (
+          <>
+            <div className="flex flex-wrap items-center gap-4 mb-6">
+              <div className="flex items-center gap-2">
+                {[
+                  { key: 'all' as const, label: 'All' },
+                  { key: 'linked' as const, label: 'Linked to lead' },
+                  { key: 'unlinked' as const, label: 'Not linked' },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => setEscalationsLinkedFilter(key)}
+                    className={`px-3 py-2 rounded-lg border transition-all ${
+                      escalationsLinkedFilter === key
+                        ? 'bg-silicon-slate border-radiant-gold text-foreground'
+                        : 'bg-silicon-slate/50 border-silicon-slate text-platinum-white/80 hover:bg-silicon-slate'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {escalationsLoading ? (
+              <div className="flex items-center justify-center py-12 text-platinum-white/80">
+                <RefreshCw size={24} className="animate-spin" />
+              </div>
+            ) : escalations.length === 0 ? (
+              <div className="py-12 text-center text-platinum-white/80 rounded-lg border border-silicon-slate bg-silicon-slate/30">
+                No chat escalations yet. Escalations appear when a visitor requests a human or the bot cannot adequately respond.
+              </div>
+            ) : (
+              <div className="rounded-lg border border-silicon-slate overflow-hidden">
+                <table className="w-full text-left">
+                  <thead className="bg-silicon-slate/50 border-b border-silicon-slate">
+                    <tr>
+                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase">Date</th>
+                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase">Source</th>
+                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase">Contact</th>
+                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase">Linked lead</th>
+                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase">Reason</th>
+                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {escalations.map((e) => (
+                      <tr key={e.id} className="border-b border-silicon-slate/50 hover:bg-silicon-slate/30">
+                        <td className="px-4 py-3 text-sm text-platinum-white/80">
+                          {new Date(e.escalated_at).toLocaleString()}
+                        </td>
+                        <td className="px-4 py-3 text-sm capitalize">{e.source}</td>
+                        <td className="px-4 py-3 text-sm">
+                          {e.visitor_name || '—'} | {e.visitor_email || '—'}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          {e.contact_submissions ? (
+                            <Link href={`/admin/outreach?tab=leads&id=${e.contact_submission_id}`} className="text-purple-400 hover:text-purple-300">
+                              {e.contact_submissions.name || e.contact_submissions.email || 'Lead'}
+                            </Link>
+                          ) : (
+                            <span className="text-platinum-white/60">Not linked</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-platinum-white/80">{e.reason ?? '—'}</td>
+                        <td className="px-4 py-3">
+                          <Link
+                            href={`/admin/outreach/escalations/${e.id}`}
+                            className="text-sm text-radiant-gold hover:text-amber-400"
+                          >
+                            View
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {escalationsTotal > escalationsPerPage && (
+              <div className="mt-6 flex items-center justify-between">
+                <div className="text-sm text-platinum-white/80">
+                  Showing {(escalationsPage - 1) * escalationsPerPage + 1} to {Math.min(escalationsPage * escalationsPerPage, escalationsTotal)} of {escalationsTotal}
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setEscalationsPage(p => Math.max(1, p - 1))}
+                    disabled={escalationsPage === 1}
+                    className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Previous
+                  </button>
+                  <span className="text-sm text-platinum-white/80">
+                    Page {escalationsPage} of {Math.ceil(escalationsTotal / escalationsPerPage)}
+                  </span>
+                  <button
+                    onClick={() => setEscalationsPage(p => p + 1)}
+                    disabled={escalationsPage >= Math.ceil(escalationsTotal / escalationsPerPage)}
+                    className="px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg hover:bg-silicon-slate transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
             )}
           </>
         )}

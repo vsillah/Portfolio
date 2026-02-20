@@ -73,6 +73,7 @@ export async function PUT(
       is_active,
       is_featured,
       display_order,
+      outcome_group_id,
     } = body
 
     const updateData: any = {}
@@ -113,6 +114,7 @@ export async function PUT(
     if (is_active !== undefined) updateData.is_active = is_active
     if (is_featured !== undefined) updateData.is_featured = is_featured
     if (display_order !== undefined) updateData.display_order = display_order
+    if (outcome_group_id !== undefined) updateData.outcome_group_id = outcome_group_id || null
 
     const { data, error } = await supabaseAdmin
       .from('services')

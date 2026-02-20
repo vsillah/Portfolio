@@ -143,6 +143,7 @@ export async function POST(request: NextRequest) {
       funnel_stage: bodyFunnelStage,
       display_order: bodyDisplayOrder,
       slug,
+      outcome_group_id,
     } = body as Record<string, unknown>
 
     if (!title || !file_path || !file_type) {
@@ -176,6 +177,7 @@ export async function POST(request: NextRequest) {
       funnel_stage: funnelStage,
       display_order: displayOrder,
       ...(typeof slug === 'string' && slug ? { slug } : {}),
+      ...(typeof outcome_group_id === 'string' && outcome_group_id ? { outcome_group_id } : outcome_group_id === null ? { outcome_group_id: null } : {}),
     }
 
     const insertCandidates = [

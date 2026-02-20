@@ -23,6 +23,14 @@ interface Product {
   display_order: number
   asset_url?: string | null
   instructions_file_path?: string | null
+  outcome_group_id?: string | null
+}
+
+interface OutcomeGroup {
+  id: string
+  slug: string
+  label: string
+  display_order: number
 }
 
 const PRODUCT_TYPE_OPTIONS = PRODUCT_TYPES.filter((t) => t !== 'merchandise').map((value) => ({
@@ -47,7 +55,9 @@ export default function ProductEditPage() {
     is_active: true,
     is_featured: false,
     display_order: 0,
+    outcome_group_id: '',
   })
+  const [outcomeGroups, setOutcomeGroups] = useState<OutcomeGroup[]>([])
   const [uploadingFile, setUploadingFile] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<{
     file_path: string
@@ -92,6 +102,7 @@ export default function ProductEditPage() {
             is_active: p.is_active,
             is_featured: p.is_featured,
             display_order: p.display_order,
+            outcome_group_id: p.outcome_group_id ?? '',
           })
           setImageSource(p.image_url?.startsWith('http') ? 'external' : 'local')
           if (p.file_path) {
@@ -116,6 +127,16 @@ export default function ProductEditPage() {
     })
   }, [id, isNew, router])
 
+  useEffect(() => {
+    getCurrentSession().then((s) => {
+      if (!s?.access_token) return
+      fetch('/api/admin/outcome-groups', { headers: { Authorization: `Bearer ${s.access_token}` } })
+        .then((res) => res.ok ? res.json() : [])
+        .then((list) => setOutcomeGroups(Array.isArray(list) ? list : []))
+        .catch(() => setOutcomeGroups([]))
+    })
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const session = await getCurrentSession()
@@ -132,6 +153,7 @@ export default function ProductEditPage() {
       is_featured: formData.is_featured,
       display_order: formData.display_order,
       file_path: uploadedFile?.file_path || null,
+      outcome_group_id: formData.outcome_group_id || null,
     }
     const url = isNew ? '/api/products' : `/api/products/${id}`
     const method = isNew ? 'POST' : 'PUT'
@@ -466,6 +488,19 @@ export default function ProductEditPage() {
                     onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
                     className="w-full px-4 py-2 input-brand"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Outcome group (pricing chart)</label>
+                  <select
+                    value={formData.outcome_group_id}
+                    onChange={(e) => setFormData({ ...formData, outcome_group_id: e.target.value })}
+                    className="w-full px-4 py-2 input-brand"
+                  >
+                    <option value="">None</option>
+                    {outcomeGroups.map((og) => (
+                      <option key={og.id} value={og.id}>{og.label}</option>
+                    ))}
+                  </select>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">

@@ -8,6 +8,7 @@ import {
   extractSessionId,
 } from '@/lib/vapi'
 import { fetchConversationContext } from '@/lib/chat-context'
+import { createChatEscalation, formatTranscriptFromHistory } from '@/lib/chat-escalation'
 
 export const dynamic = 'force-dynamic'
 
@@ -196,6 +197,27 @@ async function handleTranscript(message: VapiWebhookPayload['message']) {
         },
       })
 
+    // If escalated: update session and persist escalation + notify Slack
+    if (n8nResponse.escalated) {
+      await supabaseAdmin
+        .from('chat_sessions')
+        .update({ is_escalated: true })
+        .eq('session_id', sessionId)
+
+      const transcriptLines = history.length ? formatTranscriptFromHistory(history) : ''
+      const fullTranscript = [transcriptLines, `User: ${transcript}`, `Assistant: ${n8nResponse.response}`].filter(Boolean).join('\n\n')
+      const visitorName = call?.customer?.name ?? context?.sessionInfo?.visitorName ?? null
+      const visitorEmail = context?.sessionInfo?.visitorEmail ?? null
+      createChatEscalation({
+        sessionId,
+        source: 'voice',
+        reason: (n8nResponse.metadata?.fallback as boolean) ? 'fallback' : 'user_requested_human',
+        visitorName,
+        visitorEmail,
+        transcript: fullTranscript,
+      }).catch(() => {})
+    }
+
     // Return response for VAPI to speak
     return NextResponse.json({
       response: n8nResponse.response,
@@ -289,19 +311,36 @@ async function handleFunctionCall(message: VapiWebhookPayload['message']) {
         await logToolCall(result, true)
         return NextResponse.json(createFunctionResponse(result))
 
-      case 'transferToHuman':
+      case 'transferToHuman': {
         // Escalate to human support
         await supabaseAdmin
           .from('chat_sessions')
           .update({ is_escalated: true })
           .eq('session_id', sessionId)
-        
+
+        // Persist escalation and notify Slack (fetch context for transcript)
+        const transferContext = await fetchConversationContext(sessionId, 20)
+        const transferTranscript = transferContext?.history?.length
+          ? formatTranscriptFromHistory(transferContext.history)
+          : '(No transcript yet)'
+        const transferName = call?.customer?.name ?? transferContext?.sessionInfo?.visitorName ?? null
+        const transferEmail = transferContext?.sessionInfo?.visitorEmail ?? null
+        createChatEscalation({
+          sessionId,
+          source: 'voice',
+          reason: 'transfer_to_human',
+          visitorName: transferName,
+          visitorEmail: transferEmail,
+          transcript: transferTranscript,
+        }).catch(() => {})
+
         result = {
           message: "I'll connect you with a human team member. They'll be in touch shortly.",
           escalated: true,
         }
         await logToolCall(result, true)
         return NextResponse.json(createFunctionResponse(result))
+      }
 
       case 'sendToN8n':
         // Generic function to send custom data to N8N

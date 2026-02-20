@@ -34,6 +34,14 @@ interface LeadMagnet {
   display_order?: number
   private_link_token?: string | null
   slug?: string | null
+  outcome_group_id?: string | null
+}
+
+interface OutcomeGroup {
+  id: string
+  slug: string
+  label: string
+  display_order: number
 }
 
 export default function LeadMagnetsManagementPage() {
@@ -50,7 +58,9 @@ export default function LeadMagnetsManagementPage() {
     access_type: 'public_gated' as LeadMagnetAccessType,
     funnel_stage: 'attention_capture' as LeadMagnetFunnelStage,
     slug: '',
+    outcome_group_id: '',
   })
+  const [outcomeGroups, setOutcomeGroups] = useState<OutcomeGroup[]>([])
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editForm, setEditForm] = useState<Partial<LeadMagnet>>({})
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
@@ -59,6 +69,16 @@ export default function LeadMagnetsManagementPage() {
 
   useEffect(() => {
     fetchLeadMagnets()
+  }, [])
+
+  useEffect(() => {
+    getCurrentSession().then((s) => {
+      if (!s?.access_token) return
+      fetch('/api/admin/outcome-groups', { headers: { Authorization: `Bearer ${s.access_token}` } })
+        .then((res) => res.ok ? res.json() : [])
+        .then((list) => setOutcomeGroups(Array.isArray(list) ? list : []))
+        .catch(() => setOutcomeGroups([]))
+    })
   }, [])
 
   const fetchLeadMagnets = async () => {
@@ -132,6 +152,7 @@ export default function LeadMagnetsManagementPage() {
           access_type: formData.access_type,
           funnel_stage: formData.funnel_stage,
           ...(formData.slug.trim() ? { slug: formData.slug.trim() } : {}),
+          ...(formData.outcome_group_id ? { outcome_group_id: formData.outcome_group_id } : {}),
         }),
       })
       if (!createRes.ok) {
@@ -146,6 +167,7 @@ export default function LeadMagnetsManagementPage() {
         access_type: 'public_gated',
         funnel_stage: 'attention_capture',
         slug: '',
+        outcome_group_id: '',
       })
       setShowAddForm(false)
       await fetchLeadMagnets()
@@ -166,6 +188,7 @@ export default function LeadMagnetsManagementPage() {
       access_type: 'public_gated',
       funnel_stage: 'attention_capture',
       slug: '',
+      outcome_group_id: '',
     })
     setFormError(null)
   }
@@ -182,6 +205,7 @@ export default function LeadMagnetsManagementPage() {
       slug: magnet.slug ?? '',
       private_link_token: magnet.private_link_token ?? '',
       is_active: magnet.is_active,
+      outcome_group_id: magnet.outcome_group_id ?? '',
     })
   }
 
@@ -199,6 +223,7 @@ export default function LeadMagnetsManagementPage() {
       slug: editForm.slug || null,
       private_link_token: editForm.private_link_token || null,
       is_active: editForm.is_active,
+      outcome_group_id: editForm.outcome_group_id || null,
     }
     const res = await fetch(`/api/lead-magnets/${editingId}`, {
       method: 'PATCH',
@@ -373,6 +398,19 @@ export default function LeadMagnetsManagementPage() {
                     className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
                     placeholder="e.g. scorecard, roi-calculator"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Outcome group (pricing chart)</label>
+                  <select
+                    value={formData.outcome_group_id}
+                    onChange={(e) => setFormData({ ...formData, outcome_group_id: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                  >
+                    <option value="">None</option>
+                    {outcomeGroups.map((og) => (
+                      <option key={og.id} value={og.id}>{og.label}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">File (PDF or image) *</label>
@@ -599,6 +637,19 @@ export default function LeadMagnetsManagementPage() {
                         className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
                         placeholder="e.g. roi-calculator"
                       />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Outcome group (pricing chart)</label>
+                      <select
+                        value={editForm.outcome_group_id ?? ''}
+                        onChange={(e) => setEditForm({ ...editForm, outcome_group_id: e.target.value || null })}
+                        className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                      >
+                        <option value="">None</option>
+                        {outcomeGroups.map((og) => (
+                          <option key={og.id} value={og.id}>{og.label}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-1">Private link token</label>

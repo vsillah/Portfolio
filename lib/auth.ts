@@ -97,11 +97,11 @@ export async function signOut() {
 }
 
 // Sign in with OAuth provider. Pass nextPath to land on that page after OAuth (e.g. /checkout).
+// Use exact callback URL (no ?next=) when going home so Supabase allow list match works (strict match).
 export async function signInWithOAuth(provider: 'google' | 'github', nextPath?: string) {
   const base = `${window.location.origin}/auth/callback`
-  const redirectTo = nextPath
-    ? `${base}?next=${encodeURIComponent(nextPath)}`
-    : base
+  const useQuery = nextPath && nextPath !== '/'
+  const redirectTo = useQuery ? `${base}?next=${encodeURIComponent(nextPath)}` : base
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {

@@ -1,13 +1,20 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { FolderOpen, Video, BookOpen, Music, Sparkles, Package, Tag, Briefcase, Layers, ShoppingBag } from 'lucide-react'
+import { FolderOpen, Video, BookOpen, Music, Sparkles, Package, Tag, Briefcase, Layers, ShoppingBag, Target } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 export default function ContentManagementPage() {
   const contentTypes = [
+    {
+      name: 'Outcome Groups',
+      href: '/admin/content/outcome-groups',
+      icon: <Target size={32} />,
+      description: 'Group content by outcome (pricing chart)',
+      color: 'from-teal-500 to-cyan-500',
+    },
     {
       name: 'Projects',
       href: '/admin/content/projects',

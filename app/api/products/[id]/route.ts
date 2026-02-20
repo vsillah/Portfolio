@@ -143,6 +143,7 @@ export async function PUT(
     if (music_id !== undefined) updateData.music_id = music_id || null
     if (publication_id !== undefined) updateData.publication_id = publication_id || null
     if (prototype_id !== undefined) updateData.prototype_id = prototype_id || null
+    if (body.outcome_group_id !== undefined) updateData.outcome_group_id = body.outcome_group_id || null
 
     const { data, error } = await supabaseAdmin
       .from('products')

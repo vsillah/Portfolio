@@ -4,6 +4,7 @@ import { sendToN8n, sendDiagnosticToN8n, generateSessionId, triggerDiagnosticCom
 import type { DiagnosticProgress, DiagnosticCategory } from '@/lib/n8n'
 import { saveDiagnosticAudit, getDiagnosticAuditBySession, linkDiagnosticToContact } from '@/lib/diagnostic'
 import { fetchConversationContext } from '@/lib/chat-context'
+import { createChatEscalation, formatTranscriptFromHistory } from '@/lib/chat-escalation'
 
 export const dynamic = 'force-dynamic'
 
@@ -284,6 +285,18 @@ export async function POST(request: NextRequest) {
         .from('chat_sessions')
         .update({ is_escalated: true })
         .eq('session_id', sessionId)
+
+      // Persist escalation and notify Slack (fire-and-forget)
+      const transcriptLines = context?.history ? formatTranscriptFromHistory(context.history) : ''
+      const fullTranscript = [transcriptLines, `User: ${message.trim()}`, `Assistant: ${n8nResponse.response}`].filter(Boolean).join('\n\n')
+      createChatEscalation({
+        sessionId,
+        source: 'text',
+        reason: (n8nResponse.metadata?.fallback as boolean) ? 'fallback' : 'user_requested_human',
+        visitorName: visitorName ?? context?.sessionInfo?.visitorName ?? null,
+        visitorEmail: visitorEmail ?? context?.sessionInfo?.visitorEmail ?? null,
+        transcript: fullTranscript,
+      }).catch(() => {})
     }
 
     // Final safeguard - ensure response is always a string

@@ -27,8 +27,16 @@ interface Service {
   is_active: boolean
   is_featured: boolean
   display_order: number
+  outcome_group_id: string | null
   created_at: string
   updated_at: string
+}
+
+interface OutcomeGroup {
+  id: string
+  slug: string
+  label: string
+  display_order: number
 }
 
 const SERVICE_TYPES = [
@@ -69,10 +77,22 @@ export default function ServicesManagementPage() {
     is_active: true,
     is_featured: false,
     display_order: 0,
+    outcome_group_id: '',
   })
+  const [outcomeGroups, setOutcomeGroups] = useState<OutcomeGroup[]>([])
 
   useEffect(() => {
     fetchServices()
+  }, [])
+
+  useEffect(() => {
+    getCurrentSession().then((s) => {
+      if (!s?.access_token) return
+      fetch('/api/admin/outcome-groups', { headers: { Authorization: `Bearer ${s.access_token}` } })
+        .then((res) => res.ok ? res.json() : [])
+        .then((list) => setOutcomeGroups(Array.isArray(list) ? list : []))
+        .catch(() => setOutcomeGroups([]))
+    })
   }, [])
 
   const fetchServices = async () => {
@@ -260,6 +280,7 @@ export default function ServicesManagementPage() {
         is_active: formData.is_active,
         is_featured: formData.is_featured,
         display_order: formData.display_order,
+        outcome_group_id: formData.outcome_group_id || null,
       }
 
       const url = editingService ? `/api/services/${editingService.id}` : '/api/services'
@@ -308,6 +329,7 @@ export default function ServicesManagementPage() {
       is_active: true,
       is_featured: false,
       display_order: 0,
+      outcome_group_id: '',
     })
   }
 
@@ -331,6 +353,7 @@ export default function ServicesManagementPage() {
       is_active: service.is_active,
       is_featured: service.is_featured,
       display_order: service.display_order,
+      outcome_group_id: service.outcome_group_id ?? '',
     })
     setShowAddForm(true)
   }
@@ -597,6 +620,19 @@ export default function ServicesManagementPage() {
                       onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value) || 0 })}
                       className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Outcome group (pricing chart)</label>
+                    <select
+                      value={formData.outcome_group_id}
+                      onChange={(e) => setFormData({ ...formData, outcome_group_id: e.target.value })}
+                      className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                    >
+                      <option value="">None</option>
+                      {outcomeGroups.map((og) => (
+                        <option key={og.id} value={og.id}>{og.label}</option>
+                      ))}
+                    </select>
                   </div>
                   <div className="flex items-center gap-4">
                     <label className="flex items-center gap-2 cursor-pointer">

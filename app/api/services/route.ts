@@ -89,6 +89,7 @@ export async function POST(request: NextRequest) {
       is_active,
       is_featured,
       display_order,
+      outcome_group_id,
     } = body
 
     // Validation
@@ -134,6 +135,7 @@ export async function POST(request: NextRequest) {
         is_featured: is_featured !== undefined ? is_featured : false,
         display_order: display_order || 0,
         created_by: user.id,
+        outcome_group_id: outcome_group_id || null,
       }])
       .select()
       .single()
