@@ -34,6 +34,7 @@ import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel'
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
 import { ConversationTimeline } from '@/components/admin/sales/ConversationTimeline';
 import { InPersonDiagnosticPanel } from '@/components/admin/sales/InPersonDiagnosticPanel';
+import { CampaignContextPanel } from '@/components/admin/sales/CampaignContextPanel';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import {
   User, Building, Mail, MessageSquare, ChevronRight, ChevronDown,
@@ -601,6 +602,9 @@ export default function ConversationPage() {
               companyName={contact?.company || null}
               onReportGenerated={id => setValueReportId(id)}
             />
+
+            {/* Campaign Context */}
+            <CampaignContextPanel contactEmail={contact?.email || null} />
           </div>
 
           {/* ---- Center Panel ---- */}

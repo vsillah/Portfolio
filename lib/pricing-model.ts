@@ -46,6 +46,7 @@ export interface GuaranteeDef {
 
 export interface PricingTier {
   id: string;
+  bundleId?: string; // raw offer_bundles.id (UUID) for campaign eligibility matching
   name: string;
   tagline: string;
   targetAudience: string;

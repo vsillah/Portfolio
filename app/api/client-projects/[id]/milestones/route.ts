@@ -144,6 +144,55 @@ export async function PATCH(
         attachments: attachments || [],
         triggeredBy: (triggered_by as 'admin' | 'slack_cmd') || 'admin',
       })
+
+      // Auto-update campaign progress for onboarding_milestone tracking
+      try {
+        const { data: clientProject } = await supabaseAdmin
+          .from('client_projects')
+          .select('client_email')
+          .eq('id', clientProjectId)
+          .single()
+
+        if (clientProject?.client_email) {
+          const { data: progressRows } = await supabaseAdmin
+            .from('campaign_progress')
+            .select(`
+              id, enrollment_id,
+              enrollment_criteria!inner (tracking_source, tracking_config)
+            `)
+            .eq('status', 'pending')
+            .eq('enrollment_criteria.tracking_source', 'onboarding_milestone')
+
+          if (progressRows) {
+            for (const row of progressRows) {
+              const config = (row.enrollment_criteria as unknown as { tracking_config: Record<string, unknown> })?.tracking_config
+              const targetIndex = config?.milestone_index
+              if (targetIndex !== undefined && Number(targetIndex) === milestone_index) {
+                // Verify enrollment belongs to this client
+                const { data: enrollment } = await supabaseAdmin
+                  .from('campaign_enrollments')
+                  .select('client_email')
+                  .eq('id', row.enrollment_id)
+                  .single()
+
+                if (enrollment?.client_email === clientProject.client_email) {
+                  await supabaseAdmin
+                    .from('campaign_progress')
+                    .update({
+                      status: 'met',
+                      progress_value: 100,
+                      auto_tracked: true,
+                      auto_source_ref: `milestone:${clientProjectId}:${milestone_index}`,
+                    })
+                    .eq('id', row.id)
+                }
+              }
+            }
+          }
+        }
+      } catch (campaignErr) {
+        console.error('Error updating campaign progress for milestone:', campaignErr)
+      }
     }
 
     // Schedule upsell follow-up tasks when all milestones are complete

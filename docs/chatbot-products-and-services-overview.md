@@ -37,3 +37,7 @@ Services can be delivered **Virtual**, **In-Person**, or **Hybrid**. **For the f
 1. Summarize the product types above (E-Books, Training, Calculators, Music, Apps, Merchandise).
 2. Summarize the service types (Training, Speaking, Consulting, Coaching, Workshop, Warranty & Guarantees).
 3. Always tell the user to visit **https://amadutown.com/store** for the full product list and **https://amadutown.com/services** for the full service list. Do not say "there is no detailed list" — the list is on those pages.
+
+## Promotions & Attraction Campaigns
+
+AmaduTown periodically runs **Attraction Campaigns** — special promotional offers where clients can earn back their investment (refund, credit, or rollover) by meeting specific criteria after purchasing an eligible program. Visit **https://amadutown.com** (homepage) to see any currently active campaigns, or ask about current promotions.

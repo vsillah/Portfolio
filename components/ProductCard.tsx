@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ShoppingCart, DollarSign, Download, File, Image as ImageIcon, Check } from 'lucide-react'
+import { ShoppingCart, DollarSign, Download, File, Image as ImageIcon, Check, Sparkles } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import type { Product } from '@/lib/types/store'
@@ -11,6 +11,7 @@ import { formatDollarAmount } from '@/lib/pricing-model'
 interface ProductCardProps {
   product: Product
   onAddToCart: (productId: number) => void
+  campaignBadge?: string | null
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -22,7 +23,7 @@ const TYPE_LABELS: Record<string, string> = {
   merchandise: 'Merchandise',
 }
 
-export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
+export default function ProductCard({ product, onAddToCart, campaignBadge }: ProductCardProps) {
   const [imageError, setImageError] = useState(false)
   const [showAdded, setShowAdded] = useState(false)
   const addedTimerRef = useRef<NodeJS.Timeout | null>(null)
@@ -73,6 +74,12 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
         {product.is_featured && (
           <div className="absolute top-2 right-2 px-2 py-1 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded">
             Featured
+          </div>
+        )}
+        {campaignBadge && !product.is_featured && (
+          <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold rounded">
+            <Sparkles className="w-3 h-3" />
+            {campaignBadge}
           </div>
         )}
         <div className="absolute top-2 left-2 px-2 py-1 bg-silicon-slate/80 text-foreground text-xs rounded">

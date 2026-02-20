@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
-import { DollarSign, Plus, Minus, Trash2, Edit2, X, Check, Clock, Users } from 'lucide-react'
+import { DollarSign, Plus, Minus, Trash2, Edit2, X, Check, Clock, Users, Sparkles } from 'lucide-react'
 import { formatCurrency } from '@/lib/pricing-model'
 
 export interface ProductVariant {
@@ -62,6 +63,8 @@ interface OrderSummaryProps {
   onRemoveItem?: (productId: number, variantId?: number) => void
   onRemoveService?: (serviceId: string) => void
   onVariantChange?: (productId: number, oldVariantId: number | undefined, newVariantId: number, printfulVariantId: number) => void
+  /** When provided, campaign note uses this instead of fetching /api/campaigns/active (avoids duplicate request) */
+  activeCampaign?: { name: string; slug: string } | null
 }
 
 // Standard clothing size order from smallest to largest
@@ -96,9 +99,26 @@ export default function OrderSummary({
   onRemoveItem,
   onRemoveService,
   onVariantChange,
+  activeCampaign: activeCampaignProp,
 }: OrderSummaryProps) {
   const hasPaidItems = subtotal > 0
   const [editingItem, setEditingItem] = useState<{ productId: number; variantId?: number } | null>(null)
+  const [activeCampaignFetched, setActiveCampaignFetched] = useState<{ name: string; slug: string } | null>(null)
+
+  useEffect(() => {
+    if (activeCampaignProp !== undefined) return
+    fetch('/api/campaigns/active')
+      .then((res) => (res.ok ? res.json() : { data: [] }))
+      .then((json) => {
+        const campaigns = json.data || []
+        if (campaigns.length > 0) {
+          setActiveCampaignFetched({ name: campaigns[0].name, slug: campaigns[0].slug })
+        }
+      })
+      .catch(() => {})
+  }, [activeCampaignProp])
+
+  const activeCampaign = activeCampaignProp !== undefined ? activeCampaignProp : activeCampaignFetched
 
   const getItemPrice = (item: CartItem): number | null => {
     if (item.itemType === 'service' && item.serviceId) {
@@ -413,6 +433,15 @@ export default function OrderSummary({
                 : 'Free'}
           </span>
         </div>
+        {activeCampaign && (
+          <Link
+            href={`/campaigns/${activeCampaign.slug}`}
+            className="mt-3 flex items-center gap-2 p-2 bg-amber-600/10 border border-amber-600/30 rounded text-xs text-amber-400 hover:bg-amber-600/20 transition-colors"
+          >
+            <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
+            <span>Eligible for: <strong>{activeCampaign.name}</strong></span>
+          </Link>
+        )}
       </div>
     </div>
   )

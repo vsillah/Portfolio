@@ -8,7 +8,9 @@ import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { getCart, clearCart, saveCart, updateCartItemQuantity, updateServiceQuantity, removeFromCart, removeServiceFromCart, isServiceItem, type CartItem } from '@/lib/cart'
 import DiscountCodeForm from '@/components/checkout/DiscountCodeForm'
+import CampaignEnrollmentBanner from '@/components/checkout/CampaignEnrollmentBanner'
 import OrderSummary, { type ProductVariant } from '@/components/checkout/OrderSummary'
+import { useCampaignEligibility } from '@/hooks/useCampaignEligibility'
 import ExitIntentPopup from '@/components/ExitIntentPopup'
 import ScrollOffer from '@/components/ScrollOffer'
 import TimeBasedPopup from '@/components/TimeBasedPopup'
@@ -47,6 +49,8 @@ interface DiscountCode {
 export default function CheckoutPage() {
   const { user, session: authSession, loading: authLoading } = useAuth()
   const router = useRouter()
+  const { campaigns, loaded: campaignsLoaded } = useCampaignEligibility()
+  const firstCampaign = campaignsLoaded && campaigns.length > 0 ? campaigns[0] : null
   const [step, setStep] = useState<'contact' | 'review' | 'payment' | 'complete'>('contact')
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [products, setProducts] = useState<Record<number, Product>>({})
@@ -470,6 +474,11 @@ export default function CheckoutPage() {
                 animate={{ opacity: 1, x: 0 }}
                 className="space-y-6"
               >
+                {/* Campaign Enrollment Banner (uses shared hook to avoid duplicate fetch with OrderSummary) */}
+                <CampaignEnrollmentBanner
+                  campaign={firstCampaign ? { name: firstCampaign.name, slug: firstCampaign.slug, campaign_type: firstCampaign.campaign_type, enrollment_deadline: firstCampaign.enrollment_deadline } : null}
+                />
+
                 {/* Discount Code */}
                 <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
                   <h2 className="text-xl font-bold mb-4">Discount Code</h2>
@@ -518,6 +527,7 @@ export default function CheckoutPage() {
               onRemoveItem={handleRemoveItem}
               onRemoveService={handleRemoveService}
               onVariantChange={handleVariantChange}
+              activeCampaign={firstCampaign ? { name: firstCampaign.name, slug: firstCampaign.slug } : null}
             />
           </div>
         </div>

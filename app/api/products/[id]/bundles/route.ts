@@ -35,7 +35,7 @@ export async function GET(
       )
     }
 
-    const result: Array<{ name: string; slug: string; segment: string; pricingUrl: string }> = []
+    const result: Array<{ bundleId: string; name: string; slug: string; segment: string; pricingUrl: string }> = []
 
     for (const bundle of bundles || []) {
       const items = await expandBundleItems(bundle.id)
@@ -50,6 +50,7 @@ export async function GET(
       for (const segment of segments) {
         const pricingUrl = `/pricing?segment=${segment}#${slug}`
         result.push({
+          bundleId: bundle.id,
           name: bundle.name,
           slug,
           segment,

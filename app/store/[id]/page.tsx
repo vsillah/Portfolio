@@ -12,6 +12,7 @@ import {
   HelpCircle,
   Check,
   ExternalLink,
+  Sparkles,
 } from 'lucide-react'
 import VariantSelector, { ProductVariant } from '@/components/VariantSelector'
 import { addToCart, getCartCount } from '@/lib/cart'
@@ -20,8 +21,10 @@ import { PRODUCT_TYPE_LABELS } from '@/lib/constants/products'
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Breadcrumbs from '@/components/Breadcrumbs'
+import { useCampaignEligibility } from '@/hooks/useCampaignEligibility'
 
 interface BundleRef {
+  bundleId: string
   name: string
   slug: string
   segment: string
@@ -55,6 +58,7 @@ export default function ProductDetailPage() {
   const params = useParams()
   const router = useRouter()
   const productId = params.id as string
+  const { getCampaignForBundle } = useCampaignEligibility()
 
   const [product, setProduct] = useState<Product | null>(null)
   const [variants, setVariants] = useState<ProductVariant[]>([])
@@ -268,6 +272,12 @@ export default function ProductDetailPage() {
                     Featured
                   </span>
                 )}
+                {bundles.some((b) => getCampaignForBundle(b.bundleId)) && (
+                  <span className="ml-2 inline-flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full text-xs font-bold">
+                    <Sparkles className="w-3 h-3" />
+                    Campaign Eligible
+                  </span>
+                )}
                 <h1 className="font-premium text-3xl md:text-4xl text-white mt-4">
                   {product.title}
                 </h1>
@@ -369,16 +379,29 @@ export default function ProductDetailPage() {
                       : 'This product is included in the following pricing tiers:'}
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {bundles.map((b) => (
-                      <Link
-                        key={`${b.slug}-${b.segment}`}
-                        href={b.pricingUrl}
-                        className="inline-flex items-center gap-2 px-4 py-2 bg-radiant-gold/20 border border-radiant-gold/50 rounded-lg text-radiant-gold hover:bg-radiant-gold/30 hover:border-gold-light transition-colors text-sm"
-                      >
-                        {b.name}
-                        <ExternalLink size={14} />
-                      </Link>
-                    ))}
+                    {bundles.map((b) => {
+                      const campaign = getCampaignForBundle(b.bundleId)
+                      return (
+                        <div key={`${b.slug}-${b.segment}`} className="flex items-center gap-1">
+                          <Link
+                            href={b.pricingUrl}
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-radiant-gold/20 border border-radiant-gold/50 rounded-lg text-radiant-gold hover:bg-radiant-gold/30 hover:border-gold-light transition-colors text-sm"
+                          >
+                            {b.name}
+                            <ExternalLink size={14} />
+                          </Link>
+                          {campaign && (
+                            <Link
+                              href={`/campaigns/${campaign.slug}`}
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 rounded text-amber-400 text-xs hover:bg-amber-500/30 transition-colors"
+                            >
+                              <Sparkles className="w-3 h-3" />
+                              {campaign.campaign_type === 'win_money_back' ? 'Win $ Back' : campaign.name}
+                            </Link>
+                          )}
+                        </div>
+                      )
+                    })}
                   </div>
                 </div>
               )}

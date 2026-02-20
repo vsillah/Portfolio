@@ -112,6 +112,7 @@ export async function GET(request: NextRequest) {
 
       return {
         id: b.pricing_tier_slug ?? b.id,
+        bundleId: b.id,
         name: b.name,
         tagline: b.tagline ?? '',
         targetAudience: b.target_audience_display ?? '',
@@ -184,6 +185,7 @@ export async function GET(request: NextRequest) {
           }
           return {
             id: b.pricing_tier_slug ?? b.id,
+            bundleId: b.id,
             name: b.name,
             tagline: b.tagline ?? '',
             targetAudience: b.target_audience_display ?? '',

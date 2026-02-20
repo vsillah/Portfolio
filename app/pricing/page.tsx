@@ -21,6 +21,7 @@ import {
   type PricingTier,
   type DecoyComparison,
 } from '@/lib/pricing-model';
+import { useCampaignEligibility } from '@/hooks/useCampaignEligibility';
 
 // --- Animation Components (Adapted from Hero.tsx) ---
 
@@ -154,6 +155,8 @@ function PricingPageContent() {
     benchmarkSource: string;
     isDefault: boolean;
   } | null>(null);
+
+  const { getCampaignForBundle } = useCampaignEligibility();
 
   // API-driven tiers; fallback to lib/pricing-model on error or empty
   const [apiTiers, setApiTiers] = useState<PricingTier[] | null>(null);
@@ -462,7 +465,11 @@ function PricingPageContent() {
               ? [1, 2, 3].map((i) => <PricingCardSkeleton key={i} />)
               : visibleTiers.map((tier) => (
                   <div key={tier.id} id={tier.id} className="scroll-mt-32">
-                    <PricingCard tier={tier} calculationContext={calculationContext} />
+                    <PricingCard
+                      tier={tier}
+                      calculationContext={calculationContext}
+                      campaign={tier.bundleId ? getCampaignForBundle(tier.bundleId) : null}
+                    />
                   </div>
                 ))}
             {segment === 'nonprofit' && (

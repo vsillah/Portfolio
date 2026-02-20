@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Hero from '@/components/Hero'
+import ActiveCampaigns from '@/components/ActiveCampaigns'
 import Publications from '@/components/Publications'
 import Store from '@/components/Store'
 import Services from '@/components/Services'
@@ -41,7 +42,7 @@ export default function Home() {
     }, observerOptions)
 
     // Observe all sections (offerings-first home: no projects, prototypes, music, videos)
-    const sections = ['home', 'products', 'services', 'merchandise', 'publications', 'about', 'contact']
+    const sections = ['home', 'campaigns', 'products', 'services', 'merchandise', 'publications', 'about', 'contact']
     sections.forEach((id) => {
       const element = document.getElementById(id)
       if (element) observer.observe(element)
@@ -58,6 +59,7 @@ export default function Home() {
     <main className="min-h-screen relative">
       <Navigation />
       <Hero />
+      <ActiveCampaigns />
       <Store section="products" />
       <Services />
       <Store section="merchandise" />

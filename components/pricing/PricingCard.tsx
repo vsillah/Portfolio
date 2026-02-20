@@ -2,14 +2,16 @@
 
 import { type PricingTier, type TierItem, formatCurrency, formatPercent, formatPriceOrFree } from '@/lib/pricing-model';
 import Link from 'next/link';
-import { Check, Zap, Shield, Target, UserPlus, Lightbulb, TrendingUp } from 'lucide-react';
+import { Check, Zap, Shield, Target, UserPlus, Lightbulb, TrendingUp, Sparkles } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { PricingMethodologyNote, type CalculationContextDisplay } from '@/components/pricing/PricingMethodologyNote';
+import type { ActiveCampaignSummary } from '@/hooks/useCampaignEligibility';
 
 interface PricingCardProps {
   tier: PricingTier;
   onSelect?: (tierId: string) => void;
   calculationContext?: CalculationContextDisplay | null;
+  campaign?: ActiveCampaignSummary | null;
 }
 
 /** Icon per outcome group label (default seed labels). */
@@ -76,7 +78,7 @@ function TierItemRow({ item }: { item: TierItem }) {
   );
 }
 
-export function PricingCard({ tier, onSelect, calculationContext }: PricingCardProps) {
+export function PricingCard({ tier, onSelect, calculationContext, campaign }: PricingCardProps) {
   const sections = groupItemsByOutcome(tier.items);
   const showOutcomeHeadings = sections.length > 1 || (sections.length === 1 && sections[0].label !== 'Included');
 
@@ -92,6 +94,15 @@ export function PricingCard({ tier, onSelect, calculationContext }: PricingCardP
         <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-radiant-gold px-4 py-1 text-sm font-heading font-bold uppercase tracking-wide text-imperial-navy shadow-md">
           Most Popular
         </div>
+      )}
+      {campaign && (
+        <Link
+          href={`/campaigns/${campaign.slug}`}
+          className="absolute -top-3 right-3 flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 px-3 py-1 text-xs font-bold text-white shadow-md hover:shadow-lg transition-shadow"
+        >
+          <Sparkles className="w-3 h-3" />
+          {campaign.campaign_type === 'win_money_back' ? 'Win Your Money Back' : campaign.name}
+        </Link>
       )}
 
       {/* Header */}

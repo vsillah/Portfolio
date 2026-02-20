@@ -36,6 +36,7 @@ const DEFAULT_PROMPTS: Record<string, string> = {
 4. Collect contact information when appropriate
 5. Escalate complex inquiries to human support
 6. When a visitor shows interest in services or has completed a diagnostic, suggest booking a discovery call
+7. Mention active promotional campaigns when relevant (e.g. "win your money back" offers) and guide visitors to the campaigns page or pricing page
 
 ## Scheduling a Discovery Call
 When a visitor expresses interest in working with Vambah, has completed a diagnostic assessment, or asks about next steps, suggest they book a free discovery call:

@@ -14,6 +14,7 @@ import MilestoneTimeline from '@/components/client-dashboard/MilestoneTimeline'
 import AssessmentDetails from '@/components/client-dashboard/AssessmentDetails'
 import QuickOverview from '@/components/client-dashboard/QuickOverview'
 import AccelerationCards from '@/components/client-dashboard/AccelerationCards'
+import CampaignProgressSection from '@/components/client-dashboard/CampaignProgressSection'
 import type { DashboardData, LeadDashboardData, DashboardTask } from '@/lib/client-dashboard'
 import type { AccelerationRecommendation } from '@/lib/acceleration-engine'
 
@@ -261,6 +262,9 @@ export default function ClientDashboardPage() {
           token={token}
           onDismiss={handleDismissRec}
         />
+
+        {/* Campaign Progress */}
+        <CampaignProgressSection clientEmail={project.client_email} />
 
         {/* Row 5: Task Checklist */}
         {tasks.length > 0 && (

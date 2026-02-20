@@ -4,6 +4,8 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { printful } from '@/lib/printful'
 import Stripe from 'stripe'
 import type { GuaranteeCondition } from '@/lib/guarantees'
+import { materializeCriteria, calculateDeadline } from '@/lib/campaigns'
+import type { PersonalizationContext } from '@/lib/campaigns'
 
 export const dynamic = 'force-dynamic'
 
@@ -107,6 +109,166 @@ async function activateGuaranteesForOrder(orderId: number, clientEmail: string, 
   } catch (error: any) {
     console.error('Error activating guarantees for order:', error)
     // Don't fail the webhook for guarantee activation errors
+  }
+}
+
+// ============================================================================
+// Campaign Auto-Enrollment Helper
+// ============================================================================
+async function autoEnrollInCampaigns(
+  orderId: number,
+  bundleId: string | null,
+  clientEmail: string,
+  clientName: string | null,
+  userId: string | null,
+  purchaseAmount: number
+) {
+  try {
+    if (!bundleId) return
+
+    const now = new Date().toISOString()
+
+    // Find active campaigns where this bundle is eligible
+    const { data: eligibleCampaigns } = await supabaseAdmin
+      .from('campaign_eligible_bundles')
+      .select(`
+        campaign_id,
+        override_min_amount,
+        attraction_campaigns!inner (
+          id, status, starts_at, ends_at, enrollment_deadline,
+          completion_window_days, min_purchase_amount
+        )
+      `)
+      .eq('bundle_id', bundleId)
+
+    if (!eligibleCampaigns || eligibleCampaigns.length === 0) return
+
+    for (const ec of eligibleCampaigns) {
+      const campaign = ec.attraction_campaigns as unknown as {
+        id: string; status: string; starts_at: string | null; ends_at: string | null;
+        enrollment_deadline: string | null; completion_window_days: number; min_purchase_amount: number;
+      }
+
+      // Check campaign is active and within enrollment window
+      if (campaign.status !== 'active') continue
+      if (campaign.starts_at && campaign.starts_at > now) continue
+      if (campaign.ends_at && campaign.ends_at < now) continue
+      if (campaign.enrollment_deadline && campaign.enrollment_deadline < now) continue
+
+      // Check minimum purchase amount
+      const minAmount = ec.override_min_amount ?? campaign.min_purchase_amount ?? 0
+      if (purchaseAmount < minAmount) continue
+
+      // Check for existing active enrollment
+      const { data: existing } = await supabaseAdmin
+        .from('campaign_enrollments')
+        .select('id')
+        .eq('campaign_id', campaign.id)
+        .eq('client_email', clientEmail)
+        .in('status', ['active', 'criteria_met', 'payout_pending'])
+        .limit(1)
+
+      if (existing && existing.length > 0) continue
+
+      // Check audit prerequisite
+      const { data: audits } = await supabaseAdmin
+        .from('diagnostic_audits')
+        .select('*')
+        .eq('email', clientEmail)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (!audits || audits.length === 0) {
+        console.log(`Campaign auto-enroll skipped for ${clientEmail} in campaign ${campaign.id}: no audit data`)
+        continue
+      }
+
+      const auditData = audits[0]
+
+      // Build personalization context
+      let valueEvidence: Record<string, unknown> | null = null
+      const { data: evidence } = await supabaseAdmin
+        .from('value_evidence')
+        .select('*')
+        .eq('contact_email', clientEmail)
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (evidence && evidence.length > 0) valueEvidence = evidence[0]
+
+      const personalizationContext: PersonalizationContext = {
+        audit_data: auditData as Record<string, unknown>,
+        value_evidence: valueEvidence as Record<string, unknown> | undefined,
+      }
+
+      // Fetch criteria templates
+      const { data: templates } = await supabaseAdmin
+        .from('campaign_criteria_templates')
+        .select('*')
+        .eq('campaign_id', campaign.id)
+        .order('display_order', { ascending: true })
+
+      // Create enrollment
+      const enrolledAt = new Date()
+      const deadlineAt = calculateDeadline(enrolledAt, campaign.completion_window_days)
+
+      const { data: enrollment, error: enrollError } = await supabaseAdmin
+        .from('campaign_enrollments')
+        .insert({
+          campaign_id: campaign.id,
+          client_email: clientEmail,
+          client_name: clientName,
+          user_id: userId,
+          order_id: orderId,
+          bundle_id: bundleId,
+          purchase_amount: purchaseAmount,
+          enrollment_source: 'auto_purchase',
+          status: 'active',
+          enrolled_at: enrolledAt.toISOString(),
+          deadline_at: deadlineAt.toISOString(),
+          diagnostic_audit_id: auditData.id,
+          personalization_context: personalizationContext,
+        })
+        .select()
+        .single()
+
+      if (enrollError) {
+        console.error(`Error auto-enrolling ${clientEmail} in campaign ${campaign.id}:`, enrollError)
+        continue
+      }
+
+      // Materialize criteria and create progress rows
+      if (templates && templates.length > 0 && enrollment) {
+        const materializedCriteria = materializeCriteria(templates, personalizationContext)
+        const criteriaInserts = materializedCriteria.map((c) => ({
+          ...c,
+          enrollment_id: enrollment.id,
+        }))
+
+        const { data: insertedCriteria, error: criteriaError } = await supabaseAdmin
+          .from('enrollment_criteria')
+          .insert(criteriaInserts)
+          .select()
+
+        if (criteriaError) {
+          console.error(`Error materializing criteria for enrollment ${enrollment.id}:`, criteriaError)
+        } else if (insertedCriteria) {
+          const progressInserts = insertedCriteria.map((c: { id: string; tracking_source: string }) => ({
+            enrollment_id: enrollment.id,
+            criterion_id: c.id,
+            status: 'pending',
+            progress_value: 0,
+            auto_tracked: c.tracking_source !== 'manual',
+          }))
+
+          await supabaseAdmin.from('campaign_progress').insert(progressInserts)
+        }
+      }
+
+      console.log(`Auto-enrolled ${clientEmail} in campaign ${campaign.id} (enrollment ${enrollment?.id})`)
+    }
+  } catch (error) {
+    console.error('Error in campaign auto-enrollment:', error)
   }
 }
 
@@ -234,6 +396,17 @@ export async function POST(request: NextRequest) {
                 proposal.client_name,
                 null // Proposals are typically for guests
               );
+
+              // Auto-enroll in attraction campaigns
+              const bundleId = proposal.bundle_id || session.metadata?.bundleId || null;
+              await autoEnrollInCampaigns(
+                order.id,
+                bundleId,
+                proposal.client_email,
+                proposal.client_name,
+                null,
+                proposal.total_amount || 0
+              );
               
               // Create client project + onboarding plan
               try {
@@ -289,6 +462,17 @@ export async function POST(request: NextRequest) {
               order.guest_email || '',
               order.guest_name || null,
               order.user_id || null
+            )
+
+            // Auto-enroll in attraction campaigns
+            const bundleId = paymentIntent.metadata?.bundleId || null
+            await autoEnrollInCampaigns(
+              order.id,
+              bundleId,
+              order.guest_email || '',
+              order.guest_name || null,
+              order.user_id || null,
+              order.final_amount || order.total_amount || 0
             )
           }
 
