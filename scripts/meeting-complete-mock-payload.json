@@ -1,0 +1,17 @@
+{
+  "title": "Discovery Call - Test Company",
+  "summary": "Test meeting summary. Key topics: project scope, timeline, and next steps.",
+  "transcript": "Short test transcript for WF-MCH. Client expressed interest in AI automation. Agreed to send proposal.",
+  "meeting_type": "discovery",
+  "duration": 30,
+  "participants": [
+    { "name": "Host", "email": "host@amadutown.com", "is_host": true },
+    { "name": "Test Client", "email": "client@example.com", "is_host": false }
+  ],
+  "client_email": "client@example.com",
+  "client_name": "Test Client",
+  "action_items": [
+    { "action": "Send proposal by EOW", "owner": "Amadou" }
+  ],
+  "meeting_date": "2026-02-19T12:00:00.000Z"
+}

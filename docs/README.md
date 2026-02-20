@@ -30,6 +30,7 @@ This directory contains comprehensive documentation for the my-portfolio project
 - `POST /api/admin/outreach/trigger` - Trigger warm lead scraping workflows
 - `GET /api/admin/outreach/trigger` - Get trigger history
 - `POST /api/admin/outreach/ingest` - Ingest scraped leads from n8n
+- `GET /api/knowledge/chatbot` - Chatbot knowledge (concatenated user-help, SOP, README); used by the homepage chatbot so it reflects the latest docs
 
 ### Key Files
 - `lib/n8n.ts` - n8n integration functions

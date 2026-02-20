@@ -1,0 +1,27 @@
+---
+description: Create a test script for n8n end-to-end after workflow fix, update, or creation
+alwaysApply: false
+globs:
+  - "**/n8n*.md"
+  - "**/N8N*.md"
+  - "**/scripts/*webhook*.sh"
+  - "**/scripts/*mock*.json"
+  - ".cursor/rules/N8N*.mdc"
+  - ".cursor/rules/n8n*.mdc"
+---
+
+# n8n E2E Test Script — After Workflow Change
+
+When you **resolve an issue**, **update**, or **create** an n8n workflow:
+
+1. **Create (or extend) a test script** that exercises the workflow end-to-end.
+   - Prefer a shell script that `curl`-s the webhook (test or production URL) with a JSON payload, e.g. `scripts/trigger-<workflow-name>-webhook.sh`.
+   - Include a **mock payload file** (e.g. `scripts/<workflow>-mock-payload.json`) that matches what the webhook expects so the run is reproducible.
+   - Default the script to the **test URL** (`https://n8n.amadutown.com/webhook-test/<path>`) when "Listen for test event" is used; allow override via env (e.g. `N8N_*_WEBHOOK_URL`) for production.
+   - Document in the script header: usage, required payload shape, and how to get a test event in n8n.
+
+2. **Clean up test data in downstream tools** when appropriate.
+   - After a test run, if the workflow writes to the app DB, Supabase, Slack, or email, consider adding a short note in the script or in docs on how to remove or identify test data (e.g. by `client_email`, a test flag, or execution time).
+   - Optionally add a small cleanup script or document the manual steps (e.g. "Delete meeting record created at …" or "Ignore Slack message in #channel from test").
+
+Reuse the pattern from `scripts/trigger-meeting-complete-webhook.sh` and `scripts/meeting-complete-mock-payload.json` for consistency.
