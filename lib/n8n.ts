@@ -80,7 +80,11 @@ function isTransientError(error: unknown): boolean {
 
 /**
  * Generate a context-aware fallback response when n8n is unreachable.
- * Instead of a generic error, give the user actionable next steps.
+ * Clear wording, always offer human contact, and mark as escalated so the UI can emphasize "talk to a person."
+ *
+ * When this runs: N8N_WEBHOOK_URL is unset, the webhook request times out/fails, or n8n returns 404/500/502/etc.
+ * The knowledge base is fetched by the n8n workflow (from GET /api/knowledge); if the app never reaches n8n, we never get to that step.
+ * To debug: check server logs for "[n8n] All attempts failed" and metadata.fallbackReason; verify N8N_WEBHOOK_URL and that n8n is running (e.g. curl webhook URL or n8n healthz).
  */
 function generateSmartFallback(
   userMessage: string,
@@ -89,25 +93,24 @@ function generateSmartFallback(
 ): { response: string; escalated: boolean; metadata: Record<string, unknown> } {
   const lowerMessage = userMessage.toLowerCase()
 
-  // Determine the best action to suggest based on user intent
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amadutown.com'
+  // Contextual suggestion (optional) based on intent — plain URLs so they’re clickable in plain-text chat
   let contextualSuggestion = ''
   if (lowerMessage.includes('service') || lowerMessage.includes('help') || lowerMessage.includes('offer')) {
-    contextualSuggestion = 'In the meantime, you can [browse our services](/services) to see how we can help.'
+    contextualSuggestion = `You can browse our services (${baseUrl}/services) in the meantime. `
   } else if (lowerMessage.includes('project') || lowerMessage.includes('portfolio') || lowerMessage.includes('work')) {
-    contextualSuggestion = 'While you wait, feel free to [explore the portfolio](/projects) to see recent work.'
+    contextualSuggestion = `You can explore the portfolio (${baseUrl}/projects) while you wait. `
   } else if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('quote')) {
-    contextualSuggestion = 'For pricing inquiries, the quickest route is the [contact form](/contact) — we usually respond within a few hours.'
+    contextualSuggestion = `For pricing, the contact form (${baseUrl}/contact) is the fastest way to get a reply. `
   } else if (lowerMessage.includes('book') || lowerMessage.includes('publication') || lowerMessage.includes('article')) {
-    contextualSuggestion = 'You can [browse publications](/publications) directly while the assistant reconnects.'
+    contextualSuggestion = `You can browse publications (${baseUrl}/publications) directly. `
   } else if (isDiagnostic || lowerMessage.includes('audit') || lowerMessage.includes('diagnostic') || lowerMessage.includes('assessment')) {
-    contextualSuggestion = 'To start a business assessment once the service is back, just say "I want to perform an AI audit" in the chat.'
-  } else {
-    contextualSuggestion = 'You can also reach us directly via the [contact form](/contact) for a personal response.'
+    contextualSuggestion = 'You can try saying "I want to perform an AI audit" again in a moment, or book a call below. '
   }
 
   return {
-    response: `I'm temporarily unable to connect to my knowledge base, so I can't give you a full answer right now. ${contextualSuggestion}\n\nPlease try again in a moment — this is usually resolved quickly.`,
-    escalated: false,
+    response: `Our chat service isn’t responding right now, so I can’t answer fully. ${contextualSuggestion}\n\nTo talk to someone: use the contact form (${baseUrl}/contact) or schedule a free discovery call (https://calendly.com/amadutown/atas-discovery-call). We’ll get back to you quickly.\n\nYou can also try again in a moment in case the service was briefly unavailable.`,
+    escalated: true,
     metadata: {
       fallback: true,
       fallbackReason: errorReason,
@@ -560,11 +563,11 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
       // Handle empty response body
       if (bodyText.length === 0) {
         console.warn('[n8n] Webhook returned empty body — workflow may be missing a "Respond to Webhook" node')
-        return {
-          response: "I apologize, but I'm having trouble processing your request right now. Please try again or use the contact form for assistance.",
-          escalated: false,
-          metadata: { emptyResponse: true, fallback: true, retriable: true }
-        }
+        return generateSmartFallback(
+          request.message,
+          'n8n webhook returned empty body',
+          request.diagnosticMode
+        )
       }
 
       let data: unknown
@@ -572,11 +575,11 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
         data = JSON.parse(bodyText)
       } catch {
         console.error('[n8n] Failed to parse response JSON:', bodyText.substring(0, 200))
-        return {
-          response: "I apologize, but I received an unexpected response. Please try again.",
-          escalated: false,
-          metadata: { parseError: true, fallback: true, retriable: true }
-        }
+        return generateSmartFallback(
+          request.message,
+          'n8n response was not valid JSON',
+          request.diagnosticMode
+        )
       }
 
       // Handle different response formats from n8n
