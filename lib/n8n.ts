@@ -657,9 +657,23 @@ export async function sendDiagnosticToN8n(request: DiagnosticAuditRequest): Prom
   }
 
   const diagnosticWebhookUrl = process.env.N8N_DIAGNOSTIC_WEBHOOK_URL || N8N_WEBHOOK_URL
-  
+
   if (!diagnosticWebhookUrl) {
-    throw new Error('N8N_DIAGNOSTIC_WEBHOOK_URL or N8N_WEBHOOK_URL environment variable is not configured')
+    console.warn('[n8n] N8N_DIAGNOSTIC_WEBHOOK_URL / N8N_WEBHOOK_URL not configured — returning diagnostic fallback')
+    const fallback = generateSmartFallback(
+      request.message,
+      'N8N_DIAGNOSTIC_WEBHOOK_URL or N8N_WEBHOOK_URL not configured',
+      true
+    )
+    return {
+      response: fallback.response,
+      diagnosticData: undefined,
+      currentCategory: request.currentCategory,
+      isComplete: false,
+      nextQuestion: undefined,
+      progress: request.progress,
+      metadata: fallback.metadata as DiagnosticResponse['metadata'],
+    }
   }
 
   const payload = {
