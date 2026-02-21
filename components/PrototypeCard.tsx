@@ -13,6 +13,7 @@ import PrototypeDemoSelector from './PrototypeDemoSelector'
 import PrototypeEnrollment from './PrototypeEnrollment'
 import PrototypeFeedback from './PrototypeFeedback'
 import ExpandableText from '@/components/ui/ExpandableText'
+import { toAbsoluteImageUrl } from '@/lib/utils'
 
 interface Demo {
   id: string
@@ -104,7 +105,7 @@ export default function PrototypeCard({ prototype, user, index, onEnrollmentSucc
           />
         ) : (
           <Image
-            src={prototype.thumbnail_url || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800'}
+            src={toAbsoluteImageUrl(prototype.thumbnail_url) || 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800'}
             alt={prototype.title}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"

@@ -3,8 +3,10 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { sendToN8n, sendDiagnosticToN8n, generateSessionId, triggerDiagnosticCompletionWebhook, triggerLeadQualificationWebhook, type ChatMessage } from '@/lib/n8n'
 import type { DiagnosticProgress, DiagnosticCategory } from '@/lib/n8n'
 import { saveDiagnosticAudit, getDiagnosticAuditBySession, linkDiagnosticToContact } from '@/lib/diagnostic'
+import { isValidCalendlyUrl } from '@/lib/utils'
 import { fetchConversationContext } from '@/lib/chat-context'
 import { createChatEscalation, formatTranscriptFromHistory } from '@/lib/chat-escalation'
+import { fetchClientContext, formatClientContextForAI } from '@/lib/chat-client-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -32,6 +34,7 @@ export async function POST(request: NextRequest) {
     const {
       message,
       sessionId: providedSessionId,
+      userId,
       visitorEmail,
       visitorName,
       diagnosticMode: providedDiagnosticMode,
@@ -63,26 +66,25 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (!existingSession) {
-      // Create new session
       const { error: sessionError } = await supabaseAdmin
         .from('chat_sessions')
         .insert({
           session_id: sessionId,
           visitor_email: visitorEmail || null,
           visitor_name: visitorName || null,
+          ...(userId ? { user_id: userId } : {}),
         })
 
       if (sessionError) {
         console.error('Error creating chat session:', sessionError)
-        // Continue anyway - we can still process the message
       }
-    } else if (visitorEmail || visitorName) {
-      // Update session with visitor info if provided
+    } else if (visitorEmail || visitorName || userId) {
       await supabaseAdmin
         .from('chat_sessions')
         .update({
           visitor_email: visitorEmail || undefined,
           visitor_name: visitorName || undefined,
+          ...(userId ? { user_id: userId } : {}),
         })
         .eq('session_id', sessionId)
     }
@@ -159,6 +161,19 @@ export async function POST(request: NextRequest) {
 
     // Detect if this is a cross-channel conversation
     const hasCrossChannelHistory = context?.sessionInfo.hasTextMessages && context?.sessionInfo.hasVoiceMessages
+
+    // Fetch authenticated client context (non-fatal)
+    let clientContextSummary: string | undefined
+    if (userId) {
+      try {
+        const ctx = await fetchClientContext(userId)
+        if (ctx) {
+          clientContextSummary = formatClientContextForAI(ctx)
+        }
+      } catch (ctxErr) {
+        console.warn('Client context fetch failed (non-fatal):', ctxErr instanceof Error ? ctxErr.message : ctxErr)
+      }
+    }
 
     // ── Send to n8n (all paths now return fallback responses instead of throwing) ──
     let n8nResponse
@@ -238,7 +253,6 @@ export async function POST(request: NextRequest) {
         metadata: diagnosticResponse.metadata || {},
       }
     } else {
-      // Regular chat mode — sendToN8n handles retries + fallback internally
       n8nResponse = await sendToN8n({
         message: message.trim(),
         sessionId,
@@ -249,6 +263,7 @@ export async function POST(request: NextRequest) {
         history,
         conversationSummary: context?.summary,
         hasCrossChannelHistory,
+        ...(clientContextSummary ? { clientContext: clientContextSummary } : {}),
       })
     }
 
@@ -317,11 +332,27 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Server-side fallback: extract Calendly metadata from response text if n8n didn't
+    const metadata: Record<string, unknown> = { ...n8nResponse.metadata }
+    if (!metadata.action) {
+      const calendlyMatch = finalResponse.match(/\{\s*"action"\s*:\s*"schedule_meeting"\s*,\s*"calendlyUrl"\s*:\s*"([^"]+)"\s*\}/)
+      if (calendlyMatch && isValidCalendlyUrl(calendlyMatch[1])) {
+        metadata.action = 'schedule_meeting'
+        metadata.calendlyUrl = calendlyMatch[1]
+        finalResponse = finalResponse.replace(calendlyMatch[0], '').trim()
+      }
+    }
+    // Never expose invalid Calendly URLs to the client
+    if (metadata.action === 'schedule_meeting' && !isValidCalendlyUrl(metadata.calendlyUrl)) {
+      delete metadata.action
+      delete metadata.calendlyUrl
+    }
+
     return NextResponse.json({
       response: String(finalResponse || ''),
       sessionId,
       escalated: n8nResponse.escalated,
-      metadata: n8nResponse.metadata,
+      metadata,
       diagnosticMode: isDiagnosticMode,
       diagnosticAuditId: diagnosticAuditId || undefined,
       diagnosticProgress: currentDiagnosticProgress || undefined,
@@ -330,7 +361,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Chat API error:', error)
-
     return NextResponse.json(
       {
         error: 'Unable to process your message. Please try again or use the contact form.',

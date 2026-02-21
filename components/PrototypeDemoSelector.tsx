@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, Play, Monitor, Video as VideoIcon } from 'lucide-react'
+import Image from 'next/image'
+import { toAbsoluteImageUrl } from '@/lib/utils'
 
 interface Demo {
   id: string
@@ -171,9 +173,20 @@ export default function PrototypeDemoSelector({
               allow="fullscreen"
             />
           </div>
+        ) : selectedDemo.demo_type === 'image' ? (
+          <div className="aspect-video rounded-lg overflow-hidden bg-black border border-gray-800">
+            <Image
+              src={toAbsoluteImageUrl(selectedDemo.demo_url) || '/logo.png'}
+              alt={selectedDemo.title}
+              fill
+              className="object-contain"
+              sizes="(max-width: 768px) 100vw, 400px"
+              unoptimized
+            />
+          </div>
         ) : (
           <a
-            href={selectedDemo.demo_url}
+            href={toAbsoluteImageUrl(selectedDemo.demo_url) || selectedDemo.demo_url}
             target="_blank"
             rel="noopener noreferrer"
             className="block aspect-video rounded-lg overflow-hidden bg-gradient-to-br from-purple-900/20 to-pink-900/20 border border-purple-500/30 hover:border-purple-500/50 transition-colors flex items-center justify-center group"
@@ -183,7 +196,7 @@ export default function PrototypeDemoSelector({
                 <Play size={24} className="text-white ml-1" fill="white" />
               </div>
               <p className="text-white font-medium">View Demo</p>
-              <p className="text-sm text-gray-400 mt-1">{selectedDemo.demo_url}</p>
+              <p className="text-sm text-gray-400 mt-1 truncate">{selectedDemo.demo_url}</p>
             </div>
           </a>
         )}

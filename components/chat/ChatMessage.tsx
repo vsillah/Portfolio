@@ -1,7 +1,10 @@
 'use client'
 
+import React from 'react'
 import { motion } from 'framer-motion'
 import { User, Bot, Headphones, Mic } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export interface ChatMessageProps {
   role: 'user' | 'assistant' | 'support'
@@ -9,6 +12,68 @@ export interface ChatMessageProps {
   timestamp?: string
   isTyping?: boolean
   isVoice?: boolean
+}
+
+const URL_REGEX = /https?:\/\/[^\s<]+/g
+
+function renderUserContent(text: string) {
+  const parts: React.ReactNode[] = []
+  let lastIndex = 0
+  let match: RegExpExecArray | null
+
+  while ((match = URL_REGEX.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index))
+    }
+    const url = match[0]
+    parts.push(
+      <a
+        key={match.index}
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline text-radiant-gold hover:text-gold-light transition-colors"
+      >
+        {url}
+      </a>
+    )
+    lastIndex = match.index + url.length
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex))
+  }
+
+  URL_REGEX.lastIndex = 0
+  return parts
+}
+
+const markdownComponents = {
+  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="underline text-radiant-gold hover:text-gold-light transition-colors"
+    >
+      {children}
+    </a>
+  ),
+  p: ({ children }: { children?: React.ReactNode }) => (
+    <p className="mb-2 last:mb-0">{children}</p>
+  ),
+  ul: ({ children }: { children?: React.ReactNode }) => (
+    <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>
+  ),
+  ol: ({ children }: { children?: React.ReactNode }) => (
+    <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>
+  ),
+  strong: ({ children }: { children?: React.ReactNode }) => (
+    <strong className="font-semibold text-platinum-white">{children}</strong>
+  ),
+  code: ({ children }: { children?: React.ReactNode }) => (
+    <code className="bg-imperial-navy/50 px-1 py-0.5 rounded text-xs text-radiant-gold/80">{children}</code>
+  ),
 }
 
 export function ChatMessage({ role, content, timestamp, isTyping, isVoice }: ChatMessageProps) {
@@ -82,9 +147,15 @@ export function ChatMessage({ role, content, timestamp, isTyping, isVoice }: Cha
                 className="w-2 h-2 rounded-full bg-radiant-gold"
               />
             </div>
-          ) : (
-            <p className="text-sm font-body leading-relaxed whitespace-pre-wrap">{content}</p>
-          )}
+          ) : isUser ? (
+              <p className="text-sm font-body leading-relaxed whitespace-pre-wrap">{renderUserContent(content)}</p>
+            ) : (
+              <div className="text-sm font-body leading-relaxed prose-chat">
+                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                  {content}
+                </ReactMarkdown>
+              </div>
+            )}
         </div>
 
         {/* Timestamp and Voice Indicator */}

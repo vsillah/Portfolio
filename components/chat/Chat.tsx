@@ -2,24 +2,34 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, X, Trash2, AlertCircle, ClipboardCheck, Sparkles, BookOpen, Briefcase, Mic, MessageSquare, RefreshCw } from 'lucide-react'
+import { MessageCircle, X, Trash2, AlertCircle, ClipboardCheck, Sparkles, BookOpen, Briefcase, Mic, MessageSquare, RefreshCw, LogIn, Calendar } from 'lucide-react'
 import { ChatMessage, type ChatMessageProps } from './ChatMessage'
 import { ChatInput } from './ChatInput'
 import { VoiceChat } from './VoiceChat'
+import { CalendlyEmbed } from './CalendlyEmbed'
 import { generateSessionId, CHAT_STORAGE_KEY } from '@/lib/chat-utils'
+import { isValidCalendlyUrl } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
+import { signInWithOAuth } from '@/lib/auth'
 import type { DiagnosticCategory, DiagnosticProgress } from '@/lib/n8n'
 import type { VoiceChatMessage } from '@/lib/vapi'
 import { isVapiConfigured } from '@/lib/vapi'
 
 type ChatMode = 'text' | 'voice'
 
+interface AuthUser {
+  id: string
+  email: string
+  name: string | null
+}
+
 interface Message extends ChatMessageProps {
   id: string
   isVoice?: boolean
-  /** If true, this message has a retry button (for fallback/error responses) */
   isRetriable?: boolean
-  /** The original user message that can be retried */
   retriableContent?: string
+  type?: 'text' | 'calendly_embed'
+  calendlyUrl?: string
 }
 
 interface ChatProps {
@@ -60,11 +70,70 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
   const [showDiagnosticBanner, setShowDiagnosticBanner] = useState(true)
   const [chatMode, setChatMode] = useState<ChatMode>('text')
   const [isVoiceCallActive, setIsVoiceCallActive] = useState(false)
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null)
+  const [showLoginBanner, setShowLoginBanner] = useState(true)
+  const [activeCalendlyUrl, setActiveCalendlyUrl] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const hasLoadedHistory = useRef(false)
   
   // Check if voice chat is available
   const voiceEnabled = isVapiConfigured()
+
+  // Detect auth state on mount and listen for changes
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) {
+        setAuthUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || null,
+        })
+      }
+    }
+    checkAuth()
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setAuthUser({
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.full_name || session.user.user_metadata?.name || null,
+        })
+      } else {
+        setAuthUser(null)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const effectiveEmail = authUser?.email || visitorEmail
+  const effectiveName = authUser?.name || visitorName
+
+  const handleCalendlyScheduled = useCallback(() => {
+    setActiveCalendlyUrl(null)
+    const confirmMsg: Message = {
+      id: `calendly-confirm-${Date.now()}`,
+      role: 'assistant',
+      content: 'Your meeting has been booked! You should receive a confirmation email shortly.',
+      timestamp: new Date().toISOString(),
+    }
+    setMessages(prev => [...prev, confirmMsg])
+
+    if (effectiveEmail) {
+      fetch('/api/chat/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: effectiveEmail,
+          templateType: 'meeting_confirmation',
+          data: { name: effectiveName || 'there' },
+          sessionId,
+        }),
+      }).catch(() => {})
+    }
+  }, [effectiveEmail, effectiveName, sessionId])
 
   // Suggested actions/questions
   const suggestedActions = [
@@ -95,6 +164,13 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       icon: BookOpen,
       message: 'Show me your publications',
       description: 'Books & articles',
+    },
+    {
+      id: 'schedule',
+      label: 'Schedule a Discovery Call',
+      icon: Calendar,
+      message: "I'd like to schedule a discovery call",
+      description: 'Book a free consultation',
     },
   ]
 
@@ -255,8 +331,9 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       const requestPayload = {
         message: content,
         sessionId,
-        visitorEmail,
-        visitorName,
+        userId: authUser?.id || undefined,
+        visitorEmail: effectiveEmail,
+        visitorName: effectiveName,
         diagnosticMode: isDiagnosticMode || shouldStartDiagnostic,
         diagnosticAuditId: diagnosticAuditId || undefined,
         diagnosticProgress: diagnosticProgress || undefined,
@@ -267,13 +344,25 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
         body: JSON.stringify(requestPayload),
       })
 
-      const data = await response.json()
+      const rawData = await response.json() as unknown
 
       // Remove typing indicator
       setMessages(prev => prev.filter(m => m.id !== typingId))
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to send message')
+        throw new Error((rawData as { error?: string })?.error || 'Failed to send message')
+      }
+
+      const data = rawData as {
+        response?: unknown
+        sessionId?: string
+        escalated?: boolean
+        metadata?: { fallback?: boolean; retriable?: boolean; action?: string; calendlyUrl?: string }
+        diagnosticMode?: boolean
+        diagnosticAuditId?: string
+        diagnosticProgress?: DiagnosticProgress
+        currentCategory?: DiagnosticCategory
+        diagnosticComplete?: boolean
       }
 
       // Update diagnostic state if in diagnostic mode
@@ -294,25 +383,31 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
         }
       }
 
-      // Extract response text - handle cases where response might be an object or JSON string
-      let responseText = data.response
+      // Check for Calendly scheduling action from the AI
+      const calendlyUrl = data.metadata?.calendlyUrl
+      if (data.metadata?.action === 'schedule_meeting' && calendlyUrl && isValidCalendlyUrl(calendlyUrl)) {
+        setActiveCalendlyUrl(calendlyUrl)
+      }
 
-      if (typeof responseText === 'object' && responseText !== null) {
-        responseText = responseText.response || responseText.text || responseText.message || ''
-      } else if (typeof responseText === 'string') {
+      // Extract response text - handle cases where response might be an object or JSON string
+      let responseText: string = ''
+      const rawResponse = data.response
+
+      if (typeof rawResponse === 'object' && rawResponse !== null) {
+        const obj = rawResponse as Record<string, unknown>
+        responseText = String(obj.response || obj.text || obj.message || '')
+      } else if (typeof rawResponse === 'string') {
+        responseText = rawResponse
         try {
-          const parsed = JSON.parse(responseText)
+          const parsed = JSON.parse(rawResponse)
           if (parsed && typeof parsed === 'object' && parsed.response) {
             responseText = parsed.response || parsed.text || parsed.message || responseText
           }
         } catch {
           // Not JSON, use as-is
         }
-      }
-
-      // Final safeguard - ensure we never display raw JSON objects
-      if (typeof responseText === 'object' && responseText !== null) {
-        responseText = JSON.stringify(responseText)
+      } else {
+        responseText = String(rawResponse || '')
       }
 
       // Determine if this is a fallback / retriable response
@@ -347,7 +442,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
     } finally {
       setIsLoading(false)
     }
-  }, [sessionId, isLoading, visitorEmail, visitorName, isDiagnosticMode, diagnosticAuditId, diagnosticProgress])
+  }, [sessionId, isLoading, effectiveEmail, effectiveName, authUser?.id, isDiagnosticMode, diagnosticAuditId, diagnosticProgress])
 
   // Retry a failed message
   const retryMessage = useCallback((messageId: string) => {
@@ -609,6 +704,39 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                 )}
               </AnimatePresence>
 
+              {/* Auth Banner — shown when user is not logged in */}
+              <AnimatePresence>
+                {!authUser && showLoginBanner && !isDiagnosticMode && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="p-3 bg-silicon-slate/40 border border-radiant-gold/20 rounded-lg"
+                  >
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1">
+                        <p className="text-xs text-platinum-white/70">
+                          Sign in for personalized help based on your projects and purchases.
+                        </p>
+                        <button
+                          onClick={() => signInWithOAuth('google')}
+                          className="mt-2 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-radiant-gold bg-radiant-gold/10 border border-radiant-gold/20 rounded-lg hover:bg-radiant-gold/20 hover:border-radiant-gold/30 transition-all duration-200"
+                        >
+                          <LogIn size={12} />
+                          Sign in with Google
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => setShowLoginBanner(false)}
+                        className="text-platinum-white/50 hover:text-platinum-white transition-colors flex-shrink-0"
+                      >
+                        <X size={14} />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {messages.map((message) => (
                 <div key={message.id}>
                   <ChatMessage
@@ -678,6 +806,21 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                 )}
               </AnimatePresence>
               
+              {/* Calendly Embed Widget */}
+              <AnimatePresence>
+                {activeCalendlyUrl && (
+                  <CalendlyEmbed
+                    url={activeCalendlyUrl}
+                    prefill={{
+                      name: effectiveName || undefined,
+                      email: effectiveEmail || undefined,
+                    }}
+                    onEventScheduled={handleCalendlyScheduled}
+                    onClose={() => setActiveCalendlyUrl(null)}
+                  />
+                )}
+              </AnimatePresence>
+
               <div ref={messagesEndRef} />
             </div>
 

@@ -1,6 +1,7 @@
-// Notification Service — Guarantee & Subscription lifecycle emails
-// Currently logs notifications; replace sendEmail implementation with
-// your provider (Resend, SendGrid, SES, etc.) when ready.
+// Notification Service — Guarantee, Subscription, and Chat lifecycle emails
+// Uses Gmail SMTP via Nodemailer. Requires GMAIL_USER and GMAIL_APP_PASSWORD env vars.
+
+import nodemailer from 'nodemailer';
 
 // ============================================================================
 // Email sending abstraction
@@ -13,23 +14,40 @@ interface EmailPayload {
   text?: string;
 }
 
-/**
- * Send an email. Replace this with your email provider.
- * For now, logs the email payload to console.
- */
+const gmailUser = process.env.GMAIL_USER;
+const gmailPass = process.env.GMAIL_APP_PASSWORD;
+const fromName = process.env.EMAIL_FROM_NAME || 'ATAS';
+
+const transporter = gmailUser && gmailPass
+  ? nodemailer.createTransport({
+      service: 'gmail',
+      auth: { user: gmailUser, pass: gmailPass },
+    })
+  : null;
+
 async function sendEmail(payload: EmailPayload): Promise<boolean> {
-  // TODO: Replace with actual email provider
-  // Example with Resend:
-  //   const resend = new Resend(process.env.RESEND_API_KEY);
-  //   await resend.emails.send({ from: 'noreply@yourdomain.com', ...payload });
+  if (!transporter || !gmailUser) {
+    console.warn('[NOTIFICATION EMAIL] Gmail not configured — logging instead:', {
+      to: payload.to,
+      subject: payload.subject,
+      textPreview: payload.text?.slice(0, 100) || payload.html.slice(0, 100),
+    });
+    return true;
+  }
 
-  console.log('[NOTIFICATION EMAIL]', {
-    to: payload.to,
-    subject: payload.subject,
-    textPreview: payload.text?.slice(0, 100) || payload.html.slice(0, 100),
-  });
-
-  return true;
+  try {
+    await transporter.sendMail({
+      from: `"${fromName}" <${gmailUser}>`,
+      to: payload.to,
+      subject: payload.subject,
+      html: payload.html,
+      text: payload.text,
+    });
+    return true;
+  } catch (err) {
+    console.error('[NOTIFICATION EMAIL] Send failed:', err);
+    return false;
+  }
 }
 
 // ============================================================================
@@ -308,6 +326,97 @@ export async function notifyCreditExhausted(params: {
       <h2>Credit Fully Applied</h2>
       <p>Your guarantee credit for <strong>${params.planName}</strong> has been fully used.</p>
       <p>Your next invoice: <strong>$${params.nextAmount.toFixed(2)}/${params.billingInterval}</strong></p>
+    `,
+  });
+}
+
+// ============================================================================
+// Chat / Meeting Notifications
+// ============================================================================
+
+export async function notifyMeetingBooked(params: {
+  clientEmail: string;
+  clientName: string;
+  meetingType?: string;
+  meetingDate?: string;
+  meetingTime?: string;
+  calendlyLink?: string;
+}) {
+  const dateInfo = params.meetingDate
+    ? `<p>Date: <strong>${params.meetingDate}</strong>${params.meetingTime ? ` at <strong>${params.meetingTime}</strong>` : ''}</p>`
+    : '';
+
+  const linkInfo = params.calendlyLink
+    ? `<p>You can manage your booking here: <a href="${params.calendlyLink}">${params.calendlyLink}</a></p>`
+    : '';
+
+  await sendEmail({
+    to: params.clientEmail,
+    subject: `Meeting Confirmed${params.meetingType ? `: ${params.meetingType}` : ''}`,
+    text: [
+      `Hi ${params.clientName},`,
+      '',
+      `Your meeting${params.meetingType ? ` (${params.meetingType})` : ''} has been confirmed!`,
+      params.meetingDate ? `Date: ${params.meetingDate}${params.meetingTime ? ` at ${params.meetingTime}` : ''}` : '',
+      '',
+      params.calendlyLink ? `Manage your booking: ${params.calendlyLink}` : '',
+      '',
+      'Looking forward to speaking with you!',
+      '',
+      'Best regards,',
+      fromName,
+    ].filter(Boolean).join('\n'),
+    html: `
+      <h2>Meeting Confirmed!</h2>
+      <p>Hi ${params.clientName},</p>
+      <p>Your meeting${params.meetingType ? ` (<strong>${params.meetingType}</strong>)` : ''} has been confirmed.</p>
+      ${dateInfo}
+      ${linkInfo}
+      <p>Looking forward to speaking with you!</p>
+      <p>Best regards,<br/>${fromName}</p>
+    `,
+  });
+}
+
+export async function notifyChatTranscript(params: {
+  clientEmail: string;
+  clientName: string;
+  transcript: string;
+  sessionDate: string;
+}) {
+  const transcriptHtml = params.transcript
+    .split('\n')
+    .map(line => {
+      if (line.startsWith('User:')) return `<p style="color: #d4a843;"><strong>${line}</strong></p>`;
+      if (line.startsWith('Assistant:')) return `<p style="color: #94a3b8;">${line}</p>`;
+      return `<p>${line}</p>`;
+    })
+    .join('');
+
+  await sendEmail({
+    to: params.clientEmail,
+    subject: `Your Chat Summary — ${params.sessionDate}`,
+    text: [
+      `Hi ${params.clientName},`,
+      '',
+      `Here's a summary of your chat session on ${params.sessionDate}:`,
+      '',
+      params.transcript,
+      '',
+      'If you have any follow-up questions, feel free to start a new chat or reply to this email.',
+      '',
+      'Best regards,',
+      fromName,
+    ].join('\n'),
+    html: `
+      <h2>Chat Summary</h2>
+      <p>Hi ${params.clientName},</p>
+      <p>Here's a summary of your chat session on <strong>${params.sessionDate}</strong>:</p>
+      <div style="background: #0f1729; padding: 16px; border-radius: 8px; margin: 16px 0;">
+        ${transcriptHtml}
+      </div>
+      <p>If you have any follow-up questions, feel free to start a new chat or reply to this email.</p>
+      <p>Best regards,<br/>${fromName}</p>
     `,
   });
 }

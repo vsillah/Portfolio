@@ -367,6 +367,8 @@ export interface N8nChatRequest {
   conversationSummary?: string
   /** Whether this session has cross-channel history */
   hasCrossChannelHistory?: boolean
+  /** Authenticated client context summary for personalized responses */
+  clientContext?: string
 }
 
 /**
@@ -491,6 +493,8 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
   // Add visitor info if provided
   if (request.visitorEmail) payload.visitorEmail = request.visitorEmail
   if (request.visitorName) payload.visitorName = request.visitorName
+  // Add authenticated client context for personalized responses
+  if (request.clientContext) payload.clientContext = request.clientContext
   // Add diagnostic mode flags if in diagnostic mode
   if (request.diagnosticMode) {
     payload.diagnosticMode = true
@@ -586,8 +590,13 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
       let result: Record<string, unknown> = (Array.isArray(data) ? data[0] : data) as Record<string, unknown>
 
       // Handle n8n's { results: [{ result: "..." }] } format
+      // Preserve top-level metadata/escalated before unwrapping results[]
+      const topLevelMetadata = result.metadata as Record<string, unknown> | undefined
+      const topLevelEscalated = result.escalated ?? result.escalate
       if (result?.results && Array.isArray(result.results) && result.results.length > 0) {
         result = result.results[0] as Record<string, unknown>
+        result.metadata = { ...((result.metadata as Record<string, unknown>) || {}), ...(topLevelMetadata || {}) }
+        if (topLevelEscalated !== undefined && result.escalated === undefined) result.escalated = topLevelEscalated
       }
 
       // Extract response text — handle cases where response might be a JSON string or object

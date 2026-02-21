@@ -2,6 +2,18 @@
 
 This guide explains how to add diagnostic routing and workflow logic to your existing n8n chat workflow.
 
+## Critical: Use Diagnostic Prompt, Not Chatbot Prompt
+
+**When `diagnosticMode: true`**, the Diagnostic AI Agent **must** use the **diagnostic** prompt (`GET /api/prompts/diagnostic`), **not** the chatbot prompt. The chatbot knowledge mentions the standalone audit tool at `/tools/audit` and instructs directing users there. If the Diagnostic Agent gets that prompt/knowledge, it will redirect users to the form instead of conducting the audit in chat.
+
+**Required n8n configuration:**
+1. Place the "Check Diagnostic Mode" IF node **before** or **as part of** the prompt-fetch logic.
+2. When `diagnosticMode === true` → Fetch `https://amadutown.com/api/prompts/diagnostic`
+3. When `diagnosticMode === false` → Fetch `https://amadutown.com/api/prompts/chatbot`
+4. For the Diagnostic branch, either omit the general chatbot knowledge, or ensure the diagnostic prompt (which explicitly says "conduct the audit in this chat, do NOT redirect") takes precedence.
+
+The diagnostic prompt is updated to clearly instruct: *"Conduct the audit right here in this chat. Do NOT direct users to /tools/audit."*
+
 ## Overview
 
 When a user requests an AI audit/diagnostic, the application sends a payload with `diagnosticMode: true`. Your n8n workflow needs to:

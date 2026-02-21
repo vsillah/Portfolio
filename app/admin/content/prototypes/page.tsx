@@ -8,6 +8,7 @@ import {
   Upload, Loader2, Image as ImageIcon, Smartphone, Globe, Wrench, Sparkles
 } from 'lucide-react'
 import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
+import { toAbsoluteImageUrl } from '@/lib/utils'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import { getCurrentSession } from '@/lib/auth'
@@ -446,7 +447,7 @@ export default function PrototypesManagementPage() {
                         <div className="space-y-3">
                           <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-700">
                             <Image
-                              src={formData.thumbnail_url}
+                              src={toAbsoluteImageUrl(formData.thumbnail_url) || formData.thumbnail_url}
                               alt="Thumbnail preview"
                               fill
                               className="object-cover"
@@ -673,7 +674,7 @@ export default function PrototypesManagementPage() {
                       {prototype.thumbnail_url ? (
                         <div className="w-20 h-14 rounded-lg overflow-hidden bg-silicon-slate/80 flex-shrink-0 relative">
                           <Image
-                            src={prototype.thumbnail_url}
+                            src={toAbsoluteImageUrl(prototype.thumbnail_url) || prototype.thumbnail_url}
                             alt={prototype.title}
                             fill
                             className="object-cover"
