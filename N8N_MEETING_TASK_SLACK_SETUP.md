@@ -125,11 +125,10 @@ If you want admins to complete tasks from Slack (e.g. add ✅ to a task message)
 Add a node at the end of **WF-MCH** (after writing `meeting_records`) to call
 the app's promote-tasks endpoint:
 
-**HTTP Request node:**
+**Promote Tasks node (added to WF-MCH):**
 - **Method:** POST
-- **URL:** `{{ $env.APP_BASE_URL }}/api/meetings/{{ $json.meeting_record_id }}/promote-tasks`
-  - Note: Since `$env` is blocked, hardcode the base URL or use a Header Auth credential.
-- **Headers:** `Authorization: Bearer <admin_session_token>` (or use a service auth pattern)
+- **URL:** `https://amadutown.com/api/meetings/{{ $json.id }}/promote-tasks` (id from Write Meeting Record output)
+- **Auth:** Header Auth credential with `Authorization: Bearer <N8N_INGEST_SECRET>` (same as other app API calls)
 - **Body:** `{ "sync_slack": true }`
 
 This will:

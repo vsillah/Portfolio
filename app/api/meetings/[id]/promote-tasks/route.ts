@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
  * Promote action_items from a meeting_record into meeting_action_tasks rows.
  * Optionally syncs the new tasks to Slack via the task-sync n8n webhook.
  *
- * Auth: admin only.
+ * Auth: admin (session) OR n8n (Bearer N8N_INGEST_SECRET).
  * Body (optional): { sync_slack?: boolean }
  */
 export async function POST(
@@ -19,11 +19,11 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authResult = await verifyAdmin(request)
-    if (isAuthError(authResult)) {
+    const authorized = await authorizeRequest(request)
+    if (!authorized.ok) {
       return NextResponse.json(
-        { error: authResult.error },
-        { status: authResult.status }
+        { error: authorized.error },
+        { status: authorized.status }
       )
     }
 
@@ -84,4 +84,26 @@ export async function POST(
     const message = error instanceof Error ? error.message : String(error)
     return NextResponse.json({ error: message }, { status: 500 })
   }
+}
+
+/**
+ * Authorize via admin session OR N8N_INGEST_SECRET (for WF-MCH).
+ */
+async function authorizeRequest(
+  request: NextRequest
+): Promise<{ ok: true } | { ok: false; error: string; status: number }> {
+  const authResult = await verifyAdmin(request)
+  if (!isAuthError(authResult)) {
+    return { ok: true }
+  }
+
+  const authHeader = request.headers.get('authorization')
+  const token = authHeader?.replace(/^Bearer\s+/i, '')
+  const expectedSecret = process.env.N8N_INGEST_SECRET
+
+  if (expectedSecret && token === expectedSecret) {
+    return { ok: true }
+  }
+
+  return { ok: false, error: 'Unauthorized', status: 401 }
 }

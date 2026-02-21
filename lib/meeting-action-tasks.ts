@@ -14,7 +14,9 @@ import { supabaseAdmin } from './supabase'
 
 /** Shape of an action item as stored in meeting_records.action_items JSONB */
 export interface MeetingActionItem {
+  /** Display text; WF-MCH AI uses "action", some sources use "title" */
   title?: string
+  action?: string
   description?: string
   owner?: string
   due_date?: string
@@ -101,15 +103,16 @@ export async function promoteActionItems(
   )
 
   // 3. Build rows for new tasks only
+  // WF-MCH AI returns "action"; promote also accepts "title"
   const toInsert = rawItems
     .filter(item => {
-      const title = (item.title || '').trim()
+      const title = (item.title || item.action || '').trim()
       return title.length > 0 && !existingTitles.has(title.toLowerCase())
     })
     .map((item, idx) => ({
       meeting_record_id: meetingRecordId,
       client_project_id: record.client_project_id ?? null,
-      title: (item.title || 'Untitled action').trim(),
+      title: (item.title || item.action || 'Untitled action').trim(),
       description: item.description || null,
       owner: item.owner || null,
       due_date: item.due_date || null,

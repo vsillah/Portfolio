@@ -45,7 +45,7 @@ flowchart LR
 3. **Filter Read.ai Messages:** only messages whose text **contains the word `"meeting"`** are processed. All others go to "Not a Read.ai Message" and the flow stops.
 4. **Parse Read.ai Message** extracts title, summary, transcript, participants, duration, and infers `meeting_type` from the title (e.g. "discovery", "kickoff").
 5. **Send to Meeting Handler** POSTs to `https://n8n.amadutown.com/webhook/meeting-complete` with the parsed body.
-6. **WF-MCH** runs: extracts structured data with AI, writes to **meeting_records**, posts summary to Slack, builds a follow-up email draft, and **calls WF-FUP** to schedule the next meeting.
+6. **WF-MCH** runs: extracts structured data with AI, writes to **meeting_records**, posts summary to Slack, builds a follow-up email draft, **calls the app to promote action items to tasks** (Admin > Meeting Tasks), and **calls WF-FUP** to schedule the next meeting.
 
 **What you get today:**
 
