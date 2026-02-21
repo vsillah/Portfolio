@@ -36,6 +36,33 @@ export function VoiceChat({
   const vapiRef = useRef<any>(null)
   const isConfigured = isVapiConfigured()
 
+  // Handle VAPI messages (defined first so initializeVapi can depend on it)
+  const handleVapiMessage = useCallback((message: VapiMessage) => {
+    if (message.type === 'transcript') {
+      const isPartial = message.transcriptType === 'partial'
+      const isFinal = message.transcriptType === 'final'
+
+      if (isPartial && message.transcript) {
+        setPartialTranscript(message.transcript)
+      }
+
+      if (isFinal && message.transcript) {
+        setPartialTranscript('')
+
+        const chatMessage: VoiceChatMessage = {
+          id: `voice-${Date.now()}-${message.role}`,
+          role: message.role === 'user' ? 'user' : 'assistant',
+          content: message.transcript,
+          timestamp: new Date().toISOString(),
+          isVoice: true,
+          transcriptType: 'final',
+        }
+
+        onMessage?.(chatMessage)
+      }
+    }
+  }, [onMessage])
+
   // Initialize VAPI SDK
   const initializeVapi = useCallback(async () => {
     if (!isConfigured) {
@@ -108,34 +135,7 @@ export function VoiceChat({
       }))
       setIsInitializing(false)
     }
-  }, [isConfigured, onCallStart, onCallEnd])
-
-  // Handle VAPI messages
-  const handleVapiMessage = useCallback((message: VapiMessage) => {
-    if (message.type === 'transcript') {
-      const isPartial = message.transcriptType === 'partial'
-      const isFinal = message.transcriptType === 'final'
-      
-      if (isPartial && message.transcript) {
-        setPartialTranscript(message.transcript)
-      }
-      
-      if (isFinal && message.transcript) {
-        setPartialTranscript('')
-        
-        const chatMessage: VoiceChatMessage = {
-          id: `voice-${Date.now()}-${message.role}`,
-          role: message.role === 'user' ? 'user' : 'assistant',
-          content: message.transcript,
-          timestamp: new Date().toISOString(),
-          isVoice: true,
-          transcriptType: 'final',
-        }
-        
-        onMessage?.(chatMessage)
-      }
-    }
-  }, [onMessage])
+  }, [isConfigured, onCallStart, onCallEnd, handleVapiMessage])
 
   // Start voice call
   const startCall = useCallback(async () => {

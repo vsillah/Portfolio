@@ -343,7 +343,7 @@ export async function POST(request: NextRequest) {
       }
     }
     // Never expose invalid Calendly URLs to the client
-    if (metadata.action === 'schedule_meeting' && !isValidCalendlyUrl(metadata.calendlyUrl)) {
+    if (metadata.action === 'schedule_meeting' && !isValidCalendlyUrl(metadata.calendlyUrl as string | undefined)) {
       delete metadata.action
       delete metadata.calendlyUrl
     }

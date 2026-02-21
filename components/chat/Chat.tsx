@@ -214,17 +214,32 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
     }
   }, [])
 
-  // Load chat history and diagnostic status when session is ready
-  useEffect(() => {
-    if (sessionId && !hasLoadedHistory.current) {
-      hasLoadedHistory.current = true
-      loadChatHistory()
-      loadDiagnosticStatus()
+  // Load chat history (wrapped in useCallback for exhaustive-deps)
+  const loadChatHistory = useCallback(async () => {
+    if (!sessionId) return
+
+    try {
+      const response = await fetch(`/api/chat/history?sessionId=${sessionId}`)
+      if (response.ok) {
+        const data = await response.json()
+        if (data.messages && data.messages.length > 0) {
+          setMessages(
+            data.messages.map((msg: { id: string; role: string; content: string; created_at: string }) => ({
+              id: msg.id,
+              role: msg.role as 'user' | 'assistant' | 'support',
+              content: msg.content,
+              timestamp: msg.created_at,
+            }))
+          )
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load chat history:', err)
     }
   }, [sessionId])
 
   // Load diagnostic status for current session
-  const loadDiagnosticStatus = async () => {
+  const loadDiagnosticStatus = useCallback(async () => {
     if (!sessionId) return
 
     try {
@@ -247,7 +262,16 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
     } catch (err) {
       console.error('Failed to load diagnostic status:', err)
     }
-  }
+  }, [sessionId])
+
+  // Load chat history and diagnostic status when session is ready
+  useEffect(() => {
+    if (sessionId && !hasLoadedHistory.current) {
+      hasLoadedHistory.current = true
+      loadChatHistory()
+      loadDiagnosticStatus()
+    }
+  }, [sessionId, loadChatHistory, loadDiagnosticStatus])
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -269,29 +293,6 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  const loadChatHistory = async () => {
-    if (!sessionId) return
-
-    try {
-      const response = await fetch(`/api/chat/history?sessionId=${sessionId}`)
-      if (response.ok) {
-        const data = await response.json()
-        if (data.messages && data.messages.length > 0) {
-          setMessages(
-            data.messages.map((msg: { id: string; role: string; content: string; created_at: string }) => ({
-              id: msg.id,
-              role: msg.role as 'user' | 'assistant' | 'support',
-              content: msg.content,
-              timestamp: msg.created_at,
-            }))
-          )
-        }
-      }
-    } catch (err) {
-      console.error('Failed to load chat history:', err)
-    }
   }
 
   const sendMessage = useCallback(async (content: string) => {
