@@ -7,6 +7,7 @@
  */
 
 import { supabaseAdmin } from './supabase'
+import { n8nWebhookUrl } from './n8n'
 import type {
   Milestone,
   CommunicationPlan,
@@ -421,6 +422,7 @@ export async function fireProgressUpdateWebhook(
   payload: ProgressUpdateWebhookPayload
 ): Promise<boolean> {
   const webhookUrl = process.env.N8N_PROGRESS_UPDATE_WEBHOOK_URL
+    || n8nWebhookUrl('progress-update')
 
   if (!webhookUrl) {
     console.warn(

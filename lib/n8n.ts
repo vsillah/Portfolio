@@ -1,11 +1,28 @@
 /**
  * n8n Webhook Client
- * Handles communication with the self-hosted n8n instance for chat and lead qualification
+ * Handles communication with the n8n instance (local or cloud) for chat and lead qualification.
+ * Set N8N_BASE_URL to switch between instances (e.g. local vs n8n Cloud).
  */
 
 // ============================================================================
 // Configuration
 // ============================================================================
+
+/**
+ * Base URL for the n8n instance. All webhook URLs are constructed from this
+ * unless overridden by a per-workflow env var (e.g. N8N_CLG002_WEBHOOK_URL).
+ * Default is n8n Cloud; set N8N_BASE_URL to https://n8n.amadutown.com to use self-hosted.
+ */
+export const N8N_BASE_URL =
+  process.env.N8N_BASE_URL || 'https://amadutown.app.n8n.cloud'
+
+/**
+ * Build a full n8n webhook URL from a path segment.
+ * Example: n8nWebhookUrl('clg-outreach-gen') => 'https://amadutown.app.n8n.cloud/webhook/clg-outreach-gen'
+ */
+export function n8nWebhookUrl(path: string): string {
+  return `${N8N_BASE_URL}/webhook/${path}`
+}
 
 /** Timeout for n8n webhook calls in milliseconds (30 seconds) */
 const N8N_TIMEOUT_MS = 30_000
@@ -306,7 +323,9 @@ export interface LeadQualificationRequest {
 }
 
 const N8N_LEAD_WEBHOOK_URL = process.env.N8N_LEAD_WEBHOOK_URL
+  // No n8nWebhookUrl fallback — path is instance-specific (UUID or webhook-test)
 const N8N_PROGRESS_UPDATE_WEBHOOK_URL = process.env.N8N_PROGRESS_UPDATE_WEBHOOK_URL
+  || n8nWebhookUrl('progress-update')
 
 /**
  * Trigger the n8n lead qualification workflow
@@ -456,6 +475,7 @@ export interface N8nError {
 }
 
 const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL
+  // No n8nWebhookUrl fallback — path is instance-specific (UUID-based chat trigger)
 
 /**
  * Send a message to the n8n "When chat message received" trigger
@@ -921,15 +941,20 @@ export function formatHistoryForN8n(messages: ChatMessage[]): ChatMessage[] {
 // ============================================================================
 
 const N8N_CLG002_WEBHOOK_URL = process.env.N8N_CLG002_WEBHOOK_URL
+  || n8nWebhookUrl('clg-outreach-gen')
 const N8N_CLG003_WEBHOOK_URL = process.env.N8N_CLG003_WEBHOOK_URL
+  || n8nWebhookUrl('clg-send')
 
 // ============================================================================
 // Warm Lead Pipeline Webhook URLs
 // ============================================================================
 
-const N8N_WRM001_WEBHOOK_URL = process.env.N8N_WRM001_WEBHOOK_URL  // Facebook scraper trigger
-const N8N_WRM002_WEBHOOK_URL = process.env.N8N_WRM002_WEBHOOK_URL  // Google Contacts sync trigger
-const N8N_WRM003_WEBHOOK_URL = process.env.N8N_WRM003_WEBHOOK_URL  // LinkedIn warm scraper trigger
+const N8N_WRM001_WEBHOOK_URL = process.env.N8N_WRM001_WEBHOOK_URL
+  || n8nWebhookUrl('wrm-001-facebook')
+const N8N_WRM002_WEBHOOK_URL = process.env.N8N_WRM002_WEBHOOK_URL
+  || n8nWebhookUrl('wrm-002-google-contacts')
+const N8N_WRM003_WEBHOOK_URL = process.env.N8N_WRM003_WEBHOOK_URL
+  || n8nWebhookUrl('wrm-003-linkedin')
 
 /**
  * Trigger the outreach generation workflow (WF-CLG-002)
@@ -1089,8 +1114,10 @@ export async function triggerWarmLeadScrape(params: {
 // Value Evidence Pipeline Webhook Functions
 // ============================================================================
 
-const N8N_VEP001_WEBHOOK_URL = process.env.N8N_VEP001_WEBHOOK_URL  // Internal extraction
-const N8N_VEP002_WEBHOOK_URL = process.env.N8N_VEP002_WEBHOOK_URL  // Social listening
+const N8N_VEP001_WEBHOOK_URL = process.env.N8N_VEP001_WEBHOOK_URL
+  || n8nWebhookUrl('vep-001-extract')
+const N8N_VEP002_WEBHOOK_URL = process.env.N8N_VEP002_WEBHOOK_URL
+  || n8nWebhookUrl('vep-002-social')
 
 /**
  * Options for value evidence extraction (selected leads and rep-supplied enrichments).

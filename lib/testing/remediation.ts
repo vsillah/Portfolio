@@ -16,6 +16,7 @@ import type {
   CodeSnippet
 } from './types'
 import { createClient } from '@supabase/supabase-js'
+import { n8nWebhookUrl } from '../n8n'
 import { testDb } from './test-db-cast'
 
 // ============================================================================
@@ -659,6 +660,7 @@ ${f.fixedContent.substring(0, 500)}${f.fixedContent.length > 500 ? '...' : ''}
     fixes: CodeFix[]
   ): Promise<{ executionId: string }> {
     const webhookUrl = process.env.N8N_REMEDIATION_WEBHOOK_URL
+      || n8nWebhookUrl('remediation')
     
     if (!webhookUrl) {
       console.log('[Remediation] N8N_REMEDIATION_WEBHOOK_URL not configured')

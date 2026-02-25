@@ -7,6 +7,7 @@
  */
 
 import { supabaseAdmin } from './supabase'
+import { n8nWebhookUrl } from './n8n'
 
 // ============================================================================
 // Types
@@ -207,6 +208,7 @@ export async function updateTask(
 // ============================================================================
 
 const N8N_TASK_SLACK_SYNC_URL = process.env.N8N_TASK_SLACK_SYNC_WEBHOOK_URL
+  || n8nWebhookUrl('task-slack-sync')
 
 /**
  * Fire the Slack task sync webhook so n8n can post or update

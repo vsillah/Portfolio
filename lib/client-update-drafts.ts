@@ -7,6 +7,7 @@
  */
 
 import { supabaseAdmin } from './supabase'
+import { n8nWebhookUrl } from './n8n'
 import type { MeetingActionTask } from './meeting-action-tasks'
 import { getAllActiveUpsellPaths, matchesNextProblemSignals, formatUpsellRecommendation } from './upsell-paths'
 
@@ -90,6 +91,7 @@ interface ClientUpdateWebhookPayload {
 // ============================================================================
 
 const N8N_PROGRESS_UPDATE_WEBHOOK_URL = process.env.N8N_PROGRESS_UPDATE_WEBHOOK_URL
+  || n8nWebhookUrl('progress-update')
 
 // ============================================================================
 // Generate draft from completed tasks
