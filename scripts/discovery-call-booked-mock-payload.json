@@ -1,0 +1,19 @@
+{
+  "event": "invitee.created",
+  "payload": {
+    "invitee": {
+      "uri": "https://api.calendly.com/scheduled_events/evt-discovery-test/invitees/inv-test-001",
+      "email": "test-discovery@example.com",
+      "name": "Test Discovery Caller",
+      "timezone": "America/New_York"
+    },
+    "event": {
+      "uri": "https://api.calendly.com/scheduled_events/evt-discovery-test",
+      "start_time": "2026-02-25T20:00:00.000000Z",
+      "end_time": "2026-02-25T20:30:00.000000Z"
+    },
+    "event_type": {
+      "slug": "atas-discovery-call"
+    }
+  }
+}

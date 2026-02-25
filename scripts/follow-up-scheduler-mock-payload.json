@@ -1,0 +1,11 @@
+{
+  "meeting_record_id": "25fe106a-7b63-4b1e-8f18-7392b5148d03",
+  "client_name": "Test Onboarding Caller",
+  "client_email": "test-onboarding@example.com",
+  "meeting_type": "progress_checkin",
+  "previous_meeting_date": "2026-03-05T17:30:00.000Z",
+  "suggested_follow_up_days": 7,
+  "notes": "Discuss Phase 2 SOW and timeline adjustments",
+  "project_id": "proj-test-001",
+  "project_name": "Test Onboarding Project"
+}

@@ -1,0 +1,23 @@
+{
+  "action": "create",
+  "tasks": [
+    {
+      "id": "test-task-001",
+      "title": "Send updated project timeline to client",
+      "owner": "Amadou",
+      "due_date": "2026-03-01",
+      "meeting_type": "progress_checkin",
+      "project_name": "Test Onboarding Project",
+      "client_name": "Test Client"
+    },
+    {
+      "id": "test-task-002",
+      "title": "Review API integration documentation",
+      "owner": "Client",
+      "due_date": "2026-03-03",
+      "meeting_type": "progress_checkin",
+      "project_name": "Test Onboarding Project",
+      "client_name": "Test Client"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "onboarding_plan_id": "test-plan-e2e-001",
+  "onboarding_plan_url": "https://amadutown.com/onboarding/test-plan-e2e-001",
+  "pdf_url": "https://sample-files.com/downloads/documents/pdf/basic-text.pdf",
+  "client_name": "Test Client",
+  "client_email": "test@example.com",
+  "client_company": "Test Company",
+  "project_name": "E2E Test Project",
+  "template_name": "Standard",
+  "milestones_summary": "Week 1: Kickoff call\nWeek 2: Milestone 1\nWeek 4: Delivery",
+  "kickoff_date": "2025-03-01"
+}

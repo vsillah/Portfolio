@@ -1,0 +1,12 @@
+{
+  "project_id": "proj-test-001",
+  "client_name": "Test Onboarding Caller",
+  "client_domain": "example.com",
+  "platforms": ["linkedin", "twitter"],
+  "keywords": ["automation", "AI", "workflow", "amadutown"],
+  "date_range": {
+    "start": "2026-02-01",
+    "end": "2026-03-15"
+  },
+  "max_results_per_platform": 10
+}

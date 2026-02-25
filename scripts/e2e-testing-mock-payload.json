@@ -1,0 +1,15 @@
+{
+  "project_id": "proj-test-001",
+  "project_name": "Test Onboarding Project",
+  "client_name": "Test Onboarding Caller",
+  "client_email": "test-onboarding@example.com",
+  "test_suite": "pre-delivery",
+  "features_to_test": [
+    "User login and OAuth flow",
+    "Dashboard data loading",
+    "API endpoint response times",
+    "Email notification delivery"
+  ],
+  "environment": "staging",
+  "triggered_by": "milestone_complete"
+}

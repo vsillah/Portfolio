@@ -1,0 +1,14 @@
+{
+  "project_id": "proj-test-001",
+  "project_name": "Test Onboarding Project",
+  "client_name": "Test Onboarding Caller",
+  "client_email": "test-onboarding@example.com",
+  "doc_type": "handoff",
+  "sections": [
+    "architecture_overview",
+    "api_reference",
+    "deployment_guide",
+    "maintenance_runbook"
+  ],
+  "include_diagrams": true
+}

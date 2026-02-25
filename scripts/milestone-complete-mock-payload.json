@@ -1,0 +1,17 @@
+{
+  "project_id": "proj-test-001",
+  "project_name": "Test Onboarding Project",
+  "milestone_id": "ms-test-001",
+  "milestone_name": "API Integration",
+  "milestone_number": 1,
+  "total_milestones": 4,
+  "client_name": "Test Onboarding Caller",
+  "client_email": "test-onboarding@example.com",
+  "completed_at": "2026-03-10T16:00:00.000Z",
+  "deliverables": [
+    "REST API endpoints deployed",
+    "Authentication flow implemented",
+    "Integration tests passing"
+  ],
+  "next_milestone": "Dashboard UI Build"
+}

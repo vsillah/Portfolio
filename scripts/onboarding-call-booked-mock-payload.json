@@ -1,0 +1,20 @@
+{
+  "event": "invitee.created",
+  "payload": {
+    "invitee": {
+      "uri": "https://api.calendly.com/scheduled_events/evt-onboarding-test/invitees/inv-onb-001",
+      "email": "test-onboarding@example.com",
+      "name": "Test Onboarding Caller",
+      "timezone": "America/New_York"
+    },
+    "event": {
+      "uri": "https://api.calendly.com/scheduled_events/evt-onboarding-test",
+      "start_time": "2026-02-26T14:00:00.000000Z",
+      "end_time": "2026-02-26T14:30:00.000000Z",
+      "uuid": "evt-onboarding-test-uuid"
+    },
+    "event_type": {
+      "slug": "atas-onboarding-call"
+    }
+  }
+}

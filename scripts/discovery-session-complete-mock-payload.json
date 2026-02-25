@@ -1,0 +1,26 @@
+{
+  "meeting_id": "mtg-discovery-test-001",
+  "title": "Discovery Call - Test Discovery Caller",
+  "summary": "Client discussed automation needs for their sales process. Currently using spreadsheets and manual data entry. Budget mentioned in 5k-10k range. Wants to move fast, decision maker.",
+  "ai_summary": "Strong fit. Decision maker on the call. Budget 5-10k. Timeline: 2-3 weeks. Key pain: manual CRM data entry.",
+  "transcript": "Sales rep: Thanks for your time today. Can you tell me about your biggest challenge right now?\nClient: We're drowning in manual data entry. Our team spends 10 hours a week just updating the CRM. We use Salesforce but it's not integrated with our other tools.\nSales rep: What would success look like for you?\nClient: If we could automate the data entry and get reports without manual work, that would be huge. We have budget - probably 5 to 10k for the right solution. I can make the call, we want to move fast.\nSales rep: Great. We can definitely help. Let me put together a proposal.",
+  "action_items": [
+    "Send proposal with automation scope",
+    "Schedule onboarding call if accepted"
+  ],
+  "participants": [
+    {
+      "name": "Sales Rep",
+      "email": "sales@amadutown.com",
+      "is_host": true
+    },
+    {
+      "name": "Test Discovery Caller",
+      "email": "test-discovery@example.com",
+      "is_host": false
+    }
+  ],
+  "duration": 25,
+  "recording_url": "https://read.ai/recordings/test-001",
+  "meeting_date": "2026-02-25T20:00:00.000Z"
+}

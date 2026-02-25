@@ -5,17 +5,25 @@
 #   ./scripts/trigger-meeting-complete-webhook.sh
 #   # Or with custom URL (production):
 #   N8N_MEETING_WEBHOOK_URL=https://n8n.amadutown.com/webhook/meeting-complete ./scripts/trigger-meeting-complete-webhook.sh
+#   # Or switch base URL to n8n Cloud:
+#   N8N_BASE_URL=https://your-workspace.app.n8n.cloud ./scripts/trigger-meeting-complete-webhook.sh
 #
 # Test URL (use when "Listen for test event" is active in n8n):
-#   https://n8n.amadutown.com/webhook-test/meeting-complete
+#   ${N8N_BASE_URL}/webhook-test/meeting-complete
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PAYLOAD_FILE="${PAYLOAD_FILE:-${SCRIPT_DIR}/meeting-complete-mock-payload.json}"
 
-# Default: test URL so the run appears in the n8n editor when listening
-N8N_MEETING_WEBHOOK_URL="${N8N_MEETING_WEBHOOK_URL:-https://n8n.amadutown.com/webhook-test/meeting-complete}"
+N8N_BASE_URL="${N8N_BASE_URL:-https://amadutown.app.n8n.cloud}"
+WEBHOOK_PATH="meeting-complete"
+if [[ -n "${USE_TEST_WEBHOOK}" ]]; then
+  WEBHOOK_URL="${N8N_BASE_URL}/webhook-test/${WEBHOOK_PATH}"
+else
+  WEBHOOK_URL="${N8N_BASE_URL}/webhook/${WEBHOOK_PATH}"
+fi
+N8N_MEETING_WEBHOOK_URL="${N8N_MEETING_WEBHOOK_URL:-${WEBHOOK_URL}}"
 
 if [[ ! -f "$PAYLOAD_FILE" ]]; then
   echo "Payload file not found: $PAYLOAD_FILE"

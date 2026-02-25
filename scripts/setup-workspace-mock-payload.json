@@ -1,0 +1,9 @@
+{
+  "project_id": "proj-test-001",
+  "project_name": "Test Onboarding Project",
+  "client_name": "Test Onboarding Caller",
+  "client_email": "test-onboarding@example.com",
+  "services": ["ai-automation", "workflow-design"],
+  "slack_channel": "#proj-test-onboarding",
+  "drive_folder_url": "https://drive.google.com/drive/folders/test-folder-id"
+}

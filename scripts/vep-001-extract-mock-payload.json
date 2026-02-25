@@ -1,0 +1,20 @@
+{
+  "project_id": "proj-test-001",
+  "project_name": "Test Onboarding Project",
+  "client_name": "Test Onboarding Caller",
+  "client_email": "test-onboarding@example.com",
+  "evidence_type": "internal",
+  "sources": [
+    {
+      "type": "slack_message",
+      "channel": "#proj-test-onboarding",
+      "content": "Client said: 'The automation saved us 10 hours this week alone!'",
+      "timestamp": "2026-03-12T14:22:00.000Z"
+    },
+    {
+      "type": "meeting_note",
+      "content": "Client reported 40% reduction in manual data entry since go-live.",
+      "date": "2026-03-10T16:00:00.000Z"
+    }
+  ]
+}

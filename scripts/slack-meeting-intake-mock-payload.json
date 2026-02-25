@@ -1,0 +1,9 @@
+{
+  "channel": "#client-meetings",
+  "user": "U12345TEST",
+  "text": "Just finished a progress check-in with Test Client. They're happy with the API integration. Need to discuss timeline for Phase 2. Action items: send updated SOW, schedule follow-up next week.",
+  "meeting_type": "progress_checkin",
+  "client_name": "Test Onboarding Caller",
+  "client_email": "test-onboarding@example.com",
+  "timestamp": "2026-03-05T17:30:00.000Z"
+}

@@ -1,0 +1,13 @@
+{
+  "channel": "email",
+  "outreach_id": "00000000-0000-0000-0000-000000000001",
+  "contact_submission_id": 1,
+  "subject": "Test outreach from WF-CLG-003 validation",
+  "body": "This is a test message to validate the Send and Follow-Up workflow. You can ignore this.",
+  "sequence_step": 1,
+  "contact": {
+    "name": "Test Contact",
+    "email": "test-onboarding@example.com",
+    "company": "Test Co"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "meeting_id": "mtg-kickoff-test-001",
+  "title": "Kickoff Call - Test Onboarding Project",
+  "summary": "Kickoff call completed. Reviewed project scope, milestones, and communication plan. Client confirmed Slack as primary channel. First milestone: API integration due in 2 weeks.",
+  "transcript": "Host: Welcome to the kickoff! Let's review the scope.\nClient: Sounds good. We're excited to get started.\nHost: First milestone is API integration, due in two weeks. We'll use Slack for daily updates.\nClient: Perfect. Our team is ready.",
+  "action_items": [
+    "Set up project Slack channel",
+    "Share project timeline document",
+    "Begin API integration sprint"
+  ],
+  "participants": [
+    { "name": "Host", "email": "host@amadutown.com", "is_host": true },
+    { "name": "Test Onboarding Caller", "email": "test-onboarding@example.com", "is_host": false }
+  ],
+  "duration": 45,
+  "meeting_date": "2026-02-26T15:00:00.000Z",
+  "meeting_type": "kickoff",
+  "client_email": "test-onboarding@example.com",
+  "client_name": "Test Onboarding Caller",
+  "project_id": "proj-test-001"
+}
