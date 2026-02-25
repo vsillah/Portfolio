@@ -22,9 +22,11 @@ import {
   Copy,
   ExternalLink,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  CreditCard
 } from 'lucide-react'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import { getCurrentSession } from '@/lib/auth'
 
 // Types
 interface LiveClientActivity {
@@ -131,6 +133,9 @@ export default function TestingDashboard() {
   const [cursorPrompt, setCursorPrompt] = useState<string | null>(null)
   const [remediationLoading, setRemediationLoading] = useState(false)
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null)
+  const [stripeCheckoutLoading, setStripeCheckoutLoading] = useState(false)
+  const [showStripePanel, setShowStripePanel] = useState(false)
+  const [lastCheckoutUrl, setLastCheckoutUrl] = useState<string | null>(null)
   
   // Fetch data
   const fetchData = useCallback(async () => {
@@ -449,6 +454,36 @@ export default function TestingDashboard() {
     navigator.clipboard.writeText(text)
     showToast('success', 'Copied to clipboard!')
   }
+
+  // Create Stripe test checkout (for WF-001 testing)
+  const createStripeTestCheckout = async () => {
+    setStripeCheckoutLoading(true)
+    showToast('info', 'Creating test checkout...')
+    try {
+      const session = await getCurrentSession()
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+      const res = await fetch('/api/admin/stripe-test-checkout', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          email: 'test-stripe@example.com',
+          amount: 50
+        })
+      })
+      const data = await res.json()
+      if (data.checkoutUrl) {
+        window.open(data.checkoutUrl, '_blank')
+        showToast('success', 'Checkout opened. Use 4242 4242 4242 4242 to pay.')
+      } else {
+        showToast('error', data.error || 'Failed to create checkout')
+      }
+    } catch {
+      showToast('error', 'Failed to create checkout')
+    } finally {
+      setStripeCheckoutLoading(false)
+    }
+  }
   
   // Mark remediation errors as fixed or won't fix
   const markRemediationComplete = async (remediationId: string, status: 'fixed' | 'wont_fix') => {
@@ -758,6 +793,86 @@ export default function TestingDashboard() {
                 <Play className="w-5 h-5" />
                 Start Test Run
               </button>
+            </div>
+          )}
+        </div>
+
+        {/* Stripe Test Checkout — WF-001 */}
+        <div className="bg-gray-800 rounded-xl p-6 mb-8">
+          <button
+            onClick={() => setShowStripePanel(!showStripePanel)}
+            className="flex items-center justify-between w-full"
+          >
+            <h2 className="text-xl font-semibold flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-green-400" />
+              Stripe Test Checkout (WF-001)
+            </h2>
+            {showStripePanel ? <ChevronUp /> : <ChevronDown />}
+          </button>
+          {showStripePanel && (
+            <div className="mt-6 space-y-4">
+              <p className="text-gray-400">
+                Create a test payment to trigger WF-001: Client Payment Intake. Use any Stripe test card below.
+              </p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <h3 className="font-medium mb-2">Test Cards</h3>
+                  <div className="space-y-2 font-mono text-sm">
+                    <div className="flex justify-between items-center bg-gray-700/50 rounded px-3 py-2">
+                      <span>4242 4242 4242 4242</span>
+                      <span className="text-green-400 text-xs">Success</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-gray-700/50 rounded px-3 py-2">
+                      <span>4000 0000 0000 0002</span>
+                      <span className="text-red-400 text-xs">Declined</span>
+                    </div>
+                    <div className="flex justify-between items-center bg-gray-700/50 rounded px-3 py-2">
+                      <span>4000 0000 0000 3220</span>
+                      <span className="text-amber-400 text-xs">3D Secure</span>
+                    </div>
+                  </div>
+                  <p className="text-gray-500 text-xs mt-2">Use any future expiry, any CVC</p>
+                </div>
+                <div>
+                  <h3 className="font-medium mb-2">Quick Action</h3>
+                  <button
+                    onClick={createStripeTestCheckout}
+                    disabled={stripeCheckoutLoading}
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-600 px-4 py-3 rounded-lg font-medium transition-colors w-full justify-center"
+                  >
+                    {stripeCheckoutLoading ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <ExternalLink className="w-4 h-4" />
+                    )}
+                    {stripeCheckoutLoading ? 'Creating...' : 'Create Test Checkout'}
+                  </button>
+                  <p className="text-gray-500 text-xs mt-2">
+                    Opens Stripe Checkout. Pay with 4242... to trigger WF-001.
+                  </p>
+                  {lastCheckoutUrl && (
+                    <div className="mt-3 p-3 bg-gray-700/50 rounded text-sm">
+                      <p className="text-gray-400 mb-2">If the tab didn&apos;t open, copy this URL:</p>
+                      <div className="flex gap-2">
+                        <input
+                          readOnly
+                          value={lastCheckoutUrl}
+                          className="flex-1 bg-gray-800 rounded px-2 py-1 font-mono text-xs truncate"
+                        />
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(lastCheckoutUrl)
+                            showToast('success', 'Copied to clipboard')
+                          }}
+                          className="shrink-0 px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded text-xs"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>

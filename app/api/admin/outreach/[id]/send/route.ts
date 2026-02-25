@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { n8nWebhookUrl } from '@/lib/n8n'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 
 export const dynamic = 'force-dynamic'
@@ -57,6 +58,7 @@ export async function POST(
 
     // Trigger the WF-CLG-003 send workflow via n8n webhook
     const webhookUrl = process.env.N8N_CLG003_WEBHOOK_URL
+      || n8nWebhookUrl('clg-send')
     if (!webhookUrl) {
       return NextResponse.json(
         { error: 'Send workflow webhook URL not configured (N8N_CLG003_WEBHOOK_URL)' },
