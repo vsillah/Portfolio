@@ -1,12 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { BookOpen, ExternalLink, ShoppingCart, ArrowRight } from 'lucide-react'
+import { BookOpen, ExternalLink, ShoppingCart, ArrowRight, Download } from 'lucide-react'
 import ExpandableText from '@/components/ui/ExpandableText'
 import { formatPriceOrFree } from '@/lib/pricing-model'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 interface Publication {
   id: number
@@ -22,10 +24,15 @@ interface Publication {
     id: number
     price: number | null
   } | null
+  linked_lead_magnet: {
+    id: string
+    slug: string | null
+    title: string
+  } | null
 }
 
 // Fallback data in case database table doesn't exist yet
-const fallbackPublications = [
+const fallbackPublications: Publication[] = [
   {
     id: 1,
     title: 'The Equity Code',
@@ -37,6 +44,7 @@ const fallbackPublications = [
     file_path: '/The_Equity_Code_Cover.png',
     file_type: 'image/png',
     linked_product: null,
+    linked_lead_magnet: null,
   },
 ]
 
@@ -44,10 +52,49 @@ export default function Publications() {
   const [publications, setPublications] = useState<Publication[]>([])
   const [loading, setLoading] = useState(true)
   const [usedFallback, setUsedFallback] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const router = useRouter()
 
   useEffect(() => {
     fetchPublications()
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) setIsAuthenticated(true)
+    })
   }, [])
+
+  const handleLeadMagnetDownload = useCallback(async (lm: { id: string; slug: string | null }) => {
+    if (!isAuthenticated) {
+      const path = lm.slug ? `/ebook/${lm.slug}` : '/'
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('auth_next_path', path)
+      }
+      router.push('/auth/login')
+      return
+    }
+
+    setDownloadingId(lm.id)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        router.push('/auth/login')
+        return
+      }
+
+      const res = await fetch(`/api/lead-magnets/${lm.id}/download`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+
+      if (res.ok) {
+        const { downloadUrl } = await res.json()
+        window.open(downloadUrl, '_blank')
+      }
+    } catch {
+      // Silent fail for UX
+    } finally {
+      setDownloadingId(null)
+    }
+  }, [isAuthenticated, router])
 
   const fetchPublications = async () => {
     try {
@@ -154,15 +201,19 @@ export default function Publications() {
                   <BookOpen size={20} />
                 </div>
                 
-                {/* Purchase Badge */}
-                {publication.linked_product && (
+                {/* Badge */}
+                {publication.linked_lead_magnet ? (
+                  <span className="absolute top-6 left-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold">
+                    Free
+                  </span>
+                ) : publication.linked_product ? (
                   <Link
                     href={`/store/${publication.linked_product.id}`}
                     className="absolute top-6 left-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold"
                   >
                     {formatPriceOrFree(publication.linked_product.price ?? 0)}
                   </Link>
-                )}
+                ) : null}
               </div>
 
               {/* Publication Content */}
@@ -195,7 +246,35 @@ export default function Publications() {
                 <div className="flex-grow" />
 
                 <div className="space-y-3 pt-6 border-t border-radiant-gold/5">
-                  {publication.linked_product && (
+                  {publication.linked_lead_magnet && (
+                    <>
+                      <button
+                        onClick={() => handleLeadMagnetDownload(publication.linked_lead_magnet!)}
+                        disabled={downloadingId === publication.linked_lead_magnet.id}
+                        className="w-full flex items-center justify-center gap-3 py-3 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:brightness-110 transition-all disabled:opacity-60"
+                      >
+                        <Download size={14} />
+                        <span>
+                          {downloadingId === publication.linked_lead_magnet.id
+                            ? 'Preparing...'
+                            : isAuthenticated
+                              ? 'Download Free Ebook'
+                              : 'Get Free Ebook'}
+                        </span>
+                      </button>
+                      {publication.linked_lead_magnet.slug && (
+                        <Link
+                          href={`/ebook/${publication.linked_lead_magnet.slug}`}
+                          className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-platinum-white/80 transition-all group/link"
+                        >
+                          <span>Learn More</span>
+                          <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
+                        </Link>
+                      )}
+                    </>
+                  )}
+
+                  {!publication.linked_lead_magnet && publication.linked_product && (
                     <Link
                       href={`/store/${publication.linked_product.id}`}
                       className="w-full flex items-center justify-center gap-3 py-3 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:brightness-110 transition-all"

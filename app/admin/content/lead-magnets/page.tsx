@@ -44,6 +44,13 @@ interface OutcomeGroup {
   display_order: number
 }
 
+interface NurtureStats {
+  lead_magnet_id: string
+  total_sent: number
+  unique_users: number
+  max_email: number
+}
+
 export default function LeadMagnetsManagementPage() {
   const [leadMagnets, setLeadMagnets] = useState<LeadMagnet[]>([])
   const [loading, setLoading] = useState(true)
@@ -66,9 +73,11 @@ export default function LeadMagnetsManagementPage() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
   const [copyFeedback, setCopyFeedback] = useState<number | null>(null)
   const [funnelFilter, setFunnelFilter] = useState<string>('all')
+  const [nurtureStats, setNurtureStats] = useState<Record<string, NurtureStats>>({})
 
   useEffect(() => {
     fetchLeadMagnets()
+    fetchNurtureStats()
   }, [])
 
   useEffect(() => {
@@ -102,6 +111,26 @@ export default function LeadMagnetsManagementPage() {
       setLoading(false)
     }
   }
+
+  const fetchNurtureStats = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+      const res = await fetch('/api/admin/lead-magnets/nurture-stats', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const byId: Record<string, NurtureStats> = {}
+        for (const row of data) {
+          byId[row.lead_magnet_id] = row
+        }
+        setNurtureStats(byId)
+      }
+    } catch {
+      // Non-critical
+    }
+  }, [])
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -494,6 +523,14 @@ export default function LeadMagnetsManagementPage() {
                     <p className="text-gray-400 text-sm mb-2">{magnet.description ?? '—'}</p>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
                       <span>{magnet.download_count} downloads</span>
+                      {nurtureStats[String(magnet.id)] && (
+                        <>
+                          <span>•</span>
+                          <span className="text-purple-400">
+                            {nurtureStats[String(magnet.id)].unique_users} in nurture (max email {nurtureStats[String(magnet.id)].max_email}/5)
+                          </span>
+                        </>
+                      )}
                       <span>•</span>
                       <span>{magnet.file_type}</span>
                       <span>•</span>
