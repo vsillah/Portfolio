@@ -361,6 +361,55 @@ export async function triggerLeadQualificationWebhook(
 }
 
 // ============================================================================
+// Ebook Nurture Sequence
+// ============================================================================
+
+const N8N_EBOOK_NURTURE_WEBHOOK_URL =
+  process.env.N8N_EBOOK_NURTURE_WEBHOOK_URL || n8nWebhookUrl('lmn-ebook-nurture')
+
+export interface EbookNurtureRequest {
+  user_id: string
+  user_email: string
+  user_name?: string | null
+  lead_magnet_id: string
+  lead_magnet_title: string
+  lead_magnet_slug: string | null
+  download_id: string | null
+  download_timestamp: string
+}
+
+/**
+ * Fire-and-forget trigger for the ebook nurture email sequence (WF-LMN-001).
+ * Called after a successful lead magnet download for ebook/pdf types.
+ */
+export async function triggerEbookNurtureSequence(
+  request: EbookNurtureRequest
+): Promise<void> {
+  if (!N8N_EBOOK_NURTURE_WEBHOOK_URL) {
+    console.warn('N8N_EBOOK_NURTURE_WEBHOOK_URL not configured — skipping nurture trigger')
+    return
+  }
+
+  try {
+    const response = await fetchWithTimeout(N8N_EBOOK_NURTURE_WEBHOOK_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify(request),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Ebook nurture webhook error:', response.status, errorText)
+    }
+  } catch (error) {
+    console.error('Ebook nurture webhook failed:', error)
+  }
+}
+
+// ============================================================================
 // Chat Types and Functions
 // ============================================================================
 

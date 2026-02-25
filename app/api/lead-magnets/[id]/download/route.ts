@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 import { getSignedUrl } from '@/lib/storage'
+import { triggerEbookNurtureSequence } from '@/lib/n8n'
 
 export const dynamic = 'force-dynamic'
 
@@ -73,7 +74,7 @@ export async function GET(
                null
     const anonymizedIP = anonymizeIP(ip)
 
-    await supabaseAdmin
+    const { data: downloadRow } = await supabaseAdmin
       .from('lead_magnet_downloads')
       .insert([
         {
@@ -82,12 +83,29 @@ export async function GET(
           ip_address: anonymizedIP,
         },
       ])
+      .select('id')
+      .single()
 
     // Increment download count
     await supabaseAdmin
       .from('lead_magnets')
       .update({ download_count: (leadMagnet.download_count || 0) + 1 })
       .eq('id', leadMagnetId)
+
+    // Fire nurture sequence for ebook/pdf downloads (fire-and-forget)
+    const nurtureTypes = ['ebook', 'pdf', 'document']
+    if (nurtureTypes.includes(leadMagnet.type)) {
+      triggerEbookNurtureSequence({
+        user_id: user.id,
+        user_email: user.email ?? '',
+        user_name: user.user_metadata?.full_name ?? user.user_metadata?.name ?? null,
+        lead_magnet_id: String(leadMagnetId),
+        lead_magnet_title: leadMagnet.title,
+        lead_magnet_slug: leadMagnet.slug ?? null,
+        download_id: downloadRow?.id ?? null,
+        download_timestamp: new Date().toISOString(),
+      }).catch(() => {})
+    }
 
     return NextResponse.json({ downloadUrl: signedUrl })
   } catch (error) {

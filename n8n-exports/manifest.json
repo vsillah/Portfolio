@@ -46,8 +46,9 @@
     { "id": "nWF9u3cNrB7BRtb5", "name": "RAG Chatbot for AmaduTown using Google Gemini", "nodes": 76 },
     { "id": "mGVobYXmmLzeKdNX", "name": "ATAS Onboarding Plan Email Delivery", "nodes": 5 },
     { "id": "hAXnCIP86paUlkHc", "name": "Client Progress Update Router", "nodes": 7 },
-    { "id": "JN7zL4QwkHRt47xl", "name": "ReversR Beta Tester Intake form", "nodes": 3 }
+    { "id": "JN7zL4QwkHRt47xl", "name": "ReversR Beta Tester Intake form", "nodes": 3 },
+    { "id": "DiN2zado2GVk2Lka", "name": "WF-LMN-001: Ebook Nurture Sequence", "nodes": 21 }
   ],
   "export_note": "The 3 WRM workflow JSONs are pre-exported. All other active workflows are on the local n8n instance (http://127.0.0.1:5678). To bulk-export: n8n UI > Settings > Export All Workflows, or use the n8n MCP tools (n8n_get_workflow with mode=full for each ID).",
-  "last_updated": "2026-02-21"
+  "last_updated": "2026-02-25"
 }

@@ -56,10 +56,44 @@ interface PlannedLeadMagnet {
   /** For type 'interactive' or 'link': URL or path (e.g. /tools/audit). Stored in file_path. */
   resource_url?: string | null
   type?: LeadMagnetType
+  /** Override file_type for non-PDF assets (e.g. 'application/epub+zip') */
+  file_type_override?: string | null
+  /** Supabase Storage path for downloadable files */
+  storage_path?: string | null
+  /** Rich landing page content */
+  landing_page_data?: Record<string, unknown> | null
 }
 
 const PLANNED: PlannedLeadMagnet[] = [
   // Gate Keepers (Resources page) – Attention & Capture
+  {
+    title: 'Accelerated: Building Smarter Products with AI',
+    description: 'A roadmap for corporate professionals, entrepreneurs, and leaders navigating the digital revolution. Learn to think like a product leader, apply AI strategies that work for real businesses, and build frameworks to launch and scale AI-driven products.',
+    category: 'gate_keeper',
+    access_type: 'public_gated',
+    funnel_stage: 'attention_capture',
+    slug: 'accelerated',
+    delivery_hint: 'pdf',
+    type: 'ebook',
+    storage_path: 'accelerated_ebook_leadmagnet.epub',
+    file_type_override: 'application/epub+zip',
+    landing_page_data: {
+      headline: 'Accelerated',
+      subheadline: 'Building Smarter Products with AI',
+      author: 'Vambah Sillah',
+      coverImage: '/accelerated_cover_ebook.jpg',
+      ctaText: 'Download Free Ebook',
+      hook: "The digital revolution isn't coming — it's here. And it's rewriting the rules of every industry, every business model, and every career path.",
+      benefits: [
+        'How to think like a product leader — even if you\'ve never held that title',
+        'AI strategies that work for real businesses — not just billion-dollar corporations',
+        'The mindset shifts that separate those who adapt from those who get disrupted',
+        'Practical frameworks to build, launch, and scale AI-driven products',
+        'Why representation in tech isn\'t just moral — it\'s strategic',
+      ],
+      authorBio: 'Vambah Sillah draws from real-world experience navigating corporate structures, building from the ground up, and leveraging AI to create impact at scale.',
+    },
+  },
   { title: 'AI Audit Calculator', description: 'Comprehensive AI & automation readiness assessment tool.', category: 'gate_keeper', access_type: 'public_gated', funnel_stage: 'attention_capture', slug: 'audit', delivery_hint: 'integrated', resource_url: '/tools/audit', type: 'ebook' },
   { title: 'Hook Library', description: 'Curated hooks for openings and follow-ups.', category: 'gate_keeper', access_type: 'public_gated', funnel_stage: 'attention_capture', delivery_hint: 'integrated' },
   { title: 'VSL Script Template', description: 'Video sales letter script template with fill-in slots.', category: 'gate_keeper', access_type: 'public_gated', funnel_stage: 'attention_capture', delivery_hint: 'integrated' },
@@ -109,6 +143,7 @@ async function main() {
   for (const p of toInsert) {
     const display_order = await getNextDisplayOrder(p.funnel_stage)
     const isLink = p.resource_url != null && p.resource_url !== ''
+    const hasStoragePath = p.storage_path != null && p.storage_path !== ''
     const row = {
       title: p.title,
       description: p.description,
@@ -117,12 +152,13 @@ async function main() {
       funnel_stage: p.funnel_stage,
       display_order,
       type: (p.type ?? 'ebook') as LeadMagnetType,
-      file_path: isLink ? p.resource_url! : (null as string | null),
-      file_type: isLink ? 'text/html' : 'application/pdf',
+      file_path: isLink ? p.resource_url! : hasStoragePath ? p.storage_path! : (null as string | null),
+      file_type: p.file_type_override ?? (isLink ? 'text/html' : 'application/pdf'),
       file_size: null as number | null,
       download_count: 0,
       is_active: true,
       ...(p.slug ? { slug: p.slug } : {}),
+      ...(p.landing_page_data ? { landing_page_data: p.landing_page_data } : {}),
     }
     const { error } = await supabase.from('lead_magnets').insert([row]).select('id').single()
     if (error) {

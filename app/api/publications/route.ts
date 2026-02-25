@@ -20,6 +20,7 @@ type PublicationRow = {
   file_size: number | null
   created_at: string
   created_by: string | null
+  lead_magnet_id: string | null
 }
 
 type ProductRow = {
@@ -72,13 +73,34 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Attach linked_product to each publication entry
-    const publicationsWithProducts = (publications || []).map((p: PublicationRow) => ({
+    // Fetch linked lead magnets for publications that have lead_magnet_id
+    const leadMagnetIds = (publications || [])
+      .map((p: PublicationRow) => p.lead_magnet_id)
+      .filter((id: string | null): id is string => id != null)
+    let linkedLeadMagnets: Record<string, { id: string; slug: string | null; title: string }> = {}
+
+    if (leadMagnetIds.length > 0) {
+      const { data: leadMagnets } = await supabaseAdmin
+        .from('lead_magnets')
+        .select('id, slug, title')
+        .in('id', leadMagnetIds)
+        .eq('is_active', true)
+
+      if (leadMagnets) {
+        leadMagnets.forEach((lm: { id: string; slug: string | null; title: string }) => {
+          linkedLeadMagnets[lm.id] = { id: lm.id, slug: lm.slug, title: lm.title }
+        })
+      }
+    }
+
+    // Attach linked_product and linked_lead_magnet to each publication entry
+    const publicationsWithLinks = (publications || []).map((p: PublicationRow) => ({
       ...p,
-      linked_product: linkedProducts[p.id] || null
+      linked_product: linkedProducts[p.id] || null,
+      linked_lead_magnet: p.lead_magnet_id ? linkedLeadMagnets[p.lead_magnet_id] || null : null,
     }))
 
-    return NextResponse.json(publicationsWithProducts)
+    return NextResponse.json(publicationsWithLinks)
   } catch (error: any) {
     console.error('Error fetching publications:', error)
     return NextResponse.json(
