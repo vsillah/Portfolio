@@ -1,0 +1,363 @@
+{
+  "updatedAt": "2026-02-13T21:22:03.201Z",
+  "createdAt": "2026-02-06T17:30:09.861Z",
+  "id": "MEhNK36WMc34gua1",
+  "name": "WF-SLK: Slack Meeting Intake",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "name": "Workflow Note",
+      "id": "note-slk",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        896
+      ],
+      "type": "n8n-nodes-base.stickyNote",
+      "parameters": {
+        "content": "## WF-SLK: Slack Meeting Intake\n\n**Purpose:** Bridges Read.ai -> Slack -> WF-MCH\n\n**Webhook URL for Slack Event Subscriptions:**\nhttps://n8n.amadutown.com/webhook/slack-meeting-intake\n\n**Slack Event Subscriptions setup:**\n1. Go to api.slack.com/apps -> your app -> Event Subscriptions\n2. Enable Events: ON\n3. Request URL: https://n8n.amadutown.com/webhook/slack-meeting-intake\n4. Subscribe to bot events: message.channels\n5. Save Changes\n\n### Updated 2026-02-13\nReplaced slackTrigger with plain webhook for reliability",
+        "height": 500,
+        "width": 500
+      }
+    },
+    {
+      "name": "Slack Webhook",
+      "webhookId": "slack-meeting-intake",
+      "id": "trigger-webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "slack-meeting-intake",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      }
+    },
+    {
+      "name": "Handle Slack Event",
+      "id": "handle-slack-event",
+      "typeVersion": 2,
+      "position": [
+        224,
+        304
+      ],
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "jsCode": "// Handle Slack url_verification challenge AND event_callback\nconst body = $input.item.json.body || $input.item.json;\n\n// 1. URL verification challenge\nif (body.type === 'url_verification') {\n  return [{ json: { isChallenge: true, challenge: body.challenge } }];\n}\n\n// 2. Event callback (actual message events)\nif (body.type === 'event_callback' && body.event) {\n  const evt = body.event;\n  // Only process new messages (not subtypes like message_changed, bot_message)\n  if (evt.type === 'message' && !evt.subtype) {\n    return [{ json: { isChallenge: false, text: evt.text || '', blocks: evt.blocks || [], ts: evt.ts || '', channel: evt.channel || '', user: evt.user || '' } }];\n  }\n}\n\n// 3. Anything else: ack but skip processing\nreturn [{ json: { isChallenge: true, challenge: null } }];"
+      }
+    },
+    {
+      "name": "Is Challenge?",
+      "id": "route-challenge",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        304
+      ],
+      "type": "n8n-nodes-base.if",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "is-challenge",
+              "leftValue": "={{ $json.isChallenge }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Respond Challenge",
+      "id": "respond-challenge",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        208
+      ],
+      "type": "n8n-nodes-base.respondToWebhook",
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.challenge ? JSON.stringify({ challenge: $json.challenge }) : '\"ok\"' }}",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "Respond OK",
+      "id": "respond-ack",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        400
+      ],
+      "type": "n8n-nodes-base.respondToWebhook",
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "ok",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "name": "Filter Read.ai Messages",
+      "id": "filter-readai",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        400
+      ],
+      "type": "n8n-nodes-base.if",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "readai-check-broad",
+              "leftValue": "={{ ($json.text || '').toLowerCase() }}",
+              "rightValue": "meeting|call|summary|recap|transcript|read\\.ai|readai|action items|key topics|highlights|attendees",
+              "operator": {
+                "type": "string",
+                "operation": "regex"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "Parse Read.ai Message",
+      "id": "parse-readai",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        300
+      ],
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "jsCode": "const msg = $input.item.json;\nconst text = msg.text || '';\nconst blocks = msg.blocks || [];\n\nlet title = '';\nlet summary = '';\nlet actionItemsRaw = '';\nlet participants = [];\nlet duration = 0;\n\nif (blocks.length > 0) {\n  for (const block of blocks) {\n    const blockText = (block.text && block.text.text) || '';\n    if (blockText.includes('Meeting') || blockText.includes('Call') || blockText.includes('Session')) {\n      if (!title) title = blockText.replace(/[*_~`]/g, '').trim();\n    }\n    if (blockText.toLowerCase().includes('summary') || blockText.toLowerCase().includes('recap')) {\n      summary += blockText + '\\n';\n    }\n    if (blockText.toLowerCase().includes('action')) {\n      actionItemsRaw += blockText + '\\n';\n    }\n    if (blockText.toLowerCase().includes('participant') || blockText.toLowerCase().includes('attendee')) {\n      const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/g;\n      const emails = blockText.match(emailPattern) || [];\n      participants.push(...emails);\n    }\n    const durationMatch = blockText.match(/(\\d+)\\s*min/i);\n    if (durationMatch) duration = parseInt(durationMatch[1]);\n  }\n}\n\nif (!title) {\n  const lines = text.split('\\n').filter(l => l.trim());\n  title = (lines[0] || 'Untitled Meeting').replace(/[*_~`]/g, '').trim();\n}\nif (!summary) {\n  summary = text;\n}\n\nconst emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}/g;\nconst allEmails = text.match(emailPattern) || [];\nif (allEmails.length > 0 && participants.length === 0) {\n  participants = allEmails;\n}\n\nconst titleLower = title.toLowerCase();\nlet meetingType = 'discovery';\nif (titleLower.includes('discovery') || titleLower.includes('intro')) {\n  meetingType = 'discovery';\n} else if (titleLower.includes('onboarding') || titleLower.includes('onboard')) {\n  meetingType = 'onboarding';\n} else if (titleLower.includes('kick-off') || titleLower.includes('kickoff') || titleLower.includes('kick off')) {\n  meetingType = 'kickoff';\n} else if (titleLower.includes('progress') || titleLower.includes('check-in') || titleLower.includes('checkin') || titleLower.includes('status')) {\n  meetingType = 'progress_checkin';\n} else if (titleLower.includes('go/no-go') || titleLower.includes('go-no-go') || titleLower.includes('go no go')) {\n  meetingType = 'go_no_go';\n} else if (titleLower.includes('delivery') || titleLower.includes('review') || titleLower.includes('handoff')) {\n  meetingType = 'delivery_review';\n}\n\nconst hostEmails = ['vsillah@gmail.com', 'amadutown@gmail.com'];\nconst clientEmail = participants.find(e => !hostEmails.includes(e.toLowerCase())) || '';\n\nif (!duration) {\n  const durationMatch = text.match(/(\\d+)\\s*min/i);\n  if (durationMatch) duration = parseInt(durationMatch[1]);\n}\n\nreturn [{\n  json: {\n    title,\n    meeting_type: meetingType,\n    client_email: clientEmail,\n    summary: summary.substring(0, 15000),\n    transcript: text,\n    action_items: actionItemsRaw,\n    participants: participants.map(e => ({email: e})),\n    duration,\n    meeting_date: new Date().toISOString(),\n    source: 'read_ai_slack',\n    slack_ts: msg.ts || '',\n    slack_channel: msg.channel || ''\n  }\n}];"
+      }
+    },
+    {
+      "name": "Send to Meeting Handler",
+      "id": "call-mch",
+      "typeVersion": 4.2,
+      "position": [
+        1344,
+        300
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.amadutown.com/webhook/meeting-complete",
+        "sendBody": true,
+        "options": {},
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "meeting_type",
+              "value": "={{ $json.meeting_type }}"
+            },
+            {
+              "name": "client_email",
+              "value": "={{ $json.client_email }}"
+            },
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "summary",
+              "value": "={{ $json.summary }}"
+            },
+            {
+              "name": "transcript",
+              "value": "={{ $json.transcript }}"
+            },
+            {
+              "name": "duration",
+              "value": "={{ $json.duration }}"
+            },
+            {
+              "name": "meeting_date",
+              "value": "={{ $json.meeting_date }}"
+            },
+            {
+              "name": "participants",
+              "value": "={{ $json.participants }}"
+            },
+            {
+              "name": "action_items",
+              "value": "={{ $json.action_items }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Not a Read.ai Message",
+      "id": "log-skip",
+      "typeVersion": 3.4,
+      "position": [
+        1120,
+        500
+      ],
+      "type": "n8n-nodes-base.set",
+      "parameters": {
+        "options": {}
+      }
+    }
+  ],
+  "connections": {
+    "Is Challenge?": {
+      "main": [
+        [
+          {
+            "node": "Respond Challenge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Webhook": {
+      "main": [
+        [
+          {
+            "node": "Handle Slack Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Read.ai Messages": {
+      "main": [
+        [
+          {
+            "node": "Parse Read.ai Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not a Read.ai Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Slack Event": {
+      "main": [
+        [
+          {
+            "node": "Is Challenge?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond OK": {
+      "main": [
+        [
+          {
+            "node": "Filter Read.ai Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Read.ai Message": {
+      "main": [
+        [
+          {
+            "node": "Send to Meeting Handler",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "146c7489-0122-4ce9-a7a0-dbd681d06c95",
+  "activeVersionId": "146c7489-0122-4ce9-a7a0-dbd681d06c95",
+  "versionCounter": 44,
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-06T17:30:09.868Z",
+      "createdAt": "2026-02-06T17:30:09.868Z",
+      "role": "workflow:owner",
+      "workflowId": "MEhNK36WMc34gua1",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    }
+  ]
+}

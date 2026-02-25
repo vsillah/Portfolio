@@ -1,0 +1,349 @@
+{
+  "id": "BoJ7UfiCYWMl3w3t",
+  "name": "WF-006: Milestone Planning",
+  "active": true,
+  "createdAt": "2026-02-01 14:59:51.211",
+  "updatedAt": "2026-02-09 11:21:25.659",
+  "versionId": "2c37b48d-99fa-4041-9c27-cc9a18ffe922",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger",
+      "id": "schedule-trigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        256
+      ],
+      "type": "n8n-nodes-base.scheduleTrigger"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Loop Projects",
+      "id": "loop-projects",
+      "typeVersion": 3,
+      "position": [
+        448,
+        352
+      ],
+      "type": "n8n-nodes-base.splitInBatches"
+    },
+    {
+      "parameters": {
+        "jsCode": "const project = $input.item.json;\nconst now = new Date();\nconst startDate = new Date(project.project_start_date);\nconst endDate = new Date(project.estimated_end_date);\n\nconst totalDays = (endDate - startDate) / (1000 * 60 * 60 * 24);\nconst daysElapsed = (now - startDate) / (1000 * 60 * 60 * 24);\nconst progressPercent = Math.min(100, Math.round((daysElapsed / totalDays) * 100));\n\nconst phaseLength = totalDays / 4;\nlet currentPhase = Math.min(4, Math.ceil(daysElapsed / phaseLength));\nlet phaseName = '';\n\nswitch(currentPhase) {\n  case 1: phaseName = 'Setup & Access'; break;\n  case 2: phaseName = 'Build & Customize'; break;\n  case 3: phaseName = 'Test E2E'; break;\n  case 4: phaseName = 'Deliver & Document'; break;\n}\n\nconst daysIntoPhase = daysElapsed % phaseLength;\nconst daysUntilNextPhase = phaseLength - daysIntoPhase;\nconst milestoneReminder = (daysUntilNextPhase <= 1 && daysUntilNextPhase > 0 && currentPhase < 4);\n\nreturn {\n  ...project,\n  progressPercent,\n  currentPhase,\n  phaseName,\n  milestoneReminder,\n  daysUntilNextPhase: Math.round(daysUntilNextPhase),\n  daysUntilDelivery: Math.round((endDate - now) / (1000 * 60 * 60 * 24))\n};"
+      },
+      "name": "Check Milestone Due",
+      "id": "check-milestone",
+      "typeVersion": 2,
+      "position": [
+        672,
+        280
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "milestone-check",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.milestoneReminder }}",
+              "rightValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Filter Milestone Reminders",
+      "id": "filter-reminders",
+      "typeVersion": 2.2,
+      "position": [
+        896,
+        280
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "={{ $json.slack_channel }}",
+        "text": "={{ '\u23f0 *Milestone Reminder*\\n\\n*Current Phase:* ' + $json.phaseName + ' (' + $json.currentPhase + '/4)\\n*Progress:* ' + $json.progressPercent + '%\\n\\n\ud83d\udcc5 Phase ' + ($json.currentPhase + 1) + ' starts in ' + $json.daysUntilNextPhase + ' day(s)\\n\ud83c\udfaf Delivery in ' + $json.daysUntilDelivery + ' days' }}",
+        "otherOptions": {}
+      },
+      "name": "Send Phase Reminder",
+      "id": "send-reminder",
+      "typeVersion": 2.4,
+      "position": [
+        1120,
+        208
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "586641d2-197e-4f63-a5c8-2283ba5cdecd",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "name": "Continue Loop",
+      "id": "continue-loop",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        352
+      ],
+      "type": "n8n-nodes-base.noOp"
+    },
+    {
+      "parameters": {
+        "content": "## WF-006: Milestone Planning\\n\\n**Trigger:** Hourly schedule\\n\\n**Phases (3-week project):**\\n1. Setup & Access\\n2. Build & Customize\\n3. Test E2E\\n4. Deliver & Document"
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "project_status",
+              "condition": "eq",
+              "keyValue": "active"
+            }
+          ]
+        }
+      },
+      "id": "fetch-active-projects",
+      "name": "Fetch Active Projects",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        352
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "project_reminders",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldValue": "={{ $json.client_email }}"
+            },
+            {
+              "fieldValue": "milestone"
+            },
+            {
+              "fieldValue": "={{ $json.phaseName + ' (' + $json.currentPhase + '/4)' }}"
+            },
+            {
+              "fieldValue": "={{ $json.reminderMessage || 'Phase milestone reminder sent' }}"
+            },
+            {
+              "fieldValue": "true"
+            }
+          ]
+        }
+      },
+      "id": "log-reminder-supabase",
+      "name": "Log Reminder",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        208
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wake-wf006-milestone",
+        "options": {}
+      },
+      "id": "webhook-wake-trigger",
+      "name": "Webhook Wake Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        448
+      ],
+      "webhookId": "22d5d459-b221-4db9-8533-4b8b93b6e417"
+    }
+  ],
+  "connections": {
+    "Filter Milestone Reminders": {
+      "main": [
+        [
+          {
+            "node": "Send Phase Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Continue Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue Loop": {
+      "main": [
+        [
+          {
+            "node": "Loop Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Projects": {
+      "main": [
+        [
+          {
+            "node": "Check Milestone Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Milestone Due": {
+      "main": [
+        [
+          {
+            "node": "Filter Milestone Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Active Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Active Projects": {
+      "main": [
+        [
+          {
+            "node": "Loop Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Phase Reminder": {
+      "main": [
+        [
+          {
+            "node": "Log Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Reminder": {
+      "main": [
+        [
+          {
+            "node": "Continue Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Wake Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Active Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

@@ -1,0 +1,474 @@
+{
+  "id": "b2dHSCu8YpH1mv0e",
+  "name": "WF-CLG-004: Reply Detection and Notification",
+  "active": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "id": "gmail-trigger",
+      "name": "New Email Received",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        304
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract sender email from Gmail trigger data\nconst email = $input.first().json;\nconst fromHeader = email.from || '';\n// Extract email address from \"Name <email@domain.com>\" format\nconst emailMatch = fromHeader.match(/<([^>]+)>/) || fromHeader.match(/([\\w.-]+@[\\w.-]+)/);\nconst senderEmail = emailMatch ? emailMatch[1] : fromHeader;\nconst threadId = email.threadId || null;\n\nreturn [{\n  json: {\n    sender_email: senderEmail.toLowerCase().trim(),\n    thread_id: threadId,\n    message_id: email.id,\n    subject: email.subject || '',\n    snippet: email.snippet || '',\n    body_text: email.textPlain || email.snippet || '',\n    received_at: email.internalDate ? new Date(parseInt(email.internalDate)).toISOString() : new Date().toISOString(),\n  }\n}];"
+      },
+      "id": "extract-sender",
+      "name": "Extract Sender Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "outreach_queue",
+        "limit": 1,
+        "filterType": "string",
+        "filterString": "thread_id=eq.{{ $json.thread_id }}&status=eq.sent"
+      },
+      "id": "match-outreach",
+      "name": "Match Against Outreach",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        480,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-match",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "is-outreach-reply",
+      "name": "Is Outreach Reply?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        720,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "contact_submissions"
+      },
+      "id": "get-full-context",
+      "name": "Get Full Lead Context",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        960,
+        208
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "outreach_queue",
+        "matchType": "id",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "replied"
+            },
+            {
+              "fieldId": "replied_at",
+              "fieldValue": "={{ $now.toISO() }}"
+            },
+            {
+              "fieldId": "reply_content",
+              "fieldValue": "={{ $('Extract Sender Email').first().json.body_text }}"
+            }
+          ]
+        }
+      },
+      "id": "update-outreach-replied",
+      "name": "Mark Outreach as Replied",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        112
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "contact_submissions",
+        "matchType": "id",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "outreach_status",
+              "fieldValue": "replied"
+            }
+          ]
+        }
+      },
+      "id": "update-contact-replied",
+      "name": "Update Contact Status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1200,
+        288
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Cancel all pending/draft outreach items for this contact\nconst contactId = $('Match Against Outreach').first().json.contact_submission_id;\nconst outreachId = $('Match Against Outreach').first().json.id;\n\n// Supabase REST API configuration\nconst SUPABASE_URL = 'https://byoriebhtbysanjhimlu.supabase.co';\n// IMPORTANT: Set your Supabase service role key below\nconst SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5b3JpZWJodGJ5c2FuamhpbWx1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcyNTY5NSwiZXhwIjoyMDgzMzAxNjk1fQ.0hMfqk1z6zO58xNlTLVdK7_JmLD6TrYiEUYJIuQAXSY';\n\ntry {\n  const url = `${SUPABASE_URL}/rest/v1/outreach_queue?contact_submission_id=eq.${contactId}&status=in.(draft,approved)&id=neq.${outreachId}`;\n  const response = await fetch(url, {\n    method: 'PATCH',\n    headers: {\n      'apikey': SUPABASE_KEY,\n      'Authorization': `Bearer ${SUPABASE_KEY}`,\n      'Content-Type': 'application/json',\n      'Prefer': 'return=minimal',\n    },\n    body: JSON.stringify({ \n      status: 'cancelled', \n      updated_at: new Date().toISOString() \n    }),\n  });\n  \n  return [{ json: { cancelled: true, httpStatus: response.status } }];\n} catch (error) {\n  // Non-critical: follow-ups will still be caught by reply check in WF-CLG-003\n  return [{ json: { cancelled: false, error: error.message } }];\n}"
+      },
+      "id": "cancel-pending",
+      "name": "Cancel Pending Follow-Ups",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const lead = $('Get Full Lead Context').first().json;\nconst outreach = $('Match Against Outreach').first().json;\nconst replyData = $('Extract Sender Email').first().json;\n\nconst score = lead.lead_score || 0;\nlet tier = 'cold';\nif (score >= 70) tier = 'hot';\nelse if (score >= 40) tier = 'warm';\n\n// Check if reply contains scheduling language\nconst bodyLower = replyData.body_text.toLowerCase();\nconst hasSchedulingIntent = [\n  'set up a time', 'schedule', 'calendar', 'available',\n  'let\\'s chat', 'let\\'s talk', 'book a call', 'meeting',\n  'free this week', 'next week', 'what time'\n].some(phrase => bodyLower.includes(phrase));\n\nreturn [{\n  json: {\n    lead_name: lead.name,\n    lead_company: lead.company,\n    lead_email: lead.email,\n    lead_score: score,\n    score_tier: tier,\n    job_title: lead.job_title,\n    quick_wins: lead.quick_wins,\n    linkedin_url: lead.linkedin_url,\n    reply_content: replyData.body_text,\n    reply_subject: replyData.subject,\n    original_subject: outreach.subject,\n    original_body: outreach.body,\n    sequence_step: outreach.sequence_step,\n    channel: outreach.channel,\n    has_scheduling_intent: hasSchedulingIntent,\n    contact_id: lead.id,\n  }\n}];"
+      },
+      "id": "determine-tier",
+      "name": "Determine Score Tier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "C0ADR21GVCL",
+        "text": "={{ '\ud83d\udea8 *COLD OUTREACH REPLY!*\\n\\n' + '\ud83d\udc64 *' + $json.lead_name + '* (' + $json.job_title + ')\\n' + '\ud83c\udfe2 ' + $json.lead_company + '\\n' + '\ud83d\udcca Score: ' + $json.lead_score + ' (' + $json.score_tier.toUpperCase() + ')\\n' + '\u2709\ufe0f Channel: ' + $json.channel + ' (Step ' + $json.sequence_step + ')\\n\\n' + '---\\n' + '\ud83d\udcac *Their Reply:*\\n' + $json.reply_content + '\\n\\n---\\n' + '\ud83d\udce4 *Your Original Message:*\\n' + ($json.original_subject ? 'Subject: ' + $json.original_subject + '\\n' : '') + $json.original_body.substring(0, 300) + '\\n\\n---\\n' + ($json.has_scheduling_intent ? '\u2705 *Scheduling intent detected!* Consider sending Calendly link: https://calendly.com/amadutown/atas-discovery-call\\n\\n' : '') + '\ud83d\udc49 *Quick Actions:*\\n' + '\u2022 Reply now via email\\n' + '\u2022 Send Calendly discovery link\\n' + '\u2022 View lead in admin: https://amadutown.com/admin/outreach' }}",
+        "otherOptions": {}
+      },
+      "id": "slack-dm-reply",
+      "name": "Slack DM: Reply Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1680,
+        112
+      ],
+      "webhookId": "10e07834-b317-4dd2-bb7c-15bf4343e991",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "is-hot",
+              "leftValue": "={{ $('Determine Score Tier').first().json.score_tier }}",
+              "rightValue": "hot",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "hot-channel-post",
+      "name": "Hot Lead Channel Post",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "C0ADJ10AZGD",
+        "text": "={{ '<!here> \ud83d\udd25 *HOT LEAD REPLIED!*\\n\\n' + '\ud83d\udc64 ' + $('Determine Score Tier').first().json.lead_name + ' (' + $('Determine Score Tier').first().json.lead_company + ')\\n' + '\ud83d\udcca Score: ' + $('Determine Score Tier').first().json.lead_score + '\\n\\n' + 'Reply: ' + $('Determine Score Tier').first().json.reply_content.substring(0, 200) + '...' }}",
+        "otherOptions": {}
+      },
+      "id": "slack-channel-hot",
+      "name": "Slack Channel: Hot Reply",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        2160,
+        48
+      ],
+      "webhookId": "8d70b98d-1ce3-4efe-855f-90ec24dbf3b1",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "C0ADJ10AZGD",
+        "text": "={{ '\ud83d\udce8 *Outreach Reply Received*\\n\\n' + '\ud83d\udc64 ' + $('Determine Score Tier').first().json.lead_name + ' (' + $('Determine Score Tier').first().json.lead_company + ')\\n' + '\ud83d\udcca Score: ' + $('Determine Score Tier').first().json.lead_score + '\\n\\n' + 'Reply: ' + $('Determine Score Tier').first().json.reply_content.substring(0, 200) + '...' }}",
+        "otherOptions": {}
+      },
+      "id": "slack-channel-warm",
+      "name": "Slack Channel: Warm Reply",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        2160,
+        208
+      ],
+      "webhookId": "478334b3-0ed9-4adf-a239-c24759cac5c3",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## WF-CLG-004: Reply Detection and Notification\n\nAlways-on workflow that detects replies to cold outreach.\n\n**Email Detection:**\n1. Gmail trigger watches for new emails (every minute)\n2. Extracts sender email and thread ID\n3. Matches against outreach_queue by thread_id\n4. If match found:\n   - Marks outreach as 'replied'\n   - Updates contact outreach_status\n   - Cancels remaining sequence steps\n   - Sends immediate Slack DM with full context\n   - Hot leads: channel post with @here\n   - Warm leads: channel post without mention\n   - Detects scheduling intent -> suggests Calendly\n\n**LinkedIn Detection:**\nHandled by pre-check in WF-000 (Inbound Lead Intake).\nSee plan Phase 6B for details.\n\n**Env vars:**\n- SLACK_DM_CHANNEL_ID (your personal DM channel)\n- SLACK_OUTREACH_CHANNEL_ID\n- CALENDLY_DISCOVERY_LINK\n- ADMIN_URL\n- SUPABASE_URL, SUPABASE_SERVICE_KEY"
+      },
+      "id": "note-workflow",
+      "name": "Workflow Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -96
+      ]
+    }
+  ],
+  "connections": {
+    "New Email Received": {
+      "main": [
+        [
+          {
+            "node": "Extract Sender Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Sender Email": {
+      "main": [
+        [
+          {
+            "node": "Match Against Outreach",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Outreach Reply?": {
+      "main": [
+        [
+          {
+            "node": "Get Full Lead Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Full Lead Context": {
+      "main": [
+        [
+          {
+            "node": "Mark Outreach as Replied",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Contact Status",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Cancel Pending Follow-Ups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Outreach as Replied": {
+      "main": [
+        [
+          {
+            "node": "Determine Score Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine Score Tier": {
+      "main": [
+        [
+          {
+            "node": "Slack DM: Reply Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack DM: Reply Alert": {
+      "main": [
+        [
+          {
+            "node": "Hot Lead Channel Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hot Lead Channel Post": {
+      "main": [
+        [
+          {
+            "node": "Slack Channel: Hot Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack Channel: Warm Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Against Outreach": {
+      "main": [
+        [
+          {
+            "node": "Is Outreach Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:New Email Received": {
+      "New Email Received": {
+        "lastTimeChecked": 1771725392,
+        "possibleDuplicates": [
+          "19c8310485bf16e5",
+          "19c830c87f43c96c"
+        ]
+      }
+    }
+  },
+  "pinData": {},
+  "versionId": "cbeeb12b-14b0-419d-b77a-62c1b7a99349",
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "parentFolderId": null,
+  "createdAt": "2026-02-07 12:04:23.820",
+  "updatedAt": "2026-02-07 13:02:48.802",
+  "isArchived": 0,
+  "versionCounter": 1632,
+  "description": null,
+  "activeVersionId": "cbeeb12b-14b0-419d-b77a-62c1b7a99349"
+}

@@ -1,0 +1,1184 @@
+{
+  "updatedAt": "2026-02-10T20:08:20.618Z",
+  "createdAt": "2026-02-07T12:00:14.283Z",
+  "id": "fBxaEIyYlMfWxsxB",
+  "name": "WF-CLG-002: Outreach Generation",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "clg-outreach-gen",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "New Qualified Lead",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        512
+      ],
+      "webhookId": "c7dbb9bb-e8d2-4147-9b55-223273ed4021"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "contact_submissions"
+      },
+      "id": "get-lead-data",
+      "name": "Get Lead Data",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        512
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-status",
+              "leftValue": "={{ $json.outreach_status }}",
+              "rightValue": "not_contacted",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-already-contacted",
+      "name": "Already Contacted?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        448,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "text": "You are a B2B cold outreach specialist. Write a personalized cold email to this prospect.\n\n## Lead Brief\n- Name: {{ $json.name }}\n- Company: {{ $json.company }}\n- Title: {{ $json.job_title }}\n- Industry: {{ $json.industry }}\n- Score Tier: {{ $('New Qualified Lead').first().json.body.score_tier }}\n- Lead Score: {{ $json.lead_score }}\n\n## Research Summary\n{{ $json.full_report }}\n\n## Quick Wins Identified\n{{ $json.quick_wins }}\n\n## AI Readiness Score: {{ $json.ai_readiness_score }}/10\n## Competitive Pressure: {{ $json.competitive_pressure_score }}/10\n\n## Instructions\n1. Reference a SPECIFIC pain point or opportunity from the research\n2. Keep it under 150 words\n3. Be conversational, not salesy\n4. End with a soft CTA mentioning a brief discovery call\n5. Include this Calendly link naturally: https://calendly.com/amadutown/atas-discovery-call\n6. DO NOT use generic templates - every email must feel hand-written\n7. Subject line should be intriguing and reference their specific situation\n\nOutput as JSON:\n{\n  \"subject\": \"...\",\n  \"body\": \"...\"\n}",
+        "options": {
+          "systemMessage": "You are an expert B2B outreach copywriter specializing in AI/automation services. Your emails consistently achieve 15%+ reply rates because they feel genuinely personal and reference specific research about the prospect."
+        }
+      },
+      "id": "gen-email",
+      "name": "Generate Email",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        672,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "text": "You are a B2B networking specialist. Write a LinkedIn connection request note and a follow-up DM for this prospect.\n\n## Lead Brief\n- Name: {{ $json.name }}\n- Company: {{ $json.company }}\n- Title: {{ $json.job_title }}\n- Industry: {{ $json.industry }}\n\n## Research Summary\n{{ $json.full_report }}\n\n## Quick Wins Identified\n{{ $json.quick_wins }}\n\n## Instructions\n1. Connection note: Max 300 characters. Mention something specific about them or their company.\n2. Follow-up DM: 2-3 sentences. Reference the connection, mention a relevant insight, soft CTA.\n3. Be conversational and peer-to-peer, not salesy\n4. DO NOT mention selling or services directly in the connection note\n\nOutput as JSON:\n{\n  \"connection_note\": \"...\",\n  \"follow_up_dm\": \"...\"\n}",
+        "options": {
+          "systemMessage": "You are an expert at LinkedIn networking for B2B relationships. Your connection acceptance rate is 40%+ because your notes feel genuine and reference specific details about the prospect."
+        }
+      },
+      "id": "gen-linkedin",
+      "name": "Generate LinkedIn Message",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        672,
+        712
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "email-brain",
+      "name": "Email Brain",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        808,
+        432
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "linkedin-brain",
+      "name": "LinkedIn Brain",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        744,
+        936
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse AI output and extract email subject/body\nconst output = $input.first().json.output || $input.first().json.text || '';\nlet parsed;\ntry {\n  // Try to extract JSON from the output\n  const jsonMatch = output.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(jsonMatch ? jsonMatch[0] : output);\n} catch (e) {\n  parsed = { subject: 'Introduction', body: output };\n}\n\nconst lead = $('Get Lead Data').first().json;\n\nreturn [{\n  json: {\n    contact_submission_id: lead.id,\n    channel: 'email',\n    subject: parsed.subject,\n    body: parsed.body,\n    sequence_step: 1,\n    status: 'draft',\n    generation_model: 'gpt-4o',\n    generation_prompt_summary: `Cold outreach email for ${lead.name} at ${lead.company} (${$('New Qualified Lead').first().json.body.score_tier} lead)`,\n  }\n}];"
+      },
+      "id": "parse-email",
+      "name": "Parse Email Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        312
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse AI output and extract LinkedIn messages\nconst output = $input.first().json.output || $input.first().json.text || '';\nlet parsed;\ntry {\n  const jsonMatch = output.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(jsonMatch ? jsonMatch[0] : output);\n} catch (e) {\n  parsed = { connection_note: output.substring(0, 300), follow_up_dm: output };\n}\n\nconst lead = $('Get Lead Data').first().json;\n\nreturn [{\n  json: {\n    contact_submission_id: lead.id,\n    channel: 'linkedin',\n    subject: null,\n    body: `CONNECTION NOTE:\\n${parsed.connection_note}\\n\\nFOLLOW-UP DM:\\n${parsed.follow_up_dm}`,\n    sequence_step: 1,\n    status: 'draft',\n    generation_model: 'gpt-4o',\n    generation_prompt_summary: `LinkedIn outreach for ${lead.name} at ${lead.company} (${$('New Qualified Lead').first().json.body.score_tier} lead)`,\n  }\n}];"
+      },
+      "id": "parse-linkedin",
+      "name": "Parse LinkedIn Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1024,
+        712
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "outreach_queue",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "contact_submission_id",
+              "fieldValue": "={{ $json.contact_submission_id }}"
+            },
+            {
+              "fieldId": "channel",
+              "fieldValue": "email"
+            },
+            {
+              "fieldId": "subject",
+              "fieldValue": "={{ $json.subject }}"
+            },
+            {
+              "fieldId": "body",
+              "fieldValue": "={{ $json.body }}"
+            },
+            {
+              "fieldId": "sequence_step",
+              "fieldValue": "1"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "draft"
+            },
+            {
+              "fieldId": "generation_model",
+              "fieldValue": "={{ $json.generation_model }}"
+            },
+            {
+              "fieldId": "generation_prompt_summary",
+              "fieldValue": "={{ $json.generation_prompt_summary }}"
+            }
+          ]
+        }
+      },
+      "id": "save-email-draft",
+      "name": "Save Email Draft",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        312
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "outreach_queue",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "contact_submission_id",
+              "fieldValue": "={{ $json.contact_submission_id }}"
+            },
+            {
+              "fieldId": "channel",
+              "fieldValue": "linkedin"
+            },
+            {
+              "fieldId": "body",
+              "fieldValue": "={{ $json.body }}"
+            },
+            {
+              "fieldId": "sequence_step",
+              "fieldValue": "1"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "draft"
+            },
+            {
+              "fieldId": "generation_model",
+              "fieldValue": "={{ $json.generation_model }}"
+            },
+            {
+              "fieldId": "generation_prompt_summary",
+              "fieldValue": "={{ $json.generation_prompt_summary }}"
+            }
+          ]
+        }
+      },
+      "id": "save-linkedin-draft",
+      "name": "Save LinkedIn Draft",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1248,
+        712
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "merge-drafts",
+      "name": "Merge Results",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1472,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "contact_submissions",
+        "matchType": "id",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "outreach_status",
+              "fieldValue": "sequence_active"
+            }
+          ]
+        }
+      },
+      "id": "update-outreach-status",
+      "name": "Update Lead Outreach Status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1696,
+        512
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "C0ADJ10AZGD",
+        "text": "={{ '\ud83d\udcdd *New Outreach Drafts Ready for Review*\\n\\n' + '\ud83d\udc64 *Lead:* ' + $('Get Lead Data').first().json.name + ' (' + $('Get Lead Data').first().json.job_title + ')\\n' + '\ud83c\udfe2 *Company:* ' + $('Get Lead Data').first().json.company + '\\n' + '\ud83d\udcca *Score:* ' + $('Get Lead Data').first().json.lead_score + ' (' + $('New Qualified Lead').first().json.body.score_tier + ')\\n' + '\ud83c\udfaf *AI Readiness:* ' + $('Get Lead Data').first().json.ai_readiness_score + '/10\\n\\n' + '\u2709\ufe0f Email draft + \ud83d\udcac LinkedIn draft ready.\\n' + 'Review at: https://amadutown.com/admin/outreach' }}",
+        "otherOptions": {}
+      },
+      "id": "slack-notify",
+      "name": "Slack: Drafts Ready",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1920,
+        512
+      ],
+      "webhookId": "6aa1d8f0-1bff-49f9-8ebe-828b7d06ae67",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## WF-CLG-002: Outreach Generation\n\nTriggered by Lead Research Agent (WF-CLG-001 enrichment) for Hot/Warm leads.\n\n1. Fetches full lead data from Supabase\n2. Generates personalized email (GPT-4o)\n3. Generates LinkedIn connection note + DM (GPT-4o)\n4. Saves both as drafts in outreach_queue\n5. Updates lead outreach_status to 'sequence_active'\n6. Posts Slack notification for human review\n\n**Env vars needed:**\n- N8N_CLG002_WEBHOOK_URL (this workflow's webhook)\n- CALENDLY_DISCOVERY_LINK\n- SLACK_OUTREACH_CHANNEL_ID\n- ADMIN_URL"
+      },
+      "id": "note-workflow",
+      "name": "Workflow Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b:free",
+        "options": {}
+      },
+      "id": "bfe41cc0-4b8e-4ea7-a3af-e6a2acc841b2",
+      "name": "Free Fallback (OpenRouter)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        1312
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "ATznzoKw5NdNjbAl",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "New Qualified Lead": {
+      "main": [
+        [
+          {
+            "node": "Get Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Already Contacted?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already Contacted?": {
+      "main": [
+        [
+          {
+            "node": "Generate Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate LinkedIn Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Email Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Email",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate LinkedIn Message",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Email": {
+      "main": [
+        [
+          {
+            "node": "Parse Email Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate LinkedIn Message": {
+      "main": [
+        [
+          {
+            "node": "Parse LinkedIn Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Email Output": {
+      "main": [
+        [
+          {
+            "node": "Save Email Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse LinkedIn Output": {
+      "main": [
+        [
+          {
+            "node": "Save LinkedIn Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Email Draft": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save LinkedIn Draft": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Results": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Outreach Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Outreach Status": {
+      "main": [
+        [
+          {
+            "node": "Slack: Drafts Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Free Fallback (OpenRouter)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Email",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "Generate LinkedIn Message",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "d84e49f5-ea3e-444c-b269-300eaef8fb06",
+  "activeVersionId": "d84e49f5-ea3e-444c-b269-300eaef8fb06",
+  "versionCounter": 20,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-07T12:00:14.286Z",
+      "createdAt": "2026-02-07T12:00:14.286Z",
+      "role": "workflow:owner",
+      "workflowId": "fBxaEIyYlMfWxsxB",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-10T11:23:32.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-10",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-10T20:08:25.000Z",
+    "createdAt": "2026-02-10T20:08:20.620Z",
+    "versionId": "d84e49f5-ea3e-444c-b269-300eaef8fb06",
+    "workflowId": "fBxaEIyYlMfWxsxB",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "clg-outreach-gen",
+          "options": {}
+        },
+        "id": "webhook-trigger",
+        "name": "New Qualified Lead",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          512
+        ],
+        "webhookId": "c7dbb9bb-e8d2-4147-9b55-223273ed4021"
+      },
+      {
+        "parameters": {
+          "operation": "get",
+          "tableId": "contact_submissions"
+        },
+        "id": "get-lead-data",
+        "name": "Get Lead Data",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          224,
+          512
+        ],
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "check-status",
+                "leftValue": "={{ $json.outreach_status }}",
+                "rightValue": "not_contacted",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "check-already-contacted",
+        "name": "Already Contacted?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          448,
+          512
+        ]
+      },
+      {
+        "parameters": {
+          "text": "You are a B2B cold outreach specialist. Write a personalized cold email to this prospect.\n\n## Lead Brief\n- Name: {{ $json.name }}\n- Company: {{ $json.company }}\n- Title: {{ $json.job_title }}\n- Industry: {{ $json.industry }}\n- Score Tier: {{ $('New Qualified Lead').first().json.body.score_tier }}\n- Lead Score: {{ $json.lead_score }}\n\n## Research Summary\n{{ $json.full_report }}\n\n## Quick Wins Identified\n{{ $json.quick_wins }}\n\n## AI Readiness Score: {{ $json.ai_readiness_score }}/10\n## Competitive Pressure: {{ $json.competitive_pressure_score }}/10\n\n## Instructions\n1. Reference a SPECIFIC pain point or opportunity from the research\n2. Keep it under 150 words\n3. Be conversational, not salesy\n4. End with a soft CTA mentioning a brief discovery call\n5. Include this Calendly link naturally: https://calendly.com/amadutown/atas-discovery-call\n6. DO NOT use generic templates - every email must feel hand-written\n7. Subject line should be intriguing and reference their specific situation\n\nOutput as JSON:\n{\n  \"subject\": \"...\",\n  \"body\": \"...\"\n}",
+          "options": {
+            "systemMessage": "You are an expert B2B outreach copywriter specializing in AI/automation services. Your emails consistently achieve 15%+ reply rates because they feel genuinely personal and reference specific research about the prospect."
+          }
+        },
+        "id": "gen-email",
+        "name": "Generate Email",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          672,
+          208
+        ]
+      },
+      {
+        "parameters": {
+          "text": "You are a B2B networking specialist. Write a LinkedIn connection request note and a follow-up DM for this prospect.\n\n## Lead Brief\n- Name: {{ $json.name }}\n- Company: {{ $json.company }}\n- Title: {{ $json.job_title }}\n- Industry: {{ $json.industry }}\n\n## Research Summary\n{{ $json.full_report }}\n\n## Quick Wins Identified\n{{ $json.quick_wins }}\n\n## Instructions\n1. Connection note: Max 300 characters. Mention something specific about them or their company.\n2. Follow-up DM: 2-3 sentences. Reference the connection, mention a relevant insight, soft CTA.\n3. Be conversational and peer-to-peer, not salesy\n4. DO NOT mention selling or services directly in the connection note\n\nOutput as JSON:\n{\n  \"connection_note\": \"...\",\n  \"follow_up_dm\": \"...\"\n}",
+          "options": {
+            "systemMessage": "You are an expert at LinkedIn networking for B2B relationships. Your connection acceptance rate is 40%+ because your notes feel genuine and reference specific details about the prospect."
+          }
+        },
+        "id": "gen-linkedin",
+        "name": "Generate LinkedIn Message",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          672,
+          712
+        ]
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {
+            "temperature": 0.7
+          }
+        },
+        "id": "email-brain",
+        "name": "Email Brain",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          808,
+          432
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {
+            "temperature": 0.7
+          }
+        },
+        "id": "linkedin-brain",
+        "name": "LinkedIn Brain",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          744,
+          936
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Parse AI output and extract email subject/body\nconst output = $input.first().json.output || $input.first().json.text || '';\nlet parsed;\ntry {\n  // Try to extract JSON from the output\n  const jsonMatch = output.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(jsonMatch ? jsonMatch[0] : output);\n} catch (e) {\n  parsed = { subject: 'Introduction', body: output };\n}\n\nconst lead = $('Get Lead Data').first().json;\n\nreturn [{\n  json: {\n    contact_submission_id: lead.id,\n    channel: 'email',\n    subject: parsed.subject,\n    body: parsed.body,\n    sequence_step: 1,\n    status: 'draft',\n    generation_model: 'gpt-4o',\n    generation_prompt_summary: `Cold outreach email for ${lead.name} at ${lead.company} (${$('New Qualified Lead').first().json.body.score_tier} lead)`,\n  }\n}];"
+        },
+        "id": "parse-email",
+        "name": "Parse Email Output",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1024,
+          312
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Parse AI output and extract LinkedIn messages\nconst output = $input.first().json.output || $input.first().json.text || '';\nlet parsed;\ntry {\n  const jsonMatch = output.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(jsonMatch ? jsonMatch[0] : output);\n} catch (e) {\n  parsed = { connection_note: output.substring(0, 300), follow_up_dm: output };\n}\n\nconst lead = $('Get Lead Data').first().json;\n\nreturn [{\n  json: {\n    contact_submission_id: lead.id,\n    channel: 'linkedin',\n    subject: null,\n    body: `CONNECTION NOTE:\\n${parsed.connection_note}\\n\\nFOLLOW-UP DM:\\n${parsed.follow_up_dm}`,\n    sequence_step: 1,\n    status: 'draft',\n    generation_model: 'gpt-4o',\n    generation_prompt_summary: `LinkedIn outreach for ${lead.name} at ${lead.company} (${$('New Qualified Lead').first().json.body.score_tier} lead)`,\n  }\n}];"
+        },
+        "id": "parse-linkedin",
+        "name": "Parse LinkedIn Output",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1024,
+          712
+        ]
+      },
+      {
+        "parameters": {
+          "tableId": "outreach_queue",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "contact_submission_id",
+                "fieldValue": "={{ $json.contact_submission_id }}"
+              },
+              {
+                "fieldId": "channel",
+                "fieldValue": "email"
+              },
+              {
+                "fieldId": "subject",
+                "fieldValue": "={{ $json.subject }}"
+              },
+              {
+                "fieldId": "body",
+                "fieldValue": "={{ $json.body }}"
+              },
+              {
+                "fieldId": "sequence_step",
+                "fieldValue": "1"
+              },
+              {
+                "fieldId": "status",
+                "fieldValue": "draft"
+              },
+              {
+                "fieldId": "generation_model",
+                "fieldValue": "={{ $json.generation_model }}"
+              },
+              {
+                "fieldId": "generation_prompt_summary",
+                "fieldValue": "={{ $json.generation_prompt_summary }}"
+              }
+            ]
+          }
+        },
+        "id": "save-email-draft",
+        "name": "Save Email Draft",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1248,
+          312
+        ],
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "tableId": "outreach_queue",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "contact_submission_id",
+                "fieldValue": "={{ $json.contact_submission_id }}"
+              },
+              {
+                "fieldId": "channel",
+                "fieldValue": "linkedin"
+              },
+              {
+                "fieldId": "body",
+                "fieldValue": "={{ $json.body }}"
+              },
+              {
+                "fieldId": "sequence_step",
+                "fieldValue": "1"
+              },
+              {
+                "fieldId": "status",
+                "fieldValue": "draft"
+              },
+              {
+                "fieldId": "generation_model",
+                "fieldValue": "={{ $json.generation_model }}"
+              },
+              {
+                "fieldId": "generation_prompt_summary",
+                "fieldValue": "={{ $json.generation_prompt_summary }}"
+              }
+            ]
+          }
+        },
+        "id": "save-linkedin-draft",
+        "name": "Save LinkedIn Draft",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1248,
+          712
+        ],
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "id": "merge-drafts",
+        "name": "Merge Results",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          1472,
+          512
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "contact_submissions",
+          "matchType": "id",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "outreach_status",
+                "fieldValue": "sequence_active"
+              }
+            ]
+          }
+        },
+        "id": "update-outreach-status",
+        "name": "Update Lead Outreach Status",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1696,
+          512
+        ],
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": "C0ADJ10AZGD",
+          "text": "={{ '\ud83d\udcdd *New Outreach Drafts Ready for Review*\\n\\n' + '\ud83d\udc64 *Lead:* ' + $('Get Lead Data').first().json.name + ' (' + $('Get Lead Data').first().json.job_title + ')\\n' + '\ud83c\udfe2 *Company:* ' + $('Get Lead Data').first().json.company + '\\n' + '\ud83d\udcca *Score:* ' + $('Get Lead Data').first().json.lead_score + ' (' + $('New Qualified Lead').first().json.body.score_tier + ')\\n' + '\ud83c\udfaf *AI Readiness:* ' + $('Get Lead Data').first().json.ai_readiness_score + '/10\\n\\n' + '\u2709\ufe0f Email draft + \ud83d\udcac LinkedIn draft ready.\\n' + 'Review at: https://amadutown.com/admin/outreach' }}",
+          "otherOptions": {}
+        },
+        "id": "slack-notify",
+        "name": "Slack: Drafts Ready",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2.2,
+        "position": [
+          1920,
+          512
+        ],
+        "webhookId": "6aa1d8f0-1bff-49f9-8ebe-828b7d06ae67",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## WF-CLG-002: Outreach Generation\n\nTriggered by Lead Research Agent (WF-CLG-001 enrichment) for Hot/Warm leads.\n\n1. Fetches full lead data from Supabase\n2. Generates personalized email (GPT-4o)\n3. Generates LinkedIn connection note + DM (GPT-4o)\n4. Saves both as drafts in outreach_queue\n5. Updates lead outreach_status to 'sequence_active'\n6. Posts Slack notification for human review\n\n**Env vars needed:**\n- N8N_CLG002_WEBHOOK_URL (this workflow's webhook)\n- CALENDLY_DISCOVERY_LINK\n- SLACK_OUTREACH_CHANNEL_ID\n- ADMIN_URL"
+        },
+        "id": "note-workflow",
+        "name": "Workflow Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -288,
+          -96
+        ]
+      },
+      {
+        "parameters": {
+          "model": "openai/gpt-oss-120b:free",
+          "options": {}
+        },
+        "id": "bfe41cc0-4b8e-4ea7-a3af-e6a2acc841b2",
+        "name": "Free Fallback (OpenRouter)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          1008,
+          1312
+        ],
+        "credentials": {
+          "openRouterApi": {
+            "id": "ATznzoKw5NdNjbAl",
+            "name": "OpenRouter account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "New Qualified Lead": {
+        "main": [
+          [
+            {
+              "node": "Get Lead Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Get Lead Data": {
+        "main": [
+          [
+            {
+              "node": "Already Contacted?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Already Contacted?": {
+        "main": [
+          [
+            {
+              "node": "Generate Email",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Generate LinkedIn Message",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "Email Brain": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Generate Email",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "LinkedIn Brain": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Generate LinkedIn Message",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Email": {
+        "main": [
+          [
+            {
+              "node": "Parse Email Output",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate LinkedIn Message": {
+        "main": [
+          [
+            {
+              "node": "Parse LinkedIn Output",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Email Output": {
+        "main": [
+          [
+            {
+              "node": "Save Email Draft",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse LinkedIn Output": {
+        "main": [
+          [
+            {
+              "node": "Save LinkedIn Draft",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Save Email Draft": {
+        "main": [
+          [
+            {
+              "node": "Merge Results",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Save LinkedIn Draft": {
+        "main": [
+          [
+            {
+              "node": "Merge Results",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Merge Results": {
+        "main": [
+          [
+            {
+              "node": "Update Lead Outreach Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Lead Outreach Status": {
+        "main": [
+          [
+            {
+              "node": "Slack: Drafts Ready",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Free Fallback (OpenRouter)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Generate Email",
+              "type": "ai_languageModel",
+              "index": 1
+            },
+            {
+              "node": "Generate LinkedIn Message",
+              "type": "ai_languageModel",
+              "index": 1
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": "Version d84e49f5",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-10T20:08:25.148Z",
+        "id": 320,
+        "workflowId": "fBxaEIyYlMfWxsxB",
+        "versionId": "d84e49f5-ea3e-444c-b269-300eaef8fb06",
+        "event": "activated",
+        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    ]
+  }
+}

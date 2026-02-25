@@ -1,0 +1,520 @@
+{
+  "id": "FSV0KKso1CbfgEXH",
+  "name": "WF-001: Client Payment Intake",
+  "active": true,
+  "createdAt": "2026-02-01 12:12:14.747",
+  "updatedAt": "2026-02-06 16:02:18.825",
+  "versionId": "7bf2a2dc-9830-420d-9a29-326b5d7ec73b",
+  "nodes": [
+    {
+      "parameters": {
+        "events": [
+          "checkout.session.completed"
+        ]
+      },
+      "id": "stripe-trigger",
+      "name": "Stripe Payment Received",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        304
+      ],
+      "webhookId": "728b259c-7550-4f1f-8919-5cc20bc50db6",
+      "credentials": {
+        "stripeApi": {
+          "id": "3wi7HLgyBGRkFmUu",
+          "name": "Stripe account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.stripe.com/v1/checkout/sessions/{{ $json.data.object.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "expand[]",
+              "value": "line_items"
+            },
+            {
+              "name": "expand[]",
+              "value": "customer"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-session",
+      "name": "Extract Session Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        304
+      ],
+      "credentials": {
+        "stripeApi": {
+          "id": "3wi7HLgyBGRkFmUu",
+          "name": "Stripe account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "client_id",
+              "type": "string",
+              "value": "=cli_{{ $now.format('yyyyMMdd') }}_{{ $runIndex }}"
+            },
+            {
+              "id": "2",
+              "name": "client_name",
+              "type": "string",
+              "value": "={{ $json.customer_details.name }}"
+            },
+            {
+              "id": "3",
+              "name": "client_email",
+              "type": "string",
+              "value": "={{ $json.customer_details.email }}"
+            },
+            {
+              "id": "4",
+              "name": "client_phone",
+              "type": "string",
+              "value": "={{ $json.customer_details.phone || '' }}"
+            },
+            {
+              "id": "5",
+              "name": "payment_amount",
+              "type": "number",
+              "value": "={{ $json.amount_total / 100 }}"
+            },
+            {
+              "id": "6",
+              "name": "payment_currency",
+              "type": "string",
+              "value": "={{ $json.currency.toUpperCase() }}"
+            },
+            {
+              "id": "7",
+              "name": "payment_date",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "id": "8",
+              "name": "stripe_session_id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "9",
+              "name": "stripe_customer_id",
+              "type": "string",
+              "value": "={{ $json.customer }}"
+            },
+            {
+              "id": "10",
+              "name": "product_purchased",
+              "type": "string",
+              "value": "={{ $json.line_items.data[0].description }}"
+            },
+            {
+              "id": "11",
+              "name": "project_status",
+              "type": "string",
+              "value": "payment_received"
+            },
+            {
+              "id": "12",
+              "name": "kickoff_scheduled",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "13",
+              "name": "platform_access",
+              "type": "object",
+              "value": "={{ { slack_admin: false, asana_admin: false } }}"
+            },
+            {
+              "id": "14",
+              "name": "two_fa_required",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "15",
+              "name": "update_cadence",
+              "type": "string",
+              "value": "daily"
+            },
+            {
+              "id": "16",
+              "name": "retainer_offer_enabled",
+              "type": "boolean",
+              "value": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "build-client-profile",
+      "name": "Build Client Profile",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Build Client Profile').item.json.client_email }}",
+        "subject": "Welcome! Let's Schedule Your Onboarding Call - {{ $('Build Client Profile').item.json.client_name }}",
+        "message": "=<h2>Thank you for your payment!</h2><p>Hi {{ $('Build Client Profile').item.json.client_name }},</p><p>I'm excited to get started on your <strong>{{ $('Build Client Profile').item.json.product_purchased }}</strong> project.</p><p>The first step is a <strong>30-minute onboarding call</strong> where we'll:</p><ul><li>Walk through the project scope and deliverables</li><li>Discuss your goals and expectations</li><li>Answer any questions you have about the process</li><li>Set you up for success before the formal kickoff</li></ul><p>Once the onboarding is complete, we'll schedule your <strong>kickoff meeting</strong> to begin work.</p><p><a href='https://calendly.com/amadutown/atas-onboarding-call?name={{ $('Build Client Profile').item.json.client_name }}&email={{ $('Build Client Profile').item.json.client_email }}'>Book Your Onboarding Call Here</a></p><p>Looking forward to speaking with you!</p><p>Best regards,<br/>Vambah Sillah</p>",
+        "options": {}
+      },
+      "id": "send-kickoff-email",
+      "name": "Send Onboarding Invite Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        208
+      ],
+      "webhookId": "0cf16b75-0db7-4d5e-aaed-b2f85b381356",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UCK3YD2eNuUHuUxB",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0ABTFRRVN3"
+        },
+        "text": "=:moneybag: *New Client Payment Received!*\n\n*Client:* {{ $('Build Client Profile').item.json.client_name }}\n*Email:* {{ $('Build Client Profile').item.json.client_email }}\n*Product:* {{ $('Build Client Profile').item.json.product_purchased }}\n*Amount:* {{ $('Build Client Profile').item.json.payment_currency }} {{ $('Build Client Profile').item.json.payment_amount }}\n*Status:* Awaiting onboarding call scheduling\n*Client ID:* `{{ $('Build Client Profile').item.json.client_id }}`",
+        "otherOptions": {}
+      },
+      "id": "slack-notify",
+      "name": "Notify Team on Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        400
+      ],
+      "webhookId": "c2388fa9-beca-48b3-921c-30f5be075928",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## WF-001: Payment Intake\n\n**Trigger:** Stripe checkout.session.completed\n\n**What this does:**\n1. Captures payment from Stripe\n2. Looks up existing proposal + sales_session from WF-000B\n3. Updates proposal status to 'paid'\n4. Updates sales_session to 'converted'\n5. Creates client profile with config object\n6. Stores in Supabase client_projects table\n7. Sends onboarding call booking email (step 1 of 2-step post-payment flow)\n8. Notifies team on Slack\n\n**Post-payment flow:** Payment -> Onboarding Call -> Kickoff Meeting\n\n**Data flow:** WF-000B creates proposal with Stripe link -> Client pays -> This workflow fires -> Rich client data flows downstream to WF-002+"
+      },
+      "id": "note-trigger",
+      "name": "Trigger Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        144
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Setup Required\n\n1. **Stripe:** Connect your Stripe API credentials\n2. **Supabase:** Connect Supabase credentials, run database_schema_client_projects.sql\n3. **Gmail:** Connect your Gmail OAuth\n4. **Slack:** Connect Slack and create #new-clients channel\n5. **Calendly:** Onboarding call link configured (atas-onboarding-call)",
+        "height": 336
+      },
+      "id": "note-config",
+      "name": "Config Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        384,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "proposals",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "stripe_checkout_session_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Stripe Payment Received').item.json.data.object.id }}"
+            }
+          ]
+        }
+      },
+      "id": "lookup-proposal",
+      "name": "Lookup Proposal",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        512
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "proposals",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "id",
+              "fieldValue": "={{ $('Lookup Proposal').item.json.id }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "paid"
+            },
+            {
+              "fieldId": "paid_at",
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "update-proposal",
+      "name": "Update Proposal Status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        448,
+        512
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "sales_sessions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "id",
+              "fieldValue": "={{ $('Lookup Proposal').item.json.sales_session_id }}"
+            },
+            {
+              "fieldId": "outcome",
+              "fieldValue": "converted"
+            },
+            {
+              "fieldId": "funnel_stage",
+              "fieldValue": "converted"
+            }
+          ]
+        }
+      },
+      "id": "update-sales-session",
+      "name": "Update Sales Session",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        512
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "client_projects",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "client_id",
+              "fieldValue": "={{ $json.client_id }}"
+            },
+            {
+              "fieldId": "client_name",
+              "fieldValue": "={{ $json.client_name }}"
+            },
+            {
+              "fieldId": "client_email",
+              "fieldValue": "={{ $json.client_email }}"
+            },
+            {
+              "fieldId": "project_status",
+              "fieldValue": "payment_received"
+            },
+            {
+              "fieldId": "current_phase",
+              "fieldValue": "0"
+            },
+            {
+              "fieldId": "payment_amount",
+              "fieldValue": "={{ $json.payment_amount }}"
+            },
+            {
+              "fieldId": "payment_currency",
+              "fieldValue": "={{ $json.payment_currency }}"
+            },
+            {
+              "fieldId": "stripe_session_id",
+              "fieldValue": "={{ $json.stripe_session_id }}"
+            },
+            {
+              "fieldId": "stripe_customer_id",
+              "fieldValue": "={{ $json.stripe_customer_id }}"
+            },
+            {
+              "fieldId": "product_purchased",
+              "fieldValue": "={{ $json.product_purchased }}"
+            }
+          ]
+        }
+      },
+      "id": "create-client-project",
+      "name": "Create Client Project",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Stripe Payment Received": {
+      "main": [
+        [
+          {
+            "node": "Extract Session Details",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Lookup Proposal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Session Details": {
+      "main": [
+        [
+          {
+            "node": "Build Client Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Proposal": {
+      "main": [
+        [
+          {
+            "node": "Update Proposal Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Proposal Status": {
+      "main": [
+        [
+          {
+            "node": "Update Sales Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Client Profile": {
+      "main": [
+        [
+          {
+            "node": "Create Client Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Client Project": {
+      "main": [
+        [
+          {
+            "node": "Send Onboarding Invite Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Team on Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Stripe Payment Received": {
+      "webhookId": "we_1Sxzs3CeZuDvO5CixfUxXGlg",
+      "webhookEvents": [
+        "checkout.session.completed"
+      ],
+      "webhookSecret": "whsec_g25rZmNxHiQfm8Q3Tm8aNm1U348swdia"
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

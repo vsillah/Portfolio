@@ -1,0 +1,373 @@
+{
+  "id": "ItrvKM7BLuvcgJ7a",
+  "name": "WF-CLG-001: Cold Lead Sourcing",
+  "active": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        288
+      ],
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "cold_lead_sources",
+        "returnAll": true,
+        "filterType": "string",
+        "filterString": "is_active=eq.true"
+      },
+      "id": "get-sources",
+      "name": "Get Active Lead Sources",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        400
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "loop-sources",
+      "name": "Loop Over Sources",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        448,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "url": "https://api.hunter.io/v2/domain-search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "domain",
+              "value": "={{ $json.domain }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $json.limit }}"
+            },
+            {
+              "name": "api_key",
+              "value": "={{ $json.hunterApiKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "apollo-search",
+      "name": "Hunter.io Domain Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        896,
+        208
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const source = $input.first().json;\nconst criteria = source.search_criteria || {};\nconst domains = criteria.target_domains || [];\nif (domains.length === 0) {\n  throw new Error('No target_domains found in search_criteria. Hunter.io requires company domains to search.');\n}\nconst maxPerRun = Math.min(source.max_leads_per_run || 25, 20);\nconst maxLeadsPerDomain = Math.min(10, Math.ceil(maxPerRun / Math.max(domains.length, 1)));\nconst hunterApiKey = criteria.hunter_api_key || '';\nif (!hunterApiKey) {\n  throw new Error('hunter_api_key not found in search_criteria. Please add your Hunter.io API key.');\n}\nreturn domains.slice(0, 5).map(domain => ({\n  json: { ...source, domain, limit: maxLeadsPerDomain, hunterApiKey }\n}));"
+      },
+      "id": "build-apollo-body",
+      "name": "Build Hunter Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\n// Graceful fallback when Hunter returns 429/403 or API error\nif (response && (response.error || response.errors || (response.statusCode && response.statusCode >= 400) || (response.body && typeof response.body === 'string' && (response.body.includes('rate limit') || response.body.includes('quota'))))) {\n  return [];\n}\nconst emails = response.data?.emails || [];\nconst domain = response.data?.domain || '';\nconst organization = response.data?.organization || '';\nconst industry = response.data?.industry || null;\nconst sourceId = $('Build Hunter Request').first().json.id;\nconst sourceName = $('Build Hunter Request').first().json.name;\nconst leads = emails.map(person => ({\n  name: [person.first_name, person.last_name].filter(Boolean).join(' '),\n  email: person.value || null,\n  company: organization || null,\n  company_domain: domain || null,\n  linkedin_url: person.linkedin || null,\n  linkedin_username: person.linkedin ? person.linkedin.split('/in/')[1]?.replace(/\\/$/, '') : null,\n  job_title: person.position || null,\n  employee_count: null,\n  industry: industry,\n  location: [person.city, person.state, person.country].filter(Boolean).join(', '),\n  apollo_person_id: null,\n  annual_revenue: null,\n  lead_source: 'cold_hunter',\n  outreach_status: 'not_contacted',\n  qualification_status: 'pending',\n  source_id: sourceId,\n  source_name: sourceName,\n}));\nreturn leads.filter(l => l.email).map(l => ({ json: l }));"
+      },
+      "id": "extract-people",
+      "name": "Extract People",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "cold_lead_sources",
+        "filterType": "string",
+        "filterString": "id=eq.={{ $json.id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "last_run_at",
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "update-source-stats",
+      "name": "Update Source Stats",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        400
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## WF-CLG-001: Cold Lead Sourcing\n\nRuns on a weekly schedule. For each active cold_lead_sources record:\n1. Queries Hunter.io API with target company domains\n2. Extracts and normalizes people data\n3. Deduplicates against existing contact_submissions\n4. Saves new leads to Supabase\n5. Triggers enrichment pipeline for each new lead\n\n**Config:** Set HUNTER_API_KEY env var in n8n Settings \u2192 Environment Variables.\n\n**Hunter.io API:** Free tier includes 25 searches/month. Get your key at https://hunter.io/api-keys"
+      },
+      "id": "note-workflow",
+      "name": "Workflow Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "content": "### Lead Source Config\nSearch criteria stored in `cold_lead_sources` table.\nExample criteria for Hunter.io:\n```json\n{\n  \"target_domains\": [\n    \"stripe.com\",\n    \"notion.so\",\n    \"linear.app\",\n    \"vercel.com\",\n    \"supabase.com\"\n  ]\n}\n```"
+      },
+      "id": "note-source",
+      "name": "Source Config Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        448,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wake-clg001-lead-sourcing",
+        "options": {}
+      },
+      "id": "webhook-wake-trigger",
+      "name": "Webhook Wake Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        480
+      ],
+      "webhookId": "8b1cbbb5-a3a1-4e8e-8d8e-9808c5b1f767"
+    },
+    {
+      "id": "collect-leads-batch",
+      "name": "Collect Leads Batch",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        208
+      ],
+      "parameters": {
+        "jsCode": "// Collect all individual lead items into a single batch for the ingest API\nconst leads = $input.all().map(item => item.json);\nreturn [{ json: { leads, count: leads.length } }];"
+      }
+    },
+    {
+      "id": "post-to-ingest-api",
+      "name": "POST to Ingest API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1568,
+        208
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://portfolio-mu-henna-um1fv2dw8q.vercel.app/api/admin/outreach/ingest",
+        "specifyBody": "json",
+        "sendBody": true,
+        "sendHeaders": true,
+        "jsonBody": "={{ JSON.stringify({ leads: $json.leads }) }}",
+        "options": {},
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer QeN22JCeKUfIPbVAgUIm08GWKPttK2QG/NtKRLGMqS4="
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Active Lead Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active Lead Sources": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Sources": {
+      "main": [
+        [
+          {
+            "node": "Update Source Stats",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Hunter Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Hunter Request": {
+      "main": [
+        [
+          {
+            "node": "Hunter.io Domain Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hunter.io Domain Search": {
+      "main": [
+        [
+          {
+            "node": "Extract People",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Wake Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Active Lead Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract People": {
+      "main": [
+        [
+          {
+            "node": "Collect Leads Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Leads Batch": {
+      "main": [
+        [
+          {
+            "node": "POST to Ingest API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST to Ingest API": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "pinData": {},
+  "versionId": "402580f8-d9fd-4942-b1ec-bd259972bb25",
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "parentFolderId": null,
+  "createdAt": "2026-02-07 11:58:43.088",
+  "updatedAt": "2026-02-12 23:18:42.403",
+  "isArchived": 0,
+  "versionCounter": 99,
+  "description": null,
+  "activeVersionId": "402580f8-d9fd-4942-b1ec-bd259972bb25"
+}

@@ -1,0 +1,323 @@
+{
+  "id": "QYKzSed8K6E5qv6Y",
+  "name": "WF-010: E2E Testing Checklist",
+  "active": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "e2e-testing",
+        "httpMethod": "POST",
+        "options": {},
+        "responseMode": "responseNode"
+      },
+      "name": "E2E Testing Webhook",
+      "id": "webhook-trigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "webhookId": "0a57a622-200b-443a-9a61-02843a9740db",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Build Testing Checklist",
+      "id": "build-checklist",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        304
+      ],
+      "type": "n8n-nodes-base.set"
+    },
+    {
+      "parameters": {
+        "text": "={{ '\ud83e\uddea *E2E Testing Checklist*\\n\\nTime to test everything from start to finish! Please go through each item:\\n\\n*Core Functionality:*\\n\u2610 \ud83d\udd18 **Trigger Activation** - Does the workflow start correctly?\\n\u2610 \ud83d\udd04 **Data Flow** - Does data pass through all nodes properly?\\n\u2610 \u26a0\ufe0f **Error Handling** - Are errors caught and handled gracefully?\\n\u2610 \ud83d\udccb **Edge Cases** - Does it handle unusual inputs?\\n\\n*Technical Checks:*\\n\u2610 \u26a1 **Performance** - Is execution time acceptable?\\n\u2610 \ud83d\udd17 **Integration Points** - Do all connected services work?\\n\u2610 \ud83d\udd10 **User Permissions** - Are access levels correct?\\n\u2610 \u21a9\ufe0f **Rollback Plan** - Can we revert if needed?\\n\\n*When complete, react with \u2705 to this message!*' }}",
+        "select": "channel",
+        "operation": "post",
+        "resource": "message",
+        "otherOptions": {},
+        "channelId": "={{ $json.slackChannel }}"
+      },
+      "name": "Post Testing Checklist",
+      "id": "post-checklist",
+      "typeVersion": 2.4,
+      "position": [
+        672,
+        208
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "dbc15119-caa8-4ab8-a069-7348b204272b",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "myDrive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "title": "={{ $json.clientName + ' - E2E Testing Checklist' }}"
+      },
+      "name": "Create Testing Doc",
+      "id": "create-doc",
+      "typeVersion": 2,
+      "position": [
+        672,
+        400
+      ],
+      "type": "n8n-nodes-base.googleDocs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "JaQWSM7Ep4IZjg3Y",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $('Create Testing Doc').item.json.documentId }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ 'E2E Testing Checklist\\n\\nClient: ' + $('Build Testing Checklist').item.json.clientName + '\\nDate: ' + $now.format('yyyy-MM-dd') + '\\n\\n---\\n\\n[ ] Trigger Activation - Does the workflow start correctly?\\n[ ] Data Flow - Does data pass through all nodes properly?\\n[ ] Error Handling - Are errors caught and handled gracefully?\\n[ ] Edge Cases - Does it handle unusual inputs?\\n[ ] Performance - Is execution time acceptable?\\n[ ] Integration Points - Do all connected services work?\\n[ ] User Permissions - Are access levels correct?\\n[ ] Rollback Plan - Can we revert if needed?\\n\\n---\\n\\nNotes:\\n\\n\\nTested by: _________________\\nDate completed: _________________' }}"
+            }
+          ]
+        }
+      },
+      "name": "Update Doc Content",
+      "id": "update-doc",
+      "typeVersion": 2,
+      "position": [
+        880,
+        400
+      ],
+      "type": "n8n-nodes-base.googleDocs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "JaQWSM7Ep4IZjg3Y",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {success: true, testingDocUrl: $('Create Testing Doc').item.json.webViewLink, message: 'E2E testing checklist created'} }}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "id": "respond-webhook",
+      "typeVersion": 1.1,
+      "position": [
+        1328,
+        304
+      ],
+      "type": "n8n-nodes-base.respondToWebhook"
+    },
+    {
+      "parameters": {
+        "content": "## WF-010: E2E Testing Checklist\\n\\n**Trigger:** POST webhook\\n\\n**Payload:** `{\\\"clientEmail\\\": \\\"...\\\"}`\\n\\n**Actions:**\\n1. Create testing checklist doc\\n2. Post checklist in Slack\\n3. Update sheet with testing status"
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_email",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.clientEmail }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-client-supabase",
+      "name": "Fetch Client Data",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "client_projects",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $('Fetch Client Data').item.json.id }}"
+            },
+            {
+              "fieldValue": "testing"
+            },
+            {
+              "fieldValue": "3"
+            },
+            {
+              "fieldValue": "={{ $now.toISO() }}"
+            },
+            {
+              "fieldValue": "={{ $('Create Testing Doc').item.json.documentId || '' }}"
+            }
+          ]
+        }
+      },
+      "id": "update-testing-supabase",
+      "name": "Update Project with Testing",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Build Testing Checklist": {
+      "main": [
+        [
+          {
+            "node": "Post Testing Checklist",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Testing Doc",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Testing Doc": {
+      "main": [
+        [
+          {
+            "node": "Update Doc Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "E2E Testing Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Client Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Client Data": {
+      "main": [
+        [
+          {
+            "node": "Build Testing Checklist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Testing Checklist": {
+      "main": [
+        [
+          {
+            "node": "Update Project with Testing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Doc Content": {
+      "main": [
+        [
+          {
+            "node": "Update Project with Testing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Project with Testing": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "versionId": "9379a19b-20ba-4571-aec0-711d5d144e7e",
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "parentFolderId": null,
+  "createdAt": "2026-02-01 15:01:50.484",
+  "updatedAt": "2026-02-08 21:49:36.033",
+  "isArchived": 0,
+  "versionCounter": 27,
+  "description": null,
+  "activeVersionId": "9379a19b-20ba-4571-aec0-711d5d144e7e"
+}

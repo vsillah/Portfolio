@@ -4,7 +4,9 @@ This file contains all environment variables needed for your n8n workflows on n8
 
 ## Quick Setup Commands
 
-Copy these values into **Settings → Environments** in n8n Cloud:
+Copy these values into **Settings → Variables** (or **Settings → Environments**) in n8n Cloud.
+
+> **Local self-hosted note:** The local instance blocks `$env` in node expressions. Use **Credentials** (e.g. Header Auth) instead. n8n Cloud supports `$env` normally.
 
 ---
 

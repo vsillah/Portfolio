@@ -1,0 +1,311 @@
+{
+  "updatedAt": "2026-02-21T19:53:53.858Z",
+  "createdAt": "2026-02-14T11:04:30.079Z",
+  "id": "HyVGDTStTaWYL4Do",
+  "name": "WF-FUP: Follow-Up Meeting Scheduler",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## WF-FUP: Follow-Up Meeting Scheduler\n\nTriggered by WF-MCH after Parse and Store, or manually.\n\n**Input:** { meeting_record_id }\n\n**Flow:**\n1. Fetch follow-up context from app API\n2. Map meeting type to the correct Calendly booking URL\n3. Build notification message with booking link\n4. Notify client (Slack or email)\n\n**Meeting type -> Calendly URL mapping:**\n- discovery -> atas-discovery-call\n- onboarding -> atas-onboarding-call\n- kickoff -> atas-kick-off-meeting\n- progress_checkin -> atas-progress-check-in\n- go_no_go -> go-no-go-meeting\n- delivery_review -> atas-delivery-and-review\n\nIf next_meeting_type is not set, the workflow infers the next step in the lifecycle.\n\n**Auth:** Uses N8N_INGEST_SECRET for app API calls."
+      },
+      "name": "Workflow Note",
+      "id": "note-fup",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        640
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "follow-up-scheduler",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Follow-Up Webhook",
+      "id": "webhook-fup",
+      "typeVersion": 2,
+      "position": [
+        0,
+        416
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "webhookId": "06bb8852-5aca-47a5-8e17-45537a5393cb",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ (($json.body && $json.body.base_url) ? $json.body.base_url : 'https://amadutown.com') + '/api/meetings/' + $json.body.meeting_record_id + '/follow-up-context' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "name": "Fetch Follow-Up Context",
+      "id": "fetch-context-fup",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        416
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9Au5oIQCDeIjLXZf",
+          "name": "App Ingest Secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse follow-up context and map meeting type to Calendly URL\nconst context = $input.first().json;\nconst meeting = context.meeting;\nconst project = context.project;\n\nconst attendees = meeting.attendees || [];\nconst clientEmail = project?.client_email || '';\nconst clientName = project?.client_name || '';\n\n// Determine meeting type for the follow-up\nconst nextMeetingType = meeting.next_meeting_type || meeting.meeting_type || 'progress_checkin';\nconst nextAgenda = meeting.next_meeting_agenda || '';\n\n// Map meeting types to Calendly scheduling URLs\nconst calendlyUrls = {\n  discovery: 'https://calendly.com/amadutown/atas-discovery-call',\n  onboarding: 'https://calendly.com/amadutown/atas-onboarding-call',\n  kickoff: 'https://calendly.com/amadutown/atas-kick-off-meeting',\n  progress_checkin: 'https://calendly.com/amadutown/atas-progress-check-in',\n  go_no_go: 'https://calendly.com/amadutown/go-no-go-meeting',\n  delivery_review: 'https://calendly.com/amadutown/atas-delivery-and-review',\n};\n\n// Determine the follow-up meeting type based on lifecycle progression\nconst lifecycleOrder = ['discovery', 'onboarding', 'kickoff', 'progress_checkin', 'go_no_go', 'delivery_review'];\nlet followUpType = nextMeetingType;\n\n// If next_meeting_type isn't explicitly set, infer the next step\nif (!meeting.next_meeting_type && meeting.meeting_type) {\n  const currentIdx = lifecycleOrder.indexOf(meeting.meeting_type);\n  if (currentIdx >= 0 && currentIdx < lifecycleOrder.length - 1) {\n    followUpType = lifecycleOrder[currentIdx + 1];\n  } else {\n    followUpType = 'progress_checkin'; // default follow-up\n  }\n}\n\nconst bookingUrl = calendlyUrls[followUpType] || calendlyUrls.progress_checkin;\n\n// Format a human-readable meeting type label\nconst typeLabel = followUpType\n  .replace(/_/g, ' ')\n  .replace(/\\b\\w/g, c => c.toUpperCase());\n\nreturn [{\n  json: {\n    client_email: clientEmail,\n    client_name: clientName,\n    project_name: project?.project_name || 'Project',\n    project_id: project?.id || '',\n    meeting_type: followUpType,\n    meeting_type_label: typeLabel,\n    next_agenda: nextAgenda,\n    attendees: attendees,\n    task_summary: context.task_summary,\n    slack_channel: project?.slack_channel || '',\n    original_meeting_id: meeting.id,\n    booking_url: bookingUrl,\n  }\n}];"
+      },
+      "name": "Parse Attendees & Build Request",
+      "id": "parse-attendees-fup",
+      "typeVersion": 2,
+      "position": [
+        448,
+        416
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Build notification message - booking URL comes from previous node (no Calendly API needed)\nconst prev = $input.first().json;\n\nconst bookingUrl = prev.booking_url || '[Booking link unavailable]';\nconst clientName = prev.client_name;\nconst projectName = prev.project_name;\nconst meetingTypeLabel = prev.meeting_type_label;\nconst nextAgenda = prev.next_agenda;\n\n// Slack message\nconst slackMessage = `:calendar: *Follow-Up Meeting: ${meetingTypeLabel}*\\n\\nHi ${clientName},\\n\\nThank you for our recent meeting on *${projectName}*. I'd like to schedule our next ${meetingTypeLabel.toLowerCase()} meeting.\\n\\n` + (nextAgenda ? `*Proposed agenda:* ${nextAgenda}\\n\\n` : '') + `Please use the link below to pick a time that works for you:\\n${bookingUrl}\\n\\nLooking forward to our next conversation!`;\n\n// Email\nconst emailSubject = `Schedule Your ${meetingTypeLabel} - ${projectName}`;\nconst emailBody = `Hi ${clientName},\\n\\nThank you for our recent meeting on ${projectName}. I'd like to schedule our next ${meetingTypeLabel.toLowerCase()} meeting.\\n\\n` + (nextAgenda ? `Proposed agenda: ${nextAgenda}\\n\\n` : '') + `Please use the link below to pick a time that works for you:\\n${bookingUrl}\\n\\nLooking forward to our next conversation!\\n\\nBest,\\nAmadou`;\n\nreturn [{\n  json: {\n    client_email: prev.client_email,\n    client_name: clientName,\n    project_name: projectName,\n    slack_channel: prev.slack_channel,\n    booking_url: bookingUrl,\n    slack_message: slackMessage,\n    email_subject: emailSubject,\n    email_body: emailBody,\n    original_meeting_id: prev.original_meeting_id,\n  }\n}];"
+      },
+      "name": "Build Notification Message",
+      "id": "build-notification-fup",
+      "typeVersion": 2,
+      "position": [
+        896,
+        416
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-slack",
+              "operator": {
+                "type": "string",
+                "operation": "isNotEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.slack_channel }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Has Slack Channel?",
+      "id": "if-slack-fup",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        416
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.slack_channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.slack_message }}",
+        "otherOptions": {}
+      },
+      "name": "Post to Slack",
+      "id": "slack-notify-fup",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        320
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "9f408f7f-e24c-4ef7-b71b-53afbcf84bda",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.email_subject }}",
+        "message": "={{ $json.email_body }}",
+        "options": {}
+      },
+      "name": "Create Gmail Draft",
+      "id": "gmail-notify-fup",
+      "typeVersion": 2.1,
+      "position": [
+        1344,
+        512
+      ],
+      "type": "n8n-nodes-base.gmail",
+      "webhookId": "d70aaf96-83ad-446d-94e1-1d87e9d52dd4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"booking_url\": \"{{ $('Build Notification Message').first().json.booking_url }}\",\n  \"notified_via\": \"{{ $('Has Slack Channel?').first().json.slack_channel ? 'slack' : 'email' }}\"\n}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "id": "respond-fup",
+      "typeVersion": 1.1,
+      "position": [
+        1568,
+        416
+      ],
+      "type": "n8n-nodes-base.respondToWebhook"
+    }
+  ],
+  "connections": {
+    "Create Gmail Draft": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Follow-Up Context": {
+      "main": [
+        [
+          {
+            "node": "Parse Attendees & Build Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow-Up Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Follow-Up Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Attendees & Build Request": {
+      "main": [
+        [
+          {
+            "node": "Build Notification Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post to Slack": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Slack Channel?": {
+      "main": [
+        [
+          {
+            "node": "Post to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Gmail Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Notification Message": {
+      "main": [
+        [
+          {
+            "node": "Has Slack Channel?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "9d38378d-24ca-47c7-aad7-e72d580c2dda",
+  "activeVersionId": "9d38378d-24ca-47c7-aad7-e72d580c2dda",
+  "versionCounter": 28,
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-14T11:04:30.084Z",
+      "createdAt": "2026-02-14T11:04:30.084Z",
+      "role": "workflow:owner",
+      "workflowId": "HyVGDTStTaWYL4Do",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    }
+  ]
+}

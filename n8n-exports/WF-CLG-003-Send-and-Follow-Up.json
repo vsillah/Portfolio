@@ -1,0 +1,537 @@
+{
+  "id": "ITDwcU2ct2gHwWwE",
+  "name": "WF-CLG-003: Send and Follow-Up",
+  "active": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "clg-send",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "Approved Outreach",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "webhookId": "cfca53f7-d83f-442d-b300-243e87f39607"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.channel }}",
+                    "rightValue": "email",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "email"
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.body.channel }}",
+                    "rightValue": "linkedin",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "linkedin"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "route-channel",
+      "name": "Route by Channel",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        224,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body.contact.email }}",
+        "subject": "={{ $json.body.subject }}",
+        "message": "={{ $json.body.body }}",
+        "options": {}
+      },
+      "id": "send-email",
+      "name": "Send Email via Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        480,
+        208
+      ],
+      "webhookId": "3be0d738-9b3d-4df9-9aaa-5cf2dafd8cb3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract Gmail thread ID and message ID from send response\nconst gmailResponse = $input.first().json;\nconst webhookData = $('Approved Outreach').first().json.body;\n\nreturn [{\n  json: {\n    outreach_id: webhookData.outreach_id,\n    contact_submission_id: webhookData.contact_submission_id,\n    thread_id: gmailResponse.threadId || null,\n    message_id: gmailResponse.id || null,\n    channel: 'email',\n    sequence_step: webhookData.sequence_step,\n  }\n}];"
+      },
+      "id": "extract-thread-id",
+      "name": "Extract Thread ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "outreach_queue",
+        "matchType": "id",
+        "id": "={{ $json.outreach_id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "sent"
+            },
+            {
+              "fieldId": "sent_at",
+              "fieldValue": "={{ $now.toISO() }}"
+            },
+            {
+              "fieldId": "thread_id",
+              "fieldValue": "={{ $json.thread_id }}"
+            },
+            {
+              "fieldId": "message_id",
+              "fieldValue": "={{ $json.message_id }}"
+            }
+          ]
+        }
+      },
+      "id": "update-sent-email",
+      "name": "Update Email Status to Sent",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        960,
+        208
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// LinkedIn messages are flagged as sent but require manual action in V1.\n// In V2, this will integrate with LinkedIn API.\nconst webhookData = $('Approved Outreach').first().json.body;\n\nreturn [{\n  json: {\n    outreach_id: webhookData.outreach_id,\n    contact_submission_id: webhookData.contact_submission_id,\n    channel: 'linkedin',\n    linkedin_url: webhookData.contact?.linkedin_url,\n    body: webhookData.body,\n    note: 'LinkedIn message prepared. Send manually via LinkedIn. Message body is in the outreach queue.',\n    sequence_step: webhookData.sequence_step,\n  }\n}];"
+      },
+      "id": "send-linkedin-note",
+      "name": "Prepare LinkedIn Send",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "outreach_queue",
+        "matchType": "id",
+        "id": "={{ $json.outreach_id }}",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "sent"
+            },
+            {
+              "fieldId": "sent_at",
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "update-sent-linkedin",
+      "name": "Update LinkedIn Status to Sent",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        720,
+        432
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "C0ADJ10AZGD",
+        "text": "={{ '\ud83d\udcac *LinkedIn Message Ready to Send*\\n\\n' + '\ud83d\udc64 ' + $('Approved Outreach').first().json.body.contact?.name + '\\n' + '\ud83d\udd17 ' + ($json.linkedin_url || 'No LinkedIn URL') + '\\n\\n' + '*Message:*\\n' + $json.body + '\\n\\n_Please send this manually on LinkedIn._' }}",
+        "otherOptions": {}
+      },
+      "id": "slack-linkedin-manual",
+      "name": "Slack: Send LinkedIn Manually",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        432
+      ],
+      "webhookId": "cb729ba3-c0c0-46c5-bb51-d1507e0993e5",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "merge-channels",
+      "name": "Merge Channels",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1200,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-step",
+              "leftValue": "={{ $('Approved Outreach').first().json.body.sequence_step }}",
+              "rightValue": "3",
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-follow-up",
+      "name": "Has More Steps?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 4,
+        "unit": "days"
+      },
+      "id": "wait-followup",
+      "name": "Wait 4 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        208
+      ],
+      "webhookId": "1cfbd430-82fa-43da-89e1-271464217b28"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "check-reply",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "has-replied",
+      "name": "Already Replied?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.amadutown.com/webhook/clg-outreach-gen",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contact_id: $('Approved Outreach').first().json.body.contact_submission_id, score_tier: $('Approved Outreach').first().json.body.score_tier || 'warm', lead_score: $('Approved Outreach').first().json.body.lead_score || 50, sequence_step: ($('Approved Outreach').first().json.body.sequence_step || 1) + 1, is_followup: true }) }}",
+        "options": {}
+      },
+      "id": "gen-followup",
+      "name": "Generate Follow-Up",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2400,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## WF-CLG-003: Send and Follow-Up\n\nTriggered by admin approval from the outreach review screen.\n\n**Flow:**\n1. Receives approved outreach item data via webhook\n2. Routes by channel (email / linkedin)\n3. Email: Sends via Gmail, captures thread_id for reply matching\n4. LinkedIn: Posts Slack notification for manual send (V1)\n5. Updates outreach_queue status to 'sent'\n6. If sequence has more steps: waits 4 days, checks for reply\n7. If no reply: triggers WF-CLG-002 for next follow-up step\n\n**Env vars:**\n- N8N_CLG003_WEBHOOK_URL (this workflow's webhook)\n- N8N_CLG002_WEBHOOK_URL (outreach gen webhook)\n- SLACK_OUTREACH_CHANNEL_ID"
+      },
+      "id": "note-workflow",
+      "name": "Workflow Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -288,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "outreach_queue",
+        "limit": 1,
+        "filterType": "string",
+        "filterString": "=contact_submission_id=eq.{{ $json.contact_submission_id }}&status=eq.replied"
+      },
+      "id": "check-reply-v2",
+      "name": "Check for Reply",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        208
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Approved Outreach": {
+      "main": [
+        [
+          {
+            "node": "Route by Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Channel": {
+      "main": [
+        [
+          {
+            "node": "Send Email via Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare LinkedIn Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email via Gmail": {
+      "main": [
+        [
+          {
+            "node": "Extract Thread ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Thread ID": {
+      "main": [
+        [
+          {
+            "node": "Update Email Status to Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Email Status to Sent": {
+      "main": [
+        [
+          {
+            "node": "Merge Channels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare LinkedIn Send": {
+      "main": [
+        [
+          {
+            "node": "Update LinkedIn Status to Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update LinkedIn Status to Sent": {
+      "main": [
+        [
+          {
+            "node": "Slack: Send LinkedIn Manually",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Send LinkedIn Manually": {
+      "main": [
+        [
+          {
+            "node": "Merge Channels",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Channels": {
+      "main": [
+        [
+          {
+            "node": "Has More Steps?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has More Steps?": {
+      "main": [
+        [
+          {
+            "node": "Wait 4 Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already Replied?": {
+      "main": [
+        [
+          {
+            "node": "Generate Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 4 Days": {
+      "main": [
+        [
+          {
+            "node": "Check for Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Reply": {
+      "main": [
+        [
+          {
+            "node": "Already Replied?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "versionId": "819caa25-d6e0-44f8-a03b-bbcefa3ddfb7",
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "parentFolderId": null,
+  "createdAt": "2026-02-07 12:03:27.308",
+  "updatedAt": "2026-02-07 13:01:42.775",
+  "isArchived": 0,
+  "versionCounter": 21,
+  "description": null,
+  "activeVersionId": "819caa25-d6e0-44f8-a03b-bbcefa3ddfb7"
+}

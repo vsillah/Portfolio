@@ -1,0 +1,403 @@
+{
+  "updatedAt": "2026-02-12T22:35:54.625Z",
+  "createdAt": "2026-02-10T04:33:00.950Z",
+  "id": "aZEcdqbSTuu15z7R",
+  "name": "WF-VEP-001: Internal Evidence Extraction",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "name": "Webhook Trigger",
+      "webhookId": "ccacf311-1cbe-4a98-8190-d1ead54b90e3",
+      "id": "webhook-trigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vep-001-extract",
+        "options": {}
+      }
+    },
+    {
+      "name": "WF-VEP-001 Overview",
+      "id": "sticky-overview",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        -384
+      ],
+      "type": "n8n-nodes-base.stickyNote",
+      "parameters": {
+        "content": "## WF-VEP-001: Internal Evidence Extraction\n\nExtracts pain points from internal data sources:\n1. Diagnostic audits (business_challenges, automation_needs)\n2. Lead reports / outreach replies\n3. Contact form messages\n\nTriggered via webhook from the admin dashboard.\nResults are POSTed to /api/admin/value-evidence/ingest.",
+        "height": 312,
+        "width": 400
+      }
+    },
+    {
+      "name": "Fetch Diagnostic Audits",
+      "id": "fetch-diagnostics",
+      "typeVersion": 1,
+      "position": [
+        304,
+        208
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "parameters": {
+        "filterType": "string",
+        "filterString": "status=eq.completed",
+        "operation": "getAll",
+        "tableId": "diagnostic_audits",
+        "returnAll": true
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "name": "Fetch Contact Messages",
+      "id": "fetch-contacts",
+      "typeVersion": 1,
+      "position": [
+        304,
+        512
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "parameters": {
+        "filterType": "string",
+        "filterString": "message=not.is.null",
+        "operation": "getAll",
+        "tableId": "contact_submissions",
+        "returnAll": true
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "name": "Merge All Sources",
+      "id": "merge-sources",
+      "typeVersion": 3,
+      "position": [
+        608,
+        352
+      ],
+      "type": "n8n-nodes-base.merge",
+      "parameters": {}
+    },
+    {
+      "name": "Prepare Text for Classification",
+      "id": "prepare-for-ai",
+      "typeVersion": 2,
+      "position": [
+        864,
+        352
+      ],
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst prepared = [];\nconst body = $('Webhook Trigger').first().json.body || {};\nconst requestedIds = body.contact_submission_ids && Array.isArray(body.contact_submission_ids) ? new Set(body.contact_submission_ids) : null;\nconst enrichments = body.enrichments || {};\n\nfor (const item of items) {\n  const d = item.json;\n  let sourceType = 'unknown';\n  let sourceId = '';\n  let textContent = '';\n  let industry = '';\n  let contactSubmissionId = null;\n\n  if (d.diagnostic_data) {\n    sourceType = 'diagnostic_audit';\n    sourceId = d.id || '';\n    contactSubmissionId = d.contact_submission_id || null;\n    if (requestedIds != null && contactSubmissionId != null && !requestedIds.has(contactSubmissionId)) continue;\n    const dd = typeof d.diagnostic_data === 'string' ? JSON.parse(d.diagnostic_data) : d.diagnostic_data;\n    const parts = [];\n    if (dd.business_challenges) parts.push('Business Challenges: ' + JSON.stringify(dd.business_challenges));\n    if (dd.automation_needs) parts.push('Automation Needs: ' + JSON.stringify(dd.automation_needs));\n    if (dd.tech_stack) parts.push('Tech Stack: ' + JSON.stringify(dd.tech_stack));\n    if (dd.diagnostic_summary) parts.push('Summary: ' + dd.diagnostic_summary);\n    if (dd.key_insights) parts.push('Key Insights: ' + dd.key_insights.join(', '));\n    textContent = parts.join('\\n');\n  } else if (d.message) {\n    sourceType = 'lead_enrichment';\n    sourceId = String(d.id || '');\n    contactSubmissionId = d.id || null;\n    if (requestedIds != null && contactSubmissionId != null && !requestedIds.has(contactSubmissionId)) continue;\n    industry = d.industry || '';\n    const parts = [];\n    parts.push('Name: ' + (d.name || 'Unknown'));\n    parts.push('Company: ' + (d.company || 'Unknown'));\n    if (industry) parts.push('Industry: ' + industry);\n    const enrich = enrichments[String(contactSubmissionId)] || {};\n    if (enrich.pain_points_freetext) {\n      parts.push('Pain Points: ' + enrich.pain_points_freetext);\n    }\n    if (d.rep_pain_points) {\n      parts.push('Rep Pain Points: ' + d.rep_pain_points);\n    }\n    if (d.message && !d.message.startsWith('Imported from ')) {\n      parts.push('Message: ' + d.message);\n    }\n    textContent = parts.join('\\n');\n  }\n\n  if (textContent.trim().length > 20) {\n    prepared.push({\n      json: {\n        sourceType,\n        sourceId,\n        contactSubmissionId,\n        industry,\n        textContent: textContent.substring(0, 3000)\n      }\n    });\n  }\n}\n\nreturn prepared;"
+      }
+    },
+    {
+      "name": "Parse AI Classification",
+      "id": "parse-ai-response",
+      "typeVersion": 2,
+      "position": [
+        1600,
+        352
+      ],
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items) {\n  try {\n    const aiResponse = item.json;\n    if (aiResponse.error || (aiResponse.statusCode && aiResponse.statusCode >= 400)) continue;\n    const sourceType = $('Prepare Text for Classification').item.json.sourceType;\n    const sourceId = $('Prepare Text for Classification').item.json.sourceId;\n    const contactSubmissionId = $('Prepare Text for Classification').item.json.contactSubmissionId;\n    const industry = $('Prepare Text for Classification').item.json.industry;\n    let textContent = '';\n    if (aiResponse.content && Array.isArray(aiResponse.content)) {\n      textContent = aiResponse.content.map(c => c.text || '').join('');\n    } else if (aiResponse.message && Array.isArray(aiResponse.message.content)) {\n      textContent = aiResponse.message.content.map(c => c.text || '').join('');\n    } else if (typeof aiResponse.text === 'string') {\n      textContent = aiResponse.text;\n    } else if (typeof aiResponse === 'string') {\n      textContent = aiResponse;\n    }\n    const jsonMatch = textContent.match(/\\[[\\s\\S]*\\]/);\n    if (!jsonMatch) continue;\n    const painPoints = JSON.parse(jsonMatch[0]);\n    for (const pp of painPoints) {\n      if (!pp.category || !pp.severity) continue;\n      // Ensure monetary_indicator is a number or null\n      let monetaryValue = null;\n      if (pp.monetary_indicator != null) {\n        const raw = pp.monetary_indicator;\n        if (typeof raw === 'number' && isFinite(raw)) {\n          monetaryValue = raw;\n        } else if (typeof raw === 'string') {\n          const numMatch = raw.replace(/[^0-9.]/g, '').match(/[0-9]+/);\n          monetaryValue = numMatch ? parseInt(numMatch[0], 10) : null;\n        }\n      }\n      results.push({ json: { category: pp.category, severity: pp.severity, confidence_score: pp.confidence_score || 0.5, source_type: sourceType, source_id: sourceId, source_excerpt: pp.source_excerpt || '', monetary_indicator: monetaryValue, contact_submission_id: contactSubmissionId, industry: industry || null } });\n    }\n  } catch (err) {}\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true } }];"
+      }
+    },
+    {
+      "name": "Filter Empty Results",
+      "id": "filter-empty",
+      "typeVersion": 2,
+      "position": [
+        1856,
+        352
+      ],
+      "type": "n8n-nodes-base.if",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "filter-condition",
+              "leftValue": "={{ $json._empty }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "POST to Ingest Endpoint",
+      "id": "ingest-evidence",
+      "typeVersion": 4.2,
+      "position": [
+        2112,
+        256
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "=https://amadutown.com/api/admin/value-evidence/ingest",
+        "specifyBody": "json",
+        "sendBody": true,
+        "sendHeaders": true,
+        "jsonBody": "={{ JSON.stringify({ evidence: [{ pain_point_category_name: $json.category, source_type: $json.source_type, source_id: $json.source_id, source_excerpt: $json.source_excerpt || '', confidence_score: $json.confidence_score || 0.5, monetary_indicator: $json.monetary_indicator || null, contact_submission_id: $json.contact_submission_id || null, industry: $json.industry || null }] }) }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "zFYfpOy5CkRyl7nZ",
+          "name": "Portfolio Ingest Secret"
+        }
+      }
+    },
+    {
+      "name": "Setup Notes",
+      "id": "sticky-credentials",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        -16
+      ],
+      "type": "n8n-nodes-base.stickyNote",
+      "parameters": {
+        "content": "## Required Setup\n\n1. **Supabase credentials**: Connect your Supabase API credentials to both Supabase nodes\n2. **Anthropic**: On **AI Pain Point Classifier**, select your **Anthropic account** credential (Settings -> Credentials -> Anthropic API)\n3. **Environment variables**:\n   - `PORTFOLIO_BASE_URL`: Your app base URL\n   - `N8N_INGEST_SECRET`: Secret key for the ingest endpoint auth",
+        "height": 300,
+        "width": 380
+      }
+    },
+    {
+      "name": "AI Pain Point Classifier",
+      "continueOnFail": true,
+      "id": "ai-classify-anthropic",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        352
+      ],
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "parameters": {
+        "modelId": {
+          "mode": "id",
+          "value": "claude-sonnet-4-20250514"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a business pain point analyst. Analyze the following text about a company/lead and extract actionable pain points.\n\nFor each pain point found, return a JSON array with objects containing:\n- category: one of [manual_reporting, slow_onboarding, no_automation, poor_lead_tracking, scattered_data, inconsistent_branding, missed_deadlines, no_analytics, manual_invoicing, poor_communication]\n- severity: high, medium, or low\n- confidence_score: 0.0 to 1.0\n- source_excerpt: a concise, insight-rich summary of the pain point (NOT just a quote from the input\u2014synthesize what the pain point means for the business, e.g. 'Non-profit website lacks dynamic content and personalization, likely losing donor engagement and volunteer signups'). Max 200 chars.\n- monetary_indicator: estimated annual dollar cost as a NUMBER (e.g. 10000 for $10k/yr), or null if not estimable. Do NOT include currency symbols, ranges, or text\u2014just a single integer.\n\nIMPORTANT:\n- Go beyond the literal text. Use the company name, industry, and context to infer deeper business implications.\n- If the input is brief, extrapolate reasonable pain points based on the industry and company type.\n- Each source_excerpt should be a NEW insight, not just a repeat of the input words.\n\nReturn ONLY a valid JSON array. No explanation.\n\nText to analyze:\n{{ $json.textContent }}",
+              "role": "user"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {
+          "maxTokens": 2000
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "sDMAJAxVq6VfHXG7",
+          "name": "Anthropic account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Diagnostic Audits",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Contact Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Diagnostic Audits": {
+      "main": [
+        [
+          {
+            "node": "Merge All Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Contact Messages": {
+      "main": [
+        [
+          {
+            "node": "Merge All Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge All Sources": {
+      "main": [
+        [
+          {
+            "node": "Prepare Text for Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Text for Classification": {
+      "main": [
+        [
+          {
+            "node": "AI Pain Point Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Pain Point Classifier": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Classification": {
+      "main": [
+        [
+          {
+            "node": "Filter Empty Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Empty Results": {
+      "main": [
+        [
+          {
+            "node": "POST to Ingest Endpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Webhook Trigger": [
+      {
+        "json": {
+          "headers": {
+            "host": "n8n.amadutown.com",
+            "user-agent": "curl/7.58.0",
+            "content-length": "2",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1",
+            "cf-connecting-ip": "136.226.72.188",
+            "cf-ipcountry": "US",
+            "cf-ray": "9cbd86cfc93debd5-BOS",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-warp-tag-id": "1c368f2c-bfb6-4b42-b4f6-c2c12f7364a2",
+            "connection": "keep-alive",
+            "content-type": "application/json",
+            "x-forwarded-for": "136.226.72.188",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {},
+          "body": {},
+          "webhookUrl": "https://n8n.amadutown.com/webhook/vep-001-extract",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "versionId": "e5bf79c9-41c4-4309-8801-074317622ffc",
+  "activeVersionId": "e5bf79c9-41c4-4309-8801-074317622ffc",
+  "versionCounter": 95,
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-10T04:33:00.977Z",
+      "createdAt": "2026-02-10T04:33:00.977Z",
+      "role": "workflow:owner",
+      "workflowId": "aZEcdqbSTuu15z7R",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    }
+  ]
+}

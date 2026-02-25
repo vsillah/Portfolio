@@ -1,0 +1,658 @@
+{
+  "updatedAt": "2026-02-08T22:34:39.906Z",
+  "createdAt": "2026-02-06T16:05:43.885Z",
+  "id": "HxRdzednJplgpTWO",
+  "name": "WF-CAL: Calendly Webhook Router",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "calendly-webhook-router",
+        "options": {}
+      },
+      "id": "cal-webhook",
+      "name": "Calendly Webhook Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "webhookId": "b5280164-4c4f-434a-8549-852b1b46e7a5"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "event_type",
+              "type": "string",
+              "value": "={{ $json.body.event }}"
+            },
+            {
+              "id": "2",
+              "name": "event_type_slug",
+              "type": "string",
+              "value": "={{ $json.body.payload.event_type.slug }}"
+            },
+            {
+              "id": "3",
+              "name": "invitee_name",
+              "type": "string",
+              "value": "={{ $json.body.payload.invitee.name }}"
+            },
+            {
+              "id": "4",
+              "name": "invitee_email",
+              "type": "string",
+              "value": "={{ $json.body.payload.invitee.email }}"
+            },
+            {
+              "id": "5",
+              "name": "event_uri",
+              "type": "string",
+              "value": "={{ $json.body.payload.event.uri }}"
+            },
+            {
+              "id": "6",
+              "name": "event_start_time",
+              "type": "string",
+              "value": "={{ $json.body.payload.event.start_time }}"
+            },
+            {
+              "id": "7",
+              "name": "event_end_time",
+              "type": "string",
+              "value": "={{ $json.body.payload.event.end_time }}"
+            },
+            {
+              "id": "8",
+              "name": "calendly_event_uuid",
+              "type": "string",
+              "value": "={{ $json.body.payload.event.uuid }}"
+            },
+            {
+              "id": "9",
+              "name": "cancellation_reason",
+              "type": "string",
+              "value": "={{ $json.body.payload.cancellation ? $json.body.payload.cancellation.reason : '' }}"
+            },
+            {
+              "id": "10",
+              "name": "no_show",
+              "type": "boolean",
+              "value": "={{ $json.body.payload.no_show ? true : false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-event-data",
+      "name": "Extract Event Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type_slug }}",
+                    "rightValue": "atas-discovery-call",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type_slug }}",
+                    "rightValue": "atas-onboarding-call",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type_slug }}",
+                    "rightValue": "atas-kick-off-meeting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type_slug }}",
+                    "rightValue": "atas-progress-check-in",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type_slug }}",
+                    "rightValue": "go-no-go-meeting",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.event_type_slug }}",
+                    "rightValue": "atas-delivery-and-review",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    }
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "route-by-type",
+      "name": "Route by Event Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        560,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "routed_to",
+              "type": "string",
+              "value": "discovery_call"
+            },
+            {
+              "id": "2",
+              "name": "target_workflow",
+              "type": "string",
+              "value": "WF-000A"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "handle-discovery",
+      "name": "Handle Discovery",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "routed_to",
+              "type": "string",
+              "value": "onboarding_call"
+            },
+            {
+              "id": "2",
+              "name": "target_workflow",
+              "type": "string",
+              "value": "WF-Onboarding"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "handle-onboarding",
+      "name": "Handle Onboarding",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "routed_to",
+              "type": "string",
+              "value": "kickoff_meeting"
+            },
+            {
+              "id": "2",
+              "name": "target_workflow",
+              "type": "string",
+              "value": "WF-002"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "handle-kickoff",
+      "name": "Handle Kickoff",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "routed_to",
+              "type": "string",
+              "value": "progress_checkin"
+            },
+            {
+              "id": "2",
+              "name": "target_workflow",
+              "type": "string",
+              "value": "WF-007"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "handle-progress",
+      "name": "Handle Progress",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "routed_to",
+              "type": "string",
+              "value": "go_no_go_review"
+            },
+            {
+              "id": "2",
+              "name": "target_workflow",
+              "type": "string",
+              "value": "WF-009"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "handle-gonogo",
+      "name": "Handle GoNoGo",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "routed_to",
+              "type": "string",
+              "value": "delivery_review"
+            },
+            {
+              "id": "2",
+              "name": "target_workflow",
+              "type": "string",
+              "value": "WF-012"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "handle-delivery",
+      "name": "Handle Delivery",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "routed_to",
+              "type": "string",
+              "value": "unknown"
+            },
+            {
+              "id": "2",
+              "name": "warning",
+              "type": "string",
+              "value": "Unrecognized Calendly event type slug"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "handle-unknown",
+      "name": "Handle Unknown",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        720,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## WF-CAL: Calendly Webhook Router\n\nSingle endpoint for ALL Calendly webhook events.\n\nEvent Kinds:\n- invitee.created -> Routes to appropriate handler by event_type_slug\n- invitee.canceled -> Sends Slack notification with cancellation reason\n- invitee.no_show -> Sends Slack notification for follow-up\n\nRoutes by event_type_slug to:\n- Discovery Call -> WF-000A\n- Onboarding Call -> WF-001B\n- Kickoff Meeting -> WF-002\n- Progress Check-in -> WF-007\n- Go/No-Go Review -> WF-009\n- Delivery Review -> WF-012\n\nRegister this webhook URL with Calendly API:\nPOST /webhook/calendly-webhook-router"
+      },
+      "id": "note-router",
+      "name": "Router Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "created-check",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.event_type }}",
+              "rightValue": "invitee.created"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "check-event-kind",
+      "name": "Check Event Kind",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        352,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "action",
+              "type": "string",
+              "value": "={{ $json.event_type === 'invitee.canceled' ? 'canceled' : ($json.no_show ? 'no_show' : 'unknown_event') }}"
+            },
+            {
+              "id": "2",
+              "name": "notification_message",
+              "type": "string",
+              "value": "={{ $json.event_type === 'invitee.canceled' ? ':x: *Calendly Cancellation*\\n\\n*Who:* ' + $json.invitee_name + ' (' + $json.invitee_email + ')\\n*Event:* ' + $json.event_type_slug + '\\n*Reason:* ' + ($json.cancellation_reason || 'Not provided') + '\\n\\nConsider sending a re-booking link.' : ':warning: *No-Show Detected*\\n\\n*Who:* ' + $json.invitee_name + ' (' + $json.invitee_email + ')\\n*Event:* ' + $json.event_type_slug + '\\n\\nFollow-up recommended.' }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "handle-cancel-noshow",
+      "name": "Handle Cancel or NoShow",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        528,
+        1152
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0ABTFRRVN3"
+        },
+        "text": "={{ $json.notification_message }}",
+        "otherOptions": {}
+      },
+      "id": "notify-cancel",
+      "name": "Notify Cancel or NoShow",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        1152
+      ],
+      "webhookId": "2e9a8c69-94b0-4ece-8dcb-db18c9d4b751",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Calendly Webhook Received": {
+      "main": [
+        [
+          {
+            "node": "Extract Event Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Event Type": {
+      "main": [
+        [
+          {
+            "node": "Handle Discovery",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Onboarding",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Kickoff",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Progress",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle GoNoGo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Unknown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Event Data": {
+      "main": [
+        [
+          {
+            "node": "Check Event Kind",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Event Kind": {
+      "main": [
+        [
+          {
+            "node": "Route by Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle Cancel or NoShow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Cancel or NoShow": {
+      "main": [
+        [
+          {
+            "node": "Notify Cancel or NoShow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "084c950e-041c-4515-843e-35c2d53c4246",
+  "activeVersionId": "084c950e-041c-4515-843e-35c2d53c4246",
+  "versionCounter": 19,
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-06T16:05:43.904Z",
+      "createdAt": "2026-02-06T16:05:43.904Z",
+      "role": "workflow:owner",
+      "workflowId": "HxRdzednJplgpTWO",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    }
+  ]
+}

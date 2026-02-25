@@ -1,0 +1,1652 @@
+{
+  "updatedAt": "2026-02-07T02:50:58.109Z",
+  "createdAt": "2026-02-06T11:39:16.531Z",
+  "id": "OFK9EyVsMKu5IT1B",
+  "name": "WF-000B: Discovery Session Complete",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "discovery-session-complete",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Read.ai Meeting Complete",
+      "id": "webhook-trigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "webhookId": "1dda97fc-65a3-4763-a579-d4769c386a50",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhook = $input.item.json;\nconst body = webhook.body || webhook;\n\nconst meetingId = body.meeting_id || body.id || '';\nconst title = body.title || body.meeting_title || '';\nconst summary = body.summary || body.ai_summary || '';\nconst transcript = body.transcript || body.full_transcript || '';\nconst actionItems = body.action_items || body.actionItems || [];\nconst participants = body.participants || body.attendees || [];\nconst duration = body.duration || body.meeting_duration || 0;\nconst recordingUrl = body.recording_url || body.playback_url || '';\nconst meetingDate = body.meeting_date || body.date || body.start_time || new Date().toISOString();\n\nconst clientParticipant = participants.find(p => \n  !p.is_host && !p.is_organizer\n) || participants[1] || {};\n\nconst clientEmail = clientParticipant.email || body.invitee_email || '';\nconst clientName = clientParticipant.name || body.invitee_name || '';\n\nconst fullContext = `Meeting Title: ${title}\\n\\nAI Summary:\\n${summary}\\n\\nAction Items:\\n${Array.isArray(actionItems) ? actionItems.map((item, i) => `${i+1}. ${typeof item === 'string' ? item : item.text || item.description || JSON.stringify(item)}`).join('\\n') : actionItems}\\n\\nFull Transcript:\\n${typeof transcript === 'string' ? transcript.substring(0, 15000) : JSON.stringify(transcript).substring(0, 15000)}`;\n\nreturn [\n  {\n    json: {\n      meetingId,\n      title,\n      summary,\n      transcript: typeof transcript === 'string' ? transcript : JSON.stringify(transcript),\n      actionItems,\n      participants,\n      clientEmail,\n      clientName,\n      duration,\n      recordingUrl,\n      meetingDate,\n      fullContext\n    }\n  }\n];"
+      },
+      "name": "Extract Meeting Data",
+      "id": "extract-meeting",
+      "typeVersion": 2,
+      "position": [
+        224,
+        304
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "sales_sessions",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_email",
+              "condition": "eq",
+              "keyValue": "={{ $json.clientEmail }}"
+            }
+          ]
+        }
+      },
+      "name": "Fetch Sales Session",
+      "id": "fetch-session",
+      "typeVersion": 1,
+      "position": [
+        448,
+        304
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Analyze this discovery call transcript and extract structured client data.\\n\\n' + $('Extract Meeting Data').item.json.fullContext + '\\n\\nExtract the following as a valid JSON object (no markdown, no code fences, just raw JSON):\\n{\\n  \"business_challenges\": {\\n    \"primary_challenges\": [\"list of main challenges\"],\\n    \"pain_points\": [\"specific pain points mentioned\"],\\n    \"current_impact\": \"estimated business impact\",\\n    \"attempted_solutions\": [\"what they have tried\"]\\n  },\\n  \"tech_stack\": {\\n    \"crm\": \"CRM tool if mentioned\",\\n    \"email\": \"email platform\",\\n    \"marketing\": \"marketing tools\",\\n    \"other_tools\": [\"list of other tools\"],\\n    \"integration_readiness\": \"assessment\"\\n  },\\n  \"automation_needs\": {\\n    \"priority_areas\": [\"top priorities\"],\\n    \"desired_outcomes\": [\"what they want to achieve\"],\\n    \"complexity_tolerance\": \"assessment\"\\n  },\\n  \"budget_timeline\": {\\n    \"budget_range\": \"estimated budget\",\\n    \"timeline\": \"desired timeline\",\\n    \"decision_timeline\": \"when they can decide\",\\n    \"budget_flexibility\": \"assessment\"\\n  },\\n  \"decision_making\": {\\n    \"decision_maker\": true/false,\\n    \"stakeholders\": [\"who else is involved\"],\\n    \"approval_process\": \"how decisions are made\"\\n  },\\n  \"key_insights\": [\"5 most important takeaways\"],\\n  \"recommended_actions\": [\"next steps to close the deal\"],\\n  \"urgency_score\": 1-10,\\n  \"opportunity_score\": 1-10,\\n  \"diagnostic_summary\": \"2-3 sentence summary of the opportunity\"\\n}\\n\\nBe precise. Extract actual quotes and specifics from the transcript, not generic placeholders.' }}",
+        "options": {
+          "systemMessage": "You are a sales intelligence analyst. Your job is to extract structured, actionable data from discovery call transcripts. Be specific and data-driven. Use actual details from the conversation, not generic placeholders. Output valid JSON only."
+        }
+      },
+      "name": "AI Structuring Agent",
+      "id": "structuring-agent",
+      "typeVersion": 3.1,
+      "position": [
+        672,
+        304
+      ],
+      "type": "@n8n/n8n-nodes-langchain.agent"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "name": "Structuring Brain",
+      "id": "structuring-brain",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        528
+      ],
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const agentOutput = $('AI Structuring Agent').item.json.output || $('AI Structuring Agent').item.json.text || '';\nconst meetingData = $('Extract Meeting Data').item.json;\nconst sessionData = $('Fetch Sales Session').item.json;\n\nlet structured;\ntry {\n  const jsonMatch = agentOutput.match(/\\{[\\s\\S]*\\}/);\n  structured = JSON.parse(jsonMatch ? jsonMatch[0] : agentOutput);\n} catch (e) {\n  structured = {\n    business_challenges: { primary_challenges: ['Parse error - manual review needed'], pain_points: [], current_impact: 'Unknown', attempted_solutions: [] },\n    tech_stack: { crm: 'Unknown', email: 'Unknown', marketing: 'Unknown', other_tools: [], integration_readiness: 'Unknown' },\n    automation_needs: { priority_areas: ['Manual review needed'], desired_outcomes: [], complexity_tolerance: 'Unknown' },\n    budget_timeline: { budget_range: 'Unknown', timeline: 'Unknown', decision_timeline: 'Unknown', budget_flexibility: 'Unknown' },\n    decision_making: { decision_maker: false, stakeholders: [], approval_process: 'Unknown' },\n    key_insights: ['AI parsing failed - please review transcript manually'],\n    recommended_actions: ['Review transcript and fill in data manually'],\n    urgency_score: 5,\n    opportunity_score: 5,\n    diagnostic_summary: 'Auto-extraction failed. Raw transcript available for manual review.'\n  };\n}\n\nconst emoji = structured.urgency_score >= 8 ? '\ud83d\udd25' : structured.urgency_score >= 5 ? '\ud83d\udfe1' : '\ud83d\udd35';\n\nconst slackSummary = `${emoji} *Discovery Call Complete: ${meetingData.clientName}*\\n\\n*Duration:* ${meetingData.duration} minutes\\n*Recording:* ${meetingData.recordingUrl ? '<' + meetingData.recordingUrl + '|Watch Recording>' : 'N/A'}\\n\\n---\\n*Key Insights:*\\n${structured.key_insights.map(i => '\u2022 ' + i).join('\\n')}\\n\\n*Challenges:* ${structured.business_challenges.primary_challenges.join(', ')}\\n*Budget:* ${structured.budget_timeline.budget_range}\\n*Timeline:* ${structured.budget_timeline.timeline}\\n*Decision Maker:* ${structured.decision_making.decision_maker ? 'Yes' : 'No'}\\n\\n*Scores:* Urgency ${structured.urgency_score}/10 | Opportunity ${structured.opportunity_score}/10\\n\\n*Recommended Next Steps:*\\n${structured.recommended_actions.map((a, i) => (i+1) + '. ' + a).join('\\n')}\\n\\n---\\n_React with \u2705 to approve proposal generation, or \u270f\ufe0f to review first._`;\n\nreturn [\n  {\n    json: {\n      ...meetingData,\n      sessionId: sessionData.id || null,\n      structured,\n      slackSummary\n    }\n  }\n];"
+      },
+      "name": "Parse Structured Data",
+      "id": "parse-data",
+      "typeVersion": 2,
+      "position": [
+        880,
+        304
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "sales_sessions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $json.sessionId }}"
+            },
+            {
+              "fieldValue": "informed"
+            },
+            {
+              "fieldValue": "={{ JSON.stringify($json.structured) }}"
+            },
+            {
+              "fieldValue": "={{ 'Discovery call completed ' + $json.meetingDate + '. Recording: ' + ($json.recordingUrl || 'N/A') + '. Duration: ' + $json.duration + ' min.' }}"
+            }
+          ]
+        }
+      },
+      "name": "Update Sales Session",
+      "id": "update-session",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        208
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "diagnostic_audits",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "completed"
+            },
+            {
+              "fieldValue": "={{ JSON.stringify($json.structured.business_challenges) }}"
+            },
+            {
+              "fieldValue": "={{ JSON.stringify($json.structured.tech_stack) }}"
+            },
+            {
+              "fieldValue": "={{ JSON.stringify($json.structured.automation_needs) }}"
+            },
+            {
+              "fieldValue": "={{ JSON.stringify($json.structured.budget_timeline) }}"
+            },
+            {
+              "fieldValue": "={{ JSON.stringify($json.structured.decision_making) }}"
+            },
+            {
+              "fieldValue": "={{ $json.structured.key_insights }}"
+            },
+            {
+              "fieldValue": "={{ $json.structured.recommended_actions }}"
+            },
+            {
+              "fieldValue": "={{ $json.structured.urgency_score }}"
+            },
+            {
+              "fieldValue": "={{ $json.structured.opportunity_score }}"
+            },
+            {
+              "fieldValue": "={{ $json.structured.diagnostic_summary }}"
+            },
+            {
+              "fieldValue": "={{ $json.meetingDate }}"
+            },
+            {
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "name": "Upsert Diagnostic Audit",
+      "id": "upsert-audit",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        400
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ADZ2L3G81",
+          "mode": "list",
+          "cachedResultName": "sales"
+        },
+        "text": "={{ $('Parse Structured Data').item.json.slackSummary }}",
+        "otherOptions": {}
+      },
+      "name": "Post Summary to Slack",
+      "id": "post-summary",
+      "typeVersion": 2.4,
+      "position": [
+        1328,
+        304
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "f3c5e315-a6be-4ebe-b97f-9a9614c62675",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 30,
+        "unit": "minutes"
+      },
+      "name": "Wait for Approval",
+      "id": "wait-approval",
+      "typeVersion": 1.1,
+      "position": [
+        1552,
+        304
+      ],
+      "type": "n8n-nodes-base.wait",
+      "webhookId": "c0963b91-aef5-4985-9516-09470b21142f"
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $('Parse Structured Data').item.json;\nconst structured = data.structured;\n\nlet proposalAmount = 5000;\nconst budgetStr = (structured.budget_timeline.budget_range || '').toLowerCase();\n\nif (budgetStr.includes('1k') || budgetStr.includes('1,000') || budgetStr.includes('1000')) proposalAmount = 1500;\nelse if (budgetStr.includes('2k') || budgetStr.includes('2,000') || budgetStr.includes('3k') || budgetStr.includes('3,000')) proposalAmount = 3000;\nelse if (budgetStr.includes('5k') || budgetStr.includes('5,000')) proposalAmount = 5000;\nelse if (budgetStr.includes('10k') || budgetStr.includes('10,000') || budgetStr.includes('15k') || budgetStr.includes('15,000')) proposalAmount = 10000;\nelse if (budgetStr.includes('20k') || budgetStr.includes('20,000') || budgetStr.includes('25k')) proposalAmount = 20000;\nelse if (budgetStr.includes('50k') || budgetStr.includes('50,000')) proposalAmount = 35000;\n\nconst lineItems = structured.automation_needs.priority_areas.map((area, i) => ({\n  title: area,\n  description: structured.automation_needs.desired_outcomes[i] || 'Custom automation solution',\n  price: Math.round(proposalAmount / structured.automation_needs.priority_areas.length)\n}));\n\nconst validUntil = new Date();\nvalidUntil.setDate(validUntil.getDate() + 14);\n\nreturn [\n  {\n    json: {\n      clientName: data.clientName,\n      clientEmail: data.clientEmail,\n      sessionId: data.sessionId,\n      proposalAmount,\n      lineItems,\n      validUntil: validUntil.toISOString(),\n      summary: structured.diagnostic_summary,\n      keyInsights: structured.key_insights\n    }\n  }\n];"
+      },
+      "name": "Build Proposal Data",
+      "id": "build-proposal",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        304
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "tableId": "proposals",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $json.sessionId }}"
+            },
+            {
+              "fieldValue": "={{ $json.clientName }}"
+            },
+            {
+              "fieldValue": "={{ $json.clientEmail }}"
+            },
+            {
+              "fieldValue": "={{ JSON.stringify($json.lineItems) }}"
+            },
+            {
+              "fieldValue": "={{ $json.proposalAmount }}"
+            },
+            {
+              "fieldValue": "={{ $json.proposalAmount }}"
+            },
+            {
+              "fieldValue": "={{ $json.validUntil }}"
+            },
+            {
+              "fieldValue": "draft"
+            }
+          ]
+        }
+      },
+      "name": "Create Proposal Record",
+      "id": "create-proposal",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        304
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stripe.com/v1/checkout/sessions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "mode",
+              "value": "payment"
+            },
+            {
+              "name": "success_url",
+              "value": "={{ 'https://amadutown.com/payment-success?session_id={CHECKOUT_SESSION_ID}' }}"
+            },
+            {
+              "name": "cancel_url",
+              "value": "={{ 'https://amadutown.com/payment-cancelled' }}"
+            },
+            {
+              "name": "customer_email",
+              "value": "={{ $('Build Proposal Data').item.json.clientEmail }}"
+            },
+            {
+              "name": "line_items[0][price_data][currency]",
+              "value": "usd"
+            },
+            {
+              "name": "line_items[0][price_data][product_data][name]",
+              "value": "={{ 'Automation Project - ' + $('Build Proposal Data').item.json.clientName }}"
+            },
+            {
+              "name": "line_items[0][price_data][unit_amount]",
+              "value": "={{ $('Build Proposal Data').item.json.proposalAmount * 100 }}"
+            },
+            {
+              "name": "line_items[0][quantity]",
+              "value": "1"
+            },
+            {
+              "name": "metadata[proposal_id]",
+              "value": "={{ $('Create Proposal Record').item.json.id }}"
+            },
+            {
+              "name": "metadata[session_id]",
+              "value": "={{ $('Build Proposal Data').item.json.sessionId }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Create Stripe Checkout",
+      "id": "create-stripe",
+      "typeVersion": 4.2,
+      "position": [
+        2208,
+        304
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "0N37paFpiU3SXn9o",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "proposals",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $('Create Proposal Record').item.json.id }}"
+            },
+            {
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldValue": "sent"
+            },
+            {
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "name": "Update Proposal with Stripe",
+      "id": "update-proposal",
+      "typeVersion": 1,
+      "position": [
+        2432,
+        304
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Build Proposal Data').item.json.clientEmail }}",
+        "subject": "={{ 'Your Automation Proposal - ' + $('Build Proposal Data').item.json.clientName }}",
+        "message": "={{ '<p>Hi ' + $('Build Proposal Data').item.json.clientName + ',</p><p>Great chatting with you! Based on our discovery call, I\\'ve put together a proposal for your automation project.</p><h3>What We\\'ll Build</h3><ul>' + $('Build Proposal Data').item.json.lineItems.map(item => '<li><strong>' + item.title + '</strong> - ' + item.description + '</li>').join('') + '</ul><h3>Investment</h3><p><strong>Total: $' + $('Build Proposal Data').item.json.proposalAmount.toLocaleString() + '</strong></p><p>This proposal is valid until ' + new Date($('Build Proposal Data').item.json.validUntil).toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'}) + '.</p><p><a href=\"' + $json.url + '\" style=\"background-color: #4CAF50; color: white; padding: 14px 28px; text-decoration: none; display: inline-block; border-radius: 4px; font-weight: bold;\">Accept & Pay</a></p><p>If you have any questions, just reply to this email or drop me a message in our Slack channel.</p><p>Looking forward to building this for you!</p>' }}",
+        "options": {}
+      },
+      "name": "Send Proposal Email",
+      "id": "send-proposal",
+      "typeVersion": 2.1,
+      "position": [
+        2640,
+        208
+      ],
+      "type": "n8n-nodes-base.gmail",
+      "webhookId": "e819fbe8-4306-4cd6-97d1-cf24c86f89a4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ADZ2L3G81",
+          "mode": "list",
+          "cachedResultName": "sales"
+        },
+        "text": "={{ '\ud83d\udce8 *Proposal Sent!*\\n\\n*Client:* ' + $('Build Proposal Data').item.json.clientName + '\\n*Amount:* $' + $('Build Proposal Data').item.json.proposalAmount.toLocaleString() + '\\n*Valid Until:* ' + new Date($('Build Proposal Data').item.json.validUntil).toLocaleDateString() + '\\n*Stripe Checkout:* <' + $('Create Stripe Checkout').item.json.url + '|View>\\n\\n\u23f3 Waiting for payment...' }}",
+        "otherOptions": {}
+      },
+      "name": "Post Proposal Sent",
+      "id": "post-proposal-sent",
+      "typeVersion": 2.4,
+      "position": [
+        2640,
+        400
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "739f7a65-3943-4284-b684-72812367dd54",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {success: true, message: 'Discovery session processed', proposalSent: true} }}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "id": "respond-webhook",
+      "typeVersion": 1.1,
+      "position": [
+        2864,
+        304
+      ],
+      "type": "n8n-nodes-base.respondToWebhook"
+    },
+    {
+      "parameters": {
+        "content": "## WF-000B: Discovery Session Complete\n\n**Trigger:** Read.ai webhook (POST to /discovery-session-complete)\nFires automatically when call transcription is ready.\n\n**Flow:**\n1. Read.ai sends meeting data via webhook\n2. Extract transcript, summary, participants\n3. Fetch existing sales_session from Supabase\n4. AI agent structures transcript into diagnostic data\n5. Update sales_session + create diagnostic_audit\n6. **NEW: Write to meeting_records table (discovery type)**\n7. **NEW: Call AI Agenda Builder to generate onboarding agenda**\n8. Post summary to Slack (30 min review window)\n9. Generate proposal with Stripe checkout link\n10. Email proposal to client\n11. Notify in Slack\n\n### Updated 2026-02-06\n- Added Write Discovery Meeting Record node\n- Added Generate Onboarding Agenda sub-workflow call\n- Now feeds into Meeting Intelligence Pipeline"
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "tableId": "meeting_records",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "client_project_id",
+              "fieldValue": "={{ $('Fetch Sales Session').item.json.client_project_id || null }}"
+            },
+            {
+              "fieldId": "meeting_type",
+              "fieldValue": "discovery"
+            },
+            {
+              "fieldId": "transcript",
+              "fieldValue": "={{ $('Extract Meeting Data').item.json.transcript }}"
+            },
+            {
+              "fieldId": "raw_notes",
+              "fieldValue": "={{ $('Extract Meeting Data').item.json.summary }}"
+            },
+            {
+              "fieldId": "recording_url",
+              "fieldValue": "={{ $('Extract Meeting Data').item.json.recordingUrl }}"
+            },
+            {
+              "fieldId": "structured_notes",
+              "fieldValue": "={{ JSON.stringify({summary: $json.structured.diagnostic_summary || '', highlights: $json.structured.key_insights || []}) }}"
+            },
+            {
+              "fieldId": "key_decisions",
+              "fieldValue": "={{ JSON.stringify($json.structured.recommended_actions || []) }}"
+            },
+            {
+              "fieldId": "action_items",
+              "fieldValue": "={{ JSON.stringify($json.structured.recommended_actions ? $json.structured.recommended_actions.map(a => ({action: a, owner: 'TBD', status: 'open'})) : []) }}"
+            },
+            {
+              "fieldId": "open_questions",
+              "fieldValue": "={{ JSON.stringify([]) }}"
+            },
+            {
+              "fieldId": "risks_identified",
+              "fieldValue": "={{ JSON.stringify([]) }}"
+            },
+            {
+              "fieldId": "meeting_data",
+              "fieldValue": "={{ JSON.stringify({pain_points_discussed: $json.structured.business_challenges?.primary_challenges || [], solutions_proposed: $json.structured.automation_needs?.priority_areas || [], timeline_preference: $json.structured.budget_timeline?.timeline || '', budget_confirmed: $json.structured.budget_timeline?.budget_range || '', decision_makers: $json.structured.decision_making?.stakeholders || [], competitor_mentions: [], fit_assessment: $json.structured.urgency_score >= 7 ? 'hot' : $json.structured.urgency_score >= 4 ? 'warm' : 'cold'}) }}"
+            },
+            {
+              "fieldId": "next_meeting_type",
+              "fieldValue": "onboarding"
+            },
+            {
+              "fieldId": "meeting_date",
+              "fieldValue": "={{ $('Extract Meeting Data').item.json.meetingDate }}"
+            },
+            {
+              "fieldId": "duration_minutes",
+              "fieldValue": "={{ $('Extract Meeting Data').item.json.duration }}"
+            },
+            {
+              "fieldId": "attendees",
+              "fieldValue": "={{ JSON.stringify($('Extract Meeting Data').item.json.participants || []) }}"
+            }
+          ]
+        }
+      },
+      "id": "write-meeting-record-000b",
+      "name": "Write Discovery Meeting Record",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        608
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": "exYTC4bhQXq9vqZ0",
+        "options": {}
+      },
+      "id": "call-agenda-000b",
+      "name": "Generate Onboarding Agenda",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        608
+      ]
+    }
+  ],
+  "connections": {
+    "Read.ai Meeting Complete": {
+      "main": [
+        [
+          {
+            "node": "Extract Meeting Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Meeting Data": {
+      "main": [
+        [
+          {
+            "node": "Fetch Sales Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Sales Session": {
+      "main": [
+        [
+          {
+            "node": "AI Structuring Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Structuring Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Structured Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Structured Data": {
+      "main": [
+        [
+          {
+            "node": "Update Sales Session",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upsert Diagnostic Audit",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Summary to Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Write Discovery Meeting Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Summary to Slack": {
+      "main": [
+        [
+          {
+            "node": "Wait for Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Approval": {
+      "main": [
+        [
+          {
+            "node": "Build Proposal Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Proposal Data": {
+      "main": [
+        [
+          {
+            "node": "Create Proposal Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Proposal Record": {
+      "main": [
+        [
+          {
+            "node": "Create Stripe Checkout",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Stripe Checkout": {
+      "main": [
+        [
+          {
+            "node": "Update Proposal with Stripe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Proposal with Stripe": {
+      "main": [
+        [
+          {
+            "node": "Send Proposal Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Proposal Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Proposal Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structuring Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Structuring Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Discovery Meeting Record": {
+      "main": [
+        [
+          {
+            "node": "Generate Onboarding Agenda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "5b5e4d87-101e-47b0-a1a6-5421e46a9ab9",
+  "activeVersionId": "5b5e4d87-101e-47b0-a1a6-5421e46a9ab9",
+  "versionCounter": 25,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-06T11:39:16.547Z",
+      "createdAt": "2026-02-06T11:39:16.547Z",
+      "role": "workflow:owner",
+      "workflowId": "OFK9EyVsMKu5IT1B",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-21T11:16:25.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-21",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-07T02:51:04.000Z",
+    "createdAt": "2026-02-07T02:50:58.111Z",
+    "versionId": "5b5e4d87-101e-47b0-a1a6-5421e46a9ab9",
+    "workflowId": "OFK9EyVsMKu5IT1B",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "discovery-session-complete",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "name": "Read.ai Meeting Complete",
+        "id": "webhook-trigger",
+        "typeVersion": 2,
+        "position": [
+          0,
+          304
+        ],
+        "type": "n8n-nodes-base.webhook",
+        "webhookId": "1dda97fc-65a3-4763-a579-d4769c386a50",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "const webhook = $input.item.json;\nconst body = webhook.body || webhook;\n\nconst meetingId = body.meeting_id || body.id || '';\nconst title = body.title || body.meeting_title || '';\nconst summary = body.summary || body.ai_summary || '';\nconst transcript = body.transcript || body.full_transcript || '';\nconst actionItems = body.action_items || body.actionItems || [];\nconst participants = body.participants || body.attendees || [];\nconst duration = body.duration || body.meeting_duration || 0;\nconst recordingUrl = body.recording_url || body.playback_url || '';\nconst meetingDate = body.meeting_date || body.date || body.start_time || new Date().toISOString();\n\nconst clientParticipant = participants.find(p => \n  !p.is_host && !p.is_organizer\n) || participants[1] || {};\n\nconst clientEmail = clientParticipant.email || body.invitee_email || '';\nconst clientName = clientParticipant.name || body.invitee_name || '';\n\nconst fullContext = `Meeting Title: ${title}\\n\\nAI Summary:\\n${summary}\\n\\nAction Items:\\n${Array.isArray(actionItems) ? actionItems.map((item, i) => `${i+1}. ${typeof item === 'string' ? item : item.text || item.description || JSON.stringify(item)}`).join('\\n') : actionItems}\\n\\nFull Transcript:\\n${typeof transcript === 'string' ? transcript.substring(0, 15000) : JSON.stringify(transcript).substring(0, 15000)}`;\n\nreturn [\n  {\n    json: {\n      meetingId,\n      title,\n      summary,\n      transcript: typeof transcript === 'string' ? transcript : JSON.stringify(transcript),\n      actionItems,\n      participants,\n      clientEmail,\n      clientName,\n      duration,\n      recordingUrl,\n      meetingDate,\n      fullContext\n    }\n  }\n];"
+        },
+        "name": "Extract Meeting Data",
+        "id": "extract-meeting",
+        "typeVersion": 2,
+        "position": [
+          224,
+          304
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "tableId": "sales_sessions",
+          "limit": 1,
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "client_email",
+                "condition": "eq",
+                "keyValue": "={{ $json.clientEmail }}"
+              }
+            ]
+          }
+        },
+        "name": "Fetch Sales Session",
+        "id": "fetch-session",
+        "typeVersion": 1,
+        "position": [
+          448,
+          304
+        ],
+        "type": "n8n-nodes-base.supabase",
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ 'Analyze this discovery call transcript and extract structured client data.\\n\\n' + $('Extract Meeting Data').item.json.fullContext + '\\n\\nExtract the following as a valid JSON object (no markdown, no code fences, just raw JSON):\\n{\\n  \"business_challenges\": {\\n    \"primary_challenges\": [\"list of main challenges\"],\\n    \"pain_points\": [\"specific pain points mentioned\"],\\n    \"current_impact\": \"estimated business impact\",\\n    \"attempted_solutions\": [\"what they have tried\"]\\n  },\\n  \"tech_stack\": {\\n    \"crm\": \"CRM tool if mentioned\",\\n    \"email\": \"email platform\",\\n    \"marketing\": \"marketing tools\",\\n    \"other_tools\": [\"list of other tools\"],\\n    \"integration_readiness\": \"assessment\"\\n  },\\n  \"automation_needs\": {\\n    \"priority_areas\": [\"top priorities\"],\\n    \"desired_outcomes\": [\"what they want to achieve\"],\\n    \"complexity_tolerance\": \"assessment\"\\n  },\\n  \"budget_timeline\": {\\n    \"budget_range\": \"estimated budget\",\\n    \"timeline\": \"desired timeline\",\\n    \"decision_timeline\": \"when they can decide\",\\n    \"budget_flexibility\": \"assessment\"\\n  },\\n  \"decision_making\": {\\n    \"decision_maker\": true/false,\\n    \"stakeholders\": [\"who else is involved\"],\\n    \"approval_process\": \"how decisions are made\"\\n  },\\n  \"key_insights\": [\"5 most important takeaways\"],\\n  \"recommended_actions\": [\"next steps to close the deal\"],\\n  \"urgency_score\": 1-10,\\n  \"opportunity_score\": 1-10,\\n  \"diagnostic_summary\": \"2-3 sentence summary of the opportunity\"\\n}\\n\\nBe precise. Extract actual quotes and specifics from the transcript, not generic placeholders.' }}",
+          "options": {
+            "systemMessage": "You are a sales intelligence analyst. Your job is to extract structured, actionable data from discovery call transcripts. Be specific and data-driven. Use actual details from the conversation, not generic placeholders. Output valid JSON only."
+          }
+        },
+        "name": "AI Structuring Agent",
+        "id": "structuring-agent",
+        "typeVersion": 3.1,
+        "position": [
+          672,
+          304
+        ],
+        "type": "@n8n/n8n-nodes-langchain.agent"
+      },
+      {
+        "parameters": {
+          "model": "gpt-4o",
+          "options": {
+            "temperature": 0.1
+          }
+        },
+        "name": "Structuring Brain",
+        "id": "structuring-brain",
+        "typeVersion": 1.2,
+        "position": [
+          592,
+          528
+        ],
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const agentOutput = $('AI Structuring Agent').item.json.output || $('AI Structuring Agent').item.json.text || '';\nconst meetingData = $('Extract Meeting Data').item.json;\nconst sessionData = $('Fetch Sales Session').item.json;\n\nlet structured;\ntry {\n  const jsonMatch = agentOutput.match(/\\{[\\s\\S]*\\}/);\n  structured = JSON.parse(jsonMatch ? jsonMatch[0] : agentOutput);\n} catch (e) {\n  structured = {\n    business_challenges: { primary_challenges: ['Parse error - manual review needed'], pain_points: [], current_impact: 'Unknown', attempted_solutions: [] },\n    tech_stack: { crm: 'Unknown', email: 'Unknown', marketing: 'Unknown', other_tools: [], integration_readiness: 'Unknown' },\n    automation_needs: { priority_areas: ['Manual review needed'], desired_outcomes: [], complexity_tolerance: 'Unknown' },\n    budget_timeline: { budget_range: 'Unknown', timeline: 'Unknown', decision_timeline: 'Unknown', budget_flexibility: 'Unknown' },\n    decision_making: { decision_maker: false, stakeholders: [], approval_process: 'Unknown' },\n    key_insights: ['AI parsing failed - please review transcript manually'],\n    recommended_actions: ['Review transcript and fill in data manually'],\n    urgency_score: 5,\n    opportunity_score: 5,\n    diagnostic_summary: 'Auto-extraction failed. Raw transcript available for manual review.'\n  };\n}\n\nconst emoji = structured.urgency_score >= 8 ? '\ud83d\udd25' : structured.urgency_score >= 5 ? '\ud83d\udfe1' : '\ud83d\udd35';\n\nconst slackSummary = `${emoji} *Discovery Call Complete: ${meetingData.clientName}*\\n\\n*Duration:* ${meetingData.duration} minutes\\n*Recording:* ${meetingData.recordingUrl ? '<' + meetingData.recordingUrl + '|Watch Recording>' : 'N/A'}\\n\\n---\\n*Key Insights:*\\n${structured.key_insights.map(i => '\u2022 ' + i).join('\\n')}\\n\\n*Challenges:* ${structured.business_challenges.primary_challenges.join(', ')}\\n*Budget:* ${structured.budget_timeline.budget_range}\\n*Timeline:* ${structured.budget_timeline.timeline}\\n*Decision Maker:* ${structured.decision_making.decision_maker ? 'Yes' : 'No'}\\n\\n*Scores:* Urgency ${structured.urgency_score}/10 | Opportunity ${structured.opportunity_score}/10\\n\\n*Recommended Next Steps:*\\n${structured.recommended_actions.map((a, i) => (i+1) + '. ' + a).join('\\n')}\\n\\n---\\n_React with \u2705 to approve proposal generation, or \u270f\ufe0f to review first._`;\n\nreturn [\n  {\n    json: {\n      ...meetingData,\n      sessionId: sessionData.id || null,\n      structured,\n      slackSummary\n    }\n  }\n];"
+        },
+        "name": "Parse Structured Data",
+        "id": "parse-data",
+        "typeVersion": 2,
+        "position": [
+          880,
+          304
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "sales_sessions",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldValue": "={{ $json.sessionId }}"
+              },
+              {
+                "fieldValue": "informed"
+              },
+              {
+                "fieldValue": "={{ JSON.stringify($json.structured) }}"
+              },
+              {
+                "fieldValue": "={{ 'Discovery call completed ' + $json.meetingDate + '. Recording: ' + ($json.recordingUrl || 'N/A') + '. Duration: ' + $json.duration + ' min.' }}"
+              }
+            ]
+          }
+        },
+        "name": "Update Sales Session",
+        "id": "update-session",
+        "typeVersion": 1,
+        "position": [
+          1104,
+          208
+        ],
+        "type": "n8n-nodes-base.supabase",
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "tableId": "diagnostic_audits",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldValue": "completed"
+              },
+              {
+                "fieldValue": "={{ JSON.stringify($json.structured.business_challenges) }}"
+              },
+              {
+                "fieldValue": "={{ JSON.stringify($json.structured.tech_stack) }}"
+              },
+              {
+                "fieldValue": "={{ JSON.stringify($json.structured.automation_needs) }}"
+              },
+              {
+                "fieldValue": "={{ JSON.stringify($json.structured.budget_timeline) }}"
+              },
+              {
+                "fieldValue": "={{ JSON.stringify($json.structured.decision_making) }}"
+              },
+              {
+                "fieldValue": "={{ $json.structured.key_insights }}"
+              },
+              {
+                "fieldValue": "={{ $json.structured.recommended_actions }}"
+              },
+              {
+                "fieldValue": "={{ $json.structured.urgency_score }}"
+              },
+              {
+                "fieldValue": "={{ $json.structured.opportunity_score }}"
+              },
+              {
+                "fieldValue": "={{ $json.structured.diagnostic_summary }}"
+              },
+              {
+                "fieldValue": "={{ $json.meetingDate }}"
+              },
+              {
+                "fieldValue": "={{ $now.toISO() }}"
+              }
+            ]
+          }
+        },
+        "name": "Upsert Diagnostic Audit",
+        "id": "upsert-audit",
+        "typeVersion": 1,
+        "position": [
+          1104,
+          400
+        ],
+        "type": "n8n-nodes-base.supabase",
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C0ADZ2L3G81",
+            "mode": "list",
+            "cachedResultName": "sales"
+          },
+          "text": "={{ $('Parse Structured Data').item.json.slackSummary }}",
+          "otherOptions": {}
+        },
+        "name": "Post Summary to Slack",
+        "id": "post-summary",
+        "typeVersion": 2.4,
+        "position": [
+          1328,
+          304
+        ],
+        "type": "n8n-nodes-base.slack",
+        "webhookId": "f3c5e315-a6be-4ebe-b97f-9a9614c62675",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "amount": 30,
+          "unit": "minutes"
+        },
+        "name": "Wait for Approval",
+        "id": "wait-approval",
+        "typeVersion": 1.1,
+        "position": [
+          1552,
+          304
+        ],
+        "type": "n8n-nodes-base.wait",
+        "webhookId": "c0963b91-aef5-4985-9516-09470b21142f"
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $('Parse Structured Data').item.json;\nconst structured = data.structured;\n\nlet proposalAmount = 5000;\nconst budgetStr = (structured.budget_timeline.budget_range || '').toLowerCase();\n\nif (budgetStr.includes('1k') || budgetStr.includes('1,000') || budgetStr.includes('1000')) proposalAmount = 1500;\nelse if (budgetStr.includes('2k') || budgetStr.includes('2,000') || budgetStr.includes('3k') || budgetStr.includes('3,000')) proposalAmount = 3000;\nelse if (budgetStr.includes('5k') || budgetStr.includes('5,000')) proposalAmount = 5000;\nelse if (budgetStr.includes('10k') || budgetStr.includes('10,000') || budgetStr.includes('15k') || budgetStr.includes('15,000')) proposalAmount = 10000;\nelse if (budgetStr.includes('20k') || budgetStr.includes('20,000') || budgetStr.includes('25k')) proposalAmount = 20000;\nelse if (budgetStr.includes('50k') || budgetStr.includes('50,000')) proposalAmount = 35000;\n\nconst lineItems = structured.automation_needs.priority_areas.map((area, i) => ({\n  title: area,\n  description: structured.automation_needs.desired_outcomes[i] || 'Custom automation solution',\n  price: Math.round(proposalAmount / structured.automation_needs.priority_areas.length)\n}));\n\nconst validUntil = new Date();\nvalidUntil.setDate(validUntil.getDate() + 14);\n\nreturn [\n  {\n    json: {\n      clientName: data.clientName,\n      clientEmail: data.clientEmail,\n      sessionId: data.sessionId,\n      proposalAmount,\n      lineItems,\n      validUntil: validUntil.toISOString(),\n      summary: structured.diagnostic_summary,\n      keyInsights: structured.key_insights\n    }\n  }\n];"
+        },
+        "name": "Build Proposal Data",
+        "id": "build-proposal",
+        "typeVersion": 2,
+        "position": [
+          1760,
+          304
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "tableId": "proposals",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldValue": "={{ $json.sessionId }}"
+              },
+              {
+                "fieldValue": "={{ $json.clientName }}"
+              },
+              {
+                "fieldValue": "={{ $json.clientEmail }}"
+              },
+              {
+                "fieldValue": "={{ JSON.stringify($json.lineItems) }}"
+              },
+              {
+                "fieldValue": "={{ $json.proposalAmount }}"
+              },
+              {
+                "fieldValue": "={{ $json.proposalAmount }}"
+              },
+              {
+                "fieldValue": "={{ $json.validUntil }}"
+              },
+              {
+                "fieldValue": "draft"
+              }
+            ]
+          }
+        },
+        "name": "Create Proposal Record",
+        "id": "create-proposal",
+        "typeVersion": 1,
+        "position": [
+          1984,
+          304
+        ],
+        "type": "n8n-nodes-base.supabase",
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.stripe.com/v1/checkout/sessions",
+          "authentication": "genericCredentialType",
+          "genericAuthType": "httpHeaderAuth",
+          "sendBody": true,
+          "contentType": "form-urlencoded",
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "mode",
+                "value": "payment"
+              },
+              {
+                "name": "success_url",
+                "value": "={{ 'https://amadutown.com/payment-success?session_id={CHECKOUT_SESSION_ID}' }}"
+              },
+              {
+                "name": "cancel_url",
+                "value": "={{ 'https://amadutown.com/payment-cancelled' }}"
+              },
+              {
+                "name": "customer_email",
+                "value": "={{ $('Build Proposal Data').item.json.clientEmail }}"
+              },
+              {
+                "name": "line_items[0][price_data][currency]",
+                "value": "usd"
+              },
+              {
+                "name": "line_items[0][price_data][product_data][name]",
+                "value": "={{ 'Automation Project - ' + $('Build Proposal Data').item.json.clientName }}"
+              },
+              {
+                "name": "line_items[0][price_data][unit_amount]",
+                "value": "={{ $('Build Proposal Data').item.json.proposalAmount * 100 }}"
+              },
+              {
+                "name": "line_items[0][quantity]",
+                "value": "1"
+              },
+              {
+                "name": "metadata[proposal_id]",
+                "value": "={{ $('Create Proposal Record').item.json.id }}"
+              },
+              {
+                "name": "metadata[session_id]",
+                "value": "={{ $('Build Proposal Data').item.json.sessionId }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Create Stripe Checkout",
+        "id": "create-stripe",
+        "typeVersion": 4.2,
+        "position": [
+          2208,
+          304
+        ],
+        "type": "n8n-nodes-base.httpRequest",
+        "credentials": {
+          "httpHeaderAuth": {
+            "id": "0N37paFpiU3SXn9o",
+            "name": "Header Auth account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "proposals",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldValue": "={{ $('Create Proposal Record').item.json.id }}"
+              },
+              {
+                "fieldValue": "={{ $json.id }}"
+              },
+              {
+                "fieldValue": "sent"
+              },
+              {
+                "fieldValue": "={{ $now.toISO() }}"
+              }
+            ]
+          }
+        },
+        "name": "Update Proposal with Stripe",
+        "id": "update-proposal",
+        "typeVersion": 1,
+        "position": [
+          2432,
+          304
+        ],
+        "type": "n8n-nodes-base.supabase",
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $('Build Proposal Data').item.json.clientEmail }}",
+          "subject": "={{ 'Your Automation Proposal - ' + $('Build Proposal Data').item.json.clientName }}",
+          "message": "={{ '<p>Hi ' + $('Build Proposal Data').item.json.clientName + ',</p><p>Great chatting with you! Based on our discovery call, I\\'ve put together a proposal for your automation project.</p><h3>What We\\'ll Build</h3><ul>' + $('Build Proposal Data').item.json.lineItems.map(item => '<li><strong>' + item.title + '</strong> - ' + item.description + '</li>').join('') + '</ul><h3>Investment</h3><p><strong>Total: $' + $('Build Proposal Data').item.json.proposalAmount.toLocaleString() + '</strong></p><p>This proposal is valid until ' + new Date($('Build Proposal Data').item.json.validUntil).toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'}) + '.</p><p><a href=\"' + $json.url + '\" style=\"background-color: #4CAF50; color: white; padding: 14px 28px; text-decoration: none; display: inline-block; border-radius: 4px; font-weight: bold;\">Accept & Pay</a></p><p>If you have any questions, just reply to this email or drop me a message in our Slack channel.</p><p>Looking forward to building this for you!</p>' }}",
+          "options": {}
+        },
+        "name": "Send Proposal Email",
+        "id": "send-proposal",
+        "typeVersion": 2.1,
+        "position": [
+          2640,
+          208
+        ],
+        "type": "n8n-nodes-base.gmail",
+        "webhookId": "e819fbe8-4306-4cd6-97d1-cf24c86f89a4",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "eEhjCuu9RYM3ONnf",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C0ADZ2L3G81",
+            "mode": "list",
+            "cachedResultName": "sales"
+          },
+          "text": "={{ '\ud83d\udce8 *Proposal Sent!*\\n\\n*Client:* ' + $('Build Proposal Data').item.json.clientName + '\\n*Amount:* $' + $('Build Proposal Data').item.json.proposalAmount.toLocaleString() + '\\n*Valid Until:* ' + new Date($('Build Proposal Data').item.json.validUntil).toLocaleDateString() + '\\n*Stripe Checkout:* <' + $('Create Stripe Checkout').item.json.url + '|View>\\n\\n\u23f3 Waiting for payment...' }}",
+          "otherOptions": {}
+        },
+        "name": "Post Proposal Sent",
+        "id": "post-proposal-sent",
+        "typeVersion": 2.4,
+        "position": [
+          2640,
+          400
+        ],
+        "type": "n8n-nodes-base.slack",
+        "webhookId": "739f7a65-3943-4284-b684-72812367dd54",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {success: true, message: 'Discovery session processed', proposalSent: true} }}",
+          "options": {}
+        },
+        "name": "Respond to Webhook",
+        "id": "respond-webhook",
+        "typeVersion": 1.1,
+        "position": [
+          2864,
+          304
+        ],
+        "type": "n8n-nodes-base.respondToWebhook"
+      },
+      {
+        "parameters": {
+          "content": "## WF-000B: Discovery Session Complete\n\n**Trigger:** Read.ai webhook (POST to /discovery-session-complete)\nFires automatically when call transcription is ready.\n\n**Flow:**\n1. Read.ai sends meeting data via webhook\n2. Extract transcript, summary, participants\n3. Fetch existing sales_session from Supabase\n4. AI agent structures transcript into diagnostic data\n5. Update sales_session + create diagnostic_audit\n6. **NEW: Write to meeting_records table (discovery type)**\n7. **NEW: Call AI Agenda Builder to generate onboarding agenda**\n8. Post summary to Slack (30 min review window)\n9. Generate proposal with Stripe checkout link\n10. Email proposal to client\n11. Notify in Slack\n\n### Updated 2026-02-06\n- Added Write Discovery Meeting Record node\n- Added Generate Onboarding Agenda sub-workflow call\n- Now feeds into Meeting Intelligence Pipeline"
+        },
+        "name": "Workflow Note",
+        "id": "note-workflow",
+        "typeVersion": 1,
+        "position": [
+          -208,
+          112
+        ],
+        "type": "n8n-nodes-base.stickyNote"
+      },
+      {
+        "parameters": {
+          "tableId": "meeting_records",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "client_project_id",
+                "fieldValue": "={{ $('Fetch Sales Session').item.json.client_project_id || null }}"
+              },
+              {
+                "fieldId": "meeting_type",
+                "fieldValue": "discovery"
+              },
+              {
+                "fieldId": "transcript",
+                "fieldValue": "={{ $('Extract Meeting Data').item.json.transcript }}"
+              },
+              {
+                "fieldId": "raw_notes",
+                "fieldValue": "={{ $('Extract Meeting Data').item.json.summary }}"
+              },
+              {
+                "fieldId": "recording_url",
+                "fieldValue": "={{ $('Extract Meeting Data').item.json.recordingUrl }}"
+              },
+              {
+                "fieldId": "structured_notes",
+                "fieldValue": "={{ JSON.stringify({summary: $json.structured.diagnostic_summary || '', highlights: $json.structured.key_insights || []}) }}"
+              },
+              {
+                "fieldId": "key_decisions",
+                "fieldValue": "={{ JSON.stringify($json.structured.recommended_actions || []) }}"
+              },
+              {
+                "fieldId": "action_items",
+                "fieldValue": "={{ JSON.stringify($json.structured.recommended_actions ? $json.structured.recommended_actions.map(a => ({action: a, owner: 'TBD', status: 'open'})) : []) }}"
+              },
+              {
+                "fieldId": "open_questions",
+                "fieldValue": "={{ JSON.stringify([]) }}"
+              },
+              {
+                "fieldId": "risks_identified",
+                "fieldValue": "={{ JSON.stringify([]) }}"
+              },
+              {
+                "fieldId": "meeting_data",
+                "fieldValue": "={{ JSON.stringify({pain_points_discussed: $json.structured.business_challenges?.primary_challenges || [], solutions_proposed: $json.structured.automation_needs?.priority_areas || [], timeline_preference: $json.structured.budget_timeline?.timeline || '', budget_confirmed: $json.structured.budget_timeline?.budget_range || '', decision_makers: $json.structured.decision_making?.stakeholders || [], competitor_mentions: [], fit_assessment: $json.structured.urgency_score >= 7 ? 'hot' : $json.structured.urgency_score >= 4 ? 'warm' : 'cold'}) }}"
+              },
+              {
+                "fieldId": "next_meeting_type",
+                "fieldValue": "onboarding"
+              },
+              {
+                "fieldId": "meeting_date",
+                "fieldValue": "={{ $('Extract Meeting Data').item.json.meetingDate }}"
+              },
+              {
+                "fieldId": "duration_minutes",
+                "fieldValue": "={{ $('Extract Meeting Data').item.json.duration }}"
+              },
+              {
+                "fieldId": "attendees",
+                "fieldValue": "={{ JSON.stringify($('Extract Meeting Data').item.json.participants || []) }}"
+              }
+            ]
+          }
+        },
+        "id": "write-meeting-record-000b",
+        "name": "Write Discovery Meeting Record",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1104,
+          608
+        ],
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "workflowId": "exYTC4bhQXq9vqZ0",
+          "options": {}
+        },
+        "id": "call-agenda-000b",
+        "name": "Generate Onboarding Agenda",
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1,
+        "position": [
+          1328,
+          608
+        ]
+      }
+    ],
+    "connections": {
+      "Read.ai Meeting Complete": {
+        "main": [
+          [
+            {
+              "node": "Extract Meeting Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Meeting Data": {
+        "main": [
+          [
+            {
+              "node": "Fetch Sales Session",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Sales Session": {
+        "main": [
+          [
+            {
+              "node": "AI Structuring Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Structuring Agent": {
+        "main": [
+          [
+            {
+              "node": "Parse Structured Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Structured Data": {
+        "main": [
+          [
+            {
+              "node": "Update Sales Session",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Upsert Diagnostic Audit",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Post Summary to Slack",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Write Discovery Meeting Record",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Post Summary to Slack": {
+        "main": [
+          [
+            {
+              "node": "Wait for Approval",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wait for Approval": {
+        "main": [
+          [
+            {
+              "node": "Build Proposal Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Proposal Data": {
+        "main": [
+          [
+            {
+              "node": "Create Proposal Record",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Proposal Record": {
+        "main": [
+          [
+            {
+              "node": "Create Stripe Checkout",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Stripe Checkout": {
+        "main": [
+          [
+            {
+              "node": "Update Proposal with Stripe",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Proposal with Stripe": {
+        "main": [
+          [
+            {
+              "node": "Send Proposal Email",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Post Proposal Sent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Proposal Email": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structuring Brain": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Structuring Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Write Discovery Meeting Record": {
+        "main": [
+          [
+            {
+              "node": "Generate Onboarding Agenda",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": "Version 5b5e4d87",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-07T02:51:04.398Z",
+        "id": 130,
+        "workflowId": "OFK9EyVsMKu5IT1B",
+        "versionId": "5b5e4d87-101e-47b0-a1a6-5421e46a9ab9",
+        "event": "activated",
+        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    ]
+  }
+}

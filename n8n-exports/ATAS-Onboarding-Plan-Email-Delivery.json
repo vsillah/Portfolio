@@ -1,0 +1,408 @@
+{
+  "updatedAt": "2026-02-07T00:26:51.506Z",
+  "createdAt": "2026-02-07T00:11:25.285Z",
+  "id": "mGVobYXmmLzeKdNX",
+  "name": "ATAS Onboarding Plan Email Delivery",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding-plan-email",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Onboarding Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        112,
+        304
+      ],
+      "webhookId": "bf598666-c338-4bc9-b6ca-287eae2c84aa"
+    },
+    {
+      "parameters": {
+        "content": "## ATAS Onboarding Plan Email Delivery\n\n**Trigger:** POST webhook from Next.js app after onboarding plan + PDF generation.\n\n**Flow:**\n1. Receive payload (client info, PDF URL, plan URL)\n2. Download the onboarding plan PDF\n3. Send email to client with PDF attached\n4. Callback to app to confirm delivery\n\n**Webhook Payload:**\n- `client_name`, `client_email`, `client_company`\n- `onboarding_plan_id`, `onboarding_plan_url`\n- `pdf_url`, `project_name`, `template_name`\n- `milestones_summary`, `kickoff_date`"
+      },
+      "id": "sticky-overview",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        64,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.body.pdf_url }}",
+        "authentication": "none",
+        "sendHeaders": false,
+        "sendBody": false,
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "id": "download-pdf",
+      "name": "Download Onboarding PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        352,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Onboarding Webhook').item.json.body.client_email }}",
+        "subject": "=Your Onboarding Plan for {{ $('Onboarding Webhook').item.json.body.project_name }}",
+        "message": "=<html>\n<body style=\"margin:0; padding:0; font-family: Arial, sans-serif; background-color: #f5f5f5;\">\n  <div style=\"max-width: 600px; margin: 0 auto; padding: 30px 20px;\">\n    <div style=\"background: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);\">\n      \n      <div style=\"text-align: center; margin-bottom: 30px;\">\n        <h1 style=\"color: #2563eb; font-size: 24px; margin: 0;\">ATAS</h1>\n        <p style=\"color: #6b7280; font-size: 14px; margin-top: 4px;\">Client Onboarding Plan</p>\n      </div>\n      \n      <h2 style=\"color: #1a1a1a; font-size: 20px; margin-bottom: 16px;\">\n        Welcome aboard, {{ $('Onboarding Webhook').item.json.body.client_name }}!\n      </h2>\n      \n      <p style=\"color: #4b5563; font-size: 15px; line-height: 1.6;\">\n        Thank you for choosing ATAS. Your personalized onboarding plan for \n        <strong>{{ $('Onboarding Webhook').item.json.body.project_name }}</strong> \n        is ready. This plan outlines your project timeline, milestones, communication schedule, and deliverables.\n      </p>\n      \n      <div style=\"background: #f0f9ff; border-left: 4px solid #2563eb; padding: 16px; border-radius: 4px; margin: 24px 0;\">\n        <h3 style=\"color: #1e40af; font-size: 14px; margin: 0 0 8px 0;\">Milestone Overview</h3>\n        <pre style=\"color: #4b5563; font-size: 13px; line-height: 1.5; margin: 0; white-space: pre-wrap; font-family: Arial, sans-serif;\">{{ $('Onboarding Webhook').item.json.body.milestones_summary }}</pre>\n      </div>\n      \n      <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"{{ $('Onboarding Webhook').item.json.body.onboarding_plan_url }}\" \n           style=\"display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600;\">\n          View Your Onboarding Plan\n        </a>\n      </div>\n      \n      <p style=\"color: #6b7280; font-size: 13px; line-height: 1.5;\">\n        Your onboarding plan PDF is also attached to this email for your records. \n        The first step is to book your onboarding call \u2014 you can do that from the plan page above.\n      </p>\n      \n      <hr style=\"border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;\">\n      \n      <p style=\"color: #9ca3af; font-size: 12px; text-align: center;\">\n        Questions? Reply to this email or contact us at your convenience.<br>\n        &copy; ATAS | Confidential\n      </p>\n    </div>\n  </div>\n</body>\n</html>",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "id": "send-email",
+      "name": "Send Onboarding Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        592,
+        304
+      ],
+      "webhookId": "8c891ce9-eb4e-44dd-af31-ca3ffbd78200",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Onboarding Webhook').item.json.body.onboarding_plan_url.replace('/onboarding/', '/api/onboarding-plans/') + '/email-sent' }}",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-Secret",
+              "value": "3af72405baba2f115bc3704cc347eafa568ccadb7394544748921a0fa77e60ba"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": false,
+        "options": {}
+      },
+      "id": "confirm-delivery",
+      "name": "Confirm Email Delivery",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        832,
+        304
+      ],
+      "retryOnFail": true,
+      "continueOnFail": true
+    }
+  ],
+  "connections": {
+    "Onboarding Webhook": {
+      "main": [
+        [
+          {
+            "node": "Download Onboarding PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Onboarding PDF": {
+      "main": [
+        [
+          {
+            "node": "Send Onboarding Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Onboarding Email": {
+      "main": [
+        [
+          {
+            "node": "Confirm Email Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "37d1543f-c1ed-48b1-97c6-752c3d5bdb4b",
+  "activeVersionId": "37d1543f-c1ed-48b1-97c6-752c3d5bdb4b",
+  "versionCounter": 23,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-07T00:11:25.352Z",
+      "createdAt": "2026-02-07T00:11:25.352Z",
+      "role": "workflow:owner",
+      "workflowId": "mGVobYXmmLzeKdNX",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-21T11:16:25.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-21",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-07T00:27:23.000Z",
+    "createdAt": "2026-02-07T00:26:51.506Z",
+    "versionId": "37d1543f-c1ed-48b1-97c6-752c3d5bdb4b",
+    "workflowId": "mGVobYXmmLzeKdNX",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "onboarding-plan-email",
+          "options": {}
+        },
+        "id": "webhook-trigger",
+        "name": "Onboarding Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          112,
+          304
+        ],
+        "webhookId": "bf598666-c338-4bc9-b6ca-287eae2c84aa"
+      },
+      {
+        "parameters": {
+          "content": "## ATAS Onboarding Plan Email Delivery\n\n**Trigger:** POST webhook from Next.js app after onboarding plan + PDF generation.\n\n**Flow:**\n1. Receive payload (client info, PDF URL, plan URL)\n2. Download the onboarding plan PDF\n3. Send email to client with PDF attached\n4. Callback to app to confirm delivery\n\n**Webhook Payload:**\n- `client_name`, `client_email`, `client_company`\n- `onboarding_plan_id`, `onboarding_plan_url`\n- `pdf_url`, `project_name`, `template_name`\n- `milestones_summary`, `kickoff_date`"
+        },
+        "id": "sticky-overview",
+        "name": "Workflow Overview",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          64,
+          64
+        ]
+      },
+      {
+        "parameters": {
+          "method": "GET",
+          "url": "={{ $json.body.pdf_url }}",
+          "authentication": "none",
+          "sendHeaders": false,
+          "sendBody": false,
+          "options": {
+            "response": {
+              "response": {
+                "responseFormat": "file",
+                "outputPropertyName": "data"
+              }
+            }
+          }
+        },
+        "id": "download-pdf",
+        "name": "Download Onboarding PDF",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          352,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $('Onboarding Webhook').item.json.body.client_email }}",
+          "subject": "=Your Onboarding Plan for {{ $('Onboarding Webhook').item.json.body.project_name }}",
+          "message": "=<html>\n<body style=\"margin:0; padding:0; font-family: Arial, sans-serif; background-color: #f5f5f5;\">\n  <div style=\"max-width: 600px; margin: 0 auto; padding: 30px 20px;\">\n    <div style=\"background: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);\">\n      \n      <div style=\"text-align: center; margin-bottom: 30px;\">\n        <h1 style=\"color: #2563eb; font-size: 24px; margin: 0;\">ATAS</h1>\n        <p style=\"color: #6b7280; font-size: 14px; margin-top: 4px;\">Client Onboarding Plan</p>\n      </div>\n      \n      <h2 style=\"color: #1a1a1a; font-size: 20px; margin-bottom: 16px;\">\n        Welcome aboard, {{ $('Onboarding Webhook').item.json.body.client_name }}!\n      </h2>\n      \n      <p style=\"color: #4b5563; font-size: 15px; line-height: 1.6;\">\n        Thank you for choosing ATAS. Your personalized onboarding plan for \n        <strong>{{ $('Onboarding Webhook').item.json.body.project_name }}</strong> \n        is ready. This plan outlines your project timeline, milestones, communication schedule, and deliverables.\n      </p>\n      \n      <div style=\"background: #f0f9ff; border-left: 4px solid #2563eb; padding: 16px; border-radius: 4px; margin: 24px 0;\">\n        <h3 style=\"color: #1e40af; font-size: 14px; margin: 0 0 8px 0;\">Milestone Overview</h3>\n        <pre style=\"color: #4b5563; font-size: 13px; line-height: 1.5; margin: 0; white-space: pre-wrap; font-family: Arial, sans-serif;\">{{ $('Onboarding Webhook').item.json.body.milestones_summary }}</pre>\n      </div>\n      \n      <div style=\"text-align: center; margin: 30px 0;\">\n        <a href=\"{{ $('Onboarding Webhook').item.json.body.onboarding_plan_url }}\" \n           style=\"display: inline-block; background: #2563eb; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-size: 16px; font-weight: 600;\">\n          View Your Onboarding Plan\n        </a>\n      </div>\n      \n      <p style=\"color: #6b7280; font-size: 13px; line-height: 1.5;\">\n        Your onboarding plan PDF is also attached to this email for your records. \n        The first step is to book your onboarding call \u2014 you can do that from the plan page above.\n      </p>\n      \n      <hr style=\"border: none; border-top: 1px solid #e5e7eb; margin: 24px 0;\">\n      \n      <p style=\"color: #9ca3af; font-size: 12px; text-align: center;\">\n        Questions? Reply to this email or contact us at your convenience.<br>\n        &copy; ATAS | Confidential\n      </p>\n    </div>\n  </div>\n</body>\n</html>",
+          "options": {
+            "appendAttribution": false,
+            "attachmentsUi": {
+              "attachmentsBinary": [
+                {}
+              ]
+            }
+          }
+        },
+        "id": "send-email",
+        "name": "Send Onboarding Email",
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2,
+        "position": [
+          592,
+          304
+        ],
+        "webhookId": "8c891ce9-eb4e-44dd-af31-ca3ffbd78200",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "eEhjCuu9RYM3ONnf",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "PATCH",
+          "url": "={{ $('Onboarding Webhook').item.json.body.onboarding_plan_url.replace('/onboarding/', '/api/onboarding-plans/') + '/email-sent' }}",
+          "authentication": "none",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "X-N8N-Secret",
+                "value": "3af72405baba2f115bc3704cc347eafa568ccadb7394544748921a0fa77e60ba"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": false,
+          "options": {}
+        },
+        "id": "confirm-delivery",
+        "name": "Confirm Email Delivery",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          832,
+          304
+        ],
+        "retryOnFail": true,
+        "continueOnFail": true
+      }
+    ],
+    "connections": {
+      "Onboarding Webhook": {
+        "main": [
+          [
+            {
+              "node": "Download Onboarding PDF",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download Onboarding PDF": {
+        "main": [
+          [
+            {
+              "node": "Send Onboarding Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send Onboarding Email": {
+        "main": [
+          [
+            {
+              "node": "Confirm Email Delivery",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": "Version 37d1543f",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-07T00:27:23.571Z",
+        "id": 117,
+        "workflowId": "mGVobYXmmLzeKdNX",
+        "versionId": "37d1543f-c1ed-48b1-97c6-752c3d5bdb4b",
+        "event": "activated",
+        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    ]
+  }
+}

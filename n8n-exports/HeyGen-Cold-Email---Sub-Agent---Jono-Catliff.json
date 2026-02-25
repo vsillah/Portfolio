@@ -1,0 +1,1192 @@
+{
+  "updatedAt": "2025-12-25T02:49:37.503Z",
+  "createdAt": "2025-12-23T15:26:06.683Z",
+  "id": "8WAJMNJ6ohK0ydmD",
+  "name": "HeyGen Cold Email - Sub Agent - Jono Catliff",
+  "description": null,
+  "active": false,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -224,
+        208
+      ],
+      "id": "a9d02df4-a910-461a-95b3-9f40530ee309",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "content": "## Be careful with this limit \nStart at 20/day max and review the limitations on LinkedIn, which is 100 messages/week. Do not exceed this LinkedIn max. You could change this limit to only LinkedIn, and gradually go up to 50 emails/day",
+        "height": 140,
+        "width": 400
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        32
+      ],
+      "id": "3e131da3-d623-4d97-a729-54ad7a063f96",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "maxItems": 3
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        208
+      ],
+      "id": "49570693-64d6-44f1-a160-615957bacb6b",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = items[0].json;\n\nfunction formatObject(obj, indent = '') {\n  let output = '';\n  for (const key in obj) {\n    if (Array.isArray(obj[key])) {\n      output += `\\n${indent}\ud83d\udd01 ${key.charAt(0).toUpperCase() + key.slice(1)}:\\n`;\n      obj[key].forEach((entry, idx) => {\n        output += `${indent}  ${idx + 1}.\\n`;\n        output += formatObject(entry, indent + '    ');\n      });\n    } else if (typeof obj[key] === 'object' && obj[key] !== null) {\n      output += `\\n${indent}${key}:\\n`;\n      output += formatObject(obj[key], indent + '  ');\n    } else {\n      output += `${indent}- ${key}: ${obj[key] ?? 'N/A'}\\n`;\n    }\n  }\n  return output;\n}\n\nconst formattedText = formatObject(item);\n\nreturn [\n  {\n    json: {\n      formattedText\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        208
+      ],
+      "id": "09b10c2e-e511-49e0-9936-0975812af116",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fb418b3b-d018-4a92-a457-5f21050f10ad",
+              "leftValue": "={{ $('Get Profile data').item.json.basic_info.fullname }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cf629042-13f0-45f6-b2df-73c91f87ff52",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://crawlee.dev/js",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"contact_email_exclude_catch_all\": true,\n    \"contact_email_status_v2_verified\": true,\n    \"include_email\": true,\n    \"max_result\": 50,\n    \"url\": \"{{ $json.message.content.apollo_url }}\"\n} ",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -880,
+        208
+      ],
+      "id": "ebc7ef34-f7b4-4cf4-a435-994a3f4fae87",
+      "name": "Apollo Apify Scraper"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a731a548-0c71-4722-98dd-2c5b29be89c4",
+              "leftValue": "={{ $json.linkedin_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "96cef058-2108-412e-925d-716acf0a5a64",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -672,
+        208
+      ],
+      "id": "c3a459c0-6c74-498f-8cb5-bf7b3bb90ec3",
+      "name": "Filter - Email not empty"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/VhxlqQXRwhW8H5hNV/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"username\": \"{{ $json.linkedin_url }}\"\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        0,
+        208
+      ],
+      "id": "035ee308-6209-4385-a9eb-1a4902244631",
+      "name": "Get Profile data",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1472,
+        208
+      ],
+      "id": "e187fcf4-ef66-4f87-be16-bd1c40c14532",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an Apollo.io URL generator. Your task is to take user input describing their target audience and convert it into a properly formatted Apollo.io search URL.",
+              "role": "system"
+            },
+            {
+              "content": "=You are an Apollo.io URL generator. Your task is to take user input describing their target audience and convert it into a properly formatted Apollo.io search URL.\n\n## URL Template\n\nhttps://app.apollo.io/#/people?page=1&sortAscending=false&sortByField=recommendations_score&contactEmailExcludeCatchAll=true&personTitles[]={{PERSON_TITLE}}&contactEmailStatusV2[]=verified&personLocations[]={{LOCATION}}&organizationNumEmployeesRanges[]={{EMPLOYEE_RANGE}}\n\n\n## Your Instructions\n\n### 1. Extract Information from User Input\nIdentify and extract:\n- **Job titles/roles** (for personTitles[])\n- **Geographic locations** (for personLocations[])  \n- **Company size preferences** (for organizationNumEmployeesRanges[])\n\n### 2. Format Requirements\n\n**personTitles[]:**\n- URL encode spaces as %20\n- Convert to lowercase\n- Examples: \"ceo\", \"marketing%20director\", \"sales%20manager\"\n\n**personLocations[]:**\n- URL encode spaces as %20\n- Use proper location names\n- Examples: \"United%20States\", \"California\", \"New%20York\", \"London\"\n\n**organizationNumEmployeesRanges[]:**\n- Format as \"min%2Cmax\" (where %2C = comma)\n- Standard ranges: \"1%2C10\", \"11%2C50\", \"51%2C200\", \"201%2C500\", \"501%2C1000\", \"1001%2C5000\", \"5001%2C10000\", \"10001%2C%2B\"\n- For multiple ranges, repeat the parameter\n\n### 3. Handle Multiple Values\nIf user specifies multiple values for any parameter, create multiple parameter instances:\n```\n&personTitles[]=ceo&personTitles[]=founder&personTitles[]=president\n```\n\n### 4. Response Format\nProvide:\n1. The complete formatted URL\n2. Brief summary of the search criteria applied\n\n### 5. Default Behavior\n- If location not specified, use \"United%20States\"\n- If company size not specified, use \"11%2C50\"\n- If job title not specified, use \"ceo\"\n\n## Example Input/Output\n\n**Input:** \"Find CEOs and founders in California at companies with 20-100 employees\"\n\n**Output:** \n{\"apollo_url\":\n\"https://app.apollo.io/#/people?page=1&sortAscending=false&sortByField=recommendations_score&contactEmailExcludeCatchAll=true&personTitles[]=ceo&personTitles[]=founder&contactEmailStatusV2[]=verified&personLocations[]=California&organizationNumEmployeesRanges[]=21%2C50&organizationNumEmployeesRanges[]=51%2C100\"}\n\n\n**Search Criteria:** CEOs and Founders in California at companies with 21-100 employees, verified emails only.\n\nCorrections to Look out For:\n1. United States must be always spelt exactly as \"United States\".\n2. Countries must be writen in Full. E.g UK is United Kingdom\n3. If no country is Specified in the Input text, then \"United States\" is default.\n4. If no employee range, assume 11 to 50\n5. If no personTitles assume \"ceo\"\n6. personTitles are always singular \"founder\" and NOT founders, \"ceo\" and not \"ceos\""
+            },
+            {
+              "content": "=Here is the Input:\n\n{{ $json.query }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -1248,
+        208
+      ],
+      "id": "99a5d051-72d0-472b-aada-456bca67bac2",
+      "name": "Apollo URL from Plain text",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.creatomate.com/v1/renders",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"template_id\": \"TEMPLATE_ID\",\n  \"modifications\": {\n    \"Background.source\": \"{{ $json.screenshot_image }}\",\n    \"Face-Recording.source\": \"{{ $('Get Heygen Downloadable Link').item.json.data.video_url }}\",\n  \"duration\": \"{{ $('Get Heygen Downloadable Link').item.json.data.duration }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2112,
+        0
+      ],
+      "id": "730defd1-2aa4-406f-810f-9a9bc0060b1f",
+      "name": "Render Video with Creatomate"
+    },
+    {
+      "parameters": {
+        "amount": 30
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2256,
+        0
+      ],
+      "id": "af150d00-a9a8-46d8-a717-0778ca5a47e2",
+      "name": "Wait 30 Seconds",
+      "webhookId": "ec6ba6d5-17e6-4789-a36c-e44d85d9d06a"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/dz_omar~ultimate-screenshot/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"enableSSL\": true,\n  \"fullPage\": true,\n  \"infiniteScroll\": false,\n  \"linkUrls\": [\n    \"{{ $('Apollo Apify Scraper').item.json.organization.website_url}}\"\n  ],\n  \"outputFormat\": \"mp4\",\n  \"printBackground\": true,\n  \"scrollToBottom\": false,\n  \"waitUntil\": \"load\",\n  \"timeouT\": 15,\n  \"maxRetries\": 3,\n  \"delayBeforeScreenshot\": 1500,\n  \"timefullPagE\": 10,\n  \"frameCounT\": 15,\n  \"frameIntervaL\": 10,\n  \"frame\": 10,\n  \"scrollSteP\": 300,\n  \"formaT\": \"A4\",\n  \"toP\": 0,\n  \"righT\": 0,\n  \"bottoM\": 0,\n  \"lefT\": 0,\n  \"window_Width\": 1920,\n  \"window_Height\": 1080,\n  \"delayAfterScrolling\": 3000,\n  \"cookies\": [],\n  \"proxyConfig\": {\n    \"useApifyProxy\": false\n  }\n}\n",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          },
+          "timeout": 180000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1936,
+        0
+      ],
+      "id": "11301f07-4021-4b8c-87a9-eeea75be9bf1",
+      "name": "Run Website Video Scraper: Sync"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1-Ejw6zWqTBHxsdwzceNNtn8HtaUTLYJ2E0eRLD9bncE",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Cold Outreach Leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-Ejw6zWqTBHxsdwzceNNtn8HtaUTLYJ2E0eRLD9bncE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1-Ejw6zWqTBHxsdwzceNNtn8HtaUTLYJ2E0eRLD9bncE/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $('Get Profile data').first().json.basic_info.urn }}",
+            "Follow_Up": "={{ $('Follow Up Message').first().json.choices[0].message.content.message }}\n\n{{ $json.final_video_url }}",
+            "LinkedInMessage": "={{ $('Linkedin Message').first().json.choices[0].message.content.message }}",
+            "LinkedIn": "={{ $('Limit').first().json.linkedin_url }}",
+            "Phone": "=",
+            "Email": "={{ $('Get Profile data').first().json.basic_info.email }}",
+            "Website": "={{ $('Limit').first().json.organization.website_url }}",
+            "Organization": "={{ $('Get Profile data').first().json.experience[0].company }}",
+            "Title": "={{ $('Get Profile data').first().json.basic_info.headline }}",
+            "Last Name": "={{ $('Get Profile data').first().json.basic_info.last_name }}",
+            "First Name": "={{ $('Get Profile data').first().json.basic_info.first_name }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "First Name",
+              "displayName": "First Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Name",
+              "displayName": "Last Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Organization",
+              "displayName": "Organization",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "displayName": "Website",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedIn",
+              "displayName": "LinkedIn",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LinkedInMessage",
+              "displayName": "LinkedInMessage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow_Up",
+              "displayName": "Follow_Up",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Follow_Up_2",
+              "displayName": "Follow_Up_2",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Cold_Email_Hook",
+              "displayName": "Cold_Email_Hook",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2624,
+        0
+      ],
+      "id": "328eb4c7-9e56-4886-a990-e85ed1e63628",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Jwu3bOdaMrZEmS2f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.heygen.com/v1/video_status.get?video_id={{ $('Heygen Generate Video').item.json.data.video_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            },
+            {
+              "name": "x-api-key",
+              "value": "API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1760,
+        0
+      ],
+      "id": "7dd70948-3dac-4e87-bcc4-8a32e82eeea3",
+      "name": "Get Heygen Downloadable Link"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a personable, professional AI assistant that generates natural-sounding video scripts for LinkedIn outreach. These short intros are used in custom HeyGen videos to build rapport and encourage new professional connections.\n\n**Your task:** Write a brief, casual, and personalized message that sounds like a real human speaking. It should reference something specific and positive from the person\u2019s LinkedIn profile and end with a friendly invitation to connect.\n\n**Script structure:**\n\n* Start with:\n  `Hey {{ $('Get Profile data').item.json.basic_info.first_name }}, I came across your profile on LinkedIn,`\n* Include a flattering and thoughtful observation about their work, values, or energy\n* End with a natural, friendly close such as:\n  `I\u2019d love to connect.`\n  or\n  `Would love to stay in touch.`\n\n**Guidelines:**\n\n1. Keep the total message under 280 characters\n2. Sound human and conversational, like someone speaking in a short video\n3. Reference something specific and genuine from their profile, paraphrased in your own words\n4. Use warm, complimentary language that makes them feel seen or appreciated\n5. If the profile has limited detail, you may reference their tone, industry, or location, but do not fabricate details\n6. Never restate their job title or company name directly\n7. Do not use placeholders like \\[Company], and do not invent facts\n8. Do not mention AI, automation, or your services\n9. Use first name only, never mention their last name\n10. Avoid overly formal, generic, or sales-like language\n11. Avoid vague phrases like \u201cshared interests\u201d or \u201cgreat background\u201d\n12. End the message naturally and confidently, without filler or repeated phrases",
+              "role": "system"
+            },
+            {
+              "content": "=Here's their LinkedIn page:\n{{ $('Code').item.json.formattedText }}"
+            },
+            {
+              "content": "Please output in JSON format with the following structure:\n\n{\n\"message\": \"\"\n}",
+              "role": "assistant"
+            }
+          ]
+        },
+        "simplify": false,
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        528,
+        0
+      ],
+      "id": "4ea04bb1-b9af-4256-9425-c89f4e381d56",
+      "name": "Linkedin Message",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a personable, professional AI assistant writing follow-up messages for LinkedIn outreach. The first message referenced the person's profile positively and invited them to connect. This follow-up includes a short custom video made about their website.\n\n**Your task:** Write a warm, casual message that sounds like a real human voice message. It should briefly reference the video (without sounding overly promotional) and invite the person to watch it.\n\n**Script structure:**\n\n* Start with:\n  `Hey {{ $('Get Profile data').first().json.basic_info.first_name }}, just wanted to follow up real quick\u2014`\n* Mention that you made a short video for them and include a positive reason why (e.g. their work stood out, their site looked interesting, etc.)\n* Mention the video link naturally, without overexplaining\n* End with a friendly close like:\n  `Hope you enjoy it!`\n  `Would love to hear your thoughts.`\n  `Let me know what you think!`\n\n**Guidelines:**\n\n1. Keep it under 280 characters\n2. Sound natural, casual, and like a short voice note\n3. Reference their website or work positively, without flattery that feels fake\n4. Mention the video briefly and casually\u2014don\u2019t \u201csell\u201d it\n5. Do not use technical terms like \u201caudit\u201d or \u201cbreakdown\u201d\n6. Don\u2019t pitch services or ask for meetings\n7. Stay warm and human\u2014your tone should feel genuinely curious and helpful\n8. Use first name only\n9. Never mention AI, automation, or tools\n10. Don't repeat or summarize the previous message\n\n",
+              "role": "system"
+            },
+            {
+              "content": "=Here's their LinkedIn page:\n{{ $('Code').item.json.formattedText }}\n\n\nHere is the Previous Message:\n{{ $json.choices[0].message.content.message }}"
+            },
+            {
+              "content": "Please output in JSON format with the following structure:\n\n{\n\"message\": \"\"\n}",
+              "role": "assistant"
+            }
+          ]
+        },
+        "simplify": false,
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        832,
+        0
+      ],
+      "id": "909d8c79-ab98-4e59-8c63-1c9fd159f8f9",
+      "name": "Follow Up Message",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        0
+      ],
+      "id": "8413a40d-62fb-41a7-9a08-e358e969e948",
+      "name": "Wait",
+      "webhookId": "15766470-a412-4153-933d-2ca885fdaf36"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a personable, professional AI assistant that generates natural-sounding video scripts for personalized outreach. These short intros are used in custom HeyGen videos to build rapport and spark meaningful conversations.\n\nYour task: Write a brief, casual, and personalized message that sounds like a real human speaking. It should reference something specific and positive from the company\u2019s website and smoothly introduce a short video, without being pushy or salesy.\n\nScript structure:\n\nStart with:\nHey {{ $('Get Profile data').item.json.basic_info.first_name }}, thanks for connecting! I was checking out your company\u2019s site and\n\nInclude a flattering and thoughtful observation about their work, values, or tone\n\nClose with a natural invitation to watch a short video:\nReally inspiring stuff \u2014 happy to be connected.\n\n\nGuidelines:\n1. Keep the total message under 280 characters\n2. Sound human and conversational, like someone speaking in a short video\n3. Reference something specific and genuine from the company website, paraphrased in your own words\n4. Use warm, complimentary language that makes them feel seen or appreciated\n5. If details are limited, you may reference the company\u2019s tone, industry, or approach\u2014but do not fabricate facts\n6. Never restate the company name or person\u2019s job title directly\n7. Do not use placeholders like [Company], and do not invent facts\n8. Do not mention AI, automation, or your services\n9. Use first name only, never mention their last name\n10. Avoid overly formal, generic, or sales-like language\n11. Avoid vague phrases like \u201cshared interests\u201d or \u201cgreat background\u201d\n12. End the message naturally and confidently, with a soft ask",
+              "role": "system"
+            },
+            {
+              "content": "=Here's their LinkedIn page:\n{{ $('Code').item.json.formattedText }}"
+            },
+            {
+              "content": "Please output in JSON format with the following structure:\n\n{\n\"message\": \"\"\n}",
+              "role": "assistant"
+            }
+          ]
+        },
+        "simplify": false,
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        208,
+        0
+      ],
+      "id": "30b89740-9149-415a-a53b-7a336c95faba",
+      "name": "Write Video Script",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fb83f297-c8d2-4bfc-91e8-ef1053a13bac",
+              "name": "Heygen_video_link",
+              "value": "=https://app.heygen.com/videos/{{ $json.data.video_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1600,
+        0
+      ],
+      "id": "9298db74-28e6-46cd-9680-7e32fb41975b",
+      "name": "heygen_video_link"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "97fbafb9-99aa-4c44-96b1-5530520c897a",
+              "name": "final_video_url",
+              "value": "={{ $json.url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2432,
+        0
+      ],
+      "id": "227f91e3-5156-4e80-9cb6-f070664ee2c8",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.heygen.com/v2/video/generate",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Api-Key",
+              "value": "API_KEY"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"video_inputs\": [\n    {\n      \"character\": {\n        \"type\": \"avatar\",\n        \"avatar_id\": \"AVATAR_ID\",\n        \"avatar_style\": \"normal\"\n      },\n      \"voice\": {\n        \"type\": \"text\",\n        \"input_text\": \"{{ $('Write Video Script').item.json.choices[0].message.content.message }}\",\n        \"voice_id\": \"VOICE_ID\",\n        \"speed\": 1.1\n      }\n    }\n  ],\n  \"dimension\": {\n    \"width\": 1280,\n    \"height\": 720\n  }\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        0
+      ],
+      "id": "321fa1fb-792e-41be-a3aa-949dedd3d5ca",
+      "name": "Heygen Generate Video"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "={{ $json.ID }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2832,
+        0
+      ],
+      "id": "8edbcb10-3b0c-4133-b148-68288a7c07c2",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "add1ab35-ddc7-4fcc-a2b9-0d5de277a059",
+              "name": "output",
+              "value": "Cold Heygen Videos have been sent",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3040,
+        0
+      ],
+      "id": "0062122d-bc41-41ef-bf0e-5adb9f706c13",
+      "name": "Edit Fields1"
+    }
+  ],
+  "connections": {
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Profile data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Write Video Script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apollo Apify Scraper": {
+      "main": [
+        [
+          {
+            "node": "Filter - Email not empty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter - Email not empty": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Profile data": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Apollo URL from Plain text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apollo URL from Plain text": {
+      "main": [
+        [
+          {
+            "node": "Apollo Apify Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Video with Creatomate": {
+      "main": [
+        [
+          {
+            "node": "Wait 30 Seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 30 Seconds": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Website Video Scraper: Sync": {
+      "main": [
+        [
+          {
+            "node": "Render Video with Creatomate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Heygen Downloadable Link": {
+      "main": [
+        [
+          {
+            "node": "Run Website Video Scraper: Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linkedin Message": {
+      "main": [
+        [
+          {
+            "node": "Follow Up Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Follow Up Message": {
+      "main": [
+        [
+          {
+            "node": "Heygen Generate Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "heygen_video_link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Video Script": {
+      "main": [
+        [
+          {
+            "node": "Linkedin Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "heygen_video_link": {
+      "main": [
+        [
+          {
+            "node": "Get Heygen Downloadable Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Heygen Generate Video": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Follow Up Message": [
+      {
+        "json": {
+          "id": "chatcmpl-Bv1hO0MGChiBoEoW64nHckkC2Kdpq",
+          "object": "chat.completion",
+          "created": 1752930926,
+          "model": "gpt-4.1-2025-04-14",
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": {
+                  "message": "Hey Jono, just wanted to follow up real quick\u2014I made a short video for you after checking out Automatable.co. Thought you might find it interesting! Here\u2019s the link. Hope you enjoy it\u2014would love to hear your thoughts!"
+                },
+                "refusal": null,
+                "annotations": []
+              },
+              "logprobs": null,
+              "finish_reason": "stop"
+            }
+          ],
+          "usage": {
+            "prompt_tokens": 2740,
+            "completion_tokens": 56,
+            "total_tokens": 2796,
+            "prompt_tokens_details": {
+              "cached_tokens": 0,
+              "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+              "reasoning_tokens": 0,
+              "audio_tokens": 0,
+              "accepted_prediction_tokens": 0,
+              "rejected_prediction_tokens": 0
+            }
+          },
+          "service_tier": "default",
+          "system_fingerprint": null
+        }
+      }
+    ]
+  },
+  "versionId": "adc5ec83-1d61-456d-8668-9c96c3ddd16b",
+  "activeVersionId": null,
+  "versionCounter": 3,
+  "triggerCount": 0,
+  "shared": [
+    {
+      "updatedAt": "2025-12-23T15:26:06.688Z",
+      "createdAt": "2025-12-23T15:26:06.688Z",
+      "role": "workflow:owner",
+      "workflowId": "8WAJMNJ6ohK0ydmD",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-06T10:31:52.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-06",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": null
+}

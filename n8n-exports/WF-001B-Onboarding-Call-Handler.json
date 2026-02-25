@@ -1,0 +1,264 @@
+{
+  "id": "PwLXWdHeYyvHSs6x",
+  "name": "WF-001B: Onboarding Call Handler",
+  "active": true,
+  "createdAt": "2026-02-06 16:08:01.649",
+  "updatedAt": "2026-02-06 16:59:17.633",
+  "versionId": "58e094c2-88c6-40e0-92dd-e69b78f43f70",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "onboarding-call-handler",
+        "options": {}
+      },
+      "id": "onboarding-webhook",
+      "name": "Onboarding Event Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "event_type",
+              "type": "string",
+              "value": "={{ $json.body.event || $json.event_type }}"
+            },
+            {
+              "id": "2",
+              "name": "invitee_name",
+              "type": "string",
+              "value": "={{ $json.body ? $json.body.payload.invitee.name : $json.invitee_name }}"
+            },
+            {
+              "id": "3",
+              "name": "invitee_email",
+              "type": "string",
+              "value": "={{ $json.body ? $json.body.payload.invitee.email : $json.invitee_email }}"
+            },
+            {
+              "id": "4",
+              "name": "event_uri",
+              "type": "string",
+              "value": "={{ $json.body ? $json.body.payload.event.uri : $json.event_uri }}"
+            },
+            {
+              "id": "5",
+              "name": "event_start_time",
+              "type": "string",
+              "value": "={{ $json.body ? $json.body.payload.event.start_time : $json.event_start_time }}"
+            },
+            {
+              "id": "6",
+              "name": "calendly_event_uuid",
+              "type": "string",
+              "value": "={{ $json.body ? $json.body.payload.event.uuid : $json.calendly_event_uuid }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-data",
+      "name": "Extract Onboarding Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_email",
+              "condition": "eq",
+              "keyValue": "={{ $json.invitee_email }}"
+            }
+          ]
+        }
+      },
+      "id": "lookup-project",
+      "name": "Lookup Client Project",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        440,
+        300
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "client_projects",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "project_status",
+              "fieldValue": "onboarding_scheduled"
+            },
+            {
+              "fieldId": "onboarding_calendly_uri",
+              "fieldValue": "={{ $('Extract Onboarding Data').item.json.event_uri }}"
+            }
+          ]
+        }
+      },
+      "id": "update-project-status",
+      "name": "Update Project Status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        660,
+        200
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Extract Onboarding Data').item.json.invitee_email }}",
+        "subject": "Next Step: Book Your Kickoff Meeting - {{ $('Extract Onboarding Data').item.json.invitee_name }}",
+        "message": "=<h2>Onboarding Complete - Time for Kickoff!</h2><p>Hi {{ $('Extract Onboarding Data').item.json.invitee_name }},</p><p>Great speaking with you during the onboarding call! Now that we've covered the basics, it's time to formally kick off your project.</p><p>In the <strong>kickoff meeting</strong>, we'll:</p><ul><li>Finalize timelines and milestones</li><li>Set up platform access (Slack, Asana, etc.)</li><li>Get 2FA and credentials sorted</li><li>Establish our daily communication cadence</li></ul><p><a href='https://calendly.com/amadutown/atas-kick-off-meeting?name={{ $('Extract Onboarding Data').item.json.invitee_name }}&email={{ $('Extract Onboarding Data').item.json.invitee_email }}'>Book Your Kickoff Meeting Here</a></p><p>Looking forward to getting started!</p><p>Best regards,<br/>Vambah Sillah</p>",
+        "options": {}
+      },
+      "id": "send-kickoff-link",
+      "name": "Send Kickoff Meeting Link",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        660,
+        420
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UCK3YD2eNuUHuUxB",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0ABTFRRVN3"
+        },
+        "text": "=:white_check_mark: *Onboarding Call Booked*\n\n*Client:* {{ $('Extract Onboarding Data').item.json.invitee_name }}\n*Email:* {{ $('Extract Onboarding Data').item.json.invitee_email }}\n*Scheduled:* {{ $('Extract Onboarding Data').item.json.event_start_time }}\n*Status:* Onboarding scheduled, kickoff link will be sent after completion",
+        "otherOptions": {}
+      },
+      "id": "slack-notify",
+      "name": "Notify Team Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        300
+      ],
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## WF-001B: Onboarding Call Handler\n\n**Trigger:** Calendly webhook (onboarding scheduled)\nFires when client books an onboarding call.\n\n**Flow:**\n1. Calendly sends onboarding event data\n2. Extract booking details\n3. Lookup client project in Supabase\n4. Update project status to onboarding_scheduled\n5. Send kickoff meeting booking link to client\n6. Notify team in Slack\n\n**Meeting Completion:**\nWhen the onboarding call is completed, Read.ai sends\nthe transcript to WF-MCH (Meeting Complete Handler)\nwhich handles:\n- AI structuring of onboarding-specific data (tools, access, comms plan, timeline, win conditions)\n- Writing to meeting_records table\n- Updating project status to onboarding_completed\n- Generating kickoff meeting agenda via AI Agenda Builder\n- Posting summary to Slack\n\n### Updated 2026-02-06\n- Completion processing handled by WF-MCH\n- AI structuring extracts onboarding-specific data shape\n- Kickoff agenda auto-generated from onboarding outcomes"
+      },
+      "id": "note-wf",
+      "name": "Workflow Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        80
+      ]
+    }
+  ],
+  "connections": {
+    "Onboarding Event Received": {
+      "main": [
+        [
+          {
+            "node": "Extract Onboarding Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Onboarding Data": {
+      "main": [
+        [
+          {
+            "node": "Lookup Client Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Client Project": {
+      "main": [
+        [
+          {
+            "node": "Update Project Status",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Kickoff Meeting Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Project Status": {
+      "main": [
+        [
+          {
+            "node": "Notify Team Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": null,
+  "meta": {}
+}

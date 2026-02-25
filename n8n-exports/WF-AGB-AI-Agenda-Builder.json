@@ -1,0 +1,421 @@
+{
+  "updatedAt": "2026-02-11T18:44:58.472Z",
+  "createdAt": "2026-02-06T16:57:13.371Z",
+  "id": "exYTC4bhQXq9vqZ0",
+  "name": "WF-AGB: AI Agenda Builder",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## WF-AGB: AI Agenda Builder\n\n**Trigger:** Called as sub-workflow from WF-MCH or other workflows\n\n**Input (via Execute Workflow Trigger):**\n- client_project_id: UUID\n- next_meeting_type: discovery|onboarding|kickoff|progress_checkin|go_no_go|delivery_review\n- client_email: for lead research lookup\n\n**Flow:**\n1. Receive input via Execute Workflow Trigger\n2. Fetch client project details\n3. Fetch all prior meeting_records\n4. Fetch lead research (contact_submissions.full_report)\n5. Fetch diagnostic audit data\n6. AI generates agenda items with source tracing\n7. Write agenda items to meeting_agenda_items\n8. Return agenda brief for email/Slack\n\n### Created 2026-02-06\nReusable agenda generation for all meeting types",
+        "height": 500,
+        "width": 500
+      },
+      "id": "note-agb",
+      "name": "Workflow Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -304,
+        -352
+      ]
+    },
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "trigger-agb",
+      "name": "Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.client_project_id }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-project-agb",
+      "name": "Fetch Client Project",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        208
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "meeting_records",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_project_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.client_project_id }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-meetings-agb",
+      "name": "Fetch All Meeting Records",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        400
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "contact_submissions",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $json.client_email }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-lead-agb",
+      "name": "Fetch Lead Research",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        592
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $('Execute Workflow Trigger').item.json;\nconst nextMeetingType = input.next_meeting_type;\n\n// Safely get client project\nlet clientProject = {};\ntry {\n  const cpItems = $('Fetch Client Project').all();\n  if (cpItems.length > 0 && cpItems[0].json && cpItems[0].json.id) {\n    clientProject = cpItems[0].json;\n  }\n} catch (e) {\n  clientProject = {};\n}\n\n// Safely get all meeting records\nlet allMeetings = [];\ntry {\n  allMeetings = $('Fetch All Meeting Records').all().map(i => i.json).filter(m => m && m.id);\n} catch (e) {\n  allMeetings = [];\n}\n\n// Safely get lead data\nlet leadData = {};\ntry {\n  const ldItems = $('Fetch Lead Research').all();\n  if (ldItems.length > 0 && ldItems[0].json && ldItems[0].json.id) {\n    leadData = ldItems[0].json;\n  }\n} catch (e) {\n  leadData = {};\n}\n\nconst dataSourceGuide = {\n  discovery: '\\nFOR DISCOVERY CALL AGENDA:\\n- Use the Lead Research Report (full_report) to understand the prospect\\'s company, pain points, competitors, and AI readiness\\n- Focus on: validating research findings, understanding pain points deeply, assessing fit, discussing timeline/budget\\n',\n  onboarding: '\\nFOR ONBOARDING CALL AGENDA:\\n- Use Discovery Call decisions and action items\\n- Use proposal line_items to know what was purchased\\n- Focus on: tools/access setup, communication plan, timeline confirmation, win conditions, artifact handoff\\n- Carry forward any open questions from discovery\\n',\n  kickoff: '\\nFOR KICKOFF MEETING AGENDA:\\n- Use Onboarding Call tools_agreed and access_requirements\\n- Focus on: verifying access, confirming milestones, assigning roles, identifying risks\\n- Carry forward onboarding win_conditions\\n',\n  progress_checkin: '\\nFOR PROGRESS CHECK-IN AGENDA:\\n- Use Kickoff milestone_dates_confirmed for what is due\\n- Focus on: milestone status, blocker review, scope changes, client satisfaction, next actions\\n',\n  go_no_go: '\\nFOR GO/NO-GO REVIEW AGENDA:\\n- Use Progress Check-in milestone_status for completion\\n- Focus on: test results, approval decision, punch list, launch conditions\\n',\n  delivery_review: '\\nFOR DELIVERY AND REVIEW AGENDA:\\n- Use Go/No-Go punch_list for items that needed fixing\\n- Reference deliverables and original proposal scope\\n- Focus on: deliverable review, client feedback, satisfaction, training gaps, upsell opportunities\\n'\n};\n\nlet context = `CLIENT: ${clientProject.client_name || 'Unknown'}\\nCOMPANY: ${clientProject.client_company || 'Unknown'}\\nPROJECT STATUS: ${clientProject.project_status || 'Unknown'}\\nPRODUCT: ${clientProject.product_purchased || 'Unknown'}\\n`;\n\nif (leadData && leadData.full_report) {\n  context += `\\n--- LEAD RESEARCH REPORT ---\\n${leadData.full_report.substring(0, 8000)}\\n`;\n}\nif (leadData && leadData.quick_wins) {\n  context += `\\nQUICK WINS: ${leadData.quick_wins}\\n`;\n}\n\nif (allMeetings.length > 0) {\n  context += '\\n--- PRIOR MEETING RECORDS ---\\n';\n  for (const m of allMeetings) {\n    context += `\\n[${m.meeting_type}] ${m.meeting_date || ''}:\\n`;\n    if (m.structured_notes) {\n      try {\n        const notes = typeof m.structured_notes === 'string' ? JSON.parse(m.structured_notes) : m.structured_notes;\n        context += `Summary: ${notes.summary || ''}\\n`;\n      } catch (e) {\n        context += `Notes: ${JSON.stringify(m.structured_notes)}\\n`;\n      }\n    }\n    if (m.key_decisions) context += `Decisions: ${typeof m.key_decisions === 'string' ? m.key_decisions : JSON.stringify(m.key_decisions)}\\n`;\n    if (m.action_items) context += `Action Items: ${typeof m.action_items === 'string' ? m.action_items : JSON.stringify(m.action_items)}\\n`;\n    if (m.open_questions) context += `Open Questions: ${typeof m.open_questions === 'string' ? m.open_questions : JSON.stringify(m.open_questions)}\\n`;\n  }\n}\n\nconst guide = dataSourceGuide[nextMeetingType] || 'Generate a relevant meeting agenda based on all available context.';\n\nreturn [{\n  json: {\n    nextMeetingType,\n    clientProjectId: input.client_project_id,\n    clientEmail: input.client_email,\n    context,\n    guide,\n    clientProject\n  }\n}];"
+      },
+      "id": "build-agenda-ctx",
+      "name": "Build Agenda Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Generate a structured meeting agenda for an upcoming ' + $json.nextMeetingType.replace('_', ' ') + '.\\n\\n' + $json.guide + '\\n\\n--- ALL AVAILABLE CONTEXT ---\\n' + $json.context + '\\n\\n---\\n\\nGenerate the agenda as a JSON array. Each item must include source_tracing showing where the item came from. Output valid JSON only (no markdown, no code fences):\\n\\n[\\n  {\\n    \"title\": \"Agenda item title\",\\n    \"description\": \"What to discuss and why\",\\n    \"category\": \"review|decision|discussion|action|info\",\\n    \"priority\": 1,\\n    \"estimated_minutes\": 5,\\n    \"source_trace\": {\\n      \"source_type\": \"meeting_record|contact_submissions|diagnostic_audits|project_data\",\\n      \"source_meeting_type\": \"discovery|onboarding|etc or null\",\\n      \"source_field\": \"e.g. action_items[0], meeting_data.tools_agreed, full_report\",\\n      \"reasoning\": \"Why this item is on the agenda\"\\n    }\\n  }\\n]\\n\\nRules:\\n- Generate 5-10 agenda items, ordered by priority (1=highest)\\n- Every item MUST have source_trace showing where it came from\\n- Include a mix of categories: reviews of prior commitments, new decisions needed, discussions, and info sharing\\n- Start with a brief review/recap item\\n- End with next steps / action items\\n- Be specific to this client -- use actual names, tools, dates from the context\\n- Total estimated time should be 30-60 minutes' }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "=Company context from knowledge base (use to align agenda with our positioning):\n\n{{ $json.response || '' }}\n\n---\n\nYou are an expert at building client meeting agendas for an AI/automation consultancy. Create clear, actionable agendas that reflect our services and value proposition."
+        }
+      },
+      "id": "ai-agenda-agb",
+      "name": "AI Agenda Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1120,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "brain-agb",
+      "name": "Agenda Brain",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1128,
+        624
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const agentOutput = $('AI Agenda Generator').item.json.output || $('AI Agenda Generator').item.json.text || '';\nconst ctx = $('Build Agenda Context').item.json;\n\n// Parse agenda items from AI output\nlet agendaItems;\ntry {\n  const jsonMatch = agentOutput.match(/\\[[\\s\\S]*\\]/);\n  agendaItems = JSON.parse(jsonMatch ? jsonMatch[0] : agentOutput);\n} catch (e) {\n  agendaItems = [{\n    title: 'AI agenda generation failed',\n    description: 'Please prepare agenda manually',\n    category: 'info',\n    priority: 1,\n    estimated_minutes: 5,\n    source_trace: { source_type: 'system', reasoning: 'Fallback due to parsing error' }\n  }];\n}\n\n// Build narrative brief for email\nconst typeLabels = {\n  discovery: 'Discovery Call', onboarding: 'Onboarding Call',\n  kickoff: 'Kickoff Meeting', progress_checkin: 'Progress Check-in',\n  go_no_go: 'Go/No-Go Review', delivery_review: 'Delivery & Review'\n};\nconst typeLabel = typeLabels[ctx.nextMeetingType] || ctx.nextMeetingType;\nconst totalMinutes = agendaItems.reduce((sum, item) => sum + (item.estimated_minutes || 5), 0);\n\nlet brief = `# ${typeLabel} Agenda\\n\\n`;\nbrief += `**Client:** ${ctx.clientProject?.client_name || 'TBD'}\\n`;\nbrief += `**Estimated Duration:** ${totalMinutes} minutes\\n\\n`;\nbrief += `---\\n\\n`;\n\nfor (const item of agendaItems) {\n  brief += `### ${item.priority}. ${item.title} (${item.estimated_minutes} min)\\n`;\n  brief += `${item.description}\\n`;\n  if (item.source_trace?.reasoning) {\n    brief += `*Source: ${item.source_trace.reasoning}*\\n`;\n  }\n  brief += `\\n`;\n}\n\nbrief += `---\\n*This agenda was auto-generated based on prior meeting notes and project data.*`;\n\nreturn [{\n  json: {\n    clientProjectId: ctx.clientProjectId,\n    nextMeetingType: ctx.nextMeetingType,\n    agendaItems,\n    brief,\n    totalMinutes\n  }\n}];"
+      },
+      "id": "parse-agenda-agb",
+      "name": "Parse and Store Agenda",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b:free",
+        "options": {}
+      },
+      "id": "d96b8bc5-5702-411f-9fc4-374ee71f7e84",
+      "name": "Free Fallback (OpenRouter)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1256,
+        624
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "ATznzoKw5NdNjbAl",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.amadutown.com/webhook/amadutown-rag-query",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"query\": \"What should we emphasize in client meeting agendas for AI automation and implementation? Summarize key topics and value props in 2-3 paragraphs for agenda building.\"}"
+      },
+      "id": "6237f691-8076-49a2-bfab-15b98908e33f",
+      "name": "Fetch RAG (Agenda)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        672,
+        472
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "outputDataFrom": "both",
+        "options": {}
+      },
+      "id": "0aff29c1-60c0-4fad-b801-8d00844bcb84",
+      "name": "Merge RAG (Agenda)",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        896,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Client Project",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch All Meeting Records",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Lead Research",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Client Project": {
+      "main": [
+        [
+          {
+            "node": "Build Agenda Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Meeting Records": {
+      "main": [
+        [
+          {
+            "node": "Build Agenda Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Lead Research": {
+      "main": [
+        [
+          {
+            "node": "Build Agenda Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agenda Generator": {
+      "main": [
+        [
+          {
+            "node": "Parse and Store Agenda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agenda Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agenda Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Free Fallback (OpenRouter)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agenda Generator",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Build Agenda Context": {
+      "main": [
+        [
+          {
+            "node": "Fetch RAG (Agenda)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge RAG (Agenda)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch RAG (Agenda)": {
+      "main": [
+        [
+          {
+            "node": "Merge RAG (Agenda)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge RAG (Agenda)": {
+      "main": [
+        [
+          {
+            "node": "AI Agenda Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f50b0bd5-15db-45e9-aa24-4cd658415a98",
+  "activeVersionId": "f50b0bd5-15db-45e9-aa24-4cd658415a98",
+  "versionCounter": 61,
+  "triggerCount": 0,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-06T16:57:13.377Z",
+      "createdAt": "2026-02-06T16:57:13.377Z",
+      "role": "workflow:owner",
+      "workflowId": "exYTC4bhQXq9vqZ0",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    }
+  ]
+}

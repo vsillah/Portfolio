@@ -1,0 +1,325 @@
+{
+  "id": "e7WSeeG8YeTGkkoq",
+  "name": "WF-005: Project Workspace Setup",
+  "active": true,
+  "createdAt": "2026-02-01 14:59:08.901",
+  "updatedAt": "2026-02-07 00:57:52.008",
+  "versionId": "14ca00f3-a3d0-4a4f-b9f0-092d64e933c2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "setup-workspace",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Setup Workspace Webhook",
+      "id": "webhook-trigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "webhookId": "0d3666c0-9d6e-49d1-bbfa-eb14f038726f"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Build Workspace Config",
+      "id": "build-config",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        304
+      ],
+      "type": "n8n-nodes-base.set"
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.templateFolderId }}"
+        },
+        "name": "={{ $json.clientName + ' - Project Templates' }}",
+        "options": {}
+      },
+      "name": "Copy Template Folder",
+      "id": "copy-templates",
+      "typeVersion": 3,
+      "position": [
+        672,
+        208
+      ],
+      "type": "n8n-nodes-base.googleDrive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CNxxaAEuDBuR38Uo",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "={{ $('Build Workspace Config').item.json.slackChannel }}",
+        "text": "={{ '\ud83d\udcc1 *Project Templates Ready*\\n\\nI\\'ve set up your project workspace with all the templates and blueprints we\\'ll use:\\n\\n\ud83d\udd17 <' + $('Copy Template Folder').item.json.webViewLink + '|Open Project Folder>\\n\\n*Contents:*\\n\u2022 Project checklist\\n\u2022 Progress tracking template\\n\u2022 Delivery documentation template\\n\u2022 SOP template\\n\\nFeel free to bookmark this!' }}",
+        "otherOptions": {}
+      },
+      "name": "Post Templates Link",
+      "id": "post-templates",
+      "typeVersion": 2.4,
+      "position": [
+        880,
+        208
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "af6e1e53-7500-4798-9ebb-5e2f3c19d54c",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "star",
+        "target": "message",
+        "channelId": "={{ $('Build Workspace Config').item.json.slackChannel }}",
+        "timestamp": "={{ $('Post Templates Link').item.json.ts }}",
+        "options": {}
+      },
+      "name": "Pin Templates Message",
+      "id": "pin-templates",
+      "typeVersion": 2.4,
+      "position": [
+        1104,
+        208
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "663dff0e-41e3-4271-9999-d0367ef3e055",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "={{ $('Build Workspace Config').item.json.slackChannel }}",
+        "text": "={{ '\ud83d\udcd6 *Channel Guidelines*\\n\\n*Daily Updates (M-F):*\\nYou\\'ll receive a progress update each day covering:\\n\u2022 What we wrapped up\\n\u2022 What\\'s next\\n\u2022 Any blockers or questions\\n\\n*Questions?*\\nPost them anytime! We batch responses with the daily update (unless urgent).\\n\\n*Urgent Issues:*\\nUse @here or \ud83d\udea8 emoji for immediate attention.\\n\\n*Feedback:*\\nShare thoughts, screenshots, or concerns openly - this is your space!' }}",
+        "otherOptions": {}
+      },
+      "name": "Post Channel Guidelines",
+      "id": "post-guidelines",
+      "typeVersion": 2.4,
+      "position": [
+        672,
+        400
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "ba5ad561-8f74-4b01-b4e0-f5ed6c0556ca",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {success: true, message: 'Workspace setup complete', folderUrl: $('Copy Template Folder').item.json.webViewLink} }}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "id": "respond-webhook",
+      "typeVersion": 1.1,
+      "position": [
+        1104,
+        400
+      ],
+      "type": "n8n-nodes-base.respondToWebhook"
+    },
+    {
+      "parameters": {
+        "content": "## WF-005: Project Workspace Setup\n\n**Trigger:** POST webhook to set up workspace\n\n**Payload:** `{\"clientEmail\": \"client@example.com\"}`\n\n**Actions:**\n1. Fetch client from Sheets\n2. Copy template folder to client folder\n3. Post templates link in Slack\n4. Pin the templates message\n5. Post channel guidelines\n6. Update sheet with folder URL\n\n**Config Required:**\n- Google Drive template folder ID\n- Client projects parent folder ID\n- Google Sheets document ID"
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_email",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.clientEmail }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-client-supabase",
+      "name": "Fetch Client Data",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "client_projects",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $('Fetch Client Data').item.json.id }}"
+            },
+            {
+              "fieldValue": "={{ $('Copy Template Folder').item.json.webViewLink }}"
+            },
+            {
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "update-project-folder",
+      "name": "Update Project with Folder",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        400
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Copy Template Folder": {
+      "main": [
+        [
+          {
+            "node": "Post Templates Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Workspace Config": {
+      "main": [
+        [
+          {
+            "node": "Copy Template Folder",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Channel Guidelines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Templates Link": {
+      "main": [
+        [
+          {
+            "node": "Pin Templates Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setup Workspace Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Client Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Client Data": {
+      "main": [
+        [
+          {
+            "node": "Build Workspace Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Channel Guidelines": {
+      "main": [
+        [
+          {
+            "node": "Update Project with Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Project with Folder": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

@@ -1,0 +1,570 @@
+{
+  "id": "71PtSykOoLSFrF5m",
+  "name": "WF-007: Automated Progress Updates",
+  "active": true,
+  "createdAt": "2026-02-01 12:13:55.307",
+  "updatedAt": "2026-02-09 11:20:13.578",
+  "versionId": "8cb0dbe6-e6e6-47bb-ac9e-60965c55932d",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "name": "Daily 9AM Trigger",
+      "id": "schedule-trigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        376
+      ],
+      "type": "n8n-nodes-base.scheduleTrigger"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Loop Each Client",
+      "id": "loop-clients",
+      "typeVersion": 3,
+      "position": [
+        448,
+        472
+      ],
+      "type": "n8n-nodes-base.splitInBatches"
+    },
+    {
+      "parameters": {
+        "jsCode": "const client = $input.first().json;\nconst startDate = new Date(client.project_start_date);\nconst today = new Date();\nconst daysSinceStart = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));\nconst estimatedDuration = 21;\nconst progressPercent = Math.min(Math.round((daysSinceStart / estimatedDuration) * 100), 100);\n\nlet templateType = 'standard';\nif (progressPercent > 80) {\n  templateType = 'ahead_of_schedule';\n} else if (client.blockers && client.blockers.length > 0) {\n  templateType = 'blocker';\n}\n\nreturn [{\n  json: {\n    ...client,\n    days_since_start: daysSinceStart,\n    progress_percent: progressPercent,\n    template_type: templateType,\n    update_date: today.toISOString().split('T')[0]\n  }\n}];"
+      },
+      "name": "Calculate Progress",
+      "id": "calc-progress",
+      "typeVersion": 2,
+      "position": [
+        672,
+        304
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.template_type }}",
+                    "rightValue": "ahead_of_schedule",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and",
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                }
+              },
+              "renameOutput": true,
+              "outputKey": "ahead"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.template_type }}",
+                    "rightValue": "standard",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and",
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                }
+              },
+              "renameOutput": true,
+              "outputKey": "standard"
+            },
+            {
+              "conditions": {
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.template_type }}",
+                    "rightValue": "blocker",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and",
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                }
+              },
+              "renameOutput": true,
+              "outputKey": "blocker"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Select Update Template",
+      "id": "select-template",
+      "typeVersion": 3.4,
+      "position": [
+        896,
+        288
+      ],
+      "type": "n8n-nodes-base.switch"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nreturn {\n  json: {\n    ...input,\n    update_message: `Hi ${input.client_name},\\n\\nI know I said I'd deliver a progress update later, but we just wrapped up the current phase a little early and I figured I'd collect my brownie points.\\n\\n\u2022 Just finished: ${input.current_task || 'Core implementation phase'}\\n\u2022 ${input.next_task || 'Final testing'} should be done on ${input.next_milestone_date || 'schedule'}\\n\u2022 If you have any questions just shout\\n\\nWant to hop on a quick call to review progress? Book a check-in here:\\nhttps://calendly.com/amadutown/atas-progress-check-in?name=${input.client_name}&email=${input.client_email}\\n\\nThank you!`\n  }\n};"
+      },
+      "name": "Ahead Template",
+      "id": "template-ahead",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        112
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nreturn {\n  json: {\n    ...input,\n    update_message: `Hi ${input.client_name}, progress update for you.\\n\\nHere's where I'm at:\\n\u2022 I just wrapped up ${input.current_task || 'the current phase'}.\\n\u2022 Next up is ${input.next_task || 'the next milestone'}.\\n\u2022 Everything looks great so far! ${input.progress_percent > 50 ? 'A little bit ahead of schedule, actually.' : 'Right on track.'}\\n\\nWant to hop on a quick call to review progress? Book a check-in here:\\nhttps://calendly.com/amadutown/atas-progress-check-in?name=${input.client_name}&email=${input.client_email}\\n\\nLooking forward to delivering this for you.\\n\\nThanks!`\n  }\n};"
+      },
+      "name": "Standard Template",
+      "id": "template-standard",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        304
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nreturn {\n  json: {\n    ...input,\n    update_message: `Hi ${input.client_name}, just checking in on ${input.product_purchased || 'your project'}.\\n\\n\u2022 ${input.current_task || 'Current phase'} is on schedule.\\n\\nI had a quick question: ${input.blocker_question || 'Could you confirm the details we discussed?'}\\n\\nIf it's easier to discuss on a call, you can book a quick check-in here:\\nhttps://calendly.com/amadutown/atas-progress-check-in?name=${input.client_name}&email=${input.client_email}\\n\\nHope you're enjoying the week!\\n\\nThanks!`\n  }\n};"
+      },
+      "name": "Blocker Template",
+      "id": "template-blocker",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        496
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.communication_channel || 'slack' }}",
+              "rightValue": "slack"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Check Channel",
+      "id": "check-channel",
+      "typeVersion": 2.3,
+      "position": [
+        1344,
+        296
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $json.slack_channel }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.update_message }}",
+        "otherOptions": {}
+      },
+      "name": "Send Slack Update",
+      "id": "send-slack",
+      "typeVersion": 2.4,
+      "position": [
+        1568,
+        208
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "11bebfd3-f904-48e9-899b-fd274cc0256b",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.client_email }}",
+        "subject": "=Progress Update - {{ $json.product_purchased }}",
+        "emailType": "text",
+        "message": "={{ $json.update_message }}",
+        "options": {}
+      },
+      "name": "Send Email Update",
+      "id": "send-email",
+      "typeVersion": 2.2,
+      "position": [
+        1568,
+        496
+      ],
+      "type": "n8n-nodes-base.gmail",
+      "webhookId": "0ea7d54f-4fde-4941-ac0f-36b5976a7f79",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "name": "Continue Loop",
+      "id": "loop-continue",
+      "typeVersion": 1,
+      "position": [
+        2016,
+        472
+      ],
+      "type": "n8n-nodes-base.noOp"
+    },
+    {
+      "parameters": {
+        "content": "## WF-007: Automated Progress Updates\n\n**Trigger:** Daily at 9AM\nSends progress updates for all active client projects.\n\n**Flow:**\n1. Fetch all active projects from Supabase\n2. Loop through each client\n3. Calculate progress against milestones\n4. Select template (ahead/standard/blocker)\n5. Send via Slack or email with progress check-in booking link\n6. Log update sent\n\n**Meeting Intelligence Integration:**\nProgress check-in meetings are processed by WF-MCH when Read.ai\nsends the transcript. WF-MCH extracts:\n- Milestone status updates\n- Blocker reviews and resolutions\n- Scope changes\n- Client satisfaction signals\n- Next actions with owners and due dates\nAnd generates the go/no-go review agenda.\n\nWF-007 can reference latest meeting_records for context-aware\ndaily updates (future enhancement: query meeting_records for\nrecent action items and blockers).\n\n### Updated 2026-02-06\n- Progress check-in completion handled by WF-MCH\n- Includes progress check-in booking link"
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "project_status",
+              "condition": "eq",
+              "keyValue": "active"
+            }
+          ]
+        }
+      },
+      "id": "fetch-active-projects",
+      "name": "Fetch Active Projects",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        472
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "project_reminders",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "project_id",
+              "fieldValue": "={{ $('Fetch Active Projects').item.json.id }}"
+            },
+            {
+              "fieldId": "client_email",
+              "fieldValue": "={{ $('Fetch Active Projects').item.json.client_email }}"
+            },
+            {
+              "fieldId": "reminder_type",
+              "fieldValue": "progress_update"
+            },
+            {
+              "fieldId": "current_phase",
+              "fieldValue": "={{ $('Fetch Active Projects').item.json.current_phase }}"
+            },
+            {
+              "fieldId": "message",
+              "fieldValue": "={{ $json.updateType || 'Progress update sent' }}"
+            },
+            {
+              "fieldId": "delivered",
+              "fieldValue": "true"
+            }
+          ]
+        }
+      },
+      "id": "log-update-sent",
+      "name": "Log Update Sent",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        296
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wake-wf007-progress",
+        "options": {}
+      },
+      "id": "webhook-wake-trigger",
+      "name": "Webhook Wake Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        568
+      ],
+      "webhookId": "2ca371c5-e24a-4fa2-9933-35ea0e14834d"
+    }
+  ],
+  "connections": {
+    "Check Channel": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Email Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Each Client": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Calculate Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Progress": {
+      "main": [
+        [
+          {
+            "node": "Select Update Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue Loop": {
+      "main": [
+        [
+          {
+            "node": "Loop Each Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ahead Template": {
+      "main": [
+        [
+          {
+            "node": "Check Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Update Template": {
+      "main": [
+        [
+          {
+            "node": "Ahead Template",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Standard Template",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Blocker Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blocker Template": {
+      "main": [
+        [
+          {
+            "node": "Check Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Standard Template": {
+      "main": [
+        [
+          {
+            "node": "Check Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily 9AM Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Active Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Active Projects": {
+      "main": [
+        [
+          {
+            "node": "Loop Each Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Slack Update": {
+      "main": [
+        [
+          {
+            "node": "Log Update Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Update": {
+      "main": [
+        [
+          {
+            "node": "Log Update Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Update Sent": {
+      "main": [
+        [
+          {
+            "node": "Continue Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Wake Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Active Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Daily 9AM Trigger": {
+      "recurrenceRules": []
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

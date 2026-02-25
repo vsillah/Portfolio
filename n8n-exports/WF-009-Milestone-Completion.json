@@ -1,0 +1,331 @@
+{
+  "id": "FlaFoxHnniykXLBF",
+  "name": "WF-009: Milestone Completion",
+  "active": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "path": "milestone-complete",
+        "httpMethod": "POST",
+        "options": {},
+        "responseMode": "responseNode"
+      },
+      "name": "Milestone Complete Webhook",
+      "id": "webhook-trigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "webhookId": "bd37adc8-148e-40b8-9478-65231c370fd6",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const client = $input.item.json;\nconst completedPhase = $('Milestone Complete Webhook').item.json.body.phase || 1;\nconst nextPhase = completedPhase + 1;\n\nconst phases = {\n  1: { name: 'Setup & Access', next: 'Build & Customize' },\n  2: { name: 'Build & Customize', next: 'Test E2E' },\n  3: { name: 'Test E2E', next: 'Deliver & Document' },\n  4: { name: 'Deliver & Document', next: null }\n};\n\nconst currentPhaseInfo = phases[completedPhase];\nconst isProjectComplete = completedPhase >= 4;\n\nreturn [{\n  json: {\n    ...client,\n    completedPhase,\n    completedPhaseName: currentPhaseInfo.name,\n    nextPhase,\n    nextPhaseName: currentPhaseInfo.next,\n    isProjectComplete,\n    completedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "name": "Calculate Next Phase",
+      "id": "calc-phase",
+      "typeVersion": 2,
+      "position": [
+        448,
+        304
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "complete-check",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.isProjectComplete }}",
+              "rightValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Check Project Complete",
+      "id": "check-complete",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        304
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "text": "={{ ':white_check_mark: *Phase ' + $json.completedPhase + ' Complete!*\\n\\n*Completed:* ' + $json.completedPhaseName + '\\n\\n:point_right: *Up Next:* ' + $json.nextPhaseName + ' (Phase ' + $json.nextPhase + ')\\n\\n' + ($json.completedPhase == 3 ? 'E2E testing is done! Book your Go/No-Go review to approve the final deliverables:\\nhttps://calendly.com/amadutown/go-no-go-meeting?name=' + $json.client_name + '&email=' + $json.client_email + '\\n\\n' : '') + 'Moving forward! Let me know if you have any questions.' }}",
+        "select": "channel",
+        "operation": "post",
+        "resource": "message",
+        "otherOptions": {},
+        "channelId": "={{ $json.slack_channel }}"
+      },
+      "name": "Post Phase Complete",
+      "id": "post-phase-complete",
+      "typeVersion": 2.4,
+      "position": [
+        880,
+        400
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "1c9662ac-1a68-43c3-903d-0ef7456a3d8f",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ ':tada: *All Phases Complete!*\\n\\nWe\\'ve reached the final stage - time to test everything end-to-end.\\n\\n*E2E Testing Checklist:*\\n:black_square_button: Test complete workflow from start to finish\\n:black_square_button: Verify all triggers work correctly\\n:black_square_button: Check error handling\\n:black_square_button: Confirm data flows properly\\n:black_square_button: Test edge cases\\n\\nOnce E2E testing is done, book your Go/No-Go review to approve the final deliverables:\\nhttps://calendly.com/amadutown/go-no-go-meeting?name=' + $json.client_name + '&email=' + $json.client_email + '\\n\\nI\\'ll follow up with documentation once testing is complete!' }}",
+        "select": "channel",
+        "operation": "post",
+        "resource": "message",
+        "otherOptions": {},
+        "channelId": "={{ $json.slack_channel }}"
+      },
+      "name": "Trigger E2E Testing",
+      "id": "trigger-e2e",
+      "typeVersion": 2.4,
+      "position": [
+        880,
+        208
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "c2eb23b6-2d28-4da8-8186-7590dc9723b9",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {success: true, completedPhase: $json.completedPhase, nextPhase: $json.isProjectComplete ? null : $json.nextPhase, isComplete: $json.isProjectComplete} }}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "id": "respond-webhook",
+      "typeVersion": 1.1,
+      "position": [
+        1328,
+        304
+      ],
+      "type": "n8n-nodes-base.respondToWebhook"
+    },
+    {
+      "parameters": {
+        "content": "## WF-009: Milestone Completion\n\n**Trigger:** Webhook (milestone completion event)\nFires when a project milestone is completed.\n\n**Flow:**\n1. Receive milestone data\n2. Fetch client data from Supabase\n3. Calculate next phase\n4. If Phase 3 complete: trigger E2E testing + go/no-go link\n5. Otherwise: post phase complete to Slack\n6. Update phase in Supabase\n\n**Meeting Intelligence Integration:**\nGo/No-Go review meetings are processed by WF-MCH when\nRead.ai sends the transcript. WF-MCH extracts:\n- Test results (pass/fail per test case)\n- Approval status (approved/conditional/rejected)\n- Punch list items with severity and owners\n- Launch conditions\n- Conditional items to fix\nAnd generates the delivery & review agenda.\n\n### Updated 2026-02-06\n- Go/no-go completion handled by WF-MCH\n- Includes go/no-go meeting booking link at Phase 3"
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_email",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.clientEmail }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-client-supabase",
+      "name": "Fetch Client Data",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "client_projects",
+        "filterType": "manual",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Fetch Client Data').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "current_phase",
+              "fieldValue": "={{ $('Calculate Next Phase').item.json.nextPhase }}"
+            },
+            {
+              "fieldId": "project_status",
+              "fieldValue": "={{ $('Calculate Next Phase').item.json.newStatus || 'active' }}"
+            }
+          ]
+        }
+      },
+      "id": "update-phase-supabase",
+      "name": "Update Phase in Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Calculate Next Phase": {
+      "main": [
+        [
+          {
+            "node": "Check Project Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Project Complete": {
+      "main": [
+        [
+          {
+            "node": "Trigger E2E Testing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post Phase Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Milestone Complete Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Client Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Client Data": {
+      "main": [
+        [
+          {
+            "node": "Calculate Next Phase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Phase Complete": {
+      "main": [
+        [
+          {
+            "node": "Update Phase in Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger E2E Testing": {
+      "main": [
+        [
+          {
+            "node": "Update Phase in Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Phase in Supabase": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "versionId": "11be283d-d6ae-4be7-9b7a-935a5fc63cf1",
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "parentFolderId": null,
+  "createdAt": "2026-02-01 15:01:22.646",
+  "updatedAt": "2026-02-08 21:51:12.067",
+  "isArchived": 0,
+  "versionCounter": 31,
+  "description": null,
+  "activeVersionId": "11be283d-d6ae-4be7-9b7a-935a5fc63cf1"
+}

@@ -1,0 +1,308 @@
+{
+  "id": "IdQHwgh9SUFGpY5C",
+  "name": "WF-011: Documentation Generation",
+  "active": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "generate-docs",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Documentation Webhook",
+      "id": "webhook-trigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "webhookId": "e2a8e548-410a-4a98-b88e-e33f0e89511a",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Build Doc Content",
+      "id": "build-content",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        304
+      ],
+      "type": "n8n-nodes-base.set"
+    },
+    {
+      "parameters": {
+        "driveId": {
+          "__rl": true,
+          "mode": "myDrive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        },
+        "title": "={{ $json.clientName + ' - Project SOP & Documentation' }}"
+      },
+      "name": "Create SOP Document",
+      "id": "create-sop",
+      "typeVersion": 2,
+      "position": [
+        672,
+        304
+      ],
+      "type": "n8n-nodes-base.googleDocs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "JaQWSM7Ep4IZjg3Y",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $('Create SOP Document').item.json.documentId }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Build Doc Content').item.json.clientName + ' - Standard Operating Procedure\\n\\n================================\\n\\nProject Overview\\n----------------\\n' + $('Build Doc Content').item.json.projectDescription + '\\n\\nDelivered: ' + $now.format('MMMM d, yyyy') + '\\n\\n================================\\n\\nVideo Walkthrough\\n-----------------\\n' + ($('Build Doc Content').item.json.videoUrl ? 'Watch the complete walkthrough: ' + $('Build Doc Content').item.json.videoUrl : '[Video link to be added]') + '\\n\\n================================\\n\\nHow to Use This System\\n----------------------\\n\\n1. TRIGGERING THE WORKFLOW\\n   - [Describe how to start the workflow]\\n   - [Include trigger URL or method]\\n\\n2. EXPECTED INPUTS\\n   - [List required data/inputs]\\n   - [Format specifications]\\n\\n3. WHAT THE SYSTEM DOES\\n   - Step 1: [Description]\\n   - Step 2: [Description]\\n   - Step 3: [Description]\\n\\n4. OUTPUTS & RESULTS\\n   - [Where to find results]\\n   - [Expected output format]\\n\\n================================\\n\\nTroubleshooting\\n---------------\\n\\nCommon Issues:\\n\\n1. Issue: [Problem description]\\n   Solution: [How to fix]\\n\\n2. Issue: [Problem description]\\n   Solution: [How to fix]\\n\\n================================\\n\\nSupport\\n-------\\n\\nFor questions or issues, contact us through your Slack channel.\\n\\n================================\\n\\nDocument Version: 1.0\\nLast Updated: ' + $now.format('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "name": "Populate SOP Content",
+      "id": "populate-sop",
+      "typeVersion": 2,
+      "position": [
+        880,
+        304
+      ],
+      "type": "n8n-nodes-base.googleDocs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "JaQWSM7Ep4IZjg3Y",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "select": "channel",
+        "channelId": "={{ $('Build Doc Content').item.json.slackChannel }}",
+        "text": "={{ '\ud83d\udcda *Documentation Ready!*\\n\\nI\\'ve prepared your project documentation:\\n\\n\ud83d\udcd6 *SOP Document:* <' + $('Create SOP Document').item.json.webViewLink + '|View SOP>\\n' + ($('Build Doc Content').item.json.videoUrl ? '\ud83c\udfac *Video Walkthrough:* <' + $('Build Doc Content').item.json.videoUrl + '|Watch Video>' : '') + '\\n\\nThe SOP covers:\\n\u2022 How to trigger the workflow\\n\u2022 Expected inputs and outputs\\n\u2022 Step-by-step process\\n\u2022 Troubleshooting guide\\n\\nPlease review and let me know if you have any questions!' }}",
+        "otherOptions": {}
+      },
+      "name": "Notify Client",
+      "id": "notify-client",
+      "typeVersion": 2.4,
+      "position": [
+        1104,
+        400
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "6b65d033-8279-4106-9339-985cd3220207",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {success: true, sopUrl: $('Create SOP Document').item.json.webViewLink, message: 'Documentation created'} }}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "id": "respond-webhook",
+      "typeVersion": 1.1,
+      "position": [
+        1328,
+        304
+      ],
+      "type": "n8n-nodes-base.respondToWebhook"
+    },
+    {
+      "parameters": {
+        "content": "## WF-011: Documentation Generation\\n\\n**Trigger:** POST webhook\\n\\n**Payload:**\\n```json\\n{\\n  \\\"clientEmail\\\": \\\"...\\\",\\n  \\\"videoUrl\\\": \\\"https://...\\\",\\n  \\\"projectDescription\\\": \\\"...\\\"\\n}\\n```\\n\\n**Actions:**\\n1. Create SOP Google Doc\\n2. Populate with template\\n3. Notify client in Slack",
+        "height": 224,
+        "width": 672
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        -112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_email",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.clientEmail }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-client-supabase",
+      "name": "Fetch Client Data",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "client_projects",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $('Fetch Client Data').item.json.id }}"
+            },
+            {
+              "fieldValue": "={{ $('Create SOP Document').item.json.documentId || '' }}"
+            },
+            {
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "update-docs-supabase",
+      "name": "Update Project with Docs",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1104,
+        208
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Populate SOP Content": {
+      "main": [
+        [
+          {
+            "node": "Notify Client",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Project with Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create SOP Document": {
+      "main": [
+        [
+          {
+            "node": "Populate SOP Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Doc Content": {
+      "main": [
+        [
+          {
+            "node": "Create SOP Document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Documentation Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Client Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Client Data": {
+      "main": [
+        [
+          {
+            "node": "Build Doc Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Project with Docs": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "versionId": "5a70f6ea-6506-492d-aec6-06c339df8c59",
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "parentFolderId": null,
+  "createdAt": "2026-02-01 15:02:09.942",
+  "updatedAt": "2026-02-07 01:14:14.168",
+  "isArchived": 0,
+  "versionCounter": 20,
+  "description": null,
+  "activeVersionId": "5a70f6ea-6506-492d-aec6-06c339df8c59"
+}

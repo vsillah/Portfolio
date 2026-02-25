@@ -35,7 +35,22 @@ This folder contains exported n8n workflows ready for import into n8n Cloud.
 # Get your workspace URL: https://your-workspace.app.n8n.cloud
 ```
 
-### 2. Import Workflows
+### 2. Import or Update Workflows
+
+**Option A: Bulk import (new workflows)**  
+```bash
+./scripts/migrate-workflows-to-cloud.sh
+```
+
+**Option B: Update existing workflows from exports**  
+Use when export files have been fixed and you want to push changes to Cloud:
+```bash
+DRY_RUN=1 ./scripts/update-cloud-workflows-from-exports.sh  # Preview
+./scripts/update-cloud-workflows-from-exports.sh            # Apply
+```
+Requires `N8N_CLOUD_API_KEY` in `.env.local`. Matches by workflow name.
+
+**Option C: Manual import**  
 1. In n8n Cloud, go to **Workflows** → **+ Add workflow**
 2. Click menu (...) → **Import**
 3. Upload each JSON file

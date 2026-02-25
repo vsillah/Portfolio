@@ -1,0 +1,612 @@
+{
+  "updatedAt": "2025-12-25T01:25:54.907Z",
+  "createdAt": "2025-12-23T15:26:20.390Z",
+  "id": "JN7zL4QwkHRt47xl",
+  "name": "ReversR Beta Tester Intake form",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "53e16572-06e1-476d-a261-7db59d996d53",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "cc376ede-a489-474f-830f-b18702c4e631",
+      "name": "Webhook",
+      "webhookId": "53e16572-06e1-476d-a261-7db59d996d53"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1g-B0L860wguOYmsNjaeuqNcNUYil-7BRoCoJ2jrsSqo",
+          "mode": "list",
+          "cachedResultName": "N8N Work Intake Sheet",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g-B0L860wguOYmsNjaeuqNcNUYil-7BRoCoJ2jrsSqo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Intake",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g-B0L860wguOYmsNjaeuqNcNUYil-7BRoCoJ2jrsSqo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $json.body.email }}",
+            "First Name": "={{ $json.body.firstName }}",
+            "Last Name": "={{ $json.body.lastName}}",
+            "Has Android": "={{ $json.body.hasAndroid }}",
+            "Interest": "={{ $json.body.interest }}",
+            "Comfort Level": "={{ $json.body.comfort }}",
+            "Newsletter": "={{ $json.body.newsletter }}",
+            "Innovate Ideas": "={{ $json.body.innovateIdeas }}",
+            "Comments": "={{ $json.body.comments }}",
+            "Submitted At": "={{ $json.body.submittedAt }}",
+            "Source": "={{ $json.body.source }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "First Name",
+              "displayName": "First Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Last Name",
+              "displayName": "Last Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Has Android",
+              "displayName": "Has Android",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Interest",
+              "displayName": "Interest",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Comfort Level",
+              "displayName": "Comfort Level",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Newsletter",
+              "displayName": "Newsletter",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Innovate Ideas",
+              "displayName": "Innovate Ideas",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Comments",
+              "displayName": "Comments",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Submitted At",
+              "displayName": "Submitted At",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "id": "7648640c-84cb-4184-9797-e24bd5349b20",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Jwu3bOdaMrZEmS2f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "ReversR Beta Test Interest Form",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>New Beta Tester Application</title>\n</head>\n<body style=\"margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;\">\n    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"background-color: #f5f5f5; padding: 20px;\">\n        <tr>\n            <td align=\"center\">\n                <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);\">\n                    \n                    <!-- Header -->\n                    <tr>\n                        <td style=\"background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); padding: 30px 40px; text-align: center;\">\n                            <h1 style=\"margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;\">\n                                New <span style=\"color: #00FF80;\">ReversR</span> Beta Tester Application\n                            </h1>\n                        </td>\n                    </tr>\n                    \n                    <!-- Main Content -->\n                    <tr>\n                        <td style=\"padding: 40px;\">\n                            \n                            <!-- Contact Information Section -->\n                            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin-bottom: 30px;\">\n                                <tr>\n                                    <td>\n                                        <h2 style=\"margin: 0 0 20px 0; color: #333333; font-size: 18px; font-weight: 600; border-bottom: 2px solid #00FF80; padding-bottom: 10px;\">\n                                            Contact Information\n                                        </h2>\n                                    </td>\n                                </tr>\n                                <tr>\n                                    <td>\n                                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                            <tr>\n                                                <td style=\"padding: 8px 0; width: 140px; color: #666666; font-weight: 600;\">Email:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json.Email }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 8px 0; color: #666666; font-weight: 600;\">First Name:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json['First Name'] }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 8px 0; color: #666666; font-weight: 600;\">Last Name:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json['Last Name'] }}</td>\n                                            </tr>\n                                        </table>\n                                    </td>\n                                </tr>\n                            </table>\n                            \n                            <!-- Beta Testing Details Section -->\n                            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin-bottom: 30px;\">\n                                <tr>\n                                    <td>\n                                        <h2 style=\"margin: 0 0 20px 0; color: #333333; font-size: 18px; font-weight: 600; border-bottom: 2px solid #00FF80; padding-bottom: 10px;\">\n                                            Beta Testing Details\n                                        </h2>\n                                    </td>\n                                </tr>\n                                <tr>\n                                    <td>\n                                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                            <tr>\n                                                <td style=\"padding: 8px 0; width: 140px; color: #666666; font-weight: 600;\">Has Android?</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json['Has Android'] }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 8px 0; color: #666666; font-weight: 600;\">Interest:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json.Interest }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 8px 0; color: #666666; font-weight: 600;\">Comfort Level:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json['Comfort Level'] }}</td>\n                                            </tr>\n                                        </table>\n                                    </td>\n                                </tr>\n                            </table>\n                            \n                            <!-- Preferences Section -->\n                            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin-bottom: 30px;\">\n                                <tr>\n                                    <td>\n                                        <h2 style=\"margin: 0 0 20px 0; color: #333333; font-size: 18px; font-weight: 600; border-bottom: 2px solid #00FF80; padding-bottom: 10px;\">\n                                            Preferences\n                                        </h2>\n                                    </td>\n                                </tr>\n                                <tr>\n                                    <td>\n                                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                            <tr>\n                                                <td style=\"padding: 8px 0; width: 140px; color: #666666; font-weight: 600;\">Newsletter:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json.Newsletter }}</td>\n                                            </tr>\n                                        </table>\n                                    </td>\n                                </tr>\n                            </table>\n                            \n                            <!-- Additional Information Section -->\n                            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin-bottom: 30px;\">\n                                <tr>\n                                    <td>\n                                        <h2 style=\"margin: 0 0 20px 0; color: #333333; font-size: 18px; font-weight: 600; border-bottom: 2px solid #00FF80; padding-bottom: 10px;\">\n                                            Additional Information\n                                        </h2>\n                                    </td>\n                                </tr>\n                                <tr>\n                                    <td>\n                                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                            <tr>\n                                                <td style=\"padding: 8px 0; width: 140px; color: #666666; font-weight: 600; vertical-align: top;\">Innovate Ideas:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json['Innovate Ideas'] }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 8px 0; color: #666666; font-weight: 600; vertical-align: top;\">Comments:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json.Comments }}</td>\n                                            </tr>\n                                        </table>\n                                    </td>\n                                </tr>\n                            </table>\n                            \n                            <!-- System Information Section -->\n                            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                <tr>\n                                    <td style=\"background-color: #f8f9fa; padding: 15px; border-radius: 4px; border-left: 3px solid #00FF80;\">\n                                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                            <tr>\n                                                <td style=\"padding: 4px 0; color: #666666; font-size: 12px; font-weight: 600;\">Submitted At:</td>\n                                                <td style=\"padding: 4px 0; color: #666666; font-size: 12px;\">{{ $json['Submitted At'] }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 4px 0; color: #666666; font-size: 12px; font-weight: 600;\">Source:</td>\n                                                <td style=\"padding: 4px 0; color: #666666; font-size: 12px;\">{{ $json.Source }}</td>\n                                            </tr>\n                                        </table>\n                                    </td>\n                                </tr>\n                            </table>\n                            \n                        </td>\n                    </tr>\n                    \n                    <!-- Footer -->\n                    <tr>\n                        <td style=\"background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;\">\n                            <p style=\"margin: 0; color: #999999; font-size: 12px;\">\n                                This is an automated notification from your ReversR Beta Signup Form\n                            </p>\n                        </td>\n                    </tr>\n                    \n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>\n\nEmail: {{ $json.Email }}\nFirst Name: {{ $json['First Name'] }}\nLast Name: {{ $json['Last Name'] }}\nHas Android?: {{ $json['Has Android'] }}\nInterest: {{ $json.Interest }}\nComfort Level: {{ $json['Comfort Level'] }}\nNewsletter?: {{ $json.Newsletter }}\nInnovate Ideas: {{ $json['Innovate Ideas'] }}\nComments: {{ $json.Comments }}\nSubmitted At: {{ $json['Submitted At'] }}\nSource: {{ $json.Source }}",
+        "options": {
+          "appendAttribution": true
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        0
+      ],
+      "id": "9ced5cf2-a646-4660-aee3-bdc44227ca2c",
+      "name": "Send a message",
+      "webhookId": "a8c4a041-1b43-476a-8170-664facbbb77a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Ii2Ib39eFfrmusPb",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "kin-flo-n-8-n.replit.app",
+            "content-length": "342",
+            "accept-encoding": "gzip",
+            "content-type": "application/json",
+            "server-timing": "depproxy;dur=1766459102354, pid1req;dur=1766459102459",
+            "via": "1.1 google",
+            "x-cloud-trace-context": "676157c5b96841f06a0c7e27f2f93c15/10092977021751618261",
+            "x-forwarded-for": "76.109.177.153, 34.117.33.233, 35.191.80.244",
+            "x-forwarded-host": "kin-flo-n-8-n.replit.app",
+            "x-forwarded-proto": "https",
+            "x-replit-user-bio": "",
+            "x-replit-user-id": "",
+            "x-replit-user-name": "",
+            "x-replit-user-profile-image": "",
+            "x-replit-user-roles": "",
+            "x-replit-user-teams": "",
+            "x-replit-user-url": ""
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "email": "vsillah@gmail.com",
+            "firstName": "Vambah",
+            "lastName": "Sillah",
+            "hasAndroid": "Yes",
+            "interest": "Turning ideas into real product concepts",
+            "comfort": "Comfortable",
+            "newsletter": "Yes, sign me up",
+            "innovateIdeas": "Creating innovative products",
+            "comments": "Let's do this!",
+            "submittedAt": "2025-12-23T03:05:02.147Z",
+            "source": "beta-signup-form"
+          },
+          "webhookUrl": "https://kin-flo-n-8-n.replit.app/webhook/53e16572-06e1-476d-a261-7db59d996d53",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "versionId": "791de3e0-c04c-4319-b8a7-83b81717cd89",
+  "activeVersionId": "791de3e0-c04c-4319-b8a7-83b81717cd89",
+  "versionCounter": 79,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2025-12-23T15:26:20.393Z",
+      "createdAt": "2025-12-23T15:26:20.393Z",
+      "role": "workflow:owner",
+      "workflowId": "JN7zL4QwkHRt47xl",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-21T11:16:25.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-21",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2025-12-26T21:53:28.000Z",
+    "createdAt": "2025-12-25T01:25:54.909Z",
+    "versionId": "791de3e0-c04c-4319-b8a7-83b81717cd89",
+    "workflowId": "JN7zL4QwkHRt47xl",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "53e16572-06e1-476d-a261-7db59d996d53",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          0,
+          0
+        ],
+        "id": "cc376ede-a489-474f-830f-b18702c4e631",
+        "name": "Webhook",
+        "webhookId": "53e16572-06e1-476d-a261-7db59d996d53"
+      },
+      {
+        "parameters": {
+          "operation": "appendOrUpdate",
+          "documentId": {
+            "__rl": true,
+            "value": "1g-B0L860wguOYmsNjaeuqNcNUYil-7BRoCoJ2jrsSqo",
+            "mode": "list",
+            "cachedResultName": "N8N Work Intake Sheet",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g-B0L860wguOYmsNjaeuqNcNUYil-7BRoCoJ2jrsSqo/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Intake",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1g-B0L860wguOYmsNjaeuqNcNUYil-7BRoCoJ2jrsSqo/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Email": "={{ $json.body.email }}",
+              "First Name": "={{ $json.body.firstName }}",
+              "Last Name": "={{ $json.body.lastName}}",
+              "Has Android": "={{ $json.body.hasAndroid }}",
+              "Interest": "={{ $json.body.interest }}",
+              "Comfort Level": "={{ $json.body.comfort }}",
+              "Newsletter": "={{ $json.body.newsletter }}",
+              "Innovate Ideas": "={{ $json.body.innovateIdeas }}",
+              "Comments": "={{ $json.body.comments }}",
+              "Submitted At": "={{ $json.body.submittedAt }}",
+              "Source": "={{ $json.body.source }}"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": [
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "First Name",
+                "displayName": "First Name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Last Name",
+                "displayName": "Last Name",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Has Android",
+                "displayName": "Has Android",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Interest",
+                "displayName": "Interest",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Comfort Level",
+                "displayName": "Comfort Level",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Newsletter",
+                "displayName": "Newsletter",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Innovate Ideas",
+                "displayName": "Innovate Ideas",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Comments",
+                "displayName": "Comments",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Submitted At",
+                "displayName": "Submitted At",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Source",
+                "displayName": "Source",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          224,
+          0
+        ],
+        "id": "7648640c-84cb-4184-9797-e24bd5349b20",
+        "name": "Append or update row in sheet",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "Jwu3bOdaMrZEmS2f",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $json.Email }}",
+          "subject": "ReversR Beta Test Interest Form",
+          "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>New Beta Tester Application</title>\n</head>\n<body style=\"margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;\">\n    <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"background-color: #f5f5f5; padding: 20px;\">\n        <tr>\n            <td align=\"center\">\n                <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"600\" style=\"background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.1);\">\n                    \n                    <!-- Header -->\n                    <tr>\n                        <td style=\"background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%); padding: 30px 40px; text-align: center;\">\n                            <h1 style=\"margin: 0; color: #ffffff; font-size: 24px; font-weight: 700;\">\n                                New <span style=\"color: #00FF80;\">ReversR</span> Beta Tester Application\n                            </h1>\n                        </td>\n                    </tr>\n                    \n                    <!-- Main Content -->\n                    <tr>\n                        <td style=\"padding: 40px;\">\n                            \n                            <!-- Contact Information Section -->\n                            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin-bottom: 30px;\">\n                                <tr>\n                                    <td>\n                                        <h2 style=\"margin: 0 0 20px 0; color: #333333; font-size: 18px; font-weight: 600; border-bottom: 2px solid #00FF80; padding-bottom: 10px;\">\n                                            Contact Information\n                                        </h2>\n                                    </td>\n                                </tr>\n                                <tr>\n                                    <td>\n                                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                            <tr>\n                                                <td style=\"padding: 8px 0; width: 140px; color: #666666; font-weight: 600;\">Email:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json.Email }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 8px 0; color: #666666; font-weight: 600;\">First Name:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json['First Name'] }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 8px 0; color: #666666; font-weight: 600;\">Last Name:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json['Last Name'] }}</td>\n                                            </tr>\n                                        </table>\n                                    </td>\n                                </tr>\n                            </table>\n                            \n                            <!-- Beta Testing Details Section -->\n                            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin-bottom: 30px;\">\n                                <tr>\n                                    <td>\n                                        <h2 style=\"margin: 0 0 20px 0; color: #333333; font-size: 18px; font-weight: 600; border-bottom: 2px solid #00FF80; padding-bottom: 10px;\">\n                                            Beta Testing Details\n                                        </h2>\n                                    </td>\n                                </tr>\n                                <tr>\n                                    <td>\n                                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                            <tr>\n                                                <td style=\"padding: 8px 0; width: 140px; color: #666666; font-weight: 600;\">Has Android?</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json['Has Android'] }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 8px 0; color: #666666; font-weight: 600;\">Interest:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json.Interest }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 8px 0; color: #666666; font-weight: 600;\">Comfort Level:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json['Comfort Level'] }}</td>\n                                            </tr>\n                                        </table>\n                                    </td>\n                                </tr>\n                            </table>\n                            \n                            <!-- Preferences Section -->\n                            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin-bottom: 30px;\">\n                                <tr>\n                                    <td>\n                                        <h2 style=\"margin: 0 0 20px 0; color: #333333; font-size: 18px; font-weight: 600; border-bottom: 2px solid #00FF80; padding-bottom: 10px;\">\n                                            Preferences\n                                        </h2>\n                                    </td>\n                                </tr>\n                                <tr>\n                                    <td>\n                                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                            <tr>\n                                                <td style=\"padding: 8px 0; width: 140px; color: #666666; font-weight: 600;\">Newsletter:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json.Newsletter }}</td>\n                                            </tr>\n                                        </table>\n                                    </td>\n                                </tr>\n                            </table>\n                            \n                            <!-- Additional Information Section -->\n                            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\" style=\"margin-bottom: 30px;\">\n                                <tr>\n                                    <td>\n                                        <h2 style=\"margin: 0 0 20px 0; color: #333333; font-size: 18px; font-weight: 600; border-bottom: 2px solid #00FF80; padding-bottom: 10px;\">\n                                            Additional Information\n                                        </h2>\n                                    </td>\n                                </tr>\n                                <tr>\n                                    <td>\n                                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                            <tr>\n                                                <td style=\"padding: 8px 0; width: 140px; color: #666666; font-weight: 600; vertical-align: top;\">Innovate Ideas:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json['Innovate Ideas'] }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 8px 0; color: #666666; font-weight: 600; vertical-align: top;\">Comments:</td>\n                                                <td style=\"padding: 8px 0; color: #333333;\">{{ $json.Comments }}</td>\n                                            </tr>\n                                        </table>\n                                    </td>\n                                </tr>\n                            </table>\n                            \n                            <!-- System Information Section -->\n                            <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                <tr>\n                                    <td style=\"background-color: #f8f9fa; padding: 15px; border-radius: 4px; border-left: 3px solid #00FF80;\">\n                                        <table role=\"presentation\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\" width=\"100%\">\n                                            <tr>\n                                                <td style=\"padding: 4px 0; color: #666666; font-size: 12px; font-weight: 600;\">Submitted At:</td>\n                                                <td style=\"padding: 4px 0; color: #666666; font-size: 12px;\">{{ $json['Submitted At'] }}</td>\n                                            </tr>\n                                            <tr>\n                                                <td style=\"padding: 4px 0; color: #666666; font-size: 12px; font-weight: 600;\">Source:</td>\n                                                <td style=\"padding: 4px 0; color: #666666; font-size: 12px;\">{{ $json.Source }}</td>\n                                            </tr>\n                                        </table>\n                                    </td>\n                                </tr>\n                            </table>\n                            \n                        </td>\n                    </tr>\n                    \n                    <!-- Footer -->\n                    <tr>\n                        <td style=\"background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;\">\n                            <p style=\"margin: 0; color: #999999; font-size: 12px;\">\n                                This is an automated notification from your ReversR Beta Signup Form\n                            </p>\n                        </td>\n                    </tr>\n                    \n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>\n\nEmail: {{ $json.Email }}\nFirst Name: {{ $json['First Name'] }}\nLast Name: {{ $json['Last Name'] }}\nHas Android?: {{ $json['Has Android'] }}\nInterest: {{ $json.Interest }}\nComfort Level: {{ $json['Comfort Level'] }}\nNewsletter?: {{ $json.Newsletter }}\nInnovate Ideas: {{ $json['Innovate Ideas'] }}\nComments: {{ $json.Comments }}\nSubmitted At: {{ $json['Submitted At'] }}\nSource: {{ $json.Source }}",
+          "options": {
+            "appendAttribution": true
+          }
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.1,
+        "position": [
+          432,
+          0
+        ],
+        "id": "9ced5cf2-a646-4660-aee3-bdc44227ca2c",
+        "name": "Send a message",
+        "webhookId": "a8c4a041-1b43-476a-8170-664facbbb77a",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "Ii2Ib39eFfrmusPb",
+            "name": "Gmail account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Append or update row in sheet",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Append or update row in sheet": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": "Version 1",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2025-12-26T21:53:28.208Z",
+        "id": 6,
+        "workflowId": "JN7zL4QwkHRt47xl",
+        "versionId": "791de3e0-c04c-4319-b8a7-83b81717cd89",
+        "event": "activated",
+        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    ]
+  }
+}

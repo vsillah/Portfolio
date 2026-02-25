@@ -1,0 +1,397 @@
+{
+  "updatedAt": "2026-02-14T12:57:14.552Z",
+  "createdAt": "2026-02-14T11:45:24.493Z",
+  "id": "7dsXnjup9zi5rf8N",
+  "name": "WF-GDR: Gmail Draft Reply",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## WF-GDR: Gmail Draft Reply\n\nAutomatically generates draft replies to inbound client emails.\n\n**Trigger:** Gmail Trigger (new message received)\n\n**Flow:**\n1. Gmail Trigger fires on new email\n2. Extract sender email address\n3. Fetch client context from app API\n4. If sender matches a known client project, continue\n5. Fetch configurable prompt from app\n6. Generate draft reply via LLM (OpenRouter)\n7. Store draft in app (client_update_drafts)\n8. Optionally create Gmail draft\n\n**Auth:** Uses N8N_INGEST_SECRET for app API calls.\n**LLM:** Uses OpenRouter credential.\n**Gmail:** Uses Gmail OAuth2 credential."
+      },
+      "name": "Workflow Note",
+      "id": "note-gdr",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        640
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "q": "-category:promotions -category:social -category:updates -category:forums -from:noreply -from:no-reply -from:mailer-daemon",
+          "readStatus": "unread"
+        }
+      },
+      "name": "Gmail Trigger",
+      "id": "trigger-gdr",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        416
+      ],
+      "type": "n8n-nodes-base.gmailTrigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract sender email from Gmail message\nconst message = $input.first().json;\n\n// Gmail simplified format has 'from' as email string or 'From' header\nlet senderEmail = '';\nlet senderName = '';\n\nif (message.from) {\n  // Format: \"Name <email@example.com>\" or just \"email@example.com\"\n  const fromStr = String(message.from);\n  const match = fromStr.match(/<([^>]+)>/);\n  if (match) {\n    senderEmail = match[1].toLowerCase();\n    senderName = fromStr.replace(/<[^>]+>/, '').trim();\n  } else {\n    senderEmail = fromStr.trim().toLowerCase();\n    senderName = senderEmail.split('@')[0];\n  }\n}\n\nconst subject = message.subject || '(no subject)';\nconst body = message.snippet || message.textPlain || message.text || '';\nconst messageId = message.id || message.messageId || '';\nconst threadId = message.threadId || '';\n\nreturn [{\n  json: {\n    sender_email: senderEmail,\n    sender_name: senderName,\n    original_subject: subject,\n    original_body: body,\n    message_id: messageId,\n    thread_id: threadId,\n  }\n}];"
+      },
+      "name": "Extract Sender",
+      "id": "extract-sender-gdr",
+      "typeVersion": 2,
+      "position": [
+        224,
+        416
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "url": "=http://localhost:3000/api/client-email-context?email={{ encodeURIComponent($json.sender_email) }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "name": "Fetch Client Context",
+      "id": "fetch-context-gdr",
+      "typeVersion": 4.2,
+      "position": [
+        448,
+        416
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9Au5oIQCDeIjLXZf",
+          "name": "App Ingest Secret"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-found",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.found }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Is Known Client?",
+      "id": "if-found-gdr",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        416
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/prompts/client_email_reply",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "name": "Fetch Reply Prompt",
+      "id": "fetch-prompt-gdr",
+      "typeVersion": 4.2,
+      "position": [
+        896,
+        320
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combine prompt, context, and original email for LLM\nconst promptData = $input.first().json;\nconst contextData = $('Is Known Client?').first().json;\nconst emailData = $('Extract Sender').first().json;\n\n// Get the system prompt (from API or fallback)\nconst systemPrompt = promptData.prompt || promptData.content || 'You are helping draft a reply to an email from a client. Write a short, professional draft reply.';\n\n// Build context summary\nconst project = contextData.project || {};\nconst milestones = contextData.milestones || [];\nconst lastMeeting = contextData.last_meeting || null;\nconst tasks = contextData.tasks || [];\n\nlet contextSummary = `Project: ${project.project_name || 'Unknown'}\\n`;\ncontextSummary += `Status: ${project.status || 'Unknown'}\\n`;\ncontextSummary += `Client: ${project.client_name || emailData.sender_name}\\n`;\n\nif (milestones.length > 0) {\n  contextSummary += `\\nMilestones:\\n`;\n  for (const m of milestones) {\n    contextSummary += `- ${m.title || m.name}: ${m.status || 'pending'}\\n`;\n  }\n}\n\nif (lastMeeting) {\n  contextSummary += `\\nLast Meeting: ${lastMeeting.meeting_type || 'meeting'} on ${lastMeeting.meeting_date || 'recent'}\\n`;\n  if (lastMeeting.summary) contextSummary += `Summary: ${lastMeeting.summary}\\n`;\n}\n\nif (tasks.length > 0) {\n  contextSummary += `\\nRecent Action Items:\\n`;\n  for (const t of tasks) {\n    contextSummary += `- [${t.status}] ${t.title || t.description}\\n`;\n  }\n}\n\n// Build the user message for the LLM\nconst userMessage = `Client's email:\\nSubject: ${emailData.original_subject}\\nBody: ${emailData.original_body}\\n\\n---\\nProject context:\\n${contextSummary}`;\n\nreturn [{\n  json: {\n    system_prompt: systemPrompt,\n    user_message: userMessage,\n    client_email: emailData.sender_email,\n    client_name: contextData.project?.client_name || emailData.sender_name,\n    client_project_id: project.id || '',\n    original_subject: emailData.original_subject,\n    thread_id: emailData.thread_id,\n  }\n}];"
+      },
+      "name": "Build LLM Input",
+      "id": "build-llm-input-gdr",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        320
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"openai/gpt-4.1-mini\",\n  \"messages\": [\n    { \"role\": \"system\", \"content\": {{ JSON.stringify($json.system_prompt) }} },\n    { \"role\": \"user\", \"content\": {{ JSON.stringify($json.user_message) }} }\n  ],\n  \"temperature\": 0.6,\n  \"max_tokens\": 1024\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "name": "Generate Draft Reply",
+      "id": "llm-generate-gdr",
+      "typeVersion": 4.2,
+      "position": [
+        1344,
+        320
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "dZnnd2PT4ysf3TV4",
+          "name": "OpenRouter API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the LLM response and prepare draft data\nconst llmResponse = $input.first().json;\nconst prevData = $('Build LLM Input').first().json;\n\n// Extract the generated reply from OpenRouter response\nconst generatedReply = llmResponse?.choices?.[0]?.message?.content || 'Unable to generate reply.';\n\n// Build reply subject\nconst replySubject = prevData.original_subject.startsWith('Re: ')\n  ? prevData.original_subject\n  : `Re: ${prevData.original_subject}`;\n\nreturn [{\n  json: {\n    subject: replySubject,\n    body: generatedReply,\n    client_email: prevData.client_email,\n    client_name: prevData.client_name,\n    client_project_id: prevData.client_project_id,\n    thread_id: prevData.thread_id,\n  }\n}];"
+      },
+      "name": "Parse LLM Response",
+      "id": "parse-llm-gdr",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        320
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/client-update-drafts",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"client_project_id\": {{ JSON.stringify($json.client_project_id) }},\n  \"subject\": {{ JSON.stringify($json.subject) }},\n  \"body\": {{ JSON.stringify($json.body) }},\n  \"client_email\": {{ JSON.stringify($json.client_email) }},\n  \"client_name\": {{ JSON.stringify($json.client_name) }},\n  \"source\": \"gmail_reply\"\n}",
+        "options": {
+          "timeout": 15000
+        }
+      },
+      "name": "Store Draft in App",
+      "id": "store-draft-gdr",
+      "typeVersion": 4.2,
+      "position": [
+        1792,
+        320
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9Au5oIQCDeIjLXZf",
+          "name": "App Ingest Secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.body }}",
+        "options": {
+          "threadId": "={{ $('Parse LLM Response').first().json.thread_id }}"
+        }
+      },
+      "name": "Create Gmail Draft",
+      "id": "gmail-draft-gdr",
+      "typeVersion": 2.1,
+      "position": [
+        2016,
+        320
+      ],
+      "type": "n8n-nodes-base.gmail",
+      "webhookId": "7eea352f-43bc-49a0-a3a3-198c1c46cbfb",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Store Draft in App": {
+      "main": [
+        [
+          {
+            "node": "Create Gmail Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse LLM Response": {
+      "main": [
+        [
+          {
+            "node": "Store Draft in App",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Reply Prompt": {
+      "main": [
+        [
+          {
+            "node": "Build LLM Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Draft Reply": {
+      "main": [
+        [
+          {
+            "node": "Parse LLM Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Sender": {
+      "main": [
+        [
+          {
+            "node": "Fetch Client Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Client Context": {
+      "main": [
+        [
+          {
+            "node": "Is Known Client?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build LLM Input": {
+      "main": [
+        [
+          {
+            "node": "Generate Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Known Client?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Reply Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Gmail Trigger": {
+      "Gmail Trigger": {
+        "lastTimeChecked": 1771677675,
+        "possibleDuplicates": [
+          "19c8038aad97b34a",
+          "19c7cb029a04fcb4"
+        ]
+      }
+    }
+  },
+  "meta": null,
+  "pinData": {},
+  "versionId": "47dbedcd-769e-403e-b7ed-279132aca2ad",
+  "activeVersionId": "47dbedcd-769e-403e-b7ed-279132aca2ad",
+  "versionCounter": 36,
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-14T11:45:24.497Z",
+      "createdAt": "2026-02-14T11:45:24.497Z",
+      "role": "workflow:owner",
+      "workflowId": "7dsXnjup9zi5rf8N",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    }
+  ]
+}

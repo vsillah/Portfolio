@@ -1,0 +1,1676 @@
+{
+  "updatedAt": "2026-02-10T23:35:27.073Z",
+  "createdAt": "2026-02-06T11:33:56.116Z",
+  "id": "04E1zymsGrssz8Uu",
+  "name": "WF-000: Inbound Lead Intake",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "contact_submissions",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "name",
+              "condition": "ilike",
+              "keyValue": "={{ '%' + $json.extractedName + '%' }}"
+            }
+          ]
+        }
+      },
+      "name": "Check Existing Lead",
+      "id": "check-existing",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        312
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Research this potential client lead from a LinkedIn DM:\\n\\nRaw message they sent: ' + $('Extract Lead Info').item.json.rawMessage + '\\n\\nExtracted info:\\n- Name: ' + $('Extract Lead Info').item.json.extractedName + '\\n- Company: ' + $('Extract Lead Info').item.json.extractedCompany + '\\n- LinkedIn: ' + $('Extract Lead Info').item.json.linkedinUrl + '\\n\\nExisting data: ' + ($('Check Existing Lead').item.json.name ? 'Found existing record - ' + JSON.stringify($('Check Existing Lead').item.json) : 'No existing record') + '\\n\\nPlease research this person and their company. Provide:\\n1. Who they are (role, seniority, decision-making power)\\n2. What their company does and approximate size/revenue\\n3. What they likely need based on their message\\n4. Potential pain points we could solve\\n5. Lead score: hot (8-10), warm (5-7), or cold (1-4) with reasoning\\n6. Any red flags or concerns\\n\\nBe concise but thorough.' }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "Company context from knowledge base (use to align research and replies with our positioning):\n\n{{ $json.response || '' }}\n\n---\n\nYou are a lead research specialist for an automation consultancy. Your job is to quickly research inbound leads and assess their fit. Focus on actionable intelligence that helps the sales team respond effectively. Be direct and factual."
+        }
+      },
+      "name": "AI Research Agent",
+      "id": "research-agent",
+      "typeVersion": 3.1,
+      "position": [
+        1400,
+        208
+      ],
+      "type": "@n8n/n8n-nodes-langchain.agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "name": "Research Brain",
+      "id": "research-brain",
+      "typeVersion": 1.2,
+      "position": [
+        1344,
+        432
+      ],
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "messages": {
+          "message": [
+            {
+              "content": "You are a helpful research assistant. Provide detailed, factual information about the companies and people being researched. Include company size, revenue estimates, industry, and any relevant news.",
+              "role": "system"
+            },
+            {
+              "content": "={{ $fromAI('query', 'The search query to research online', 'string') }}"
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {},
+        "requestOptions": {}
+      },
+      "name": "Perplexity Research",
+      "id": "perplexity-tool",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        432
+      ],
+      "type": "n8n-nodes-base.perplexityTool",
+      "credentials": {
+        "perplexityApi": {
+          "id": "9Wf5Ouh1TufC6YIo",
+          "name": "Perplexity account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Draft a LinkedIn DM reply for me to send back to this prospect.\\n\\nTheir original message: ' + $json.rawMessage + '\\n\\nResearch on them: ' + $json.research + '\\n\\nMy Calendly discovery call link: https://calendly.com/amadutown/atas-discovery-call\\n\\nRules for the reply:\\n1. Acknowledge what they asked about specifically\\n2. Show I understand their situation (use research insights subtly)\\n3. Keep it conversational and warm - not salesy\\n4. Suggest hopping on a quick discovery call to discuss further\\n5. Include the Calendly link naturally\\n6. Keep it under 100 words - LinkedIn DMs should be concise\\n7. Do not use formal sign-offs, just a first name\\n\\nIMPORTANT: Output ONLY the reply text, nothing else. No quotes, no explanation.' }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "You are a professional automation consultant who is friendly, direct, and genuinely helpful. You write conversational LinkedIn messages that feel personal - never generic. You avoid corporate jargon and buzzwords. Your messages are short, punchy, and always end with a clear next step."
+        }
+      },
+      "name": "Draft LinkedIn Reply",
+      "id": "draft-reply",
+      "typeVersion": 3.1,
+      "position": [
+        2032,
+        312
+      ],
+      "type": "@n8n/n8n-nodes-langchain.agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list"
+        },
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "name": "Reply Brain",
+      "id": "reply-brain",
+      "typeVersion": 1.2,
+      "position": [
+        2000,
+        480
+      ],
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "contact_submissions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $('Extract Lead Info').item.json.extractedName }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('Extract Lead Info').item.json.email }}"
+            },
+            {
+              "fieldId": "message",
+              "fieldValue": "={{ $('Extract Lead Info').item.json.rawMessage }}"
+            },
+            {
+              "fieldId": "company",
+              "fieldValue": "={{ $('Extract Lead Info').item.json.extractedCompany }}"
+            },
+            {
+              "fieldId": "linkedin_url",
+              "fieldValue": "={{ $('Extract Lead Info').item.json.linkedinUrl }}"
+            },
+            {
+              "fieldId": "interest_summary",
+              "fieldValue": "={{ $('Extract Lead Info').item.json.rawMessage }}"
+            },
+            {
+              "fieldId": "lead_score",
+              "fieldValue": "={{ $('Build Lead Brief').item.json.leadScore }}"
+            },
+            {
+              "fieldId": "qualification_status",
+              "fieldValue": "={{ $('Build Lead Brief').item.json.qualification }}"
+            },
+            {
+              "fieldId": "full_report",
+              "fieldValue": "={{ $('AI Research Agent').item.json.output || $('AI Research Agent').item.json.text }}"
+            }
+          ]
+        }
+      },
+      "name": "Create Contact Record",
+      "id": "create-contact",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        312
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AED25J16U",
+          "mode": "id"
+        },
+        "text": "={{ $('Build Lead Brief').item.json.brief }}",
+        "otherOptions": {}
+      },
+      "name": "Post Brief to Thread",
+      "id": "post-brief",
+      "typeVersion": 2.4,
+      "position": [
+        2608,
+        216
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "abd25721-1ec4-4be6-a10b-257d6dea31a6",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AED25J16U",
+          "mode": "id"
+        },
+        "text": "={{ '\\u2709\\uFE0F *Suggested LinkedIn Reply:*\\n\\n```' + ($json.output || $json.text || '') + '```\\n\\n_Copy the above and paste into LinkedIn DM._' }}",
+        "otherOptions": {}
+      },
+      "name": "Post Draft Reply to Thread",
+      "id": "post-reply",
+      "typeVersion": 2.4,
+      "position": [
+        2832,
+        216
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "e5728921-f6d0-4d71-849f-229f3a63be80",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "hot-check",
+              "operator": {
+                "name": "filter.operator.gte",
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $('Build Lead Brief').item.json.leadScore }}",
+              "rightValue": 8
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Check If Hot Lead",
+      "id": "check-hot",
+      "typeVersion": 2.2,
+      "position": [
+        2608,
+        408
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08F7L8F2PL",
+          "mode": "list",
+          "cachedResultName": "lead-generation"
+        },
+        "text": "={{ '\ud83d\udd25 *HOT INBOUND LEAD!*\\n\\n' + $('Build Lead Brief').item.json.brief.substring(0, 200) + '...\\n\\nCheck #inbound-leads for full details and draft reply.' }}",
+        "otherOptions": {}
+      },
+      "name": "Notify Hot Lead DM",
+      "id": "notify-hot",
+      "typeVersion": 2.4,
+      "position": [
+        2832,
+        408
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "ac5a2f5a-cccb-4ecf-9ba4-3ceb9abff543",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## WF-000: Inbound Lead Intake (Webhook)\n\n**Trigger:** POST to /webhook/inbound-lead\n\n**Payload:**\n```json\n{\"text\": \"paste the LinkedIn DM here\"}\n```\n\n**What happens:**\n1. AI extracts name, company, LinkedIn URL\n2. Perplexity researches the person + company\n3. Lead is scored (hot/warm/cold)\n4. Contact record created in Supabase\n5. Research brief posted to #inbound-leads\n6. Draft LinkedIn reply posted as thread reply\n7. Hot leads get a notification in #lead-generation\n\n**Automation options:**\n- Slack Workflow Builder: auto-forward #inbound-leads messages to webhook\n- Manual: POST to webhook URL with JSON body\n- n8n: Use Test workflow with sample data",
+        "height": 420,
+        "width": 640
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        -304
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "inbound-lead",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "LinkedIn DM Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        460
+      ],
+      "webhookId": "b7e2c4a1-3f89-4d6e-a1b2-c3d4e5f6a7b8"
+    },
+    {
+      "parameters": {
+        "functionCode": "const item = items[0];\nconst research = item.json.output || item.json.text || '';\nconst liItems = $items('Extract Lead Info');\nconst li = liItems.length > 0 ? liItems[0].json : {};\n\nlet leadScore = 5;\nlet qualification = 'warm';\nconst sm = research.match(/(?:lead score|score)[:\\s]*(?:hot|warm|cold)[\\s(]*(\\d+)/i);\nconst st = research.match(/(?:lead score|score)[:\\s]*(hot|warm|cold)/i);\nif (sm) leadScore = parseInt(sm[1]);\nelse if (st) {\n  const l = st[1].toLowerCase();\n  leadScore = l === 'hot' ? 9 : l === 'warm' ? 6 : 3;\n}\nif (leadScore >= 8) qualification = 'hot';\nelse if (leadScore >= 5) qualification = 'warm';\nelse qualification = 'cold';\n\nconst emoji = qualification === 'hot' ? '\\uD83D\\uDD25' : qualification === 'warm' ? '\\uD83D\\uDFE1' : '\\uD83D\\uDD35';\nconst brief = emoji + ' *Inbound Lead: ' + (li.extractedName || 'Unknown') + '*\\n\\n' +\n  '*Company:* ' + (li.extractedCompany || 'Unknown') + '\\n' +\n  '*Source:* LinkedIn DM\\n' +\n  '*Score:* ' + leadScore + '/10 (' + qualification.toUpperCase() + ')\\n' +\n  (li.linkedinUrl ? '*LinkedIn:* ' + li.linkedinUrl + '\\n' : '') +\n  (li.email ? '*Email:* ' + li.email + '\\n' : '') +\n  '\\n---\\n*Research Summary:*\\n' + research.substring(0, 1500) +\n  '\\n\\n---\\n_Reply drafted below._';\n\nreturn [{json: {\n  rawMessage: li.rawMessage || '',\n  extractedName: li.extractedName || '',\n  extractedCompany: li.extractedCompany || '',\n  linkedinUrl: li.linkedinUrl || '',\n  email: li.email || '',\n  channelId: li.channelId || '',\n  source: li.source || '',\n  research: research.substring(0, 2000),\n  leadScore,\n  qualification,\n  brief\n}}];"
+      },
+      "id": "build-brief-fn",
+      "name": "Build Lead Brief",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1808,
+        312
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "const item = items[0];\nconst body = item.json.body || item.json;\nconst text = body.text || '';\nconst channelId = 'C0AED25J16U';\n\nconst namePatterns = [\n  /(?:from|message from|dm from|linkedin dm from)\\s+([A-Z][a-z]+ [A-Z][a-z]+)/i,\n  /^([A-Z][a-z]+ [A-Z][a-z]+)(?:\\s|:|-|,)/,\n  /name:\\s*([A-Z][a-z]+ [A-Z][a-z]+)/i\n];\nlet extractedName = '';\nfor (const pattern of namePatterns) {\n  const match = text.match(pattern);\n  if (match) { extractedName = match[1]; break; }\n}\n\nconst companyPatterns = [\n  /(?:company|from|at|works at|with)\\s+([A-Z][\\w\\s&]+?)(?:\\.|,|\\n|$)/i,\n  /(?:@|#)(\\w+)/\n];\nlet extractedCompany = '';\nfor (const pattern of companyPatterns) {\n  const match = text.match(pattern);\n  if (match && match[1] !== extractedName) { extractedCompany = match[1].trim(); break; }\n}\n\nconst linkedinMatch = text.match(/(?:https?:\\/\\/)?(?:www\\.)?linkedin\\.com\\/in\\/[\\w-]+/i);\nconst linkedinUrl = linkedinMatch ? linkedinMatch[0] : '';\nconst emailMatch = text.match(/[\\w.-]+@[\\w.-]+\\.[a-z]{2,}/i);\nconst email = emailMatch ? emailMatch[0] : '';\n\nreturn [{json: {\n  rawMessage: text,\n  extractedName,\n  extractedCompany,\n  linkedinUrl,\n  email,\n  threadTs: null,\n  channelId,\n  source: 'linkedin_inbound',\n  receivedAt: new Date().toISOString()\n}}];"
+      },
+      "id": "extract-info-fn",
+      "name": "Extract Lead Info",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        224,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "outreach_queue",
+        "returnAll": true,
+        "filterType": "string",
+        "filterString": "channel=eq.linkedin&status=in.(sent,approved)"
+      },
+      "id": "cold-outreach-check",
+      "name": "Check Cold Outreach Match",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        448,
+        388
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Check if the LinkedIn sender matches any cold outreach recipients\nconst outreachItems = $('Check Cold Outreach Match').all();\nconst leadInfo = $('Extract Lead Info').first().json;\nconst senderName = (leadInfo.name || '').toLowerCase().trim();\nconst senderLinkedin = (leadInfo.linkedin_url || leadInfo.linkedin_username || '').toLowerCase();\n\nlet matchedOutreach = null;\n\nfor (const item of outreachItems) {\n  // Try to match by looking up the contact submission\n  // This is a simplified check - in production, join with contact_submissions\n  const contactId = item.json.contact_submission_id;\n  if (contactId) {\n    matchedOutreach = item.json;\n    break;\n  }\n}\n\n// For now, flag for manual review. The proper matching happens via\n// contact_submission_id -> contact_submissions.linkedin_username\nreturn [{\n  json: {\n    ...leadInfo,\n    is_cold_outreach_reply: matchedOutreach !== null,\n    matched_outreach_id: matchedOutreach?.id || null,\n    matched_contact_id: matchedOutreach?.contact_submission_id || null,\n  }\n}];"
+      },
+      "id": "is-cold-reply",
+      "name": "Is Cold Outreach Reply?",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "is-cold",
+              "leftValue": "={{ $json.is_cold_outreach_reply }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "route-cold-vs-inbound",
+      "name": "Cold Reply or Inbound?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        896,
+        460
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.amadutown.com/webhook/clg-linkedin-reply",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ matched_outreach_id: $json.matched_outreach_id, matched_contact_id: $json.matched_contact_id, sender_name: $json.name, message_content: $json.message || '', channel: 'linkedin' }) }}",
+        "options": {}
+      },
+      "id": "cold-reply-handler",
+      "name": "Handle Cold Outreach Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "C0ADR21GVCL",
+        "text": "={{ '\ud83d\udea8 *COLD OUTREACH REPLY VIA LINKEDIN!*\\n\\n\ud83d\udc64 ' + $json.name + '\\n\ud83d\udcac ' + ($json.message || 'No message content') + '\\n\\n_This is a reply to a cold outreach LinkedIn message. Respond promptly!_' }}",
+        "otherOptions": {}
+      },
+      "id": "slack-cold-linkedin-reply",
+      "name": "Slack: Cold LinkedIn Reply",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [
+        1464,
+        608
+      ],
+      "webhookId": "3a17c32e-a5a1-450f-96d7-42f0640a557e",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b:free",
+        "options": {}
+      },
+      "id": "1a6d10d7-fb77-4c04-9507-a8ecf397761b",
+      "name": "Free Fallback (OpenRouter)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        816
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "ATznzoKw5NdNjbAl",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "id": "6f552316-e107-46ea-b997-4e18f52616da",
+      "name": "Fetch RAG Context",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1240,
+        420
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.amadutown.com/webhook/amadutown-rag-query",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"query\": \"What are AmaduTown's key services, differentiators, and value proposition for AI automation and lead qualification? Summarize in 2-3 paragraphs for use in lead research and LinkedIn reply drafting.\"}"
+      }
+    },
+    {
+      "id": "c58fad58-8d6d-45c2-a294-22759a93121b",
+      "name": "Merge RAG with Lead",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1320,
+        312
+      ],
+      "parameters": {
+        "mode": "combine",
+        "outputDataFrom": "both"
+      }
+    }
+  ],
+  "connections": {
+    "Draft LinkedIn Reply": {
+      "main": [
+        [
+          {
+            "node": "Create Contact Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Contact Record": {
+      "main": [
+        [
+          {
+            "node": "Post Brief to Thread",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check If Hot Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Brief to Thread": {
+      "main": [
+        [
+          {
+            "node": "Post Draft Reply to Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Hot Lead": {
+      "main": [
+        [
+          {
+            "node": "Notify Hot Lead DM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Research Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity Research": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Research Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft LinkedIn Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Research Agent": {
+      "main": [
+        [
+          {
+            "node": "Build Lead Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Lead Brief": {
+      "main": [
+        [
+          {
+            "node": "Draft LinkedIn Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn DM Received": {
+      "main": [
+        [
+          {
+            "node": "Extract Lead Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Lead Info": {
+      "main": [
+        [
+          {
+            "node": "Check Cold Outreach Match",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Cold Outreach Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Cold Outreach Match": {
+      "main": [
+        [
+          {
+            "node": "Is Cold Outreach Reply?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cold Reply or Inbound?": {
+      "main": [
+        [
+          {
+            "node": "Handle Cold Outreach Reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Existing Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Cold Outreach Reply": {
+      "main": [
+        [
+          {
+            "node": "Slack: Cold LinkedIn Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Cold Outreach Reply?": {
+      "main": [
+        [
+          {
+            "node": "Cold Reply or Inbound?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Free Fallback (OpenRouter)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Research Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "Draft LinkedIn Reply",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check Existing Lead": {
+      "main": [
+        [
+          {
+            "node": "Fetch RAG Context",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge RAG with Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch RAG Context": {
+      "main": [
+        [
+          {
+            "node": "Merge RAG with Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge RAG with Lead": {
+      "main": [
+        [
+          {
+            "node": "AI Research Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "cf959bc9-2120-4fc8-a6ef-68e0c87917cc",
+  "activeVersionId": "cf959bc9-2120-4fc8-a6ef-68e0c87917cc",
+  "versionCounter": 139,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-06T11:33:56.132Z",
+      "createdAt": "2026-02-06T11:33:56.132Z",
+      "role": "workflow:owner",
+      "workflowId": "04E1zymsGrssz8Uu",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-21T11:16:25.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-21",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-10T23:35:22.439Z",
+    "createdAt": "2026-02-10T23:35:22.439Z",
+    "versionId": "cf959bc9-2120-4fc8-a6ef-68e0c87917cc",
+    "workflowId": "04E1zymsGrssz8Uu",
+    "nodes": [
+      {
+        "parameters": {
+          "operation": "getAll",
+          "tableId": "contact_submissions",
+          "limit": 1,
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "name",
+                "condition": "ilike",
+                "keyValue": "={{ '%' + $json.extractedName + '%' }}"
+              }
+            ]
+          }
+        },
+        "name": "Check Existing Lead",
+        "id": "check-existing",
+        "typeVersion": 1,
+        "position": [
+          1120,
+          312
+        ],
+        "type": "n8n-nodes-base.supabase",
+        "alwaysOutputData": true,
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ 'Research this potential client lead from a LinkedIn DM:\\n\\nRaw message they sent: ' + $('Extract Lead Info').item.json.rawMessage + '\\n\\nExtracted info:\\n- Name: ' + $('Extract Lead Info').item.json.extractedName + '\\n- Company: ' + $('Extract Lead Info').item.json.extractedCompany + '\\n- LinkedIn: ' + $('Extract Lead Info').item.json.linkedinUrl + '\\n\\nExisting data: ' + ($('Check Existing Lead').item.json.name ? 'Found existing record - ' + JSON.stringify($('Check Existing Lead').item.json) : 'No existing record') + '\\n\\nPlease research this person and their company. Provide:\\n1. Who they are (role, seniority, decision-making power)\\n2. What their company does and approximate size/revenue\\n3. What they likely need based on their message\\n4. Potential pain points we could solve\\n5. Lead score: hot (8-10), warm (5-7), or cold (1-4) with reasoning\\n6. Any red flags or concerns\\n\\nBe concise but thorough.' }}",
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "Company context from knowledge base (use to align research and replies with our positioning):\n\n{{ $json.response || '' }}\n\n---\n\nYou are a lead research specialist for an automation consultancy. Your job is to quickly research inbound leads and assess their fit. Focus on actionable intelligence that helps the sales team respond effectively. Be direct and factual."
+          }
+        },
+        "name": "AI Research Agent",
+        "id": "research-agent",
+        "typeVersion": 3.1,
+        "position": [
+          1400,
+          208
+        ],
+        "type": "@n8n/n8n-nodes-langchain.agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-4o-mini",
+            "mode": "list"
+          },
+          "options": {
+            "temperature": 0.3
+          }
+        },
+        "name": "Research Brain",
+        "id": "research-brain",
+        "typeVersion": 1.2,
+        "position": [
+          1344,
+          432
+        ],
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "messages": {
+            "message": [
+              {
+                "content": "You are a helpful research assistant. Provide detailed, factual information about the companies and people being researched. Include company size, revenue estimates, industry, and any relevant news.",
+                "role": "system"
+              },
+              {
+                "content": "={{ $fromAI('query', 'The search query to research online', 'string') }}"
+              }
+            ]
+          },
+          "simplify": true,
+          "options": {},
+          "requestOptions": {}
+        },
+        "name": "Perplexity Research",
+        "id": "perplexity-tool",
+        "typeVersion": 1,
+        "position": [
+          1600,
+          432
+        ],
+        "type": "n8n-nodes-base.perplexityTool",
+        "credentials": {
+          "perplexityApi": {
+            "id": "9Wf5Ouh1TufC6YIo",
+            "name": "Perplexity account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ 'Draft a LinkedIn DM reply for me to send back to this prospect.\\n\\nTheir original message: ' + $json.rawMessage + '\\n\\nResearch on them: ' + $json.research + '\\n\\nMy Calendly discovery call link: https://calendly.com/amadutown/atas-discovery-call\\n\\nRules for the reply:\\n1. Acknowledge what they asked about specifically\\n2. Show I understand their situation (use research insights subtly)\\n3. Keep it conversational and warm - not salesy\\n4. Suggest hopping on a quick discovery call to discuss further\\n5. Include the Calendly link naturally\\n6. Keep it under 100 words - LinkedIn DMs should be concise\\n7. Do not use formal sign-offs, just a first name\\n\\nIMPORTANT: Output ONLY the reply text, nothing else. No quotes, no explanation.' }}",
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "You are a professional automation consultant who is friendly, direct, and genuinely helpful. You write conversational LinkedIn messages that feel personal - never generic. You avoid corporate jargon and buzzwords. Your messages are short, punchy, and always end with a clear next step."
+          }
+        },
+        "name": "Draft LinkedIn Reply",
+        "id": "draft-reply",
+        "typeVersion": 3.1,
+        "position": [
+          2032,
+          312
+        ],
+        "type": "@n8n/n8n-nodes-langchain.agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-4o-mini",
+            "mode": "list"
+          },
+          "options": {
+            "temperature": 0.7
+          }
+        },
+        "name": "Reply Brain",
+        "id": "reply-brain",
+        "typeVersion": 1.2,
+        "position": [
+          2000,
+          480
+        ],
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "tableId": "contact_submissions",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "name",
+                "fieldValue": "={{ $('Extract Lead Info').item.json.extractedName }}"
+              },
+              {
+                "fieldId": "email",
+                "fieldValue": "={{ $('Extract Lead Info').item.json.email }}"
+              },
+              {
+                "fieldId": "message",
+                "fieldValue": "={{ $('Extract Lead Info').item.json.rawMessage }}"
+              },
+              {
+                "fieldId": "company",
+                "fieldValue": "={{ $('Extract Lead Info').item.json.extractedCompany }}"
+              },
+              {
+                "fieldId": "linkedin_url",
+                "fieldValue": "={{ $('Extract Lead Info').item.json.linkedinUrl }}"
+              },
+              {
+                "fieldId": "interest_summary",
+                "fieldValue": "={{ $('Extract Lead Info').item.json.rawMessage }}"
+              },
+              {
+                "fieldId": "lead_score",
+                "fieldValue": "={{ $('Build Lead Brief').item.json.leadScore }}"
+              },
+              {
+                "fieldId": "qualification_status",
+                "fieldValue": "={{ $('Build Lead Brief').item.json.qualification }}"
+              },
+              {
+                "fieldId": "full_report",
+                "fieldValue": "={{ $('AI Research Agent').item.json.output || $('AI Research Agent').item.json.text }}"
+              }
+            ]
+          }
+        },
+        "name": "Create Contact Record",
+        "id": "create-contact",
+        "typeVersion": 1,
+        "position": [
+          2384,
+          312
+        ],
+        "type": "n8n-nodes-base.supabase",
+        "alwaysOutputData": true,
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C0AED25J16U",
+            "mode": "id"
+          },
+          "text": "={{ $('Build Lead Brief').item.json.brief }}",
+          "otherOptions": {}
+        },
+        "name": "Post Brief to Thread",
+        "id": "post-brief",
+        "typeVersion": 2.4,
+        "position": [
+          2608,
+          216
+        ],
+        "type": "n8n-nodes-base.slack",
+        "webhookId": "abd25721-1ec4-4be6-a10b-257d6dea31a6",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C0AED25J16U",
+            "mode": "id"
+          },
+          "text": "={{ '\\u2709\\uFE0F *Suggested LinkedIn Reply:*\\n\\n```' + ($json.output || $json.text || '') + '```\\n\\n_Copy the above and paste into LinkedIn DM._' }}",
+          "otherOptions": {}
+        },
+        "name": "Post Draft Reply to Thread",
+        "id": "post-reply",
+        "typeVersion": 2.4,
+        "position": [
+          2832,
+          216
+        ],
+        "type": "n8n-nodes-base.slack",
+        "webhookId": "e5728921-f6d0-4d71-849f-229f3a63be80",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "hot-check",
+                "operator": {
+                  "name": "filter.operator.gte",
+                  "type": "number",
+                  "operation": "gte"
+                },
+                "leftValue": "={{ $('Build Lead Brief').item.json.leadScore }}",
+                "rightValue": 8
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Check If Hot Lead",
+        "id": "check-hot",
+        "typeVersion": 2.2,
+        "position": [
+          2608,
+          408
+        ],
+        "type": "n8n-nodes-base.if"
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C08F7L8F2PL",
+            "mode": "list",
+            "cachedResultName": "lead-generation"
+          },
+          "text": "={{ '\ud83d\udd25 *HOT INBOUND LEAD!*\\n\\n' + $('Build Lead Brief').item.json.brief.substring(0, 200) + '...\\n\\nCheck #inbound-leads for full details and draft reply.' }}",
+          "otherOptions": {}
+        },
+        "name": "Notify Hot Lead DM",
+        "id": "notify-hot",
+        "typeVersion": 2.4,
+        "position": [
+          2832,
+          408
+        ],
+        "type": "n8n-nodes-base.slack",
+        "webhookId": "ac5a2f5a-cccb-4ecf-9ba4-3ceb9abff543",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## WF-000: Inbound Lead Intake (Webhook)\n\n**Trigger:** POST to /webhook/inbound-lead\n\n**Payload:**\n```json\n{\"text\": \"paste the LinkedIn DM here\"}\n```\n\n**What happens:**\n1. AI extracts name, company, LinkedIn URL\n2. Perplexity researches the person + company\n3. Lead is scored (hot/warm/cold)\n4. Contact record created in Supabase\n5. Research brief posted to #inbound-leads\n6. Draft LinkedIn reply posted as thread reply\n7. Hot leads get a notification in #lead-generation\n\n**Automation options:**\n- Slack Workflow Builder: auto-forward #inbound-leads messages to webhook\n- Manual: POST to webhook URL with JSON body\n- n8n: Use Test workflow with sample data",
+          "height": 420,
+          "width": 640
+        },
+        "name": "Workflow Note",
+        "id": "note-workflow",
+        "typeVersion": 1,
+        "position": [
+          -400,
+          -304
+        ],
+        "type": "n8n-nodes-base.stickyNote"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "inbound-lead",
+          "options": {}
+        },
+        "id": "webhook-trigger",
+        "name": "LinkedIn DM Received",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          460
+        ],
+        "webhookId": "b7e2c4a1-3f89-4d6e-a1b2-c3d4e5f6a7b8"
+      },
+      {
+        "parameters": {
+          "functionCode": "const item = items[0];\nconst research = item.json.output || item.json.text || '';\nconst liItems = $items('Extract Lead Info');\nconst li = liItems.length > 0 ? liItems[0].json : {};\n\nlet leadScore = 5;\nlet qualification = 'warm';\nconst sm = research.match(/(?:lead score|score)[:\\s]*(?:hot|warm|cold)[\\s(]*(\\d+)/i);\nconst st = research.match(/(?:lead score|score)[:\\s]*(hot|warm|cold)/i);\nif (sm) leadScore = parseInt(sm[1]);\nelse if (st) {\n  const l = st[1].toLowerCase();\n  leadScore = l === 'hot' ? 9 : l === 'warm' ? 6 : 3;\n}\nif (leadScore >= 8) qualification = 'hot';\nelse if (leadScore >= 5) qualification = 'warm';\nelse qualification = 'cold';\n\nconst emoji = qualification === 'hot' ? '\\uD83D\\uDD25' : qualification === 'warm' ? '\\uD83D\\uDFE1' : '\\uD83D\\uDD35';\nconst brief = emoji + ' *Inbound Lead: ' + (li.extractedName || 'Unknown') + '*\\n\\n' +\n  '*Company:* ' + (li.extractedCompany || 'Unknown') + '\\n' +\n  '*Source:* LinkedIn DM\\n' +\n  '*Score:* ' + leadScore + '/10 (' + qualification.toUpperCase() + ')\\n' +\n  (li.linkedinUrl ? '*LinkedIn:* ' + li.linkedinUrl + '\\n' : '') +\n  (li.email ? '*Email:* ' + li.email + '\\n' : '') +\n  '\\n---\\n*Research Summary:*\\n' + research.substring(0, 1500) +\n  '\\n\\n---\\n_Reply drafted below._';\n\nreturn [{json: {\n  rawMessage: li.rawMessage || '',\n  extractedName: li.extractedName || '',\n  extractedCompany: li.extractedCompany || '',\n  linkedinUrl: li.linkedinUrl || '',\n  email: li.email || '',\n  channelId: li.channelId || '',\n  source: li.source || '',\n  research: research.substring(0, 2000),\n  leadScore,\n  qualification,\n  brief\n}}];"
+        },
+        "id": "build-brief-fn",
+        "name": "Build Lead Brief",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [
+          1808,
+          312
+        ]
+      },
+      {
+        "parameters": {
+          "functionCode": "const item = items[0];\nconst body = item.json.body || item.json;\nconst text = body.text || '';\nconst channelId = 'C0AED25J16U';\n\nconst namePatterns = [\n  /(?:from|message from|dm from|linkedin dm from)\\s+([A-Z][a-z]+ [A-Z][a-z]+)/i,\n  /^([A-Z][a-z]+ [A-Z][a-z]+)(?:\\s|:|-|,)/,\n  /name:\\s*([A-Z][a-z]+ [A-Z][a-z]+)/i\n];\nlet extractedName = '';\nfor (const pattern of namePatterns) {\n  const match = text.match(pattern);\n  if (match) { extractedName = match[1]; break; }\n}\n\nconst companyPatterns = [\n  /(?:company|from|at|works at|with)\\s+([A-Z][\\w\\s&]+?)(?:\\.|,|\\n|$)/i,\n  /(?:@|#)(\\w+)/\n];\nlet extractedCompany = '';\nfor (const pattern of companyPatterns) {\n  const match = text.match(pattern);\n  if (match && match[1] !== extractedName) { extractedCompany = match[1].trim(); break; }\n}\n\nconst linkedinMatch = text.match(/(?:https?:\\/\\/)?(?:www\\.)?linkedin\\.com\\/in\\/[\\w-]+/i);\nconst linkedinUrl = linkedinMatch ? linkedinMatch[0] : '';\nconst emailMatch = text.match(/[\\w.-]+@[\\w.-]+\\.[a-z]{2,}/i);\nconst email = emailMatch ? emailMatch[0] : '';\n\nreturn [{json: {\n  rawMessage: text,\n  extractedName,\n  extractedCompany,\n  linkedinUrl,\n  email,\n  threadTs: null,\n  channelId,\n  source: 'linkedin_inbound',\n  receivedAt: new Date().toISOString()\n}}];"
+        },
+        "id": "extract-info-fn",
+        "name": "Extract Lead Info",
+        "type": "n8n-nodes-base.function",
+        "typeVersion": 1,
+        "position": [
+          224,
+          460
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "tableId": "outreach_queue",
+          "returnAll": true,
+          "filterType": "string",
+          "filterString": "channel=eq.linkedin&status=in.(sent,approved)"
+        },
+        "id": "cold-outreach-check",
+        "name": "Check Cold Outreach Match",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          448,
+          388
+        ],
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Check if the LinkedIn sender matches any cold outreach recipients\nconst outreachItems = $('Check Cold Outreach Match').all();\nconst leadInfo = $('Extract Lead Info').first().json;\nconst senderName = (leadInfo.name || '').toLowerCase().trim();\nconst senderLinkedin = (leadInfo.linkedin_url || leadInfo.linkedin_username || '').toLowerCase();\n\nlet matchedOutreach = null;\n\nfor (const item of outreachItems) {\n  // Try to match by looking up the contact submission\n  // This is a simplified check - in production, join with contact_submissions\n  const contactId = item.json.contact_submission_id;\n  if (contactId) {\n    matchedOutreach = item.json;\n    break;\n  }\n}\n\n// For now, flag for manual review. The proper matching happens via\n// contact_submission_id -> contact_submissions.linkedin_username\nreturn [{\n  json: {\n    ...leadInfo,\n    is_cold_outreach_reply: matchedOutreach !== null,\n    matched_outreach_id: matchedOutreach?.id || null,\n    matched_contact_id: matchedOutreach?.contact_submission_id || null,\n  }\n}];"
+        },
+        "id": "is-cold-reply",
+        "name": "Is Cold Outreach Reply?",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          672,
+          460
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "is-cold",
+                "leftValue": "={{ $json.is_cold_outreach_reply }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "route-cold-vs-inbound",
+        "name": "Cold Reply or Inbound?",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          896,
+          460
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://n8n.amadutown.com/webhook/clg-linkedin-reply",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ matched_outreach_id: $json.matched_outreach_id, matched_contact_id: $json.matched_contact_id, sender_name: $json.name, message_content: $json.message || '', channel: 'linkedin' }) }}",
+          "options": {}
+        },
+        "id": "cold-reply-handler",
+        "name": "Handle Cold Outreach Reply",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1120,
+          608
+        ]
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": "C0ADR21GVCL",
+          "text": "={{ '\ud83d\udea8 *COLD OUTREACH REPLY VIA LINKEDIN!*\\n\\n\ud83d\udc64 ' + $json.name + '\\n\ud83d\udcac ' + ($json.message || 'No message content') + '\\n\\n_This is a reply to a cold outreach LinkedIn message. Respond promptly!_' }}",
+          "otherOptions": {}
+        },
+        "id": "slack-cold-linkedin-reply",
+        "name": "Slack: Cold LinkedIn Reply",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2.2,
+        "position": [
+          1464,
+          608
+        ],
+        "webhookId": "3a17c32e-a5a1-450f-96d7-42f0640a557e",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "openai/gpt-oss-120b:free",
+          "options": {}
+        },
+        "id": "1a6d10d7-fb77-4c04-9507-a8ecf397761b",
+        "name": "Free Fallback (OpenRouter)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          1760,
+          816
+        ],
+        "credentials": {
+          "openRouterApi": {
+            "id": "ATznzoKw5NdNjbAl",
+            "name": "OpenRouter account"
+          }
+        }
+      },
+      {
+        "id": "6f552316-e107-46ea-b997-4e18f52616da",
+        "name": "Fetch RAG Context",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          1240,
+          420
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://n8n.amadutown.com/webhook/amadutown-rag-query",
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "{\"query\": \"What are AmaduTown's key services, differentiators, and value proposition for AI automation and lead qualification? Summarize in 2-3 paragraphs for use in lead research and LinkedIn reply drafting.\"}"
+        }
+      },
+      {
+        "id": "c58fad58-8d6d-45c2-a294-22759a93121b",
+        "name": "Merge RAG with Lead",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          1320,
+          312
+        ],
+        "parameters": {
+          "mode": "combine",
+          "outputDataFrom": "both"
+        }
+      }
+    ],
+    "connections": {
+      "Draft LinkedIn Reply": {
+        "main": [
+          [
+            {
+              "node": "Create Contact Record",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Create Contact Record": {
+        "main": [
+          [
+            {
+              "node": "Post Brief to Thread",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Check If Hot Lead",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Post Brief to Thread": {
+        "main": [
+          [
+            {
+              "node": "Post Draft Reply to Thread",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check If Hot Lead": {
+        "main": [
+          [
+            {
+              "node": "Notify Hot Lead DM",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Research Brain": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Research Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Perplexity Research": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Research Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Reply Brain": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Draft LinkedIn Reply",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Research Agent": {
+        "main": [
+          [
+            {
+              "node": "Build Lead Brief",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build Lead Brief": {
+        "main": [
+          [
+            {
+              "node": "Draft LinkedIn Reply",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "LinkedIn DM Received": {
+        "main": [
+          [
+            {
+              "node": "Extract Lead Info",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Lead Info": {
+        "main": [
+          [
+            {
+              "node": "Check Cold Outreach Match",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Is Cold Outreach Reply?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Cold Outreach Match": {
+        "main": [
+          [
+            {
+              "node": "Is Cold Outreach Reply?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Cold Reply or Inbound?": {
+        "main": [
+          [
+            {
+              "node": "Handle Cold Outreach Reply",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Check Existing Lead",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Handle Cold Outreach Reply": {
+        "main": [
+          [
+            {
+              "node": "Slack: Cold LinkedIn Reply",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Is Cold Outreach Reply?": {
+        "main": [
+          [
+            {
+              "node": "Cold Reply or Inbound?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Free Fallback (OpenRouter)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Research Agent",
+              "type": "ai_languageModel",
+              "index": 1
+            },
+            {
+              "node": "Draft LinkedIn Reply",
+              "type": "ai_languageModel",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Check Existing Lead": {
+        "main": [
+          [
+            {
+              "node": "Fetch RAG Context",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Merge RAG with Lead",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch RAG Context": {
+        "main": [
+          [
+            {
+              "node": "Merge RAG with Lead",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge RAG with Lead": {
+        "main": [
+          [
+            {
+              "node": "AI Research Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-10T23:35:27.533Z",
+        "id": 355,
+        "workflowId": "04E1zymsGrssz8Uu",
+        "versionId": "cf959bc9-2120-4fc8-a6ef-68e0c87917cc",
+        "event": "activated",
+        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    ]
+  }
+}

@@ -1,0 +1,275 @@
+{
+  "id": "GwgykEzQ8cs2wXMF",
+  "name": "WF-008: Blocker Escalation",
+  "active": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {}
+      },
+      "name": "Slack Trigger",
+      "id": "slack-trigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.slackTrigger",
+      "webhookId": "4b1f7c22-6f6f-448a-957f-9f4fccaa40ce",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const message = $input.item.json;\nconst text = (message.text || '').toLowerCase();\n\nconst blockerKeywords = ['blocker', 'blocked', 'stuck', 'urgent', 'help', 'issue', 'problem', 'broken', 'error', 'failing', '\ud83d\udea8'];\nconst isBlocker = blockerKeywords.some(keyword => text.includes(keyword));\nconst hasUrgentEmoji = text.includes('\ud83d\udea8') || text.includes(':rotating_light:');\nconst hasHereTag = text.includes('@here') || text.includes('<!here>');\n\nconst urgencyLevel = (hasUrgentEmoji || hasHereTag) ? 'critical' : (isBlocker ? 'high' : 'normal');\n\nreturn [\n  {\n    json: {\n      ...message,\n      isBlocker,\n      urgencyLevel,\n      detectedKeywords: blockerKeywords.filter(k => text.includes(k))\n    }\n  }\n];"
+      },
+      "name": "Check for Blocker Keywords",
+      "id": "check-blocker",
+      "typeVersion": 2,
+      "position": [
+        224,
+        304
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "blocker-check",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.isBlocker }}",
+              "rightValue": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Filter Blockers Only",
+      "id": "filter-blockers",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        304
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "text": "={{ '\ud83d\udea8 *BLOCKER DETECTED*\\n\\n*Channel:* <#' + $json.channel + '>\\n*From:* <@' + $json.user + '>\\n*Urgency:* ' + $json.urgencyLevel.toUpperCase() + '\\n\\n*Message:*\\n> ' + $json.text + '\\n\\n*Detected keywords:* ' + $json.detectedKeywords.join(', ') + '\\n\\n\u26a0\ufe0f Please respond ASAP!' }}",
+        "select": "channel",
+        "operation": "post",
+        "resource": "message",
+        "otherOptions": {},
+        "channelId": {
+          "__rl": true,
+          "value": "C0ADPNBQQ0L",
+          "mode": "list",
+          "cachedResultName": "blockers"
+        }
+      },
+      "name": "Notify Team Urgent",
+      "id": "notify-urgent",
+      "typeVersion": 2.4,
+      "position": [
+        672,
+        208
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "2e5c1e35-c889-444e-a9f5-6671652d4063",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": "={{ $json.channel }}",
+        "timestamp": "={{ $json.ts }}",
+        "name": "eyes"
+      },
+      "name": "Add Reaction to Original",
+      "id": "add-reaction",
+      "typeVersion": 2.4,
+      "position": [
+        672,
+        400
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "a795df34-12e1-47eb-94da-7dfab1bc83c2",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "name": "Skip Normal Messages",
+      "id": "skip-normal",
+      "typeVersion": 1,
+      "position": [
+        672,
+        512
+      ],
+      "type": "n8n-nodes-base.noOp"
+    },
+    {
+      "parameters": {
+        "content": "## WF-008: Blocker Escalation\\n\\n**Trigger:** Slack message events\\n\\n**Keywords:** blocker, blocked, stuck, urgent, help, issue, problem, broken, error, failing, \ud83d\udea8\\n\\n**Actions:**\\n1. Detect blocker keywords\\n2. Notify team channel\\n3. Add eyes emoji to show acknowledgment\\n4. Log to Blockers sheet"
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "tableId": "project_blockers",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $('Slack Trigger').item.json.channel }}"
+            },
+            {
+              "fieldValue": "={{ $('Slack Trigger').item.json.user }}"
+            },
+            {
+              "fieldValue": "={{ $('Slack Trigger').item.json.text }}"
+            },
+            {
+              "fieldValue": "={{ $('Check for Blocker Keywords').item.json.urgencyLevel }}"
+            },
+            {
+              "fieldValue": "={{ $('Check for Blocker Keywords').item.json.detectedKeywords }}"
+            }
+          ]
+        }
+      },
+      "id": "log-blocker-supabase",
+      "name": "Log Blocker",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Filter Blockers Only": {
+      "main": [
+        [
+          {
+            "node": "Notify Team Urgent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Add Reaction to Original",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip Normal Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check for Blocker Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Blocker Keywords": {
+      "main": [
+        [
+          {
+            "node": "Filter Blockers Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Team Urgent": {
+      "main": [
+        [
+          {
+            "node": "Log Blocker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "versionId": "1a6f4219-e0dc-4544-a2b8-ba9f2aff7e31",
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "parentFolderId": null,
+  "createdAt": "2026-02-01 15:01:15.928",
+  "updatedAt": "2026-02-08 21:48:55.281",
+  "isArchived": 0,
+  "versionCounter": 23,
+  "description": null,
+  "activeVersionId": "1a6f4219-e0dc-4544-a2b8-ba9f2aff7e31"
+}

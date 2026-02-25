@@ -1,0 +1,834 @@
+{
+  "updatedAt": "2026-02-14T16:59:17.209Z",
+  "createdAt": "2026-02-14T16:22:44.571Z",
+  "id": "JVdxGjESLLmxdYIO",
+  "name": "WF-RAG-INGEST: Google Drive \u2192 Pinecone Ingestion (Daily)",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "name": "Sticky Note",
+      "id": "sticky-note",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -250
+      ],
+      "type": "n8n-nodes-base.stickyNote",
+      "parameters": {
+        "content": "## RAG Document Ingestion (Daily, On-Wake)\n\nTriggered by the wake script (`~/.n8n-wake-trigger.sh`) via webhook. A Code node checks if a successful sync already happened in the last 24h (using workflow static data). If yes, the pipeline stops. If no, it lists all files in the Google Drive RAG folder, downloads them, and ingests into Pinecone.\n\n**Webhook path:** `wake-rag-ingest`\n**Trigger:** On laptop wake/startup + every 10 min periodic fallback\n**Cooldown:** 24 hours between successful syncs"
+      }
+    },
+    {
+      "name": "Wake Webhook",
+      "id": "wake-webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        100
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wake-rag-ingest",
+        "options": {
+          "responseMode": "onReceived"
+        }
+      },
+      "webhookId": "wake-rag-ingest-001"
+    },
+    {
+      "name": "24h Cooldown Check",
+      "id": "cooldown-check",
+      "typeVersion": 2,
+      "position": [
+        250,
+        100
+      ],
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "jsCode": "// Check if we already ran successfully in the last 24 hours\nconst staticData = $getWorkflowStaticData('global');\nconst lastSuccessTimestamp = staticData.lastSuccessfulSync || 0;\nconst now = Date.now();\nconst twentyFourHours = 24 * 60 * 60 * 1000;\nconst timeSinceLastSync = now - lastSuccessTimestamp;\nconst shouldRun = timeSinceLastSync >= twentyFourHours;\n\nreturn [{\n  json: {\n    shouldRun,\n    lastSuccessfulSync: lastSuccessTimestamp ? new Date(lastSuccessTimestamp).toISOString() : 'never',\n    timeSinceLastSyncHours: Math.round(timeSinceLastSync / (60 * 60 * 1000) * 10) / 10,\n    checkedAt: new Date(now).toISOString()\n  }\n}];"
+      }
+    },
+    {
+      "name": "Should Run?",
+      "id": "should-run-gate",
+      "typeVersion": 2.3,
+      "position": [
+        500,
+        100
+      ],
+      "type": "n8n-nodes-base.if",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "gate-condition",
+              "leftValue": "={{ $json.shouldRun }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "List All Files in Folder",
+      "id": "list-all-files",
+      "typeVersion": 3,
+      "position": [
+        700,
+        100
+      ],
+      "type": "n8n-nodes-base.googleDrive",
+      "parameters": {
+        "resource": "fileFolder",
+        "operation": "search",
+        "searchMethod": "query",
+        "queryString": "'1WBHB-_3Y6EDITFL5-vGR0zPmYhhShtAv' in parents and trashed = false",
+        "filter": {
+          "whatToSearch": "files"
+        },
+        "returnAll": true,
+        "options": {
+          "fields": [
+            "*"
+          ]
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CNxxaAEuDBuR38Uo",
+          "name": "Google Drive Account"
+        }
+      }
+    },
+    {
+      "name": "Download file from Google Drive",
+      "id": "download-file",
+      "typeVersion": 3,
+      "position": [
+        1050,
+        100
+      ],
+      "type": "n8n-nodes-base.googleDrive",
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "fileName": "={{ $json.name }}",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CNxxaAEuDBuR38Uo",
+          "name": "Google Drive Account"
+        }
+      }
+    },
+    {
+      "name": "Pinecone Vector Store",
+      "id": "pinecone-insert",
+      "typeVersion": 1.3,
+      "position": [
+        1300,
+        100
+      ],
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "publications",
+          "mode": "list",
+          "cachedResultName": "publications"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "pineconeApi": {
+          "id": "RzS6BudHI1SIt9HO",
+          "name": "PineconeApi account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "name": "Embeddings OpenAI",
+      "id": "embeddings-openai",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        300
+      ],
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "name": "Default Data Loader",
+      "id": "data-loader",
+      "typeVersion": 1.1,
+      "position": [
+        1400,
+        300
+      ],
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "parameters": {
+        "dataType": "binary",
+        "loader": "auto",
+        "textSplittingMode": "custom",
+        "options": {}
+      }
+    },
+    {
+      "name": "Recursive Character Text Splitter",
+      "id": "text-splitter",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        500
+      ],
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "parameters": {
+        "chunkOverlap": 100,
+        "options": {}
+      }
+    },
+    {
+      "name": "Record Successful Sync",
+      "id": "record-success",
+      "typeVersion": 2,
+      "position": [
+        1550,
+        100
+      ],
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "jsCode": "// Record the successful sync timestamp in workflow static data\nconst staticData = $getWorkflowStaticData('global');\nstaticData.lastSuccessfulSync = Date.now();\nstaticData.lastSuccessfulSyncISO = new Date().toISOString();\n\nreturn [{\n  json: {\n    status: 'success',\n    syncedAt: staticData.lastSuccessfulSyncISO,\n    message: 'RAG documents synced successfully. Next sync in ~24 hours.'\n  }\n}];"
+      }
+    },
+    {
+      "id": "filter-text-files",
+      "name": "Filter Text Files",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        875,
+        100
+      ],
+      "parameters": {
+        "jsCode": "// Filter out non-text files (images, videos, audio, zip archives)\n// Google Drive native docs (application/vnd.google-apps.*) are always text-convertible\nconst items = $input.all();\nconst filtered = items.filter(item => {\n  const mime = (item.json.mimeType || item.json.mime_type || '').toLowerCase();\n  const name = (item.json.name || '').toLowerCase();\n  \n  // If no mimeType at all, filter by extension only\n  if (!mime) {\n    const blockedExts = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.ico', '.tiff', '.mp4', '.mov', '.avi', '.wmv', '.mp3', '.wav', '.ogg', '.zip', '.rar', '.7z', '.tar', '.gz'];\n    if (blockedExts.some(ext => name.endsWith(ext))) return false;\n    return true;\n  }\n  \n  // Always allow Google Workspace files (Docs, Sheets, Slides, etc.)\n  if (mime.startsWith('application/vnd.google-apps.')) return true;\n  \n  // Block known non-text MIME types\n  if (mime.startsWith('image/')) return false;\n  if (mime.startsWith('video/')) return false;\n  if (mime.startsWith('audio/')) return false;\n  \n  // Block by extension as fallback\n  const blockedExts = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.ico', '.tiff', '.mp4', '.mov', '.avi', '.wmv', '.mp3', '.wav', '.ogg', '.zip', '.rar', '.7z', '.tar', '.gz'];\n  if (blockedExts.some(ext => name.endsWith(ext))) return false;\n  \n  // Allow everything else (PDFs, text files, docs, etc.)\n  return true;\n});\n\nreturn filtered;"
+      }
+    }
+  ],
+  "connections": {
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "main": [
+        [
+          {
+            "node": "Record Successful Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file from Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Run?": {
+      "main": [
+        [
+          {
+            "node": "List All Files in Folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wake Webhook": {
+      "main": [
+        [
+          {
+            "node": "24h Cooldown Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "24h Cooldown Check": {
+      "main": [
+        [
+          {
+            "node": "Should Run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List All Files in Folder": {
+      "main": [
+        [
+          {
+            "node": "Filter Text Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Text Files": {
+      "main": [
+        [
+          {
+            "node": "Download file from Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Google Drive Trigger - File Created": {
+      "lastTimeChecked": "2026-02-14T16:32:36Z"
+    },
+    "node:Google Drive Trigger - File Updated": {
+      "lastTimeChecked": "2026-02-14T16:32:36Z"
+    },
+    "node:Schedule Trigger": {
+      "recurrenceRules": []
+    },
+    "global": {
+      "lastSuccessfulSync": 1771088456129,
+      "lastSuccessfulSyncISO": "2026-02-14T17:00:56.129Z"
+    }
+  },
+  "meta": null,
+  "pinData": null,
+  "versionId": "248bd606-2553-4cd8-ad47-a089d8b332cc",
+  "activeVersionId": "248bd606-2553-4cd8-ad47-a089d8b332cc",
+  "versionCounter": 44,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-14T16:22:44.582Z",
+      "createdAt": "2026-02-14T16:22:44.582Z",
+      "role": "workflow:owner",
+      "workflowId": "JVdxGjESLLmxdYIO",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-21T11:16:25.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-21",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-14T16:59:17.209Z",
+    "createdAt": "2026-02-14T16:59:17.209Z",
+    "versionId": "248bd606-2553-4cd8-ad47-a089d8b332cc",
+    "workflowId": "JVdxGjESLLmxdYIO",
+    "nodes": [
+      {
+        "name": "Sticky Note",
+        "id": "sticky-note",
+        "typeVersion": 1,
+        "position": [
+          -200,
+          -250
+        ],
+        "type": "n8n-nodes-base.stickyNote",
+        "parameters": {
+          "content": "## RAG Document Ingestion (Daily, On-Wake)\n\nTriggered by the wake script (`~/.n8n-wake-trigger.sh`) via webhook. A Code node checks if a successful sync already happened in the last 24h (using workflow static data). If yes, the pipeline stops. If no, it lists all files in the Google Drive RAG folder, downloads them, and ingests into Pinecone.\n\n**Webhook path:** `wake-rag-ingest`\n**Trigger:** On laptop wake/startup + every 10 min periodic fallback\n**Cooldown:** 24 hours between successful syncs"
+        }
+      },
+      {
+        "name": "Wake Webhook",
+        "id": "wake-webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          100
+        ],
+        "type": "n8n-nodes-base.webhook",
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "wake-rag-ingest",
+          "options": {
+            "responseMode": "onReceived"
+          }
+        },
+        "webhookId": "wake-rag-ingest-001"
+      },
+      {
+        "name": "24h Cooldown Check",
+        "id": "cooldown-check",
+        "typeVersion": 2,
+        "position": [
+          250,
+          100
+        ],
+        "type": "n8n-nodes-base.code",
+        "parameters": {
+          "jsCode": "// Check if we already ran successfully in the last 24 hours\nconst staticData = $getWorkflowStaticData('global');\nconst lastSuccessTimestamp = staticData.lastSuccessfulSync || 0;\nconst now = Date.now();\nconst twentyFourHours = 24 * 60 * 60 * 1000;\nconst timeSinceLastSync = now - lastSuccessTimestamp;\nconst shouldRun = timeSinceLastSync >= twentyFourHours;\n\nreturn [{\n  json: {\n    shouldRun,\n    lastSuccessfulSync: lastSuccessTimestamp ? new Date(lastSuccessTimestamp).toISOString() : 'never',\n    timeSinceLastSyncHours: Math.round(timeSinceLastSync / (60 * 60 * 1000) * 10) / 10,\n    checkedAt: new Date(now).toISOString()\n  }\n}];"
+        }
+      },
+      {
+        "name": "Should Run?",
+        "id": "should-run-gate",
+        "typeVersion": 2.3,
+        "position": [
+          500,
+          100
+        ],
+        "type": "n8n-nodes-base.if",
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 3,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "gate-condition",
+                "leftValue": "={{ $json.shouldRun }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        }
+      },
+      {
+        "name": "List All Files in Folder",
+        "id": "list-all-files",
+        "typeVersion": 3,
+        "position": [
+          700,
+          100
+        ],
+        "type": "n8n-nodes-base.googleDrive",
+        "parameters": {
+          "resource": "fileFolder",
+          "operation": "search",
+          "searchMethod": "query",
+          "queryString": "'1WBHB-_3Y6EDITFL5-vGR0zPmYhhShtAv' in parents and trashed = false",
+          "filter": {
+            "whatToSearch": "files"
+          },
+          "returnAll": true,
+          "options": {
+            "fields": [
+              "*"
+            ]
+          }
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "CNxxaAEuDBuR38Uo",
+            "name": "Google Drive Account"
+          }
+        }
+      },
+      {
+        "name": "Download file from Google Drive",
+        "id": "download-file",
+        "typeVersion": 3,
+        "position": [
+          1050,
+          100
+        ],
+        "type": "n8n-nodes-base.googleDrive",
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $json.id }}",
+            "mode": "id"
+          },
+          "options": {
+            "fileName": "={{ $json.name }}",
+            "googleFileConversion": {
+              "conversion": {
+                "docsToFormat": "text/plain"
+              }
+            }
+          }
+        },
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "CNxxaAEuDBuR38Uo",
+            "name": "Google Drive Account"
+          }
+        }
+      },
+      {
+        "name": "Pinecone Vector Store",
+        "id": "pinecone-insert",
+        "typeVersion": 1.3,
+        "position": [
+          1300,
+          100
+        ],
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "parameters": {
+          "mode": "insert",
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "publications",
+            "mode": "list",
+            "cachedResultName": "publications"
+          },
+          "options": {}
+        },
+        "credentials": {
+          "pineconeApi": {
+            "id": "RzS6BudHI1SIt9HO",
+            "name": "PineconeApi account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "name": "Embeddings OpenAI",
+        "id": "embeddings-openai",
+        "typeVersion": 1.2,
+        "position": [
+          1200,
+          300
+        ],
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "parameters": {
+          "model": "text-embedding-3-small",
+          "options": {}
+        },
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "name": "Default Data Loader",
+        "id": "data-loader",
+        "typeVersion": 1.1,
+        "position": [
+          1400,
+          300
+        ],
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "parameters": {
+          "dataType": "binary",
+          "loader": "auto",
+          "textSplittingMode": "custom",
+          "options": {}
+        }
+      },
+      {
+        "name": "Recursive Character Text Splitter",
+        "id": "text-splitter",
+        "typeVersion": 1,
+        "position": [
+          1500,
+          500
+        ],
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "parameters": {
+          "chunkOverlap": 100,
+          "options": {}
+        }
+      },
+      {
+        "name": "Record Successful Sync",
+        "id": "record-success",
+        "typeVersion": 2,
+        "position": [
+          1550,
+          100
+        ],
+        "type": "n8n-nodes-base.code",
+        "parameters": {
+          "jsCode": "// Record the successful sync timestamp in workflow static data\nconst staticData = $getWorkflowStaticData('global');\nstaticData.lastSuccessfulSync = Date.now();\nstaticData.lastSuccessfulSyncISO = new Date().toISOString();\n\nreturn [{\n  json: {\n    status: 'success',\n    syncedAt: staticData.lastSuccessfulSyncISO,\n    message: 'RAG documents synced successfully. Next sync in ~24 hours.'\n  }\n}];"
+        }
+      },
+      {
+        "id": "filter-text-files",
+        "name": "Filter Text Files",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          875,
+          100
+        ],
+        "parameters": {
+          "jsCode": "// Filter out non-text files (images, videos, audio, zip archives)\n// Google Drive native docs (application/vnd.google-apps.*) are always text-convertible\nconst items = $input.all();\nconst filtered = items.filter(item => {\n  const mime = (item.json.mimeType || item.json.mime_type || '').toLowerCase();\n  const name = (item.json.name || '').toLowerCase();\n  \n  // If no mimeType at all, filter by extension only\n  if (!mime) {\n    const blockedExts = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.ico', '.tiff', '.mp4', '.mov', '.avi', '.wmv', '.mp3', '.wav', '.ogg', '.zip', '.rar', '.7z', '.tar', '.gz'];\n    if (blockedExts.some(ext => name.endsWith(ext))) return false;\n    return true;\n  }\n  \n  // Always allow Google Workspace files (Docs, Sheets, Slides, etc.)\n  if (mime.startsWith('application/vnd.google-apps.')) return true;\n  \n  // Block known non-text MIME types\n  if (mime.startsWith('image/')) return false;\n  if (mime.startsWith('video/')) return false;\n  if (mime.startsWith('audio/')) return false;\n  \n  // Block by extension as fallback\n  const blockedExts = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.ico', '.tiff', '.mp4', '.mov', '.avi', '.wmv', '.mp3', '.wav', '.ogg', '.zip', '.rar', '.7z', '.tar', '.gz'];\n  if (blockedExts.some(ext => name.endsWith(ext))) return false;\n  \n  // Allow everything else (PDFs, text files, docs, etc.)\n  return true;\n});\n\nreturn filtered;"
+        }
+      }
+    ],
+    "connections": {
+      "Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Pinecone Vector Store": {
+        "main": [
+          [
+            {
+              "node": "Record Successful Sync",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download file from Google Drive": {
+        "main": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Should Run?": {
+        "main": [
+          [
+            {
+              "node": "List All Files in Folder",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Wake Webhook": {
+        "main": [
+          [
+            {
+              "node": "24h Cooldown Check",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "24h Cooldown Check": {
+        "main": [
+          [
+            {
+              "node": "Should Run?",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Default Data Loader": {
+        "ai_document": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recursive Character Text Splitter": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Default Data Loader",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "List All Files in Folder": {
+        "main": [
+          [
+            {
+              "node": "Filter Text Files",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filter Text Files": {
+        "main": [
+          [
+            {
+              "node": "Download file from Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-14T16:59:17.250Z",
+        "id": 453,
+        "workflowId": "JVdxGjESLLmxdYIO",
+        "versionId": "248bd606-2553-4cd8-ad47-a089d8b332cc",
+        "event": "activated",
+        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    ]
+  }
+}

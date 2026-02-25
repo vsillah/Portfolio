@@ -1,0 +1,552 @@
+{
+  "updatedAt": "2026-02-14T10:09:47.418Z",
+  "createdAt": "2026-02-14T10:05:08.115Z",
+  "id": "Y273WotVwAb8CIz4",
+  "name": "WF-TSK: Task Slack Sync",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "task-slack-sync",
+        "options": {}
+      },
+      "name": "Webhook",
+      "id": "webhook-trigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "webhookId": "9f63aba8-05e7-4752-8624-ccf6dfecf945"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract the tasks array from the webhook payload and pass\n// each task as a separate item, preserving the action field.\nconst input = $input.first().json;\nconst action = input.body?.action || input.action || 'create';\nconst tasks = input.body?.tasks || input.tasks || [];\n\nreturn tasks.map(task => ({\n  json: {\n    action,\n    ...task\n  }\n}));"
+      },
+      "name": "Extract Tasks",
+      "id": "extract-tasks",
+      "typeVersion": 2,
+      "position": [
+        240,
+        304
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "condition-action",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "create",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Route by Action",
+      "id": "route-action",
+      "typeVersion": 2.3,
+      "position": [
+        480,
+        304
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Format a Slack message for a new action item\nconst task = $json;\nconst owner = task.owner || 'Unassigned';\nconst due = task.due_date || 'No date set';\nconst meeting = task.meeting_type\n  ? task.meeting_type.replace(/_/g, ' ').replace(/\\b\\w/g, c => c.toUpperCase())\n  : 'N/A';\nconst project = task.project_name || 'N/A';\nconst client = task.client_name || '';\nconst clientLine = client ? `\\n*Client:* ${client}` : '';\n\nconst text = `:clipboard: *New Action Item*\\n*Title:* ${task.title}\\n*Owner:* ${owner}\\n*Due:* ${due}\\n*Meeting:* ${meeting}\\n*Project:* ${project}${clientLine}\\n*Task ID:* \\`${task.id}\\``;\n\nreturn { json: { ...task, slackText: text } };"
+      },
+      "name": "Format New Task Message",
+      "id": "format-new-task",
+      "typeVersion": 2,
+      "position": [
+        720,
+        192
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AFE8874LR",
+          "mode": "list",
+          "cachedResultName": "meeting-actions-todo"
+        },
+        "text": "={{ $json.slackText }}",
+        "otherOptions": {}
+      },
+      "name": "Post to #meeting-actions-todo",
+      "id": "slack-post-todo",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        192
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "a6cb6073-7356-4ec6-a46f-f3209317324d",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Format a Slack message for a completed action item\nconst task = $json;\nconst owner = task.owner || 'Unassigned';\nconst meeting = task.meeting_type\n  ? task.meeting_type.replace(/_/g, ' ').replace(/\\b\\w/g, c => c.toUpperCase())\n  : 'N/A';\nconst project = task.project_name || 'N/A';\nconst client = task.client_name || '';\nconst clientLine = client ? `\\n*Client:* ${client}` : '';\n\nconst text = `:white_check_mark: *Action Item Completed*\\n*Title:* ${task.title}\\n*Owner:* ${owner}\\n*Meeting:* ${meeting}\\n*Project:* ${project}${clientLine}\\n*Task ID:* \\`${task.id}\\``;\n\nreturn { json: { ...task, slackText: text } };"
+      },
+      "name": "Format Done Task Message",
+      "id": "format-done-task",
+      "typeVersion": 2,
+      "position": [
+        720,
+        448
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AF4UGKC7N",
+          "mode": "list",
+          "cachedResultName": "meeting-actions-done"
+        },
+        "text": "={{ $json.slackText }}",
+        "otherOptions": {}
+      },
+      "name": "Post to #meeting-actions-done",
+      "id": "slack-post-done",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        448
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "9f80fed7-6fd0-47fa-b6c8-1cfd22ae377b",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## WF-TSK: Task Slack Sync\n\n**Trigger:** App webhook (POST /task-slack-sync)\n**Purpose:** Mirror meeting action tasks to Slack Kanban channels\n\n### Flow\n1. Webhook receives payload with `action` (create/update_status) and `tasks` array\n2. Code node splits tasks into individual items\n3. IF routes: create -> #meeting-actions-todo, update_status -> #meeting-actions-done\n4. Slack posts formatted message to appropriate channel\n\n### Channels\n- `#meeting-actions-todo` \u2014 New/pending tasks\n- `#meeting-actions-done` \u2014 Completed tasks\n\n### Env\n- App sets `N8N_TASK_SLACK_SYNC_WEBHOOK_URL` to this webhook URL"
+      },
+      "name": "WF-TSK Overview",
+      "id": "note-overview",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        80
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    }
+  ],
+  "connections": {
+    "Format Done Task Message": {
+      "main": [
+        [
+          {
+            "node": "Post to #meeting-actions-done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format New Task Message": {
+      "main": [
+        [
+          {
+            "node": "Post to #meeting-actions-todo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Tasks": {
+      "main": [
+        [
+          {
+            "node": "Route by Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Action": {
+      "main": [
+        [
+          {
+            "node": "Format New Task Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format Done Task Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "c5035fbf-61e1-43af-abd7-fd1cb23a7346",
+  "activeVersionId": "c5035fbf-61e1-43af-abd7-fd1cb23a7346",
+  "versionCounter": 11,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-14T10:05:08.123Z",
+      "createdAt": "2026-02-14T10:05:08.123Z",
+      "role": "workflow:owner",
+      "workflowId": "Y273WotVwAb8CIz4",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-21T11:16:25.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-21",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-14T10:16:09.000Z",
+    "createdAt": "2026-02-14T10:09:47.419Z",
+    "versionId": "c5035fbf-61e1-43af-abd7-fd1cb23a7346",
+    "workflowId": "Y273WotVwAb8CIz4",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "task-slack-sync",
+          "options": {}
+        },
+        "name": "Webhook",
+        "id": "webhook-trigger",
+        "typeVersion": 2,
+        "position": [
+          0,
+          304
+        ],
+        "type": "n8n-nodes-base.webhook",
+        "webhookId": "9f63aba8-05e7-4752-8624-ccf6dfecf945"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Extract the tasks array from the webhook payload and pass\n// each task as a separate item, preserving the action field.\nconst input = $input.first().json;\nconst action = input.body?.action || input.action || 'create';\nconst tasks = input.body?.tasks || input.tasks || [];\n\nreturn tasks.map(task => ({\n  json: {\n    action,\n    ...task\n  }\n}));"
+        },
+        "name": "Extract Tasks",
+        "id": "extract-tasks",
+        "typeVersion": 2,
+        "position": [
+          240,
+          304
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "condition-action",
+                "leftValue": "={{ $json.action }}",
+                "rightValue": "create",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "name": "Route by Action",
+        "id": "route-action",
+        "typeVersion": 2.3,
+        "position": [
+          480,
+          304
+        ],
+        "type": "n8n-nodes-base.if"
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// Format a Slack message for a new action item\nconst task = $json;\nconst owner = task.owner || 'Unassigned';\nconst due = task.due_date || 'No date set';\nconst meeting = task.meeting_type\n  ? task.meeting_type.replace(/_/g, ' ').replace(/\\b\\w/g, c => c.toUpperCase())\n  : 'N/A';\nconst project = task.project_name || 'N/A';\nconst client = task.client_name || '';\nconst clientLine = client ? `\\n*Client:* ${client}` : '';\n\nconst text = `:clipboard: *New Action Item*\\n*Title:* ${task.title}\\n*Owner:* ${owner}\\n*Due:* ${due}\\n*Meeting:* ${meeting}\\n*Project:* ${project}${clientLine}\\n*Task ID:* \\`${task.id}\\``;\n\nreturn { json: { ...task, slackText: text } };"
+        },
+        "name": "Format New Task Message",
+        "id": "format-new-task",
+        "typeVersion": 2,
+        "position": [
+          720,
+          192
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C0AFE8874LR",
+            "mode": "list",
+            "cachedResultName": "meeting-actions-todo"
+          },
+          "text": "={{ $json.slackText }}",
+          "otherOptions": {}
+        },
+        "name": "Post to #meeting-actions-todo",
+        "id": "slack-post-todo",
+        "typeVersion": 2.2,
+        "position": [
+          960,
+          192
+        ],
+        "type": "n8n-nodes-base.slack",
+        "webhookId": "a6cb6073-7356-4ec6-a46f-f3209317324d",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "runOnceForEachItem",
+          "jsCode": "// Format a Slack message for a completed action item\nconst task = $json;\nconst owner = task.owner || 'Unassigned';\nconst meeting = task.meeting_type\n  ? task.meeting_type.replace(/_/g, ' ').replace(/\\b\\w/g, c => c.toUpperCase())\n  : 'N/A';\nconst project = task.project_name || 'N/A';\nconst client = task.client_name || '';\nconst clientLine = client ? `\\n*Client:* ${client}` : '';\n\nconst text = `:white_check_mark: *Action Item Completed*\\n*Title:* ${task.title}\\n*Owner:* ${owner}\\n*Meeting:* ${meeting}\\n*Project:* ${project}${clientLine}\\n*Task ID:* \\`${task.id}\\``;\n\nreturn { json: { ...task, slackText: text } };"
+        },
+        "name": "Format Done Task Message",
+        "id": "format-done-task",
+        "typeVersion": 2,
+        "position": [
+          720,
+          448
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C0AF4UGKC7N",
+            "mode": "list",
+            "cachedResultName": "meeting-actions-done"
+          },
+          "text": "={{ $json.slackText }}",
+          "otherOptions": {}
+        },
+        "name": "Post to #meeting-actions-done",
+        "id": "slack-post-done",
+        "typeVersion": 2.2,
+        "position": [
+          960,
+          448
+        ],
+        "type": "n8n-nodes-base.slack",
+        "webhookId": "9f80fed7-6fd0-47fa-b6c8-1cfd22ae377b",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## WF-TSK: Task Slack Sync\n\n**Trigger:** App webhook (POST /task-slack-sync)\n**Purpose:** Mirror meeting action tasks to Slack Kanban channels\n\n### Flow\n1. Webhook receives payload with `action` (create/update_status) and `tasks` array\n2. Code node splits tasks into individual items\n3. IF routes: create -> #meeting-actions-todo, update_status -> #meeting-actions-done\n4. Slack posts formatted message to appropriate channel\n\n### Channels\n- `#meeting-actions-todo` \u2014 New/pending tasks\n- `#meeting-actions-done` \u2014 Completed tasks\n\n### Env\n- App sets `N8N_TASK_SLACK_SYNC_WEBHOOK_URL` to this webhook URL"
+        },
+        "name": "WF-TSK Overview",
+        "id": "note-overview",
+        "typeVersion": 1,
+        "position": [
+          -224,
+          80
+        ],
+        "type": "n8n-nodes-base.stickyNote"
+      }
+    ],
+    "connections": {
+      "Format Done Task Message": {
+        "main": [
+          [
+            {
+              "node": "Post to #meeting-actions-done",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format New Task Message": {
+        "main": [
+          [
+            {
+              "node": "Post to #meeting-actions-todo",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Tasks": {
+        "main": [
+          [
+            {
+              "node": "Route by Action",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Route by Action": {
+        "main": [
+          [
+            {
+              "node": "Format New Task Message",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Format Done Task Message",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Webhook": {
+        "main": [
+          [
+            {
+              "node": "Extract Tasks",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": "Version c5035fbf",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-14T10:16:09.525Z",
+        "id": 428,
+        "workflowId": "Y273WotVwAb8CIz4",
+        "versionId": "c5035fbf-61e1-43af-abd7-fd1cb23a7346",
+        "event": "activated",
+        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    ]
+  }
+}

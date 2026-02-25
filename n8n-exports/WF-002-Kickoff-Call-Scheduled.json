@@ -1,0 +1,353 @@
+{
+  "id": "7oz39DVtgrJfclMW",
+  "name": "WF-002: Kickoff Call Scheduled",
+  "active": true,
+  "createdAt": "2026-02-01 14:54:46.136",
+  "updatedAt": "2026-02-07 00:58:49.995",
+  "versionId": "003e1f31-479a-48c1-b9bb-f92b60faf698",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "events": [
+          "invitee.created"
+        ]
+      },
+      "id": "calendly-trigger",
+      "name": "Calendly Booking",
+      "type": "n8n-nodes-base.calendlyTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        304
+      ],
+      "webhookId": "14eabc49-8594-4c74-9cca-8abe6bd1af62",
+      "credentials": {
+        "calendlyOAuth2Api": {
+          "id": "BXLOmoWaYfeP0neX",
+          "name": "Calendly account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "extract-booking",
+      "name": "Extract Booking Details",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "channelId": "={{ $json.channelName }}"
+      },
+      "id": "create-slack-channel",
+      "name": "Create Client Slack Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        672,
+        208
+      ],
+      "webhookId": "808fe7c3-7302-47ac-b030-b9d011950a71",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "channel",
+        "operation": "setTopic",
+        "channelId": "={{ $('Create Client Slack Channel').item.json.id }}",
+        "topic": "={{ 'Project channel for ' + $('Extract Booking Details').item.json.clientName + ' | Kickoff: ' + $('Extract Booking Details').item.json.eventTime }}"
+      },
+      "id": "set-channel-topic",
+      "name": "Set Channel Topic",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        880,
+        208
+      ],
+      "webhookId": "57dc2361-1a69-4894-a231-334e7377b918",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "={{ $('Create Client Slack Channel').item.json.id }}",
+        "text": "={{ '\ud83d\udc4b Welcome to your project channel, ' + $('Extract Booking Details').item.json.clientName + '!\\n\\n\ud83d\udcc5 *Kickoff Call Scheduled*: ' + $('Extract Booking Details').item.json.eventTime + '\\n\\nThis channel will be your hub for:\\n\u2022 Daily progress updates (M-F)\\n\u2022 Questions and feedback\\n\u2022 Project milestones\\n\\nLooking forward to working with you!' }}",
+        "otherOptions": {}
+      },
+      "id": "welcome-message",
+      "name": "Post Welcome Message",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1104,
+        208
+      ],
+      "webhookId": "7e6645a7-c56f-40b4-85e9-82cd601e64f0",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Extract Booking Details').item.json.clientEmail }}",
+        "subject": "={{ 'Before Our Kickoff Call - Platform Access Checklist \ud83d\udccb' }}",
+        "message": "={{ '<p>Hi ' + $('Extract Booking Details').item.json.clientName + ',</p><p>Thanks for booking your kickoff call! To make the most of our time together, here\\'s what we\\'ll cover:</p><h3>\ud83d\udccb Platform Access Checklist</h3><p>Please have the following ready for our call:</p><ul><li><strong>Slack</strong> - We\\'ll add you to your project channel live</li><li><strong>Any tools requiring 2FA</strong> - Have your phone ready for codes</li><li><strong>Admin access credentials</strong> - For any platforms we\\'ll be connecting</li></ul><h3>\u23f0 What to Expect</h3><ul><li>~30 minute call</li><li>Discuss timelines and milestones</li><li>Define availability and communication preferences</li><li>Get you signed up to platforms live (sidesteps 2FA issues!)</li><li>Answer any questions you have</li></ul><h3>\ud83d\udcc5 Your Call Details</h3><p><strong>When:</strong> ' + $('Extract Booking Details').item.json.eventTime + '</p><p>Looking forward to it!</p>' }}",
+        "options": {}
+      },
+      "id": "send-prep-email",
+      "name": "Send Pre-Kickoff Prep Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        672,
+        400
+      ],
+      "webhookId": "2c3177f9-3322-42f4-88da-38c8b9da628f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UCK3YD2eNuUHuUxB",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## WF-002: Kickoff Call Scheduled\n\n**Trigger:** Calendly booking (atas-kick-off-meeting)\nAlso callable via WF-CAL Calendly Webhook Router.\n\n**Actions:**\n1. Extract booking details\n2. Update client project in Supabase (status -> kickoff_scheduled, store kickoff_calendly_uri)\n3. Create Slack channel for client\n4. Set channel topic\n5. Post welcome message\n6. Send pre-kickoff prep email\n\n**Post-payment flow:** Payment (WF-001) -> Onboarding (WF-001B) -> Kickoff (this)\n\n**Config Required:**\n- Calendly OAuth2 credentials\n- Supabase credentials\n- Slack Bot credentials\n- Gmail credentials"
+      },
+      "id": "note-workflow",
+      "name": "Workflow Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "client_projects",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $json.clientEmail }}"
+            },
+            {
+              "fieldValue": "={{ $json.channelName }}"
+            },
+            {
+              "fieldValue": "={{ $json.eventTime }}"
+            },
+            {
+              "fieldValue": "kickoff_scheduled"
+            },
+            {
+              "fieldValue": "={{ $json.calendlyEventUri }}"
+            },
+            {
+              "fieldValue": "={{ $json.calendlyEventUri }}"
+            }
+          ]
+        }
+      },
+      "id": "update-client-project",
+      "name": "Update Client Project",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        448,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Calendly Booking": {
+      "main": [
+        [
+          {
+            "node": "Extract Booking Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Client Slack Channel": {
+      "main": [
+        [
+          {
+            "node": "Set Channel Topic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Channel Topic": {
+      "main": [
+        [
+          {
+            "node": "Post Welcome Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Booking Details": {
+      "main": [
+        [
+          {
+            "node": "Update Client Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Client Project": {
+      "main": [
+        [
+          {
+            "node": "Create Client Slack Channel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Pre-Kickoff Prep Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Calendly Booking": {
+      "webhookURI": "https://api.calendly.com/webhook_subscriptions/e3cca63b-1f5a-4041-850e-4e99ed77cbb7"
+    }
+  },
+  "pinData": {
+    "Calendly Booking": [
+      {
+        "json": {
+          "created_at": "2026-02-06T10:58:26.000000Z",
+          "created_by": "https://api.calendly.com/users/b9b2ff7a-6fc6-4c20-9b0a-3ef537e69fdd",
+          "event": "invitee.created",
+          "payload": {
+            "cancel_url": "https://calendly.com/cancellations/fb7c1611-49d3-4b77-9e5a-c71930e703d2",
+            "created_at": "2026-02-06T10:58:25.986644Z",
+            "email": "ethanbwager@gmail.com",
+            "event": "https://api.calendly.com/scheduled_events/2946714b-7b7e-4777-901d-edfc168043d3",
+            "first_name": "Ethan",
+            "invitee_scheduled_by": "https://api.calendly.com/users/b9b2ff7a-6fc6-4c20-9b0a-3ef537e69fdd",
+            "last_name": "Wager",
+            "name": "Ethan Wager",
+            "new_invitee": null,
+            "no_show": null,
+            "old_invitee": null,
+            "payment": null,
+            "questions_and_answers": [
+              {
+                "answer": "Review website updates and discuss how business money models can be leveraged for sales conversations. ",
+                "position": 0,
+                "question": "Please share anything that will help prepare for our meeting."
+              }
+            ],
+            "reconfirmation": null,
+            "reschedule_url": "https://calendly.com/reschedulings/fb7c1611-49d3-4b77-9e5a-c71930e703d2",
+            "rescheduled": false,
+            "routing_form_submission": null,
+            "scheduled_event": {
+              "created_at": "2026-02-06T10:58:25.945612Z",
+              "end_time": "2026-02-19T20:30:00.000000Z",
+              "event_guests": [],
+              "event_memberships": [
+                {
+                  "user": "https://api.calendly.com/users/b9b2ff7a-6fc6-4c20-9b0a-3ef537e69fdd",
+                  "user_email": "vsillah@gmail.com",
+                  "user_name": "Vambah Sillah"
+                }
+              ],
+              "event_type": "https://api.calendly.com/event_types/ec0e4a25-e689-42ad-a7c1-bb3d6eb618e4",
+              "invitees_counter": {
+                "total": 1,
+                "active": 1,
+                "limit": 1
+              },
+              "location": {
+                "join_url": "https://calendly.com/events/2946714b-7b7e-4777-901d-edfc168043d3/google_meet",
+                "status": "processing",
+                "type": "google_conference"
+              },
+              "meeting_notes_html": null,
+              "meeting_notes_plain": null,
+              "name": "ATAS Discovery Call",
+              "start_time": "2026-02-19T20:00:00.000000Z",
+              "status": "active",
+              "updated_at": "2026-02-06T10:58:25.945612Z",
+              "uri": "https://api.calendly.com/scheduled_events/2946714b-7b7e-4777-901d-edfc168043d3"
+            },
+            "scheduling_method": null,
+            "status": "active",
+            "text_reminder_number": null,
+            "timezone": "America/New_York",
+            "tracking": {
+              "utm_campaign": null,
+              "utm_source": null,
+              "utm_medium": null,
+              "utm_content": null,
+              "utm_term": null,
+              "salesforce_uuid": null
+            },
+            "updated_at": "2026-02-06T10:58:25.986644Z",
+            "uri": "https://api.calendly.com/scheduled_events/2946714b-7b7e-4777-901d-edfc168043d3/invitees/fb7c1611-49d3-4b77-9e5a-c71930e703d2"
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

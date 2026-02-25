@@ -1,0 +1,273 @@
+{
+  "id": "p5HcsCPnYJWpgIiP",
+  "name": "WF-004: Kickoff Call Complete",
+  "active": true,
+  "createdAt": "2026-02-01 14:58:42.154",
+  "updatedAt": "2026-02-07 00:58:26.234",
+  "versionId": "ba895890-886b-4f6c-bfc7-2bb6512fc8f1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kickoff-complete",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Kickoff Complete Webhook",
+      "id": "webhook-trigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "webhookId": "c09b76a9-38fa-4b0d-a518-68b07c36164b"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Update Project Status",
+      "id": "update-status",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        304
+      ],
+      "type": "n8n-nodes-base.set"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0ABTFRRVN3"
+        },
+        "text": "={{ '\ud83c\udf89 *Kickoff Call Complete!*\\n\\n*Project Timeline:*\\n\u2022 Start: ' + $json.projectStartDate.substring(0,10) + '\\n\u2022 Target Delivery: ' + $json.estimatedEndDate.substring(0,10) + ' (3 weeks)\\n\\n*Milestones:*\\n1\ufe0f\u20e3 Phase 1: Setup & Access\\n2\ufe0f\u20e3 Phase 2: Build & Customize\\n3\ufe0f\u20e3 Phase 3: Test E2E\\n4\ufe0f\u20e3 Phase 4: Deliver & Document\\n\\n*Communication:*\\n\u2022 Daily updates M-F right here\\n\u2022 Questions? Post anytime, batched responses\\n\\nLet\\'s build something great! \ud83d\ude80' }}",
+        "otherOptions": {}
+      },
+      "name": "Post Kickoff Summary",
+      "id": "post-kickoff-summary",
+      "typeVersion": 2.4,
+      "position": [
+        880,
+        208
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "4e07f785-eeb4-4675-8912-36b678a668f4",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0ABTFRRVN3"
+        },
+        "text": "={{ '\ud83d\udfe2 *New Project Started*\\n\\n*Client:* ' + $json.clientName + '\\n*Channel:* #' + $json.slackChannel + '\\n*Timeline:* ' + $json.projectStartDate.substring(0,10) + ' \u2192 ' + $json.estimatedEndDate.substring(0,10) + '\\n\\nKickoff complete - project is now active!' }}",
+        "otherOptions": {}
+      },
+      "name": "Notify Team Channel",
+      "id": "notify-team",
+      "typeVersion": 2.4,
+      "position": [
+        880,
+        400
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "934f1c0d-78b3-4ed8-bcc6-4da8d86ba187",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {success: true, message: 'Kickoff complete processed', client: $('Update Project Status').item.json.clientName, projectStatus: 'active'} }}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "id": "respond-webhook",
+      "typeVersion": 1.1,
+      "position": [
+        1104,
+        304
+      ],
+      "type": "n8n-nodes-base.respondToWebhook"
+    },
+    {
+      "parameters": {
+        "content": "## WF-004: Kickoff Call Complete\n\n**Trigger:** Webhook (kickoff scheduled/complete event)\nFires when kickoff call data is received.\n\n**Current Flow:**\n1. Receive kickoff event data\n2. Fetch client data from Supabase\n3. Update project status to active\n4. Mark kickoff complete in Supabase\n5. Post summary to Slack\n6. Notify team channel\n\n**Meeting Intelligence (via WF-MCH):**\nWhen Read.ai sends the kickoff transcript to WF-MCH:\n- AI structures kickoff-specific data (access granted/pending, milestone dates, roles, risks, comms setup)\n- Writes to meeting_records table\n- Updates project_status to active\n- Generates progress check-in agenda via AI Agenda Builder\n- Posts structured summary to Slack\n\n### Updated 2026-02-06\n- Completion AI processing handled by WF-MCH\n- Kickoff data feeds progress check-in agenda generation\n- Access status tracking enables follow-up reminders"
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_email",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.clientEmail }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-client-supabase",
+      "name": "Fetch Client Data",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "client_projects",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $('Fetch Client Data').item.json.id }}"
+            },
+            {
+              "fieldValue": "={{ $now.toISO() }}"
+            },
+            {
+              "fieldValue": "active"
+            },
+            {
+              "fieldValue": "1"
+            },
+            {
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "mark-kickoff-complete",
+      "name": "Mark Kickoff Complete",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Notify Team Channel": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Kickoff Summary": {
+      "main": [
+        [
+          {
+            "node": "Notify Team Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Kickoff Complete Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Client Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Client Data": {
+      "main": [
+        [
+          {
+            "node": "Update Project Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Project Status": {
+      "main": [
+        [
+          {
+            "node": "Mark Kickoff Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Kickoff Complete": {
+      "main": [
+        [
+          {
+            "node": "Post Kickoff Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

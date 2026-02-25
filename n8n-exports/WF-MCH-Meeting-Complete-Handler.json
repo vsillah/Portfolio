@@ -1,0 +1,1289 @@
+{
+  "updatedAt": "2026-02-10T23:35:28.107Z",
+  "createdAt": "2026-02-06T16:55:50.859Z",
+  "id": "94mqmLgS9GkomPIf",
+  "name": "WF-MCH: Meeting Complete Handler",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## WF-MCH: Meeting Complete Handler\n\n**Trigger:** Read.ai webhook or manual POST\nFires when any meeting transcript is ready.\n\n**Webhook body requires:**\n- transcript, summary, participants\n- meeting_type: discovery|onboarding|kickoff|progress_checkin|go_no_go|delivery_review\n- client_email: for project lookup\n\n**Flow:**\n1. Receive meeting data via webhook\n2. Extract transcript, participants, meeting type\n3. Fetch client_project from Supabase (graceful if not found)\n4. Fetch prior meeting_records for context\n5. AI Structuring Agent extracts type-specific data\n6. Write to meeting_records table\n7. Post summary to Slack\n8. Update project status\n9. Generate next meeting agenda (via WF-AGB)\n\n### Created 2026-02-06\nGeneralized handler for all 6 meeting types",
+        "height": 600,
+        "width": 500
+      },
+      "id": "note-mch",
+      "name": "Workflow Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "meeting-complete",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-mch",
+      "name": "Meeting Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "webhookId": "b6658ef2-13af-4d26-8d70-475f603fc9bd",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.item.json;\n// Support both direct data and webhook-wrapped data\nconst body = raw.body || raw;\n\nconst meetingId = body.meeting_id || body.id || '';\nconst title = body.title || body.meeting_title || '';\nconst summary = body.summary || body.ai_summary || '';\nconst transcript = body.transcript || body.full_transcript || '';\nconst actionItems = body.action_items || body.actionItems || [];\nconst duration = Number(body.duration || body.meeting_duration || 0);\nconst recordingUrl = body.recording_url || body.playback_url || '';\nconst meetingDate = body.meeting_date || body.date || body.start_time || new Date().toISOString();\nconst calendlyEventUri = body.calendly_event_uri || '';\nconst meetingType = body.meeting_type || 'discovery';\n\n// Parse participants - handle both array and string\nlet participants = [];\nif (Array.isArray(body.participants)) {\n  participants = body.participants;\n} else if (Array.isArray(body.attendees)) {\n  participants = body.attendees;\n} else if (typeof body.participants === 'string') {\n  try { participants = JSON.parse(body.participants); } catch(e) { participants = []; }\n}\n\nconst nextMeetingMap = {\n  'discovery': 'onboarding',\n  'onboarding': 'kickoff',\n  'kickoff': 'progress_checkin',\n  'progress_checkin': 'go_no_go',\n  'go_no_go': 'delivery_review',\n  'delivery_review': null\n};\nconst nextMeetingType = nextMeetingMap[meetingType] || null;\n\n// Find client participant (non-host)\nconst clientParticipant = participants.find(p => p && (p.is_host === false || p.is_organizer === false)) || participants[1] || {};\nconst clientEmail = body.client_email || clientParticipant.email || body.invitee_email || '';\nconst clientName = body.client_name || clientParticipant.name || body.invitee_name || '';\n\nconst fullContext = `Meeting Title: ${title}\\nMeeting Type: ${meetingType}\\n\\nAI Summary:\\n${summary}\\n\\nAction Items:\\n${Array.isArray(actionItems) ? actionItems.map((item, i) => `${i+1}. ${typeof item === 'string' ? item : item.text || item.description || JSON.stringify(item)}`).join('\\n') : actionItems}\\n\\nFull Transcript:\\n${typeof transcript === 'string' ? transcript.substring(0, 15000) : JSON.stringify(transcript).substring(0, 15000)}`;\n\nreturn [{\n  json: {\n    meetingId, title, summary,\n    transcript: typeof transcript === 'string' ? transcript : JSON.stringify(transcript),\n    actionItems, participants, clientEmail, clientName,\n    duration, recordingUrl, meetingDate, meetingType,\n    nextMeetingType, calendlyEventUri, fullContext\n  }\n}];"
+      },
+      "id": "extract-mch",
+      "name": "Extract Meeting Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_email",
+              "condition": "eq",
+              "keyValue": "={{ $json.clientEmail }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-project-mch",
+      "name": "Fetch Client Project",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        480,
+        208
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "meeting_records",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_project_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Fetch Client Project').first().json.id || '00000000-0000-0000-0000-000000000000' }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-prior-mch",
+      "name": "Fetch Prior Meetings",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        480,
+        432
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const meetingData = $('Extract Meeting Data').item.json;\n\n// Safely get client project (may be empty if no match found)\nlet clientProject = {};\ntry {\n  const cpItems = $('Fetch Client Project').all();\n  if (cpItems.length > 0 && cpItems[0].json && cpItems[0].json.id) {\n    clientProject = cpItems[0].json;\n  }\n} catch (e) {\n  clientProject = {};\n}\n\n// Safely get prior meetings (may be empty)\nlet priorMeetings = [];\ntry {\n  const pmItems = $('Fetch Prior Meetings').all();\n  priorMeetings = pmItems.map(item => item.json).filter(m => m && m.id);\n} catch (e) {\n  priorMeetings = [];\n}\n\nconst extractionSchemas = {\n  discovery: '{\"pain_points_discussed\": [\"specific business problems\"], \"solutions_proposed\": [\"solutions discussed\"], \"timeline_preference\": \"timeline\", \"budget_confirmed\": \"budget range\", \"decision_makers\": [\"stakeholders\"], \"competitor_mentions\": [\"competitors\"], \"fit_assessment\": \"hot|warm|cold\"}',\n  onboarding: '{\"tools_agreed\": [{\"name\": \"tool\", \"purpose\": \"why\", \"access_type\": \"shared|dedicated\", \"owner\": \"who\"}], \"access_requirements\": [{\"platform\": \"name\", \"credential_type\": \"type\", \"status\": \"granted|pending\"}], \"communication_plan\": {\"channel\": \"where\", \"cadence\": \"frequency\", \"escalation_path\": \"how\"}, \"timeline_confirmed\": {\"start_date\": \"date\", \"end_date\": \"date\", \"milestones\": []}, \"win_conditions\": [\"success criteria\"], \"client_questions\": [\"questions\"], \"artifact_handoff\": {\"format\": \"type\", \"delivery_method\": \"how\", \"review_process\": \"steps\"}}',\n  kickoff: '{\"access_granted\": [{\"platform\": \"name\", \"status\": \"granted|partial\", \"notes\": \"details\"}], \"access_pending\": [{\"platform\": \"name\", \"blocker\": \"why\", \"owner\": \"who\", \"due_date\": \"when\"}], \"milestone_dates_confirmed\": [{\"phase\": \"name\", \"description\": \"what\", \"target_date\": \"when\"}], \"roles_assigned\": [{\"person\": \"name\", \"role\": \"title\", \"responsibilities\": \"what\"}], \"risks_identified\": [{\"risk\": \"what\", \"likelihood\": \"level\", \"impact\": \"level\", \"mitigation\": \"plan\"}], \"communication_confirmed\": {\"slack_channel\": \"name\", \"meeting_cadence\": \"freq\", \"update_format\": \"how\"}}',\n  progress_checkin: '{\"milestone_status\": [{\"milestone\": \"name\", \"status\": \"complete|in_progress|blocked\", \"notes\": \"details\"}], \"blockers_reviewed\": [{\"blocker_id\": \"ref\", \"status\": \"resolved|open\", \"resolution\": \"how\"}], \"scope_changes\": [\"changes\"], \"client_satisfaction\": \"signal\", \"next_actions\": [{\"action\": \"what\", \"owner\": \"who\", \"due_date\": \"when\"}]}',\n  go_no_go: '{\"test_results\": [{\"test_case\": \"name\", \"result\": \"pass|fail\", \"notes\": \"details\"}], \"approval_status\": \"approved|conditional|rejected\", \"punch_list\": [{\"item\": \"what\", \"severity\": \"level\", \"owner\": \"who\", \"due_date\": \"when\"}], \"launch_conditions\": [\"conditions\"], \"conditional_items\": [\"items\"]}',\n  delivery_review: '{\"deliverables_reviewed\": [{\"deliverable\": \"name\", \"status\": \"accepted|needs_revision\", \"feedback\": \"notes\"}], \"client_feedback\": \"summary\", \"satisfaction_score\": 8, \"training_gaps\": [\"gaps\"], \"upsell_opportunities\": [\"opportunities\"], \"testimonial_consent\": true}'\n};\n\nconst schema = extractionSchemas[meetingData.meetingType] || extractionSchemas.discovery;\n\nlet priorContext = '';\nif (priorMeetings.length > 0) {\n  priorContext = '\\n\\n--- PRIOR MEETING HISTORY ---\\n';\n  for (const pm of priorMeetings) {\n    priorContext += `\\n[${pm.meeting_type}] ${pm.meeting_date || 'Unknown date'}:\\n`;\n    if (pm.key_decisions && pm.key_decisions.length) priorContext += `Key Decisions: ${JSON.stringify(pm.key_decisions)}\\n`;\n    if (pm.action_items && pm.action_items.length) priorContext += `Action Items: ${JSON.stringify(pm.action_items)}\\n`;\n    if (pm.open_questions && pm.open_questions.length) priorContext += `Open Questions: ${JSON.stringify(pm.open_questions)}\\n`;\n    if (pm.meeting_data) priorContext += `Meeting Data: ${JSON.stringify(pm.meeting_data)}\\n`;\n  }\n}\n\nreturn [{\n  json: {\n    ...meetingData,\n    clientProjectId: clientProject.id || null,\n    clientProject,\n    priorMeetings,\n    extractionSchema: schema,\n    priorContext\n  }\n}];"
+      },
+      "id": "build-ctx-mch",
+      "name": "Build AI Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ 'Analyze this ' + $json.meetingType.replace('_', ' ') + ' meeting transcript and extract structured data.\\n\\n' + $json.fullContext + $json.priorContext + '\\n\\nExtract the following as a valid JSON object (no markdown, no code fences, just raw JSON):\\n{\\n  \"structured_notes\": {\"summary\": \"2-3 sentence summary\", \"highlights\": [\"key points\"]},\\n  \"key_decisions\": [\"decisions made\"],\\n  \"action_items\": [{\"action\": \"what\", \"owner\": \"who\", \"due_date\": \"when or null\", \"status\": \"open\"}],\\n  \"open_questions\": [\"unresolved questions\"],\\n  \"risks_identified\": [{\"risk\": \"what\", \"likelihood\": \"high|medium|low\", \"impact\": \"high|medium|low\", \"mitigation\": \"plan or null\"}],\\n  \"meeting_data\": ' + $json.extractionSchema + '\\n}\\n\\nBe precise. Use actual details from the transcript.' }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "Company context from knowledge base (use to align notes and follow-up with our positioning):\n\n{{ $json.response || '' }}\n\n---\n\nYou are a meeting intelligence analyst. Extract structured, actionable data from meeting transcripts across the client lifecycle. Output valid JSON only."
+        }
+      },
+      "id": "ai-agent-mch",
+      "name": "AI Structuring Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        960,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list"
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "id": "brain-mch",
+      "name": "Structuring Brain",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        528
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const agentOutput = $('AI Structuring Agent').item.json.output || $('AI Structuring Agent').item.json.text || '';\nconst ctx = $('Build AI Context').item.json;\n\nlet structured;\ntry {\n  const jsonMatch = agentOutput.match(/\\{[\\s\\S]*\\}/);\n  structured = JSON.parse(jsonMatch ? jsonMatch[0] : agentOutput);\n} catch (e) {\n  structured = {\n    structured_notes: {summary: 'AI parsing failed', highlights: []},\n    key_decisions: [], action_items: [],\n    open_questions: ['Manual review needed'],\n    risks_identified: [], meeting_data: {}\n  };\n}\n\nconst typeLabels = {\n  discovery: 'Discovery Call', onboarding: 'Onboarding Call',\n  kickoff: 'Kickoff Meeting', progress_checkin: 'Progress Check-in',\n  go_no_go: 'Go/No-Go Review', delivery_review: 'Delivery & Review'\n};\nconst typeLabel = typeLabels[ctx.meetingType] || ctx.meetingType;\nconst emoji = ctx.meetingType === 'delivery_review' ? '\\ud83c\\udf89' : ctx.meetingType === 'go_no_go' ? '\\ud83d\\udea6' : '\\ud83d\\udcdd';\n\nconst channelMap = {\n  discovery: 'C08F7L8F2PL',\n  onboarding: 'C0ABTFRRVN3',\n  kickoff: 'C0ABTFRRVN3',\n  progress_checkin: 'C0ABTFRRVN3',\n  go_no_go: 'C0ABTFRRVN3',\n  delivery_review: 'C0AD388QEC8'\n};\nconst slackChannel = channelMap[ctx.meetingType] || 'C0ABTFRRVN3';\n\nconst slackSummary = `${emoji} *${typeLabel} Complete: ${ctx.clientName || ctx.clientProject?.client_name || 'Unknown'}*\\n\\n*Duration:* ${ctx.duration} minutes\\n*Recording:* ${ctx.recordingUrl ? '<' + ctx.recordingUrl + '|Watch>' : 'N/A'}\\n\\n*Summary:* ${structured.structured_notes?.summary || 'N/A'}\\n\\n*Key Decisions:*\\n${(structured.key_decisions || []).map(d => '\\u2022 ' + d).join('\\n') || 'None'}\\n\\n*Action Items:*\\n${(structured.action_items || []).map((a, i) => (i+1) + '. ' + (a.action || a) + (a.owner ? ' (' + a.owner + ')' : '')).join('\\n') || 'None'}\\n\\n*Open Questions:*\\n${(structured.open_questions || []).map(q => '\\u2022 ' + q).join('\\n') || 'None'}\\n\\n_Next: ${ctx.nextMeetingType || 'Project complete'}_`;\n\nreturn {\n  ...ctx, structured, slackSummary, slackChannel,\n  meetingRecord: {\n    client_project_id: ctx.clientProjectId,\n    meeting_type: ctx.meetingType,\n    calendly_event_uri: ctx.calendlyEventUri || null,\n    transcript: ctx.transcript,\n    raw_notes: ctx.summary,\n    recording_url: ctx.recordingUrl || null,\n    structured_notes: JSON.stringify(structured.structured_notes || {}),\n    key_decisions: JSON.stringify(structured.key_decisions || []),\n    action_items: JSON.stringify(structured.action_items || []),\n    open_questions: JSON.stringify(structured.open_questions || []),\n    risks_identified: JSON.stringify(structured.risks_identified || []),\n    meeting_data: JSON.stringify(structured.meeting_data || {}),\n    next_meeting_type: ctx.nextMeetingType,\n    meeting_date: ctx.meetingDate,\n    duration_minutes: ctx.duration,\n    attendees: JSON.stringify(ctx.participants || [])\n  }\n};"
+      },
+      "id": "parse-store-mch",
+      "name": "Parse and Store",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "meeting_records",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "meeting_type",
+              "fieldValue": "={{ $json.meetingRecord.meeting_type }}"
+            },
+            {
+              "fieldId": "transcript",
+              "fieldValue": "={{ $json.meetingRecord.transcript }}"
+            },
+            {
+              "fieldId": "raw_notes",
+              "fieldValue": "={{ $json.meetingRecord.raw_notes }}"
+            },
+            {
+              "fieldId": "recording_url",
+              "fieldValue": "={{ $json.meetingRecord.recording_url }}"
+            },
+            {
+              "fieldId": "structured_notes",
+              "fieldValue": "={{ $json.meetingRecord.structured_notes }}"
+            },
+            {
+              "fieldId": "key_decisions",
+              "fieldValue": "={{ $json.meetingRecord.key_decisions }}"
+            },
+            {
+              "fieldId": "action_items",
+              "fieldValue": "={{ $json.meetingRecord.action_items }}"
+            },
+            {
+              "fieldId": "open_questions",
+              "fieldValue": "={{ $json.meetingRecord.open_questions }}"
+            },
+            {
+              "fieldId": "risks_identified",
+              "fieldValue": "={{ $json.meetingRecord.risks_identified }}"
+            },
+            {
+              "fieldId": "meeting_data",
+              "fieldValue": "={{ $json.meetingRecord.meeting_data }}"
+            },
+            {
+              "fieldId": "next_meeting_type",
+              "fieldValue": "={{ $json.meetingRecord.next_meeting_type }}"
+            },
+            {
+              "fieldId": "meeting_date",
+              "fieldValue": "={{ $json.meetingRecord.meeting_date }}"
+            },
+            {
+              "fieldId": "duration_minutes",
+              "fieldValue": "={{ $json.meetingRecord.duration_minutes }}"
+            },
+            {
+              "fieldId": "attendees",
+              "fieldValue": "={{ $json.meetingRecord.attendees }}"
+            }
+          ]
+        }
+      },
+      "id": "write-record-mch",
+      "name": "Write Meeting Record",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1440,
+        208
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "={{ $('Parse and Store').item.json.slackChannel }}",
+        "text": "={{ $('Parse and Store').item.json.slackSummary }}",
+        "otherOptions": {}
+      },
+      "id": "slack-mch",
+      "name": "Post Summary to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1440,
+        432
+      ],
+      "webhookId": "16f271cc-e705-4919-a7d2-f2912392a8f1",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ {success: true, meeting_type: $('Extract Meeting Data').item.json.meetingType, meeting_record_id: $('Write Meeting Record').item.json.id || null, next_meeting_type: $('Extract Meeting Data').item.json.nextMeetingType} }}",
+        "options": {}
+      },
+      "id": "respond-mch",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        1680,
+        304
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const ctx = $('Parse and Store').item.json;\nconst meetingRecordId = $('Write Meeting Record').item.json.id || null;\nconst meetingType = ctx.meetingType;\nconst projectId = ctx.clientProjectId;\n\nconst statusUpdates = {\n  discovery: { discovery_call_completed_at: new Date().toISOString() },\n  onboarding: { onboarding_completed_at: new Date().toISOString(), project_status: 'onboarding_completed' },\n  kickoff: { project_status: 'active' },\n  progress_checkin: {},\n  go_no_go: { go_no_go_completed_at: new Date().toISOString() },\n  delivery_review: { delivery_review_completed_at: new Date().toISOString(), project_status: 'completed' }\n};\n\nconst updates = statusUpdates[meetingType] || {};\n\nreturn [{\n  json: {\n    projectId,\n    client_project_id: projectId,\n    meetingRecordId,\n    meetingType,\n    next_meeting_type: ctx.nextMeetingType,\n    client_email: ctx.clientEmail,\n    statusUpdates: updates,\n    hasUpdates: Object.keys(updates).length > 0\n  }\n}];"
+      },
+      "id": "update-status-mch",
+      "name": "Update Project Status",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        208
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "client_projects",
+        "filterType": "manual",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.projectId }}"
+            }
+          ]
+        },
+        "dataToSend": "defineBelow",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "updated_at",
+              "fieldValue": "={{ new Date().toISOString() }}"
+            }
+          ]
+        }
+      },
+      "id": "supabase-status-mch",
+      "name": "Apply Status Update",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        128
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "workflowId": "exYTC4bhQXq9vqZ0",
+        "options": {}
+      },
+      "id": "call-agenda-mch",
+      "name": "Generate Next Agenda",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b:free",
+        "options": {}
+      },
+      "id": "dabc8d4d-ce7e-4732-b515-188521158d7e",
+      "name": "Free Fallback (OpenRouter)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        608
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "ATznzoKw5NdNjbAl",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "id": "cd64c1b5-c087-430e-be96-be79e549c3fb",
+      "name": "Fetch RAG (MCH)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        820,
+        420
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://n8n.amadutown.com/webhook/amadutown-rag-query",
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"query\": \"What are AmaduTown's key services and meeting best practices for AI automation projects? Summarize in 2-3 paragraphs for use in meeting notes structuring and follow-up.\"}"
+      }
+    },
+    {
+      "id": "b96e2b3d-1631-46a9-a830-91e087deb233",
+      "name": "Merge RAG (MCH)",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        880,
+        304
+      ],
+      "parameters": {
+        "mode": "combine",
+        "outputDataFrom": "both"
+      }
+    }
+  ],
+  "connections": {
+    "Meeting Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Meeting Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Meeting Data": {
+      "main": [
+        [
+          {
+            "node": "Fetch Client Project",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Client Project": {
+      "main": [
+        [
+          {
+            "node": "Fetch Prior Meetings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Prior Meetings": {
+      "main": [
+        [
+          {
+            "node": "Build AI Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Structuring Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse and Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse and Store": {
+      "main": [
+        [
+          {
+            "node": "Write Meeting Record",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Summary to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Meeting Record": {
+      "main": [
+        [
+          {
+            "node": "Update Project Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structuring Brain": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Structuring Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Project Status": {
+      "main": [
+        [
+          {
+            "node": "Apply Status Update",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Next Agenda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Status Update": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Free Fallback (OpenRouter)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Structuring Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Build AI Context": {
+      "main": [
+        [
+          {
+            "node": "Merge RAG (MCH)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch RAG (MCH)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch RAG (MCH)": {
+      "main": [
+        [
+          {
+            "node": "Merge RAG (MCH)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge RAG (MCH)": {
+      "main": [
+        [
+          {
+            "node": "AI Structuring Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "a0cf307f-7875-4bf5-8c95-47ba12d233e8",
+  "activeVersionId": "a0cf307f-7875-4bf5-8c95-47ba12d233e8",
+  "versionCounter": 64,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-06T16:55:50.867Z",
+      "createdAt": "2026-02-06T16:55:50.867Z",
+      "role": "workflow:owner",
+      "workflowId": "94mqmLgS9GkomPIf",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-10T11:23:32.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-10",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-10T23:35:23.761Z",
+    "createdAt": "2026-02-10T23:35:23.761Z",
+    "versionId": "a0cf307f-7875-4bf5-8c95-47ba12d233e8",
+    "workflowId": "94mqmLgS9GkomPIf",
+    "nodes": [
+      {
+        "parameters": {
+          "content": "## WF-MCH: Meeting Complete Handler\n\n**Trigger:** Read.ai webhook or manual POST\nFires when any meeting transcript is ready.\n\n**Webhook body requires:**\n- transcript, summary, participants\n- meeting_type: discovery|onboarding|kickoff|progress_checkin|go_no_go|delivery_review\n- client_email: for project lookup\n\n**Flow:**\n1. Receive meeting data via webhook\n2. Extract transcript, participants, meeting type\n3. Fetch client_project from Supabase (graceful if not found)\n4. Fetch prior meeting_records for context\n5. AI Structuring Agent extracts type-specific data\n6. Write to meeting_records table\n7. Post summary to Slack\n8. Update project status\n9. Generate next meeting agenda (via WF-AGB)\n\n### Created 2026-02-06\nGeneralized handler for all 6 meeting types",
+          "height": 600,
+          "width": 500
+        },
+        "id": "note-mch",
+        "name": "Workflow Note",
+        "type": "n8n-nodes-base.stickyNote",
+        "typeVersion": 1,
+        "position": [
+          -144,
+          640
+        ]
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "meeting-complete",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "webhook-mch",
+        "name": "Meeting Webhook",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          0,
+          304
+        ],
+        "webhookId": "b6658ef2-13af-4d26-8d70-475f603fc9bd",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "const raw = $input.item.json;\n// Support both direct data and webhook-wrapped data\nconst body = raw.body || raw;\n\nconst meetingId = body.meeting_id || body.id || '';\nconst title = body.title || body.meeting_title || '';\nconst summary = body.summary || body.ai_summary || '';\nconst transcript = body.transcript || body.full_transcript || '';\nconst actionItems = body.action_items || body.actionItems || [];\nconst duration = Number(body.duration || body.meeting_duration || 0);\nconst recordingUrl = body.recording_url || body.playback_url || '';\nconst meetingDate = body.meeting_date || body.date || body.start_time || new Date().toISOString();\nconst calendlyEventUri = body.calendly_event_uri || '';\nconst meetingType = body.meeting_type || 'discovery';\n\n// Parse participants - handle both array and string\nlet participants = [];\nif (Array.isArray(body.participants)) {\n  participants = body.participants;\n} else if (Array.isArray(body.attendees)) {\n  participants = body.attendees;\n} else if (typeof body.participants === 'string') {\n  try { participants = JSON.parse(body.participants); } catch(e) { participants = []; }\n}\n\nconst nextMeetingMap = {\n  'discovery': 'onboarding',\n  'onboarding': 'kickoff',\n  'kickoff': 'progress_checkin',\n  'progress_checkin': 'go_no_go',\n  'go_no_go': 'delivery_review',\n  'delivery_review': null\n};\nconst nextMeetingType = nextMeetingMap[meetingType] || null;\n\n// Find client participant (non-host)\nconst clientParticipant = participants.find(p => p && (p.is_host === false || p.is_organizer === false)) || participants[1] || {};\nconst clientEmail = body.client_email || clientParticipant.email || body.invitee_email || '';\nconst clientName = body.client_name || clientParticipant.name || body.invitee_name || '';\n\nconst fullContext = `Meeting Title: ${title}\\nMeeting Type: ${meetingType}\\n\\nAI Summary:\\n${summary}\\n\\nAction Items:\\n${Array.isArray(actionItems) ? actionItems.map((item, i) => `${i+1}. ${typeof item === 'string' ? item : item.text || item.description || JSON.stringify(item)}`).join('\\n') : actionItems}\\n\\nFull Transcript:\\n${typeof transcript === 'string' ? transcript.substring(0, 15000) : JSON.stringify(transcript).substring(0, 15000)}`;\n\nreturn [{\n  json: {\n    meetingId, title, summary,\n    transcript: typeof transcript === 'string' ? transcript : JSON.stringify(transcript),\n    actionItems, participants, clientEmail, clientName,\n    duration, recordingUrl, meetingDate, meetingType,\n    nextMeetingType, calendlyEventUri, fullContext\n  }\n}];"
+        },
+        "id": "extract-mch",
+        "name": "Extract Meeting Data",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          240,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "tableId": "client_projects",
+          "limit": 1,
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "client_email",
+                "condition": "eq",
+                "keyValue": "={{ $json.clientEmail }}"
+              }
+            ]
+          }
+        },
+        "id": "fetch-project-mch",
+        "name": "Fetch Client Project",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          480,
+          208
+        ],
+        "alwaysOutputData": true,
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "operation": "getAll",
+          "tableId": "meeting_records",
+          "returnAll": true,
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "client_project_id",
+                "condition": "eq",
+                "keyValue": "={{ $('Fetch Client Project').first().json.id || '00000000-0000-0000-0000-000000000000' }}"
+              }
+            ]
+          }
+        },
+        "id": "fetch-prior-mch",
+        "name": "Fetch Prior Meetings",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          480,
+          432
+        ],
+        "alwaysOutputData": true,
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "const meetingData = $('Extract Meeting Data').item.json;\n\n// Safely get client project (may be empty if no match found)\nlet clientProject = {};\ntry {\n  const cpItems = $('Fetch Client Project').all();\n  if (cpItems.length > 0 && cpItems[0].json && cpItems[0].json.id) {\n    clientProject = cpItems[0].json;\n  }\n} catch (e) {\n  clientProject = {};\n}\n\n// Safely get prior meetings (may be empty)\nlet priorMeetings = [];\ntry {\n  const pmItems = $('Fetch Prior Meetings').all();\n  priorMeetings = pmItems.map(item => item.json).filter(m => m && m.id);\n} catch (e) {\n  priorMeetings = [];\n}\n\nconst extractionSchemas = {\n  discovery: '{\"pain_points_discussed\": [\"specific business problems\"], \"solutions_proposed\": [\"solutions discussed\"], \"timeline_preference\": \"timeline\", \"budget_confirmed\": \"budget range\", \"decision_makers\": [\"stakeholders\"], \"competitor_mentions\": [\"competitors\"], \"fit_assessment\": \"hot|warm|cold\"}',\n  onboarding: '{\"tools_agreed\": [{\"name\": \"tool\", \"purpose\": \"why\", \"access_type\": \"shared|dedicated\", \"owner\": \"who\"}], \"access_requirements\": [{\"platform\": \"name\", \"credential_type\": \"type\", \"status\": \"granted|pending\"}], \"communication_plan\": {\"channel\": \"where\", \"cadence\": \"frequency\", \"escalation_path\": \"how\"}, \"timeline_confirmed\": {\"start_date\": \"date\", \"end_date\": \"date\", \"milestones\": []}, \"win_conditions\": [\"success criteria\"], \"client_questions\": [\"questions\"], \"artifact_handoff\": {\"format\": \"type\", \"delivery_method\": \"how\", \"review_process\": \"steps\"}}',\n  kickoff: '{\"access_granted\": [{\"platform\": \"name\", \"status\": \"granted|partial\", \"notes\": \"details\"}], \"access_pending\": [{\"platform\": \"name\", \"blocker\": \"why\", \"owner\": \"who\", \"due_date\": \"when\"}], \"milestone_dates_confirmed\": [{\"phase\": \"name\", \"description\": \"what\", \"target_date\": \"when\"}], \"roles_assigned\": [{\"person\": \"name\", \"role\": \"title\", \"responsibilities\": \"what\"}], \"risks_identified\": [{\"risk\": \"what\", \"likelihood\": \"level\", \"impact\": \"level\", \"mitigation\": \"plan\"}], \"communication_confirmed\": {\"slack_channel\": \"name\", \"meeting_cadence\": \"freq\", \"update_format\": \"how\"}}',\n  progress_checkin: '{\"milestone_status\": [{\"milestone\": \"name\", \"status\": \"complete|in_progress|blocked\", \"notes\": \"details\"}], \"blockers_reviewed\": [{\"blocker_id\": \"ref\", \"status\": \"resolved|open\", \"resolution\": \"how\"}], \"scope_changes\": [\"changes\"], \"client_satisfaction\": \"signal\", \"next_actions\": [{\"action\": \"what\", \"owner\": \"who\", \"due_date\": \"when\"}]}',\n  go_no_go: '{\"test_results\": [{\"test_case\": \"name\", \"result\": \"pass|fail\", \"notes\": \"details\"}], \"approval_status\": \"approved|conditional|rejected\", \"punch_list\": [{\"item\": \"what\", \"severity\": \"level\", \"owner\": \"who\", \"due_date\": \"when\"}], \"launch_conditions\": [\"conditions\"], \"conditional_items\": [\"items\"]}',\n  delivery_review: '{\"deliverables_reviewed\": [{\"deliverable\": \"name\", \"status\": \"accepted|needs_revision\", \"feedback\": \"notes\"}], \"client_feedback\": \"summary\", \"satisfaction_score\": 8, \"training_gaps\": [\"gaps\"], \"upsell_opportunities\": [\"opportunities\"], \"testimonial_consent\": true}'\n};\n\nconst schema = extractionSchemas[meetingData.meetingType] || extractionSchemas.discovery;\n\nlet priorContext = '';\nif (priorMeetings.length > 0) {\n  priorContext = '\\n\\n--- PRIOR MEETING HISTORY ---\\n';\n  for (const pm of priorMeetings) {\n    priorContext += `\\n[${pm.meeting_type}] ${pm.meeting_date || 'Unknown date'}:\\n`;\n    if (pm.key_decisions && pm.key_decisions.length) priorContext += `Key Decisions: ${JSON.stringify(pm.key_decisions)}\\n`;\n    if (pm.action_items && pm.action_items.length) priorContext += `Action Items: ${JSON.stringify(pm.action_items)}\\n`;\n    if (pm.open_questions && pm.open_questions.length) priorContext += `Open Questions: ${JSON.stringify(pm.open_questions)}\\n`;\n    if (pm.meeting_data) priorContext += `Meeting Data: ${JSON.stringify(pm.meeting_data)}\\n`;\n  }\n}\n\nreturn [{\n  json: {\n    ...meetingData,\n    clientProjectId: clientProject.id || null,\n    clientProject,\n    priorMeetings,\n    extractionSchema: schema,\n    priorContext\n  }\n}];"
+        },
+        "id": "build-ctx-mch",
+        "name": "Build AI Context",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          720,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "={{ 'Analyze this ' + $json.meetingType.replace('_', ' ') + ' meeting transcript and extract structured data.\\n\\n' + $json.fullContext + $json.priorContext + '\\n\\nExtract the following as a valid JSON object (no markdown, no code fences, just raw JSON):\\n{\\n  \"structured_notes\": {\"summary\": \"2-3 sentence summary\", \"highlights\": [\"key points\"]},\\n  \"key_decisions\": [\"decisions made\"],\\n  \"action_items\": [{\"action\": \"what\", \"owner\": \"who\", \"due_date\": \"when or null\", \"status\": \"open\"}],\\n  \"open_questions\": [\"unresolved questions\"],\\n  \"risks_identified\": [{\"risk\": \"what\", \"likelihood\": \"high|medium|low\", \"impact\": \"high|medium|low\", \"mitigation\": \"plan or null\"}],\\n  \"meeting_data\": ' + $json.extractionSchema + '\\n}\\n\\nBe precise. Use actual details from the transcript.' }}",
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "Company context from knowledge base (use to align notes and follow-up with our positioning):\n\n{{ $json.response || '' }}\n\n---\n\nYou are a meeting intelligence analyst. Extract structured, actionable data from meeting transcripts across the client lifecycle. Output valid JSON only."
+          }
+        },
+        "id": "ai-agent-mch",
+        "name": "AI Structuring Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          960,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-4o",
+            "mode": "list"
+          },
+          "options": {
+            "temperature": 0.1
+          }
+        },
+        "id": "brain-mch",
+        "name": "Structuring Brain",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          880,
+          528
+        ],
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const agentOutput = $('AI Structuring Agent').item.json.output || $('AI Structuring Agent').item.json.text || '';\nconst ctx = $('Build AI Context').item.json;\n\nlet structured;\ntry {\n  const jsonMatch = agentOutput.match(/\\{[\\s\\S]*\\}/);\n  structured = JSON.parse(jsonMatch ? jsonMatch[0] : agentOutput);\n} catch (e) {\n  structured = {\n    structured_notes: {summary: 'AI parsing failed', highlights: []},\n    key_decisions: [], action_items: [],\n    open_questions: ['Manual review needed'],\n    risks_identified: [], meeting_data: {}\n  };\n}\n\nconst typeLabels = {\n  discovery: 'Discovery Call', onboarding: 'Onboarding Call',\n  kickoff: 'Kickoff Meeting', progress_checkin: 'Progress Check-in',\n  go_no_go: 'Go/No-Go Review', delivery_review: 'Delivery & Review'\n};\nconst typeLabel = typeLabels[ctx.meetingType] || ctx.meetingType;\nconst emoji = ctx.meetingType === 'delivery_review' ? '\\ud83c\\udf89' : ctx.meetingType === 'go_no_go' ? '\\ud83d\\udea6' : '\\ud83d\\udcdd';\n\nconst channelMap = {\n  discovery: 'C08F7L8F2PL',\n  onboarding: 'C0ABTFRRVN3',\n  kickoff: 'C0ABTFRRVN3',\n  progress_checkin: 'C0ABTFRRVN3',\n  go_no_go: 'C0ABTFRRVN3',\n  delivery_review: 'C0AD388QEC8'\n};\nconst slackChannel = channelMap[ctx.meetingType] || 'C0ABTFRRVN3';\n\nconst slackSummary = `${emoji} *${typeLabel} Complete: ${ctx.clientName || ctx.clientProject?.client_name || 'Unknown'}*\\n\\n*Duration:* ${ctx.duration} minutes\\n*Recording:* ${ctx.recordingUrl ? '<' + ctx.recordingUrl + '|Watch>' : 'N/A'}\\n\\n*Summary:* ${structured.structured_notes?.summary || 'N/A'}\\n\\n*Key Decisions:*\\n${(structured.key_decisions || []).map(d => '\\u2022 ' + d).join('\\n') || 'None'}\\n\\n*Action Items:*\\n${(structured.action_items || []).map((a, i) => (i+1) + '. ' + (a.action || a) + (a.owner ? ' (' + a.owner + ')' : '')).join('\\n') || 'None'}\\n\\n*Open Questions:*\\n${(structured.open_questions || []).map(q => '\\u2022 ' + q).join('\\n') || 'None'}\\n\\n_Next: ${ctx.nextMeetingType || 'Project complete'}_`;\n\nreturn {\n  ...ctx, structured, slackSummary, slackChannel,\n  meetingRecord: {\n    client_project_id: ctx.clientProjectId,\n    meeting_type: ctx.meetingType,\n    calendly_event_uri: ctx.calendlyEventUri || null,\n    transcript: ctx.transcript,\n    raw_notes: ctx.summary,\n    recording_url: ctx.recordingUrl || null,\n    structured_notes: JSON.stringify(structured.structured_notes || {}),\n    key_decisions: JSON.stringify(structured.key_decisions || []),\n    action_items: JSON.stringify(structured.action_items || []),\n    open_questions: JSON.stringify(structured.open_questions || []),\n    risks_identified: JSON.stringify(structured.risks_identified || []),\n    meeting_data: JSON.stringify(structured.meeting_data || {}),\n    next_meeting_type: ctx.nextMeetingType,\n    meeting_date: ctx.meetingDate,\n    duration_minutes: ctx.duration,\n    attendees: JSON.stringify(ctx.participants || [])\n  }\n};"
+        },
+        "id": "parse-store-mch",
+        "name": "Parse and Store",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1200,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "tableId": "meeting_records",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "meeting_type",
+                "fieldValue": "={{ $json.meetingRecord.meeting_type }}"
+              },
+              {
+                "fieldId": "transcript",
+                "fieldValue": "={{ $json.meetingRecord.transcript }}"
+              },
+              {
+                "fieldId": "raw_notes",
+                "fieldValue": "={{ $json.meetingRecord.raw_notes }}"
+              },
+              {
+                "fieldId": "recording_url",
+                "fieldValue": "={{ $json.meetingRecord.recording_url }}"
+              },
+              {
+                "fieldId": "structured_notes",
+                "fieldValue": "={{ $json.meetingRecord.structured_notes }}"
+              },
+              {
+                "fieldId": "key_decisions",
+                "fieldValue": "={{ $json.meetingRecord.key_decisions }}"
+              },
+              {
+                "fieldId": "action_items",
+                "fieldValue": "={{ $json.meetingRecord.action_items }}"
+              },
+              {
+                "fieldId": "open_questions",
+                "fieldValue": "={{ $json.meetingRecord.open_questions }}"
+              },
+              {
+                "fieldId": "risks_identified",
+                "fieldValue": "={{ $json.meetingRecord.risks_identified }}"
+              },
+              {
+                "fieldId": "meeting_data",
+                "fieldValue": "={{ $json.meetingRecord.meeting_data }}"
+              },
+              {
+                "fieldId": "next_meeting_type",
+                "fieldValue": "={{ $json.meetingRecord.next_meeting_type }}"
+              },
+              {
+                "fieldId": "meeting_date",
+                "fieldValue": "={{ $json.meetingRecord.meeting_date }}"
+              },
+              {
+                "fieldId": "duration_minutes",
+                "fieldValue": "={{ $json.meetingRecord.duration_minutes }}"
+              },
+              {
+                "fieldId": "attendees",
+                "fieldValue": "={{ $json.meetingRecord.attendees }}"
+              }
+            ]
+          }
+        },
+        "id": "write-record-mch",
+        "name": "Write Meeting Record",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1440,
+          208
+        ],
+        "alwaysOutputData": true,
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": "={{ $('Parse and Store').item.json.slackChannel }}",
+          "text": "={{ $('Parse and Store').item.json.slackSummary }}",
+          "otherOptions": {}
+        },
+        "id": "slack-mch",
+        "name": "Post Summary to Slack",
+        "type": "n8n-nodes-base.slack",
+        "typeVersion": 2.4,
+        "position": [
+          1440,
+          432
+        ],
+        "webhookId": "16f271cc-e705-4919-a7d2-f2912392a8f1",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ {success: true, meeting_type: $('Extract Meeting Data').item.json.meetingType, meeting_record_id: $('Write Meeting Record').item.json.id || null, next_meeting_type: $('Extract Meeting Data').item.json.nextMeetingType} }}",
+          "options": {}
+        },
+        "id": "respond-mch",
+        "name": "Respond to Webhook",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1680,
+          304
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "const ctx = $('Parse and Store').item.json;\nconst meetingRecordId = $('Write Meeting Record').item.json.id || null;\nconst meetingType = ctx.meetingType;\nconst projectId = ctx.clientProjectId;\n\nconst statusUpdates = {\n  discovery: { discovery_call_completed_at: new Date().toISOString() },\n  onboarding: { onboarding_completed_at: new Date().toISOString(), project_status: 'onboarding_completed' },\n  kickoff: { project_status: 'active' },\n  progress_checkin: {},\n  go_no_go: { go_no_go_completed_at: new Date().toISOString() },\n  delivery_review: { delivery_review_completed_at: new Date().toISOString(), project_status: 'completed' }\n};\n\nconst updates = statusUpdates[meetingType] || {};\n\nreturn [{\n  json: {\n    projectId,\n    client_project_id: projectId,\n    meetingRecordId,\n    meetingType,\n    next_meeting_type: ctx.nextMeetingType,\n    client_email: ctx.clientEmail,\n    statusUpdates: updates,\n    hasUpdates: Object.keys(updates).length > 0\n  }\n}];"
+        },
+        "id": "update-status-mch",
+        "name": "Update Project Status",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1680,
+          208
+        ]
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "tableId": "client_projects",
+          "filterType": "manual",
+          "matchType": "allFilters",
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "id",
+                "condition": "eq",
+                "keyValue": "={{ $json.projectId }}"
+              }
+            ]
+          },
+          "dataToSend": "defineBelow",
+          "fieldsUi": {
+            "fieldValues": [
+              {
+                "fieldId": "updated_at",
+                "fieldValue": "={{ new Date().toISOString() }}"
+              }
+            ]
+          }
+        },
+        "id": "supabase-status-mch",
+        "name": "Apply Status Update",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1920,
+          128
+        ],
+        "alwaysOutputData": true,
+        "credentials": {
+          "supabaseApi": {
+            "id": "Njc6sBrCIye9J3ZK",
+            "name": "Supabase account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "workflowId": "exYTC4bhQXq9vqZ0",
+          "options": {}
+        },
+        "id": "call-agenda-mch",
+        "name": "Generate Next Agenda",
+        "type": "n8n-nodes-base.executeWorkflow",
+        "typeVersion": 1,
+        "position": [
+          1920,
+          320
+        ]
+      },
+      {
+        "parameters": {
+          "model": "openai/gpt-oss-120b:free",
+          "options": {}
+        },
+        "id": "dabc8d4d-ce7e-4732-b515-188521158d7e",
+        "name": "Free Fallback (OpenRouter)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          1024,
+          608
+        ],
+        "credentials": {
+          "openRouterApi": {
+            "id": "ATznzoKw5NdNjbAl",
+            "name": "OpenRouter account"
+          }
+        }
+      },
+      {
+        "id": "cd64c1b5-c087-430e-be96-be79e549c3fb",
+        "name": "Fetch RAG (MCH)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.3,
+        "position": [
+          820,
+          420
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "https://n8n.amadutown.com/webhook/amadutown-rag-query",
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "{\"query\": \"What are AmaduTown's key services and meeting best practices for AI automation projects? Summarize in 2-3 paragraphs for use in meeting notes structuring and follow-up.\"}"
+        }
+      },
+      {
+        "id": "b96e2b3d-1631-46a9-a830-91e087deb233",
+        "name": "Merge RAG (MCH)",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3.2,
+        "position": [
+          880,
+          304
+        ],
+        "parameters": {
+          "mode": "combine",
+          "outputDataFrom": "both"
+        }
+      }
+    ],
+    "connections": {
+      "Meeting Webhook": {
+        "main": [
+          [
+            {
+              "node": "Extract Meeting Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Meeting Data": {
+        "main": [
+          [
+            {
+              "node": "Fetch Client Project",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Client Project": {
+        "main": [
+          [
+            {
+              "node": "Fetch Prior Meetings",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Prior Meetings": {
+        "main": [
+          [
+            {
+              "node": "Build AI Context",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Structuring Agent": {
+        "main": [
+          [
+            {
+              "node": "Parse and Store",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse and Store": {
+        "main": [
+          [
+            {
+              "node": "Write Meeting Record",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Post Summary to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Write Meeting Record": {
+        "main": [
+          [
+            {
+              "node": "Update Project Status",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Structuring Brain": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Structuring Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Update Project Status": {
+        "main": [
+          [
+            {
+              "node": "Apply Status Update",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Generate Next Agenda",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Apply Status Update": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Free Fallback (OpenRouter)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Structuring Agent",
+              "type": "ai_languageModel",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Build AI Context": {
+        "main": [
+          [
+            {
+              "node": "Merge RAG (MCH)",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Fetch RAG (MCH)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch RAG (MCH)": {
+        "main": [
+          [
+            {
+              "node": "Merge RAG (MCH)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge RAG (MCH)": {
+        "main": [
+          [
+            {
+              "node": "AI Structuring Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-10T23:35:28.278Z",
+        "id": 357,
+        "workflowId": "94mqmLgS9GkomPIf",
+        "versionId": "a0cf307f-7875-4bf5-8c95-47ba12d233e8",
+        "event": "activated",
+        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    ]
+  }
+}

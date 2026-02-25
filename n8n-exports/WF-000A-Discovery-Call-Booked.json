@@ -1,0 +1,364 @@
+{
+  "id": "mP8DPpMU8JLRzHMi",
+  "name": "WF-000A: Discovery Call Booked",
+  "active": true,
+  "createdAt": "2026-02-06 11:34:59.503",
+  "updatedAt": "2026-02-07 03:10:12.472",
+  "versionId": "874931b2-b113-40ef-85a8-7617ac61ff56",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "events": [
+          "invitee.created"
+        ]
+      },
+      "name": "Calendly Discovery Booked",
+      "id": "calendly-trigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.calendlyTrigger",
+      "webhookId": "4097a02f-206c-4854-ba4c-b8e507f969ef",
+      "credentials": {
+        "calendlyOAuth2Api": {
+          "id": "BXLOmoWaYfeP0neX",
+          "name": "Calendly account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Extract Booking Data",
+      "id": "extract-booking",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        304
+      ],
+      "type": "n8n-nodes-base.set"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "contact_submissions",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $json.clientEmail }}"
+            }
+          ]
+        }
+      },
+      "name": "Lookup Existing Lead",
+      "id": "lookup-lead",
+      "typeVersion": 1,
+      "position": [
+        448,
+        208
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "diagnostic_audits",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "session_id",
+              "condition": "ilike",
+              "keyValue": "={{ '%' + $('Extract Booking Data').item.json.clientEmail + '%' }}"
+            }
+          ]
+        }
+      },
+      "name": "Lookup Diagnostic Audit",
+      "id": "lookup-audit",
+      "typeVersion": 1,
+      "position": [
+        448,
+        400
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const booking = $('Extract Booking Data').item.json;\nconst leadData = $('Lookup Existing Lead').item.json;\nconst auditData = $('Lookup Diagnostic Audit').item.json;\n\nconst hasLead = leadData && leadData.name;\nconst hasAudit = auditData && auditData.id;\n\nconst eventDate = new Date(booking.eventTime);\nconst formattedTime = eventDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) + ' at ' + eventDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });\n\nlet brief = `\ud83d\udcc5 *Discovery Call Booked!*\\n\\n`;\nbrief += `*Client:* ${booking.clientName}\\n`;\nbrief += `*Email:* ${booking.clientEmail}\\n`;\nbrief += `*When:* ${formattedTime} (${booking.timezone})\\n`;\n\nif (hasLead) {\n  brief += `\\n---\\n*Known Lead Data:*\\n`;\n  brief += `*Company:* ${leadData.company || 'Unknown'}\\n`;\n  brief += `*Lead Score:* ${leadData.lead_score || 'N/A'}/10 (${leadData.qualification_status || 'unscored'})\\n`;\n  if (leadData.interest_areas) brief += `*Interests:* ${Array.isArray(leadData.interest_areas) ? leadData.interest_areas.join(', ') : leadData.interest_areas}\\n`;\n  if (leadData.interest_summary) brief += `*Summary:* ${leadData.interest_summary.substring(0, 300)}\\n`;\n  if (leadData.linkedin_url) brief += `*LinkedIn:* ${leadData.linkedin_url}\\n`;\n}\n\nif (hasAudit) {\n  brief += `\\n---\\n*Diagnostic Audit Available:*\\n`;\n  if (auditData.business_challenges) {\n    const challenges = typeof auditData.business_challenges === 'string' ? JSON.parse(auditData.business_challenges) : auditData.business_challenges;\n    if (challenges.primary_challenges) brief += `*Challenges:* ${challenges.primary_challenges.join(', ')}\\n`;\n    if (challenges.current_impact) brief += `*Impact:* ${challenges.current_impact}\\n`;\n  }\n  if (auditData.budget_timeline) {\n    const budget = typeof auditData.budget_timeline === 'string' ? JSON.parse(auditData.budget_timeline) : auditData.budget_timeline;\n    if (budget.budget_range) brief += `*Budget:* ${budget.budget_range}\\n`;\n    if (budget.timeline) brief += `*Timeline:* ${budget.timeline}\\n`;\n  }\n  brief += `*Urgency:* ${auditData.urgency_score || 'N/A'}/10\\n`;\n  brief += `*Opportunity:* ${auditData.opportunity_score || 'N/A'}/10\\n`;\n}\n\nif (!hasLead && !hasAudit) {\n  brief += `\\n---\\n\u26a0\ufe0f *No prior data found.* This is a cold inbound \u2014 research recommended before the call.\\n`;\n}\n\nbrief += `\\n---\\n*Kickoff Call SOP Reminders:*\\n\u2022 Discuss timelines (aim for 3-week delivery)\\n\u2022 Define availability window (daily M-F Slack updates)\\n\u2022 Walk through platform signups on the call\\n\u2022 Get admin access to their tools live\\n\u2022 Set expectations for communication`;\n\nreturn [\n  {\n    json: {\n      ...booking,\n      leadData: hasLead ? leadData : null,\n      auditData: hasAudit ? auditData : null,\n      diagnosticAuditId: hasAudit ? auditData.id : null,\n      contactSubmissionId: hasLead ? leadData.id : null,\n      hasExistingData: hasLead || hasAudit,\n      brief\n    }\n  }\n];"
+      },
+      "name": "Build Context",
+      "id": "build-context",
+      "typeVersion": 2,
+      "position": [
+        672,
+        304
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "tableId": "sales_sessions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $json.clientName }}"
+            },
+            {
+              "fieldValue": "={{ $json.clientEmail }}"
+            },
+            {
+              "fieldValue": "={{ $json.leadData ? $json.leadData.company : '' }}"
+            },
+            {
+              "fieldValue": "interested"
+            },
+            {
+              "fieldValue": "={{ $json.diagnosticAuditId || null }}"
+            },
+            {
+              "fieldValue": "in_progress"
+            },
+            {
+              "fieldValue": "={{ 'Discovery call booked via Calendly for ' + $json.eventTime + '. ' + ($json.hasExistingData ? 'Has existing lead data.' : 'No prior data - cold inbound.') }}"
+            }
+          ]
+        }
+      },
+      "name": "Create Sales Session",
+      "id": "create-session",
+      "typeVersion": 1,
+      "position": [
+        880,
+        304
+      ],
+      "type": "n8n-nodes-base.supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0ADZ2L3G81",
+          "mode": "list",
+          "cachedResultName": "sales"
+        },
+        "text": "={{ $('Build Context').item.json.brief }}",
+        "otherOptions": {}
+      },
+      "name": "Post Brief to Slack",
+      "id": "post-brief",
+      "typeVersion": 2.4,
+      "position": [
+        1104,
+        208
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "ecf676b5-e5ea-449f-a1b0-f15397991a9f",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Build Context').item.json.clientEmail }}",
+        "subject": "={{ 'Looking forward to our call! Quick prep \ud83d\udccb' }}",
+        "message": "={{ '<p>Hi ' + $('Build Context').item.json.clientName + ',</p><p>Thanks for booking a discovery call! I\\'m looking forward to chatting.</p><p>To make the most of our time, it\\'d be great if you could think about:</p><ol><li><strong>Your biggest pain point</strong> \u2014 what\\'s the #1 thing slowing your team down?</li><li><strong>Current tools</strong> \u2014 what platforms/tools are you using today?</li><li><strong>Ideal outcome</strong> \u2014 if we could solve one thing, what would make the biggest impact?</li></ol><p>No need to write anything up \u2014 just have it top of mind. We\\'ll cover everything on the call.</p><p>Talk soon!</p>' }}",
+        "options": {}
+      },
+      "name": "Send Pre-Call Email",
+      "id": "send-email",
+      "typeVersion": 2.1,
+      "position": [
+        1104,
+        400
+      ],
+      "type": "n8n-nodes-base.gmail",
+      "webhookId": "8a884a7f-7a71-429c-9157-5814d2ed4210",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## WF-000A: Discovery Call Booked\n\n**Trigger:** Calendly booking (invitee.created) for atas-discovery-call\n\nAlso callable via WF-CAL Calendly Webhook Router.\n\n**What happens:**\n1. Extract booking data (name, email, time)\n2. Look up existing lead in contact_submissions\n3. Look up diagnostic audit if available\n4. Create sales_session in Supabase\n5. Update contact_submissions with discovery call tracking\n6. Post pre-call brief to #sales Slack channel\n7. Send prep email to client\n\n**Config needed:**\n- Calendly OAuth2 credentials\n- Supabase credentials\n- Set #sales channel ID for brief posting\n- Gmail credentials"
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "contact_submissions",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "id",
+              "fieldValue": "={{ $('Build Context').item.json.contactSubmissionId }}"
+            },
+            {
+              "fieldId": "calendly_event_uri",
+              "fieldValue": "={{ $('Extract Booking Data').item.json.calendlyUri }}"
+            },
+            {
+              "fieldId": "discovery_call_scheduled",
+              "fieldValue": "={{ $('Extract Booking Data').item.json.eventTime }}"
+            }
+          ]
+        }
+      },
+      "id": "update-contact-submission",
+      "name": "Update Contact Discovery",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        512
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Calendly Discovery Booked": {
+      "main": [
+        [
+          {
+            "node": "Extract Booking Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Booking Data": {
+      "main": [
+        [
+          {
+            "node": "Lookup Existing Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Lookup Diagnostic Audit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Existing Lead": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Diagnostic Audit": {
+      "main": [
+        [
+          {
+            "node": "Build Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Context": {
+      "main": [
+        [
+          {
+            "node": "Create Sales Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Sales Session": {
+      "main": [
+        [
+          {
+            "node": "Post Brief to Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Pre-Call Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Contact Discovery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Calendly Discovery Booked": {
+      "webhookURI": "https://api.calendly.com/webhook_subscriptions/c7fc8abb-d22c-44c4-9a24-4205f32058a2"
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

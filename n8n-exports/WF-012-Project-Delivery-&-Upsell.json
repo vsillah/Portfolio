@@ -1,0 +1,466 @@
+{
+  "id": "otOXK9TZzv01NA01",
+  "name": "WF-012: Project Delivery & Upsell",
+  "active": 1,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "project-complete",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "name": "Project Complete Webhook",
+      "id": "webhook-trigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "webhookId": "c342f6b9-597e-44cb-83fe-4f5a1c9efea8",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "client_name",
+              "type": "string",
+              "value": "={{ $json.client_name }}"
+            },
+            {
+              "id": "2",
+              "name": "client_email",
+              "type": "string",
+              "value": "={{ $json.client_email }}"
+            },
+            {
+              "id": "3",
+              "name": "project_name",
+              "type": "string",
+              "value": "={{ $json.product_purchased }}"
+            },
+            {
+              "id": "4",
+              "name": "video_url",
+              "type": "string",
+              "value": "={{ $('Project Complete Webhook').item.json.body.video_url }}"
+            },
+            {
+              "id": "5",
+              "name": "sop_url",
+              "type": "string",
+              "value": "={{ $('Project Complete Webhook').item.json.body.sop_url }}"
+            },
+            {
+              "id": "6",
+              "name": "company_name",
+              "type": "string",
+              "value": "={{ $json.client_company || $json.client_name }}"
+            },
+            {
+              "id": "7",
+              "name": "bottleneck",
+              "type": "string",
+              "value": "={{ $('Project Complete Webhook').item.json.body.identified_bottleneck || 'current process' }}"
+            },
+            {
+              "id": "8",
+              "name": "include_upsell",
+              "type": "boolean",
+              "value": "={{ $json.retainer_offer_enabled }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Build Delivery Package",
+      "id": "build-delivery",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        304
+      ],
+      "type": "n8n-nodes-base.set"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "upsell-check",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.include_upsell }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Check Upsell Eligibility",
+      "id": "check-upsell",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        304
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "delivery_message",
+              "type": "string",
+              "value": "=Hey {{ $json.client_name }},\n\nHad a blast working on this\u2014just wrapped up your {{ $json.project_name }}.\n\nI always include documentation alongside every delivery, so you and your team know how things work.\n\n1. Here's a guide I recorded showing you how to use the system: {{ $json.video_url }}\n2. If you'd prefer text, I also wrote an in-depth piece of documentation here: {{ $json.sop_url }}\n\nBefore we finalize, let's schedule a quick Delivery & Review session to walk through everything together:\nhttps://calendly.com/amadutown/atas-delivery-and-review?name={{ $json.client_name }}&email={{ $json.client_email }}\n\nWould you mind taking a look at this and letting me know your thoughts? Assuming everything is good to go, I'll send you over an invoice for the remaining balance and we can wrap things up.\n\nPS I have a bunch of interesting ideas for you I'd like to share after we're done. I think I could realistically double {{ $json.company_name }}'s current {{ $json.bottleneck }} with some tweaks. Let me know if you'd like to hear them.\n\nThanks!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Delivery With Upsell",
+      "id": "delivery-upsell",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        208
+      ],
+      "type": "n8n-nodes-base.set"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1",
+              "name": "delivery_message",
+              "type": "string",
+              "value": "=Hey {{ $json.client_name }},\n\nHad a blast working on this\u2014just wrapped up your {{ $json.project_name }}.\n\nI always include documentation alongside every delivery, so you and your team know how things work.\n\n1. Here's a guide I recorded showing you how to use the system: {{ $json.video_url }}\n2. If you'd prefer text, I also wrote an in-depth piece of documentation here: {{ $json.sop_url }}\n\nBefore we finalize, let's schedule a quick Delivery & Review session to walk through everything together:\nhttps://calendly.com/amadutown/atas-delivery-and-review?name={{ $json.client_name }}&email={{ $json.client_email }}\n\nWould you mind taking a look at this and letting me know your thoughts? Assuming everything is good to go, I'll send you over an invoice for the remaining balance and we can wrap things up.\n\nThanks!"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Delivery Without Upsell",
+      "id": "delivery-no-upsell",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        400
+      ],
+      "type": "n8n-nodes-base.set"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineAll",
+        "options": {}
+      },
+      "name": "Merge Delivery",
+      "id": "merge-delivery",
+      "typeVersion": 3.1,
+      "position": [
+        1104,
+        304
+      ],
+      "type": "n8n-nodes-base.merge"
+    },
+    {
+      "parameters": {
+        "subject": "=Your {{ $json.project_name }} is Complete!",
+        "emailType": "text",
+        "options": {},
+        "operation": "send",
+        "resource": "message",
+        "message": "={{ $json.delivery_message }}",
+        "sendTo": "={{ $json.client_email }}"
+      },
+      "name": "Send Delivery Email",
+      "id": "send-delivery",
+      "typeVersion": 2.1,
+      "position": [
+        1328,
+        304
+      ],
+      "type": "n8n-nodes-base.gmail",
+      "webhookId": "3543dd61-9d5b-4f7c-9fa8-2ecbdbc2d384",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UCK3YD2eNuUHuUxB",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "=:checkered_flag: *Project Delivered!*\n\n\u2022 *Client:* {{ $json.client_name }}\n\u2022 *Project:* {{ $json.project_name }}\n\u2022 *Upsell Sent:* {{ $json.include_upsell ? 'Yes' : 'No' }}\n\u2022 *Status:* Awaiting client approval",
+        "select": "channel",
+        "operation": "post",
+        "resource": "message",
+        "otherOptions": {},
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0AD388QEC8"
+        }
+      },
+      "name": "Notify Team",
+      "id": "notify-team",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        304
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "20d00c9d-eeb9-4da4-b759-3fe3fe1a7515",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { success: true, client_id: $json.client_id, status: 'delivered', upsell_sent: $json.include_upsell } }}",
+        "options": {}
+      },
+      "name": "Respond to Webhook",
+      "id": "respond-webhook",
+      "typeVersion": 1.1,
+      "position": [
+        1984,
+        304
+      ],
+      "type": "n8n-nodes-base.respondToWebhook"
+    },
+    {
+      "parameters": {
+        "content": "## WF-012: Project Delivery & Upsell\n\n**Trigger:** Webhook (project delivery event)\nFires when project is ready for delivery.\n\n**Flow:**\n1. Receive project complete data\n2. Fetch client data from Supabase\n3. Build delivery package\n4. Check upsell eligibility\n5. Send delivery email (with/without upsell + delivery review booking link)\n6. Update client status in Supabase\n7. Notify team in Slack\n\n**Meeting Intelligence Integration:**\nDelivery & Review meetings are processed by WF-MCH when\nRead.ai sends the transcript. WF-MCH extracts:\n- Deliverables reviewed (accepted/needs revision/rejected)\n- Client feedback summary\n- Satisfaction score (1-10)\n- Training gaps identified\n- Upsell opportunities\n- Testimonial consent\nAnd updates project status to completed.\n\nThis is the final meeting in the lifecycle -- no next\nagenda is generated. Instead, feedback data feeds into\nclient relationship management and testimonial capture.\n\n### Updated 2026-02-06\n- Delivery review completion handled by WF-MCH\n- Includes delivery & review booking link\n- Captures satisfaction and testimonial consent"
+      },
+      "name": "Workflow Note",
+      "id": "note-workflow",
+      "typeVersion": 1,
+      "position": [
+        -96,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "client_email",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.clientEmail }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-client-supabase",
+      "name": "Fetch Client Data",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "client_projects",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldValue": "={{ $('Fetch Client Data').item.json.id }}"
+            },
+            {
+              "fieldValue": "complete"
+            }
+          ]
+        }
+      },
+      "id": "update-status-supabase",
+      "name": "Update Client Status",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1552,
+        304
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Build Delivery Package": {
+      "main": [
+        [
+          {
+            "node": "Check Upsell Eligibility",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Upsell Eligibility": {
+      "main": [
+        [
+          {
+            "node": "Delivery With Upsell",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delivery Without Upsell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delivery With Upsell": {
+      "main": [
+        [
+          {
+            "node": "Merge Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delivery Without Upsell": {
+      "main": [
+        [
+          {
+            "node": "Merge Delivery",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Delivery": {
+      "main": [
+        [
+          {
+            "node": "Send Delivery Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Team": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Complete Webhook": {
+      "main": [
+        [
+          {
+            "node": "Fetch Client Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Client Data": {
+      "main": [
+        [
+          {
+            "node": "Build Delivery Package",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Delivery Email": {
+      "main": [
+        [
+          {
+            "node": "Update Client Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Client Status": {
+      "main": [
+        [
+          {
+            "node": "Notify Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "versionId": "1536e791-a9de-4a23-94cf-2cfabf1dd871",
+  "triggerCount": 1,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "parentFolderId": null,
+  "createdAt": "2026-02-01 12:14:32.880",
+  "updatedAt": "2026-02-08 21:49:11.744",
+  "isArchived": 0,
+  "versionCounter": 31,
+  "description": null,
+  "activeVersionId": "1536e791-a9de-4a23-94cf-2cfabf1dd871"
+}

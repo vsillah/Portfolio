@@ -1,0 +1,5046 @@
+{
+  "updatedAt": "2026-02-10T20:10:31.326Z",
+  "createdAt": "2025-12-25T02:59:25.428Z",
+  "id": "nWF9u3cNrB7BRtb5",
+  "name": "RAG Chatbot for AmaduTown using Google Gemini",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1WBHB-_3Y6EDITFL5-vGR0zPmYhhShtAv",
+          "mode": "list",
+          "cachedResultName": "RAG Documents",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1WBHB-_3Y6EDITFL5-vGR0zPmYhhShtAv"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        -16
+      ],
+      "id": "9b75be5b-f0ba-4e53-a787-4069baa4b6e9",
+      "name": "Google Drive Trigger",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CNxxaAEuDBuR38Uo",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1WBHB-_3Y6EDITFL5-vGR0zPmYhhShtAv",
+          "mode": "list",
+          "cachedResultName": "RAG Documents",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1WBHB-_3Y6EDITFL5-vGR0zPmYhhShtAv"
+        },
+        "event": "fileUpdated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -272,
+        176
+      ],
+      "id": "f0a6ef80-ab3b-4736-871f-84524daf6708",
+      "name": "Google Drive Trigger1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CNxxaAEuDBuR38Uo",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "fileName": "={{ $json.name }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -48,
+        80
+      ],
+      "id": "0840a39d-0620-43ba-8a3d-176b873a79bc",
+      "name": "Download file from Google Drive",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "CNxxaAEuDBuR38Uo",
+          "name": "Google Drive account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        176,
+        96
+      ],
+      "id": "1dbc08ef-ba47-4eb6-8c76-565d668c5191",
+      "name": "Embeddings OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        304,
+        96
+      ],
+      "id": "26b52459-5bec-4cc2-ada1-f013736071cc",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 100,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        384,
+        304
+      ],
+      "id": "7ce8a634-5d42-439c-8a37-6b455870453f",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {
+          "responseMode": "responseNode"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -272,
+        1668
+      ],
+      "id": "ee04a5a8-d991-49fd-89c1-70f1190ec97a",
+      "name": "When chat message received",
+      "webhookId": "8d72c71a-90a3-4667-b781-561ee99e3700"
+    },
+    {
+      "parameters": {
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "={{ ($json.processedContext && $json.processedContext.contextPrefix) ? $json.processedContext.contextPrefix : '' }}{{ ($json.processedContext && $json.processedContext.historyContext) ? '\\n[Previous conversation history]\\n' + $json.processedContext.historyContext + '\\n\\n' : '' }}{{ $json.dynamicSystemPrompt || 'You are a helpful assistant for Vambah Sillah\\'s portfolio website.' }}\n\nCurrent channel: {{ ($json.processedContext && $json.processedContext.source) ? $json.processedContext.source : 'text' }}\n\nRetrieve relevant information from the provided internal documents and provide a concise, accurate, and informative answer to the author's questions.  \n\nUse the Vector Store tool to retrieve any information from the documents. \n\nIf the answer cannot be found in the provided documentation, respond with \"I cannot find an answer in the available resources.\" \n\n{{ ($json.processedContext && $json.processedContext.hasCrossChannelHistory) ? 'Note: This visitor has been communicating via both text and voice. They may reference things from either channel.' : '' }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1008,
+        1224
+      ],
+      "id": "8ea2b25a-bdca-410b-9e7b-95935b9155db",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        848,
+        736
+      ],
+      "id": "7fd545dc-d043-41d1-ace4-82356482839e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        976,
+        736
+      ],
+      "id": "ccff3a70-4469-446e-a685-f9e3b1fd207a",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "publications",
+          "mode": "list",
+          "cachedResultName": "publications"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        -128
+      ],
+      "id": "62e8c96e-bf56-470a-ac52-4a23100b1a8c",
+      "name": "Pinecone Vector Store",
+      "credentials": {
+        "pineconeApi": {
+          "id": "RzS6BudHI1SIt9HO",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Retrieve information from documents in publications folder in Pinecone AI",
+        "topK": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1.1,
+      "position": [
+        1000,
+        1448
+      ],
+      "id": "365b404f-a972-479b-a930-e8bfcff04290",
+      "name": "Answer questions with a vector store"
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "publications",
+          "mode": "list",
+          "cachedResultName": "publications"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        1656
+      ],
+      "id": "d6955899-61fd-40fe-b246-08577c1e7265",
+      "name": "Pinecone Vector Store1",
+      "credentials": {
+        "pineconeApi": {
+          "id": "RzS6BudHI1SIt9HO",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-large",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        1864
+      ],
+      "id": "732a4cb0-a2d0-4d89-a30c-1d35d12eefcf",
+      "name": "Embeddings OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "responsesApiEnabled": "={{ true }}",
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1184,
+        1656
+      ],
+      "id": "e97bb557-d073-4f26-a509-1b620ba30d5e",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "ada7a762-8906-4ec5-85a2-e2d4410c4d05",
+              "leftValue": "'currentCategory'",
+              "rightValue": "null.empty",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1032,
+        2224
+      ],
+      "id": "6dc3fd5f-99b4-4318-b4cf-f0500ca46555",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1440,
+        1572
+      ],
+      "id": "e5373a65-37d4-4dbc-8071-ac88e165d8e1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "business_challenges",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "d0f8a2ce-3ff4-42b3-bf51-9154828846f5"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "bfd54b9a-6c58-4ff0-9e38-73c76ad6cb14",
+                    "leftValue": "tech_stack",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "6d306c17-e29a-4398-b080-23752af282ff",
+                    "leftValue": "automation_needs",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "adb2a4d1-fefd-4191-bfba-1ab55bc03b50",
+                    "leftValue": "ai_readiness",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1b9cb846-0ca7-4fb9-8b44-96553b2aa0ed",
+                    "leftValue": "budget_timeline",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5a928168-fb96-44f6-8b16-44cd62d2397d",
+                    "leftValue": "decision_making",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        1440,
+        2560
+      ],
+      "id": "70920a16-5b56-46d0-a223-fcf25f6419c2",
+      "name": "Switch: Route by currentCategory"
+    },
+    {
+      "parameters": {
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "System Prompt:\n\nYou are assessing the user's current technology stack and identifying gaps.\n\nAsk questions about:\n- What tools and software they currently use\n- What integrations they need\n- What technology gaps exist\n- What tools they're missing\n\nExtract:\n- current_tools: Array of tools they use\n- integration_needs: Array of integration requirements\n- gaps: Array of technology gaps\n- missing_tools: Array of tools they need\n```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1664,
+        1920
+      ],
+      "id": "701d49a1-07ee-4bf1-b09e-4f34c5d8472c",
+      "name": "AI Agent1 - Tech Stack"
+    },
+    {
+      "parameters": {
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "Business Challenges Category\n\n**System Prompt:**\n\nYou are conducting a business diagnostic assessment. Your goal is to identify the user's main business challenges, pain points, and inefficiencies.\n\nAsk questions to understand:\n- What manual processes slow them down?\n- What inefficiencies exist in their workflows?\n- What growth blockers are they facing?\n- What keeps them up at night?\n\nAsk ONE question at a time. Be conversational and empathetic. After each response, extract:\n- pain_points: Array of pain points mentioned\n- inefficiencies: Array of inefficiencies identified\n- growth_blockers: Array of blockers mentioned\n\nWhen you have enough information (3-5 questions), move to the next category."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1664,
+        1520
+      ],
+      "id": "e4988b98-b4ae-4118-b9bb-9b6e0df5d688",
+      "name": "AI Agent - Business Challenges"
+    },
+    {
+      "parameters": {
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "**System Prompt:**\n```\nYou are identifying automation opportunities for the user.\n\nAsk about:\n- What manual processes could be automated\n- What repetitive tasks consume time\n- What workflow bottlenecks exist\n- What automation opportunities they see\n\nExtract:\n- manual_processes: Array of manual processes\n- repetitive_tasks: Array of repetitive tasks\n- bottlenecks: Array of workflow bottlenecks\n- automation_opportunities: Array of automation opportunities\n```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1664,
+        2320
+      ],
+      "id": "5729ddc1-9843-4760-ad6a-d4d278d23749",
+      "name": "AI Agent - Automation Needs"
+    },
+    {
+      "parameters": {
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "**System Prompt:**\n```\nYou are assessing the user's AI readiness and opportunities.\n\nAsk about:\n- Current AI usage in their business\n- AI opportunities they see\n- Concerns or barriers to AI adoption\n- AI use cases relevant to their business\n\nExtract:\n- current_ai_usage: Description of current AI usage\n- opportunities: Array of AI opportunities\n- concerns: Array of concerns/barriers\n- use_cases: Array of relevant AI use cases\n- readiness_level: Score 1-10\n```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1664,
+        2720
+      ],
+      "id": "780a278a-1ab2-42a0-b09b-1a7c034d7a62",
+      "name": "AI Agent - AI Readiness"
+    },
+    {
+      "parameters": {
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "**System Prompt:**\n```\nYou are understanding the user's budget constraints and timeline.\n\nAsk about:\n- Budget range for solutions\n- Timeline for implementation\n- Urgency of their needs\n- Decision timeline\n\nExtract:\n- budget_range: Budget range (e.g., \"10k-50k\", \"under 10k\")\n- timeline: Implementation timeline\n- urgency: Urgency level (1-10)\n- decision_timeline: When they need to decide"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1664,
+        3120
+      ],
+      "id": "a3b59978-6012-44d5-8e72-43495aebce79",
+      "name": "AI Agent - Budget/Timeline"
+    },
+    {
+      "parameters": {
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "**System Prompt:**\n```\nYou are understanding the user's decision-making process.\n\nAsk about:\n- Who are the key stakeholders\n- What is the approval process\n- Who makes the final decision\n- What buying signals exist\n\nExtract:\n- stakeholders: Array of key stakeholders\n- approval_process: Description of approval process\n- decision_maker: Name/role of decision maker\n- buying_signals: Array of buying signals\n```"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1664,
+        3624
+      ],
+      "id": "4a0f67de-606c-45fd-bad1-5383334c908e",
+      "name": "AI Agent - Decision Making"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1800,
+        2144
+      ],
+      "id": "a1aa96f5-485f-4a15-8ba2-67b82142be62",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1800,
+        2544
+      ],
+      "id": "613f614a-39ea-4eba-ac98-089580b0f660",
+      "name": "Simple Memory2"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1800,
+        2944
+      ],
+      "id": "a786500b-e341-4346-b719-2b47380da201",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1800,
+        3344
+      ],
+      "id": "ac31f579-0f06-4e1a-8121-3cf75d36fd57",
+      "name": "Simple Memory4"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1800,
+        3848
+      ],
+      "id": "fb91de19-3a56-4f56-ac9a-0a7bcde2af03",
+      "name": "Simple Memory5"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1800,
+        1744
+      ],
+      "id": "5e0e2ee8-efcb-49e8-b3cc-61b2b8f6d2f4",
+      "name": "Simple Memory6"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "53ce8724-e027-47a0-bc57-95dadf403a7c",
+              "leftValue": "={{ $json.diagnosticMode }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        2176
+      ],
+      "id": "c0339e9e-7ee4-461e-aa2b-aa763ea602f0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2688,
+        1624
+      ],
+      "id": "c3607efc-2db2-4260-83f9-a966fd76f65c",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2688,
+        2024
+      ],
+      "id": "9afd5de4-40a3-48ca-9451-c7ac72956559",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2688,
+        2424
+      ],
+      "id": "edecf80e-48cf-4ad1-b782-4f48e49b6101",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2688,
+        2824
+      ],
+      "id": "c19c1b2f-0f17-476c-a4f6-b4135bb7c392",
+      "name": "Respond to Webhook3"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2688,
+        3224
+      ],
+      "id": "a72bc053-7e4d-4dd3-992d-9e41a25602c1",
+      "name": "Respond to Webhook4"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        2688,
+        3624
+      ],
+      "id": "ad744b3b-b927-46be-a945-aca3fca330d2",
+      "name": "Respond to Webhook5"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1728,
+        920
+      ],
+      "id": "44aeed5a-f714-4cfb-9e7b-8ec3920117b7",
+      "name": "Respond to Webhook6"
+    },
+    {
+      "parameters": {
+        "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        1624
+      ],
+      "id": "386c49b5-9687-47c6-8a31-9078d5b5eee7",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        2024
+      ],
+      "id": "0a695fbc-86f3-4e41-8202-1de518a5c96a",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        2424
+      ],
+      "id": "925a20d4-a6a5-40ae-8df8-fabacce2da27",
+      "name": "Code in JavaScript2"
+    },
+    {
+      "parameters": {
+        "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        2824
+      ],
+      "id": "3922e869-bc65-42d1-919c-97f91480777d",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        3224
+      ],
+      "id": "3bb3c23a-ba57-4012-be83-194233033e2d",
+      "name": "Code in JavaScript4"
+    },
+    {
+      "parameters": {
+        "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2240,
+        3624
+      ],
+      "id": "d7d79ac7-e133-4520-9005-13ae2fe43ae6",
+      "name": "Code in JavaScript5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        1624
+      ],
+      "id": "b2e7a3e7-f628-4926-a70a-86cb3103ebf9",
+      "name": "Code in JavaScript6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        2424
+      ],
+      "id": "19f9f565-841e-4bae-9d5a-990aa7ba8e76",
+      "name": "Code in JavaScript8"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        3624
+      ],
+      "id": "485e2b65-1879-4f96-941c-9e286c551703",
+      "name": "Code in JavaScript10"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        3224
+      ],
+      "id": "a625a766-95d6-4b78-bf91-4745deb188a5",
+      "name": "Code in JavaScript11"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        2824
+      ],
+      "id": "ed10a431-775a-4d26-8291-32edd0b6ebd2",
+      "name": "Code in JavaScript12"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        2024
+      ],
+      "id": "ddc8603c-db6f-46d7-971e-9fcfee8c4aab",
+      "name": "Code in JavaScript7"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+              "name": "response",
+              "value": "={{ $json.ai_response }}",
+              "type": "string"
+            },
+            {
+              "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+              "name": "currentCategory",
+              "value": "={{ $json.currentCategory }}",
+              "type": "string"
+            },
+            {
+              "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+              "name": "isComplete",
+              "value": "={{ $json.isComplete }}",
+              "type": "string"
+            },
+            {
+              "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+              "name": "diagnosticData",
+              "value": "={{ $json.progress.responsesReceived }}",
+              "type": "object"
+            },
+            {
+              "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+              "name": "progress",
+              "value": "={{ $json.progress }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2464,
+        1624
+      ],
+      "id": "b2c862f7-2839-4a88-897e-94489a0c4550",
+      "name": "Format Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+              "name": "response",
+              "value": "={{ $json.ai_response }}",
+              "type": "string"
+            },
+            {
+              "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+              "name": "currentCategory",
+              "value": "={{ $json.currentCategory }}",
+              "type": "string"
+            },
+            {
+              "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+              "name": "isComplete",
+              "value": "={{ $json.isComplete }}",
+              "type": "string"
+            },
+            {
+              "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+              "name": "diagnosticData",
+              "value": "={{ $json.progress.responsesReceived }}",
+              "type": "object"
+            },
+            {
+              "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+              "name": "progress",
+              "value": "={{ $json.progress }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2464,
+        2024
+      ],
+      "id": "066b485b-082d-49e0-85ba-21217a65feee",
+      "name": "Format Response1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+              "name": "response",
+              "value": "={{ $json.ai_response }}",
+              "type": "string"
+            },
+            {
+              "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+              "name": "currentCategory",
+              "value": "={{ $json.currentCategory }}",
+              "type": "string"
+            },
+            {
+              "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+              "name": "isComplete",
+              "value": "={{ $json.isComplete }}",
+              "type": "string"
+            },
+            {
+              "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+              "name": "diagnosticData",
+              "value": "={{ $json.progress.responsesReceived }}",
+              "type": "object"
+            },
+            {
+              "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+              "name": "progress",
+              "value": "={{ $json.progress }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2464,
+        2424
+      ],
+      "id": "cfa5f8bf-a207-434d-8741-aa6316d728cb",
+      "name": "Format Response2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+              "name": "response",
+              "value": "={{ $json.ai_response }}",
+              "type": "string"
+            },
+            {
+              "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+              "name": "currentCategory",
+              "value": "={{ $json.currentCategory }}",
+              "type": "string"
+            },
+            {
+              "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+              "name": "isComplete",
+              "value": "={{ $json.isComplete }}",
+              "type": "string"
+            },
+            {
+              "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+              "name": "diagnosticData",
+              "value": "={{ $json.progress.responsesReceived }}",
+              "type": "object"
+            },
+            {
+              "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+              "name": "progress",
+              "value": "={{ $json.progress }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2464,
+        2824
+      ],
+      "id": "b4f02fc4-cfe4-42da-96c2-b95b7bfb305b",
+      "name": "Format Response3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+              "name": "response",
+              "value": "={{ $json.ai_response }}",
+              "type": "string"
+            },
+            {
+              "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+              "name": "currentCategory",
+              "value": "={{ $json.currentCategory }}",
+              "type": "string"
+            },
+            {
+              "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+              "name": "isComplete",
+              "value": "={{ $json.isComplete }}",
+              "type": "string"
+            },
+            {
+              "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+              "name": "diagnosticData",
+              "value": "={{ $json.progress.responsesReceived }}",
+              "type": "object"
+            },
+            {
+              "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+              "name": "progress",
+              "value": "={{ $json.progress }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2464,
+        3224
+      ],
+      "id": "27d55926-870e-409e-8d8e-aa4d4aae82c9",
+      "name": "Format Response4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+              "name": "response",
+              "value": "={{ $json.ai_response }}",
+              "type": "string"
+            },
+            {
+              "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+              "name": "currentCategory",
+              "value": "={{ $json.currentCategory }}",
+              "type": "string"
+            },
+            {
+              "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+              "name": "isComplete",
+              "value": "={{ $json.isComplete }}",
+              "type": "string"
+            },
+            {
+              "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+              "name": "diagnosticData",
+              "value": "={{ $json.progress.responsesReceived }}",
+              "type": "object"
+            },
+            {
+              "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+              "name": "progress",
+              "value": "={{ $json.progress }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2464,
+        3624
+      ],
+      "id": "5ee71c38-957f-4d66-a1d0-6061ad6ada23",
+      "name": "Format Response5"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "diagnostic-mode-check",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.diagnosticMode }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "diagnostic-if-node",
+      "name": "Check Diagnostic Mode",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        664
+      ]
+    },
+    {
+      "parameters": {
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "={{ $json.processedContext?.contextPrefix || '' }}{{ $json.processedContext?.historyContext ? '\\n[Previous conversation history]\\n' + $json.processedContext.historyContext + '\\n\\n' : '' }}You are a diagnostic assistant helping users evaluate their business for AI and automation readiness.\n\nCurrent channel: {{ $json.processedContext?.source || 'text' }}\n\nYour role is to:\n1. Ask thoughtful questions to understand the user's business\n2. Evaluate their current tech stack and processes\n3. Identify automation opportunities\n4. Assess AI readiness\n5. Provide actionable recommendations\n\nBe conversational, professional, and helpful. Guide users through the diagnostic process step by step.\n\n{{ $json.processedContext?.hasCrossChannelHistory ? 'Note: This visitor has been communicating via both text and voice. They may reference things from either channel.' : '' }}"
+        }
+      },
+      "id": "diagnostic-ai-agent",
+      "name": "Diagnostic AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        968,
+        512
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "response-field",
+              "name": "response",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "currentCategory-field",
+              "name": "currentCategory",
+              "type": "string",
+              "value": "={{ $json.currentCategory || $json.metadata?.currentCategory }}"
+            },
+            {
+              "id": "diagnosticData-field",
+              "name": "diagnosticData",
+              "type": "object",
+              "value": "={{ $json.diagnosticData || $json.metadata?.diagnosticData || {} }}"
+            },
+            {
+              "id": "isComplete-field",
+              "name": "isComplete",
+              "type": "boolean",
+              "value": "={{ $json.isComplete || false }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "format-diagnostic-response",
+      "name": "Format Diagnostic Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1440,
+        616
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1672,
+        2144
+      ],
+      "id": "90a76c21-d77e-4f60-aa90-1e3c30d2e35b",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1672,
+        3848
+      ],
+      "id": "60158dd1-24ac-4445-81d4-4ddd80d59186",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1672,
+        3344
+      ],
+      "id": "3cfa908f-c3d3-4bcf-9900-b36901eeb4b9",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1672,
+        2944
+      ],
+      "id": "0517f028-4d99-4ea3-9eb4-b13d8f59c3fc",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1672,
+        2544
+      ],
+      "id": "bbebf61e-6bf0-4d4c-9c52-fd03d865b137",
+      "name": "OpenAI Chat Model6",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1672,
+        1744
+      ],
+      "id": "40d68778-7600-47dd-9f8d-a6b2f96427e1",
+      "name": "OpenAI Chat Model7",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        1104,
+        736
+      ],
+      "id": "f2f9799c-f3a0-4be5-b3c8-ec5f4a0541fe",
+      "name": "OpenAI Chat Model8",
+      "credentials": {
+        "openAiApi": {
+          "id": "haff2yaNOap4beBJ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process external conversation history from Next.js app\n// This enables cross-channel context (text + voice)\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const input = item.json;\n  \n  // Get external history sent from Next.js\n  const externalHistory = input.history || [];\n  const conversationSummary = input.conversationSummary || '';\n  const source = input.source || 'text';\n  const hasCrossChannelHistory = input.hasCrossChannelHistory || false;\n  \n  // Build context prefix for AI agent\n  let contextPrefix = '';\n  \n  if (hasCrossChannelHistory) {\n    contextPrefix += '[Context: This conversation has occurred across both text and voice channels. The visitor may reference things said in either channel.]\\n\\n';\n  }\n  \n  if (conversationSummary) {\n    contextPrefix += `[Earlier conversation summary: ${conversationSummary}]\\n\\n`;\n  }\n  \n  // Format history for AI context (last 10 messages for brevity)\n  const recentHistory = externalHistory.slice(-10);\n  let historyContext = '';\n  \n  if (recentHistory.length > 0) {\n    historyContext = recentHistory.map(msg => {\n      const channelMarker = msg.source === 'voice' ? '[voice]' : '[text]';\n      return `${msg.role}: ${channelMarker} ${msg.content}`;\n    }).join('\\n');\n  }\n  \n  // Return item with all original data plus processed context\n  results.push({\n    json: {\n      ...input,\n      processedContext: {\n        contextPrefix,\n        historyContext,\n        source,\n        hasCrossChannelHistory,\n        messageCount: externalHistory.length\n      }\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "process-external-history",
+      "name": "Process External History",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        1668
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format response for VAPI\n// VAPI expects: {\"results\": [{\"result\": \"text to speak\"}]}\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const input = item.json;\n  \n  // Extract the AI response from various possible fields\n  const aiResponse = input.output || input.response || input.text || input.message || 'I could not process that request.';\n  \n  // Format for VAPI\n  results.push({\n    json: {\n      results: [\n        {\n          result: aiResponse\n        }\n      ]\n    }\n  });\n}\n\nreturn results;"
+      },
+      "id": "format-vapi-response",
+      "name": "Format VAPI Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        1224
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.PORTFOLIO_URL || 'https://amadutown.com' }}/api/prompts/chatbot",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "timeout": 10000
+        }
+      },
+      "id": "fetch-dynamic-prompt",
+      "name": "Fetch Dynamic Prompt",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        176,
+        1668
+      ],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dynamicSystemPrompt",
+              "name": "dynamicSystemPrompt",
+              "value": "={{ $('Fetch Dynamic Prompt').item.json.prompt.prompt || 'You are a helpful assistant for Vambah Sillah\\'s portfolio website.' }}",
+              "type": "string"
+            },
+            {
+              "id": "promptConfig",
+              "name": "promptConfig",
+              "value": "={{ $('Fetch Dynamic Prompt').item.json.prompt.config || {} }}",
+              "type": "object"
+            },
+            {
+              "id": "processedContext",
+              "name": "processedContext",
+              "value": "={{ $('Process External History').item.json.processedContext }}",
+              "type": "object"
+            },
+            {
+              "id": "chatInput",
+              "name": "chatInput",
+              "value": "={{ $('Process External History').item.json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "sessionId",
+              "name": "sessionId",
+              "value": "={{ $('Process External History').item.json.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "merge-prompt-data",
+      "name": "Merge Prompt Data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        400,
+        1668
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b:free",
+        "options": {}
+      },
+      "id": "ce885e44-d55f-4e79-9336-b47e2d633921",
+      "name": "Free Fallback (OpenRouter)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        3936
+      ],
+      "credentials": {
+        "openRouterApi": {
+          "id": "ATznzoKw5NdNjbAl",
+          "name": "OpenRouter account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Google Drive Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file from Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Download file from Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file from Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ],
+      "main": [
+        [
+          {
+            "node": "Diagnostic AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ],
+      "main": [
+        [
+          {
+            "node": "Diagnostic AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer questions with a vector store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Answer questions with a vector store",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch: Route by currentCategory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Business Challenges",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Route by currentCategory": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Business Challenges",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent1 - Tech Stack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - Automation Needs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - AI Readiness",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - Budget/Timeline",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - Decision Making",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1 - Tech Stack",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent - Automation Needs",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent - AI Readiness",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory4": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent - Budget/Timeline",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory5": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent - Decision Making",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory6": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent - Business Challenges",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Business Challenges": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1 - Tech Stack": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook1": {
+      "main": [
+        []
+      ]
+    },
+    "AI Agent - Automation Needs": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - AI Readiness": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript12",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Budget/Timeline": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript11",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Decision Making": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Format Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Format Response2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Format Response3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript4": {
+      "main": [
+        [
+          {
+            "node": "Format Response4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript5": {
+      "main": [
+        [
+          {
+            "node": "Format Response5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript6": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript8": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript7": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript12": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript11": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript10": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response5": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Diagnostic Mode": {
+      "main": [
+        [
+          {
+            "node": "Diagnostic AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Diagnostic AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Diagnostic Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Diagnostic Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1 - Tech Stack",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Decision Making",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Budget/Timeline",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - AI Readiness",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Automation Needs",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Business Challenges",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Diagnostic AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Process External History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process External History": {
+      "main": [
+        [
+          {
+            "node": "Fetch Dynamic Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Format VAPI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format VAPI Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Dynamic Prompt": {
+      "main": [
+        [
+          {
+            "node": "Merge Prompt Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Prompt Data": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Diagnostic Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Free Fallback (OpenRouter)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "Diagnostic AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "AI Agent - Business Challenges",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "AI Agent1 - Tech Stack",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "AI Agent - Automation Needs",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "AI Agent - AI Readiness",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "AI Agent - Budget/Timeline",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "AI Agent - Decision Making",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveExecutionProgress": true,
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 300,
+    "timeSavedPerExecution": 5
+  },
+  "staticData": {
+    "node:Google Drive Trigger": {
+      "lastTimeChecked": "2026-02-10T20:10:37Z"
+    },
+    "node:Google Drive Trigger1": {
+      "lastTimeChecked": "2026-02-10T20:10:37Z"
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "f483ff5b-4615-4597-be5f-cba157300361",
+  "activeVersionId": "f483ff5b-4615-4597-be5f-cba157300361",
+  "versionCounter": 287,
+  "triggerCount": 3,
+  "shared": [
+    {
+      "updatedAt": "2025-12-25T02:59:25.430Z",
+      "createdAt": "2025-12-25T02:59:25.430Z",
+      "role": "workflow:owner",
+      "workflowId": "nWF9u3cNrB7BRtb5",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-10T11:23:32.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-10",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-10T20:10:37.000Z",
+    "createdAt": "2026-02-10T20:10:31.328Z",
+    "versionId": "f483ff5b-4615-4597-be5f-cba157300361",
+    "workflowId": "nWF9u3cNrB7BRtb5",
+    "nodes": [
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "value": "1WBHB-_3Y6EDITFL5-vGR0zPmYhhShtAv",
+            "mode": "list",
+            "cachedResultName": "RAG Documents",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1WBHB-_3Y6EDITFL5-vGR0zPmYhhShtAv"
+          },
+          "event": "fileCreated",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          -272,
+          -16
+        ],
+        "id": "9b75be5b-f0ba-4e53-a787-4069baa4b6e9",
+        "name": "Google Drive Trigger",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "CNxxaAEuDBuR38Uo",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "triggerOn": "specificFolder",
+          "folderToWatch": {
+            "__rl": true,
+            "value": "1WBHB-_3Y6EDITFL5-vGR0zPmYhhShtAv",
+            "mode": "list",
+            "cachedResultName": "RAG Documents",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1WBHB-_3Y6EDITFL5-vGR0zPmYhhShtAv"
+          },
+          "event": "fileUpdated",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleDriveTrigger",
+        "typeVersion": 1,
+        "position": [
+          -272,
+          176
+        ],
+        "id": "f0a6ef80-ab3b-4736-871f-84524daf6708",
+        "name": "Google Drive Trigger1",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "CNxxaAEuDBuR38Uo",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "download",
+          "fileId": {
+            "__rl": true,
+            "value": "={{ $json.id }}",
+            "mode": "id"
+          },
+          "options": {
+            "fileName": "={{ $json.name }}"
+          }
+        },
+        "type": "n8n-nodes-base.googleDrive",
+        "typeVersion": 3,
+        "position": [
+          -48,
+          80
+        ],
+        "id": "0840a39d-0620-43ba-8a3d-176b873a79bc",
+        "name": "Download file from Google Drive",
+        "credentials": {
+          "googleDriveOAuth2Api": {
+            "id": "CNxxaAEuDBuR38Uo",
+            "name": "Google Drive account 2"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          176,
+          96
+        ],
+        "id": "1dbc08ef-ba47-4eb6-8c76-565d668c5191",
+        "name": "Embeddings OpenAI",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "textSplittingMode": "custom",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+        "typeVersion": 1.1,
+        "position": [
+          304,
+          96
+        ],
+        "id": "26b52459-5bec-4cc2-ada1-f013736071cc",
+        "name": "Default Data Loader"
+      },
+      {
+        "parameters": {
+          "chunkOverlap": 100,
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+        "typeVersion": 1,
+        "position": [
+          384,
+          304
+        ],
+        "id": "7ce8a634-5d42-439c-8a37-6b455870453f",
+        "name": "Recursive Character Text Splitter"
+      },
+      {
+        "parameters": {
+          "public": true,
+          "mode": "webhook",
+          "options": {
+            "responseMode": "responseNode"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+        "typeVersion": 1.4,
+        "position": [
+          -272,
+          1668
+        ],
+        "id": "ee04a5a8-d991-49fd-89c1-70f1190ec97a",
+        "name": "When chat message received",
+        "webhookId": "8d72c71a-90a3-4667-b781-561ee99e3700"
+      },
+      {
+        "parameters": {
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "={{ ($json.processedContext && $json.processedContext.contextPrefix) ? $json.processedContext.contextPrefix : '' }}{{ ($json.processedContext && $json.processedContext.historyContext) ? '\\n[Previous conversation history]\\n' + $json.processedContext.historyContext + '\\n\\n' : '' }}{{ $json.dynamicSystemPrompt || 'You are a helpful assistant for Vambah Sillah\\'s portfolio website.' }}\n\nCurrent channel: {{ ($json.processedContext && $json.processedContext.source) ? $json.processedContext.source : 'text' }}\n\nRetrieve relevant information from the provided internal documents and provide a concise, accurate, and informative answer to the author's questions.  \n\nUse the Vector Store tool to retrieve any information from the documents. \n\nIf the answer cannot be found in the provided documentation, respond with \"I cannot find an answer in the available resources.\" \n\n{{ ($json.processedContext && $json.processedContext.hasCrossChannelHistory) ? 'Note: This visitor has been communicating via both text and voice. They may reference things from either channel.' : '' }}"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1008,
+          1224
+        ],
+        "id": "8ea2b25a-bdca-410b-9e7b-95935b9155db",
+        "name": "AI Agent"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          848,
+          736
+        ],
+        "id": "7fd545dc-d043-41d1-ace4-82356482839e",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          976,
+          736
+        ],
+        "id": "ccff3a70-4469-446e-a685-f9e3b1fd207a",
+        "name": "Simple Memory"
+      },
+      {
+        "parameters": {
+          "mode": "insert",
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "publications",
+            "mode": "list",
+            "cachedResultName": "publications"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1.3,
+        "position": [
+          208,
+          -128
+        ],
+        "id": "62e8c96e-bf56-470a-ac52-4a23100b1a8c",
+        "name": "Pinecone Vector Store",
+        "credentials": {
+          "pineconeApi": {
+            "id": "RzS6BudHI1SIt9HO",
+            "name": "PineconeApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "description": "Retrieve information from documents in publications folder in Pinecone AI",
+          "topK": 20
+        },
+        "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+        "typeVersion": 1.1,
+        "position": [
+          1000,
+          1448
+        ],
+        "id": "365b404f-a972-479b-a930-e8bfcff04290",
+        "name": "Answer questions with a vector store"
+      },
+      {
+        "parameters": {
+          "pineconeIndex": {
+            "__rl": true,
+            "value": "publications",
+            "mode": "list",
+            "cachedResultName": "publications"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+        "typeVersion": 1.3,
+        "position": [
+          896,
+          1656
+        ],
+        "id": "d6955899-61fd-40fe-b246-08577c1e7265",
+        "name": "Pinecone Vector Store1",
+        "credentials": {
+          "pineconeApi": {
+            "id": "RzS6BudHI1SIt9HO",
+            "name": "PineconeApi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "text-embedding-3-large",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          976,
+          1864
+        ],
+        "id": "732a4cb0-a2d0-4d89-a30c-1d35d12eefcf",
+        "name": "Embeddings OpenAI1",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "responsesApiEnabled": "={{ true }}",
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1184,
+          1656
+        ],
+        "id": "e97bb557-d073-4f26-a509-1b620ba30d5e",
+        "name": "OpenAI Chat Model1",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 3,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "ada7a762-8906-4ec5-85a2-e2d4410c4d05",
+                "leftValue": "'currentCategory'",
+                "rightValue": "null.empty",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          1032,
+          2224
+        ],
+        "id": "6dc3fd5f-99b4-4318-b4cf-f0500ca46555",
+        "name": "If1"
+      },
+      {
+        "parameters": {
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1440,
+          1572
+        ],
+        "id": "e5373a65-37d4-4dbc-8071-ac88e165d8e1",
+        "name": "Edit Fields"
+      },
+      {
+        "parameters": {
+          "rules": {
+            "values": [
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "leftValue": "business_challenges",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals"
+                      },
+                      "id": "d0f8a2ce-3ff4-42b3-bf51-9154828846f5"
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "bfd54b9a-6c58-4ff0-9e38-73c76ad6cb14",
+                      "leftValue": "tech_stack",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "6d306c17-e29a-4398-b080-23752af282ff",
+                      "leftValue": "automation_needs",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "adb2a4d1-fefd-4191-bfba-1ab55bc03b50",
+                      "leftValue": "ai_readiness",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "1b9cb846-0ca7-4fb9-8b44-96553b2aa0ed",
+                      "leftValue": "budget_timeline",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              },
+              {
+                "conditions": {
+                  "options": {
+                    "caseSensitive": true,
+                    "leftValue": "",
+                    "typeValidation": "strict",
+                    "version": 3
+                  },
+                  "conditions": [
+                    {
+                      "id": "5a928168-fb96-44f6-8b16-44cd62d2397d",
+                      "leftValue": "decision_making",
+                      "rightValue": "",
+                      "operator": {
+                        "type": "string",
+                        "operation": "equals",
+                        "name": "filter.operator.equals"
+                      }
+                    }
+                  ],
+                  "combinator": "and"
+                }
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.switch",
+        "typeVersion": 3.4,
+        "position": [
+          1440,
+          2560
+        ],
+        "id": "70920a16-5b56-46d0-a223-fcf25f6419c2",
+        "name": "Switch: Route by currentCategory"
+      },
+      {
+        "parameters": {
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "System Prompt:\n\nYou are assessing the user's current technology stack and identifying gaps.\n\nAsk questions about:\n- What tools and software they currently use\n- What integrations they need\n- What technology gaps exist\n- What tools they're missing\n\nExtract:\n- current_tools: Array of tools they use\n- integration_needs: Array of integration requirements\n- gaps: Array of technology gaps\n- missing_tools: Array of tools they need\n```"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1664,
+          1920
+        ],
+        "id": "701d49a1-07ee-4bf1-b09e-4f34c5d8472c",
+        "name": "AI Agent1 - Tech Stack"
+      },
+      {
+        "parameters": {
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "Business Challenges Category\n\n**System Prompt:**\n\nYou are conducting a business diagnostic assessment. Your goal is to identify the user's main business challenges, pain points, and inefficiencies.\n\nAsk questions to understand:\n- What manual processes slow them down?\n- What inefficiencies exist in their workflows?\n- What growth blockers are they facing?\n- What keeps them up at night?\n\nAsk ONE question at a time. Be conversational and empathetic. After each response, extract:\n- pain_points: Array of pain points mentioned\n- inefficiencies: Array of inefficiencies identified\n- growth_blockers: Array of blockers mentioned\n\nWhen you have enough information (3-5 questions), move to the next category."
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1664,
+          1520
+        ],
+        "id": "e4988b98-b4ae-4118-b9bb-9b6e0df5d688",
+        "name": "AI Agent - Business Challenges"
+      },
+      {
+        "parameters": {
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "**System Prompt:**\n```\nYou are identifying automation opportunities for the user.\n\nAsk about:\n- What manual processes could be automated\n- What repetitive tasks consume time\n- What workflow bottlenecks exist\n- What automation opportunities they see\n\nExtract:\n- manual_processes: Array of manual processes\n- repetitive_tasks: Array of repetitive tasks\n- bottlenecks: Array of workflow bottlenecks\n- automation_opportunities: Array of automation opportunities\n```"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1664,
+          2320
+        ],
+        "id": "5729ddc1-9843-4760-ad6a-d4d278d23749",
+        "name": "AI Agent - Automation Needs"
+      },
+      {
+        "parameters": {
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "**System Prompt:**\n```\nYou are assessing the user's AI readiness and opportunities.\n\nAsk about:\n- Current AI usage in their business\n- AI opportunities they see\n- Concerns or barriers to AI adoption\n- AI use cases relevant to their business\n\nExtract:\n- current_ai_usage: Description of current AI usage\n- opportunities: Array of AI opportunities\n- concerns: Array of concerns/barriers\n- use_cases: Array of relevant AI use cases\n- readiness_level: Score 1-10\n```"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1664,
+          2720
+        ],
+        "id": "780a278a-1ab2-42a0-b09b-1a7c034d7a62",
+        "name": "AI Agent - AI Readiness"
+      },
+      {
+        "parameters": {
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "**System Prompt:**\n```\nYou are understanding the user's budget constraints and timeline.\n\nAsk about:\n- Budget range for solutions\n- Timeline for implementation\n- Urgency of their needs\n- Decision timeline\n\nExtract:\n- budget_range: Budget range (e.g., \"10k-50k\", \"under 10k\")\n- timeline: Implementation timeline\n- urgency: Urgency level (1-10)\n- decision_timeline: When they need to decide"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1664,
+          3120
+        ],
+        "id": "a3b59978-6012-44d5-8e72-43495aebce79",
+        "name": "AI Agent - Budget/Timeline"
+      },
+      {
+        "parameters": {
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "**System Prompt:**\n```\nYou are understanding the user's decision-making process.\n\nAsk about:\n- Who are the key stakeholders\n- What is the approval process\n- Who makes the final decision\n- What buying signals exist\n\nExtract:\n- stakeholders: Array of key stakeholders\n- approval_process: Description of approval process\n- decision_maker: Name/role of decision maker\n- buying_signals: Array of buying signals\n```"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          1664,
+          3624
+        ],
+        "id": "4a0f67de-606c-45fd-bad1-5383334c908e",
+        "name": "AI Agent - Decision Making"
+      },
+      {
+        "parameters": {},
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          1800,
+          2144
+        ],
+        "id": "a1aa96f5-485f-4a15-8ba2-67b82142be62",
+        "name": "Simple Memory1"
+      },
+      {
+        "parameters": {},
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          1800,
+          2544
+        ],
+        "id": "613f614a-39ea-4eba-ac98-089580b0f660",
+        "name": "Simple Memory2"
+      },
+      {
+        "parameters": {},
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          1800,
+          2944
+        ],
+        "id": "a786500b-e341-4346-b719-2b47380da201",
+        "name": "Simple Memory3"
+      },
+      {
+        "parameters": {},
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          1800,
+          3344
+        ],
+        "id": "ac31f579-0f06-4e1a-8121-3cf75d36fd57",
+        "name": "Simple Memory4"
+      },
+      {
+        "parameters": {},
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          1800,
+          3848
+        ],
+        "id": "fb91de19-3a56-4f56-ac9a-0a7bcde2af03",
+        "name": "Simple Memory5"
+      },
+      {
+        "parameters": {},
+        "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+        "typeVersion": 1.3,
+        "position": [
+          1800,
+          1744
+        ],
+        "id": "5e0e2ee8-efcb-49e8-b3cc-61b2b8f6d2f4",
+        "name": "Simple Memory6"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 3,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "53ce8724-e027-47a0-bc57-95dadf403a7c",
+                "leftValue": "={{ $json.diagnosticMode }}",
+                "rightValue": "true",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals",
+                  "name": "filter.operator.equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          624,
+          2176
+        ],
+        "id": "c0339e9e-7ee4-461e-aa2b-aa763ea602f0",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          2688,
+          1624
+        ],
+        "id": "c3607efc-2db2-4260-83f9-a966fd76f65c",
+        "name": "Respond to Webhook"
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          2688,
+          2024
+        ],
+        "id": "9afd5de4-40a3-48ca-9451-c7ac72956559",
+        "name": "Respond to Webhook1"
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          2688,
+          2424
+        ],
+        "id": "edecf80e-48cf-4ad1-b782-4f48e49b6101",
+        "name": "Respond to Webhook2"
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          2688,
+          2824
+        ],
+        "id": "c19c1b2f-0f17-476c-a4f6-b4135bb7c392",
+        "name": "Respond to Webhook3"
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          2688,
+          3224
+        ],
+        "id": "a72bc053-7e4d-4dd3-992d-9e41a25602c1",
+        "name": "Respond to Webhook4"
+      },
+      {
+        "parameters": {
+          "respondWith": "allIncomingItems",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          2688,
+          3624
+        ],
+        "id": "ad744b3b-b927-46be-a945-aca3fca330d2",
+        "name": "Respond to Webhook5"
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ $json }}",
+          "options": {
+            "responseHeaders": {
+              "entries": [
+                {
+                  "name": "Content-Type",
+                  "value": "application/json"
+                }
+              ]
+            }
+          }
+        },
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.5,
+        "position": [
+          1728,
+          920
+        ],
+        "id": "44aeed5a-f714-4cfb-9e7b-8ec3920117b7",
+        "name": "Respond to Webhook6"
+      },
+      {
+        "parameters": {
+          "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2240,
+          1624
+        ],
+        "id": "386c49b5-9687-47c6-8a31-9078d5b5eee7",
+        "name": "Code in JavaScript"
+      },
+      {
+        "parameters": {
+          "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2240,
+          2024
+        ],
+        "id": "0a695fbc-86f3-4e41-8202-1de518a5c96a",
+        "name": "Code in JavaScript1"
+      },
+      {
+        "parameters": {
+          "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2240,
+          2424
+        ],
+        "id": "925a20d4-a6a5-40ae-8df8-fabacce2da27",
+        "name": "Code in JavaScript2"
+      },
+      {
+        "parameters": {
+          "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2240,
+          2824
+        ],
+        "id": "3922e869-bc65-42d1-919c-97f91480777d",
+        "name": "Code in JavaScript3"
+      },
+      {
+        "parameters": {
+          "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2240,
+          3224
+        ],
+        "id": "3bb3c23a-ba57-4012-be83-194233033e2d",
+        "name": "Code in JavaScript4"
+      },
+      {
+        "parameters": {
+          "jsCode": "const categories = [\n  'business_challenges',\n  'tech_stack',\n  'automation_needs',\n  'ai_readiness',\n  'budget_timeline',\n  'decision_making'\n];\n\nconst currentCategory = $input.item.json.currentCategory;\nconst categoryComplete = $input.item.json.categoryComplete;\nconst progress = $input.item.json.progress || {};\nconst completedCategories = progress.completedCategories || [];\n\n// If category not complete, keep same category\nif (!categoryComplete) {\n  return {\n    json: {\n      ...$input.item.json,\n      // Keep currentCategory the same\n    }\n  };\n}\n\n// Category is complete - move to next\nconst currentIndex = categories.indexOf(currentCategory);\n\n// Check if all categories done\nif (currentIndex >= categories.length - 1) {\n  return {\n    json: {\n      ...$input.item.json,\n      currentCategory: null,\n      allCategoriesComplete: true,\n      isComplete: true,\n      completedCategories: [...completedCategories, currentCategory]\n    }\n  };\n}\n\n// Move to next category\nconst nextCategory = categories[currentIndex + 1];\n\nreturn {\n  json: {\n    ...$input.item.json,\n    currentCategory: nextCategory,\n    allCategoriesComplete: false,\n    isComplete: false,\n    completedCategories: [...completedCategories, currentCategory]\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2240,
+          3624
+        ],
+        "id": "d7d79ac7-e133-4520-9005-13ae2fe43ae6",
+        "name": "Code in JavaScript5"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2016,
+          1624
+        ],
+        "id": "b2e7a3e7-f628-4926-a70a-86cb3103ebf9",
+        "name": "Code in JavaScript6"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2016,
+          2424
+        ],
+        "id": "19f9f565-841e-4bae-9d5a-990aa7ba8e76",
+        "name": "Code in JavaScript8"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2016,
+          3624
+        ],
+        "id": "485e2b65-1879-4f96-941c-9e286c551703",
+        "name": "Code in JavaScript10"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2016,
+          3224
+        ],
+        "id": "a625a766-95d6-4b78-bf91-4745deb188a5",
+        "name": "Code in JavaScript11"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2016,
+          2824
+        ],
+        "id": "ed10a431-775a-4d26-8291-32edd0b6ebd2",
+        "name": "Code in JavaScript12"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get AI Agent response\nconst aiResponse = $input.item.json.output || $input.item.json.text || $input.item.json.message;\nconst currentCategory = $input.item.json.currentCategory || $json.currentCategory;\nconst progress = $input.item.json.progress || { completedCategories: [], questionsAsked: [], responsesReceived: {} };\n\n// Extract category data\nconst categoryData = {\n  response_text: aiResponse,\n  timestamp: new Date().toISOString()\n};\n\n// Update progress\nconst updatedProgress = {\n  completedCategories: progress.completedCategories || [],\n  questionsAsked: [...(progress.questionsAsked || []), \"Question about \" + currentCategory],\n  responsesReceived: {\n    ...(progress.responsesReceived || {}),\n    [currentCategory]: {\n      ...(progress.responsesReceived?.[currentCategory] || {}),\n      ...categoryData\n    }\n  }\n};\n\n// Check if category complete (3+ questions or data points)\nconst categoryQuestions = updatedProgress.questionsAsked.length;\nconst QUESTIONS_THRESHOLD = 3;\nconst isCategoryComplete = categoryQuestions >= QUESTIONS_THRESHOLD || \n  Object.keys(updatedProgress.responsesReceived[currentCategory] || {}).length >= 2;\n\nreturn {\n  json: {\n    ...$input.item.json,\n    ai_response: aiResponse,\n    currentCategory: currentCategory,\n    progress: updatedProgress,\n    categoryComplete: isCategoryComplete,\n    categoryQuestionCount: categoryQuestions\n  }\n};"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2016,
+          2024
+        ],
+        "id": "ddc8603c-db6f-46d7-971e-9fcfee8c4aab",
+        "name": "Code in JavaScript7"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+                "name": "response",
+                "value": "={{ $json.ai_response }}",
+                "type": "string"
+              },
+              {
+                "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+                "name": "currentCategory",
+                "value": "={{ $json.currentCategory }}",
+                "type": "string"
+              },
+              {
+                "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+                "name": "isComplete",
+                "value": "={{ $json.isComplete }}",
+                "type": "string"
+              },
+              {
+                "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+                "name": "diagnosticData",
+                "value": "={{ $json.progress.responsesReceived }}",
+                "type": "object"
+              },
+              {
+                "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+                "name": "progress",
+                "value": "={{ $json.progress }}",
+                "type": "object"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2464,
+          1624
+        ],
+        "id": "b2c862f7-2839-4a88-897e-94489a0c4550",
+        "name": "Format Response"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+                "name": "response",
+                "value": "={{ $json.ai_response }}",
+                "type": "string"
+              },
+              {
+                "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+                "name": "currentCategory",
+                "value": "={{ $json.currentCategory }}",
+                "type": "string"
+              },
+              {
+                "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+                "name": "isComplete",
+                "value": "={{ $json.isComplete }}",
+                "type": "string"
+              },
+              {
+                "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+                "name": "diagnosticData",
+                "value": "={{ $json.progress.responsesReceived }}",
+                "type": "object"
+              },
+              {
+                "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+                "name": "progress",
+                "value": "={{ $json.progress }}",
+                "type": "object"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2464,
+          2024
+        ],
+        "id": "066b485b-082d-49e0-85ba-21217a65feee",
+        "name": "Format Response1"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+                "name": "response",
+                "value": "={{ $json.ai_response }}",
+                "type": "string"
+              },
+              {
+                "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+                "name": "currentCategory",
+                "value": "={{ $json.currentCategory }}",
+                "type": "string"
+              },
+              {
+                "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+                "name": "isComplete",
+                "value": "={{ $json.isComplete }}",
+                "type": "string"
+              },
+              {
+                "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+                "name": "diagnosticData",
+                "value": "={{ $json.progress.responsesReceived }}",
+                "type": "object"
+              },
+              {
+                "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+                "name": "progress",
+                "value": "={{ $json.progress }}",
+                "type": "object"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2464,
+          2424
+        ],
+        "id": "cfa5f8bf-a207-434d-8741-aa6316d728cb",
+        "name": "Format Response2"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+                "name": "response",
+                "value": "={{ $json.ai_response }}",
+                "type": "string"
+              },
+              {
+                "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+                "name": "currentCategory",
+                "value": "={{ $json.currentCategory }}",
+                "type": "string"
+              },
+              {
+                "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+                "name": "isComplete",
+                "value": "={{ $json.isComplete }}",
+                "type": "string"
+              },
+              {
+                "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+                "name": "diagnosticData",
+                "value": "={{ $json.progress.responsesReceived }}",
+                "type": "object"
+              },
+              {
+                "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+                "name": "progress",
+                "value": "={{ $json.progress }}",
+                "type": "object"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2464,
+          2824
+        ],
+        "id": "b4f02fc4-cfe4-42da-96c2-b95b7bfb305b",
+        "name": "Format Response3"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+                "name": "response",
+                "value": "={{ $json.ai_response }}",
+                "type": "string"
+              },
+              {
+                "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+                "name": "currentCategory",
+                "value": "={{ $json.currentCategory }}",
+                "type": "string"
+              },
+              {
+                "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+                "name": "isComplete",
+                "value": "={{ $json.isComplete }}",
+                "type": "string"
+              },
+              {
+                "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+                "name": "diagnosticData",
+                "value": "={{ $json.progress.responsesReceived }}",
+                "type": "object"
+              },
+              {
+                "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+                "name": "progress",
+                "value": "={{ $json.progress }}",
+                "type": "object"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2464,
+          3224
+        ],
+        "id": "27d55926-870e-409e-8d8e-aa4d4aae82c9",
+        "name": "Format Response4"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "71aa9e93-4a24-431f-b0d2-542ae3a6e196",
+                "name": "response",
+                "value": "={{ $json.ai_response }}",
+                "type": "string"
+              },
+              {
+                "id": "441dcbb4-2885-4f78-9948-6134471eea93",
+                "name": "currentCategory",
+                "value": "={{ $json.currentCategory }}",
+                "type": "string"
+              },
+              {
+                "id": "fcccf246-8552-4bec-bdc6-5e539981ad60",
+                "name": "isComplete",
+                "value": "={{ $json.isComplete }}",
+                "type": "string"
+              },
+              {
+                "id": "25f5797a-2b51-42e3-a578-caebbeddebbf",
+                "name": "diagnosticData",
+                "value": "={{ $json.progress.responsesReceived }}",
+                "type": "object"
+              },
+              {
+                "id": "62cbe6f9-9f08-4435-884d-071487c042b4",
+                "name": "progress",
+                "value": "={{ $json.progress }}",
+                "type": "object"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          2464,
+          3624
+        ],
+        "id": "5ee71c38-957f-4d66-a1d0-6061ad6ada23",
+        "name": "Format Response5"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "combinator": "and",
+            "conditions": [
+              {
+                "id": "diagnostic-mode-check",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                },
+                "leftValue": "={{ $json.diagnosticMode }}",
+                "rightValue": ""
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "diagnostic-if-node",
+        "name": "Check Diagnostic Mode",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          624,
+          664
+        ]
+      },
+      {
+        "parameters": {
+          "needsFallback": true,
+          "options": {
+            "systemMessage": "={{ $json.processedContext?.contextPrefix || '' }}{{ $json.processedContext?.historyContext ? '\\n[Previous conversation history]\\n' + $json.processedContext.historyContext + '\\n\\n' : '' }}You are a diagnostic assistant helping users evaluate their business for AI and automation readiness.\n\nCurrent channel: {{ $json.processedContext?.source || 'text' }}\n\nYour role is to:\n1. Ask thoughtful questions to understand the user's business\n2. Evaluate their current tech stack and processes\n3. Identify automation opportunities\n4. Assess AI readiness\n5. Provide actionable recommendations\n\nBe conversational, professional, and helpful. Guide users through the diagnostic process step by step.\n\n{{ $json.processedContext?.hasCrossChannelHistory ? 'Note: This visitor has been communicating via both text and voice. They may reference things from either channel.' : '' }}"
+          }
+        },
+        "id": "diagnostic-ai-agent",
+        "name": "Diagnostic AI Agent",
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 3.1,
+        "position": [
+          968,
+          512
+        ]
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "response-field",
+                "name": "response",
+                "type": "string",
+                "value": "={{ $json.output }}"
+              },
+              {
+                "id": "currentCategory-field",
+                "name": "currentCategory",
+                "type": "string",
+                "value": "={{ $json.currentCategory || $json.metadata?.currentCategory }}"
+              },
+              {
+                "id": "diagnosticData-field",
+                "name": "diagnosticData",
+                "type": "object",
+                "value": "={{ $json.diagnosticData || $json.metadata?.diagnosticData || {} }}"
+              },
+              {
+                "id": "isComplete-field",
+                "name": "isComplete",
+                "type": "boolean",
+                "value": "={{ $json.isComplete || false }}"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "format-diagnostic-response",
+        "name": "Format Diagnostic Response",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1440,
+          616
+        ]
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1672,
+          2144
+        ],
+        "id": "90a76c21-d77e-4f60-aa90-1e3c30d2e35b",
+        "name": "OpenAI Chat Model2",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1672,
+          3848
+        ],
+        "id": "60158dd1-24ac-4445-81d4-4ddd80d59186",
+        "name": "OpenAI Chat Model3",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1672,
+          3344
+        ],
+        "id": "3cfa908f-c3d3-4bcf-9900-b36901eeb4b9",
+        "name": "OpenAI Chat Model4",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1672,
+          2944
+        ],
+        "id": "0517f028-4d99-4ea3-9eb4-b13d8f59c3fc",
+        "name": "OpenAI Chat Model5",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1672,
+          2544
+        ],
+        "id": "bbebf61e-6bf0-4d4c-9c52-fd03d865b137",
+        "name": "OpenAI Chat Model6",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1672,
+          1744
+        ],
+        "id": "40d68778-7600-47dd-9f8d-a6b2f96427e1",
+        "name": "OpenAI Chat Model7",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4.1-mini"
+          },
+          "builtInTools": {},
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.3,
+        "position": [
+          1104,
+          736
+        ],
+        "id": "f2f9799c-f3a0-4be5-b3c8-ec5f4a0541fe",
+        "name": "OpenAI Chat Model8",
+        "credentials": {
+          "openAiApi": {
+            "id": "haff2yaNOap4beBJ",
+            "name": "OpenAi account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "// Process external conversation history from Next.js app\n// This enables cross-channel context (text + voice)\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const input = item.json;\n  \n  // Get external history sent from Next.js\n  const externalHistory = input.history || [];\n  const conversationSummary = input.conversationSummary || '';\n  const source = input.source || 'text';\n  const hasCrossChannelHistory = input.hasCrossChannelHistory || false;\n  \n  // Build context prefix for AI agent\n  let contextPrefix = '';\n  \n  if (hasCrossChannelHistory) {\n    contextPrefix += '[Context: This conversation has occurred across both text and voice channels. The visitor may reference things said in either channel.]\\n\\n';\n  }\n  \n  if (conversationSummary) {\n    contextPrefix += `[Earlier conversation summary: ${conversationSummary}]\\n\\n`;\n  }\n  \n  // Format history for AI context (last 10 messages for brevity)\n  const recentHistory = externalHistory.slice(-10);\n  let historyContext = '';\n  \n  if (recentHistory.length > 0) {\n    historyContext = recentHistory.map(msg => {\n      const channelMarker = msg.source === 'voice' ? '[voice]' : '[text]';\n      return `${msg.role}: ${channelMarker} ${msg.content}`;\n    }).join('\\n');\n  }\n  \n  // Return item with all original data plus processed context\n  results.push({\n    json: {\n      ...input,\n      processedContext: {\n        contextPrefix,\n        historyContext,\n        source,\n        hasCrossChannelHistory,\n        messageCount: externalHistory.length\n      }\n    }\n  });\n}\n\nreturn results;"
+        },
+        "id": "process-external-history",
+        "name": "Process External History",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -48,
+          1668
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Format response for VAPI\n// VAPI expects: {\"results\": [{\"result\": \"text to speak\"}]}\n\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  const input = item.json;\n  \n  // Extract the AI response from various possible fields\n  const aiResponse = input.output || input.response || input.text || input.message || 'I could not process that request.';\n  \n  // Format for VAPI\n  results.push({\n    json: {\n      results: [\n        {\n          result: aiResponse\n        }\n      ]\n    }\n  });\n}\n\nreturn results;"
+        },
+        "id": "format-vapi-response",
+        "name": "Format VAPI Response",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1440,
+          1224
+        ]
+      },
+      {
+        "parameters": {
+          "url": "={{ $env.PORTFOLIO_URL || 'https://amadutown.com' }}/api/prompts/chatbot",
+          "options": {
+            "response": {
+              "response": {
+                "responseFormat": "json"
+              }
+            },
+            "timeout": 10000
+          }
+        },
+        "id": "fetch-dynamic-prompt",
+        "name": "Fetch Dynamic Prompt",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          176,
+          1668
+        ],
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "dynamicSystemPrompt",
+                "name": "dynamicSystemPrompt",
+                "value": "={{ $('Fetch Dynamic Prompt').item.json.prompt.prompt || 'You are a helpful assistant for Vambah Sillah\\'s portfolio website.' }}",
+                "type": "string"
+              },
+              {
+                "id": "promptConfig",
+                "name": "promptConfig",
+                "value": "={{ $('Fetch Dynamic Prompt').item.json.prompt.config || {} }}",
+                "type": "object"
+              },
+              {
+                "id": "processedContext",
+                "name": "processedContext",
+                "value": "={{ $('Process External History').item.json.processedContext }}",
+                "type": "object"
+              },
+              {
+                "id": "chatInput",
+                "name": "chatInput",
+                "value": "={{ $('Process External History').item.json.chatInput }}",
+                "type": "string"
+              },
+              {
+                "id": "sessionId",
+                "name": "sessionId",
+                "value": "={{ $('Process External History').item.json.sessionId }}",
+                "type": "string"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "id": "merge-prompt-data",
+        "name": "Merge Prompt Data",
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          400,
+          1668
+        ]
+      },
+      {
+        "parameters": {
+          "model": "openai/gpt-oss-120b:free",
+          "options": {}
+        },
+        "id": "ce885e44-d55f-4e79-9336-b47e2d633921",
+        "name": "Free Fallback (OpenRouter)",
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          -224,
+          3936
+        ],
+        "credentials": {
+          "openRouterApi": {
+            "id": "ATznzoKw5NdNjbAl",
+            "name": "OpenRouter account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Google Drive Trigger": {
+        "main": [
+          [
+            {
+              "node": "Download file from Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Drive Trigger1": {
+        "main": [
+          [
+            {
+              "node": "Download file from Google Drive",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Download file from Google Drive": {
+        "main": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Default Data Loader": {
+        "ai_document": [
+          [
+            {
+              "node": "Pinecone Vector Store",
+              "type": "ai_document",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recursive Character Text Splitter": {
+        "ai_textSplitter": [
+          [
+            {
+              "node": "Default Data Loader",
+              "type": "ai_textSplitter",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ],
+        "main": [
+          [
+            {
+              "node": "Diagnostic AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Simple Memory": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ],
+        "main": [
+          [
+            {
+              "node": "Diagnostic AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Answer questions with a vector store": {
+        "ai_tool": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_tool",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Pinecone Vector Store1": {
+        "ai_vectorStore": [
+          [
+            {
+              "node": "Answer questions with a vector store",
+              "type": "ai_vectorStore",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Embeddings OpenAI1": {
+        "ai_embedding": [
+          [
+            {
+              "node": "Pinecone Vector Store1",
+              "type": "ai_embedding",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Answer questions with a vector store",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If1": {
+        "main": [
+          [
+            {
+              "node": "Edit Fields",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Switch: Route by currentCategory",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Edit Fields": {
+        "main": [
+          [
+            {
+              "node": "AI Agent - Business Challenges",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Switch: Route by currentCategory": {
+        "main": [
+          [
+            {
+              "node": "AI Agent - Business Challenges",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "AI Agent1 - Tech Stack",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "AI Agent - Automation Needs",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "AI Agent - AI Readiness",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "AI Agent - Budget/Timeline",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "AI Agent - Decision Making",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Simple Memory1": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent1 - Tech Stack",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Simple Memory2": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent - Automation Needs",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Simple Memory3": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent - AI Readiness",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Simple Memory4": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent - Budget/Timeline",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Simple Memory5": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent - Decision Making",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Simple Memory6": {
+        "ai_memory": [
+          [
+            {
+              "node": "AI Agent - Business Challenges",
+              "type": "ai_memory",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "If": {
+        "main": [
+          [
+            {
+              "node": "If1",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent - Business Challenges": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript6",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent1 - Tech Stack": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript7",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Respond to Webhook1": {
+        "main": [
+          []
+        ]
+      },
+      "AI Agent - Automation Needs": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript8",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent - AI Readiness": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript12",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent - Budget/Timeline": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript11",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent - Decision Making": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript10",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript": {
+        "main": [
+          [
+            {
+              "node": "Format Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript1": {
+        "main": [
+          [
+            {
+              "node": "Format Response1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript2": {
+        "main": [
+          [
+            {
+              "node": "Format Response2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript3": {
+        "main": [
+          [
+            {
+              "node": "Format Response3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript4": {
+        "main": [
+          [
+            {
+              "node": "Format Response4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript5": {
+        "main": [
+          [
+            {
+              "node": "Format Response5",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript6": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript8": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript7": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript12": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript11": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Code in JavaScript10": {
+        "main": [
+          [
+            {
+              "node": "Code in JavaScript5",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Response1": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Response2": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Response3": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Response4": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook4",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Response5": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook5",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Check Diagnostic Mode": {
+        "main": [
+          [
+            {
+              "node": "Diagnostic AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "AI Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Diagnostic AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Format Diagnostic Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Diagnostic Response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook6",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model2": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent1 - Tech Stack",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model3": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent - Decision Making",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model4": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent - Budget/Timeline",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model5": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent - AI Readiness",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model6": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent - Automation Needs",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model7": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent - Business Challenges",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model8": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Diagnostic AI Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "When chat message received": {
+        "main": [
+          [
+            {
+              "node": "Process External History",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process External History": {
+        "main": [
+          [
+            {
+              "node": "Fetch Dynamic Prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Agent": {
+        "main": [
+          [
+            {
+              "node": "Format VAPI Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format VAPI Response": {
+        "main": [
+          [
+            {
+              "node": "Respond to Webhook6",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Dynamic Prompt": {
+        "main": [
+          [
+            {
+              "node": "Merge Prompt Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge Prompt Data": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Check Diagnostic Mode",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Free Fallback (OpenRouter)": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "AI Agent",
+              "type": "ai_languageModel",
+              "index": 1
+            },
+            {
+              "node": "Diagnostic AI Agent",
+              "type": "ai_languageModel",
+              "index": 1
+            },
+            {
+              "node": "AI Agent - Business Challenges",
+              "type": "ai_languageModel",
+              "index": 1
+            },
+            {
+              "node": "AI Agent1 - Tech Stack",
+              "type": "ai_languageModel",
+              "index": 1
+            },
+            {
+              "node": "AI Agent - Automation Needs",
+              "type": "ai_languageModel",
+              "index": 1
+            },
+            {
+              "node": "AI Agent - AI Readiness",
+              "type": "ai_languageModel",
+              "index": 1
+            },
+            {
+              "node": "AI Agent - Budget/Timeline",
+              "type": "ai_languageModel",
+              "index": 1
+            },
+            {
+              "node": "AI Agent - Decision Making",
+              "type": "ai_languageModel",
+              "index": 1
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": "Version f483ff5b",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-10T20:10:37.883Z",
+        "id": 323,
+        "workflowId": "nWF9u3cNrB7BRtb5",
+        "versionId": "f483ff5b-4615-4597-be5f-cba157300361",
+        "event": "activated",
+        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    ]
+  }
+}

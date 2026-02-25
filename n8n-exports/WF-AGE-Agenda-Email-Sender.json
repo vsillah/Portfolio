@@ -1,0 +1,365 @@
+{
+  "updatedAt": "2026-02-13T22:41:41.155Z",
+  "createdAt": "2026-02-06T17:02:13.197Z",
+  "id": "hkxFmthzGYZbJYkb",
+  "name": "WF-AGE: Agenda Email Sender",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## WF-AGE: Agenda Email Sender\n\n**Trigger:** Schedule (runs daily) or called after Calendly booking\nSends auto-generated agendas before scheduled meetings.\n\n**Flow:**\n1. Fetch meetings with next_meeting_agenda populated\n2. For each: fetch project details\n3. Format agenda into professional HTML email\n4. Send to client\n5. Post agenda brief to Slack\n6. Loop to next meeting\n\n### Created 2026-02-06\nAuto-sends AI-generated agendas before client meetings",
+        "height": 366,
+        "width": 500
+      },
+      "id": "note-age",
+      "name": "Workflow Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        -96
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "id": "trigger-age",
+      "name": "Daily Agenda Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "meeting_records",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "next_meeting_type",
+              "condition": "neq"
+            }
+          ]
+        }
+      },
+      "id": "fetch-upcoming",
+      "name": "Fetch Meetings With Agendas",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        496
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "loop-meetings",
+      "name": "Loop Each Meeting",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        448,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "client_projects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.client_project_id }}"
+            }
+          ]
+        }
+      },
+      "id": "fetch-project-age",
+      "name": "Fetch Project Details",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        352
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "Njc6sBrCIye9J3ZK",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const meeting = $('Loop Each Meeting').item.json;\nconst project = $('Fetch Project Details').item.json;\n\nconst typeLabels = {\n  discovery: 'Discovery Call', onboarding: 'Onboarding Call',\n  kickoff: 'Kickoff Meeting', progress_checkin: 'Progress Check-in',\n  go_no_go: 'Go/No-Go Review', delivery_review: 'Delivery & Review'\n};\n\n// Slack channel routing by next meeting type\nconst channelMap = {\n  discovery: 'C08F7L8F2PL',        // #lead-generation\n  onboarding: 'C0ABTFRRVN3',       // #new-clients\n  kickoff: 'C0ABTFRRVN3',          // #new-clients\n  progress_checkin: 'C0ABTFRRVN3',  // #new-clients\n  go_no_go: 'C0ABTFRRVN3',         // #new-clients\n  delivery_review: 'C0AD388QEC8'    // #project-completions\n};\n\nconst nextType = meeting.next_meeting_type;\nconst typeLabel = typeLabels[nextType] || nextType;\nconst clientName = project.client_name || 'there';\nconst clientEmail = project.client_email || '';\nconst slackChannel = channelMap[nextType] || 'C0ABTFRRVN3';\n\nlet agendaItems = [];\ntry {\n  agendaItems = typeof meeting.next_meeting_agenda === 'string'\n    ? JSON.parse(meeting.next_meeting_agenda)\n    : (meeting.next_meeting_agenda || []);\n} catch (e) { agendaItems = []; }\n\nif (!agendaItems.length || !clientEmail) {\n  return [{ json: { skip: true, clientEmail: '', subject: '', html: '', slackBrief: '', slackChannel } }];\n}\n\nconst totalMinutes = agendaItems.reduce((sum, item) => sum + (item.estimated_minutes || 5), 0);\n\nlet html = '<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;\">';\nhtml += '<h2 style=\"color: #1a1a2e;\">Agenda: ' + typeLabel + '</h2>';\nhtml += '<p>Hi ' + clientName + ',</p>';\nhtml += '<p>Here is the agenda for our upcoming ' + typeLabel.toLowerCase() + ', prepared based on our previous conversations and project progress.</p>';\nhtml += '<p style=\"color: #666;\"><strong>Estimated Duration:</strong> ' + totalMinutes + ' minutes</p>';\nhtml += '<hr style=\"border: 1px solid #eee;\">';\n\nfor (const item of agendaItems) {\n  const catColors = { review: '#3498db', decision: '#e74c3c', discussion: '#f39c12', action: '#27ae60', info: '#95a5a6' };\n  const color = catColors[item.category] || '#666';\n  html += '<div style=\"margin: 16px 0; padding: 12px; border-left: 4px solid ' + color + '; background: #f9f9f9;\">';\n  html += '<h3 style=\"margin: 0 0 4px 0; color: #1a1a2e;\">' + item.title + '</h3>';\n  html += '<p style=\"margin: 4px 0; color: #555; font-size: 14px;\">' + (item.description || '') + '</p>';\n  html += '<span style=\"font-size: 12px; color: ' + color + '; text-transform: uppercase;\">' + (item.category || 'discussion') + '</span>';\n  html += ' <span style=\"font-size: 12px; color: #999;\">| ' + (item.estimated_minutes || 5) + ' min</span>';\n  html += '</div>';\n}\n\nhtml += '<hr style=\"border: 1px solid #eee;\">';\nhtml += '<p style=\"color: #666; font-size: 13px;\">If you would like to add anything, just reply to this email.</p>';\nhtml += '<p style=\"color: #999; font-size: 12px;\"><em>Auto-generated from prior meeting notes and project data.</em></p>';\nhtml += '</div>';\n\nlet slackBrief = '*Agenda Sent: ' + typeLabel + ' - ' + clientName + '*\\n\\n';\nfor (const item of agendaItems) {\n  slackBrief += item.priority + '. ' + item.title + ' (' + (item.estimated_minutes || 5) + 'm)\\n';\n}\nslackBrief += '\\nTotal: ' + totalMinutes + ' min';\n\nreturn [{\n  json: {\n    skip: false, clientEmail, clientName, typeLabel,\n    subject: 'Agenda: Upcoming ' + typeLabel,\n    html, slackBrief, slackChannel, meetingRecordId: meeting.id\n  }\n}];"
+      },
+      "id": "build-email-age",
+      "name": "Build Agenda Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "skip-check",
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "check-skip",
+      "name": "Has Agenda",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.clientEmail }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.html }}",
+        "options": {}
+      },
+      "id": "send-client-email",
+      "name": "Send Agenda to Client",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        208
+      ],
+      "webhookId": "4ab206c7-06ca-4ce1-afc8-a0edfd66c171",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": "={{ $('Build Agenda Email').item.json.slackChannel }}",
+        "text": "={{ $('Build Agenda Email').item.json.slackBrief }}",
+        "otherOptions": {}
+      },
+      "id": "slack-brief-age",
+      "name": "Post Agenda to Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.4,
+      "position": [
+        1344,
+        496
+      ],
+      "webhookId": "d909ea91-12dd-4018-9ea3-7892ed4e83d4",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "loop-continue",
+      "name": "Continue Loop",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1568,
+        352
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Agenda Check": {
+      "main": [
+        [
+          {
+            "node": "Fetch Meetings With Agendas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Meetings With Agendas": {
+      "main": [
+        [
+          {
+            "node": "Loop Each Meeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Each Meeting": {
+      "main": [
+        [
+          {
+            "node": "Fetch Project Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Project Details": {
+      "main": [
+        [
+          {
+            "node": "Build Agenda Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Agenda Email": {
+      "main": [
+        [
+          {
+            "node": "Has Agenda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Agenda": {
+      "main": [
+        [
+          {
+            "node": "Send Agenda to Client",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Agenda to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Continue Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Agenda to Client": {
+      "main": [
+        [
+          {
+            "node": "Continue Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Continue Loop": {
+      "main": [
+        [
+          {
+            "node": "Loop Each Meeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Daily Agenda Check": {
+      "recurrenceRules": [
+        0
+      ]
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "160c2223-e630-4a9d-98d2-3e7be9cb3a52",
+  "activeVersionId": "160c2223-e630-4a9d-98d2-3e7be9cb3a52",
+  "versionCounter": 41,
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2026-02-06T17:02:13.202Z",
+      "createdAt": "2026-02-06T17:02:13.202Z",
+      "role": "workflow:owner",
+      "workflowId": "hkxFmthzGYZbJYkb",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    }
+  ]
+}

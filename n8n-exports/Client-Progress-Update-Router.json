@@ -1,0 +1,548 @@
+{
+  "updatedAt": "2026-02-11T19:07:25.810Z",
+  "createdAt": "2026-02-11T19:05:14.114Z",
+  "id": "hAXnCIP86paUlkHc",
+  "name": "Client Progress Update Router",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "progress-update",
+        "options": {}
+      },
+      "name": "Progress Update Webhook",
+      "id": "webhook-trigger",
+      "typeVersion": 2,
+      "position": [
+        0,
+        304
+      ],
+      "type": "n8n-nodes-base.webhook",
+      "webhookId": "8c34acba-7d78-4ec8-9548-4f65ae733ce4"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "condition-1",
+              "leftValue": "={{ $json.body.channel }}",
+              "rightValue": "slack",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "name": "Channel Router",
+      "id": "channel-router",
+      "typeVersion": 2,
+      "position": [
+        224,
+        304
+      ],
+      "type": "n8n-nodes-base.if"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Progress Update Webhook').item.json.body.slack_channel }}"
+        },
+        "text": "={{ $('Progress Update Webhook').item.json.body.slack_body }}",
+        "otherOptions": {}
+      },
+      "name": "Slack Post Message",
+      "id": "slack-post",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        208
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "e7777419-5d2b-41b2-9ed6-236d1eba3f9c",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Progress Update Webhook').item.json.body.client_email }}",
+        "subject": "={{ $('Progress Update Webhook').item.json.body.email_subject }}",
+        "emailType": "text",
+        "message": "={{ $('Progress Update Webhook').item.json.body.email_body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "name": "Gmail Send Email",
+      "id": "gmail-send",
+      "typeVersion": 2.1,
+      "position": [
+        448,
+        400
+      ],
+      "type": "n8n-nodes-base.gmail",
+      "webhookId": "33b188e5-5a69-415a-a092-785ef18ae9b8",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Progress Update Webhook').item.json.body.callback_url }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "delivery_status",
+              "value": "sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Slack Delivery Callback",
+      "waitBetweenTries": 2000,
+      "retryOnFail": true,
+      "id": "slack-callback",
+      "typeVersion": 4.2,
+      "maxTries": 3,
+      "position": [
+        672,
+        208
+      ],
+      "type": "n8n-nodes-base.httpRequest"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Progress Update Webhook').item.json.body.callback_url }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "delivery_status",
+              "value": "sent"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Email Delivery Callback",
+      "waitBetweenTries": 2000,
+      "retryOnFail": true,
+      "id": "email-callback",
+      "typeVersion": 4.2,
+      "maxTries": 3,
+      "position": [
+        672,
+        400
+      ],
+      "type": "n8n-nodes-base.httpRequest"
+    },
+    {
+      "parameters": {
+        "content": "## Client Progress Update Router\n\nReceives progress update payloads from the portfolio app when a milestone is marked complete.\n\n**Routing Logic:**\n- If `channel == 'slack'` -> Posts to the client's Slack channel (by ID)\n- If `channel == 'email'` -> Sends email via Gmail\n\n**After delivery:** Calls the callback URL to confirm delivery status.\n\n**Note:** Attachments are included as links in the message body."
+      },
+      "name": "Workflow Notes",
+      "id": "workflow-note",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        112
+      ],
+      "type": "n8n-nodes-base.stickyNote"
+    }
+  ],
+  "connections": {
+    "Progress Update Webhook": {
+      "main": [
+        [
+          {
+            "node": "Channel Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Channel Router": {
+      "main": [
+        [
+          {
+            "node": "Slack Post Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Post Message": {
+      "main": [
+        [
+          {
+            "node": "Slack Delivery Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Send Email": {
+      "main": [
+        [
+          {
+            "node": "Email Delivery Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": null,
+  "pinData": {},
+  "versionId": "b9b6ea89-acd7-4f4e-8efb-023ee43b9f6e",
+  "activeVersionId": "b9b6ea89-acd7-4f4e-8efb-023ee43b9f6e",
+  "versionCounter": 13,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-02-11T19:05:14.116Z",
+      "createdAt": "2026-02-11T19:05:14.116Z",
+      "role": "workflow:owner",
+      "workflowId": "hAXnCIP86paUlkHc",
+      "projectId": "TeIheDYiQkebiIvt",
+      "project": {
+        "updatedAt": "2025-12-13T01:11:01.102Z",
+        "createdAt": "2025-12-13T01:09:43.703Z",
+        "id": "TeIheDYiQkebiIvt",
+        "name": "Vambah Sillah <vsillah@gmail.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
+        "projectRelations": [
+          {
+            "updatedAt": "2025-12-13T01:09:43.704Z",
+            "createdAt": "2025-12-13T01:09:43.704Z",
+            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
+            "projectId": "TeIheDYiQkebiIvt",
+            "user": {
+              "updatedAt": "2026-02-21T11:16:25.000Z",
+              "createdAt": "2025-12-13T01:09:43.182Z",
+              "id": "40690b8a-67b7-469e-b617-699a163b2224",
+              "email": "vsillah@gmail.com",
+              "firstName": "Vambah",
+              "lastName": "Sillah",
+              "personalizationAnswers": {
+                "version": "v4",
+                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
+                "personalization_survey_n8n_version": "1.123.5",
+                "companySize": "<20",
+                "companyType": "saas",
+                "role": "business-owner",
+                "reportedSource": "youtube"
+              },
+              "settings": {
+                "userActivated": true,
+                "easyAIWorkflowOnboarded": true,
+                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
+                "userActivatedAt": 1766783175251,
+                "npsSurvey": {
+                  "responded": true,
+                  "lastShownAt": 1770330867466
+                }
+              },
+              "disabled": false,
+              "mfaEnabled": false,
+              "lastActiveAt": "2026-02-21",
+              "isPending": false
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-02-11T19:07:29.000Z",
+    "createdAt": "2026-02-11T19:07:25.812Z",
+    "versionId": "b9b6ea89-acd7-4f4e-8efb-023ee43b9f6e",
+    "workflowId": "hAXnCIP86paUlkHc",
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "progress-update",
+          "options": {}
+        },
+        "name": "Progress Update Webhook",
+        "id": "webhook-trigger",
+        "typeVersion": 2,
+        "position": [
+          0,
+          304
+        ],
+        "type": "n8n-nodes-base.webhook",
+        "webhookId": "8c34acba-7d78-4ec8-9548-4f65ae733ce4"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "condition-1",
+                "leftValue": "={{ $json.body.channel }}",
+                "rightValue": "slack",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "name": "Channel Router",
+        "id": "channel-router",
+        "typeVersion": 2,
+        "position": [
+          224,
+          304
+        ],
+        "type": "n8n-nodes-base.if"
+      },
+      {
+        "parameters": {
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $('Progress Update Webhook').item.json.body.slack_channel }}"
+          },
+          "text": "={{ $('Progress Update Webhook').item.json.body.slack_body }}",
+          "otherOptions": {}
+        },
+        "name": "Slack Post Message",
+        "id": "slack-post",
+        "typeVersion": 2.2,
+        "position": [
+          448,
+          208
+        ],
+        "type": "n8n-nodes-base.slack",
+        "webhookId": "e7777419-5d2b-41b2-9ed6-236d1eba3f9c",
+        "credentials": {
+          "slackApi": {
+            "id": "idlvTQSh4X1QvJ8F",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "={{ $('Progress Update Webhook').item.json.body.client_email }}",
+          "subject": "={{ $('Progress Update Webhook').item.json.body.email_subject }}",
+          "emailType": "text",
+          "message": "={{ $('Progress Update Webhook').item.json.body.email_body }}",
+          "options": {
+            "appendAttribution": false
+          }
+        },
+        "name": "Gmail Send Email",
+        "id": "gmail-send",
+        "typeVersion": 2.1,
+        "position": [
+          448,
+          400
+        ],
+        "type": "n8n-nodes-base.gmail",
+        "webhookId": "33b188e5-5a69-415a-a092-785ef18ae9b8",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "eEhjCuu9RYM3ONnf",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('Progress Update Webhook').item.json.body.callback_url }}",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "delivery_status",
+                "value": "sent"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Slack Delivery Callback",
+        "waitBetweenTries": 2000,
+        "retryOnFail": true,
+        "id": "slack-callback",
+        "typeVersion": 4.2,
+        "maxTries": 3,
+        "position": [
+          672,
+          208
+        ],
+        "type": "n8n-nodes-base.httpRequest"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $('Progress Update Webhook').item.json.body.callback_url }}",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "delivery_status",
+                "value": "sent"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "name": "Email Delivery Callback",
+        "waitBetweenTries": 2000,
+        "retryOnFail": true,
+        "id": "email-callback",
+        "typeVersion": 4.2,
+        "maxTries": 3,
+        "position": [
+          672,
+          400
+        ],
+        "type": "n8n-nodes-base.httpRequest"
+      },
+      {
+        "parameters": {
+          "content": "## Client Progress Update Router\n\nReceives progress update payloads from the portfolio app when a milestone is marked complete.\n\n**Routing Logic:**\n- If `channel == 'slack'` -> Posts to the client's Slack channel (by ID)\n- If `channel == 'email'` -> Sends email via Gmail\n\n**After delivery:** Calls the callback URL to confirm delivery status.\n\n**Note:** Attachments are included as links in the message body."
+        },
+        "name": "Workflow Notes",
+        "id": "workflow-note",
+        "typeVersion": 1,
+        "position": [
+          -208,
+          112
+        ],
+        "type": "n8n-nodes-base.stickyNote"
+      }
+    ],
+    "connections": {
+      "Progress Update Webhook": {
+        "main": [
+          [
+            {
+              "node": "Channel Router",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Channel Router": {
+        "main": [
+          [
+            {
+              "node": "Slack Post Message",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Gmail Send Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Slack Post Message": {
+        "main": [
+          [
+            {
+              "node": "Slack Delivery Callback",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Gmail Send Email": {
+        "main": [
+          [
+            {
+              "node": "Email Delivery Callback",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": "Version b9b6ea89",
+    "description": "",
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-02-11T19:07:29.078Z",
+        "id": 371,
+        "workflowId": "hAXnCIP86paUlkHc",
+        "versionId": "b9b6ea89-acd7-4f4e-8efb-023ee43b9f6e",
+        "event": "activated",
+        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+      }
+    ]
+  }
+}
