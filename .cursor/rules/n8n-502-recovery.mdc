@@ -5,6 +5,8 @@ alwaysApply: true
 
 # n8n 502 Recovery
 
+> **Applies to: local self-hosted instance only.** If `N8N_BASE_URL` points to n8n Cloud, 502 errors are handled by n8n's managed infrastructure — skip this rule and check n8n Cloud status at [status.n8n.io](https://status.n8n.io) instead.
+
 When any n8n webhook call returns **502 Bad Gateway**, the cause is almost always that the n8n process is not running while the Cloudflare tunnel (`https://n8n.amadutown.com`) is still active.
 
 ## Diagnosis

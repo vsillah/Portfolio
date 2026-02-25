@@ -11,9 +11,16 @@ alwaysApply: false
 
 When adding features that are triggered by or ingest data from n8n:
 
+## Webhook URL pattern
+
+- `N8N_BASE_URL` (in `.env.local`) controls which n8n instance all webhooks target. Change it to switch between local and n8n Cloud.
+- Use `n8nWebhookUrl(path)` from `lib/n8n.ts` to build webhook URLs: `n8nWebhookUrl('clg-outreach-gen')` produces `${N8N_BASE_URL}/webhook/clg-outreach-gen`.
+- Per-workflow env vars (e.g. `N8N_VEP001_WEBHOOK_URL`) override the base URL when set. Use them for workflows with instance-specific paths (e.g. UUID-based chat trigger).
+
 ## Environment variables
 
 - Add a dedicated webhook URL env var per workflow (e.g. `N8N_VEP001_WEBHOOK_URL`, `N8N_VEP002_WEBHOOK_URL`).
+- Use `n8nWebhookUrl('path')` as the fallback so the workflow automatically follows `N8N_BASE_URL`.
 - Document the var in `.env.local` or project docs; trigger code should check for presence and skip or warn when unset.
 
 ## Trigger functions
