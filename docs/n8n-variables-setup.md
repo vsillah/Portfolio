@@ -1,11 +1,11 @@
 # n8n Variables Setup Guide
 
-## Using n8n Variables (Free, Built-in)
+> **Note:** The local self-hosted instance (free plan) does NOT support Settings → Variables. Use **Credentials** instead. n8n Cloud DOES support Variables — use the instructions below when setting up n8n Cloud.
 
-Instead of environment variables, use n8n's Variables feature:
+## Using n8n Variables (n8n Cloud)
 
 ### Step 1: Access Variables
-1. In n8n UI, go to **Settings** → **Variables** (or **External Secrets**)
+1. In n8n Cloud UI, go to **Settings** → **Variables** (or **External Secrets**)
 2. Click **"Add Variable"** or **"Create New"**
 
 ### Step 2: Add Each Variable

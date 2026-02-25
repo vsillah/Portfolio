@@ -1,27 +1,28 @@
 # n8n Cloud Migration Guide
 
-This guide walks you through migrating from your Railway-hosted n8n instance to n8n Cloud Free Tier.
+This guide walks you through migrating from the local self-hosted n8n instance to n8n Cloud.
+
+> **Last updated:** 2026-02-22. All 39 workflows exported and imported to n8n Cloud. Workflows are inactive pending credential setup.
 
 ## Migration Overview
 
 **Current Setup:**
-- Railway.app n8n instance (trial expired)
-- 48 workflows (15 active, including client management, lead pipeline, RAG chatbot)
-- Custom Docker deployment
+- Local self-hosted n8n instance (`https://n8n.amadutown.com` via Cloudflare tunnel)
+- 39 active workflows (client management, lead pipeline, RAG chatbot, value evidence, meeting handlers, etc.)
+- Managed via launchd on local Mac
 
 **Target Setup:**
-- n8n Cloud Free Tier
-- 500 executions/month (should be sufficient for your usage pattern)
+- n8n Cloud Free Tier (running in parallel with local until verified)
+- 500 executions/month
 - Fully managed, no infrastructure maintenance
+
+**Migration Strategy:** Parallel operation. Both instances run simultaneously. The Next.js app uses `N8N_BASE_URL` env var to control which instance it talks to. Flip one variable to cut over.
 
 ---
 
 ## Step 1: Sign Up for n8n Cloud
 
-1. Go to [n8n.cloud](https://n8n.cloud)
-2. Click "Start for Free"
-3. Sign up with your email (`vsillah@gmail.com` based on your current n8n account)
-4. Verify your email
+**DONE.** Workspace: `https://amadutown.app.n8n.cloud`
 
 **Free Tier Includes:**
 - 500 workflow executions/month
@@ -32,45 +33,23 @@ This guide walks you through migrating from your Railway-hosted n8n instance to 
 
 ---
 
-## Step 2: Export ALL Workflows from Railway (IMPORTANT!)
+## Step 2: Export Workflows from Local n8n
 
-### Option A: If You Can Briefly Reactivate Railway
+**DONE (2026-02-22).** All 39 active workflows exported to `n8n-exports/` as individual JSON files.
 
-If you can temporarily reactivate your Railway account (even for a day):
+Export was performed via n8n MCP (`n8n_get_workflow` with `mode='full'`) and the local SQLite database. Each file contains the full workflow definition (nodes, connections, settings, credentials references).
 
-1. **Add Payment Method** to Railway (won't be charged immediately)
-2. **Unpause** the n8n service
-3. **Wait 2-3 minutes** for n8n to start
-4. **Access n8n UI** at your Railway URL
-5. **Export workflows:**
-   - Settings → Import/Export → Export All Workflows
-   - Save the `.json` file (will contain all 48 workflows)
-6. **Pause Railway** again to avoid charges
-
-### Option B: If Railway Access is Impossible
-
-I've already exported your 3 new warm lead workflows to `/Users/mac15/my-portfolio/n8n-exports/`:
-- `WF-WRM-001-Facebook-Warm-Lead-Scraper.json`
-- `WF-WRM-002-Google-Contacts-Sync.json`
-- `WF-WRM-003-LinkedIn-Warm-Lead-Scraper.json`
-
-⚠️ **However**, you have **15 active workflows** that are critical to your business:
-- Client management flows (WF-000 through WF-012)
-- Cold lead pipeline (WF-CLG-001 through WF-CLG-004)
-- Meeting handlers (WF-CAL, WF-MCH, WF-AGB, etc.)
-- RAG chatbot for AmaduTown
-
-**These workflows are NOT backed up yet.** I strongly recommend Option A to avoid data loss.
+The full inventory is in `n8n-exports/manifest.json`.
 
 ---
 
 ## Step 3: Set Up n8n Cloud Environment
 
-### 3.1 Access Your New n8n Cloud Instance
+### 3.1 Access Your n8n Cloud Instance
 
-After signing up, you'll get a custom URL like:
+Your workspace URL:
 ```
-https://your-workspace.app.n8n.cloud
+https://amadutown.app.n8n.cloud
 ```
 
 ### 3.2 Configure Environment Variables
@@ -113,49 +92,63 @@ N8N_INGEST_SECRET=your_secure_random_secret_here
 
 ## Step 4: Import Workflows
 
-### 4.1 Import the 3 New Warm Lead Workflows
+**DONE (2026-02-22).** All 40 workflow JSON files (39 required + 1 extra) imported to n8n Cloud via the REST API.
 
-1. In n8n Cloud, click **Workflows** → **+ Add workflow**
-2. Click the **menu (...)** → **Import**
-3. Upload each of the 3 exported JSON files:
-   - `WF-WRM-001-Facebook-Warm-Lead-Scraper.json`
-   - `WF-WRM-002-Google-Contacts-Sync.json`
-   - `WF-WRM-003-LinkedIn-Warm-Lead-Scraper.json`
+Import was performed using `scripts/migrate-workflows-to-cloud.sh`, which:
+1. Reads each JSON file from `n8n-exports/`
+2. Strips instance-specific fields (keeps only `name`, `nodes`, `connections`, `settings`)
+3. POSTs to `https://amadutown.app.n8n.cloud/api/v1/workflows`
+4. All workflows imported as **inactive** (safe for parallel operation)
 
-### 4.2 Import Your Existing Workflows (if you have the export)
+**Cloud workspace URL:** `https://amadutown.app.n8n.cloud`
 
-If you were able to export all workflows from Railway:
+### 4.1 Update Existing Workflows from Exports
 
-1. Click **Settings** → **Import/Export**
-2. Click **Import workflows from file**
-3. Select your exported file
-4. All workflows will be imported (inactive by default)
+After fixing workflow definitions in the local export files (e.g. webhook `$json.body.*` expressions), apply changes to n8n Cloud in bulk:
+
+```bash
+# Dry run first (shows what would be updated)
+DRY_RUN=1 ./scripts/update-cloud-workflows-from-exports.sh
+
+# Apply updates
+./scripts/update-cloud-workflows-from-exports.sh
+```
+
+**Requirements:**
+- `N8N_CLOUD_API_KEY` in `.env.local` (Settings → API in n8n Cloud)
+- Workflows must already exist in Cloud (matched by name)
+
+**Exports with fixes applied (as of 2026-02-22):**
+- `Client-Progress-Update-Router.json` — webhook expressions use `$json.body.*` (n8n puts JSON body in `body`)
 
 ---
 
 ## Step 5: Update Webhook URLs in Your Next.js App
 
-Your Next.js app's `lib/n8n.ts` currently references Railway webhook URLs. Update them to your new n8n Cloud URLs:
+**DONE (2026-02-21).** The codebase now uses `N8N_BASE_URL` to control which n8n instance all webhooks target.
+
+### How it works
+
+`lib/n8n.ts` exports `N8N_BASE_URL` and `n8nWebhookUrl(path)`. All webhook constants use this pattern:
 
 ```typescript
-// lib/n8n.ts
-
-// OLD (Railway URLs):
-const N8N_WRM001_WEBHOOK_URL = process.env.N8N_WRM001_WEBHOOK_URL || 'https://n8n-production-XXXX.up.railway.app/webhook/wrm-001-facebook';
-
-// NEW (n8n Cloud URLs):
-const N8N_WRM001_WEBHOOK_URL = process.env.N8N_WRM001_WEBHOOK_URL || 'https://your-workspace.app.n8n.cloud/webhook/wrm-001-facebook';
-const N8N_WRM002_WEBHOOK_URL = process.env.N8N_WRM002_WEBHOOK_URL || 'https://your-workspace.app.n8n.cloud/webhook/wrm-002-google-contacts';
-const N8N_WRM003_WEBHOOK_URL = process.env.N8N_WRM003_WEBHOOK_URL || 'https://your-workspace.app.n8n.cloud/webhook/wrm-003-linkedin';
+const N8N_CLG002_WEBHOOK_URL = process.env.N8N_CLG002_WEBHOOK_URL
+  || n8nWebhookUrl('clg-outreach-gen')
+// => https://n8n.amadutown.com/webhook/clg-outreach-gen (or n8n Cloud if N8N_BASE_URL changed)
 ```
 
-**Update your `.env.local`:**
+### Cut over to n8n Cloud (done 2026-02-25)
+
+The app **default** is now n8n Cloud (`https://amadutown.app.n8n.cloud`). `lib/n8n.ts` falls back to this if `N8N_BASE_URL` is unset. In `.env.local`, `N8N_BASE_URL` and all `N8N_*_WEBHOOK_URL` values point to n8n Cloud.
+
+To use **self-hosted** n8n instead, set:
 
 ```bash
-N8N_WRM001_WEBHOOK_URL=https://your-workspace.app.n8n.cloud/webhook/wrm-001-facebook
-N8N_WRM002_WEBHOOK_URL=https://your-workspace.app.n8n.cloud/webhook/wrm-002-google-contacts
-N8N_WRM003_WEBHOOK_URL=https://your-workspace.app.n8n.cloud/webhook/wrm-003-linkedin
+N8N_BASE_URL=https://n8n.amadutown.com
 ```
+and set any per-workflow `N8N_*_WEBHOOK_URL` to the self-hosted URLs.
+
+Per-workflow env vars still override the base URL when set.
 
 ---
 
@@ -175,6 +168,9 @@ Some workflows require OAuth2 credentials (Slack, Google, Gmail, etc.). In n8n C
 - **Calendly** (for meeting handlers)
 - **OpenAI API** (for AI agents)
 - **Apify API** (for web scraping)
+
+**Community Nodes:**
+- **Apify** (`@apify/n8n-nodes-apify`) — Install from Community Nodes to replace HTTP Request calls to Apify. See `docs/n8n-apify-node-swap-guide.md` for the swap instructions.
 
 💡 **Tip:** n8n Cloud provides pre-configured OAuth apps for major services (Google, Slack, etc.), making setup easier than self-hosted.
 
@@ -295,11 +291,11 @@ Update `docs/n8n-variables-setup.md` and any other docs referencing Railway to p
 
 ## Rollback Plan (If Needed)
 
-If n8n Cloud doesn't work out, you can:
+If n8n Cloud doesn't work out:
 
-1. **Reactivate Railway** with paid plan
-2. **Switch to Render** (alternative free hosting)
-3. **Run locally** on your Mac with Docker
+1. **Keep local n8n running** — it's still active and all workflows are live there
+2. **Revert `N8N_BASE_URL`** in `.env.local` back to `https://n8n.amadutown.com`
+3. The local instance is managed via launchd and the Cloudflare tunnel, no action needed
 
 ---
 
@@ -324,16 +320,19 @@ After migration is complete:
 
 ## Summary Checklist
 
-- [ ] Sign up for n8n Cloud
-- [ ] Export all workflows from Railway (if possible)
-- [ ] Import workflows into n8n Cloud
-- [ ] Set environment variables in n8n Cloud
-- [ ] Configure OAuth2 credentials
-- [ ] Update webhook URLs in Next.js app
-- [ ] Test warm lead workflows
-- [ ] Activate workflows
-- [ ] Monitor execution usage
-- [ ] Archive Railway instance
+- [x] Update Next.js codebase for `N8N_BASE_URL` pattern (2026-02-21)
+- [x] Inventory all 39 active workflows in manifest (2026-02-21)
+- [x] Sign up for n8n Cloud and get workspace URL (2026-02-22) — `https://amadutown.app.n8n.cloud`
+- [x] Export all workflows from local n8n (2026-02-22) — 40 JSON files in `n8n-exports/`
+- [x] Import workflows into n8n Cloud (2026-02-22) — 40/40 imported via API, all inactive
+- [ ] Set environment variables / credentials in n8n Cloud
+- [ ] Configure OAuth2 credentials (Slack, Google, Gmail, Calendly, OpenAI, Apify, Stripe, Supabase)
+- [ ] Test workflows on n8n Cloud (start with low-risk: warm lead scrapers)
+- [ ] Activate workflows on n8n Cloud
+- [x] Flip `N8N_BASE_URL` to `https://amadutown.app.n8n.cloud` in `.env.local` and redeploy (2026-02-25)
+- [ ] Monitor execution usage (500/month free tier)
+- [ ] Deactivate workflows on local n8n (keep as backup)
+- [ ] After 2 weeks stable: archive local n8n instance
 
 ---
 
