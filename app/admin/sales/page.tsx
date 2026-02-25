@@ -152,7 +152,7 @@ export default function SalesDashboardPage() {
     if (user) {
       fetchData();
     }
-  }, [fetchData]);
+  }, [user, fetchData]);
 
   // Filter and sort audits
   const filteredAudits = audits

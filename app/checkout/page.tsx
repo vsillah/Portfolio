@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Lock, HelpCircle, LogIn } from 'lucide-react'
@@ -61,18 +61,7 @@ export default function CheckoutPage() {
   const [discountAmount, setDiscountAmount] = useState(0)
   const [discountCodeData, setDiscountCodeData] = useState<DiscountCode | null>(null)
 
-  useEffect(() => {
-    loadCart()
-  }, [])
-
-  // Logged-in users start at review step
-  useEffect(() => {
-    if (user && step === 'contact') {
-      setStep('review')
-    }
-  }, [user, step])
-
-  const loadCart = async () => {
+  const loadCart = useCallback(async () => {
     const cart = getCart()
     
     if (cart.length === 0) {
@@ -167,7 +156,18 @@ export default function CheckoutPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    loadCart()
+  }, [loadCart])
+
+  // Logged-in users start at review step
+  useEffect(() => {
+    if (user && step === 'contact') {
+      setStep('review')
+    }
+  }, [user, step])
 
   const getItemPrice = (item: CartItem): number | null => {
     if (isServiceItem(item)) {

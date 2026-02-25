@@ -47,3 +47,18 @@ Before changing any of these, grep the codebase for the constant name and update
 **Shared constants:** `lib/constants/lead-source.ts` is used by `api/admin/outreach/leads` (POST), `api/admin/outreach/ingest` (validation + `getRelationshipStrength`), and the outreach admin UI (temperature icon). Add or change values there and in the DB only (see Section 3).
 
 Run: `npm test` (Vitest), `npx playwright test e2e/admin-outreach.spec.ts` (E2E).
+
+## 5. Client journey E2E
+
+Scenarios are mapped to three journey stages: **Prospect → Lead → Client**. Use the **"Client Journey" preset** in Admin → Testing to run them in order, or select individual stages.
+
+- **Prospect:** Quick Browse, Standalone Audit Tool, Abandoned Cart, Chat to Diagnostic, Service Inquiry.
+- **Lead:** Chat to Diagnostic, Service Inquiry, Warm Lead Pipeline, Support Escalation, Full Funnel.
+- **Client:** Full Funnel, Browse and Buy.
+
+**Workflow validation (n8n):** Use Admin → Testing → **Client Journey Scripts** to seed test data and trigger n8n webhooks by stage:
+1. Copy/run the seed SQL in Supabase SQL Editor.
+2. Click "Run trigger" to fire the webhook.
+3. Start a test run with the linked E2E scenario to validate the outcome.
+
+Script catalog: `lib/testing/journey-scripts.ts`. Trigger API: `POST /api/admin/testing/trigger-webhook`. Seed SQL API: `GET /api/admin/testing/seed-sql`.

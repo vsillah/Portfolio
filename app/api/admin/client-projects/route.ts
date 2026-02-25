@@ -27,22 +27,22 @@ export async function GET(request: NextRequest) {
 
     // Build query -- fetch client_projects without join first
     // (onboarding_plans table may not exist yet or FK may not be in schema cache)
+    // client_projects schema: id, client_name, client_email, contact_submission_id,
+    // project_name, project_status, current_phase, slack_channel, etc. No client_id column.
     let query = supabaseAdmin
       .from('client_projects')
       .select(
         `
         id,
-        client_id,
+        contact_submission_id,
+        project_name,
         client_name,
         client_email,
-        client_company,
         slack_channel,
         project_status,
         current_phase,
-        product_purchased,
         project_start_date,
         estimated_end_date,
-        payment_amount,
         created_at,
         updated_at
       `,
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     if (search) {
       query = query.or(
-        `client_name.ilike.%${search}%,client_email.ilike.%${search}%,client_company.ilike.%${search}%,product_purchased.ilike.%${search}%`
+        `client_name.ilike.%${search}%,client_email.ilike.%${search}%,project_name.ilike.%${search}%`
       )
     }
 
@@ -111,6 +111,7 @@ export async function GET(request: NextRequest) {
 
       return {
         ...project,
+        client_id: project.id, // backward compat: schema has no client_id column
         onboarding_plan_status: plan?.status || null,
         milestone_total: milestoneTotal,
         milestone_completed: milestoneCompleted,

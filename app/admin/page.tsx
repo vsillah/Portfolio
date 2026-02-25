@@ -8,6 +8,7 @@ import { getCurrentSession } from '@/lib/auth'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AdminPieChart from '@/components/admin/AdminPieChart'
 import AdminBarChart from '@/components/admin/AdminBarChart'
+import AdminFunnelChart from '@/components/admin/AdminFunnelChart'
 
 export default function AdminDashboard() {
   return (
@@ -57,16 +58,19 @@ type AnalyticsStats = {
   totalFormSubmits?: number
   eventsByType?: Record<string, number>
 }
+type ConfigCountsRes = { users?: number; prompts?: number; contentItems?: number }
 
 function AdminDashboardContent() {
   const [pipeline, setPipeline] = useState<{ outreach: OutreachDashboard | null; valueEvidence: ValueEvidenceDashboard | null; reports: ValueReportsRes['reports'] | null }>({ outreach: null, valueEvidence: null, reports: null })
   const [sales, setSales] = useState<{ stats: SalesRes['stats'] | null; campaigns: CampaignsRes['data'] | null }>({ stats: null, campaigns: null })
   const [postSale, setPostSale] = useState<{ projects: ClientProjectsRes['projects'] | null; tasks: MeetingTasksRes['tasks'] | null; guarantees: GuaranteesRes['data'] | null }>({ projects: null, tasks: null, guarantees: null })
   const [quality, setQuality] = useState<{ chatStats: ChatEvalStats | null; chatSessions: ChatEvalSessionsRes['sessions'] | null; analytics: AnalyticsStats | null }>({ chatStats: null, chatSessions: null, analytics: null })
+  const [config, setConfig] = useState<ConfigCountsRes | null>(null)
   const [pipelineError, setPipelineError] = useState(false)
   const [salesError, setSalesError] = useState(false)
   const [postSaleError, setPostSaleError] = useState(false)
   const [qualityError, setQualityError] = useState(false)
+  const [configError, setConfigError] = useState(false)
 
   const fetchPipeline = useCallback(async () => {
     setPipelineError(false)
@@ -160,10 +164,25 @@ function AdminDashboardContent() {
       .catch(() => setQualityError(true))
   }, [])
 
+  const fetchConfig = useCallback(async () => {
+    setConfigError(false)
+    const session = await getCurrentSession()
+    if (!session?.access_token) {
+      setConfigError(true)
+      return
+    }
+    const headers = { Authorization: `Bearer ${session.access_token}` }
+    fetch('/api/admin/configuration/counts', { headers })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => setConfig(data ?? null))
+      .catch(() => setConfigError(true))
+  }, [])
+
   useEffect(() => { fetchPipeline() }, [fetchPipeline])
   useEffect(() => { fetchSales() }, [fetchSales])
   useEffect(() => { fetchPostSale() }, [fetchPostSale])
   useEffect(() => { fetchQuality() }, [fetchQuality])
+  useEffect(() => { fetchConfig() }, [fetchConfig])
 
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
@@ -188,11 +207,36 @@ function AdminDashboardContent() {
               <FeedError onRetry={fetchPipeline} />
             ) : pipeline.outreach ? (
               <>
-                <div className="flex flex-wrap gap-3 text-sm text-platinum-white/80 mb-3">
-                  <span>Leads: {pipeline.outreach.funnel?.total ?? 0}</span>
-                  <span>Contacted: {pipeline.outreach.funnel?.contacted ?? 0}</span>
-                  <span>Replied: {pipeline.outreach.funnel?.replied ?? 0}</span>
-                  <span>Queue: {pipeline.outreach.queueStats?.sent ?? 0} sent / {pipeline.outreach.queueStats?.replied ?? 0} replied</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Leads</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.outreach.funnel?.total ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Contacted</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.outreach.funnel?.contacted ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Replied</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.outreach.funnel?.replied ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Queue</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.outreach.queueStats?.sent ?? 0}</p>
+                    <p className="text-xs text-platinum-white/50 mt-0.5">{pipeline.outreach.queueStats?.replied ?? 0} replied</p>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <AdminFunnelChart
+                    data={[
+                      { name: 'Total Leads', value: pipeline.outreach.funnel?.total ?? 0 },
+                      { name: 'Contacted', value: pipeline.outreach.funnel?.contacted ?? 0 },
+                      { name: 'Replied', value: pipeline.outreach.funnel?.replied ?? 0 },
+                    ]}
+                    ariaLabel="Lead pipeline funnel: total leads, contacted, replied"
+                    height={132}
+                    title="Lead funnel"
+                  />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                   <AdminPieChart
@@ -213,6 +257,7 @@ function AdminDashboardContent() {
                     ariaLabel="Outreach queue status breakdown"
                     height={120}
                     title="Queue Status"
+                    emptyLabel="No queue activity yet"
                   />
                 </div>
                 <ul className="space-y-1.5 text-sm">
@@ -242,10 +287,19 @@ function AdminDashboardContent() {
               <FeedError onRetry={fetchPipeline} />
             ) : pipeline.valueEvidence != null || pipeline.reports != null ? (
               <>
-                <div className="flex flex-wrap gap-3 text-sm text-platinum-white/80 mb-3">
-                  <span>Reports: {pipeline.valueEvidence?.overview?.totalReports ?? 0}</span>
-                  <span>Evidence: {pipeline.valueEvidence?.overview?.totalEvidence ?? 0}</span>
-                  <span>Calculations: {pipeline.valueEvidence?.overview?.totalCalculations ?? 0}</span>
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Reports</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.valueEvidence?.overview?.totalReports ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Evidence</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.valueEvidence?.overview?.totalEvidence ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Calculations</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.valueEvidence?.overview?.totalCalculations ?? 0}</p>
+                  </div>
                 </div>
                 <div className="mb-3">
                   <AdminPieChart
@@ -287,11 +341,23 @@ function AdminDashboardContent() {
               <FeedError onRetry={fetchSales} />
             ) : sales.stats != null || (sales.campaigns && sales.campaigns.length > 0) ? (
               <>
-                <div className="flex flex-wrap gap-3 text-sm text-platinum-white/80 mb-3">
-                  <span>Audits: {sales.stats?.total_audits ?? 0}</span>
-                  <span>Pending follow-up: {sales.stats?.pending_follow_up ?? 0}</span>
-                  <span>Converted: {sales.stats?.converted ?? 0}</span>
-                  <span>High urgency: {sales.stats?.high_urgency ?? 0}</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Audits</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{sales.stats?.total_audits ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Pending</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{sales.stats?.pending_follow_up ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Converted</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{sales.stats?.converted ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">High urgency</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{sales.stats?.high_urgency ?? 0}</p>
+                  </div>
                 </div>
                 <div className="mb-3">
                   <AdminBarChart
@@ -337,8 +403,22 @@ function AdminDashboardContent() {
               <FeedError onRetry={fetchPostSale} />
             ) : postSale.projects != null || postSale.tasks != null || postSale.guarantees != null ? (
               <>
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Projects</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{postSale.projects?.length ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Pending tasks</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{Array.isArray(postSale.tasks) ? postSale.tasks.filter((t) => t.status === 'pending' || t.status === 'in_progress').length : 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Guarantees</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{postSale.guarantees?.length ?? 0}</p>
+                  </div>
+                </div>
                 <div className="space-y-2 mb-3">
-                  <p className="text-sm font-medium text-platinum-white/90">Recent projects</p>
+                  <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60">Recent projects</p>
                   <ul className="space-y-1 text-sm text-platinum-white/80">
                     {(postSale.projects ?? []).slice(0, 5).map((p, i) => (
                       <li key={i} className="truncate">{p.client_name ?? p.project_status ?? '—'}</li>
@@ -356,10 +436,6 @@ function AdminDashboardContent() {
                     height={120}
                     title="Post-sale Overview"
                   />
-                </div>
-                <div className="flex flex-wrap gap-2 text-sm text-platinum-white/70">
-                  {Array.isArray(postSale.tasks) && <span>{postSale.tasks.filter((t) => t.status === 'pending' || t.status === 'in_progress').length} pending tasks</span>}
-                  {(postSale.guarantees?.length ?? 0) > 0 && <span>{postSale.guarantees!.length} recent guarantees</span>}
                 </div>
               </>
             ) : (
@@ -384,10 +460,19 @@ function AdminDashboardContent() {
               <FeedError onRetry={fetchQuality} />
             ) : quality.chatStats != null || quality.analytics != null ? (
               <>
-                <div className="flex flex-wrap gap-3 text-sm text-platinum-white/80 mb-3">
-                  <span>Chat sessions (7d): {quality.chatStats?.overview?.total_sessions ?? 0}</span>
-                  <span>Evaluated: {quality.chatStats?.overview?.evaluated_sessions ?? 0}</span>
-                  <span>Success rate: {quality.chatStats?.overview?.success_rate ?? 0}%</span>
+                <div className="grid grid-cols-3 gap-3 mb-3">
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Sessions (7d)</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{quality.chatStats?.overview?.total_sessions ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Evaluated</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{quality.chatStats?.overview?.evaluated_sessions ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Success rate</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{quality.chatStats?.overview?.success_rate ?? 0}%</p>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
                   <AdminPieChart
@@ -411,10 +496,6 @@ function AdminDashboardContent() {
                     title="Analytics (7d)"
                   />
                 </div>
-                <div className="flex flex-wrap gap-3 text-sm text-platinum-white/70 mb-2">
-                  <span>Analytics (7d): {quality.analytics?.totalSessions ?? 0} sessions</span>
-                  <span>{quality.analytics?.totalPageViews ?? 0} page views</span>
-                </div>
                 <ul className="space-y-1.5 text-sm">
                   {(quality.chatSessions ?? []).slice(0, 5).map((s, i) => (
                     <li key={i} className="truncate text-platinum-white/80">{s?.visitor_email ?? s?.session_id ?? '—'}</li>
@@ -436,8 +517,32 @@ function AdminDashboardContent() {
               { label: 'User Management', href: '/admin/users' },
               { label: 'System Prompts', href: '/admin/prompts' },
             ]}
+            error={configError}
+            onRetry={fetchConfig}
           >
-            <p className="text-sm text-platinum-white/80">Content hub, users, and system prompts. Use the links below or the sidebar.</p>
+            {configError ? (
+              <FeedError onRetry={fetchConfig} />
+            ) : config != null ? (
+              <>
+                <div className="grid grid-cols-3 gap-4 mb-3">
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Users</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{config.users ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Prompts</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{config.prompts ?? 0}</p>
+                  </div>
+                  <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Content</p>
+                    <p className="text-2xl font-bold tabular-nums text-radiant-gold">{config.contentItems ?? 0}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-platinum-white/50">Products + services. Use the links below or the sidebar for Content Hub, User Management, and System Prompts.</p>
+              </>
+            ) : (
+              <p className="text-sm text-platinum-white/60">Loading…</p>
+            )}
           </CategoryCard>
         </div>
       </div>

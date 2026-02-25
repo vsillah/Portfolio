@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useParams } from 'next/navigation';
 import {
   CheckCircle,
@@ -181,11 +181,7 @@ function OnboardingPageContent() {
     new Set(['setup', 'milestones'])
   );
 
-  useEffect(() => {
-    fetchPlan();
-  }, [planId]);
-
-  const fetchPlan = async () => {
+  const fetchPlan = useCallback(async () => {
     try {
       const response = await fetch(`/api/onboarding-plans/${planId}`);
       if (!response.ok) throw new Error('Onboarding plan not found');
@@ -196,7 +192,11 @@ function OnboardingPageContent() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [planId]);
+
+  useEffect(() => {
+    fetchPlan();
+  }, [fetchPlan]);
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections((prev) => {

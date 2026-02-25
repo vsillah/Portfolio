@@ -8,7 +8,8 @@
 import type { 
   TestScenario, 
   ScenarioStep,
-  ValidationRule 
+  ValidationRule,
+  JourneyStage
 } from './types'
 
 // ============================================================================
@@ -23,6 +24,7 @@ export const browseAndBuyScenario: TestScenario = {
   id: 'browse_and_buy',
   name: 'Browse and Buy',
   description: 'Browse products, add to cart, complete checkout with Stripe test payment',
+  journeyStage: 'client',
   
   steps: [
     { type: 'navigate', path: '/', waitForSelector: '[data-section="hero"]' },
@@ -65,6 +67,7 @@ export const chatToDiagnosticScenario: TestScenario = {
   id: 'chat_to_diagnostic',
   name: 'Chat to Diagnostic',
   description: 'Engage with chat assistant, trigger diagnostic assessment, complete all 6 categories',
+  journeyStage: ['prospect', 'lead'],
   
   steps: [
     { type: 'navigate', path: '/', waitForSelector: '[data-section="contact"]' },
@@ -109,6 +112,7 @@ export const serviceInquiryScenario: TestScenario = {
   id: 'service_inquiry',
   name: 'Service Inquiry',
   description: 'Browse services, select one for inquiry, submit contact form',
+  journeyStage: ['prospect', 'lead'],
   
   steps: [
     { type: 'navigate', path: '/', waitForSelector: '[data-section="hero"]' },
@@ -152,6 +156,7 @@ export const fullFunnelScenario: TestScenario = {
   id: 'full_funnel',
   name: 'Full Funnel Journey',
   description: 'Complete customer journey: chat → diagnostic → contact → (simulated proposal)',
+  journeyStage: ['prospect', 'lead', 'client'],
   
   steps: [
     // Discovery phase
@@ -213,6 +218,7 @@ export const abandonedCartScenario: TestScenario = {
   id: 'abandoned_cart',
   name: 'Abandoned Cart',
   description: 'Add items to cart, start checkout, then abandon (tests exit intent and recovery)',
+  journeyStage: 'prospect',
   
   steps: [
     { type: 'navigate', path: '/store', waitForSelector: '[data-testid="product-grid"]' },
@@ -256,6 +262,7 @@ export const supportEscalationScenario: TestScenario = {
   id: 'support_escalation',
   name: 'Support Escalation',
   description: 'Ask complex or urgent questions to trigger human escalation',
+  journeyStage: 'lead',
   
   steps: [
     { type: 'navigate', path: '/#contact', waitForSelector: '[data-section="contact"]' },
@@ -294,6 +301,7 @@ export const quickBrowseScenario: TestScenario = {
   id: 'quick_browse',
   name: 'Quick Browse (Smoke Test)',
   description: 'Quick navigation through all main sections - smoke test',
+  journeyStage: 'prospect',
   
   steps: [
     { type: 'navigate', path: '/', waitForSelector: '[data-section="hero"]' },
@@ -333,6 +341,7 @@ export const warmLeadPipelineScenario: TestScenario = {
   id: 'warm_lead_pipeline',
   name: 'Warm Lead Pipeline',
   description: 'Complete warm lead workflow: trigger scraping → ingest → enrich → generate outreach → review → approve → send',
+  journeyStage: 'lead',
   
   steps: [
     // Step 1: Trigger warm lead scraping via API
@@ -520,6 +529,7 @@ export const standaloneAuditToolScenario: TestScenario = {
   id: 'standalone_audit_tool',
   name: 'Standalone Audit Tool',
   description: 'Smoke test: audit tool page (/tools/audit) loads. Covers Resources → Open tool → audit flow.',
+  journeyStage: 'prospect',
 
   steps: [
     { type: 'navigate', path: '/tools/audit', waitForSelector: undefined },
@@ -605,6 +615,36 @@ export const ECOMMERCE_SCENARIOS: TestScenario[] = [
   abandonedCartScenario
 ]
 
+/**
+ * Journey-ordered scenarios: prospect → lead → client.
+ * Covers the full client lifecycle without duplication.
+ */
+export const JOURNEY_SCENARIOS: TestScenario[] = [
+  // Prospect stage
+  quickBrowseScenario,
+  standaloneAuditToolScenario,
+  // Prospect → Lead
+  chatToDiagnosticScenario,
+  serviceInquiryScenario,
+  // Lead
+  warmLeadPipelineScenario,
+  supportEscalationScenario,
+  // Full funnel (prospect → lead → client)
+  fullFunnelScenario,
+  // Client
+  browseAndBuyScenario,
+]
+
+/**
+ * Get scenarios that cover a specific journey stage
+ */
+export function getScenariosByJourneyStage(stage: JourneyStage): TestScenario[] {
+  return ALL_SCENARIOS.filter(s => {
+    const stages = Array.isArray(s.journeyStage) ? s.journeyStage : [s.journeyStage]
+    return stages.includes(stage)
+  })
+}
+
 // ============================================================================
 // Scenario Utilities
 // ============================================================================
@@ -684,6 +724,7 @@ export function createCompositeScenario(
     id,
     name,
     description: `Composite scenario: ${name}`,
+    journeyStage: 'prospect',
     steps,
     variability: {
       skipProbability: {},
@@ -695,7 +736,7 @@ export function createCompositeScenario(
       mustNotError: ['navigate'],
       dataValidation: []
     },
-    estimatedDuration: steps.length * 5000, // Rough estimate
+    estimatedDuration: steps.length * 5000,
     tags: ['composite', ...Array.from(tags)]
   }
 }

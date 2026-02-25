@@ -381,7 +381,7 @@ export default function ClientWalkthroughPage() {
     if (user) {
       fetchData();
     }
-  }, [fetchData]);
+  }, [user, fetchData]);
 
   // Fetch value evidence for script (pain points + total value) when contact is set
   useEffect(() => {

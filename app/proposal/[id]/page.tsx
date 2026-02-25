@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
   FileText,
@@ -144,37 +144,8 @@ function ProposalPageContent() {
   // Check for payment status from URL params
   const paymentStatus = searchParams.get('payment');
 
-  useEffect(() => {
-    fetchProposal();
-  }, [proposalId]);
-
-  const fetchProposal = async () => {
+  const fetchOnboardingPlan = useCallback(async (propId: string) => {
     try {
-      const response = await fetch(`/api/proposals/${proposalId}`);
-      if (!response.ok) {
-        throw new Error('Proposal not found');
-      }
-      
-      const data = await response.json();
-      setProposal(data.proposal);
-      setCanAccept(data.canAccept);
-      setCanPay(data.canPay);
-      setIsExpired(data.isExpired);
-      
-      // If proposal is paid, look up the onboarding plan
-      if (data.proposal?.status === 'paid') {
-        fetchOnboardingPlan(data.proposal.id);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load proposal');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchOnboardingPlan = async (propId: string) => {
-    try {
-      // Check if a client project exists for this proposal with an onboarding plan
       const response = await fetch(`/api/proposals/${propId}/onboarding-plan`);
       if (response.ok) {
         const data = await response.json();
@@ -185,7 +156,32 @@ function ProposalPageContent() {
     } catch {
       // Silently fail - just won't show the onboarding link
     }
-  };
+  }, []);
+
+  const fetchProposal = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/proposals/${proposalId}`);
+      if (!response.ok) {
+        throw new Error('Proposal not found');
+      }
+      const data = await response.json();
+      setProposal(data.proposal);
+      setCanAccept(data.canAccept);
+      setCanPay(data.canPay);
+      setIsExpired(data.isExpired);
+      if (data.proposal?.status === 'paid') {
+        fetchOnboardingPlan(data.proposal.id);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load proposal');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [proposalId, fetchOnboardingPlan]);
+
+  useEffect(() => {
+    fetchProposal();
+  }, [fetchProposal]);
 
   const handleAccept = async () => {
     setIsAccepting(true);

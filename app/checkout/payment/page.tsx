@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, CheckCircle, Loader } from 'lucide-react'
@@ -17,16 +17,7 @@ function PaymentContent() {
   const [error, setError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
 
-  useEffect(() => {
-    if (orderId) {
-      createPaymentIntent()
-    } else {
-      setError('Order ID is required')
-      setLoading(false)
-    }
-  }, [orderId])
-
-  const createPaymentIntent = async () => {
+  const createPaymentIntent = useCallback(async () => {
     try {
       const session = await getCurrentSession()
       const response = await fetch('/api/payments/create-intent', {
@@ -50,7 +41,16 @@ function PaymentContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [orderId])
+
+  useEffect(() => {
+    if (orderId) {
+      createPaymentIntent()
+    } else {
+      setError('Order ID is required')
+      setLoading(false)
+    }
+  }, [orderId, createPaymentIntent])
 
   const handlePaymentSuccess = () => {
     setPaymentSuccess(true)

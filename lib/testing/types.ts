@@ -200,10 +200,15 @@ export interface ValidationRule {
   value?: unknown
 }
 
+export type JourneyStage = 'prospect' | 'lead' | 'client'
+
 export interface TestScenario {
   id: string
   name: string
   description: string
+  
+  // Client journey stage(s) this scenario covers
+  journeyStage: JourneyStage | JourneyStage[]
   
   // Journey definition
   steps: ScenarioStep[]

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { Sparkles, Filter, ShoppingCart, ArrowRight } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
@@ -59,20 +59,11 @@ export default function AppPrototypes() {
   const [channelFilter, setChannelFilter] = useState<string | null>(null)
   const [typeFilter, setTypeFilter] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchPrototypes()
-  }, [user])
-
-  useEffect(() => {
-    applyFilters()
-  }, [prototypes, stageFilter, channelFilter, typeFilter])
-
-  const fetchPrototypes = async () => {
+  const fetchPrototypes = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch('/api/prototypes')
       if (!response.ok) throw new Error('Failed to fetch prototypes')
-      
       const data = await response.json()
       setPrototypes(data)
     } catch (error) {
@@ -80,23 +71,29 @@ export default function AppPrototypes() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...prototypes]
-
     if (stageFilter) {
-      filtered = filtered.filter(p => p.production_stage === stageFilter)
+      filtered = filtered.filter((p) => p.production_stage === stageFilter)
     }
     if (channelFilter) {
-      filtered = filtered.filter(p => p.channel === channelFilter)
+      filtered = filtered.filter((p) => p.channel === channelFilter)
     }
     if (typeFilter) {
-      filtered = filtered.filter(p => p.product_type === typeFilter)
+      filtered = filtered.filter((p) => p.product_type === typeFilter)
     }
-
     setFilteredPrototypes(filtered)
-  }
+  }, [prototypes, stageFilter, channelFilter, typeFilter])
+
+  useEffect(() => {
+    fetchPrototypes()
+  }, [user, fetchPrototypes])
+
+  useEffect(() => {
+    applyFilters()
+  }, [applyFilters])
 
   const handleEnrollmentSuccess = (prototypeId: string, enrollmentType: string) => {
     setPrototypes(prev => prev.map(p => 

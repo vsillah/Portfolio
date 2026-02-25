@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Star, Send, Loader2, AlertCircle } from 'lucide-react'
 import { useAuth } from '@/components/AuthProvider'
 
@@ -37,26 +37,25 @@ export default function PrototypeFeedback({
   const isPilotWithEnrollment = stage === 'Pilot' && userEnrollment === 'Pilot'
   const canSubmitFeedback = isProduction || isPilotWithEnrollment
 
-  useEffect(() => {
-    if (isProduction || isPilotWithEnrollment) {
-      fetchFeedback()
-    }
-  }, [prototypeId, stage, userEnrollment, isProduction, isPilotWithEnrollment])
-
-  const fetchFeedback = async () => {
+  const fetchFeedback = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/prototypes/${prototypeId}/feedback`)
       if (!response.ok) throw new Error('Failed to fetch feedback')
-      
       const data = await response.json()
       setFeedbackList(data)
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching feedback:', err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [prototypeId])
+
+  useEffect(() => {
+    if (isProduction || isPilotWithEnrollment) {
+      fetchFeedback()
+    }
+  }, [isProduction, isPilotWithEnrollment, fetchFeedback])
 
   const handleSubmitFeedback = async (e: React.FormEvent) => {
     e.preventDefault()

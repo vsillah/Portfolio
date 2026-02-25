@@ -13,6 +13,7 @@ import {
   ALL_PERSONAS,
   CRITICAL_SCENARIOS,
   SMOKE_TEST_SCENARIOS,
+  JOURNEY_SCENARIOS,
   SCENARIOS_BY_ID,
   PERSONAS_BY_ID
 } from '@/lib/testing'
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
     const {
       // Scenario selection
       scenarioIds,  // Specific scenario IDs to run
-      scenarioPreset,  // 'all', 'critical', 'smoke', 'chat', 'ecommerce'
+      scenarioPreset,  // 'all', 'critical', 'smoke', 'journey', 'chat', 'ecommerce'
       
       // Persona selection
       personaIds,  // Specific persona IDs to use
@@ -70,6 +71,9 @@ export async function POST(request: NextRequest) {
           break
         case 'smoke':
           scenarios = SMOKE_TEST_SCENARIOS
+          break
+        case 'journey':
+          scenarios = JOURNEY_SCENARIOS
           break
         default:
           scenarios = ALL_SCENARIOS

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -69,13 +69,7 @@ export default function ProductDetailPage() {
   const [showAdded, setShowAdded] = useState(false)
   const [cartCount, setCartCount] = useState(0)
 
-  useEffect(() => {
-    fetchProduct()
-    fetchBundles()
-    setCartCount(getCartCount())
-  }, [productId])
-
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       const response = await fetch(`/api/products/${productId}`)
       if (response.ok) {
@@ -88,9 +82,9 @@ export default function ProductDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [productId])
 
-  const fetchBundles = async () => {
+  const fetchBundles = useCallback(async () => {
     try {
       const response = await fetch(`/api/products/${productId}/bundles`)
       if (response.ok) {
@@ -100,7 +94,13 @@ export default function ProductDetailPage() {
     } catch (error) {
       console.error('Failed to fetch bundles:', error)
     }
-  }
+  }, [productId])
+
+  useEffect(() => {
+    fetchProduct()
+    fetchBundles()
+    setCartCount(getCartCount())
+  }, [fetchProduct, fetchBundles])
 
   const handleAddToCart = async () => {
     if (!product) return

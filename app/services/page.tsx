@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { motion } from 'framer-motion'
 import { Search, Filter, ShoppingCart, ArrowLeft, Users, Video, MapPin, Building, HelpCircle } from 'lucide-react'
 import ServiceCard from '@/components/ServiceCard'
@@ -86,9 +86,36 @@ function ServicesContent() {
     loadCartCount()
   }, [])
 
+  const filterServices = useCallback(() => {
+    let filtered = [...services]
+    if (selectedType !== 'all') {
+      filtered = filtered.filter((s) => s.service_type === selectedType)
+    }
+    if (selectedDelivery !== 'all') {
+      filtered = filtered.filter((s) => s.delivery_method === selectedDelivery)
+    }
+    if (showFeaturedOnly) {
+      filtered = filtered.filter((s) => s.is_featured)
+    }
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (s) =>
+          s.title.toLowerCase().includes(query) ||
+          (s.description && s.description.toLowerCase().includes(query))
+      )
+    }
+    filtered.sort((a, b) => {
+      if (a.is_featured && !b.is_featured) return -1
+      if (!a.is_featured && b.is_featured) return 1
+      return 0
+    })
+    setFilteredServices(filtered)
+  }, [services, searchQuery, selectedType, selectedDelivery, showFeaturedOnly])
+
   useEffect(() => {
     filterServices()
-  }, [services, searchQuery, selectedType, selectedDelivery, showFeaturedOnly])
+  }, [filterServices])
 
   const fetchServices = async () => {
     try {
@@ -109,38 +136,6 @@ function ServicesContent() {
       const cart = getCart()
       setCartCount(cart.length)
     }
-  }
-
-  const filterServices = () => {
-    let filtered = [...services]
-
-    if (selectedType !== 'all') {
-      filtered = filtered.filter(s => s.service_type === selectedType)
-    }
-
-    if (selectedDelivery !== 'all') {
-      filtered = filtered.filter(s => s.delivery_method === selectedDelivery)
-    }
-
-    if (showFeaturedOnly) {
-      filtered = filtered.filter(s => s.is_featured)
-    }
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      filtered = filtered.filter(s =>
-        s.title.toLowerCase().includes(query) ||
-        (s.description && s.description.toLowerCase().includes(query))
-      )
-    }
-
-    filtered.sort((a, b) => {
-      if (a.is_featured && !b.is_featured) return -1
-      if (!a.is_featured && b.is_featured) return 1
-      return 0
-    })
-
-    setFilteredServices(filtered)
   }
 
   const handleAddToCart = (serviceId: string) => {

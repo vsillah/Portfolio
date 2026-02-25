@@ -91,7 +91,7 @@ export default function BundleManagementPage() {
     if (user) {
       fetchBundles();
     }
-  }, [fetchBundles]);
+  }, [user, fetchBundles]);
 
   const viewBundleDetails = async (bundle: OfferBundleWithStats) => {
     const session = await getCurrentSession();

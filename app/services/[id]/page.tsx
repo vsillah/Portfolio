@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -73,12 +73,7 @@ export default function ServiceDetailPage() {
   const [loading, setLoading] = useState(true)
   const [showAdded, setShowAdded] = useState(false)
 
-  useEffect(() => {
-    fetchService()
-    fetchBundles()
-  }, [serviceId])
-
-  const fetchService = async () => {
+  const fetchService = useCallback(async () => {
     try {
       const response = await fetch(`/api/services/${serviceId}`)
       if (response.ok) {
@@ -90,9 +85,9 @@ export default function ServiceDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [serviceId])
 
-  const fetchBundles = async () => {
+  const fetchBundles = useCallback(async () => {
     try {
       const response = await fetch(`/api/services/${serviceId}/bundles`)
       if (response.ok) {
@@ -102,7 +97,12 @@ export default function ServiceDetailPage() {
     } catch (error) {
       console.error('Failed to fetch bundles:', error)
     }
-  }
+  }, [serviceId])
+
+  useEffect(() => {
+    fetchService()
+    fetchBundles()
+  }, [fetchService, fetchBundles])
 
   const handleAddToCart = () => {
     if (!service) return

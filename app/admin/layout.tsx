@@ -107,7 +107,7 @@ export default function AdminLayout({
       </aside>
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-silicon-slate bg-background/95 px-4 py-3 lg:px-6">
+        <header className="sticky top-0 z-10 flex items-center justify-between border-b border-silicon-slate bg-background px-4 py-3 lg:px-6">
           <button
             ref={hamburgerRef}
             type="button"

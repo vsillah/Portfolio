@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ShoppingBag, Loader, HelpCircle } from 'lucide-react'
@@ -44,35 +44,22 @@ function PurchasesContent() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (orderIdParam) {
-      fetchOrder(parseInt(orderIdParam))
-    } else {
-      fetchOrders()
-    }
-  }, [orderIdParam, user])
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     if (!user) {
       setLoading(false)
       return
     }
-
     try {
       const session = await getCurrentSession()
       if (!session) return
-
       const response = await fetch('/api/orders', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
       })
-
       if (response.ok) {
         const data = await response.json()
         setOrders(data.orders || [])
         if (orderIdParam) {
-          const order = data.orders?.find((o: Order) => o.id === parseInt(orderIdParam))
+          const order = data.orders?.find((o: Order) => o.id === parseInt(orderIdParam!))
           if (order) setSelectedOrder(order)
         }
       }
@@ -81,9 +68,9 @@ function PurchasesContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, orderIdParam])
 
-  const fetchOrder = async (orderId: number) => {
+  const fetchOrder = useCallback(async (orderId: number) => {
     try {
       const session = await getCurrentSession()
       const response = await fetch(`/api/orders/${orderId}`, {
@@ -101,7 +88,15 @@ function PurchasesContent() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    if (orderIdParam) {
+      fetchOrder(parseInt(orderIdParam))
+    } else {
+      fetchOrders()
+    }
+  }, [orderIdParam, fetchOrders, fetchOrder])
 
   if (!user && !orderIdParam) {
     return (

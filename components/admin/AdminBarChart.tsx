@@ -22,6 +22,8 @@ interface AdminBarChartProps {
   height?: number
   /** Optional title shown above chart */
   title?: string
+  /** Optional message when there is no data (e.g. "No queue activity yet") */
+  emptyLabel?: string
 }
 
 export default function AdminBarChart({
@@ -29,18 +31,22 @@ export default function AdminBarChart({
   ariaLabel,
   height = 140,
   title,
+  emptyLabel = 'No data',
 }: AdminBarChartProps) {
   const hasData = data.length > 0 && data.some((d) => d.value > 0)
 
   if (!hasData) {
     return (
       <div
-        className="flex items-center justify-center rounded-lg border border-silicon-slate/50 bg-silicon-slate/10"
+        className="flex flex-col items-center justify-center rounded-lg border border-silicon-slate/50 bg-silicon-slate/10"
         style={{ minHeight: height }}
         role="img"
-        aria-label={`${ariaLabel}: No data`}
+        aria-label={`${ariaLabel}: ${emptyLabel}`}
       >
-        <span className="text-sm text-platinum-white/50">No data</span>
+        {title && (
+          <p className="text-xs font-medium text-platinum-white/80 mb-1.5">{title}</p>
+        )}
+        <span className="text-sm text-platinum-white/50">{emptyLabel}</span>
       </div>
     )
   }

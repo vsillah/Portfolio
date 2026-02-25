@@ -129,7 +129,7 @@ export default function ScriptsManagementPage() {
     if (user) {
       fetchScripts();
     }
-  }, [fetchScripts]);
+  }, [user, fetchScripts]);
 
   const handleSave = async () => {
     setIsSaving(true);

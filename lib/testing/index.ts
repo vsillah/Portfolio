@@ -40,6 +40,7 @@ export type {
   InterestArea,
   
   // Scenario types
+  JourneyStage,
   TestScenario,
   ScenarioStep,
   ScenarioStepType,
@@ -137,10 +138,12 @@ export {
   SMOKE_TEST_SCENARIOS,
   CHAT_SCENARIOS,
   ECOMMERCE_SCENARIOS,
+  JOURNEY_SCENARIOS,
   
   // Utilities
   getScenario,
   getScenariosByTag,
+  getScenariosByJourneyStage,
   getRandomScenario,
   estimateTotalDuration,
   createCompositeScenario

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { useAuth } from '@/components/AuthProvider'
@@ -34,13 +34,8 @@ export default function ResourcesPage() {
   const [error, setError] = useState('')
   const [funnelFilter, setFunnelFilter] = useState<string>('all')
 
-  useEffect(() => {
-    fetchLeadMagnets()
-  }, [user, funnelFilter])
-
-  const fetchLeadMagnets = async () => {
+  const fetchLeadMagnets = useCallback(async () => {
     if (!user) return
-
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) {
@@ -73,7 +68,11 @@ export default function ResourcesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [user, funnelFilter])
+
+  useEffect(() => {
+    fetchLeadMagnets()
+  }, [fetchLeadMagnets])
 
   const handleDownload = async (id: number) => {
     try {

@@ -104,7 +104,7 @@ export default function ProductClassificationPage() {
     if (user) {
       fetchContent();
     }
-  }, [fetchContent]);
+  }, [user, fetchContent]);
 
   const handleSaveRole = async (data: ContentOfferRoleInput) => {
     const session = await getCurrentSession();
