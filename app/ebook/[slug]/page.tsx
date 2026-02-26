@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { BookOpen, Download, CheckCircle, ArrowLeft, Sparkles, User } from 'lucide-react'
+import { BookOpen, Download, CheckCircle, ArrowLeft, Sparkles, User, Calendar, MailCheck } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import Navigation from '@/components/Navigation'
 
@@ -40,6 +40,10 @@ export default function EbookLandingPage() {
   const [downloading, setDownloading] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showPostDownloadOffer, setShowPostDownloadOffer] = useState(false)
+  const [workshopNotifyStatus, setWorkshopNotifyStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const postDownloadRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
     async function load() {
@@ -50,6 +54,7 @@ export default function EbookLandingPage() {
 
       if (authRes.data.session) {
         setIsAuthenticated(true)
+        setUserEmail(authRes.data.session.user?.email ?? null)
       }
 
       if (lmRes.ok) {
@@ -62,6 +67,15 @@ export default function EbookLandingPage() {
     }
     load()
   }, [slug])
+
+  useEffect(() => {
+    if (showPostDownloadOffer && postDownloadRef.current) {
+      const t = setTimeout(() => {
+        postDownloadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 100)
+      return () => clearTimeout(t)
+    }
+  }, [showPostDownloadOffer])
 
   const handleDownload = useCallback(async () => {
     if (!leadMagnet) return
@@ -92,13 +106,53 @@ export default function EbookLandingPage() {
       }
 
       const { downloadUrl } = await res.json()
-      window.open(downloadUrl, '_blank')
+      // Trigger download in same window so we don't open a blank new tab
+      const a = document.createElement('a')
+      a.href = downloadUrl
+      a.setAttribute('download', 'Accelerated-Building-Smarter-Products-with-AI.epub')
+      a.rel = 'noopener noreferrer'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setShowPostDownloadOffer(true)
     } catch {
       setError('download_failed')
     } finally {
       setDownloading(false)
     }
   }, [leadMagnet, isAuthenticated, slug, router])
+
+  const handleWorkshopNotify = useCallback(async () => {
+    if (workshopNotifyStatus !== 'idle') return
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user?.email) {
+      setWorkshopNotifyStatus('error')
+      return
+    }
+    setWorkshopNotifyStatus('loading')
+    const name =
+      (session.user.user_metadata?.full_name as string)?.trim() ||
+      session.user.email?.split('@')[0] ||
+      'Ebook reader'
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email: session.user.email,
+          message: "I'd like to be notified when the Accelerated Workshop launches.",
+        }),
+      })
+      if (res.ok) {
+        setWorkshopNotifyStatus('success')
+      } else {
+        setWorkshopNotifyStatus('error')
+      }
+    } catch {
+      setWorkshopNotifyStatus('error')
+    }
+  }, [workshopNotifyStatus])
 
   if (loading) {
     return (
@@ -343,6 +397,71 @@ export default function EbookLandingPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* What's next? — shown after successful download */}
+      {showPostDownloadOffer && (
+        <section
+          ref={postDownloadRef}
+          className="relative z-10 py-24 px-6 sm:px-10 lg:px-12 border-t border-radiant-gold/10"
+        >
+          <div className="max-w-3xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <p className="font-body text-platinum-white/60 text-lg mb-2">
+                Your download has started.
+              </p>
+              <h2 className="font-premium text-2xl sm:text-3xl text-platinum-white mb-8">
+                What&apos;s next?
+              </h2>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
+                <a
+                  href="https://calendly.com/amadutown/atas-discovery-call"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 py-4 px-8 bg-radiant-gold text-imperial-navy rounded-full text-sm font-heading tracking-widest uppercase font-bold hover:brightness-110 transition-all"
+                >
+                  <Calendar size={18} />
+                  <span>Book a free discovery call</span>
+                </a>
+                <div className="flex flex-col items-center gap-2">
+                  {userEmail && (
+                    <p className="text-platinum-white/50 text-sm font-body">
+                      We&apos;ll notify you at <strong className="text-platinum-white/70">{userEmail}</strong>
+                    </p>
+                  )}
+                  {workshopNotifyStatus === 'idle' && (
+                    <button
+                      type="button"
+                      onClick={handleWorkshopNotify}
+                      className="inline-flex items-center justify-center gap-2 py-3 px-6 bg-silicon-slate/40 border border-radiant-gold/30 text-platinum-white rounded-full text-sm font-heading tracking-widest uppercase font-bold hover:bg-silicon-slate/60 transition-all"
+                    >
+                      <MailCheck size={16} />
+                      <span>Notify me when the Accelerated Workshop opens</span>
+                    </button>
+                  )}
+                  {workshopNotifyStatus === 'loading' && (
+                    <span className="text-platinum-white/60 text-sm">Saving...</span>
+                  )}
+                  {workshopNotifyStatus === 'success' && (
+                    <p className="text-radiant-gold text-sm font-body inline-flex items-center gap-2">
+                      <MailCheck size={16} />
+                      You&apos;re on the list. We&apos;ll email you when the workshop opens.
+                    </p>
+                  )}
+                  {workshopNotifyStatus === 'error' && (
+                    <p className="text-red-400/90 text-sm font-body">
+                      Something went wrong. Please try again or use the contact form.
+                    </p>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
     </main>
   )
 }

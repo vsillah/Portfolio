@@ -14,6 +14,13 @@ import {
 
 export const dynamic = 'force-dynamic'
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function parseLeadMagnetId(id: string): string | null {
+  const trimmed = id?.trim()
+  return trimmed && UUID_REGEX.test(trimmed) ? trimmed : null
+}
+
 function isAdmin(
   authClient: { auth: { getUser: (t: string) => Promise<{ data: { user: { id: string } | null }; error: unknown }> } },
   token: string
@@ -35,8 +42,8 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params
-    const leadMagnetId = parseInt(id, 10)
-    if (Number.isNaN(leadMagnetId)) {
+    const leadMagnetId = parseLeadMagnetId(id)
+    if (!leadMagnetId) {
       return NextResponse.json({ error: 'Invalid lead magnet ID' }, { status: 400 })
     }
 
@@ -120,8 +127,8 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params
-    const leadMagnetId = parseInt(id, 10)
-    if (Number.isNaN(leadMagnetId)) {
+    const leadMagnetId = parseLeadMagnetId(id)
+    if (!leadMagnetId) {
       return NextResponse.json({ error: 'Invalid lead magnet ID' }, { status: 400 })
     }
 

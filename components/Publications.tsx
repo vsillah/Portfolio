@@ -1,9 +1,9 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { BookOpen, ExternalLink, ShoppingCart, ArrowRight, Download } from 'lucide-react'
+import { BookOpen, ExternalLink, ShoppingCart, ArrowRight, Download, Calendar, MailCheck } from 'lucide-react'
 import ExpandableText from '@/components/ui/ExpandableText'
 import { formatPriceOrFree } from '@/lib/pricing-model'
 import Link from 'next/link'
@@ -54,14 +54,30 @@ export default function Publications() {
   const [usedFallback, setUsedFallback] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
+  const [postDownloadOfferShown, setPostDownloadOfferShown] = useState(false)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [workshopNotifyStatus, setWorkshopNotifyStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const postDownloadRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   useEffect(() => {
     fetchPublications()
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) setIsAuthenticated(true)
+      if (data.session) {
+        setIsAuthenticated(true)
+        setUserEmail(data.session.user?.email ?? null)
+      }
     })
   }, [])
+
+  useEffect(() => {
+    if (postDownloadOfferShown && postDownloadRef.current) {
+      const t = setTimeout(() => {
+        postDownloadRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 100)
+      return () => clearTimeout(t)
+    }
+  }, [postDownloadOfferShown])
 
   const handleLeadMagnetDownload = useCallback(async (lm: { id: string; slug: string | null }) => {
     if (!isAuthenticated) {
@@ -87,7 +103,15 @@ export default function Publications() {
 
       if (res.ok) {
         const { downloadUrl } = await res.json()
-        window.open(downloadUrl, '_blank')
+        const a = document.createElement('a')
+        a.href = downloadUrl
+        a.setAttribute('download', `${(lm.slug || 'ebook').replace(/[^a-z0-9-]/gi, '-')}.epub`)
+        a.rel = 'noopener noreferrer'
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        setUserEmail(session.user?.email ?? null)
+        setPostDownloadOfferShown(true)
       }
     } catch {
       // Silent fail for UX
@@ -95,6 +119,38 @@ export default function Publications() {
       setDownloadingId(null)
     }
   }, [isAuthenticated, router])
+
+  const handleWorkshopNotify = useCallback(async () => {
+    if (workshopNotifyStatus !== 'idle') return
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.user?.email) {
+      setWorkshopNotifyStatus('error')
+      return
+    }
+    setWorkshopNotifyStatus('loading')
+    const name =
+      (session.user.user_metadata?.full_name as string)?.trim() ||
+      session.user.email?.split('@')[0] ||
+      'Ebook reader'
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name,
+          email: session.user.email,
+          message: "I'd like to be notified when the Accelerated Workshop launches.",
+        }),
+      })
+      if (res.ok) {
+        setWorkshopNotifyStatus('success')
+      } else {
+        setWorkshopNotifyStatus('error')
+      }
+    } catch {
+      setWorkshopNotifyStatus('error')
+    }
+  }, [workshopNotifyStatus])
 
   const fetchPublications = async () => {
     try {
@@ -300,6 +356,66 @@ export default function Publications() {
             </motion.div>
           ))}
         </div>
+
+        {/* What's next? — shown after successful ebook download from this section */}
+        {postDownloadOfferShown && (
+          <motion.div
+            ref={postDownloadRef}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-16 pt-16 border-t border-radiant-gold/10 text-center max-w-2xl mx-auto"
+          >
+            <p className="font-body text-platinum-white/60 text-lg mb-2">
+              Your download has started.
+            </p>
+            <h3 className="font-premium text-xl sm:text-2xl text-platinum-white mb-6">
+              What&apos;s next?
+            </h3>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
+              <a
+                href="https://calendly.com/amadutown/atas-discovery-call"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-2 py-3 px-6 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:brightness-110 transition-all"
+              >
+                <Calendar size={14} />
+                <span>Book a free discovery call</span>
+              </a>
+              <div className="flex flex-col items-center gap-2">
+                {userEmail && (
+                  <p className="text-platinum-white/50 text-xs font-body">
+                    We&apos;ll notify you at <strong className="text-platinum-white/70">{userEmail}</strong>
+                  </p>
+                )}
+                {workshopNotifyStatus === 'idle' && (
+                  <button
+                    type="button"
+                    onClick={handleWorkshopNotify}
+                    className="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-silicon-slate/40 border border-radiant-gold/30 text-platinum-white rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:bg-silicon-slate/60 transition-all"
+                  >
+                    <MailCheck size={14} />
+                    <span>Notify me when the Accelerated Workshop opens</span>
+                  </button>
+                )}
+                {workshopNotifyStatus === 'loading' && (
+                  <span className="text-platinum-white/60 text-xs">Saving...</span>
+                )}
+                {workshopNotifyStatus === 'success' && (
+                  <p className="text-radiant-gold text-xs font-body inline-flex items-center gap-2">
+                    <MailCheck size={14} />
+                    You&apos;re on the list. We&apos;ll email you when the workshop opens.
+                  </p>
+                )}
+                {workshopNotifyStatus === 'error' && (
+                  <p className="text-red-400/90 text-xs font-body">
+                    Something went wrong. Please try again or use the contact form.
+                  </p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </section>
   )

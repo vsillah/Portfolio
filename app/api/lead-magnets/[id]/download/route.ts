@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
-import { getSignedUrl } from '@/lib/storage'
 import { triggerEbookNurtureSequence } from '@/lib/n8n'
 
 export const dynamic = 'force-dynamic'
@@ -15,14 +14,15 @@ function anonymizeIP(ip: string | null): string | null {
   return ip
 }
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const leadMagnetId = parseInt(params.id)
-    
-    if (isNaN(leadMagnetId)) {
+    const leadMagnetId = params.id?.trim()
+    if (!leadMagnetId || !UUID_REGEX.test(leadMagnetId)) {
       return NextResponse.json({ error: 'Invalid lead magnet ID' }, { status: 400 })
     }
 
@@ -65,8 +65,26 @@ export async function GET(
       )
     }
 
-    // Get signed URL for download (valid for 1 hour)
-    const signedUrl = await getSignedUrl('lead-magnets', storagePath, 3600)
+    // External URL: return as-is (e.g. file hosted on another Supabase or CDN)
+    const isExternalUrl =
+      storagePath.startsWith('http://') || storagePath.startsWith('https://')
+    let downloadUrl: string
+    if (isExternalUrl) {
+      downloadUrl = storagePath
+    } else {
+      // In-bucket path: create signed URL with service role (required for private buckets)
+      const { data: signed, error: signError } = await supabaseAdmin.storage
+        .from('lead-magnets')
+        .createSignedUrl(storagePath, 3600)
+      if (signError) {
+        console.error('Download signed URL error:', signError)
+        return NextResponse.json(
+          { error: 'File not found or unavailable for download' },
+          { status: 404 }
+        )
+      }
+      downloadUrl = signed.signedUrl
+    }
 
     // Track download
     const ip = request.headers.get('x-forwarded-for') || 
@@ -107,7 +125,7 @@ export async function GET(
       }).catch(() => {})
     }
 
-    return NextResponse.json({ downloadUrl: signedUrl })
+    return NextResponse.json({ downloadUrl })
   } catch (error) {
     console.error('Download error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

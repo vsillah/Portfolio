@@ -103,19 +103,19 @@ export default function Navigation() {
                   }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-3 px-4 py-2 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 transition-all duration-300"
+                  className="flex items-center gap-2 h-11 min-w-[44px] px-3 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 transition-all duration-300"
                 >
                   {/* Avatar */}
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-bronze via-radiant-gold to-gold-light flex items-center justify-center text-imperial-navy font-heading font-bold text-sm">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-bronze via-radiant-gold to-gold-light flex items-center justify-center text-imperial-navy font-heading font-bold text-xs flex-shrink-0">
                     {user.email?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   {/* Name/Email - hidden on mobile */}
-                  <span className="hidden sm:block text-platinum-white/80 text-sm font-medium max-w-[120px] truncate">
+                  <span className="hidden sm:block text-platinum-white/80 text-sm font-medium max-w-[100px] truncate">
                     {user.email?.split('@')[0]}
                   </span>
                   {/* Admin badge */}
                   {isAdmin && (
-                    <Shield className="text-radiant-gold" size={14} />
+                    <Shield className="text-radiant-gold flex-shrink-0" size={14} />
                   )}
                 </motion.button>
 
@@ -190,21 +190,12 @@ export default function Navigation() {
                 href="/auth/login"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-2 px-5 py-2 rounded-full border border-radiant-gold/40 text-radiant-gold hover:bg-radiant-gold hover:text-imperial-navy text-sm font-heading tracking-wider uppercase transition-all duration-300"
+                className="flex items-center gap-2 h-11 px-4 rounded-full border border-radiant-gold/40 text-radiant-gold hover:bg-radiant-gold hover:text-imperial-navy text-sm font-heading tracking-wider uppercase transition-all duration-300"
               >
                 <User size={16} />
                 <span className="hidden sm:inline">Login</span>
               </motion.a>
             )}
-
-            {/* Help Link */}
-            <Link
-              href="/help"
-              className="flex items-center justify-center w-11 h-11 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 text-platinum-white hover:text-radiant-gold transition-all duration-300"
-              aria-label="Help"
-            >
-              <HelpCircle size={18} />
-            </Link>
 
             {/* Hamburger Menu Button */}
             <motion.button
@@ -242,6 +233,15 @@ export default function Navigation() {
                 )}
               </AnimatePresence>
             </motion.button>
+
+            {/* Help Link — last icon on the menu */}
+            <Link
+              href="/help"
+              className="flex items-center justify-center w-11 h-11 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 text-platinum-white hover:text-radiant-gold transition-all duration-300"
+              aria-label="Help"
+            >
+              <HelpCircle size={18} />
+            </Link>
           </div>
         </div>
       </div>
