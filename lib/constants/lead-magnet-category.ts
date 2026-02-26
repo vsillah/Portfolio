@@ -36,3 +36,20 @@ export function isValidCategory(value: string): value is LeadMagnetCategory {
 export function isValidAccessType(value: string): value is LeadMagnetAccessType {
   return LEAD_MAGNET_ACCESS_TYPES.includes(value as LeadMagnetAccessType)
 }
+
+/** Lead magnet resource type (pdf, ebook, audiobook, etc.). Must match DB lead_magnets_type_check. */
+export const LEAD_MAGNET_TYPES = ['pdf', 'ebook', 'document', 'link', 'interactive', 'audiobook'] as const
+export type LeadMagnetType = (typeof LEAD_MAGNET_TYPES)[number]
+
+export const LEAD_MAGNET_TYPE_LABELS: Record<LeadMagnetType, string> = {
+  pdf: 'PDF',
+  ebook: 'Ebook',
+  document: 'Document',
+  link: 'Link',
+  interactive: 'Interactive',
+  audiobook: 'Audiobook',
+}
+
+export function isValidLeadMagnetType(value: string): value is LeadMagnetType {
+  return LEAD_MAGNET_TYPES.includes(value as LeadMagnetType)
+}

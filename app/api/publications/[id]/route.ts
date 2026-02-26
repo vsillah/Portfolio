@@ -49,9 +49,14 @@ export async function PUT(
 
     const { id } = params
     const body = await request.json()
-    const { title, description, publication_url, author, publication_date, publisher, display_order, is_published, file_path, file_type, file_size } = body
+    const {
+      title, description, publication_url, author, publication_date, publisher,
+      display_order, is_published, file_path, file_type, file_size,
+      elevenlabs_project_id, elevenlabs_public_user_id, elevenlabs_player_url,
+      audiobook_lead_magnet_id,
+    } = body
 
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     }
 
@@ -66,6 +71,10 @@ export async function PUT(
     if (file_path !== undefined) updateData.file_path = file_path
     if (file_type !== undefined) updateData.file_type = file_type
     if (file_size !== undefined) updateData.file_size = file_size
+    if (elevenlabs_project_id !== undefined) updateData.elevenlabs_project_id = elevenlabs_project_id
+    if (elevenlabs_public_user_id !== undefined) updateData.elevenlabs_public_user_id = elevenlabs_public_user_id
+    if (elevenlabs_player_url !== undefined) updateData.elevenlabs_player_url = elevenlabs_player_url
+    if (audiobook_lead_magnet_id !== undefined) updateData.audiobook_lead_magnet_id = audiobook_lead_magnet_id || null
 
     const { data, error } = await supabaseAdmin
       .from('publications')

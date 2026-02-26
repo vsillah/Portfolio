@@ -9,8 +9,11 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import {
   CATEGORY_LABELS,
   ACCESS_TYPE_LABELS,
+  LEAD_MAGNET_TYPES,
+  LEAD_MAGNET_TYPE_LABELS,
   type LeadMagnetCategory,
   type LeadMagnetAccessType,
+  type LeadMagnetType,
 } from '@/lib/constants/lead-magnet-category'
 import {
   FUNNEL_STAGE_OPTIONS,
@@ -19,7 +22,7 @@ import {
 } from '@/lib/constants/lead-magnet-funnel'
 
 interface LeadMagnet {
-  id: number
+  id: number | string
   title: string
   description: string | null
   file_path: string | null
@@ -35,6 +38,7 @@ interface LeadMagnet {
   private_link_token?: string | null
   slug?: string | null
   outcome_group_id?: string | null
+  type?: string
 }
 
 interface OutcomeGroup {
@@ -68,10 +72,10 @@ export default function LeadMagnetsManagementPage() {
     outcome_group_id: '',
   })
   const [outcomeGroups, setOutcomeGroups] = useState<OutcomeGroup[]>([])
-  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editingId, setEditingId] = useState<string | number | null>(null)
   const [editForm, setEditForm] = useState<Partial<LeadMagnet>>({})
-  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null)
-  const [copyFeedback, setCopyFeedback] = useState<number | null>(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | number | null>(null)
+  const [copyFeedback, setCopyFeedback] = useState<string | number | null>(null)
   const [funnelFilter, setFunnelFilter] = useState<string>('all')
   const [nurtureStats, setNurtureStats] = useState<Record<string, NurtureStats>>({})
 
@@ -253,6 +257,7 @@ export default function LeadMagnetsManagementPage() {
       private_link_token: editForm.private_link_token || null,
       is_active: editForm.is_active,
       outcome_group_id: editForm.outcome_group_id || null,
+      type: editForm.type ?? undefined,
     }
     const res = await fetch(`/api/lead-magnets/${editingId}`, {
       method: 'PATCH',
@@ -273,7 +278,7 @@ export default function LeadMagnetsManagementPage() {
     await fetchLeadMagnets()
   }, [editingId, editForm])
 
-  const handleDelete = useCallback(async (id: number) => {
+  const handleDelete = useCallback(async (id: string | number) => {
     const session = await getCurrentSession()
     if (!session?.access_token) return
     const res = await fetch(`/api/lead-magnets/${id}`, {
@@ -664,6 +669,19 @@ export default function LeadMagnetsManagementPage() {
                           ))}
                         </select>
                       </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-1">Type</label>
+                      <select
+                        value={editForm.type ?? 'pdf'}
+                        onChange={(e) => setEditForm({ ...editForm, type: e.target.value as LeadMagnetType })}
+                        className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                      >
+                        {LEAD_MAGNET_TYPES.map((t) => (
+                          <option key={t} value={t}>{LEAD_MAGNET_TYPE_LABELS[t]}</option>
+                        ))}
+                      </select>
+                      <p className="text-gray-500 text-xs mt-1">Audiobook = for publication audiobook download (bundle with e-book).</p>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-1">Slug</label>

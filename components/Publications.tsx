@@ -9,6 +9,7 @@ import { formatPriceOrFree } from '@/lib/pricing-model'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import PublicationCardAudio from '@/components/PublicationCardAudio'
 
 interface Publication {
   id: number
@@ -20,11 +21,19 @@ interface Publication {
   publisher: string | null
   file_path: string | null
   file_type: string | null
+  elevenlabs_project_id: string | null
+  elevenlabs_public_user_id: string | null
+  elevenlabs_player_url: string | null
   linked_product: {
     id: number
     price: number | null
   } | null
   linked_lead_magnet: {
+    id: string
+    slug: string | null
+    title: string
+  } | null
+  linked_audiobook_lead_magnet: {
     id: string
     slug: string | null
     title: string
@@ -43,8 +52,12 @@ const fallbackPublications: Publication[] = [
     publisher: 'Amazon',
     file_path: '/The_Equity_Code_Cover.png',
     file_type: 'image/png',
+    elevenlabs_project_id: null,
+    elevenlabs_public_user_id: null,
+    elevenlabs_player_url: null,
     linked_product: null,
     linked_lead_magnet: null,
+    linked_audiobook_lead_magnet: null,
   },
 ]
 
@@ -79,7 +92,7 @@ export default function Publications() {
     }
   }, [postDownloadOfferShown])
 
-  const handleLeadMagnetDownload = useCallback(async (lm: { id: string; slug: string | null }) => {
+  const handleLeadMagnetDownload = useCallback(async (lm: { id: string; slug: string | null }, isAudiobook?: boolean) => {
     if (!isAuthenticated) {
       const path = lm.slug ? `/ebook/${lm.slug}` : '/'
       if (typeof window !== 'undefined') {
@@ -103,9 +116,11 @@ export default function Publications() {
 
       if (res.ok) {
         const { downloadUrl } = await res.json()
+        const slug = (lm.slug || (isAudiobook ? 'audiobook' : 'ebook')).replace(/[^a-z0-9-]/gi, '-')
+        const ext = isAudiobook ? 'mp3' : 'epub'
         const a = document.createElement('a')
         a.href = downloadUrl
-        a.setAttribute('download', `${(lm.slug || 'ebook').replace(/[^a-z0-9-]/gi, '-')}.epub`)
+        a.setAttribute('download', `${slug}.${ext}`)
         a.rel = 'noopener noreferrer'
         document.body.appendChild(a)
         a.click()
@@ -302,22 +317,39 @@ export default function Publications() {
                 <div className="flex-grow" />
 
                 <div className="space-y-3 pt-6 border-t border-radiant-gold/5">
+                  {/* Ebook + Audiobook bundle or single lead magnet */}
                   {publication.linked_lead_magnet && (
                     <>
                       <button
-                        onClick={() => handleLeadMagnetDownload(publication.linked_lead_magnet!)}
-                        disabled={downloadingId === publication.linked_lead_magnet.id}
+                        onClick={() => handleLeadMagnetDownload(publication.linked_lead_magnet!, false)}
+                        disabled={downloadingId === publication.linked_lead_magnet!.id}
                         className="w-full flex items-center justify-center gap-3 py-3 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:brightness-110 transition-all disabled:opacity-60"
                       >
                         <Download size={14} />
                         <span>
-                          {downloadingId === publication.linked_lead_magnet.id
+                          {downloadingId === publication.linked_lead_magnet!.id
                             ? 'Preparing...'
-                            : isAuthenticated
-                              ? 'Download Free Ebook'
-                              : 'Get Free Ebook'}
+                            : !isAuthenticated
+                              ? publication.linked_audiobook_lead_magnet
+                                ? 'Get free ebook & audiobook'
+                                : 'Get Free Ebook'
+                              : 'Download Free Ebook'}
                         </span>
                       </button>
+                      {publication.linked_audiobook_lead_magnet && isAuthenticated && (
+                        <button
+                          onClick={() => handleLeadMagnetDownload(publication.linked_audiobook_lead_magnet!, true)}
+                          disabled={downloadingId === publication.linked_audiobook_lead_magnet.id}
+                          className="w-full flex items-center justify-center gap-3 py-3 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:brightness-110 transition-all disabled:opacity-60"
+                        >
+                          <Download size={14} />
+                          <span>
+                            {downloadingId === publication.linked_audiobook_lead_magnet.id
+                              ? 'Preparing...'
+                              : 'Download Audiobook'}
+                          </span>
+                        </button>
+                      )}
                       {publication.linked_lead_magnet.slug && (
                         <Link
                           href={`/ebook/${publication.linked_lead_magnet.slug}`}
@@ -330,6 +362,35 @@ export default function Publications() {
                     </>
                   )}
 
+                  {/* Audiobook only (no ebook lead magnet) */}
+                  {!publication.linked_lead_magnet && publication.linked_audiobook_lead_magnet && (
+                    <button
+                      onClick={() => handleLeadMagnetDownload(publication.linked_audiobook_lead_magnet!, true)}
+                      disabled={downloadingId === publication.linked_audiobook_lead_magnet.id}
+                      className="w-full flex items-center justify-center gap-3 py-3 bg-radiant-gold text-imperial-navy rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:brightness-110 transition-all disabled:opacity-60"
+                    >
+                      <Download size={14} />
+                      <span>
+                        {downloadingId === publication.linked_audiobook_lead_magnet.id
+                          ? 'Preparing...'
+                          : isAuthenticated
+                            ? 'Download Free Audiobook'
+                            : 'Get Free Audiobook'}
+                      </span>
+                    </button>
+                  )}
+
+                  {/* Listen (ElevenLabs) — after primary CTAs */}
+                  {publication.elevenlabs_public_user_id && (
+                    <PublicationCardAudio
+                      publicationId={publication.id}
+                      publicationTitle={publication.title}
+                      projectId={publication.elevenlabs_project_id ?? undefined}
+                      publicUserId={publication.elevenlabs_public_user_id}
+                      playerUrl={publication.elevenlabs_player_url}
+                    />
+                  )}
+
                   {!publication.linked_lead_magnet && publication.linked_product && (
                     <Link
                       href={`/store/${publication.linked_product.id}`}
@@ -339,7 +400,7 @@ export default function Publications() {
                       <span>Buy E-Book</span>
                     </Link>
                   )}
-                  
+
                   {publication.publication_url && (
                     <motion.a
                       href={publication.publication_url}

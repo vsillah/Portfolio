@@ -22,6 +22,10 @@ interface Publication {
   file_size: number | null
   created_at: string
   updated_at: string
+  elevenlabs_project_id?: string | null
+  elevenlabs_public_user_id?: string | null
+  elevenlabs_player_url?: string | null
+  audiobook_lead_magnet_id?: string | null
 }
 
 export default function PublicationsManagementPage() {
@@ -38,7 +42,12 @@ export default function PublicationsManagementPage() {
     publisher: '',
     display_order: 0,
     is_published: true,
+    elevenlabs_project_id: '',
+    elevenlabs_public_user_id: '',
+    elevenlabs_player_url: '',
+    audiobook_lead_magnet_id: '',
   })
+  const [audiobookLeadMagnets, setAudiobookLeadMagnets] = useState<Array<{ id: string; title: string; slug: string | null }>>([])
   const [uploadingFile, setUploadingFile] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<{
     file_path: string
@@ -49,6 +58,26 @@ export default function PublicationsManagementPage() {
 
   useEffect(() => {
     fetchPublications()
+  }, [])
+
+  useEffect(() => {
+    async function fetchAudiobookLeadMagnets() {
+      try {
+        const session = await getCurrentSession()
+        if (!session) return
+        const res = await fetch('/api/lead-magnets?admin=1', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (res.ok) {
+          const { leadMagnets } = await res.json()
+          const audiobook = (leadMagnets || []).filter((lm: { type?: string }) => lm.type === 'audiobook')
+          setAudiobookLeadMagnets(audiobook.map((lm: { id: string; title: string; slug: string | null }) => ({ id: lm.id, title: lm.title, slug: lm.slug ?? null })))
+        }
+      } catch {
+        // ignore
+      }
+    }
+    fetchAudiobookLeadMagnets()
   }, [])
 
   const fetchPublications = async () => {
@@ -184,6 +213,10 @@ export default function PublicationsManagementPage() {
         file_path: uploadedFile?.file_path || null,
         file_type: uploadedFile?.file_type || null,
         file_size: uploadedFile?.file_size || null,
+        elevenlabs_project_id: formData.elevenlabs_project_id || null,
+        elevenlabs_public_user_id: formData.elevenlabs_public_user_id || null,
+        elevenlabs_player_url: formData.elevenlabs_player_url || null,
+        audiobook_lead_magnet_id: formData.audiobook_lead_magnet_id || null,
       }
 
       const url = editingPublication ? `/api/publications/${editingPublication.id}` : '/api/publications'
@@ -210,6 +243,10 @@ export default function PublicationsManagementPage() {
           publisher: '',
           display_order: 0,
           is_published: true,
+          elevenlabs_project_id: '',
+          elevenlabs_public_user_id: '',
+          elevenlabs_player_url: '',
+          audiobook_lead_magnet_id: '',
         })
         setUploadedFile(null)
         fetchPublications()
@@ -281,6 +318,10 @@ export default function PublicationsManagementPage() {
       publisher: publication.publisher || '',
       display_order: publication.display_order,
       is_published: publication.is_published,
+      elevenlabs_project_id: publication.elevenlabs_project_id ?? '',
+      elevenlabs_public_user_id: publication.elevenlabs_public_user_id ?? '',
+      elevenlabs_player_url: publication.elevenlabs_player_url ?? '',
+      audiobook_lead_magnet_id: publication.audiobook_lead_magnet_id ?? '',
     })
     if (publication.file_path) {
       setUploadedFile({
@@ -308,6 +349,10 @@ export default function PublicationsManagementPage() {
       publisher: '',
       display_order: 0,
       is_published: true,
+      elevenlabs_project_id: '',
+      elevenlabs_public_user_id: '',
+      elevenlabs_player_url: '',
+      audiobook_lead_magnet_id: '',
     })
   }
 
@@ -425,6 +470,63 @@ export default function PublicationsManagementPage() {
                     className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
                   />
                 </div>
+
+                <div className="border-t border-gray-700 pt-4 mt-4">
+                  <h3 className="text-lg font-semibold mb-2">Audio (ElevenLabs)</h3>
+                  <p className="text-xs text-gray-400 mb-3">
+                    From ElevenLabs → Audio Native → your project → Embed. Add this domain to the whitelist. Leave blank if this publication has no in-page player.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Project ID</label>
+                      <input
+                        type="text"
+                        value={formData.elevenlabs_project_id}
+                        onChange={(e) => setFormData({ ...formData, elevenlabs_project_id: e.target.value })}
+                        className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                        placeholder="Project ID"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Public user ID</label>
+                      <input
+                        type="text"
+                        value={formData.elevenlabs_public_user_id}
+                        onChange={(e) => setFormData({ ...formData, elevenlabs_public_user_id: e.target.value })}
+                        className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                        placeholder="Public user ID"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-2">Player URL (optional)</label>
+                      <input
+                        type="url"
+                        value={formData.elevenlabs_player_url}
+                        onChange={(e) => setFormData({ ...formData, elevenlabs_player_url: e.target.value })}
+                        className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                        placeholder="https://elevenlabs.io/player/..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-700 pt-4">
+                  <h3 className="text-lg font-semibold mb-2">Audiobook lead magnet</h3>
+                  <p className="text-xs text-gray-400 mb-3">
+                    Link an audiobook lead magnet to offer a download for offline listening. Same package as the e-book when both are set.
+                  </p>
+                  <select
+                    value={formData.audiobook_lead_magnet_id}
+                    onChange={(e) => setFormData({ ...formData, audiobook_lead_magnet_id: e.target.value })}
+                    className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                  >
+                    <option value="">None</option>
+                    {audiobookLeadMagnets.map((lm) => (
+                      <option key={lm.id} value={lm.id}>{lm.title}</option>
+                    ))}
+                  </select>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-2">Publication File (PDF, Document, etc.)</label>
                   {uploadedFile ? (

@@ -8,6 +8,7 @@ import {
 import {
   isValidCategory,
   isValidAccessType,
+  isValidLeadMagnetType,
   type LeadMagnetCategory,
   type LeadMagnetAccessType,
 } from '@/lib/constants/lead-magnet-category'
@@ -90,6 +91,9 @@ export async function PATCH(
     }
     if (body.outcome_group_id !== undefined) {
       updates.outcome_group_id = body.outcome_group_id === null || body.outcome_group_id === '' ? null : (typeof body.outcome_group_id === 'string' ? body.outcome_group_id : null)
+    }
+    if (typeof body.type === 'string' && isValidLeadMagnetType(body.type)) {
+      updates.type = body.type
     }
 
     if (Object.keys(updates).length === 0) {

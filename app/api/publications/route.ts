@@ -21,6 +21,10 @@ type PublicationRow = {
   created_at: string
   created_by: string | null
   lead_magnet_id: string | null
+  elevenlabs_project_id: string | null
+  elevenlabs_public_user_id: string | null
+  elevenlabs_player_url: string | null
+  audiobook_lead_magnet_id: string | null
 }
 
 type ProductRow = {
@@ -73,7 +77,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Fetch linked lead magnets for publications that have lead_magnet_id
+    // Fetch linked lead magnets (ebook) for publications that have lead_magnet_id
     const leadMagnetIds = (publications || [])
       .map((p: PublicationRow) => p.lead_magnet_id)
       .filter((id: string | null): id is string => id != null)
@@ -93,11 +97,32 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Attach linked_product and linked_lead_magnet to each publication entry
+    // Fetch linked audiobook lead magnets for publications that have audiobook_lead_magnet_id
+    const audiobookLmIds = (publications || [])
+      .map((p: PublicationRow) => p.audiobook_lead_magnet_id)
+      .filter((id: string | null): id is string => id != null)
+    let linkedAudiobookLeadMagnets: Record<string, { id: string; slug: string | null; title: string }> = {}
+
+    if (audiobookLmIds.length > 0) {
+      const { data: audiobookLms } = await supabaseAdmin
+        .from('lead_magnets')
+        .select('id, slug, title')
+        .in('id', audiobookLmIds)
+        .eq('is_active', true)
+
+      if (audiobookLms) {
+        audiobookLms.forEach((lm: { id: string; slug: string | null; title: string }) => {
+          linkedAudiobookLeadMagnets[lm.id] = { id: lm.id, slug: lm.slug, title: lm.title }
+        })
+      }
+    }
+
+    // Attach linked_product, linked_lead_magnet, linked_audiobook_lead_magnet to each publication entry
     const publicationsWithLinks = (publications || []).map((p: PublicationRow) => ({
       ...p,
       linked_product: linkedProducts[p.id] || null,
       linked_lead_magnet: p.lead_magnet_id ? linkedLeadMagnets[p.lead_magnet_id] || null : null,
+      linked_audiobook_lead_magnet: p.audiobook_lead_magnet_id ? linkedAudiobookLeadMagnets[p.audiobook_lead_magnet_id] || null : null,
     }))
 
     return NextResponse.json(publicationsWithLinks)

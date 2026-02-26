@@ -9,7 +9,7 @@ test.describe('Admin Outreach API', () => {
   test('GET /api/admin/outreach/leads with filter=all returns 200 or 401', async ({ request }) => {
     const response = await request.get('/api/admin/outreach/leads?filter=all&limit=10&offset=0')
     expect([200, 401, 403]).toContain(response.status())
-    if (response.ok) {
+    if (response.ok()) {
       const data = await response.json()
       expect(data).toHaveProperty('leads')
       expect(data).toHaveProperty('total')
@@ -20,7 +20,7 @@ test.describe('Admin Outreach API', () => {
   test('GET /api/admin/outreach returns 200 or 401', async ({ request }) => {
     const response = await request.get('/api/admin/outreach?status=all&limit=10')
     expect([200, 401, 403]).toContain(response.status())
-    if (response.ok) {
+    if (response.ok()) {
       const data = await response.json()
       expect(data).toHaveProperty('items')
       expect(Array.isArray(data.items)).toBe(true)

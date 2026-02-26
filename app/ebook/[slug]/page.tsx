@@ -20,6 +20,12 @@ interface LandingPageData {
   authorBio: string
 }
 
+interface AudiobookLeadMagnet {
+  id: string
+  slug: string | null
+  title: string
+}
+
 interface LeadMagnet {
   id: string
   title: string
@@ -28,6 +34,7 @@ interface LeadMagnet {
   type: string
   download_count: number
   landing_page_data: LandingPageData | null
+  audiobook_lead_magnet?: AudiobookLeadMagnet | null
 }
 
 export default function EbookLandingPage() {
@@ -38,6 +45,7 @@ export default function EbookLandingPage() {
   const [leadMagnet, setLeadMagnet] = useState<LeadMagnet | null>(null)
   const [loading, setLoading] = useState(true)
   const [downloading, setDownloading] = useState(false)
+  const [downloadingAudiobook, setDownloadingAudiobook] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPostDownloadOffer, setShowPostDownloadOffer] = useState(false)
@@ -121,6 +129,49 @@ export default function EbookLandingPage() {
       setDownloading(false)
     }
   }, [leadMagnet, isAuthenticated, slug, router])
+
+  const handleAudiobookDownload = useCallback(async () => {
+    const audiobook = leadMagnet?.audiobook_lead_magnet
+    if (!audiobook) return
+
+    if (!isAuthenticated) {
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('auth_next_path', `/ebook/${slug}`)
+      }
+      router.push('/auth/login')
+      return
+    }
+
+    setDownloadingAudiobook(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session) {
+        sessionStorage.setItem('auth_next_path', `/ebook/${slug}`)
+        router.push('/auth/login')
+        return
+      }
+
+      const res = await fetch(`/api/lead-magnets/${audiobook.id}/download`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+
+      if (!res.ok) throw new Error('Download failed')
+
+      const { downloadUrl } = await res.json()
+      const slugSafe = (audiobook.slug || 'audiobook').replace(/[^a-z0-9-]/gi, '-')
+      const a = document.createElement('a')
+      a.href = downloadUrl
+      a.setAttribute('download', `${slugSafe}.mp3`)
+      a.rel = 'noopener noreferrer'
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+    } catch {
+      setError('download_failed')
+    } finally {
+      setDownloadingAudiobook(false)
+    }
+  }, [leadMagnet?.audiobook_lead_magnet, isAuthenticated, slug, router])
 
   const handleWorkshopNotify = useCallback(async () => {
     if (workshopNotifyStatus !== 'idle') return
@@ -288,6 +339,22 @@ export default function EbookLandingPage() {
                 <p className="text-red-400 text-sm font-body mt-4">
                   Something went wrong. Please try again.
                 </p>
+              )}
+
+              {leadMagnet.audiobook_lead_magnet && (
+                <div className="mt-10 pt-8 border-t border-radiant-gold/10">
+                  <p className="text-platinum-white/60 font-body text-sm mb-3">
+                    Also available: download the audiobook for offline listening.
+                  </p>
+                  <button
+                    onClick={handleAudiobookDownload}
+                    disabled={downloadingAudiobook}
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-3 py-3 px-8 border border-radiant-gold/30 text-platinum-white rounded-full text-sm font-heading tracking-widest uppercase font-bold hover:bg-radiant-gold/10 transition-all disabled:opacity-60"
+                  >
+                    <Download size={16} />
+                    <span>{downloadingAudiobook ? 'Preparing...' : 'Download Audiobook'}</span>
+                  </button>
+                </div>
               )}
             </motion.div>
           </div>
