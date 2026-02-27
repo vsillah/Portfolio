@@ -27,7 +27,7 @@ interface Session {
   visitor_email?: string
   is_escalated?: boolean
   created_at: string
-  channel: 'text' | 'voice'
+  channel: 'text' | 'voice' | 'chatbot' | 'email'
   message_count: number
   evaluation?: {
     rating?: 'good' | 'bad'
@@ -138,7 +138,7 @@ function AnnotationQueueContent() {
     try {
       const session = await getCurrentSession()
       
-      const response = await fetch('/api/admin/chat-eval/categories', {
+      const response = await fetch('/api/admin/chat-eval/categories?for_annotation=true', {
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,
         },

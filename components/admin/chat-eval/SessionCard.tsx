@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { MessageCircle, Mic, Check, X, ChevronRight, AlertTriangle, Clock, Square, CheckSquare } from 'lucide-react'
+import { MessageCircle, Mic, Check, X, ChevronRight, AlertTriangle, Clock, Square, CheckSquare, Trash2, Bot, Mail } from 'lucide-react'
 
 interface SessionCardProps {
   session: {
@@ -12,8 +12,9 @@ interface SessionCardProps {
     is_escalated?: boolean
     created_at: string
     updated_at: string
-    channel: 'text' | 'voice'
+    channel: 'text' | 'voice' | 'chatbot' | 'email'
     message_count: number
+    prompt_version?: number
     call_duration_seconds?: number
     evaluation?: {
       rating?: 'good' | 'bad'
@@ -26,10 +27,20 @@ interface SessionCardProps {
   selectionMode?: boolean
   onSelect?: (selected: boolean) => void
   onClick?: () => void
+  onDelete?: (sessionId: string) => void
 }
 
-export function SessionCard({ session, isSelected, selectionMode, onSelect, onClick }: SessionCardProps) {
-  const ChannelIcon = session.channel === 'voice' ? Mic : MessageCircle
+function getChannelIcon(channel: string) {
+  switch (channel) {
+    case 'voice': return Mic
+    case 'chatbot': return Bot
+    case 'email': return Mail
+    default: return MessageCircle // text (SMS) or fallback
+  }
+}
+
+export function SessionCard({ session, isSelected, selectionMode, onSelect, onClick, onDelete }: SessionCardProps) {
+  const ChannelIcon = getChannelIcon(session.channel)
   
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -60,6 +71,11 @@ export function SessionCard({ session, isSelected, selectionMode, onSelect, onCl
     } else {
       onClick?.()
     }
+  }
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onDelete?.(session.session_id)
   }
 
   return (
@@ -96,9 +112,9 @@ export function SessionCard({ session, isSelected, selectionMode, onSelect, onCl
             {/* Channel icon */}
             <div className={`
               w-6 h-6 rounded-md flex items-center justify-center
-              ${session.channel === 'voice' ? 'bg-purple-500/20' : 'bg-blue-500/20'}
+              ${session.channel === 'voice' ? 'bg-purple-500/20' : session.channel === 'chatbot' ? 'bg-orange-500/20' : session.channel === 'email' ? 'bg-blue-500/20' : 'bg-emerald-500/20'}
             `}>
-              <ChannelIcon size={14} className={session.channel === 'voice' ? 'text-purple-400' : 'text-blue-400'} />
+              <ChannelIcon size={14} className={session.channel === 'voice' ? 'text-purple-400' : session.channel === 'chatbot' ? 'text-orange-400' : session.channel === 'email' ? 'text-blue-400' : 'text-emerald-400'} />
             </div>
             
             {/* Session ID (truncated) */}
@@ -125,11 +141,19 @@ export function SessionCard({ session, isSelected, selectionMode, onSelect, onCl
           )}
           
           {/* Timestamps and stats */}
-          <div className="flex items-center gap-3 text-xs text-platinum-white/50">
+          <div className="flex items-center gap-3 text-xs text-platinum-white/50 flex-wrap">
             <span>Created: {formatDate(session.created_at)}</span>
             <span>•</span>
             <span>{session.message_count} messages</span>
-            {session.channel === 'voice' && session.call_duration_seconds && (
+            {session.prompt_version != null && (
+              <>
+                <span>•</span>
+                <span className="px-2 py-0.5 rounded bg-platinum-white/10 text-platinum-white/70 border border-platinum-white/20 font-medium">
+                  v{session.prompt_version}
+                </span>
+              </>
+            )}
+            {(session.channel === 'voice' && session.call_duration_seconds) && (
               <>
                 <span>•</span>
                 <span className="flex items-center gap-1">
@@ -165,7 +189,7 @@ export function SessionCard({ session, isSelected, selectionMode, onSelect, onCl
           )}
         </div>
         
-        {/* Right side: Rating status and chevron */}
+        {/* Right side: Rating status, delete, chevron */}
         <div className="flex items-center gap-3 ml-4">
           {/* Rating indicator */}
           {session.evaluation?.rating === 'good' ? (
@@ -179,7 +203,16 @@ export function SessionCard({ session, isSelected, selectionMode, onSelect, onCl
           ) : (
             <div className="w-6 h-6 rounded-full border-2 border-platinum-white/20" />
           )}
-          
+          {onDelete && (
+            <button
+              type="button"
+              onClick={handleDeleteClick}
+              className="p-1.5 rounded-lg text-platinum-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              title="Delete session"
+            >
+              <Trash2 size={16} />
+            </button>
+          )}
           <ChevronRight size={16} className="text-platinum-white/40" />
         </div>
       </div>

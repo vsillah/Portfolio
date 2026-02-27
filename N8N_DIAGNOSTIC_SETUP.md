@@ -48,6 +48,33 @@ When diagnostic mode is triggered, n8n receives:
 }
 ```
 
+## Fix: Execute Diagnostic node and WF-RAG-CHAT
+
+If your diagnostic workflow uses an **Execute Workflow** node (e.g. "Execute Diagnostic") that calls **WF-RAG-CHAT** (by ID, e.g. `Y56hALscpB5Asq7j`), fix both sides:
+
+### 1. Upgrade the Execute Workflow node (if n8n says it’s “out of date”)
+
+- n8n may show: *"This node is out of date. Please upgrade by removing it and adding a new one."*
+- **Do this:** Delete the current "Execute Diagnostic" (or Execute Workflow) node, then add a new **Execute Workflow** node from the node palette.
+- **Reconfigure the new node:**
+  - **Source:** Database
+  - **Workflow:** By ID → `Y56hALscpB5Asq7j` (or your WF-RAG-CHAT ID)
+  - **Mode:** Run once with all items
+- Reconnect inputs/outputs and save.
+
+### 2. Make WF-RAG-CHAT accept input
+
+The sub-workflow **WF-RAG-CHAT** must accept the data passed from the parent:
+
+1. Open workflow **WF-RAG-CHAT** (the one that is *called*, not the caller).
+2. Open its **Execute Workflow Trigger** (or the trigger that receives data from the parent).
+3. Set **Input data mode** to either:
+   - **"Accept any data passed to it"** (simplest), or
+   - **"Define using fields below"** and add a Workflow Input Schema matching the payload above (`action`, `sessionId`, `chatInput`, `diagnosticMode`, `diagnosticAuditId`, `currentCategory`, `progress`, `visitorEmail`, `visitorName`).
+4. Save and activate WF-RAG-CHAT. Then save the parent workflow and test again.
+
+Until both the node is upgraded and WF-RAG-CHAT accepts input, the parent workflow will show "The workflow has issues and cannot be executed for that reason."
+
 ## n8n Workflow Structure
 
 ### Option 1: Add Diagnostic Branch to Existing Workflow (Recommended)

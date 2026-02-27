@@ -42,12 +42,69 @@ export default function AxialCodesPage() {
   )
 }
 
+interface OpenCode {
+  id: string
+  code: string
+  description?: string
+  usage_count?: number
+}
+
 function AxialCodesContent() {
   const router = useRouter()
   const { user } = useAuth()
   const [generations, setGenerations] = useState<Generation[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<string | null>(null)
+  const [openCodes, setOpenCodes] = useState<OpenCode[]>([])
+  const [selectedOpenCode, setSelectedOpenCode] = useState<string>('')
+  const [promoting, setPromoting] = useState(false)
+  const [promoteError, setPromoteError] = useState<string | null>(null)
+  const [promoteSuccess, setPromoteSuccess] = useState<string | null>(null)
+
+  const fetchOpenCodes = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      const res = await fetch('/api/admin/chat-eval/categories', {
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setOpenCodes(data.open_codes || [])
+      }
+    } catch {
+      setOpenCodes([])
+    }
+  }, [])
+
+  const handlePromoteOpenCode = useCallback(async () => {
+    if (!selectedOpenCode.trim()) return
+    setPromoting(true)
+    setPromoteError(null)
+    setPromoteSuccess(null)
+    try {
+      const session = await getCurrentSession()
+      const res = await fetch('/api/admin/chat-eval/categories/from-open-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ code: selectedOpenCode.trim() }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setPromoteError(data.error || 'Failed to promote')
+        return
+      }
+      setPromoteSuccess(data.message || `"${selectedOpenCode}" is now an issue category.`)
+      setSelectedOpenCode('')
+      fetchOpenCodes()
+    } catch (e) {
+      setPromoteError(e instanceof Error ? e.message : 'Failed to promote')
+    } finally {
+      setPromoting(false)
+    }
+  }, [selectedOpenCode, fetchOpenCodes])
 
   const fetchGenerations = useCallback(async () => {
     setLoading(true)
@@ -76,6 +133,10 @@ function AxialCodesContent() {
   useEffect(() => {
     fetchGenerations()
   }, [fetchGenerations])
+
+  useEffect(() => {
+    fetchOpenCodes()
+  }, [fetchOpenCodes])
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -154,6 +215,44 @@ function AxialCodesContent() {
               {label}
             </button>
           ))}
+        </div>
+
+        {/* Promote open code directly — no axial generation needed */}
+        <div className="mb-8 p-4 bg-silicon-slate/20 border border-purple-500/20 rounded-xl">
+          <h3 className="text-sm font-heading text-platinum-white/80 uppercase tracking-wider mb-2">
+            Promote an open code to issue category
+          </h3>
+          <p className="text-xs text-platinum-white/50 mb-3">
+            Have an open code (e.g. &quot;Referencing AI tools&quot;) you want in the Issue Category dropdown? Promote it here — no axial code generation needed.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <select
+              value={selectedOpenCode}
+              onChange={(e) => setSelectedOpenCode(e.target.value)}
+              className="px-3 py-2 bg-silicon-slate/50 border border-radiant-gold/10 rounded-lg text-sm text-platinum-white focus:outline-none focus:border-radiant-gold/30 min-w-[200px]"
+            >
+              <option value="">Select an open code...</option>
+              {openCodes.map((oc) => (
+                <option key={oc.id} value={oc.code}>{oc.code}{oc.usage_count != null ? ` (${oc.usage_count})` : ''}</option>
+              ))}
+            </select>
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handlePromoteOpenCode}
+              disabled={!selectedOpenCode.trim() || promoting}
+              className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white text-sm"
+            >
+              {promoting ? 'Promoting...' : 'Promote to category'}
+            </motion.button>
+          </div>
+          {promoteError && <p className="text-red-400 text-sm mt-2">{promoteError}</p>}
+          {promoteSuccess && <p className="text-emerald-400 text-sm mt-2">{promoteSuccess}</p>}
+          {openCodes.length === 0 && (
+            <p className="text-xs text-platinum-white/40 mt-2">
+              No open codes yet. Annotate a session with a Bad rating and enter an &quot;Open Code&quot; to create one.
+            </p>
+          )}
         </div>
 
         {/* Generations list */}

@@ -17,6 +17,7 @@ import {
   ArrowLeft, 
   Mic, 
   MessageCircle, 
+  Mail,
   AlertTriangle, 
   Bot, 
   Loader2,
@@ -44,7 +45,7 @@ interface SessionData {
   is_escalated?: boolean
   created_at: string
   updated_at: string
-  channel: 'text' | 'voice'
+  channel: 'text' | 'voice' | 'chatbot' | 'email'
   messages: Array<{
     id: string
     role: 'user' | 'assistant' | 'support'
@@ -149,7 +150,7 @@ function SessionDetailContent() {
     try {
       const session = await getCurrentSession()
       
-      const response = await fetch('/api/admin/chat-eval/categories', {
+      const response = await fetch('/api/admin/chat-eval/categories?for_annotation=true', {
         headers: {
           'Authorization': `Bearer ${session?.access_token}`,
         },
@@ -273,7 +274,10 @@ function SessionDetailContent() {
     )
   }
 
-  const ChannelIcon = session.channel === 'voice' ? Mic : MessageCircle
+  const channelIcon = session.channel === 'voice' ? Mic : session.channel === 'chatbot' ? Bot : session.channel === 'email' ? Mail : MessageCircle
+  const channelBg = session.channel === 'voice' ? 'bg-purple-500/20' : session.channel === 'chatbot' ? 'bg-orange-500/20' : session.channel === 'email' ? 'bg-blue-500/20' : 'bg-emerald-500/20'
+  const channelColor = session.channel === 'voice' ? 'text-purple-400' : session.channel === 'chatbot' ? 'text-orange-400' : session.channel === 'email' ? 'text-blue-400' : 'text-emerald-400'
+  const ChannelIcon = channelIcon
 
   return (
     <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
@@ -296,11 +300,8 @@ function SessionDetailContent() {
           </motion.button>
           
           <div className="flex items-center gap-4">
-            <div className={`
-              w-10 h-10 rounded-xl flex items-center justify-center
-              ${session.channel === 'voice' ? 'bg-purple-500/20' : 'bg-blue-500/20'}
-            `}>
-              <ChannelIcon size={20} className={session.channel === 'voice' ? 'text-purple-400' : 'text-blue-400'} />
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${channelBg}`}>
+              <ChannelIcon size={20} className={channelColor} />
             </div>
             <div>
               <h1 className="text-2xl font-heading tracking-wider">

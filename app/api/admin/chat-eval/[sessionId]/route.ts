@@ -72,11 +72,15 @@ export async function GET(
       (a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     )
 
-    // Determine channel from messages
-    const hasVoice = messages.some((m: any) => 
-      m.metadata?.source === 'voice' || m.metadata?.channel === 'voice'
-    )
-    const channel = hasVoice ? 'voice' : 'text'
+    // Determine primary channel: voice (website) > chatbot (website chat) > text (SMS) > email
+    const hasVoice = messages.some((m: any) => m.metadata?.source === 'voice' || m.metadata?.channel === 'voice')
+    const hasChatbot = messages.some((m: any) => {
+      const s = m.metadata?.source || m.metadata?.channel
+      return s === 'chatbot' || s === 'text' || !s
+    })
+    const hasText = messages.some((m: any) => (m.metadata?.source || m.metadata?.channel) === 'sms')
+    const hasEmail = messages.some((m: any) => (m.metadata?.source || m.metadata?.channel) === 'email')
+    const channel = hasVoice ? 'voice' : hasChatbot ? 'chatbot' : hasText ? 'text' : hasEmail ? 'email' : 'chatbot'
 
     // Extract tool calls from messages
     const toolCalls = messages
@@ -284,13 +288,12 @@ export async function PUT(
 
 /**
  * DELETE /api/admin/chat-eval/[sessionId]
- * Delete evaluation for a session
+ * Delete the chat session and all related data (messages, evaluations, etc.) via DB cascade.
  */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { sessionId: string } }
 ) {
-  // Verify admin access
   const authResult = await verifyAdmin(request)
   if (isAuthError(authResult)) {
     return NextResponse.json(
@@ -300,24 +303,27 @@ export async function DELETE(
   }
 
   const { sessionId } = params
+  if (!sessionId) {
+    return NextResponse.json({ error: 'Session ID required' }, { status: 400 })
+  }
 
   try {
     const { error } = await supabaseAdmin
-      .from('chat_evaluations')
+      .from('chat_sessions')
       .delete()
       .eq('session_id', sessionId)
 
     if (error) {
-      console.error('Error deleting evaluation:', error)
+      console.error('Error deleting session:', error)
       return NextResponse.json(
-        { error: 'Failed to delete evaluation' },
+        { error: 'Failed to delete session' },
         { status: 500 }
       )
     }
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('Error deleting evaluation:', error)
+    console.error('Error deleting session:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

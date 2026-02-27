@@ -10,6 +10,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import PublicationCardAudio from '@/components/PublicationCardAudio'
+import NativePublicationAudio from '@/components/NativePublicationAudio'
 
 interface Publication {
   id: number
@@ -38,6 +39,8 @@ interface Publication {
     slug: string | null
     title: string
   } | null
+  /** Playable URL when using self-hosted audio (upload or pasted URL) */
+  audio_preview_playable_url?: string | null
 }
 
 // Fallback data in case database table doesn't exist yet
@@ -58,6 +61,7 @@ const fallbackPublications: Publication[] = [
     linked_product: null,
     linked_lead_magnet: null,
     linked_audiobook_lead_magnet: null,
+    audio_preview_playable_url: null,
   },
 ]
 
@@ -317,9 +321,34 @@ export default function Publications() {
                 <div className="flex-grow" />
 
                 <div className="space-y-3 pt-6 border-t border-radiant-gold/5">
-                  {/* Ebook + Audiobook bundle or single lead magnet */}
+                  {/* 1. Listen — media player first (right after read more) */}
+                  {publication.audio_preview_playable_url ? (
+                    <NativePublicationAudio
+                      publicationTitle={publication.title}
+                      src={publication.audio_preview_playable_url}
+                    />
+                  ) : publication.elevenlabs_public_user_id ? (
+                    <PublicationCardAudio
+                      publicationId={publication.id}
+                      publicationTitle={publication.title}
+                      projectId={publication.elevenlabs_project_id ?? undefined}
+                      publicUserId={publication.elevenlabs_public_user_id}
+                      playerUrl={publication.elevenlabs_player_url}
+                    />
+                  ) : null}
+
+                  {/* 2. Learn More, then 3. Download Free Ebook (consistent order) */}
                   {publication.linked_lead_magnet && (
                     <>
+                      {publication.linked_lead_magnet.slug && (
+                        <Link
+                          href={`/ebook/${publication.linked_lead_magnet.slug}`}
+                          className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-platinum-white/80 transition-all group/link"
+                        >
+                          <span>Learn More</span>
+                          <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
+                        </Link>
+                      )}
                       <button
                         onClick={() => handleLeadMagnetDownload(publication.linked_lead_magnet!, false)}
                         disabled={downloadingId === publication.linked_lead_magnet!.id}
@@ -350,15 +379,6 @@ export default function Publications() {
                           </span>
                         </button>
                       )}
-                      {publication.linked_lead_magnet.slug && (
-                        <Link
-                          href={`/ebook/${publication.linked_lead_magnet.slug}`}
-                          className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-platinum-white/80 transition-all group/link"
-                        >
-                          <span>Learn More</span>
-                          <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
-                        </Link>
-                      )}
                     </>
                   )}
 
@@ -378,17 +398,6 @@ export default function Publications() {
                             : 'Get Free Audiobook'}
                       </span>
                     </button>
-                  )}
-
-                  {/* Listen (ElevenLabs) — after primary CTAs */}
-                  {publication.elevenlabs_public_user_id && (
-                    <PublicationCardAudio
-                      publicationId={publication.id}
-                      publicationTitle={publication.title}
-                      projectId={publication.elevenlabs_project_id ?? undefined}
-                      publicUserId={publication.elevenlabs_public_user_id}
-                      playerUrl={publication.elevenlabs_player_url}
-                    />
                   )}
 
                   {!publication.linked_lead_magnet && publication.linked_product && (

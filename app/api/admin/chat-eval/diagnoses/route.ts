@@ -57,10 +57,6 @@ export async function GET(request: NextRequest) {
 
     const { data: diagnoses, error, count } = await query
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/chat-eval/diagnoses/route.ts:list',message:'Diagnoses list result',data:{status,error_type,total:count ?? 0,rowsReturned:(diagnoses||[]).length},hypothesisId:'H5',timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-
     if (error) {
       console.error('Error fetching diagnoses:', error)
       return NextResponse.json(

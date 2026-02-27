@@ -54,6 +54,7 @@ export async function PUT(
       display_order, is_published, file_path, file_type, file_size,
       elevenlabs_project_id, elevenlabs_public_user_id, elevenlabs_player_url,
       audiobook_lead_magnet_id,
+      audio_preview_url, audio_file_path,
     } = body
 
     const updateData: Record<string, unknown> = {
@@ -75,6 +76,8 @@ export async function PUT(
     if (elevenlabs_public_user_id !== undefined) updateData.elevenlabs_public_user_id = elevenlabs_public_user_id
     if (elevenlabs_player_url !== undefined) updateData.elevenlabs_player_url = elevenlabs_player_url
     if (audiobook_lead_magnet_id !== undefined) updateData.audiobook_lead_magnet_id = audiobook_lead_magnet_id || null
+    if (audio_preview_url !== undefined) updateData.audio_preview_url = audio_preview_url || null
+    if (audio_file_path !== undefined) updateData.audio_file_path = audio_file_path || null
 
     const { data, error } = await supabaseAdmin
       .from('publications')

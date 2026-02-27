@@ -75,6 +75,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
   const [activeCalendlyUrl, setActiveCalendlyUrl] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const hasLoadedHistory = useRef(false)
+  const sendingRef = useRef(false)
   
   // Check if voice chat is available
   const voiceEnabled = isVapiConfigured()
@@ -296,7 +297,8 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
   }
 
   const sendMessage = useCallback(async (content: string) => {
-    if (!content.trim() || isLoading) return
+    if (!content.trim() || isLoading || sendingRef.current) return
+    sendingRef.current = true
 
     setError(null)
 
@@ -339,13 +341,23 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
         diagnosticAuditId: diagnosticAuditId || undefined,
         diagnosticProgress: diagnosticProgress || undefined,
       }
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), 60_000)
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestPayload),
+        signal: controller.signal,
       })
+      clearTimeout(timeoutId)
 
-      const rawData = await response.json() as unknown
+      let rawData: unknown
+      try {
+        const text = await response.text()
+        rawData = text ? JSON.parse(text) : {}
+      } catch {
+        throw new Error('Invalid response from server. Please try again.')
+      }
 
       // Remove typing indicator
       setMessages(prev => prev.filter(m => m.id !== typingId))
@@ -428,7 +440,9 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       // Remove typing indicator on error
       setMessages(prev => prev.filter(m => m.id !== typingId))
 
-      const errorMessage = err instanceof Error ? err.message : 'Something went wrong'
+      const errorMessage = err instanceof Error && err.name === 'AbortError'
+        ? 'Request took too long. Please try again.'
+        : (err instanceof Error ? err.message : 'Something went wrong')
       setError(errorMessage)
 
       // Add error message to chat with retry button
@@ -441,6 +455,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
         retriableContent: content,
       }])
     } finally {
+      sendingRef.current = false
       setIsLoading(false)
     }
   }, [sessionId, isLoading, effectiveEmail, effectiveName, authUser?.id, isDiagnosticMode, diagnosticAuditId, diagnosticProgress])
@@ -645,7 +660,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                   <div className="text-xs text-platinum-white/70">
                     Current: {currentCategory.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   </div>
-                  {diagnosticProgress && diagnosticProgress.completedCategories.length > 0 && (
+                  {diagnosticProgress && diagnosticProgress.completedCategories && diagnosticProgress.completedCategories.length > 0 && (
                     <div className="text-xs text-platinum-white/50 mt-1">
                       Completed: {diagnosticProgress.completedCategories.length} of 6 categories
                     </div>

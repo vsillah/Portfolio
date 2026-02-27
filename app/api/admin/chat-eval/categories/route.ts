@@ -6,7 +6,9 @@ export const dynamic = 'force-dynamic'
 
 /**
  * GET /api/admin/chat-eval/categories
- * List all evaluation categories
+ * List evaluation categories.
+ * - Default: all active categories (for admin category management).
+ * - ?for_annotation=true: only categories from promoted axial codes (verified workflow), for the Issue Category dropdown in the rating panel.
  */
 export async function GET(request: NextRequest) {
   // Verify admin access
@@ -19,8 +21,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Get categories with usage counts
-    const { data: categories, error } = await supabaseAdmin
+    const { searchParams } = new URL(request.url)
+    const forAnnotation = searchParams.get('for_annotation') === 'true'
+
+    let query = supabaseAdmin
       .from('evaluation_categories')
       .select(`
         *,
@@ -28,6 +32,13 @@ export async function GET(request: NextRequest) {
       `)
       .eq('is_active', true)
       .order('sort_order', { ascending: true })
+
+    // For the annotation dropdown: show categories from promoted axial codes or from direct open-code promote
+    if (forAnnotation) {
+      query = query.in('source', ['axial_code', 'open_code'])
+    }
+
+    const { data: categories, error } = await query
 
     if (error) {
       console.error('Error fetching categories:', error)

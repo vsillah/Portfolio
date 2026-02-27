@@ -91,11 +91,15 @@ export async function POST(request: NextRequest) {
       (a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     )
 
-    // Determine channel
-    const hasVoice = messages.some((m: any) => 
-      m.metadata?.source === 'voice' || m.metadata?.channel === 'voice'
-    )
-    const channel = hasVoice ? 'voice' : 'text'
+    // Determine primary channel (voice = website voice; non-voice uses chatbot prompt)
+    const hasVoice = messages.some((m: any) => m.metadata?.source === 'voice' || m.metadata?.channel === 'voice')
+    const hasChatbot = messages.some((m: any) => {
+      const s = m.metadata?.source || m.metadata?.channel
+      return s === 'chatbot' || s === 'text' || !s
+    })
+    const hasText = messages.some((m: any) => (m.metadata?.source || m.metadata?.channel) === 'sms')
+    const hasEmail = messages.some((m: any) => (m.metadata?.source || m.metadata?.channel) === 'email')
+    const channel = hasVoice ? 'voice' : hasChatbot ? 'chatbot' : hasText ? 'text' : hasEmail ? 'email' : 'chatbot'
 
     // Prepare messages for diagnosis
     const messagesForDiagnosis = messages.map((m: any) => ({
@@ -108,13 +112,13 @@ export async function POST(request: NextRequest) {
       } : undefined,
     }))
 
-    // Prepare session data
+    // Prepare session data (SessionData.channel is 'voice' | 'text'; map others to 'text')
     const sessionData: SessionData = {
       session_id: session.session_id,
       visitor_name: session.visitor_name,
       visitor_email: session.visitor_email,
       is_escalated: session.is_escalated,
-      channel,
+      channel: channel === 'voice' ? 'voice' : 'text',
       messages: messagesForDiagnosis,
       metadata: session.metadata,
     }
@@ -129,8 +133,7 @@ export async function POST(request: NextRequest) {
       open_code: evaluation.open_code,
       category: evaluation.evaluation_categories ? {
         name: evaluation.evaluation_categories.name,
-        description: evaluation.evaluation_categories.description,
-      } : undefined,
+        description: evaluation.evaluation_categories.description,} : undefined,
     }
 
     // Get system prompt for context

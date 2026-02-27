@@ -8,7 +8,7 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { SessionCard, FilterSidebar } from '@/components/admin/chat-eval'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
-import { MessageCircle, TrendingUp, CheckCircle, FileText, CheckSquare, X, Sparkles, Loader2, Bug } from 'lucide-react'
+import { MessageCircle, TrendingUp, CheckCircle, FileText, CheckSquare, X, Sparkles, Loader2, Bug, Trash2 } from 'lucide-react'
 
 interface Session {
   id: string
@@ -18,8 +18,9 @@ interface Session {
   is_escalated?: boolean
   created_at: string
   updated_at: string
-  channel: 'text' | 'voice'
+  channel: 'text' | 'voice' | 'chatbot' | 'email'
   message_count: number
+  prompt_version?: number
   call_duration_seconds?: number
   evaluation?: {
     rating?: 'good' | 'bad'
@@ -63,6 +64,15 @@ function ChatEvalContent() {
   const [generateError, setGenerateError] = useState<string | null>(null)
   const [isDiagnosing, setIsDiagnosing] = useState(false)
   const [diagnoseError, setDiagnoseError] = useState<string | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
+  const [filterCounts, setFilterCounts] = useState<{
+    channel: { voice: number; text: number; email: number; chatbot: number }
+    annotated: number
+    unannotated: number
+    good: number
+    bad: number
+  } | null>(null)
 
   const fetchSessions = useCallback(async () => {
     setLoading(true)
@@ -71,7 +81,7 @@ function ChatEvalContent() {
       
       const params = new URLSearchParams({
         page: page.toString(),
-        limit: '20',
+        limit: '6',
       })
       
       if (selectedChannel) params.set('channel', selectedChannel)
@@ -120,10 +130,26 @@ function ChatEvalContent() {
     }
   }, [])
 
+  const fetchFilterCounts = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      const response = await fetch('/api/admin/chat-eval/counts', {
+        headers: { Authorization: `Bearer ${session?.access_token}` },
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setFilterCounts(data)
+      }
+    } catch {
+      setFilterCounts(null)
+    }
+  }, [])
+
   useEffect(() => {
     fetchSessions()
     fetchStats()
-  }, [fetchSessions, fetchStats])
+    fetchFilterCounts()
+  }, [fetchSessions, fetchStats, fetchFilterCounts])
 
   const handleReset = () => {
     setSelectedChannel(null)
@@ -179,6 +205,38 @@ function ChatEvalContent() {
   )
 
   // Diagnose errors
+  const handleDeleteSelected = async () => {
+    if (selectedSessions.size === 0) return
+    const n = selectedSessions.size
+    if (!confirm(`Delete ${n} session${n === 1 ? '' : 's'}? This cannot be undone. All messages and evaluations for these sessions will be removed.`)) return
+    setIsDeleting(true)
+    setDeleteError(null)
+    try {
+      const session = await getCurrentSession()
+      const res = await fetch('/api/admin/chat-eval/sessions/delete', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token}`,
+        },
+        body: JSON.stringify({ session_ids: Array.from(selectedSessions) }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setDeleteError(data.error || 'Failed to delete sessions')
+        return
+      }
+      setSelectedSessions(new Set())
+      setSelectionMode(false)
+      await fetchSessions()
+      await fetchFilterCounts()
+    } catch (e) {
+      setDeleteError(e instanceof Error ? e.message : 'Failed to delete')
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   const handleDiagnoseErrors = async () => {
     if (selectedWithBadRatings.length === 0) {
       setDiagnoseError('No selected sessions have bad ratings')
@@ -196,9 +254,6 @@ function ChatEvalContent() {
         return
       }
       const sessionIds = selectedWithBadRatings.map(s => s.session_id)
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/chat-eval/page.tsx:diagnose-before',message:'Diagnose batch request',data:{sessionIdsCount:sessionIds.length,sessionIds:sessionIds.slice(0,3)},hypothesisId:'H1',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
       const response = await fetch('/api/admin/chat-eval/diagnose/batch', {
         method: 'POST',
         headers: {
@@ -218,9 +273,6 @@ function ChatEvalContent() {
       } catch {
         data = { error: rawText?.slice(0, 200) || response.statusText }
       }
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/admin/chat-eval/page.tsx:diagnose-after',message:'Diagnose batch response',data:{ok:response.ok,status:response.status,statusText:response.statusText,error:data.error,summary:data.summary,fullBody:data,rawSlice:rawText?.slice(0,300)},hypothesisId:'H1',timestamp:Date.now()})}).catch(()=>{});
-      // #endregion
 
       if (!response.ok) {
         const msg = data?.error || data?.message || (typeof data?.detail === 'string' ? data.detail : null) || `Request failed (${response.status})`
@@ -299,7 +351,7 @@ function ChatEvalContent() {
                   <div className="flex items-center gap-2">
                     <TrendingUp size={16} className="text-emerald-400" />
                     <span className="text-sm text-emerald-400">
-                      Success Rate: {stats.success_rate}%
+                      Good Rate: {stats.success_rate}%
                     </span>
                   </div>
                 </div>
@@ -354,6 +406,105 @@ function ChatEvalContent() {
                 Page {page} of {totalPages}
               </span>
             </div>
+
+            {/* Inline selection action bar — in document flow, does not block list */}
+            <AnimatePresence>
+              {selectedSessions.size > 0 && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden"
+                >
+                  <div className="flex items-center gap-4 px-4 py-3 mb-3 bg-silicon-slate/30 border border-radiant-gold/30 rounded-xl">
+                    {/* Selection count */}
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-full bg-radiant-gold/20 flex items-center justify-center">
+                        <span className="text-sm font-bold text-radiant-gold">{selectedSessions.size}</span>
+                      </div>
+                      <div className="text-sm">
+                        <div className="text-platinum-white">sessions selected</div>
+                        <div className="text-platinum-white/50">
+                          {selectedWithOpenCodes.length} with open codes
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-px h-8 bg-platinum-white/20" />
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleGenerateAxialCodes}
+                      disabled={selectedWithOpenCodes.length === 0 || isGenerating}
+                      className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 
+                        disabled:bg-purple-600/50 disabled:cursor-not-allowed
+                        rounded-lg text-white font-medium transition-colors text-sm"
+                    >
+                      {isGenerating ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <Sparkles size={18} />
+                      )}
+                      {isGenerating ? 'Generating...' : 'Generate Axial Codes'}
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleDiagnoseErrors}
+                      disabled={selectedWithBadRatings.length === 0 || isDiagnosing}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
+                        disabled:bg-red-600/50 disabled:cursor-not-allowed
+                        rounded-lg text-white font-medium transition-colors text-sm"
+                    >
+                      {isDiagnosing ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <Bug size={18} />
+                      )}
+                      {isDiagnosing ? 'Diagnosing...' : `Diagnose Errors (${selectedWithBadRatings.length})`}
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleDeleteSelected}
+                      disabled={isDeleting}
+                      className="flex items-center gap-2 px-4 py-2 bg-platinum-white/10 hover:bg-red-600/80 
+                        disabled:opacity-50 disabled:cursor-not-allowed
+                        border border-platinum-white/20 rounded-lg text-platinum-white font-medium transition-colors text-sm"
+                    >
+                      {isDeleting ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={18} />
+                      )}
+                      {isDeleting ? 'Deleting...' : `Delete ${selectedSessions.size} session${selectedSessions.size === 1 ? '' : 's'}`}
+                    </motion.button>
+
+                    {generateError && (
+                      <div className="text-red-400 text-sm max-w-48">{generateError}</div>
+                    )}
+                    {diagnoseError && (
+                      <div className="text-red-400 text-sm max-w-48">{diagnoseError}</div>
+                    )}
+                    {deleteError && (
+                      <div className="text-red-400 text-sm max-w-48">{deleteError}</div>
+                    )}
+
+                    <button
+                      onClick={clearSelection}
+                      className="ml-auto p-2 hover:bg-platinum-white/10 rounded-lg transition-colors"
+                      aria-label="Clear selection"
+                    >
+                      <X size={18} className="text-platinum-white/60" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Sessions */}
             <div className="space-y-3">
@@ -424,159 +575,10 @@ function ChatEvalContent() {
                 total_sessions: stats.total_sessions,
                 success_rate: stats.success_rate,
               } : undefined}
+              filterCounts={filterCounts}
             />
           </div>
         </div>
-
-        {/* Quick links */}
-        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push('/admin/chat-eval/queues')}
-            className="p-4 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl
-              hover:border-radiant-gold/30 transition-all text-left"
-          >
-            <h3 className="font-heading text-lg mb-1">Annotation Queues</h3>
-            <p className="text-sm text-platinum-white/60">View sessions by channel type</p>
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push('/admin/chat-eval/alignment')}
-            className="p-4 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl
-              hover:border-radiant-gold/30 transition-all text-left"
-          >
-            <h3 className="font-heading text-lg mb-1">LLM Alignment</h3>
-            <p className="text-sm text-platinum-white/60">Human vs LLM judge comparison</p>
-          </motion.button>
-
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push('/admin/chat-eval/axial-codes')}
-            className="p-4 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl
-              hover:border-radiant-gold/30 transition-all text-left"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <Sparkles size={18} className="text-purple-400" />
-              <h3 className="font-heading text-lg">Axial Codes</h3>
-            </div>
-            <p className="text-sm text-platinum-white/60">Review generated categories</p>
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push('/admin/chat-eval/diagnoses')}
-            className="p-4 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl
-              hover:border-radiant-gold/30 transition-all text-left"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <Bug size={18} className="text-red-400" />
-              <h3 className="font-heading text-lg">Error Diagnoses</h3>
-            </div>
-            <p className="text-sm text-platinum-white/60">AI-powered root cause analysis</p>
-          </motion.button>
-          
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push('/admin/chat-eval/queue')}
-            className="p-4 bg-radiant-gold/10 border border-radiant-gold/30 rounded-xl
-              hover:bg-radiant-gold/20 transition-all text-left"
-          >
-            <h3 className="font-heading text-lg text-radiant-gold mb-1">Start Annotating</h3>
-            <p className="text-sm text-platinum-white/60">Jump into the annotation queue</p>
-          </motion.button>
-        </div>
-
-        {/* Floating Action Bar - appears when sessions are selected */}
-        <AnimatePresence>
-          {selectedSessions.size > 0 && (
-            <motion.div
-              initial={{ y: 100, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: 100, opacity: 0 }}
-              className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50"
-            >
-              <div className="flex items-center gap-4 px-6 py-4 bg-imperial-navy/95 backdrop-blur-lg border border-radiant-gold/30 rounded-2xl shadow-2xl">
-                {/* Selection count */}
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-radiant-gold/20 flex items-center justify-center">
-                    <span className="text-sm font-bold text-radiant-gold">{selectedSessions.size}</span>
-                  </div>
-                  <div className="text-sm">
-                    <div className="text-platinum-white">sessions selected</div>
-                    <div className="text-platinum-white/50">
-                      {selectedWithOpenCodes.length} with open codes
-                    </div>
-                  </div>
-                </div>
-
-                {/* Divider */}
-                <div className="w-px h-10 bg-platinum-white/20" />
-
-                {/* Generate Axial Codes button */}
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleGenerateAxialCodes}
-                  disabled={selectedWithOpenCodes.length === 0 || isGenerating}
-                  className="flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 
-                    disabled:bg-purple-600/50 disabled:cursor-not-allowed
-                    rounded-lg text-white font-medium transition-colors"
-                >
-                  {isGenerating ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <Sparkles size={18} />
-                  )}
-                  {isGenerating ? 'Generating...' : 'Generate Axial Codes'}
-                </motion.button>
-
-                {/* Diagnose Errors button */}
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleDiagnoseErrors}
-                  disabled={selectedWithBadRatings.length === 0 || isDiagnosing}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 
-                    disabled:bg-red-600/50 disabled:cursor-not-allowed
-                    rounded-lg text-white font-medium transition-colors"
-                >
-                  {isDiagnosing ? (
-                    <Loader2 size={18} className="animate-spin" />
-                  ) : (
-                    <Bug size={18} />
-                  )}
-                  {isDiagnosing ? 'Diagnosing...' : `Diagnose Errors (${selectedWithBadRatings.length})`}
-                </motion.button>
-
-                {/* Error messages */}
-                {generateError && (
-                  <div className="text-red-400 text-sm max-w-48">
-                    {generateError}
-                  </div>
-                )}
-                {diagnoseError && (
-                  <div className="text-red-400 text-sm max-w-48">
-                    {diagnoseError}
-                  </div>
-                )}
-
-                {/* Clear selection */}
-                <button
-                  onClick={clearSelection}
-                  className="p-2 hover:bg-platinum-white/10 rounded-lg transition-colors"
-                >
-                  <X size={18} className="text-platinum-white/60" />
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
     </div>
   )

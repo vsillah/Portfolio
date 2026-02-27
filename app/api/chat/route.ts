@@ -7,8 +7,11 @@ import { isValidCalendlyUrl } from '@/lib/utils'
 import { fetchConversationContext } from '@/lib/chat-context'
 import { createChatEscalation, formatTranscriptFromHistory } from '@/lib/chat-escalation'
 import { fetchClientContext, formatClientContextForAI } from '@/lib/chat-client-context'
+import { getSystemPrompt } from '@/lib/system-prompts'
 
 export const dynamic = 'force-dynamic'
+/** Allow up to 60s so n8n diagnostic call can complete and response reaches the client */
+export const maxDuration = 60
 
 // Diagnostic trigger phrases (same as in Chat.tsx)
 const DIAGNOSTIC_TRIGGERS = [
@@ -66,6 +69,14 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (!existingSession) {
+      // Record prompt version at session creation for eval correlation
+      let promptVersion: number | undefined
+      try {
+        const prompt = await getSystemPrompt(isDiagnosticMode ? 'diagnostic' : 'chatbot')
+        if (prompt?.version != null) promptVersion = prompt.version
+      } catch {
+        // Non-fatal: session still created, version just omitted
+      }
       const { error: sessionError } = await supabaseAdmin
         .from('chat_sessions')
         .insert({
@@ -73,6 +84,7 @@ export async function POST(request: NextRequest) {
           visitor_email: visitorEmail || null,
           visitor_name: visitorName || null,
           ...(userId ? { user_id: userId } : {}),
+          ...(promptVersion != null ? { prompt_version: promptVersion } : {}),
         })
 
       if (sessionError) {
@@ -126,8 +138,8 @@ export async function POST(request: NextRequest) {
         role: 'user',
         content: message.trim(),
         metadata: { 
-          source: 'text',
-          channel: 'text',
+          source: 'chatbot',
+          channel: 'chatbot',
           visitorEmail, 
           visitorName,
           diagnosticMode: isDiagnosticMode,
@@ -278,8 +290,8 @@ export async function POST(request: NextRequest) {
         role: n8nResponse.escalated ? 'support' : 'assistant',
         content: n8nResponse.response,
         metadata: {
-          source: 'text',
-          channel: 'text',
+          source: 'chatbot',
+          channel: 'chatbot',
           hasCrossChannelHistory,
           latency_ms: responseLatencyMs,
           timestamp: new Date().toISOString(),

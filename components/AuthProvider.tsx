@@ -54,7 +54,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const data = await response.json()
-      console.log('[AUTH DEBUG] Fetched profile from API:', data.profile)
       return data.profile as UserProfile | null
     } catch (error) {
       console.error('Error fetching profile from API:', error)
@@ -66,9 +65,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Get initial session: restore from storage first so we don't flash sign-in
     // while getUser() (server round-trip) is in flight
     const initAuth = async () => {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthProvider.tsx:initAuth',message:'initAuth started',data:{},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       try {
         const session = await getCurrentSession()
         if (session?.user) {
@@ -82,9 +78,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
         const user = await getCurrentUser()
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthProvider.tsx:getCurrentUser',message:'getCurrentUser resolved',data:{userId:user?.id ?? null,hasUser:!!user},timestamp:Date.now(),hypothesisId:'B'})}).catch(()=>{});
-        // #endregion
         setUser(user)
         if (user) {
           const currentSession = await getCurrentSession()
@@ -105,9 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error('Auth init error:', error)
       } finally {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AuthProvider.tsx:finally',message:'auth loading set false',data:{},timestamp:Date.now(),hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         initialAuthDoneRef.current = true
         setLoading(false)
       }
@@ -157,16 +147,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const isAdmin = profile?.role === 'admin' || false
-
-  // Debug logging
-  useEffect(() => {
-    if (user && !loading) {
-      console.log('[AUTH DEBUG] User:', user.id, user.email)
-      console.log('[AUTH DEBUG] Profile:', profile)
-      console.log('[AUTH DEBUG] Profile role:', profile?.role)
-      console.log('[AUTH DEBUG] isAdmin:', isAdmin)
-    }
-  }, [user, profile, loading, isAdmin])
 
   const value = {
     user,

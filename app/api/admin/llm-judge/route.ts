@@ -91,17 +91,22 @@ export async function POST(request: NextRequest) {
       } : undefined,
     }))
 
-    // Determine channel
-    const hasVoice = messages.some((m: any) => 
-      m.metadata?.source === 'voice' || m.metadata?.channel === 'voice'
-    )
+    // Determine primary channel
+    const hasVoice = messages.some((m: any) => m.metadata?.source === 'voice' || m.metadata?.channel === 'voice')
+    const hasChatbot = messages.some((m: any) => {
+      const s = m.metadata?.source || m.metadata?.channel
+      return s === 'chatbot' || s === 'text' || !s
+    })
+    const hasText = messages.some((m: any) => (m.metadata?.source || m.metadata?.channel) === 'sms')
+    const hasEmail = messages.some((m: any) => (m.metadata?.source || m.metadata?.channel) === 'email')
+    const derivedChannel = hasVoice ? 'voice' : hasChatbot ? 'chatbot' : hasText ? 'text' : hasEmail ? 'email' : 'chatbot'
 
-    // Build context
+    // Build context (judge uses voice vs non-voice for prompt; pass through for display)
     const context: JudgeContext = {
       visitorName: session.visitor_name,
       visitorEmail: session.visitor_email,
       isEscalated: session.is_escalated,
-      channel: hasVoice ? 'voice' : 'text',
+      channel: derivedChannel === 'voice' ? 'voice' : 'text',
       totalMessages: messages.length,
     }
 

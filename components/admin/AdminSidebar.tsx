@@ -34,11 +34,14 @@ import {
   Box,
   Shirt,
   Ticket,
+  Sparkles,
+  Bug,
 } from 'lucide-react'
-import { ADMIN_NAV, isNavItemActive, isContentExpanded } from '@/lib/admin-nav'
+import { ADMIN_NAV, isNavItemActive, isContentExpanded, isChatEvalExpanded } from '@/lib/admin-nav'
 import { useState, useEffect } from 'react'
 
 const CONTENT_HUB_CHILDREN_ID = 'admin-nav-content-children'
+const CHAT_EVAL_CHILDREN_ID = 'admin-nav-chat-eval-children'
 const ITEM_ICON_SIZE = 16
 
 /** Small icon per nav item so category items have clear hierarchy. */
@@ -58,6 +61,11 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/onboarding-templates': ClipboardList,
   '/admin/guarantees': ShieldCheck,
   '/admin/chat-eval': MessageSquare,
+  '/admin/chat-eval/queues': LayoutList,
+  '/admin/chat-eval/alignment': BarChart3,
+  '/admin/chat-eval/axial-codes': Sparkles,
+  '/admin/chat-eval/diagnoses': Bug,
+  '/admin/chat-eval/queue': MessageSquare,
   '/admin/analytics': BarChart3,
   '/admin/testing': FlaskConical,
   '/admin/content': FolderOpen,
@@ -84,10 +92,15 @@ function NavItemIcon({ href }: { href: string }) {
 export default function AdminSidebar() {
   const pathname = usePathname()
   const [contentOpen, setContentOpen] = useState(false)
+  const [chatEvalOpen, setChatEvalOpen] = useState(false)
   const contentExpanded = contentOpen || isContentExpanded(pathname ?? '')
+  const chatEvalExpanded = chatEvalOpen || isChatEvalExpanded(pathname ?? '')
 
   useEffect(() => {
     if (isContentExpanded(pathname ?? '')) setContentOpen(true)
+  }, [pathname])
+  useEffect(() => {
+    if (isChatEvalExpanded(pathname ?? '')) setChatEvalOpen(true)
   }, [pathname])
 
   return (
@@ -121,24 +134,27 @@ export default function AdminSidebar() {
             <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-platinum-white/60">
               {cat.label}
             </div>
-            {cat.children ? (
+            {cat.children && cat.expandableItemHref ? (
               <>
                 <div className="flex flex-col gap-0.5">
                   {cat.items.map((item) => {
                     const active = isNavItemActive(item.href, pathname ?? '')
-                    const isContentHub = item.href === '/admin/content'
+                    const isExpandable = item.href === cat.expandableItemHref
+                    const expanded = item.href === '/admin/content' ? contentExpanded : chatEvalExpanded
+                    const setExpanded = item.href === '/admin/content' ? setContentOpen : setChatEvalOpen
+                    const childrenId = item.href === '/admin/content' ? CONTENT_HUB_CHILDREN_ID : CHAT_EVAL_CHILDREN_ID
                     return (
                       <div key={item.href}>
-                        {isContentHub ? (
+                        {isExpandable ? (
                           <>
                             <button
                               type="button"
-                              onClick={() => setContentOpen((o) => !o)}
+                              onClick={() => setExpanded((o: boolean) => !o)}
                               className="flex w-full items-center gap-2 rounded-lg pl-5 pr-3 py-2 text-sm font-medium transition-colors text-left text-platinum-white/90 hover:bg-silicon-slate hover:text-foreground"
-                              aria-expanded={contentExpanded}
-                              aria-controls={CONTENT_HUB_CHILDREN_ID}
+                              aria-expanded={expanded}
+                              aria-controls={childrenId}
                             >
-                              {contentExpanded ? (
+                              {expanded ? (
                                 <ChevronDown size={ITEM_ICON_SIZE} className="shrink-0" />
                               ) : (
                                 <ChevronRight size={ITEM_ICON_SIZE} className="shrink-0" />
@@ -147,11 +163,11 @@ export default function AdminSidebar() {
                               {item.label}
                             </button>
                             <div
-                              id={CONTENT_HUB_CHILDREN_ID}
+                              id={childrenId}
                               className="flex flex-col gap-0.5 overflow-hidden"
-                              hidden={!contentExpanded}
+                              hidden={!expanded}
                             >
-                              {contentExpanded &&
+                              {expanded &&
                                 cat.children!.map((child) => {
                                   const childActive = isNavItemActive(child.href, pathname ?? '')
                                   return (

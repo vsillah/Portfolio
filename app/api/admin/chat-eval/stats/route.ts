@@ -81,18 +81,21 @@ export async function GET(request: NextRequest) {
       `)
       .gte('created_at', dateFrom.toISOString())
 
-    let voiceCount = 0
-    let textCount = 0
+    const channelCounts = { voice: 0, text: 0, email: 0, chatbot: 0 }
     sessions?.forEach((session: any) => {
       const messages = session.chat_messages || []
-      const hasVoice = messages.some((m: any) => 
-        m.metadata?.source === 'voice' || m.metadata?.channel === 'voice'
-      )
-      if (hasVoice) {
-        voiceCount++
-      } else {
-        textCount++
+      const sources = new Set<string>()
+      for (const m of messages || []) {
+        const source = m.metadata?.source || m.metadata?.channel
+        if (source === 'voice') sources.add('voice')
+        if (source === 'chatbot' || source === 'text' || !source) sources.add('chatbot')
+        if (source === 'sms') sources.add('text')
+        if (source === 'email') sources.add('email')
       }
+      if (sources.has('voice')) channelCounts.voice++
+      if (sources.has('chatbot')) channelCounts.chatbot++
+      if (sources.has('text')) channelCounts.text++
+      if (sources.has('email')) channelCounts.email++
     })
 
     // Get LLM judge alignment stats
@@ -128,10 +131,7 @@ export async function GET(request: NextRequest) {
         good_count: goodCount,
         bad_count: badCount,
       },
-      channels: {
-        voice: voiceCount,
-        text: textCount,
-      },
+      channels: channelCounts,
       categories: Object.values(categoryCounts).sort((a, b) => b.count - a.count),
       llm_alignment: {
         total_compared: totalCompared,

@@ -23,6 +23,8 @@ interface QueueStats {
   channels: {
     voice: number
     text: number
+    email: number
+    chatbot: number
   }
   categories: Array<{
     id: string
@@ -77,32 +79,32 @@ function QueuesOverviewContent() {
 
   const queues = [
     {
-      id: 'text',
-      name: 'All Text Messages',
-      icon: MessageCircle,
-      color: 'blue',
-      count: stats?.channels.text || 0,
-    },
-    {
       id: 'voice',
       name: `All ${getPromptDisplayName('voice_agent')}`,
       icon: Mic,
       color: 'purple',
-      count: stats?.channels.voice || 0,
-    },
-    {
-      id: 'email',
-      name: 'All Emails',
-      icon: Mail,
-      color: 'emerald',
-      count: 0, // Placeholder
+      count: stats?.channels.voice ?? 0,
     },
     {
       id: 'chatbot',
       name: `All ${getPromptDisplayName('chatbot')}`,
       icon: Bot,
       color: 'orange',
-      count: 0, // Placeholder
+      count: stats?.channels.chatbot ?? 0,
+    },
+    {
+      id: 'text',
+      name: 'All Text (SMS)',
+      icon: MessageCircle,
+      color: 'emerald',
+      count: stats?.channels.text ?? 0,
+    },
+    {
+      id: 'email',
+      name: 'All Emails',
+      icon: Mail,
+      color: 'blue',
+      count: stats?.channels.email ?? 0,
     },
   ]
 

@@ -91,16 +91,16 @@ export async function GET(request: NextRequest) {
     // Post-process to apply channel and rating filters (can't filter on metadata in query)
     let filteredSessions = sessions || []
 
-    // Filter by channel (derived from message metadata)
+    // Filter by channel (derived from message metadata). Chatbot = website chat; text = reserved for SMS.
     if (channel) {
       filteredSessions = filteredSessions.filter((session: any) => {
         const messages = session.chat_messages || []
         const hasChannelMessages = messages.some((msg: any) => {
           const source = msg.metadata?.source || msg.metadata?.channel
           if (channel === 'voice') return source === 'voice'
-          if (channel === 'text') return source === 'text' || !source
+          if (channel === 'chatbot') return source === 'chatbot' || source === 'text' || !source
+          if (channel === 'text') return source === 'sms' // reserved for future SMS
           if (channel === 'email') return source === 'email'
-          if (channel === 'chatbot') return source === 'chatbot'
           return true
         })
         return hasChannelMessages
@@ -131,9 +131,15 @@ export async function GET(request: NextRequest) {
       const messages = session.chat_messages || []
       const evaluation = session.chat_evaluations?.[0]
       
-      // Determine channel from messages
+      // Determine primary channel: voice (website) > chatbot (website chat) > text (reserved SMS) > email
       const hasVoice = messages.some((m: any) => m.metadata?.source === 'voice' || m.metadata?.channel === 'voice')
-      const derivedChannel = hasVoice ? 'voice' : 'text'
+      const hasChatbot = messages.some((m: any) => {
+        const s = m.metadata?.source || m.metadata?.channel
+        return s === 'chatbot' || s === 'text' || !s
+      })
+      const hasText = messages.some((m: any) => (m.metadata?.source || m.metadata?.channel) === 'sms')
+      const hasEmail = messages.some((m: any) => (m.metadata?.source || m.metadata?.channel) === 'email')
+      const derivedChannel = hasVoice ? 'voice' : hasChatbot ? 'chatbot' : hasText ? 'text' : hasEmail ? 'email' : 'chatbot'
       
       // Get message count by role
       const userMessages = messages.filter((m: any) => m.role === 'user').length
@@ -154,6 +160,7 @@ export async function GET(request: NextRequest) {
         message_count: messages.length,
         user_message_count: userMessages,
         assistant_message_count: assistantMessages,
+        prompt_version: session.prompt_version ?? undefined,
         // Voice-specific metadata
         recording_url: sessionMeta.recordingUrl,
         call_duration_seconds: sessionMeta.durationSeconds,

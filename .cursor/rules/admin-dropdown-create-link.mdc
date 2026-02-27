@@ -1,0 +1,36 @@
+---
+description: When an admin form has a dropdown to select an existing entity (e.g. lead magnet, product), add a "Create X" link that opens the create page with context and optional return path.
+globs: app/admin/**/*.tsx
+alwaysApply: false
+---
+
+# Admin Dropdown + Create Link Pattern
+
+When a form includes a **dropdown to select an existing entity** (e.g. lead magnet, product, outcome group), also provide a **"Create [entity]" link** so the user can create one in context without leaving the flow.
+
+## Implementation
+
+1. **Link target:** Use the shared helper `adminCreateUrl()` from `@/lib/admin-create-context` to build the URL with query params:
+   - `open=add` — create page opens the add form on load
+   - `type=<value>` — pre-fill type when the resource has types (e.g. `type=audiobook` for lead magnets)
+   - `returnTo=<path>` — after creating, redirect back to the referring form (e.g. `/admin/content/publications`)
+
+2. **Placement:** Prefer adding a **dropdown option** (e.g. "Create lead magnet...") with a sentinel value (e.g. `__create_lead_magnet__`). On change, if the value is the sentinel, call `router.push(adminCreateUrl(...))` and do not update the form field. Alternatively, you can put a link below the dropdown; use `Link` from `next/link` and style as a subtle action (e.g. `text-sm text-purple-400 hover:text-purple-300`).
+
+3. **Create page (e.g. lead-magnets):**
+   - Read `useSearchParams()` for `open`, `type`, `returnTo` (constants in `ADMIN_CREATE_PARAMS`).
+   - In a `useEffect`, when `open=add`: set state to show the add form and pre-fill fields (e.g. `type` from `type=` param).
+   - After successful create: if `returnTo` is present and starts with `/admin`, `router.push(returnTo)` so the user returns to the form they came from.
+
+4. **Extending the pattern:** To add another resource (e.g. "Create product"), extend `AdminCreateResource` and the path map in `lib/admin-create-context.ts`, then add the link next to the corresponding dropdown.
+
+## Example (Publications → Audiobook lead magnet)
+
+- Dropdown: "Audiobook lead magnet" with options **None**, **"Create lead magnet..."** (sentinel value `__create_lead_magnet__`), then the list of lead magnets. On change, if value is the sentinel, `router.push(adminCreateUrl('lead-magnets', { type: 'audiobook', returnTo: '/admin/content/publications' }))`.
+- Lead magnets page: on load with `?open=add&type=audiobook&returnTo=...`, opens add form with Type = Audiobook; on submit success, redirects to `/admin/content/publications`.
+
+## Reference
+
+- Helper: `lib/admin-create-context.ts` (`adminCreateUrl`, `ADMIN_CREATE_PARAMS`)
+- Example consumer: `app/admin/content/publications/page.tsx` (Audiobook lead magnet dropdown)
+- Example target: `app/admin/content/lead-magnets/page.tsx` (reads params, opens add form, redirects on success)

@@ -21,9 +21,6 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/chat-eval/diagnose/batch/route.ts:try-entry',message:'Batch handler entered',data:{},hypothesisId:'H2',timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     let body: unknown
     try {
       body = await request.json()
@@ -47,10 +44,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
-
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/chat-eval/diagnose/batch/route.ts:start',message:'Batch diagnose start',data:{sessionIdsCount:session_ids.length,sessionIds:session_ids.slice(0,3)},hypothesisId:'H2',timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
 
     // Validate provider and model
     const selectedProvider: LLMProvider = provider === 'openai' ? 'openai' : 'anthropic'
@@ -88,9 +81,6 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (sessionError || !session) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/chat-eval/diagnose/batch/route.ts:session-miss',message:'Session not found',data:{sessionId},hypothesisId:'H2',timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
           results.push({
             session_id: sessionId,
             success: false,
@@ -112,9 +102,6 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (!evaluations) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/chat-eval/diagnose/batch/route.ts:no-bad-eval',message:'No bad-rated evaluation',data:{sessionId,evalErrorCode:evalError?.code,evalErrorMsg:evalError?.message},hypothesisId:'H2',timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
           results.push({
             session_id: sessionId,
             success: false,
@@ -130,10 +117,8 @@ export async function POST(request: NextRequest) {
           (a: any, b: any) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
         )
 
-        const hasVoice = messages.some((m: any) => 
-          m.metadata?.source === 'voice' || m.metadata?.channel === 'voice'
-        )
-        const channel = hasVoice ? 'voice' : 'text'
+        const hasVoice = messages.some((m: any) => m.metadata?.source === 'voice' || m.metadata?.channel === 'voice')
+        const channel: 'voice' | 'text' = hasVoice ? 'voice' : 'text'
 
         const messagesForDiagnosis = messages.map((m: any) => ({
           role: m.role,
@@ -203,9 +188,6 @@ export async function POST(request: NextRequest) {
           .single()
 
         if (storeError) {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/chat-eval/diagnose/batch/route.ts:store-error',message:'Store diagnosis failed',data:{sessionId,storeError:storeError.message},hypothesisId:'H4',timestamp:Date.now()})}).catch(()=>{});
-          // #endregion
           results.push({
             session_id: sessionId,
             success: false,
@@ -220,9 +202,6 @@ export async function POST(request: NextRequest) {
           diagnosis_id: storedDiagnosis.id,
         })
       } catch (error) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/chat-eval/diagnose/batch/route.ts:catch',message:'Batch session error',data:{sessionId,errorMsg:error instanceof Error ? error.message : String(error)},hypothesisId:'H3',timestamp:Date.now()})}).catch(()=>{});
-        // #endregion
         results.push({
           session_id: sessionId,
           success: false,
@@ -234,10 +213,6 @@ export async function POST(request: NextRequest) {
     const successCount = results.filter(r => r.success).length
     const failureCount = results.filter(r => !r.success).length
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/chat-eval/diagnose/batch/route.ts:done',message:'Batch diagnose done',data:{successCount,failureCount,results:results.map(r=>({session_id:r.session_id,success:r.success,error:(r as any).error}))},hypothesisId:'H4',timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
-
     return NextResponse.json({
       results,
       summary: {
@@ -248,9 +223,6 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'app/api/admin/chat-eval/diagnose/batch/route.ts:catch',message:'Batch diagnosis error',data:{errorMsg:errorMessage},hypothesisId:'H3',timestamp:Date.now()})}).catch(()=>{});
-    // #endregion
     console.error('Batch diagnosis error:', error)
     return NextResponse.json(
       { error: errorMessage || 'Internal server error' },

@@ -25,6 +25,8 @@ type PublicationRow = {
   elevenlabs_public_user_id: string | null
   elevenlabs_player_url: string | null
   audiobook_lead_magnet_id: string | null
+  audio_preview_url?: string | null
+  audio_file_path?: string | null
 }
 
 type ProductRow = {
@@ -117,13 +119,23 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Attach linked_product, linked_lead_magnet, linked_audiobook_lead_magnet to each publication entry
-    const publicationsWithLinks = (publications || []).map((p: PublicationRow) => ({
-      ...p,
-      linked_product: linkedProducts[p.id] || null,
-      linked_lead_magnet: p.lead_magnet_id ? linkedLeadMagnets[p.lead_magnet_id] || null : null,
-      linked_audiobook_lead_magnet: p.audiobook_lead_magnet_id ? linkedAudiobookLeadMagnets[p.audiobook_lead_magnet_id] || null : null,
-    }))
+    // Attach linked_product, linked_lead_magnet, linked_audiobook_lead_magnet and playable audio URL.
+    // For audio_file_path we use the streaming proxy URL so the browser gets Range support and avoids 400 from signed URLs.
+    const publicationsWithLinks = (publications || []).map((p: PublicationRow) => {
+      let audio_preview_playable_url: string | null = null
+      if (p.audio_file_path) {
+        audio_preview_playable_url = `/api/publications/${p.id}/audio`
+      } else if (p.audio_preview_url) {
+        audio_preview_playable_url = p.audio_preview_url
+      }
+      return {
+        ...p,
+        linked_product: linkedProducts[p.id] || null,
+        linked_lead_magnet: p.lead_magnet_id ? linkedLeadMagnets[p.lead_magnet_id] || null : null,
+        linked_audiobook_lead_magnet: p.audiobook_lead_magnet_id ? linkedAudiobookLeadMagnets[p.audiobook_lead_magnet_id] || null : null,
+        audio_preview_playable_url,
+      }
+    })
 
     return NextResponse.json(publicationsWithLinks)
   } catch (error: any) {

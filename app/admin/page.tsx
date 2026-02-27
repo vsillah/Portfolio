@@ -470,7 +470,7 @@ function AdminDashboardContent() {
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{quality.chatStats?.overview?.evaluated_sessions ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Success rate</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Good rate</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{quality.chatStats?.overview?.success_rate ?? 0}%</p>
                   </div>
                 </div>

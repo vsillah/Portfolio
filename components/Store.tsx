@@ -100,7 +100,9 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
   const showMerchandise = section === 'all' || section === 'merchandise'
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    let timeoutId: number | null = null
+    const fetchProducts = async (retry = false) => {
+      if (retry) setLoading(true)
       try {
         const response = await fetch('/api/products?active=true')
         if (response.ok) {
@@ -109,11 +111,17 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
         }
       } catch (error) {
         console.error('Error fetching products:', error)
+        if (!retry) {
+          timeoutId = window.setTimeout(() => fetchProducts(true), 2000)
+        }
       } finally {
         setLoading(false)
       }
     }
     fetchProducts()
+    return () => {
+      if (timeoutId) window.clearTimeout(timeoutId)
+    }
   }, [])
 
   const { digitalProducts, merchandise } = useMemo(() => {

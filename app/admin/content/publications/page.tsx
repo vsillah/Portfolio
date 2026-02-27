@@ -1,10 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, Upload, File, X, BookOpen } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
+import { adminCreateUrl } from '@/lib/admin-create-context'
 import { getCurrentSession } from '@/lib/auth'
+import { supabase } from '@/lib/supabase'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 interface Publication {
@@ -26,9 +29,12 @@ interface Publication {
   elevenlabs_public_user_id?: string | null
   elevenlabs_player_url?: string | null
   audiobook_lead_magnet_id?: string | null
+  audio_preview_url?: string | null
+  audio_file_path?: string | null
 }
 
 export default function PublicationsManagementPage() {
+  const router = useRouter()
   const [publications, setPublications] = useState<Publication[]>([])
   const [loading, setLoading] = useState(true)
   const [editingPublication, setEditingPublication] = useState<Publication | null>(null)
@@ -46,7 +52,14 @@ export default function PublicationsManagementPage() {
     elevenlabs_public_user_id: '',
     elevenlabs_player_url: '',
     audiobook_lead_magnet_id: '',
+    audio_preview_url: '',
+    audio_file_path: '',
   })
+  const [uploadingAudio, setUploadingAudio] = useState(false)
+  /** In-page audio: one source only. Derived from publication when editing. */
+  const [audioSource, setAudioSource] = useState<'elevenlabs' | 'self_hosted'>('elevenlabs')
+  /** When self-hosted: show either URL input or upload. */
+  const [selfHostedMethod, setSelfHostedMethod] = useState<'url' | 'upload'>('url')
   const [audiobookLeadMagnets, setAudiobookLeadMagnets] = useState<Array<{ id: string; title: string; slug: string | null }>>([])
   const [uploadingFile, setUploadingFile] = useState(false)
   const [uploadedFile, setUploadedFile] = useState<{
@@ -201,6 +214,7 @@ export default function PublicationsManagementPage() {
       const session = await getCurrentSession()
       if (!session) return
 
+      // Persist only the active in-page audio source; clear the other.
       const payload = {
         title: formData.title,
         description: formData.description || null,
@@ -213,10 +227,12 @@ export default function PublicationsManagementPage() {
         file_path: uploadedFile?.file_path || null,
         file_type: uploadedFile?.file_type || null,
         file_size: uploadedFile?.file_size || null,
-        elevenlabs_project_id: formData.elevenlabs_project_id || null,
-        elevenlabs_public_user_id: formData.elevenlabs_public_user_id || null,
-        elevenlabs_player_url: formData.elevenlabs_player_url || null,
+        elevenlabs_project_id: audioSource === 'elevenlabs' ? (formData.elevenlabs_project_id || null) : null,
+        elevenlabs_public_user_id: audioSource === 'elevenlabs' ? (formData.elevenlabs_public_user_id || null) : null,
+        elevenlabs_player_url: audioSource === 'elevenlabs' ? (formData.elevenlabs_player_url || null) : null,
         audiobook_lead_magnet_id: formData.audiobook_lead_magnet_id || null,
+        audio_preview_url: audioSource === 'self_hosted' ? (formData.audio_preview_url?.trim() || null) : null,
+        audio_file_path: audioSource === 'self_hosted' ? (formData.audio_file_path || null) : null,
       }
 
       const url = editingPublication ? `/api/publications/${editingPublication.id}` : '/api/publications'
@@ -234,6 +250,8 @@ export default function PublicationsManagementPage() {
       if (response.ok) {
         setShowAddForm(false)
         setEditingPublication(null)
+        setAudioSource('elevenlabs')
+        setSelfHostedMethod('url')
         setFormData({
           title: '',
           description: '',
@@ -247,6 +265,8 @@ export default function PublicationsManagementPage() {
           elevenlabs_public_user_id: '',
           elevenlabs_player_url: '',
           audiobook_lead_magnet_id: '',
+          audio_preview_url: '',
+          audio_file_path: '',
         })
         setUploadedFile(null)
         fetchPublications()
@@ -307,8 +327,63 @@ export default function PublicationsManagementPage() {
     setUploadedFile(null)
   }
 
+  const handleAudioUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const inputEl = e.target
+    // Supabase Free tier limit is 50 MB; check before upload to show a clear message
+    const maxSize = 50 * 1024 * 1024
+    if (file.size > maxSize) {
+      alert(`File is ${(file.size / 1024 / 1024).toFixed(1)} MB. Supabase Storage limit is 50 MB. Use a shorter sample or compress the audio.`)
+      inputEl.value = ''
+      return
+    }
+    setUploadingAudio(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        alert('Please sign in again to upload.')
+        return
+      }
+      // Direct upload to Supabase Storage (bypasses Next.js body size limit)
+      const ext = file.name.split('.').pop() || 'mp3'
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`
+      const path = editingPublication
+        ? `publication-${editingPublication.id}/${fileName}`
+        : `uploads/${fileName}`
+      const { error } = await supabase.storage
+        .from('publications')
+        .upload(path, file, { cacheControl: '3600', upsert: false })
+      if (error) {
+        const msg = error.message?.toLowerCase().includes('size') || error.message?.toLowerCase().includes('maximum')
+          ? `${error.message} Supabase Free tier allows up to 50 MB per file.`
+          : (error.message || 'Failed to upload audio')
+        alert(msg)
+        return
+      }
+      setFormData((prev) => ({
+        ...prev,
+        audio_file_path: path,
+        audio_preview_url: '',
+      }))
+    } catch {
+      alert('Failed to upload audio. Check the console for details.')
+    } finally {
+      setUploadingAudio(false)
+      inputEl.value = ''
+    }
+  }
+
+  const clearAudioPreview = () => {
+    setFormData((prev) => ({ ...prev, audio_preview_url: '', audio_file_path: '' }))
+  }
+
   const handleEdit = (publication: Publication) => {
     setEditingPublication(publication)
+    const hasElevenLabs = !!(publication.elevenlabs_project_id ?? publication.elevenlabs_public_user_id)
+    const hasSelfHosted = !!(publication.audio_preview_url ?? publication.audio_file_path)
+    setAudioSource(hasElevenLabs ? 'elevenlabs' : hasSelfHosted ? 'self_hosted' : 'elevenlabs')
+    setSelfHostedMethod(publication.audio_file_path ? 'upload' : 'url')
     setFormData({
       title: publication.title,
       description: publication.description || '',
@@ -322,6 +397,8 @@ export default function PublicationsManagementPage() {
       elevenlabs_public_user_id: publication.elevenlabs_public_user_id ?? '',
       elevenlabs_player_url: publication.elevenlabs_player_url ?? '',
       audiobook_lead_magnet_id: publication.audiobook_lead_magnet_id ?? '',
+      audio_preview_url: publication.audio_preview_url ?? '',
+      audio_file_path: publication.audio_file_path ?? '',
     })
     if (publication.file_path) {
       setUploadedFile({
@@ -340,6 +417,8 @@ export default function PublicationsManagementPage() {
     setShowAddForm(false)
     setEditingPublication(null)
     setUploadedFile(null)
+    setAudioSource('elevenlabs')
+    setSelfHostedMethod('url')
     setFormData({
       title: '',
       description: '',
@@ -353,6 +432,8 @@ export default function PublicationsManagementPage() {
       elevenlabs_public_user_id: '',
       elevenlabs_player_url: '',
       audiobook_lead_magnet_id: '',
+      audio_preview_url: '',
+      audio_file_path: '',
     })
   }
 
@@ -471,56 +552,171 @@ export default function PublicationsManagementPage() {
                   />
                 </div>
 
-                <div className="border-t border-gray-700 pt-4 mt-4">
-                  <h3 className="text-lg font-semibold mb-2">Audio (ElevenLabs)</h3>
+                <div className="border-t border-gray-700 pt-4 mt-4" role="group" aria-labelledby="in-page-audio-source-label">
+                  <h3 id="in-page-audio-source-label" className="text-lg font-semibold mb-2">In-page audio source</h3>
                   <p className="text-xs text-gray-400 mb-3">
-                    From ElevenLabs → Audio Native → your project → Embed. Add this domain to the whitelist. Leave blank if this publication has no in-page player.
+                    Choose one. This controls the Listen / in-page player on the publication card.
                   </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Project ID</label>
-                      <input
-                        type="text"
-                        value={formData.elevenlabs_project_id}
-                        onChange={(e) => setFormData({ ...formData, elevenlabs_project_id: e.target.value })}
-                        className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                        placeholder="Project ID"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Public user ID</label>
-                      <input
-                        type="text"
-                        value={formData.elevenlabs_public_user_id}
-                        onChange={(e) => setFormData({ ...formData, elevenlabs_public_user_id: e.target.value })}
-                        className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                        placeholder="Public user ID"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Player URL (optional)</label>
-                      <input
-                        type="url"
-                        value={formData.elevenlabs_player_url}
-                        onChange={(e) => setFormData({ ...formData, elevenlabs_player_url: e.target.value })}
-                        className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                        placeholder="https://elevenlabs.io/player/..."
-                      />
-                    </div>
+                  <div
+                    className="inline-flex rounded-lg border border-gray-700 bg-gray-800 p-0.5"
+                    role="tablist"
+                    aria-label="Audio source"
+                  >
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={audioSource === 'elevenlabs'}
+                      aria-controls="elevenlabs-panel"
+                      id="audio-source-elevenlabs"
+                      onClick={() => setAudioSource('elevenlabs')}
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${audioSource === 'elevenlabs' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                    >
+                      ElevenLabs
+                    </button>
+                    <button
+                      type="button"
+                      role="tab"
+                      aria-selected={audioSource === 'self_hosted'}
+                      aria-controls="self-hosted-panel"
+                      id="audio-source-self-hosted"
+                      onClick={() => setAudioSource('self_hosted')}
+                      className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${audioSource === 'self_hosted' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                    >
+                      Self-hosted
+                    </button>
                   </div>
+
+                  {audioSource === 'elevenlabs' && (
+                    <div id="elevenlabs-panel" role="tabpanel" aria-labelledby="audio-source-elevenlabs" className="mt-4 space-y-3">
+                      <h4 className="text-base font-medium">ElevenLabs player</h4>
+                      <p className="text-xs text-gray-400">
+                        From ElevenLabs → Audio Native → your project → Embed. Add this domain to the whitelist.
+                      </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Project ID</label>
+                          <input
+                            type="text"
+                            value={formData.elevenlabs_project_id}
+                            onChange={(e) => setFormData({ ...formData, elevenlabs_project_id: e.target.value })}
+                            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                            placeholder="Project ID"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Public user ID</label>
+                          <input
+                            type="text"
+                            value={formData.elevenlabs_public_user_id}
+                            onChange={(e) => setFormData({ ...formData, elevenlabs_public_user_id: e.target.value })}
+                            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                            placeholder="Public user ID"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2">Player URL (optional)</label>
+                          <input
+                            type="url"
+                            value={formData.elevenlabs_player_url}
+                            onChange={(e) => setFormData({ ...formData, elevenlabs_player_url: e.target.value })}
+                            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                            placeholder="https://elevenlabs.io/player/..."
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {audioSource === 'self_hosted' && (
+                    <div id="self-hosted-panel" role="tabpanel" aria-labelledby="audio-source-self-hosted" className="mt-4 space-y-3">
+                      <h4 className="text-base font-medium">Self-hosted audio</h4>
+                      <p className="text-xs text-gray-400 mb-2">
+                        Provide audio one way: paste a URL or upload a file.
+                      </p>
+                      <div
+                        className="inline-flex rounded-lg border border-gray-700 bg-gray-800 p-0.5"
+                        role="tablist"
+                        aria-label="Self-hosted method"
+                      >
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={selfHostedMethod === 'url'}
+                          onClick={() => setSelfHostedMethod('url')}
+                          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${selfHostedMethod === 'url' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                        >
+                          Link to URL
+                        </button>
+                        <button
+                          type="button"
+                          role="tab"
+                          aria-selected={selfHostedMethod === 'upload'}
+                          onClick={() => setSelfHostedMethod('upload')}
+                          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${selfHostedMethod === 'upload' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
+                        >
+                          Upload file
+                        </button>
+                      </div>
+                      {selfHostedMethod === 'url' && (
+                        <div>
+                          <p className="text-xs text-gray-400 mb-1">Paste a direct link to an MP3/M4A. Used for the Listen player on the card.</p>
+                          <input
+                            type="url"
+                            value={formData.audio_preview_url}
+                            onChange={(e) => setFormData({ ...formData, audio_preview_url: e.target.value, audio_file_path: '' })}
+                            className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                            placeholder="https://..."
+                          />
+                        </div>
+                      )}
+                      {selfHostedMethod === 'upload' && (
+                        <div>
+                          <p className="text-xs text-gray-400 mb-1">Upload an MP3/M4A. Used for the Listen player on the card.</p>
+                          {formData.audio_file_path ? (
+                            <div className="flex items-center justify-between p-3 bg-gray-800 border border-gray-700 rounded-lg">
+                              <span className="text-sm text-gray-300 truncate">{formData.audio_file_path}</span>
+                              <button type="button" onClick={clearAudioPreview} className="p-1 text-red-400 hover:text-red-300 shrink-0">
+                                <X size={18} />
+                              </button>
+                            </div>
+                          ) : (
+                            <label className="flex items-center justify-center gap-2 w-full py-2 px-4 border border-gray-700 border-dashed rounded-lg cursor-pointer bg-gray-800 hover:border-purple-500 transition-colors">
+                              <Upload size={18} />
+                              <span>{uploadingAudio ? 'Uploading...' : 'Choose MP3/M4A'}</span>
+                              <input
+                                type="file"
+                                accept="audio/mpeg,audio/mp4,audio/x-m4a,.mp3,.m4a"
+                                className="hidden"
+                                disabled={uploadingAudio}
+                                onChange={handleAudioUpload}
+                              />
+                            </label>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                <div className="border-t border-gray-700 pt-4">
+                <div className="border-t border-gray-700 pt-4 mt-4">
                   <h3 className="text-lg font-semibold mb-2">Audiobook lead magnet</h3>
                   <p className="text-xs text-gray-400 mb-3">
                     Link an audiobook lead magnet to offer a download for offline listening. Same package as the e-book when both are set.
                   </p>
                   <select
                     value={formData.audiobook_lead_magnet_id}
-                    onChange={(e) => setFormData({ ...formData, audiobook_lead_magnet_id: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      if (val === '__create_lead_magnet__') {
+                        router.push(adminCreateUrl('lead-magnets', { type: 'audiobook', returnTo: '/admin/content/publications' }))
+                        return
+                      }
+                      setFormData({ ...formData, audiobook_lead_magnet_id: val })
+                    }}
                     className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
                   >
                     <option value="">None</option>
+                    <option value="__create_lead_magnet__">Create lead magnet...</option>
                     {audiobookLeadMagnets.map((lm) => (
                       <option key={lm.id} value={lm.id}>{lm.title}</option>
                     ))}

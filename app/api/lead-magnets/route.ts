@@ -6,7 +6,7 @@ import {
   FUNNEL_STAGE_LABELS,
   isValidFunnelStage,
 } from '@/lib/constants/lead-magnet-funnel'
-import { isValidCategory, isValidAccessType } from '@/lib/constants/lead-magnet-category'
+import { isValidCategory, isValidAccessType, isValidLeadMagnetType } from '@/lib/constants/lead-magnet-category'
 
 export const dynamic = 'force-dynamic'
 
@@ -144,6 +144,7 @@ export async function POST(request: NextRequest) {
       display_order: bodyDisplayOrder,
       slug,
       outcome_group_id,
+      type: bodyType,
     } = body as Record<string, unknown>
 
     if (!title || !file_path || !file_type) {
@@ -153,6 +154,7 @@ export async function POST(request: NextRequest) {
     const category = typeof bodyCategory === 'string' && isValidCategory(bodyCategory) ? bodyCategory : 'gate_keeper'
     const accessType = typeof bodyAccessType === 'string' && isValidAccessType(bodyAccessType) ? bodyAccessType : 'public_gated'
     const funnelStage = typeof bodyFunnelStage === 'string' && isValidFunnelStage(bodyFunnelStage) ? bodyFunnelStage : 'attention_capture'
+    const type = typeof bodyType === 'string' && isValidLeadMagnetType(bodyType) ? bodyType : 'pdf'
 
     let displayOrder = typeof bodyDisplayOrder === 'number' && Number.isInteger(bodyDisplayOrder) ? bodyDisplayOrder : undefined
     if (displayOrder === undefined) {
@@ -176,6 +178,7 @@ export async function POST(request: NextRequest) {
       access_type: accessType,
       funnel_stage: funnelStage,
       display_order: displayOrder,
+      type,
       ...(typeof slug === 'string' && slug ? { slug } : {}),
       ...(typeof outcome_group_id === 'string' && outcome_group_id ? { outcome_group_id } : outcome_group_id === null ? { outcome_group_id: null } : {}),
     }

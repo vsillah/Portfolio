@@ -11,7 +11,9 @@ export interface AdminNavItem {
 export interface AdminNavCategory {
   label: string
   items: AdminNavItem[]
-  /** If set, this category has an expandable section with children (e.g. Content Hub). */
+  /** If set, the item with this href shows an expandable section with children (e.g. Content Hub, Chat Eval). */
+  expandableItemHref?: string
+  /** Child links shown under the expandable item. */
   children?: AdminNavItem[]
 }
 
@@ -58,6 +60,14 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Analytics', href: '/admin/analytics' },
         { label: 'E2E Testing', href: '/admin/testing' },
       ],
+      expandableItemHref: '/admin/chat-eval',
+      children: [
+        { label: 'Annotation Queues', href: '/admin/chat-eval/queues' },
+        { label: 'LLM Alignment', href: '/admin/chat-eval/alignment' },
+        { label: 'Axial Codes', href: '/admin/chat-eval/axial-codes' },
+        { label: 'Error Diagnoses', href: '/admin/chat-eval/diagnoses' },
+        { label: 'Start Annotating', href: '/admin/chat-eval/queue' },
+      ],
     },
     {
       label: 'Configuration',
@@ -66,6 +76,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'User Management', href: '/admin/users' },
         { label: 'System Prompts', href: '/admin/prompts' },
       ],
+      expandableItemHref: '/admin/content',
       children: [
         { label: 'Outcome Groups', href: '/admin/content/outcome-groups' },
         { label: 'Projects', href: '/admin/content/projects' },
@@ -93,8 +104,15 @@ export function isNavItemActive(href: string, pathname: string): boolean {
 }
 
 /**
- * Returns whether the Content Hub category should be expanded (any content route active).
+ * Returns whether the Content Hub section should be expanded (any content route active).
  */
 export function isContentExpanded(pathname: string): boolean {
   return pathname.startsWith('/admin/content') || pathname.startsWith('/admin/products')
+}
+
+/**
+ * Returns whether the Chat Eval section should be expanded (any chat-eval route active).
+ */
+export function isChatEvalExpanded(pathname: string): boolean {
+  return pathname.startsWith('/admin/chat-eval')
 }

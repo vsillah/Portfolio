@@ -381,15 +381,7 @@ export default function CheckoutPage() {
   }
 
   // Require sign-in so we can deliver orders and follow up / upsell
-  // #region agent log
-  if (typeof window !== 'undefined') {
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'checkout/page.tsx:auth-check',message:'auth decision',data:{user:!!user,userId:user?.id ?? null,authLoading},timestamp:Date.now(),hypothesisId:'A',runId:'post-fix'})}).catch(()=>{});
-  }
-  // #endregion
   if (!user) {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/2ac6e9c9-06f0-4608-b169-f542fc938805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'checkout/page.tsx:render-signin',message:'rendering sign-in block',data:{authLoading},timestamp:Date.now(),hypothesisId:'A',runId:'post-fix'})}).catch(()=>{});
-    // #endregion
     return (
       <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
         <div className="max-w-5xl mx-auto">

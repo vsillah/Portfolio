@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const ELEVENLABS_SCRIPT_URL = 'https://elevenlabs.io/player/audioNativeHelper.js'
 let scriptLoaded = false
@@ -41,12 +41,25 @@ export default function PublicationCardAudio({
   playerUrl,
 }: PublicationCardAudioProps) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const [showBlock, setShowBlock] = useState(true)
 
   useEffect(() => {
     loadScript()
   }, [])
 
+  // Hide the Listen block if the ElevenLabs script never injects a player (e.g. unpublished audiobook)
+  useEffect(() => {
+    const delayMs = 2500
+    const timer = window.setTimeout(() => {
+      const hasPlayer = containerRef.current?.querySelector('iframe')
+      if (!hasPlayer) setShowBlock(false)
+    }, delayMs)
+    return () => window.clearTimeout(timer)
+  }, [])
+
   const widgetId = `elevenlabs-audionative-widget-${publicationId}`
+
+  if (!showBlock) return null
 
   return (
     <div

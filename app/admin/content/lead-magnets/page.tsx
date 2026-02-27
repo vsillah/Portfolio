@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, Suspense } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Plus, Trash2, Edit, X, Copy } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -20,6 +21,8 @@ import {
   getFunnelStageLabel,
   type LeadMagnetFunnelStage,
 } from '@/lib/constants/lead-magnet-funnel'
+import { ADMIN_CREATE_PARAMS } from '@/lib/admin-create-context'
+import { isValidLeadMagnetType } from '@/lib/constants/lead-magnet-category'
 
 interface LeadMagnet {
   id: number | string
@@ -55,7 +58,9 @@ interface NurtureStats {
   max_email: number
 }
 
-export default function LeadMagnetsManagementPage() {
+function LeadMagnetsContent() {
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const [leadMagnets, setLeadMagnets] = useState<LeadMagnet[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddForm, setShowAddForm] = useState(false)
@@ -70,6 +75,7 @@ export default function LeadMagnetsManagementPage() {
     funnel_stage: 'attention_capture' as LeadMagnetFunnelStage,
     slug: '',
     outcome_group_id: '',
+    type: 'pdf' as LeadMagnetType,
   })
   const [outcomeGroups, setOutcomeGroups] = useState<OutcomeGroup[]>([])
   const [editingId, setEditingId] = useState<string | number | null>(null)
@@ -83,6 +89,17 @@ export default function LeadMagnetsManagementPage() {
     fetchLeadMagnets()
     fetchNurtureStats()
   }, [])
+
+  // Open add form with type/context when linked from another form (e.g. Publications "Create lead magnet")
+  useEffect(() => {
+    const open = searchParams.get(ADMIN_CREATE_PARAMS.OPEN)
+    const typeParam = searchParams.get(ADMIN_CREATE_PARAMS.TYPE)
+    if (open === ADMIN_CREATE_PARAMS.OPEN_ADD) {
+      setShowAddForm(true)
+      const initialType = typeParam && isValidLeadMagnetType(typeParam) ? typeParam as LeadMagnetType : 'pdf'
+      setFormData((prev) => ({ ...prev, type: initialType }))
+    }
+  }, [searchParams])
 
   useEffect(() => {
     getCurrentSession().then((s) => {
@@ -184,6 +201,7 @@ export default function LeadMagnetsManagementPage() {
           category: formData.category,
           access_type: formData.access_type,
           funnel_stage: formData.funnel_stage,
+          type: formData.type,
           ...(formData.slug.trim() ? { slug: formData.slug.trim() } : {}),
           ...(formData.outcome_group_id ? { outcome_group_id: formData.outcome_group_id } : {}),
         }),
@@ -201,9 +219,15 @@ export default function LeadMagnetsManagementPage() {
         funnel_stage: 'attention_capture',
         slug: '',
         outcome_group_id: '',
+        type: 'pdf',
       })
       setShowAddForm(false)
       await fetchLeadMagnets()
+      const returnTo = searchParams.get(ADMIN_CREATE_PARAMS.RETURN_TO)
+      if (returnTo && returnTo.startsWith('/admin')) {
+        router.push(returnTo)
+        return
+      }
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Failed to add lead magnet')
     } finally {
@@ -222,6 +246,7 @@ export default function LeadMagnetsManagementPage() {
       funnel_stage: 'attention_capture',
       slug: '',
       outcome_group_id: '',
+      type: 'pdf',
     })
     setFormError(null)
   }
@@ -410,18 +435,31 @@ export default function LeadMagnetsManagementPage() {
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Funnel stage</label>
-                    <select
-                      value={formData.funnel_stage}
-                      onChange={(e) => setFormData({ ...formData, funnel_stage: e.target.value as LeadMagnetFunnelStage })}
-                      className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
-                    >
-                      {FUNNEL_STAGE_OPTIONS.map(({ value, label }) => (
-                        <option key={value} value={value}>{label}</option>
-                      ))}
-                    </select>
-                  </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Funnel stage</label>
+                      <select
+                        value={formData.funnel_stage}
+                        onChange={(e) => setFormData({ ...formData, funnel_stage: e.target.value as LeadMagnetFunnelStage })}
+                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                      >
+                        {FUNNEL_STAGE_OPTIONS.map(({ value, label }) => (
+                          <option key={value} value={value}>{label}</option>
+                        ))}
+                      </select>
+                    </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">Type</label>
+                  <select
+                    value={formData.type}
+                    onChange={(e) => setFormData({ ...formData, type: e.target.value as LeadMagnetType })}
+                    className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                  >
+                    {LEAD_MAGNET_TYPES.map((t) => (
+                      <option key={t} value={t}>{LEAD_MAGNET_TYPE_LABELS[t]}</option>
+                    ))}
+                  </select>
+                  <p className="text-gray-500 text-xs mt-1">Audiobook = for publication audiobook download (bundle with e-book).</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Slug (optional)</label>
@@ -447,15 +485,19 @@ export default function LeadMagnetsManagementPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">File (PDF or image) *</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    {formData.type === 'audiobook' ? 'Audio file (MP3/M4A) *' : 'File (PDF or image) *'}
+                  </label>
                   <input
                     type="file"
-                    accept="application/pdf,image/*"
+                    accept={formData.type === 'audiobook' ? 'audio/mpeg,audio/mp4,audio/x-m4a,.mp3,.m4a' : 'application/pdf,image/*'}
                     onChange={(e) => setFormData({ ...formData, file: e.target.files?.[0] ?? null })}
                     className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-purple-600 file:text-white file:cursor-pointer"
                     required
                   />
-                  <p className="text-gray-500 text-xs mt-1">Max 10MB. PDF, JPEG, PNG, GIF, WebP, SVG.</p>
+                  <p className="text-gray-500 text-xs mt-1">
+                    {formData.type === 'audiobook' ? 'Max 50MB. MP3 or M4A.' : 'Max 10MB. PDF, JPEG, PNG, GIF, WebP, SVG.'}
+                  </p>
                 </div>
                 <div className="flex gap-3">
                   <button
@@ -782,5 +824,13 @@ export default function LeadMagnetsManagementPage() {
         </div>
       </div>
     </ProtectedRoute>
+  )
+}
+
+export default function LeadMagnetsManagementPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-imperial-navy flex items-center justify-center text-platinum-white/60">Loading…</div>}>
+      <LeadMagnetsContent />
+    </Suspense>
   )
 }

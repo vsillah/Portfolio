@@ -177,7 +177,7 @@ export function RatingPanel({
         )}
       </div>
 
-      {/* Category (shown when rating is 'bad') */}
+      {/* Category (shown when rating is 'bad') — options come from promoted axial codes (Chat Eval → Axial Codes → promote). */}
       {rating === 'bad' && (
         <div>
           <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-2 block">
@@ -194,6 +194,11 @@ export function RatingPanel({
               <option key={cat.id} value={cat.id}>{cat.name}</option>
             ))}
           </select>
+          {categories.length === 0 && (
+            <p className="text-xs text-platinum-white/40 mt-1">
+              No verified categories yet. Promote codes from Chat Eval → Axial Codes, or use Open Code below.
+            </p>
+          )}
         </div>
       )}
 
