@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { MessageCircle, X, Trash2, AlertCircle, ClipboardCheck, Sparkles, BookOpen, Briefcase, Mic, MessageSquare, RefreshCw, LogIn, Calendar } from 'lucide-react'
+import { MessageCircle, X, Trash2, AlertCircle, ClipboardCheck, Sparkles, BookOpen, Briefcase, Mic, MessageSquare, RefreshCw, LogIn, Calendar, Package } from 'lucide-react'
 import { ChatMessage, type ChatMessageProps } from './ChatMessage'
 import { ChatInput } from './ChatInput'
 import { VoiceChat } from './VoiceChat'
@@ -172,6 +172,13 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       icon: Calendar,
       message: "I'd like to schedule a discovery call",
       description: 'Book a free consultation',
+    },
+    {
+      id: 'order-status',
+      label: 'Check my order status',
+      icon: Package,
+      message: "What's the status of my order?",
+      description: 'Track your purchase',
     },
   ]
 

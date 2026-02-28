@@ -10,7 +10,7 @@
  * Usage: npx tsx scripts/database-health-check.ts
  */
 
-// Load environment variables from .env.local
+// Load environment variables from .env.local (local) or from process.env (CI)
 import { config } from 'dotenv'
 import { resolve } from 'path'
 config({ path: resolve(process.cwd(), '.env.local') })
@@ -19,9 +19,25 @@ import { createClient } from '@supabase/supabase-js'
 import * as fs from 'fs'
 import * as path from 'path'
 
-// Configuration
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
+// Configuration — require explicit vars so we fail with a clear message
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!SUPABASE_URL?.trim()) {
+  console.error('❌ NEXT_PUBLIC_SUPABASE_URL is missing.')
+  console.error('   Local: add it to .env.local in the project root.')
+  console.error('   CI: add NEXT_PUBLIC_SUPABASE_URL to GitHub Actions secrets.')
+  process.exit(1)
+}
+if (!SUPABASE_SERVICE_KEY?.trim()) {
+  console.error('❌ SUPABASE_SERVICE_ROLE_KEY is missing.')
+  console.error('   Local: add it to .env.local in the project root.')
+  console.error('   CI: add SUPABASE_SERVICE_ROLE_KEY to GitHub Actions secrets.')
+  process.exit(1)
+}
+// Narrow types for createClient (guards above ensure defined)
+const SUPABASE_URL_SAFE: string = SUPABASE_URL as string
+const SUPABASE_SERVICE_KEY_SAFE: string = SUPABASE_SERVICE_KEY as string
 const BASELINE_FILE = path.join(__dirname, '../.database-baseline.json')
 
 // Critical tables to monitor
@@ -56,7 +72,7 @@ interface HealthCheckResult {
 }
 
 async function getTableCounts(): Promise<TableCount[]> {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+  const supabase = createClient(SUPABASE_URL_SAFE, SUPABASE_SERVICE_KEY_SAFE)
   const counts: TableCount[] = []
 
   for (const table of CRITICAL_TABLES) {

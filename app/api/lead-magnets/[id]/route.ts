@@ -95,6 +95,9 @@ export async function PATCH(
     if (typeof body.type === 'string' && isValidLeadMagnetType(body.type)) {
       updates.type = body.type
     }
+    if (body.service_id !== undefined) {
+      updates.service_id = body.service_id === null || body.service_id === '' ? null : (typeof body.service_id === 'string' ? body.service_id : null)
+    }
 
     if (Object.keys(updates).length === 0) {
       return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })

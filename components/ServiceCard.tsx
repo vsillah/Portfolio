@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { ShoppingCart, DollarSign, Clock, Users, MapPin, Video, Building, MessageSquare, Image as ImageIcon, Check, ArrowRight } from 'lucide-react'
+import { ShoppingCart, DollarSign, Clock, Users, MapPin, Video, Building, MessageSquare, Image as ImageIcon, Check, ArrowRight, Play } from 'lucide-react'
 import { useState, useRef } from 'react'
 import Link from 'next/link'
 import type { Service } from '@/lib/types/store'
@@ -136,6 +136,21 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
               View details
               <ArrowRight size={14} />
             </Link>
+          </div>
+        )}
+
+        {/* Watch video link */}
+        {service.video_url && (
+          <div className="mb-3">
+            <a
+              href={service.video_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-radiant-gold hover:text-gold-light text-sm flex items-center gap-1"
+            >
+              <Play size={14} />
+              Watch video
+            </a>
           </div>
         )}
 

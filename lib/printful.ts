@@ -108,6 +108,13 @@ export interface PrintfulOrder {
   }>
 }
 
+/** Webhook configuration returned by Printful Webhook API (GET/POST /webhooks) */
+export interface WebhookInfo {
+  url: string
+  types: string[]
+  params?: Record<string, string>
+}
+
 export interface PrintfulMockupTask {
   task_key: string
   status: string
@@ -421,6 +428,37 @@ class PrintfulClient {
       method: 'POST',
       body: JSON.stringify(body),
     })
+  }
+
+  /**
+   * Get current webhook URL and event types (GET /webhooks).
+   * Returns null if no webhook is configured or on 404/error.
+   */
+  async getWebhookConfig(): Promise<WebhookInfo | null> {
+    try {
+      const result = await this.request<WebhookInfo>('/webhooks', { method: 'GET' })
+      if (result && typeof result.url === 'string') return result
+      return null
+    } catch {
+      return null
+    }
+  }
+
+  /**
+   * Set webhook URL and event types (POST /webhooks). Replaces any existing config.
+   */
+  async setWebhookConfig(options: { url: string; types: string[] }): Promise<WebhookInfo> {
+    return this.request<WebhookInfo>('/webhooks', {
+      method: 'POST',
+      body: JSON.stringify({ url: options.url, types: options.types }),
+    })
+  }
+
+  /**
+   * Remove webhook URL and all event types (DELETE /webhooks).
+   */
+  async deleteWebhookConfig(): Promise<void> {
+    await this.request<unknown>('/webhooks', { method: 'DELETE' })
   }
 }
 

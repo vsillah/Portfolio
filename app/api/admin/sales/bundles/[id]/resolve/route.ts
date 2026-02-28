@@ -77,6 +77,10 @@ export async function GET(
         subtype: subtype != null ? String(subtype) : null,
         price: typeof content.price === 'number' ? content.price : null,
         image_url: config.imageField && content[config.imageField] != null ? String(content[config.imageField]) : null,
+        ...(item.content_type === 'service' && {
+          video_url: content.video_url != null ? String(content.video_url) : null,
+          video_thumbnail_url: content.video_thumbnail_url != null ? String(content.video_thumbnail_url) : null,
+        }),
         is_active: Boolean(content.is_active ?? content.is_published ?? true),
         display_order: Number(content.display_order ?? 0),
         created_at: String(content.created_at ?? ''),

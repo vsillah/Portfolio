@@ -234,6 +234,12 @@ The Purchases page (`/purchases`) shows your order history and lets you access y
 
 - All your past orders are listed with the date, item count, total amount, and status.
 - Click any order to view its full details.
+- For orders that include physical merchandise, the order detail page shows **Shipping** status (e.g. Processing, Shipped, Delivered) and a **Track package** link when tracking is available.
+
+### Order status and tracking
+
+- You can check the status of your orders anytime on the **My Purchases** page (`/purchases`). Open an order to see payment status, shipping status, and tracking (when available).
+- When signed in, you can also ask the site chatbot **"What's the status of my order?"** or use the **Check my order status** suggestion; the assistant will use your recent order and shipping information to respond.
 
 ### Downloading Digital Products
 
@@ -402,6 +408,7 @@ Open the user menu and click **Sign Out**. You will be redirected to the home pa
 ### My merchandise order hasn't arrived
 
 - Print-on-demand items typically ship within 2-7 business days after ordering.
+- Check **My Purchases** and open your order to see shipping status and a **Track package** link when it’s available. You can also ask the chatbot **"What's the status of my order?"** when signed in.
 - Check your email for shipping confirmation and tracking information.
 - If it has been more than 14 business days, contact support.
 

@@ -114,18 +114,21 @@ BEGIN
       WHEN 'music' THEN (SELECT m.title FROM music m WHERE m.id::TEXT = i.content_id)
       WHEN 'lead_magnet' THEN (SELECT lm.title FROM lead_magnets lm WHERE lm.id::TEXT = i.content_id)
       WHEN 'prototype' THEN (SELECT pt.title FROM prototypes pt WHERE pt.id::TEXT = i.content_id)
+      WHEN 'service' THEN (SELECT s.title FROM services s WHERE s.id::TEXT = i.content_id)
       ELSE 'Unknown'
     END as title,
     -- Description
     CASE i.content_type
       WHEN 'product' THEN (SELECT p.description FROM products p WHERE p.id::TEXT = i.content_id)
       WHEN 'project' THEN (SELECT pr.description FROM projects pr WHERE pr.id::TEXT = i.content_id)
+      WHEN 'service' THEN (SELECT s.description FROM services s WHERE s.id::TEXT = i.content_id)
       ELSE NULL
     END as description,
     -- Image URL
     CASE i.content_type
       WHEN 'product' THEN (SELECT p.image_url FROM products p WHERE p.id::TEXT = i.content_id)
       WHEN 'video' THEN (SELECT v.thumbnail_url FROM videos v WHERE v.id::TEXT = i.content_id)
+      WHEN 'service' THEN (SELECT s.image_url FROM services s WHERE s.id::TEXT = i.content_id)
       ELSE NULL
     END as image_url,
     -- Resolved offer_role (override takes precedence)

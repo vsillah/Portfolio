@@ -1,10 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { loadStripe, StripeElementsOptions } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
-import { motion } from 'framer-motion'
-import { Lock, CheckCircle, XCircle } from 'lucide-react'
+import { Lock, Loader } from 'lucide-react'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '')
 
@@ -20,6 +19,16 @@ function CheckoutForm({ clientSecret, orderId, onSuccess, onError }: StripeCheck
   const elements = useElements()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  // Do not mount PaymentElement until Stripe context is ready; otherwise "Could not retrieve elements store" occurs.
+  if (!stripe || !elements) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-platinum-white/80">
+        <Loader className="animate-spin mb-3 text-radiant-gold" size={32} />
+        <span>Loading payment form...</span>
+      </div>
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -64,7 +73,9 @@ function CheckoutForm({ clientSecret, orderId, onSuccess, onError }: StripeCheck
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <PaymentElement />
+      <div className="min-h-[220px] w-full">
+        <PaymentElement />
+      </div>
       {error && (
         <div className="p-4 bg-red-600/20 border border-red-600/50 rounded-lg text-red-400">
           {error}

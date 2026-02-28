@@ -13,6 +13,7 @@ function PaymentContent() {
   const orderId = searchParams.get('orderId')
   
   const [clientSecret, setClientSecret] = useState<string | null>(null)
+  const [keyMode, setKeyMode] = useState<'test' | 'live' | 'unknown' | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [paymentSuccess, setPaymentSuccess] = useState(false)
@@ -36,6 +37,7 @@ function PaymentContent() {
 
       const data = await response.json()
       setClientSecret(data.clientSecret)
+      setKeyMode(data.keyMode ?? null)
     } catch (err: any) {
       setError(err.message || 'Failed to initialize payment')
     } finally {
@@ -127,14 +129,30 @@ function PaymentContent() {
           <p className="text-platinum-white/80 mb-8">Enter your payment details to complete your purchase</p>
 
           <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
-            {clientSecret && orderId && (
-              <StripeCheckout
-                clientSecret={clientSecret}
-                orderId={parseInt(orderId)}
-                onSuccess={handlePaymentSuccess}
-                onError={handlePaymentError}
-              />
-            )}
+            {clientSecret && orderId && (() => {
+              const pubKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || ''
+              const pubMode = pubKey.startsWith('pk_live') ? 'live' : pubKey.startsWith('pk_test') ? 'test' : null
+              if (keyMode && pubMode && keyMode !== pubMode) {
+                return (
+                  <div className="p-4 bg-amber-600/20 border border-amber-600/50 rounded-lg text-amber-200">
+                    <p className="font-semibold">Payment form could not load</p>
+                    <p className="mt-2 text-sm">
+                      Your Stripe publishable key and secret key must use the same mode. You have a{' '}
+                      <strong>{pubMode}</strong> publishable key but the server is using a <strong>{keyMode}</strong> secret key.
+                      Use <strong>pk_test_...</strong> with a test secret key, or <strong>pk_live_...</strong> with a live secret key.
+                    </p>
+                  </div>
+                )
+              }
+              return (
+                <StripeCheckout
+                  clientSecret={clientSecret}
+                  orderId={parseInt(orderId)}
+                  onSuccess={handlePaymentSuccess}
+                  onError={handlePaymentError}
+                />
+              )
+            })()}
             {error && (
               <div className="mt-4 p-4 bg-red-600/20 border border-red-600/50 rounded-lg text-red-400">
                 {error}

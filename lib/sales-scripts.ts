@@ -247,6 +247,10 @@ export interface ContentItem {
   subtype: string | null;
   price: number | null;
   image_url: string | null;
+  /** Optional video URL (e.g. for services with video) */
+  video_url?: string | null;
+  /** Optional video thumbnail URL */
+  video_thumbnail_url?: string | null;
   is_active: boolean;
   display_order: number;
   created_at: string;

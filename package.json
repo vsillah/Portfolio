@@ -15,6 +15,7 @@
     "test:e2e:headed": "playwright test --headed",
     "db:health-check": "tsx scripts/database-health-check.ts",
     "db:health-check:update": "tsx scripts/database-health-check.ts --update",
+    "printful:webhook": "tsx scripts/printful-setup-webhook.ts",
     "prepare": "husky install"
   },
   "dependencies": {

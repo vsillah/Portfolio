@@ -5,7 +5,16 @@ export interface ClientContext {
   email: string
   role: string
   activeProjects: { name: string; status: string; phase: number | null }[]
-  recentOrders: { id: number; amount: number; status: string; date: string; items: string[] }[]
+  recentOrders: {
+    id: number
+    amount: number
+    status: string
+    date: string
+    items: string[]
+    fulfillment_status?: string | null
+    tracking_number?: string | null
+    tracking_url?: string | null
+  }[]
   activeSubscriptions: { planName: string; status: string }[]
 }
 
@@ -23,7 +32,7 @@ export async function fetchClientContext(userId: string): Promise<ClientContext 
 
     supabaseAdmin
       .from('orders')
-      .select('id, final_amount, status, created_at, order_items(quantity, price_at_purchase, products(title))')
+      .select('id, final_amount, status, created_at, fulfillment_status, tracking_number, tracking_url, order_items(quantity, price_at_purchase, products(title))')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(5),
@@ -65,6 +74,9 @@ export async function fetchClientContext(userId: string): Promise<ClientContext 
         return product?.title as string || 'Unknown item'
       }
     ),
+    fulfillment_status: (o.fulfillment_status as string | null) ?? null,
+    tracking_number: (o.tracking_number as string | null) ?? null,
+    tracking_url: (o.tracking_url as string | null) ?? null,
   }))
 
   const activeSubscriptions = (subscriptionsRes.data || []).map((s: Record<string, unknown>) => ({
@@ -102,7 +114,14 @@ export function formatClientContextForAI(ctx: ClientContext): string {
     lines.push('Recent orders:')
     for (const o of ctx.recentOrders) {
       const items = o.items.join(', ')
-      lines.push(`  - Order #${o.id}: $${o.amount.toFixed(2)} (${o.status}) — ${items}`)
+      let orderLine = `  - Order #${o.id}: $${o.amount.toFixed(2)} (${o.status}) — ${items}`
+      const fulfillment = o.fulfillment_status && o.fulfillment_status !== 'pending' ? o.fulfillment_status : null
+      if (fulfillment) {
+        orderLine += `. Fulfillment: ${fulfillment.charAt(0).toUpperCase() + fulfillment.slice(1)}`
+        if (o.tracking_url) orderLine += `. Track: ${o.tracking_url}`
+        else if (o.tracking_number) orderLine += `. Tracking number: ${o.tracking_number}`
+      }
+      lines.push(orderLine)
     }
   }
 

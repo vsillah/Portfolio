@@ -142,8 +142,7 @@ export async function POST(request: NextRequest) {
       if (channel === 'voice') {
         systemPrompt = await getVoiceAgentPrompt()
       } else {
-        systemPrompt = await getChatbotPrompt()
-      }
+        systemPrompt = await getChatbotPrompt() }
     } catch (error) {
       console.error('Error fetching system prompt for diagnosis:', error)
       // Continue without system prompt

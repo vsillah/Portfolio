@@ -25,6 +25,9 @@ interface LeadMagnet {
   funnel_stage_label?: string
   slug?: string | null
   type?: string | null
+  /** When set (e.g. service video lead magnet), show "Watch video" CTA */
+  video_url?: string | null
+  video_thumbnail_url?: string | null
 }
 
 export default function ResourcesPage() {

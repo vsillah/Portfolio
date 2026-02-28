@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ShoppingBag, Loader, HelpCircle } from 'lucide-react'
+import { ShoppingBag, Loader, HelpCircle, Package, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
@@ -14,6 +14,15 @@ import DownloadManager from '@/components/DownloadManager'
 import SocialShare from '@/components/SocialShare'
 import ReferralProgram from '@/components/ReferralProgram'
 
+const FULFILLMENT_LABELS: Record<string, string> = {
+  pending: 'Pending',
+  processing: 'Processing',
+  fulfilled: 'Fulfilled',
+  shipped: 'Shipped',
+  delivered: 'Delivered',
+  cancelled: 'Cancelled',
+}
+
 interface Order {
   id: number
   total_amount: number
@@ -21,6 +30,9 @@ interface Order {
   final_amount: number
   status: string
   created_at: string
+  fulfillment_status?: string | null
+  tracking_number?: string | null
+  tracking_url?: string | null
   order_items: Array<{
     id: number
     product_id: number
@@ -166,6 +178,36 @@ function PurchasesContent() {
                   {formatCurrency(selectedOrder.final_amount)}
                 </span>
               </div>
+              {(selectedOrder.fulfillment_status || selectedOrder.tracking_number || selectedOrder.tracking_url) && (
+                <div className="mt-4 pt-4 border-t border-silicon-slate/50">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Package size={18} className="text-radiant-gold" />
+                    <span className="text-sm font-heading uppercase tracking-wider text-platinum-white/80">Shipping</span>
+                  </div>
+                  <p className="text-sm text-platinum-white/90">
+                    Status: {FULFILLMENT_LABELS[selectedOrder.fulfillment_status || ''] || selectedOrder.fulfillment_status || 'Pending'}
+                  </p>
+                  {(selectedOrder.tracking_url || selectedOrder.tracking_number) && (
+                    <p className="mt-2">
+                      {selectedOrder.tracking_url ? (
+                        <a
+                          href={selectedOrder.tracking_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-radiant-gold hover:text-amber-400 transition-colors"
+                        >
+                          Track package
+                          <ExternalLink size={14} />
+                        </a>
+                      ) : (
+                        <span className="text-sm text-platinum-white/80">
+                          Tracking: {selectedOrder.tracking_number}
+                        </span>
+                      )}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
 
             {selectedOrder.status === 'completed' && (

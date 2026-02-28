@@ -15,6 +15,8 @@ interface LeadMagnet {
   created_at: string
   file_path?: string | null
   type?: string | null
+  video_url?: string | null
+  video_thumbnail_url?: string | null
 }
 
 interface LeadMagnetCardProps {
@@ -85,26 +87,39 @@ export default function LeadMagnetCard({ leadMagnet, onDownload }: LeadMagnetCar
             )}
             <span>{leadMagnet.download_count} downloads</span>
           </div>
-          {isInteractive ? (
-            <Link
-              href={leadMagnet.file_path!.startsWith('/') ? leadMagnet.file_path! : `/${leadMagnet.file_path!}`}
-              className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-semibold rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-400"
-            >
-              <ExternalLink size={18} />
-              Open tool
-            </Link>
-          ) : (
-            <motion.button
-              onClick={handleDownload}
-              disabled={downloading}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Download size={18} />
-              {downloading ? 'Downloading...' : 'Download'}
-            </motion.button>
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            {leadMagnet.video_url && (
+              <a
+                href={leadMagnet.video_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                <Video size={18} />
+                Watch video
+              </a>
+            )}
+            {isInteractive ? (
+              <Link
+                href={leadMagnet.file_path!.startsWith('/') ? leadMagnet.file_path! : `/${leadMagnet.file_path!}`}
+                className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-semibold rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              >
+                <ExternalLink size={18} />
+                Open tool
+              </Link>
+            ) : leadMagnet.file_path ? (
+              <motion.button
+                onClick={handleDownload}
+                disabled={downloading}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-6 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Download size={18} />
+                {downloading ? 'Downloading...' : 'Download'}
+              </motion.button>
+            ) : null}
+          </div>
         </div>
       </div>
     </motion.div>

@@ -72,12 +72,34 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch lead magnets' }, { status: 500 })
     }
 
-    const leadMagnets = (rows || []) as Array<Record<string, unknown> & { funnel_stage?: string }>
-    const normalized = leadMagnets.map((m) => ({
+    const leadMagnets = (rows || []) as Array<Record<string, unknown> & { funnel_stage?: string; service_id?: string | null }>
+    let normalized = leadMagnets.map((m) => ({
       ...m,
       file_path: (m.file_path ?? m.file_url ?? null) as string | null,
       funnel_stage_label: m.funnel_stage ? FUNNEL_STAGE_LABELS[m.funnel_stage as keyof typeof FUNNEL_STAGE_LABELS] ?? m.funnel_stage : undefined,
-    })) as Array<Record<string, unknown> & { funnel_stage?: string; funnel_stage_label?: string; file_path: string | null; display_order?: number; created_at?: string }>
+    })) as Array<Record<string, unknown> & { funnel_stage?: string; funnel_stage_label?: string; file_path: string | null; display_order?: number; created_at?: string; service_id?: string | null }>
+
+    // For lead magnets with service_id, attach video_url, video_thumbnail_url, and service_title from the linked service
+    const serviceIds = [...new Set(normalized.map((m) => m.service_id).filter(Boolean) as string[])]
+    if (serviceIds.length > 0) {
+      const { data: services } = await supabaseAdmin
+        .from('services')
+        .select('id, title, video_url, video_thumbnail_url')
+        .in('id', serviceIds)
+      type ServiceRow = { id: string; title?: string | null; video_url?: string | null; video_thumbnail_url?: string | null }
+      const serviceByKey = new Map<string, ServiceRow>((services || []).map((s: ServiceRow) => [s.id, s]))
+      normalized = normalized.map((m) => {
+        const sid = m.service_id as string | undefined
+        if (!sid) return m
+        const svc = serviceByKey.get(sid)
+        return {
+          ...m,
+          video_url: svc?.video_url ?? null,
+          video_thumbnail_url: svc?.video_thumbnail_url ?? null,
+          service_title: svc?.title ?? null,
+        }
+      })
+    }
 
     // Sort by canonical funnel order, then display_order, then created_at
     normalized.sort((a, b) => {

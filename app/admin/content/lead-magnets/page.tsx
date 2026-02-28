@@ -42,6 +42,8 @@ interface LeadMagnet {
   slug?: string | null
   outcome_group_id?: string | null
   type?: string
+  service_id?: string | null
+  service_title?: string | null
 }
 
 interface OutcomeGroup {
@@ -264,6 +266,9 @@ function LeadMagnetsContent() {
       private_link_token: magnet.private_link_token ?? '',
       is_active: magnet.is_active,
       outcome_group_id: magnet.outcome_group_id ?? '',
+      service_id: magnet.service_id ?? undefined,
+      service_title: magnet.service_title ?? undefined,
+      type: magnet.type,
     })
   }
 
@@ -567,6 +572,11 @@ function LeadMagnetsContent() {
                 >
                   <div className="min-w-0 flex-1">
                     <h3 className="text-xl font-bold text-white mb-2">{magnet.title}</h3>
+                    {magnet.service_id && (
+                      <p className="text-blue-400 text-sm mb-1">
+                        Video from service: {magnet.service_title ?? 'Service'}
+                      </p>
+                    )}
                     <p className="text-gray-400 text-sm mb-2">{magnet.description ?? '—'}</p>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-gray-500">
                       <span>{magnet.download_count} downloads</span>
@@ -655,6 +665,11 @@ function LeadMagnetsContent() {
                     </button>
                   </div>
                   {formError && <p className="text-red-400 text-sm mb-4">{formError}</p>}
+                  {editForm.service_id && (
+                    <p className="text-blue-400 text-sm mb-4 p-2 bg-gray-800 rounded">
+                      Video from service: {editForm.service_title ?? 'Service'}. Video URL is set on the service (Admin → Content → Services). To unlink, clear &quot;Offer video as lead magnet&quot; on that service.
+                    </p>
+                  )}
                   <div className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-1">Title</label>

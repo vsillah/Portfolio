@@ -22,6 +22,8 @@ interface Service {
   min_participants: number
   max_participants: number | null
   image_url: string | null
+  video_url: string | null
+  video_thumbnail_url: string | null
   is_featured: boolean
 }
 

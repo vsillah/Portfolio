@@ -11,9 +11,10 @@ if (!stripe) {
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
+  let orderId: number | undefined
   try {
     const body = await request.json()
-    const { orderId } = body
+    orderId = body?.orderId
 
     if (!orderId) {
       return NextResponse.json(
@@ -100,9 +101,12 @@ export async function POST(request: NextRequest) {
       .update({ stripe_payment_intent_id: paymentIntent.id })
       .eq('id', orderId)
 
+    const secretKeyPrefix = process.env.STRIPE_SECRET_KEY?.slice(0, 7) || ''
+    const keyMode = secretKeyPrefix === 'sk_live' ? 'live' : secretKeyPrefix === 'sk_test' ? 'test' : 'unknown'
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
+      keyMode,
     })
   } catch (error: any) {
     console.error('Error creating payment intent:', error)

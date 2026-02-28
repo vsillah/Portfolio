@@ -25,6 +25,8 @@ interface Service {
   deliverables: string[]
   topics: string[]
   image_url: string | null
+  video_url: string | null
+  video_thumbnail_url: string | null
   is_active: boolean
   is_featured: boolean
   display_order: number
@@ -75,12 +77,17 @@ export default function ServicesManagementPage() {
     deliverables: '',
     topics: '',
     image_url: '',
+    video_url: '',
+    video_thumbnail_url: '',
+    offer_video_as_lead_magnet: false,
     is_active: true,
     is_featured: false,
     display_order: 0,
     outcome_group_id: '',
   })
   const [outcomeGroups, setOutcomeGroups] = useState<OutcomeGroup[]>([])
+  /** Map service_id -> lead_magnet id for "offer video as lead magnet" checkbox */
+  const [leadMagnetByServiceId, setLeadMagnetByServiceId] = useState<Map<string, string>>(new Map())
 
   useEffect(() => {
     fetchServices()
@@ -93,6 +100,23 @@ export default function ServicesManagementPage() {
         .then((res) => res.ok ? res.json() : [])
         .then((list) => setOutcomeGroups(Array.isArray(list) ? list : []))
         .catch(() => setOutcomeGroups([]))
+    })
+  }, [])
+
+  useEffect(() => {
+    getCurrentSession().then((s) => {
+      if (!s?.access_token) return
+      fetch('/api/lead-magnets?admin=1', { headers: { Authorization: `Bearer ${s.access_token}` } })
+        .then((res) => res.ok ? res.json() : { leadMagnets: [] })
+        .then((data) => {
+          const list = data?.leadMagnets || []
+          const map = new Map<string, string>()
+          for (const lm of list) {
+            if (lm.service_id) map.set(lm.service_id, lm.id)
+          }
+          setLeadMagnetByServiceId(map)
+        })
+        .catch(() => setLeadMagnetByServiceId(new Map()))
     })
   }, [])
 
@@ -278,6 +302,8 @@ export default function ServicesManagementPage() {
         deliverables: deliverablesArray,
         topics: topicsArray,
         image_url: formData.image_url || null,
+        video_url: formData.video_url || null,
+        video_thumbnail_url: formData.video_thumbnail_url || null,
         is_active: formData.is_active,
         is_featured: formData.is_featured,
         display_order: formData.display_order,
@@ -297,6 +323,47 @@ export default function ServicesManagementPage() {
       })
 
       if (response.ok) {
+        const result = await response.json()
+        const savedServiceId = result?.data?.id ?? editingService?.id
+
+        if (formData.offer_video_as_lead_magnet && (formData.video_url || '').trim()) {
+          const fromServiceRes = await fetch('/api/admin/lead-magnets/from-service', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ service_id: savedServiceId }),
+          })
+          if (fromServiceRes.ok) {
+            const fromData = await fromServiceRes.json()
+            const lmId = fromData?.leadMagnet?.id
+            if (lmId) {
+              setLeadMagnetByServiceId((prev) => new Map(prev).set(savedServiceId, lmId))
+            }
+          } else {
+            const err = await fromServiceRes.json()
+            console.error('Failed to create/update lead magnet from service:', err)
+          }
+        } else if (editingService && leadMagnetByServiceId.has(editingService.id)) {
+          const lmId = leadMagnetByServiceId.get(editingService.id)
+          if (lmId) {
+            await fetch(`/api/lead-magnets/${lmId}`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${session.access_token}`,
+              },
+              body: JSON.stringify({ service_id: null }),
+            })
+            setLeadMagnetByServiceId((prev) => {
+              const next = new Map(prev)
+              next.delete(editingService.id)
+              return next
+            })
+          }
+        }
+
         setShowAddModal(false)
         setEditingService(null)
         resetForm()
@@ -327,6 +394,9 @@ export default function ServicesManagementPage() {
       deliverables: '',
       topics: '',
       image_url: '',
+      video_url: '',
+      video_thumbnail_url: '',
+      offer_video_as_lead_magnet: false,
       is_active: true,
       is_featured: false,
       display_order: 0,
@@ -351,6 +421,9 @@ export default function ServicesManagementPage() {
       deliverables: Array.isArray(service.deliverables) ? service.deliverables.join(', ') : '',
       topics: Array.isArray(service.topics) ? service.topics.join(', ') : '',
       image_url: service.image_url || '',
+      video_url: service.video_url || '',
+      video_thumbnail_url: service.video_thumbnail_url || '',
+      offer_video_as_lead_magnet: leadMagnetByServiceId.has(service.id),
       is_active: service.is_active,
       is_featured: service.is_featured,
       display_order: service.display_order,
@@ -617,6 +690,45 @@ export default function ServicesManagementPage() {
                   label="Image URL"
                   variant="brand"
                 />
+
+                {/* Video URL */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Video URL</label>
+                  <input
+                    type="url"
+                    value={formData.video_url}
+                    onChange={(e) => setFormData({ ...formData, video_url: e.target.value })}
+                    className="w-full px-4 py-2 input-brand"
+                    placeholder="https://youtube.com/watch?v=... or Vimeo URL"
+                  />
+                </div>
+
+                {/* Video thumbnail URL */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Video thumbnail URL (optional)</label>
+                  <input
+                    type="url"
+                    value={formData.video_thumbnail_url}
+                    onChange={(e) => setFormData({ ...formData, video_thumbnail_url: e.target.value })}
+                    className="w-full px-4 py-2 input-brand"
+                    placeholder="https://..."
+                  />
+                  <p className="text-xs text-platinum-white/60 mt-1">Used when showing the video as a lead magnet or in bundles.</p>
+                </div>
+
+                {/* Offer video as lead magnet */}
+                <div className="flex items-start gap-2">
+                  <input
+                    type="checkbox"
+                    id="offer_video_as_lead_magnet"
+                    checked={formData.offer_video_as_lead_magnet}
+                    onChange={(e) => setFormData({ ...formData, offer_video_as_lead_magnet: e.target.checked })}
+                    className="mt-1 w-4 h-4 rounded accent-radiant-gold"
+                  />
+                  <label htmlFor="offer_video_as_lead_magnet" className="text-sm cursor-pointer">
+                    Offer this service&apos;s video as a lead magnet (show on Resources page with &quot;Watch video&quot;). Requires a Video URL above.
+                  </label>
+                </div>
 
                 {/* Display options */}
                 <div className="grid grid-cols-3 gap-4">

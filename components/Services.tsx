@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
-import { Briefcase, ArrowRight, Building, Users, MessageSquare } from 'lucide-react'
+import { Briefcase, ArrowRight, Building, Users, MessageSquare, Play } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { formatPriceOrFree } from '@/lib/pricing-model'
@@ -19,6 +19,8 @@ interface Service {
   price: number | null
   is_quote_based: boolean
   image_url: string | null
+  video_url: string | null
+  video_thumbnail_url: string | null
   is_featured: boolean
   display_order: number
 }
@@ -200,15 +202,31 @@ export default function Services() {
                   {service.title}
                 </h3>
                 {service.description && (
-                  <p className="font-body text-platinum-white/50 text-sm line-clamp-2 mb-8">
+                  <p className="font-body text-platinum-white/50 text-sm line-clamp-2 mb-6">
                     {service.description}
                   </p>
                 )}
-                <div className={`w-full flex items-center justify-center gap-3 py-3 border rounded-full transition-all duration-300 ${category === 'build' ? 'border-radiant-gold/20 group-hover:bg-radiant-gold/10 group-hover:border-radiant-gold/40' : category === 'advisory' ? 'border-gold-light/20 group-hover:bg-gold-light/10 group-hover:border-gold-light/40' : 'border-silicon-slate/20 group-hover:bg-silicon-slate/10 group-hover:border-silicon-slate/40'}`}>
-                  <span className={`text-[10px] font-heading tracking-widest uppercase ${accent.badge.split(' ')[1] || 'text-radiant-gold'}`}>
-                    View Details
-                  </span>
-                  <ArrowRight size={14} className={accent.badge.split(' ')[1] || 'text-radiant-gold'} />
+                <div className="flex flex-wrap items-center justify-center gap-3 mb-4">
+                  {service.video_url && (
+                    <a
+                      href={service.video_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className={`inline-flex items-center gap-2 px-4 py-2 border rounded-full text-[10px] font-heading tracking-widest uppercase transition-all ${accent.border} ${accent.badge.split(' ')[1] || 'text-radiant-gold'} hover:opacity-90`}
+                    >
+                      <Play size={12} />
+                      Watch video
+                    </a>
+                  )}
+                  <div
+                    className={`w-full flex items-center justify-center gap-3 py-3 border rounded-full transition-all duration-300 cursor-pointer ${category === 'build' ? 'border-radiant-gold/20 group-hover:bg-radiant-gold/10 group-hover:border-radiant-gold/40' : category === 'advisory' ? 'border-gold-light/20 group-hover:bg-gold-light/10 group-hover:border-gold-light/40' : 'border-silicon-slate/20 group-hover:bg-silicon-slate/10 group-hover:border-silicon-slate/40'}`}
+                  >
+                    <span className={`text-[10px] font-heading tracking-widest uppercase ${accent.badge.split(' ')[1] || 'text-radiant-gold'}`}>
+                      View Details
+                    </span>
+                    <ArrowRight size={14} className={accent.badge.split(' ')[1] || 'text-radiant-gold'} />
+                  </div>
                 </div>
               </div>
             </motion.div>
