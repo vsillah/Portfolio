@@ -213,6 +213,17 @@ export async function POST(request: NextRequest) {
       if (itemsError) throw itemsError
     }
 
+    // Save shipping address to user profile for future orders (prefill at checkout)
+    if (shippingAddress && user?.id) {
+      await supabaseAdmin
+        .from('user_profiles')
+        .update({
+          shipping_address: shippingAddress,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', user.id)
+    }
+
     return NextResponse.json({
       success: true,
       order,

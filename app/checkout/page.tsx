@@ -8,6 +8,7 @@ import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { getCart, clearCart, saveCart, updateCartItemQuantity, updateServiceQuantity, removeFromCart, removeServiceFromCart, isServiceItem, type CartItem } from '@/lib/cart'
 import DiscountCodeForm from '@/components/checkout/DiscountCodeForm'
+import AddressAutocomplete from '@/components/checkout/AddressAutocomplete'
 import CampaignEnrollmentBanner from '@/components/checkout/CampaignEnrollmentBanner'
 import OrderSummary, { type ProductVariant } from '@/components/checkout/OrderSummary'
 import { useCampaignEligibility } from '@/hooks/useCampaignEligibility'
@@ -83,6 +84,12 @@ export default function CheckoutPage() {
   const [shippingAddress, setShippingAddress] = useState<ShippingAddressForm>(emptyShipping)
   const [shippingCost, setShippingCost] = useState(0)
   const [shippingLoading, setShippingLoading] = useState(false)
+  const [addressSuggestLoading, setAddressSuggestLoading] = useState(false)
+  const [addressValidateLoading, setAddressValidateLoading] = useState(false)
+  const [addressValidateResult, setAddressValidateResult] = useState<{
+    valid: true
+    standardized: ShippingAddressForm
+  } | { valid: false; message: string } | null>(null)
 
   const loadCart = useCallback(async () => {
     const cart = getCart()
@@ -238,6 +245,59 @@ export default function CheckoutPage() {
     (item) => item.itemType === 'product' && item.variantId != null
   )
   const effectiveFinalTotal = calculateFinalTotal() + (hasMerchandise ? shippingCost : 0)
+
+  // Prefill shipping address from user profile when cart has merchandise (only when form is still empty)
+  useEffect(() => {
+    if (!user || !hasMerchandise || loading || !authSession?.access_token) return
+    if (shippingAddress.address1) return // user may have already entered data
+    let cancelled = false
+    fetch('/api/user/profile', {
+      headers: { Authorization: `Bearer ${authSession.access_token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled || !data?.profile?.shipping_address) return
+        const sa = data.profile.shipping_address as Record<string, string | undefined>
+        setShippingAddress({
+          address1: sa.address1 ?? '',
+          address2: sa.address2 ?? '',
+          city: sa.city ?? '',
+          state_code: sa.state_code ?? '',
+          zip: sa.zip ?? '',
+          country_code: sa.country_code ?? 'US',
+          phone: sa.phone ?? '',
+        })
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+    // Intentionally omit shippingAddress.address1: we only prefill when empty and must not re-run when user types
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, hasMerchandise, loading, authSession?.access_token])
+
+  // Suggest city/state when user enters 5-digit ZIP (US only); only fill when city or state is empty
+  useEffect(() => {
+    if (shippingAddress.country_code !== 'US') return
+    const zip5 = shippingAddress.zip.replace(/\D/g, '').slice(0, 5)
+    if (zip5.length !== 5) return
+    if (shippingAddress.city.trim() && shippingAddress.state_code.trim()) return
+    const timer = setTimeout(() => {
+      setAddressSuggestLoading(true)
+      fetch(`/api/address/suggest?zip=${encodeURIComponent(zip5)}`)
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.city != null || data.state != null) {
+            setShippingAddress((prev) => ({
+              ...prev,
+              city: prev.city.trim() ? prev.city : (data.city ?? ''),
+              state_code: prev.state_code.trim() ? prev.state_code : (data.state ?? ''),
+            }))
+          }
+        })
+        .catch(() => {})
+        .finally(() => setAddressSuggestLoading(false))
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [shippingAddress.zip, shippingAddress.country_code, shippingAddress.city, shippingAddress.state_code])
 
   const isShippingAddressComplete = () => {
     if (!hasMerchandise) return true
@@ -402,6 +462,53 @@ export default function CheckoutPage() {
     setAppliedDiscountCode(null)
     setDiscountAmount(0)
     setDiscountCodeData(null)
+  }
+
+  const handleValidateAddress = async () => {
+    if (shippingAddress.country_code !== 'US') return
+    setAddressValidateResult(null)
+    setAddressValidateLoading(true)
+    try {
+      const res = await fetch('/api/address/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          address1: shippingAddress.address1.trim(),
+          address2: shippingAddress.address2?.trim() || undefined,
+          city: shippingAddress.city.trim(),
+          state_code: shippingAddress.state_code.trim(),
+          zip: shippingAddress.zip.trim(),
+          country_code: shippingAddress.country_code,
+        }),
+      })
+      const data = await res.json()
+      if (data.valid && data.standardized) {
+        setAddressValidateResult({
+          valid: true,
+          standardized: {
+            address1: data.standardized.address1 ?? '',
+            address2: data.standardized.address2 ?? '',
+            city: data.standardized.city ?? '',
+            state_code: data.standardized.state_code ?? '',
+            zip: data.standardized.zip ?? '',
+            country_code: 'US',
+          },
+        })
+      } else {
+        setAddressValidateResult({ valid: false, message: data.message || 'Validation failed.' })
+      }
+    } catch {
+      setAddressValidateResult({ valid: false, message: 'Could not validate address. Please try again.' })
+    } finally {
+      setAddressValidateLoading(false)
+    }
+  }
+
+  const handleUseValidatedAddress = () => {
+    if (addressValidateResult?.valid && addressValidateResult.standardized) {
+      setShippingAddress(addressValidateResult.standardized)
+      setAddressValidateResult(null)
+    }
   }
 
   const handleCheckout = async () => {
@@ -587,12 +694,25 @@ export default function CheckoutPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-platinum-white/90 mb-1">Street address</label>
-                        <input
-                          type="text"
+                        <AddressAutocomplete
                           value={shippingAddress.address1}
-                          onChange={(e) => setShippingAddress((a) => ({ ...a, address1: e.target.value }))}
-                          placeholder="Address line 1"
+                          onChange={(v) => setShippingAddress((a) => ({ ...a, address1: v }))}
+                          onPlaceSelect={(addr) => {
+                            const country = ['US', 'CA', 'GB'].includes(addr.country_code) ? addr.country_code : 'OTHER'
+                            setShippingAddress((prev) => ({
+                              ...prev,
+                              address1: addr.address1,
+                              address2: addr.address2 || prev.address2,
+                              city: addr.city,
+                              state_code: addr.state_code,
+                              zip: addr.zip,
+                              country_code: country,
+                            }))
+                            setAddressValidateResult(null)
+                          }}
+                          placeholder="Start typing your address…"
                           className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                          countryRestriction={['US', 'CA', 'GB'].includes(shippingAddress.country_code) ? shippingAddress.country_code : undefined}
                         />
                       </div>
                       <div className="md:col-span-2">
@@ -633,12 +753,18 @@ export default function CheckoutPage() {
                           placeholder="ZIP code"
                           className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
                         />
+                        {shippingAddress.country_code === 'US' && (
+                          <p className="text-xs text-platinum-white/50 mt-1">City & state suggested when you enter a 5-digit ZIP.</p>
+                        )}
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-platinum-white/90 mb-1">Country</label>
                         <select
                           value={shippingAddress.country_code}
-                          onChange={(e) => setShippingAddress((a) => ({ ...a, country_code: e.target.value }))}
+                          onChange={(e) => {
+                            setShippingAddress((a) => ({ ...a, country_code: e.target.value }))
+                            setAddressValidateResult(null)
+                          }}
                           className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground"
                         >
                           <option value="US">United States</option>
@@ -648,6 +774,45 @@ export default function CheckoutPage() {
                         </select>
                       </div>
                     </div>
+                    {shippingAddress.country_code === 'US' && (
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={handleValidateAddress}
+                          disabled={addressValidateLoading || !isShippingAddressComplete()}
+                          className="text-sm px-3 py-1.5 rounded-lg border border-silicon-slate text-platinum-white/90 hover:bg-silicon-slate/50 disabled:opacity-50 disabled:pointer-events-none"
+                        >
+                          {addressValidateLoading ? 'Validating…' : 'Validate with USPS'}
+                        </button>
+                        {addressSuggestLoading && (
+                          <span className="text-xs text-platinum-white/60">Suggesting city & state…</span>
+                        )}
+                      </div>
+                    )}
+                    {addressValidateResult && (
+                      <div className={`mt-3 p-3 rounded-lg border ${addressValidateResult.valid ? 'border-green-500/50 bg-green-500/10' : 'border-amber-500/50 bg-amber-500/10'}`}>
+                        {addressValidateResult.valid ? (
+                          <div>
+                            <p className="text-sm text-platinum-white/90 mb-2">USPS standardized address:</p>
+                            <p className="text-sm text-platinum-white/80 font-mono mb-2">
+                              {addressValidateResult.standardized.address1}
+                              {addressValidateResult.standardized.address2 ? `, ${addressValidateResult.standardized.address2}` : ''}
+                              <br />
+                              {addressValidateResult.standardized.city}, {addressValidateResult.standardized.state_code} {addressValidateResult.standardized.zip}
+                            </p>
+                            <button
+                              type="button"
+                              onClick={handleUseValidatedAddress}
+                              className="text-sm px-3 py-1.5 rounded-lg bg-gold text-imperial-navy font-medium hover:opacity-90"
+                            >
+                              Use this address
+                            </button>
+                          </div>
+                        ) : (
+                          <p className="text-sm text-amber-200/90">{addressValidateResult.message}</p>
+                        )}
+                      </div>
+                    )}
                     {shippingLoading && (
                       <p className="text-sm text-platinum-white/70 mt-2">Calculating shipping…</p>
                     )}
