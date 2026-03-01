@@ -1,9 +1,8 @@
 // API Route: Sales Dashboard Data
 // Aggregates data for the sales dashboard
+export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server';
-
-export const dynamic = 'force-dynamic';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
 

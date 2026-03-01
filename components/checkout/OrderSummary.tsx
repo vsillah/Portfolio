@@ -56,6 +56,8 @@ interface OrderSummaryProps {
   subtotal: number
   discountAmount: number
   finalTotal: number
+  /** When present (e.g. merchandise), shown between discount and total */
+  shippingCost?: number
   hasQuoteBasedItems?: boolean
   editable?: boolean
   onQuantityChange?: (productId: number, quantity: number, variantId?: number) => void
@@ -92,6 +94,7 @@ export default function OrderSummary({
   subtotal,
   discountAmount,
   finalTotal,
+  shippingCost = 0,
   hasQuoteBasedItems = false,
   editable = false,
   onQuantityChange,
@@ -422,6 +425,12 @@ export default function OrderSummary({
             <span>Discount</span>
             <span>-{formatCurrency(discountAmount)}</span>
           </motion.div>
+        )}
+        {shippingCost > 0 && (
+          <div className="flex justify-between text-platinum-white/80">
+            <span>Shipping</span>
+            <span>{formatCurrency(shippingCost)}</span>
+          </div>
         )}
         <div className="flex justify-between text-xl font-bold text-foreground pt-2 border-t border-silicon-slate">
           <span>Total</span>

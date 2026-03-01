@@ -1,24 +1,58 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Twitter, Facebook, Linkedin, Share2, CheckCircle } from 'lucide-react'
 import { getCurrentSession } from '@/lib/auth'
 
 interface SocialShareProps {
   orderId: number
+  /** Single product title (used if productTitles not provided) */
   productTitle?: string
+  /** All item names (products + services) for the prefill message */
+  productTitles?: string[]
+  /** Override programme discount text (e.g. "$5" or "10%"); if not set, fetched from store settings */
+  programmeDiscount?: string
   onShareComplete?: (platform: string, discountEarned: number) => void
 }
 
-export default function SocialShare({ orderId, productTitle, onShareComplete }: SocialShareProps) {
+const DEFAULT_PROGRAMME_DISCOUNT = '$5'
+
+function formatProgrammeDiscount(type: 'fixed' | 'percentage', value: number): string {
+  return type === 'percentage' ? `${value}%` : `$${value}`
+}
+
+export default function SocialShare({
+  orderId,
+  productTitle,
+  productTitles,
+  programmeDiscount: programmeDiscountProp,
+  onShareComplete,
+}: SocialShareProps) {
   const [sharedPlatforms, setSharedPlatforms] = useState<Set<string>>(new Set())
   const [sharing, setSharing] = useState<string | null>(null)
+  const [programmeDiscountFromSettings, setProgrammeDiscountFromSettings] = useState<string>(DEFAULT_PROGRAMME_DISCOUNT)
 
-  const shareText = productTitle
-    ? `Just purchased "${productTitle}"! Check it out:`
-    : 'Just made a purchase! Check it out:'
-  const shareUrl = `${window.location.origin}/store?ref=${orderId}`
+  useEffect(() => {
+    fetch('/api/store-settings')
+      .then((res) => res.ok ? res.json() : null)
+      .then((data) => {
+        const s = data?.social_share_discount
+        if (s && (s.type === 'fixed' || s.type === 'percentage') && typeof s.value === 'number') {
+          setProgrammeDiscountFromSettings(formatProgrammeDiscount(s.type, s.value))
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const programmeDiscount = programmeDiscountProp ?? programmeDiscountFromSettings
+
+  const merchandiseText =
+    productTitles && productTitles.length > 0
+      ? productTitles.join(' and ')
+      : productTitle ?? 'some great stuff'
+  const shareText = `I just bought ${merchandiseText} from Amadutown! Get yours today with this link and save ${programmeDiscount}.`
+  const shareUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/store?ref=${orderId}`
 
   const handleShare = async (platform: string) => {
     if (sharedPlatforms.has(platform)) return

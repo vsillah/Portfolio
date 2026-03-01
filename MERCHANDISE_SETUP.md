@@ -204,11 +204,31 @@ After syncing:
 - Review Printful API rate limits
 - Check mockup generation logs
 
-### Orders Not Fulfilling
+### Orders Not Appearing in Printful Dashboard
+Orders are sent to Printful automatically when **Stripe** fires `payment_intent.succeeded` and the order has merchandise. If orders never show up:
+
+1. **Environment**
+   - Set `PRINTFUL_API_KEY` in Vercel (or your host) and redeploy. Without it, auto-fulfill fails silently and is only logged.
+   - Optional: set `PRINTFUL_STORE_ID` if you use multiple Printful stores.
+
+2. **Stripe webhook**
+   - In Stripe Dashboard → Developers → Webhooks, ensure the endpoint receives **payment_intent.succeeded**.
+   - After the next successful store payment, check your server logs (e.g. Vercel Functions) for `[Printful]` messages. You will see either:
+     - `Order N automatically submitted to Printful: <id>` (success), or
+     - A skip reason: `no shipping_address`, `no merchandise order items`, `no printful_variant_id`, or an error message if the Printful API call failed.
+
+3. **Order data**
+   - **Shipping address**: Checkout must send `shippingAddress` when creating the order so the order row has `shipping_address`. Otherwise auto-fulfill is skipped.
+   - **Printful variant IDs**: Merchandise products must be synced from Printful (Admin → Content → Merchandise → Sync). Each order item must have `printful_variant_id` (from `product_variants`). If items were added before sync or variants aren’t linked, those items are skipped.
+
+4. **Manual fulfill**
+   - For orders that were skipped or failed, submit to Printful manually: `POST /api/orders/fulfill` with body `{ "orderId": <your-order-id> }` (admin auth required). Or use any admin UI that calls this endpoint.
+
+### Orders Not Fulfilling (general)
 - Verify shipping address is complete
 - Check Printful variant IDs are correct
-- Review order fulfillment logs
-- Manually submit via Admin → Orders
+- Review order fulfillment logs and `[Printful]` server logs
+- Manually submit via `POST /api/orders/fulfill` (admin) if auto-fulfill failed
 
 ### Webhooks Not Working
 - Verify webhook URL is correct

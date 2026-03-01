@@ -477,7 +477,13 @@ export async function POST(request: NextRequest) {
           }
 
           // If order has merchandise items, submit to Printful
-          if (order && order.shipping_address && !order.printful_order_id) {
+          if (!order) {
+            // order already handled above
+          } else if (!order.shipping_address) {
+            console.warn(`[Printful] Order ${order.id} skipped: no shipping_address (required for fulfillment)`)
+          } else if (order.printful_order_id) {
+            console.log(`[Printful] Order ${order.id} already submitted (printful_order_id=${order.printful_order_id})`)
+          } else {
             try {
               // Check if order has merchandise items
               const { data: orderItems } = await supabaseAdmin
@@ -486,14 +492,22 @@ export async function POST(request: NextRequest) {
                 .eq('order_id', order.id)
                 .not('product_variant_id', 'is', null)
 
-              if (orderItems && orderItems.length > 0) {
-                // Build Printful items
+              if (!orderItems || orderItems.length === 0) {
+                console.warn(`[Printful] Order ${order.id} skipped: no merchandise order items (product_variant_id)`)
+              } else {
+                // Build Printful items (variant_id must be number for Printful API)
                 const printfulItems = orderItems
-                  .filter((item: OrderItemRow) => item.printful_variant_id)
+                  .filter((item: OrderItemRow) => item.printful_variant_id != null)
                   .map((item: OrderItemRow) => ({
-                    variant_id: item.printful_variant_id,
+                    variant_id: Number(item.printful_variant_id),
                     quantity: item.quantity,
                   }))
+
+                if (printfulItems.length === 0) {
+                  console.warn(`[Printful] Order ${order.id} skipped: merchandise items have no printful_variant_id (sync products from Printful and ensure variants are linked)`)
+                } else if (printfulItems.length < orderItems.length) {
+                  console.warn(`[Printful] Order ${order.id}: only ${printfulItems.length}/${orderItems.length} items have printful_variant_id; submitting those`)
+                }
 
                 if (printfulItems.length > 0) {
                   const shippingAddress = order.shipping_address as any
@@ -544,13 +558,13 @@ export async function POST(request: NextRequest) {
                     })
                     .eq('id', order.id)
 
-                  console.log(`Order ${order.id} automatically submitted to Printful: ${printfulOrder.id}`)
+                  console.log(`[Printful] Order ${order.id} automatically submitted to Printful: ${printfulOrder.id}`)
                 }
               }
             } catch (fulfillError: any) {
-              console.error('Error auto-fulfilling order:', fulfillError)
-              // Don't fail the webhook - order is still marked as paid
-              // Admin can manually fulfill later
+              console.error('[Printful] Auto-fulfill failed for order', order.id, fulfillError?.message || fulfillError)
+              if (fulfillError?.message) console.error('[Printful] Full error:', fulfillError.message)
+              // Don't fail the webhook - order is still marked as paid; admin can manually fulfill via POST /api/orders/fulfill
             }
           }
         }

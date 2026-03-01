@@ -55,8 +55,21 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Discount earned per share (configurable)
-    const discountEarned = 5 // $5 or 5% - adjust as needed
+    // Discount earned per share (from admin Store settings)
+    let discountEarned = 5
+    const { data: settingRow } = await supabaseAdmin
+      .from('store_settings')
+      .select('value')
+      .eq('key', 'social_share_discount')
+      .single()
+    if (settingRow?.value && typeof settingRow.value === 'object') {
+      const v = settingRow.value as { type?: string; value?: number }
+      if (v.type === 'percentage') {
+        discountEarned = 0 // percentage applied at redemption; we don't store dollar amount here
+      } else if (typeof v.value === 'number' && v.value >= 0) {
+        discountEarned = v.value
+      }
+    }
 
     // Record share
     const { data: share, error: shareError } = await supabaseAdmin

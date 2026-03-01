@@ -88,6 +88,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Prototypes', href: '/admin/content/prototypes' },
         { label: 'Merchandise', href: '/admin/content/merchandise' },
         { label: 'Discount Codes', href: '/admin/content/discount-codes' },
+        { label: 'Store Settings', href: '/admin/content/store-settings' },
         { label: 'Bundles', href: '/admin/sales/bundles' }, // cross-link: same route as Sales → Bundles
       ],
     },

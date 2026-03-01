@@ -46,6 +46,26 @@ interface DiscountCode {
   applicable_product_ids: number[] | null
 }
 
+/** Shipping address for merchandise (physical) orders */
+interface ShippingAddressForm {
+  address1: string
+  address2: string
+  city: string
+  state_code: string
+  zip: string
+  country_code: string
+  phone?: string
+}
+
+const emptyShipping: ShippingAddressForm = {
+  address1: '',
+  address2: '',
+  city: '',
+  state_code: '',
+  zip: '',
+  country_code: 'US',
+}
+
 export default function CheckoutPage() {
   const { user, session: authSession, loading: authLoading } = useAuth()
   const router = useRouter()
@@ -60,6 +80,9 @@ export default function CheckoutPage() {
   const [appliedDiscountCode, setAppliedDiscountCode] = useState<string | null>(null)
   const [discountAmount, setDiscountAmount] = useState(0)
   const [discountCodeData, setDiscountCodeData] = useState<DiscountCode | null>(null)
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddressForm>(emptyShipping)
+  const [shippingCost, setShippingCost] = useState(0)
+  const [shippingLoading, setShippingLoading] = useState(false)
 
   const loadCart = useCallback(async () => {
     const cart = getCart()
@@ -211,6 +234,75 @@ export default function CheckoutPage() {
     return Math.max(0, subtotal - discountAmount)
   }
 
+  const hasMerchandise = cartItems.some(
+    (item) => item.itemType === 'product' && item.variantId != null
+  )
+  const effectiveFinalTotal = calculateFinalTotal() + (hasMerchandise ? shippingCost : 0)
+
+  const isShippingAddressComplete = () => {
+    if (!hasMerchandise) return true
+    const a = shippingAddress
+    return Boolean(
+      a.address1?.trim() &&
+        a.city?.trim() &&
+        a.state_code?.trim() &&
+        a.zip?.trim() &&
+        a.country_code?.trim()
+    )
+  }
+
+  // Fetch shipping cost when address is complete (merchandise only)
+  useEffect(() => {
+    if (!hasMerchandise || !isShippingAddressComplete()) {
+      setShippingCost(0)
+      return
+    }
+    const timer = setTimeout(async () => {
+      setShippingLoading(true)
+      try {
+        const items = cartItems
+          .filter((item) => item.itemType === 'product' && item.variantId != null)
+          .map((item) => ({
+            productId: item.productId,
+            variantId: item.variantId,
+            printfulVariantId: item.printfulVariantId,
+            quantity: item.quantity,
+          }))
+        const recipient = {
+          address1: shippingAddress.address1.trim(),
+          city: shippingAddress.city.trim(),
+          state_code: shippingAddress.state_code.trim(),
+          zip: shippingAddress.zip.trim(),
+          country_code: shippingAddress.country_code.trim(),
+        }
+        const res = await fetch('/api/checkout/shipping', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items, recipient }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setShippingCost(data.shipping_cost ?? 0)
+        } else {
+          setShippingCost(0)
+        }
+      } catch {
+        setShippingCost(0)
+      } finally {
+        setShippingLoading(false)
+      }
+    }, 600)
+    return () => clearTimeout(timer)
+  }, [
+    hasMerchandise,
+    shippingAddress.address1,
+    shippingAddress.city,
+    shippingAddress.state_code,
+    shippingAddress.zip,
+    shippingAddress.country_code,
+    cartItems,
+  ])
+
   // Cart management handlers
   const handleQuantityChange = (productId: number, quantity: number, variantId?: number) => {
     const updated = updateCartItemQuantity(productId, quantity, variantId)
@@ -319,17 +411,33 @@ export default function CheckoutPage() {
         router.push('/auth/login?redirect=/checkout')
         return
       }
+      if (hasMerchandise && !isShippingAddressComplete()) {
+        alert('Please enter your full shipping address so we can deliver your order.')
+        return
+      }
       const subtotal = calculateSubtotal()
-      const finalTotal = calculateFinalTotal()
       const hasPaidItems = subtotal > 0 || hasQuoteBasedItems
 
-      const orderData = {
+      const orderData: Record<string, unknown> = {
         cartItems,
         discountCode: appliedDiscountCode,
         subtotal,
         discountAmount,
-        finalTotal,
+        finalTotal: effectiveFinalTotal,
         hasQuoteBasedItems,
+      }
+      if (hasMerchandise) {
+        orderData.shippingAddress = {
+          address1: shippingAddress.address1.trim(),
+          address2: shippingAddress.address2?.trim() || undefined,
+          city: shippingAddress.city.trim(),
+          state_code: shippingAddress.state_code.trim(),
+          zip: shippingAddress.zip.trim(),
+          country_code: shippingAddress.country_code.trim(),
+          phone: shippingAddress.phone?.trim() || undefined,
+        }
+        orderData.shippingCost = shippingCost
+        orderData.tax = 0
       }
 
       const response = await fetch('/api/checkout', {
@@ -428,7 +536,6 @@ export default function CheckoutPage() {
   }
 
   const subtotal = calculateSubtotal()
-  const finalTotal = calculateFinalTotal()
   const hasPaidItems = subtotal > 0 || hasQuoteBasedItems
 
   return (
@@ -471,6 +578,85 @@ export default function CheckoutPage() {
                   campaign={firstCampaign ? { name: firstCampaign.name, slug: firstCampaign.slug, campaign_type: firstCampaign.campaign_type, enrollment_deadline: firstCampaign.enrollment_deadline } : null}
                 />
 
+                {hasMerchandise && (
+                  <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
+                    <h2 className="text-xl font-bold mb-4">Shipping address</h2>
+                    <p className="text-platinum-white/80 text-sm mb-4">
+                      Required for physical products. We’ll deliver your order to this address.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-platinum-white/90 mb-1">Street address</label>
+                        <input
+                          type="text"
+                          value={shippingAddress.address1}
+                          onChange={(e) => setShippingAddress((a) => ({ ...a, address1: e.target.value }))}
+                          placeholder="Address line 1"
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <input
+                          type="text"
+                          value={shippingAddress.address2}
+                          onChange={(e) => setShippingAddress((a) => ({ ...a, address2: e.target.value }))}
+                          placeholder="Address line 2 (optional)"
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-platinum-white/90 mb-1">City</label>
+                        <input
+                          type="text"
+                          value={shippingAddress.city}
+                          onChange={(e) => setShippingAddress((a) => ({ ...a, city: e.target.value }))}
+                          placeholder="City"
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-platinum-white/90 mb-1">State / Province</label>
+                        <input
+                          type="text"
+                          value={shippingAddress.state_code}
+                          onChange={(e) => setShippingAddress((a) => ({ ...a, state_code: e.target.value }))}
+                          placeholder="e.g. CA"
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-platinum-white/90 mb-1">ZIP / Postal code</label>
+                        <input
+                          type="text"
+                          value={shippingAddress.zip}
+                          onChange={(e) => setShippingAddress((a) => ({ ...a, zip: e.target.value }))}
+                          placeholder="ZIP code"
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-platinum-white/90 mb-1">Country</label>
+                        <select
+                          value={shippingAddress.country_code}
+                          onChange={(e) => setShippingAddress((a) => ({ ...a, country_code: e.target.value }))}
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground"
+                        >
+                          <option value="US">United States</option>
+                          <option value="CA">Canada</option>
+                          <option value="GB">United Kingdom</option>
+                          <option value="OTHER">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                    {shippingLoading && (
+                      <p className="text-sm text-platinum-white/70 mt-2">Calculating shipping…</p>
+                    )}
+                    {!shippingLoading && hasMerchandise && isShippingAddressComplete() && shippingCost > 0 && (
+                      <p className="text-sm text-platinum-white/80 mt-2">Shipping: ${shippingCost.toFixed(2)}</p>
+                    )}
+                  </div>
+                )}
+
                 {/* Discount Code */}
                 <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
                   <h2 className="text-xl font-bold mb-4">Discount Code</h2>
@@ -511,7 +697,8 @@ export default function CheckoutPage() {
               variants={variants}
               subtotal={subtotal}
               discountAmount={discountAmount}
-              finalTotal={finalTotal}
+              finalTotal={effectiveFinalTotal}
+              shippingCost={hasMerchandise ? shippingCost : undefined}
               hasQuoteBasedItems={hasQuoteBasedItems}
               editable={true}
               onQuantityChange={handleQuantityChange}

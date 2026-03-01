@@ -25,6 +25,10 @@ export async function GET(
             file_path,
             asset_url,
             instructions_file_path
+          ),
+          services (
+            id,
+            title
           )
         )
       `)

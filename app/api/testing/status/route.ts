@@ -1,13 +1,11 @@
 /**
  * API Route: Test Run Status
- * 
  * GET /api/testing/status?runId=xxx - Get status of a specific test run
  */
+export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-
-export const dynamic = 'force-dynamic'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

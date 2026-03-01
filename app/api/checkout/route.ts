@@ -67,6 +67,15 @@ export async function POST(request: NextRequest) {
     const productItems = cartItems.filter((item: any) => item.itemType === 'product')
     const serviceItems = cartItems.filter((item: any) => item.itemType === 'service')
 
+    // Merchandise (physical products) require a shipping address
+    const hasMerchandise = productItems.some((item: any) => item.variantId != null)
+    if (hasMerchandise && !shippingAddress) {
+      return NextResponse.json(
+        { error: 'Shipping address is required for physical products. Please enter your delivery address.' },
+        { status: 400 }
+      )
+    }
+
     // Fetch products and variants to get prices
     const productIds = productItems.map((item: any) => item.productId)
     const productMap = new Map<number, { price: number | null; isPrintOnDemand: boolean }>()
