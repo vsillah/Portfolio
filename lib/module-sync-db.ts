@@ -87,13 +87,13 @@ export async function getCustomModulesFromDb(): Promise<ModuleSyncCustomRow[]> {
     console.error('[module-sync-db] Failed to fetch custom modules:', error)
     return []
   }
-  return (data ?? []).map((r) => ({
-    id: r.id,
-    name: r.name,
-    portfolio_path: r.portfolio_path,
-    spun_off_repo_url: r.spun_off_repo_url ?? null,
-    created_at: r.created_at,
-    created_by: r.created_by ?? null,
+  return (data ?? []).map((r: Record<string, unknown>) => ({
+    id: r.id as string,
+    name: r.name as string,
+    portfolio_path: r.portfolio_path as string,
+    spun_off_repo_url: (r.spun_off_repo_url as string | null) ?? null,
+    created_at: r.created_at as string | undefined,
+    created_by: (r.created_by as string | null) ?? null,
   }))
 }
 

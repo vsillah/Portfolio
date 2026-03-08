@@ -1,5 +1,7 @@
 # Install Guide — n8n Warm Lead Pack
 
+> **Note:** This is not a buildable Next.js app. It contains n8n workflow JSON files that are imported into your n8n instance. Standalone verification = the workflows import and activate in n8n. The workflows depend on an external app that exposes the ingest API (`POST /api/admin/outreach/ingest`).
+
 ## Prerequisites
 
 - n8n Cloud or self-hosted n8n

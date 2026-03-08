@@ -9,9 +9,11 @@
 
 ## 1. Clone or copy
 
+Clone the spin-off repo (if available) or copy the template directory. The template is fully self-contained — all boilerplate (tsconfig, next.config, tailwind, layout, etc.) and auth utilities are included. No `copy-shared.sh` step is needed.
+
 ```bash
-cp -r chatbot-template /path/to/your-project
-cd /path/to/your-project
+git clone https://github.com/your-org/chatbot-template.git
+cd chatbot-template
 ```
 
 ## 2. Install dependencies

@@ -8,7 +8,13 @@
 
 ## 1. Clone or copy
 
-Copy the `diagnostic-template` folder into your Next.js app or use it as a standalone module.
+Clone the spin-off repo (if available) or copy the template directory. The template is fully self-contained — all boilerplate (package.json, tsconfig, next.config, tailwind, layout, etc.) and auth utilities are included. No `copy-shared.sh` step is needed.
+
+```bash
+git clone https://github.com/your-org/diagnostic-template.git
+cd diagnostic-template
+npm install
+```
 
 ## 2. Database
 
