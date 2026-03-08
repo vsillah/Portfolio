@@ -53,6 +53,7 @@ const CRITICAL_TABLES = [
   'discount_codes',
   'user_profiles',
   'client_projects',
+  'module_sync_custom',
 ]
 
 // Tables that may not exist yet (app returns empty when missing). Still checked, but missing is not warned/fatal.

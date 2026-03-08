@@ -31,6 +31,8 @@ export interface ModuleDiffResult {
   summary: { added: number; removed: number; modified: number; unchanged: number }
   files: DiffFileResult[]
   error?: string
+  /** When true, the GitHub repo returned 404 (deleted or not found). UI can offer "Remove from module list" for custom modules. */
+  repoNotFound?: boolean
 }
 
 /**
@@ -278,7 +280,12 @@ export async function runModuleDiff(
       else result.summary.unchanged++
     }
   } catch (err) {
-    result.error = err instanceof Error ? err.message : String(err)
+    const msg = err instanceof Error ? err.message : String(err)
+    result.error = msg
+    if (/404|not found/i.test(msg)) {
+      result.repoNotFound = true
+      result.error = 'Repo not found or deleted on GitHub.'
+    }
   }
 
   return result

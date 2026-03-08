@@ -76,12 +76,13 @@ When a module is spun off to its own repository:
 
 ## Module Sync (Admin UI)
 
-**Admin → Configuration → Module Sync** lets you set each module’s spun-off GitHub repo URL, run a diff, and push portfolio changes to the spin-off repo via a GitHub Action.
+**Admin → Configuration → Module Sync** lets you set each module’s spun-off GitHub repo URL, run a diff, and push portfolio changes to the spin-off repo via a GitHub Action. You can also discover new spin-off candidates (scan), create a GitHub repo, and add it as a custom module.
 
-- **Config in UI:** Spun-off repo URL is stored in the database (`module_sync_config`) and edited on the Module Sync page. No need to edit code.
-- **API:** `GET /api/admin/module-sync/modules` (list with saved URLs), `PATCH /api/admin/module-sync/modules/[id]` (save URL), `GET /api/admin/module-sync/diff?module=<id>` (run diff), `POST /api/admin/module-sync/push` (trigger sync workflow). Admin-only.
+- **Config in UI:** Spun-off repo URL is stored in the database (`module_sync_config` for code-defined modules, `module_sync_custom` for custom modules) and edited on the Module Sync page. No need to edit code.
+- **API:** `GET /api/admin/module-sync/modules` (list), `PATCH /api/admin/module-sync/modules/[id]` (save URL; custom modules can update name), `DELETE /api/admin/module-sync/modules/[id]` (remove custom module from list only; does not delete the GitHub repo), `GET /api/admin/module-sync/scan` (discover candidates), `POST /api/admin/module-sync/create-repo` (create GitHub repo and add custom module), `GET /api/admin/module-sync/diff?module=<id>`, `POST /api/admin/module-sync/push`. Admin-only.
 - **Push to spin-off:** After running a diff, use **Push to spin-off** to trigger the GitHub Action `.github/workflows/sync-module-to-spinoff.yml`, which runs `git subtree push` from the portfolio repo to the spun-off repo. No custom blob/commit code in the app.
-- **Env (app):** `GITHUB_TOKEN` — used for diff (read) and to trigger the workflow (needs `actions: write` or `repo`). `GITHUB_REPO` — portfolio repo as `owner/repo` (e.g. `vsillah/Portfolio`), required for push.
+- **Discover spin-offs:** Use **Scan** to find portfolio paths that look like spin-off candidates. Then **Create repo & add module** to create the repo on GitHub and add it to the module list. Custom modules can be edited (name, URL) or **removed** (removes from list only; does not delete the GitHub repo). If the spun-off repo was deleted on GitHub, the diff shows "Repo not found or deleted on GitHub" and for custom modules you can **Remove from module list**.
+- **Env (app):** `GITHUB_TOKEN` — must have **repo** scope (or create-repo + contents read + actions write) for diff, scan, create-repo, and push. Repos created via create-repo are created as the token owner. `GITHUB_REPO` — portfolio repo as `owner/repo`, required for push and scan.
 - **Repo secret (portfolio repo):** `MODULE_SYNC_PUSH_TOKEN` — PAT with push access to the spin-off repo(s). The workflow uses it to push the subtree to the target repo.
 
 ## Quick reference

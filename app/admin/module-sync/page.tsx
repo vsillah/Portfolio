@@ -3,30 +3,54 @@
 /**
  * Admin Module Sync — diff portfolio module code vs. spun-off GitHub repo.
  * Config (spun-off repo URL) is managed in the UI and stored in the DB.
+ * Supports custom modules (Discover spin-offs), search, Edit/Remove, and 404 handling.
  */
 
 import { useState, useEffect, useCallback } from 'react'
-import { GitCompare, RefreshCw, ExternalLink, ChevronDown, ChevronUp, AlertCircle, Save, Upload } from 'lucide-react'
+import { GitCompare, RefreshCw, ExternalLink, ChevronDown, ChevronUp, AlertCircle, Save, Upload, Search, Trash2, Plus, Loader2 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import type { ModuleSyncEntry } from '@/lib/module-sync-config'
 import type { ModuleDiffResult, DiffFileResult } from '@/lib/module-sync-diff'
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+function isCustomModuleId(id: string): boolean {
+  return UUID_REGEX.test(id.trim())
+}
+
+export interface ScanCandidate {
+  path: string
+  reason?: string
+}
+
 export default function ModuleSyncPage() {
   const [modules, setModules] = useState<ModuleSyncEntry[]>([])
   const [loadingModules, setLoadingModules] = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
   const [diffResult, setDiffResult] = useState<ModuleDiffResult | null>(null)
   const [diffLoadingId, setDiffLoadingId] = useState<string | null>(null)
   const [expandedPatches, setExpandedPatches] = useState<Set<string>>(new Set())
   /** Local draft of spun-off URL per module (input value before Save). */
   const [urlDrafts, setUrlDrafts] = useState<Record<string, string>>({})
+  /** Local draft of display name for custom modules. */
+  const [nameDrafts, setNameDrafts] = useState<Record<string, string>>({})
   const [savingId, setSavingId] = useState<string | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [pushConfirm, setPushConfirm] = useState(false)
   const [pushLoading, setPushLoading] = useState(false)
   const [pushError, setPushError] = useState<string | null>(null)
   const [pushSuccess, setPushSuccess] = useState<{ workflowUrl: string } | null>(null)
+  const [candidates, setCandidates] = useState<ScanCandidate[]>([])
+  const [scanLoading, setScanLoading] = useState(false)
+  const [scanError, setScanError] = useState<string | null>(null)
+  const [candidateSearch, setCandidateSearch] = useState('')
+  const [createModal, setCreateModal] = useState<{ path: string; repoName: string; name: string } | null>(null)
+  const [createLoading, setCreateLoading] = useState(false)
+  const [createError, setCreateError] = useState<string | null>(null)
+  const [removeConfirmId, setRemoveConfirmId] = useState<string | null>(null)
+  const [removeLoading, setRemoveLoading] = useState(false)
+  const [removeError, setRemoveError] = useState<string | null>(null)
 
   const fetchModules = useCallback(async () => {
     setLoadingModules(true)
@@ -147,13 +171,127 @@ export default function ModuleSyncPage() {
     }
   }, [diffResult?.moduleId])
 
+  const filteredModules = searchQuery.trim()
+    ? modules.filter(
+        (m) =>
+          m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          m.portfolioPath.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : modules
+
+  const filteredCandidates = candidateSearch.trim()
+    ? candidates.filter(
+        (c) =>
+          c.path.toLowerCase().includes(candidateSearch.toLowerCase())
+      )
+    : candidates
+
+  const runScan = useCallback(async () => {
+    setScanLoading(true)
+    setScanError(null)
+    setCandidates([])
+    try {
+      const session = await getCurrentSession()
+      const res = await fetch('/api/admin/module-sync/scan', {
+        credentials: 'include',
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setScanError(data.error ?? `Scan failed: ${res.status}`)
+        return
+      }
+      setCandidates(data.candidates ?? [])
+    } catch (e) {
+      setScanError(e instanceof Error ? e.message : 'Scan failed')
+    } finally {
+      setScanLoading(false)
+    }
+  }, [])
+
+  const openCreateModal = (path: string) => {
+    const segment = path.replace(/\/+$/, '').split('/').pop() ?? path
+    const repoName = segment.replace(/[^a-zA-Z0-9_.-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'repo'
+    setCreateModal({ path, repoName, name: segment })
+    setCreateError(null)
+  }
+
+  const doCreateRepo = useCallback(async () => {
+    if (!createModal) return
+    setCreateLoading(true)
+    setCreateError(null)
+    try {
+      const session = await getCurrentSession()
+      const res = await fetch('/api/admin/module-sync/create-repo', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(session?.access_token && { Authorization: `Bearer ${session.access_token}` }),
+        },
+        body: JSON.stringify({
+          portfolioPath: createModal.path,
+          repoName: createModal.repoName.trim() || undefined,
+          name: createModal.name.trim() || undefined,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setCreateError(data.error ?? `Create failed: ${res.status}`)
+        return
+      }
+      setCreateModal(null)
+      await fetchModules()
+    } catch (e) {
+      setCreateError(e instanceof Error ? e.message : 'Create failed')
+    } finally {
+      setCreateLoading(false)
+    }
+  }, [createModal, fetchModules])
+
+  const removeCustomModule = useCallback(async (moduleId: string) => {
+    setRemoveLoading(true)
+    setRemoveError(null)
+    try {
+      const session = await getCurrentSession()
+      const res = await fetch(`/api/admin/module-sync/modules/${encodeURIComponent(moduleId)}`, {
+        method: 'DELETE',
+        credentials: 'include',
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setRemoveError(data.error ?? `Remove failed: ${res.status}`)
+        return
+      }
+      setRemoveConfirmId(null)
+      setRemoveError(null)
+      if (diffResult?.moduleId === moduleId) {
+        setDiffResult(null)
+        setPushConfirm(false)
+        setPushError(null)
+        setPushSuccess(null)
+      }
+      await fetchModules()
+    } catch (e) {
+      setRemoveError(e instanceof Error ? e.message : 'Remove failed')
+    } finally {
+      setRemoveLoading(false)
+    }
+  }, [diffResult?.moduleId, fetchModules])
+
   const saveSpunOffUrl = useCallback(async (moduleId: string) => {
     const m = modules.find((x) => x.id === moduleId)
-    const value = m ? (urlDrafts[moduleId] ?? m.spunOffRepoUrl ?? '') : ''
+    const urlValue = m ? (urlDrafts[moduleId] ?? m.spunOffRepoUrl ?? '') : ''
+    const nameValue = nameDrafts[moduleId] ?? m?.name ?? ''
     setSavingId(moduleId)
     setSaveError(null)
     try {
       const session = await getCurrentSession()
+      const body: { spunOffRepoUrl?: string | null; name?: string } = {
+        spunOffRepoUrl: urlValue.trim() || null,
+      }
+      if (isCustomModuleId(moduleId) && nameValue.trim()) body.name = nameValue.trim()
       const res = await fetch(`/api/admin/module-sync/modules/${encodeURIComponent(moduleId)}`, {
         method: 'PATCH',
         credentials: 'include',
@@ -163,7 +301,7 @@ export default function ModuleSyncPage() {
             Authorization: `Bearer ${session.access_token}`,
           }),
         },
-        body: JSON.stringify({ spunOffRepoUrl: value.trim() || null }),
+        body: JSON.stringify(body),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -175,12 +313,17 @@ export default function ModuleSyncPage() {
         delete next[moduleId]
         return next
       })
+      setNameDrafts((prev) => {
+        const next = { ...prev }
+        delete next[moduleId]
+        return next
+      })
       setSaveError(null)
       await fetchModules()
     } finally {
       setSavingId(null)
     }
-  }, [modules, urlDrafts, fetchModules])
+  }, [modules, urlDrafts, nameDrafts, fetchModules])
 
   return (
     <ProtectedRoute requireAdmin>
@@ -209,17 +352,29 @@ export default function ModuleSyncPage() {
           )}
 
           <div className="rounded-xl border border-white/10 bg-white/5 overflow-hidden">
-            <div className="p-4 border-b border-white/10 flex items-center justify-between">
+            <div className="p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-2">
               <h2 className="text-lg font-semibold">Modules</h2>
-              <button
-                type="button"
-                onClick={fetchModules}
-                disabled={loadingModules}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-sm disabled:opacity-50"
-              >
-                <RefreshCw size={16} className={loadingModules ? 'animate-spin' : ''} />
-                Refresh
-              </button>
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-platinum-white/50" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search by name or path…"
+                    className="pl-8 pr-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-foreground placeholder:text-platinum-white/40 focus:border-cyan-500/50 focus:outline-none text-sm w-56"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={fetchModules}
+                  disabled={loadingModules}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-sm disabled:opacity-50"
+                >
+                  <RefreshCw size={16} className={loadingModules ? 'animate-spin' : ''} />
+                  Refresh
+                </button>
+              </div>
             </div>
 
             {loadingModules ? (
@@ -236,12 +391,28 @@ export default function ModuleSyncPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {modules.map((m) => {
+                    {filteredModules.map((m) => {
                       const url = currentUrl(m)
                       const hasUrl = url.trim().length > 0
+                      const custom = isCustomModuleId(m.id)
+                      const displayName = nameDrafts[m.id] ?? m.name
                       return (
                         <tr key={m.id} className="border-b border-white/5 hover:bg-white/5">
-                          <td className="p-3 font-medium">{m.name}</td>
+                          <td className="p-3 font-medium">
+                            {custom ? (
+                              <input
+                                type="text"
+                                value={displayName}
+                                onChange={(e) => {
+                                  setSaveError(null)
+                                  setNameDrafts((prev) => ({ ...prev, [m.id]: e.target.value }))
+                                }}
+                                className="px-2 py-1 rounded bg-white/10 border border-white/20 text-foreground text-sm w-40 focus:border-cyan-500/50 focus:outline-none"
+                              />
+                            ) : (
+                              m.name
+                            )}
+                          </td>
                           <td className="p-3 text-sm text-platinum-white/80 font-mono">
                             {m.portfolioPath}
                           </td>
@@ -280,16 +451,50 @@ export default function ModuleSyncPage() {
                             </div>
                           </td>
                           <td className="p-3">
-                            <button
-                              type="button"
-                              onClick={() => runDiff(m.id)}
-                              disabled={!currentUrl(m).trim() || diffLoadingId !== null}
-                              title={!currentUrl(m).trim() ? 'Enter or save a spun-off repo URL' : undefined}
-                              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <GitCompare size={16} />
-                              {diffLoadingId === m.id ? 'Running…' : 'Run diff'}
-                            </button>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <button
+                                type="button"
+                                onClick={() => runDiff(m.id)}
+                                disabled={!currentUrl(m).trim() || diffLoadingId !== null}
+                                title={!currentUrl(m).trim() ? 'Enter or save a spun-off repo URL' : undefined}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                <GitCompare size={16} />
+                                {diffLoadingId === m.id ? 'Running…' : 'Run diff'}
+                              </button>
+                              {custom && (
+                                removeConfirmId === m.id ? (
+                                  <span className="flex items-center gap-2 text-sm">
+                                    <button
+                                      type="button"
+                                      onClick={() => removeCustomModule(m.id)}
+                                      disabled={removeLoading}
+                                      className="px-2 py-1 rounded bg-red-500/20 text-red-300 text-sm disabled:opacity-50"
+                                    >
+                                      {removeLoading ? 'Removing…' : 'Confirm remove'}
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setRemoveConfirmId(null)}
+                                      disabled={removeLoading}
+                                      className="px-2 py-1 rounded bg-white/10 text-sm"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </span>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => setRemoveConfirmId(m.id)}
+                                    title="Removes from list only; does not delete the GitHub repo."
+                                    className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/10 hover:bg-red-500/20 text-platinum-white/80 hover:text-red-300 text-sm"
+                                  >
+                                    <Trash2 size={14} />
+                                    Remove
+                                  </button>
+                                )
+                              )}
+                            </div>
                           </td>
                         </tr>
                       )
@@ -299,6 +504,120 @@ export default function ModuleSyncPage() {
               </div>
             )}
           </div>
+
+          {removeError && (
+            <div className="mt-4 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-200 text-sm flex items-center gap-2">
+              <AlertCircle size={18} />
+              {removeError}
+            </div>
+          )}
+
+          <div className="mt-8 rounded-xl border border-white/10 bg-white/5 overflow-hidden">
+            <div className="p-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-lg font-semibold">Discover spin-offs</h2>
+              <button
+                type="button"
+                onClick={runScan}
+                disabled={scanLoading}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 text-sm disabled:opacity-50"
+              >
+                {scanLoading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                {scanLoading ? 'Scanning…' : 'Scan'}
+              </button>
+            </div>
+            {scanError && (
+              <div className="p-3 border-b border-white/10 text-amber-200 text-sm flex items-center gap-2">
+                <AlertCircle size={18} />
+                {scanError}
+              </div>
+            )}
+            {candidates.length > 0 && (
+              <>
+                <div className="p-3 border-b border-white/10">
+                  <input
+                    type="text"
+                    value={candidateSearch}
+                    onChange={(e) => setCandidateSearch(e.target.value)}
+                    placeholder="Filter candidates…"
+                    className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-foreground placeholder:text-platinum-white/40 text-sm w-64 focus:border-cyan-500/50 focus:outline-none"
+                  />
+                </div>
+                <ul className="divide-y divide-white/5 max-h-48 overflow-y-auto">
+                  {filteredCandidates.map((c) => (
+                    <li key={c.path} className="p-3 flex items-center justify-between gap-2">
+                      <span className="font-mono text-sm text-platinum-white/90">{c.path}</span>
+                      {c.reason && (
+                        <span className="text-xs text-platinum-white/50 truncate max-w-[200px]">{c.reason}</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => openCreateModal(c.path)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/20 text-green-300 hover:bg-green-500/30 text-sm shrink-0"
+                      >
+                        <Plus size={14} />
+                        Create repo & add module
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {!scanLoading && candidates.length === 0 && !scanError && (
+              <div className="p-6 text-center text-platinum-white/60 text-sm">
+                Click Scan to discover portfolio paths that look like spin-off candidates.
+              </div>
+            )}
+          </div>
+
+          {createModal && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={() => !createLoading && setCreateModal(null)}>
+              <div className="rounded-xl border border-white/10 bg-background p-6 max-w-md w-full shadow-xl" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-lg font-semibold mb-4">Create repo & add module</h3>
+                <p className="text-sm text-platinum-white/80 mb-2 font-mono">{createModal.path}</p>
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium">Repo name</label>
+                  <input
+                    type="text"
+                    value={createModal.repoName}
+                    onChange={(e) => setCreateModal((prev) => prev ? { ...prev, repoName: e.target.value } : null)}
+                    className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-foreground text-sm font-mono focus:border-cyan-500/50 focus:outline-none"
+                  />
+                  <label className="block text-sm font-medium">Display name</label>
+                  <input
+                    type="text"
+                    value={createModal.name}
+                    onChange={(e) => setCreateModal((prev) => prev ? { ...prev, name: e.target.value } : null)}
+                    className="w-full px-3 py-2 rounded-lg bg-white/10 border border-white/20 text-foreground text-sm focus:border-cyan-500/50 focus:outline-none"
+                  />
+                </div>
+                {createError && (
+                  <p className="mt-3 text-sm text-amber-200 flex items-center gap-2">
+                    <AlertCircle size={16} />
+                    {createError}
+                  </p>
+                )}
+                <div className="mt-6 flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => !createLoading && setCreateModal(null)}
+                    disabled={createLoading}
+                    className="px-3 py-1.5 rounded-lg bg-white/10 text-sm disabled:opacity-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={doCreateRepo}
+                    disabled={createLoading}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-green-500/20 text-green-300 hover:bg-green-500/30 text-sm disabled:opacity-50"
+                  >
+                    {createLoading ? <Loader2 size={16} className="animate-spin" /> : null}
+                    Create & add
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {diffResult && (
             <div className="mt-8 rounded-xl border border-white/10 bg-white/5 overflow-hidden">
@@ -387,7 +706,19 @@ export default function ModuleSyncPage() {
               {diffResult.error ? (
                 <div className="p-6 flex items-start gap-3 text-amber-200 bg-amber-500/10 border-b border-white/10">
                   <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
-                  <p>{diffResult.error}</p>
+                  <div className="flex-1">
+                    <p>{diffResult.error}</p>
+                    {diffResult.repoNotFound && isCustomModuleId(diffResult.moduleId) && (
+                      <button
+                        type="button"
+                        onClick={() => removeCustomModule(diffResult.moduleId)}
+                        disabled={removeLoading}
+                        className="mt-3 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-red-500/20 text-sm disabled:opacity-50"
+                      >
+                        {removeLoading ? 'Removing…' : 'Remove from module list'}
+                      </button>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <>
