@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { updateDraft, sendDraft } from '@/lib/client-update-drafts'
+import { updateDraft, sendDraft, deleteDraft } from '@/lib/client-update-drafts'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -124,6 +124,34 @@ export async function POST(
     return NextResponse.json({ success: true, message: result.message })
   } catch (error) {
     console.error('[Draft send] Error:', error)
+    const message = error instanceof Error ? error.message : String(error)
+    return NextResponse.json({ error: message }, { status: 500 })
+  }
+}
+
+/**
+ * DELETE /api/client-update-drafts/[id]
+ *
+ * Delete a draft (draft or sent). Auth: admin only.
+ */
+export async function DELETE(
+  _request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const authResult = await verifyAdmin(_request)
+    if (isAuthError(authResult)) {
+      return NextResponse.json(
+        { error: authResult.error },
+        { status: authResult.status }
+      )
+    }
+
+    const { id } = await params
+    await deleteDraft(id)
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('[Draft DELETE] Error:', error)
     const message = error instanceof Error ? error.message : String(error)
     return NextResponse.json({ error: message }, { status: 500 })
   }

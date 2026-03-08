@@ -79,14 +79,14 @@ export async function GET(request: NextRequest) {
       funnel_stage_label: m.funnel_stage ? FUNNEL_STAGE_LABELS[m.funnel_stage as keyof typeof FUNNEL_STAGE_LABELS] ?? m.funnel_stage : undefined,
     })) as Array<Record<string, unknown> & { funnel_stage?: string; funnel_stage_label?: string; file_path: string | null; display_order?: number; created_at?: string; service_id?: string | null }>
 
-    // For lead magnets with service_id, attach video_url, video_thumbnail_url, and service_title from the linked service
+    // For lead magnets with service_id, attach video_url, video_thumbnail_url, presentation_url, and service_title from the linked service
     const serviceIds = [...new Set(normalized.map((m) => m.service_id).filter(Boolean) as string[])]
     if (serviceIds.length > 0) {
       const { data: services } = await supabaseAdmin
         .from('services')
-        .select('id, title, video_url, video_thumbnail_url')
+        .select('id, title, video_url, video_thumbnail_url, presentation_url')
         .in('id', serviceIds)
-      type ServiceRow = { id: string; title?: string | null; video_url?: string | null; video_thumbnail_url?: string | null }
+      type ServiceRow = { id: string; title?: string | null; video_url?: string | null; video_thumbnail_url?: string | null; presentation_url?: string | null }
       const serviceByKey = new Map<string, ServiceRow>((services || []).map((s: ServiceRow) => [s.id, s]))
       normalized = normalized.map((m) => {
         const sid = m.service_id as string | undefined
@@ -96,6 +96,7 @@ export async function GET(request: NextRequest) {
           ...m,
           video_url: svc?.video_url ?? null,
           video_thumbnail_url: svc?.video_thumbnail_url ?? null,
+          presentation_url: svc?.presentation_url ?? null,
           service_title: svc?.title ?? null,
         }
       })

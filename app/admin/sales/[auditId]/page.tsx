@@ -1873,6 +1873,24 @@ export default function ClientWalkthroughPage() {
                             Generate Proposal & Payment Link
                           </button>
                         )}
+
+                        {/* Gamma Report Button */}
+                        <div className="mt-3 flex gap-2">
+                          <a
+                            href={`/admin/reports/gamma?type=value_quantification&contactId=${contact?.id || ''}&auditId=${audit?.id || ''}&valueReportId=${valueReportId || ''}`}
+                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-emerald-600/20 border border-emerald-600/40 hover:bg-emerald-600/30 text-emerald-400 rounded-lg text-sm transition-colors"
+                          >
+                            <FileText className="w-4 h-4" />
+                            Value Report
+                          </a>
+                          <a
+                            href={`/admin/reports/gamma?type=implementation_strategy&contactId=${contact?.id || ''}&auditId=${audit?.id || ''}&valueReportId=${valueReportId || ''}`}
+                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-teal-600/20 border border-teal-600/40 hover:bg-teal-600/30 text-teal-400 rounded-lg text-sm transition-colors"
+                          >
+                            <Layers className="w-4 h-4" />
+                            Strategy Deck
+                          </a>
+                        </div>
                       </div>
                     </div>
                   )}

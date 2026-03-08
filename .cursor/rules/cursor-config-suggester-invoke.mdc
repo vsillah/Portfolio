@@ -1,0 +1,22 @@
+---
+description: When the user asks to suggest rules/skills/subagents from the chat, invoke the config suggester subagent with chat history
+alwaysApply: true
+---
+
+# Cursor Config Suggester — When to Invoke
+
+When the user asks to **suggest**, **assess**, or **create** rules, skills, or subagents based on **this conversation** (e.g. "suggest rules from this chat", "what should I codify", "assess what rules or skills to add from our conversation", "create a rule/skill from this chat"):
+
+1. **Invoke the generalPurpose subagent** via `mcp_task` with:
+   - **subagent_type:** `generalPurpose`
+   - **prompt:** The full contents of **`.cursor/agents/cursor-config-suggester.md`**, followed by a clear section that provides the **chat history** (or a representative summary) of the current conversation. For example:
+     ```
+     --- CHAT HISTORY TO ASSESS ---
+     [Paste or summarize the conversation: user messages, assistant replies, key decisions, code changes, and outcomes. Include enough detail for the subagent to spot repeated patterns, conventions, and one-off fixes worth codifying.]
+     --- END CHAT HISTORY ---
+     ```
+   - **description:** Short label, e.g. "Assess chat and suggest rules/skills/subagents"
+
+2. **Do not** try to do the assessment in the main agent. The config suggester subagent is defined in `.cursor/agents/cursor-config-suggester.md` and expects the chat history in the prompt. The main agent’s job is to pass that prompt (instructions + history) and return the subagent’s response to the user.
+
+3. After the subagent returns, present its suggestions to the user. If the user wants to create or edit a rule/skill/agent, use the create-rule or create-skill skills (or direct edits) as needed.

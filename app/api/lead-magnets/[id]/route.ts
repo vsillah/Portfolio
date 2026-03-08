@@ -37,6 +37,82 @@ function isAdmin(
   })
 }
 
+/** GET: Fetch a single lead magnet by id with resolved video_url, video_thumbnail_url, presentation_url from service. Auth required (any logged-in user). */
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params
+    const leadMagnetId = parseLeadMagnetId(id)
+    if (!leadMagnetId) {
+      return NextResponse.json({ error: 'Invalid lead magnet ID' }, { status: 400 })
+    }
+
+    const authHeader = request.headers.get('authorization')
+    const token = authHeader?.replace('Bearer ', '')
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized - token required' }, { status: 401 })
+    }
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { data: row, error } = await supabaseAdmin
+      .from('lead_magnets')
+      .select('*')
+      .eq('id', leadMagnetId)
+      .single()
+
+    if (error || !row) {
+      return NextResponse.json({ error: 'Lead magnet not found' }, { status: 404 })
+    }
+
+    const lm = row as Record<string, unknown> & { is_active?: boolean; category?: string; access_type?: string; service_id?: string | null }
+    if (!lm.is_active) {
+      return NextResponse.json({ error: 'Lead magnet not found' }, { status: 404 })
+    }
+
+    // Non-admin: only allow gate_keeper + public_gated (same as Resources list)
+    const isAdminUser = await isAdmin(supabase, token)
+    if (!isAdminUser && (lm.category !== 'gate_keeper' || lm.access_type !== 'public_gated')) {
+      return NextResponse.json({ error: 'Lead magnet not found' }, { status: 404 })
+    }
+
+    let result = {
+      ...lm,
+      file_path: (lm.file_path ?? lm.file_url ?? null) as string | null,
+    } as Record<string, unknown> & { service_id?: string | null }
+
+    if (result.service_id) {
+      const { data: service } = await supabaseAdmin
+        .from('services')
+        .select('id, title, video_url, video_thumbnail_url, presentation_url')
+        .eq('id', result.service_id)
+        .single()
+      type ServiceRow = { id: string; title?: string | null; video_url?: string | null; video_thumbnail_url?: string | null; presentation_url?: string | null }
+      const svc = service as ServiceRow | null
+      if (svc) {
+        result.video_url = svc.video_url ?? null
+        result.video_thumbnail_url = svc.video_thumbnail_url ?? null
+        result.presentation_url = svc.presentation_url ?? null
+        result.service_title = svc.title ?? null
+      }
+    }
+
+    return NextResponse.json({ leadMagnet: result })
+  } catch (err) {
+    console.error('Lead magnet GET error:', err)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

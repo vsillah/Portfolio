@@ -74,10 +74,10 @@ export interface SlackTaskSyncPayload {
 export async function promoteActionItems(
   meetingRecordId: string
 ): Promise<{ created: number; skipped: number }> {
-  // 1. Fetch the meeting record
+  // 1. Fetch the meeting record (include key_decisions, structured_notes for fallback when action_items is empty)
   const { data: record, error: fetchErr } = await supabaseAdmin
     .from('meeting_records')
-    .select('id, client_project_id, action_items')
+    .select('id, client_project_id, action_items, key_decisions, structured_notes')
     .eq('id', meetingRecordId)
     .single()
 
@@ -85,19 +85,45 @@ export async function promoteActionItems(
     throw new Error(`Meeting record not found: ${meetingRecordId}`)
   }
 
-  const rawItems: MeetingActionItem[] = Array.isArray(record.action_items)
-    ? record.action_items
-    : []
+  // WF-MCH sometimes double-JSON-encodes JSONB columns (stores a string like '"[...]"' instead of an array).
+  // safeParseArray handles: actual arrays, double-encoded strings, and nulls.
+  function safeParseArray(val: unknown): unknown[] {
+    if (Array.isArray(val)) return val
+    if (typeof val === 'string') {
+      try { const parsed = JSON.parse(val); if (Array.isArray(parsed)) return parsed } catch (_) {}
+    }
+    return []
+  }
+
+  let rawItems: MeetingActionItem[] = safeParseArray(record.action_items) as MeetingActionItem[]
+
+  // Fallback: when action_items is empty, derive tasks from key_decisions or structured_notes.highlights
+  if (rawItems.length === 0) {
+    const kd = safeParseArray(record.key_decisions)
+    if (kd.length > 0) {
+      rawItems = kd
+        .filter((s: unknown) => typeof s === 'string' && s.trim().length > 0)
+        .map((s) => ({ action: (s as string).trim() }))
+    }
+  }
+  if (rawItems.length === 0 && record.structured_notes) {
+    const notes = typeof record.structured_notes === 'string' ? (() => { try { return JSON.parse(record.structured_notes as string) } catch (_) { return record.structured_notes } })() : record.structured_notes
+    const highlights = safeParseArray((notes as { highlights?: unknown }).highlights)
+    if (highlights.length > 0) {
+      rawItems = highlights
+        .filter((s: unknown) => typeof s === 'string' && s.trim().length > 0)
+        .map((s) => ({ action: (s as string).trim() }))
+    }
+  }
 
   if (rawItems.length === 0) {
     return { created: 0, skipped: 0 }
   }
 
-  // 2. Check which titles already exist for this meeting (idempotency)
+  // 2. Check which titles already exist globally (prevents cross-meeting duplicates)
   const { data: existing } = await supabaseAdmin
     .from('meeting_action_tasks')
-    .select('title')
-    .eq('meeting_record_id', meetingRecordId)
+    .select('title, meeting_record_id')
 
   const existingTitles = new Set(
     (existing || []).map((t: { title: string }) => t.title.toLowerCase().trim())
@@ -115,7 +141,7 @@ export async function promoteActionItems(
       client_project_id: record.client_project_id ?? null,
       title: (item.title || item.action || 'Untitled action').trim(),
       description: item.description || null,
-      owner: item.owner || null,
+      owner: normaliseOwner(item.owner),
       due_date: item.due_date || null,
       status: normaliseStatus(item.status),
       display_order: (existing?.length || 0) + idx,
@@ -245,6 +271,27 @@ export async function syncTasksToSlack(
 // ============================================================================
 // Helpers
 // ============================================================================
+
+/** Map AI-extracted owner names to canonical names */
+const OWNER_ALIASES: Record<string, string> = {
+  'dipesh': 'Pesh Chalise',
+  'pesh': 'Pesh Chalise',
+  'pesh chalise': 'Pesh Chalise',
+  'dipesh and vambah': 'Pesh Chalise',
+  'vambah': 'Vambah Sillah',
+  'vambah sillah': 'Vambah Sillah',
+  'ethan': 'Ethan Wager',
+  'ethan wager': 'Ethan Wager',
+  'amadou': 'Amadou Town',
+  'amadou town': 'Amadou Town',
+  'host': 'Amadou Town',
+}
+
+function normaliseOwner(raw?: string | null): string | null {
+  if (!raw) return null
+  const trimmed = raw.trim()
+  return OWNER_ALIASES[trimmed.toLowerCase()] ?? trimmed
+}
 
 /** Normalise various status strings from AI extraction to our enum */
 function normaliseStatus(raw?: string): TaskStatus {

@@ -144,6 +144,34 @@ export async function POST(request: NextRequest) {
         .is('client_project_id', null)
     }
 
+    // Cascade client_project_id onto pre-sale meeting_records and their tasks.
+    // Resolve the lead's contact_submission_id from the project (may have been
+    // set above via diagnostic audit, or may already exist on the project row).
+    const { data: freshProject } = await supabaseAdmin
+      .from('client_projects')
+      .select('contact_submission_id')
+      .eq('id', project.id)
+      .single()
+
+    const leadId = freshProject?.contact_submission_id
+    if (leadId) {
+      const { data: linkedMeetings } = await supabaseAdmin
+        .from('meeting_records')
+        .update({ client_project_id: project.id })
+        .eq('contact_submission_id', leadId)
+        .is('client_project_id', null)
+        .select('id')
+
+      if (linkedMeetings && linkedMeetings.length > 0) {
+        const meetingIds = linkedMeetings.map((m: { id: string }) => m.id)
+        await supabaseAdmin
+          .from('meeting_action_tasks')
+          .update({ client_project_id: project.id })
+          .in('meeting_record_id', meetingIds)
+          .is('client_project_id', null)
+      }
+    }
+
     // 5. Build proposal context for template resolution
     const proposalContext: ProposalContext = {
       id: proposal.id,

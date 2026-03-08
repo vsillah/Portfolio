@@ -140,7 +140,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Combine prompt, context, and original email for LLM\nconst promptData = $input.first().json;\nconst contextData = $('Is Known Client?').first().json;\nconst emailData = $('Extract Sender').first().json;\n\n// Get the system prompt (from API or fallback)\nconst systemPrompt = promptData.prompt || promptData.content || 'You are helping draft a reply to an email from a client. Write a short, professional draft reply.';\n\n// Build context summary\nconst project = contextData.project || {};\nconst milestones = contextData.milestones || [];\nconst lastMeeting = contextData.last_meeting || null;\nconst tasks = contextData.tasks || [];\n\nlet contextSummary = `Project: ${project.project_name || 'Unknown'}\\n`;\ncontextSummary += `Status: ${project.status || 'Unknown'}\\n`;\ncontextSummary += `Client: ${project.client_name || emailData.sender_name}\\n`;\n\nif (milestones.length > 0) {\n  contextSummary += `\\nMilestones:\\n`;\n  for (const m of milestones) {\n    contextSummary += `- ${m.title || m.name}: ${m.status || 'pending'}\\n`;\n  }\n}\n\nif (lastMeeting) {\n  contextSummary += `\\nLast Meeting: ${lastMeeting.meeting_type || 'meeting'} on ${lastMeeting.meeting_date || 'recent'}\\n`;\n  if (lastMeeting.summary) contextSummary += `Summary: ${lastMeeting.summary}\\n`;\n}\n\nif (tasks.length > 0) {\n  contextSummary += `\\nRecent Action Items:\\n`;\n  for (const t of tasks) {\n    contextSummary += `- [${t.status}] ${t.title || t.description}\\n`;\n  }\n}\n\n// Build the user message for the LLM\nconst userMessage = `Client's email:\\nSubject: ${emailData.original_subject}\\nBody: ${emailData.original_body}\\n\\n---\\nProject context:\\n${contextSummary}`;\n\nreturn [{\n  json: {\n    system_prompt: systemPrompt,\n    user_message: userMessage,\n    client_email: emailData.sender_email,\n    client_name: contextData.project?.client_name || emailData.sender_name,\n    client_project_id: project.id || '',\n    original_subject: emailData.original_subject,\n    thread_id: emailData.thread_id,\n  }\n}];"
+        "jsCode": "// Combine prompt, context, and original email for LLM\nconst promptData = $input.first().json;\nconst contextData = $('Is Known Client?').first().json;\nconst emailData = $('Extract Sender').first().json;\n\n// Get the system prompt (from API or fallback)\nconst systemPrompt = promptData.prompt || promptData.content || 'You are helping draft a reply to an email from a client. Write a short, professional draft reply.';\n\n// Build context summary\nconst project = contextData.project || {};\nconst sourceType = contextData.source_type || 'client_project';\nconst milestones = contextData.milestones || [];\nconst lastMeeting = contextData.last_meeting || null;\nconst actionItems = contextData.action_items || null;\n\nlet contextSummary = '';\nif (sourceType === 'lead') {\n  contextSummary += `Contact type: Lead (not yet a client)\\n`;\n  contextSummary += `Name: ${project.client_name || emailData.sender_name}\\n`;\n  if (project.service_interest) contextSummary += `Service interest: ${project.service_interest}\\n`;\n} else {\n  contextSummary += `Project: ${project.project_name || 'Unknown'}\\n`;\n  contextSummary += `Status: ${project.project_status || 'Unknown'}\\n`;\n  contextSummary += `Client: ${project.client_name || emailData.sender_name}\\n`;\n}\n\nif (milestones) {\n  if (Array.isArray(milestones)) {\n    contextSummary += `\\nMilestones:\\n`;\n    for (const m of milestones) {\n      contextSummary += `- ${m.title || m.name}: ${m.status || 'pending'}\\n`;\n    }\n  } else if (milestones.total) {\n    contextSummary += `\\nMilestones: ${milestones.completed}/${milestones.total} complete\\n`;\n  }\n}\n\nif (lastMeeting) {\n  contextSummary += `\\nLast Meeting: ${lastMeeting.meeting_type || 'meeting'} on ${lastMeeting.meeting_date || 'recent'}\\n`;\n  if (lastMeeting.summary) contextSummary += `Summary: ${lastMeeting.summary}\\n`;\n}\n\nif (actionItems) {\n  if (actionItems.pending && actionItems.pending.length > 0) {\n    contextSummary += `\\nPending Action Items:\\n`;\n    for (const t of actionItems.pending) {\n      contextSummary += `- ${t.title}${t.owner ? ' (owner: ' + t.owner + ')' : ''}\\n`;\n    }\n  }\n  if (actionItems.recently_completed && actionItems.recently_completed.length > 0) {\n    contextSummary += `\\nRecently Completed:\\n`;\n    for (const t of actionItems.recently_completed) {\n      contextSummary += `- ${t.title}\\n`;\n    }\n  }\n}\n\n// Build the user message for the LLM\nconst userMessage = `Client's email:\\nSubject: ${emailData.original_subject}\\nBody: ${emailData.original_body}\\n\\n---\\nContext:\\n${contextSummary}`;\n\nreturn [{\n  json: {\n    system_prompt: systemPrompt,\n    user_message: userMessage,\n    client_email: emailData.sender_email,\n    client_name: project.client_name || emailData.sender_name,\n    client_project_id: project.id || null,\n    lead_id: project.lead_id || null,\n    source_type: sourceType,\n    original_subject: emailData.original_subject,\n    thread_id: emailData.thread_id,\n  }\n}];"
       },
       "name": "Build LLM Input",
       "id": "build-llm-input-gdr",
@@ -181,7 +181,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Parse the LLM response and prepare draft data\nconst llmResponse = $input.first().json;\nconst prevData = $('Build LLM Input').first().json;\n\n// Extract the generated reply from OpenRouter response\nconst generatedReply = llmResponse?.choices?.[0]?.message?.content || 'Unable to generate reply.';\n\n// Build reply subject\nconst replySubject = prevData.original_subject.startsWith('Re: ')\n  ? prevData.original_subject\n  : `Re: ${prevData.original_subject}`;\n\nreturn [{\n  json: {\n    subject: replySubject,\n    body: generatedReply,\n    client_email: prevData.client_email,\n    client_name: prevData.client_name,\n    client_project_id: prevData.client_project_id,\n    thread_id: prevData.thread_id,\n  }\n}];"
+        "jsCode": "// Parse the LLM response and prepare draft data\nconst llmResponse = $input.first().json;\nconst prevData = $('Build LLM Input').first().json;\n\n// Extract the generated reply from OpenRouter response\nconst generatedReply = llmResponse?.choices?.[0]?.message?.content || 'Unable to generate reply.';\n\n// Build reply subject\nconst replySubject = prevData.original_subject.startsWith('Re: ')\n  ? prevData.original_subject\n  : `Re: ${prevData.original_subject}`;\n\nreturn [{\n  json: {\n    subject: replySubject,\n    body: generatedReply,\n    client_email: prevData.client_email,\n    client_name: prevData.client_name,\n    client_project_id: prevData.client_project_id,\n    lead_id: prevData.lead_id || null,\n    source_type: prevData.source_type || 'client_project',\n    thread_id: prevData.thread_id,\n  }\n}];"
       },
       "name": "Parse LLM Response",
       "id": "parse-llm-gdr",
@@ -200,7 +200,7 @@
         "genericAuthType": "httpHeaderAuth",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"client_project_id\": {{ JSON.stringify($json.client_project_id) }},\n  \"subject\": {{ JSON.stringify($json.subject) }},\n  \"body\": {{ JSON.stringify($json.body) }},\n  \"client_email\": {{ JSON.stringify($json.client_email) }},\n  \"client_name\": {{ JSON.stringify($json.client_name) }},\n  \"source\": \"gmail_reply\"\n}",
+        "jsonBody": "={\n  \"client_project_id\": {{ JSON.stringify($json.client_project_id || null) }},\n  \"contact_submission_id\": {{ JSON.stringify($json.lead_id || null) }},\n  \"subject\": {{ JSON.stringify($json.subject) }},\n  \"body\": {{ JSON.stringify($json.body) }},\n  \"client_email\": {{ JSON.stringify($json.client_email) }},\n  \"client_name\": {{ JSON.stringify($json.client_name) }},\n  \"source\": \"gmail_reply\"\n}",
         "options": {
           "timeout": 15000
         }
@@ -242,6 +242,74 @@
         "gmailOAuth2": {
           "id": "eEhjCuu9RYM3ONnf",
           "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://localhost:3000/api/site-settings/business_owner_email",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "name": "Fetch Owner Email",
+      "id": "fetch-owner-email-gdr",
+      "typeVersion": 4.2,
+      "position": [
+        896,
+        576
+      ],
+      "type": "n8n-nodes-base.httpRequest"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.value || 'vsillah@gmail.com' }}",
+        "subject": "=FWD: Unrecognized reply from {{ $('Extract Sender').first().json.sender_email }}",
+        "emailType": "text",
+        "message": "=An email was received from {{ $('Extract Sender').first().json.sender_email }} ({{ $('Extract Sender').first().json.sender_name }}) but they are not a known client or lead in the system.\n\nOriginal subject: {{ $('Extract Sender').first().json.original_subject }}\n\n---\n\n{{ $('Extract Sender').first().json.original_body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "name": "Forward to Owner",
+      "id": "forward-to-owner-gdr",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        576
+      ],
+      "type": "n8n-nodes-base.gmail",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "eEhjCuu9RYM3ONnf",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AFE8874LR",
+          "mode": "list",
+          "cachedResultName": "meeting-actions-todo"
+        },
+        "text": "=:incoming_envelope: *Unrecognized email reply*\n*From:* {{ $('Extract Sender').first().json.sender_email }} ({{ $('Extract Sender').first().json.sender_name }})\n*Subject:* {{ $('Extract Sender').first().json.original_subject }}\n\nThis sender is not a known client or lead. The email has been forwarded to the business owner.",
+        "otherOptions": {}
+      },
+      "name": "Slack Unknown Sender",
+      "id": "slack-unknown-sender-gdr",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        576
+      ],
+      "type": "n8n-nodes-base.slack",
+      "credentials": {
+        "slackApi": {
+          "id": "idlvTQSh4X1QvJ8F",
+          "name": "Slack account"
         }
       }
     }
@@ -344,7 +412,35 @@
             "index": 0
           }
         ],
-        []
+        [
+          {
+            "node": "Fetch Owner Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Owner Email": {
+      "main": [
+        [
+          {
+            "node": "Forward to Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forward to Owner": {
+      "main": [
+        [
+          {
+            "node": "Slack Unknown Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
       ]
     }
   },

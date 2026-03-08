@@ -25,5 +25,6 @@ export interface Service {
   image_url: string | null
   video_url: string | null
   video_thumbnail_url: string | null
+  presentation_url: string | null
   is_featured: boolean
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { generateUpdateDraft, createDraftDirect, listDrafts } from '@/lib/client-update-drafts'
+import { generateUpdateDraft, generateLeadFollowup, createDraftDirect, listDrafts } from '@/lib/client-update-drafts'
 
 export const dynamic = 'force-dynamic'
 
@@ -53,36 +53,37 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/client-update-drafts
  *
- * Two modes:
+ * Three modes:
  *
- * 1. Generate from tasks (existing behavior):
+ * 1. Generate client update from tasks:
  *    Body: { client_project_id, meeting_record_id?, task_ids?, custom_note? }
  *
- * 2. Create directly (new — for Gmail reply workflow / external systems):
- *    Body: { client_project_id, subject, body, client_email, client_name, meeting_record_id?, source? }
- *    When subject + body are provided, creates a draft directly without task generation.
+ * 2. Generate lead follow-up from tasks:
+ *    Body: { contact_submission_id, meeting_record_id?, task_ids?, custom_note? }
+ *
+ * 3. Create directly (Gmail reply workflow / external systems):
+ *    Body: { client_project_id?, contact_submission_id?, subject, body, client_email, client_name, ... }
  *
  * Auth: admin (session) OR n8n (Bearer N8N_INGEST_SECRET).
  */
 export async function POST(request: NextRequest) {
   try {
-    // Auth: admin session OR ingest secret
     const authorized = await authorizeRequest(request)
     if (!authorized.ok) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const reqBody = await request.json()
-    const { client_project_id } = reqBody
+    const { client_project_id, contact_submission_id } = reqBody
 
-    if (!client_project_id) {
+    if (!client_project_id && !contact_submission_id) {
       return NextResponse.json(
-        { error: 'client_project_id is required' },
+        { error: 'client_project_id or contact_submission_id is required' },
         { status: 400 }
       )
     }
 
-    // Mode 2: Direct draft (subject + body provided)
+    // Mode 3: Direct draft (subject + body provided)
     if (reqBody.subject && reqBody.body) {
       if (!reqBody.client_email || !reqBody.client_name) {
         return NextResponse.json(
@@ -92,7 +93,8 @@ export async function POST(request: NextRequest) {
       }
 
       const draft = await createDraftDirect({
-        clientProjectId: client_project_id,
+        clientProjectId: client_project_id || null,
+        contactSubmissionId: reqBody.contact_submission_id || null,
         subject: reqBody.subject,
         body: reqBody.body,
         clientEmail: reqBody.client_email,
@@ -112,7 +114,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, draft }, { status: 201 })
     }
 
-    // Mode 1: Generate from completed tasks
+    // Mode 2: Lead / contact status report
+    if (contact_submission_id && !client_project_id) {
+      const draft = await generateLeadFollowup({
+        contactSubmissionId: contact_submission_id,
+        meetingRecordId: reqBody.meeting_record_id,
+        tasks: reqBody.tasks,
+        taskIds: reqBody.task_ids,
+        customNote: reqBody.custom_note,
+        userId: authorized.userId,
+      })
+
+      if (!draft) {
+        return NextResponse.json(
+          { error: 'No tasks found for this contact' },
+          { status: 404 }
+        )
+      }
+
+      return NextResponse.json({ success: true, draft }, { status: 201 })
+    }
+
+    // Mode 1: Client project update
     const draft = await generateUpdateDraft({
       clientProjectId: client_project_id,
       meetingRecordId: reqBody.meeting_record_id,

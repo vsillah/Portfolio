@@ -80,6 +80,7 @@ export async function GET(
         ...(item.content_type === 'service' && {
           video_url: content.video_url != null ? String(content.video_url) : null,
           video_thumbnail_url: content.video_thumbnail_url != null ? String(content.video_thumbnail_url) : null,
+          presentation_url: content.presentation_url != null ? String(content.presentation_url) : null,
         }),
         is_active: Boolean(content.is_active ?? content.is_published ?? true),
         display_order: Number(content.display_order ?? 0),

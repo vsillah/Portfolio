@@ -66,6 +66,8 @@ From n8n execution data:
 
 If WF-SLK never calls the webhook, WF-MCH never runs, so you get no Slack summary and no new meeting record.
 
+**Test clients:** If "Test Client" messages keep appearing in #project-updates (or similar), see [Meeting Complete / Test Client root cause](meeting-complete-test-client-root-cause.md) for why (WF-SLK + WF-AGE) and how to confirm and stop the source.
+
 **Checklist:**
 
 | Check | Where | What to verify |

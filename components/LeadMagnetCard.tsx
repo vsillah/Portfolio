@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Download, FileText, Video, File, ExternalLink } from 'lucide-react'
+import { Download, FileText, Video, File, ExternalLink, Presentation } from 'lucide-react'
 import { useState } from 'react'
 
 interface LeadMagnet {
@@ -17,6 +17,7 @@ interface LeadMagnet {
   type?: string | null
   video_url?: string | null
   video_thumbnail_url?: string | null
+  presentation_url?: string | null
 }
 
 interface LeadMagnetCardProps {
@@ -88,6 +89,15 @@ export default function LeadMagnetCard({ leadMagnet, onDownload }: LeadMagnetCar
             <span>{leadMagnet.download_count} downloads</span>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            {leadMagnet.presentation_url && (
+              <Link
+                href={`/resources/view/${leadMagnet.id}`}
+                className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-violet-600 to-purple-500 text-white font-semibold rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-purple-400"
+              >
+                <Presentation size={18} />
+                View presentation
+              </Link>
+            )}
             {leadMagnet.video_url && (
               <a
                 href={leadMagnet.video_url}
@@ -99,9 +109,9 @@ export default function LeadMagnetCard({ leadMagnet, onDownload }: LeadMagnetCar
                 Watch video
               </a>
             )}
-            {isInteractive ? (
+            {isInteractive && leadMagnet.file_path ? (
               <Link
-                href={leadMagnet.file_path!.startsWith('/') ? leadMagnet.file_path! : `/${leadMagnet.file_path!}`}
+                href={leadMagnet.file_path.startsWith('/') ? leadMagnet.file_path : `/${leadMagnet.file_path}`}
                 className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-amber-600 to-amber-500 text-white font-semibold rounded-lg hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-amber-400"
               >
                 <ExternalLink size={18} />

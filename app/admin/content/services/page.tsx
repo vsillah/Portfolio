@@ -27,6 +27,7 @@ interface Service {
   image_url: string | null
   video_url: string | null
   video_thumbnail_url: string | null
+  presentation_url: string | null
   is_active: boolean
   is_featured: boolean
   display_order: number
@@ -79,6 +80,7 @@ export default function ServicesManagementPage() {
     image_url: '',
     video_url: '',
     video_thumbnail_url: '',
+    presentation_url: '',
     offer_video_as_lead_magnet: false,
     is_active: true,
     is_featured: false,
@@ -304,6 +306,7 @@ export default function ServicesManagementPage() {
         image_url: formData.image_url || null,
         video_url: formData.video_url || null,
         video_thumbnail_url: formData.video_thumbnail_url || null,
+        presentation_url: formData.presentation_url || null,
         is_active: formData.is_active,
         is_featured: formData.is_featured,
         display_order: formData.display_order,
@@ -326,7 +329,7 @@ export default function ServicesManagementPage() {
         const result = await response.json()
         const savedServiceId = result?.data?.id ?? editingService?.id
 
-        if (formData.offer_video_as_lead_magnet && (formData.video_url || '').trim()) {
+        if (formData.offer_video_as_lead_magnet && ((formData.video_url || '').trim() || (formData.presentation_url || '').trim())) {
           const fromServiceRes = await fetch('/api/admin/lead-magnets/from-service', {
             method: 'POST',
             headers: {
@@ -345,7 +348,7 @@ export default function ServicesManagementPage() {
             const err = await fromServiceRes.json()
             console.error('Failed to create/update lead magnet from service:', err)
           }
-        } else if (editingService && leadMagnetByServiceId.has(editingService.id)) {
+        } else if (editingService && leadMagnetByServiceId.has(editingService.id) && (!formData.offer_video_as_lead_magnet || (!(formData.video_url || '').trim() && !(formData.presentation_url || '').trim()))) {
           const lmId = leadMagnetByServiceId.get(editingService.id)
           if (lmId) {
             await fetch(`/api/lead-magnets/${lmId}`, {
@@ -396,6 +399,7 @@ export default function ServicesManagementPage() {
       image_url: '',
       video_url: '',
       video_thumbnail_url: '',
+      presentation_url: '',
       offer_video_as_lead_magnet: false,
       is_active: true,
       is_featured: false,
@@ -423,6 +427,7 @@ export default function ServicesManagementPage() {
       image_url: service.image_url || '',
       video_url: service.video_url || '',
       video_thumbnail_url: service.video_thumbnail_url || '',
+      presentation_url: service.presentation_url || '',
       offer_video_as_lead_magnet: leadMagnetByServiceId.has(service.id),
       is_active: service.is_active,
       is_featured: service.is_featured,
@@ -716,7 +721,20 @@ export default function ServicesManagementPage() {
                   <p className="text-xs text-platinum-white/60 mt-1">Used when showing the video as a lead magnet or in bundles.</p>
                 </div>
 
-                {/* Offer video as lead magnet */}
+                {/* Presentation URL (Gamma) */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Presentation URL (Gamma)</label>
+                  <input
+                    type="url"
+                    value={formData.presentation_url}
+                    onChange={(e) => setFormData({ ...formData, presentation_url: e.target.value })}
+                    className="w-full px-4 py-2 input-brand"
+                    placeholder="https://gamma.app/embed/..."
+                  />
+                  <p className="text-xs text-platinum-white/60 mt-1">Embed a Gamma presentation as a lead magnet. Show on Resources with &quot;View presentation&quot;.</p>
+                </div>
+
+                {/* Offer video or presentation as lead magnet */}
                 <div className="flex items-start gap-2">
                   <input
                     type="checkbox"
@@ -726,7 +744,7 @@ export default function ServicesManagementPage() {
                     className="mt-1 w-4 h-4 rounded accent-radiant-gold"
                   />
                   <label htmlFor="offer_video_as_lead_magnet" className="text-sm cursor-pointer">
-                    Offer this service&apos;s video as a lead magnet (show on Resources page with &quot;Watch video&quot;). Requires a Video URL above.
+                    Offer this service&apos;s video or presentation as a lead magnet (show on Resources with &quot;Watch video&quot; or &quot;View presentation&quot;). Requires a Video URL or Presentation URL above.
                   </label>
                 </div>
 

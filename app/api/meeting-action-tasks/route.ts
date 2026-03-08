@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
 
     const tasks = await listTasks({ meetingRecordId, clientProjectId, status })
 
-    // Enrich with project_name and client_name for display
+    // Enrich with project + meeting context for display and filtering
     const projectIds = [...new Set((tasks || []).map(t => t.client_project_id).filter(Boolean))] as string[]
     let projectMap: Record<string, { project_name: string | null; client_name: string | null }> = {}
     if (projectIds.length > 0) {
@@ -60,11 +60,53 @@ export async function GET(request: NextRequest) {
         projectMap[p.id] = { project_name: p.project_name ?? null, client_name: p.client_name ?? null }
       }
     }
-    const enrichedTasks = tasks.map(t => ({
-      ...t,
-      project_name: t.client_project_id ? projectMap[t.client_project_id]?.project_name ?? null : null,
-      client_name: t.client_project_id ? projectMap[t.client_project_id]?.client_name ?? null : null,
-    }))
+
+    const meetingIds = [...new Set((tasks || []).map(t => t.meeting_record_id).filter(Boolean))] as string[]
+    let meetingMap: Record<string, { meeting_type: string | null; meeting_date: string | null; contact_submission_id: number | null }> = {}
+    if (meetingIds.length > 0) {
+      const { data: meetings } = await supabaseAdmin
+        .from('meeting_records')
+        .select('id, meeting_type, meeting_date, contact_submission_id')
+        .in('id', meetingIds)
+      for (const m of meetings || []) {
+        meetingMap[m.id] = {
+          meeting_type: m.meeting_type ?? null,
+          meeting_date: m.meeting_date ?? null,
+          contact_submission_id: m.contact_submission_id ?? null,
+        }
+      }
+    }
+
+    // Batch-fetch lead details for meetings linked to contact_submissions
+    const leadIds = [...new Set(
+      Object.values(meetingMap).map(m => m.contact_submission_id).filter(Boolean)
+    )] as number[]
+    let leadMap: Record<number, { name: string | null; email: string | null }> = {}
+    if (leadIds.length > 0) {
+      const { data: leads } = await supabaseAdmin
+        .from('contact_submissions')
+        .select('id, name, email')
+        .in('id', leadIds)
+      for (const l of leads || []) {
+        leadMap[l.id] = { name: l.name ?? null, email: l.email ?? null }
+      }
+    }
+
+    const enrichedTasks = tasks.map(t => {
+      const meeting = t.meeting_record_id ? meetingMap[t.meeting_record_id] : null
+      const csId = meeting?.contact_submission_id ?? null
+      const lead = csId ? leadMap[csId] : null
+      return {
+        ...t,
+        project_name: t.client_project_id ? projectMap[t.client_project_id]?.project_name ?? null : null,
+        client_name: t.client_project_id ? projectMap[t.client_project_id]?.client_name ?? null : null,
+        meeting_type: meeting?.meeting_type ?? null,
+        meeting_date: meeting?.meeting_date ?? null,
+        contact_submission_id: csId,
+        lead_name: lead?.name ?? null,
+        lead_email: lead?.email ?? null,
+      }
+    })
 
     return NextResponse.json({ tasks: enrichedTasks })
   } catch (error) {

@@ -28,6 +28,8 @@ interface LeadMagnet {
   /** When set (e.g. service video lead magnet), show "Watch video" CTA */
   video_url?: string | null
   video_thumbnail_url?: string | null
+  /** When set (e.g. Gamma presentation), show "View presentation" CTA */
+  presentation_url?: string | null
 }
 
 export default function ResourcesPage() {

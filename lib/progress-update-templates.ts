@@ -26,6 +26,7 @@ export type ProgressUpdateType =
   | 'behind_schedule'
   | 'project_delivery'
   | 'warranty_start'
+  | 'action_items_update'
 
 export interface ProgressUpdateTemplate {
   id: string

@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
 
     const { data: service, error: serviceError } = await supabaseAdmin
       .from('services')
-      .select('id, title, description, video_url')
+      .select('id, title, description, video_url, presentation_url')
       .eq('id', serviceId)
       .single()
 
@@ -42,9 +42,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    if (!service.video_url || !String(service.video_url).trim()) {
+    const hasVideo = service.video_url && String(service.video_url).trim()
+    const hasPresentation = service.presentation_url && String(service.presentation_url).trim()
+    if (!hasVideo && !hasPresentation) {
       return NextResponse.json(
-        { error: 'Service must have a video URL to offer as lead magnet' },
+        { error: 'Service must have a video URL or presentation URL to offer as lead magnet' },
         { status: 400 }
       )
     }

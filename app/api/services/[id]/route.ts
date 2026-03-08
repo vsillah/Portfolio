@@ -72,6 +72,7 @@ export async function PUT(
       image_url,
       video_url,
       video_thumbnail_url,
+      presentation_url,
       is_active,
       is_featured,
       display_order,
@@ -115,6 +116,7 @@ export async function PUT(
     if (image_url !== undefined) updateData.image_url = image_url || null
     if (video_url !== undefined) updateData.video_url = video_url && String(video_url).trim() ? String(video_url).trim() : null
     if (video_thumbnail_url !== undefined) updateData.video_thumbnail_url = video_thumbnail_url && String(video_thumbnail_url).trim() ? String(video_thumbnail_url).trim() : null
+    if (presentation_url !== undefined) updateData.presentation_url = presentation_url && String(presentation_url).trim() ? String(presentation_url).trim() : null
     if (is_active !== undefined) updateData.is_active = is_active
     if (is_featured !== undefined) updateData.is_featured = is_featured
     if (display_order !== undefined) updateData.display_order = display_order

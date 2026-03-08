@@ -90,7 +90,8 @@
         "emailType": "text",
         "message": "={{ $('Progress Update Webhook').item.json.body.email_body }}",
         "options": {
-          "appendAttribution": false
+          "appendAttribution": false,
+          "replyTo": "={{ $('Progress Update Webhook').item.json.body.reply_to || '' }}"
         }
       },
       "name": "Gmail Send Email",
@@ -390,7 +391,8 @@
           "emailType": "text",
           "message": "={{ $('Progress Update Webhook').item.json.body.email_body }}",
           "options": {
-            "appendAttribution": false
+            "appendAttribution": false,
+            "replyTo": "={{ $('Progress Update Webhook').item.json.body.reply_to || '' }}"
           }
         },
         "name": "Gmail Send Email",

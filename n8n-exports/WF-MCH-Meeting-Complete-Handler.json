@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-02-10T23:35:28.107Z",
-  "createdAt": "2026-02-06T16:55:50.859Z",
-  "id": "94mqmLgS9GkomPIf",
+  "updatedAt": "2026-03-06T03:26:14.267Z",
+  "createdAt": "2026-02-22T02:10:29.697Z",
+  "id": "hzCgH5uF0GoJspWm",
   "name": "WF-MCH: Meeting Complete Handler",
   "description": null,
   "active": true,
@@ -79,7 +79,7 @@
       "alwaysOutputData": true,
       "credentials": {
         "supabaseApi": {
-          "id": "Njc6sBrCIye9J3ZK",
+          "id": "LJtPTc2eAAkjO0K1",
           "name": "Supabase account"
         }
       },
@@ -111,7 +111,7 @@
       "alwaysOutputData": true,
       "credentials": {
         "supabaseApi": {
-          "id": "Njc6sBrCIye9J3ZK",
+          "id": "LJtPTc2eAAkjO0K1",
           "name": "Supabase account"
         }
       },
@@ -169,7 +169,7 @@
       ],
       "credentials": {
         "openAiApi": {
-          "id": "haff2yaNOap4beBJ",
+          "id": "0cWmjCt2Kf6iQHxs",
           "name": "OpenAi account"
         }
       }
@@ -247,6 +247,10 @@
             {
               "fieldId": "attendees",
               "fieldValue": "={{ $json.meetingRecord.attendees }}"
+            },
+            {
+              "fieldId": "contact_submission_id",
+              "fieldValue": "={{ $json.meetingRecord.contact_submission_id }}"
             }
           ]
         }
@@ -262,13 +266,14 @@
       "alwaysOutputData": true,
       "credentials": {
         "supabaseApi": {
-          "id": "Njc6sBrCIye9J3ZK",
+          "id": "LJtPTc2eAAkjO0K1",
           "name": "Supabase account"
         }
       }
     },
     {
       "parameters": {
+        "authentication": "oAuth2",
         "select": "channel",
         "channelId": "={{ $('Parse and Store').item.json.slackChannel }}",
         "text": "={{ $('Parse and Store').item.json.slackSummary }}",
@@ -284,8 +289,8 @@
       ],
       "webhookId": "16f271cc-e705-4919-a7d2-f2912392a8f1",
       "credentials": {
-        "slackApi": {
-          "id": "idlvTQSh4X1QvJ8F",
+        "slackOAuth2Api": {
+          "id": "VT5HUWjPPVBT6Juk",
           "name": "Slack account"
         }
       }
@@ -322,7 +327,6 @@
       "parameters": {
         "operation": "update",
         "tableId": "client_projects",
-        "filterType": "manual",
         "matchType": "allFilters",
         "filters": {
           "conditions": [
@@ -333,7 +337,6 @@
             }
           ]
         },
-        "dataToSend": "defineBelow",
         "fieldsUi": {
           "fieldValues": [
             {
@@ -354,7 +357,7 @@
       "alwaysOutputData": true,
       "credentials": {
         "supabaseApi": {
-          "id": "Njc6sBrCIye9J3ZK",
+          "id": "LJtPTc2eAAkjO0K1",
           "name": "Supabase account"
         }
       },
@@ -362,7 +365,7 @@
     },
     {
       "parameters": {
-        "workflowId": "exYTC4bhQXq9vqZ0",
+        "workflowId": "yNVJ3Ptmj3RF4eLl",
         "options": {}
       },
       "id": "call-agenda-mch",
@@ -389,30 +392,38 @@
       ],
       "credentials": {
         "openRouterApi": {
-          "id": "ATznzoKw5NdNjbAl",
+          "id": "ZvaMdEHw1QnVBhoF",
           "name": "OpenRouter account"
         }
       }
     },
     {
+      "parameters": {
+        "method": "POST",
+        "url": "https://amadutown.app.n8n.cloud/webhook/amadutown-rag-query",
+        "authentication": "none",
+        "sendHeaders": false,
+        "sendBody": true,
+        "contentType": "json",
+        "specifyBody": "json",
+        "jsonBody": "{\"query\": \"What are AmaduTown's key services and meeting best practices for AI automation projects? Summarize in 2-3 paragraphs for use in meeting notes structuring and follow-up.\"}",
+        "options": {}
+      },
       "id": "cd64c1b5-c087-430e-be96-be79e549c3fb",
       "name": "Fetch RAG (MCH)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        820,
-        420
+        832,
+        432
       ],
-      "parameters": {
-        "method": "POST",
-        "url": "https://n8n.amadutown.com/webhook/amadutown-rag-query",
-        "sendBody": true,
-        "contentType": "json",
-        "specifyBody": "json",
-        "jsonBody": "{\"query\": \"What are AmaduTown's key services and meeting best practices for AI automation projects? Summarize in 2-3 paragraphs for use in meeting notes structuring and follow-up.\"}"
-      }
+      "continueOnFail": true
     },
     {
+      "parameters": {
+        "mode": "append",
+        "options": {}
+      },
       "id": "b96e2b3d-1631-46a9-a830-91e087deb233",
       "name": "Merge RAG (MCH)",
       "type": "n8n-nodes-base.merge",
@@ -420,10 +431,51 @@
       "position": [
         880,
         304
+      ]
+    },
+    {
+      "id": "fetch-lead-mch",
+      "name": "Fetch Lead by Email",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1320,
+        100
       ],
       "parameters": {
-        "mode": "combine",
-        "outputDataFrom": "both"
+        "operation": "getAll",
+        "tableId": "contact_submissions",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $('Parse and Store').item.json.clientEmail }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "supabaseApi": {
+          "id": "LJtPTc2eAAkjO0K1",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueRegularOutput",
+      "alwaysOutputData": true
+    },
+    {
+      "id": "set-lead-id-mch",
+      "name": "Set Lead ID on Record",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        304
+      ],
+      "parameters": {
+        "jsCode": "const parseCtx = $('Parse and Store').item.json;\nlet contactSubmissionId = null;\ntry {\n  const leadItems = $('Fetch Lead by Email').all();\n  if (leadItems.length > 0 && leadItems[0].json && leadItems[0].json.id) {\n    contactSubmissionId = leadItems[0].json.id;\n  }\n} catch (e) {\n  contactSubmissionId = null;\n}\n\nlet clientProjectId = parseCtx.meetingRecord?.client_project_id || null;\nif (!clientProjectId && contactSubmissionId) {\n  try {\n    const cpItems = $('Fetch Client Project').all();\n    if (cpItems.length > 0 && cpItems[0].json && cpItems[0].json.id) {\n      clientProjectId = cpItems[0].json.id;\n    }\n  } catch (e) {}\n}\n\nconst meetingRecord = {\n  ...parseCtx.meetingRecord,\n  contact_submission_id: contactSubmissionId,\n  client_project_id: clientProjectId\n};\n\nreturn [{ json: { ...parseCtx, meetingRecord, contactSubmissionId } }];"
       }
     }
   ],
@@ -487,12 +539,12 @@
       "main": [
         [
           {
-            "node": "Write Meeting Record",
+            "node": "Fetch Lead by Email",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Post Summary to Slack",
+            "node": "Set Lead ID on Record",
             "type": "main",
             "index": 0
           }
@@ -596,89 +648,72 @@
           }
         ]
       ]
+    },
+    "Fetch Lead by Email": {
+      "main": [
+        [
+          {
+            "node": "Set Lead ID on Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Lead ID on Record": {
+      "main": [
+        [
+          {
+            "node": "Write Meeting Record",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Summary to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1",
-    "saveDataErrorExecution": "all",
-    "saveDataSuccessExecution": "all",
-    "saveManualExecutions": true,
     "callerPolicy": "workflowsFromSameOwner",
-    "availableInMCP": false
+    "availableInMCP": true
   },
   "staticData": null,
-  "meta": {
-    "templateCredsSetupCompleted": true
-  },
+  "meta": null,
   "pinData": {},
-  "versionId": "a0cf307f-7875-4bf5-8c95-47ba12d233e8",
-  "activeVersionId": "a0cf307f-7875-4bf5-8c95-47ba12d233e8",
-  "versionCounter": 64,
+  "versionId": "25eb22bc-b38e-4cde-9a57-7ca2fcbc412b",
+  "activeVersionId": "25eb22bc-b38e-4cde-9a57-7ca2fcbc412b",
+  "versionCounter": 24,
   "triggerCount": 1,
   "shared": [
     {
-      "updatedAt": "2026-02-06T16:55:50.867Z",
-      "createdAt": "2026-02-06T16:55:50.867Z",
+      "updatedAt": "2026-02-22T02:10:29.699Z",
+      "createdAt": "2026-02-22T02:10:29.699Z",
       "role": "workflow:owner",
-      "workflowId": "94mqmLgS9GkomPIf",
-      "projectId": "TeIheDYiQkebiIvt",
+      "workflowId": "hzCgH5uF0GoJspWm",
+      "projectId": "FMyKGkI3tS3Vf9ZP",
       "project": {
-        "updatedAt": "2025-12-13T01:11:01.102Z",
-        "createdAt": "2025-12-13T01:09:43.703Z",
-        "id": "TeIheDYiQkebiIvt",
+        "updatedAt": "2026-02-08T01:52:34.768Z",
+        "createdAt": "2026-02-08T01:52:29.668Z",
+        "id": "FMyKGkI3tS3Vf9ZP",
         "name": "Vambah Sillah <vsillah@gmail.com>",
         "type": "personal",
         "icon": null,
         "description": null,
-        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
-        "projectRelations": [
-          {
-            "updatedAt": "2025-12-13T01:09:43.704Z",
-            "createdAt": "2025-12-13T01:09:43.704Z",
-            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
-            "projectId": "TeIheDYiQkebiIvt",
-            "user": {
-              "updatedAt": "2026-02-10T11:23:32.000Z",
-              "createdAt": "2025-12-13T01:09:43.182Z",
-              "id": "40690b8a-67b7-469e-b617-699a163b2224",
-              "email": "vsillah@gmail.com",
-              "firstName": "Vambah",
-              "lastName": "Sillah",
-              "personalizationAnswers": {
-                "version": "v4",
-                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
-                "personalization_survey_n8n_version": "1.123.5",
-                "companySize": "<20",
-                "companyType": "saas",
-                "role": "business-owner",
-                "reportedSource": "youtube"
-              },
-              "settings": {
-                "userActivated": true,
-                "easyAIWorkflowOnboarded": true,
-                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
-                "userActivatedAt": 1766783175251,
-                "npsSurvey": {
-                  "responded": true,
-                  "lastShownAt": 1770330867466
-                }
-              },
-              "disabled": false,
-              "mfaEnabled": false,
-              "lastActiveAt": "2026-02-10",
-              "isPending": false
-            }
-          }
-        ]
+        "creatorId": "5ac96893-047a-40c9-8b9a-29b51d7a264d"
       }
     }
   ],
   "tags": [],
   "activeVersion": {
-    "updatedAt": "2026-02-10T23:35:23.761Z",
-    "createdAt": "2026-02-10T23:35:23.761Z",
-    "versionId": "a0cf307f-7875-4bf5-8c95-47ba12d233e8",
-    "workflowId": "94mqmLgS9GkomPIf",
+    "updatedAt": "2026-03-06T03:26:14.268Z",
+    "createdAt": "2026-03-06T03:26:14.268Z",
+    "versionId": "25eb22bc-b38e-4cde-9a57-7ca2fcbc412b",
+    "workflowId": "hzCgH5uF0GoJspWm",
     "nodes": [
       {
         "parameters": {
@@ -752,7 +787,7 @@
         "alwaysOutputData": true,
         "credentials": {
           "supabaseApi": {
-            "id": "Njc6sBrCIye9J3ZK",
+            "id": "LJtPTc2eAAkjO0K1",
             "name": "Supabase account"
           }
         },
@@ -784,7 +819,7 @@
         "alwaysOutputData": true,
         "credentials": {
           "supabaseApi": {
-            "id": "Njc6sBrCIye9J3ZK",
+            "id": "LJtPTc2eAAkjO0K1",
             "name": "Supabase account"
           }
         },
@@ -842,7 +877,7 @@
         ],
         "credentials": {
           "openAiApi": {
-            "id": "haff2yaNOap4beBJ",
+            "id": "0cWmjCt2Kf6iQHxs",
             "name": "OpenAi account"
           }
         }
@@ -920,6 +955,10 @@
               {
                 "fieldId": "attendees",
                 "fieldValue": "={{ $json.meetingRecord.attendees }}"
+              },
+              {
+                "fieldId": "contact_submission_id",
+                "fieldValue": "={{ $json.meetingRecord.contact_submission_id }}"
               }
             ]
           }
@@ -935,13 +974,14 @@
         "alwaysOutputData": true,
         "credentials": {
           "supabaseApi": {
-            "id": "Njc6sBrCIye9J3ZK",
+            "id": "LJtPTc2eAAkjO0K1",
             "name": "Supabase account"
           }
         }
       },
       {
         "parameters": {
+          "authentication": "oAuth2",
           "select": "channel",
           "channelId": "={{ $('Parse and Store').item.json.slackChannel }}",
           "text": "={{ $('Parse and Store').item.json.slackSummary }}",
@@ -957,8 +997,8 @@
         ],
         "webhookId": "16f271cc-e705-4919-a7d2-f2912392a8f1",
         "credentials": {
-          "slackApi": {
-            "id": "idlvTQSh4X1QvJ8F",
+          "slackOAuth2Api": {
+            "id": "VT5HUWjPPVBT6Juk",
             "name": "Slack account"
           }
         }
@@ -995,7 +1035,6 @@
         "parameters": {
           "operation": "update",
           "tableId": "client_projects",
-          "filterType": "manual",
           "matchType": "allFilters",
           "filters": {
             "conditions": [
@@ -1006,7 +1045,6 @@
               }
             ]
           },
-          "dataToSend": "defineBelow",
           "fieldsUi": {
             "fieldValues": [
               {
@@ -1027,7 +1065,7 @@
         "alwaysOutputData": true,
         "credentials": {
           "supabaseApi": {
-            "id": "Njc6sBrCIye9J3ZK",
+            "id": "LJtPTc2eAAkjO0K1",
             "name": "Supabase account"
           }
         },
@@ -1035,7 +1073,7 @@
       },
       {
         "parameters": {
-          "workflowId": "exYTC4bhQXq9vqZ0",
+          "workflowId": "yNVJ3Ptmj3RF4eLl",
           "options": {}
         },
         "id": "call-agenda-mch",
@@ -1062,30 +1100,38 @@
         ],
         "credentials": {
           "openRouterApi": {
-            "id": "ATznzoKw5NdNjbAl",
+            "id": "ZvaMdEHw1QnVBhoF",
             "name": "OpenRouter account"
           }
         }
       },
       {
+        "parameters": {
+          "method": "POST",
+          "url": "https://amadutown.app.n8n.cloud/webhook/amadutown-rag-query",
+          "authentication": "none",
+          "sendHeaders": false,
+          "sendBody": true,
+          "contentType": "json",
+          "specifyBody": "json",
+          "jsonBody": "{\"query\": \"What are AmaduTown's key services and meeting best practices for AI automation projects? Summarize in 2-3 paragraphs for use in meeting notes structuring and follow-up.\"}",
+          "options": {}
+        },
         "id": "cd64c1b5-c087-430e-be96-be79e549c3fb",
         "name": "Fetch RAG (MCH)",
         "type": "n8n-nodes-base.httpRequest",
         "typeVersion": 4.3,
         "position": [
-          820,
-          420
+          832,
+          432
         ],
-        "parameters": {
-          "method": "POST",
-          "url": "https://n8n.amadutown.com/webhook/amadutown-rag-query",
-          "sendBody": true,
-          "contentType": "json",
-          "specifyBody": "json",
-          "jsonBody": "{\"query\": \"What are AmaduTown's key services and meeting best practices for AI automation projects? Summarize in 2-3 paragraphs for use in meeting notes structuring and follow-up.\"}"
-        }
+        "continueOnFail": true
       },
       {
+        "parameters": {
+          "mode": "append",
+          "options": {}
+        },
         "id": "b96e2b3d-1631-46a9-a830-91e087deb233",
         "name": "Merge RAG (MCH)",
         "type": "n8n-nodes-base.merge",
@@ -1093,10 +1139,51 @@
         "position": [
           880,
           304
+        ]
+      },
+      {
+        "id": "fetch-lead-mch",
+        "name": "Fetch Lead by Email",
+        "type": "n8n-nodes-base.supabase",
+        "typeVersion": 1,
+        "position": [
+          1320,
+          100
         ],
         "parameters": {
-          "mode": "combine",
-          "outputDataFrom": "both"
+          "operation": "getAll",
+          "tableId": "contact_submissions",
+          "limit": 1,
+          "filters": {
+            "conditions": [
+              {
+                "keyName": "email",
+                "condition": "eq",
+                "keyValue": "={{ $('Parse and Store').item.json.clientEmail }}"
+              }
+            ]
+          }
+        },
+        "credentials": {
+          "supabaseApi": {
+            "id": "LJtPTc2eAAkjO0K1",
+            "name": "Supabase account"
+          }
+        },
+        "onError": "continueRegularOutput",
+        "alwaysOutputData": true
+      },
+      {
+        "id": "set-lead-id-mch",
+        "name": "Set Lead ID on Record",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1320,
+          304
+        ],
+        "parameters": {
+          "jsCode": "const parseCtx = $('Parse and Store').item.json;\nlet contactSubmissionId = null;\ntry {\n  const leadItems = $('Fetch Lead by Email').all();\n  if (leadItems.length > 0 && leadItems[0].json && leadItems[0].json.id) {\n    contactSubmissionId = leadItems[0].json.id;\n  }\n} catch (e) {\n  contactSubmissionId = null;\n}\n\nlet clientProjectId = parseCtx.meetingRecord?.client_project_id || null;\nif (!clientProjectId && contactSubmissionId) {\n  try {\n    const cpItems = $('Fetch Client Project').all();\n    if (cpItems.length > 0 && cpItems[0].json && cpItems[0].json.id) {\n      clientProjectId = cpItems[0].json.id;\n    }\n  } catch (e) {}\n}\n\nconst meetingRecord = {\n  ...parseCtx.meetingRecord,\n  contact_submission_id: contactSubmissionId,\n  client_project_id: clientProjectId\n};\n\nreturn [{ json: { ...parseCtx, meetingRecord, contactSubmissionId } }];"
         }
       }
     ],
@@ -1160,12 +1247,12 @@
         "main": [
           [
             {
-              "node": "Write Meeting Record",
+              "node": "Fetch Lead by Email",
               "type": "main",
               "index": 0
             },
             {
-              "node": "Post Summary to Slack",
+              "node": "Set Lead ID on Record",
               "type": "main",
               "index": 0
             }
@@ -1269,6 +1356,33 @@
             }
           ]
         ]
+      },
+      "Fetch Lead by Email": {
+        "main": [
+          [
+            {
+              "node": "Set Lead ID on Record",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Set Lead ID on Record": {
+        "main": [
+          [
+            {
+              "node": "Write Meeting Record",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Post Summary to Slack",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
       }
     },
     "authors": "Vambah Sillah",
@@ -1277,12 +1391,20 @@
     "autosaved": false,
     "workflowPublishHistory": [
       {
-        "createdAt": "2026-02-10T23:35:28.278Z",
-        "id": 357,
-        "workflowId": "94mqmLgS9GkomPIf",
-        "versionId": "a0cf307f-7875-4bf5-8c95-47ba12d233e8",
+        "createdAt": "2026-03-06T03:26:14.498Z",
+        "id": 281,
+        "workflowId": "hzCgH5uF0GoJspWm",
+        "versionId": "25eb22bc-b38e-4cde-9a57-7ca2fcbc412b",
         "event": "activated",
-        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+        "userId": "5ac96893-047a-40c9-8b9a-29b51d7a264d"
+      },
+      {
+        "createdAt": "2026-03-06T03:26:14.399Z",
+        "id": 280,
+        "workflowId": "hzCgH5uF0GoJspWm",
+        "versionId": "25eb22bc-b38e-4cde-9a57-7ca2fcbc412b",
+        "event": "deactivated",
+        "userId": "5ac96893-047a-40c9-8b9a-29b51d7a264d"
       }
     ]
   }

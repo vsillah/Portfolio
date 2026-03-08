@@ -41,6 +41,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Bundles', href: '/admin/sales/bundles' },
         { label: 'Scripts', href: '/admin/sales/scripts' },
         { label: 'Upsell Paths', href: '/admin/sales/upsell-paths' },
+        { label: 'Gamma Reports', href: '/admin/reports/gamma' },
       ],
     },
     {
@@ -75,6 +76,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Content Hub', href: '/admin/content' },
         { label: 'User Management', href: '/admin/users' },
         { label: 'System Prompts', href: '/admin/prompts' },
+        { label: 'Module Sync', href: '/admin/module-sync' },
       ],
       expandableItemHref: '/admin/content',
       children: [
