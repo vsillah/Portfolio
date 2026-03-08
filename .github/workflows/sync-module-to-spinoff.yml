@@ -1,0 +1,39 @@
+# Sync a portfolio module (subfolder) to a spun-off GitHub repo using git subtree.
+# Triggered from Admin → Module Sync "Push to spin-off" (workflow_dispatch via API).
+# Requires repo secret: MODULE_SYNC_PUSH_TOKEN (PAT with push access to spin-off repo(s)).
+
+name: Sync module to spin-off repo
+
+on:
+  workflow_dispatch:
+    inputs:
+      prefix:
+        description: 'Portfolio path (e.g. client-templates/chatbot-template)'
+        required: true
+      target_repo:
+        description: 'Target repo owner/name (e.g. vsillah/chatbot-template)'
+        required: true
+      target_branch:
+        description: 'Target branch to push to'
+        required: false
+        default: 'main'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Subtree push to spin-off repo
+        env:
+          TARGET_URL: "https://x-access-token:${{ secrets.MODULE_SYNC_PUSH_TOKEN }}@github.com/${{ inputs.target_repo }}.git"
+        run: |
+          git subtree push -P "${{ inputs.prefix }}" "$TARGET_URL" ${{ inputs.target_branch }}
