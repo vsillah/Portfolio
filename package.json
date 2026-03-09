@@ -16,6 +16,9 @@
     "db:health-check": "tsx scripts/database-health-check.ts",
     "db:health-check:update": "tsx scripts/database-health-check.ts --update",
     "printful:webhook": "tsx scripts/printful-setup-webhook.ts",
+    "storyboard:assets:schematics": "tsx scripts/generate-storyboard-schematics.ts",
+    "storyboard:assets:capture": "tsx scripts/capture-storyboard-assets.ts",
+    "storyboard:assets": "npm run storyboard:assets:schematics && npm run storyboard:assets:capture",
     "prepare": "husky install"
   },
   "dependencies": {

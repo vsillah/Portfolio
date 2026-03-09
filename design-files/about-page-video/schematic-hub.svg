@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feFlood flood-color="#D4AF37" flood-opacity="0.4"/>
+      <feComposite in2="blur" operator="in"/>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    
+  </defs>
+  <rect width="100%" height="100%" fill="#121E31"/>
+  <g filter="url(#glow)"><rect x="280" y="175" width="240" height="100" rx="16" ry="16" fill="#2C3E50" stroke="#D4AF37" stroke-width="2"/></g><text x="400" y="215" fill="#EAECEE" font-family="system-ui, sans-serif" font-size="28" text-anchor="middle" font-weight="500">AmaduTown</text><text x="400" y="247" fill="#F5D060" font-family="system-ui, sans-serif" font-size="14" text-anchor="middle" font-weight="500">portfolio · store · product</text>
+</svg>
