@@ -184,8 +184,8 @@ const schematics: { name: string; fn: () => string }[] = [
       const t1 = text(160, CY + 5, 'Portfolio repo', COLORS.white, 14)
       const t2 = text(CX, CY + 5, 'Module Sync', COLORS.white, 14)
       const t3 = text(W - 160, CY + 5, 'Spin-off repo', COLORS.white, 14)
-      const arrow1 = line(240, CY, CX - 80, CY)
-      const arrow2 = line(CX + 80, CY, W - 240, CY)
+      const arrow1 = line(240, CY, CX - 80, CY, COLORS.gold)
+      const arrow2 = line(CX + 80, CY, W - 240, CY, COLORS.gold)
       return svgDoc(W, H, a + b + c + t1 + t2 + t3 + arrow1 + arrow2)
     },
   },
