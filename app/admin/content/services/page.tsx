@@ -7,6 +7,7 @@ import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
 import { formatCurrency } from '@/lib/pricing-model'
+import { formatMarginPercent, formatMarginDollar } from '@/lib/margin-display'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 interface Service {
@@ -18,6 +19,8 @@ interface Service {
   duration_hours: number | null
   duration_description: string | null
   price: number | null
+  unit_cost: number | null
+  cost_notes: string | null
   is_quote_based: boolean
   min_participants: number
   max_participants: number | null
@@ -71,6 +74,8 @@ export default function ServicesManagementPage() {
     duration_hours: '',
     duration_description: '',
     price: '',
+    unit_cost: '',
+    cost_notes: '',
     is_quote_based: false,
     min_participants: '1',
     max_participants: '',
@@ -297,6 +302,8 @@ export default function ServicesManagementPage() {
         duration_hours: formData.duration_hours ? parseFloat(formData.duration_hours) : null,
         duration_description: formData.duration_description || null,
         price: formData.price ? parseFloat(formData.price) : null,
+        unit_cost: formData.unit_cost ? parseFloat(formData.unit_cost) : null,
+        cost_notes: formData.cost_notes || null,
         is_quote_based: formData.is_quote_based,
         min_participants: parseInt(formData.min_participants) || 1,
         max_participants: formData.max_participants ? parseInt(formData.max_participants) : null,
@@ -390,6 +397,8 @@ export default function ServicesManagementPage() {
       duration_hours: '',
       duration_description: '',
       price: '',
+      unit_cost: '',
+      cost_notes: '',
       is_quote_based: false,
       min_participants: '1',
       max_participants: '',
@@ -418,6 +427,8 @@ export default function ServicesManagementPage() {
       duration_hours: service.duration_hours?.toString() || '',
       duration_description: service.duration_description || '',
       price: service.price?.toString() || '',
+      unit_cost: service.unit_cost?.toString() || '',
+      cost_notes: service.cost_notes || '',
       is_quote_based: service.is_quote_based,
       min_participants: service.min_participants.toString(),
       max_participants: service.max_participants?.toString() || '',
@@ -604,8 +615,34 @@ export default function ServicesManagementPage() {
                       />
                     </div>
                   </div>
-                  <div className="flex items-end pb-2">
-                    <label className="flex items-center gap-2 cursor-pointer text-sm">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Unit cost</label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/60" size={20} />
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.unit_cost}
+                        onChange={(e) => setFormData({ ...formData, unit_cost: e.target.value })}
+                        className="w-full pl-10 pr-4 py-2 input-brand"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Cost notes</label>
+                  <input
+                    type="text"
+                    value={formData.cost_notes}
+                    onChange={(e) => setFormData({ ...formData, cost_notes: e.target.value })}
+                    className="w-full px-4 py-2 input-brand"
+                    placeholder="e.g., materials, subcontractor"
+                  />
+                </div>
+                <div className="flex items-end pb-2">
+                  <label className="flex items-center gap-2 cursor-pointer text-sm">
                       <input
                         type="checkbox"
                         checked={formData.is_quote_based}
@@ -616,9 +653,8 @@ export default function ServicesManagementPage() {
                         })}
                         className="w-4 h-4 rounded accent-radiant-gold"
                       />
-                      <span>Quote-based pricing (contact for pricing)</span>
-                    </label>
-                  </div>
+                    <span>Quote-based pricing (contact for pricing)</span>
+                  </label>
                 </div>
 
                 {/* Participants */}
@@ -885,6 +921,22 @@ export default function ServicesManagementPage() {
                         <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded text-xs">
                           Free
                         </span>
+                      )}
+                      {!service.is_quote_based && service.price != null && service.price > 0 && (
+                        <>
+                          <span>•</span>
+                          <span className="text-platinum-white/60 text-xs">
+                            Cost: {service.unit_cost != null ? formatCurrency(service.unit_cost) : '—'}
+                          </span>
+                          {service.unit_cost != null && (
+                            <>
+                              <span>•</span>
+                              <span className="text-platinum-white/60 text-xs">
+                                Margin: {formatMarginPercent(service.price, service.unit_cost)} ({formatMarginDollar(service.price, service.unit_cost)})
+                              </span>
+                            </>
+                          )}
+                        </>
                       )}
                       {service.duration_description && (
                         <>

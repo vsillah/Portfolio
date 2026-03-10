@@ -451,6 +451,7 @@ function AdminDashboardContent() {
             linkLabel="Chat Eval"
             secondaryLinks={[
               { label: 'Analytics', href: '/admin/analytics' },
+              { label: 'Cost & Revenue', href: '/admin/cost-revenue' },
               { label: 'E2E Testing', href: '/admin/testing' },
             ]}
             error={qualityError}

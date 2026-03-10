@@ -68,6 +68,8 @@ export async function PUT(
     if (body.trial_days !== undefined) updateData.trial_days = body.trial_days;
     if (body.features !== undefined) updateData.features = body.features;
     if (body.cancellation_policy !== undefined) updateData.cancellation_policy = body.cancellation_policy;
+    if (body.cost_per_interval !== undefined) updateData.cost_per_interval = body.cost_per_interval;
+    if (body.cost_currency !== undefined) updateData.cost_currency = body.cost_currency;
     if (body.is_active !== undefined) updateData.is_active = body.is_active;
 
     const { data, error } = await supabaseAdmin

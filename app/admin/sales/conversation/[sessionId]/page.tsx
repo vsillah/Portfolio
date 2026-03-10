@@ -474,6 +474,21 @@ export default function ConversationPage() {
     };
   });
   const grandSlamOffer = buildGrandSlamOffer(selectedAsProducts);
+  const { blendedMarginPercent, blendedMarginDollar } = (() => {
+    let revenue = 0;
+    let cost = 0;
+    for (const c of selectedContentDetails) {
+      const key = `${c.content_type}:${c.content_id}`;
+      const ov = priceOverrides[key];
+      revenue += ov?.retail_price ?? c.role_retail_price ?? c.price ?? 0;
+      cost += c.unit_cost ?? 0;
+    }
+    const profit = revenue - cost;
+    return {
+      blendedMarginPercent: revenue > 0 ? (profit / revenue) * 100 : null,
+      blendedMarginDollar: revenue > 0 ? profit : null,
+    };
+  })();
   const objectionHandlers = objectionInput ? findObjectionHandlers(objectionInput) : [];
   const contentByTypeAndRole = content.reduce((acc, item) => {
     const t = item.content_type;
@@ -829,6 +844,8 @@ export default function ConversationPage() {
           defaultClientEmail={contact?.email || ''}
           defaultClientCompany={contact?.company || ''}
           totalAmount={grandSlamOffer.offerPrice}
+          blendedMarginPercent={blendedMarginPercent}
+          blendedMarginDollar={blendedMarginDollar}
           onGenerate={async data => {
             const authSession = await getCurrentSession();
             if (!authSession?.access_token) return;

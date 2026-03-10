@@ -19,6 +19,7 @@ import {
   calculateBundleTotals,
   createBundleItemFromResolved,
 } from '@/lib/sales-scripts';
+import { formatMarginPercent } from '@/lib/margin-display';
 import { BundleEditor } from '@/components/admin/sales/BundleEditor';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import { 
@@ -106,7 +107,7 @@ export default function BundleManagementPage() {
       if (!response.ok) throw new Error('Failed to fetch bundle details');
       
       const data = await response.json();
-      setViewingBundle({ bundle, items: data.items });
+      setViewingBundle({ bundle: { ...bundle, ...data.bundle }, items: data.items });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load bundle details');
     }
@@ -1051,9 +1052,16 @@ function ViewBundleModal({
   const [hasChanges, setHasChanges] = useState(false);
   const [bundleName, setBundleName] = useState(bundle.name);
   const [bundleDescription, setBundleDescription] = useState(bundle.description || '');
+  const [blendedCostOverride, setBlendedCostOverride] = useState<string>(() => {
+    const ov = bundle.blended_cost_override;
+    return ov != null ? String(ov) : '';
+  });
   const [isEditingHeader, setIsEditingHeader] = useState(false);
   
   const totals = calculateBundleTotals(items);
+  const effectiveCost = blendedCostOverride !== '' && !isNaN(parseFloat(blendedCostOverride))
+    ? parseFloat(blendedCostOverride)
+    : totals.totalCost;
   
   const handleItemsChange = (newItems: ResolvedBundleItem[]) => {
     setItems(newItems);
@@ -1065,6 +1073,13 @@ function ViewBundleModal({
       setHasChanges(true);
     }
     setIsEditingHeader(false);
+  };
+
+  const handleBlendedCostOverrideChange = (val: string) => {
+    setBlendedCostOverride(val);
+    const orig = bundle.blended_cost_override;
+    const origStr = orig != null ? String(orig) : '';
+    if (val !== origStr) setHasChanges(true);
   };
   
   const handleSave = async () => {
@@ -1086,6 +1101,9 @@ function ViewBundleModal({
       };
       if (bundleName !== bundle.name) payload.name = bundleName;
       if (bundleDescription !== (bundle.description || '')) payload.description = bundleDescription;
+      const overrideNum = blendedCostOverride.trim() === '' ? null : parseFloat(blendedCostOverride);
+      const origOverride = bundle.blended_cost_override ?? null;
+      if (overrideNum !== origOverride) payload.blended_cost_override = overrideNum;
       
       const response = await fetch(`/api/admin/sales/bundles/${bundle.id}`, {
         method: 'PUT',
@@ -1185,7 +1203,7 @@ function ViewBundleModal({
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-4 gap-4 p-4 bg-gray-950 border-b border-gray-800">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 p-4 bg-gray-950 border-b border-gray-800">
           <div className="text-center">
             <p className="text-2xl font-bold text-white">{items.length}</p>
             <p className="text-xs text-gray-400">Items</p>
@@ -1201,6 +1219,28 @@ function ViewBundleModal({
           <div className="text-center">
             <p className="text-2xl font-bold text-purple-400">{totals.coreOfferCount}</p>
             <p className="text-xs text-gray-400">Core Offers</p>
+          </div>
+          <div className="text-center">
+            <div className="flex flex-col items-center gap-1">
+              <p className="text-2xl font-bold text-amber-400">${Math.round(effectiveCost).toLocaleString()}</p>
+              <p className="text-xs text-gray-400">Blended Cost</p>
+              <input
+                type="number"
+                value={blendedCostOverride}
+                onChange={(e) => handleBlendedCostOverrideChange(e.target.value)}
+                placeholder="Override"
+                min={0}
+                step={0.01}
+                className="w-20 px-1.5 py-0.5 text-xs bg-gray-800 border border-gray-600 rounded text-center"
+                title="Override blended cost (leave empty to use sum of line costs)"
+              />
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-radiant-gold">
+              {totals.totalRetailValue > 0 ? formatMarginPercent(totals.totalRetailValue, effectiveCost) : '—'}
+            </p>
+            <p className="text-xs text-gray-400">Blended Margin</p>
           </div>
         </div>
         

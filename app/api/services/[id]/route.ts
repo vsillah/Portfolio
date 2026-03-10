@@ -63,6 +63,8 @@ export async function PUT(
       duration_hours,
       duration_description,
       price,
+      unit_cost,
+      cost_notes,
       is_quote_based,
       min_participants,
       max_participants,
@@ -121,6 +123,8 @@ export async function PUT(
     if (is_featured !== undefined) updateData.is_featured = is_featured
     if (display_order !== undefined) updateData.display_order = display_order
     if (outcome_group_id !== undefined) updateData.outcome_group_id = outcome_group_id || null
+    if (unit_cost !== undefined) updateData.unit_cost = unit_cost != null ? parseFloat(String(unit_cost)) : null
+    if (cost_notes !== undefined) updateData.cost_notes = cost_notes || null
 
     const { data, error } = await supabaseAdmin
       .from('services')

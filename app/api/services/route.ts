@@ -79,6 +79,8 @@ export async function POST(request: NextRequest) {
       duration_hours,
       duration_description,
       price,
+      unit_cost,
+      cost_notes,
       is_quote_based,
       min_participants,
       max_participants,
@@ -142,6 +144,8 @@ export async function POST(request: NextRequest) {
         display_order: display_order || 0,
         created_by: user.id,
         outcome_group_id: outcome_group_id || null,
+        unit_cost: unit_cost != null ? parseFloat(unit_cost) : null,
+        cost_notes: cost_notes || null,
       }])
       .select()
       .single()

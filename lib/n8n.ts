@@ -1282,3 +1282,86 @@ export async function triggerSocialListening(options?: SocialListeningOptions): 
     return { triggered: false, message: 'Webhook call failed' }
   }
 }
+
+// ============================================================================
+// Social Content Pipeline (WF-SOC-001 / WF-SOC-002)
+// ============================================================================
+
+const N8N_SOC001_WEBHOOK_URL =
+  process.env.N8N_SOC001_WEBHOOK_URL || n8nWebhookUrl('social-content-extract')
+
+const N8N_SOC002_WEBHOOK_URL =
+  process.env.N8N_SOC002_WEBHOOK_URL || n8nWebhookUrl('social-content-publish')
+
+/**
+ * Trigger WF-SOC-001: Extract social content from recent meetings
+ * Can be triggered manually from admin or runs on a schedule in n8n
+ */
+export async function triggerSocialContentExtraction(options?: {
+  meetingRecordId?: string
+}): Promise<{ triggered: boolean; message: string }> {
+  try {
+    const body: Record<string, unknown> = {
+      triggered_at: new Date().toISOString(),
+      workflow: 'WF-SOC-001',
+      action: 'extract_social_content',
+    }
+    if (options?.meetingRecordId) {
+      body.meeting_record_id = options.meetingRecordId
+    }
+
+    const response = await fetch(N8N_SOC001_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('SOC-001 webhook error:', response.status, errorText)
+      return { triggered: false, message: `Webhook returned ${response.status}` }
+    }
+
+    return { triggered: true, message: 'Social content extraction triggered' }
+  } catch (error) {
+    console.error('SOC-001 webhook failed:', error)
+    return { triggered: false, message: 'Webhook call failed' }
+  }
+}
+
+/**
+ * Trigger WF-SOC-002: Publish approved social content
+ */
+export async function triggerSocialContentPublish(payload: {
+  content_id: string
+  platform: string
+  post_text: string
+  cta_text?: string | null
+  cta_url?: string | null
+  hashtags?: string[]
+  image_url?: string | null
+  voiceover_url?: string | null
+}): Promise<{ triggered: boolean; message: string }> {
+  try {
+    const response = await fetch(N8N_SOC002_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...payload,
+        triggered_at: new Date().toISOString(),
+        workflow: 'WF-SOC-002',
+      }),
+    })
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('SOC-002 webhook error:', response.status, errorText)
+      return { triggered: false, message: `Webhook returned ${response.status}` }
+    }
+
+    return { triggered: true, message: 'Social content publish triggered' }
+  } catch (error) {
+    console.error('SOC-002 webhook failed:', error)
+    return { triggered: false, message: 'Webhook call failed' }
+  }
+}

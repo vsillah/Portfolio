@@ -103,6 +103,7 @@ export async function GET(request: NextRequest) {
             role_retail_price: (role as { retail_price?: number }).retail_price || null,
             offer_price: (role as { offer_price?: number }).offer_price || null,
             perceived_value: (role as { perceived_value?: number }).perceived_value || null,
+            unit_cost: typeof (role as { unit_cost?: number }).unit_cost === 'number' ? (role as { unit_cost: number }).unit_cost : null,
             bonus_name: (role as { bonus_name?: string }).bonus_name || null,
             bonus_description: (role as { bonus_description?: string }).bonus_description || null,
             qualifying_actions: (role as { qualifying_actions?: Record<string, unknown> }).qualifying_actions || null,

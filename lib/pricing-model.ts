@@ -415,6 +415,28 @@ export const CONTINUITY_PLANS: ContinuityPlan[] = [
 // Hormozi Value Equation Scoring
 // ============================================================================
 
+/** Tooltip when Value Equation score is hidden (fewer than four components). */
+export const VALUE_EQUATION_NEEDS_COMPONENTS =
+  'Value Equation needs dream outcome, likelihood, time, and effort set.';
+
+/**
+ * Check if an offer has all four Value Equation components (so we can show the score).
+ * When false, show VALUE_EQUATION_NEEDS_COMPONENTS as tooltip/subtext instead.
+ */
+export function hasValueEquationComponents(offer: {
+  dream_outcome_description?: string | null;
+  likelihood_multiplier?: number | null;
+  time_reduction?: number | null;
+  effort_reduction?: number | null;
+}): boolean {
+  return !!(
+    offer.dream_outcome_description?.trim() &&
+    typeof offer.likelihood_multiplier === 'number' &&
+    typeof offer.time_reduction === 'number' &&
+    typeof offer.effort_reduction === 'number'
+  );
+}
+
 /**
  * Calculate a Hormozi Value Equation score for an offer.
  *

@@ -8,6 +8,7 @@ import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
 import { formatCurrency } from '@/lib/pricing-model'
+import { formatMarginPercent, formatMarginDollar } from '@/lib/margin-display'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 
 interface MerchandiseProduct {
@@ -17,6 +18,7 @@ interface MerchandiseProduct {
   category: string | null
   printful_product_id: number | null
   base_cost: number | null
+  unit_cost: number | null
   markup_percentage: number | null
   is_print_on_demand: boolean
   is_active: boolean
@@ -249,6 +251,33 @@ export default function MerchandiseManagementPage() {
     } catch (error) {
       console.error('Error updating product:', error)
       alert('Failed to update product')
+    }
+  }
+
+  const handleUpdateUnitCost = async (product: MerchandiseProduct, newUnitCost: number | null) => {
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const response = await fetch(`/api/products/${product.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          unit_cost: newUnitCost,
+        }),
+      })
+
+      if (response.ok) {
+        fetchProducts()
+      } else {
+        alert('Failed to update unit cost')
+      }
+    } catch (error) {
+      console.error('Error updating unit cost:', error)
+      alert('Failed to update unit cost')
     }
   }
 
@@ -576,10 +605,15 @@ export default function MerchandiseManagementPage() {
 
                     {/* Product Info */}
                     <div className="space-y-2 mb-4 text-sm">
-                      {product.base_cost !== null && (
+                      {(product.unit_cost ?? product.base_cost) !== null && (
                         <div className="flex justify-between">
-                          <span className="text-gray-500">Base Cost:</span>
-                          <span className="text-white">{formatCurrency(product.base_cost)}</span>
+                          <span className="text-gray-500">Cost:</span>
+                          <span className="text-white">
+                            {formatCurrency(product.unit_cost ?? product.base_cost ?? 0)}
+                            {product.unit_cost != null && product.base_cost != null && (
+                              <span className="text-xs text-gray-500 ml-1">(override)</span>
+                            )}
+                          </span>
                         </div>
                       )}
                       {product.markup_percentage !== null && (
@@ -589,19 +623,52 @@ export default function MerchandiseManagementPage() {
                         </div>
                       )}
                       {product.base_cost !== null && product.markup_percentage !== null && (
-                        <div className="flex justify-between font-semibold pt-2 border-t border-gray-800">
-                          <span className="text-gray-400">Price:</span>
-                          <span className="text-green-400">
-                            {formatCurrency(
-                              product.base_cost * (1 + product.markup_percentage / 100)
-                            )}
-                          </span>
-                        </div>
+                        <>
+                          <div className="flex justify-between font-semibold pt-2 border-t border-gray-800">
+                            <span className="text-gray-400">Price:</span>
+                            <span className="text-green-400">
+                              {formatCurrency(
+                                product.base_cost * (1 + product.markup_percentage / 100)
+                              )}
+                            </span>
+                          </div>
+                          {(product.unit_cost ?? product.base_cost) != null && (
+                            <div className="flex justify-between text-xs text-gray-400">
+                              <span>Margin:</span>
+                              <span>
+                                {formatMarginPercent(
+                                  product.base_cost * (1 + product.markup_percentage / 100),
+                                  product.unit_cost ?? product.base_cost ?? 0
+                                )}{' '}
+                                ({formatMarginDollar(
+                                  product.base_cost * (1 + product.markup_percentage / 100),
+                                  product.unit_cost ?? product.base_cost ?? 0
+                                )})
+                              </span>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
 
                     {/* Actions */}
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => {
+                          const val = prompt(
+                            'Unit cost override ($):',
+                            (product.unit_cost ?? product.base_cost ?? 0).toString()
+                          )
+                          if (val !== null) {
+                            const parsed = parseFloat(val)
+                            handleUpdateUnitCost(product, isNaN(parsed) ? null : parsed)
+                          }
+                        }}
+                        className="flex-1 min-w-[120px] px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Settings size={16} />
+                        Update Cost
+                      </button>
                       <button
                         onClick={() => {
                           const newMarkup = prompt(
@@ -612,7 +679,7 @@ export default function MerchandiseManagementPage() {
                             handleUpdateMarkup(product, parseFloat(newMarkup))
                           }
                         }}
-                        className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
+                        className="flex-1 min-w-[120px] px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
                       >
                         <Settings size={16} />
                         Update Markup

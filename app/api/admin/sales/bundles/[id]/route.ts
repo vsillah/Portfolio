@@ -104,6 +104,7 @@ export async function PUT(
       description,
       bundle_items,
       bundle_price,
+      blended_cost_override,
       default_discount_percent,
       notes,
       is_active,
@@ -134,6 +135,7 @@ export async function PUT(
       updateData.total_perceived_value = totals.totalPerceivedValue;
     }
     if (bundle_price !== undefined) updateData.bundle_price = bundle_price;
+    if (blended_cost_override !== undefined) updateData.blended_cost_override = blended_cost_override == null ? null : parseFloat(String(blended_cost_override));
     if (default_discount_percent !== undefined) updateData.default_discount_percent = default_discount_percent;
     if (notes !== undefined) updateData.notes = notes;
     if (is_active !== undefined) updateData.is_active = is_active;

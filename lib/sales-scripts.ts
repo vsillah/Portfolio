@@ -266,6 +266,7 @@ export interface ContentWithRole extends ContentItem {
   role_retail_price: number | null;
   offer_price: number | null;
   perceived_value: number | null;
+  unit_cost: number | null;
   bonus_name: string | null;
   bonus_description: string | null;
   qualifying_actions: Record<string, unknown> | null;
@@ -325,6 +326,7 @@ export interface OfferBundle {
   total_retail_value?: number;
   total_perceived_value?: number;
   bundle_price?: number;
+  blended_cost_override?: number | null;
   default_discount_percent?: number;
   target_funnel_stages?: FunnelStage[];
   notes?: string;
@@ -419,17 +421,21 @@ export function resolveBundleItem(
   };
 }
 
-// Calculate bundle totals from resolved items
+// Calculate bundle totals from resolved items (including blended cost and margin)
 export function calculateBundleTotals(items: ResolvedBundleItem[]): {
   totalRetailValue: number;
   totalPerceivedValue: number;
+  totalCost: number;
   itemCount: number;
   coreOfferCount: number;
   bonusCount: number;
 } {
   return items.reduce((acc, item) => {
-    acc.totalRetailValue += item.role_retail_price ?? item.price ?? 0;
+    const price = item.role_retail_price ?? item.price ?? 0;
+    const cost = item.unit_cost ?? 0;
+    acc.totalRetailValue += price;
     acc.totalPerceivedValue += item.perceived_value ?? item.role_retail_price ?? item.price ?? 0;
+    acc.totalCost += cost;
     acc.itemCount++;
     if (item.offer_role === 'core_offer') acc.coreOfferCount++;
     if (item.offer_role === 'bonus') acc.bonusCount++;
@@ -437,6 +443,7 @@ export function calculateBundleTotals(items: ResolvedBundleItem[]): {
   }, {
     totalRetailValue: 0,
     totalPerceivedValue: 0,
+    totalCost: 0,
     itemCount: 0,
     coreOfferCount: 0,
     bonusCount: 0,

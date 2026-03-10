@@ -100,6 +100,7 @@ export async function PUT(
       // Merchandise fields
       category,
       base_cost,
+      unit_cost,
       markup_percentage,
       printful_product_id,
       printful_variant_id,
@@ -133,6 +134,7 @@ export async function PUT(
     // Merchandise fields
     if (category !== undefined) updateData.category = category || null
     if (base_cost !== undefined) updateData.base_cost = base_cost ? parseFloat(base_cost) : null
+    if (unit_cost !== undefined) updateData.unit_cost = unit_cost != null ? parseFloat(String(unit_cost)) : null
     if (markup_percentage !== undefined)
       updateData.markup_percentage = markup_percentage ? parseFloat(markup_percentage) : null
     if (printful_product_id !== undefined)

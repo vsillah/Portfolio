@@ -29,6 +29,8 @@ export interface ContinuityPlan {
   stripe_price_id: string | null;
   features: string[];
   cancellation_policy: string | null;
+  cost_per_interval: number | null;
+  cost_currency: string | null;
   is_active: boolean;
   created_by: string | null;
   created_at: string;
@@ -75,6 +77,8 @@ export interface CreateContinuityPlanInput {
   trial_days?: number;
   features?: string[];
   cancellation_policy?: string;
+  cost_per_interval?: number | null;
+  cost_currency?: string | null;
 }
 
 export interface UpdateContinuityPlanInput extends Partial<CreateContinuityPlanInput> {

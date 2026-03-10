@@ -15,7 +15,8 @@ import {
   resolveBundleItem,
   createBundleItemFromResolved,
 } from '@/lib/sales-scripts';
-import { formatCurrency } from '@/lib/pricing-model';
+import { formatCurrency, hasValueEquationComponents, VALUE_EQUATION_NEEDS_COMPONENTS } from '@/lib/pricing-model';
+import { formatMarginPercent, formatMarginDollar } from '@/lib/margin-display';
 import {
   Plus,
   X,
@@ -256,11 +257,22 @@ function BundleItemRow({
           </span>
         )}
         
-        {/* Price */}
-        <div className="text-right min-w-[80px]">
+        {/* Price and margin */}
+        <div className="text-right min-w-[100px]">
           <p className="text-sm font-medium text-white">
             {formatCurrency(item.role_retail_price ?? item.price ?? 0)}
           </p>
+          {item.unit_cost != null && (item.role_retail_price ?? item.price ?? 0) > 0 && (
+            <p
+              className="text-xs text-gray-400"
+              title={!hasValueEquationComponents(item) ? VALUE_EQUATION_NEEDS_COMPONENTS : undefined}
+            >
+              Cost: {formatCurrency(item.unit_cost)} · {formatMarginPercent(item.role_retail_price ?? item.price ?? 0, item.unit_cost)}
+              {!hasValueEquationComponents(item) && (
+                <span className="ml-1 text-gray-500 hover:text-gray-400" title={VALUE_EQUATION_NEEDS_COMPONENTS}>ⓘ</span>
+              )}
+            </p>
+          )}
         </div>
         
         {/* Actions */}

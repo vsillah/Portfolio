@@ -1,9 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { FileText, XCircle, Loader2 } from 'lucide-react';
+import { FileText, XCircle, Loader2, AlertTriangle } from 'lucide-react';
 import { getCurrentSession } from '@/lib/auth';
 import { formatCurrency } from '@/lib/pricing-model';
+
+/** Below this margin %, show low-margin warning. Override via MARGIN_ALERT_THRESHOLD_PERCENT env. */
+const MARGIN_ALERT_THRESHOLD = typeof process.env.NEXT_PUBLIC_MARGIN_ALERT_THRESHOLD_PERCENT === 'string'
+  ? parseFloat(process.env.NEXT_PUBLIC_MARGIN_ALERT_THRESHOLD_PERCENT) || 20
+  : 20;
 
 export interface ProposalModalProps {
   onClose: () => void;
@@ -22,6 +27,10 @@ export interface ProposalModalProps {
   totalAmount: number;
   contactId: number | null;
   defaultValueReportId: string | null;
+  /** Blended margin % (profit/revenue). When set, shown in Pricing section. */
+  blendedMarginPercent?: number | null;
+  /** Blended margin $ (profit). When set with blendedMarginPercent, shown in Pricing section. */
+  blendedMarginDollar?: number | null;
 }
 
 export function ProposalModal({
@@ -33,6 +42,8 @@ export function ProposalModal({
   totalAmount,
   contactId,
   defaultValueReportId,
+  blendedMarginPercent,
+  blendedMarginDollar,
 }: ProposalModalProps) {
   const [clientName, setClientName] = useState(defaultClientName);
   const [clientEmail, setClientEmail] = useState(defaultClientEmail);
@@ -168,6 +179,21 @@ export function ProposalModal({
                 <span className="text-gray-400">Offer Total</span>
                 <span className="font-medium">{formatCurrency(totalAmount)}</span>
               </div>
+              {blendedMarginPercent != null && totalAmount > 0 && (
+                <div className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
+                  <span className="text-gray-400">Blended Margin</span>
+                  <span className="font-medium">
+                    {Math.round(blendedMarginPercent)}%
+                    {blendedMarginDollar != null && ` (${formatCurrency(blendedMarginDollar)} profit)`}
+                  </span>
+                </div>
+              )}
+              {blendedMarginPercent != null && blendedMarginPercent < MARGIN_ALERT_THRESHOLD && (
+                <div className="flex items-start gap-2 p-3 bg-amber-900/20 border border-amber-700/50 rounded-lg text-amber-200 text-sm">
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>Margin is below {MARGIN_ALERT_THRESHOLD}%. Consider adjusting pricing or costs.</span>
+                </div>
+              )}
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Discount Amount ($)</label>
                 <input

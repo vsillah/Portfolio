@@ -85,9 +85,22 @@ When a module is spun off to its own repository:
 - **Env (app):** `GITHUB_TOKEN` — must have **repo** scope (or create-repo + contents read + actions write) for diff, scan, create-repo, and push. Repos created via create-repo are created as the token owner. `GITHUB_REPO` — portfolio repo as `owner/repo`, required for push and scan.
 - **Repo secret (portfolio repo):** `MODULE_SYNC_PUSH_TOKEN` — PAT with push access to the spin-off repo(s). The workflow uses it to push the subtree to the target repo.
 
+## Standalone Verification (CI)
+
+A GitHub Actions workflow automatically verifies that every template can `npm install && npm run build` in isolation — the same test a user would run after cloning a spin-off repo.
+
+- **Workflow:** `.github/workflows/verify-standalone-templates.yml`
+- **Triggers:**
+  - **Automatic:** On push or PR to `main` when files under `client-templates/` change.
+  - **Manual:** `workflow_dispatch` from the Actions tab; optionally pick a single template.
+- **What it does:** For each template with a `package.json` (chatbot, leadgen, eval, diagnostic), copies it to an isolated directory, installs dependencies, and runs `npm run build`. Each template runs as a separate job so failures are isolated and clearly reported.
+- **Local equivalent:** `bash scripts/verify-spinoff-standalone.sh --all` (or pass a single template path).
+
 ## Quick reference
 
 - **Print full inventory (templates + app prototypes):** `npx tsx scripts/print-modules-inventory.ts`
+- **Verify all templates build standalone:** `bash scripts/verify-spinoff-standalone.sh --all`
+- **Verify one template:** `bash scripts/verify-spinoff-standalone.sh client-templates/chatbot-template`
 - **Seed script for template products:** `npx tsx scripts/seed-template-products.ts`
 - **Repo base used in seed:** `https://github.com/vsillah/Portfolio/tree/main`
 - **Template product type in DB:** `products.type = 'template'`

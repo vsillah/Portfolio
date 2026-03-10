@@ -1,0 +1,182 @@
+{
+  "name": "WF-SOC-002 Social Content Publish",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "social-content-publish",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Publish Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "social-content-publish",
+      "notes": "Triggered by admin UI approve action or scheduled publish"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            { "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" }, "conditions": [{ "leftValue": "={{ $json.platform }}", "rightValue": "linkedin", "operator": { "type": "string", "operation": "equals" } }] }, "renameOutput": true, "outputKey": "LinkedIn" },
+            { "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" }, "conditions": [{ "leftValue": "={{ $json.platform }}", "rightValue": "instagram", "operator": { "type": "string", "operation": "equals" } }] }, "renameOutput": true, "outputKey": "Instagram" },
+            { "conditions": { "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" }, "conditions": [{ "leftValue": "={{ $json.platform }}", "rightValue": "facebook", "operator": { "type": "string", "operation": "equals" } }] }, "renameOutput": true, "outputKey": "Facebook" }
+          ]
+        },
+        "options": { "fallbackOutput": "none" }
+      },
+      "id": "platform-router",
+      "name": "Platform Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [250, 0],
+      "notes": "Route to platform-specific publishing path"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=SELECT sc.*, scc.credentials, scc.settings FROM social_content_queue sc LEFT JOIN social_content_config scc ON scc.platform = sc.platform WHERE sc.id = '{{ $json.content_id }}'"
+      },
+      "id": "fetch-content",
+      "name": "Fetch Content + Config",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [500, -100],
+      "notes": "Fetch full content and platform credentials"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst credentials = typeof item.credentials === 'string' ? JSON.parse(item.credentials) : (item.credentials || {});\nconst settings = typeof item.settings === 'string' ? JSON.parse(item.settings) : (item.settings || {});\n\nconst accessToken = credentials.access_token;\nconst authorUrn = settings.author_urn || credentials.person_urn;\n\nif (!accessToken || !authorUrn) {\n  throw new Error('LinkedIn credentials not configured. Connect LinkedIn in Admin > Social Content.');\n}\n\n// Build the full post text with hashtags\nlet fullText = item.post_text || '';\nif (item.cta_text) fullText += '\\n\\n' + item.cta_text;\nif (item.cta_url) fullText += '\\n' + item.cta_url;\nconst hashtags = typeof item.hashtags === 'string' ? JSON.parse(item.hashtags || '[]') : (item.hashtags || []);\nif (hashtags.length > 0) {\n  fullText += '\\n\\n' + hashtags.map(h => h.startsWith('#') ? h : '#' + h).join(' ');\n}\n\nreturn [{ json: {\n  content_id: item.id,\n  access_token: accessToken,\n  author_urn: authorUrn,\n  full_text: fullText,\n  image_url: item.image_url,\n  has_image: !!item.image_url\n} }];"
+      },
+      "id": "prepare-linkedin",
+      "name": "Prepare LinkedIn Post",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [750, -100],
+      "notes": "Build LinkedIn API payload from content and credentials"
+    },
+    {
+      "parameters": {
+        "url": "https://api.linkedin.com/v2/ugcPosts",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ author: $json.author_urn, lifecycleState: 'PUBLISHED', specificContent: { 'com.linkedin.ugc.ShareContent': { shareCommentary: { text: $json.full_text }, shareMediaCategory: $json.has_image ? 'IMAGE' : 'NONE' } }, visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' } }) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $json.access_token }}" },
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "X-Restli-Protocol-Version", "value": "2.0.0" }
+          ]
+        },
+        "options": { "timeout": 30000 }
+      },
+      "id": "linkedin-post",
+      "name": "LinkedIn Create Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1000, -100],
+      "notes": "Create LinkedIn post via UGC API. Image upload step can be added before this."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=UPDATE social_content_queue SET status = 'published', published_at = NOW(), platform_post_id = '{{ $json.id || '' }}' WHERE id = '{{ $node['Prepare LinkedIn Post'].json.content_id }}'"
+      },
+      "id": "update-status",
+      "name": "Update Status Published",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1250, -100],
+      "notes": "Mark content as published in queue"
+    },
+    {
+      "parameters": {
+        "channel": "#social-content",
+        "text": "=:white_check_mark: *Published to LinkedIn*\n\nContent ID: {{ $node['Prepare LinkedIn Post'].json.content_id }}\nPost ID: {{ $json.id || 'N/A' }}\n\n<https://amadutown.com/admin/social-content|View in Admin →>",
+        "otherOptions": {}
+      },
+      "id": "slack-confirm",
+      "name": "Slack Confirmation",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [1500, -100],
+      "notes": "Confirm publish in Slack"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, platform_post_id: $node['LinkedIn Create Post'].json.id || null }) }}"
+      },
+      "id": "respond-success",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1750, -100],
+      "notes": "Return success response to caller"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, error: 'Instagram publishing not yet implemented' }) }}",
+        "options": { "responseCode": 501 }
+      },
+      "id": "instagram-placeholder",
+      "name": "Instagram (Coming Soon)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [500, 100],
+      "notes": "Placeholder for future Instagram publishing"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, error: 'Facebook publishing not yet implemented' }) }}",
+        "options": { "responseCode": 501 }
+      },
+      "id": "facebook-placeholder",
+      "name": "Facebook (Coming Soon)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [500, 300],
+      "notes": "Placeholder for future Facebook publishing"
+    }
+  ],
+  "connections": {
+    "Publish Webhook": {
+      "main": [[{ "node": "Platform Router", "type": "main", "index": 0 }]]
+    },
+    "Platform Router": {
+      "main": [
+        [{ "node": "Fetch Content + Config", "type": "main", "index": 0 }],
+        [{ "node": "Instagram (Coming Soon)", "type": "main", "index": 0 }],
+        [{ "node": "Facebook (Coming Soon)", "type": "main", "index": 0 }]
+      ]
+    },
+    "Fetch Content + Config": {
+      "main": [[{ "node": "Prepare LinkedIn Post", "type": "main", "index": 0 }]]
+    },
+    "Prepare LinkedIn Post": {
+      "main": [[{ "node": "LinkedIn Create Post", "type": "main", "index": 0 }]]
+    },
+    "LinkedIn Create Post": {
+      "main": [[{ "node": "Update Status Published", "type": "main", "index": 0 }]]
+    },
+    "Update Status Published": {
+      "main": [[{ "node": "Slack Confirmation", "type": "main", "index": 0 }]]
+    },
+    "Slack Confirmation": {
+      "main": [[{ "node": "Respond Success", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "timezone": "America/New_York"
+  }
+}

@@ -1,0 +1,297 @@
+{
+  "name": "WF-SOC-001 Social Content Extraction",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1-5"
+            }
+          ]
+        }
+      },
+      "id": "schedule-trigger",
+      "name": "Daily 9AM Weekdays",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 0],
+      "notes": "Runs Mon-Fri at 9AM. Also accepts manual webhook trigger."
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://n8n.amadutown.com/webhook/social-content-extract",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Manual Trigger Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 200],
+      "webhookId": "social-content-extract",
+      "notes": "Manual trigger from admin UI or API"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT mr.* FROM meeting_records mr WHERE mr.id NOT IN (SELECT meeting_record_id FROM social_content_queue WHERE meeting_record_id IS NOT NULL) AND mr.created_at > NOW() - INTERVAL '7 days' ORDER BY mr.created_at DESC LIMIT 10"
+      },
+      "id": "fetch-meetings",
+      "name": "Fetch Unprocessed Meetings",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [300, 100],
+      "notes": "Fetches meetings not yet processed for social content"
+    },
+    {
+      "parameters": {
+        "url": "https://amadutown.app.n8n.cloud/webhook/amadutown-rag-query",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ 'Personal stories, case studies, and experiences related to: ' + $json.structured_notes?.summary || $json.transcript?.substring(0, 500) || 'general business consulting' }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "rag-query",
+      "name": "RAG Personal Context",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [550, 100],
+      "notes": "Query Pinecone RAG for personal stories and context to weave into posts"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are an expert content strategist who follows Alex Hormozi's communication frameworks from $100M Offers and $100M Leads.\n\nGiven a meeting transcript and personal context from the creator's knowledge base, extract 1-3 social-media-worthy topics.\n\nFor each topic, provide:\n1. topic: A one-liner describing the core idea\n2. angle: What makes this interesting to the target audience\n3. key_insight: The transferable takeaway\n4. personal_tie_in: How this connects to the creator's personal experience\n5. hormozi_framework: Which framework applies (value_equation, offer_creation, lead_magnet, dream_outcome, risk_reversal, scarcity_urgency, proof_stacking)\n6. framework_visual: Which diagram type (flowchart, matrix, equation, funnel, before_after, architecture, pillars, timeline, cycle)\n\nReturn valid JSON array of topics. Focus on insights that would make a LinkedIn audience stop scrolling."
+            },
+            {
+              "role": "user",
+              "content": "=Meeting Type: {{ $node['Fetch Unprocessed Meetings'].json.meeting_type }}\n\nStructured Notes:\n{{ JSON.stringify($node['Fetch Unprocessed Meetings'].json.structured_notes) }}\n\nKey Decisions:\n{{ JSON.stringify($node['Fetch Unprocessed Meetings'].json.key_decisions) }}\n\nTranscript (excerpt):\n{{ ($node['Fetch Unprocessed Meetings'].json.transcript || '').substring(0, 5000) }}\n\nPersonal Context from RAG:\n{{ JSON.stringify($node['RAG Personal Context'].json) }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 2000
+        }
+      },
+      "id": "extract-topics",
+      "name": "AI Extract Topics",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.8,
+      "position": [800, 100],
+      "notes": "Extract social-worthy topics using Hormozi frameworks"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || response.message?.content || '{}';\n\nlet topics;\ntry {\n  topics = JSON.parse(content);\n  if (!Array.isArray(topics)) topics = [topics];\n} catch (e) {\n  const match = content.match(/\\[.*\\]/s);\n  topics = match ? JSON.parse(match[0]) : [{ topic: content, angle: 'General insight', key_insight: content, personal_tie_in: '', hormozi_framework: 'value_equation', framework_visual: 'architecture' }];\n}\n\nreturn topics.map(t => ({ json: { ...t, meeting_record_id: $node['Fetch Unprocessed Meetings'].json.id, rag_context: $node['RAG Personal Context'].json } }));"
+      },
+      "id": "parse-topics",
+      "name": "Parse Topics",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 100],
+      "notes": "Parse AI response into individual topic items"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a LinkedIn content writer who follows Alex Hormozi's communication style. Write a post that will make people stop scrolling.\n\nRULES:\n1. Hook (first 2 lines): Pattern-interrupt. Use contrarian take, bold claim with number, challenging question, or 'Most people think X, but Y'.\n2. Story/Proof (middle): Weave in personal experience from RAG context — real client outcomes, specific numbers from past projects.\n3. Lesson (framework): Name the principle. Make it a transferable framework.\n4. CTA (last 2 lines): Clear, specific call to action.\n\nFORMAT: Short paragraphs (1-2 sentences), line breaks between thoughts, no walls of text, conversational tone, 150-300 words. Include 3-5 hashtags at the end.\n\nReturn JSON: { post_text, cta_text, cta_url, hashtags: string[], hormozi_framework: { framework_type, hook_type, proof_pattern, cta_pattern } }"
+            },
+            {
+              "role": "user",
+              "content": "=Topic: {{ $json.topic }}\nAngle: {{ $json.angle }}\nKey Insight: {{ $json.key_insight }}\nPersonal Tie-in: {{ $json.personal_tie_in }}\nHormozi Framework: {{ $json.hormozi_framework }}\nFramework Visual: {{ $json.framework_visual }}\n\nRAG Context:\n{{ JSON.stringify($json.rag_context) }}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.8,
+          "maxTokens": 1500
+        }
+      },
+      "id": "write-post",
+      "name": "Hormozi Copywriting",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.8,
+      "position": [1300, 100],
+      "notes": "Write Hormozi-style LinkedIn post with CTA"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || response.message?.content || '{}';\n\nlet post;\ntry {\n  post = JSON.parse(content);\n} catch (e) {\n  const match = content.match(/\\{.*\\}/s);\n  post = match ? JSON.parse(match[0]) : { post_text: content, cta_text: '', cta_url: 'https://amadutown.com', hashtags: ['business', 'automation'], hormozi_framework: {} };\n}\n\nconst prev = $node['Parse Topics'].json;\n\nreturn [{ json: {\n  meeting_record_id: prev.meeting_record_id,\n  platform: 'linkedin',\n  status: 'draft',\n  post_text: post.post_text,\n  cta_text: post.cta_text || null,\n  cta_url: post.cta_url || 'https://amadutown.com',\n  hashtags: post.hashtags || [],\n  framework_visual_type: prev.framework_visual,\n  topic_extracted: { topic: prev.topic, angle: prev.angle, key_insight: prev.key_insight, personal_tie_in: prev.personal_tie_in, framework_visual: prev.framework_visual },\n  hormozi_framework: post.hormozi_framework || {},\n  rag_context: prev.rag_context || {},\n  image_prompt: `Create a clean, professional ${prev.framework_visual} illustration for LinkedIn. Topic: ${prev.topic}. Style: deep navy (#121E31) background, gold (#D4AF37) accents, platinum white (#EAECEE) text, geometric sans-serif headings, premium minimal aesthetic, no stock photos, pure diagram/framework visual, 1:1 aspect ratio.`,\n  voiceover_text: post.post_text\n} }];"
+      },
+      "id": "format-post",
+      "name": "Format Post Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1550, 100],
+      "notes": "Format post data for Gemini image gen and queue insertion"
+    },
+    {
+      "parameters": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.image_prompt }] }], generationConfig: { responseModalities: ['IMAGE', 'TEXT'], imageSizeOptions: { aspectRatio: '1:1' } } }) }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $env.GEMINI_API_KEY }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "gemini-image",
+      "name": "Gemini Image Gen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1800, 100],
+      "notes": "Generate framework illustration via Gemini 2.0. Swappable: replace URL and body for DALL-E or Flux."
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract base64 image from Gemini response and prepare for Supabase upload\nconst geminiResponse = $input.first().json;\nconst prev = $node['Format Post Data'].json;\n\nlet imageBase64 = null;\nlet imageMimeType = 'image/png';\n\nif (geminiResponse.candidates?.[0]?.content?.parts) {\n  for (const part of geminiResponse.candidates[0].content.parts) {\n    if (part.inlineData) {\n      imageBase64 = part.inlineData.data;\n      imageMimeType = part.inlineData.mimeType || 'image/png';\n      break;\n    }\n  }\n}\n\nreturn [{ json: { ...prev, imageBase64, imageMimeType, hasImage: !!imageBase64 } }];"
+      },
+      "id": "process-image",
+      "name": "Process Image",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2050, 100],
+      "notes": "Extract base64 image from Gemini response"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.elevenlabs.io/v1/text-to-speech/{{ $env.ELEVENLABS_DEFAULT_VOICE_ID || '21m00Tcm4TlvDq8ikWAM' }}",
+        "method": "POST",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.voiceover_text?.substring(0, 5000) || $json.post_text?.substring(0, 5000), model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "xi-api-key",
+              "value": "={{ $env.ELEVENLABS_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "audio/mpeg"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "elevenlabs-tts",
+      "name": "ElevenLabs Voiceover",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2300, 100],
+      "notes": "Generate voiceover via ElevenLabs TTS API. Swappable: replace with Google TTS or Amazon Polly."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "=INSERT INTO social_content_queue (meeting_record_id, platform, status, post_text, cta_text, cta_url, hashtags, framework_visual_type, topic_extracted, hormozi_framework, rag_context, image_prompt, voiceover_text) VALUES ('{{ $node['Process Image'].json.meeting_record_id }}', '{{ $node['Process Image'].json.platform }}', 'draft', '{{ $node['Process Image'].json.post_text?.replace(/'/g, \"''\") }}', {{ $node['Process Image'].json.cta_text ? \"'\" + $node['Process Image'].json.cta_text.replace(/'/g, \"''\") + \"'\" : 'NULL' }}, {{ $node['Process Image'].json.cta_url ? \"'\" + $node['Process Image'].json.cta_url + \"'\" : 'NULL' }}, ARRAY[{{ $node['Process Image'].json.hashtags?.map(h => \"'\" + h + \"'\").join(',') || '' }}], {{ $node['Process Image'].json.framework_visual_type ? \"'\" + $node['Process Image'].json.framework_visual_type + \"'\" : 'NULL' }}, '{{ JSON.stringify($node['Process Image'].json.topic_extracted || {}).replace(/'/g, \"''\") }}'::jsonb, '{{ JSON.stringify($node['Process Image'].json.hormozi_framework || {}).replace(/'/g, \"''\") }}'::jsonb, '{{ JSON.stringify($node['Process Image'].json.rag_context || {}).replace(/'/g, \"''\") }}'::jsonb, '{{ ($node['Process Image'].json.image_prompt || '').replace(/'/g, \"''\") }}', '{{ ($node['Process Image'].json.voiceover_text || '').replace(/'/g, \"''\") }}') RETURNING id"
+      },
+      "id": "save-to-queue",
+      "name": "Save to Queue",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [2550, 100],
+      "notes": "Insert draft into social_content_queue"
+    },
+    {
+      "parameters": {
+        "channel": "#social-content",
+        "text": "=:sparkles: *New Social Content Draft*\n\n*Topic:* {{ $node['Process Image'].json.topic_extracted?.topic || 'New post' }}\n*Framework:* {{ $node['Process Image'].json.framework_visual_type || 'N/A' }}\n*Platform:* LinkedIn\n\n_Preview:_ {{ $node['Process Image'].json.post_text?.substring(0, 200) }}...\n\n<https://amadutown.com/admin/social-content|Review in Admin →>",
+        "otherOptions": {}
+      },
+      "id": "slack-notify",
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.2,
+      "position": [2800, 100],
+      "notes": "Notify #social-content channel with draft summary and admin link"
+    }
+  ],
+  "connections": {
+    "Daily 9AM Weekdays": {
+      "main": [[{ "node": "Fetch Unprocessed Meetings", "type": "main", "index": 0 }]]
+    },
+    "Manual Trigger Webhook": {
+      "main": [[{ "node": "Fetch Unprocessed Meetings", "type": "main", "index": 0 }]]
+    },
+    "Fetch Unprocessed Meetings": {
+      "main": [[{ "node": "RAG Personal Context", "type": "main", "index": 0 }]]
+    },
+    "RAG Personal Context": {
+      "main": [[{ "node": "AI Extract Topics", "type": "main", "index": 0 }]]
+    },
+    "AI Extract Topics": {
+      "main": [[{ "node": "Parse Topics", "type": "main", "index": 0 }]]
+    },
+    "Parse Topics": {
+      "main": [[{ "node": "Hormozi Copywriting", "type": "main", "index": 0 }]]
+    },
+    "Hormozi Copywriting": {
+      "main": [[{ "node": "Format Post Data", "type": "main", "index": 0 }]]
+    },
+    "Format Post Data": {
+      "main": [[{ "node": "Gemini Image Gen", "type": "main", "index": 0 }]]
+    },
+    "Gemini Image Gen": {
+      "main": [[{ "node": "Process Image", "type": "main", "index": 0 }]]
+    },
+    "Process Image": {
+      "main": [[{ "node": "ElevenLabs Voiceover", "type": "main", "index": 0 }]]
+    },
+    "ElevenLabs Voiceover": {
+      "main": [[{ "node": "Save to Queue", "type": "main", "index": 0 }]]
+    },
+    "Save to Queue": {
+      "main": [[{ "node": "Slack Notification", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all",
+    "saveManualExecutions": true,
+    "timezone": "America/New_York"
+  }
+}

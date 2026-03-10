@@ -12,6 +12,7 @@ import {
   X,
 } from 'lucide-react';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
+import { formatMarginPercent, formatMarginDollar } from '@/lib/margin-display';
 
 interface ContinuityPlan {
   id: string;
@@ -19,6 +20,7 @@ interface ContinuityPlan {
   description: string | null;
   billing_interval: string;
   amount_per_interval: number;
+  cost_per_interval: number | null;
   features: string[] | null;
   is_active: boolean;
   created_at: string;
@@ -38,6 +40,7 @@ export default function ContinuityPlansAdminPage() {
     description: '',
     billing_interval: 'month',
     amount_per_interval: 0,
+    cost_per_interval: '' as number | '',
     features: '',
     is_active: true,
   });
@@ -67,6 +70,7 @@ export default function ContinuityPlansAdminPage() {
       description: '',
       billing_interval: 'month',
       amount_per_interval: 0,
+      cost_per_interval: '',
       features: '',
       is_active: true,
     });
@@ -80,6 +84,7 @@ export default function ContinuityPlansAdminPage() {
       description: plan.description || '',
       billing_interval: plan.billing_interval,
       amount_per_interval: plan.amount_per_interval,
+      cost_per_interval: plan.cost_per_interval ?? '',
       features: (plan.features || []).join('\n'),
       is_active: plan.is_active,
     });
@@ -93,13 +98,14 @@ export default function ContinuityPlansAdminPage() {
       description: form.description || null,
       billing_interval: form.billing_interval,
       amount_per_interval: Number(form.amount_per_interval),
+      cost_per_interval: form.cost_per_interval === '' ? null : Number(form.cost_per_interval),
       features: form.features.split('\n').map(f => f.trim()).filter(Boolean),
       is_active: form.is_active,
     };
 
     try {
       const url = editing
-        ? `/api/admin/continuity-plans?id=${editing}`
+        ? `/api/admin/continuity-plans/${editing}`
         : '/api/admin/continuity-plans';
       const method = editing ? 'PUT' : 'POST';
 
@@ -125,7 +131,7 @@ export default function ContinuityPlansAdminPage() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this continuity plan?')) return;
     try {
-      const res = await fetch(`/api/admin/continuity-plans?id=${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/continuity-plans/${id}`, { method: 'DELETE' });
       if (res.ok) fetchPlans();
     } catch (err) {
       console.error('Delete error:', err);
@@ -206,6 +212,18 @@ export default function ContinuityPlansAdminPage() {
                   className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white"
                   min={0}
                   step={1}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm text-gray-400">Cost per Interval ($)</label>
+                <input
+                  type="number"
+                  value={form.cost_per_interval}
+                  onChange={e => setForm({ ...form, cost_per_interval: e.target.value === '' ? '' : Number(e.target.value) })}
+                  className="w-full rounded-lg border border-gray-700 bg-gray-800 px-3 py-2 text-white"
+                  min={0}
+                  step={0.01}
+                  placeholder="Optional"
                 />
               </div>
               <div className="flex items-end gap-3">
@@ -291,10 +309,15 @@ export default function ContinuityPlansAdminPage() {
                   {plan.description && (
                     <p className="mt-1 text-sm text-gray-400">{plan.description}</p>
                   )}
-                  <div className="mt-2 flex items-center gap-4 text-sm">
+                  <div className="mt-2 flex flex-wrap items-center gap-4 text-sm">
                     <span className="font-semibold text-green-400">
                       {formatCurrency(plan.amount_per_interval)}/{plan.billing_interval}
                     </span>
+                    {plan.cost_per_interval != null && plan.amount_per_interval > 0 && (
+                      <span className="text-gray-400">
+                        Cost: {formatCurrency(plan.cost_per_interval)} · Margin: {formatMarginPercent(plan.amount_per_interval, plan.cost_per_interval)} ({formatMarginDollar(plan.amount_per_interval, plan.cost_per_interval)})
+                      </span>
+                    )}
                     {plan.features && plan.features.length > 0 && (
                       <span className="text-gray-500">{plan.features.length} features</span>
                     )}

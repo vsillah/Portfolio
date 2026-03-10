@@ -94,6 +94,7 @@ export async function GET(
         role_retail_price: typeof role?.retail_price === 'number' ? role.retail_price : null,
         offer_price: typeof role?.offer_price === 'number' ? role.offer_price : null,
         perceived_value: typeof role?.perceived_value === 'number' ? role.perceived_value : null,
+        unit_cost: typeof role?.unit_cost === 'number' ? role.unit_cost : null,
         bonus_name: role?.bonus_name != null ? String(role.bonus_name) : null,
         bonus_description: role?.bonus_description != null ? String(role.bonus_description) : null,
         qualifying_actions: role?.qualifying_actions != null && typeof role.qualifying_actions === 'object' ? (role.qualifying_actions as Record<string, unknown>) : null,
@@ -105,6 +106,10 @@ export async function GET(
     // Sort by display_order
     resolvedItems.sort((a, b) => a.display_order - b.display_order);
 
+    const blendedCostOverride = typeof bundle.blended_cost_override === 'number' ? bundle.blended_cost_override : null;
+    const totalCostFromItems = resolvedItems.reduce((sum, i) => sum + (i.unit_cost ?? 0), 0);
+    const effectiveTotalCost = blendedCostOverride ?? totalCostFromItems;
+
     return NextResponse.json({ 
       bundle: {
         id: bundle.id,
@@ -112,15 +117,23 @@ export async function GET(
         description: bundle.description,
         parent_bundle_id: bundle.parent_bundle_id,
         bundle_price: bundle.bundle_price,
+        blended_cost_override: blendedCostOverride,
         default_discount_percent: bundle.default_discount_percent,
       },
       items: resolvedItems,
-      totals: {
-        itemCount: resolvedItems.length,
-        totalRetailValue: resolvedItems.reduce((sum, i) => sum + (i.role_retail_price ?? i.price ?? 0), 0),
-        totalPerceivedValue: resolvedItems.reduce((sum, i) => sum + (i.perceived_value ?? i.role_retail_price ?? i.price ?? 0), 0),
-        overriddenCount: resolvedItems.filter(i => i.has_overrides).length,
-      }
+      totals: (() => {
+        const totalRetail = resolvedItems.reduce((sum, i) => sum + (i.role_retail_price ?? i.price ?? 0), 0);
+        const blendedMarginPercent = totalRetail > 0 ? Math.round(((totalRetail - effectiveTotalCost) / totalRetail) * 100) : null;
+        return {
+          itemCount: resolvedItems.length,
+          totalRetailValue: totalRetail,
+          totalPerceivedValue: resolvedItems.reduce((sum, i) => sum + (i.perceived_value ?? i.role_retail_price ?? i.price ?? 0), 0),
+          totalCost: totalCostFromItems,
+          effectiveTotalCost,
+          blendedMarginPercent,
+          overriddenCount: resolvedItems.filter(i => i.has_overrides).length,
+        };
+      })(),
     });
 
   } catch (error) {

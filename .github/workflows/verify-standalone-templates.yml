@@ -1,0 +1,119 @@
+name: Verify Standalone Templates
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'client-templates/**'
+      - 'scripts/verify-spinoff-standalone.sh'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'client-templates/**'
+      - 'scripts/verify-spinoff-standalone.sh'
+  workflow_dispatch:
+    inputs:
+      template:
+        description: 'Specific template to verify (leave empty for all)'
+        required: false
+        default: ''
+        type: choice
+        options:
+          - ''
+          - chatbot-template
+          - leadgen-template
+          - eval-template
+          - diagnostic-template
+
+jobs:
+  discover:
+    name: Discover templates
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build matrix
+        id: set-matrix
+        run: |
+          INPUT="${{ inputs.template }}"
+          if [ -n "$INPUT" ]; then
+            echo "matrix=[\"client-templates/$INPUT\"]" >> "$GITHUB_OUTPUT"
+          else
+            TEMPLATES=$(ls -d client-templates/*/package.json 2>/dev/null \
+              | xargs -I{} dirname {} \
+              | grep -v 'shared' \
+              | jq -R -s -c 'split("\n") | map(select(length > 0))')
+            echo "matrix=$TEMPLATES" >> "$GITHUB_OUTPUT"
+          fi
+
+  verify:
+    name: "Build: ${{ matrix.template }}"
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        template: ${{ fromJson(needs.discover.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Copy template to isolated directory
+        run: |
+          TMPDIR=$(mktemp -d)
+          echo "ISOLATED_DIR=$TMPDIR" >> "$GITHUB_ENV"
+          cp -R "${{ matrix.template }}"/* "$TMPDIR"/
+          cp "${{ matrix.template }}"/.env.example "$TMPDIR"/ 2>/dev/null || true
+
+      - name: Check required files
+        run: |
+          cd "$ISOLATED_DIR"
+          MISSING=0
+          for f in package.json tsconfig.json next.config.js tailwind.config.ts postcss.config.js app/layout.tsx app/page.tsx app/globals.css; do
+            if [ ! -f "$f" ]; then
+              echo "::error::Missing required file: $f"
+              MISSING=1
+            fi
+          done
+          if [ "$MISSING" -eq 1 ]; then
+            echo "::error::Template is not standalone-ready — missing required files."
+            exit 1
+          fi
+          echo "All required files present."
+
+      - name: Create placeholder .env.local
+        run: |
+          cat > "$ISOLATED_DIR/.env.local" <<'EOF'
+          NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY=placeholder-anon-key
+          SUPABASE_SERVICE_ROLE_KEY=placeholder-service-role-key
+          EOF
+
+      - name: Install dependencies
+        run: |
+          cd "$ISOLATED_DIR"
+          npm install --loglevel=error
+
+      - name: Build
+        run: |
+          cd "$ISOLATED_DIR"
+          npm run build
+
+      - name: Report result
+        if: always()
+        run: |
+          TEMPLATE_NAME=$(basename "${{ matrix.template }}")
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "### :white_check_mark: $TEMPLATE_NAME — standalone build PASSED" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "### :x: $TEMPLATE_NAME — standalone build FAILED" >> "$GITHUB_STEP_SUMMARY"
+          fi

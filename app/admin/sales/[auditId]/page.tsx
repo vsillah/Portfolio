@@ -897,6 +897,22 @@ export default function ClientWalkthroughPage() {
   });
   const grandSlamOffer = buildGrandSlamOffer(selectedAsProducts);
 
+  const { blendedMarginPercent, blendedMarginDollar } = (() => {
+    let revenue = 0;
+    let cost = 0;
+    for (const c of selectedContentDetails) {
+      const key = contentKey(c);
+      const override = priceOverrides[key];
+      revenue += override?.retail_price ?? c.role_retail_price ?? c.price ?? 0;
+      cost += c.unit_cost ?? 0;
+    }
+    const profit = revenue - cost;
+    return {
+      blendedMarginPercent: revenue > 0 ? (profit / revenue) * 100 : null,
+      blendedMarginDollar: revenue > 0 ? profit : null,
+    };
+  })();
+
   // Find objection handlers
   const objectionHandlers = objectionInput 
     ? findObjectionHandlers(objectionInput)
@@ -2081,6 +2097,8 @@ export default function ClientWalkthroughPage() {
           defaultClientEmail={contact?.email || ''}
           defaultClientCompany={contact?.company || ''}
           totalAmount={grandSlamOffer.offerPrice}
+          blendedMarginPercent={blendedMarginPercent}
+          blendedMarginDollar={blendedMarginDollar}
         />
       )}
     </div>

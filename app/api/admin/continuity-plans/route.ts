@@ -86,6 +86,8 @@ export async function POST(request: NextRequest) {
         trial_days: body.trial_days || 0,
         features: body.features || [],
         cancellation_policy: body.cancellation_policy || null,
+        cost_per_interval: body.cost_per_interval ?? null,
+        cost_currency: body.cost_currency ?? null,
         created_by: auth.user.id,
       })
       .select()

@@ -29,6 +29,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
       items: [
         { label: 'Lead Pipeline', href: '/admin/outreach' },
         { label: 'Value Evidence', href: '/admin/value-evidence' },
+        { label: 'Social Content', href: '/admin/social-content' },
       ],
     },
     {
@@ -59,6 +60,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
       items: [
         { label: 'Chat Eval', href: '/admin/chat-eval' },
         { label: 'Analytics', href: '/admin/analytics' },
+        { label: 'Cost & Revenue', href: '/admin/cost-revenue' },
         { label: 'E2E Testing', href: '/admin/testing' },
       ],
       expandableItemHref: '/admin/chat-eval',
