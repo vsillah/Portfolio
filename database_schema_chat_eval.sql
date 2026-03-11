@@ -301,8 +301,8 @@ GRANT ALL ON evaluation_queues TO authenticated;
 -- Views for Statistics
 -- ============================================================================
 
--- Session evaluation summary view
-CREATE OR REPLACE VIEW chat_eval_session_summary AS
+-- Session evaluation summary view (security_invoker so RLS applies)
+CREATE OR REPLACE VIEW chat_eval_session_summary WITH (security_invoker = on) AS
 SELECT 
   cs.session_id,
   cs.visitor_name,

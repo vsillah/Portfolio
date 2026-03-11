@@ -7,6 +7,9 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
 import { generateProposalPDF, ProposalData, ProposalValueAssessment } from '@/lib/proposal-pdf';
 import { getUpsellPathsForOffer, formatUpsellAsProposalAddon } from '@/lib/upsell-paths';
+import { generateAccessCode } from '@/lib/proposal-access-code';
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
@@ -241,13 +244,37 @@ export async function POST(request: NextRequest) {
       // Continue without PDF - not critical
     }
 
+    // Generate access code and update proposal (retry on collision)
+    let accessCode: string | null = null;
+    const maxRetries = 5;
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      const candidate = generateAccessCode();
+      const { error: codeError } = await supabaseAdmin
+        .from('proposals')
+        .update({ access_code: candidate })
+        .eq('id', proposal.id);
+
+      if (!codeError) {
+        accessCode = candidate;
+        proposal.access_code = candidate;
+        break;
+      }
+      if (codeError.code !== '23505') {
+        console.error('Error setting proposal access code:', codeError);
+        break;
+      }
+    }
+
     // Generate proposal link - use request origin for dev, env var for production
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
-    const proposalLink = `${baseUrl}/proposal/${proposal.id}`;
+    const proposalLink = accessCode
+      ? `${baseUrl}/proposal/${accessCode}`
+      : `${baseUrl}/proposal/${proposal.id}`;
 
     return NextResponse.json({
       proposal,
       proposalLink,
+      accessCode: accessCode ?? undefined,
     }, { status: 201 });
 
   } catch (error) {

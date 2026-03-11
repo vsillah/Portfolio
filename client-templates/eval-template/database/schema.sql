@@ -240,7 +240,7 @@ GRANT ALL ON llm_judge_evaluations TO authenticated;
 -- Session Summary View
 -- ============================================================================
 
-CREATE OR REPLACE VIEW chat_eval_session_summary AS
+CREATE OR REPLACE VIEW chat_eval_session_summary WITH (security_invoker = on) AS
 SELECT 
   cs.session_id,
   cs.visitor_name,

@@ -530,6 +530,7 @@ export interface OnboardingWebhookPayload {
   milestones_summary: string
   kickoff_date: string | null
   template_name: string
+  trigger_onboarding_call?: boolean
 }
 
 /**

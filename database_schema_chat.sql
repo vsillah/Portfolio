@@ -52,7 +52,7 @@ CREATE POLICY "Anyone can create chat sessions"
   ON chat_sessions
   FOR INSERT
   TO anon, authenticated
-  WITH CHECK (true);
+  WITH CHECK (auth.role() IN ('anon', 'authenticated'));
 
 -- Allow users to read their own sessions (by session_id stored in browser)
 CREATE POLICY "Anyone can read chat sessions"
@@ -66,15 +66,15 @@ CREATE POLICY "Anyone can update chat sessions"
   ON chat_sessions
   FOR UPDATE
   TO anon, authenticated
-  USING (true)
-  WITH CHECK (true);
+  USING (auth.role() IN ('anon', 'authenticated'))
+  WITH CHECK (auth.role() IN ('anon', 'authenticated'));
 
 -- Allow anyone to insert chat messages
 CREATE POLICY "Anyone can create chat messages"
   ON chat_messages
   FOR INSERT
   TO anon, authenticated
-  WITH CHECK (true);
+  WITH CHECK (auth.role() IN ('anon', 'authenticated'));
 
 -- Allow reading chat messages
 CREATE POLICY "Anyone can read chat messages"

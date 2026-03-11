@@ -21,9 +21,51 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const search = searchParams.get('search')
+    const pendingOnboarding = searchParams.get('pending_onboarding') === '1'
     const page = parseInt(searchParams.get('page') || '1', 10)
     const limit = parseInt(searchParams.get('limit') || '50', 10)
     const offset = (page - 1) * limit
+
+    // When pending_onboarding=1, return only projects awaiting onboarding approval
+    if (pendingOnboarding) {
+      const { data: pending, error: pendingError } = await supabaseAdmin
+        .from('client_projects')
+        .select(
+          `
+          id,
+          contact_submission_id,
+          project_name,
+          product_purchased,
+          client_name,
+          client_email,
+          slack_channel,
+          project_status,
+          current_phase,
+          project_start_date,
+          estimated_end_date,
+          created_at,
+          updated_at,
+          onboarding_email_sent_at
+        `
+        )
+        .eq('project_status', 'payment_received')
+        .is('onboarding_email_sent_at', null)
+        .order('created_at', { ascending: false })
+        .limit(50)
+
+      if (pendingError) {
+        console.error('Error fetching pending onboarding projects:', pendingError)
+        return NextResponse.json(
+          { error: 'Failed to fetch pending onboarding projects' },
+          { status: 500 }
+        )
+      }
+
+      return NextResponse.json({
+        projects: pending || [],
+        pending_onboarding: true,
+      })
+    }
 
     // Build query -- fetch client_projects without join first
     // (onboarding_plans table may not exist yet or FK may not be in schema cache)
@@ -36,6 +78,7 @@ export async function GET(request: NextRequest) {
         id,
         contact_submission_id,
         project_name,
+        product_purchased,
         client_name,
         client_email,
         slack_channel,
@@ -44,7 +87,8 @@ export async function GET(request: NextRequest) {
         project_start_date,
         estimated_end_date,
         created_at,
-        updated_at
+        updated_at,
+        onboarding_email_sent_at
       `,
         { count: 'exact' }
       )

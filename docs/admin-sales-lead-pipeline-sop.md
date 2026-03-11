@@ -389,8 +389,27 @@ When the client completes Stripe checkout, the **Stripe webhook** (`/api/payment
 1. Creates **client_projects** record (client_id, client_name, client_email, client_company, proposal_id, project_status, product_purchased, payment_amount, project_start_date, etc.).
 2. Builds proposal and project context and calls **createOnboardingPlanForProject** to match an onboarding template and generate an **onboarding_plan** (milestones, communication_plan, warranty, artifacts_handoff).
 3. Generates the **onboarding PDF** and uploads to Supabase Storage (`documents/onboarding-plans/[id].pdf`).
-4. Fires **fireOnboardingWebhook** (N8N onboarding webhook) with plan link, PDF URL, client info, and milestones summary so n8n can send the onboarding email to the client.
+4. **Does NOT send the onboarding email automatically.** The project is created with `onboarding_email_sent_at = NULL`, awaiting admin approval (see "Onboarding email approval" below).
 5. Optionally updates **client_projects.estimated_end_date** from the template’s estimated_duration_weeks.
+
+### Onboarding email approval (human-in-the-loop)
+
+After a client project is created, the admin must approve the onboarding email before it is sent:
+
+1. **Pending queue:** Admin → Client Projects shows a "Pending Onboarding Approval" section at the top listing projects with `project_status = 'payment_received'` and `onboarding_email_sent_at IS NULL`.
+2. **Review:** Admin reviews the project details, onboarding plan, and PDF.
+3. **Approve & Send:** Admin clicks "Approve & Send" which calls `POST /api/admin/client-projects/[id]/approve-onboarding`. This fires **fireOnboardingWebhook** (with `trigger_onboarding_call: true`) and sets `onboarding_email_sent_at = now()`.
+4. The n8n workflow sends the onboarding email and schedules the onboarding call.
+
+### Proposal access codes
+
+Proposals now use 6-character access codes instead of UUID-based links:
+
+1. **Code generation:** When a proposal is created via admin, a 6-character alphanumeric access code is auto-generated.
+2. **Shareable link:** The link format is `https://amadutown.com/proposal/{CODE}` (e.g. `/proposal/A3B7K2`).
+3. **Client access:** Client enters the code at `/proposal/access` or uses the direct link.
+4. **Sign & Accept:** Client must type their full name to sign, then proceeds to Stripe payment.
+5. **Admin can regenerate:** `POST /api/admin/proposals/[id]/generate-code` creates a new code (invalidates old).
 
 ### Client Projects dashboard
 
@@ -465,6 +484,7 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 | VAPI Webhook Handler | VAPI voice call events | Route voice transcripts to n8n, handle function calls | VAPI event payload (transcript, function-call, etc.) | AI response for VAPI to speak; chat_sessions + chat_messages updated |
 | Milestone progress update | Admin "Mark Complete" on project milestone | Send progress update to client via email/Slack | milestone_index, attachments, note, sender_name | Email or Slack message to client; progress_updates log |
 | Promote meeting tasks | WF-MCH (via HTTP Request) or admin manually | Promote action_items from meeting_records into meeting_action_tasks | meeting_record_id | meeting_action_tasks rows created; optionally synced to Slack |
+| Cost event logging | Stripe webhook, Printful, VAPI, LLM routes | Record usage-based costs for P&L | payment/order, call end, LLM usage | cost_events table; visible in Admin → Cost & Revenue |
 | WF-TSK (Task Slack Sync) | App (after promote or task status change) | Post/update task messages in Slack Kanban channels | task list with status | Slack messages in #meeting-actions-todo / done |
 | Client update draft (send) | Admin "Send" on draft | Send action-items update email via progress-update webhook | draft subject, body, client info | Email to client; client_update_drafts marked sent |
 | Upsell follow-up scheduling | All milestones complete on a client project | Auto-create follow-up tasks timed to next_problem_timing | client_project_id, proposal line_items, offer_upsell_paths | meeting_action_tasks rows with due dates and point-of-pain scripts |
@@ -562,8 +582,8 @@ Example embed in the SOP: `![Admin Dashboard](./images/admin-dashboard.png)`.
 ## 17. Quick reference
 
 - **Admin navigation:** Persistent left sidebar (categories: Pipeline, Sales, Post-sale, Quality & insights, Configuration) with direct links to all hub/list pages; Content Hub is expandable. Dashboard home (`/admin`) shows category-snapshot cards with feeds and links. Detail pages (e.g. `/admin/guarantees/[id]`) are reached from the parent in the sidebar; breadcrumbs show path. Nav tree: `lib/admin-nav.ts`.
-- **Admin routes:** `/admin` — Dashboard (category cards with feeds); `/admin/outreach` — Message Queue, All Leads, **Escalations** (chat/voice escalations, link to lead); `/admin/outreach/escalations/[id]` — Escalation detail (transcript, link/unlink lead); `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/guarantees` — Guarantee instances; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/sales/upsell-paths` — Upsell Paths (two-touch prescription); `/admin/analytics` — Analytics (with Sales Funnel link); `/admin/analytics/funnel` — **Sales Funnel Analytics** (conversion rates, pipeline value, deal flow, attention items, loss reasons); `/admin/chat-eval` — Chat Eval; `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts.
+- **Admin routes:** `/admin` — Dashboard (category cards with feeds); `/admin/outreach` — Message Queue, All Leads, **Escalations** (chat/voice escalations, link to lead); `/admin/outreach/escalations/[id]` — Escalation detail (transcript, link/unlink lead); `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/guarantees` — Guarantee instances; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/sales/upsell-paths` — Upsell Paths (two-touch prescription); `/admin/analytics` — Analytics (with Sales Funnel link); `/admin/analytics/funnel` — **Sales Funnel Analytics** (conversion rates, pipeline value, deal flow, attention items, loss reasons); `/admin/chat-eval` — Chat Eval; `/admin/cost-revenue` — **Cost & Revenue** (portfolio P&L, cost by source, profit:cost ratio); `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts.
 - **Client-facing:** `/resources` — Resources (AI Readiness Scorecard + templates/playbooks); `/tools/audit` — **AI & Automation Audit** (standalone form → diagnostic_audits); `/proposal/[id]` — View/accept/pay proposal; `/checkout` — Checkout; `/onboarding/[id]` — Onboarding plan.
 - **How audit/client input ties to sales:** [audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md) — map of audit sources, sales flow, and every place in the codebase that uses diagnostic/contact input.
-- **Key env var names (no secrets):** N8N_LEAD_WEBHOOK_URL, N8N_CLG002_WEBHOOK_URL, N8N_CLG003_WEBHOOK_URL, N8N_WRM001/002/003_WEBHOOK_URL, N8N_INGEST_SECRET, N8N_DIAGNOSTIC_WEBHOOK_URL, N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL, N8N_VEP001_WEBHOOK_URL, N8N_VEP002_WEBHOOK_URL, N8N_TASK_SLACK_SYNC_WEBHOOK_URL, N8N_PROGRESS_UPDATE_WEBHOOK_URL, N8N_FOLLOW_UP_SCHEDULER_WEBHOOK_URL, SLACK_CHAT_ESCALATION_WEBHOOK_URL (optional; Slack Incoming Webhook for chat escalation notifications), and onboarding webhook used by `fireOnboardingWebhook` in `lib/onboarding-templates`.
+- **Key env var names (no secrets):** N8N_LEAD_WEBHOOK_URL, N8N_CLG002_WEBHOOK_URL, N8N_CLG003_WEBHOOK_URL, N8N_WRM001/002/003_WEBHOOK_URL, N8N_INGEST_SECRET, N8N_DIAGNOSTIC_WEBHOOK_URL, N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL, N8N_VEP001_WEBHOOK_URL, N8N_VEP002_WEBHOOK_URL, N8N_TASK_SLACK_SYNC_WEBHOOK_URL, N8N_PROGRESS_UPDATE_WEBHOOK_URL, N8N_FOLLOW_UP_SCHEDULER_WEBHOOK_URL, SLACK_CHAT_ESCALATION_WEBHOOK_URL (optional; Slack Incoming Webhook for chat escalation notifications), VAPI_COST_PER_MINUTE (optional; default 0.05 for voice call cost tracking), and onboarding webhook used by `fireOnboardingWebhook` in `lib/onboarding-templates`.
 - **Troubleshooting:** See [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md) and [n8n-lead-workflow-activation-rca.md](./n8n-lead-workflow-activation-rca.md).

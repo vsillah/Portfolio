@@ -5,6 +5,11 @@
  */
 
 import { getLlmJudgePrompt, getChatbotPrompt, getVoiceAgentPrompt, getPromptConfig } from './system-prompts'
+import {
+  recordOpenAICost,
+  recordAnthropicCost,
+  type Usage,
+} from './cost-calculator'
 
 export interface ChatMessageForJudge {
   role: 'user' | 'assistant' | 'support'
@@ -342,7 +347,10 @@ async function evaluateWithClaude(
     
     const data = await response.json()
     const content = data.content?.[0]?.text || ''
-    
+    const usage = data.usage as Usage | undefined
+    if (usage) {
+      recordAnthropicCost(usage, config.model, undefined, { operation: 'chat_eval' }).catch(() => {})
+    }
     return parseJudgeResponse(content)
   } catch (error) {
     console.error('Claude evaluation error:', error)
@@ -394,7 +402,10 @@ async function evaluateWithOpenAI(
     
     const data = await response.json()
     const content = data.choices?.[0]?.message?.content || ''
-    
+    const usage = data.usage as Usage | undefined
+    if (usage) {
+      recordOpenAICost(usage, config.model, undefined, { operation: 'chat_eval' }).catch(() => {})
+    }
     return parseJudgeResponse(content)
   } catch (error) {
     console.error('OpenAI evaluation error:', error)
@@ -616,6 +627,10 @@ async function generateAxialCodesWithClaude(
   }
   
   const data = await response.json()
+  const usage = data.usage as Usage | undefined
+  if (usage) {
+    recordAnthropicCost(usage, config.model, undefined, { operation: 'axial_codes' }).catch(() => {})
+  }
   return data.content?.[0]?.text || ''
 }
 
@@ -658,6 +673,10 @@ async function generateAxialCodesWithOpenAI(
   }
   
   const data = await response.json()
+  const usage = data.usage as Usage | undefined
+  if (usage) {
+    recordOpenAICost(usage, config.model, undefined, { operation: 'axial_codes' }).catch(() => {})
+  }
   return data.choices?.[0]?.message?.content || ''
 }
 
@@ -960,6 +979,10 @@ async function diagnoseErrorWithClaude(
   }
   
   const data = await response.json()
+  const usage = data.usage as Usage | undefined
+  if (usage) {
+    recordAnthropicCost(usage, config.model, undefined, { operation: 'diagnose' }).catch(() => {})
+  }
   return data.content?.[0]?.text || ''
 }
 
@@ -1002,6 +1025,10 @@ async function diagnoseErrorWithOpenAI(
   }
   
   const data = await response.json()
+  const usage = data.usage as Usage | undefined
+  if (usage) {
+    recordOpenAICost(usage, config.model, undefined, { operation: 'diagnose' }).catch(() => {})
+  }
   return data.choices?.[0]?.message?.content || ''
 }
 

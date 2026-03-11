@@ -2,11 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import {
   createOnboardingPlanForProject,
-  buildMilestonesSummary,
-  fireOnboardingWebhook,
   type ProposalContext,
   type ClientProjectContext,
-  type Milestone,
 } from '@/lib/onboarding-templates'
 import { generateOnboardingPlanPDF, type OnboardingPlanPDFData } from '@/lib/onboarding-pdf'
 
@@ -267,28 +264,8 @@ export async function POST(request: NextRequest) {
         // Don't fail the whole request for a PDF error
       }
 
-      // 9. Fire n8n webhook for email delivery
-      try {
-        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : 'http://localhost:3000'
-
-        await fireOnboardingWebhook({
-          onboarding_plan_id: plan.id,
-          onboarding_plan_url: `${baseUrl}/onboarding/${plan.id}`,
-          pdf_url: pdfUrl || '',
-          client_name: project.client_name,
-          client_email: project.client_email,
-          client_company: project.client_company || null,
-          project_name: proposal.bundle_name,
-          milestones_summary: buildMilestonesSummary(plan.milestones as Milestone[]),
-          kickoff_date: project.project_start_date || null,
-          template_name: planResult.templateName,
-        })
-      } catch (webhookError) {
-        console.error('Error firing n8n webhook:', webhookError)
-        // Don't fail for webhook errors
-      }
+      // 9. Onboarding email is NOT sent automatically.
+      // Admin must approve via POST /api/admin/client-projects/[id]/approve-onboarding
     }
 
     // 10. Update estimated_end_date on client_project if we have template duration

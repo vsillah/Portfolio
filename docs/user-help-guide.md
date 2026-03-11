@@ -262,7 +262,10 @@ If you completed a purchase without an account, you can access your specific ord
 
 ## Proposals
 
-If you have been sent a proposal, you can view it at its unique URL (`/proposal/[id]`).
+You will receive a 6-character access code from your contact. You can access your proposal in two ways:
+
+1. **Direct link**: Use the link shared with you (e.g. `https://amadutown.com/proposal/A3B7K2`).
+2. **Access code page**: Visit `/proposal/access` and enter your 6-character code.
 
 ### What's in a Proposal
 
@@ -274,8 +277,8 @@ If you have been sent a proposal, you can view it at its unique URL (`/proposal/
 
 ### Proposal Actions
 
-- **Accept Proposal**: Click the accept button to agree to the terms. This will create a Stripe checkout session.
-- **Proceed to Payment**: After accepting, complete payment through Stripe.
+- **Sign & Accept**: Type your full name to sign the proposal, then proceed to payment. Signing confirms your agreement to the terms.
+- **Proceed to Payment**: After signing, complete payment through Stripe.
 - **Download PDF**: Download a PDF version of the proposal for your records.
 - **View Methodology**: Expand the methodology section to understand the value assessment approach.
 
@@ -284,6 +287,7 @@ If you have been sent a proposal, you can view it at its unique URL (`/proposal/
 | Status | Meaning |
 |--------|---------|
 | Pending | Awaiting your review |
+| Signed | You signed; proceeding to payment |
 | Accepted | You accepted; payment may still be pending |
 | Paid | Payment completed successfully |
 | Expired | The proposal is no longer valid |
@@ -420,9 +424,9 @@ Open the user menu and click **Sign Out**. You will be redirected to the home pa
 
 ### How do I accept a proposal?
 
-- Open the proposal link you received.
+- Open the proposal link you received, or enter your 6-character access code at `/proposal/access`.
 - Review the value assessment, line items, and terms.
-- Click **Accept Proposal** and then complete payment through Stripe.
+- Click **Sign & Accept**, type your full name, and then complete payment through Stripe.
 
 ### How do I book an onboarding call?
 

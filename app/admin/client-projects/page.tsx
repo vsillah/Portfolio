@@ -18,6 +18,8 @@ import {
   Loader2,
   DollarSign,
   Calendar,
+  Send,
+  CheckCircle,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
@@ -35,6 +37,7 @@ interface ProjectSummary {
   project_status: string
   current_phase: number
   product_purchased: string | null
+  project_name: string | null
   project_start_date: string | null
   estimated_end_date: string | null
   payment_amount: number | null
@@ -42,6 +45,7 @@ interface ProjectSummary {
   milestone_total: number
   milestone_completed: number
   milestone_in_progress: number
+  onboarding_email_sent_at?: string | null
 }
 
 interface Stats {
@@ -126,9 +130,20 @@ export default function ClientProjectsPage() {
   )
 }
 
+interface PendingOnboardingProject {
+  id: string
+  client_name: string
+  client_email: string
+  client_company: string | null
+  project_name: string | null
+  product_purchased: string | null
+  created_at: string
+}
+
 function ClientProjectsContent() {
   const { user } = useAuth()
   const [projects, setProjects] = useState<ProjectSummary[]>([])
+  const [pendingOnboarding, setPendingOnboarding] = useState<PendingOnboardingProject[]>([])
   const [stats, setStats] = useState<Stats>({
     active: 0,
     testing: 0,
@@ -140,6 +155,26 @@ function ClientProjectsContent() {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [approvingId, setApprovingId] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
+
+  const fetchPendingOnboarding = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+
+      const response = await fetch(
+        '/api/admin/client-projects?pending_onboarding=1',
+        { headers: { Authorization: `Bearer ${session.access_token}` } }
+      )
+      if (response.ok) {
+        const data = await response.json()
+        setPendingOnboarding(data.projects || [])
+      }
+    } catch {
+      // Non-critical — continue
+    }
+  }, [])
 
   const fetchProjects = useCallback(async () => {
     if (!user) return
@@ -174,6 +209,41 @@ function ClientProjectsContent() {
     fetchProjects()
   }, [fetchProjects])
 
+  useEffect(() => {
+    if (user) fetchPendingOnboarding()
+  }, [user, fetchPendingOnboarding])
+
+  const handleApproveOnboarding = async (projectId: string) => {
+    const session = await getCurrentSession()
+    if (!session?.access_token) return
+
+    setApprovingId(projectId)
+    setSuccessMessage(null)
+    try {
+      const res = await fetch(
+        `/api/admin/client-projects/${projectId}/approve-onboarding`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }
+      )
+      if (res.ok) {
+        setPendingOnboarding((prev) => prev.filter((p) => p.id !== projectId))
+        setSuccessMessage('Onboarding email sent successfully.')
+        setTimeout(() => setSuccessMessage(null), 4000)
+      } else {
+        const err = await res.json()
+        setSuccessMessage(err.error || 'Failed to send onboarding email.')
+        setTimeout(() => setSuccessMessage(null), 5000)
+      }
+    } catch {
+      setSuccessMessage('Failed to send onboarding email.')
+      setTimeout(() => setSuccessMessage(null), 5000)
+    } finally {
+      setApprovingId(null)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
@@ -202,6 +272,82 @@ function ClientProjectsContent() {
             Create Project
           </motion.button>
         </div>
+
+        {/* Success message */}
+        {successMessage && (
+          <div
+            className={`mb-6 p-4 rounded-xl border flex items-center gap-2 ${
+              successMessage.includes('Failed')
+                ? 'bg-red-500/10 border-red-500/50 text-red-400'
+                : 'bg-emerald-500/10 border-emerald-500/50 text-emerald-400'
+            }`}
+          >
+            {successMessage.includes('Failed') ? (
+              <X size={18} />
+            ) : (
+              <CheckCircle size={18} />
+            )}
+            <span>{successMessage}</span>
+          </div>
+        )}
+
+        {/* Pending Onboarding Approval */}
+        {pendingOnboarding.length > 0 && (
+          <div className="mb-8 p-6 bg-gray-900 border border-amber-500/30 rounded-xl">
+            <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
+              Pending Onboarding Approval
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/50">
+                {pendingOnboarding.length}
+              </span>
+            </h2>
+            <p className="text-sm text-gray-400 mb-4">
+              Projects with payment received that are ready for onboarding email.
+            </p>
+            <div className="space-y-3">
+              {pendingOnboarding.map((p) => (
+                <div
+                  key={p.id}
+                  className="p-4 bg-gray-800 border border-gray-700 rounded-xl flex items-center justify-between"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-white truncate">
+                      {p.client_name}
+                    </div>
+                    <div className="text-sm text-gray-400 truncate">
+                      {p.project_name || p.product_purchased || 'Project'}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {new Date(p.created_at).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </div>
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => handleApproveOnboarding(p.id)}
+                    disabled={approvingId !== null}
+                    className="px-4 py-2 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white text-sm font-medium flex items-center gap-2 shrink-0"
+                  >
+                    {approvingId === p.id ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={14} />
+                        Approve & Send
+                      </>
+                    )}
+                  </motion.button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
@@ -286,6 +432,7 @@ function ClientProjectsContent() {
               onSuccess={() => {
                 setShowCreateModal(false)
                 fetchProjects()
+                fetchPendingOnboarding()
               }}
             />
           )}

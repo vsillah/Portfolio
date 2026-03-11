@@ -258,6 +258,7 @@ export default function ClientWalkthroughPage() {
     id: string;
     status: string;
     proposalLink: string;
+    accessCode?: string;
   } | null>(null);
   
   // Content group collapse state
@@ -1847,6 +1848,35 @@ export default function ClientWalkthroughPage() {
                                 </span>
                               </div>
                             </div>
+                            {currentProposal.accessCode && (
+                              <div className="mb-4 p-4 bg-gray-900/80 rounded-lg border border-gray-700">
+                                <div className="text-xs font-medium text-gray-400 mb-2">Access code (share with client)</div>
+                                <div className="text-2xl font-mono font-bold text-white tracking-widest mb-3">
+                                  {currentProposal.accessCode}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(currentProposal.accessCode!);
+                                    }}
+                                    className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                                  >
+                                    <Copy className="w-4 h-4" />
+                                    Copy Code
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(currentProposal.proposalLink);
+                                    }}
+                                    className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors"
+                                  >
+                                    <Copy className="w-4 h-4" />
+                                    Copy Link
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                            <div className="text-xs text-gray-500 mb-2">Shareable link</div>
                             <div className="flex items-center gap-2">
                               <input
                                 type="text"
@@ -2087,6 +2117,7 @@ export default function ClientWalkthroughPage() {
                 id: result.proposal.id,
                 status: result.proposal.status,
                 proposalLink: result.proposalLink,
+                accessCode: result.accessCode,
               });
               setShowProposalModal(false);
             } else {

@@ -9,8 +9,12 @@ import {
 } from '@/lib/vapi'
 import { fetchConversationContext } from '@/lib/chat-context'
 import { createChatEscalation, formatTranscriptFromHistory } from '@/lib/chat-escalation'
+import { recordCostEvent } from '@/lib/cost-calculator'
 
 export const dynamic = 'force-dynamic'
+
+/** VAPI cost per minute (USD); set VAPI_COST_PER_MINUTE in env to override */
+const VAPI_COST_PER_MINUTE = parseFloat(process.env.VAPI_COST_PER_MINUTE || '0.05')
 
 /**
  * VAPI Webhook Handler
@@ -392,6 +396,20 @@ async function handleEndOfCallReport(message: VapiWebhookPayload['message']) {
     let durationSeconds: number | undefined
     if (startedAt) {
       durationSeconds = Math.round((new Date(endedAt).getTime() - new Date(startedAt).getTime()) / 1000)
+    }
+
+    // Log VAPI call cost for P&L tracking (duration × $/min)
+    if (durationSeconds != null && durationSeconds > 0 && VAPI_COST_PER_MINUTE > 0) {
+      const durationMinutes = durationSeconds / 60
+      const cost = durationMinutes * VAPI_COST_PER_MINUTE
+      recordCostEvent({
+        occurred_at: endedAt,
+        source: 'vapi_call',
+        amount: Math.round(cost * 10000) / 10000,
+        reference_type: 'vapi_call',
+        reference_id: call.id,
+        metadata: { durationSeconds, sessionId },
+      }).catch(() => {})
     }
 
     // Update session with comprehensive call summary for evaluation

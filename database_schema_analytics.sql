@@ -47,7 +47,7 @@ ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Anyone can insert analytics events" ON analytics_events;
 CREATE POLICY "Anyone can insert analytics events"
   ON analytics_events FOR INSERT
-  WITH CHECK (true);
+  WITH CHECK (auth.role() IN ('anon', 'authenticated'));
 
 DROP POLICY IF EXISTS "Admins can view all analytics" ON analytics_events;
 CREATE POLICY "Admins can view all analytics"

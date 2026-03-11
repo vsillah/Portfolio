@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { recordOpenAICost } from '@/lib/cost-calculator'
 
 export const dynamic = 'force-dynamic'
 
@@ -96,6 +97,10 @@ Respond in JSON format:
 
     const aiResult = await response.json()
     const content = aiResult.choices?.[0]?.message?.content
+    const usage = aiResult.usage
+    if (usage) {
+      recordOpenAICost(usage, 'gpt-4o-mini', { type: 'diagnostic_audit', id: audit_id }, { operation: 'generate_insights' }).catch(() => {})
+    }
     if (!content) {
       return NextResponse.json({ error: 'No AI response' }, { status: 500 })
     }

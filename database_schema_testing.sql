@@ -235,8 +235,8 @@ CREATE INDEX IF NOT EXISTS idx_remediation_history_error ON test_error_remediati
 -- Views
 -- ============================================================================
 
--- View for easy test data cleanup
-CREATE OR REPLACE VIEW test_data_for_cleanup AS
+-- View for easy test data cleanup (security_invoker so RLS applies)
+CREATE OR REPLACE VIEW test_data_for_cleanup WITH (security_invoker = on) AS
 SELECT 
   tcs.test_run_id,
   tr.run_id,
@@ -250,8 +250,8 @@ FROM test_client_sessions tcs
 JOIN test_runs tr ON tcs.test_run_id = tr.id
 WHERE tr.status IN ('completed', 'failed', 'cancelled');
 
--- View for test run summary statistics
-CREATE OR REPLACE VIEW test_run_summary AS
+-- View for test run summary statistics (security_invoker so RLS applies)
+CREATE OR REPLACE VIEW test_run_summary WITH (security_invoker = on) AS
 SELECT 
   tr.id,
   tr.run_id,
@@ -272,8 +272,8 @@ SELECT
 FROM test_runs tr
 ORDER BY tr.started_at DESC;
 
--- View for error analysis
-CREATE OR REPLACE VIEW test_error_analysis AS
+-- View for error analysis (security_invoker so RLS applies)
+CREATE OR REPLACE VIEW test_error_analysis WITH (security_invoker = on) AS
 SELECT 
   te.error_type,
   te.scenario,
@@ -286,8 +286,8 @@ FROM test_errors te
 GROUP BY te.error_type, te.scenario, te.step_type
 ORDER BY occurrence_count DESC;
 
--- View for pending remediations
-CREATE OR REPLACE VIEW pending_remediations AS
+-- View for pending remediations (security_invoker so RLS applies)
+CREATE OR REPLACE VIEW pending_remediations WITH (security_invoker = on) AS
 SELECT 
   trr.id,
   trr.priority,

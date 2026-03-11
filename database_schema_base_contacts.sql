@@ -43,7 +43,7 @@ CREATE POLICY "Anyone can create contact submissions"
   ON contact_submissions
   FOR INSERT
   TO anon, authenticated
-  WITH CHECK (true);
+  WITH CHECK (auth.role() IN ('anon', 'authenticated'));
 
 -- Only authenticated users can read (admins)
 CREATE POLICY "Authenticated users can read contact submissions"

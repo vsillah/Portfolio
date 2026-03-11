@@ -6,8 +6,38 @@ import Stripe from 'stripe'
 import type { GuaranteeCondition } from '@/lib/guarantees'
 import { materializeCriteria, calculateDeadline } from '@/lib/campaigns'
 import type { PersonalizationContext } from '@/lib/campaigns'
+import { recordCostEvent } from '@/lib/cost-calculator'
+import { parsePrintfulPrice } from '@/lib/printful'
 
 export const dynamic = 'force-dynamic'
+
+/**
+ * Log Stripe processing fee to cost_events for P&L tracking.
+ * Fetches balance_transaction from the charge; fee is in cents.
+ */
+async function logStripeFee(paymentIntentId: string, orderId: number): Promise<void> {
+  if (!stripe) return
+  try {
+    const pi = await stripe.paymentIntents.retrieve(paymentIntentId)
+    const chargeId = pi.latest_charge
+    if (!chargeId || typeof chargeId !== 'string') return
+    const charge = await stripe.charges.retrieve(chargeId, { expand: ['balance_transaction'] })
+    const bt = charge.balance_transaction as Stripe.BalanceTransaction | undefined
+    const feeCents = bt?.fee ?? 0
+    if (feeCents <= 0) return
+    const feeDollars = feeCents / 100
+    await recordCostEvent({
+      occurred_at: new Date().toISOString(),
+      source: 'stripe_fee',
+      amount: feeDollars,
+      reference_type: 'order',
+      reference_id: String(orderId),
+      metadata: { payment_intent: paymentIntentId, charge: chargeId },
+    })
+  } catch (err) {
+    console.error('[Stripe] Failed to log fee for payment', paymentIntentId, err)
+  }
+}
 
 // Type for order item from query
 type OrderItemRow = {
@@ -387,7 +417,13 @@ export async function POST(request: NextRequest) {
                   .eq('id', proposal.sales_session_id);
               }
               
-              console.log(`Proposal ${proposalId} marked as paid, order ${order.id} created`);
+              console.log(`Proposal ${proposalId} marked as paid, order ${order.id} created`)
+
+              // Log Stripe fee for cost tracking
+              const paymentIntentId = session.payment_intent as string
+              if (paymentIntentId) {
+                logStripeFee(paymentIntentId, order.id).catch(() => {})
+              }
               
               // Activate guarantees for purchased items
               await activateGuaranteesForOrder(
@@ -454,6 +490,9 @@ export async function POST(request: NextRequest) {
             .eq('id', parseInt(orderId))
             .select()
             .single()
+
+          // Log Stripe fee for cost tracking
+          logStripeFee(paymentIntent.id, parseInt(orderId)).catch(() => {})
 
           // Activate guarantees for purchased items
           if (order) {
@@ -557,6 +596,19 @@ export async function POST(request: NextRequest) {
                       fulfillment_status: 'processing',
                     })
                     .eq('id', order.id)
+
+                  // Log Printful fulfillment cost for P&L tracking
+                  const fulfillmentCost = printfulOrder.costs?.total != null ? parsePrintfulPrice(printfulOrder.costs.total) : 0
+                  if (fulfillmentCost > 0) {
+                    recordCostEvent({
+                      occurred_at: new Date().toISOString(),
+                      source: 'printful_fulfillment',
+                      amount: fulfillmentCost,
+                      reference_type: 'order',
+                      reference_id: String(order.id),
+                      metadata: { printful_order_id: printfulOrder.id },
+                    }).catch(() => {})
+                  }
 
                   console.log(`[Printful] Order ${order.id} automatically submitted to Printful: ${printfulOrder.id}`)
                 }
