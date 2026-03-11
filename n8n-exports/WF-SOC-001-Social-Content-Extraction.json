@@ -35,15 +35,14 @@
     },
     {
       "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT mr.* FROM meeting_records mr WHERE mr.id NOT IN (SELECT meeting_record_id FROM social_content_queue WHERE meeting_record_id IS NOT NULL) AND mr.created_at > NOW() - INTERVAL '7 days' ORDER BY mr.created_at DESC LIMIT 10"
+        "jsCode": "const SUPABASE_URL = 'https://byoriebhtbysanjhimlu.supabase.co';\nconst SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5b3JpZWJodGJ5c2FuamhpbWx1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcyNTY5NSwiZXhwIjoyMDgzMzAxNjk1fQ.0hMfqk1z6zO58xNlTLVdK7_JmLD6TrYiEUYJIuQAXSY';\nconst headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };\nconst queueResp = await fetch(`${SUPABASE_URL}/rest/v1/social_content_queue?select=meeting_record_id&meeting_record_id=not.is.null`, { headers });\nconst queued = await queueResp.json();\nconst queuedIds = queued.map(r => r.meeting_record_id);\nconst sevenDaysAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString();\nconst meetingsResp = await fetch(`${SUPABASE_URL}/rest/v1/meeting_records?select=*&created_at=gte.${sevenDaysAgo}&order=created_at.desc&limit=10`, { headers });\nconst meetings = await meetingsResp.json();\nconst unprocessed = meetings.filter(m => !queuedIds.includes(m.id));\nif (unprocessed.length === 0) return [{ json: { _empty: true, message: 'No unprocessed meetings found' } }];\nreturn unprocessed.map(m => ({ json: m }));"
       },
-      "id": "fetch-meetings",
+      "id": "fetch-meetings-code",
       "name": "Fetch Unprocessed Meetings",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [300, 100],
-      "notes": "Fetches meetings not yet processed for social content"
+      "notes": "Fetches meetings not yet processed for social content via Supabase REST API"
     },
     {
       "parameters": {
@@ -157,7 +156,7 @@
           "parameters": [
             {
               "name": "key",
-              "value": "={{ $env.GEMINI_API_KEY }}"
+              "value": "AIzaSyCIs_Tm3ExJgTC3evdcRXXu44G3HUPJyjM"
             }
           ]
         },
@@ -185,7 +184,7 @@
     },
     {
       "parameters": {
-        "url": "=https://api.elevenlabs.io/v1/text-to-speech/{{ $env.ELEVENLABS_DEFAULT_VOICE_ID || '21m00Tcm4TlvDq8ikWAM' }}",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/NMPIvMY9syNQoLVKqig8",
         "method": "POST",
         "sendBody": true,
         "specifyBody": "json",
@@ -195,7 +194,7 @@
           "parameters": [
             {
               "name": "xi-api-key",
-              "value": "={{ $env.ELEVENLABS_API_KEY }}"
+              "value": "5b888b6d046e0545ecaf4af78c1b2b8fc6a815eedfcd3d4f923540f5e19665d7"
             },
             {
               "name": "Content-Type",
@@ -225,15 +224,14 @@
     },
     {
       "parameters": {
-        "operation": "executeQuery",
-        "query": "=INSERT INTO social_content_queue (meeting_record_id, platform, status, post_text, cta_text, cta_url, hashtags, framework_visual_type, topic_extracted, hormozi_framework, rag_context, image_prompt, voiceover_text) VALUES ('{{ $node['Process Image'].json.meeting_record_id }}', '{{ $node['Process Image'].json.platform }}', 'draft', '{{ $node['Process Image'].json.post_text?.replace(/'/g, \"''\") }}', {{ $node['Process Image'].json.cta_text ? \"'\" + $node['Process Image'].json.cta_text.replace(/'/g, \"''\") + \"'\" : 'NULL' }}, {{ $node['Process Image'].json.cta_url ? \"'\" + $node['Process Image'].json.cta_url + \"'\" : 'NULL' }}, ARRAY[{{ $node['Process Image'].json.hashtags?.map(h => \"'\" + h + \"'\").join(',') || '' }}], {{ $node['Process Image'].json.framework_visual_type ? \"'\" + $node['Process Image'].json.framework_visual_type + \"'\" : 'NULL' }}, '{{ JSON.stringify($node['Process Image'].json.topic_extracted || {}).replace(/'/g, \"''\") }}'::jsonb, '{{ JSON.stringify($node['Process Image'].json.hormozi_framework || {}).replace(/'/g, \"''\") }}'::jsonb, '{{ JSON.stringify($node['Process Image'].json.rag_context || {}).replace(/'/g, \"''\") }}'::jsonb, '{{ ($node['Process Image'].json.image_prompt || '').replace(/'/g, \"''\") }}', '{{ ($node['Process Image'].json.voiceover_text || '').replace(/'/g, \"''\") }}') RETURNING id"
+        "jsCode": "const SUPABASE_URL = 'https://byoriebhtbysanjhimlu.supabase.co';\nconst SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5b3JpZWJodGJ5c2FuamhpbWx1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcyNTY5NSwiZXhwIjoyMDgzMzAxNjk1fQ.0hMfqk1z6zO58xNlTLVdK7_JmLD6TrYiEUYJIuQAXSY';\nconst data = $node['Process Image'].json;\nconst row = {\n  meeting_record_id: data.meeting_record_id,\n  platform: data.platform || 'linkedin',\n  status: 'draft',\n  post_text: data.post_text,\n  cta_text: data.cta_text || null,\n  cta_url: data.cta_url || 'https://amadutown.com',\n  hashtags: data.hashtags || [],\n  framework_visual_type: data.framework_visual_type || null,\n  topic_extracted: data.topic_extracted || {},\n  hormozi_framework: data.hormozi_framework || {},\n  rag_context: data.rag_context || {},\n  image_prompt: data.image_prompt || '',\n  voiceover_text: data.voiceover_text || ''\n};\nconst resp = await fetch(`${SUPABASE_URL}/rest/v1/social_content_queue`, {\n  method: 'POST',\n  headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },\n  body: JSON.stringify(row)\n});\nconst result = await resp.json();\nreturn [{ json: Array.isArray(result) ? result[0] : result }];"
       },
-      "id": "save-to-queue",
+      "id": "save-to-queue-code",
       "name": "Save to Queue",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [2550, 100],
-      "notes": "Insert draft into social_content_queue"
+      "notes": "Insert draft into social_content_queue via Supabase REST API"
     },
     {
       "parameters": {

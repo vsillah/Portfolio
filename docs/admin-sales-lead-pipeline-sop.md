@@ -1,25 +1,34 @@
-# Admin/Sales Lead Pipeline SOP
+# Admin / Sales Lead Pipeline SOP
 
-## 1. Audience and purpose
+Welcome! This is the **single source of truth** for admin and sales associates at Amadutown. It covers every operator-facing procedure — from triggering a scrape to closing a deal and delivering post-sale. Use the table of contents below to jump to any section.
 
-This document is the **single source of truth** for new admin and sales associates at Amadutown. It explains:
-
-- What happens when you trigger scraping, add a lead, approve or send a message, or generate a proposal
-- What data you enter, where it is stored, and how it flows into workflows
-- Which n8n (or app) workflows run, what triggers them, and what they produce
-- How offer bundles and line items are built and used in the sales flow
-- How sales scripts are used in the walkthrough and how dynamic steps are generated
-- How proposals are created and what the client receives (link, PDF, payment)
-- How to research pricing by company, industry, and benchmarks
-- Inbound lead generation (contact form, chat, diagnostic, voice)
-- The full post-sale lifecycle (payment → client project → onboarding → milestones)
-- Voice channel (VAPI) and other admin tools
-
-**Relationship to other docs:** The technical integration reference is [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md). This SOP focuses on **operator-facing procedures** and **system behavior**; use the warm-lead doc for API details, env vars, and troubleshooting.
+> **Related docs:** Technical integration details live in [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md). For audit-to-sales data mapping, see [audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md).
 
 ---
 
-## 2. End-to-end process diagram
+## Table of Contents
+
+1. [End-to-End Process Diagram](#1-end-to-end-process-diagram)
+2. [Data You Input and Where It Goes](#2-data-you-input-and-where-it-goes)
+3. [Behind the Scenes: Lead Pipeline](#3-behind-the-scenes-lead-pipeline)
+4. [Inbound Lead Generation Workflows](#4-inbound-lead-generation-workflows)
+5. [Behind the Scenes: Sales and Proposals](#5-behind-the-scenes-sales-and-proposals)
+6. [Configuring Sales Assets](#6-configuring-sales-assets)
+7. [Researching Pricing Models](#7-researching-pricing-models)
+8. [Sales Scripts and Dynamic Steps](#8-sales-scripts-and-dynamic-steps)
+9. [Post-Sale: Payment to Delivery](#9-post-sale-payment-to-delivery)
+10. [Follow-Up Sequences](#10-follow-up-sequences)
+11. [Workflow Reference Table](#11-workflow-reference-table)
+12. [Human-in-the-Loop Summary](#12-human-in-the-loop-summary)
+13. [Voice Channel (VAPI Integration)](#13-voice-channel-vapi-integration)
+14. [Other Admin Tools](#14-other-admin-tools)
+15. [Social Content Pipeline](#15-social-content-pipeline)
+16. [Real App Screenshots](#16-real-app-screenshots)
+17. [Quick Reference](#17-quick-reference)
+
+---
+
+## 1. End-to-End Process Diagram
 
 The diagram below covers lead entry, inbound leads, enrichment, outreach, human review, send, sales and proposal path, and **post-sale lifecycle** (payment → client project → onboarding → progress updates). It also includes the **voice channel** (VAPI) and where **sales assets** (products, bundles, scripts) are configured.
 
@@ -172,9 +181,11 @@ flowchart TB
 - **Upsell path engine:** Admin configures decoy-to-premium upgrade pairings with two-touch prescription scripts (point-of-sale and point-of-pain). These feed into proposals (optional add-ons), onboarding plans (upgrade milestone), AI recommendations, progress updates (signal matching), pricing page (comparison context), and follow-up scheduling.
 - **Post-sale:** Stripe webhook creates order, marks proposal paid, and calls `/api/client-projects`; app creates client project, onboarding plan, PDF, and fires onboarding webhook; admin tracks milestones and sends progress updates to the client. When all milestones are complete, the system auto-schedules upsell follow-up tasks based on `next_problem_timing` from matching upsell paths.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 3. Data you input and where it goes
+## 2. Data You Input and Where It Goes
 
 ### Add lead / Edit lead
 
@@ -210,9 +221,11 @@ flowchart TB
 - **Result:** The app persists enrichment to `contact_submissions`, sets push status to “pending,” and triggers WF-VEP-001 with `contact_submission_ids` (and optional `enrichments`). When evidence is ingested, the app updates status to “success.” Lead cards show: **Evidence: N** (click to open evidence drawer), **Extracting...**, **Push may have failed**, **Push failed**, or **No evidence**. Use **Retry** or **Refresh evidence** per lead as needed. Evidence drawer shows pain point evidence and value reports; you can generate a report or refresh evidence from there.
 - **Prerequisite for “Suggest from Evidence” pricing:** The `content_pain_point_map` table must map products/services to pain points. If it is empty, suggest-from-evidence will return an error; value reports and proposal value assessments still work.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 4. Behind-the-scenes: Lead pipeline
+## 3. Behind the Scenes: Lead Pipeline
 
 1. **Trigger** — Admin clicks Trigger (or n8n runs on schedule). App calls warm-lead webhooks (WF-WRM-001/002/003).
 2. **Scraping** — n8n scrapes Facebook / Google Contacts / LinkedIn and POSTs to `/api/admin/outreach/ingest` with `N8N_INGEST_SECRET`. App deduplicates and inserts into `contact_submissions`.
@@ -223,9 +236,11 @@ flowchart TB
 
 **Key env vars (names only):** `N8N_LEAD_WEBHOOK_URL`, `N8N_CLG002_WEBHOOK_URL`, `N8N_CLG003_WEBHOOK_URL`, `N8N_WRM001_WEBHOOK_URL`, `N8N_WRM002_WEBHOOK_URL`, `N8N_WRM003_WEBHOOK_URL`, `N8N_INGEST_SECRET`.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 5. Inbound lead generation workflows
+## 4. Inbound Lead Generation Workflows
 
 ### Contact form (website)
 
@@ -255,9 +270,11 @@ When the chatbot cannot adequately respond or the user asks to be contacted by a
 
 Visitors can complete the **AI & Automation Audit** form at **/tools/audit** without using chat. The app creates a **chat_sessions** row and a **diagnostic_audits** row (`audit_type = 'standalone'`) and saves the same six categories (business challenges, tech stack, automation needs, AI readiness, budget & timeline, decision making). When all six sections are submitted, the audit is marked **completed** and **urgency_score** and **opportunity_score** are computed. These audits appear on the **Sales Dashboard** alongside chat and in-person diagnostics; admin can open any of them to start a sales session (`/admin/sales/[auditId]`). Standalone audits do **not** capture email on the form today, so `contact_submission_id` is null unless we add optional email capture and linking. For a full map of **how audit and other client inputs tie into sales and where they are used in the codebase**, see **[audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md)**.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 6. Behind-the-scenes: Sales and proposals
+## 5. Behind the Scenes: Sales and Proposals
 
 ### Two entry points into a sales session
 
@@ -303,9 +320,11 @@ When the session **outcome** is set to **"Lost"**, a **loss_reason** dropdown ap
 - **Upsell add-ons:** When a proposal is created, the system automatically checks each line item against `offer_upsell_paths`. If a matching upsell path exists, it is attached as an optional add-on (`upsell_addons` JSONB column on proposals) with the upsell title, description (next problem), price, perceived value, risk reversal, and credit note. These are presented as "Recommended" optional items on the proposal.
 - **Proposal output:** PDF is generated and stored; proposal link is returned. Admin shares the link with the client. Client sees `/proposal/[id]`, can view PDF and accept (Stripe checkout). After payment, the Stripe webhook creates the order, marks the proposal paid, and calls `POST /api/client-projects` to create the client project and onboarding (see Post-sale section).
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 7. Configuring sales assets
+## 6. Configuring Sales Assets
 
 Before sales sessions and proposals work correctly, these admin tools must be set up.
 
@@ -349,9 +368,11 @@ Before sales sessions and proposals work correctly, these admin tools must be se
 - **Database:** `offer_upsell_paths` table with RLS (admin full access, public read for active paths).
 - **API:** Admin CRUD at `/api/admin/sales/upsell-paths` and `/api/admin/sales/upsell-paths/[id]`; public lookup at `/api/upsell-paths?source_content_type=...&source_content_id=...`.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 8. Researching pricing models
+## 7. Researching Pricing Models
 
 Pricing in the app is based on **company**, **industry**, and **what others pay** for similar services.
 
@@ -360,16 +381,20 @@ Pricing in the app is based on **company**, **industry**, and **what others pay*
 - **Where it’s used:** In the **sales walkthrough**, when building line items, the ProductClassifier shows a **"Suggest from Evidence"** button. It calls `POST /api/admin/value-evidence/suggest-pricing` with content_type, content_id, and optionally industry, company_size, or contact_submission_id. The API returns suggested retail price and perceived value; admin can **Apply** those to the line item.
 - **Admin responsibilities:** Keep **industry benchmarks** and **value evidence** (pain points, evidence, calculations) up to date in the Value Evidence admin area so "Suggest from Evidence" and value reports stay accurate. Map pain points to content so suggest-pricing can compute anchor prices per product/service.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 9. Sales scripts and dynamic steps
+## 8. Sales Scripts and Dynamic Steps
 
 - **Storage:** `sales_scripts` table: name, description, offer_type, target_funnel_stage, script_content (JSONB with steps, talking_points, actions, objection_handlers).
 - **Usage:** The sales session page loads scripts and uses them in the guided walkthrough. Dynamic steps are generated by `/api/admin/sales/generate-step` (context: audit, session, products, etc.) producing a step with talking points and actions. Scripts define "what to say" and "what to do" at each step; the generate-step API adapts them to the current client/audit.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 10. Post-sale: Payment to delivery
+## 9. Post-Sale: Payment to Delivery
 
 After the client accepts and pays the proposal, the following happens automatically and then continues with admin-driven milestone tracking.
 
@@ -447,9 +472,11 @@ When **all milestones** on a client project are marked complete, the system auto
 
 This implements the **point-of-pain** touch of the two-touch prescription model: the follow-up is timed to when the client is predicted to experience friction with the initial offer.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 11. Follow-up sequences
+## 10. Follow-Up Sequences
 
 - **Outreach:** Each outreach_queue row has a **sequence_step** (1–6). When admin clicks "Send Now", the step number is sent to WF-CLG-003 so n8n can track multi-step drip campaigns.
 - **Sales sessions:** Sales sessions track **next_follow_up** date and **follow_up_count** for post-session nurture.
@@ -467,9 +494,11 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 - **API:** `GET /api/admin/analytics/funnel?days=30&channel=all` — admin-only.
 - **Data sources:** `contact_submissions`, `outreach_queue`, `diagnostic_audits`, `sales_sessions`, `proposals`, `client_projects`.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 12. Workflow reference table
+## 11. Workflow Reference Table
 
 | Workflow / system | Trigger | Purpose | Inputs (summary) | Outputs / where results show |
 |-------------------|---------|---------|------------------|------------------------------|
@@ -489,12 +518,16 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 | Client update draft (send) | Admin "Send" on draft | Send action-items update email via progress-update webhook | draft subject, body, client info | Email to client; client_update_drafts marked sent |
 | Upsell follow-up scheduling | All milestones complete on a client project | Auto-create follow-up tasks timed to next_problem_timing | client_project_id, proposal line_items, offer_upsell_paths | meeting_action_tasks rows with due dates and point-of-pain scripts |
 | Upsell signal matching | Generate client update draft | Match completed task titles against next_problem_signals | completed tasks, offer_upsell_paths | Upgrade recommendation appended to email body if signals match |
+| WF-SOC-001 | Cron (Mon–Fri 9 AM ET) or manual webhook | Extract social topics from meeting transcripts, generate LinkedIn posts with images + voiceovers | meeting_records (last 7 days) | Drafts in social_content_queue; Slack notification |
+| WF-SOC-002 | Admin approve action (webhook) | Publish approved social content to LinkedIn | social_content_queue row + social_content_config | LinkedIn post published; status updated; Slack confirmation |
 
 **Note:** Outreach generation (WF-CLG-002) is not triggered by the app; n8n invokes it (e.g. after enrichment or on schedule). The app only displays the resulting drafts in the Message Queue.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 13. Human-in-the-loop summary
+## 12. Human-in-the-Loop Summary
 
 | Step | Admin action | Client sees after |
 |------|--------------|-------------------|
@@ -512,10 +545,13 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 | Edit draft | Edit subject/body of unsent draft | — |
 | Send update | Click "Send to Client" on draft | Email with action-items status |
 | Configure upsell paths | Create/edit upsell paths in Admin → Sales → Upsell Paths | — (affects proposals, onboarding, progress updates, follow-ups, pricing page, AI recommendations) |
+| Social content review | Preview, edit, approve/reject AI-generated LinkedIn posts in `/admin/social-content` | LinkedIn post (if approved) |
+
+[Back to top](#table-of-contents)
 
 ---
 
-## 14. Voice channel (VAPI integration)
+## 13. Voice Channel (VAPI Integration)
 
 Inbound leads can also come from **voice calls** via VAPI. The app receives events at **POST /api/vapi/webhook** and handles:
 
@@ -528,9 +564,11 @@ Inbound leads can also come from **voice calls** via VAPI. The app receives even
 
 **Admin visibility:** Voice sessions appear in **Chat Eval** (`/admin/chat-eval`) with channel filter "voice". Admins can evaluate and rate voice conversations the same way as text.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 15. Other admin tools
+## 14. Other Admin Tools
 
 - **Analytics** (`/admin/analytics`): Site-wide metrics (events, sessions, page views, clicks, form submits), event breakdowns by type and section, top projects/videos, social clicks. Time range: 7 / 30 / 90 days. A prominent link to **Sales Funnel** (`/admin/analytics/funnel`) appears in the header.
 - **Chat Eval** (`/admin/chat-eval`): Review and evaluate chat and voice sessions. Filter by channel (text/voice), rating (good/bad). Batch evaluation. Shows success rate, total sessions, evaluated count.
@@ -543,9 +581,122 @@ Inbound leads can also come from **voice calls** via VAPI. The app receives even
 
 The main admin dashboard (`/admin`) groups these tools by workflow: **Pipeline**, **Sales**, **Post-sale**, **Quality & insights**, **Configuration**.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 16. Real app screenshots
+## 15. Social Content Pipeline
+
+The social content pipeline automatically extracts topics from meeting transcripts, generates branded LinkedIn posts (with images and voiceovers), and queues them for human review before publishing.
+
+### How it works (step by step)
+
+```mermaid
+flowchart LR
+  subgraph extraction [WF-SOC-001: Extraction]
+    Trigger[9 AM Weekdays / Manual]
+    Fetch[Fetch unprocessed meetings]
+    RAG[RAG personal context]
+    Topics[AI extract topics]
+    Copy[Hormozi copywriting]
+    Image[Gemini image gen]
+    Voice[ElevenLabs voiceover]
+    Save[Save draft to queue]
+    Slack1[Slack notification]
+    Trigger --> Fetch --> RAG --> Topics --> Copy --> Image --> Voice --> Save --> Slack1
+  end
+
+  subgraph review [Admin Review]
+    Queue[Social Content Queue UI]
+    Edit[Edit / Approve / Reject]
+    Queue --> Edit
+  end
+
+  subgraph publish [WF-SOC-002: Publish]
+    Pub[LinkedIn API post]
+    Status[Update status → published]
+    Slack2[Slack confirmation]
+    Edit -->|Approve| Pub --> Status --> Slack2
+  end
+```
+
+### 15.1 Extraction workflow (WF-SOC-001)
+
+| Step | What happens | Node / service |
+|------|-------------|----------------|
+| **Trigger** | Runs Mon–Fri at 9 AM Eastern (cron), or manually via webhook | Schedule Trigger / Webhook |
+| **Fetch meetings** | Queries `meeting_records` from the last 7 days, excludes any already in `social_content_queue` | Code node → Supabase REST API |
+| **RAG context** | Calls the `amadutown-rag-query` webhook to retrieve personal stories, case studies, and client outcomes related to the meeting topics | HTTP Request |
+| **Extract topics** | OpenAI (o4-mini) analyzes transcript + RAG context and extracts 1–3 social-worthy topics with Hormozi framework tags and diagram types | OpenAI node |
+| **Copywriting** | A second OpenAI call writes a Hormozi-style LinkedIn post: pattern-interrupt hook, story/proof, named framework, CTA, hashtags | OpenAI node |
+| **Image generation** | Google Gemini 2.0 Flash generates a branded framework illustration (navy/gold/white, 1:1 ratio) | HTTP Request → Gemini API |
+| **Voiceover** | ElevenLabs TTS generates an MP3 voiceover of the post text | HTTP Request → ElevenLabs API |
+| **Save draft** | Inserts a row into `social_content_queue` with status `draft` and all generated content | Code node → Supabase REST API |
+| **Notify** | Posts a summary to the #outreach Slack channel with a link to the admin review page | Slack node |
+
+### 15.2 Admin review (`/admin/social-content`)
+
+The Social Content Queue page shows:
+
+- **Status cards** — Total, Drafts, Approved, Scheduled, Published, Rejected
+- **Filters** — By status (All / Draft / Approved / Scheduled / Published / Rejected) and platform (All / LinkedIn / Instagram / Facebook)
+- **Search** — Full-text search across post content
+
+**For each draft, the admin can:**
+
+1. **Preview** — Read the generated post text, view the image, listen to the voiceover
+2. **Edit** — Modify post text, CTA, hashtags, or any field before approving
+3. **Approve** — Triggers WF-SOC-002 to publish to LinkedIn
+4. **Reject** — Marks the post as rejected (will not be published)
+5. **Schedule** — Set a future publish date/time (future enhancement)
+
+### 15.3 Publish workflow (WF-SOC-002)
+
+| Step | What happens | Node / service |
+|------|-------------|----------------|
+| **Webhook** | Triggered by admin approve action | Webhook |
+| **Platform router** | Routes to LinkedIn, Instagram (coming soon), or Facebook (coming soon) | Switch node |
+| **Fetch content + config** | Retrieves the queue row and LinkedIn credentials from `social_content_config` | Code node → Supabase REST API |
+| **Prepare post** | Builds the LinkedIn UGC API payload (text + hashtags + CTA + image) | Code node |
+| **Publish** | POSTs to LinkedIn UGC Posts API | HTTP Request |
+| **Update status** | Sets `status = 'published'`, records `published_at` and `platform_post_id` | Code node → Supabase REST API |
+| **Confirm** | Posts confirmation to #outreach Slack channel | Slack node |
+
+### 15.4 Database tables
+
+| Table | Purpose |
+|-------|---------|
+| `social_content_queue` | Stores all generated posts (draft → approved → published/rejected). Fields: post_text, image_url, voiceover_url, hashtags, topic_extracted, hormozi_framework, rag_context, platform, status, published_at, platform_post_id |
+| `social_content_config` | Platform credentials and settings (LinkedIn access_token, author_urn, etc.). One row per platform. |
+
+### 15.5 LinkedIn OAuth setup
+
+LinkedIn credentials are obtained via a one-time OAuth flow:
+
+1. Navigate to `/api/auth/linkedin` — redirects to LinkedIn consent screen
+2. Authorize the app — LinkedIn redirects back to `/api/auth/linkedin/callback`
+3. The callback exchanges the code for an access token and stores it in `social_content_config`
+
+**LinkedIn Developer Portal requirements:**
+- Products: "Share on LinkedIn" and "Sign In with LinkedIn using OpenID Connect"
+- Scopes: `openid`, `profile`, `w_member_social`
+- Redirect URL: `http://localhost:3000/api/auth/linkedin/callback` (dev) or `https://amadutown.com/api/auth/linkedin/callback` (prod)
+
+### 15.6 Key environment variables
+
+| Variable | Purpose |
+|----------|---------|
+| `LINKEDIN_CLIENT_ID` | LinkedIn OAuth app Client ID |
+| `LINKEDIN_CLIENT_SECRET` | LinkedIn OAuth app Client Secret |
+| `GEMINI_API_KEY` | Google AI Studio API key (hardcoded in n8n workflow) |
+| `ELEVENLABS_API_KEY` | ElevenLabs TTS API key (hardcoded in n8n workflow) |
+| `ELEVENLABS_DEFAULT_VOICE_ID` | ElevenLabs voice ID (hardcoded in n8n workflow) |
+
+[Back to top](#table-of-contents)
+
+---
+
+## 16. Real App Screenshots
 
 Screenshots assume an authenticated admin session. Capture from a running dev server (e.g. `npm run dev`) and place under `docs/images/`. If a screen has no data (e.g. no drafts, no audit), capture what is available and add a short note in training.
 
@@ -574,16 +725,21 @@ Screenshots assume an authenticated admin session. Capture from a running dev se
 | Chat Eval – sessions and filters | `chat-eval.png` |
 | Content Hub – content type cards | `content-hub.png` |
 | Checkout / payment page (client-facing) | `checkout-page.png` |
+| Social Content Queue – drafts, approve/reject, status cards | `social-content-queue.png` |
 
 Example embed in the SOP: `![Admin Dashboard](./images/admin-dashboard.png)`.
 
+[Back to top](#table-of-contents)
+
 ---
 
-## 17. Quick reference
+## 17. Quick Reference
 
 - **Admin navigation:** Persistent left sidebar (categories: Pipeline, Sales, Post-sale, Quality & insights, Configuration) with direct links to all hub/list pages; Content Hub is expandable. Dashboard home (`/admin`) shows category-snapshot cards with feeds and links. Detail pages (e.g. `/admin/guarantees/[id]`) are reached from the parent in the sidebar; breadcrumbs show path. Nav tree: `lib/admin-nav.ts`.
-- **Admin routes:** `/admin` — Dashboard (category cards with feeds); `/admin/outreach` — Message Queue, All Leads, **Escalations** (chat/voice escalations, link to lead); `/admin/outreach/escalations/[id]` — Escalation detail (transcript, link/unlink lead); `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/guarantees` — Guarantee instances; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/sales/upsell-paths` — Upsell Paths (two-touch prescription); `/admin/analytics` — Analytics (with Sales Funnel link); `/admin/analytics/funnel` — **Sales Funnel Analytics** (conversion rates, pipeline value, deal flow, attention items, loss reasons); `/admin/chat-eval` — Chat Eval; `/admin/cost-revenue` — **Cost & Revenue** (portfolio P&L, cost by source, profit:cost ratio); `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts.
+- **Admin routes:** `/admin` — Dashboard (category cards with feeds); `/admin/outreach` — Message Queue, All Leads, **Escalations** (chat/voice escalations, link to lead); `/admin/outreach/escalations/[id]` — Escalation detail (transcript, link/unlink lead); `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/guarantees` — Guarantee instances; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/sales/upsell-paths` — Upsell Paths (two-touch prescription); `/admin/analytics` — Analytics (with Sales Funnel link); `/admin/analytics/funnel` — **Sales Funnel Analytics** (conversion rates, pipeline value, deal flow, attention items, loss reasons); `/admin/chat-eval` — Chat Eval; `/admin/cost-revenue` — **Cost & Revenue** (portfolio P&L, cost by source, profit:cost ratio); `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts; `/admin/social-content` — **Social Content Queue** (review, edit, approve/reject AI-generated LinkedIn posts).
 - **Client-facing:** `/resources` — Resources (AI Readiness Scorecard + templates/playbooks); `/tools/audit` — **AI & Automation Audit** (standalone form → diagnostic_audits); `/proposal/[id]` — View/accept/pay proposal; `/checkout` — Checkout; `/onboarding/[id]` — Onboarding plan.
 - **How audit/client input ties to sales:** [audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md) — map of audit sources, sales flow, and every place in the codebase that uses diagnostic/contact input.
-- **Key env var names (no secrets):** N8N_LEAD_WEBHOOK_URL, N8N_CLG002_WEBHOOK_URL, N8N_CLG003_WEBHOOK_URL, N8N_WRM001/002/003_WEBHOOK_URL, N8N_INGEST_SECRET, N8N_DIAGNOSTIC_WEBHOOK_URL, N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL, N8N_VEP001_WEBHOOK_URL, N8N_VEP002_WEBHOOK_URL, N8N_TASK_SLACK_SYNC_WEBHOOK_URL, N8N_PROGRESS_UPDATE_WEBHOOK_URL, N8N_FOLLOW_UP_SCHEDULER_WEBHOOK_URL, SLACK_CHAT_ESCALATION_WEBHOOK_URL (optional; Slack Incoming Webhook for chat escalation notifications), VAPI_COST_PER_MINUTE (optional; default 0.05 for voice call cost tracking), and onboarding webhook used by `fireOnboardingWebhook` in `lib/onboarding-templates`.
+- **Key env var names (no secrets):** N8N_LEAD_WEBHOOK_URL, N8N_CLG002_WEBHOOK_URL, N8N_CLG003_WEBHOOK_URL, N8N_WRM001/002/003_WEBHOOK_URL, N8N_INGEST_SECRET, N8N_DIAGNOSTIC_WEBHOOK_URL, N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL, N8N_VEP001_WEBHOOK_URL, N8N_VEP002_WEBHOOK_URL, N8N_TASK_SLACK_SYNC_WEBHOOK_URL, N8N_PROGRESS_UPDATE_WEBHOOK_URL, N8N_FOLLOW_UP_SCHEDULER_WEBHOOK_URL, SLACK_CHAT_ESCALATION_WEBHOOK_URL (optional; Slack Incoming Webhook for chat escalation notifications), VAPI_COST_PER_MINUTE (optional; default 0.05 for voice call cost tracking), onboarding webhook used by `fireOnboardingWebhook` in `lib/onboarding-templates`, LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET (LinkedIn OAuth), GEMINI_API_KEY, ELEVENLABS_API_KEY, ELEVENLABS_DEFAULT_VOICE_ID (social content pipeline — hardcoded in n8n workflows).
 - **Troubleshooting:** See [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md) and [n8n-lead-workflow-activation-rca.md](./n8n-lead-workflow-activation-rca.md).
+
+[Back to top](#table-of-contents)

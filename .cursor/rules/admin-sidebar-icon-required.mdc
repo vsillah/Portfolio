@@ -1,0 +1,36 @@
+---
+description: Require an icon for every admin sidebar nav item
+globs: lib/admin-nav.ts,components/admin/AdminSidebar.tsx
+alwaysApply: false
+---
+
+# Admin Sidebar — Icon Required for Every Nav Item
+
+When adding or changing admin navigation, **every sidebar item must have a corresponding icon** in the sidebar.
+
+## Where things live
+
+- **Nav structure (labels + hrefs):** `lib/admin-nav.ts` — `ADMIN_NAV.dashboard` and `ADMIN_NAV.categories[].items` / `children`.
+- **Icons (href → Lucide icon):** `components/admin/AdminSidebar.tsx` — `NAV_ITEM_ICONS` (keyed by `href`).
+
+## Required behavior
+
+1. **When adding a new page to the sidebar** (new entry in `lib/admin-nav.ts`):
+   - Add a matching entry to `NAV_ITEM_ICONS` in `components/admin/AdminSidebar.tsx` with the same `href`.
+   - Choose an appropriate Lucide icon (import it from `lucide-react` if not already imported).
+   - Do not leave the new item without an icon.
+
+2. **When adding a new expandable section or child links** (new `children` or new item under a category):
+   - Add `NAV_ITEM_ICONS[href]` for each new `href` that appears in the sidebar (including child links).
+
+3. **Verification:** After editing `admin-nav.ts`, grep for each new `href` in `AdminSidebar.tsx` and confirm it appears as a key in `NAV_ITEM_ICONS`.
+
+## Icon conventions (reference)
+
+- Pipeline: Send, FileCheck, Share2
+- Sales: BarChart3, LayoutList, Megaphone, Package, Layers, FileText, Route, Presentation
+- Post-sale: FolderKanban, CalendarCheck, RefreshCw, ClipboardList, ShieldCheck
+- Quality & insights: MessageSquare, BarChart3, DollarSign, FlaskConical
+- Configuration: FolderOpen, Users, FileCode, GitCompare, Target, Video, BookOpen, Music, Wrench, Box, Shirt, Ticket
+
+Use existing icons from the file where they fit; add new Lucide icons when needed.

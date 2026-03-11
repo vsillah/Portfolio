@@ -36,6 +36,11 @@ import {
   Ticket,
   Sparkles,
   Bug,
+  Presentation,
+  DollarSign,
+  Share2,
+  GitCompare,
+  Settings,
 } from 'lucide-react'
 import { ADMIN_NAV, isNavItemActive, isContentExpanded, isChatEvalExpanded } from '@/lib/admin-nav'
 import { useState, useEffect } from 'react'
@@ -48,6 +53,7 @@ const ITEM_ICON_SIZE = 16
 const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/outreach': Send,
   '/admin/value-evidence': FileCheck,
+  '/admin/social-content': Share2,
   '/admin/sales': BarChart3,
   '/admin/lead-dashboards': LayoutList,
   '/admin/campaigns': Megaphone,
@@ -55,6 +61,7 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/sales/bundles': Layers,
   '/admin/sales/scripts': FileText,
   '/admin/sales/upsell-paths': Route,
+  '/admin/reports/gamma': Presentation,
   '/admin/client-projects': FolderKanban,
   '/admin/meeting-tasks': CalendarCheck,
   '/admin/continuity-plans': RefreshCw,
@@ -67,10 +74,12 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/chat-eval/diagnoses': Bug,
   '/admin/chat-eval/queue': MessageSquare,
   '/admin/analytics': BarChart3,
+  '/admin/cost-revenue': DollarSign,
   '/admin/testing': FlaskConical,
   '/admin/content': FolderOpen,
   '/admin/users': Users,
   '/admin/prompts': FileCode,
+  '/admin/module-sync': GitCompare,
   '/admin/content/outcome-groups': Target,
   '/admin/content/projects': FolderKanban,
   '/admin/content/videos': Video,
@@ -81,6 +90,7 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/content/prototypes': Box,
   '/admin/content/merchandise': Shirt,
   '/admin/content/discount-codes': Ticket,
+  '/admin/content/store-settings': Settings,
 }
 
 function NavItemIcon({ href }: { href: string }) {
