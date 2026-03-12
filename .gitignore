@@ -44,3 +44,6 @@ next-env.d.ts
 lib/chatbot-knowledge-content.generated.ts
 
 .env.local
+
+# storyboard capture auth state (session tokens; do not commit)
+design-files/about-page-video/.storyboard-auth-state.json

@@ -58,6 +58,7 @@ export default function VideoGenerationPage() {
   const [queueItems, setQueueItems] = useState<QueueItem[]>([])
   const [queueLoading, setQueueLoading] = useState(true)
   const [generatingQueueId, setGeneratingQueueId] = useState<string | null>(null)
+  const [generatingBrollQueueId, setGeneratingBrollQueueId] = useState<string | null>(null)
   const [syncingDrive, setSyncingDrive] = useState(false)
 
   useEffect(() => {
@@ -240,6 +241,34 @@ export default function VideoGenerationPage() {
       alert('Failed to sync Drive')
     } finally {
       setSyncingDrive(false)
+    }
+  }
+
+  const generateBrollFromQueue = async (queueId: string) => {
+    setGeneratingBrollQueueId(queueId)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/video-generation/queue/${queueId}/generate-broll`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ brollRoutes: 'all' }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        alert(data?.error || 'Failed to generate B-roll')
+        return
+      }
+      alert(`B-roll saved to ${data.outputDir}\nScreenshots: ${data.screenshots}, Clips: ${data.clips}`)
+    } catch (err) {
+      console.error('Generate B-roll error:', err)
+      alert('Failed to generate B-roll')
+    } finally {
+      setGeneratingBrollQueueId(null)
     }
   }
 
@@ -455,7 +484,7 @@ export default function VideoGenerationPage() {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => generateFromQueue(item.id)}
-                          disabled={!!generatingQueueId}
+                          disabled={!!generatingQueueId || !!generatingBrollQueueId}
                           className="flex items-center gap-1 text-xs px-2 py-1 bg-radiant-gold text-imperial-navy rounded hover:bg-gold-light disabled:opacity-50"
                         >
                           {generatingQueueId === item.id ? (
@@ -466,8 +495,21 @@ export default function VideoGenerationPage() {
                           Generate
                         </button>
                         <button
+                          onClick={() => generateBrollFromQueue(item.id)}
+                          disabled={!!generatingQueueId || !!generatingBrollQueueId}
+                          title="Capture B-roll only (screenshots + clips)"
+                          className="flex items-center gap-1 text-xs px-2 py-1 bg-silicon-slate text-platinum-white rounded hover:bg-silicon-slate/80 disabled:opacity-50"
+                        >
+                          {generatingBrollQueueId === item.id ? (
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <Video className="w-3 h-3" />
+                          )}
+                          B-roll
+                        </button>
+                        <button
                           onClick={() => dismissQueueItem(item.id)}
-                          disabled={!!generatingQueueId}
+                          disabled={!!generatingQueueId || !!generatingBrollQueueId}
                           className="flex items-center gap-1 text-xs px-2 py-1 text-gray-400 hover:text-rose-400 disabled:opacity-50"
                         >
                           <X className="w-3 h-3" />

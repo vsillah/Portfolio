@@ -1,14 +1,18 @@
 /**
  * POST /api/admin/video-generation/queue/[id]/generate
  * Create a video generation job from a queue item and link it.
+ * Optionally runs B-roll capture before HeyGen; output goes to design-files/broll/{slug}/B-roll/
  */
 
+import * as path from 'path'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { createAvatarVideo } from '@/lib/heygen'
 import { channelToAspectRatio } from '@/lib/constants/video-channel'
 import type { VideoChannel, VideoAspectRatio } from '@/lib/constants/video-channel'
+import { captureBroll, DEFAULT_ROUTES, selectRoutesFromScript } from '@/lib/playtest-broll'
+import { videoSlugFromFileName } from '@/lib/video-slug'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,6 +32,8 @@ export async function POST(
     const aspectRatio = (body.aspectRatio as VideoAspectRatio) ?? channelToAspectRatio(channel)
     const avatarId = (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
     const voiceId = (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
+    const includeBroll = body.includeBroll !== false
+    const brollRoutes = (body.brollRoutes as 'all' | 'script') ?? 'all'
 
     const { data: queueItem, error: fetchErr } = await supabaseAdmin
       .from('drive_video_queue')
@@ -67,6 +73,26 @@ export async function POST(
       )
     }
 
+    let brollOutputPath: string | undefined
+    if (includeBroll && queueItem.drive_file_name) {
+      try {
+        const slug = videoSlugFromFileName(queueItem.drive_file_name)
+        const brollDir = path.join(process.cwd(), 'design-files', 'broll', slug, 'B-roll')
+        const routes = brollRoutes === 'script' ? selectRoutesFromScript(scriptText, DEFAULT_ROUTES) : DEFAULT_ROUTES
+        const baseUrl = process.env.BASE_URL ?? 'http://localhost:3000'
+        const result = await captureBroll({
+          routes,
+          outputDir: brollDir,
+          recordVideos: true,
+          baseUrl,
+          noStartServer: true,
+        })
+        brollOutputPath = result.outputDir
+      } catch (brollErr) {
+        console.warn('[Video generation] B-roll capture failed (continuing with HeyGen):', brollErr)
+      }
+    }
+
     const result = await createAvatarVideo({
       avatarId,
       voiceId,
@@ -100,6 +126,7 @@ export async function POST(
         channel,
         heygen_video_id: result.videoId,
         heygen_status: 'pending',
+        broll_output_path: brollOutputPath ?? null,
         created_by: auth.user?.id,
       })
       .select('id, heygen_video_id, heygen_status, created_at')
@@ -128,6 +155,7 @@ export async function POST(
       heygenVideoId: job.heygen_video_id,
       status: job.heygen_status,
       createdAt: job.created_at,
+      brollOutputPath: brollOutputPath ?? undefined,
     })
   } catch (error) {
     console.error('[Video generation] Queue generate error:', error)

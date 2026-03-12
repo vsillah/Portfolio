@@ -18,7 +18,9 @@
     "printful:webhook": "tsx scripts/printful-setup-webhook.ts",
     "storyboard:assets:schematics": "tsx scripts/generate-storyboard-schematics.ts",
     "storyboard:assets:capture": "tsx scripts/capture-storyboard-assets.ts",
+    "storyboard:assets:save-auth": "tsx scripts/save-storyboard-auth.ts",
     "storyboard:assets": "npm run storyboard:assets:schematics && npm run storyboard:assets:capture",
+    "storyboard:assets:all": "npm run storyboard:assets:schematics && npm run storyboard:assets:capture -- --videos",
     "prepare": "husky install"
   },
   "dependencies": {
