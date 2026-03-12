@@ -145,7 +145,9 @@ function PurchasesContent() {
     if (!selectedOrder) return
     setPdfLoading(true)
     try {
-      const blob = await generateInvoicePDFBlob(selectedOrder)
+      const logoUrl =
+        typeof window !== 'undefined' ? `${window.location.origin}/logo.png` : undefined
+      const blob = await generateInvoicePDFBlob(selectedOrder, { logoUrl })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url

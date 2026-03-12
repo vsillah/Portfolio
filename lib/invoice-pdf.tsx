@@ -9,9 +9,17 @@ import {
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
   pdf,
 } from '@react-pdf/renderer'
+
+// ATAS brand colors (from logo: gold and dark blue)
+const ATAS_DARK_BLUE = '#1a2d4a'
+const ATAS_GOLD = '#C9A227'
+// Non-breaking space (\u00A0) keeps "Solutions" from breaking onto the next line
+const COMPANY_FULL_NAME = 'Amadutown Advisory\u00A0Solutions'
+const TAGLINE = 'We Rise Together'
 
 // ============================================================================
 // Types (minimal shape needed for PDF; matches purchases Order)
@@ -58,18 +66,57 @@ const VENDOR_NAME = 'Amadutown'
 const styles = StyleSheet.create({
   page: {
     padding: 40,
+    paddingTop: 0,
     fontSize: 10,
     fontFamily: 'Helvetica',
     color: '#1a1a1a',
   },
-  header: {
+  // ATAS page header bar (full-width dark blue, gold accent below)
+  headerBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: ATAS_DARK_BLUE,
+    marginLeft: -40,
+    marginRight: -40,
     marginBottom: 24,
+    paddingHorizontal: 40,
+    paddingVertical: 14,
+    borderBottomWidth: 3,
+    borderBottomColor: ATAS_GOLD,
+  },
+  headerBarLeft: {
+    flex: 1,
+  },
+  headerBarCenter: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerBarRight: {
+    flex: 1,
+  },
+  headerCompanyName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    // Keep full company name on one line (no hyphenation of "Solutions")
+    flexShrink: 0,
+  },
+  headerLogo: {
+    width: 44,
+    height: 44,
+  },
+  header: {
+    marginBottom: 16,
   },
   title: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#1a1a1a',
+    color: ATAS_DARK_BLUE,
     marginBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: ATAS_GOLD,
+    paddingBottom: 4,
   },
   metaRow: {
     flexDirection: 'row',
@@ -91,7 +138,8 @@ const styles = StyleSheet.create({
   },
   sectionLabel: {
     fontSize: 9,
-    color: '#6b7280',
+    color: ATAS_GOLD,
+    fontWeight: 'bold',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
     marginBottom: 6,
@@ -102,17 +150,18 @@ const styles = StyleSheet.create({
     lineHeight: 1.4,
     marginBottom: 20,
   },
+  // ATAS table row header (dark blue, white text)
   tableHeader: {
     flexDirection: 'row',
-    backgroundColor: '#f3f4f6',
+    backgroundColor: ATAS_DARK_BLUE,
     padding: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#e5e7eb',
+    borderBottomColor: ATAS_GOLD,
   },
   tableHeaderText: {
     fontSize: 8,
     fontWeight: 'bold',
-    color: '#6b7280',
+    color: '#ffffff',
     textTransform: 'uppercase',
   },
   tableRow: {
@@ -141,8 +190,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 8,
     paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#e5e7eb',
+    borderTopWidth: 2,
+    borderTopColor: ATAS_GOLD,
     fontSize: 12,
     fontWeight: 'bold',
   },
@@ -164,9 +213,53 @@ const styles = StyleSheet.create({
     color: '#1a1a1a',
     marginTop: 2,
   },
+  // Thank-you and contact message above footer bar
+  thankYouSection: {
+    marginTop: 28,
+    marginBottom: 12,
+    paddingHorizontal: 0,
+  },
+  thankYouText: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: ATAS_GOLD,
+    marginBottom: 4,
+  },
+  taglineText: {
+    fontSize: 10,
+    color: ATAS_DARK_BLUE,
+    fontStyle: 'italic',
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  contactMessage: {
+    fontSize: 9,
+    color: '#4b5563',
+    lineHeight: 1.4,
+  },
+  // ATAS footer bar (dark blue, gold accent above and gold text)
+  footerBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: ATAS_DARK_BLUE,
+    paddingVertical: 10,
+    paddingHorizontal: 40,
+    borderTopWidth: 3,
+    borderTopColor: ATAS_GOLD,
+  },
+  footerBarText: {
+    fontSize: 9,
+    color: ATAS_GOLD,
+    fontWeight: 'bold',
+  },
   footer: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 36,
     left: 40,
     right: 40,
     textAlign: 'center',
@@ -209,10 +302,31 @@ function formatShipTo(addr: InvoicePDFShippingAddress | null | undefined): strin
 // Document Component
 // ============================================================================
 
-const InvoiceDocument: React.FC<{ data: InvoicePDFData }> = ({ data }) => {
+export interface InvoicePDFOptions {
+  /** Absolute URL for the logo image (e.g. origin + /logo.png). Omit to hide logo. */
+  logoUrl?: string
+}
+
+const InvoiceDocument: React.FC<{
+  data: InvoicePDFData
+  logoUrl?: string
+}> = ({ data, logoUrl }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {/* ATAS header bar: company name, logo, and right spacer */}
+        <View style={styles.headerBar}>
+          <View style={styles.headerBarLeft}>
+            <Text style={styles.headerCompanyName} wrap={false}>{COMPANY_FULL_NAME}</Text>
+          </View>
+          <View style={styles.headerBarCenter}>
+            {logoUrl ? (
+              <Image style={styles.headerLogo} src={logoUrl} />
+            ) : null}
+          </View>
+          <View style={styles.headerBarRight} />
+        </View>
+
         <View style={styles.header}>
           <Text style={styles.title}>Invoice</Text>
           <View style={styles.metaRow}>
@@ -296,9 +410,23 @@ const InvoiceDocument: React.FC<{ data: InvoicePDFData }> = ({ data }) => {
           </View>
         </View>
 
+        {/* Thank you and contact message */}
+        <View style={styles.thankYouSection}>
+          <Text style={styles.thankYouText}>Thank you for your business.</Text>
+          <Text style={styles.taglineText}>{TAGLINE}</Text>
+          <Text style={styles.contactMessage}>
+            Please feel free to contact us if you have any questions about this invoice.
+          </Text>
+        </View>
+
         <Text style={styles.footer}>
           {VENDOR_NAME} · Invoice for Order #{data.id} · {formatDate(data.created_at)}
         </Text>
+
+        {/* ATAS footer bar */}
+        <View style={styles.footerBar}>
+          <Text style={styles.footerBarText}>{TAGLINE}</Text>
+        </View>
       </Page>
     </Document>
   )
@@ -310,9 +438,39 @@ const InvoiceDocument: React.FC<{ data: InvoicePDFData }> = ({ data }) => {
 
 /**
  * Generate invoice PDF as a Blob for download (client-side).
+ * Pass options.logoUrl (e.g. origin + '/logo.png') to include the AT logo in the header.
  */
-export async function generateInvoicePDFBlob(data: InvoicePDFData): Promise<Blob> {
-  const doc = <InvoiceDocument data={data} />
+export async function generateInvoicePDFBlob(
+  data: InvoicePDFData,
+  options?: InvoicePDFOptions
+): Promise<Blob> {
+  const doc = (
+    <InvoiceDocument data={data} logoUrl={options?.logoUrl} />
+  )
   const blob = await pdf(doc).toBlob()
   return blob
+}
+
+// ============================================================================
+// Buffer generation (server-side — for email attachments)
+// ============================================================================
+
+/**
+ * Generate invoice PDF as a Node Buffer (server-side).
+ * Suitable for attaching to emails via Nodemailer.
+ */
+export async function generateInvoicePDFBuffer(
+  data: InvoicePDFData,
+  options?: InvoicePDFOptions
+): Promise<Buffer> {
+  const doc = (
+    <InvoiceDocument data={data} logoUrl={options?.logoUrl} />
+  )
+  const stream = await pdf(doc).toBuffer()
+  const chunks: Uint8Array[] = []
+  return new Promise((resolve, reject) => {
+    stream.on('data', (chunk: Uint8Array) => chunks.push(chunk))
+    stream.on('end', () => resolve(Buffer.concat(chunks)))
+    stream.on('error', reject)
+  })
 }

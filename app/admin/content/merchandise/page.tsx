@@ -44,6 +44,8 @@ export default function MerchandiseManagementPage() {
     message: string
     results?: { created: number; updated: number; errors: string[] }
   } | null>(null)
+  const [testingConnection, setTestingConnection] = useState(false)
+  const [connectionTestResult, setConnectionTestResult] = useState<{ ok: boolean; message: string; error?: string } | null>(null)
   const [syncConfig, setSyncConfig] = useState({
     logoUrl: '',
     defaultMarkup: 50,
@@ -465,30 +467,83 @@ export default function MerchandiseManagementPage() {
                 </div>
               </div>
 
-              <motion.button
-                onClick={handleSync}
-                disabled={syncing || uploadingLogo}
-                whileHover={{ scale: syncing || uploadingLogo ? 1 : 1.02 }}
-                whileTap={{ scale: syncing || uploadingLogo ? 1 : 0.98 }}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {uploadingLogo ? (
-                  <>
-                    <Loader className="animate-spin" size={20} />
-                    Uploading Logo...
-                  </>
-                ) : syncing ? (
-                  <>
-                    <Loader className="animate-spin" size={20} />
-                    Syncing...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw size={20} />
-                    Sync Products from Printful
-                  </>
-                )}
-              </motion.button>
+              <div className="flex flex-wrap items-center gap-3">
+                <motion.button
+                  onClick={handleSync}
+                  disabled={syncing || uploadingLogo}
+                  whileHover={{ scale: syncing || uploadingLogo ? 1 : 1.02 }}
+                  whileTap={{ scale: syncing || uploadingLogo ? 1 : 0.98 }}
+                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {uploadingLogo ? (
+                    <>
+                      <Loader className="animate-spin" size={20} />
+                      Uploading Logo...
+                    </>
+                  ) : syncing ? (
+                    <>
+                      <Loader className="animate-spin" size={20} />
+                      Syncing...
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw size={20} />
+                      Sync Products from Printful
+                    </>
+                  )}
+                </motion.button>
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setConnectionTestResult(null)
+                    setTestingConnection(true)
+                    try {
+                      const res = await fetch('/api/admin/printful/test-connection')
+                      const data = await res.json()
+                      if (data.ok) {
+                        setConnectionTestResult({ ok: true, message: data.message })
+                      } else {
+                        setConnectionTestResult({ ok: false, message: data.error || 'Connection failed' })
+                      }
+                    } catch (e) {
+                      setConnectionTestResult({ ok: false, message: (e as Error).message })
+                    } finally {
+                      setTestingConnection(false)
+                    }
+                  }}
+                  disabled={testingConnection}
+                  className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600"
+                >
+                  {testingConnection ? (
+                    <>
+                      <Loader className="animate-spin" size={18} />
+                      Testing...
+                    </>
+                  ) : (
+                    <>Test Printful connection</>
+                  )}
+                </button>
+              </div>
+              {connectionTestResult && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`p-4 rounded-lg ${
+                    connectionTestResult.ok
+                      ? 'bg-green-900/30 border border-green-700'
+                      : 'bg-red-900/30 border border-red-700'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    {connectionTestResult.ok ? (
+                      <CheckCircle className="text-green-400" size={20} />
+                    ) : (
+                      <XCircle className="text-red-400" size={20} />
+                    )}
+                    <span className="font-medium">{connectionTestResult.message}</span>
+                  </div>
+                </motion.div>
+              )}
               
               {!syncConfig.logoUrl && !logoFile && (
                 <p className="text-xs text-yellow-500">

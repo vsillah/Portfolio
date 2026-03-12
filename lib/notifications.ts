@@ -12,6 +12,11 @@ interface EmailPayload {
   subject: string;
   html: string;
   text?: string;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer;
+    contentType: string;
+  }>;
 }
 
 const gmailUser = process.env.GMAIL_USER;
@@ -42,6 +47,11 @@ async function sendEmail(payload: EmailPayload): Promise<boolean> {
       subject: payload.subject,
       html: payload.html,
       text: payload.text,
+      attachments: payload.attachments?.map((a) => ({
+        filename: a.filename,
+        content: a.content,
+        contentType: a.contentType,
+      })),
     });
     return true;
   } catch (err) {
@@ -326,6 +336,229 @@ export async function notifyCreditExhausted(params: {
       <h2>Credit Fully Applied</h2>
       <p>Your guarantee credit for <strong>${params.planName}</strong> has been fully used.</p>
       <p>Your next invoice: <strong>$${params.nextAmount.toFixed(2)}/${params.billingInterval}</strong></p>
+    `,
+  });
+}
+
+// ============================================================================
+// Order Confirmation & Shipment Notifications
+// ============================================================================
+
+export interface OrderConfirmationItem {
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export async function notifyOrderConfirmation(params: {
+  clientEmail: string;
+  clientName: string | null;
+  orderId: number;
+  orderDate: string;
+  items: OrderConfirmationItem[];
+  subtotal: number;
+  discountAmount?: number;
+  shippingCost?: number;
+  tax?: number;
+  totalAmount: number;
+  purchasesUrl: string;
+  invoicePdfBuffer?: Buffer;
+}) {
+  const itemsText = params.items
+    .map((i) => `  ${i.name} × ${i.quantity} — $${i.lineTotal.toFixed(2)}`)
+    .join('\n');
+
+  const itemsHtml = params.items
+    .map(
+      (i) =>
+        `<tr>
+          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;">${i.name}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:center;">${i.quantity}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">$${i.unitPrice.toFixed(2)}</td>
+          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;">$${i.lineTotal.toFixed(2)}</td>
+        </tr>`
+    )
+    .join('');
+
+  const totalsHtml = [
+    `<tr><td style="padding:4px 0;color:#6b7280;">Subtotal</td><td style="padding:4px 0;text-align:right;">$${params.subtotal.toFixed(2)}</td></tr>`,
+    params.discountAmount && params.discountAmount > 0
+      ? `<tr><td style="padding:4px 0;color:#6b7280;">Discount</td><td style="padding:4px 0;text-align:right;color:#16a34a;">-$${params.discountAmount.toFixed(2)}</td></tr>`
+      : '',
+    params.shippingCost && params.shippingCost > 0
+      ? `<tr><td style="padding:4px 0;color:#6b7280;">Shipping</td><td style="padding:4px 0;text-align:right;">$${params.shippingCost.toFixed(2)}</td></tr>`
+      : '',
+    params.tax && params.tax > 0
+      ? `<tr><td style="padding:4px 0;color:#6b7280;">Tax</td><td style="padding:4px 0;text-align:right;">$${params.tax.toFixed(2)}</td></tr>`
+      : '',
+    `<tr style="border-top:2px solid #1a2d4a;"><td style="padding:8px 0;font-size:16px;font-weight:700;">Total</td><td style="padding:8px 0;text-align:right;font-size:16px;font-weight:700;">$${params.totalAmount.toFixed(2)}</td></tr>`,
+  ]
+    .filter(Boolean)
+    .join('');
+
+  const orderDateFormatted = new Date(params.orderDate).toLocaleDateString(
+    'en-US',
+    { year: 'numeric', month: 'long', day: 'numeric' }
+  );
+
+  const attachments = params.invoicePdfBuffer
+    ? [
+        {
+          filename: `invoice-order-${params.orderId}.pdf`,
+          content: params.invoicePdfBuffer,
+          contentType: 'application/pdf',
+        },
+      ]
+    : undefined;
+
+  await sendEmail({
+    to: params.clientEmail,
+    subject: `Order Confirmed — Order #${params.orderId}`,
+    text: [
+      `Hi ${params.clientName || 'there'},`,
+      '',
+      `Thank you for your order! Here's your confirmation for Order #${params.orderId}.`,
+      '',
+      `Date: ${orderDateFormatted}`,
+      '',
+      'Items:',
+      itemsText,
+      '',
+      `Total: $${params.totalAmount.toFixed(2)}`,
+      '',
+      `View your order: ${params.purchasesUrl}`,
+      '',
+      'Thank you for your business.',
+      'We Rise Together.',
+      '',
+      'Best regards,',
+      'Amadutown Advisory Solutions',
+    ].join('\n'),
+    html: `
+      <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <!-- Header -->
+        <div style="background:#1a2d4a;padding:20px 24px;text-align:center;">
+          <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">Amadutown Advisory Solutions</h1>
+        </div>
+
+        <div style="padding:24px;">
+          <h2 style="color:#1a2d4a;margin:0 0 4px;">Order Confirmed</h2>
+          <p style="color:#6b7280;margin:0 0 20px;font-size:14px;">Order #${params.orderId} · ${orderDateFormatted}</p>
+
+          <p>Hi ${params.clientName || 'there'},</p>
+          <p>Thank you for your order! Here's a summary of what you purchased.</p>
+
+          <!-- Items table -->
+          <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+            <thead>
+              <tr style="background:#1a2d4a;">
+                <th style="padding:10px 12px;color:#ffffff;text-align:left;font-size:12px;text-transform:uppercase;">Item</th>
+                <th style="padding:10px 12px;color:#ffffff;text-align:center;font-size:12px;text-transform:uppercase;">Qty</th>
+                <th style="padding:10px 12px;color:#ffffff;text-align:right;font-size:12px;text-transform:uppercase;">Price</th>
+                <th style="padding:10px 12px;color:#ffffff;text-align:right;font-size:12px;text-transform:uppercase;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+
+          <!-- Totals -->
+          <table style="width:220px;margin-left:auto;border-collapse:collapse;">
+            <tbody>
+              ${totalsHtml}
+            </tbody>
+          </table>
+
+          <!-- CTA -->
+          <div style="text-align:center;margin:28px 0;">
+            <a href="${params.purchasesUrl}" style="background:#C9A227;color:#1a2d4a;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:700;display:inline-block;">View Your Order</a>
+          </div>
+
+          <p style="color:#4b5563;font-size:13px;">If you have any questions about your order, simply reply to this email and we'll be happy to help.</p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#1a2d4a;padding:16px 24px;text-align:center;">
+          <p style="margin:0;color:#C9A227;font-style:italic;font-size:13px;">We Rise Together</p>
+          <p style="margin:4px 0 0;color:#ffffff;font-size:11px;">Amadutown Advisory Solutions</p>
+        </div>
+      </div>
+    `,
+    attachments,
+  });
+}
+
+export async function notifyShipmentUpdate(params: {
+  clientEmail: string;
+  clientName: string | null;
+  orderId: number;
+  trackingNumber?: string | null;
+  trackingUrl?: string | null;
+  carrier?: string | null;
+  purchasesUrl: string;
+}) {
+  const carrierName = params.carrier || 'our shipping partner';
+  const trackingLine = params.trackingUrl
+    ? `Track your package: ${params.trackingUrl}`
+    : params.trackingNumber
+      ? `Tracking number: ${params.trackingNumber}`
+      : '';
+
+  const trackingHtml = params.trackingUrl
+    ? `<a href="${params.trackingUrl}" style="background:#C9A227;color:#1a2d4a;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:700;display:inline-block;">Track Your Package</a>`
+    : params.trackingNumber
+      ? `<p style="font-size:14px;">Tracking number: <strong>${params.trackingNumber}</strong></p>`
+      : '';
+
+  await sendEmail({
+    to: params.clientEmail,
+    subject: `Your Order Has Shipped — Order #${params.orderId}`,
+    text: [
+      `Hi ${params.clientName || 'there'},`,
+      '',
+      `Great news! Your order #${params.orderId} has been shipped via ${carrierName}.`,
+      '',
+      trackingLine,
+      '',
+      `View your order: ${params.purchasesUrl}`,
+      '',
+      'Thank you for your business.',
+      'We Rise Together.',
+      '',
+      'Best regards,',
+      'Amadutown Advisory Solutions',
+    ].filter(Boolean).join('\n'),
+    html: `
+      <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;">
+        <!-- Header -->
+        <div style="background:#1a2d4a;padding:20px 24px;text-align:center;">
+          <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">Amadutown Advisory Solutions</h1>
+        </div>
+
+        <div style="padding:24px;">
+          <h2 style="color:#1a2d4a;margin:0 0 4px;">Your Order Has Shipped!</h2>
+          <p style="color:#6b7280;margin:0 0 20px;font-size:14px;">Order #${params.orderId}</p>
+
+          <p>Hi ${params.clientName || 'there'},</p>
+          <p>Great news — your order has been shipped${params.carrier ? ` via <strong>${params.carrier}</strong>` : ''}! You should receive it soon.</p>
+
+          ${trackingHtml ? `<div style="text-align:center;margin:28px 0;">${trackingHtml}</div>` : ''}
+
+          <div style="text-align:center;margin:20px 0;">
+            <a href="${params.purchasesUrl}" style="color:#1a2d4a;font-weight:600;text-decoration:underline;">View your order details</a>
+          </div>
+
+          <p style="color:#4b5563;font-size:13px;">If you have any questions about your shipment, simply reply to this email and we'll be happy to help.</p>
+        </div>
+
+        <!-- Footer -->
+        <div style="background:#1a2d4a;padding:16px 24px;text-align:center;">
+          <p style="margin:0;color:#C9A227;font-style:italic;font-size:13px;">We Rise Together</p>
+          <p style="margin:4px 0 0;color:#ffffff;font-size:11px;">Amadutown Advisory Solutions</p>
+        </div>
+      </div>
     `,
   });
 }

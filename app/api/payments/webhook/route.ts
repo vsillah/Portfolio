@@ -8,6 +8,8 @@ import { materializeCriteria, calculateDeadline } from '@/lib/campaigns'
 import type { PersonalizationContext } from '@/lib/campaigns'
 import { recordCostEvent } from '@/lib/cost-calculator'
 import { parsePrintfulPrice } from '@/lib/printful'
+import { notifyOrderConfirmation, type OrderConfirmationItem } from '@/lib/notifications'
+import { generateInvoicePDFBuffer, type InvoicePDFData } from '@/lib/invoice-pdf'
 
 export const dynamic = 'force-dynamic'
 
@@ -424,6 +426,59 @@ export async function POST(request: NextRequest) {
               if (paymentIntentId) {
                 logStripeFee(paymentIntentId, order.id).catch(() => {})
               }
+
+              // Send order confirmation email for proposal payment
+              try {
+                const proposalItems: OrderConfirmationItem[] = proposal.line_items.map((item: any) => ({
+                  name: item.title || 'Item',
+                  quantity: 1,
+                  unitPrice: item.price ?? 0,
+                  lineTotal: item.price ?? 0,
+                }))
+
+                const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amadutown.com'
+                const purchasesUrl = `${siteUrl}/purchases?orderId=${order.id}`
+                const logoUrl = `${siteUrl}/logo.png`
+
+                let invoicePdfBuffer: Buffer | undefined
+                try {
+                  const pdfData: InvoicePDFData = {
+                    id: order.id,
+                    created_at: order.created_at,
+                    total_amount: proposal.subtotal ?? 0,
+                    discount_amount: proposal.discount_amount,
+                    final_amount: proposal.total_amount ?? 0,
+                    status: 'completed',
+                    order_items: proposal.line_items.map((item: any, idx: number) => ({
+                      id: idx,
+                      quantity: 1,
+                      price_at_purchase: item.price ?? 0,
+                      products: item.content_type === 'product' ? { title: item.title } : null,
+                      services: item.content_type === 'service' ? { title: item.title } : null,
+                    })),
+                  }
+                  invoicePdfBuffer = await generateInvoicePDFBuffer(pdfData, { logoUrl })
+                } catch (pdfErr) {
+                  console.error('[Order Email] Failed to generate proposal invoice PDF:', pdfErr)
+                }
+
+                await notifyOrderConfirmation({
+                  clientEmail: proposal.client_email,
+                  clientName: proposal.client_name,
+                  orderId: order.id,
+                  orderDate: order.created_at,
+                  items: proposalItems,
+                  subtotal: proposal.subtotal ?? 0,
+                  discountAmount: proposal.discount_amount ?? 0,
+                  totalAmount: proposal.total_amount ?? 0,
+                  purchasesUrl,
+                  invoicePdfBuffer,
+                })
+
+                console.log(`[Order Email] Proposal confirmation sent to ${proposal.client_email} for order ${order.id}`)
+              } catch (emailErr) {
+                console.error('[Order Email] Failed to send proposal confirmation:', emailErr)
+              }
               
               // Activate guarantees for purchased items
               await activateGuaranteesForOrder(
@@ -494,6 +549,91 @@ export async function POST(request: NextRequest) {
           // Log Stripe fee for cost tracking
           logStripeFee(paymentIntent.id, parseInt(orderId)).catch(() => {})
 
+          // Send order confirmation email with invoice PDF
+          if (order) {
+            try {
+              const [{ data: emailItems }, { data: profile }] = await Promise.all([
+                supabaseAdmin
+                  .from('order_items')
+                  .select('id, quantity, price_at_purchase, products(title), services(title)')
+                  .eq('order_id', order.id),
+                order.user_id
+                  ? supabaseAdmin
+                      .from('user_profiles')
+                      .select('email, full_name')
+                      .eq('id', order.user_id)
+                      .single()
+                  : Promise.resolve({ data: null }),
+              ])
+
+              let recipientEmail = order.guest_email || ''
+              let recipientName: string | null = order.guest_name || null
+
+              if (profile?.email) {
+                recipientEmail = profile.email
+                recipientName = profile.full_name || recipientName
+              }
+
+              if (recipientEmail && emailItems) {
+                const items: OrderConfirmationItem[] = emailItems.map((i: any) => ({
+                  name: i.products?.title ?? i.services?.title ?? 'Item',
+                  quantity: i.quantity,
+                  unitPrice: i.price_at_purchase ?? 0,
+                  lineTotal: (i.price_at_purchase ?? 0) * i.quantity,
+                }))
+
+                const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amadutown.com'
+                const purchasesUrl = `${siteUrl}/purchases?orderId=${order.id}`
+                const logoUrl = `${siteUrl}/logo.png`
+
+                let invoicePdfBuffer: Buffer | undefined
+                try {
+                  const pdfData: InvoicePDFData = {
+                    id: order.id,
+                    created_at: order.created_at,
+                    total_amount: order.total_amount ?? 0,
+                    discount_amount: order.discount_amount,
+                    final_amount: order.final_amount ?? 0,
+                    shipping_cost: order.shipping_cost,
+                    tax: order.tax,
+                    status: 'completed',
+                    fulfillment_status: order.fulfillment_status,
+                    shipping_address: order.shipping_address as any,
+                    order_items: emailItems.map((i: any) => ({
+                      id: i.id,
+                      quantity: i.quantity,
+                      price_at_purchase: i.price_at_purchase ?? 0,
+                      products: i.products ? { title: i.products.title } : null,
+                      services: i.services ? { title: i.services.title } : null,
+                    })),
+                  }
+                  invoicePdfBuffer = await generateInvoicePDFBuffer(pdfData, { logoUrl })
+                } catch (pdfErr) {
+                  console.error('[Order Email] Failed to generate invoice PDF, sending without attachment:', pdfErr)
+                }
+
+                await notifyOrderConfirmation({
+                  clientEmail: recipientEmail,
+                  clientName: recipientName,
+                  orderId: order.id,
+                  orderDate: order.created_at,
+                  items,
+                  subtotal: order.total_amount ?? 0,
+                  discountAmount: order.discount_amount ?? 0,
+                  shippingCost: order.shipping_cost ?? 0,
+                  tax: order.tax ?? 0,
+                  totalAmount: order.final_amount ?? 0,
+                  purchasesUrl,
+                  invoicePdfBuffer,
+                })
+
+                console.log(`[Order Email] Confirmation sent to ${recipientEmail} for order ${order.id}`)
+              }
+            } catch (emailErr) {
+              console.error('[Order Email] Failed to send confirmation:', emailErr)
+            }
+          }
+
           // Activate guarantees for purchased items
           if (order) {
             await activateGuaranteesForOrder(
@@ -515,9 +655,11 @@ export async function POST(request: NextRequest) {
             )
           }
 
-          // If order has merchandise items, submit to Printful
+          // If order has merchandise items, submit to Printful (skip in Stripe test mode to avoid creating real Printful orders)
           if (!order) {
             // order already handled above
+          } else if (event.livemode === false) {
+            console.log(`[Printful] Stripe test mode (livemode=false): skipping Printful submission so no real order is created. Order ${order.id} would have been submitted.`)
           } else if (!order.shipping_address) {
             console.warn(`[Printful] Order ${order.id} skipped: no shipping_address (required for fulfillment)`)
           } else if (order.printful_order_id) {

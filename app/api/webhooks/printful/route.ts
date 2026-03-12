@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { notifyShipmentUpdate } from '@/lib/notifications'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     const { data: order, error: findError } = await supabaseAdmin
       .from('orders')
-      .select('id')
+      .select('id, user_id, guest_email, guest_name')
       .eq('printful_order_id', printfulOrderId)
       .single()
 
@@ -77,6 +78,41 @@ export async function POST(request: NextRequest) {
     }
 
     console.log(`[Printful webhook] Order ${order.id} marked shipped, tracking: ${trackingNumber || 'n/a'}`)
+
+    // Send shipment notification email (branded as ATAS, no Printful mention)
+    try {
+      let recipientEmail = order.guest_email || ''
+      let recipientName = order.guest_name || null
+
+      if (order.user_id) {
+        const { data: profile } = await supabaseAdmin
+          .from('user_profiles')
+          .select('email, full_name')
+          .eq('id', order.user_id)
+          .single()
+        if (profile?.email) {
+          recipientEmail = profile.email
+          recipientName = profile.full_name || recipientName
+        }
+      }
+
+      if (recipientEmail) {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amadutown.com'
+        await notifyShipmentUpdate({
+          clientEmail: recipientEmail,
+          clientName: recipientName,
+          orderId: order.id,
+          trackingNumber,
+          trackingUrl,
+          carrier: shipment.carrier || null,
+          purchasesUrl: `${siteUrl}/purchases?orderId=${order.id}`,
+        })
+        console.log(`[Printful webhook] Shipment email sent to ${recipientEmail} for order ${order.id}`)
+      }
+    } catch (emailErr) {
+      console.error('[Printful webhook] Failed to send shipment email:', emailErr)
+    }
+
     return NextResponse.json({ received: true }, { status: 200 })
   } catch (error) {
     console.error('[Printful webhook] Error:', error)

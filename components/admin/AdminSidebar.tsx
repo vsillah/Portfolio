@@ -41,6 +41,7 @@ import {
   Share2,
   GitCompare,
   Settings,
+  Mail,
 } from 'lucide-react'
 import { ADMIN_NAV, isNavItemActive, isContentExpanded, isChatEvalExpanded } from '@/lib/admin-nav'
 import { useState, useEffect } from 'react'
@@ -80,9 +81,11 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/users': Users,
   '/admin/prompts': FileCode,
   '/admin/module-sync': GitCompare,
+  '/admin/email-preview': Mail,
   '/admin/content/outcome-groups': Target,
   '/admin/content/projects': FolderKanban,
   '/admin/content/videos': Video,
+  '/admin/content/video-generation': Video,
   '/admin/content/publications': BookOpen,
   '/admin/content/music': Music,
   '/admin/content/services': Wrench,

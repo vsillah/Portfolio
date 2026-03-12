@@ -134,3 +134,37 @@ For behavioral bugs (wrong data, silent failure, unexpected state): instrument f
 After significant changes (new page, new user flow, new API a UI depends on), run a smoke test via **Admin → Testing** before claiming completion. Add an E2E scenario to `lib/testing/scenarios.ts` if none exists for the new functionality.
 
 Unit tests use Vitest and live alongside source files (e.g. `lib/guarantees.test.ts`). Run a single test file: `npx vitest run lib/guarantees.test.ts`.
+
+---
+
+# AmaduTown / Mad Hadda — Claude Code Context
+
+## Who I Am
+Vambah Sillah (Mad Hadda). Founder of AmaduTown Advisory Solutions.
+Mission: Technology as the great equalizer for minority-owned businesses.
+
+## Current Project
+Building the AmaduTown website + YouTube content production pipeline.
+
+## Content Calendar — March 2026
+[Paste the full calendar content here or reference the file path]
+
+## Products & Pricing
+[Paste from your pricing docs]
+
+## HeyGen Setup
+- Avatar ID: [your avatar ID from HeyGen]
+- Voice ID: [your ElevenLabs voice ID]
+- MCP endpoint: https://mcp.heygen.com/mcp/v1/
+
+## Website URL (for B-roll screenshots)
+[your site URL]
+
+## Scripts Location
+All scripts are in Google Drive — ATAS YT series.
+[Paste the Drive links]
+
+## Brand Guidelines
+- Colors: [your brand colors]
+- Tone: Conversational, mission-driven, no-BS
+- Sign-off: "Let's get it"
