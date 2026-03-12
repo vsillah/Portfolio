@@ -35,7 +35,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const SUPABASE_URL = 'https://byoriebhtbysanjhimlu.supabase.co';\nconst SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5b3JpZWJodGJ5c2FuamhpbWx1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcyNTY5NSwiZXhwIjoyMDgzMzAxNjk1fQ.0hMfqk1z6zO58xNlTLVdK7_JmLD6TrYiEUYJIuQAXSY';\nconst headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };\nconst queueResp = await fetch(`${SUPABASE_URL}/rest/v1/social_content_queue?select=meeting_record_id&meeting_record_id=not.is.null`, { headers });\nconst queued = await queueResp.json();\nconst queuedIds = queued.map(r => r.meeting_record_id);\nconst sevenDaysAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString();\nconst meetingsResp = await fetch(`${SUPABASE_URL}/rest/v1/meeting_records?select=*&created_at=gte.${sevenDaysAgo}&order=created_at.desc&limit=10`, { headers });\nconst meetings = await meetingsResp.json();\nconst unprocessed = meetings.filter(m => !queuedIds.includes(m.id));\nif (unprocessed.length === 0) return [{ json: { _empty: true, message: 'No unprocessed meetings found' } }];\nreturn unprocessed.map(m => ({ json: m }));"
+        "jsCode": "const SUPABASE_URL = 'https://byoriebhtbysanjhimlu.supabase.co';\nconst SUPABASE_KEY = 'REPLACE_WITH_SUPABASE_SERVICE_ROLE_KEY';\nconst headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };\nconst queueResp = await fetch(`${SUPABASE_URL}/rest/v1/social_content_queue?select=meeting_record_id&meeting_record_id=not.is.null`, { headers });\nconst queued = await queueResp.json();\nconst queuedIds = queued.map(r => r.meeting_record_id);\nconst sevenDaysAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString();\nconst meetingsResp = await fetch(`${SUPABASE_URL}/rest/v1/meeting_records?select=*&created_at=gte.${sevenDaysAgo}&order=created_at.desc&limit=10`, { headers });\nconst meetings = await meetingsResp.json();\nconst unprocessed = meetings.filter(m => !queuedIds.includes(m.id));\nif (unprocessed.length === 0) return [{ json: { _empty: true, message: 'No unprocessed meetings found' } }];\nreturn unprocessed.map(m => ({ json: m }));"
       },
       "id": "fetch-meetings-code",
       "name": "Fetch Unprocessed Meetings",
@@ -156,7 +156,7 @@
           "parameters": [
             {
               "name": "key",
-              "value": "AIzaSyCIs_Tm3ExJgTC3evdcRXXu44G3HUPJyjM"
+              "value": "REPLACE_WITH_GEMINI_API_KEY"
             }
           ]
         },
@@ -194,7 +194,7 @@
           "parameters": [
             {
               "name": "xi-api-key",
-              "value": "5b888b6d046e0545ecaf4af78c1b2b8fc6a815eedfcd3d4f923540f5e19665d7"
+              "value": "REPLACE_WITH_ELEVENLABS_API_KEY"
             },
             {
               "name": "Content-Type",
@@ -224,7 +224,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const SUPABASE_URL = 'https://byoriebhtbysanjhimlu.supabase.co';\nconst SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5b3JpZWJodGJ5c2FuamhpbWx1Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NzcyNTY5NSwiZXhwIjoyMDgzMzAxNjk1fQ.0hMfqk1z6zO58xNlTLVdK7_JmLD6TrYiEUYJIuQAXSY';\nconst data = $node['Process Image'].json;\nconst row = {\n  meeting_record_id: data.meeting_record_id,\n  platform: data.platform || 'linkedin',\n  status: 'draft',\n  post_text: data.post_text,\n  cta_text: data.cta_text || null,\n  cta_url: data.cta_url || 'https://amadutown.com',\n  hashtags: data.hashtags || [],\n  framework_visual_type: data.framework_visual_type || null,\n  topic_extracted: data.topic_extracted || {},\n  hormozi_framework: data.hormozi_framework || {},\n  rag_context: data.rag_context || {},\n  image_prompt: data.image_prompt || '',\n  voiceover_text: data.voiceover_text || ''\n};\nconst resp = await fetch(`${SUPABASE_URL}/rest/v1/social_content_queue`, {\n  method: 'POST',\n  headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },\n  body: JSON.stringify(row)\n});\nconst result = await resp.json();\nreturn [{ json: Array.isArray(result) ? result[0] : result }];"
+        "jsCode": "const SUPABASE_URL = 'https://byoriebhtbysanjhimlu.supabase.co';\nconst SUPABASE_KEY = 'REPLACE_WITH_SUPABASE_SERVICE_ROLE_KEY';\nconst data = $node['Process Image'].json;\nconst row = {\n  meeting_record_id: data.meeting_record_id,\n  platform: data.platform || 'linkedin',\n  status: 'draft',\n  post_text: data.post_text,\n  cta_text: data.cta_text || null,\n  cta_url: data.cta_url || 'https://amadutown.com',\n  hashtags: data.hashtags || [],\n  framework_visual_type: data.framework_visual_type || null,\n  topic_extracted: data.topic_extracted || {},\n  hormozi_framework: data.hormozi_framework || {},\n  rag_context: data.rag_context || {},\n  image_prompt: data.image_prompt || '',\n  voiceover_text: data.voiceover_text || ''\n};\nconst resp = await fetch(`${SUPABASE_URL}/rest/v1/social_content_queue`, {\n  method: 'POST',\n  headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },\n  body: JSON.stringify(row)\n});\nconst result = await resp.json();\nreturn [{ json: Array.isArray(result) ? result[0] : result }];"
       },
       "id": "save-to-queue-code",
       "name": "Save to Queue",

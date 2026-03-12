@@ -57,7 +57,7 @@ Requires `N8N_CLOUD_API_KEY` in `.env.local`. Matches by workflow name.
 
 ### 3. Configure Environment Variables
 Go to **Settings → Environments** and add:
-- `APIFY_TOKEN`
+- `APIFY_API_TOKEN`
 - `FACEBOOK_PROFILE_URL`
 - `FACEBOOK_GROUP_UIDS`
 - `LINKEDIN_COOKIE`

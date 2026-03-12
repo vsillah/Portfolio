@@ -30,6 +30,9 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# n8n workflow backups (real exports with credentials; never commit)
+n8n-backups/
+
 # vercel
 .vercel
 

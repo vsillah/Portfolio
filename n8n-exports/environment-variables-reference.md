@@ -6,7 +6,7 @@ This file contains all environment variables needed for your n8n workflows on n8
 
 Copy these values into **Settings → Variables** (or **Settings → Environments**) in n8n Cloud.
 
-> **Local self-hosted note:** The local instance blocks `$env` in node expressions. Use **Credentials** (e.g. Header Auth) instead. n8n Cloud supports `$env` normally.
+> **n8n Environment Variables:** Only available on **n8n Enterprise**. On Cloud Free and self-hosted, use **Credentials** (Header Auth, etc.) or hardcode in nodes — but never commit exports with real credentials. Use placeholders in repo; replace in n8n after import.
 
 ---
 
@@ -14,12 +14,38 @@ Copy these values into **Settings → Variables** (or **Settings → Environment
 
 ### Apify (Web Scraping)
 ```bash
-APIFY_TOKEN=your_apify_api_token_here
+APIFY_API_TOKEN=your_apify_api_token_here
 ```
 **Where to get:**
 1. Sign up at [apify.com](https://apify.com)
 2. Go to Settings → Integrations → API
 3. Copy your API token
+
+**Used by:** WF-WRM-001, WF-WRM-003, WF-VEP-002, WF-MON-001, WF-CLG-001
+
+---
+
+### Google Gemini (AI / Image Generation)
+```bash
+GEMINI_API_KEY=your_google_ai_studio_api_key_here
+```
+**Where to get:**
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Create or copy your API key
+
+**Used by:** WF-SOC-001 (Social Content Extraction — image generation)
+
+---
+
+### ElevenLabs (Text-to-Speech)
+```bash
+ELEVENLABS_API_KEY=your_elevenlabs_api_key_here
+```
+**Where to get:**
+1. Sign up at [elevenlabs.io](https://elevenlabs.io)
+2. Go to Profile → API Key
+
+**Used by:** WF-SOC-001 (Social Content Extraction — voiceover)
 
 ---
 
@@ -120,6 +146,8 @@ Add to `.gitignore`:
 .env*.local
 ```
 
+**n8n workflow exports:** Never commit actual API keys or tokens. Use placeholders (e.g. `REPLACE_WITH_GEMINI_API_KEY`) or `{{ $env.VARIABLE_NAME }}` (Enterprise only). Exported workflows with hardcoded keys will be detected by GitGuardian.
+
 ### 2. Rotate Credentials Regularly
 - **LinkedIn Cookie:** Expires ~1 year, rotate annually
 - **API Tokens:** Rotate every 90 days (recommended)
@@ -144,7 +172,7 @@ Instead of storing tokens as environment variables, use n8n's built-in OAuth2 cr
 
 Before activating workflows, verify:
 
-- [ ] `APIFY_TOKEN` is valid (test in browser: `https://api.apify.com/v2/users/me?token=YOUR_TOKEN`)
+- [ ] `APIFY_API_TOKEN` is valid (test in browser: `https://api.apify.com/v2/users/me?token=YOUR_TOKEN`)
 - [ ] `FACEBOOK_PROFILE_URL` is accessible
 - [ ] `FACEBOOK_GROUP_UIDS` is valid JSON array format
 - [ ] `LINKEDIN_COOKIE` is from logged-in session
@@ -162,7 +190,7 @@ Create a test workflow in n8n Cloud:
 // Code node to test env vars
 return [{
   json: {
-    apify_token: $env.APIFY_TOKEN ? 'Set' : 'Missing',
+    apify_token: $env.APIFY_API_TOKEN ? 'Set' : 'Missing',
     facebook_profile: $env.FACEBOOK_PROFILE_URL ? 'Set' : 'Missing',
     linkedin_cookie: $env.LINKEDIN_COOKIE ? 'Set' : 'Missing',
     app_base_url: $env.APP_BASE_URL ? 'Set' : 'Missing',
@@ -186,11 +214,11 @@ Expected output:
 
 ## Troubleshooting
 
-### Error: "Cannot read property 'APIFY_TOKEN' of undefined"
+### Error: "Cannot read property 'APIFY_API_TOKEN' of undefined"
 **Solution:** Environment variable not set. Go to Settings → Environments → Add Variable.
 
 ### Error: "Unauthorized" from Apify
-**Solution:** Check `APIFY_TOKEN` is correct. Test in browser or Postman first.
+**Solution:** Check `APIFY_API_TOKEN` is correct. Test in browser or Postman first.
 
 ### Error: "Invalid cookie" from LinkedIn scraper
 **Solution:** 
@@ -247,8 +275,8 @@ DATABASE_URL=your_postgres_connection_string
 
 ## Summary
 
-**Total Variables Needed:** 7
-1. `APIFY_TOKEN`
+**Total Variables Needed (core):** 7
+1. `APIFY_API_TOKEN`
 2. `FACEBOOK_PROFILE_URL`
 3. `FACEBOOK_GROUP_UIDS`
 4. `LINKEDIN_COOKIE`

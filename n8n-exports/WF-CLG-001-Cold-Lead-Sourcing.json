@@ -232,7 +232,7 @@
             },
             {
               "name": "Authorization",
-              "value": "=Bearer QeN22JCeKUfIPbVAgUIm08GWKPttK2QG/NtKRLGMqS4="
+              "value": "=Bearer REPLACE_WITH_APIFY_API_TOKEN"
             }
           ]
         }
