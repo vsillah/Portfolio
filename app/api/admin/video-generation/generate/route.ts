@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { createAvatarVideo } from '@/lib/heygen'
+import { createVideo } from '@/lib/heygen'
 import { fetchVideoContextByEmail, fetchVideoContext } from '@/lib/video-context'
+import { isOverVideoGenerationLimit } from '@/lib/video-generation-rate-limit'
 import { channelToAspectRatio } from '@/lib/constants/video-channel'
 import type { VideoChannel, VideoAspectRatio } from '@/lib/constants/video-channel'
 
@@ -19,6 +20,16 @@ export async function POST(request: NextRequest) {
     }
 
     const userId = auth.user?.id
+    if (userId) {
+      const overLimit = await isOverVideoGenerationLimit(userId)
+      if (overLimit) {
+        return NextResponse.json(
+          { error: 'Daily video generation limit reached. Please try again tomorrow.' },
+          { status: 429 }
+        )
+      }
+    }
+
     const body = await request.json()
 
     const scriptSource = (body.scriptSource as string) || 'manual'
@@ -33,12 +44,17 @@ export async function POST(request: NextRequest) {
     const driveFileId = body.driveFileId as string | null
     const driveFileName = body.driveFileName as string | null
 
+    const templateId = (body.templateId as string)?.trim() || process.env.HEYGEN_TEMPLATE_ID
+    const brandVoiceId = (body.brandVoiceId as string)?.trim() || process.env.HEYGEN_BRAND_VOICE_ID
     const avatarId = (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
     const voiceId = (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
 
-    if (!avatarId || !voiceId) {
+    if (!templateId && (!avatarId || !voiceId)) {
       return NextResponse.json(
-        { error: 'avatarId and voiceId are required (or set HEYGEN_AVATAR_ID, HEYGEN_VOICE_ID)' },
+        {
+          error:
+            'Use template (HEYGEN_TEMPLATE_ID or templateId) or provide avatarId and voiceId (or set HEYGEN_AVATAR_ID, HEYGEN_VOICE_ID)',
+        },
         { status: 400 }
       )
     }
@@ -75,13 +91,20 @@ export async function POST(request: NextRequest) {
     const channel = (body.channel as VideoChannel) || 'youtube'
     const aspectRatio = (body.aspectRatio as VideoAspectRatio) || channelToAspectRatio(channel)
 
-    const result = await createAvatarVideo({
-      avatarId,
-      voiceId,
+    const result = await createVideo({
       script: scriptText,
       title: body.title ?? `Video ${new Date().toISOString().slice(0, 10)}`,
       aspectRatio,
       channel,
+      templateId: templateId || undefined,
+      brandVoiceId: brandVoiceId || undefined,
+      avatarId: avatarId || undefined,
+      voiceId: voiceId || undefined,
+      caption: body.caption === true ? true : undefined,
+      includeGif: body.includeGif === true ? true : undefined,
+      folderId: typeof body.folderId === 'string' && body.folderId.trim() ? body.folderId.trim() : undefined,
+      callbackUrl: typeof body.callbackUrl === 'string' && body.callbackUrl.trim() ? body.callbackUrl.trim() : undefined,
+      enableSharing: body.enableSharing === true ? true : undefined,
     })
 
     if (result.error) {
@@ -103,8 +126,8 @@ export async function POST(request: NextRequest) {
         drive_file_name: driveFileName,
         target_type: targetType,
         target_id: targetId,
-        avatar_id: avatarId,
-        voice_id: voiceId,
+        avatar_id: avatarId ?? null,
+        voice_id: voiceId ?? null,
         aspect_ratio: aspectRatio,
         channel,
         heygen_video_id: result.videoId,
