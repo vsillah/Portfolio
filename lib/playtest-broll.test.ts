@@ -3,7 +3,10 @@ import { DEFAULT_ROUTES, selectRoutesFromScript } from './playtest-broll'
 
 describe('selectRoutesFromScript', () => {
   it('returns all routes when no keywords are present', () => {
-    const routes = selectRoutesFromScript('This script covers quarterly revenue forecasting only.', DEFAULT_ROUTES)
+    const routes = selectRoutesFromScript(
+      'This script covers quarterly revenue forecasting only.',
+      DEFAULT_ROUTES
+    )
     expect(routes).toEqual(DEFAULT_ROUTES)
   })
 
