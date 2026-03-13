@@ -3,10 +3,12 @@
  * Uses service account auth. Polls scripts folder for changes and populates drive_video_queue.
  */
 
+import { Readable } from 'stream'
 import { google } from 'googleapis'
 
 const SCRIPT_EXTENSIONS = ['.txt', '.md'] as const
 const DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
+const DRIVE_SCOPES_WRITE = ['https://www.googleapis.com/auth/drive.file']
 
 export interface DriveFileMeta {
   id: string
@@ -37,6 +39,24 @@ function getDriveClient() {
   const auth = new google.auth.GoogleAuth({
     credentials,
     scopes: DRIVE_SCOPES,
+  })
+  return google.drive({ version: 'v3', auth })
+}
+
+function getDriveClientWithWrite() {
+  const keyJson = process.env.GOOGLE_SERVICE_ACCOUNT_KEY
+  if (!keyJson) {
+    throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY is not configured')
+  }
+  let credentials: Record<string, unknown>
+  try {
+    credentials = JSON.parse(keyJson) as Record<string, unknown>
+  } catch {
+    throw new Error('GOOGLE_SERVICE_ACCOUNT_KEY is invalid JSON')
+  }
+  const auth = new google.auth.GoogleAuth({
+    credentials,
+    scopes: DRIVE_SCOPES_WRITE,
   })
   return google.drive({ version: 'v3', auth })
 }
@@ -136,5 +156,35 @@ export async function fetchScriptChange(file: DriveFileMeta): Promise<DriveScrip
     scriptText,
     scriptTextPrior,
     effectiveAt: file.modifiedTime,
+  }
+}
+
+/**
+ * Upload a video from a URL to a Drive folder. Used by video completion handler when
+ * HEYGEN_VIDEO_UPLOAD_TO_DRIVE_ENABLED and GOOGLE_DRIVE_VIDEOS_FOLDER_ID are set.
+ */
+export async function uploadVideoUrlToFolder(
+  videoUrl: string,
+  folderId: string,
+  fileName: string
+): Promise<void> {
+  const res = await fetch(videoUrl)
+  if (!res.ok) {
+    throw new Error(`Failed to fetch video: ${res.status}`)
+  }
+  const buffer = Buffer.from(await res.arrayBuffer())
+  const drive = getDriveClientWithWrite()
+  const { data } = await drive.files.create({
+    requestBody: {
+      name: fileName,
+      parents: [folderId],
+    },
+    media: {
+      mimeType: 'video/mp4',
+      body: Readable.from(buffer),
+    },
+  })
+  if (!data.id) {
+    throw new Error('Drive create did not return file id')
   }
 }

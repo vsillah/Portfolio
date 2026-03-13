@@ -321,6 +321,7 @@ const InvoiceDocument: React.FC<{
           </View>
           <View style={styles.headerBarCenter}>
             {logoUrl ? (
+              // eslint-disable-next-line jsx-a11y/alt-text -- @react-pdf/renderer Image has no alt prop
               <Image style={styles.headerLogo} src={logoUrl} />
             ) : null}
           </View>

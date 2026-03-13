@@ -53,6 +53,17 @@ export interface GammaReportInput {
   title: string
 }
 
+/** Minimal context for video script generation (companion video from report). */
+export interface VideoScriptContext {
+  contactName: string | null
+  company: string | null
+  industry: string | null
+  diagnosticSummary: string | null
+  valueStatementsSummary: string | null
+  totalAnnualValue: number | null
+  topPainPoints: string[]
+}
+
 interface ReportContext {
   contact: ContactData | null
   audit: AuditData | null
@@ -271,6 +282,120 @@ async function fetchReportContext(params: GammaReportParams): Promise<ReportCont
   ])
 
   return { contact, audit, valueReport, services, painPoints, benchmarks }
+}
+
+/**
+ * Fetch minimal context for video script generation (companion video from report).
+ * Reuses the same data layer as buildGammaReportInput so script and report stay in sync.
+ */
+export async function fetchVideoScriptContext(
+  params: GammaReportParams
+): Promise<VideoScriptContext> {
+  const ctx = await fetchReportContext(params)
+  return reportContextToVideoScriptContext(ctx)
+}
+
+/**
+ * Map report context to video script context (no extra fetch).
+ * Used when you already have ReportContext (e.g. report+video one-click).
+ */
+function reportContextToVideoScriptContext(ctx: ReportContext): VideoScriptContext {
+  const statements = ctx.valueReport?.value_statements ?? []
+  const topPainPoints = statements
+    .slice(0, 3)
+    .map((s: ValueStatementData) => s.painPoint || s.evidenceSummary || '')
+    .filter(Boolean)
+  const valueStatementsSummary =
+    statements.length > 0
+      ? `We identified ${statements.length} opportunity areas worth $${(ctx.valueReport?.total_annual_value ?? 0).toLocaleString()} annually.`
+      : null
+  return {
+    contactName: ctx.contact?.name ?? null,
+    company: ctx.contact?.company ?? null,
+    industry: ctx.contact?.industry ?? ctx.valueReport?.industry ?? null,
+    diagnosticSummary: ctx.audit?.diagnostic_summary ?? null,
+    valueStatementsSummary,
+    totalAnnualValue: ctx.valueReport?.total_annual_value ?? null,
+    topPainPoints,
+  }
+}
+
+/**
+ * Single fetch that returns both Gamma report input and video script context.
+ * Use for report+video one-click so both outputs use the same context.
+ */
+export async function fetchReportAndVideoContext(
+  params: GammaReportParams
+): Promise<{ gammaInput: GammaReportInput; videoScriptContext: VideoScriptContext }> {
+  const ctx = await fetchReportContext(params)
+  const gammaInput = buildGammaReportInputFromContext(ctx, params)
+  const videoScriptContext = reportContextToVideoScriptContext(ctx)
+  return { gammaInput, videoScriptContext }
+}
+
+/**
+ * Build Gamma report input from an already-fetched context (no extra fetch).
+ */
+function buildGammaReportInputFromContext(
+  ctx: ReportContext,
+  params: GammaReportParams
+): GammaReportInput {
+  let inputText: string
+  let title: string
+
+  switch (params.reportType) {
+    case 'value_quantification':
+      ({ inputText, title } = buildValueQuantificationPrompt(ctx, params))
+      break
+    case 'implementation_strategy':
+      ({ inputText, title } = buildImplementationStrategyPrompt(ctx, params))
+      break
+    case 'audit_summary':
+      ({ inputText, title } = buildAuditSummaryPrompt(ctx, params))
+      break
+    case 'prospect_overview':
+      ({ inputText, title } = buildProspectOverviewPrompt(ctx, params))
+      break
+    default:
+      throw new Error(`Unknown report type: ${params.reportType}`)
+  }
+
+  const orgName = ctx.contact?.company || 'the organization'
+  const numCards = params.reportType === 'value_quantification' ? 16 : 19
+
+  const options: GammaGenerateOptions = {
+    textMode: 'generate',
+    format: 'presentation',
+    numCards,
+    cardSplit: 'auto',
+    exportAs: 'pdf',
+    textOptions: {
+      amount: 'detailed',
+      tone: 'professional, data-driven, consultative',
+      audience: `nonprofit and small business leadership, board members, and executive directors at ${orgName}`,
+      language: 'en',
+    },
+    imageOptions: {
+      source: 'noImages',
+    },
+    cardOptions: {
+      dimensions: '16x9',
+    },
+    sharingOptions: {
+      externalAccess: 'view',
+    },
+    ...params.gammaOptions,
+  }
+
+  if (params.theme) {
+    options.themeId = params.theme
+  }
+
+  if (params.externalInputs?.customInstructions) {
+    options.additionalInstructions = params.externalInputs.customInstructions
+  }
+
+  return { inputText, options, title }
 }
 
 // ---------------------------------------------------------------------------
