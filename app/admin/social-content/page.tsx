@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import {
   Share2,
@@ -187,9 +188,9 @@ function SocialContentQueuePage() {
                 >
                   <div className="flex items-start gap-4">
                     {/* Image thumbnail */}
-                    <div className="w-16 h-16 rounded-lg bg-gray-800 flex-shrink-0 overflow-hidden flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-lg bg-gray-800 flex-shrink-0 overflow-hidden flex items-center justify-center relative">
                       {item.image_url ? (
-                        <img src={item.image_url} alt="" className="w-full h-full object-cover" />
+                        <Image src={item.image_url} alt="" className="object-cover" fill sizes="64px" />
                       ) : (
                         <ImageIcon className="w-6 h-6 text-gray-600" />
                       )}

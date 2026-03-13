@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { Mail, Phone, MapPin, Linkedin, ChevronDown, ChevronUp, Award, BookOpen, Briefcase } from 'lucide-react';
 import { Timeline } from './timeline';
@@ -466,15 +466,15 @@ export default function ScrollAdventure() {
   const scrolling = useRef(false);
   const fullPageScrollRef = useRef<HTMLDivElement>(null);
 
-  const navigateUp = () => {
-    if (currentPage > 1) setCurrentPage(p => p - 1);
-  };
+  const navigateDown = useCallback(() => {
+    setCurrentPage(p => (p < numOfPages ? p + 1 : p));
+  }, [numOfPages]);
 
-  const navigateDown = () => {
-    if (currentPage < numOfPages) setCurrentPage(p => p + 1);
-  };
+  const navigateUp = useCallback(() => {
+    setCurrentPage(p => (p > 1 ? p - 1 : p));
+  }, []);
 
-  const handleWheel = (e: WheelEvent) => {
+  const handleWheel = useCallback((e: WheelEvent) => {
     if (scrolling.current) return;
     // Add a small threshold to prevent accidental micro-scrolls
     if (Math.abs(e.deltaY) < 20) return;
@@ -519,9 +519,9 @@ export default function ScrollAdventure() {
     scrolling.current = true;
     e.deltaY > 0 ? navigateDown() : navigateUp();
     setTimeout(() => (scrolling.current = false), animTime);
-  };
+  }, [currentPage, numOfPages, animTime, navigateUp, navigateDown]);
 
-  const handleKeyDown = (e: KeyboardEvent) => {
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (scrolling.current) return;
     const currentPageType = pages[currentPage - 1].type;
     
@@ -536,7 +536,7 @@ export default function ScrollAdventure() {
       navigateDown();
       setTimeout(() => (scrolling.current = false), animTime);
     }
-  };
+  }, [currentPage, animTime, navigateUp, navigateDown]);
 
   useEffect(() => {
     window.addEventListener('wheel', handleWheel);
@@ -545,7 +545,7 @@ export default function ScrollAdventure() {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [currentPage]);
+  }, [handleWheel, handleKeyDown]);
 
   // Touch support for mobile
   const touchStartY = useRef(0);

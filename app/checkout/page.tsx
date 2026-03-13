@@ -299,7 +299,7 @@ export default function CheckoutPage() {
     return () => clearTimeout(timer)
   }, [shippingAddress.zip, shippingAddress.country_code, shippingAddress.city, shippingAddress.state_code])
 
-  const isShippingAddressComplete = () => {
+  const isShippingAddressComplete = useCallback(() => {
     if (!hasMerchandise) return true
     const a = shippingAddress
     return Boolean(
@@ -309,7 +309,7 @@ export default function CheckoutPage() {
         a.zip?.trim() &&
         a.country_code?.trim()
     )
-  }
+  }, [hasMerchandise, shippingAddress])
 
   // Fetch shipping cost when address is complete (merchandise only)
   useEffect(() => {
@@ -355,6 +355,7 @@ export default function CheckoutPage() {
     return () => clearTimeout(timer)
   }, [
     hasMerchandise,
+    isShippingAddressComplete,
     shippingAddress.address1,
     shippingAddress.city,
     shippingAddress.state_code,

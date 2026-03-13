@@ -87,10 +87,30 @@ function LeadMagnetsContent() {
   const [funnelFilter, setFunnelFilter] = useState<string>('all')
   const [nurtureStats, setNurtureStats] = useState<Record<string, NurtureStats>>({})
 
+  const fetchNurtureStats = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+      const res = await fetch('/api/admin/lead-magnets/nurture-stats', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const byId: Record<string, NurtureStats> = {}
+        for (const row of data) {
+          byId[row.lead_magnet_id] = row
+        }
+        setNurtureStats(byId)
+      }
+    } catch {
+      // Non-critical
+    }
+  }, [])
+
   useEffect(() => {
     fetchLeadMagnets()
     fetchNurtureStats()
-  }, [])
+  }, [fetchNurtureStats])
 
   // Open add form with type/context when linked from another form (e.g. Publications "Create lead magnet")
   useEffect(() => {
@@ -134,26 +154,6 @@ function LeadMagnetsContent() {
       setLoading(false)
     }
   }
-
-  const fetchNurtureStats = useCallback(async () => {
-    try {
-      const session = await getCurrentSession()
-      if (!session?.access_token) return
-      const res = await fetch('/api/admin/lead-magnets/nurture-stats', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (res.ok) {
-        const data = await res.json()
-        const byId: Record<string, NurtureStats> = {}
-        for (const row of data) {
-          byId[row.lead_magnet_id] = row
-        }
-        setNurtureStats(byId)
-      }
-    } catch {
-      // Non-critical
-    }
-  }, [])
 
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

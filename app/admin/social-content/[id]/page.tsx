@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import {
   Share2,
   ArrowLeft,
@@ -409,8 +410,8 @@ function SocialContentDetailPage() {
               )}
             </div>
             {item.image_url ? (
-              <div className="rounded-lg overflow-hidden mb-3 bg-gray-800">
-                <img src={item.image_url} alt="Generated framework illustration" className="w-full max-h-[400px] object-contain" />
+              <div className="rounded-lg overflow-hidden mb-3 bg-gray-800 relative w-full h-[400px]">
+                <Image src={item.image_url} alt="Generated framework illustration" className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" />
               </div>
             ) : (
               <div className="rounded-lg bg-gray-800 h-48 flex items-center justify-center mb-3">
@@ -574,8 +575,8 @@ function SocialContentDetailPage() {
                 {getFullPostText(item)}
               </div>
               {item.image_url && (
-                <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <img src={item.image_url} alt="" className="w-full" />
+                <div className="rounded-lg overflow-hidden border border-gray-200 relative w-full aspect-video">
+                  <Image src={item.image_url} alt="Post image" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
                 </div>
               )}
             </div>

@@ -20,7 +20,9 @@ import {
   AlertCircle,
   CheckCircle,
   Search,
+  Video,
 } from 'lucide-react';
+import Link from 'next/link';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -113,6 +115,12 @@ function GammaReportsContent() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showPromptPreview, setShowPromptPreview] = useState(false);
+
+  // Companion video
+  const [generatingCompanion, setGeneratingCompanion] = useState(false);
+  const [companionError, setCompanionError] = useState<string | null>(null);
+  const [companionJobId, setCompanionJobId] = useState<string | null>(null);
+  const [companionReportId, setCompanionReportId] = useState<string | null>(null);
 
   // History
   const [reports, setReports] = useState<GammaReport[]>([]);
@@ -256,6 +264,38 @@ function GammaReportsContent() {
       navigator.clipboard.writeText(result.gammaUrl);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  }
+
+  async function handleGenerateCompanionVideo(reportId: string) {
+    setCompanionError(null);
+    setCompanionJobId(null);
+    setCompanionReportId(reportId);
+    setGeneratingCompanion(true);
+    try {
+      const session = await getCurrentSession();
+      if (!session) {
+        setCompanionError('Please sign in again.');
+        return;
+      }
+      const res = await fetch('/api/admin/video-generation/companion-from-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ gammaReportId: reportId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setCompanionError(data.error || 'Failed to start companion video.');
+        return;
+      }
+      setCompanionJobId(data.jobId);
+    } catch (err) {
+      setCompanionError(err instanceof Error ? err.message : 'Something went wrong.');
+    } finally {
+      setGeneratingCompanion(false);
     }
   }
 
@@ -512,7 +552,47 @@ function GammaReportsContent() {
                 <RefreshCw className="w-4 h-4" />
                 Re-generate
               </button>
+              <button
+                onClick={() => result?.reportId && handleGenerateCompanionVideo(result.reportId)}
+                disabled={generatingCompanion}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50"
+              >
+                {generatingCompanion && companionReportId === result?.reportId ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Video className="w-4 h-4" />
+                )}
+                Generate companion video
+              </button>
             </div>
+            {companionError && companionReportId === result?.reportId && (
+              <p className="text-sm text-red-400 mt-2">{companionError}</p>
+            )}
+            {companionJobId && companionReportId === result?.reportId && (
+              <p className="text-sm text-emerald-400 mt-2">
+                Video job started.{' '}
+                <Link href={`/admin/content/video-generation?jobId=${companionJobId}`} className="underline hover:no-underline">
+                  View in Video Generation
+                </Link>
+              </p>
+            )}
+          </div>
+        )}
+
+        {companionJobId && companionReportId && companionReportId !== result?.reportId && (
+          <div className="bg-amber-900/20 border border-amber-700 rounded-lg p-4 flex items-center gap-3">
+            <Video className="w-5 h-5 text-amber-400" />
+            <p className="text-amber-200 text-sm">
+              Companion video job started.{' '}
+              <Link href={`/admin/content/video-generation?jobId=${companionJobId}`} className="underline hover:no-underline text-amber-300">
+                View in Video Generation
+              </Link>
+            </p>
+          </div>
+        )}
+        {companionError && companionReportId !== result?.reportId && (
+          <div className="bg-red-900/30 border border-red-700 rounded-lg p-4">
+            <p className="text-red-400 text-sm">{companionError}</p>
           </div>
         )}
 
@@ -552,6 +632,7 @@ function GammaReportsContent() {
                     <th className="text-left px-4 py-3 font-medium">Status</th>
                     <th className="text-left px-4 py-3 font-medium">Date</th>
                     <th className="text-left px-4 py-3 font-medium">Link</th>
+                    <th className="text-left px-4 py-3 font-medium">Video</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -587,6 +668,17 @@ function GammaReportsContent() {
                         ) : (
                           <span className="text-gray-600">—</span>
                         )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          onClick={() => handleGenerateCompanionVideo(report.id)}
+                          disabled={generatingCompanion}
+                          className="text-amber-400 hover:text-amber-300 flex items-center gap-1 text-sm disabled:opacity-50"
+                        >
+                          <Video className="w-3.5 h-3.5" />
+                          Companion video
+                        </button>
                       </td>
                     </tr>
                   ))}

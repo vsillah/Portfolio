@@ -75,7 +75,9 @@ import {
   Copy,
   Loader2,
   LayoutDashboard,
+  Video,
 } from 'lucide-react';
+import Link from 'next/link';
 
 interface DiagnosticAudit {
   id: string;
@@ -259,6 +261,15 @@ export default function ClientWalkthroughPage() {
     status: string;
     proposalLink: string;
     accessCode?: string;
+  } | null>(null);
+
+  // Report + video one-click
+  const [generatingReportVideo, setGeneratingReportVideo] = useState(false);
+  const [reportVideoError, setReportVideoError] = useState<string | null>(null);
+  const [reportVideoResult, setReportVideoResult] = useState<{
+    reportId: string;
+    jobId: string | null;
+    gammaGenerationId: string;
   } | null>(null);
   
   // Content group collapse state
@@ -1921,21 +1932,145 @@ export default function ClientWalkthroughPage() {
                         )}
 
                         {/* Gamma Report Button */}
-                        <div className="mt-3 flex gap-2">
-                          <a
-                            href={`/admin/reports/gamma?type=value_quantification&contactId=${contact?.id || ''}&auditId=${audit?.id || ''}&valueReportId=${valueReportId || ''}`}
-                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-emerald-600/20 border border-emerald-600/40 hover:bg-emerald-600/30 text-emerald-400 rounded-lg text-sm transition-colors"
-                          >
-                            <FileText className="w-4 h-4" />
-                            Value Report
-                          </a>
-                          <a
-                            href={`/admin/reports/gamma?type=implementation_strategy&contactId=${contact?.id || ''}&auditId=${audit?.id || ''}&valueReportId=${valueReportId || ''}`}
-                            className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-teal-600/20 border border-teal-600/40 hover:bg-teal-600/30 text-teal-400 rounded-lg text-sm transition-colors"
-                          >
-                            <Layers className="w-4 h-4" />
-                            Strategy Deck
-                          </a>
+                        <div className="mt-3 flex flex-col gap-2">
+                          <div className="flex gap-2">
+                            <a
+                              href={`/admin/reports/gamma?type=value_quantification&contactId=${contact?.id || ''}&auditId=${audit?.id || ''}&valueReportId=${valueReportId || ''}`}
+                              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-emerald-600/20 border border-emerald-600/40 hover:bg-emerald-600/30 text-emerald-400 rounded-lg text-sm transition-colors"
+                            >
+                              <FileText className="w-4 h-4" />
+                              Value Report
+                            </a>
+                            <a
+                              href={`/admin/reports/gamma?type=implementation_strategy&contactId=${contact?.id || ''}&auditId=${audit?.id || ''}&valueReportId=${valueReportId || ''}`}
+                              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-teal-600/20 border border-teal-600/40 hover:bg-teal-600/30 text-teal-400 rounded-lg text-sm transition-colors"
+                            >
+                              <Layers className="w-4 h-4" />
+                              Strategy Deck
+                            </a>
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                setReportVideoError(null);
+                                setReportVideoResult(null);
+                                setGeneratingReportVideo(true);
+                                try {
+                                  const session = await getCurrentSession();
+                                  if (!session) {
+                                    setReportVideoError('Please sign in again.');
+                                    return;
+                                  }
+                                  const res = await fetch('/api/admin/gamma-reports/with-video', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      Authorization: `Bearer ${session.access_token}`,
+                                    },
+                                    body: JSON.stringify({
+                                      reportType: 'value_quantification',
+                                      contactSubmissionId: contact?.id ?? undefined,
+                                      diagnosticAuditId: audit?.id ?? undefined,
+                                      valueReportId: valueReportId ?? undefined,
+                                    }),
+                                  });
+                                  const data = await res.json().catch(() => ({}));
+                                  if (!res.ok) {
+                                    setReportVideoError(data.error || 'Failed to start report + video.');
+                                    return;
+                                  }
+                                  setReportVideoResult({
+                                    reportId: data.reportId,
+                                    jobId: data.jobId ?? null,
+                                    gammaGenerationId: data.gammaGenerationId,
+                                  });
+                                } catch (err) {
+                                  setReportVideoError(err instanceof Error ? err.message : 'Something went wrong.');
+                                } finally {
+                                  setGeneratingReportVideo(false);
+                                }
+                              }}
+                              disabled={generatingReportVideo}
+                              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-amber-600/20 border border-amber-600/40 hover:bg-amber-600/30 text-amber-400 rounded-lg text-sm transition-colors disabled:opacity-50"
+                            >
+                              {generatingReportVideo ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Video className="w-4 h-4" />
+                              )}
+                              Value Report + Video
+                            </button>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                setReportVideoError(null);
+                                setReportVideoResult(null);
+                                setGeneratingReportVideo(true);
+                                try {
+                                  const session = await getCurrentSession();
+                                  if (!session) {
+                                    setReportVideoError('Please sign in again.');
+                                    return;
+                                  }
+                                  const res = await fetch('/api/admin/gamma-reports/with-video', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      Authorization: `Bearer ${session.access_token}`,
+                                    },
+                                    body: JSON.stringify({
+                                      reportType: 'implementation_strategy',
+                                      contactSubmissionId: contact?.id ?? undefined,
+                                      diagnosticAuditId: audit?.id ?? undefined,
+                                      valueReportId: valueReportId ?? undefined,
+                                    }),
+                                  });
+                                  const data = await res.json().catch(() => ({}));
+                                  if (!res.ok) {
+                                    setReportVideoError(data.error || 'Failed to start report + video.');
+                                    return;
+                                  }
+                                  setReportVideoResult({
+                                    reportId: data.reportId,
+                                    jobId: data.jobId ?? null,
+                                    gammaGenerationId: data.gammaGenerationId,
+                                  });
+                                } catch (err) {
+                                  setReportVideoError(err instanceof Error ? err.message : 'Something went wrong.');
+                                } finally {
+                                  setGeneratingReportVideo(false);
+                                }
+                              }}
+                              disabled={generatingReportVideo}
+                              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-amber-600/20 border border-amber-600/40 hover:bg-amber-600/30 text-amber-400 rounded-lg text-sm transition-colors disabled:opacity-50"
+                            >
+                              {generatingReportVideo ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <Video className="w-4 h-4" />
+                              )}
+                              Strategy Deck + Video
+                            </button>
+                          </div>
+                          {reportVideoError && (
+                            <p className="text-sm text-red-400">{reportVideoError}</p>
+                          )}
+                          {reportVideoResult && (
+                            <p className="text-sm text-emerald-400 flex flex-wrap gap-x-4 gap-y-1">
+                              <Link href="/admin/reports/gamma" className="underline hover:no-underline">
+                                View report
+                              </Link>
+                              {reportVideoResult.jobId && (
+                                <Link
+                                  href={`/admin/content/video-generation?jobId=${reportVideoResult.jobId}`}
+                                  className="underline hover:no-underline"
+                                >
+                                  View video job
+                                </Link>
+                              )}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </div>
