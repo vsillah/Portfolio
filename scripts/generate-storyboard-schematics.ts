@@ -10,7 +10,7 @@
 import * as fs from 'fs'
 import * as path from 'path'
 
-const OUT_DIR = path.join(process.cwd(), 'design-files', 'about-page-video')
+const DEFAULT_OUT_DIR = path.join(process.cwd(), 'design-files', 'about-page-video')
 const COLORS = {
   navy: '#121E31',
   gold: '#D4AF37',
@@ -191,17 +191,38 @@ const schematics: { name: string; fn: () => string }[] = [
   },
 ]
 
-function main() {
-  if (!fs.existsSync(OUT_DIR)) {
-    fs.mkdirSync(OUT_DIR, { recursive: true })
-    console.log('Created', OUT_DIR)
+/**
+ * Generate all storyboard schematic SVGs into the given directory.
+ * Returns the list of written file paths. Callable from CLI or API.
+ */
+export function generateStoryboardSchematics(outputDir?: string): string[] {
+  const outDir = outputDir ?? DEFAULT_OUT_DIR
+  if (!fs.existsSync(outDir)) {
+    fs.mkdirSync(outDir, { recursive: true })
+    if (typeof console !== 'undefined' && console.log) {
+      console.log('Created', outDir)
+    }
   }
+  const written: string[] = []
   for (const { name, fn } of schematics) {
-    const outPath = path.join(OUT_DIR, name)
+    const outPath = path.join(outDir, name)
     fs.writeFileSync(outPath, fn(), 'utf8')
-    console.log('Wrote', outPath)
+    written.push(outPath)
+    if (typeof console !== 'undefined' && console.log) {
+      console.log('Wrote', outPath)
+    }
   }
-  console.log('Done. Schematics in', OUT_DIR)
+  if (typeof console !== 'undefined' && console.log) {
+    console.log('Done. Schematics in', outDir)
+  }
+  return written
 }
 
-main()
+function main() {
+  generateStoryboardSchematics()
+}
+
+// Run only when executed as script (tsx scripts/generate-storyboard-schematics.ts), not when imported
+if (typeof process !== 'undefined' && process.argv[1]?.includes('generate-storyboard-schematics')) {
+  main()
+}

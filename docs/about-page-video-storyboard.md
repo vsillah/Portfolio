@@ -17,6 +17,8 @@ Use real site captures as **B-roll**, as **reference for AI image prompts** (so 
 - `npm run storyboard:assets:capture` — captures screenshots (PNG) for each route listed below. Add `--videos` to also record a short WebM clip per route (full 1920×1080): `npx tsx scripts/capture-storyboard-assets.ts --videos`.
 - `npm run storyboard:assets` — runs schematics then capture.
 
+You can also run the same pipeline from the admin UI: **Admin → Content Hub → Video Generation** → **Storyboard B-roll** (Screenshots only or Screenshots + clips).
+
 **Admin routes (dashboard, Module Sync, Chat Eval)** require login. Without auth, those captures will be the OAuth/login screen.
 
 - **Automated (recommended):** Add `ADMIN_E2E_EMAIL` and `ADMIN_E2E_PASSWORD` to `.env.local` (your admin user must have a password set — see `docs/admin-password-setup-for-storyboard-capture.md`). The capture script signs in programmatically via Supabase and generates auth state automatically — no browser, no manual step. Just run `npm run storyboard:assets` (schematics + screenshots) or `npm run storyboard:assets:all` (schematics + screenshots + video clips).

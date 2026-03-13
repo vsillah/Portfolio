@@ -1,0 +1,28 @@
+---
+description: Apply Supabase migrations via MCP in-session instead of deferring to user follow-up steps
+alwaysApply: true
+---
+
+# Supabase Migrations — Apply via MCP
+
+When creating or modifying migrations for this project:
+
+1. **Apply migrations via Supabase MCP** in the same session using `apply_migration` (or `execute_sql` when appropriate).
+2. **Do not add** "Run the migration" or "Execute `supabase db push`" to the user's follow-up steps when MCP is available.
+3. **Verify** the migration succeeded (MCP returns success; optionally run a quick schema check if needed).
+
+## When to use MCP
+
+- Supabase MCP is connected and the project uses Supabase.
+- The migration file exists in `migrations/` and matches what will be applied.
+- The migration is DDL (ALTER, CREATE, etc.) that the MCP tool supports.
+
+## When follow-up steps are acceptable
+
+- Supabase MCP is not available or not connected.
+- The user explicitly requests manual execution.
+- The migration targets a different database (e.g. staging/prod) that MCP does not reach.
+
+## Handoff wording
+
+When migration was applied via MCP, state: "Migration applied via Supabase MCP." Do not list it as a follow-up step.

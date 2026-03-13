@@ -52,13 +52,16 @@ Use this doc when rotating credentials to avoid missing a plug-in point. Each cr
 
 ---
 
-### HEYGEN_API_KEY, HEYGEN_AVATAR_ID, HEYGEN_VOICE_ID
+### HEYGEN_API_KEY, HEYGEN_AVATAR_ID, HEYGEN_VOICE_ID, HEYGEN_TEMPLATE_ID, HEYGEN_BRAND_VOICE_ID
 
 | Location | File | Purpose |
 |----------|------|---------|
-| | `lib/heygen.ts` | Avatars, video generation, status |
+| | `lib/heygen.ts` | Avatars, templates, brand voices, video generation, status |
 | | `app/api/admin/video-generation/generate/route.ts` | Generate video |
 | | `app/api/admin/video-generation/queue/[id]/generate/route.ts` | Queue job |
+| | `app/api/admin/video-generation/ideas-queue/[id]/generate/route.ts` | Ideas queue job |
+
+**Template mode:** When `HEYGEN_TEMPLATE_ID` is set, uses Template API with Brand Glossary (`HEYGEN_BRAND_VOICE_ID`) instead of direct avatar. AmaduTown branding (pronunciation, terminology, tone) applied via Brand Glossary.
 
 **Rotate:** HeyGen dashboard → regenerate key; update `.env.local`, redeploy.
 
