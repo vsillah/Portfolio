@@ -1,10 +1,18 @@
-import { describe, expect, it, vi } from 'vitest'
-import { buildVideoScriptFromVideoContext } from './video-script-from-context'
-import type { VideoScriptContext } from './gamma-report-builder'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import {
+  fetchVideoScriptContext,
+  type VideoScriptContext,
+} from '@/lib/gamma-report-builder'
+import {
+  buildVideoScriptFromContext,
+  buildVideoScriptFromVideoContext,
+} from './video-script-from-context'
 
 vi.mock('@/lib/gamma-report-builder', () => ({
   fetchVideoScriptContext: vi.fn(),
 }))
+
+const mockedFetchVideoScriptContext = vi.mocked(fetchVideoScriptContext)
 
 function makeContext(overrides: Partial<VideoScriptContext> = {}): VideoScriptContext {
   return {
@@ -71,5 +79,34 @@ describe('buildVideoScriptFromVideoContext', () => {
     expect(script).toBe(
       "Thanks for your interest. I've prepared a report for you — check the link for the full picture. Let's get it."
     )
+  })
+})
+
+describe('buildVideoScriptFromContext', () => {
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('fetches report context and renders script from that context', async () => {
+    mockedFetchVideoScriptContext.mockResolvedValue({
+      contactName: 'Amadu',
+      company: 'ATAS',
+      industry: 'Consulting',
+      diagnosticSummary: null,
+      valueStatementsSummary: null,
+      totalAnnualValue: null,
+      topPainPoints: ['Pipeline gaps'],
+    })
+
+    const script = await buildVideoScriptFromContext({
+      reportType: 'audit_summary',
+    })
+
+    expect(mockedFetchVideoScriptContext).toHaveBeenCalledWith({
+      reportType: 'audit_summary',
+    })
+    expect(script).toContain('Hi Amadu,')
+    expect(script).toContain('I put together a short overview for ATAS.')
+    expect(script).toContain('Key areas we looked at: Pipeline gaps.')
   })
 })
