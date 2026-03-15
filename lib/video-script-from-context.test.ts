@@ -1,6 +1,10 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { buildVideoScriptFromVideoContext } from './video-script-from-context'
 import type { VideoScriptContext } from './gamma-report-builder'
+
+vi.mock('@/lib/gamma-report-builder', () => ({
+  fetchVideoScriptContext: vi.fn(),
+}))
 
 function makeContext(overrides: Partial<VideoScriptContext> = {}): VideoScriptContext {
   return {

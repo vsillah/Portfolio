@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { isOverVideoGenerationLimit } from './video-generation-rate-limit'
 
-const mockGte = vi.fn()
-const mockEq = vi.fn()
-const mockSelect = vi.fn()
-const mockFrom = vi.fn()
+const { mockGte, mockEq, mockSelect, mockFrom } = vi.hoisted(() => ({
+  mockGte: vi.fn(),
+  mockEq: vi.fn(),
+  mockSelect: vi.fn(),
+  mockFrom: vi.fn(),
+}))
 
 vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: {
