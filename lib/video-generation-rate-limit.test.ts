@@ -72,6 +72,14 @@ describe('isOverVideoGenerationLimit', () => {
     await expect(isOverVideoGenerationLimit('user-123')).resolves.toBe(true)
   })
 
+  it('uses default max of 20 when env var is missing', async () => {
+    mockRateLimitQuery({ count: 19, error: null })
+    await expect(isOverVideoGenerationLimit('user-456')).resolves.toBe(false)
+
+    mockRateLimitQuery({ count: 20, error: null })
+    await expect(isOverVideoGenerationLimit('user-789')).resolves.toBe(true)
+  })
+
   it('skips querying when max jobs per day is zero', async () => {
     process.env.VIDEO_GENERATION_MAX_JOBS_PER_DAY = '0'
 
