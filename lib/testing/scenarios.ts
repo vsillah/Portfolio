@@ -553,6 +553,43 @@ export const standaloneAuditToolScenario: TestScenario = {
   tags: ['smoke-test', 'resources', 'audit', 'lead-magnet', 'critical-path']
 }
 
+/**
+ * Scenario 10: Client Experience Walkthrough
+ * Post-sale journey: proposal view, signing status, payment, client dashboard.
+ * Validates the admin Client Experience Simulator page and the underlying
+ * client-facing pages it links to.
+ */
+export const clientExperienceWalkthroughScenario: TestScenario = {
+  id: 'client_experience_walkthrough',
+  name: 'Client Experience Walkthrough',
+  description: 'Post-sale journey: open proposal by access code, verify signing state, check payment summary, open client dashboard by token.',
+  journeyStage: 'client',
+
+  steps: [
+    { type: 'navigate', path: '/admin/client-experience', waitForSelector: undefined },
+    { type: 'delay', duration: 2000, randomize: true },
+    { type: 'screenshot', name: 'client-experience-simulator-loaded' },
+    { type: 'apiCall', method: 'GET', endpoint: '/api/admin/client-experience/projects', expectedStatus: 200 },
+    { type: 'delay', duration: 1000 },
+    { type: 'screenshot', name: 'client-experience-projects-loaded' },
+  ],
+
+  variability: {
+    skipProbability: {},
+    delayRange: [500, 2000],
+    responseVariation: false
+  },
+
+  expectedOutcomes: {
+    mustComplete: ['apiCall'],
+    mustNotError: ['navigate', 'apiCall'],
+    dataValidation: []
+  },
+
+  estimatedDuration: 15000,
+  tags: ['post-sale', 'proposal', 'signing', 'payment', 'dashboard', 'admin', 'critical-path']
+}
+
 // ============================================================================
 // Scenario Collections
 // ============================================================================
@@ -566,7 +603,8 @@ export const ALL_SCENARIOS: TestScenario[] = [
   supportEscalationScenario,
   quickBrowseScenario,
   warmLeadPipelineScenario,
-  standaloneAuditToolScenario
+  standaloneAuditToolScenario,
+  clientExperienceWalkthroughScenario
 ]
 
 export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
@@ -578,7 +616,8 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   support_escalation: supportEscalationScenario,
   quick_browse: quickBrowseScenario,
   warm_lead_pipeline: warmLeadPipelineScenario,
-  standalone_audit_tool: standaloneAuditToolScenario
+  standalone_audit_tool: standaloneAuditToolScenario,
+  client_experience_walkthrough: clientExperienceWalkthroughScenario
 }
 
 /**
@@ -587,7 +626,8 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
 export const CRITICAL_SCENARIOS: TestScenario[] = [
   browseAndBuyScenario,
   chatToDiagnosticScenario,
-  fullFunnelScenario
+  fullFunnelScenario,
+  clientExperienceWalkthroughScenario
 ]
 
 /**
@@ -633,6 +673,7 @@ export const JOURNEY_SCENARIOS: TestScenario[] = [
   fullFunnelScenario,
   // Client
   browseAndBuyScenario,
+  clientExperienceWalkthroughScenario,
 ]
 
 /**

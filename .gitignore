@@ -47,3 +47,6 @@ lib/chatbot-knowledge-content.generated.ts
 
 # storyboard capture auth state (session tokens; do not commit)
 design-files/about-page-video/.storyboard-auth-state.json
+
+#debug log files
+.cursor/debug-*.log

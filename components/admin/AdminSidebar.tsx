@@ -42,6 +42,7 @@ import {
   GitCompare,
   Settings,
   Mail,
+  UserCheck,
 } from 'lucide-react'
 import { ADMIN_NAV, isNavItemActive, isContentExpanded, isChatEvalExpanded } from '@/lib/admin-nav'
 import { useState, useEffect } from 'react'
@@ -76,6 +77,7 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/chat-eval/queue': MessageSquare,
   '/admin/analytics': BarChart3,
   '/admin/cost-revenue': DollarSign,
+  '/admin/client-experience': UserCheck,
   '/admin/testing': FlaskConical,
   '/admin/content': FolderOpen,
   '/admin/users': Users,
