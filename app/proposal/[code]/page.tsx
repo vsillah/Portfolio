@@ -23,6 +23,9 @@ import {
   BarChart3,
   Target,
   Shield,
+  LayoutDashboard,
+  ArrowRight,
+  ClipboardList,
 } from 'lucide-react';
 
 interface LineItem {
@@ -69,12 +72,15 @@ interface Proposal {
   valid_until?: string;
   status: string;
   pdf_url?: string;
+  contract_pdf_url?: string | null;
   accepted_at?: string;
   paid_at?: string;
   created_at: string;
   value_assessment?: ValueAssessment;
   signed_at?: string;
   signed_by_name?: string;
+  contract_signed_at?: string | null;
+  contract_signed_by_name?: string | null;
   access_code?: string;
 }
 
@@ -145,8 +151,11 @@ function ProposalByCodeContent() {
   const [isAccepting, setIsAccepting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [onboardingPlanId, setOnboardingPlanId] = useState<string | null>(null);
+  const [dashboardUrl, setDashboardUrl] = useState<string | null>(null);
   const [showSignForm, setShowSignForm] = useState(false);
   const [signName, setSignName] = useState('');
+  const [showContractSignForm, setShowContractSignForm] = useState(false);
+  const [contractSignName, setContractSignName] = useState('');
 
   const proposalId = proposal?.id ?? null;
 
@@ -154,15 +163,24 @@ function ProposalByCodeContent() {
 
   const fetchOnboardingPlan = useCallback(async (propId: string) => {
     try {
-      const response = await fetch(`/api/proposals/${propId}/onboarding-plan`);
-      if (response.ok) {
-        const data = await response.json();
+      const [planRes, dashRes] = await Promise.all([
+        fetch(`/api/proposals/${propId}/onboarding-plan`),
+        fetch(`/api/proposals/${propId}/dashboard-link`),
+      ]);
+      if (planRes.ok) {
+        const data = await planRes.json();
         if (data.onboarding_plan_id) {
           setOnboardingPlanId(data.onboarding_plan_id);
         }
       }
+      if (dashRes.ok) {
+        const data = await dashRes.json();
+        if (data.dashboard_url) {
+          setDashboardUrl(data.dashboard_url);
+        }
+      }
     } catch {
-      // Silently fail - just won't show the onboarding link
+      // Silently fail
     }
   }, []);
 
@@ -212,6 +230,14 @@ function ProposalByCodeContent() {
         const data = await signRes.json();
         throw new Error(data.error || 'Failed to sign proposal');
       }
+      // If there is a contract, do not proceed to checkout yet — show Sign Contract step
+      if (proposal?.contract_pdf_url) {
+        setProposal((p) => (p ? { ...p, signed_at: new Date().toISOString(), signed_by_name: signName.trim() } : null));
+        setShowSignForm(false);
+        setContractSignName(signName.trim());
+        setIsAccepting(false);
+        return;
+      }
       const acceptRes = await fetch(`/api/proposals/${proposalId}/accept`, {
         method: 'POST',
       });
@@ -225,6 +251,38 @@ function ProposalByCodeContent() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
+      setIsAccepting(false);
+    }
+  };
+
+  const handleSignContract = async () => {
+    if (!proposalId) return;
+    setIsAccepting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/proposals/${proposalId}/sign-contract`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ signed_by_name: contractSignName.trim() }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to sign contract');
+      }
+      const data = await res.json();
+      setProposal((p) =>
+        p
+          ? {
+              ...p,
+              contract_signed_at: new Date().toISOString(),
+              contract_signed_by_name: contractSignName.trim(),
+            }
+          : null
+      );
+      setShowContractSignForm(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sign contract');
+    } finally {
       setIsAccepting(false);
     }
   };
@@ -356,37 +414,54 @@ function ProposalByCodeContent() {
           </div>
         )}
 
-        {/* Post-Payment Onboarding CTA */}
+        {/* Post-Payment CTAs */}
         {(paymentStatus === 'success' || proposal.status === 'paid') && (
           <div className="mb-6 p-6 rounded-xl border bg-blue-900/20 border-blue-800">
-            <div className="text-center">
-              <Calendar className="w-10 h-10 text-blue-400 mx-auto mb-3" />
-              <h3 className="text-lg font-semibold mb-2">Next Step: View Your Onboarding Plan</h3>
-              <p className="text-sm text-gray-400 mb-4 max-w-md mx-auto">
-                Your personalized onboarding plan is ready. It includes your project timeline,
-                milestones, communication schedule, and everything you need to get started.
+            <div className="text-center mb-5">
+              <CheckCircle className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold mb-1">Payment Successful!</h3>
+              <p className="text-sm text-gray-400 max-w-md mx-auto">
+                Your project is now active. Here&apos;s what to do next:
               </p>
-              {onboardingPlanId ? (
+            </div>
+
+            <div className="space-y-3 max-w-lg mx-auto">
+              {dashboardUrl && (
                 <a
-                  href={`/onboarding/${onboardingPlanId}`}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-lg font-semibold transition-colors"
+                  href={dashboardUrl}
+                  className="w-full flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 rounded-xl text-lg font-semibold transition-all"
                 >
-                  <Calendar className="w-5 h-5" />
-                  View Onboarding Plan
-                  <ExternalLink className="w-4 h-4" />
+                  <span className="flex items-center gap-3">
+                    <LayoutDashboard className="w-5 h-5" />
+                    <span>
+                      <span className="block">View Your Client Portal</span>
+                      <span className="block text-xs font-normal text-blue-200/70">Your home base for tracking progress</span>
+                    </span>
+                  </span>
+                  <ArrowRight className="w-5 h-5" />
                 </a>
-              ) : (
+              )}
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {onboardingPlanId && (
+                  <a
+                    href={`/onboarding/${onboardingPlanId}`}
+                    className="flex items-center gap-3 px-4 py-3 bg-gray-800/50 border border-gray-700 hover:border-gray-600 rounded-xl transition-colors"
+                  >
+                    <ClipboardList className="w-5 h-5 text-gray-400" />
+                    <span className="text-sm font-medium text-gray-300">Onboarding Plan</span>
+                  </a>
+                )}
                 <a
                   href={`https://calendly.com/amadutown/atas-onboarding-call?name=${encodeURIComponent(proposal.client_name)}&email=${encodeURIComponent(proposal.client_email)}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl text-lg font-semibold transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 bg-gray-800/50 border border-gray-700 hover:border-gray-600 rounded-xl transition-colors"
                 >
-                  <Calendar className="w-5 h-5" />
-                  Book Onboarding Call
-                  <ExternalLink className="w-4 h-4" />
+                  <Calendar className="w-5 h-5 text-gray-400" />
+                  <span className="text-sm font-medium text-gray-300">Book Onboarding Call</span>
                 </a>
-              )}
+              </div>
             </div>
           </div>
         )}
@@ -411,17 +486,30 @@ function ProposalByCodeContent() {
               </div>
               <h1 className="text-2xl font-bold">{proposal.bundle_name}</h1>
             </div>
-            {proposal.pdf_url && (
-              <a
-                href={proposal.pdf_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm"
-              >
-                <Download className="w-4 h-4" />
-                Download PDF
-              </a>
-            )}
+            <div className="flex items-center gap-2">
+              {proposal.pdf_url && (
+                <a
+                  href={proposal.pdf_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm"
+                >
+                  <Download className="w-4 h-4" />
+                  Proposal PDF
+                </a>
+              )}
+              {proposal.contract_pdf_url && (
+                <a
+                  href={proposal.contract_pdf_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm"
+                >
+                  <FileText className="w-4 h-4" />
+                  Contract PDF
+                </a>
+              )}
+            </div>
           </div>
 
           {/* Client Info */}
@@ -610,7 +698,65 @@ function ProposalByCodeContent() {
               </div>
             )}
 
-            {proposal.signed_at && canPay && (
+            {/* Sign contract step: when proposal is signed and contract exists but not yet signed */}
+            {proposal.signed_at && proposal.contract_pdf_url && !proposal.contract_signed_at && (
+              <div className="space-y-4 p-4 rounded-xl border border-amber-800/50 bg-amber-950/20">
+                <h3 className="font-semibold flex items-center gap-2 text-amber-200">
+                  <FileText className="w-5 h-5" />
+                  Sign Software Agreement
+                </h3>
+                <p className="text-sm text-gray-400">
+                  Please review and sign the Software Agreement before payment. You can open it via the &quot;Contract PDF&quot; link above.
+                </p>
+                {!showContractSignForm ? (
+                  <button
+                    onClick={() => setShowContractSignForm(true)}
+                    className="w-full flex items-center justify-center gap-2 px-6 py-4 bg-amber-600 hover:bg-amber-700 rounded-xl text-lg font-semibold transition-colors"
+                  >
+                    <PenLine className="w-5 h-5" />
+                    Sign Contract
+                  </button>
+                ) : (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm text-gray-400 mb-2">
+                        Type your full name to sign the contract
+                      </label>
+                      <input
+                        type="text"
+                        value={contractSignName}
+                        onChange={(e) => setContractSignName(e.target.value)}
+                        placeholder="Your full name"
+                        className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 text-lg"
+                      />
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setShowContractSignForm(false)}
+                        className="flex-1 px-4 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSignContract}
+                        disabled={isAccepting || !contractSignName.trim()}
+                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-800 disabled:cursor-not-allowed rounded-lg font-semibold transition-colors"
+                      >
+                        {isAccepting ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <CheckCircle className="w-5 h-5" />
+                        )}
+                        Sign Contract
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Proceed to payment: when proposal (and contract if any) are signed */}
+            {proposal.signed_at && (!proposal.contract_pdf_url || proposal.contract_signed_at) && proposal.status !== 'paid' && paymentStatus !== 'success' && (
               <button
                 onClick={handleProceedToPayment}
                 disabled={isAccepting}
@@ -625,10 +771,9 @@ function ProposalByCodeContent() {
               </button>
             )}
 
-            {proposal.signed_at && proposal.status !== 'paid' && !canPay && (
-              <div className="text-center text-gray-400">
-                <CheckCircle className="w-6 h-6 text-green-500 mx-auto mb-2" />
-                <p>Signed by {proposal.signed_by_name}</p>
+            {proposal.signed_at && proposal.status !== 'paid' && !canPay && proposal.contract_pdf_url && !proposal.contract_signed_at && (
+              <div className="text-center text-gray-400 text-sm">
+                <p>Proposal signed by {proposal.signed_by_name}. Sign the contract above to continue.</p>
               </div>
             )}
 

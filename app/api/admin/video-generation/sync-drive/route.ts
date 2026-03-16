@@ -25,17 +25,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const body = await request.json().catch(() => ({}))
+    const force = (body as { force?: boolean }).force === true
+
     const { data: syncState } = await supabaseAdmin
       .from('drive_sync_state')
       .select('last_modified')
       .eq('folder_id', folderId)
       .single()
 
-    const modifiedAfter =
-      syncState?.last_modified ??
-      new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
+    const isFirstSync = !syncState?.last_modified || force
+    const modifiedAfter = force
+      ? new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()
+      : syncState?.last_modified ??
+        new Date(Date.now() - 365 * 24 * 60 * 60 * 1000).toISOString()
+
+    console.log('[sync-drive] Folder:', folderId, '| Looking for files modified after:', modifiedAfter, isFirstSync ? '(first sync)' : '', '| Recursing into subfolders')
 
     const files = await listChangedScripts(folderId, modifiedAfter)
+    console.log('[sync-drive] Found', files.length, 'script files (recursive):', files.map(f => f.name))
+
     if (files.length === 0) {
       await supabaseAdmin.from('drive_sync_state').upsert(
         {
@@ -45,7 +54,11 @@ export async function POST(request: NextRequest) {
         },
         { onConflict: 'folder_id' }
       )
-      return NextResponse.json({ ok: true, queued: 0, message: 'No changes' })
+      return NextResponse.json({
+        ok: true,
+        queued: 0,
+        message: 'No script files found. Supported: Google Docs, .txt, .md',
+      })
     }
 
     let maxModified = modifiedAfter

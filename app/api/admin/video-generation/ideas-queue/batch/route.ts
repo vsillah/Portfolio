@@ -44,15 +44,18 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}))
-    const limit = Math.min(
-      Math.max(Number(body.limit) || 2, MIN_LIMIT),
-      MAX_LIMIT
-    )
 
-    const templateId = process.env.HEYGEN_TEMPLATE_ID
-    const brandVoiceId = process.env.HEYGEN_BRAND_VOICE_ID
-    const avatarId = process.env.HEYGEN_AVATAR_ID
-    const voiceId = process.env.HEYGEN_VOICE_ID
+    // Accept either { items: [...] } (new) or { limit } (legacy)
+    const itemsPayload = Array.isArray(body.items) ? body.items as Array<{ id: string; brollAssetIds?: string[] }> : null
+
+    const templateId =
+      (body.templateId as string)?.trim() || process.env.HEYGEN_TEMPLATE_ID
+    const brandVoiceId =
+      (body.brandVoiceId as string)?.trim() || process.env.HEYGEN_BRAND_VOICE_ID
+    const avatarId =
+      (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
+    const voiceId =
+      (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
     if (!templateId && (!avatarId || !voiceId)) {
       return NextResponse.json(
         { error: 'HeyGen template or avatar and voice must be configured.' },
@@ -60,20 +63,51 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const channel: VideoChannel = 'youtube'
-    const aspectRatio: VideoAspectRatio = channelToAspectRatio(channel)
+    const channel: VideoChannel = (body.channel as VideoChannel) ?? 'youtube'
+    const aspectRatio: VideoAspectRatio =
+      (body.aspectRatio as VideoAspectRatio) ?? channelToAspectRatio(channel)
 
-    const { data: ideas, error: fetchErr } = await supabaseAdmin
-      .from('video_ideas_queue')
-      .select('id, title, script_text')
-      .eq('status', 'pending')
-      .order('created_at', { ascending: true })
-      .limit(limit)
+    let ideas: Array<{ id: string; title: string | null; script_text: string | null }> | null = null
+    let brollMap: Record<string, string[]> = {}
 
-    if (fetchErr) {
-      console.error('[Ideas queue batch] Fetch error:', fetchErr)
-      return NextResponse.json({ error: 'Failed to load queue' }, { status: 500 })
+    if (itemsPayload && itemsPayload.length > 0) {
+      const ids = itemsPayload.slice(0, MAX_LIMIT).map(i => i.id)
+      const { data, error: fetchErr } = await supabaseAdmin
+        .from('video_ideas_queue')
+        .select('id, title, script_text')
+        .in('id', ids)
+        .eq('status', 'pending')
+
+      if (fetchErr) {
+        console.error('[Ideas queue batch] Fetch error:', fetchErr)
+        return NextResponse.json({ error: 'Failed to load queue' }, { status: 500 })
+      }
+      ideas = data
+
+      for (const item of itemsPayload) {
+        if (Array.isArray(item.brollAssetIds)) {
+          brollMap[item.id] = item.brollAssetIds
+        }
+      }
+    } else {
+      const limit = Math.min(
+        Math.max(Number(body.limit) || 2, MIN_LIMIT),
+        MAX_LIMIT
+      )
+      const { data, error: fetchErr } = await supabaseAdmin
+        .from('video_ideas_queue')
+        .select('id, title, script_text')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: true })
+        .limit(limit)
+
+      if (fetchErr) {
+        console.error('[Ideas queue batch] Fetch error:', fetchErr)
+        return NextResponse.json({ error: 'Failed to load queue' }, { status: 500 })
+      }
+      ideas = data
     }
+
     if (!ideas?.length) {
       return NextResponse.json({
         started: 0,
@@ -108,6 +142,7 @@ export async function POST(request: NextRequest) {
         continue
       }
 
+      const itemBroll = brollMap[idea.id] ?? []
       const { data: job, error: insertErr } = await supabaseAdmin
         .from('video_generation_jobs')
         .insert({
@@ -121,6 +156,7 @@ export async function POST(request: NextRequest) {
           channel,
           heygen_video_id: result.videoId,
           heygen_status: 'pending',
+          broll_asset_ids: itemBroll.length > 0 ? itemBroll : null,
           created_by: userId,
         })
         .select('id, heygen_video_id')

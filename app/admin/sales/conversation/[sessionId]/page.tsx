@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
@@ -40,6 +41,7 @@ import {
   User, Building, Mail, MessageSquare, ChevronRight, ChevronDown,
   AlertCircle, Save, FileText, DollarSign, RefreshCw, ArrowLeft,
   Layers, Package, GitFork, CreditCard, ExternalLink, Copy, XCircle,
+  Video, CheckSquare, Loader2,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -71,6 +73,32 @@ interface SalesSessionRow {
   internal_notes: string | null;
   outcome: SessionOutcome;
   next_follow_up: string | null;
+}
+
+interface ContactMeeting {
+  id: string;
+  meeting_type: string;
+  meeting_date: string;
+  duration_minutes: number | null;
+  transcript: string | null;
+  structured_notes: Record<string, unknown> | null;
+  key_decisions: string[] | null;
+  action_items: unknown[] | null;
+  open_questions: string[] | null;
+  recording_url: string | null;
+  created_at: string;
+}
+
+interface ContactMeetingTask {
+  id: string;
+  meeting_record_id: string;
+  title: string;
+  description: string | null;
+  owner: string | null;
+  due_date: string | null;
+  status: string;
+  completed_at: string | null;
+  created_at: string;
 }
 
 /* ------------------------------------------------------------------ */
@@ -136,6 +164,12 @@ export default function ConversationPage() {
   /* ---- in-person diagnostic ---- */
   const [auditData, setAuditData] = useState<Record<string, unknown> | null>(null);
   const [diagnosticAuditId, setDiagnosticAuditId] = useState<string | null>(null);
+
+  /* ---- previous meetings & tasks ---- */
+  const [contactMeetings, setContactMeetings] = useState<ContactMeeting[]>([]);
+  const [contactTasks, setContactTasks] = useState<ContactMeetingTask[]>([]);
+  const [contactMeetingsLoading, setContactMeetingsLoading] = useState(false);
+  const [expandedMeetingId, setExpandedMeetingId] = useState<string | null>(null);
 
   /* ================================================================ */
   /* Data loading                                                      */
@@ -269,6 +303,33 @@ export default function ConversationPage() {
     })();
     return () => { cancelled = true; };
   }, [contact?.id]);
+
+  // Fetch previous meetings & tasks for this contact (lead/client)
+  useEffect(() => {
+    const cid = salesSession?.contact_submission_id;
+    if (cid == null) {
+      setContactMeetings([]);
+      setContactTasks([]);
+      return;
+    }
+    let cancelled = false;
+    setContactMeetingsLoading(true);
+    (async () => {
+      const session = await getCurrentSession();
+      if (!session?.access_token) return;
+      const res = await fetch(
+        `/api/admin/sales/contact-meetings?contact_submission_id=${encodeURIComponent(cid)}`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } },
+      );
+      if (!res.ok || cancelled) return;
+      const data = await res.json();
+      if (cancelled) return;
+      setContactMeetings(data.meetings || []);
+      setContactTasks(data.tasks || []);
+    })()
+      .finally(() => { if (!cancelled) setContactMeetingsLoading(false); });
+    return () => { cancelled = true; };
+  }, [salesSession?.contact_submission_id]);
 
   /* ================================================================ */
   /* Session helpers                                                   */
@@ -585,6 +646,130 @@ export default function ConversationPage() {
               <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Add notes from the call..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500" rows={4} />
               <button onClick={saveNotes} className="mt-2 px-3 py-1.5 bg-gray-800 text-gray-300 rounded-lg text-sm hover:bg-gray-700 flex items-center gap-1"><Save className="w-4 h-4" /> Save Notes</button>
             </div>
+
+            {/* Previous meetings & tasks (when this conversation is linked to a contact) */}
+            {salesSession?.contact_submission_id != null && (
+              <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
+                <h3 className="font-medium text-white mb-3 flex items-center gap-2">
+                  <Video className="w-5 h-5 text-purple-500" />
+                  Previous meetings & tasks
+                </h3>
+                {contactMeetingsLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-gray-400 py-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Loading…
+                  </div>
+                ) : (
+                  <>
+                    {contactMeetings.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Meetings</h4>
+                        <div className="space-y-2">
+                          {contactMeetings.map((m) => {
+                            const isExpanded = expandedMeetingId === m.id;
+                            const summary = (m.structured_notes as { summary?: string } | null)?.summary ?? null;
+                            const hasTranscript = (m.transcript?.trim()?.length ?? 0) > 0;
+                            const hasDetails = summary || hasTranscript || (m.key_decisions?.length ?? 0) > 0;
+                            return (
+                              <div key={m.id} className="border border-gray-800 rounded-lg overflow-hidden">
+                                <button
+                                  type="button"
+                                  onClick={() => setExpandedMeetingId(isExpanded ? null : m.id)}
+                                  className="w-full flex items-center justify-between p-3 hover:bg-gray-800/50 transition-colors text-left"
+                                >
+                                  <div className="min-w-0">
+                                    <p className="text-sm font-medium text-gray-200 capitalize">
+                                      {m.meeting_type?.replace(/_/g, ' ') || 'Meeting'}
+                                    </p>
+                                    <p className="text-xs text-gray-500">
+                                      {new Date(m.meeting_date).toLocaleDateString('en-US', {
+                                        weekday: 'short',
+                                        month: 'short',
+                                        day: 'numeric',
+                                        year: 'numeric',
+                                      })}
+                                      {m.duration_minutes != null && ` · ${m.duration_minutes} min`}
+                                    </p>
+                                  </div>
+                                  {hasDetails && (
+                                    <span className="shrink-0 text-gray-500">
+                                      {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                                    </span>
+                                  )}
+                                </button>
+                                {isExpanded && hasDetails && (
+                                  <div className="px-3 pb-3 pt-0 border-t border-gray-800 space-y-2">
+                                    {summary && (
+                                      <p className="text-sm text-gray-400 mt-2">{summary}</p>
+                                    )}
+                                    {m.key_decisions && m.key_decisions.length > 0 && (
+                                      <div>
+                                        <span className="text-xs font-medium text-gray-500">Key decisions</span>
+                                        <ul className="text-sm text-gray-400 list-disc list-inside mt-1">
+                                          {m.key_decisions.slice(0, 5).map((k, i) => (
+                                            <li key={i}>{typeof k === 'string' ? k : String(k)}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    {hasTranscript && (
+                                      <div className="mt-2">
+                                        <span className="text-xs font-medium text-gray-500">Transcript</span>
+                                        <p className="text-sm text-gray-400 mt-1 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                                          {m.transcript!.slice(0, 3000)}
+                                          {(m.transcript?.length ?? 0) > 3000 && '…'}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {contactTasks.length > 0 && (
+                      <div>
+                        <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center justify-between">
+                          <span>Tasks</span>
+                          <Link href="/admin/meeting-tasks" className="text-xs text-purple-400 hover:text-purple-300">
+                            View all
+                          </Link>
+                        </h4>
+                        <ul className="space-y-2">
+                          {contactTasks.slice(0, 10).map((t) => (
+                            <li key={t.id} className="flex items-start gap-2 text-sm border border-gray-800 rounded-lg p-2">
+                              <CheckSquare className={`w-4 h-4 shrink-0 mt-0.5 ${t.status === 'complete' ? 'text-green-500' : 'text-gray-500'}`} />
+                              <div className="min-w-0 flex-1">
+                                <span className={t.status === 'complete' ? 'text-gray-500 line-through' : 'text-gray-200'}>{t.title}</span>
+                                <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
+                                  <span className="capitalize">{t.status.replace('_', ' ')}</span>
+                                  {t.due_date && <span>Due {new Date(t.due_date).toLocaleDateString()}</span>}
+                                </div>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                        {contactTasks.length > 10 && (
+                          <Link href="/admin/meeting-tasks" className="mt-2 inline-block text-sm text-purple-400 hover:text-purple-300">
+                            +{contactTasks.length - 10} more tasks
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                    {contactMeetings.length === 0 && contactTasks.length === 0 && (
+                      <div className="text-sm text-gray-500 py-2 space-y-2">
+                        <p>No meetings or tasks are linked to this contact yet.</p>
+                        <p className="text-xs text-gray-600">
+                          Meetings appear here only when the meeting record is linked to this contact (via <strong>contact_submission_id</strong>) or to a client project that belongs to them. If you have past meetings with this contact, link them: go to <Link href="/admin/meeting-tasks" className="text-purple-400 hover:text-purple-300 underline">Meeting Tasks</Link>, find the meeting’s task, and use <strong>Assign lead</strong> to select this contact.
+                        </p>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Conversation Timeline */}
             {conversationState.responseHistory.length > 0 && (

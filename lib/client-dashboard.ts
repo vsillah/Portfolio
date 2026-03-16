@@ -117,6 +117,28 @@ export interface DiyResource {
   signed_url?: string
 }
 
+export interface DashboardDocument {
+  id: string
+  type: 'proposal' | 'onboarding_plan' | 'contract'
+  title: string
+  pdf_url: string | null
+  signed_url: string | null
+  created_at: string
+  status: string | null
+}
+
+export interface TimeEntrySummary {
+  target_type: 'milestone' | 'task'
+  target_id: string
+  total_seconds: number
+  entry_count: number
+}
+
+export interface TimeTrackingData {
+  total_seconds: number
+  by_target: TimeEntrySummary[]
+}
+
 export interface DashboardData {
   project: {
     id: string
@@ -148,6 +170,8 @@ export interface DashboardData {
   tasks: DashboardTask[]
   milestones: unknown[]
   snapshots: ScoreSnapshot[]
+  documents: DashboardDocument[]
+  timeTracking: TimeTrackingData
   nextMeeting: {
     meeting_date: string
     meeting_type: string
@@ -412,6 +436,9 @@ export async function getDashboardByToken(
     onboardingResult,
     meetingResult,
     valueReportResult,
+    proposalDocsResult,
+    onboardingDocsResult,
+    timeEntriesResult,
   ] = await Promise.all([
     // Diagnostic audit via contact_submission -> diagnostic_audits
     project.contact_submission_id
@@ -473,7 +500,6 @@ export async function getDashboardByToken(
                 .eq('id', proposalRes.data.value_report_id)
                 .single()
             }
-            // Fall back to inline value_assessment on proposal
             if (proposalRes.data?.value_assessment) {
               const va = proposalRes.data.value_assessment as Record<string, unknown>
               return {
@@ -487,12 +513,117 @@ export async function getDashboardByToken(
             return { data: null, error: null }
           })
       : Promise.resolve({ data: null, error: null }),
+
+    // Documents: single proposal for this project (proposals have no client_project_id; link is client_projects.proposal_id -> proposals.id)
+    project.proposal_id
+      ? supabaseAdmin
+          .from('proposals')
+          .select('id, bundle_name, pdf_url, contract_pdf_url, status, created_at')
+          .eq('id', project.proposal_id)
+          .single()
+      : Promise.resolve({ data: null, error: null }),
+
+    // Documents: single onboarding plan for this project (with template name for title)
+    project.onboarding_plan_id
+      ? supabaseAdmin
+          .from('onboarding_plans')
+          .select('id, pdf_url, status, created_at, onboarding_plan_templates(name)')
+          .eq('id', project.onboarding_plan_id)
+          .single()
+      : Promise.resolve({ data: null, error: null }),
+
+    // Time entries (completed only — no running timers for client view)
+    supabaseAdmin
+      .from('time_entries')
+      .select('target_type, target_id, duration_seconds')
+      .eq('client_project_id', projectId)
+      .eq('is_running', false)
+      .not('duration_seconds', 'is', null),
   ])
 
   const audit = auditResult.data
   const tasks = (tasksResult.data || []) as DashboardTask[]
   const snapshots = (snapshotsResult.data || []) as ScoreSnapshot[]
   const milestones = onboardingResult.data?.milestones || []
+
+  // Assemble documents list with signed URLs (from single proposal + single onboarding plan)
+  const documents: DashboardDocument[] = []
+  const proposal = proposalDocsResult.data as { id: string; bundle_name: string; pdf_url: string | null; contract_pdf_url: string | null; status: string; created_at: string } | null
+  const onboardingPlan = onboardingDocsResult.data as { id: string; pdf_url: string | null; status: string; created_at: string; onboarding_plan_templates: { name: string } | null } | null
+
+  const getSignedUrlForPdf = async (pdfUrl: string | null, bucket: string): Promise<string | null> => {
+    if (!pdfUrl) return null
+    try {
+      const path = pdfUrl.includes(bucket + '/') ? pdfUrl.split(bucket + '/')[1] : pdfUrl.split('/').pop() ?? ''
+      return path ? await getSignedUrl(bucket, path, 3600) : null
+    } catch {
+      return null
+    }
+  }
+
+  if (proposal) {
+    const proposalSignedUrl = await getSignedUrlForPdf(proposal.pdf_url, 'documents')
+    documents.push({
+      id: proposal.id,
+      type: 'proposal',
+      title: proposal.bundle_name || 'Proposal',
+      pdf_url: proposal.pdf_url,
+      signed_url: proposalSignedUrl,
+      created_at: proposal.created_at,
+      status: proposal.status,
+    })
+    if (proposal.contract_pdf_url) {
+      const contractSignedUrl = await getSignedUrlForPdf(proposal.contract_pdf_url, 'documents')
+      documents.push({
+        id: `${proposal.id}-contract`,
+        type: 'contract',
+        title: 'Software Agreement',
+        pdf_url: proposal.contract_pdf_url,
+        signed_url: contractSignedUrl,
+        created_at: proposal.created_at,
+        status: proposal.status,
+      })
+    }
+  }
+
+  if (onboardingPlan) {
+    const onboardingSignedUrl = await getSignedUrlForPdf(onboardingPlan.pdf_url, 'documents')
+    const planTitle = onboardingPlan.onboarding_plan_templates?.name || 'Onboarding Plan'
+    documents.push({
+      id: onboardingPlan.id,
+      type: 'onboarding_plan',
+      title: planTitle,
+      pdf_url: onboardingPlan.pdf_url,
+      signed_url: onboardingSignedUrl,
+      created_at: onboardingPlan.created_at,
+      status: onboardingPlan.status,
+    })
+  }
+
+  // Aggregate time tracking data
+  const rawTimeEntries = (timeEntriesResult.data || []) as { target_type: string; target_id: string; duration_seconds: number }[]
+  const targetMap = new Map<string, TimeEntrySummary>()
+  let totalTimeSeconds = 0
+  for (const te of rawTimeEntries) {
+    const key = `${te.target_type}:${te.target_id}`
+    const existing = targetMap.get(key)
+    if (existing) {
+      existing.total_seconds += te.duration_seconds
+      existing.entry_count += 1
+    } else {
+      targetMap.set(key, {
+        target_type: te.target_type as 'milestone' | 'task',
+        target_id: te.target_id,
+        total_seconds: te.duration_seconds,
+        entry_count: 1,
+      })
+    }
+    totalTimeSeconds += te.duration_seconds
+  }
+  const timeTracking: TimeTrackingData = {
+    total_seconds: totalTimeSeconds,
+    by_target: Array.from(targetMap.values()),
+  }
 
   // Resolve signed URLs for DIY resources that have file_bucket + file_path
   for (const task of tasks) {
@@ -588,6 +719,8 @@ export async function getDashboardByToken(
       tasks,
       milestones,
       snapshots,
+      documents,
+      timeTracking,
       nextMeeting: meetingResult.data || null,
       valueReport: valueReportResult.data || null,
     },

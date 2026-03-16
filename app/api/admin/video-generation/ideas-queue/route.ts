@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
     const { data: items, error } = await supabaseAdmin
       .from('video_ideas_queue')
       .select(
-        'id, title, script_text, storyboard_json, source, status, video_generation_job_id, created_at'
+        'id, title, script_text, storyboard_json, source, status, video_generation_job_id, custom_prompt, created_at'
       )
       .eq('status', status)
       .order('created_at', { ascending: false })

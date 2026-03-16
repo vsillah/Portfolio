@@ -70,6 +70,18 @@ export async function POST(
       process.env.NEXT_PUBLIC_SITE_URL ||
       (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')
 
+    // Look up client dashboard URL for inclusion in onboarding email
+    const { data: dashAccess } = await supabaseAdmin
+      .from('client_dashboard_access')
+      .select('access_token')
+      .eq('client_project_id', id)
+      .eq('is_active', true)
+      .maybeSingle()
+
+    const dashboardUrl = dashAccess?.access_token
+      ? `${baseUrl}/client/dashboard/${dashAccess.access_token}`
+      : undefined
+
     await fireOnboardingWebhook({
       onboarding_plan_id: plan.id,
       onboarding_plan_url: `${baseUrl}/onboarding/${plan.id}`,
@@ -82,6 +94,7 @@ export async function POST(
       kickoff_date: project.project_start_date || null,
       template_name: plan.template_name || '',
       trigger_onboarding_call: true,
+      dashboard_url: dashboardUrl,
     })
 
     const sentAt = new Date().toISOString()

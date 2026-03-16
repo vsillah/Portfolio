@@ -15,6 +15,9 @@ import AssessmentDetails from '@/components/client-dashboard/AssessmentDetails'
 import QuickOverview from '@/components/client-dashboard/QuickOverview'
 import AccelerationCards from '@/components/client-dashboard/AccelerationCards'
 import CampaignProgressSection from '@/components/client-dashboard/CampaignProgressSection'
+import DocumentsSection from '@/components/client-dashboard/DocumentsSection'
+import TimeTrackingSection from '@/components/client-dashboard/TimeTrackingSection'
+import MeetingHistory from '@/components/client-dashboard/MeetingHistory'
 import type { DashboardData, LeadDashboardData, DashboardTask } from '@/lib/client-dashboard'
 import type { AccelerationRecommendation } from '@/lib/acceleration-engine'
 
@@ -186,6 +189,8 @@ export default function ClientDashboardPage() {
     tasks,
     milestones,
     snapshots,
+    documents,
+    timeTracking,
     nextMeeting,
     valueReport,
   } = dashboard as DashboardData
@@ -253,7 +258,16 @@ export default function ClientDashboardPage() {
           </div>
         </div>
 
-        {/* Row 3: Gap Analysis */}
+        {/* Row 3: Documents & Time Investment */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <DocumentsSection documents={documents || []} />
+          <TimeTrackingSection
+            timeTracking={timeTracking || { total_seconds: 0, by_target: [] }}
+            milestones={(milestones || []) as Array<{ title?: string }>}
+          />
+        </div>
+
+        {/* Row 4: Gap Analysis */}
         <GapAnalysisPanel gaps={gapAnalysis} />
 
         {/* Row 4: Acceleration Opportunities */}
@@ -278,7 +292,10 @@ export default function ClientDashboardPage() {
         {/* Row 6: Milestones */}
         <MilestoneTimeline milestones={milestones as []} />
 
-        {/* Row 7: Trajectory */}
+        {/* Row 7: Meeting History */}
+        <MeetingHistory token={token} />
+
+        {/* Row 8: Trajectory */}
         {snapshots.length > 0 && (
           <TrajectoryChart token={token} />
         )}

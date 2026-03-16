@@ -65,11 +65,36 @@ export async function GET(
       .eq('client_project_id', id)
       .order('detected_at', { ascending: false })
 
+    // Fetch dashboard tasks for this project
+    const { data: tasks } = await supabaseAdmin
+      .from('dashboard_tasks')
+      .select('*')
+      .eq('client_project_id', id)
+      .order('display_order', { ascending: true })
+
+    // Fetch time entries for this project
+    const { data: timeEntries } = await supabaseAdmin
+      .from('time_entries')
+      .select('*')
+      .eq('client_project_id', id)
+      .order('created_at', { ascending: false })
+
+    // Fetch dashboard access token
+    const { data: dashAccess } = await supabaseAdmin
+      .from('client_dashboard_access')
+      .select('access_token')
+      .eq('client_project_id', id)
+      .eq('is_active', true)
+      .maybeSingle()
+
     return NextResponse.json({
       project,
       onboarding_plan: onboardingPlan,
       progress_updates: progressUpdates || [],
       blockers: blockers || [],
+      tasks: tasks || [],
+      time_entries: timeEntries || [],
+      dashboard_token: dashAccess?.access_token || null,
     })
   } catch (error) {
     console.error('Error in GET /api/admin/client-projects/[id]:', error)

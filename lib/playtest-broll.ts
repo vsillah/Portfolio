@@ -21,6 +21,14 @@ export interface RouteConfig {
   description?: string
 }
 
+export interface BrollProgressEvent {
+  route: string
+  filename: string
+  step: 'navigating' | 'screenshot' | 'recording' | 'done'
+  index: number
+  total: number
+}
+
 export interface PlaytestConfig {
   routes: RouteConfig[]
   outputDir: string
@@ -31,6 +39,8 @@ export interface PlaytestConfig {
   authStateOutPath?: string
   /** Skip auto-starting dev server; fail if unreachable */
   noStartServer?: boolean
+  /** Called per-route with progress updates */
+  onProgress?: (event: BrollProgressEvent) => void
 }
 
 export interface CaptureResult {
@@ -191,9 +201,13 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
 
   const browser = await chromium.launch({ headless: true })
 
-  for (const { route, filename, description } of config.routes) {
+  const total = config.routes.length
+  for (let i = 0; i < config.routes.length; i++) {
+    const { route, filename, description } = config.routes[i]
     const videoDir = config.recordVideos ? path.join(outputDir, `_video-${filename}`) : undefined
     if (videoDir && !fs.existsSync(videoDir)) fs.mkdirSync(videoDir, { recursive: true })
+
+    config.onProgress?.({ route, filename, step: 'navigating', index: i, total })
 
     const contextOptions: {
       viewport: typeof VIEWPORT
@@ -219,11 +233,14 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
       await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 })
       await page.waitForTimeout(800)
 
+      config.onProgress?.({ route, filename, step: 'screenshot', index: i, total })
+
       const screenshotPath = path.join(outputDir, `${filename}.png`)
       await page.screenshot({ path: screenshotPath, fullPage: route === '/' || route === '/#about' })
       screenshots.push(screenshotPath)
 
       if (config.recordVideos) {
+        config.onProgress?.({ route, filename, step: 'recording', index: i, total })
         await page.waitForTimeout(CLIP_DURATION_MS)
       }
     } catch (e) {
@@ -241,6 +258,8 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
         fs.rmSync(videoDir, { recursive: true })
       }
     }
+
+    config.onProgress?.({ route, filename, step: 'done', index: i, total })
   }
 
   await browser.close()

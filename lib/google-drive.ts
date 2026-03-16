@@ -7,6 +7,7 @@ import { Readable } from 'stream'
 import { google } from 'googleapis'
 
 const SCRIPT_EXTENSIONS = ['.txt', '.md'] as const
+const GOOGLE_DOC_MIME = 'application/vnd.google-apps.document'
 const DRIVE_SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 const DRIVE_SCOPES_WRITE = ['https://www.googleapis.com/auth/drive.file']
 
@@ -61,46 +62,87 @@ function getDriveClientWithWrite() {
   return google.drive({ version: 'v3', auth })
 }
 
-function hasScriptExtension(name: string): boolean {
+const FOLDER_MIME = 'application/vnd.google-apps.folder'
+
+function isScriptFile(name: string, mimeType?: string): boolean {
+  if (mimeType === GOOGLE_DOC_MIME) return true
   const lower = name.toLowerCase()
   return SCRIPT_EXTENSIONS.some(ext => lower.endsWith(ext))
 }
 
+type RawDriveFile = {
+  id?: string
+  name?: string
+  mimeType?: string
+  modifiedTime?: string
+  lastModifyingUser?: { displayName?: string; emailAddress?: string }
+}
+
 /**
- * List files in folder modified after the given RFC3339 timestamp.
+ * List script files in folder (and subfolders) modified after the given timestamp.
+ * Recurses into subfolders. Includes .txt, .md files and native Google Docs.
  */
 export async function listChangedScripts(
   folderId: string,
   modifiedAfter: string
 ): Promise<DriveFileMeta[]> {
   const drive = getDriveClient()
-  const res = await drive.files.list({
-    q: `'${folderId}' in parents and modifiedTime > '${modifiedAfter}' and trashed = false`,
-    fields: 'files(id, name, mimeType, modifiedTime, lastModifyingUser)',
-    orderBy: 'modifiedTime desc',
-  })
-  const files = (res.data.files ?? []) as Array<{
-    id?: string
-    name?: string
-    mimeType?: string
-    modifiedTime?: string
-    lastModifyingUser?: { displayName?: string; emailAddress?: string }
-  }>
-  return files
-    .filter(f => f.id && f.name && hasScriptExtension(f.name))
-    .map(f => ({
-      id: f.id!,
-      name: f.name!,
-      modifiedTime: f.modifiedTime ?? '',
-      lastModifyingUser: f.lastModifyingUser,
-    }))
+  const results: DriveFileMeta[] = []
+
+  async function scanFolder(parentId: string, parentName?: string) {
+    const res = await drive.files.list({
+      q: `'${parentId}' in parents and trashed = false`,
+      fields: 'files(id, name, mimeType, modifiedTime, lastModifyingUser)',
+      orderBy: 'modifiedTime desc',
+      pageSize: 200,
+    })
+    const files = (res.data.files ?? []) as RawDriveFile[]
+
+    const subfolders = files.filter(f => f.mimeType === FOLDER_MIME && f.id)
+    const scriptFiles = files.filter(f =>
+      f.id && f.name &&
+      f.mimeType !== FOLDER_MIME &&
+      isScriptFile(f.name, f.mimeType ?? undefined) &&
+      (f.modifiedTime ?? '') > modifiedAfter
+    )
+
+    for (const f of scriptFiles) {
+      const prefix = parentName ? `${parentName} / ` : ''
+      results.push({
+        id: f.id!,
+        name: prefix + f.name!,
+        modifiedTime: f.modifiedTime ?? '',
+        lastModifyingUser: f.lastModifyingUser,
+      })
+    }
+
+    await Promise.all(subfolders.map(sf => scanFolder(sf.id!, sf.name ?? sf.id!)))
+  }
+
+  await scanFolder(folderId)
+  return results
 }
 
 /**
- * Download file content as text. Supports .txt and .md.
+ * Download file content as text. Supports .txt, .md, and native Google Docs
+ * (exported as plain text via the Drive export API).
  */
 export async function downloadFileContent(fileId: string): Promise<string> {
   const drive = getDriveClient()
+
+  const meta = await drive.files.get({ fileId, fields: 'mimeType' })
+  const mimeType = (meta.data as { mimeType?: string }).mimeType
+
+  if (mimeType === GOOGLE_DOC_MIME) {
+    const res = await drive.files.export(
+      { fileId, mimeType: 'text/plain' },
+      { responseType: 'text' }
+    )
+    const data = res.data
+    if (typeof data === 'string') return data
+    return String(data ?? '')
+  }
+
   const res = await drive.files.get(
     { fileId, alt: 'media' },
     { responseType: 'text' }

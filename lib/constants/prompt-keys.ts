@@ -9,6 +9,7 @@ export const PROMPT_KEYS = [
   'llm_judge',
   'diagnostic',
   'client_email_reply',
+  'video_prompt_formatter',
 ] as const
 
 export type PromptKey = (typeof PROMPT_KEYS)[number]
@@ -20,6 +21,7 @@ export const PROMPT_DISPLAY_NAMES: Record<string, string> = {
   llm_judge: 'LLM Judge',
   diagnostic: 'Diagnostic',
   client_email_reply: 'Client Email Reply',
+  video_prompt_formatter: 'Video Prompt Formatter',
 }
 
 export function getPromptDisplayName(key: string): string {

@@ -38,6 +38,14 @@ export async function POST(
       );
     }
 
+    // Require contract signature when a contract PDF exists (post–contract feature)
+    if (proposal.contract_pdf_url && !proposal.contract_signed_at) {
+      return NextResponse.json(
+        { error: 'Contract must be signed before payment. Please sign the Software Agreement and try again.' },
+        { status: 400 }
+      );
+    }
+
     if (!['draft', 'sent', 'viewed', 'accepted'].includes(proposal.status)) {
       return NextResponse.json(
         { error: `Proposal cannot be accepted. Current status: ${proposal.status}` },

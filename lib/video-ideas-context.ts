@@ -42,13 +42,18 @@ export async function fetchVideoIdeasContext(opts?: {
   includeTranscripts?: boolean
   meetingsLimit?: number
   chatSessionsLimit?: number
+  meetingIds?: string[]
 }): Promise<VideoIdeasContext> {
   const includeTranscripts = opts?.includeTranscripts ?? true
   const meetingsLimit = opts?.meetingsLimit ?? DEFAULT_MEETINGS_LIMIT
   const chatSessionsLimit = opts?.chatSessionsLimit ?? DEFAULT_CHAT_SESSIONS_LIMIT
 
+  const meetingsFetcher = opts?.meetingIds && opts.meetingIds.length > 0
+    ? fetchMeetingsByIds(opts.meetingIds, includeTranscripts)
+    : fetchMeetingsForIdeas(meetingsLimit, includeTranscripts)
+
   const [meetings, chatSessions, socialTopics] = await Promise.all([
-    fetchMeetingsForIdeas(meetingsLimit, includeTranscripts),
+    meetingsFetcher,
     fetchChatSessionsSample(chatSessionsLimit),
     fetchSocialContentTopics(5),
   ])
@@ -76,6 +81,41 @@ async function fetchMeetingsForIdeas(
     .select('id, meeting_type, meeting_date, structured_notes, transcript, key_decisions')
     .order('meeting_date', { ascending: false })
     .limit(limit)
+
+  if (!data || data.length === 0) return []
+
+  return data.map((m: { id: string; meeting_type: string; meeting_date: string; structured_notes: unknown; transcript: string | null; key_decisions: unknown }) => {
+    const notes = m.structured_notes as Record<string, unknown> | null
+    const summary =
+      (notes?.summary as string) ?? (notes?.highlights as string) ?? null
+    const transcriptExcerpt =
+      includeTranscripts && m.transcript
+        ? m.transcript.length > MAX_TRANSCRIPT_CHARS
+          ? m.transcript.slice(0, MAX_TRANSCRIPT_CHARS) + '...'
+          : m.transcript
+        : null
+
+    return {
+      id: m.id,
+      meeting_type: m.meeting_type,
+      meeting_date: m.meeting_date,
+      summary,
+      transcriptExcerpt,
+      key_decisions: m.key_decisions as unknown[] | null,
+    }
+  })
+}
+
+async function fetchMeetingsByIds(
+  ids: string[],
+  includeTranscripts: boolean
+): Promise<VideoIdeasContext['meetings']> {
+  if (ids.length === 0) return []
+  const { data } = await supabaseAdmin
+    .from('meeting_records')
+    .select('id, meeting_type, meeting_date, structured_notes, transcript, key_decisions')
+    .in('id', ids)
+    .order('meeting_date', { ascending: false })
 
   if (!data || data.length === 0) return []
 

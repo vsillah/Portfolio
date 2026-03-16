@@ -531,6 +531,7 @@ export interface OnboardingWebhookPayload {
   kickoff_date: string | null
   template_name: string
   trigger_onboarding_call?: boolean
+  dashboard_url?: string
 }
 
 /**

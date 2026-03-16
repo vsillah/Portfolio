@@ -96,6 +96,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Reuse existing in-progress conversation-only session for this contact to avoid duplicate list entries.
+    if (contact_submission_id != null && !diagnostic_audit_id) {
+      const { data: existing } = await supabaseAdmin
+        .from('sales_sessions')
+        .select('*')
+        .eq('contact_submission_id', contact_submission_id)
+        .eq('outcome', 'in_progress')
+        .is('diagnostic_audit_id', null)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (existing) {
+        return NextResponse.json({ success: true, data: existing });
+      }
+    }
+
     const { data, error } = await supabaseAdmin
       .from('sales_sessions')
       .insert({

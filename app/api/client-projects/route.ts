@@ -6,6 +6,7 @@ import {
   type ClientProjectContext,
 } from '@/lib/onboarding-templates'
 import { generateOnboardingPlanPDF, type OnboardingPlanPDFData } from '@/lib/onboarding-pdf'
+import { generateClientDashboard } from '@/lib/client-dashboard'
 
 export const dynamic = 'force-dynamic'
 
@@ -91,6 +92,7 @@ export async function POST(request: NextRequest) {
         payment_amount: proposal.total_amount,
         project_start_date: startDate.toISOString(),
         stripe_session_id: proposal.checkout_session_id || null,
+        contract_pdf_url: proposal.contract_pdf_url ?? null,
       })
       .select()
       .single()
@@ -269,7 +271,6 @@ export async function POST(request: NextRequest) {
     }
 
     // 10. Update estimated_end_date on client_project if we have template duration
-    // (Fetched from the plan's template)
     if (plan?.template_id) {
       const { data: template } = await supabaseAdmin
         .from('onboarding_plan_templates')
@@ -287,12 +288,36 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 11. Auto-generate client dashboard (if one doesn't already exist from lead promotion)
+    let dashboardUrl: string | null = null
+    try {
+      const { data: existingAccess } = await supabaseAdmin
+        .from('client_dashboard_access')
+        .select('access_token')
+        .eq('client_project_id', project.id)
+        .maybeSingle()
+
+      let dashboardToken = existingAccess?.access_token
+      if (!dashboardToken) {
+        const dashResult = await generateClientDashboard(project.id)
+        dashboardToken = dashResult.accessToken
+      }
+
+      if (dashboardToken) {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amadutown.com'
+        dashboardUrl = `${siteUrl}/client/dashboard/${dashboardToken}`
+      }
+    } catch (dashError) {
+      console.error('Error auto-generating client dashboard:', dashError)
+    }
+
     return NextResponse.json({
       client_project_id: project.id,
       client_id: clientId,
       onboarding_plan_id: planResult.planId,
       pdf_url: pdfUrl,
       template_name: planResult.templateName,
+      dashboard_url: dashboardUrl,
       message: 'Client project and onboarding plan created successfully.',
     })
   } catch (error: any) {

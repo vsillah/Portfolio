@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import TimeTracker from '@/components/admin/TimeTracker'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
 import { useParams } from 'next/navigation'
@@ -90,6 +91,31 @@ interface Attachment {
   content_type: string
 }
 
+interface DashboardTask {
+  id: string
+  client_project_id: string
+  category: string
+  title: string
+  description: string | null
+  priority: 'high' | 'medium' | 'low'
+  status: 'pending' | 'in_progress' | 'complete'
+  completed_at: string | null
+  display_order: number
+}
+
+interface TimeEntry {
+  id: string
+  client_project_id: string
+  target_type: string
+  target_id: string
+  description: string | null
+  duration_seconds: number | null
+  started_at: string | null
+  stopped_at: string | null
+  is_running: boolean
+  created_at: string
+}
+
 interface ProjectDetail {
   project: {
     id: string
@@ -127,6 +153,9 @@ interface ProjectDetail {
     status: string
     detected_at: string
   }>
+  tasks: DashboardTask[]
+  time_entries: TimeEntry[]
+  dashboard_token: string | null
 }
 
 // ============================================================================
@@ -236,7 +265,7 @@ function ProjectDetailContent() {
     )
   }
 
-  const { project, onboarding_plan, progress_updates } = data
+  const { project, onboarding_plan, progress_updates, tasks = [], time_entries = [] } = data
   const milestones = onboarding_plan?.milestones || []
   const completedCount = milestones.filter(
     (m) => m.status === 'complete'
@@ -319,11 +348,35 @@ function ProjectDetailContent() {
                     milestone={milestone}
                     index={index}
                     isLast={index === milestones.length - 1}
+                    projectId={projectId}
+                    accessToken={accessToken || ''}
+                    timeEntries={time_entries}
                     onMarkComplete={() =>
                       setConfirmModal({ milestoneIndex: index, milestone })
                     }
+                    onTimeEntryChange={fetchProject}
                   />
                 ))}
+              </div>
+            )}
+
+            {/* Tasks Section */}
+            {tasks.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-xl font-bold mb-4">Tasks</h2>
+                <div className="space-y-2">
+                  {tasks.map((task) => (
+                    <AdminTaskCard
+                      key={task.id}
+                      task={task}
+                      projectId={projectId}
+                      accessToken={accessToken || ''}
+                      timeEntries={time_entries}
+                      onStatusChange={fetchProject}
+                      onTimeEntryChange={fetchProject}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
@@ -540,12 +593,20 @@ function MilestoneCard({
   milestone,
   index,
   isLast,
+  projectId,
+  accessToken,
+  timeEntries,
   onMarkComplete,
+  onTimeEntryChange,
 }: {
   milestone: Milestone
   index: number
   isLast: boolean
+  projectId: string
+  accessToken: string
+  timeEntries: TimeEntry[]
   onMarkComplete: () => void
+  onTimeEntryChange: () => void
 }) {
   const config = MILESTONE_STATUS_CONFIG[milestone.status] || MILESTONE_STATUS_CONFIG.pending
   const Icon = config.icon
@@ -588,19 +649,28 @@ function MilestoneCard({
               <h4 className="font-semibold mt-1">{milestone.title}</h4>
             </div>
 
-            {/* Mark Complete button */}
-            {milestone.status !== 'complete' &&
-              milestone.status !== 'skipped' && (
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={onMarkComplete}
-                  className="px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/50 rounded-lg text-emerald-400 text-xs font-medium hover:bg-emerald-500/30 transition-colors flex items-center gap-1.5"
-                >
-                  <CheckCircle2 size={14} />
-                  Mark Complete
-                </motion.button>
-              )}
+            <div className="flex items-center gap-2">
+              <TimeTracker
+                projectId={projectId}
+                targetType="milestone"
+                targetId={String(index)}
+                accessToken={accessToken}
+                entries={timeEntries}
+                onEntryChange={onTimeEntryChange}
+              />
+              {milestone.status !== 'complete' &&
+                milestone.status !== 'skipped' && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={onMarkComplete}
+                    className="px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/50 rounded-lg text-emerald-400 text-xs font-medium hover:bg-emerald-500/30 transition-colors flex items-center gap-1.5"
+                  >
+                    <CheckCircle2 size={14} />
+                    Mark Complete
+                  </motion.button>
+                )}
+            </div>
           </div>
 
           <p className="text-sm text-gray-400 mb-2">
@@ -632,6 +702,100 @@ function MilestoneCard({
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// Admin Task Card
+// ============================================================================
+
+const PRIORITY_COLORS = {
+  high: 'text-red-400 bg-red-500/10 border-red-500/30',
+  medium: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30',
+  low: 'text-gray-400 bg-gray-500/10 border-gray-500/30',
+}
+
+function AdminTaskCard({
+  task,
+  projectId,
+  accessToken,
+  timeEntries,
+  onStatusChange,
+  onTimeEntryChange,
+}: {
+  task: DashboardTask
+  projectId: string
+  accessToken: string
+  timeEntries: TimeEntry[]
+  onStatusChange: () => void
+  onTimeEntryChange: () => void
+}) {
+  const [updating, setUpdating] = useState(false)
+
+  const handleToggleComplete = async () => {
+    setUpdating(true)
+    const newStatus = task.status === 'complete' ? 'pending' : 'complete'
+    try {
+      await fetch(`/api/admin/dashboard-tasks/${task.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      onStatusChange()
+    } catch {
+      // Silently fail
+    } finally {
+      setUpdating(false)
+    }
+  }
+
+  const isComplete = task.status === 'complete'
+  const priorityStyle = PRIORITY_COLORS[task.priority] || PRIORITY_COLORS.low
+
+  return (
+    <div
+      className={`p-3 bg-gray-900 border border-gray-800 rounded-xl flex items-center gap-3 hover:border-gray-700 transition-colors ${
+        isComplete ? 'opacity-60' : ''
+      }`}
+    >
+      <button
+        onClick={handleToggleComplete}
+        disabled={updating}
+        className="shrink-0"
+      >
+        {isComplete ? (
+          <CheckCircle2 size={20} className="text-emerald-400" />
+        ) : (
+          <Circle size={20} className="text-gray-600 hover:text-gray-400 transition-colors" />
+        )}
+      </button>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <span className={`text-sm font-medium ${isComplete ? 'line-through text-gray-500' : ''}`}>
+            {task.title}
+          </span>
+          <span className={`text-[10px] px-1.5 py-0.5 rounded border ${priorityStyle}`}>
+            {task.priority}
+          </span>
+        </div>
+        {task.description && (
+          <p className="text-xs text-gray-500 mt-0.5 truncate">{task.description}</p>
+        )}
+      </div>
+
+      <TimeTracker
+        projectId={projectId}
+        targetType="task"
+        targetId={task.id}
+        accessToken={accessToken}
+        entries={timeEntries}
+        onEntryChange={onTimeEntryChange}
+      />
     </div>
   )
 }

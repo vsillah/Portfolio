@@ -33,34 +33,35 @@ import {
   Trash2,
 } from 'lucide-react';
 
-interface DiagnosticAudit {
+interface LeadAudit {
   id: string;
-  session_id: string;
-  contact_id: string | null;
-  status: string;
   urgency_score: number | null;
   opportunity_score: number | null;
-  audit_summary: Record<string, unknown> | null;
-  recommendations: Record<string, unknown> | null;
   created_at: string;
-  contact_submissions: {
-    id: string;
-    name: string;
-    email: string;
-    company: string | null;
-    created_at: string;
-  } | null;
-  sales_session: {
-    diagnostic_audit_id: string;
-    outcome: SessionOutcome;
-    next_follow_up: string | null;
-    funnel_stage: FunnelStage;
-  } | null;
-  has_follow_up: boolean;
+}
+
+interface LeadSession {
+  id: string;
+  outcome: string;
+  funnel_stage: string;
+  next_follow_up: string | null;
+  created_at: string;
+  diagnostic_audit_id: string | null;
+}
+
+interface LeadRow {
+  contact_id: number;
+  name: string | null;
+  email: string | null;
+  company: string | null;
+  has_diagnostic_audit: boolean;
+  has_conversation: boolean;
+  audit: LeadAudit | null;
+  session: LeadSession | null;
 }
 
 interface DashboardStats {
-  total_audits: number;
+  total_leads: number;
   pending_follow_up: number;
   converted: number;
   high_urgency: number;
@@ -98,7 +99,7 @@ interface ConversationSession {
 
 export default function SalesDashboardPage() {
   const { user } = useAuth();
-  const [audits, setAudits] = useState<DiagnosticAudit[]>([]);
+  const [leads, setLeads] = useState<LeadRow[]>([]);
   const [conversationSessions, setConversationSessions] = useState<ConversationSession[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -129,7 +130,7 @@ export default function SalesDashboardPage() {
       if (!auditsResponse.ok) throw new Error('Failed to fetch data');
       
       const data = await auditsResponse.json();
-      setAudits(data.audits || []);
+      setLeads(data.leads || []);
       setStats(data.stats || null);
 
       if (sessionsResponse.ok) {
@@ -154,27 +155,40 @@ export default function SalesDashboardPage() {
     }
   }, [user, fetchData]);
 
-  // Filter and sort audits
-  const filteredAudits = audits
-    .filter(audit => {
+  // Filter and sort leads
+  const filteredLeads = leads
+    .filter(lead => {
       if (!searchQuery) return true;
       const query = searchQuery.toLowerCase();
       return (
-        audit.contact_submissions?.name?.toLowerCase().includes(query) ||
-        audit.contact_submissions?.email?.toLowerCase().includes(query) ||
-        audit.contact_submissions?.company?.toLowerCase().includes(query)
+        lead.name?.toLowerCase().includes(query) ||
+        lead.email?.toLowerCase().includes(query) ||
+        lead.company?.toLowerCase().includes(query)
       );
     })
     .sort((a, b) => {
+      const aDate = a.audit?.created_at ?? a.session?.created_at ?? '';
+      const bDate = b.audit?.created_at ?? b.session?.created_at ?? '';
       switch (sortBy) {
         case 'urgency':
-          return (b.urgency_score || 0) - (a.urgency_score || 0);
+          return (b.audit?.urgency_score ?? 0) - (a.audit?.urgency_score ?? 0);
         case 'opportunity':
-          return (b.opportunity_score || 0) - (a.opportunity_score || 0);
+          return (b.audit?.opportunity_score ?? 0) - (a.audit?.opportunity_score ?? 0);
         default:
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          return new Date(bDate).getTime() - new Date(aDate).getTime();
       }
     });
+
+  // Active Conversations: apply same search filter as table so header count matches visible rows
+  const filteredConversationSessions = conversationSessions.filter(s => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      s.client_name?.toLowerCase().includes(q) ||
+      s.client_email?.toLowerCase().includes(q) ||
+      s.client_company?.toLowerCase().includes(q)
+    );
+  });
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -232,7 +246,7 @@ export default function SalesDashboardPage() {
               Sales Dashboard
             </h1>
             <p className="text-platinum-white/80 mt-1">
-              Manage leads from diagnostic audits and track sales progress
+              Manage leads from diagnostic audits and conversations; track steps and progress
             </p>
           </div>
 
@@ -281,7 +295,7 @@ export default function SalesDashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
             <div className="bg-silicon-slate/50 rounded-lg border border-silicon-slate p-4">
               <div className="text-sm text-platinum-white/80">Total Leads</div>
-              <div className="text-2xl font-bold text-foreground">{stats.total_audits}</div>
+              <div className="text-2xl font-bold text-foreground">{stats.total_leads}</div>
             </div>
             <div className="bg-radiant-gold/20 rounded-lg border border-radiant-gold/50 p-4">
               <div className="text-sm text-platinum-white/80 flex items-center gap-1">
@@ -370,14 +384,14 @@ export default function SalesDashboardPage() {
             <RefreshCw className="w-8 h-8 text-platinum-white/60 animate-spin mx-auto mb-3" />
             <p className="text-platinum-white/80">Loading leads...</p>
           </div>
-        ) : filteredAudits.length === 0 ? (
+        ) : filteredLeads.length === 0 ? (
           <div className="text-center py-12 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
             <Users className="w-12 h-12 text-platinum-white/60 mx-auto mb-3" />
             <h3 className="text-lg font-medium text-foreground mb-1">No leads found</h3>
             <p className="text-platinum-white/80">
-              {searchQuery || minUrgency > 0 
-                ? 'Try adjusting your filters' 
-                : 'Complete some diagnostic audits to see leads here'}
+              {searchQuery || minUrgency > 0
+                ? 'Try adjusting your filters'
+                : 'Complete diagnostic audits or start conversations from Outreach to see leads here'}
             </p>
           </div>
         ) : (
@@ -386,6 +400,7 @@ export default function SalesDashboardPage() {
               <thead className="bg-silicon-slate border-b border-silicon-slate">
                 <tr>
                   <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Contact</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Steps completed</th>
                   <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Scores</th>
                   <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Stage</th>
                   <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Status</th>
@@ -394,92 +409,129 @@ export default function SalesDashboardPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800">
-                {filteredAudits.map((audit) => (
-                  <tr key={audit.id} className="hover:bg-silicon-slate/50">
-                    <td className="px-4 py-4">
-                      <div>
-                        <div className="font-medium text-foreground">
-                          {audit.contact_submissions?.name || 'Unknown'}
-                        </div>
-                        <div className="text-sm text-platinum-white/80">
-                          {audit.contact_submissions?.email}
-                        </div>
-                        {audit.contact_submissions?.company && (
-                          <div className="text-sm text-platinum-white/60">
-                            {audit.contact_submissions.company}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-4">
+                {filteredLeads.map((lead) => {
+                  const primaryDate = lead.audit?.created_at ?? lead.session?.created_at ?? '';
+                  return (
+                    <tr key={lead.contact_id} className="hover:bg-silicon-slate/50">
+                      <td className="px-4 py-4">
                         <div>
-                          <div className="text-xs text-platinum-white/60">Urgency</div>
-                          <div className={`font-bold ${getScoreColor(audit.urgency_score)}`}>
-                            {audit.urgency_score ?? '-'}/10
+                          <div className="font-medium text-foreground">
+                            {lead.name || 'Unknown'}
                           </div>
+                          <div className="text-sm text-platinum-white/80">{lead.email}</div>
+                          {lead.company && (
+                            <div className="text-sm text-platinum-white/60">{lead.company}</div>
+                          )}
                         </div>
-                        <div>
-                          <div className="text-xs text-platinum-white/60">Opportunity</div>
-                          <div className={`font-bold ${getScoreColor(audit.opportunity_score)}`}>
-                            {audit.opportunity_score ?? '-'}/10
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-4 py-4">
-                      {audit.sales_session ? (
-                        <FunnelStageBadge stage={audit.sales_session.funnel_stage} size="sm" />
-                      ) : (
-                        <span className="text-platinum-white/60 text-sm">Not started</span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4">
-                      {audit.sales_session ? (
-                        <div className="flex items-center gap-2">
-                          {OUTCOME_ICONS[audit.sales_session.outcome]}
-                          <span className="text-sm text-platinum-white">
-                            {OUTCOME_LABELS[audit.sales_session.outcome]}
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex flex-col gap-1 text-sm">
+                          <span className={lead.has_diagnostic_audit ? 'text-emerald-400' : 'text-platinum-white/50'}>
+                            {lead.has_diagnostic_audit ? (
+                              <span className="inline-flex items-center gap-1">
+                                <FileText className="w-4 h-4" />
+                                Diagnostic audit
+                              </span>
+                            ) : (
+                              '— Diagnostic audit'
+                            )}
+                          </span>
+                          <span className={lead.has_conversation ? 'text-emerald-400' : 'text-platinum-white/50'}>
+                            {lead.has_conversation ? (
+                              <span className="inline-flex items-center gap-1">
+                                <Phone className="w-4 h-4" />
+                                Conversation
+                              </span>
+                            ) : (
+                              '— Conversation'
+                            )}
                           </span>
                         </div>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 px-2 py-1 bg-radiant-gold/20 text-radiant-gold rounded-full text-xs font-medium">
-                          <Phone className="w-3 h-3" />
-                          Needs Follow-up
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 text-sm text-platinum-white/80">
-                      {formatDate(audit.created_at)}
-                      {audit.sales_session?.next_follow_up && (
-                        <div className="text-xs text-blue-400 mt-1 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          Follow-up: {formatDate(audit.sales_session.next_follow_up)}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        {audit.contact_id && (
+                      </td>
+                      <td className="px-4 py-4">
+                        {lead.audit ? (
+                          <div className="flex items-center gap-4">
+                            <div>
+                              <div className="text-xs text-platinum-white/60">Urgency</div>
+                              <div className={`font-bold ${getScoreColor(lead.audit.urgency_score)}`}>
+                                {lead.audit.urgency_score ?? '-'}/10
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-xs text-platinum-white/60">Opportunity</div>
+                              <div className={`font-bold ${getScoreColor(lead.audit.opportunity_score)}`}>
+                                {lead.audit.opportunity_score ?? '-'}/10
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-platinum-white/50 text-sm">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-4">
+                        {lead.session ? (
+                          <FunnelStageBadge stage={lead.session.funnel_stage as FunnelStage} size="sm" />
+                        ) : (
+                          <span className="text-platinum-white/60 text-sm">Not started</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-4">
+                        {lead.session ? (
+                          <div className="flex items-center gap-2">
+                            {OUTCOME_ICONS[lead.session.outcome as SessionOutcome]}
+                            <span className="text-sm text-platinum-white">
+                              {OUTCOME_LABELS[lead.session.outcome as SessionOutcome]}
+                            </span>
+                          </div>
+                        ) : lead.audit ? (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 bg-radiant-gold/20 text-radiant-gold rounded-full text-xs font-medium">
+                            <Phone className="w-3 h-3" />
+                            Needs Follow-up
+                          </span>
+                        ) : (
+                          <span className="text-platinum-white/60 text-sm">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-4 text-sm text-platinum-white/80">
+                        {primaryDate ? formatDate(primaryDate) : '—'}
+                        {lead.session?.next_follow_up && (
+                          <div className="text-xs text-blue-400 mt-1 flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            Follow-up: {formatDate(lead.session.next_follow_up)}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
                           <Link
-                            href={`/admin/outreach?tab=leads&id=${audit.contact_id}`}
+                            href={`/admin/outreach?tab=leads&id=${lead.contact_id}`}
                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-900/30 hover:bg-purple-800/50 text-purple-400 rounded-lg text-sm transition-colors"
                           >
                             <Users className="w-4 h-4" />
                             View Lead
                           </Link>
-                        )}
-                        <Link
-                          href={`/admin/sales/${audit.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-foreground rounded-lg text-sm hover:bg-emerald-700"
-                        >
-                          {audit.sales_session ? 'Continue' : 'Start Call'}
-                          <ArrowRight className="w-4 h-4" />
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          {lead.session ? (
+                            <Link
+                              href={`/admin/sales/conversation/${lead.session.id}`}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-foreground rounded-lg text-sm hover:bg-emerald-700"
+                            >
+                              Continue
+                              <ArrowRight className="w-4 h-4" />
+                            </Link>
+                          ) : lead.audit ? (
+                            <Link
+                              href={`/admin/sales/${lead.audit.id}`}
+                              className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-foreground rounded-lg text-sm hover:bg-emerald-700"
+                            >
+                              Start Call
+                              <ArrowRight className="w-4 h-4" />
+                            </Link>
+                          ) : null}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -491,7 +543,7 @@ export default function SalesDashboardPage() {
             <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <Phone className="w-5 h-5 text-purple-500" />
               Active Conversations
-              <span className="text-sm font-normal text-platinum-white/80">({conversationSessions.length})</span>
+              <span className="text-sm font-normal text-platinum-white/80">({filteredConversationSessions.length})</span>
             </h2>
             <div className="bg-silicon-slate/50 rounded-lg border border-silicon-slate overflow-hidden">
               <table className="w-full">
@@ -505,17 +557,7 @@ export default function SalesDashboardPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800">
-                  {conversationSessions
-                    .filter(s => {
-                      if (!searchQuery) return true;
-                      const q = searchQuery.toLowerCase();
-                      return (
-                        s.client_name?.toLowerCase().includes(q) ||
-                        s.client_email?.toLowerCase().includes(q) ||
-                        s.client_company?.toLowerCase().includes(q)
-                      );
-                    })
-                    .map(s => (
+                  {filteredConversationSessions.map(s => (
                     <tr key={s.id} className="hover:bg-silicon-slate/50">
                       <td className="px-4 py-4">
                         <div className="font-medium text-foreground">{s.client_name || 'Unknown'}</div>

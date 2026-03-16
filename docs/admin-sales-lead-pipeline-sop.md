@@ -414,8 +414,9 @@ When the client completes Stripe checkout, the **Stripe webhook** (`/api/payment
 1. Creates **client_projects** record (client_id, client_name, client_email, client_company, proposal_id, project_status, product_purchased, payment_amount, project_start_date, etc.).
 2. Builds proposal and project context and calls **createOnboardingPlanForProject** to match an onboarding template and generate an **onboarding_plan** (milestones, communication_plan, warranty, artifacts_handoff).
 3. Generates the **onboarding PDF** and uploads to Supabase Storage (`documents/onboarding-plans/[id].pdf`).
-4. **Does NOT send the onboarding email automatically.** The project is created with `onboarding_email_sent_at = NULL`, awaiting admin approval (see "Onboarding email approval" below).
-5. Optionally updates **client_projects.estimated_end_date** from the template’s estimated_duration_weeks.
+4. **Auto-generates a client dashboard** when one does not already exist: creates a **client_dashboard_access** row (or reuses the promoted lead dashboard if the client came from a diagnostic). Returns **dashboard_url** in the response so the proposal success page and (after approval) the onboarding email can show "View Your Client Portal".  
+5. **Does NOT send the onboarding email automatically.** The project is created with `onboarding_email_sent_at = NULL`, awaiting admin approval (see "Onboarding email approval" below).
+6. Optionally updates **client_projects.estimated_end_date** from the template’s estimated_duration_weeks.
 
 ### Onboarding email approval (human-in-the-loop)
 
@@ -423,8 +424,8 @@ After a client project is created, the admin must approve the onboarding email b
 
 1. **Pending queue:** Admin → Client Projects shows a "Pending Onboarding Approval" section at the top listing projects with `project_status = 'payment_received'` and `onboarding_email_sent_at IS NULL`.
 2. **Review:** Admin reviews the project details, onboarding plan, and PDF.
-3. **Approve & Send:** Admin clicks "Approve & Send" which calls `POST /api/admin/client-projects/[id]/approve-onboarding`. This fires **fireOnboardingWebhook** (with `trigger_onboarding_call: true`) and sets `onboarding_email_sent_at = now()`.
-4. The n8n workflow sends the onboarding email and schedules the onboarding call.
+3. **Approve & Send:** Admin clicks "Approve & Send" which calls `POST /api/admin/client-projects/[id]/approve-onboarding`. The route looks up the project's **client_dashboard_access** token and includes **dashboard_url** in the webhook payload. It then fires **fireOnboardingWebhook** (with `trigger_onboarding_call: true`, `dashboard_url`) and sets `onboarding_email_sent_at = now()`.
+4. The n8n workflow sends the onboarding email (with "View Your Client Portal" when `dashboard_url` is present) and, when configured, sends the onboarding call invite (Calendly).
 
 ### Proposal access codes
 
@@ -444,12 +445,12 @@ Proposals now use 6-character access codes instead of UUID-based links:
 ### Project detail and milestones
 
 - **Where:** Admin → Client Projects → [project] (`/admin/client-projects/[id]`).
-- **Features:** Milestone timeline with status (pending, in_progress, complete, skipped). For each incomplete milestone, **Mark Complete** opens a modal where admin can attach files (screenshots, PDFs) and add a personal note. Submitting marks the milestone complete and sends a **progress update** to the client (via email or Slack, depending on project channel). The page also shows communication plan, warranty, artifact handoff list, progress update log, and open blockers.
+- **Features:** **Client Dashboard** card — copy portal link or "View as Client"; generate dashboard if none exists. **Milestone timeline** with status (pending, in_progress, complete, skipped). On each milestone card: **time tracker** (start/stop timer; elapsed and total logged) and **Mark Complete** (opens modal to attach files and add a note; sends progress update to client via email or Slack). **Tasks** section lists **dashboard_tasks** for the project: toggle complete and run a time tracker per task. Time is stored in **time_entries** (polymorphic: milestone index or task id) and is visible in the client portal as "Time Investment." The page also shows communication plan, warranty, artifact handoff list, progress update log, and open blockers.
 
-### Client-facing onboarding page
+### Client-facing onboarding page and portal
 
-- **Where:** Public page `/onboarding/[id]` (link and PDF are sent via the onboarding email).
-- **Features:** Setup requirements, milestone timeline, communication plan, win conditions, warranty, and artifacts. The client can view and download the PDF.
+- **Onboarding page:** Public `/onboarding/[id]` (link and PDF are sent via the onboarding email). Setup requirements, milestone timeline, communication plan, win conditions, warranty, and artifacts. The client can view and download the PDF.
+- **Client portal:** Token-based `/client/dashboard/[token]`. The client gets the link on the proposal success page (after payment) and in the onboarding email when admin has approved and sent. The portal shows documents & proposals, time investment (from admin time entries), milestones, tasks, meeting history (past meetings with summaries and action items), next meeting, and assessment/value report. No login required — the token is the access.
 
 ### Onboarding templates
 
@@ -509,7 +510,7 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 | WF-VEP-001 | Admin Trigger on Value Evidence | Internal evidence extraction | (none from UI) | POST to `/api/admin/value-evidence/ingest` |
 | WF-VEP-002 | Admin Trigger on Value Evidence | Social listening | (none from UI) | POST to ingest-market then ingest |
 | N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL | Diagnostic completion in chat | Sales notification | diagnosticAuditId, diagnosticData, contactInfo | Used by n8n for sales follow-up |
-| N8N_ONBOARDING_WEBHOOK | Auto after client project creation | Send onboarding email with plan link + PDF | onboarding_plan_id, client info, milestones_summary, pdf_url | Email to client |
+| N8N_ONBOARDING_WEBHOOK | After admin Approve & Send (approve-onboarding) | Send onboarding email with plan link + PDF + client portal link | onboarding_plan_id, client info, milestones_summary, pdf_url, **dashboard_url** | Email to client |
 | VAPI Webhook Handler | VAPI voice call events | Route voice transcripts to n8n, handle function calls | VAPI event payload (transcript, function-call, etc.) | AI response for VAPI to speak; chat_sessions + chat_messages updated |
 | Milestone progress update | Admin "Mark Complete" on project milestone | Send progress update to client via email/Slack | milestone_index, attachments, note, sender_name | Email or Slack message to client; progress_updates log |
 | Promote meeting tasks | WF-MCH (via HTTP Request) or admin manually | Promote action_items from meeting_records into meeting_action_tasks | meeting_record_id | meeting_action_tasks rows created; optionally synced to Slack |
@@ -538,7 +539,9 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 | Sales session | Run walkthrough, select bundle and line items | — |
 | Proposal | Generate proposal, share link | Proposal link → view PDF, accept, pay |
 | Create project | (Optional) Create project from eligible paid proposal if not auto-created | — |
-| Milestone | Mark milestone complete (optional attachments/note) | Progress update email or Slack |
+| Onboarding email | Approve & Send on pending project | Client receives email with plan PDF + "View Your Client Portal" link |
+| Milestone | Mark milestone complete (optional attachments/note); use time tracker to log time | Progress update email or Slack; time visible in client portal |
+| Task | Mark dashboard task complete; use time tracker per task | Client portal shows task status and time investment |
 | Promote tasks | Click "Promote" on meeting record (or auto via WF-MCH) | — |
 | Manage tasks | Change status, assign, set due date on `/admin/meeting-tasks` | — |
 | Generate draft | Click "Generate update" for a project with completed tasks | — |
@@ -737,7 +740,7 @@ Example embed in the SOP: `![Admin Dashboard](./images/admin-dashboard.png)`.
 
 - **Admin navigation:** Persistent left sidebar (categories: Pipeline, Sales, Post-sale, Quality & insights, Configuration) with direct links to all hub/list pages; Content Hub is expandable. Dashboard home (`/admin`) shows category-snapshot cards with feeds and links. Detail pages (e.g. `/admin/guarantees/[id]`) are reached from the parent in the sidebar; breadcrumbs show path. Nav tree: `lib/admin-nav.ts`.
 - **Admin routes:** `/admin` — Dashboard (category cards with feeds); `/admin/outreach` — Message Queue, All Leads, **Escalations** (chat/voice escalations, link to lead); `/admin/outreach/escalations/[id]` — Escalation detail (transcript, link/unlink lead); `/admin/outreach/dashboard` — Trigger; `/admin/sales` — Sales Dashboard; `/admin/sales/[auditId]` — Sales session; `/admin/client-projects` — Client projects; `/admin/onboarding-templates` — Onboarding templates; `/admin/guarantees` — Guarantee instances; `/admin/sales/products` — Product classification; `/admin/sales/bundles` — Bundles; `/admin/sales/scripts` — Scripts; `/admin/sales/upsell-paths` — Upsell Paths (two-touch prescription); `/admin/analytics` — Analytics (with Sales Funnel link); `/admin/analytics/funnel` — **Sales Funnel Analytics** (conversion rates, pipeline value, deal flow, attention items, loss reasons); `/admin/chat-eval` — Chat Eval; `/admin/cost-revenue` — **Cost & Revenue** (portfolio P&L, cost by source, profit:cost ratio); `/admin/content` — Content Hub; `/admin/meeting-tasks` — Meeting Action Tasks & Client Update Drafts; `/admin/social-content` — **Social Content Queue** (review, edit, approve/reject AI-generated LinkedIn posts).
-- **Client-facing:** `/resources` — Resources (AI Readiness Scorecard + templates/playbooks); `/tools/audit` — **AI & Automation Audit** (standalone form → diagnostic_audits); `/proposal/[id]` — View/accept/pay proposal; `/checkout` — Checkout; `/onboarding/[id]` — Onboarding plan.
+- **Client-facing:** `/resources` — Resources (AI Readiness Scorecard + templates/playbooks); `/tools/audit` — **AI & Automation Audit** (standalone form → diagnostic_audits); `/proposal/[code]` — View/accept/pay proposal (6-char code or legacy UUID); `/checkout` — Checkout; `/onboarding/[id]` — Onboarding plan; `/client/dashboard/[token]` — **Client Portal** (documents, time investment, milestones, tasks, meeting history; token from proposal success page or onboarding email).
 - **How audit/client input ties to sales:** [audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md) — map of audit sources, sales flow, and every place in the codebase that uses diagnostic/contact input.
 - **Key env var names (no secrets):** N8N_LEAD_WEBHOOK_URL, N8N_CLG002_WEBHOOK_URL, N8N_CLG003_WEBHOOK_URL, N8N_WRM001/002/003_WEBHOOK_URL, N8N_INGEST_SECRET, N8N_DIAGNOSTIC_WEBHOOK_URL, N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL, N8N_VEP001_WEBHOOK_URL, N8N_VEP002_WEBHOOK_URL, N8N_TASK_SLACK_SYNC_WEBHOOK_URL, N8N_PROGRESS_UPDATE_WEBHOOK_URL, N8N_FOLLOW_UP_SCHEDULER_WEBHOOK_URL, SLACK_CHAT_ESCALATION_WEBHOOK_URL (optional; Slack Incoming Webhook for chat escalation notifications), VAPI_COST_PER_MINUTE (optional; default 0.05 for voice call cost tracking), onboarding webhook used by `fireOnboardingWebhook` in `lib/onboarding-templates`, LINKEDIN_CLIENT_ID, LINKEDIN_CLIENT_SECRET (LinkedIn OAuth), GEMINI_API_KEY, ELEVENLABS_API_KEY, ELEVENLABS_DEFAULT_VOICE_ID (social content pipeline — hardcoded in n8n workflows).
 - **Troubleshooting:** See [warm-lead-workflow-integration.md](./warm-lead-workflow-integration.md) and [n8n-lead-workflow-activation-rca.md](./n8n-lead-workflow-activation-rca.md).

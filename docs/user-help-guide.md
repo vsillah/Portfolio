@@ -15,10 +15,11 @@ Welcome! This guide covers everything you need to know to navigate and use the s
 7. [Your Purchases](#your-purchases)
 8. [Proposals](#proposals)
 9. [Onboarding](#onboarding)
-10. [Lead Magnets](#lead-magnets)
-11. [AI Readiness Scorecard](#ai-readiness-scorecard)
-12. [Your Account](#your-account)
-13. [FAQ & Troubleshooting](#faq--troubleshooting)
+10. [Client Portal](#client-portal)
+11. [Lead Magnets](#lead-magnets)
+12. [AI Readiness Scorecard](#ai-readiness-scorecard)
+13. [Your Account](#your-account)
+14. [FAQ & Troubleshooting](#faq--troubleshooting)
 
 ---
 
@@ -292,11 +293,19 @@ You will receive a 6-character access code from your contact. You can access you
 | Paid | Payment completed successfully |
 | Expired | The proposal is no longer valid |
 
+### After Payment
+
+Once your payment is complete, the proposal page shows:
+
+- **View Your Client Portal** — Your main hub for the engagement: track progress, view documents, see meeting history, and time invested. Use this link (or the one in your onboarding email) to access your portal anytime.
+- **Onboarding Plan** — Open your onboarding plan and download the PDF.
+- **Book Onboarding Call** — Schedule your kickoff call via Calendly.
+
 ---
 
 ## Onboarding
 
-After a proposal is accepted and paid, you may receive an onboarding plan (`/onboarding/[id]`).
+After a proposal is accepted and paid, you may receive an **onboarding plan** (`/onboarding/[id]`) and a link to your **Client Portal**. The onboarding email includes both the plan PDF and, when available, a "View Your Client Portal" link so you can track progress in one place.
 
 ### Onboarding Sections
 
@@ -320,6 +329,26 @@ Click the **Book Onboarding Call** button to schedule your kickoff call via Cale
 ### Download
 
 Click the **Download PDF** link to save a copy of your onboarding plan.
+
+---
+
+## Client Portal
+
+The **Client Portal** (`/client/dashboard/[token]`) is your engagement hub. You reach it from the link shown on the proposal page after payment or from the "View Your Client Portal" link in your onboarding email. The link is unique to you and your project — bookmark it or use the email link to return anytime.
+
+### What's in the Portal
+
+| Section | What You'll Find |
+|--------|------------------|
+| **Documents & Proposals** | Proposals and onboarding plan PDFs you can view or download. |
+| **Time Investment** | Time spent on your project by milestone and task (updated as work is logged). |
+| **Milestones** | Your onboarding milestones and their status (pending, in progress, complete). |
+| **Tasks** | Action items and recommendations; you can mark tasks complete where allowed. |
+| **Meeting History** | Past meetings with summaries, key decisions, action items, and optional recording links. |
+| **Next Meeting** | Your next scheduled meeting when one is set. |
+| **Assessment & Value** | Your diagnostic assessment (if applicable) and value report. |
+
+You do not need to log in to use the portal — the link itself is your access. Keep it private; share it only with people who should see the project.
 
 ---
 

@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
 import { generateProposalPDF, ProposalData, ProposalValueAssessment } from '@/lib/proposal-pdf';
+import { generateContractPDF } from '@/lib/contract-pdf';
 import { getUpsellPathsForOffer, formatUpsellAsProposalAddon } from '@/lib/upsell-paths';
 import { generateAccessCode } from '@/lib/proposal-access-code';
 
@@ -242,6 +243,36 @@ export async function POST(request: NextRequest) {
     } catch (pdfError) {
       console.error('Error generating PDF:', pdfError);
       // Continue without PDF - not critical
+    }
+
+    // Generate and upload contract PDF (Software Agreement)
+    try {
+      const contractBuffer = await generateContractPDF({
+        client_name: proposal.client_name,
+        client_company: proposal.client_company ?? undefined,
+        total_amount: proposal.total_amount,
+        bundle_name: proposal.bundle_name ?? undefined,
+        valid_until: proposal.valid_until,
+      });
+      const contractFileName = `contracts/${proposal.id}.pdf`;
+      const { error: contractUploadError } = await supabaseAdmin.storage
+        .from('documents')
+        .upload(contractFileName, contractBuffer, {
+          contentType: 'application/pdf',
+          upsert: true,
+        });
+      if (!contractUploadError) {
+        const { data: contractUrlData } = supabaseAdmin.storage
+          .from('documents')
+          .getPublicUrl(contractFileName);
+        await supabaseAdmin
+          .from('proposals')
+          .update({ contract_pdf_url: contractUrlData.publicUrl })
+          .eq('id', proposal.id);
+        proposal.contract_pdf_url = contractUrlData.publicUrl;
+      }
+    } catch (contractPdfError) {
+      console.error('Error generating/uploading contract PDF:', contractPdfError);
     }
 
     // Generate access code and update proposal (retry on collision)

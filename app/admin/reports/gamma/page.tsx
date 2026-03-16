@@ -140,7 +140,8 @@ function GammaReportsContent() {
       });
       if (res.ok) {
         const data = await res.json();
-        setContacts(data.contacts || data || []);
+        const list = data.submissions ?? data.contacts ?? (Array.isArray(data) ? data : []);
+        setContacts(Array.isArray(list) ? list : []);
       }
     }
     load();

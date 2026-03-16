@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import {
   FileText,
   Plus,
-  Edit,
-  Trash2,
   ChevronDown,
   ChevronUp,
   Loader2,
@@ -19,6 +17,7 @@ import {
   Mic,
   Wrench,
   Bot,
+  X,
 } from 'lucide-react';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 
@@ -74,11 +73,16 @@ const typeColors: Record<string, string> = {
 // Page Component
 // ============================================================================
 
+const CONTENT_TYPES = ['product', 'project', 'video', 'publication', 'music', 'lead_magnet', 'prototype', 'service'] as const;
+const SERVICE_TYPES = ['training', 'speaking', 'consulting', 'coaching', 'workshop', 'warranty'] as const;
+const OFFER_ROLES = ['core_offer', 'bonus', 'upsell', 'downsell', 'continuity', 'lead_magnet', 'decoy', 'anchor'] as const;
+
 export default function OnboardingTemplatesPage() {
   const [templates, setTemplates] = useState<OnboardingTemplate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedTemplate, setExpandedTemplate] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
     fetchTemplates();
@@ -126,9 +130,19 @@ export default function OnboardingTemplatesPage() {
               Manage templates that drive auto-generated onboarding plans for clients.
             </p>
           </div>
-          <span className="px-3 py-1 text-sm bg-gray-800 text-gray-300 rounded-lg">
-            {templates.length} template{templates.length !== 1 ? 's' : ''}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="px-3 py-1 text-sm bg-gray-800 text-gray-300 rounded-lg">
+              {templates.length} template{templates.length !== 1 ? 's' : ''}
+            </span>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              Create template
+            </button>
+          </div>
         </div>
 
         {error && (
@@ -138,6 +152,17 @@ export default function OnboardingTemplatesPage() {
               <p className="text-red-200">{error}</p>
             </div>
           </div>
+        )}
+
+        {/* Create Template Modal */}
+        {showCreateModal && (
+          <CreateTemplateModal
+            onClose={() => setShowCreateModal(false)}
+            onSuccess={() => {
+              setShowCreateModal(false);
+              fetchTemplates();
+            }}
+          />
         )}
 
         {/* Templates List */}
@@ -345,11 +370,229 @@ export default function OnboardingTemplatesPage() {
             <h3 className="text-lg font-semibold text-gray-400 mb-2">
               No Templates Found
             </h3>
-            <p className="text-gray-500">
-              Run the seed SQL to populate initial onboarding plan templates.
+            <p className="text-gray-500 max-w-md mx-auto">
+              Run the seed SQL to populate initial templates: in Supabase Dashboard → SQL Editor, execute{' '}
+              <code className="text-gray-400 bg-gray-800 px-1 rounded">database_seed_onboarding_templates.sql</code>.
             </p>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Create Template Modal
+// ============================================================================
+
+function CreateTemplateModal({
+  onClose,
+  onSuccess,
+}: {
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [name, setName] = useState('');
+  const [contentType, setContentType] = useState<string>(CONTENT_TYPES[0]);
+  const [serviceType, setServiceType] = useState<string>('');
+  const [offerRole, setOfferRole] = useState<string>('');
+  const [estimatedWeeks, setEstimatedWeeks] = useState<string>('');
+  const [isActive, setIsActive] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setFormError('Name is required.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const response = await fetch('/api/admin/onboarding-templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: trimmedName,
+          content_type: contentType,
+          service_type: serviceType || null,
+          offer_role: offerRole || null,
+          estimated_duration_weeks: estimatedWeeks ? parseInt(estimatedWeeks, 10) : null,
+          is_active: isActive,
+          setup_requirements: [],
+          milestones_template: [],
+          communication_plan: {},
+          win_conditions: [],
+          warranty: {},
+          artifacts_handoff: [],
+        }),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error || 'Failed to create template');
+      }
+      onSuccess();
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'Failed to create template');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !submitting) onClose();
+      }}
+    >
+      <div
+        className="bg-gray-900 border border-gray-800 rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-4 border-b border-gray-800">
+          <h2 className="text-lg font-semibold">Create template</h2>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={submitting}
+            className="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {formError && (
+            <div className="p-3 rounded-lg bg-red-900/20 border border-red-800 text-red-200 text-sm flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              {formError}
+            </div>
+          )}
+          <div>
+            <label htmlFor="create-template-name" className="block text-sm font-medium text-gray-300 mb-1">
+              Name <span className="text-red-400">*</span>
+            </label>
+            <input
+              id="create-template-name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="e.g. Consulting Engagement Onboarding"
+              required
+              autoFocus
+            />
+          </div>
+          <div>
+            <label htmlFor="create-template-content-type" className="block text-sm font-medium text-gray-300 mb-1">
+              Content type <span className="text-red-400">*</span>
+            </label>
+            <select
+              id="create-template-content-type"
+              value={contentType}
+              onChange={(e) => setContentType(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              {CONTENT_TYPES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="create-template-service-type" className="block text-sm font-medium text-gray-300 mb-1">
+              Service type
+            </label>
+            <select
+              id="create-template-service-type"
+              value={serviceType}
+              onChange={(e) => setServiceType(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">— None —</option>
+              {SERVICE_TYPES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="create-template-offer-role" className="block text-sm font-medium text-gray-300 mb-1">
+              Offer role
+            </label>
+            <select
+              id="create-template-offer-role"
+              value={offerRole}
+              onChange={(e) => setOfferRole(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+              <option value="">— None —</option>
+              {OFFER_ROLES.map((r) => (
+                <option key={r} value={r}>
+                  {r}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label htmlFor="create-template-weeks" className="block text-sm font-medium text-gray-300 mb-1">
+              Estimated duration (weeks)
+            </label>
+            <input
+              id="create-template-weeks"
+              type="number"
+              min={1}
+              value={estimatedWeeks}
+              onChange={(e) => setEstimatedWeeks(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="e.g. 12"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              id="create-template-active"
+              type="checkbox"
+              checked={isActive}
+              onChange={(e) => setIsActive(e.target.checked)}
+              className="w-4 h-4 rounded border-gray-600 bg-gray-800 text-blue-600 focus:ring-blue-500"
+            />
+            <label htmlFor="create-template-active" className="text-sm text-gray-300">
+              Active (template is available for use)
+            </label>
+          </div>
+          <p className="text-xs text-gray-500">
+            Setup requirements, milestones, communication plan, and other sections can be added later by editing the template (or via SQL/API).
+          </p>
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={submitting}
+              className="flex-1 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex-1 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Creating…
+                </>
+              ) : (
+                'Create template'
+              )}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

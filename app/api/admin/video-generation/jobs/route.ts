@@ -24,7 +24,8 @@ export async function GET(request: NextRequest) {
 
     let query = supabaseAdmin
       .from('video_generation_jobs')
-      .select('id, script_source, script_text, drive_file_name, target_type, target_id, avatar_id, voice_id, aspect_ratio, channel, heygen_video_id, heygen_status, error_message, video_url, video_record_id, created_at, created_by', { count: 'exact' })
+      .select('id, script_source, script_text, drive_file_name, target_type, target_id, avatar_id, voice_id, aspect_ratio, channel, heygen_video_id, heygen_status, error_message, video_url, video_record_id, broll_asset_ids, created_at, created_by', { count: 'exact' })
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1)
 

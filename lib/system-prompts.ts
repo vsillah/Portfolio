@@ -106,6 +106,17 @@ Write a short, professional draft reply that:
 4. Uses an appropriate sign-off (e.g. Best, [Your name])
 
 Do not make up information. If the project context does not contain enough to answer something, suggest a call or follow-up. Keep the tone consistent with client communications.`,
+
+  video_prompt_formatter: `You are a prompt engineer for AmaduTown video content. The user will give you raw notes, thoughts, or a conversation summary. Restructure it into a clear, specific video content brief.
+Do NOT invent new topics or change the user's intent. Output format:
+
+TOPIC: [1-2 sentence topic]
+TARGET AUDIENCE: [who this video is for]
+KEY POINTS: [bullet list of main points to cover]
+TONE: [conversational, educational, etc.]
+ANGLE / HOOK: [what makes this interesting]
+
+If the user provided audience/tone/angle explicitly, use those. Otherwise infer from the content. Keep it concise -- this will be injected into a larger video ideas generation prompt alongside portfolio context.`,
 }
 
 const DEFAULT_CONFIGS: Record<string, PromptConfig> = {
@@ -114,6 +125,7 @@ const DEFAULT_CONFIGS: Record<string, PromptConfig> = {
   llm_judge: { temperature: 0.3, model: 'claude-sonnet-4-20250514' },
   diagnostic: { temperature: 0.7, maxTokens: 1024 },
   client_email_reply: { temperature: 0.6, maxTokens: 1024 },
+  video_prompt_formatter: { temperature: 0.5, maxTokens: 800, model: 'gpt-4o-mini' },
 }
 
 // Cache for prompts (5 minute TTL)
@@ -223,6 +235,14 @@ export async function getDiagnosticPrompt(): Promise<string> {
 export async function getClientEmailReplyPrompt(): Promise<string> {
   const prompt = await getSystemPrompt('client_email_reply')
   return prompt?.prompt || DEFAULT_PROMPTS.client_email_reply
+}
+
+/**
+ * Get the video prompt formatter system prompt and config.
+ * Used by the magic format button on the Video Generation page.
+ */
+export async function getVideoPromptFormatterPrompt(): Promise<SystemPrompt | null> {
+  return getSystemPrompt('video_prompt_formatter')
 }
 
 /**

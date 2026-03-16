@@ -1,22 +1,15 @@
 /**
  * POST /api/admin/video-generation/ideas-queue/[id]/generate
- * Create a video generation job from an ideas queue item.
- * Runs B-roll capture (using storyboard brollHint or script keywords) + HeyGen avatar.
+ * Create a video generation job from a drafts queue item.
+ * Links matching B-roll library assets instead of capturing fresh.
  */
 
-import * as path from 'path'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { createVideo } from '@/lib/heygen'
 import { channelToAspectRatio } from '@/lib/constants/video-channel'
 import type { VideoChannel, VideoAspectRatio } from '@/lib/constants/video-channel'
-import {
-  captureBroll,
-  DEFAULT_ROUTES,
-  selectRoutesFromScript,
-} from '@/lib/playtest-broll'
-import { videoSlugFromFileName } from '@/lib/video-slug'
 
 export const dynamic = 'force-dynamic'
 
@@ -49,24 +42,22 @@ export async function POST(
       (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
     const voiceId =
       (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
-    const includeBroll = body.includeBroll !== false
-    const brollRoutes = (body.brollRoutes as 'all' | 'script') ?? 'script'
 
     const { data: queueItem, error: fetchErr } = await supabaseAdmin
       .from('video_ideas_queue')
-      .select('id, title, script_text, storyboard_json, status')
+      .select('id, title, script_text, storyboard_json, status, source')
       .eq('id', queueId)
       .single()
 
     if (fetchErr || !queueItem) {
       return NextResponse.json(
-        { error: 'Ideas queue item not found' },
+        { error: 'Draft queue item not found' },
         { status: 404 }
       )
     }
     if (queueItem.status !== 'pending') {
       return NextResponse.json(
-        { error: `Ideas queue item already ${queueItem.status}` },
+        { error: `Draft already ${queueItem.status}` },
         { status: 400 }
       )
     }
@@ -74,7 +65,7 @@ export async function POST(
     const scriptText = (queueItem.script_text ?? '').trim()
     if (!scriptText) {
       return NextResponse.json(
-        { error: 'Ideas queue item has no script text' },
+        { error: 'Draft has no script text' },
         { status: 400 }
       )
     }
@@ -99,46 +90,36 @@ export async function POST(
       )
     }
 
-    let brollOutputPath: string | undefined
-    if (includeBroll && queueItem.title) {
-      try {
-        const slug = videoSlugFromFileName(queueItem.title)
-        const brollDir = path.join(
-          process.cwd(),
-          'design-files',
-          'broll',
-          slug,
-          'B-roll'
-        )
-        const storyboard = queueItem.storyboard_json as
-          | { scenes?: StoryboardScene[] }
-          | null
-        const brollHints =
-          storyboard?.scenes
-            ?.map((s) => s.brollHint)
-            .filter(Boolean)
-            .join(' ') ?? ''
-        const scriptWithHints = brollHints
-          ? `${scriptText} ${brollHints}`
-          : scriptText
-        const routes =
-          brollRoutes === 'script'
-            ? selectRoutesFromScript(scriptWithHints, DEFAULT_ROUTES)
-            : DEFAULT_ROUTES
-        const baseUrl = process.env.BASE_URL ?? 'http://localhost:3000'
-        const result = await captureBroll({
-          routes,
-          outputDir: brollDir,
-          recordVideos: true,
-          baseUrl,
-          noStartServer: true,
-        })
-        brollOutputPath = result.outputDir
-      } catch (brollErr) {
-        console.warn(
-          '[Video generation] B-roll capture failed (continuing with HeyGen):',
-          brollErr
-        )
+    // B-roll: use client-provided IDs if present, otherwise auto-match from storyboard hints
+    let brollAssetIds: string[] = []
+    const clientBrollIds = Array.isArray(body.brollAssetIds) ? body.brollAssetIds as string[] : null
+
+    if (clientBrollIds && clientBrollIds.length > 0) {
+      brollAssetIds = clientBrollIds
+    } else {
+      const storyboard = queueItem.storyboard_json as { scenes?: StoryboardScene[] } | null
+      const brollHints = storyboard?.scenes
+        ?.map((s) => s.brollHint)
+        .filter(Boolean) as string[] ?? []
+
+      if (brollHints.length > 0) {
+        const { data: libraryAssets } = await supabaseAdmin
+          .from('broll_library')
+          .select('id, filename, route_description')
+
+        if (libraryAssets && libraryAssets.length > 0) {
+          for (const hint of brollHints) {
+            const lower = hint.toLowerCase()
+            const match = libraryAssets.find(
+              (a: { id: string; filename: string; route_description: string | null }) =>
+                a.filename.toLowerCase().includes(lower) ||
+                (a.route_description ?? '').toLowerCase().includes(lower)
+            )
+            if (match && !brollAssetIds.includes(match.id)) {
+              brollAssetIds.push(match.id)
+            }
+          }
+        }
       }
     }
 
@@ -164,10 +145,12 @@ export async function POST(
       )
     }
 
+    const scriptSource = queueItem.source === 'drive_script' ? 'drive_script' : queueItem.source === 'manual' ? 'manual' : 'llm_generated'
+
     const { data: job, error: insertErr } = await supabaseAdmin
       .from('video_generation_jobs')
       .insert({
-        script_source: 'llm_generated',
+        script_source: scriptSource,
         script_text: scriptText,
         drive_file_id: null,
         drive_file_name: queueItem.title,
@@ -177,7 +160,7 @@ export async function POST(
         channel,
         heygen_video_id: result.videoId,
         heygen_status: 'pending',
-        broll_output_path: brollOutputPath ?? null,
+        broll_asset_ids: brollAssetIds.length > 0 ? brollAssetIds : null,
         created_by: auth.user?.id,
       })
       .select('id, heygen_video_id, heygen_status, created_at')
@@ -208,10 +191,10 @@ export async function POST(
       heygenVideoId: job.heygen_video_id,
       status: job.heygen_status,
       createdAt: job.created_at,
-      brollOutputPath: brollOutputPath ?? undefined,
+      brollAssetIds: brollAssetIds.length > 0 ? brollAssetIds : undefined,
     })
   } catch (error) {
-    console.error('[Video generation] Ideas queue generate error:', error)
+    console.error('[Video generation] Draft generate error:', error)
     const message = error instanceof Error ? error.message : String(error)
     return NextResponse.json({ error: message }, { status: 500 })
   }
