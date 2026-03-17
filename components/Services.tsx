@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 import { Briefcase, ArrowRight, Building, Users, MessageSquare, Play } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -140,14 +139,11 @@ export default function Services() {
         <h3 className="text-lg font-heading uppercase tracking-wider text-platinum-white/70 mb-6">{title}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {items.map((service, index) => (
-            <motion.div
+            <div
               key={service.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.08 }}
               onClick={() => handleCardClick(service.id)}
-              className={`group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 ${accent.border} transition-all duration-500 cursor-pointer`}
+              className={`group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 ${accent.border} transition-all duration-500 cursor-pointer reveal-on-scroll is-visible`}
+              style={{ transitionDelay: `${index * 0.08}s` }}
             >
               <div className="relative h-64 overflow-hidden">
                 {service.image_url ? (
@@ -229,7 +225,7 @@ export default function Services() {
                   </div>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -254,13 +250,7 @@ export default function Services() {
     <section id="services" className="py-32 px-6 sm:px-10 lg:px-12 bg-silicon-slate/10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto relative z-10">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-20"
-        >
+        <div className="text-center mb-20 animate-fade-in-up">
           <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/30 mb-6 mx-auto">
             <Briefcase className="w-3 h-3 text-radiant-gold" />
             <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
@@ -273,7 +263,7 @@ export default function Services() {
           <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
             Trainings, speaking engagements, consulting, and more—delivered in-person or virtually.
           </p>
-        </motion.div>
+        </div>
 
         {/* Services by subsection */}
         <SubsectionGrid items={grouped.build} category="build" title="What We Build" accent={SUBSECTION_ACCENTS.build} />

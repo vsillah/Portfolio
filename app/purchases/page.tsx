@@ -13,7 +13,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import DownloadManager from '@/components/DownloadManager'
 import SocialShare from '@/components/SocialShare'
 import ReferralProgram from '@/components/ReferralProgram'
-import { generateInvoicePDFBlob } from '@/lib/invoice-pdf'
+// generateInvoicePDFBlob is dynamically imported on click to avoid bundling @react-pdf/renderer (~400KB) on page load
 
 const FULFILLMENT_LABELS: Record<string, string> = {
   pending: 'Pending',
@@ -145,6 +145,7 @@ function PurchasesContent() {
     if (!selectedOrder) return
     setPdfLoading(true)
     try {
+      const { generateInvoicePDFBlob } = await import('@/lib/invoice-pdf')
       const logoUrl =
         typeof window !== 'undefined' ? `${window.location.origin}/logo.png` : undefined
       const blob = await generateInvoicePDFBlob(selectedOrder, { logoUrl })

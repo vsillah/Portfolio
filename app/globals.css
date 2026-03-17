@@ -295,6 +295,160 @@ body {
 }
 
 /* ========================================
+   Hero GPU-Composited Animations
+   All use transform/opacity only for compositor-thread execution.
+   ======================================== */
+
+.hero-float {
+  animation: heroFloat 5s ease-in-out infinite;
+}
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.hero-glow-outer {
+  animation: heroGlowOuter 4s ease-in-out infinite;
+}
+@keyframes heroGlowOuter {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.7; }
+}
+
+.hero-glow-inner {
+  animation: heroGlowInner 2.5s ease-in-out infinite 0.3s;
+}
+@keyframes heroGlowInner {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 0.9; }
+}
+
+.hero-glow-core {
+  animation: heroGlowCore 2s ease-in-out infinite 0.6s;
+}
+@keyframes heroGlowCore {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.hero-laser-spin {
+  animation: heroLaserSpin 4s linear infinite;
+}
+@keyframes heroLaserSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.hero-laser-spin-reverse {
+  animation: heroLaserSpinReverse 6s linear infinite;
+}
+@keyframes heroLaserSpinReverse {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(-360deg); }
+}
+
+.hero-wallpaper-pulse {
+  animation: heroWallpaperPulse 3s ease-in-out infinite;
+}
+@keyframes heroWallpaperPulse {
+  0%, 100% { filter: brightness(1.05) contrast(1.05); }
+  50% { filter: brightness(1.2) contrast(1.1); }
+}
+
+.hero-glow-overlay {
+  animation: heroGlowOverlay 2s ease-in-out infinite;
+}
+@keyframes heroGlowOverlay {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.5; }
+}
+
+.hero-glow-overlay-secondary {
+  animation: heroGlowOverlaySecondary 1.5s ease-in-out infinite 0.5s;
+}
+@keyframes heroGlowOverlaySecondary {
+  0%, 100% { opacity: 0.1; }
+  50% { opacity: 0.3; }
+}
+
+.hero-corner-glow {
+  animation: heroCornerGlow 2s ease-in-out infinite;
+}
+@keyframes heroCornerGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.hero-corner-glow-subtle {
+  animation: heroCornerGlowSubtle 2.5s ease-in-out infinite;
+}
+@keyframes heroCornerGlowSubtle {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.5; }
+}
+
+.hero-scroll-hint {
+  animation: heroScrollHint 2s ease-in-out infinite;
+}
+@keyframes heroScrollHint {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(10px); }
+}
+
+/* Utility entrance animations */
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out both;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Scroll-reveal: elements start hidden, become visible when .is-visible is added via IntersectionObserver */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.reveal-on-scroll.from-left {
+  transform: translateX(-24px);
+}
+.reveal-on-scroll.from-right {
+  transform: translateX(24px);
+}
+.reveal-on-scroll.is-visible {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-float,
+  .hero-glow-outer,
+  .hero-glow-inner,
+  .hero-glow-core,
+  .hero-laser-spin,
+  .hero-laser-spin-reverse,
+  .hero-wallpaper-pulse,
+  .hero-glow-overlay,
+  .hero-glow-overlay-secondary,
+  .hero-corner-glow,
+  .hero-corner-glow-subtle,
+  .hero-scroll-hint,
+  .animate-fade-in-up,
+  .animate-fade-in {
+    animation: none;
+  }
+}
+
+/* ========================================
    Smooth Transitions (Reduced)
    ======================================== */
 

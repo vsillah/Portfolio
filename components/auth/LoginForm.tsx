@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { Mail, Lock, LogIn, Github } from 'lucide-react'
 import { signIn, signInWithOAuth } from '@/lib/auth'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -52,11 +51,9 @@ export default function LoginForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <motion.form
+      <form
         onSubmit={handleSubmit}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="space-y-6 bg-silicon-slate border border-silicon-slate rounded-xl p-8"
+        className="space-y-6 bg-silicon-slate border border-silicon-slate rounded-xl p-8 animate-fade-in-up"
       >
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h2>
@@ -64,13 +61,9 @@ export default function LoginForm() {
         </div>
 
         {error && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm"
-          >
+          <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-400 text-sm animate-fade-in">
             {error}
-          </motion.div>
+          </div>
         )}
 
         <div className="space-y-4">
@@ -111,12 +104,10 @@ export default function LoginForm() {
           </div>
         </div>
 
-        <motion.button
+        <button
           type="submit"
           disabled={loading}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full py-3 btn-gold text-imperial-navy font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-3 btn-gold text-imperial-navy font-semibold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]"
         >
           {loading ? (
             'Signing in...'
@@ -126,7 +117,7 @@ export default function LoginForm() {
               Sign In
             </>
           )}
-        </motion.button>
+        </button>
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
@@ -138,25 +129,21 @@ export default function LoginForm() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <motion.button
+          <button
             type="button"
             onClick={() => handleOAuth('github')}
             disabled={loading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="py-3 btn-ghost flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="py-3 btn-ghost flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]"
           >
             <Github size={20} />
             GitHub
-          </motion.button>
+          </button>
 
-          <motion.button
+          <button
             type="button"
             onClick={() => handleOAuth('google')}
             disabled={loading}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="py-3 btn-ghost flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="py-3 btn-ghost flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -177,7 +164,7 @@ export default function LoginForm() {
               />
             </svg>
             Google
-          </motion.button>
+          </button>
         </div>
 
         <p className="text-center text-sm text-platinum-white/80">
@@ -192,7 +179,7 @@ export default function LoginForm() {
             Forgot password?
           </a>
         </p>
-      </motion.form>
+      </form>
     </div>
   )
 }

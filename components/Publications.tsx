@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
-import { motion } from 'framer-motion'
 import { BookOpen, ExternalLink, ShoppingCart, ArrowRight, Download, Calendar, MailCheck } from 'lucide-react'
 import ExpandableText from '@/components/ui/ExpandableText'
 import { formatPriceOrFree } from '@/lib/pricing-model'
@@ -221,12 +220,7 @@ export default function Publications() {
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-bronze/5 blur-[120px] rounded-full" />
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-20"
+        <div className="text-center mb-20 animate-fade-in-up"
         >
           <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
             <BookOpen className="w-3 h-3 text-radiant-gold" />
@@ -247,17 +241,14 @@ export default function Publications() {
             <span>Browse Library Store</span>
             <ArrowRight size={14} />
           </Link>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {publications.map((publication, index) => (
-            <motion.div
+            <div
               key={publication.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 flex flex-col"
+              className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 flex flex-col reveal-on-scroll is-visible"
+              style={{ transitionDelay: `${index * 0.1}s` }}
             >
               {/* Publication Image */}
               <div className="relative h-80 overflow-hidden flex-shrink-0">
@@ -411,7 +402,7 @@ export default function Publications() {
                   )}
 
                   {publication.publication_url && (
-                    <motion.a
+                    <a
                       href={publication.publication_url}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -419,22 +410,18 @@ export default function Publications() {
                     >
                       <span>View on Amazon</span>
                       <ExternalLink size={14} className="group-hover/link:translate-x-1 transition-transform" />
-                    </motion.a>
+                    </a>
                   )}
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        {/* What's next? — shown after successful ebook download from this section */}
         {postDownloadOfferShown && (
-          <motion.div
+          <div
             ref={postDownloadRef}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mt-16 pt-16 border-t border-radiant-gold/10 text-center max-w-2xl mx-auto"
+            className="mt-16 pt-16 border-t border-radiant-gold/10 text-center max-w-2xl mx-auto animate-fade-in-up"
           >
             <p className="font-body text-platinum-white/60 text-lg mb-2">
               Your download has started.
@@ -484,7 +471,7 @@ export default function Publications() {
                 )}
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
       </div>
     </section>

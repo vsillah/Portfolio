@@ -1,33 +1,29 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import Hero from '@/components/Hero'
-import ActiveCampaigns from '@/components/ActiveCampaigns'
-import Publications from '@/components/Publications'
-import Store from '@/components/Store'
-import Services from '@/components/Services'
-import About from '@/components/About'
-import Contact from '@/components/Contact'
 import Navigation from '@/components/Navigation'
 import { analytics } from '@/lib/analytics'
 
-export default function Home() {
-  const [mounted, setMounted] = useState(false)
+const ActiveCampaigns = dynamic(() => import('@/components/ActiveCampaigns'), { ssr: false })
+const Store = dynamic(() => import('@/components/Store'), { ssr: false })
+const Services = dynamic(() => import('@/components/Services'), { ssr: false })
+const Publications = dynamic(() => import('@/components/Publications'), { ssr: false })
+const About = dynamic(() => import('@/components/About'), { ssr: false })
+const Contact = dynamic(() => import('@/components/Contact'), { ssr: false })
 
+export default function Home() {
   useEffect(() => {
-    setMounted(true)
-    // Track page view
     analytics.pageView()
   }, [])
 
-  // Track section views on scroll
-  useEffect(() => {
-    if (!mounted) return
 
+  useEffect(() => {
     const observerOptions = {
       root: null,
       rootMargin: '0px',
-      threshold: 0.5, // Trigger when 50% of section is visible
+      threshold: 0.5,
     }
 
     const observer = new IntersectionObserver((entries) => {
@@ -41,7 +37,6 @@ export default function Home() {
       })
     }, observerOptions)
 
-    // Observe all sections (offerings-first home: no projects, prototypes, music, videos)
     const sections = ['home', 'campaigns', 'products', 'services', 'merchandise', 'publications', 'about', 'contact']
     sections.forEach((id) => {
       const element = document.getElementById(id)
@@ -49,11 +44,7 @@ export default function Home() {
     })
 
     return () => observer.disconnect()
-  }, [mounted])
-
-  if (!mounted) {
-    return null
-  }
+  }, [])
 
   return (
     <main className="min-h-screen relative">

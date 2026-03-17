@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Mail, Github, Linkedin, Send, Music, BookOpen, ArrowRight, MessageCircle, FileText } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { analytics } from '@/lib/analytics'
@@ -130,12 +130,7 @@ export default function Contact() {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-radiant-gold/5 blur-[150px] rounded-full pointer-events-none" />
 
       <div className="max-w-5xl mx-auto relative z-10 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="mb-20"
+        <div className="mb-20 animate-fade-in-up"
         >
           <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6">
             <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
@@ -149,15 +144,12 @@ export default function Contact() {
             Whether you have a specific inquiry or just want to explore possibilities, 
             I&apos;m here to bridge the gap between your vision and reality.
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-16 text-left items-start">
           {/* Contact Details */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="lg:col-span-2 space-y-12"
+          <div
+            className="lg:col-span-2 space-y-12 animate-fade-in-up"
           >
             {/* Profile Photo */}
             <div className="relative">
@@ -207,14 +199,12 @@ export default function Contact() {
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Contact Form / Chat */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            className="lg:col-span-3"
+          <div
+            className="lg:col-span-3 animate-fade-in-up"
+            style={{ animationDelay: '0.1s' }}
           >
             {/* Tabs */}
             <div className="flex gap-2 mb-6">
@@ -269,17 +259,15 @@ export default function Contact() {
                 >
                   {/* Status Message */}
                   {statusMessage && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`p-4 rounded-lg text-sm font-body ${
+                    <div
+                      className={`p-4 rounded-lg text-sm font-body animate-fade-in ${
                         submitStatus === 'success' 
                           ? 'bg-radiant-gold/10 border border-radiant-gold/20 text-radiant-gold' 
                           : 'bg-red-500/10 border border-red-500/20 text-red-400'
                       }`}
                     >
                       {statusMessage}
-                    </motion.div>
+                    </div>
                   )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -439,7 +427,7 @@ export default function Contact() {
                 </motion.form>
               )}
             </AnimatePresence>
-          </motion.div>
+          </div>
         </div>
 
         {/* Footer */}

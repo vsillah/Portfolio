@@ -87,6 +87,27 @@ export async function GET(
       .eq('is_active', true)
       .maybeSingle()
 
+    // Fetch kickoff agenda
+    const { data: kickoffAgenda } = await supabaseAdmin
+      .from('kickoff_agendas')
+      .select('*')
+      .eq('client_project_id', id)
+      .maybeSingle()
+
+    // Fetch provisioning items
+    const { data: provisioningItems } = await supabaseAdmin
+      .from('provisioning_items')
+      .select('*')
+      .eq('client_project_id', id)
+      .order('display_order', { ascending: true })
+
+    // Fetch offboarding checklist
+    const { data: offboardingChecklist } = await supabaseAdmin
+      .from('offboarding_checklists')
+      .select('*')
+      .eq('client_project_id', id)
+      .maybeSingle()
+
     return NextResponse.json({
       project,
       onboarding_plan: onboardingPlan,
@@ -95,6 +116,9 @@ export async function GET(
       tasks: tasks || [],
       time_entries: timeEntries || [],
       dashboard_token: dashAccess?.access_token || null,
+      kickoff_agenda: kickoffAgenda || null,
+      provisioning_items: provisioningItems || [],
+      offboarding_checklist: offboardingChecklist || null,
     })
   } catch (error) {
     console.error('Error in GET /api/admin/client-projects/[id]:', error)

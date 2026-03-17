@@ -49,6 +49,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
       label: 'Post-sale',
       items: [
         { label: 'Client Projects', href: '/admin/client-projects' },
+        { label: 'Meetings', href: '/admin/meetings' },
         { label: 'Meeting Tasks', href: '/admin/meeting-tasks' },
         { label: 'Continuity Plans', href: '/admin/continuity-plans' },
         { label: 'Onboarding Templates', href: '/admin/onboarding-templates' },

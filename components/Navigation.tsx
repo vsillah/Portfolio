@@ -62,11 +62,8 @@ export default function Navigation() {
   }
 
   return (
-    <motion.nav
-      initial={{ y: -100, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 animate-fade-in-up ${
         isScrolled
           ? 'py-3 bg-imperial-navy/90 backdrop-blur-xl border-b border-radiant-gold/10'
           : 'py-4 bg-transparent'
@@ -75,11 +72,9 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <motion.a
+          <a
             href={isHomePage ? "#home" : "/"}
-            className="flex items-center"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            className="flex items-center transition-transform duration-150 hover:scale-105"
           >
             <Image
               src="/logo.png"
@@ -88,22 +83,19 @@ export default function Navigation() {
               height={60}
               className="object-contain h-[60px] w-auto"
             />
-          </motion.a>
+          </a>
 
           {/* Right side: Auth + Hamburger */}
           <div className="flex items-center gap-4">
             {/* Auth Section */}
             {user ? (
               <div className="relative user-menu-container">
-                <motion.button
+                <button
                   onClick={() => {
                     setIsUserMenuOpen(!isUserMenuOpen)
-                    // Close nav menu when opening user menu
                     if (!isUserMenuOpen) setIsMenuOpen(false)
                   }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 h-11 min-w-[44px] px-3 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 transition-all duration-300"
+                  className="flex items-center gap-2 h-11 min-w-[44px] px-3 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   {/* Avatar */}
                   <div className="w-7 h-7 rounded-full bg-gradient-to-br from-bronze via-radiant-gold to-gold-light flex items-center justify-center text-imperial-navy font-heading font-bold text-xs flex-shrink-0">
@@ -117,7 +109,7 @@ export default function Navigation() {
                   {isAdmin && (
                     <Shield className="text-radiant-gold flex-shrink-0" size={14} />
                   )}
-                </motion.button>
+                </button>
 
                 {/* User Dropdown */}
                 <AnimatePresence>
@@ -186,27 +178,22 @@ export default function Navigation() {
                 </AnimatePresence>
               </div>
             ) : (
-              <motion.a
+              <a
                 href="/auth/login"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="flex items-center gap-2 h-11 px-4 rounded-full border border-radiant-gold/40 text-radiant-gold hover:bg-radiant-gold hover:text-imperial-navy text-sm font-heading tracking-wider uppercase transition-all duration-300"
+                className="flex items-center gap-2 h-11 px-4 rounded-full border border-radiant-gold/40 text-radiant-gold hover:bg-radiant-gold hover:text-imperial-navy text-sm font-heading tracking-wider uppercase transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
               >
                 <User size={16} />
                 <span className="hidden sm:inline">Login</span>
-              </motion.a>
+              </a>
             )}
 
             {/* Hamburger Menu Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <button
               onClick={() => {
                 setIsMenuOpen(!isMenuOpen)
-                // Close user menu when opening nav menu
                 if (!isMenuOpen) setIsUserMenuOpen(false)
               }}
-              className="flex items-center justify-center w-11 h-11 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 text-platinum-white hover:text-radiant-gold transition-all duration-300"
+              className="flex items-center justify-center w-11 h-11 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 text-platinum-white hover:text-radiant-gold transition-all duration-300 hover:scale-105 active:scale-95"
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait">
@@ -232,7 +219,7 @@ export default function Navigation() {
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.button>
+            </button>
 
             {/* Help Link — last icon on the menu */}
             <Link
@@ -279,11 +266,10 @@ export default function Navigation() {
                   )
 
                   return (
-                    <motion.div
+                    <div
                       key={item.name}
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
+                      className="animate-fade-in-up"
+                      style={{ animationDelay: `${index * 0.05}s` }}
                     >
                       {isRoutePath ? (
                         <Link
@@ -302,35 +288,31 @@ export default function Navigation() {
                           {linkContent}
                         </a>
                       )}
-                    </motion.div>
+                    </div>
                   )
                 })}
               </div>
 
               {/* CTA Section */}
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="mt-8 pt-6 border-t border-radiant-gold/10 flex flex-col sm:flex-row items-center justify-between gap-4"
+              <div 
+                className="mt-8 pt-6 border-t border-radiant-gold/10 flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in"
+                style={{ animationDelay: '0.3s' }}
               >
                 <p className="text-platinum-white/50 text-sm">
                   Ready to collaborate?
                 </p>
-                <motion.a
+                <a
                   href="#contact"
                   onClick={() => setIsMenuOpen(false)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="btn-gold text-sm tracking-wider uppercase"
+                  className="btn-gold text-sm tracking-wider uppercase transition-transform duration-150 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Get in Touch
-                </motion.a>
-              </motion.div>
+                </a>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </nav>
   )
 }

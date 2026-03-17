@@ -22,6 +22,19 @@ import {
   Copy,
   ExternalLink,
   Loader2,
+  Megaphone,
+  Key,
+  Lock,
+  Users,
+  FolderCheck,
+  Ban,
+  RefreshCw,
+  LogOut,
+  Archive,
+  Receipt,
+  Play,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -116,6 +129,47 @@ interface TimeEntry {
   created_at: string
 }
 
+interface KickoffAgendaData {
+  id: string
+  client_project_id: string
+  intro_script: string
+  problem_statement: string
+  timeline_script: string
+  availability_script: string
+  platform_signup_script: string
+  wrapup_script: string
+  estimated_duration_minutes: number
+  status: 'draft' | 'ready' | 'used' | 'archived'
+  used_at: string | null
+  notes: string | null
+}
+
+interface ProvisioningItemData {
+  id: string
+  title: string
+  description: string | null
+  category: string
+  is_client_action: boolean
+  status: 'pending' | 'in_progress' | 'complete' | 'blocked' | 'skipped'
+  completed_at: string | null
+  completed_by: string | null
+  blocker_note: string | null
+  display_order: number
+}
+
+interface OffboardingChecklistData {
+  id: string
+  status: 'pending' | 'in_progress' | 'complete'
+  delivery_confirmed_at: string | null
+  client_confirmed_at: string | null
+  warranty_activated_at: string | null
+  access_revoked_at: string | null
+  slack_archived_at: string | null
+  final_invoice_sent_at: string | null
+  completed_at: string | null
+  notes: string | null
+}
+
 interface ProjectDetail {
   project: {
     id: string
@@ -156,6 +210,9 @@ interface ProjectDetail {
   tasks: DashboardTask[]
   time_entries: TimeEntry[]
   dashboard_token: string | null
+  kickoff_agenda: KickoffAgendaData | null
+  provisioning_items: ProvisioningItemData[]
+  offboarding_checklist: OffboardingChecklistData | null
 }
 
 // ============================================================================
@@ -265,7 +322,16 @@ function ProjectDetailContent() {
     )
   }
 
-  const { project, onboarding_plan, progress_updates, tasks = [], time_entries = [] } = data
+  const {
+    project,
+    onboarding_plan,
+    progress_updates,
+    tasks = [],
+    time_entries = [],
+    kickoff_agenda,
+    provisioning_items = [],
+    offboarding_checklist,
+  } = data
   const milestones = onboarding_plan?.milestones || []
   const completedCount = milestones.filter(
     (m) => m.status === 'complete'
@@ -312,6 +378,25 @@ function ProjectDetailContent() {
 
         {/* Client Dashboard Management */}
         <DashboardManagement projectId={projectId} accessToken={accessToken || ''} />
+
+        {/* Kickoff Agenda + Provisioning */}
+        <KickoffAgendaSection
+          projectId={projectId}
+          accessToken={accessToken || ''}
+          agenda={kickoff_agenda}
+          provisioningItems={provisioning_items}
+          onRefresh={fetchProject}
+        />
+
+        {/* Offboarding (show for delivering/complete projects) */}
+        {['delivering', 'complete', 'testing'].includes(project.project_status) && (
+          <OffboardingSection
+            projectId={projectId}
+            accessToken={accessToken || ''}
+            checklist={offboarding_checklist}
+            onRefresh={fetchProject}
+          />
+        )}
 
         {/* Progress Bar */}
         <div className="mb-8 p-4 bg-gray-900 border border-gray-800 rounded-xl">
@@ -1192,6 +1277,548 @@ function DashboardManagement({
           )}
         </div>
       </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// Kickoff Agenda + Provisioning Section
+// ============================================================================
+
+const CATEGORY_ICONS: Record<string, typeof Key> = {
+  access: Key,
+  documentation: FileText,
+  team: Users,
+  security: Lock,
+  setup: FolderCheck,
+  communication: MessageSquare,
+  coordination: RefreshCw,
+}
+
+const PROV_STATUS_CONFIG: Record<string, { color: string; bgColor: string; label: string }> = {
+  pending: { color: 'text-gray-400', bgColor: 'bg-gray-500/20', label: 'Pending' },
+  in_progress: { color: 'text-blue-400', bgColor: 'bg-blue-500/20', label: 'In Progress' },
+  complete: { color: 'text-emerald-400', bgColor: 'bg-emerald-500/20', label: 'Complete' },
+  blocked: { color: 'text-red-400', bgColor: 'bg-red-500/20', label: 'Blocked' },
+  skipped: { color: 'text-orange-400', bgColor: 'bg-orange-500/20', label: 'Skipped' },
+}
+
+function KickoffAgendaSection({
+  projectId,
+  accessToken,
+  agenda,
+  provisioningItems,
+  onRefresh,
+}: {
+  projectId: string
+  accessToken: string
+  agenda: KickoffAgendaData | null
+  provisioningItems: ProvisioningItemData[]
+  onRefresh: () => void
+}) {
+  const [generating, setGenerating] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const [updatingItem, setUpdatingItem] = useState<string | null>(null)
+  const [sendingReminder, setSendingReminder] = useState(false)
+  const [reminderMessage, setReminderMessage] = useState<string | null>(null)
+
+  const handleGenerate = async () => {
+    setGenerating(true)
+    try {
+      await fetch(`/api/admin/client-projects/${projectId}/kickoff-agenda`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ sender_name: 'Vambah Sillah' }),
+      })
+      onRefresh()
+    } catch {
+      // Silently fail
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  const handleMarkUsed = async () => {
+    try {
+      await fetch(`/api/admin/client-projects/${projectId}/kickoff-agenda`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ status: 'used' }),
+      })
+      onRefresh()
+    } catch {
+      // Silently fail
+    }
+  }
+
+  const handleProvisioningUpdate = async (
+    itemId: string,
+    status: string
+  ) => {
+    setUpdatingItem(itemId)
+    try {
+      await fetch(`/api/admin/client-projects/${projectId}/provisioning`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ item_id: itemId, status }),
+      })
+      onRefresh()
+    } catch {
+      // Silently fail
+    } finally {
+      setUpdatingItem(null)
+    }
+  }
+
+  const handleSendReminder = async () => {
+    setSendingReminder(true)
+    setReminderMessage(null)
+    try {
+      const res = await fetch(`/api/admin/client-projects/${projectId}/provisioning`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setReminderMessage(data.message || 'Reminder sent')
+        setTimeout(() => setReminderMessage(null), 4000)
+      } else {
+        const err = await res.json()
+        setReminderMessage(err.error || 'Failed to send reminder')
+        setTimeout(() => setReminderMessage(null), 5000)
+      }
+    } catch {
+      setReminderMessage('Failed to send reminder')
+      setTimeout(() => setReminderMessage(null), 5000)
+    } finally {
+      setSendingReminder(false)
+    }
+  }
+
+  const completedItems = provisioningItems.filter((i) => i.status === 'complete').length
+  const totalItems = provisioningItems.length
+  const provPercent = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0
+  const hasPendingItems = provisioningItems.some((i) => i.status === 'pending' || i.status === 'in_progress')
+
+  return (
+    <div className="mb-8 space-y-4">
+      {/* Kickoff Agenda Card */}
+      <div className="p-5 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/30 rounded-xl">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-violet-600/20 flex items-center justify-center">
+              <Megaphone size={20} className="text-violet-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-violet-300">Kickoff Call Agenda</h3>
+              <p className="text-xs text-gray-500">
+                {agenda
+                  ? `Status: ${agenda.status} · ${agenda.estimated_duration_minutes} min`
+                  : 'Generate a personalized kickoff call script from the onboarding plan'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {agenda ? (
+              <>
+                <button
+                  onClick={() => setExpanded(!expanded)}
+                  className="px-3 py-1.5 bg-violet-500/20 border border-violet-500/50 rounded-lg text-violet-300 text-xs font-medium hover:bg-violet-500/30 flex items-center gap-1.5 transition-colors"
+                >
+                  {expanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                  {expanded ? 'Collapse' : 'View Script'}
+                </button>
+                {agenda.status !== 'used' && (
+                  <button
+                    onClick={handleMarkUsed}
+                    className="px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/50 rounded-lg text-emerald-300 text-xs font-medium hover:bg-emerald-500/30 flex items-center gap-1.5 transition-colors"
+                  >
+                    <Play size={12} />
+                    Mark as Used
+                  </button>
+                )}
+                <button
+                  onClick={handleGenerate}
+                  disabled={generating}
+                  className="px-3 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 text-xs font-medium hover:bg-gray-700 flex items-center gap-1.5 transition-colors disabled:opacity-50"
+                >
+                  <RefreshCw size={12} className={generating ? 'animate-spin' : ''} />
+                  Regenerate
+                </button>
+              </>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleGenerate}
+                disabled={generating}
+                className="px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 rounded-lg text-white text-sm font-medium disabled:opacity-50 flex items-center gap-2"
+              >
+                {generating ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Megaphone size={14} />
+                )}
+                {generating ? 'Generating...' : 'Generate Kickoff Agenda'}
+              </motion.button>
+            )}
+          </div>
+        </div>
+
+        {/* Expanded Script View */}
+        <AnimatePresence>
+          {expanded && agenda && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-4 space-y-4">
+                {[
+                  { label: '1. Introduction (2 min)', content: agenda.intro_script },
+                  { label: '2. Problem Statement (2 min)', content: agenda.problem_statement },
+                  { label: '3. Timelines & Milestones (5 min)', content: agenda.timeline_script },
+                  { label: '4. Availability & Communication (3 min)', content: agenda.availability_script },
+                  { label: '5. Platform Signups & Access (15 min)', content: agenda.platform_signup_script },
+                  { label: '6. Wrap-up (3 min)', content: agenda.wrapup_script },
+                ].map((section) => (
+                  <div key={section.label} className="p-4 bg-gray-900/80 border border-gray-800 rounded-lg">
+                    <h4 className="text-sm font-semibold text-violet-400 mb-2">{section.label}</h4>
+                    <p className="text-sm text-gray-300 whitespace-pre-line leading-relaxed">
+                      {section.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Provisioning Tracker */}
+      {provisioningItems.length > 0 && (
+        <div className="p-5 bg-gray-900 border border-gray-800 rounded-xl">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="font-semibold flex items-center gap-2">
+                <Key size={16} className="text-amber-400" />
+                Access Provisioning
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">
+                {completedItems}/{totalItems} items complete ({provPercent}%)
+              </p>
+            </div>
+            {hasPendingItems && (
+              <button
+                onClick={handleSendReminder}
+                disabled={sendingReminder}
+                className="px-3 py-1.5 bg-amber-500/20 border border-amber-500/50 rounded-lg text-amber-300 text-xs font-medium hover:bg-amber-500/30 transition-colors disabled:opacity-50 flex items-center gap-1.5"
+              >
+                {sendingReminder ? (
+                  <Loader2 size={12} className="animate-spin" />
+                ) : (
+                  <Send size={12} />
+                )}
+                {sendingReminder ? 'Sending...' : 'Send Reminder'}
+              </button>
+            )}
+          </div>
+
+          {reminderMessage && (
+            <div className={`mb-3 p-2 rounded-lg text-xs flex items-center gap-1.5 ${
+              reminderMessage.includes('Failed')
+                ? 'bg-red-500/10 border border-red-500/30 text-red-400'
+                : 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+            }`}>
+              {reminderMessage.includes('Failed') ? <X size={12} /> : <CheckCircle2 size={12} />}
+              {reminderMessage}
+            </div>
+          )}
+
+          {/* Progress bar */}
+          <div className="w-full h-2 bg-gray-800 rounded-full overflow-hidden mb-4">
+            <div
+              className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
+              style={{ width: `${provPercent}%` }}
+            />
+          </div>
+
+          <div className="space-y-2">
+            {provisioningItems.map((item) => {
+              const statusConfig = PROV_STATUS_CONFIG[item.status] || PROV_STATUS_CONFIG.pending
+              const CategoryIcon = CATEGORY_ICONS[item.category] || Key
+
+              return (
+                <div
+                  key={item.id}
+                  className={`p-3 bg-gray-800/50 border border-gray-700/50 rounded-lg flex items-center gap-3 ${
+                    item.status === 'complete' ? 'opacity-60' : ''
+                  }`}
+                >
+                  {/* Status toggle */}
+                  <button
+                    onClick={() =>
+                      handleProvisioningUpdate(
+                        item.id,
+                        item.status === 'complete' ? 'pending' : 'complete'
+                      )
+                    }
+                    disabled={updatingItem === item.id}
+                    className="shrink-0"
+                  >
+                    {item.status === 'complete' ? (
+                      <CheckCircle2 size={20} className="text-emerald-400" />
+                    ) : item.status === 'blocked' ? (
+                      <Ban size={20} className="text-red-400" />
+                    ) : (
+                      <Circle size={20} className="text-gray-600 hover:text-gray-400 transition-colors" />
+                    )}
+                  </button>
+
+                  {/* Icon + Content */}
+                  <CategoryIcon size={14} className="text-gray-500 shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-medium ${item.status === 'complete' ? 'line-through text-gray-500' : ''}`}>
+                        {item.title}
+                      </span>
+                      {item.is_client_action && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                          Client
+                        </span>
+                      )}
+                    </div>
+                    {item.description && (
+                      <p className="text-xs text-gray-500 mt-0.5 truncate">{item.description}</p>
+                    )}
+                    {item.blocker_note && (
+                      <p className="text-xs text-red-400 mt-0.5">{item.blocker_note}</p>
+                    )}
+                  </div>
+
+                  {/* Status badge */}
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded ${statusConfig.bgColor} ${statusConfig.color}`}>
+                    {statusConfig.label}
+                  </span>
+
+                  {/* Quick actions */}
+                  {item.status !== 'complete' && item.status !== 'skipped' && (
+                    <div className="flex items-center gap-1">
+                      {item.status !== 'blocked' && (
+                        <button
+                          onClick={() => handleProvisioningUpdate(item.id, 'blocked')}
+                          disabled={updatingItem === item.id}
+                          className="p-1 text-gray-600 hover:text-red-400 transition-colors"
+                          title="Mark as blocked"
+                        >
+                          <Ban size={12} />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleProvisioningUpdate(item.id, 'skipped')}
+                        disabled={updatingItem === item.id}
+                        className="p-1 text-gray-600 hover:text-orange-400 transition-colors"
+                        title="Skip"
+                      >
+                        <SkipForward size={12} />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================================
+// Offboarding Section
+// ============================================================================
+
+const OFFBOARDING_STEPS = [
+  { key: 'delivery_confirmed', label: 'Delivery Confirmed', icon: Package, description: 'Project deliverables sent to client' },
+  { key: 'client_confirmed', label: 'Client Approved', icon: CheckCircle2, description: 'Client reviewed and approved deliverables' },
+  { key: 'warranty_activated', label: 'Warranty Activated', icon: Shield, description: 'Warranty period notification sent' },
+  { key: 'final_invoice_sent', label: 'Final Invoice Sent', icon: Receipt, description: 'Remaining balance invoice sent' },
+  { key: 'access_revoked', label: 'Access Revoked', icon: LogOut, description: 'Platform access and credentials revoked' },
+  { key: 'slack_archived', label: 'Channel Archived', icon: Archive, description: 'Slack channel archived' },
+  { key: 'completed', label: 'Offboarding Complete', icon: FolderCheck, description: 'All steps complete, project archived' },
+] as const
+
+function OffboardingSection({
+  projectId,
+  accessToken,
+  checklist,
+  onRefresh,
+}: {
+  projectId: string
+  accessToken: string
+  checklist: OffboardingChecklistData | null
+  onRefresh: () => void
+}) {
+  const [initializing, setInitializing] = useState(false)
+  const [markingStep, setMarkingStep] = useState<string | null>(null)
+
+  const handleInitialize = async () => {
+    setInitializing(true)
+    try {
+      await fetch(`/api/admin/client-projects/${projectId}/offboarding`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      onRefresh()
+    } catch {
+      // Silently fail
+    } finally {
+      setInitializing(false)
+    }
+  }
+
+  const handleMarkStep = async (step: string) => {
+    setMarkingStep(step)
+    try {
+      await fetch(`/api/admin/client-projects/${projectId}/offboarding`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({ step }),
+      })
+      onRefresh()
+    } catch {
+      // Silently fail
+    } finally {
+      setMarkingStep(null)
+    }
+  }
+
+  const completedSteps = checklist
+    ? OFFBOARDING_STEPS.filter(
+        (s) => checklist[`${s.key}_at` as keyof OffboardingChecklistData]
+      ).length
+    : 0
+  const totalSteps = OFFBOARDING_STEPS.length
+
+  return (
+    <div className="mb-8 p-5 bg-gradient-to-r from-rose-500/10 to-orange-500/10 border border-rose-500/30 rounded-xl">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-rose-600/20 flex items-center justify-center">
+            <LogOut size={20} className="text-rose-400" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-rose-300">Project Offboarding</h3>
+            <p className="text-xs text-gray-500">
+              {checklist
+                ? `${completedSteps}/${totalSteps} steps complete`
+                : 'Initialize the offboarding workflow to begin handoff'}
+            </p>
+          </div>
+        </div>
+
+        {!checklist && (
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleInitialize}
+            disabled={initializing}
+            className="px-4 py-2 bg-gradient-to-r from-rose-600 to-orange-600 rounded-lg text-white text-sm font-medium disabled:opacity-50 flex items-center gap-2"
+          >
+            {initializing ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <LogOut size={14} />
+            )}
+            {initializing ? 'Initializing...' : 'Start Offboarding'}
+          </motion.button>
+        )}
+      </div>
+
+      {checklist && (
+        <div className="space-y-2">
+          {OFFBOARDING_STEPS.map((step, index) => {
+            const timestampKey = `${step.key}_at` as keyof OffboardingChecklistData
+            const timestamp = checklist[timestampKey] as string | null
+            const isComplete = !!timestamp
+            const StepIcon = step.icon
+            const isNext = !isComplete && (
+              index === 0 ||
+              !!checklist[`${OFFBOARDING_STEPS[index - 1].key}_at` as keyof OffboardingChecklistData]
+            )
+
+            return (
+              <div
+                key={step.key}
+                className={`p-3 rounded-lg flex items-center gap-3 transition-colors ${
+                  isComplete
+                    ? 'bg-emerald-500/10 border border-emerald-500/20'
+                    : isNext
+                      ? 'bg-gray-800 border border-rose-500/30'
+                      : 'bg-gray-800/50 border border-gray-700/30 opacity-50'
+                }`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                  isComplete ? 'bg-emerald-500/20' : isNext ? 'bg-rose-500/20' : 'bg-gray-700/50'
+                }`}>
+                  <StepIcon size={14} className={
+                    isComplete ? 'text-emerald-400' : isNext ? 'text-rose-400' : 'text-gray-600'
+                  } />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <span className={`text-sm font-medium ${isComplete ? 'text-emerald-300' : ''}`}>
+                    {step.label}
+                  </span>
+                  <p className="text-xs text-gray-500">{step.description}</p>
+                  {isComplete && timestamp && (
+                    <p className="text-[10px] text-gray-600 mt-0.5">
+                      {new Date(timestamp).toLocaleDateString('en-US', {
+                        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+                      })}
+                    </p>
+                  )}
+                </div>
+
+                {isNext && !isComplete && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => handleMarkStep(step.key)}
+                    disabled={markingStep !== null}
+                    className="px-3 py-1.5 bg-rose-500/20 border border-rose-500/50 rounded-lg text-rose-300 text-xs font-medium hover:bg-rose-500/30 transition-colors disabled:opacity-50 flex items-center gap-1.5 shrink-0"
+                  >
+                    {markingStep === step.key ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      <CheckCircle2 size={12} />
+                    )}
+                    Complete
+                  </motion.button>
+                )}
+
+                {isComplete && (
+                  <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

@@ -7,6 +7,7 @@ import {
 } from '@/lib/onboarding-templates'
 import { generateOnboardingPlanPDF, type OnboardingPlanPDFData } from '@/lib/onboarding-pdf'
 import { generateClientDashboard } from '@/lib/client-dashboard'
+import { generateKickoffAgenda } from '@/lib/kickoff-agenda'
 
 export const dynamic = 'force-dynamic'
 
@@ -311,6 +312,17 @@ export async function POST(request: NextRequest) {
       console.error('Error auto-generating client dashboard:', dashError)
     }
 
+    // 12. Auto-generate kickoff agenda + provisioning items
+    let kickoffAgendaId: string | null = null
+    try {
+      const kickoffResult = await generateKickoffAgenda(project.id)
+      if (kickoffResult) {
+        kickoffAgendaId = kickoffResult.agendaId
+      }
+    } catch (kickoffError) {
+      console.error('Error auto-generating kickoff agenda:', kickoffError)
+    }
+
     return NextResponse.json({
       client_project_id: project.id,
       client_id: clientId,
@@ -318,6 +330,7 @@ export async function POST(request: NextRequest) {
       pdf_url: pdfUrl,
       template_name: planResult.templateName,
       dashboard_url: dashboardUrl,
+      kickoff_agenda_id: kickoffAgendaId,
       message: 'Client project and onboarding plan created successfully.',
     })
   } catch (error: any) {

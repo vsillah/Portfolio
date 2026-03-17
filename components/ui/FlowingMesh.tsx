@@ -1,21 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-
 interface FlowingMeshProps {
   className?: string
   opacity?: number
 }
 
 export default function FlowingMesh({ className = '', opacity = 1 }: FlowingMeshProps) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  if (!mounted) return null
-
   return (
     <div className={`absolute inset-0 overflow-hidden pointer-events-none ${className}`}>
       <svg

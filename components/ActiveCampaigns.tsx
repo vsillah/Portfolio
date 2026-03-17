@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight, Clock, Shield, Trophy } from 'lucide-react';
+import { useRevealOnScroll } from '@/lib/useRevealOnScroll';
 import { CAMPAIGN_TYPE_LABELS } from '@/lib/campaigns';
 import type { CampaignType } from '@/lib/campaigns';
 
@@ -39,6 +39,7 @@ const CAMPAIGN_ICONS: Record<CampaignType, typeof Trophy> = {
 export default function ActiveCampaigns() {
   const [campaigns, setCampaigns] = useState<ActiveCampaignCard[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const headerRef = useRevealOnScroll();
 
   useEffect(() => {
     fetch('/api/campaigns/active')
@@ -60,12 +61,9 @@ export default function ActiveCampaigns() {
       <div className="absolute inset-0 bg-gradient-to-b from-amber-900/10 via-transparent to-transparent pointer-events-none" />
 
       <div className="max-w-6xl mx-auto relative">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-12"
+        <div
+          ref={headerRef}
+          className="text-center mb-12 reveal-on-scroll"
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-amber-500/10 border border-amber-500/30 rounded-full text-amber-400 text-sm mb-4">
             <Sparkles size={14} />
@@ -77,7 +75,7 @@ export default function ActiveCampaigns() {
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             Take the challenge. Do the work. Get rewarded.
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {campaigns.map((campaign, index) => {
@@ -86,12 +84,10 @@ export default function ActiveCampaigns() {
             const bundleCount = campaign.campaign_eligible_bundles?.length || 0;
 
             return (
-              <motion.div
+              <div
                 key={campaign.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="reveal-on-scroll is-visible"
+                style={{ transitionDelay: `${index * 0.1}s` }}
               >
                 <Link href={`/campaigns/${campaign.slug}`}>
                   <div className="group relative h-full bg-gradient-to-br from-gray-900 to-gray-800 border border-amber-500/20 rounded-2xl overflow-hidden hover:border-amber-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/10">
@@ -142,7 +138,7 @@ export default function ActiveCampaigns() {
                     </div>
                   </div>
                 </Link>
-              </motion.div>
+              </div>
             );
           })}
         </div>

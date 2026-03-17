@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { motion } from 'framer-motion'
 import { ShoppingBag, ArrowRight, ShoppingCart, Package } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -35,13 +34,10 @@ function ProductCard({
   ctaLabel?: string
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
+    <div
       onClick={onClick}
-      className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 cursor-pointer"
+      className="group relative bg-silicon-slate/40 backdrop-blur-md rounded-2xl overflow-hidden border border-radiant-gold/5 hover:border-radiant-gold/20 transition-all duration-500 cursor-pointer reveal-on-scroll is-visible"
+      style={{ transitionDelay: `${index * 0.1}s` }}
     >
       <div className="relative h-64 overflow-hidden">
         {product.image_url ? (
@@ -86,7 +82,7 @@ function ProductCard({
           <span className="text-[10px] font-heading tracking-widest uppercase">{ctaLabel}</span>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -175,13 +171,7 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
       /* Products (digital) */
       <section id="products" className={`${SECTION_BG} ${PRODUCTS_BG}`}>
         <div className="max-w-7xl mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-20"
-          >
+          <div className="text-center mb-20 animate-fade-in-up">
             <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/20 mb-6 mx-auto">
               <ShoppingBag className="w-3 h-3 text-radiant-gold" />
               <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
@@ -194,7 +184,7 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
             <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
               Ebooks, templates, calculators, and digital products to elevate your workflow.
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {digitalProducts.map((product, index) => (
@@ -233,13 +223,7 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
       {showMerchandise && (
       <section id="merchandise" className={`${SECTION_BG} ${MERCHANDISE_BG}`}>
         <div className="max-w-7xl mx-auto relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-20"
-          >
+          <div className="text-center mb-20 animate-fade-in-up">
             <div className="pill-badge bg-imperial-navy/50 border-radiant-gold/20 mb-6 mx-auto">
               <Package className="w-3 h-3 text-radiant-gold" />
               <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
@@ -252,7 +236,7 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
             <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
               Premium apparel and physical goods—wear the brand.
             </p>
-          </motion.div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {merchandise.map((product, index) => (

@@ -12,20 +12,13 @@ const MISSION_CARDS = [
   { id: 'dogfooding', label: 'Dogfooding', line: 'We use our own tools; improvements flow to everyone.', img: '/mission-tools.png', alt: 'Illustration: feedback loop of using our own tools.', Icon: RefreshCw },
 ]
 
-const FloatingCard = ({ children, delay = 0, x = 0, y = 0, className = "" }: any) => (
+const FloatingCard = ({ children, delay = 0, className = "" }: any) => (
   <motion.div
     initial={{ opacity: 0, y: 20 }}
-    animate={{ 
-      opacity: 1, 
-      y: [y, y - 15, y],
-      x: [x, x + 5, x]
-    }}
-    transition={{ 
-      opacity: { duration: 0.8, delay },
-      y: { duration: 5, repeat: Infinity, ease: "easeInOut", delay },
-      x: { duration: 4, repeat: Infinity, ease: "easeInOut", delay }
-    }}
-    className={`absolute hidden lg:flex glass-card items-center gap-3 px-4 py-3 z-20 ${className}`}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.8, delay }}
+    className={`absolute hidden lg:flex glass-card items-center gap-3 px-4 py-3 z-20 hero-float ${className}`}
+    style={{ animationDelay: `${delay}s` }}
   >
     {children}
   </motion.div>
@@ -118,6 +111,7 @@ function MissionCard({
 export default function Hero() {
   const containerRef = useRef(null)
   const reduceMotion = useReducedMotion() ?? false
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
@@ -324,7 +318,7 @@ export default function Hero() {
         {/* Main Visual - Brand Shield with Dynamic Glow */}
         <div className="relative max-w-[320px] sm:max-w-[400px] mx-auto group">
           {/* Floating Micro-Cards */}
-          <FloatingCard delay={0.2} x={-200} y={-60} className="left-0">
+          <FloatingCard delay={0.2} className="left-0">
             <div className="p-2 bg-radiant-gold/20 rounded-lg">
               <Brain className="w-4 h-4 text-radiant-gold" />
             </div>
@@ -334,7 +328,7 @@ export default function Hero() {
             </div>
           </FloatingCard>
 
-          <FloatingCard delay={0.5} x={200} y={20} className="right-0">
+          <FloatingCard delay={0.5} className="right-0">
             <div className="p-2 bg-radiant-gold/20 rounded-lg">
               <Rocket className="w-4 h-4 text-radiant-gold" />
             </div>
@@ -344,7 +338,7 @@ export default function Hero() {
             </div>
           </FloatingCard>
 
-          <FloatingCard delay={0.8} x={-160} y={140} className="left-0">
+          <FloatingCard delay={0.8} className="left-0">
             <div className="p-2 bg-radiant-gold/20 rounded-lg">
               <Music className="w-4 h-4 text-radiant-gold" />
             </div>
@@ -361,44 +355,25 @@ export default function Hero() {
             transition={{ duration: 1.2, delay: 0.3 }}
             className="relative"
           >
-            {/* Outer Ambient Glow - Large & Intense */}
-            <motion.div
-              animate={{ 
-                scale: [1, 1.2, 1],
-                opacity: [0.4, 0.7, 0.4]
-              }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-0 -z-10"
+            {/* Ambient Glow - CSS animated for compositor-thread performance */}
+            <div
+              className="absolute inset-0 -z-10 hero-glow-outer"
               style={{
                 background: 'radial-gradient(circle, rgba(212,175,55,0.6) 0%, rgba(245,208,96,0.3) 30%, rgba(139,105,20,0.2) 50%, transparent 70%)',
                 transform: 'scale(2.2)',
                 filter: 'blur(50px)'
               }}
             />
-            
-            {/* Inner Circuit Glow - Pulsing & Brighter */}
-            <motion.div
-              animate={{ 
-                opacity: [0.5, 0.9, 0.5],
-                scale: [1, 1.08, 1]
-              }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
-              className="absolute inset-0 -z-10"
+            <div
+              className="absolute inset-0 -z-10 hero-glow-inner"
               style={{
                 background: 'radial-gradient(circle, rgba(212,175,55,0.7) 0%, rgba(245,208,96,0.4) 30%, transparent 55%)',
                 transform: 'scale(1.6)',
                 filter: 'blur(25px)'
               }}
             />
-            
-            {/* Core Glow - Tight & Bright */}
-            <motion.div
-              animate={{ 
-                opacity: [0.6, 1, 0.6],
-                scale: [0.95, 1.02, 0.95]
-              }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 0.6 }}
-              className="absolute inset-0 -z-10"
+            <div
+              className="absolute inset-0 -z-10 hero-glow-core"
               style={{
                 background: 'radial-gradient(circle, rgba(245,208,96,0.5) 0%, rgba(212,175,55,0.3) 40%, transparent 60%)',
                 transform: 'scale(1.2)',
@@ -406,26 +381,20 @@ export default function Hero() {
               }}
             />
 
-            {/* Laser Beam Border Effect */}
+            {/* Laser Beam Border Effect — CSS animated for GPU compositing */}
             <div className="absolute -inset-[2px] rounded-3xl overflow-hidden -z-5">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0"
+              <div
+                className="absolute inset-0 hero-laser-spin"
                 style={{
                   background: 'conic-gradient(from 0deg, transparent 0%, transparent 70%, rgba(212,175,55,0.8) 75%, rgba(245,208,96,1) 80%, rgba(212,175,55,0.8) 85%, transparent 90%, transparent 100%)',
                 }}
               />
-              {/* Inner mask to show only the border */}
               <div className="absolute inset-[2px] rounded-3xl bg-imperial-navy" />
             </div>
             
-            {/* Secondary Laser Trail */}
             <div className="absolute -inset-[2px] rounded-3xl overflow-hidden -z-5">
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0"
+              <div
+                className="absolute inset-0 hero-laser-spin-reverse"
                 style={{
                   background: 'conic-gradient(from 180deg, transparent 0%, transparent 80%, rgba(139,105,20,0.6) 85%, rgba(212,175,55,0.8) 88%, rgba(139,105,20,0.6) 91%, transparent 95%, transparent 100%)',
                 }}
@@ -435,36 +404,23 @@ export default function Hero() {
 
             {/* Wallpaper Container */}
             <div className="relative aspect-square rounded-3xl overflow-hidden border-2 border-radiant-gold/30 shadow-2xl">
-              {/* Wallpaper Image */}
-              <motion.img
+              {/* Wallpaper Image — CSS animated brightness pulse */}
+              <img
                 src="/wallpaper.png"
                 alt="AmaduTown Brand Visual"
-                className="w-full h-full object-cover"
-                animate={{
-                  filter: [
-                    'brightness(1.05) contrast(1.05)',
-                    'brightness(1.2) contrast(1.1)',
-                    'brightness(1.05) contrast(1.05)'
-                  ]
-                }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="w-full h-full object-cover hero-wallpaper-pulse"
               />
               
-              {/* AT Logo Glow Overlay - Stronger */}
-              <motion.div
-                className="absolute inset-0 pointer-events-none mix-blend-screen"
-                animate={{ opacity: [0.2, 0.5, 0.2] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              {/* Logo Glow Overlay — CSS animated */}
+              <div
+                className="absolute inset-0 pointer-events-none mix-blend-screen hero-glow-overlay"
                 style={{
                   background: 'radial-gradient(circle at 50% 45%, rgba(212,175,55,0.6) 0%, rgba(245,208,96,0.3) 25%, transparent 50%)'
                 }}
               />
               
-              {/* Secondary Logo Pulse */}
-              <motion.div
-                className="absolute inset-0 pointer-events-none mix-blend-overlay"
-                animate={{ opacity: [0.1, 0.3, 0.1] }}
-                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+              <div
+                className="absolute inset-0 pointer-events-none mix-blend-overlay hero-glow-overlay-secondary"
                 style={{
                   background: 'radial-gradient(circle at 50% 45%, rgba(255,255,255,0.3) 0%, transparent 40%)'
                 }}
@@ -487,32 +443,22 @@ export default function Hero() {
               />
             </div>
             
-            {/* Corner Accent Glows - Brighter */}
-            <motion.div
-              animate={{ opacity: [0.4, 0.8, 0.4] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-6 -left-6 w-32 h-32 rounded-full blur-2xl"
+            {/* Corner Accent Glows — CSS animated */}
+            <div
+              className="absolute -top-6 -left-6 w-32 h-32 rounded-full blur-2xl hero-corner-glow"
               style={{ background: 'radial-gradient(circle, rgba(245,208,96,0.6) 0%, rgba(212,175,55,0.3) 50%, transparent 70%)' }}
             />
-            <motion.div
-              animate={{ opacity: [0.4, 0.8, 0.4] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full blur-2xl"
-              style={{ background: 'radial-gradient(circle, rgba(245,208,96,0.6) 0%, rgba(212,175,55,0.3) 50%, transparent 70%)' }}
+            <div
+              className="absolute -bottom-6 -right-6 w-32 h-32 rounded-full blur-2xl hero-corner-glow"
+              style={{ background: 'radial-gradient(circle, rgba(245,208,96,0.6) 0%, rgba(212,175,55,0.3) 50%, transparent 70%)', animationDelay: '1s' }}
             />
-            
-            {/* Additional corner accents */}
-            <motion.div
-              animate={{ opacity: [0.2, 0.5, 0.2] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-              className="absolute -top-4 -right-4 w-20 h-20 rounded-full blur-xl"
-              style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)' }}
+            <div
+              className="absolute -top-4 -right-4 w-20 h-20 rounded-full blur-xl hero-corner-glow-subtle"
+              style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)', animationDelay: '0.5s' }}
             />
-            <motion.div
-              animate={{ opacity: [0.2, 0.5, 0.2] }}
-              transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-              className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full blur-xl"
-              style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)' }}
+            <div
+              className="absolute -bottom-4 -left-4 w-20 h-20 rounded-full blur-xl hero-corner-glow-subtle"
+              style={{ background: 'radial-gradient(circle, rgba(212,175,55,0.5) 0%, transparent 70%)', animationDelay: '1.5s' }}
             />
           </motion.div>
         </div>
@@ -521,14 +467,10 @@ export default function Hero() {
       {/* Decorative Bottom Fade */}
       <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-imperial-navy to-transparent pointer-events-none z-20" />
       
-      {/* Scroll Hint */}
-      <motion.div 
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 opacity-30"
-      >
+      {/* Scroll Hint — CSS bounce */}
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 opacity-30 hero-scroll-hint">
         <ArrowDown className="w-5 h-5 text-platinum-white" />
-      </motion.div>
+      </div>
     </section>
   )
 }
