@@ -38,10 +38,10 @@ import { InPersonDiagnosticPanel } from '@/components/admin/sales/InPersonDiagno
 import { CampaignContextPanel } from '@/components/admin/sales/CampaignContextPanel';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import {
-  User, Building, Mail, MessageSquare, ChevronRight, ChevronDown,
+  User, Building, Mail, MessageSquare, ChevronRight, ChevronDown, ChevronUp,
   AlertCircle, Save, FileText, DollarSign, RefreshCw, ArrowLeft,
   Layers, Package, GitFork, CreditCard, ExternalLink, Copy, XCircle,
-  Video, CheckSquare, Loader2,
+  Video, CheckSquare, Loader2, Upload, Trash2,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -134,6 +134,8 @@ export default function ConversationPage() {
   const [currentProposal, setCurrentProposal] = useState<{
     id: string; status: string; proposalLink: string;
   } | null>(null);
+  const [proposalDocuments, setProposalDocuments] = useState<Array<{ id: string; document_type: string; title: string; display_order: number; created_at: string }>>([]);
+  const [showAttachDocumentModal, setShowAttachDocumentModal] = useState(false);
   const [collapsedContentGroups, setCollapsedContentGroups] = useState<Set<string>>(new Set());
 
   /* ---- value evidence ---- */
@@ -229,6 +231,26 @@ export default function ConversationPage() {
       }
       setContact(contactData);
 
+      // If session has no audit linked but contact has a latest audit (e.g. from "Build audit from meetings"), use and link it
+      if (!session.diagnostic_audit_id && session.contact_submission_id) {
+        const latestRes = await fetch(
+          `/api/admin/diagnostic-audits/latest-by-contact?contact_submission_id=${session.contact_submission_id}`,
+          { headers }
+        );
+        if (latestRes.ok) {
+          const latestData = await latestRes.json();
+          if (latestData.auditId) {
+            setDiagnosticAuditId(latestData.auditId);
+            setSalesSession((prev) => (prev ? { ...prev, diagnostic_audit_id: latestData.auditId } : prev));
+            await fetch('/api/admin/sales/sessions', {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', ...headers },
+              body: JSON.stringify({ id: sessionId, diagnostic_audit_id: latestData.auditId }),
+            });
+          }
+        }
+      }
+
       const [productsData, scriptsData, bundlesData] = await Promise.all([
         productsRes.json(),
         scriptsRes.ok ? scriptsRes.json() : { scripts: [] },
@@ -303,6 +325,24 @@ export default function ConversationPage() {
     })();
     return () => { cancelled = true; };
   }, [contact?.id]);
+
+  // Fetch proposal documents when a proposal exists (for Reports & documents section)
+  useEffect(() => {
+    if (!currentProposal?.id) { setProposalDocuments([]); return; }
+    let cancelled = false;
+    (async () => {
+      const session = await getCurrentSession();
+      if (!session?.access_token) return;
+      const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (!res.ok || cancelled) return;
+      const data = await res.json();
+      if (cancelled) return;
+      setProposalDocuments(Array.isArray(data.documents) ? data.documents : []);
+    })();
+    return () => { cancelled = true; };
+  }, [currentProposal?.id]);
 
   // Fetch previous meetings & tasks for this contact (lead/client)
   useEffect(() => {
@@ -956,6 +996,83 @@ export default function ConversationPage() {
                               <button onClick={() => navigator.clipboard.writeText(currentProposal.proposalLink)} className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg"><Copy className="w-4 h-4" /></button>
                               <a href={currentProposal.proposalLink} target="_blank" rel="noopener noreferrer" className="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg"><ExternalLink className="w-4 h-4" /></a>
                             </div>
+                            <div className="mt-4 pt-3 border-t border-gray-700">
+                              <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Reports &amp; documents</h5>
+                              {proposalDocuments.length > 0 ? (
+                                <ul className="space-y-2 mb-2">
+                                  {proposalDocuments.map((doc, index) => (
+                                    <li key={doc.id} className="flex items-center justify-between gap-2 py-1.5 px-2 rounded bg-gray-900/50">
+                                      <div className="flex items-center gap-1 shrink-0">
+                                        <button
+                                          type="button"
+                                          onClick={async () => {
+                                            if (index === 0) return;
+                                            const session = await getCurrentSession();
+                                            if (!session?.access_token) return;
+                                            const newOrder = [...proposalDocuments];
+                                            [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+                                            const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, {
+                                              method: 'PATCH',
+                                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+                                              body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
+                                            });
+                                            if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
+                                          }}
+                                          disabled={index === 0}
+                                          className="p-1 text-gray-400 hover:text-white disabled:opacity-30 rounded"
+                                          title="Move up"
+                                        >
+                                          <ChevronUp className="w-3.5 h-3.5" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={async () => {
+                                            if (index >= proposalDocuments.length - 1) return;
+                                            const session = await getCurrentSession();
+                                            if (!session?.access_token) return;
+                                            const newOrder = [...proposalDocuments];
+                                            [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+                                            const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, {
+                                              method: 'PATCH',
+                                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+                                              body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
+                                            });
+                                            if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
+                                          }}
+                                          disabled={index >= proposalDocuments.length - 1}
+                                          className="p-1 text-gray-400 hover:text-white disabled:opacity-30 rounded"
+                                          title="Move down"
+                                        >
+                                          <ChevronDown className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                      <span className="text-sm text-gray-200 truncate flex-1">{doc.title}</span>
+                                      <span className="text-xs text-gray-500 shrink-0">
+                                        {doc.document_type === 'strategy_report' ? 'Strategy' : doc.document_type === 'opportunity_quantification' ? 'Opportunity' : doc.document_type === 'proposal_package' ? 'Package' : 'Document'}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={async () => {
+                                          const session = await getCurrentSession();
+                                          if (!session?.access_token) return;
+                                          const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents/${doc.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${session.access_token}` } });
+                                          if (res.ok) setProposalDocuments(prev => prev.filter(d => d.id !== doc.id));
+                                        }}
+                                        className="p-1.5 text-gray-400 hover:text-red-400 rounded"
+                                        title="Remove document"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-xs text-gray-500 mb-2">No reports or documents attached yet.</p>
+                              )}
+                              <button type="button" onClick={() => setShowAttachDocumentModal(true)} className="flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300">
+                                <Upload className="w-3.5 h-3.5" /> Attach report or document (PDF)
+                              </button>
+                            </div>
                             <button onClick={() => setShowProposalModal(true)} className="mt-3 w-full text-sm text-gray-400 hover:text-white">Generate new proposal</button>
                           </div>
                         ) : (
@@ -1052,6 +1169,135 @@ export default function ConversationPage() {
           }}
         />
       )}
+
+      {showAttachDocumentModal && currentProposal && (
+        <AttachProposalDocumentModal
+          proposalId={currentProposal.id}
+          onClose={() => setShowAttachDocumentModal(false)}
+          onSuccess={async () => {
+            const session = await getCurrentSession();
+            if (!session?.access_token) return;
+            const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, { headers: { Authorization: `Bearer ${session.access_token}` } });
+            if (res.ok) {
+              const data = await res.json();
+              setProposalDocuments(Array.isArray(data.documents) ? data.documents : []);
+            }
+            setShowAttachDocumentModal(false);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Attach Proposal Document Modal                                      */
+/* ------------------------------------------------------------------ */
+
+function AttachProposalDocumentModal({
+  proposalId,
+  onClose,
+  onSuccess,
+}: {
+  proposalId: string;
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [title, setTitle] = useState('');
+  const [documentType, setDocumentType] = useState<string>('strategy_report');
+  const [file, setFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!file || !title.trim()) {
+      setError('Please provide a title and select a PDF file.');
+      return;
+    }
+    if (file.type !== 'application/pdf') {
+      setError('File must be a PDF.');
+      return;
+    }
+    setError(null);
+    setUploading(true);
+    try {
+      const session = await getCurrentSession();
+      if (!session?.access_token) {
+        setError('Not authenticated.');
+        return;
+      }
+      const formData = new FormData();
+      formData.set('file', file);
+      formData.set('title', title.trim());
+      formData.set('document_type', documentType);
+      const res = await fetch(`/api/admin/proposals/${proposalId}/documents`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: formData,
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error || 'Upload failed.');
+        return;
+      }
+      onSuccess();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+      <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-md p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold flex items-center gap-2"><FileText className="w-5 h-5 text-blue-400" /> Attach report or document</h3>
+          <button type="button" onClick={onClose} className="text-gray-400 hover:text-white"><XCircle className="w-5 h-5" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Title *</label>
+            <input
+              type="text"
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="e.g. KMB Implementation Strategy"
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">Type</label>
+            <select
+              value={documentType}
+              onChange={e => setDocumentType(e.target.value)}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white focus:outline-none focus:border-blue-500"
+            >
+              <option value="strategy_report">Strategy Report</option>
+              <option value="opportunity_quantification">Opportunity Quantification</option>
+              <option value="proposal_package">Proposal Package</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-1">PDF file *</label>
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              onChange={e => setFile(e.target.files?.[0] ?? null)}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-gray-300 file:mr-2 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gray-700 file:text-gray-200"
+            />
+          </div>
+          {error && <p className="text-sm text-red-400">{error}</p>}
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg">Cancel</button>
+            <button type="submit" disabled={uploading || !title.trim() || !file} className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 rounded-lg">
+              {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />} Upload
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

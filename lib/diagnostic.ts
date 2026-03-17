@@ -6,10 +6,16 @@
 import { supabaseAdmin } from './supabase'
 import type { DiagnosticAuditData, DiagnosticCategory, DiagnosticProgress } from './n8n'
 
+/** audit_type values on diagnostic_audits; must match DB CHECK constraint. */
+export type DiagnosticAuditType = 'chat' | 'standalone' | 'in_person' | 'from_meetings'
+
 export interface DiagnosticAuditRecord {
   id: string
   session_id: string
   contact_submission_id?: number | null
+  audit_type?: DiagnosticAuditType
+  /** When audit_type = from_meetings, IDs of meeting_records used to build this audit. */
+  source_meeting_ids?: string[] | null
   status: 'in_progress' | 'completed' | 'abandoned'
   business_challenges: Record<string, unknown>
   tech_stack: Record<string, unknown>
@@ -48,8 +54,10 @@ export async function saveDiagnosticAudit(
     contactSubmissionId?: number
     /** Optional: questions per category for lead dashboard; persisted when status is completed */
     questionsByCategory?: QuestionsByCategory
-    /** Required on insert in DB: 'chat' | 'standalone' | 'in_person'. Defaults to 'chat' when creating. */
-    auditType?: string
+    /** Required on insert in DB. Defaults to 'chat' when creating. */
+    auditType?: DiagnosticAuditType
+    /** When auditType = from_meetings, list of meeting_records.id for traceability. */
+    sourceMeetingIds?: string[]
   }
 ): Promise<{ id: string; error?: Error }> {
   try {
@@ -131,6 +139,10 @@ export async function saveDiagnosticAudit(
     // Link to contact submission if provided
     if (data.contactSubmissionId) {
       updateData.contact_submission_id = data.contactSubmissionId
+    }
+
+    if (data.sourceMeetingIds && Array.isArray(data.sourceMeetingIds) && data.sourceMeetingIds.length > 0) {
+      updateData.source_meeting_ids = data.sourceMeetingIds
     }
 
     // Lead dashboard: questions per category (e.g. from n8n or chat flow)

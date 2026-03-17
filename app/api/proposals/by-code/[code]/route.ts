@@ -55,12 +55,47 @@ export async function GET(
       proposal.value_assessment.valueStatements.length > 0
     );
 
+    // Attached reports/documents (e.g. strategy, opportunity quantification) — path: proposal-docs/{proposal_id}/{uuid}.pdf
+    const { data: docRows } = await supabaseAdmin
+      .from('proposal_documents')
+      .select('id, document_type, title, file_path, display_order, created_at')
+      .eq('proposal_id', proposal.id)
+      .order('display_order', { ascending: true });
+
+    const proposalDocuments: Array<{
+      id: string;
+      document_type: string;
+      title: string;
+      created_at: string;
+      signedUrl: string | null;
+    }> = [];
+
+    if (docRows?.length) {
+      for (const row of docRows) {
+        let signedUrl: string | null = null;
+        if (row.file_path) {
+          const { data: signed } = await supabaseAdmin.storage
+            .from('documents')
+            .createSignedUrl(row.file_path, 3600);
+          signedUrl = signed?.signedUrl ?? null;
+        }
+        proposalDocuments.push({
+          id: row.id,
+          document_type: row.document_type,
+          title: row.title,
+          created_at: row.created_at,
+          signedUrl,
+        });
+      }
+    }
+
     return NextResponse.json({
       proposal,
       canAccept,
       canPay,
       isExpired,
       hasValueAssessment,
+      proposalDocuments,
     });
   } catch (error) {
     console.error('Error in proposal by-code GET:', error);

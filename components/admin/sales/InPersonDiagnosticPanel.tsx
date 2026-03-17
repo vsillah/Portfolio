@@ -1,11 +1,32 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import Link from 'next/link';
 import {
   ClipboardList, ChevronDown, ChevronUp, Save, CheckCircle,
-  AlertCircle, RefreshCw, Loader2, Sparkles,
+  AlertCircle, RefreshCw, Loader2, Sparkles, FileText,
 } from 'lucide-react';
 import { getCurrentSession } from '@/lib/auth';
+
+/** True if a field value counts as "filled" for completion. */
+function isFieldFilled(value: unknown): boolean {
+  if (value == null) return false;
+  if (typeof value === 'string') {
+    const t = value.trim();
+    return t !== '' && t !== 'Not discussed';
+  }
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === 'number') return true;
+  if (typeof value === 'boolean') return true;
+  return false;
+}
+
+/** Normalize value for display in inputs (arrays from API -> comma-separated string). */
+function displayValue(value: unknown): string {
+  if (value == null) return '';
+  if (Array.isArray(value)) return value.map(String).join(', ');
+  return String(value);
+}
 
 /* ------------------------------------------------------------------ */
 /* Types                                                               */
@@ -118,6 +139,8 @@ export function InPersonDiagnosticPanel({
     opportunity: number | null;
   } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [auditType, setAuditType] = useState<string | null>(null);
+  const [sourceMeetingIds, setSourceMeetingIds] = useState<string[]>([]);
 
   // Load existing audit data if auditId is provided
   useEffect(() => {
@@ -140,6 +163,8 @@ export function InPersonDiagnosticPanel({
           decision_making: a.decisionMaking || {},
         });
         setCompletionStatus(a.status === 'completed' ? 'completed' : 'in_progress');
+        if (a.auditType) setAuditType(a.auditType);
+        if (Array.isArray(a.sourceMeetingIds) && a.sourceMeetingIds.length > 0) setSourceMeetingIds(a.sourceMeetingIds);
         if (a.diagnosticSummary || (a.keyInsights && a.keyInsights.length > 0)) {
           setGeneratedInsights({
             summary: a.diagnosticSummary,
@@ -256,10 +281,17 @@ export function InPersonDiagnosticPanel({
     });
   };
 
-  const filledCount = CATEGORIES.filter(c => {
-    const data = diagnosticData[c.key];
-    return Object.values(data).some(v => v != null && v !== '' && v !== 'Not discussed');
-  }).length;
+  const totalFields = CATEGORIES.reduce((sum, c) => sum + CATEGORY_FIELDS[c.key].length, 0);
+  const filledFields = CATEGORIES.reduce((count, c) => {
+    const catData = diagnosticData[c.key];
+    return count + CATEGORY_FIELDS[c.key].filter(f => isFieldFilled(catData[f.field])).length;
+  }, 0);
+  const filledCategoriesCount = CATEGORIES.filter(c =>
+    CATEGORY_FIELDS[c.key].some(f => isFieldFilled(diagnosticData[c.key][f.field]))
+  ).length;
+  const completionPct = totalFields === 0 ? 0 : Math.round((filledFields / totalFields) * 100);
+  const completionLabel =
+    filledFields === 0 ? 'Not started' : filledFields === totalFields ? 'Completed' : 'Partially complete';
 
   return (
     <div className="bg-gray-900 rounded-lg border border-gray-800">
@@ -272,7 +304,7 @@ export function InPersonDiagnosticPanel({
           <div className="text-left">
             <h3 className="font-medium text-white">In-Person Diagnostic</h3>
             <p className="text-xs text-gray-400">
-              {completionStatus === 'completed' ? 'Completed' : `${filledCount}/${CATEGORIES.length} categories filled`}
+              {completionLabel} — {completionPct}% ({filledFields}/{totalFields} fields)
               {auditId && <span className="ml-2 text-green-500">Saved</span>}
             </p>
           </div>
@@ -299,7 +331,7 @@ export function InPersonDiagnosticPanel({
               {CATEGORIES.map(cat => {
                 const isOpen = expandedCategories.has(cat.key);
                 const catData = diagnosticData[cat.key];
-                const isFilled = Object.values(catData).some(v => v != null && v !== '' && v !== 'Not discussed');
+                const isFilled = CATEGORY_FIELDS[cat.key].some(f => isFieldFilled(catData[f.field]));
                 return (
                   <div key={cat.key} className="border border-gray-700 rounded-lg overflow-hidden">
                     <button
@@ -320,7 +352,7 @@ export function InPersonDiagnosticPanel({
                             <label className="block text-xs font-medium text-gray-400 mb-1">{f.label}</label>
                             {f.type === 'textarea' ? (
                               <textarea
-                                value={(catData[f.field] as string) || ''}
+                                value={displayValue(catData[f.field])}
                                 onChange={e => updateField(cat.key, f.field, e.target.value)}
                                 rows={2}
                                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 resize-none focus:outline-none focus:border-orange-500/50"
@@ -328,7 +360,7 @@ export function InPersonDiagnosticPanel({
                               />
                             ) : f.type === 'select' ? (
                               <select
-                                value={(catData[f.field] as string) || ''}
+                                value={displayValue(catData[f.field])}
                                 onChange={e => updateField(cat.key, f.field, e.target.value)}
                                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white focus:outline-none focus:border-orange-500/50"
                               >
@@ -338,7 +370,7 @@ export function InPersonDiagnosticPanel({
                             ) : (
                               <input
                                 type={f.type}
-                                value={(catData[f.field] as string) || ''}
+                                value={displayValue(catData[f.field])}
                                 onChange={e => updateField(cat.key, f.field, e.target.value)}
                                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50"
                                 placeholder={`Enter ${f.label.toLowerCase()}...`}
@@ -351,6 +383,22 @@ export function InPersonDiagnosticPanel({
                   </div>
                 );
               })}
+
+              {/* Traceability: link to source meeting transcripts */}
+              {auditType === 'from_meetings' && sourceMeetingIds.length > 0 && (
+                <div className="bg-gray-800/50 rounded-lg border border-gray-700 p-3 flex items-center justify-between gap-2">
+                  <span className="text-sm text-gray-300 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-orange-500" />
+                    Built from {sourceMeetingIds.length} meeting transcript{sourceMeetingIds.length !== 1 ? 's' : ''}
+                  </span>
+                  <Link
+                    href={contactSubmissionId != null ? `/admin/meetings?contact_submission_id=${contactSubmissionId}` : '/admin/meetings'}
+                    className="text-sm font-medium text-orange-500 hover:text-orange-400 transition-colors"
+                  >
+                    View source transcripts →
+                  </Link>
+                </div>
+              )}
 
               {/* Generated insights */}
               {generatedInsights && (
@@ -408,7 +456,7 @@ export function InPersonDiagnosticPanel({
                 </button>
                 <button
                   onClick={generateInsights}
-                  disabled={generating || filledCount < 2}
+                  disabled={generating || filledCategoriesCount < 2}
                   className="flex items-center gap-1 px-3 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm disabled:opacity-50"
                 >
                   {generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
@@ -416,7 +464,7 @@ export function InPersonDiagnosticPanel({
                 </button>
                 <button
                   onClick={() => saveAudit(true)}
-                  disabled={saving || filledCount < 3}
+                  disabled={saving || filledCategoriesCount < 3}
                   className="flex items-center gap-1 px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm disabled:opacity-50"
                 >
                   <CheckCircle className="w-4 h-4" />

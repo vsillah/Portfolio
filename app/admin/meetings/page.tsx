@@ -2,16 +2,17 @@
 
 import { Fragment, useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
   Video,
   Loader2,
   RefreshCw,
   Link2,
-  ChevronDown,
   Calendar,
   User,
   Building,
   FileText,
+  Sparkles,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -40,6 +41,12 @@ interface LeadOption {
   email: string | null
 }
 
+interface ProjectOption {
+  id: string
+  project_name: string | null
+  client_name: string | null
+}
+
 export default function AdminMeetingsPage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -49,16 +56,26 @@ export default function AdminMeetingsPage() {
 }
 
 function MeetingsContent() {
+  const searchParams = useSearchParams()
+  const contactIdFromUrl = searchParams.get('contact_submission_id')
+
   const [meetings, setMeetings] = useState<MeetingRow[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [unlinkedOnly, setUnlinkedOnly] = useState(true)
+  const [unlinkedOnly, setUnlinkedOnly] = useState(!contactIdFromUrl)
   const [search, setSearch] = useState('')
   const [leadOptions, setLeadOptions] = useState<LeadOption[]>([])
   const [assigningId, setAssigningId] = useState<string | null>(null)
   const [assignValue, setAssignValue] = useState('')
   const [assigningInProgress, setAssigningInProgress] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [buildAuditMode, setBuildAuditMode] = useState<'lead' | 'project'>('lead')
+  const [buildAuditLeadId, setBuildAuditLeadId] = useState('')
+  const [buildAuditProjectId, setBuildAuditProjectId] = useState('')
+  const [projectOptions, setProjectOptions] = useState<ProjectOption[]>([])
+  const [buildAuditInProgress, setBuildAuditInProgress] = useState(false)
+  const [buildAuditError, setBuildAuditError] = useState<string | null>(null)
+  const [buildAuditSuccess, setBuildAuditSuccess] = useState<{ auditId: string; meetingsUsed: number } | null>(null)
 
   const getHeaders = useCallback(async () => {
     const session = await getCurrentSession()
@@ -69,7 +86,8 @@ function MeetingsContent() {
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      if (unlinkedOnly) params.set('unlinked_only', 'true')
+      if (contactIdFromUrl) params.set('contact_submission_id', contactIdFromUrl)
+      else if (unlinkedOnly) params.set('unlinked_only', 'true')
       if (search.trim()) params.set('q', search.trim())
       params.set('limit', '50')
       const headers = await getHeaders()
@@ -84,7 +102,7 @@ function MeetingsContent() {
     } finally {
       setLoading(false)
     }
-  }, [getHeaders, unlinkedOnly, search])
+  }, [getHeaders, contactIdFromUrl, unlinkedOnly, search])
 
   const fetchLeadOptions = useCallback(async () => {
     try {
@@ -102,6 +120,71 @@ function MeetingsContent() {
       setLeadOptions([])
     }
   }, [getHeaders])
+
+  const fetchProjectOptions = useCallback(async () => {
+    try {
+      const headers = await getHeaders()
+      const res = await fetch('/api/admin/client-projects?limit=200', { headers })
+      if (res.ok) {
+        const data = await res.json()
+        setProjectOptions((data.projects || []).map((p: { id: string; project_name: string | null; client_name: string | null }) => ({
+          id: p.id,
+          project_name: p.project_name ?? null,
+          client_name: p.client_name ?? null,
+        })))
+      }
+    } catch {
+      setProjectOptions([])
+    }
+  }, [getHeaders])
+
+  useEffect(() => {
+    if (buildAuditMode === 'lead' && leadOptions.length === 0) {
+      fetchLeadOptions()
+    }
+  }, [buildAuditMode, leadOptions.length, fetchLeadOptions])
+
+  useEffect(() => {
+    if (buildAuditMode === 'project' && projectOptions.length === 0) {
+      fetchProjectOptions()
+    }
+  }, [buildAuditMode, projectOptions.length, fetchProjectOptions])
+
+  const handleBuildAuditFromMeetings = async () => {
+    setBuildAuditError(null)
+    setBuildAuditSuccess(null)
+    const contactId = buildAuditMode === 'lead' ? buildAuditLeadId.trim() : null
+    const projectId = buildAuditMode === 'project' ? buildAuditProjectId.trim() : null
+    if ((buildAuditMode === 'lead' && !contactId) || (buildAuditMode === 'project' && !projectId)) {
+      setBuildAuditError('Select a lead or project.')
+      return
+    }
+    setBuildAuditInProgress(true)
+    try {
+      const headers = await getHeaders()
+      const res = await fetch('/api/admin/audit-from-meetings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify(
+          buildAuditMode === 'lead'
+            ? { contact_submission_id: Number(contactId) }
+            : { client_project_id: projectId }
+        ),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setBuildAuditError(data.error || 'Could not build audit. Please try again.')
+        return
+      }
+      setBuildAuditSuccess({ auditId: data.auditId, meetingsUsed: data.meetingsUsed ?? 0 })
+      setBuildAuditLeadId('')
+      setBuildAuditProjectId('')
+    } catch {
+      setBuildAuditError('Something went wrong. Please try again.')
+    } finally {
+      setBuildAuditInProgress(false)
+    }
+  }
 
   useEffect(() => {
     fetchMeetings()
@@ -170,6 +253,15 @@ function MeetingsContent() {
           </button>
         </div>
 
+        {contactIdFromUrl && (
+          <div className="mb-3 px-3 py-2 rounded-lg bg-violet-900/30 border border-violet-700/50 text-sm text-violet-200 flex items-center gap-2">
+            Showing meetings for lead (ID: {contactIdFromUrl}).{' '}
+            <Link href="/admin/meetings" className="text-violet-400 hover:underline">
+              Show all
+            </Link>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3 mb-4">
           <label className="flex items-center gap-2 text-sm text-gray-400">
@@ -195,6 +287,92 @@ function MeetingsContent() {
           >
             Search
           </button>
+        </div>
+
+        {/* Build audit from meetings */}
+        <div className="rounded-xl border border-emerald-800/50 bg-emerald-950/20 p-4 mb-6">
+          <h2 className="text-sm font-semibold text-emerald-200 flex items-center gap-2 mb-3">
+            <Sparkles size={16} />
+            Build audit from meetings
+          </h2>
+          <p className="text-xs text-gray-400 mb-3">
+            Use meeting transcripts to populate a diagnostic audit for a lead or client project. Select the lead or project, then run. The new audit will appear in Sales and lead views.
+          </p>
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="flex items-center gap-2">
+              <label className="text-xs text-gray-500">For:</label>
+              <select
+                value={buildAuditMode}
+                onChange={(e) => {
+                  setBuildAuditMode(e.target.value as 'lead' | 'project')
+                  setBuildAuditError(null)
+                  setBuildAuditSuccess(null)
+                }}
+                className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2"
+              >
+                <option value="lead">Lead (contact)</option>
+                <option value="project">Client project</option>
+              </select>
+            </div>
+            {buildAuditMode === 'lead' ? (
+              <select
+                value={buildAuditLeadId}
+                onChange={(e) => setBuildAuditLeadId(e.target.value)}
+                className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2 min-w-[200px]"
+              >
+                <option value="">Select lead…</option>
+                {leadOptions.map((l) => (
+                  <option key={l.id} value={String(l.id)}>
+                    {l.name} {l.email ? `(${l.email})` : ''}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <select
+                value={buildAuditProjectId}
+                onChange={(e) => setBuildAuditProjectId(e.target.value)}
+                className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2 min-w-[200px]"
+              >
+                <option value="">Select project…</option>
+                {projectOptions.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.client_name || p.project_name || p.id}
+                  </option>
+                ))}
+              </select>
+            )}
+            <button
+              onClick={handleBuildAuditFromMeetings}
+              disabled={buildAuditInProgress || (buildAuditMode === 'lead' ? !buildAuditLeadId : !buildAuditProjectId)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium"
+            >
+              {buildAuditInProgress ? (
+                <>
+                  <Loader2 size={14} className="animate-spin" />
+                  Building…
+                </>
+              ) : (
+                <>
+                  <Sparkles size={14} />
+                  Build audit from meetings
+                </>
+              )}
+            </button>
+          </div>
+          {buildAuditError && (
+            <p className="mt-2 text-sm text-red-400" role="alert">
+              {buildAuditError}
+            </p>
+          )}
+          {buildAuditSuccess && (
+            <p className="mt-2 text-sm text-emerald-300">
+              Audit created from {buildAuditSuccess.meetingsUsed} meeting(s). View in{' '}
+              <Link href="/admin/sales" className="text-emerald-400 hover:underline">
+                Sales
+              </Link>{' '}
+              or under the lead’s conversation.
+            </p>
+          )}
         </div>
 
         {loading ? (

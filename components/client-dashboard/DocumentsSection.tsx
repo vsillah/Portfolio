@@ -29,6 +29,30 @@ const typeConfig: Record<
     accent: 'text-emerald-400',
     bg: 'bg-emerald-500/10',
   },
+  strategy_report: {
+    icon: FileText,
+    label: 'Strategy Report',
+    accent: 'text-indigo-400',
+    bg: 'bg-indigo-500/10',
+  },
+  opportunity_quantification: {
+    icon: FileText,
+    label: 'Opportunity Quantification',
+    accent: 'text-violet-400',
+    bg: 'bg-violet-500/10',
+  },
+  proposal_package: {
+    icon: FileText,
+    label: 'Proposal Package',
+    accent: 'text-cyan-400',
+    bg: 'bg-cyan-500/10',
+  },
+  other: {
+    icon: FileText,
+    label: 'Document',
+    accent: 'text-gray-400',
+    bg: 'bg-gray-500/10',
+  },
 }
 
 export default function DocumentsSection({ documents }: DocumentsSectionProps) {

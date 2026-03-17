@@ -119,7 +119,7 @@ export interface DiyResource {
 
 export interface DashboardDocument {
   id: string
-  type: 'proposal' | 'onboarding_plan' | 'contract'
+  type: 'proposal' | 'onboarding_plan' | 'contract' | 'strategy_report' | 'opportunity_quantification' | 'proposal_package' | 'other'
   title: string
   pdf_url: string | null
   signed_url: string | null
@@ -437,6 +437,7 @@ export async function getDashboardByToken(
     meetingResult,
     valueReportResult,
     proposalDocsResult,
+    proposalAttachmentsResult,
     onboardingDocsResult,
     timeEntriesResult,
   ] = await Promise.all([
@@ -523,6 +524,15 @@ export async function getDashboardByToken(
           .single()
       : Promise.resolve({ data: null, error: null }),
 
+    // Documents: attached reports (strategy, opportunity quantification) on the proposal — path convention: proposal-docs/{proposal_id}/{uuid}.pdf
+    project.proposal_id
+      ? supabaseAdmin
+          .from('proposal_documents')
+          .select('id, document_type, title, file_path, created_at')
+          .eq('proposal_id', project.proposal_id)
+          .order('display_order', { ascending: true })
+      : Promise.resolve({ data: null, error: null }),
+
     // Documents: single onboarding plan for this project (with template name for title)
     project.onboarding_plan_id
       ? supabaseAdmin
@@ -545,8 +555,9 @@ export async function getDashboardByToken(
   const tasks = (tasksResult.data || []) as DashboardTask[]
   const snapshots = (snapshotsResult.data || []) as ScoreSnapshot[]
   const milestones = onboardingResult.data?.milestones || []
+  const proposalAttachments = (proposalAttachmentsResult.data || []) as Array<{ id: string; document_type: string; title: string; file_path: string; created_at: string }>
 
-  // Assemble documents list with signed URLs (from single proposal + single onboarding plan)
+  // Assemble documents list with signed URLs (from single proposal + proposal_documents + single onboarding plan)
   const documents: DashboardDocument[] = []
   const proposal = proposalDocsResult.data as { id: string; bundle_name: string; pdf_url: string | null; contract_pdf_url: string | null; status: string; created_at: string } | null
   const onboardingPlan = onboardingDocsResult.data as { id: string; pdf_url: string | null; status: string; created_at: string; onboarding_plan_templates: { name: string } | null } | null
@@ -584,6 +595,28 @@ export async function getDashboardByToken(
         status: proposal.status,
       })
     }
+  }
+
+  for (const att of proposalAttachments) {
+    let signedUrl: string | null = null
+    try {
+      const { data: signed } = await supabaseAdmin.storage.from('documents').createSignedUrl(att.file_path, 3600)
+      signedUrl = signed?.signedUrl ?? null
+    } catch {
+      // leave signedUrl null
+    }
+    const docType = (['strategy_report', 'opportunity_quantification', 'proposal_package', 'other'].includes(att.document_type)
+      ? att.document_type
+      : 'other') as DashboardDocument['type']
+    documents.push({
+      id: att.id,
+      type: docType,
+      title: att.title,
+      pdf_url: null,
+      signed_url: signedUrl,
+      created_at: att.created_at,
+      status: null,
+    })
   }
 
   if (onboardingPlan) {

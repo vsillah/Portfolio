@@ -590,6 +590,39 @@ export const clientExperienceWalkthroughScenario: TestScenario = {
   tags: ['post-sale', 'proposal', 'signing', 'payment', 'dashboard', 'admin', 'critical-path']
 }
 
+/**
+ * Scenario 11: Audit from meetings (admin)
+ * Smoke test: Admin → Meetings page loads and shows "Build audit from meetings" section.
+ * Does not run the build (requires auth + lead/project with transcripts).
+ */
+export const auditFromMeetingsScenario: TestScenario = {
+  id: 'audit_from_meetings',
+  name: 'Audit from Meetings',
+  description: 'Smoke test: Admin Meetings page loads with Build audit from meetings section.',
+  journeyStage: 'lead',
+
+  steps: [
+    { type: 'navigate', path: '/admin/meetings', waitForSelector: undefined },
+    { type: 'delay', duration: 2000, randomize: true },
+    { type: 'screenshot', name: 'admin-meetings-build-audit' }
+  ],
+
+  variability: {
+    skipProbability: {},
+    delayRange: [500, 1500],
+    responseVariation: false
+  },
+
+  expectedOutcomes: {
+    mustComplete: [],
+    mustNotError: ['navigate'],
+    dataValidation: []
+  },
+
+  estimatedDuration: 10000,
+  tags: ['smoke-test', 'admin', 'meetings', 'audit-from-meetings']
+}
+
 // ============================================================================
 // Scenario Collections
 // ============================================================================
@@ -604,7 +637,8 @@ export const ALL_SCENARIOS: TestScenario[] = [
   quickBrowseScenario,
   warmLeadPipelineScenario,
   standaloneAuditToolScenario,
-  clientExperienceWalkthroughScenario
+  clientExperienceWalkthroughScenario,
+  auditFromMeetingsScenario
 ]
 
 export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
@@ -617,7 +651,8 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   quick_browse: quickBrowseScenario,
   warm_lead_pipeline: warmLeadPipelineScenario,
   standalone_audit_tool: standaloneAuditToolScenario,
-  client_experience_walkthrough: clientExperienceWalkthroughScenario
+  client_experience_walkthrough: clientExperienceWalkthroughScenario,
+  audit_from_meetings: auditFromMeetingsScenario
 }
 
 /**

@@ -144,6 +144,7 @@ function ProposalByCodeContent() {
   const code = params.code as string;
 
   const [proposal, setProposal] = useState<Proposal | null>(null);
+  const [proposalDocuments, setProposalDocuments] = useState<Array<{ id: string; document_type: string; title: string; created_at: string; signedUrl: string | null }>>([]);
   const [canAccept, setCanAccept] = useState(false);
   const [canPay, setCanPay] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
@@ -196,6 +197,7 @@ function ProposalByCodeContent() {
       }
       const data = await response.json();
       setProposal(data.proposal);
+      setProposalDocuments(Array.isArray(data.proposalDocuments) ? data.proposalDocuments : []);
       setCanAccept(data.canAccept);
       setCanPay(data.canPay);
       setIsExpired(data.isExpired);
@@ -541,6 +543,67 @@ function ProposalByCodeContent() {
             </div>
           </div>
         </div>
+
+        {/* Reports & documents (attached strategy/opportunity PDFs) */}
+        {proposalDocuments.length > 0 && (
+          <div className="bg-gray-900 rounded-xl border border-gray-800 p-5 mb-6">
+            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider mb-4">
+              Reports &amp; Documents
+            </h3>
+            <div className="space-y-3">
+              {proposalDocuments.map((doc) => {
+                const typeLabel =
+                  doc.document_type === 'strategy_report'
+                    ? 'Strategy Report'
+                    : doc.document_type === 'opportunity_quantification'
+                      ? 'Opportunity Quantification'
+                      : doc.document_type === 'proposal_package'
+                        ? 'Proposal Package'
+                        : 'Document';
+                return (
+                  <div
+                    key={doc.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 border border-gray-700/50"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="p-2 rounded-lg bg-blue-500/10">
+                        <FileText className="w-4 h-4 text-blue-400" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-200 truncate">{doc.title}</p>
+                        <p className="text-xs text-gray-500">
+                          {typeLabel}
+                          {' · '}
+                          {new Date(doc.created_at).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </p>
+                      </div>
+                    </div>
+                    {doc.signedUrl ? (
+                      <a
+                        href={doc.signedUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-300 bg-gray-700/50 hover:bg-gray-700 rounded-lg transition-colors shrink-0"
+                      >
+                        <Download className="w-3.5 h-3.5" />
+                        PDF
+                      </a>
+                    ) : (
+                      <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-gray-500 shrink-0">
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        Unavailable
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Value Assessment Section */}
         {proposal.value_assessment &&

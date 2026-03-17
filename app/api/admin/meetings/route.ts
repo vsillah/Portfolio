@@ -14,6 +14,7 @@ const TRANSCRIPT_PREVIEW_LEN = 200
  *
  * Query params:
  *   - unlinked_only: if "true", only meetings with no contact_submission_id and no client_project_id
+ *   - contact_submission_id: filter to meetings for this lead (used by "View source transcripts" from diagnostic)
  *   - q: search text (matches meeting_type, transcript snippet)
  *   - limit: max results (default 50, max 100)
  *   - offset: pagination offset
@@ -26,6 +27,8 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const unlinkedOnly = searchParams.get('unlinked_only') === 'true'
+  const contactIdParam = searchParams.get('contact_submission_id')
+  const contactSubmissionId = contactIdParam ? Number(contactIdParam) : undefined
   const q = (searchParams.get('q') || '').trim()
   const limit = Math.min(Number(searchParams.get('limit') || 50), 100)
   const offset = Number(searchParams.get('offset') || 0) || 0
@@ -40,7 +43,9 @@ export async function GET(request: NextRequest) {
       .order('meeting_date', { ascending: false })
       .range(offset, offset + limit - 1)
 
-    if (unlinkedOnly) {
+    if (contactSubmissionId != null && Number.isInteger(contactSubmissionId)) {
+      query = query.eq('contact_submission_id', contactSubmissionId)
+    } else if (unlinkedOnly) {
       query = query.is('contact_submission_id', null).is('client_project_id', null)
     }
     if (q) {

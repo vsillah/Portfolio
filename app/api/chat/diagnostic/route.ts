@@ -56,6 +56,8 @@ export async function GET(request: NextRequest) {
         id: audit.id,
         sessionId: audit.session_id,
         contactSubmissionId: audit.contact_submission_id,
+        auditType: audit.audit_type ?? undefined,
+        sourceMeetingIds: audit.source_meeting_ids ?? [],
         status: audit.status,
         currentCategory: audit.current_category,
         questionsAsked: audit.questions_asked || [],

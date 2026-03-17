@@ -117,6 +117,7 @@ const SCENARIOS: ScenarioMeta[] = [
   { id: 'service_inquiry', name: 'Service Inquiry', tags: ['services'], journeyStage: ['prospect', 'lead'] },
   { id: 'warm_lead_pipeline', name: 'Warm Lead Pipeline', tags: ['warm-leads', 'outreach', 'critical'], journeyStage: 'lead' },
   { id: 'support_escalation', name: 'Support Escalation', tags: ['chat'], journeyStage: 'lead' },
+  { id: 'audit_from_meetings', name: 'Audit from Meetings', tags: ['smoke', 'admin', 'meetings', 'audit-from-meetings'], journeyStage: 'lead' },
   { id: 'full_funnel', name: 'Full Funnel Journey', tags: ['critical'], journeyStage: ['prospect', 'lead', 'client'] },
   { id: 'browse_and_buy', name: 'Browse and Buy', tags: ['e-commerce'], journeyStage: 'client' },
 ]
