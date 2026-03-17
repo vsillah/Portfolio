@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
-import { getCurrentSession } from '@/lib/auth';
 import {
   ContentWithRole,
   ContentType,
@@ -56,6 +55,8 @@ interface ContactInfo {
   phone?: string;
   industry?: string | null;
   employee_count?: string | null;
+  company_domain?: string | null;
+  has_website_tech_stack?: boolean;
 }
 
 interface SalesSessionRow {
@@ -108,7 +109,7 @@ interface ContactMeetingTask {
 export default function ConversationPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, session: authSession } = useAuth();
   const sessionId = params.sessionId as string;
 
   /* ---- data state ---- */
@@ -178,7 +179,6 @@ export default function ConversationPage() {
   /* ================================================================ */
 
   const fetchData = useCallback(async () => {
-    const authSession = await getCurrentSession();
     if (!authSession?.access_token) return;
     setIsLoading(true);
     setError(null);
@@ -210,6 +210,7 @@ export default function ConversationPage() {
         const leadRes = await fetch(`/api/admin/outreach/leads/${session.contact_submission_id}`, { headers });
         if (leadRes.ok) {
           const lead = await leadRes.json();
+          const websiteTech = lead.website_tech_stack;
           contactData = {
             id: String(lead.id),
             name: lead.name ?? '',
@@ -218,6 +219,8 @@ export default function ConversationPage() {
             phone: lead.phone_number,
             industry: lead.industry ?? null,
             employee_count: lead.employee_count ?? null,
+            company_domain: lead.company_domain ?? null,
+            has_website_tech_stack: !!(websiteTech && typeof websiteTech === 'object' && websiteTech.domain),
           };
         }
       }
@@ -300,11 +303,10 @@ export default function ConversationPage() {
     if (!contact?.id) { setScriptValueEvidence(null); return; }
     let cancelled = false;
     (async () => {
-      const session = await getCurrentSession();
-      if (!session?.access_token) return;
+      if (!authSession?.access_token) return;
       const res = await fetch(
         `/api/admin/value-evidence/evidence?contact_id=${encodeURIComponent(contact.id)}`,
-        { headers: { Authorization: `Bearer ${session.access_token}` } },
+        { headers: { Authorization: `Bearer ${authSession.access_token}` } },
       );
       if (!res.ok || cancelled) return;
       const data = await res.json();
@@ -324,17 +326,16 @@ export default function ConversationPage() {
       });
     })();
     return () => { cancelled = true; };
-  }, [contact?.id]);
+  }, [contact?.id, authSession?.access_token]);
 
   // Fetch proposal documents when a proposal exists (for Reports & documents section)
   useEffect(() => {
     if (!currentProposal?.id) { setProposalDocuments([]); return; }
     let cancelled = false;
     (async () => {
-      const session = await getCurrentSession();
-      if (!session?.access_token) return;
+      if (!authSession?.access_token) return;
       const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers: { Authorization: `Bearer ${authSession.access_token}` },
       });
       if (!res.ok || cancelled) return;
       const data = await res.json();
@@ -342,7 +343,7 @@ export default function ConversationPage() {
       setProposalDocuments(Array.isArray(data.documents) ? data.documents : []);
     })();
     return () => { cancelled = true; };
-  }, [currentProposal?.id]);
+  }, [currentProposal?.id, authSession?.access_token]);
 
   // Fetch previous meetings & tasks for this contact (lead/client)
   useEffect(() => {
@@ -355,11 +356,10 @@ export default function ConversationPage() {
     let cancelled = false;
     setContactMeetingsLoading(true);
     (async () => {
-      const session = await getCurrentSession();
-      if (!session?.access_token) return;
+      if (!authSession?.access_token) return;
       const res = await fetch(
         `/api/admin/sales/contact-meetings?contact_submission_id=${encodeURIComponent(cid)}`,
-        { headers: { Authorization: `Bearer ${session.access_token}` } },
+        { headers: { Authorization: `Bearer ${authSession.access_token}` } },
       );
       if (!res.ok || cancelled) return;
       const data = await res.json();
@@ -369,7 +369,7 @@ export default function ConversationPage() {
     })()
       .finally(() => { if (!cancelled) setContactMeetingsLoading(false); });
     return () => { cancelled = true; };
-  }, [salesSession?.contact_submission_id]);
+  }, [salesSession?.contact_submission_id, authSession?.access_token]);
 
   /* ================================================================ */
   /* Session helpers                                                   */
@@ -377,7 +377,6 @@ export default function ConversationPage() {
 
   const updateSession = async (updates: Partial<SalesSessionRow>) => {
     if (!salesSession) return;
-    const authSession = await getCurrentSession();
     if (!authSession?.access_token) return;
     setIsSaving(true);
     try {
@@ -405,7 +404,6 @@ export default function ConversationPage() {
   /* ================================================================ */
 
   const applyBundle = async (bundleId: string) => {
-    const authSession = await getCurrentSession();
     if (!authSession?.access_token) return;
     try {
       const response = await fetch(`/api/admin/sales/bundles/${bundleId}/resolve`, {
@@ -420,7 +418,6 @@ export default function ConversationPage() {
   };
 
   const saveAsBundle = async (name: string, description?: string) => {
-    const authSession = await getCurrentSession();
     if (!authSession?.access_token) return;
     try {
       const items = content
@@ -457,7 +454,6 @@ export default function ConversationPage() {
     stepType: StepType, previousSteps: DynamicStep[],
     lastResponse?: ResponseType, chosenStrategy?: OfferStrategy,
   ): Promise<DynamicStep | null> => {
-    const authSession = await getCurrentSession();
     if (!authSession?.access_token) return null;
     try {
       const res = await fetch('/api/admin/sales/generate-step', {
@@ -489,7 +485,6 @@ export default function ConversationPage() {
   };
 
   const handleClientResponse = async (responseType: ResponseType, responseNotes?: string) => {
-    const authSession = await getCurrentSession();
     if (!authSession?.access_token) return;
     const newResponse = { id: `resp-${Date.now()}`, stepId: 'no-script', responseType, notes: responseNotes, timestamp: new Date().toISOString() };
     const updatedState: ConversationState = {
@@ -706,10 +701,24 @@ export default function ConversationPage() {
                         <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Meetings</h4>
                         <div className="space-y-2">
                           {contactMeetings.map((m) => {
+                            const keyDecisionsArray: string[] = (() => {
+                              const k = m.key_decisions;
+                              if (Array.isArray(k)) return k as string[];
+                              if (typeof k === 'string') {
+                                try {
+                                  const parsed = JSON.parse(k) as unknown;
+                                  return Array.isArray(parsed) ? (parsed as string[]) : [parsed].map(String);
+                                } catch {
+                                  const s = String(k).trim();
+                                  return s ? [s] : [];
+                                }
+                              }
+                              return [];
+                            })();
                             const isExpanded = expandedMeetingId === m.id;
                             const summary = (m.structured_notes as { summary?: string } | null)?.summary ?? null;
                             const hasTranscript = (m.transcript?.trim()?.length ?? 0) > 0;
-                            const hasDetails = summary || hasTranscript || (m.key_decisions?.length ?? 0) > 0;
+                            const hasDetails = summary || hasTranscript || keyDecisionsArray.length > 0;
                             return (
                               <div key={m.id} className="border border-gray-800 rounded-lg overflow-hidden">
                                 <button
@@ -742,11 +751,11 @@ export default function ConversationPage() {
                                     {summary && (
                                       <p className="text-sm text-gray-400 mt-2">{summary}</p>
                                     )}
-                                    {m.key_decisions && m.key_decisions.length > 0 && (
+                                    {keyDecisionsArray.length > 0 && (
                                       <div>
                                         <span className="text-xs font-medium text-gray-500">Key decisions</span>
                                         <ul className="text-sm text-gray-400 list-disc list-inside mt-1">
-                                          {m.key_decisions.slice(0, 5).map((k, i) => (
+                                          {keyDecisionsArray.slice(0, 5).map((k, i) => (
                                             <li key={i}>{typeof k === 'string' ? k : String(k)}</li>
                                           ))}
                                         </ul>
@@ -825,6 +834,8 @@ export default function ConversationPage() {
               contactSubmissionId={contact?.id ? parseInt(contact.id, 10) : null}
               clientName={contact?.name || null}
               clientCompany={contact?.company || null}
+              companyDomain={contact?.company_domain ?? null}
+              hasWebsiteTechStack={contact?.has_website_tech_stack ?? false}
               onAuditCreated={(id) => {
                 setDiagnosticAuditId(id);
                 setSalesSession(prev => prev ? { ...prev, diagnostic_audit_id: id } : prev);
@@ -958,15 +969,14 @@ export default function ConversationPage() {
                           {contact?.id && (
                             <button
                               onClick={async () => {
-                                const s = await getCurrentSession();
-                                if (!s?.access_token || !selectedContentDetails.length) return;
+                                if (!authSession?.access_token || !selectedContentDetails.length) return;
                                 setIsApplyingEvidencePricing(true);
                                 try {
                                   const next: Record<string, { retail_price: number; perceived_value: number }> = {};
                                   for (const c of selectedContentDetails) {
                                     const r = await fetch('/api/admin/value-evidence/suggest-pricing', {
                                       method: 'POST',
-                                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${s.access_token}` },
+                                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
                                       body: JSON.stringify({ content_type: c.content_type, content_id: c.content_id, contact_submission_id: parseInt(contact!.id, 10), industry: contact!.industry || undefined, company_size: contact!.employee_count || undefined }),
                                     });
                                     if (r.ok) { const d = await r.json(); const p = d.pricing; if (p?.suggestedRetailPrice != null && p?.suggestedPerceivedValue != null) next[`${c.content_type}:${c.content_id}`] = { retail_price: Number(p.suggestedRetailPrice), perceived_value: Number(p.suggestedPerceivedValue) }; }
@@ -1007,13 +1017,12 @@ export default function ConversationPage() {
                                           type="button"
                                           onClick={async () => {
                                             if (index === 0) return;
-                                            const session = await getCurrentSession();
-                                            if (!session?.access_token) return;
+                                            if (!authSession?.access_token) return;
                                             const newOrder = [...proposalDocuments];
                                             [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
                                             const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, {
                                               method: 'PATCH',
-                                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+                                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
                                               body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
                                             });
                                             if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
@@ -1028,13 +1037,12 @@ export default function ConversationPage() {
                                           type="button"
                                           onClick={async () => {
                                             if (index >= proposalDocuments.length - 1) return;
-                                            const session = await getCurrentSession();
-                                            if (!session?.access_token) return;
+                                            if (!authSession?.access_token) return;
                                             const newOrder = [...proposalDocuments];
                                             [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
                                             const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, {
                                               method: 'PATCH',
-                                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+                                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
                                               body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
                                             });
                                             if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
@@ -1053,9 +1061,8 @@ export default function ConversationPage() {
                                       <button
                                         type="button"
                                         onClick={async () => {
-                                          const session = await getCurrentSession();
-                                          if (!session?.access_token) return;
-                                          const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents/${doc.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${session.access_token}` } });
+                                          if (!authSession?.access_token) return;
+                                          const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents/${doc.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${authSession.access_token}` } });
                                           if (res.ok) setProposalDocuments(prev => prev.filter(d => d.id !== doc.id));
                                         }}
                                         className="p-1.5 text-gray-400 hover:text-red-400 rounded"
@@ -1149,7 +1156,6 @@ export default function ConversationPage() {
           blendedMarginPercent={blendedMarginPercent}
           blendedMarginDollar={blendedMarginDollar}
           onGenerate={async data => {
-            const authSession = await getCurrentSession();
             if (!authSession?.access_token) return;
             const lineItems = selectedContentDetails.map(c => {
               const k = `${c.content_type}:${c.content_id}`;
@@ -1173,11 +1179,11 @@ export default function ConversationPage() {
       {showAttachDocumentModal && currentProposal && (
         <AttachProposalDocumentModal
           proposalId={currentProposal.id}
+          accessToken={authSession?.access_token ?? null}
           onClose={() => setShowAttachDocumentModal(false)}
           onSuccess={async () => {
-            const session = await getCurrentSession();
-            if (!session?.access_token) return;
-            const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, { headers: { Authorization: `Bearer ${session.access_token}` } });
+            if (!authSession?.access_token) return;
+            const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, { headers: { Authorization: `Bearer ${authSession.access_token}` } });
             if (res.ok) {
               const data = await res.json();
               setProposalDocuments(Array.isArray(data.documents) ? data.documents : []);
@@ -1196,10 +1202,12 @@ export default function ConversationPage() {
 
 function AttachProposalDocumentModal({
   proposalId,
+  accessToken,
   onClose,
   onSuccess,
 }: {
   proposalId: string;
+  accessToken: string | null;
   onClose: () => void;
   onSuccess: () => void;
 }) {
@@ -1219,21 +1227,20 @@ function AttachProposalDocumentModal({
       setError('File must be a PDF.');
       return;
     }
+    if (!accessToken) {
+      setError('Not authenticated.');
+      return;
+    }
     setError(null);
     setUploading(true);
     try {
-      const session = await getCurrentSession();
-      if (!session?.access_token) {
-        setError('Not authenticated.');
-        return;
-      }
       const formData = new FormData();
       formData.set('file', file);
       formData.set('title', title.trim());
       formData.set('document_type', documentType);
       const res = await fetch(`/api/admin/proposals/${proposalId}/documents`, {
         method: 'POST',
-        headers: { Authorization: `Bearer ${session.access_token}` },
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: formData,
       });
       if (!res.ok) {

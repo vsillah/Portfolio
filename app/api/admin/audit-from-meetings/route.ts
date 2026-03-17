@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}))
     const contactSubmissionId = body.contact_submission_id != null ? Number(body.contact_submission_id) : undefined
     const clientProjectId = typeof body.client_project_id === 'string' ? body.client_project_id.trim() || undefined : undefined
+    const salesSessionId = typeof body.sales_session_id === 'string' ? body.sales_session_id.trim() || undefined : undefined
 
     const hasContact = contactSubmissionId != null && Number.isInteger(contactSubmissionId)
     const hasProject = !!clientProjectId
@@ -136,6 +137,19 @@ export async function POST(request: NextRequest) {
         { error: result.error.message || 'Could not save audit' },
         { status: 500 }
       )
+    }
+
+    if (salesSessionId) {
+      const { error: linkError } = await supabaseAdmin
+        .from('sales_sessions')
+        .update({
+          diagnostic_audit_id: result.id,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', salesSessionId)
+      if (linkError) {
+        console.error('audit-from-meetings: link to sales session failed', linkError)
+      }
     }
 
     return NextResponse.json({

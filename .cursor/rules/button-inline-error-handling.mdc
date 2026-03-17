@@ -1,0 +1,66 @@
+---
+description: When adding a button, add inline error handling in plain human language; persist until user deselects or dismisses
+globs: "**/*.tsx,**/*.jsx"
+alwaysApply: false
+---
+
+# Button Inline Error Handling
+
+When adding a **button** that triggers an async action (e.g. fetch, submit, save):
+
+1. **Inline error state and display**
+   - Add a dedicated error state for that action (e.g. `const [fetchError, setFetchError] = useState<string | null>(null)`).
+   - Render the error **inline**, directly under or next to the button (not only in a global toast or top-of-page banner), so the user sees what went wrong without scrolling.
+
+2. **Persist until user deselects**
+   - Keep the error visible until the user **deselects** or **dismisses** (e.g. blurs the control, collapses the section, clicks elsewhere, or clicks a "Dismiss" on the message). Do not auto-clear the error after a timeout unless the user has requested that behavior.
+   - Clear the error when the user retries the action (e.g. on next button click) so a new attempt gets a fresh message.
+
+3. **Surface the real failure reason**
+   - On non-ok response, read the API or handler error message (e.g. `data?.error` or `err.message`) and set it into the inline error state so the user sees the actual reason.
+
+4. **Plain human language only**
+   - Show errors in **plain, human language**—never raw developer output. Do not display stack traces, HTTP status codes, API error codes, env var names, or technical exception text to the user.
+   - Map technical errors to short, actionable copy: e.g. "Tech stack lookup isn’t set up yet. Your admin can add it in settings." instead of "BUILTWITH_API_KEY missing"; "We’re rate-limited. Try again in a few minutes." instead of "429 Too Many Requests".
+   - Prefer a small set of curated, user-facing messages (or a mapping from known API/backend codes to those messages) over passing through `data?.error` or `err.message` when they are technical. If the backend already returns a safe, human message, you may use it; otherwise translate.
+
+## Example
+
+```tsx
+const [submitError, setSubmitError] = useState<string | null>(null);
+
+// Map technical/API errors to human-facing copy (or use backend message if it's already safe)
+function toUserMessage(data: { error?: string }, status: number): string {
+  if (typeof data?.error === 'string' && !/^[A-Z_]+$/.test(data.error) && !data.error.includes(' at '))
+    return data.error; // already human-readable
+  if (status === 429) return 'Too many requests. Please try again in a few minutes.';
+  if (status >= 500) return 'Something went wrong on our side. Please try again.';
+  return 'That didn’t work. Please try again.';
+}
+
+<button
+  onClick={async () => {
+    setSubmitError(null);
+    try {
+      const res = await fetch('/api/...', { ... });
+      const data = await res.json();
+      if (!res.ok) {
+        setSubmitError(toUserMessage(data, res.status));
+        return;
+      }
+      // success path
+    } catch {
+      setSubmitError('We couldn’t complete that. Please check your connection and try again.');
+    }
+  }}
+>
+  Submit
+</button>
+{submitError && (
+  <div className="... text-red-400 ...">
+    <AlertCircle className="..." /> {submitError}
+  </div>
+)}
+```
+
+Optional: add a dismiss control (e.g. "Dismiss" link or icon) that sets the error state to `null` so the user can clear it without retrying.

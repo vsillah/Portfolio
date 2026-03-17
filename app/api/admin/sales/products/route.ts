@@ -7,16 +7,16 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
 import { ProductOfferRole, OfferRole, ContentType, ContentWithRole } from '@/lib/sales-scripts';
 
-// Content type to table mapping
-const CONTENT_TABLE_MAP: Record<ContentType, { table: string; idField: string; activeField: string | null; imageField: string | null }> = {
-  product: { table: 'products', idField: 'id', activeField: 'is_active', imageField: 'image_url' },
-  project: { table: 'projects', idField: 'id', activeField: 'is_published', imageField: 'image' },
-  video: { table: 'videos', idField: 'id', activeField: 'is_published', imageField: 'thumbnail_url' },
-  publication: { table: 'publications', idField: 'id', activeField: 'is_published', imageField: null },
-  music: { table: 'music', idField: 'id', activeField: 'is_published', imageField: null },
-  lead_magnet: { table: 'lead_magnets', idField: 'id', activeField: 'is_active', imageField: null },
-  prototype: { table: 'app_prototypes', idField: 'id', activeField: null, imageField: 'thumbnail_url' },
-  service: { table: 'services', idField: 'id', activeField: 'is_active', imageField: 'image_url' },
+// Content type to table mapping (orderBy: column used for ordering; app_prototypes has no display_order)
+const CONTENT_TABLE_MAP: Record<ContentType, { table: string; idField: string; activeField: string | null; imageField: string | null; orderBy: string }> = {
+  product: { table: 'products', idField: 'id', activeField: 'is_active', imageField: 'image_url', orderBy: 'display_order' },
+  project: { table: 'projects', idField: 'id', activeField: 'is_published', imageField: 'image', orderBy: 'display_order' },
+  video: { table: 'videos', idField: 'id', activeField: 'is_published', imageField: 'thumbnail_url', orderBy: 'display_order' },
+  publication: { table: 'publications', idField: 'id', activeField: 'is_published', imageField: null, orderBy: 'display_order' },
+  music: { table: 'music', idField: 'id', activeField: 'is_published', imageField: null, orderBy: 'display_order' },
+  lead_magnet: { table: 'lead_magnets', idField: 'id', activeField: 'is_active', imageField: null, orderBy: 'display_order' },
+  prototype: { table: 'app_prototypes', idField: 'id', activeField: null, imageField: 'thumbnail_url', orderBy: 'created_at' },
+  service: { table: 'services', idField: 'id', activeField: 'is_active', imageField: 'image_url', orderBy: 'display_order' },
 };
 
 // GET - Fetch all content with their offer roles
@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
           query = query.eq(config.activeField, true);
         }
         
-        query = query.order('display_order', { ascending: true });
+        query = query.order(config.orderBy, { ascending: true });
         
         const { data: items, error } = await query;
         

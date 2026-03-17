@@ -35,6 +35,8 @@ import {
   ShieldOff,
   Trash2,
   RotateCcw,
+  Cpu,
+  Loader2,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -327,6 +329,16 @@ function OutreachContent() {
   const [unifiedModalReRunEnrichment, setUnifiedModalReRunEnrichment] = useState(true)
   const [unifiedModalSaveLoading, setUnifiedModalSaveLoading] = useState(false)
   const [unifiedModalSaveError, setUnifiedModalSaveError] = useState<string | null>(null)
+
+  // Tech stack lookup (BuiltWith) — modal state
+  const [techStackLoading, setTechStackLoading] = useState(false)
+  const [techStackResult, setTechStackResult] = useState<{
+    domain: string
+    technologies?: Array<{ name: string; tag?: string; categories?: string[] }>
+    byTag?: Record<string, string[]>
+    error?: string
+    creditsRemaining?: number
+  } | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -2102,6 +2114,91 @@ function OutreachContent() {
               )}
             </AnimatePresence>
 
+            {/* Tech stack lookup modal (BuiltWith) */}
+            <AnimatePresence>
+              {techStackResult != null && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-imperial-navy/70 p-4"
+                  onClick={() => setTechStackResult(null)}
+                >
+                  <motion.div
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col bg-background border border-silicon-slate rounded-xl shadow-xl"
+                  >
+                    <div className="p-4 border-b border-silicon-slate flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                        <Cpu size={20} />
+                        Tech stack — {techStackResult.domain}
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => setTechStackResult(null)}
+                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white/80"
+                      >
+                        <X size={18} />
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                      {techStackResult.error ? (
+                        <p className="text-sm text-amber-400">{techStackResult.error}</p>
+                      ) : (
+                        <>
+                          {techStackResult.technologies && techStackResult.technologies.length > 0 ? (
+                            <>
+                              {techStackResult.byTag && Object.keys(techStackResult.byTag).length > 0 && (
+                                <div>
+                                  <h4 className="text-xs font-medium text-platinum-white/60 uppercase mb-2">By category</h4>
+                                  <div className="flex flex-wrap gap-2">
+                                    {Object.entries(techStackResult.byTag).map(([tag, names]) => (
+                                      <div key={tag} className="rounded-lg bg-silicon-slate/50 border border-silicon-slate p-2 min-w-[140px]">
+                                        <div className="text-xs text-platinum-white/60 mb-1">{tag}</div>
+                                        <ul className="text-sm text-platinum-white space-y-0.5">
+                                          {names.slice(0, 8).map((n) => (
+                                            <li key={n}>{n}</li>
+                                          ))}
+                                          {names.length > 8 && <li className="text-platinum-white/60">+{names.length - 8} more</li>}
+                                        </ul>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              <div>
+                                <h4 className="text-xs font-medium text-platinum-white/60 uppercase mb-2">
+                                  All technologies ({techStackResult.technologies.length})
+                                </h4>
+                                <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+                                  {techStackResult.technologies.map((t) => (
+                                    <span
+                                      key={t.name}
+                                      className="px-2 py-1 rounded bg-silicon-slate/50 border border-silicon-slate text-sm text-platinum-white"
+                                    >
+                                      {t.name}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            </>
+                          ) : (
+                            <p className="text-sm text-platinum-white/60">No technologies detected for this domain.</p>
+                          )}
+                        </>
+                      )}
+                      {techStackResult.creditsRemaining != null && (
+                        <p className="text-xs text-platinum-white/50">API credits remaining: {techStackResult.creditsRemaining}</p>
+                      )}
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Leads List */}
             {leadsLoading ? (
               <div className="flex items-center justify-center py-20">
@@ -2542,7 +2639,7 @@ function OutreachContent() {
                                       </div>
                                     )}
                                     {lead.company_domain && (
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex flex-wrap items-center gap-2">
                                         <Globe size={14} className="text-platinum-white/60" />
                                         <a
                                           href={lead.company_domain.startsWith('http') ? lead.company_domain : `https://${lead.company_domain}`}
@@ -2553,6 +2650,69 @@ function OutreachContent() {
                                           {lead.company_domain}
                                           <ExternalLink size={12} />
                                         </a>
+                                        <button
+                                          type="button"
+                                          onClick={async (e) => {
+                                            e.stopPropagation()
+                                            const session = await getCurrentSession()
+                                            if (!session?.access_token) return
+                                            setTechStackResult(null)
+                                            setTechStackLoading(true)
+                                            try {
+                                              const res = await fetch(
+                                                `/api/admin/tech-stack-lookup?domain=${encodeURIComponent(lead.company_domain ?? '')}`,
+                                                { headers: { Authorization: `Bearer ${session.access_token}` } }
+                                              )
+                                              const data = await res.json()
+                                              if (!res.ok) {
+                                                setTechStackResult({
+                                                  domain: lead.company_domain ?? '',
+                                                  error: data.error ?? 'Lookup failed',
+                                                  creditsRemaining: data.creditsRemaining,
+                                                })
+                                                return
+                                              }
+                                              setTechStackResult({
+                                                domain: data.domain,
+                                                technologies: data.technologies,
+                                                byTag: data.byTag,
+                                                creditsRemaining: data.creditsRemaining,
+                                              })
+                                              // Save to contact and propagate to all their diagnostic audits
+                                              await fetch(`/api/admin/outreach/leads/${lead.id}`, {
+                                                method: 'PATCH',
+                                                headers: {
+                                                  'Content-Type': 'application/json',
+                                                  Authorization: `Bearer ${session.access_token}`,
+                                                },
+                                                body: JSON.stringify({
+                                                  website_tech_stack: {
+                                                    domain: data.domain,
+                                                    technologies: data.technologies,
+                                                    byTag: data.byTag,
+                                                  },
+                                                  website_tech_stack_fetched_at: new Date().toISOString(),
+                                                }),
+                                              })
+                                            } catch {
+                                              setTechStackResult({
+                                                domain: lead.company_domain ?? '',
+                                                error: 'Request failed. Check BUILTWITH_API_KEY if configured.',
+                                              })
+                                            } finally {
+                                              setTechStackLoading(false)
+                                            }
+                                          }}
+                                          disabled={techStackLoading || !!(lead as { website_tech_stack?: { domain?: string } }).website_tech_stack?.domain}
+                                          className="flex items-center gap-1.5 px-2 py-1 rounded bg-silicon-slate/60 hover:bg-silicon-slate text-xs text-platinum-white/90 border border-silicon-slate disabled:opacity-60"
+                                        >
+                                          {techStackLoading ? (
+                                            <Loader2 size={12} className="animate-spin" />
+                                          ) : (
+                                            <Cpu size={12} />
+                                          )}
+                                          {techStackLoading ? 'Loading…' : 'Fetch tech stack'}
+                                        </button>
                                       </div>
                                     )}
                                   </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { triggerLeadQualificationWebhook } from '@/lib/n8n'
+import { propagateContactWebsiteTechStackToAudits } from '@/lib/diagnostic'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,7 +52,7 @@ export async function GET(
 
     const { data, error } = await supabaseAdmin
       .from('contact_submissions')
-      .select('id, name, email, company, company_domain, job_title, industry, phone_number, linkedin_url, message, lead_source, employee_count, do_not_contact, removed_at')
+      .select('id, name, email, company, company_domain, job_title, industry, phone_number, linkedin_url, message, lead_source, employee_count, do_not_contact, removed_at, website_tech_stack, website_tech_stack_fetched_at')
       .eq('id', id)
       .single()
 
@@ -116,6 +117,8 @@ export async function PATCH(
       rep_pain_points,
       do_not_contact,
       removed_at,
+      website_tech_stack,
+      website_tech_stack_fetched_at,
     } = body as {
       name?: string
       email?: string
@@ -136,6 +139,8 @@ export async function PATCH(
       rep_pain_points?: string
       do_not_contact?: boolean
       removed_at?: string | null
+      website_tech_stack?: { domain: string; technologies?: unknown[]; byTag?: Record<string, string[]> }
+      website_tech_stack_fetched_at?: string
     }
 
     const { data: existing, error: fetchError } = await supabaseAdmin
@@ -194,6 +199,12 @@ export async function PATCH(
     // Removed: soft-delete; clear to restore
     if (removed_at !== undefined) updatePayload.removed_at = removed_at === null || removed_at === '' ? null : (typeof removed_at === 'string' ? removed_at : null)
 
+    // Website tech stack (BuiltWith): save once per client; will propagate to all their audits after update
+    if (website_tech_stack !== undefined && website_tech_stack !== null && typeof website_tech_stack === 'object' && 'domain' in website_tech_stack) {
+      updatePayload.website_tech_stack = website_tech_stack
+      updatePayload.website_tech_stack_fetched_at = website_tech_stack_fetched_at ?? new Date().toISOString()
+    }
+
     if (Object.keys(updatePayload).length === 0) {
       return NextResponse.json(
         { id, updated: true },
@@ -214,7 +225,14 @@ export async function PATCH(
       )
     }
 
-    const onlyDncOrRemoved = Object.keys(updatePayload).every((k) => k === 'do_not_contact' || k === 'removed_at')
+    // Propagate website_tech_stack to all diagnostic_audits for this contact
+    if (updatePayload.website_tech_stack) {
+      propagateContactWebsiteTechStackToAudits(id).catch((err) => {
+        console.error('Propagate website tech stack to audits failed:', err)
+      })
+    }
+
+    const onlyDncOrRemoved = Object.keys(updatePayload).every((k) => k === 'do_not_contact' || k === 'removed_at' || k === 'website_tech_stack' || k === 'website_tech_stack_fetched_at')
     const shouldReRunEnrichment = !onlyDncOrRemoved && re_run_enrichment !== false
     if (shouldReRunEnrichment) {
       const finalName = (typeof name === 'string' ? name.trim() : null) ?? existing.name

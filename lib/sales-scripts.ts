@@ -1,8 +1,6 @@
 // Sales Scripts Library - Hormozi Framework Implementation
 // Handles script logic, recommendations, and offer calculations
 
-import { createClient } from '@supabase/supabase-js';
-
 // ============================================================================
 // Types
 // ============================================================================

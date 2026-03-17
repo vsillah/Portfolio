@@ -136,9 +136,14 @@ export async function saveDiagnosticAudit(
       }
     }
 
-    // Link to contact submission if provided
+    // Link to contact submission if provided; merge contact's website_tech_stack into tech_stack
     if (data.contactSubmissionId) {
       updateData.contact_submission_id = data.contactSubmissionId
+      const contactWebsiteTech = await getContactWebsiteTechStack(data.contactSubmissionId)
+      if (contactWebsiteTech) {
+        const existingTechStack = (updateData.tech_stack as Record<string, unknown>) ?? {}
+        updateData.tech_stack = mergeWebsiteTechStackIntoAuditTechStack(existingTechStack, contactWebsiteTech)
+      }
     }
 
     if (data.sourceMeetingIds && Array.isArray(data.sourceMeetingIds) && data.sourceMeetingIds.length > 0) {
@@ -261,20 +266,120 @@ export async function getDiagnosticAuditBySession(
   }
 }
 
+/** Payload stored on contact and merged into audit.tech_stack.website_technologies */
+export type WebsiteTechStackPayload = {
+  domain: string
+  technologies?: Array<{ name: string; tag?: string; categories?: string[] }>
+  byTag?: Record<string, string[]>
+}
+
 /**
- * Link diagnostic audit to contact submission
+ * Merge contact's website_tech_stack into an audit tech_stack object (does not write to DB).
+ */
+export function mergeWebsiteTechStackIntoAuditTechStack(
+  existingTechStack: Record<string, unknown> | null | undefined,
+  websiteTechStack: WebsiteTechStackPayload | null | undefined
+): Record<string, unknown> {
+  const base = existingTechStack && typeof existingTechStack === 'object' ? { ...existingTechStack } : {}
+  if (!websiteTechStack || typeof websiteTechStack !== 'object' || !websiteTechStack.domain) {
+    return base
+  }
+  return { ...base, website_technologies: websiteTechStack }
+}
+
+/**
+ * Fetch contact's website_tech_stack from contact_submissions (if any).
+ */
+export async function getContactWebsiteTechStack(
+  contactSubmissionId: number
+): Promise<WebsiteTechStackPayload | null> {
+  const { data, error } = await supabaseAdmin
+    .from('contact_submissions')
+    .select('website_tech_stack')
+    .eq('id', contactSubmissionId)
+    .single()
+
+  if (error || !data?.website_tech_stack) return null
+  const w = data.website_tech_stack as unknown
+  if (typeof w !== 'object' || w === null || !('domain' in w)) return null
+  return w as WebsiteTechStackPayload
+}
+
+/**
+ * Propagate contact's website_tech_stack to all diagnostic_audits for this contact.
+ * Call after saving website_tech_stack to the contact (e.g. from Fetch tech stack).
+ */
+export async function propagateContactWebsiteTechStackToAudits(
+  contactSubmissionId: number
+): Promise<{ updated: number; error?: Error }> {
+  try {
+    const websiteTechStack = await getContactWebsiteTechStack(contactSubmissionId)
+    if (!websiteTechStack) return { updated: 0 }
+
+    const { data: audits, error: fetchErr } = await supabaseAdmin
+      .from('diagnostic_audits')
+      .select('id, tech_stack')
+      .eq('contact_submission_id', contactSubmissionId)
+
+    if (fetchErr || !audits?.length) return { updated: 0 }
+
+    let updated = 0
+    for (const audit of audits) {
+      const merged = mergeWebsiteTechStackIntoAuditTechStack(
+        audit.tech_stack as Record<string, unknown> | null,
+        websiteTechStack
+      )
+      const { error: updateErr } = await supabaseAdmin
+        .from('diagnostic_audits')
+        .update({
+          tech_stack: merged,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', audit.id)
+
+      if (!updateErr) updated++
+    }
+    return { updated }
+  } catch (error) {
+    console.error('Error propagating website tech stack to audits:', error)
+    return {
+      updated: 0,
+      error: error instanceof Error ? error : new Error('Unknown error propagating tech stack'),
+    }
+  }
+}
+
+/**
+ * Link diagnostic audit to contact submission and merge contact's website_tech_stack into the audit.
  */
 export async function linkDiagnosticToContact(
   auditId: string,
   contactSubmissionId: number
 ): Promise<{ success: boolean; error?: Error }> {
   try {
+    const websiteTechStack = await getContactWebsiteTechStack(contactSubmissionId)
+
+    const updatePayload: Record<string, unknown> = {
+      contact_submission_id: contactSubmissionId,
+      updated_at: new Date().toISOString(),
+    }
+
+    if (websiteTechStack) {
+      const { data: existing } = await supabaseAdmin
+        .from('diagnostic_audits')
+        .select('tech_stack')
+        .eq('id', auditId)
+        .single()
+
+      updatePayload.tech_stack = mergeWebsiteTechStackIntoAuditTechStack(
+        (existing?.tech_stack as Record<string, unknown>) ?? null,
+        websiteTechStack
+      )
+    }
+
     const { error } = await supabaseAdmin
       .from('diagnostic_audits')
-      .update({
-        contact_submission_id: contactSubmissionId,
-        updated_at: new Date().toISOString(),
-      })
+      .update(updatePayload)
       .eq('id', auditId)
 
     if (error) {

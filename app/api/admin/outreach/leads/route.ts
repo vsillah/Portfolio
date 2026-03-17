@@ -278,7 +278,9 @@ export async function GET(request: NextRequest) {
         last_vep_triggered_at,
         last_vep_status,
         do_not_contact,
-        removed_at
+        removed_at,
+        website_tech_stack,
+        website_tech_stack_fetched_at
       `, { count: 'exact' })
 
     // Visibility: active (default) = show only contactable leads; do_not_contact | removed | all

@@ -24,8 +24,7 @@ export async function GET(request: NextRequest) {
         id,
         status,
         enrolled_at,
-        deadline,
-        payout_type,
+        deadline_at,
         attraction_campaigns (
           id,
           name,
@@ -54,8 +53,7 @@ export async function GET(request: NextRequest) {
       id: string;
       status: string;
       enrolled_at: string;
-      deadline: string | null;
-      payout_type: string | null;
+      deadline_at: string | null;
       attraction_campaigns: { id: string; name: string; slug: string; campaign_type: string; status: string } | null;
       enrollment_criteria: Array<{ id: string; required: boolean }> | null;
       campaign_progress: Array<{ id: string; status: string }> | null;
@@ -70,8 +68,8 @@ export async function GET(request: NextRequest) {
         id: e.id,
         status: e.status,
         enrolled_at: e.enrolled_at,
-        deadline: e.deadline,
-        payout_type: e.payout_type,
+        deadline: e.deadline_at,
+        payout_type: null as string | null,
         campaign: e.attraction_campaigns,
         progress_summary: { total, met, percentage: total > 0 ? Math.round((met / total) * 100) : 0 },
       };
