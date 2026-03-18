@@ -26,35 +26,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // Fetch profile using admin client (bypasses RLS)
-    // Force fresh query - create a new client instance to avoid connection pooling issues
-    console.log('[API DEBUG] Fetching profile for user ID:', user.id)
-    console.log('[API DEBUG] Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-    
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    console.log('[API DEBUG] Has service role key:', !!serviceRoleKey)
-    
-    if (!serviceRoleKey) {
-      console.error('[API DEBUG] SUPABASE_SERVICE_ROLE_KEY is missing! Check your .env.local file and restart the dev server.')
-      return NextResponse.json(
-        { error: 'Server configuration error: Missing SUPABASE_SERVICE_ROLE_KEY' },
-        { status: 500 }
-      )
-    }
-    
-    // Create a fresh admin client to avoid any connection pooling/caching issues
-    const freshAdminClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      serviceRoleKey,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
-    
-    const { data: profile, error } = await freshAdminClient
+    // Fetch profile using shared admin client (bypasses RLS, reuses connection)
+    const { data: profile, error } = await supabaseAdmin
       .from('user_profiles')
       .select('id, email, full_name, role, created_at, updated_at, shipping_address')
       .eq('id', user.id)
@@ -63,22 +36,11 @@ export async function GET(request: NextRequest) {
     if (error) {
       // If profile doesn't exist, return null (it will be created by trigger)
       if (error.code === 'PGRST116') {
-        console.log('[API DEBUG] Profile not found for user ID:', user.id)
         return NextResponse.json({ profile: null })
       }
-      console.error('[API DEBUG] Error fetching profile:', error)
+      console.error('Profile API error fetching profile:', error)
       return NextResponse.json({ error: 'Failed to fetch profile' }, { status: 500 })
     }
-
-    console.log('[API DEBUG] Fetched profile from database:', {
-      id: profile?.id,
-      email: profile?.email,
-      role: profile?.role,
-      updated_at: profile?.updated_at,
-    })
-    
-    // Verify we're getting the latest data - log the raw response
-    console.log('[API DEBUG] Raw profile data:', JSON.stringify(profile))
 
     // Return with no-cache headers to prevent browser caching
     return NextResponse.json(
@@ -150,20 +112,7 @@ export async function PATCH(request: NextRequest) {
 
     updates.updated_at = new Date().toISOString()
 
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-    if (!serviceRoleKey) {
-      return NextResponse.json(
-        { error: 'Server configuration error' },
-        { status: 500 }
-      )
-    }
-    const admin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      serviceRoleKey,
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    )
-
-    const { data: profile, error } = await admin
+    const { data: profile, error } = await supabaseAdmin
       .from('user_profiles')
       .update(updates)
       .eq('id', user.id)

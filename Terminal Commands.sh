@@ -28,6 +28,9 @@ git merge <branch name>
 #How to rebase the project
 git rebase <branch name>
 
+#How to rebaseline the database
+npx tsx scripts/database-health-check.ts --update
+
 #How to stash the project
 git stash
 

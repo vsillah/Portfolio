@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
@@ -41,7 +41,9 @@ import { AIRecommendationPanel } from '@/components/admin/sales/AIRecommendation
 import { ConversationTimeline, ConversationStats } from '@/components/admin/sales/ConversationTimeline';
 import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
 import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
+import { ValueEvidenceCallPanel } from '@/components/admin/sales/ValueEvidenceCallPanel';
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
+import { generateProposalEmailDraft, type ProposalEmailDraft } from '@/lib/proposal-email-draft';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import { 
   User, 
@@ -262,6 +264,7 @@ export default function ClientWalkthroughPage() {
     proposalLink: string;
     accessCode?: string;
   } | null>(null);
+  const [proposalEmailDraft, setProposalEmailDraft] = useState<ProposalEmailDraft | null>(null);
 
   // Report + video one-click
   const [generatingReportVideo, setGeneratingReportVideo] = useState(false);
@@ -272,8 +275,9 @@ export default function ClientWalkthroughPage() {
     gammaGenerationId: string;
   } | null>(null);
   
-  // Content group collapse state
+  // Content group collapse state (start all collapsed to limit vertical scroll)
   const [collapsedContentGroups, setCollapsedContentGroups] = useState<Set<string>>(new Set());
+  const hasInitializedCollapsed = useRef(false);
   
   // Diagnostic details expansion
   const [expandedDiagnosticSection, setExpandedDiagnosticSection] = useState<string | null>(null);
@@ -429,6 +433,15 @@ export default function ClientWalkthroughPage() {
     return () => { cancelled = true; };
   }, [contact?.id]);
 
+  // Default "Select Content for Offer" accordion to collapsed to limit vertical scroll
+  useEffect(() => {
+    if (hasInitializedCollapsed.current || content.length === 0) return;
+    const types = [...new Set(content.map((c) => c.content_type))];
+    if (types.length === 0) return;
+    hasInitializedCollapsed.current = true;
+    setCollapsedContentGroups(new Set(types));
+  }, [content]);
+
   // Update session
   const updateSession = async (updates: Partial<SalesSession>) => {
     if (!salesSession) return;
@@ -489,11 +502,14 @@ export default function ClientWalkthroughPage() {
       if (!response.ok) throw new Error('Failed to load bundle');
       
       const data = await response.json();
-      const bundleContentKeys = data.items.map((item: ResolvedBundleItem) => 
+      const bundleContentKeys = data.items.map((item: ResolvedBundleItem) =>
         `${item.content_type}:${item.content_id}`
       );
-      
-      setSelectedContent(bundleContentKeys);
+      // Only select items that are in the current catalog (active content); filter out inactive.
+      const inCatalog = bundleContentKeys.filter((k: string) =>
+        content.some((c) => `${c.content_type}:${c.content_id}` === k)
+      );
+      setSelectedContent(inCatalog);
       setSelectedBundleId(bundleId);
       setShowBundleSelector(false);
     } catch (err) {
@@ -1527,13 +1543,17 @@ export default function ClientWalkthroughPage() {
               </div>
             )}
 
-            {/* Value Evidence Panel */}
+            {/* Value evidence: industry (pre-configured) + this call (contact-specific) */}
             <ValueEvidencePanel
               contactId={contact?.id ? parseInt(contact.id, 10) : null}
               industry={contact?.industry || null}
               companySize={contact?.employee_count || null}
               companyName={contact?.company || null}
               onReportGenerated={(id: string) => setValueReportId(id)}
+            />
+            <ValueEvidenceCallPanel
+              painPoints={scriptValueEvidence?.painPoints ?? []}
+              totalAnnualValue={scriptValueEvidence?.totalAnnualValue ?? null}
             />
           </div>
 
@@ -1580,29 +1600,6 @@ export default function ClientWalkthroughPage() {
             <div className="bg-gray-900 rounded-lg border border-gray-800 p-6">
               {activeTab === 'script' && (
                 <div>
-                  {/* Value evidence summary for conversation guidance */}
-                  {scriptValueEvidence && (scriptValueEvidence.painPoints.length > 0 || scriptValueEvidence.totalAnnualValue != null) && (
-                    <div className="mb-4 p-4 rounded-lg border border-green-800/50 bg-green-950/30">
-                      <h4 className="text-sm font-medium text-green-300 mb-2 flex items-center gap-2">
-                        <DollarSign className="w-4 h-4" />
-                        Value evidence for this call
-                      </h4>
-                      <ul className="text-sm text-gray-300 space-y-1">
-                        {scriptValueEvidence.painPoints.map((pp, i) => (
-                          <li key={i}>
-                            {pp.display_name || 'Pain point'}: ${pp.monetary_indicator.toLocaleString()}/yr
-                            {pp.monetary_context && <span className="text-gray-500"> — {pp.monetary_context}</span>}
-                          </li>
-                        ))}
-                        {scriptValueEvidence.totalAnnualValue != null && (
-                          <li className="font-medium text-green-400 pt-1 border-t border-green-800/30 mt-2">
-                            Total value (report): ${scriptValueEvidence.totalAnnualValue.toLocaleString()}/yr
-                          </li>
-                        )}
-                      </ul>
-                      <p className="text-xs text-gray-500 mt-2">Use these numbers to guide the conversation and price the offer.</p>
-                    </div>
-                  )}
                   {/* Dynamic Script Header */}
                   <div className="flex items-center justify-between mb-6">
                     <div>
@@ -1949,6 +1946,44 @@ export default function ClientWalkthroughPage() {
                                 <ExternalLink className="w-4 h-4" />
                               </a>
                             </div>
+                            {/* Email Draft */}
+                            {proposalEmailDraft && (
+                              <div className="mt-4 border-t border-gray-700 pt-4">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                                    <Mail className="w-4 h-4 text-blue-400" />
+                                    Email Draft
+                                  </h4>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => {
+                                        const full = `Subject: ${proposalEmailDraft.subject}\n\n${proposalEmailDraft.body}`;
+                                        navigator.clipboard.writeText(full);
+                                      }}
+                                      className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded flex items-center gap-1 transition-colors"
+                                      title="Copy email to clipboard"
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                      Copy
+                                    </button>
+                                    <a
+                                      href={`mailto:${encodeURIComponent(proposalEmailDraft.to)}?subject=${encodeURIComponent(proposalEmailDraft.subject)}&body=${encodeURIComponent(proposalEmailDraft.body)}`}
+                                      className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-1 transition-colors"
+                                      title="Open in email client"
+                                    >
+                                      <Send className="w-3 h-3" />
+                                      Send
+                                    </a>
+                                  </div>
+                                </div>
+                                <div className="text-xs text-gray-500 mb-1">To: {proposalEmailDraft.to}</div>
+                                <div className="text-xs text-gray-500 mb-2">Subject: {proposalEmailDraft.subject}</div>
+                                <pre className="text-xs text-gray-300 bg-gray-900/80 rounded-lg p-3 whitespace-pre-wrap font-sans leading-relaxed max-h-48 overflow-y-auto">
+                                  {proposalEmailDraft.body}
+                                </pre>
+                              </div>
+                            )}
+
                             <button
                               onClick={() => setShowProposalModal(true)}
                               className="mt-3 w-full text-sm text-gray-400 hover:text-white transition-colors"
@@ -2289,6 +2324,15 @@ export default function ClientWalkthroughPage() {
                 proposalLink: result.proposalLink,
                 accessCode: result.accessCode,
               });
+              setProposalEmailDraft(generateProposalEmailDraft({
+                clientName: data.clientName,
+                clientEmail: data.clientEmail,
+                clientCompany: data.clientCompany,
+                bundleName: bundles.find(b => b.id === selectedBundleId)?.name || 'Custom Offer',
+                totalAmount: grandSlamOffer.offerPrice - (data.discountAmount || 0),
+                proposalLink: result.proposalLink,
+                accessCode: result.accessCode,
+              }));
               setShowProposalModal(false);
             } else {
               throw new Error('Failed to create proposal');

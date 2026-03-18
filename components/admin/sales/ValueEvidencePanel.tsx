@@ -105,14 +105,21 @@ export function ValueEvidencePanel({
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
 
   return (
-    <div className="bg-gray-900 rounded-lg border border-green-800/50 overflow-hidden">
+    <div
+      className="bg-gray-900 rounded-lg border border-green-800/50 overflow-hidden"
+      role="region"
+      aria-labelledby="value-evidence-industry-heading"
+    >
       <button
+        type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full p-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors"
+        className="w-full p-4 flex items-center justify-between hover:bg-gray-800/50 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
       >
         <div className="flex items-center gap-2">
-          <DollarSign className="w-5 h-5 text-green-500" />
-          <h3 className="font-medium text-white text-sm">Value Evidence</h3>
+          <DollarSign className="w-5 h-5 text-green-500" aria-hidden />
+          <h3 id="value-evidence-industry-heading" className="font-medium text-white text-sm">
+            Value evidence by industry
+          </h3>
           {calculations.length > 0 && (
             <span className="px-2 py-0.5 text-xs bg-green-900/50 text-green-300 rounded-full">
               {formatCurrency(totalValue)}/yr
@@ -120,9 +127,9 @@ export function ValueEvidencePanel({
           )}
         </div>
         {isExpanded ? (
-          <ChevronUp className="w-4 h-4 text-gray-400" />
+          <ChevronUp className="w-4 h-4 text-gray-400" aria-hidden />
         ) : (
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-gray-400" aria-hidden />
         )}
       </button>
 
@@ -134,6 +141,11 @@ export function ValueEvidencePanel({
             </div>
           ) : calculations.length > 0 ? (
             <>
+              {(industry || companySize) && (
+                <p className="text-[10px] text-gray-500">
+                  Pre-configured for {[industry, companySize].filter(Boolean).join(' / ') || 'this segment'}.
+                </p>
+              )}
               {calculations.slice(0, 5).map((calc) => (
                 <div key={calc.id} className="p-2 bg-gray-800/50 rounded-lg">
                   <div className="flex items-center justify-between">
@@ -198,7 +210,7 @@ export function ValueEvidencePanel({
                 {industry ? 'No calculations for this industry yet.' : 'Industry not detected.'}
               </p>
               <p className="text-[10px] text-gray-600 mt-1">
-                Generate calculations in the Value Evidence admin page.
+                Pre-configured by industry/company size in the Value Evidence admin pipeline.
               </p>
             </div>
           )}

@@ -1,9 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
+import { getCurrentSession } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 import {
   ContentWithRole,
   ContentType,
@@ -31,16 +33,19 @@ import { FunnelStageSelector } from '@/components/admin/sales/FunnelStageSelecto
 import { OfferStack, ContentOfferCard } from '@/components/admin/sales/OfferCard';
 import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
 import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
+import { ValueEvidenceCallPanel } from '@/components/admin/sales/ValueEvidenceCallPanel';
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
+import { generateProposalEmailDraft, type ProposalEmailDraft } from '@/lib/proposal-email-draft';
 import { ConversationTimeline } from '@/components/admin/sales/ConversationTimeline';
 import { InPersonDiagnosticPanel } from '@/components/admin/sales/InPersonDiagnosticPanel';
 import { CampaignContextPanel } from '@/components/admin/sales/CampaignContextPanel';
+import { StreamlinedProductSelection } from '@/components/admin/sales/StreamlinedProductSelection';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import {
   User, Building, Mail, MessageSquare, ChevronRight, ChevronDown, ChevronUp,
-  AlertCircle, Save, FileText, DollarSign, RefreshCw, ArrowLeft,
+  AlertCircle, Save, FileText, DollarSign, RefreshCw, ArrowLeft, Send,
   Layers, Package, GitFork, CreditCard, ExternalLink, Copy, XCircle,
-  Video, CheckSquare, Loader2, Upload, Trash2,
+  Video, CheckSquare, Loader2, Upload, Trash2, Search, Edit3, ChevronLeft, Clock,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -102,6 +107,9 @@ interface ContactMeetingTask {
   created_at: string;
 }
 
+const MEETINGS_PER_PAGE = 10;
+const TASKS_PER_PAGE = 10;
+
 /* ------------------------------------------------------------------ */
 /* Page Component                                                      */
 /* ------------------------------------------------------------------ */
@@ -133,11 +141,13 @@ export default function ConversationPage() {
   const [showProposalModal, setShowProposalModal] = useState(false);
   const [valueReportId, setValueReportId] = useState<string | null>(null);
   const [currentProposal, setCurrentProposal] = useState<{
-    id: string; status: string; proposalLink: string;
+    id: string; status: string; proposalLink: string; accessCode?: string;
   } | null>(null);
+  const [proposalEmailDraft, setProposalEmailDraft] = useState<ProposalEmailDraft | null>(null);
   const [proposalDocuments, setProposalDocuments] = useState<Array<{ id: string; document_type: string; title: string; display_order: number; created_at: string }>>([]);
   const [showAttachDocumentModal, setShowAttachDocumentModal] = useState(false);
   const [collapsedContentGroups, setCollapsedContentGroups] = useState<Set<string>>(new Set());
+  const hasInitializedCollapsed = useRef(false);
 
   /* ---- value evidence ---- */
   const [scriptValueEvidence, setScriptValueEvidence] = useState<{
@@ -173,28 +183,64 @@ export default function ConversationPage() {
   const [contactTasks, setContactTasks] = useState<ContactMeetingTask[]>([]);
   const [contactMeetingsLoading, setContactMeetingsLoading] = useState(false);
   const [expandedMeetingId, setExpandedMeetingId] = useState<string | null>(null);
+  const [meetingsTasksTab, setMeetingsTasksTab] = useState<'meetings' | 'tasks'>('meetings');
+  const [meetingSearch, setMeetingSearch] = useState('');
+  const [taskSearch, setTaskSearch] = useState('');
+  const [meetingsPage, setMeetingsPage] = useState(1);
+  const [tasksPage, setTasksPage] = useState(1);
+  const [selectedMeetingIds, setSelectedMeetingIds] = useState<Set<string>>(new Set());
+  const [selectedTaskIds, setSelectedTaskIds] = useState<Set<string>>(new Set());
+  const [bulkDeletingMeetings, setBulkDeletingMeetings] = useState(false);
+  const [bulkUpdatingTasks, setBulkUpdatingTasks] = useState(false);
+  const [editingContactTask, setEditingContactTask] = useState<ContactMeetingTask | null>(null);
+  const [editTaskTitle, setEditTaskTitle] = useState('');
+  const [editTaskStatus, setEditTaskStatus] = useState<string>('pending');
+  const [savingContactTask, setSavingContactTask] = useState(false);
+  const [contextExpanded, setContextExpanded] = useState(false);
+  const contextSectionRef = useRef<HTMLDivElement>(null);
 
   /* ================================================================ */
   /* Data loading                                                      */
   /* ================================================================ */
 
   const fetchData = useCallback(async () => {
-    if (!authSession?.access_token) return;
+    const session = await getCurrentSession();
+    const token = session?.access_token ?? authSession?.access_token;
+    if (!token) return;
     setIsLoading(true);
     setError(null);
-    const headers = { Authorization: `Bearer ${authSession.access_token}` };
+    let effectiveToken = token;
+
+    const runFetches = (t: string) => {
+      const h = { Authorization: `Bearer ${t}` };
+      return Promise.all([
+        fetch(`/api/admin/sales/sessions?id=${sessionId}`, { headers: h }),
+        fetch('/api/admin/sales/products', { headers: h }),
+        fetch('/api/admin/sales/scripts', { headers: h }),
+        fetch('/api/admin/sales/bundles', { headers: h }),
+      ]);
+    };
 
     try {
-      const [sessionsRes, productsRes, scriptsRes, bundlesRes] = await Promise.all([
-        fetch(`/api/admin/sales/sessions?id=${sessionId}`, { headers }),
-        fetch('/api/admin/sales/products', { headers }),
-        fetch('/api/admin/sales/scripts', { headers }),
-        fetch('/api/admin/sales/bundles', { headers }),
-      ]);
+      let [sessionsRes, productsRes, scriptsRes, bundlesRes] = await runFetches(token);
+      if (sessionsRes.status === 401) {
+        await supabase.auth.refreshSession();
+        const fresh = await getCurrentSession();
+        if (fresh?.access_token) {
+          [sessionsRes, productsRes, scriptsRes, bundlesRes] = await runFetches(fresh.access_token);
+          effectiveToken = fresh.access_token;
+        }
+      }
 
       if (!sessionsRes.ok) {
-        throw new Error('Failed to fetch session');
+        throw new Error(
+          sessionsRes.status === 401
+            ? 'Session expired. Please refresh the page or sign in again.'
+            : 'Failed to fetch session'
+        );
       }
+
+      const headers = { Authorization: `Bearer ${effectiveToken}` };
       const sessionsData = await sessionsRes.json();
       const session: SalesSessionRow | undefined = (sessionsData.sessions || [])[0];
       if (!session) { setError('Session not found'); setIsLoading(false); return; }
@@ -267,9 +313,25 @@ export default function ConversationPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [sessionId]);
+  }, [sessionId, authSession?.access_token]);
 
   useEffect(() => { if (user) fetchData(); }, [user, fetchData]);
+
+  // Scroll expanded Context & tools section into view when opened
+  useEffect(() => {
+    if (contextExpanded && contextSectionRef.current) {
+      contextSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [contextExpanded]);
+
+  // Default "Select Content for Offer" accordion to collapsed to limit vertical scroll
+  useEffect(() => {
+    if (hasInitializedCollapsed.current || content.length === 0) return;
+    const types = [...new Set(content.map((c) => c.content_type))];
+    if (types.length === 0) return;
+    hasInitializedCollapsed.current = true;
+    setCollapsedContentGroups(new Set(types));
+  }, [content]);
 
   // Load existing audit data for script generation when session has a diagnostic
   useEffect(() => {
@@ -371,6 +433,146 @@ export default function ConversationPage() {
     return () => { cancelled = true; };
   }, [salesSession?.contact_submission_id, authSession?.access_token]);
 
+  // Filtered and paginated previous meetings & tasks
+  const meetingSearchLower = meetingSearch.trim().toLowerCase();
+  const taskSearchLower = taskSearch.trim().toLowerCase();
+  const filteredContactMeetings = useMemo(() => {
+    if (!meetingSearchLower) return contactMeetings;
+    return contactMeetings.filter(
+      (m) =>
+        (m.meeting_type ?? '').toLowerCase().includes(meetingSearchLower) ||
+        (m.meeting_date ?? '').toLowerCase().includes(meetingSearchLower)
+    );
+  }, [contactMeetings, meetingSearchLower]);
+  const filteredContactTasks = useMemo(() => {
+    if (!taskSearchLower) return contactTasks;
+    return contactTasks.filter(
+      (t) =>
+        (t.title ?? '').toLowerCase().includes(taskSearchLower)
+    );
+  }, [contactTasks, taskSearchLower]);
+  const meetingsTotalPages = Math.max(1, Math.ceil(filteredContactMeetings.length / MEETINGS_PER_PAGE));
+  const tasksTotalPages = Math.max(1, Math.ceil(filteredContactTasks.length / TASKS_PER_PAGE));
+  const safeMeetingsPage = Math.min(meetingsPage, meetingsTotalPages);
+  const safeTasksPage = Math.min(tasksPage, tasksTotalPages);
+  const pagedMeetings = useMemo(
+    () =>
+      filteredContactMeetings.slice(
+        (safeMeetingsPage - 1) * MEETINGS_PER_PAGE,
+        safeMeetingsPage * MEETINGS_PER_PAGE
+      ),
+    [filteredContactMeetings, safeMeetingsPage]
+  );
+  const pagedTasks = useMemo(
+    () =>
+      filteredContactTasks.slice(
+        (safeTasksPage - 1) * TASKS_PER_PAGE,
+        safeTasksPage * TASKS_PER_PAGE
+      ),
+    [filteredContactTasks, safeTasksPage]
+  );
+
+  const handleBulkDeleteMeetings = async () => {
+    if (selectedMeetingIds.size === 0) return;
+    if (!confirm(`Delete ${selectedMeetingIds.size} meeting(s)? Associated tasks will be removed.`)) return;
+    if (!authSession?.access_token) return;
+    const idsToDelete = new Set(selectedMeetingIds);
+    setBulkDeletingMeetings(true);
+    try {
+      const res = await fetch('/api/admin/meetings/bulk-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
+        body: JSON.stringify({ ids: [...idsToDelete] }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error ?? 'Failed to delete meetings');
+        return;
+      }
+      setSelectedMeetingIds(new Set());
+      setMeetingsPage(1);
+      setTasksPage(1);
+      setContactMeetings((prev) => prev.filter((m) => !idsToDelete.has(m.id)));
+      setContactTasks((prev) => prev.filter((t) => !idsToDelete.has(t.meeting_record_id)));
+    } catch {
+      setError('Failed to delete meetings');
+    } finally {
+      setBulkDeletingMeetings(false);
+    }
+  };
+
+  const handleBulkCancelTasks = async () => {
+    if (selectedTaskIds.size === 0) return;
+    if (!authSession?.access_token) return;
+    const idsToUpdate = new Set(selectedTaskIds);
+    setBulkUpdatingTasks(true);
+    try {
+      const res = await fetch('/api/meeting-action-tasks', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
+        body: JSON.stringify({
+          updates: [...idsToUpdate].map((id) => ({ id, status: 'cancelled' as const })),
+        }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.error ?? 'Failed to update tasks');
+        return;
+      }
+      setSelectedTaskIds(new Set());
+      setContactTasks((prev) =>
+        prev.map((t) => (idsToUpdate.has(t.id) ? { ...t, status: 'cancelled' } : t))
+      );
+    } catch {
+      setError('Failed to update tasks');
+    } finally {
+      setBulkUpdatingTasks(false);
+    }
+  };
+
+  const openEditContactTask = (t: ContactMeetingTask) => {
+    setEditingContactTask(t);
+    setEditTaskTitle(t.title);
+    setEditTaskStatus(t.status);
+  };
+
+  const saveContactTaskEdit = async () => {
+    if (!editingContactTask || !authSession?.access_token) return;
+    setSavingContactTask(true);
+    try {
+      const res = await fetch('/api/meeting-action-tasks', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
+        body: JSON.stringify({
+          updates: [
+            {
+              id: editingContactTask.id,
+              title: editTaskTitle,
+              status: editTaskStatus as 'pending' | 'in_progress' | 'complete' | 'cancelled',
+            },
+          ],
+        }),
+      });
+      if (res.ok) {
+        setContactTasks((prev) =>
+          prev.map((t) =>
+            t.id === editingContactTask.id
+              ? { ...t, title: editTaskTitle, status: editTaskStatus }
+              : t
+          )
+        );
+        setEditingContactTask(null);
+      } else {
+        const data = await res.json();
+        setError(data.error ?? 'Failed to update task');
+      }
+    } catch {
+      setError('Failed to update task');
+    } finally {
+      setSavingContactTask(false);
+    }
+  };
+
   /* ================================================================ */
   /* Session helpers                                                   */
   /* ================================================================ */
@@ -411,7 +613,10 @@ export default function ConversationPage() {
       });
       if (!response.ok) throw new Error('Failed to load bundle');
       const data = await response.json();
-      setSelectedContent(data.items.map((item: ResolvedBundleItem) => `${item.content_type}:${item.content_id}`));
+      const bundleContentKeys = data.items.map((item: ResolvedBundleItem) => `${item.content_type}:${item.content_id}`);
+      // Only select items that are in the current catalog (active content); filter out inactive.
+      const inCatalog = bundleContentKeys.filter((k: string) => content.some((c) => `${c.content_type}:${c.content_id}` === k));
+      setSelectedContent(inCatalog);
       setSelectedBundleId(bundleId);
       setShowBundleSelector(false);
     } catch { setError('Failed to load bundle'); }
@@ -595,6 +800,26 @@ export default function ConversationPage() {
     return acc;
   }, {} as Record<ContentType, Record<string, ContentWithRole[]>>);
 
+  const suggestedProducts = useMemo(() => {
+    const seen = new Set<number>();
+    const items = aiRecommendations.flatMap((r) => r.products).filter((p) => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    });
+    return items.map((p) => {
+      const contentItem = content.find(
+        (c) => (c.content_type === 'product' || c.content_type === 'service') && c.content_id === String(p.id)
+      );
+      return {
+        id: p.id,
+        name: p.name,
+        reason: p.reason,
+        content: contentItem,
+      };
+    });
+  }, [aiRecommendations, content]);
+
   /* ================================================================ */
   /* Loading / error states                                            */
   /* ================================================================ */
@@ -617,9 +842,16 @@ export default function ConversationPage() {
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-3" />
           <h2 className="text-lg font-medium text-white mb-2">Error</h2>
           <p className="text-gray-400 mb-4">{error || 'Session not found'}</p>
-          <button onClick={() => router.push('/admin/sales')} className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
-            Return to Dashboard
-          </button>
+          <div className="flex flex-wrap gap-3">
+            {error?.includes('Session expired') && (
+              <button onClick={() => { setError(null); fetchData(); }} className="px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700">
+                Retry
+              </button>
+            )}
+            <button onClick={() => router.push('/admin/sales')} className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+              Return to Dashboard
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -658,210 +890,49 @@ export default function ConversationPage() {
         </div>
 
         {/* Funnel Stage */}
-        <div className="bg-gray-900 rounded-lg border border-gray-800 p-4 mb-6">
+        <div className="bg-gray-900 rounded-lg border border-gray-800 p-4 mb-4">
           <h3 className="text-sm font-medium text-gray-400 mb-3">Client Stage</h3>
           <FunnelStageSelector currentStage={salesSession.funnel_stage || 'prospect'} onChange={handleStageChange} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* ---- Left Panel ---- */}
-          <div className="space-y-6">
-            {/* Contact Info */}
-            <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-              <h3 className="font-medium text-white mb-4 flex items-center gap-2"><User className="w-5 h-5 text-blue-500" /> Client Information</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-gray-300"><Mail className="w-4 h-4 text-gray-500" /><span>{contact?.email}</span></div>
-                {contact?.company && <div className="flex items-center gap-2 text-sm text-gray-300"><Building className="w-4 h-4 text-gray-500" /><span>{contact.company}</span></div>}
-              </div>
-            </div>
+        {/* Context strip: compact contact + expand toggle */}
+        <div className="flex flex-wrap items-center gap-4 py-3 px-4 bg-gray-900 rounded-lg border border-gray-800 mb-4">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <User className="w-4 h-4 text-gray-500 shrink-0" />
+            <span className="text-sm font-medium text-white truncate">{contact?.name || 'Client'}</span>
+            <span className="text-sm text-gray-400 truncate hidden sm:inline">{contact?.email}</span>
+            {contact?.company && <span className="text-xs text-gray-500 truncate hidden md:inline">· {contact.company}</span>}
+          </div>
+          <button
+            type="button"
+            onClick={() => setContextExpanded((e) => !e)}
+            className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-white bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700"
+          >
+            {contextExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            Context &amp; tools
+          </button>
+        </div>
 
-            {/* Notes */}
-            <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-              <h3 className="font-medium text-white mb-3 flex items-center gap-2"><MessageSquare className="w-5 h-5 text-yellow-500" /> Call Notes</h3>
-              <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Add notes from the call..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500" rows={4} />
-              <button onClick={saveNotes} className="mt-2 px-3 py-1.5 bg-gray-800 text-gray-300 rounded-lg text-sm hover:bg-gray-700 flex items-center gap-1"><Save className="w-4 h-4" /> Save Notes</button>
-            </div>
-
-            {/* Previous meetings & tasks (when this conversation is linked to a contact) */}
-            {salesSession?.contact_submission_id != null && (
-              <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
-                <h3 className="font-medium text-white mb-3 flex items-center gap-2">
-                  <Video className="w-5 h-5 text-purple-500" />
-                  Previous meetings & tasks
-                </h3>
-                {contactMeetingsLoading ? (
-                  <div className="flex items-center gap-2 text-sm text-gray-400 py-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Loading…
-                  </div>
-                ) : (
-                  <>
-                    {contactMeetings.length > 0 && (
-                      <div className="mb-4">
-                        <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Meetings</h4>
-                        <div className="space-y-2">
-                          {contactMeetings.map((m) => {
-                            const keyDecisionsArray: string[] = (() => {
-                              const k = m.key_decisions;
-                              if (Array.isArray(k)) return k as string[];
-                              if (typeof k === 'string') {
-                                try {
-                                  const parsed = JSON.parse(k) as unknown;
-                                  return Array.isArray(parsed) ? (parsed as string[]) : [parsed].map(String);
-                                } catch {
-                                  const s = String(k).trim();
-                                  return s ? [s] : [];
-                                }
-                              }
-                              return [];
-                            })();
-                            const isExpanded = expandedMeetingId === m.id;
-                            const summary = (m.structured_notes as { summary?: string } | null)?.summary ?? null;
-                            const hasTranscript = (m.transcript?.trim()?.length ?? 0) > 0;
-                            const hasDetails = summary || hasTranscript || keyDecisionsArray.length > 0;
-                            return (
-                              <div key={m.id} className="border border-gray-800 rounded-lg overflow-hidden">
-                                <button
-                                  type="button"
-                                  onClick={() => setExpandedMeetingId(isExpanded ? null : m.id)}
-                                  className="w-full flex items-center justify-between p-3 hover:bg-gray-800/50 transition-colors text-left"
-                                >
-                                  <div className="min-w-0">
-                                    <p className="text-sm font-medium text-gray-200 capitalize">
-                                      {m.meeting_type?.replace(/_/g, ' ') || 'Meeting'}
-                                    </p>
-                                    <p className="text-xs text-gray-500">
-                                      {new Date(m.meeting_date).toLocaleDateString('en-US', {
-                                        weekday: 'short',
-                                        month: 'short',
-                                        day: 'numeric',
-                                        year: 'numeric',
-                                      })}
-                                      {m.duration_minutes != null && ` · ${m.duration_minutes} min`}
-                                    </p>
-                                  </div>
-                                  {hasDetails && (
-                                    <span className="shrink-0 text-gray-500">
-                                      {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                                    </span>
-                                  )}
-                                </button>
-                                {isExpanded && hasDetails && (
-                                  <div className="px-3 pb-3 pt-0 border-t border-gray-800 space-y-2">
-                                    {summary && (
-                                      <p className="text-sm text-gray-400 mt-2">{summary}</p>
-                                    )}
-                                    {keyDecisionsArray.length > 0 && (
-                                      <div>
-                                        <span className="text-xs font-medium text-gray-500">Key decisions</span>
-                                        <ul className="text-sm text-gray-400 list-disc list-inside mt-1">
-                                          {keyDecisionsArray.slice(0, 5).map((k, i) => (
-                                            <li key={i}>{typeof k === 'string' ? k : String(k)}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-                                    {hasTranscript && (
-                                      <div className="mt-2">
-                                        <span className="text-xs font-medium text-gray-500">Transcript</span>
-                                        <p className="text-sm text-gray-400 mt-1 whitespace-pre-wrap max-h-48 overflow-y-auto">
-                                          {m.transcript!.slice(0, 3000)}
-                                          {(m.transcript?.length ?? 0) > 3000 && '…'}
-                                        </p>
-                                      </div>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                    {contactTasks.length > 0 && (
-                      <div>
-                        <h4 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center justify-between">
-                          <span>Tasks</span>
-                          <Link href="/admin/meeting-tasks" className="text-xs text-purple-400 hover:text-purple-300">
-                            View all
-                          </Link>
-                        </h4>
-                        <ul className="space-y-2">
-                          {contactTasks.slice(0, 10).map((t) => (
-                            <li key={t.id} className="flex items-start gap-2 text-sm border border-gray-800 rounded-lg p-2">
-                              <CheckSquare className={`w-4 h-4 shrink-0 mt-0.5 ${t.status === 'complete' ? 'text-green-500' : 'text-gray-500'}`} />
-                              <div className="min-w-0 flex-1">
-                                <span className={t.status === 'complete' ? 'text-gray-500 line-through' : 'text-gray-200'}>{t.title}</span>
-                                <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
-                                  <span className="capitalize">{t.status.replace('_', ' ')}</span>
-                                  {t.due_date && <span>Due {new Date(t.due_date).toLocaleDateString()}</span>}
-                                </div>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                        {contactTasks.length > 10 && (
-                          <Link href="/admin/meeting-tasks" className="mt-2 inline-block text-sm text-purple-400 hover:text-purple-300">
-                            +{contactTasks.length - 10} more tasks
-                          </Link>
-                        )}
-                      </div>
-                    )}
-                    {contactMeetings.length === 0 && contactTasks.length === 0 && (
-                      <div className="text-sm text-gray-500 py-2 space-y-2">
-                        <p>No meetings or tasks are linked to this contact yet.</p>
-                        <p className="text-xs text-gray-600">
-                          Meetings appear here only when the meeting record is linked to this contact (via <strong>contact_submission_id</strong>) or to a client project that belongs to them. If you have past meetings with this contact, link them: go to <Link href="/admin/meeting-tasks" className="text-purple-400 hover:text-purple-300 underline">Meeting Tasks</Link>, find the meeting’s task, and use <strong>Assign lead</strong> to select this contact.
-                        </p>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
-
-            {/* Conversation Timeline */}
-            {conversationState.responseHistory.length > 0 && (
-              <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
+        {/* Main row: Timeline | Script/Products/Objections | Streamlined Product Selection (same level) */}
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_340px] gap-4 mb-6">
+          {/* ---- Col 1: Conversation Timeline ---- */}
+          <div className="bg-gray-900 rounded-lg border border-gray-800 flex flex-col min-h-[320px] max-h-[60vh] overflow-hidden">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4">
+              {conversationState.responseHistory.length > 0 ? (
                 <ConversationTimeline responses={conversationState.responseHistory} currentStep={0} compact={false} />
-              </div>
-            )}
-
-            {/* In-Person Diagnostic */}
-            <InPersonDiagnosticPanel
-              sessionId={sessionId}
-              diagnosticAuditId={diagnosticAuditId}
-              contactSubmissionId={contact?.id ? parseInt(contact.id, 10) : null}
-              clientName={contact?.name || null}
-              clientCompany={contact?.company || null}
-              companyDomain={contact?.company_domain ?? null}
-              hasWebsiteTechStack={contact?.has_website_tech_stack ?? false}
-              onAuditCreated={(id) => {
-                setDiagnosticAuditId(id);
-                setSalesSession(prev => prev ? { ...prev, diagnostic_audit_id: id } : prev);
-              }}
-              onAuditUpdated={(data) => {
-                setAuditData(data as unknown as Record<string, unknown>);
-              }}
-            />
-
-            {/* Value Evidence */}
-            <ValueEvidencePanel
-              contactId={contact?.id ? parseInt(contact.id, 10) : null}
-              industry={contact?.industry || null}
-              companySize={contact?.employee_count || null}
-              companyName={contact?.company || null}
-              onReportGenerated={id => setValueReportId(id)}
-            />
-
-            {/* Campaign Context */}
-            <CampaignContextPanel contactEmail={contact?.email || null} />
+              ) : (
+                <div className="text-center py-6 text-gray-500">
+                  <Clock className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No conversation history yet</p>
+                  <p className="text-xs mt-1">Record responses in the Script Guide to build the timeline</p>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* ---- Center Panel ---- */}
-          <div className="lg:col-span-2">
-            {/* Tabs */}
-            <div className="flex gap-2 mb-4">
+          {/* ---- Col 2: Tabs + content (Script | Products | Objections) ---- */}
+          <div className="flex flex-col min-h-[320px] max-h-[60vh] overflow-hidden">
+            <div className="flex gap-2 mb-3 shrink-0">
               {(['script', 'products', 'objections'] as const).map(tab => (
                 <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${activeTab === tab ? 'bg-emerald-600 text-white' : 'bg-gray-900 border border-gray-700 text-gray-300 hover:border-purple-500/50'}`}>
                   {tab === 'script' && <><FileText className="w-4 h-4 inline mr-2" />Script Guide</>}
@@ -870,24 +941,10 @@ export default function ConversationPage() {
                 </button>
               ))}
             </div>
-
-            <div className="bg-gray-900 rounded-lg border border-gray-800 p-6">
+            <div className="flex-1 min-h-0 overflow-y-auto bg-gray-900 rounded-lg border border-gray-800 p-6">
               {/* ============ SCRIPT TAB ============ */}
               {activeTab === 'script' && (
                 <div>
-                  {scriptValueEvidence && (scriptValueEvidence.painPoints.length > 0 || scriptValueEvidence.totalAnnualValue != null) && (
-                    <div className="mb-4 p-4 rounded-lg border border-green-800/50 bg-green-950/30">
-                      <h4 className="text-sm font-medium text-green-300 mb-2 flex items-center gap-2"><DollarSign className="w-4 h-4" /> Value evidence for this call</h4>
-                      <ul className="text-sm text-gray-300 space-y-1">
-                        {scriptValueEvidence.painPoints.map((pp, i) => (
-                          <li key={i}>{pp.display_name || 'Pain point'}: ${pp.monetary_indicator.toLocaleString()}/yr{pp.monetary_context && <span className="text-gray-500"> &mdash; {pp.monetary_context}</span>}</li>
-                        ))}
-                        {scriptValueEvidence.totalAnnualValue != null && (
-                          <li className="font-medium text-green-400 pt-1 border-t border-green-800/30 mt-2">Total value (report): ${scriptValueEvidence.totalAnnualValue.toLocaleString()}/yr</li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
                   <DynamicScriptFlow
                     steps={conversationState.dynamicSteps}
                     currentStepIndex={conversationState.currentStep}
@@ -1080,6 +1137,43 @@ export default function ConversationPage() {
                                 <Upload className="w-3.5 h-3.5" /> Attach report or document (PDF)
                               </button>
                             </div>
+                            {/* Email Draft */}
+                            {proposalEmailDraft && (
+                              <div className="mt-4 border-t border-gray-700 pt-4">
+                                <div className="flex items-center justify-between mb-2">
+                                  <h5 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                                    <Mail className="w-4 h-4 text-blue-400" />
+                                    Email Draft
+                                  </h5>
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => {
+                                        const full = `Subject: ${proposalEmailDraft.subject}\n\n${proposalEmailDraft.body}`;
+                                        navigator.clipboard.writeText(full);
+                                      }}
+                                      className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded flex items-center gap-1 transition-colors"
+                                      title="Copy email to clipboard"
+                                    >
+                                      <Copy className="w-3 h-3" />
+                                      Copy
+                                    </button>
+                                    <a
+                                      href={`mailto:${encodeURIComponent(proposalEmailDraft.to)}?subject=${encodeURIComponent(proposalEmailDraft.subject)}&body=${encodeURIComponent(proposalEmailDraft.body)}`}
+                                      className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-1 transition-colors"
+                                      title="Open in email client"
+                                    >
+                                      <Send className="w-3 h-3" />
+                                      Send
+                                    </a>
+                                  </div>
+                                </div>
+                                <div className="text-xs text-gray-500 mb-1">To: {proposalEmailDraft.to}</div>
+                                <div className="text-xs text-gray-500 mb-2">Subject: {proposalEmailDraft.subject}</div>
+                                <pre className="text-xs text-gray-300 bg-gray-900/80 rounded-lg p-3 whitespace-pre-wrap font-sans leading-relaxed max-h-48 overflow-y-auto">
+                                  {proposalEmailDraft.body}
+                                </pre>
+                              </div>
+                            )}
                             <button onClick={() => setShowProposalModal(true)} className="mt-3 w-full text-sm text-gray-400 hover:text-white">Generate new proposal</button>
                           </div>
                         ) : (
@@ -1120,7 +1214,84 @@ export default function ConversationPage() {
               )}
             </div>
           </div>
+
+          {/* ---- Col 3: Streamlined Product Selection ---- */}
+          <div className="min-h-[280px] max-h-[60vh] xl:max-h-[60vh] flex flex-col">
+            <StreamlinedProductSelection
+              products={selectedAsProducts}
+              totalPrice={grandSlamOffer.offerPrice}
+              totalValue={grandSlamOffer.totalPerceivedValue}
+              suggestedProducts={suggestedProducts}
+              allContent={content.filter((c) => c.is_active !== false)}
+              selectedContent={selectedContent}
+              onRemove={(contentType, contentId) => toggleContent(contentType as ContentType, contentId)}
+              onToggleContent={(contentType, contentId) => toggleContent(contentType as ContentType, contentId)}
+              onConvertToProposal={() => setShowProposalModal(true)}
+              onOpenProductsTab={() => setActiveTab('products')}
+              currentProposal={currentProposal ? { status: currentProposal.status, proposalLink: currentProposal.proposalLink } : null}
+            />
+          </div>
         </div>
+
+        {/* Expandable Context & tools (contact, notes, meetings, diagnostic, value evidence, campaign) */}
+        {contextExpanded && (
+          <div ref={contextSectionRef} className="space-y-6 pt-4 border-t border-gray-800">
+            <h2 className="text-base font-semibold text-white flex items-center gap-2">
+              <ChevronUp className="w-4 h-4 text-gray-400" />
+              Context &amp; tools
+            </h2>
+            <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
+              <h3 className="font-medium text-white mb-4 flex items-center gap-2"><User className="w-5 h-5 text-blue-500" /> Client Information</h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-sm text-gray-300"><Mail className="w-4 h-4 text-gray-500" /><span>{contact?.email}</span></div>
+                {contact?.company && <div className="flex items-center gap-2 text-sm text-gray-300"><Building className="w-4 h-4 text-gray-500" /><span>{contact.company}</span></div>}
+              </div>
+            </div>
+            <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
+              <h3 className="font-medium text-white mb-3 flex items-center gap-2"><MessageSquare className="w-5 h-5 text-yellow-500" /> Call Notes</h3>
+              <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Add notes from the call..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500" rows={4} />
+              <button onClick={saveNotes} className="mt-2 px-3 py-1.5 bg-gray-800 text-gray-300 rounded-lg text-sm hover:bg-gray-700 flex items-center gap-1"><Save className="w-4 h-4" /> Save Notes</button>
+            </div>
+            {salesSession?.contact_submission_id != null && (
+              <div className="bg-gray-900 rounded-lg border border-gray-800 p-4">
+                <h3 className="font-medium text-white mb-3 flex items-center gap-2"><Video className="w-5 h-5 text-purple-500" /> Previous meetings &amp; tasks</h3>
+                {contactMeetingsLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-gray-400 py-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
+                ) : (
+                  <p className="text-sm text-gray-400">
+                    {filteredContactMeetings.length} meeting(s), {filteredContactTasks.length} task(s). <Link href="/admin/meeting-tasks" className="text-purple-400 hover:text-purple-300">View in Meeting Tasks</Link>
+                  </p>
+                )}
+              </div>
+            )}
+            <InPersonDiagnosticPanel
+              sessionId={sessionId}
+              diagnosticAuditId={diagnosticAuditId}
+              contactSubmissionId={contact?.id ? parseInt(contact.id, 10) : null}
+              clientName={contact?.name || null}
+              clientCompany={contact?.company || null}
+              companyDomain={contact?.company_domain ?? null}
+              hasWebsiteTechStack={contact?.has_website_tech_stack ?? false}
+              onAuditCreated={(id) => {
+                setDiagnosticAuditId(id);
+                setSalesSession(prev => prev ? { ...prev, diagnostic_audit_id: id } : prev);
+              }}
+              onAuditUpdated={(data) => setAuditData(data as unknown as Record<string, unknown>)}
+            />
+            <ValueEvidencePanel
+              contactId={contact?.id ? parseInt(contact.id, 10) : null}
+              industry={contact?.industry || null}
+              companySize={contact?.employee_count || null}
+              companyName={contact?.company || null}
+              onReportGenerated={id => setValueReportId(id)}
+            />
+            <ValueEvidenceCallPanel
+              painPoints={scriptValueEvidence?.painPoints ?? []}
+              totalAnnualValue={scriptValueEvidence?.totalAnnualValue ?? null}
+            />
+            <CampaignContextPanel contactEmail={contact?.email || null} />
+          </div>
+        )}
       </div>
 
       {/* ---- Modals ---- */}
@@ -1169,7 +1340,16 @@ export default function ConversationPage() {
             });
             if (response.ok) {
               const result = await response.json();
-              setCurrentProposal({ id: result.proposal.id, status: result.proposal.status, proposalLink: result.proposalLink });
+              setCurrentProposal({ id: result.proposal.id, status: result.proposal.status, proposalLink: result.proposalLink, accessCode: result.accessCode });
+              setProposalEmailDraft(generateProposalEmailDraft({
+                clientName: data.clientName,
+                clientEmail: data.clientEmail,
+                clientCompany: data.clientCompany,
+                bundleName: bundles.find(b => b.id === selectedBundleId)?.name || 'Custom Offer',
+                totalAmount: grandSlamOffer.offerPrice - (data.discountAmount || 0),
+                proposalLink: result.proposalLink,
+                accessCode: result.accessCode,
+              }));
               setShowProposalModal(false);
             } else { throw new Error('Failed to create proposal'); }
           }}

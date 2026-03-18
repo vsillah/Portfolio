@@ -6,6 +6,42 @@ import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
 import { OfferBundle, BundleItem, OfferBundleWithStats, ContentType } from '@/lib/sales-scripts';
 
+/** In-memory expanded unique keys (base + delta, deduped) using already-fetched bundle rows. No extra DB calls. */
+function expandedKeys(
+  bundleId: string,
+  bundleById: Map<string, { base_bundle_id: string | null; bundle_items: BundleItem[] }>,
+  visited: Set<string>
+): Set<string> {
+  if (visited.has(bundleId)) return new Set();
+  visited.add(bundleId);
+  const row = bundleById.get(bundleId);
+  if (!row) return new Set();
+  const deltaKeys = (row.bundle_items || []).map((i) => `${i.content_type}:${i.content_id}`);
+  if (!row.base_bundle_id) return new Set(deltaKeys);
+  const baseKeys = expandedKeys(row.base_bundle_id, bundleById, visited);
+  const merged = new Set(baseKeys);
+  for (const k of deltaKeys) merged.add(k);
+  return merged;
+}
+
+/** Build expanded item count for each bundle from already-fetched rows (no DB). */
+function expandedCountsFromBundles(bundles: OfferBundle[]): Map<string, number> {
+  const bundleById = new Map(
+    bundles.map((b) => [
+      b.id,
+      {
+        base_bundle_id: (b as { base_bundle_id?: string }).base_bundle_id ?? null,
+        bundle_items: (b.bundle_items || []) as BundleItem[],
+      },
+    ])
+  );
+  const out = new Map<string, number>();
+  for (const b of bundles) {
+    out.set(b.id, expandedKeys(b.id, bundleById, new Set()).size);
+  }
+  return out;
+}
+
 // Content type to table mapping for preview resolution
 const CONTENT_TABLE_MAP: Record<ContentType, string> = {
   product: 'products',
@@ -147,9 +183,13 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Expanded item counts in-memory (so list count matches resolve: base + delta, deduped). No extra DB calls.
+    const expandedCountByBundleId = expandedCountsFromBundles(bundles || []);
+
     // Transform to OfferBundleWithStats with preview items
     const bundlesWithStats = (bundles || []).map((bundle: OfferBundle) => {
       const bundleItems = bundle.bundle_items || [];
+      const expandedCount = expandedCountByBundleId.get(bundle.id) ?? bundleItems.length;
       const previewItems: PreviewItem[] = bundleItems.slice(0, 3).map((item: BundleItem) => {
         const key = `${item.content_type}:${String(item.content_id)}`;
         const title =
@@ -193,8 +233,8 @@ export async function GET(request: NextRequest) {
         guarantee_description: bundle.guarantee_description,
         cta_text: bundle.cta_text,
         cta_href: bundle.cta_href,
-        // Stats
-        item_count: bundleItems.length,
+        // Stats (expanded count so Quick Start selection matches the number shown)
+        item_count: expandedCount,
         parent_name: bundle.parent_bundle_id ? parentNameMap.get(bundle.parent_bundle_id) : undefined,
         fork_count: forkCountMap.get(bundle.id) || 0,
         // Base bundle (inherits items from another)

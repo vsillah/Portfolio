@@ -78,7 +78,29 @@ export async function GET(request: NextRequest) {
       }
     }
     merged.sort((a, b) => new Date(b.meeting_date).getTime() - new Date(a.meeting_date).getTime());
-    const meetings = merged.slice(0, 50);
+
+    // Filter out meetings with null/empty date or null/0 duration (treat as invalid for display)
+    const withValidDateAndDuration = merged.filter(
+      (m: { meeting_date: string | null; duration_minutes: number | null }) =>
+        m.meeting_date != null &&
+        String(m.meeting_date).trim() !== '' &&
+        m.duration_minutes != null &&
+        Number(m.duration_minutes) > 0
+    );
+
+    // Dedupe by (meeting_type, meeting_date, contact_submission_id) keeping first by id
+    const dedupeKey = (m: { id: string; meeting_type: string | null; meeting_date: string | null; contact_submission_id: number | null }) =>
+      `${m.meeting_type ?? ''}|${m.meeting_date ?? ''}|${m.contact_submission_id ?? ''}`;
+    const dedupeSeen = new Set<string>();
+    const deduped: typeof merged = [];
+    for (const m of withValidDateAndDuration) {
+      const key = dedupeKey(m);
+      if (dedupeSeen.has(key)) continue;
+      dedupeSeen.add(key);
+      deduped.push(m);
+    }
+
+    const meetings = deduped.slice(0, 50);
 
     if (byContactRes.error || byProjectRes.error) {
       console.error('contact-meetings: meetings error', byContactRes.error || byProjectRes.error);
