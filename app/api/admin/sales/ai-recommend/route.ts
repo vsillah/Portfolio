@@ -257,6 +257,7 @@ function buildRecommendation(
     payment_plan: ['downsell'],
     different_product: ['core_offer', 'upsell'],
     trial_offer: ['lead_magnet', 'downsell'],
+    continue_script: ['core_offer', 'upsell'],
   };
 
   const relevantRoles = strategyToRole[strategy];
@@ -269,6 +270,7 @@ function buildRecommendation(
       !productsPresented.includes(p.id)
     );
   }
+
 
   // Calculate confidence based on context
   let confidence = 0.5; // Base confidence

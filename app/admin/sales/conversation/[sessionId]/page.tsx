@@ -171,6 +171,7 @@ export default function ConversationPage() {
     isCallActive: false,
   });
   const [aiRecommendations, setAiRecommendations] = useState<AIRecommendation[]>([]);
+  const [accumulatedProducts, setAccumulatedProducts] = useState<Array<{ id: number; name: string; reason: string }>>([]);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
   const [isLoadingNextStep, setIsLoadingNextStep] = useState(false);
 
@@ -712,7 +713,19 @@ export default function ConversationPage() {
           clientName: contact?.name, clientCompany: contact?.company,
         }),
       });
-      if (res.ok) { const d = await res.json(); setAiRecommendations(d.recommendations || []); }
+      if (res.ok) {
+        const d = await res.json();
+        const recs: AIRecommendation[] = d.recommendations || [];
+        setAiRecommendations(recs);
+        const newProducts = recs.flatMap(r => r.products);
+        if (newProducts.length > 0) {
+          setAccumulatedProducts(prev => {
+            const seen = new Set(prev.map(p => p.name));
+            const additions = newProducts.filter(p => !seen.has(p.name));
+            return [...prev, ...additions];
+          });
+        }
+      }
     } catch { /* ignore */ } finally { setIsLoadingRecommendations(false); }
   };
 
@@ -730,7 +743,13 @@ export default function ConversationPage() {
     const newOffers = [...conversationState.offersPresented, recommendation.strategy];
     setAiRecommendations([]);
     setIsLoadingNextStep(true);
-    const nextType = STRATEGY_TO_STEP_TYPE[recommendation.strategy];
+    let nextType = STRATEGY_TO_STEP_TYPE[recommendation.strategy];
+    if (recommendation.strategy === 'continue_script') {
+      const completedTypes = new Set(updatedSteps.map(s => s.type));
+      const SALES_FLOW: StepType[] = ['opening', 'discovery', 'presentation', 'value_stack', 'pricing', 'close', 'followup'];
+      const next = SALES_FLOW.find(t => !completedTypes.has(t));
+      nextType = next || 'close';
+    }
     const newStep = await generateStep(nextType, updatedSteps, lastResp?.responseType, recommendation.strategy);
     if (newStep) {
       newStep.status = 'active';
@@ -801,15 +820,19 @@ export default function ConversationPage() {
   }, {} as Record<ContentType, Record<string, ContentWithRole[]>>);
 
   const suggestedProducts = useMemo(() => {
-    const seen = new Set<number>();
-    const items = aiRecommendations.flatMap((r) => r.products).filter((p) => {
-      if (seen.has(p.id)) return false;
-      seen.add(p.id);
+    const seen = new Set<string>();
+    const items = accumulatedProducts.filter((p) => {
+      if (seen.has(p.name)) return false;
+      seen.add(p.name);
       return true;
     });
     return items.map((p) => {
       const contentItem = content.find(
-        (c) => (c.content_type === 'product' || c.content_type === 'service') && c.content_id === String(p.id)
+        (c) => {
+          if (c.content_id === String(p.id)) return true;
+          if (p.id === 0 && c.title === p.name) return true;
+          return false;
+        }
       );
       return {
         id: p.id,
@@ -818,7 +841,7 @@ export default function ConversationPage() {
         content: contentItem,
       };
     });
-  }, [aiRecommendations, content]);
+  }, [accumulatedProducts, aiRecommendations, content]);
 
   /* ================================================================ */
   /* Loading / error states                                            */

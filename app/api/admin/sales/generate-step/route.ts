@@ -229,11 +229,14 @@ function generateStep(context: GenerateStepRequest & { valueEvidenceSummary?: st
   let productsToPresent: number[] = [];
 
   switch (stepType) {
-    case 'opening':
+    case 'opening': {
+      const hasDiagnostic = audit && (keyInsights.length > 0 || challenges.length > 0 || (audit.urgency_score != null));
       title = 'Build Rapport & Set Agenda';
       objective = `Connect with ${clientName} and establish trust before diving into solutions`;
       talkingPoints = [
-        `"Hi ${clientName}, thank you for taking the time to complete our diagnostic. I've reviewed your results and I'm excited to discuss how we can help ${clientCompany}."`,
+        hasDiagnostic
+          ? `"Hi ${clientName}, thank you for taking the time to complete our diagnostic. I've reviewed your results and I'm excited to discuss how we can help ${clientCompany}."`
+          : `"Hi ${clientName}, thanks for connecting with us. I'm looking forward to learning more about ${clientCompany} and seeing how we can help."`,
         keyInsights.length > 0 
           ? `"I noticed from your assessment that ${keyInsights[0].toLowerCase()}. Before we dive in, I'd love to hear more about what prompted you to reach out."` 
           : `"Before we dive into solutions, I'd love to understand a bit more about what's happening at ${clientCompany} right now."`,
@@ -247,6 +250,7 @@ function generateStep(context: GenerateStepRequest & { valueEvidenceSummary?: st
       ];
       if (valueEvidenceSummary) suggestedActions.push('Reference quantified pain/value from evidence when relevant');
       break;
+    }
 
     case 'discovery':
       title = 'Explore Their Situation';
