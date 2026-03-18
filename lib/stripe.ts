@@ -42,6 +42,57 @@ export interface CheckoutSessionParams {
   metadata?: Record<string, string>;
 }
 
+// Create a Stripe Checkout Session for installment payments (subscription mode)
+export interface InstallmentCheckoutParams {
+  customerId: string;
+  installmentAmount: number; // per-installment amount in dollars
+  numInstallments: number;
+  productName: string;
+  successUrl: string;
+  cancelUrl: string;
+  metadata: Record<string, string>;
+}
+
+export async function createInstallmentCheckoutSession(
+  params: InstallmentCheckoutParams
+): Promise<Stripe.Checkout.Session | null> {
+  if (!stripe) {
+    console.error('Stripe is not configured');
+    return null;
+  }
+
+  const price = await stripe.prices.create({
+    currency: 'usd',
+    unit_amount: formatAmountForStripe(params.installmentAmount),
+    recurring: { interval: 'month', interval_count: 1 },
+    product_data: {
+      name: `${params.productName} - Installment Payment`,
+    },
+  });
+
+  const session = await stripe.checkout.sessions.create({
+    mode: 'subscription',
+    customer: params.customerId,
+    payment_method_collection: 'always',
+    line_items: [{ price: price.id, quantity: 1 }],
+    subscription_data: {
+      metadata: {
+        ...params.metadata,
+        installment: 'true',
+        num_installments: String(params.numInstallments),
+      },
+    },
+    success_url: params.successUrl,
+    cancel_url: params.cancelUrl,
+    metadata: {
+      ...params.metadata,
+      installment: 'true',
+    },
+  });
+
+  return session;
+}
+
 export async function createCheckoutSession(params: CheckoutSessionParams): Promise<Stripe.Checkout.Session | null> {
   if (!stripe) {
     console.error('Stripe is not configured');
