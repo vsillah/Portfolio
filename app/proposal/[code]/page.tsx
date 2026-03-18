@@ -559,7 +559,9 @@ function ProposalByCodeContent() {
                       ? 'Opportunity Quantification'
                       : doc.document_type === 'proposal_package'
                         ? 'Proposal Package'
-                        : 'Document';
+                        : doc.document_type === 'onboarding_preview'
+                          ? 'Onboarding Preview'
+                          : 'Document';
                 return (
                   <div
                     key={doc.id}

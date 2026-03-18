@@ -119,7 +119,7 @@ export interface DiyResource {
 
 export interface DashboardDocument {
   id: string
-  type: 'proposal' | 'onboarding_plan' | 'contract' | 'strategy_report' | 'opportunity_quantification' | 'proposal_package' | 'other'
+  type: 'proposal' | 'onboarding_plan' | 'onboarding_preview' | 'contract' | 'strategy_report' | 'opportunity_quantification' | 'proposal_package' | 'other'
   title: string
   pdf_url: string | null
   signed_url: string | null
@@ -605,7 +605,7 @@ export async function getDashboardByToken(
     } catch {
       // leave signedUrl null
     }
-    const docType = (['strategy_report', 'opportunity_quantification', 'proposal_package', 'other'].includes(att.document_type)
+    const docType = (['strategy_report', 'opportunity_quantification', 'proposal_package', 'onboarding_preview', 'other'].includes(att.document_type)
       ? att.document_type
       : 'other') as DashboardDocument['type']
     documents.push({

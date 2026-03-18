@@ -11,7 +11,7 @@ import {
   type ContentType,
 } from '@/lib/sales-scripts';
 import { formatCurrency } from '@/lib/pricing-model';
-import { DollarSign, CreditCard, ExternalLink, Copy, Trash2, Plus, Check, Sparkles } from 'lucide-react';
+import { DollarSign, CreditCard, ExternalLink, Copy, Trash2, Plus, Check, Sparkles, Search } from 'lucide-react';
 
 export interface SuggestedProductItem {
   id: number;
@@ -51,15 +51,45 @@ export function StreamlinedProductSelection({
   currentProposal,
 }: StreamlinedProductSelectionProps) {
   const [viewMode, setViewMode] = useState<'suggested' | 'all'>('suggested');
+  const [searchQuery, setSearchQuery] = useState('');
   const savings = totalValue - totalPrice;
   const savingsPercent = totalValue > 0 ? Math.round((savings / totalValue) * 100) : 0;
 
   const isSelected = (contentType: string, contentId: string) =>
     selectedContent.includes(`${contentType}:${contentId}`);
 
+  // Filter and group "All" content by category (content_type)
+  const searchLower = searchQuery.trim().toLowerCase();
+  const filteredContent = searchLower
+    ? allContent.filter(
+        (c) =>
+          c.title?.toLowerCase().includes(searchLower) ||
+          (c.description ?? '').toLowerCase().includes(searchLower)
+      )
+    : allContent;
+  const categoryOrder: ContentType[] = [
+    'product',
+    'service',
+    'lead_magnet',
+    'project',
+    'video',
+    'publication',
+    'music',
+    'prototype',
+  ];
+  const contentByCategory = categoryOrder.reduce<Partial<Record<ContentType, ContentWithRole[]>>>(
+    (acc, type) => {
+      const items = filteredContent.filter((c) => c.content_type === type);
+      if (items.length > 0) acc[type] = items;
+      return acc;
+    },
+    {}
+  );
+  const hasFilteredResults = Object.keys(contentByCategory).length > 0;
+
   return (
-    <div className="bg-gray-900 rounded-lg border border-gray-800 flex flex-col min-h-0 h-full max-h-[60vh] flex-1">
-      <div className="p-3 border-b border-gray-800 shrink-0 space-y-3">
+    <div className="bg-gray-900 rounded-lg border border-gray-800 flex flex-col min-h-0 h-full max-h-[60vh] min-w-0 w-full sm:min-w-[280px] sm:max-w-[420px] flex-1">
+      <div className="p-3 sm:p-4 border-b border-gray-800 shrink-0 space-y-3">
         <div className="flex rounded-lg bg-gray-800 border border-gray-700 p-0.5">
           <button
             type="button"
@@ -70,8 +100,8 @@ export function StreamlinedProductSelection({
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" />
-            Suggested
+            <Sparkles className="w-3.5 h-3.5 shrink-0" />
+            <span className="truncate">Suggested</span>
           </button>
           <button
             type="button"
@@ -82,15 +112,28 @@ export function StreamlinedProductSelection({
                 : 'text-gray-400 hover:text-gray-300'
             }`}
           >
-            All
+            <span className="truncate">All</span>
           </button>
         </div>
+        {viewMode === 'all' && (
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 shrink-0" aria-hidden />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products and content…"
+              className="w-full pl-8 pr-3 py-2 text-sm bg-gray-800 border border-gray-700 rounded-lg text-gray-200 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              aria-label="Search products and content"
+            />
+          </div>
+        )}
         <p className="text-xs text-gray-500">
           {products.length} selected — {viewMode === 'suggested' ? 'add from AI suggestions below' : 'add or remove from full list'}
         </p>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-2">
+      <div className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-4 space-y-4">
         {viewMode === 'suggested' ? (
           suggestedProducts.length === 0 ? (
             <p className="text-sm text-gray-500 py-4">
@@ -106,7 +149,7 @@ export function StreamlinedProductSelection({
               return (
                 <div
                   key={key}
-                  className="flex items-center gap-2 py-2 px-2 rounded-lg bg-gray-800/50 border border-gray-700"
+                  className="flex items-center gap-2 py-2 px-2 rounded-lg bg-gray-800/50 border border-gray-700 min-w-0"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-200 truncate">{item.name}</p>
@@ -143,54 +186,73 @@ export function StreamlinedProductSelection({
               );
             })
           )
+        ) : allContent.length === 0 ? (
+          <p className="text-sm text-gray-500 py-4">No products in catalog.</p>
+        ) : !hasFilteredResults ? (
+          <p className="text-sm text-gray-500 py-4">
+            {searchQuery.trim() ? 'No items match your search.' : 'No products in catalog.'}
+          </p>
         ) : (
-          allContent.length === 0 ? (
-            <p className="text-sm text-gray-500 py-4">No products in catalog.</p>
-          ) : (
-            allContent.map((c) => {
-              const key = `${c.content_type}:${c.content_id}`;
-              const inSelection = isSelected(c.content_type, c.content_id);
-              const roleLabel = c.offer_role ? OFFER_ROLE_LABELS[c.offer_role as OfferRole] : null;
-              const price = c.role_retail_price ?? c.price ?? 0;
-              return (
-                <div
-                  key={key}
-                  className="flex items-center gap-2 py-2 px-2 rounded-lg bg-gray-800/50 border border-gray-700 group"
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-200 truncate">{c.title}</p>
-                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
-                      <span className="text-lg">{CONTENT_TYPE_ICONS[c.content_type as ContentType]}</span>
-                      {roleLabel && (
-                        <span className="text-xs px-1.5 py-0.5 rounded bg-gray-700 text-gray-400">
-                          {roleLabel}
-                        </span>
-                      )}
-                      <span className="text-xs text-gray-500">
-                        {price === 0 ? 'Free' : formatCurrency(price)}
-                      </span>
-                    </div>
+          <div className="space-y-5">
+            {(Object.entries(contentByCategory) as [ContentType, ContentWithRole[]][]).map(
+              ([contentType, items]) => (
+                <section key={contentType} className="space-y-2">
+                  <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider sticky top-0 py-1 bg-gray-900/95 backdrop-blur z-10">
+                    {CONTENT_TYPE_LABELS[contentType]} ({items.length})
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                    {items.map((c) => {
+                      const key = `${c.content_type}:${c.content_id}`;
+                      const inSelection = isSelected(c.content_type, c.content_id);
+                      const roleLabel = c.offer_role ? OFFER_ROLE_LABELS[c.offer_role as OfferRole] : null;
+                      const price = c.role_retail_price ?? c.price ?? 0;
+                      return (
+                        <div
+                          key={key}
+                          className="flex items-center gap-2 py-2 px-2 rounded-lg bg-gray-800/50 border border-gray-700 group min-w-0"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-200 truncate" title={c.title}>
+                              {c.title}
+                            </p>
+                            <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                              <span className="text-base shrink-0" title={CONTENT_TYPE_LABELS[contentType]}>
+                                {CONTENT_TYPE_ICONS[c.content_type as ContentType]}
+                              </span>
+                              {roleLabel && (
+                                <span className="text-xs px-1.5 py-0.5 rounded bg-gray-700 text-gray-400 shrink-0">
+                                  {roleLabel}
+                                </span>
+                              )}
+                              <span className="text-xs text-gray-500">
+                                {price === 0 ? 'Free' : formatCurrency(price)}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => onToggleContent(c.content_type, c.content_id)}
+                            className={`shrink-0 p-1.5 rounded transition-colors touch-manipulation ${
+                              inSelection
+                                ? 'bg-emerald-600 text-white'
+                                : 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
+                            }`}
+                            title={inSelection ? 'Remove from offer' : 'Add to offer'}
+                          >
+                            {inSelection ? <Trash2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => onToggleContent(c.content_type, c.content_id)}
-                    className={`shrink-0 p-1.5 rounded transition-colors ${
-                      inSelection
-                        ? 'bg-emerald-600 text-white'
-                        : 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
-                    }`}
-                    title={inSelection ? 'Remove from offer' : 'Add to offer'}
-                  >
-                    {inSelection ? <Trash2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                  </button>
-                </div>
-              );
-            })
-          )
+                </section>
+              )
+            )}
+          </div>
         )}
       </div>
 
-      <div className="p-3 border-t border-gray-800 shrink-0 space-y-3">
+      <div className="p-3 sm:p-4 border-t border-gray-800 shrink-0 space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-gray-400">Offer total</span>
           <span className="font-medium text-white">{formatCurrency(totalPrice)}</span>
@@ -252,7 +314,12 @@ export function StreamlinedProductSelection({
           <button
             type="button"
             onClick={onConvertToProposal}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-medium text-white"
+            disabled={products.length === 0}
+            className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium text-white transition-colors ${
+              products.length === 0
+                ? 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'
+            }`}
           >
             <CreditCard className="w-4 h-4" />
             Convert to Proposal

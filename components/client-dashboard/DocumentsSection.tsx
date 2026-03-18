@@ -47,6 +47,12 @@ const typeConfig: Record<
     accent: 'text-cyan-400',
     bg: 'bg-cyan-500/10',
   },
+  onboarding_preview: {
+    icon: ClipboardList,
+    label: 'Onboarding Preview',
+    accent: 'text-teal-400',
+    bg: 'bg-teal-500/10',
+  },
   other: {
     icon: FileText,
     label: 'Document',

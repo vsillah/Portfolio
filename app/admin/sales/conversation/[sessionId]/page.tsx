@@ -826,21 +826,23 @@ export default function ConversationPage() {
       seen.add(p.name);
       return true;
     });
-    return items.map((p) => {
-      const contentItem = content.find(
-        (c) => {
-          if (c.content_id === String(p.id)) return true;
-          if (p.id === 0 && c.title === p.name) return true;
-          return false;
-        }
-      );
-      return {
-        id: p.id,
-        name: p.name,
-        reason: p.reason,
-        content: contentItem,
-      };
-    });
+    return items
+      .map((p) => {
+        const contentItem = content.find(
+          (c) => {
+            if (c.content_id === String(p.id)) return true;
+            if (p.id === 0 && c.title === p.name) return true;
+            return false;
+          }
+        );
+        return {
+          id: p.id,
+          name: p.name,
+          reason: p.reason,
+          content: contentItem,
+        };
+      })
+      .filter((item) => item.content != null);
   }, [accumulatedProducts, aiRecommendations, content]);
 
   /* ================================================================ */
@@ -1349,6 +1351,14 @@ export default function ConversationPage() {
           totalAmount={grandSlamOffer.offerPrice}
           blendedMarginPercent={blendedMarginPercent}
           blendedMarginDollar={blendedMarginDollar}
+          contactSubmissionId={salesSession?.contact_submission_id ?? null}
+          diagnosticAuditId={diagnosticAuditId ? parseInt(diagnosticAuditId, 10) : null}
+          bundleName={bundles.find(b => b.id === selectedBundleId)?.name || 'Custom Offer'}
+          lineItems={selectedContentDetails.map(c => {
+            const k = `${c.content_type}:${c.content_id}`;
+            const ov = priceOverrides[k];
+            return { title: c.title, description: c.description || undefined, content_type: c.content_type, offer_role: c.offer_role || undefined, price: ov?.retail_price ?? c.role_retail_price ?? c.price ?? 0 };
+          })}
           onGenerate={async data => {
             if (!authSession?.access_token) return;
             const lineItems = selectedContentDetails.map(c => {
@@ -1359,7 +1369,25 @@ export default function ConversationPage() {
             const response = await fetch('/api/proposals', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
-              body: JSON.stringify({ sales_session_id: salesSession?.id, client_name: data.clientName, client_email: data.clientEmail, client_company: data.clientCompany, bundle_id: selectedBundleId, bundle_name: bundles.find(b => b.id === selectedBundleId)?.name || 'Custom Offer', line_items: lineItems, subtotal: grandSlamOffer.offerPrice, discount_amount: data.discountAmount, discount_description: data.discountDescription, total_amount: grandSlamOffer.offerPrice - (data.discountAmount || 0), valid_days: data.validDays, value_report_id: data.valueReportId || undefined }),
+              body: JSON.stringify({
+                sales_session_id: salesSession?.id,
+                client_name: data.clientName,
+                client_email: data.clientEmail,
+                client_company: data.clientCompany,
+                bundle_id: selectedBundleId,
+                bundle_name: bundles.find(b => b.id === selectedBundleId)?.name || 'Custom Offer',
+                line_items: lineItems,
+                subtotal: grandSlamOffer.offerPrice,
+                discount_amount: data.discountAmount,
+                discount_description: data.discountDescription,
+                total_amount: grandSlamOffer.offerPrice - (data.discountAmount || 0),
+                valid_days: data.validDays,
+                value_report_id: data.valueReportId || undefined,
+                include_contract: data.includeContract,
+                include_onboarding_preview: data.includeOnboardingPreview,
+                onboarding_overrides: data.onboardingContent || undefined,
+                attached_report_ids: data.attachedReportIds,
+              }),
             });
             if (response.ok) {
               const result = await response.json();
@@ -1374,6 +1402,14 @@ export default function ConversationPage() {
                 accessCode: result.accessCode,
               }));
               setShowProposalModal(false);
+              // Refresh proposal documents after generation
+              if (result.proposal.id) {
+                const docsRes = await fetch(`/api/admin/proposals/${result.proposal.id}/documents`, { headers: { Authorization: `Bearer ${authSession.access_token}` } });
+                if (docsRes.ok) {
+                  const docsData = await docsRes.json();
+                  setProposalDocuments(Array.isArray(docsData.documents) ? docsData.documents : []);
+                }
+              }
             } else { throw new Error('Failed to create proposal'); }
           }}
         />

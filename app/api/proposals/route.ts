@@ -9,6 +9,8 @@ import { generateProposalPDF, ProposalData, ProposalValueAssessment } from '@/li
 import { generateContractPDF } from '@/lib/contract-pdf';
 import { getUpsellPathsForOffer, formatUpsellAsProposalAddon } from '@/lib/upsell-paths';
 import { generateAccessCode } from '@/lib/proposal-access-code';
+import { generateOnboardingPreviewPDF } from '@/lib/onboarding-preview-pdf';
+import { generateAIOnboardingContent, type AIOnboardingContent } from '@/lib/ai-onboarding-generator';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,6 +38,10 @@ export async function POST(request: NextRequest) {
       terms_text,
       valid_days = 30, // Default 30 day validity
       value_report_id, // Optional: link to a value evidence report
+      include_contract = true,
+      include_onboarding_preview = false,
+      onboarding_overrides, // Admin-edited AI content
+      attached_report_ids = [], // Gamma report IDs to link as proposal_documents
     } = body;
 
     // Validate required fields
@@ -245,34 +251,142 @@ export async function POST(request: NextRequest) {
       // Continue without PDF - not critical
     }
 
-    // Generate and upload contract PDF (Software Agreement)
-    try {
-      const contractBuffer = await generateContractPDF({
-        client_name: proposal.client_name,
-        client_company: proposal.client_company ?? undefined,
-        total_amount: proposal.total_amount,
-        bundle_name: proposal.bundle_name ?? undefined,
-        valid_until: proposal.valid_until,
-      });
-      const contractFileName = `contracts/${proposal.id}.pdf`;
-      const { error: contractUploadError } = await supabaseAdmin.storage
-        .from('documents')
-        .upload(contractFileName, contractBuffer, {
-          contentType: 'application/pdf',
-          upsert: true,
+    // Generate and upload contract PDF (Software Agreement) — conditional
+    if (include_contract !== false) {
+      try {
+        const contractBuffer = await generateContractPDF({
+          client_name: proposal.client_name,
+          client_company: proposal.client_company ?? undefined,
+          total_amount: proposal.total_amount,
+          bundle_name: proposal.bundle_name ?? undefined,
+          valid_until: proposal.valid_until,
         });
-      if (!contractUploadError) {
-        const { data: contractUrlData } = supabaseAdmin.storage
+        const contractFileName = `contracts/${proposal.id}.pdf`;
+        const { error: contractUploadError } = await supabaseAdmin.storage
           .from('documents')
-          .getPublicUrl(contractFileName);
-        await supabaseAdmin
-          .from('proposals')
-          .update({ contract_pdf_url: contractUrlData.publicUrl })
-          .eq('id', proposal.id);
-        proposal.contract_pdf_url = contractUrlData.publicUrl;
+          .upload(contractFileName, contractBuffer, {
+            contentType: 'application/pdf',
+            upsert: true,
+          });
+        if (!contractUploadError) {
+          const { data: contractUrlData } = supabaseAdmin.storage
+            .from('documents')
+            .getPublicUrl(contractFileName);
+          await supabaseAdmin
+            .from('proposals')
+            .update({ contract_pdf_url: contractUrlData.publicUrl })
+            .eq('id', proposal.id);
+          proposal.contract_pdf_url = contractUrlData.publicUrl;
+        }
+      } catch (contractPdfError) {
+        console.error('Error generating/uploading contract PDF:', contractPdfError);
       }
-    } catch (contractPdfError) {
-      console.error('Error generating/uploading contract PDF:', contractPdfError);
+    }
+
+    // Generate and upload onboarding preview PDF — conditional
+    if (include_onboarding_preview) {
+      try {
+        let obContent: AIOnboardingContent | null = onboarding_overrides || null;
+
+        if (!obContent) {
+          obContent = await generateAIOnboardingContent({
+            line_items: line_items || [],
+            client_name,
+            client_company,
+            bundle_name,
+            contact_submission_id: undefined,
+            diagnostic_audit_id: undefined,
+            value_report_id: value_report_id || undefined,
+          });
+        }
+
+        if (obContent) {
+          const obBuffer = await generateOnboardingPreviewPDF({
+            client_name: proposal.client_name,
+            client_company: proposal.client_company,
+            bundle_name: proposal.bundle_name,
+            content: obContent,
+          });
+
+          const obFileName = `onboarding-previews/${proposal.id}.pdf`;
+          const { error: obUploadError } = await supabaseAdmin.storage
+            .from('documents')
+            .upload(obFileName, obBuffer, {
+              contentType: 'application/pdf',
+              upsert: true,
+            });
+
+          if (!obUploadError) {
+            const { data: maxOrderRow } = await supabaseAdmin
+              .from('proposal_documents')
+              .select('display_order')
+              .eq('proposal_id', proposal.id)
+              .order('display_order', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+            const nextOrder = ((maxOrderRow?.display_order as number) ?? -1) + 1;
+
+            await supabaseAdmin
+              .from('proposal_documents')
+              .insert({
+                proposal_id: proposal.id,
+                document_type: 'onboarding_preview',
+                title: 'Client Onboarding Preview',
+                file_path: obFileName,
+                display_order: nextOrder,
+                source: 'generated',
+              });
+          }
+        }
+      } catch (obError) {
+        console.error('Error generating onboarding preview PDF:', obError);
+      }
+    }
+
+    // Link attached gamma reports as proposal_documents
+    if (Array.isArray(attached_report_ids) && attached_report_ids.length > 0) {
+      try {
+        const { data: gammaRows } = await supabaseAdmin
+          .from('gamma_reports')
+          .select('id, title, report_type, pdf_url')
+          .in('id', attached_report_ids)
+          .not('pdf_url', 'is', null);
+
+        if (gammaRows && gammaRows.length > 0) {
+          const { data: maxOrderRow } = await supabaseAdmin
+            .from('proposal_documents')
+            .select('display_order')
+            .eq('proposal_id', proposal.id)
+            .order('display_order', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          let nextOrder = ((maxOrderRow?.display_order as number) ?? -1) + 1;
+
+          const docTypeMap: Record<string, string> = {
+            value_quantification: 'opportunity_quantification',
+            implementation_strategy: 'strategy_report',
+            audit_summary: 'strategy_report',
+            prospect_overview: 'other',
+          };
+
+          for (const gr of gammaRows) {
+            await supabaseAdmin
+              .from('proposal_documents')
+              .insert({
+                proposal_id: proposal.id,
+                document_type: docTypeMap[gr.report_type] || 'other',
+                title: gr.title || `${gr.report_type} Report`,
+                file_path: gr.pdf_url!,
+                display_order: nextOrder,
+                source: 'generated',
+                gamma_report_id: gr.id,
+              });
+            nextOrder++;
+          }
+        }
+      } catch (reportLinkError) {
+        console.error('Error linking gamma reports to proposal:', reportLinkError);
+      }
     }
 
     // Generate access code and update proposal (retry on collision)

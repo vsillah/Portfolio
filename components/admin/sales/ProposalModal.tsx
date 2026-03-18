@@ -1,14 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { FileText, XCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { FileText, XCircle, Loader2, AlertTriangle, CheckSquare, Square, ChevronDown, ChevronUp, Sparkles, Pencil, Trash2 } from 'lucide-react';
 import { getCurrentSession } from '@/lib/auth';
 import { formatCurrency } from '@/lib/pricing-model';
+import type { AIOnboardingContent } from '@/lib/ai-onboarding-generator';
 
-/** Below this margin %, show low-margin warning. Override via MARGIN_ALERT_THRESHOLD_PERCENT env. */
 const MARGIN_ALERT_THRESHOLD = typeof process.env.NEXT_PUBLIC_MARGIN_ALERT_THRESHOLD_PERCENT === 'string'
   ? parseFloat(process.env.NEXT_PUBLIC_MARGIN_ALERT_THRESHOLD_PERCENT) || 20
   : 20;
+
+interface GammaReport {
+  id: string;
+  title: string | null;
+  report_type: string;
+  pdf_url: string | null;
+  status: string;
+  created_at: string;
+}
 
 export interface ProposalModalProps {
   onClose: () => void;
@@ -20,6 +29,10 @@ export interface ProposalModalProps {
     discountDescription?: string;
     validDays: number;
     valueReportId?: string;
+    includeContract: boolean;
+    includeOnboardingPreview: boolean;
+    onboardingContent?: AIOnboardingContent;
+    attachedReportIds: string[];
   }) => Promise<void>;
   defaultClientName: string;
   defaultClientEmail: string;
@@ -27,11 +40,26 @@ export interface ProposalModalProps {
   totalAmount: number;
   contactId: number | null;
   defaultValueReportId: string | null;
-  /** Blended margin % (profit/revenue). When set, shown in Pricing section. */
   blendedMarginPercent?: number | null;
-  /** Blended margin $ (profit). When set with blendedMarginPercent, shown in Pricing section. */
   blendedMarginDollar?: number | null;
+  contactSubmissionId?: number | null;
+  diagnosticAuditId?: number | null;
+  lineItems?: Array<{
+    title: string;
+    description?: string;
+    content_type: string;
+    offer_role?: string;
+    price: number;
+  }>;
+  bundleName?: string;
 }
+
+const REPORT_TYPE_LABELS: Record<string, string> = {
+  value_quantification: 'Value Report',
+  implementation_strategy: 'Strategy',
+  audit_summary: 'Audit',
+  prospect_overview: 'Overview',
+};
 
 export function ProposalModal({
   onClose,
@@ -44,6 +72,10 @@ export function ProposalModal({
   defaultValueReportId,
   blendedMarginPercent,
   blendedMarginDollar,
+  contactSubmissionId,
+  diagnosticAuditId,
+  lineItems,
+  bundleName,
 }: ProposalModalProps) {
   const [clientName, setClientName] = useState(defaultClientName);
   const [clientEmail, setClientEmail] = useState(defaultClientEmail);
@@ -57,6 +89,17 @@ export function ProposalModal({
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Document Package state
+  const [includeContract, setIncludeContract] = useState(true);
+  const [includeOnboarding, setIncludeOnboarding] = useState(false);
+  const [onboardingContent, setOnboardingContent] = useState<AIOnboardingContent | null>(null);
+  const [onboardingLoading, setOnboardingLoading] = useState(false);
+  const [onboardingExpanded, setOnboardingExpanded] = useState(false);
+  const [gammaReports, setGammaReports] = useState<GammaReport[]>([]);
+  const [gammaReportsLoading, setGammaReportsLoading] = useState(false);
+  const [selectedReportIds, setSelectedReportIds] = useState<Set<string>>(new Set());
+
+  // Fetch value reports
   useEffect(() => {
     if (!contactId) {
       setReports([]);
@@ -81,14 +124,100 @@ export function ProposalModal({
           if (!cancelled) setReportsLoading(false);
         });
     });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [contactId, defaultValueReportId]);
 
   useEffect(() => {
     if (defaultValueReportId) setValueReportId(defaultValueReportId);
   }, [defaultValueReportId]);
+
+  // Fetch gamma reports for this contact
+  useEffect(() => {
+    if (!contactSubmissionId) return;
+    let cancelled = false;
+    setGammaReportsLoading(true);
+    getCurrentSession().then((session) => {
+      if (!session?.access_token || cancelled) return;
+      fetch(`/api/admin/gamma-reports?contactId=${contactSubmissionId}&status=completed`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (cancelled) return;
+          const list = (data.reports || []).filter((r: GammaReport) => r.pdf_url);
+          setGammaReports(list);
+        })
+        .finally(() => {
+          if (!cancelled) setGammaReportsLoading(false);
+        });
+    });
+    return () => { cancelled = true; };
+  }, [contactSubmissionId]);
+
+  const generateOnboardingPreview = useCallback(async () => {
+    if (!lineItems || lineItems.length === 0) return;
+    setOnboardingLoading(true);
+    try {
+      const session = await getCurrentSession();
+      if (!session?.access_token) return;
+      const res = await fetch('/api/admin/proposals/generate-onboarding-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          line_items: lineItems,
+          client_name: clientName,
+          client_company: clientCompany,
+          bundle_name: bundleName,
+          contact_submission_id: contactSubmissionId,
+          diagnostic_audit_id: diagnosticAuditId,
+          value_report_id: valueReportId,
+          gamma_report_id: selectedReportIds.size > 0 ? Array.from(selectedReportIds)[0] : undefined,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setOnboardingContent(data.content);
+        setOnboardingExpanded(true);
+      }
+    } catch (err) {
+      console.error('Failed to generate onboarding preview:', err);
+    } finally {
+      setOnboardingLoading(false);
+    }
+  }, [lineItems, clientName, clientCompany, bundleName, contactSubmissionId, diagnosticAuditId, valueReportId, selectedReportIds]);
+
+  useEffect(() => {
+    if (includeOnboarding && !onboardingContent && !onboardingLoading) {
+      generateOnboardingPreview();
+    }
+  }, [includeOnboarding, onboardingContent, onboardingLoading, generateOnboardingPreview]);
+
+  const toggleReportSelection = (id: string) => {
+    setSelectedReportIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const removeSetupRequirement = (index: number) => {
+    if (!onboardingContent) return;
+    setOnboardingContent({
+      ...onboardingContent,
+      setup_requirements: onboardingContent.setup_requirements.filter((_, i) => i !== index),
+    });
+  };
+
+  const updateSetupRequirement = (index: number, field: 'title' | 'description', value: string) => {
+    if (!onboardingContent) return;
+    const updated = [...onboardingContent.setup_requirements];
+    updated[index] = { ...updated[index], [field]: value };
+    setOnboardingContent({ ...onboardingContent, setup_requirements: updated });
+  };
 
   const handleGenerate = async () => {
     if (!clientName.trim() || !clientEmail.trim()) {
@@ -108,6 +237,10 @@ export function ProposalModal({
         discountDescription: discountDescription.trim() || undefined,
         validDays,
         valueReportId: valueReportId || undefined,
+        includeContract,
+        includeOnboardingPreview: includeOnboarding,
+        onboardingContent: includeOnboarding && onboardingContent ? onboardingContent : undefined,
+        attachedReportIds: Array.from(selectedReportIds),
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate proposal');
@@ -136,42 +269,26 @@ export function ProposalModal({
             <div className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-sm text-red-200">{error}</div>
           )}
 
+          {/* Client Information */}
           <div>
             <h4 className="text-sm font-medium text-gray-300 mb-3">Client Information</h4>
             <div className="space-y-3">
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Client Name *</label>
-                <input
-                  type="text"
-                  value={clientName}
-                  onChange={(e) => setClientName(e.target.value)}
-                  placeholder="John Smith"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
-                />
+                <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="John Smith" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Email *</label>
-                <input
-                  type="email"
-                  value={clientEmail}
-                  onChange={(e) => setClientEmail(e.target.value)}
-                  placeholder="john@company.com"
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
-                />
+                <input type="email" value={clientEmail} onChange={(e) => setClientEmail(e.target.value)} placeholder="john@company.com" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
               </div>
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Company</label>
-                <input
-                  type="text"
-                  value={clientCompany}
-                  onChange={(e) => setClientCompany(e.target.value)}
-                  placeholder="Company Inc."
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
-                />
+                <input type="text" value={clientCompany} onChange={(e) => setClientCompany(e.target.value)} placeholder="Company Inc." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
               </div>
             </div>
           </div>
 
+          {/* Pricing */}
           <div className="pt-4 border-t border-gray-700">
             <h4 className="text-sm font-medium text-gray-300 mb-3">Pricing</h4>
             <div className="space-y-3">
@@ -196,25 +313,12 @@ export function ProposalModal({
               )}
               <div>
                 <label className="block text-xs text-gray-500 mb-1">Discount Amount ($)</label>
-                <input
-                  type="number"
-                  value={discountAmount}
-                  onChange={(e) => setDiscountAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-                  min={0}
-                  step={0.01}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-                />
+                <input type="number" value={discountAmount} onChange={(e) => setDiscountAmount(Math.max(0, parseFloat(e.target.value) || 0))} min={0} step={0.01} className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white" />
               </div>
               {discountAmount > 0 && (
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Discount Reason</label>
-                  <input
-                    type="text"
-                    value={discountDescription}
-                    onChange={(e) => setDiscountDescription(e.target.value)}
-                    placeholder="e.g., Early bird, Referral, Loyalty"
-                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
-                  />
+                  <input type="text" value={discountDescription} onChange={(e) => setDiscountDescription(e.target.value)} placeholder="e.g., Early bird, Referral, Loyalty" className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500" />
                 </div>
               )}
               <div className="flex items-center justify-between p-3 bg-blue-900/30 border border-blue-800 rounded-lg">
@@ -224,6 +328,7 @@ export function ProposalModal({
             </div>
           </div>
 
+          {/* Value Report */}
           {contactId != null && (
             <div className="pt-4 border-t border-gray-700">
               <h4 className="text-sm font-medium text-gray-300 mb-3">Value Report</h4>
@@ -247,6 +352,163 @@ export function ProposalModal({
             </div>
           )}
 
+          {/* Document Package */}
+          <div className="pt-4 border-t border-gray-700">
+            <h4 className="text-sm font-medium text-gray-300 mb-3">Document Package</h4>
+            <div className="space-y-3">
+              {/* Sales Agreement checkbox */}
+              <button
+                type="button"
+                onClick={() => setIncludeContract(!includeContract)}
+                className="w-full flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors text-left"
+              >
+                {includeContract ? <CheckSquare className="w-4 h-4 text-emerald-400 flex-shrink-0" /> : <Square className="w-4 h-4 text-gray-500 flex-shrink-0" />}
+                <div className="flex-1 min-w-0">
+                  <span className="text-sm text-gray-200">Sales Agreement (Software Agreement)</span>
+                  <p className="text-xs text-gray-500 mt-0.5">Formal contract with terms, compensation, and signature fields</p>
+                </div>
+              </button>
+
+              {/* Onboarding Preview checkbox */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setIncludeOnboarding(!includeOnboarding)}
+                  className="w-full flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition-colors text-left"
+                >
+                  {includeOnboarding ? <CheckSquare className="w-4 h-4 text-emerald-400 flex-shrink-0" /> : <Square className="w-4 h-4 text-gray-500 flex-shrink-0" />}
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm text-gray-200">Client Onboarding Preview</span>
+                    <p className="text-xs text-gray-500 mt-0.5">AI-generated setup requirements and timeline based on line items</p>
+                  </div>
+                  {includeOnboarding && onboardingContent && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setOnboardingExpanded(!onboardingExpanded); }}
+                      className="p-1 text-gray-400 hover:text-white"
+                    >
+                      {onboardingExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                  )}
+                </button>
+
+                {/* AI Loading state */}
+                {includeOnboarding && onboardingLoading && (
+                  <div className="mt-2 p-3 bg-gray-800/30 rounded-lg border border-gray-700/50 flex items-center gap-2 text-sm text-gray-400">
+                    <Sparkles className="w-4 h-4 text-amber-400 animate-pulse" />
+                    Generating project-specific onboarding content...
+                  </div>
+                )}
+
+                {/* Editable onboarding preview */}
+                {includeOnboarding && onboardingContent && onboardingExpanded && (
+                  <div className="mt-2 p-3 bg-gray-800/30 rounded-lg border border-gray-700/50 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Setup Requirements</span>
+                      <button
+                        type="button"
+                        onClick={generateOnboardingPreview}
+                        disabled={onboardingLoading}
+                        className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1"
+                      >
+                        <Sparkles className="w-3 h-3" /> Regenerate
+                      </button>
+                    </div>
+                    {onboardingContent.setup_requirements.map((req, i) => (
+                      <div key={i} className="flex items-start gap-2 p-2 bg-gray-900/50 rounded">
+                        <div className="flex-1 min-w-0 space-y-1">
+                          <input
+                            type="text"
+                            value={req.title}
+                            onChange={(e) => updateSetupRequirement(i, 'title', e.target.value)}
+                            className="w-full px-2 py-1 bg-transparent border-b border-gray-700 text-sm text-gray-200 focus:border-blue-500 focus:outline-none"
+                          />
+                          <input
+                            type="text"
+                            value={req.description}
+                            onChange={(e) => updateSetupRequirement(i, 'description', e.target.value)}
+                            className="w-full px-2 py-0.5 bg-transparent text-xs text-gray-500 focus:text-gray-300 focus:outline-none"
+                          />
+                        </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          {req.is_client_action && <span className="text-[10px] text-amber-400 font-medium">CLIENT</span>}
+                          <button type="button" onClick={() => removeSetupRequirement(i)} className="p-0.5 text-gray-600 hover:text-red-400">
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
+                    {onboardingContent.tools_and_platforms.length > 0 && (
+                      <div>
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Tools &amp; Platforms</span>
+                        <div className="flex flex-wrap gap-1.5 mt-1">
+                          {onboardingContent.tools_and_platforms.map((tool, i) => (
+                            <span key={i} className="px-2 py-0.5 bg-gray-700/50 text-xs text-gray-300 rounded">{tool}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {onboardingContent.milestones.length > 0 && (
+                      <div>
+                        <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">Timeline ({onboardingContent.milestones.length} milestones)</span>
+                        <div className="mt-1 space-y-1">
+                          {onboardingContent.milestones.slice(0, 4).map((ms, i) => (
+                            <div key={i} className="flex items-center gap-2 text-xs">
+                              <span className="text-amber-400 font-medium w-10 flex-shrink-0">Wk {ms.week}</span>
+                              <span className="text-gray-300 truncate">{ms.title}</span>
+                            </div>
+                          ))}
+                          {onboardingContent.milestones.length > 4 && (
+                            <span className="text-xs text-gray-500">+{onboardingContent.milestones.length - 4} more</span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Attach Reports */}
+              {contactSubmissionId != null && (
+                <div>
+                  <label className="block text-xs text-gray-500 mb-2">Attach Strategy / Value Reports</label>
+                  {gammaReportsLoading ? (
+                    <div className="flex items-center gap-2 text-xs text-gray-500 py-2">
+                      <Loader2 className="w-3 h-3 animate-spin" /> Loading reports...
+                    </div>
+                  ) : gammaReports.length === 0 ? (
+                    <p className="text-xs text-gray-500 py-1">No completed reports with PDFs available for this contact.</p>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {gammaReports.map((gr) => (
+                        <button
+                          key={gr.id}
+                          type="button"
+                          onClick={() => toggleReportSelection(gr.id)}
+                          className="w-full flex items-center gap-2 p-2 bg-gray-800/50 rounded hover:bg-gray-800 transition-colors text-left"
+                        >
+                          {selectedReportIds.has(gr.id) ? <CheckSquare className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" /> : <Square className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />}
+                          <div className="flex-1 min-w-0">
+                            <span className="text-xs text-gray-200 truncate block">{gr.title || 'Untitled Report'}</span>
+                          </div>
+                          <span className="text-[10px] text-gray-500 flex-shrink-0">
+                            {REPORT_TYPE_LABELS[gr.report_type] || gr.report_type}
+                          </span>
+                          <span className="text-[10px] text-gray-600 flex-shrink-0">
+                            {new Date(gr.created_at).toLocaleDateString()}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Validity */}
           <div className="pt-4 border-t border-gray-700">
             <h4 className="text-sm font-medium text-gray-300 mb-3">Validity</h4>
             <div>

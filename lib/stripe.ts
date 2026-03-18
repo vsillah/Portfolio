@@ -3,6 +3,14 @@
 
 import Stripe from 'stripe'
 
+const stripeKeyPrefix = process.env.STRIPE_SECRET_KEY?.slice(0, 7) || ''
+export const stripeMode: 'live' | 'test' | 'none' =
+  stripeKeyPrefix === 'sk_live' ? 'live' : stripeKeyPrefix === 'sk_test' ? 'test' : 'none'
+
+if (process.env.STRIPE_SECRET_KEY) {
+  console.log(`[Stripe] Initialized in ${stripeMode.toUpperCase()} mode`)
+}
+
 export const stripe = process.env.STRIPE_SECRET_KEY
   ? new Stripe(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2023-10-16',

@@ -1006,15 +1006,13 @@ export function buildGrandSlamOffer(products: ProductWithRole[]): GrandSlamOffer
   const anchor = products.find(p => p.offer_role === 'anchor') || null;
   const decoy = products.find(p => p.offer_role === 'decoy') || null;
 
-  const { totalRetailValue, totalPerceivedValue } = calculateOfferStackValue([
-    ...(coreOffer ? [coreOffer] : []),
-    ...bonuses,
-  ]);
+  const { totalRetailValue, totalPerceivedValue } = calculateOfferStackValue(products);
 
-  // Calculate offer price (core + small portion of bonuses)
-  const corePrice = coreOffer?.offer_price || coreOffer?.price || 0;
-  const offerPrice = corePrice;
-  
+  const offerPrice = products.reduce(
+    (sum, p) => sum + (p.role_retail_price || p.offer_price || p.price || 0),
+    0
+  );
+
   const savings = totalPerceivedValue - offerPrice;
   const savingsPercent = totalPerceivedValue > 0 
     ? Math.round((savings / totalPerceivedValue) * 100) 
