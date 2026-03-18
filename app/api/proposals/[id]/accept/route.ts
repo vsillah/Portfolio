@@ -1,9 +1,11 @@
 // API Route: Accept Proposal
-// POST - Accept proposal and create Stripe Checkout Session
+// POST - Accept proposal and create Stripe Checkout Session (one-time or installment)
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
-import { createCheckoutSession } from '@/lib/stripe';
+import { createCheckoutSession, createInstallmentCheckoutSession } from '@/lib/stripe';
+import { findOrCreateStripeCustomer } from '@/lib/stripe-subscriptions';
+import { calculateInstallmentPlan, getInstallmentFeePercent } from '@/lib/installments';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +16,16 @@ export async function POST(
   try {
     const { id } = await params;
 
-    // Fetch proposal
+    let body: Record<string, unknown> = {};
+    try {
+      body = await request.json();
+    } catch {
+      // No body is fine for pay-in-full (backwards compatible)
+    }
+
+    const paymentMode = (body.paymentMode as string) || 'full';
+    const numInstallments = (body.numInstallments as number) || undefined;
+
     const { data: proposal, error: fetchError } = await supabaseAdmin
       .from('proposals')
       .select('*')
@@ -25,7 +36,6 @@ export async function POST(
       return NextResponse.json({ error: 'Proposal not found' }, { status: 404 });
     }
 
-    // Check if proposal can be accepted
     const isExpired = proposal.valid_until && new Date(proposal.valid_until) < new Date();
     if (isExpired) {
       return NextResponse.json({ error: 'This proposal has expired' }, { status: 400 });
@@ -38,7 +48,6 @@ export async function POST(
       );
     }
 
-    // Require contract signature when a contract PDF exists (post–contract feature)
     if (proposal.contract_pdf_url && !proposal.contract_signed_at) {
       return NextResponse.json(
         { error: 'Contract must be signed before payment. Please sign the Software Agreement and try again.' },
@@ -53,7 +62,6 @@ export async function POST(
       );
     }
 
-    // Mark proposal as accepted (skip if already accepted, e.g. re-creating checkout)
     if (!['accepted'].includes(proposal.status)) {
       const { error: updateError } = await supabaseAdmin
         .from('proposals')
@@ -69,21 +77,91 @@ export async function POST(
       }
     }
 
-    // Create Stripe Checkout Session - use request origin for dev, env var for production
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.nextUrl.origin;
     const returnPath = proposal.access_code
       ? `/proposal/${proposal.access_code}`
       : `/proposal/${proposal.id}`;
 
-    // Build line items from proposal
+    // ---- Installment payment mode ----
+    if (paymentMode === 'installments' && numInstallments && numInstallments >= 2) {
+      const feePercent = await getInstallmentFeePercent();
+      const plan = calculateInstallmentPlan(proposal.total_amount, numInstallments, feePercent);
+
+      const customer = await findOrCreateStripeCustomer(
+        proposal.client_email,
+        proposal.client_name
+      );
+      if (!customer) {
+        return NextResponse.json({ error: 'Failed to create Stripe customer' }, { status: 500 });
+      }
+
+      const { data: installmentPlan, error: insertError } = await supabaseAdmin
+        .from('installment_plans')
+        .insert({
+          proposal_id: proposal.id,
+          stripe_customer_id: customer.id,
+          num_installments: plan.numInstallments,
+          installment_amount: plan.installmentAmount,
+          fee_percent: plan.feePercent,
+          fee_amount: plan.feeAmount,
+          total_with_fee: plan.totalWithFee,
+          base_amount: plan.baseAmount,
+          status: 'pending',
+        })
+        .select()
+        .single();
+
+      if (insertError || !installmentPlan) {
+        console.error('Error creating installment plan:', insertError);
+        return NextResponse.json({ error: 'Failed to create installment plan' }, { status: 500 });
+      }
+
+      const session = await createInstallmentCheckoutSession({
+        customerId: customer.id,
+        installmentAmount: plan.installmentAmount,
+        numInstallments: plan.numInstallments,
+        productName: proposal.bundle_name,
+        successUrl: `${baseUrl}${returnPath}?payment=success`,
+        cancelUrl: `${baseUrl}${returnPath}?payment=cancelled`,
+        metadata: {
+          installmentPlanId: installmentPlan.id,
+          proposalId: proposal.id,
+          salesSessionId: proposal.sales_session_id || '',
+          bundleId: proposal.bundle_id || '',
+          clientName: proposal.client_name,
+        },
+      });
+
+      if (!session) {
+        return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
+      }
+
+      await supabaseAdmin
+        .from('proposals')
+        .update({ stripe_checkout_session_id: session.id })
+        .eq('id', id);
+
+      return NextResponse.json({
+        success: true,
+        checkoutUrl: session.url,
+        checkoutSessionId: session.id,
+        installmentPlan: {
+          id: installmentPlan.id,
+          numInstallments: plan.numInstallments,
+          installmentAmount: plan.installmentAmount,
+          totalWithFee: plan.totalWithFee,
+          feeAmount: plan.feeAmount,
+        },
+      });
+    }
+
+    // ---- Pay in full (existing behavior) ----
     const lineItems = proposal.line_items.map((item: any) => ({
       name: item.title,
       description: item.description || undefined,
       amount: item.price,
     }));
 
-    // If there's a discount, add it as a negative line item or adjust
-    // For simplicity, we'll create a single line item for the total
     const checkoutLineItems = proposal.discount_amount > 0
       ? [{
           name: proposal.bundle_name,
@@ -109,7 +187,6 @@ export async function POST(
       return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
     }
 
-    // Store checkout session ID on proposal
     await supabaseAdmin
       .from('proposals')
       .update({ stripe_checkout_session_id: session.id })

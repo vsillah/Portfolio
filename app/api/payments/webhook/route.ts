@@ -342,6 +342,41 @@ export async function POST(request: NextRequest) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
+
+        // ---- Installment subscription checkout ----
+        if (session.metadata?.installment === 'true' && session.mode === 'subscription') {
+          const installmentPlanId = session.metadata?.installmentPlanId;
+          const subscriptionId = session.subscription as string;
+
+          if (installmentPlanId && subscriptionId) {
+            await supabaseAdmin
+              .from('installment_plans')
+              .update({
+                stripe_subscription_id: subscriptionId,
+                status: 'active',
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', installmentPlanId);
+
+            // If this is for a proposal, mark it as accepted
+            const proposalIdForInstallment = session.metadata?.proposalId;
+            if (proposalIdForInstallment) {
+              await supabaseAdmin
+                .from('proposals')
+                .update({
+                  status: 'accepted',
+                  accepted_at: new Date().toISOString(),
+                  stripe_checkout_session_id: session.id,
+                })
+                .eq('id', proposalIdForInstallment);
+            }
+
+            console.log(`Installment plan ${installmentPlanId} activated with subscription ${subscriptionId}`);
+          }
+          break;
+        }
+
+        // ---- Standard proposal payment checkout ----
         const proposalId = session.metadata?.proposalId;
         
         if (proposalId) {
@@ -789,7 +824,151 @@ export async function POST(request: NextRequest) {
         const subscriptionId = invoice.subscription as string
 
         if (subscriptionId) {
-          // Update client_subscriptions with new period info
+          // ---- Check if this is an installment subscription ----
+          const { data: installmentPlan } = await supabaseAdmin
+            .from('installment_plans')
+            .select('*')
+            .eq('stripe_subscription_id', subscriptionId)
+            .single()
+
+          if (installmentPlan) {
+            const newPaidCount = (installmentPlan.installments_paid || 0) + 1
+            const amountPaid = (invoice.amount_paid || 0) / 100
+
+            await supabaseAdmin
+              .from('installment_payments')
+              .insert({
+                installment_plan_id: installmentPlan.id,
+                payment_number: newPaidCount,
+                stripe_invoice_id: invoice.id,
+                amount: amountPaid,
+                status: 'paid',
+                paid_at: new Date().toISOString(),
+              })
+
+            const isComplete = newPaidCount >= installmentPlan.num_installments
+
+            await supabaseAdmin
+              .from('installment_plans')
+              .update({
+                installments_paid: newPaidCount,
+                status: isComplete ? 'completed' : 'active',
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', installmentPlan.id)
+
+            console.log(`Installment ${newPaidCount}/${installmentPlan.num_installments} paid for plan ${installmentPlan.id}`)
+
+            if (isComplete) {
+              // Cancel the subscription since all installments are paid
+              if (stripe) {
+                try {
+                  await stripe.subscriptions.cancel(subscriptionId)
+                  console.log(`Installment subscription ${subscriptionId} canceled after final payment`)
+                } catch (cancelErr) {
+                  console.error(`Failed to cancel installment subscription ${subscriptionId}:`, cancelErr)
+                }
+              }
+
+              // If linked to a proposal, create the order and mark paid
+              if (installmentPlan.proposal_id) {
+                const { data: proposal } = await supabaseAdmin
+                  .from('proposals')
+                  .select('*')
+                  .eq('id', installmentPlan.proposal_id)
+                  .single()
+
+                if (proposal && proposal.status !== 'paid') {
+                  const { data: order, error: orderError } = await supabaseAdmin
+                    .from('orders')
+                    .insert({
+                      user_id: null,
+                      guest_email: proposal.client_email,
+                      guest_name: proposal.client_name,
+                      total_amount: proposal.subtotal,
+                      discount_amount: proposal.discount_amount || 0,
+                      final_amount: proposal.total_amount,
+                      status: 'completed',
+                      proposal_id: proposal.id,
+                      sales_session_id: proposal.sales_session_id,
+                    })
+                    .select()
+                    .single()
+
+                  if (!orderError && order) {
+                    const orderItems = proposal.line_items.map((item: any) => ({
+                      order_id: order.id,
+                      product_id: item.content_type === 'product' ? item.content_id : null,
+                      quantity: 1,
+                      price: item.price,
+                      total: item.price,
+                      item_type: item.content_type,
+                      item_name: item.title,
+                      item_metadata: {
+                        content_type: item.content_type,
+                        content_id: item.content_id,
+                        offer_role: item.offer_role,
+                      },
+                    }))
+
+                    await supabaseAdmin.from('order_items').insert(orderItems)
+
+                    await supabaseAdmin
+                      .from('proposals')
+                      .update({
+                        status: 'paid',
+                        paid_at: new Date().toISOString(),
+                        order_id: order.id,
+                      })
+                      .eq('id', proposal.id)
+
+                    if (proposal.sales_session_id) {
+                      await supabaseAdmin
+                        .from('sales_sessions')
+                        .update({
+                          outcome: 'converted',
+                          actual_revenue: proposal.total_amount,
+                        })
+                        .eq('id', proposal.sales_session_id)
+                    }
+
+                    await activateGuaranteesForOrder(
+                      order.id,
+                      proposal.client_email,
+                      proposal.client_name,
+                      null
+                    )
+
+                    const bundleId = proposal.bundle_id || null
+                    await autoEnrollInCampaigns(
+                      order.id,
+                      bundleId,
+                      proposal.client_email,
+                      proposal.client_name,
+                      null,
+                      proposal.total_amount || 0
+                    )
+
+                    console.log(`Installment plan ${installmentPlan.id} completed. Proposal ${proposal.id} marked paid, order ${order.id} created.`)
+                  }
+                }
+              }
+
+              // If linked to a store order, mark it completed
+              if (installmentPlan.order_id) {
+                await supabaseAdmin
+                  .from('orders')
+                  .update({ status: 'completed' })
+                  .eq('id', installmentPlan.order_id)
+
+                console.log(`Installment plan ${installmentPlan.id} completed. Order ${installmentPlan.order_id} marked completed.`)
+              }
+            }
+
+            break
+          }
+
+          // ---- Continuity subscription (existing logic) ----
           const { data: sub } = await supabaseAdmin
             .from('client_subscriptions')
             .select('id, cycles_completed, credit_remaining, continuity_plan_id')
@@ -797,7 +976,7 @@ export async function POST(request: NextRequest) {
             .single()
 
           if (sub) {
-            const amountPaid = (invoice.amount_paid || 0) / 100 // cents to dollars
+            const amountPaid = (invoice.amount_paid || 0) / 100
             const newCreditRemaining = Math.max(0, (sub.credit_remaining || 0) - amountPaid)
 
             await supabaseAdmin
@@ -826,6 +1005,29 @@ export async function POST(request: NextRequest) {
         const subscriptionId = invoice.subscription as string
 
         if (subscriptionId) {
+          // Check if installment subscription
+          const { data: failedInstallmentPlan } = await supabaseAdmin
+            .from('installment_plans')
+            .select('id, installments_paid')
+            .eq('stripe_subscription_id', subscriptionId)
+            .single()
+
+          if (failedInstallmentPlan) {
+            await supabaseAdmin
+              .from('installment_payments')
+              .insert({
+                installment_plan_id: failedInstallmentPlan.id,
+                payment_number: (failedInstallmentPlan.installments_paid || 0) + 1,
+                stripe_invoice_id: invoice.id,
+                amount: (invoice.amount_due || 0) / 100,
+                status: 'failed',
+              })
+
+            console.log(`Installment payment failed for plan ${failedInstallmentPlan.id}`)
+            break
+          }
+
+          // Continuity subscription
           await supabaseAdmin
             .from('client_subscriptions')
             .update({ status: 'past_due' })
@@ -867,6 +1069,30 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription
 
+        // Check if installment subscription
+        const { data: deletedInstallmentPlan } = await supabaseAdmin
+          .from('installment_plans')
+          .select('id, status')
+          .eq('stripe_subscription_id', subscription.id)
+          .single()
+
+        if (deletedInstallmentPlan) {
+          // Only mark as canceled if not already completed
+          if (deletedInstallmentPlan.status !== 'completed') {
+            await supabaseAdmin
+              .from('installment_plans')
+              .update({
+                status: 'canceled',
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', deletedInstallmentPlan.id)
+
+            console.log(`Installment plan ${deletedInstallmentPlan.id} subscription canceled.`)
+          }
+          break
+        }
+
+        // Continuity subscription
         await supabaseAdmin
           .from('client_subscriptions')
           .update({

@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
       include_onboarding_preview = false,
       onboarding_overrides, // Admin-edited AI content
       attached_report_ids = [], // Gamma report IDs to link as proposal_documents
+      service_term_months, // Optional: default installment count for this proposal
     } = body;
 
     // Validate required fields
@@ -176,7 +177,10 @@ export async function POST(request: NextRequest) {
       created_by: adminResult.user.id,
     };
 
-    // Attach value evidence columns if available
+    if (service_term_months && Number(service_term_months) > 0) {
+      insertData.service_term_months = Number(service_term_months);
+    }
+
     if (value_report_id) {
       insertData.value_report_id = value_report_id;
     }

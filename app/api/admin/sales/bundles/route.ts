@@ -289,6 +289,7 @@ export async function POST(request: NextRequest) {
       mirrors_tier_id,
       has_guarantee,
       target_audience,
+      default_service_term_months,
     } = body;
 
     if (!name) {
@@ -331,6 +332,7 @@ export async function POST(request: NextRequest) {
     if (mirrors_tier_id !== undefined) insertData.mirrors_tier_id = mirrors_tier_id;
     if (has_guarantee !== undefined) insertData.has_guarantee = has_guarantee;
     if (target_audience !== undefined) insertData.target_audience = target_audience;
+    if (default_service_term_months !== undefined) insertData.default_service_term_months = default_service_term_months;
 
     const { data: bundle, error } = await supabaseAdmin
       .from('offer_bundles')

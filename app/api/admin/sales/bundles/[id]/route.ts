@@ -121,6 +121,7 @@ export async function PUT(
       guarantee_description,
       cta_text,
       cta_href,
+      default_service_term_months,
     } = body;
 
     // Build update object (only include provided fields)
@@ -153,6 +154,7 @@ export async function PUT(
     if (guarantee_description !== undefined) updateData.guarantee_description = guarantee_description;
     if (cta_text !== undefined) updateData.cta_text = cta_text;
     if (cta_href !== undefined) updateData.cta_href = cta_href;
+    if (default_service_term_months !== undefined) updateData.default_service_term_months = default_service_term_months;
 
     // Update bundle
     const { data: bundle, error } = await supabaseAdmin
