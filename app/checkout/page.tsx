@@ -10,6 +10,7 @@ import { getCart, clearCart, saveCart, updateCartItemQuantity, updateServiceQuan
 import DiscountCodeForm from '@/components/checkout/DiscountCodeForm'
 import AddressAutocomplete from '@/components/checkout/AddressAutocomplete'
 import CampaignEnrollmentBanner from '@/components/checkout/CampaignEnrollmentBanner'
+import InstallmentOption from '@/components/checkout/InstallmentOption'
 import OrderSummary, { type ProductVariant } from '@/components/checkout/OrderSummary'
 import { useCampaignEligibility } from '@/hooks/useCampaignEligibility'
 import ExitIntentPopup from '@/components/ExitIntentPopup'
@@ -90,6 +91,8 @@ export default function CheckoutPage() {
     valid: true
     standardized: ShippingAddressForm
   } | { valid: false; message: string } | null>(null)
+  const [storePaymentMode, setStorePaymentMode] = useState<'full' | 'installments'>('full')
+  const [storeNumInstallments, setStoreNumInstallments] = useState(3)
 
   const loadCart = useCallback(async () => {
     const cart = getCart()
@@ -573,12 +576,33 @@ export default function CheckoutPage() {
       // Clear cart
       clearCart()
 
-      // Redirect to purchase page or payment if needed
-      if (hasPaidItems) {
-        // For paid items, we'll handle Stripe payment in the next step
+      if (hasPaidItems && storePaymentMode === 'installments') {
+        const userEmail = user?.email || ''
+        const installmentRes = await fetch('/api/installments/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId: order.id,
+            clientEmail: userEmail,
+            baseAmount: effectiveFinalTotal,
+            numInstallments: storeNumInstallments,
+            productName: 'Store Order',
+            successUrl: `${window.location.origin}/purchases?orderId=${order.id}`,
+            cancelUrl: `${window.location.origin}/checkout`,
+          }),
+        })
+
+        if (installmentRes.ok) {
+          const installmentData = await installmentRes.json()
+          if (installmentData.checkoutUrl) {
+            window.location.href = installmentData.checkoutUrl
+            return
+          }
+        }
+        router.push(`/checkout/payment?orderId=${order.id}`)
+      } else if (hasPaidItems) {
         router.push(`/checkout/payment?orderId=${order.id}`)
       } else {
-        // For free items, redirect to downloads
         router.push(`/purchases?orderId=${order.id}`)
       }
     } catch (error) {
@@ -833,6 +857,24 @@ export default function CheckoutPage() {
                     onRemove={handleDiscountRemove}
                   />
                 </div>
+
+                {/* Payment Options */}
+                {hasPaidItems && effectiveFinalTotal > 0 && (
+                  <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
+                    <h2 className="text-xl font-bold mb-4">Payment Options</h2>
+                    <InstallmentOption
+                      baseAmount={effectiveFinalTotal}
+                      defaultInstallments={3}
+                      minInstallments={2}
+                      maxInstallments={12}
+                      selectedMode={storePaymentMode}
+                      onSelect={(mode, count) => {
+                        setStorePaymentMode(mode)
+                        if (count) setStoreNumInstallments(count)
+                      }}
+                    />
+                  </div>
+                )}
 
                 {/* Checkout Button */}
                 <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">

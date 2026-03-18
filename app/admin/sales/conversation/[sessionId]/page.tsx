@@ -1354,6 +1354,7 @@ export default function ConversationPage() {
           contactSubmissionId={salesSession?.contact_submission_id ?? null}
           diagnosticAuditId={diagnosticAuditId ? parseInt(diagnosticAuditId, 10) : null}
           bundleName={bundles.find(b => b.id === selectedBundleId)?.name || 'Custom Offer'}
+          defaultServiceTermMonths={(bundles.find(b => b.id === selectedBundleId) as any)?.default_service_term_months ?? null}
           lineItems={selectedContentDetails.map(c => {
             const k = `${c.content_type}:${c.content_id}`;
             const ov = priceOverrides[k];
@@ -1387,6 +1388,7 @@ export default function ConversationPage() {
                 include_onboarding_preview: data.includeOnboardingPreview,
                 onboarding_overrides: data.onboardingContent || undefined,
                 attached_report_ids: data.attachedReportIds,
+                service_term_months: data.serviceTermMonths || undefined,
               }),
             });
             if (response.ok) {

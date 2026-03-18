@@ -2313,6 +2313,7 @@ export default function ClientWalkthroughPage() {
                 total_amount: grandSlamOffer.offerPrice - (data.discountAmount || 0),
                 valid_days: data.validDays,
                 value_report_id: data.valueReportId || undefined,
+                service_term_months: data.serviceTermMonths || undefined,
               }),
             });
             
@@ -2344,6 +2345,7 @@ export default function ClientWalkthroughPage() {
           totalAmount={grandSlamOffer.offerPrice}
           blendedMarginPercent={blendedMarginPercent}
           blendedMarginDollar={blendedMarginDollar}
+          defaultServiceTermMonths={(bundles.find(b => b.id === selectedBundleId) as any)?.default_service_term_months ?? null}
         />
       )}
     </div>

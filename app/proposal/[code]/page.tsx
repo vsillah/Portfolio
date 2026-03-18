@@ -27,6 +27,7 @@ import {
   ArrowRight,
   ClipboardList,
 } from 'lucide-react';
+import InstallmentOption from '@/components/checkout/InstallmentOption';
 
 interface LineItem {
   content_type: string;
@@ -82,6 +83,7 @@ interface Proposal {
   contract_signed_at?: string | null;
   contract_signed_by_name?: string | null;
   access_code?: string;
+  service_term_months?: number | null;
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -157,6 +159,8 @@ function ProposalByCodeContent() {
   const [signName, setSignName] = useState('');
   const [showContractSignForm, setShowContractSignForm] = useState(false);
   const [contractSignName, setContractSignName] = useState('');
+  const [paymentMode, setPaymentMode] = useState<'full' | 'installments'>('full');
+  const [numInstallments, setNumInstallments] = useState<number>(3);
 
   const proposalId = proposal?.id ?? null;
 
@@ -240,8 +244,16 @@ function ProposalByCodeContent() {
         setIsAccepting(false);
         return;
       }
+      const acceptBody: Record<string, unknown> = {};
+      if (paymentMode === 'installments') {
+        acceptBody.paymentMode = 'installments';
+        acceptBody.numInstallments = numInstallments;
+      }
+
       const acceptRes = await fetch(`/api/proposals/${proposalId}/accept`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(acceptBody),
       });
       if (!acceptRes.ok) {
         const data = await acceptRes.json();
@@ -294,8 +306,16 @@ function ProposalByCodeContent() {
     setIsAccepting(true);
     setError(null);
     try {
+      const acceptBody: Record<string, unknown> = {};
+      if (paymentMode === 'installments') {
+        acceptBody.paymentMode = 'installments';
+        acceptBody.numInstallments = numInstallments;
+      }
+
       const response = await fetch(`/api/proposals/${proposalId}/accept`, {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(acceptBody),
       });
       if (!response.ok) {
         const data = await response.json();
@@ -696,6 +716,24 @@ function ProposalByCodeContent() {
             </div>
           </div>
         </div>
+
+        {/* Payment Options */}
+        {proposal.status !== 'paid' && paymentStatus !== 'success' && !isExpired && proposal.total_amount > 0 && (
+          <div className="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6">
+            <h2 className="font-semibold mb-4">Payment Options</h2>
+            <InstallmentOption
+              baseAmount={proposal.total_amount}
+              defaultInstallments={proposal.service_term_months || 3}
+              minInstallments={2}
+              maxInstallments={Math.max(proposal.service_term_months || 12, 12)}
+              selectedMode={paymentMode}
+              onSelect={(mode, count) => {
+                setPaymentMode(mode);
+                if (count) setNumInstallments(count);
+              }}
+            />
+          </div>
+        )}
 
         {/* Terms */}
         {proposal.terms_text && (

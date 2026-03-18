@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Settings, Share2, Save, Loader } from 'lucide-react'
+import { Settings, Share2, Save, Loader, CreditCard } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -19,6 +19,7 @@ export default function StoreSettingsPage() {
     type: 'fixed',
     value: 5,
   })
+  const [installmentFeePercent, setInstallmentFeePercent] = useState(10)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
   useEffect(() => {
@@ -30,17 +31,33 @@ export default function StoreSettingsPage() {
       const session = await getCurrentSession()
       if (!session) return
 
-      const response = await fetch('/api/admin/store-settings', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (response.ok) {
-        const data = await response.json()
+      const [storeRes, siteRes] = await Promise.all([
+        fetch('/api/admin/store-settings', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }),
+        fetch('/api/admin/site-settings', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }),
+      ])
+
+      if (storeRes.ok) {
+        const data = await storeRes.json()
         const s = data.settings?.social_share_discount
         if (s && typeof s.type === 'string' && typeof s.value === 'number') {
           setSocialShareDiscount({
             type: s.type === 'percentage' ? 'percentage' : 'fixed',
             value: s.value >= 0 ? s.value : 5,
           })
+        }
+      }
+
+      if (siteRes.ok) {
+        const siteData = await siteRes.json()
+        const settings = siteData.settings as Array<{ key: string; value: unknown }> | undefined
+        const feeSetting = settings?.find((s: { key: string }) => s.key === 'installment_fee_percent')
+        if (feeSetting?.value != null) {
+          const parsed = parseFloat(String(feeSetting.value))
+          if (!isNaN(parsed) && parsed >= 0) setInstallmentFeePercent(parsed)
         }
       }
     } catch (err) {
@@ -59,24 +76,37 @@ export default function StoreSettingsPage() {
       const session = await getCurrentSession()
       if (!session) return
 
-      const response = await fetch('/api/admin/store-settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          social_share_discount: {
-            type: socialShareDiscount.type,
-            value: Number(socialShareDiscount.value),
+      const [storeRes, feeRes] = await Promise.all([
+        fetch('/api/admin/store-settings', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
           },
+          body: JSON.stringify({
+            social_share_discount: {
+              type: socialShareDiscount.type,
+              value: Number(socialShareDiscount.value),
+            },
+          }),
         }),
-      })
+        fetch('/api/admin/site-settings', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            key: 'installment_fee_percent',
+            value: String(installmentFeePercent),
+          }),
+        }),
+      ])
 
-      if (response.ok) {
+      if (storeRes.ok && feeRes.ok) {
         setMessage({ type: 'success', text: 'Settings saved.' })
       } else {
-        const data = await response.json().catch(() => ({}))
+        const data = await storeRes.json().catch(() => ({}))
         setMessage({ type: 'error', text: data.error || 'Failed to save settings' })
       }
     } catch (err) {
@@ -172,6 +202,34 @@ export default function StoreSettingsPage() {
               <p className="text-platinum-white/60 text-xs mt-2">
                 Preview: &quot;...save {socialShareDiscount.type === 'fixed' ? `$${socialShareDiscount.value}` : `${socialShareDiscount.value}%`}.&quot;
               </p>
+            </div>
+
+            {/* Installment Payment Fee */}
+            <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-4">
+                <CreditCard className="text-blue-400" size={22} />
+                <h2 className="text-xl font-bold">Installment payments</h2>
+              </div>
+              <p className="text-platinum-white/80 text-sm mb-4">
+                When customers choose to pay in installments, a fee is added to the total. This covers the cost of extended payment terms and card-on-file billing.
+              </p>
+              <div className="max-w-xs">
+                <label className="block text-sm font-medium text-platinum-white/90 mb-2">
+                  Installment fee (%)
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  max={50}
+                  step={0.5}
+                  value={installmentFeePercent}
+                  onChange={(e) => setInstallmentFeePercent(Math.max(0, parseFloat(e.target.value) || 0))}
+                  className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground"
+                />
+                <p className="text-platinum-white/60 text-xs mt-2">
+                  Example: A $1,000 proposal with a {installmentFeePercent}% fee would cost ${(1000 * (1 + installmentFeePercent / 100)).toFixed(0)} when paid in installments.
+                </p>
+              </div>
             </div>
 
             {message && (

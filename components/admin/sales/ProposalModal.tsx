@@ -33,6 +33,7 @@ export interface ProposalModalProps {
     includeOnboardingPreview: boolean;
     onboardingContent?: AIOnboardingContent;
     attachedReportIds: string[];
+    serviceTermMonths?: number;
   }) => Promise<void>;
   defaultClientName: string;
   defaultClientEmail: string;
@@ -52,6 +53,7 @@ export interface ProposalModalProps {
     price: number;
   }>;
   bundleName?: string;
+  defaultServiceTermMonths?: number | null;
 }
 
 const REPORT_TYPE_LABELS: Record<string, string> = {
@@ -76,6 +78,7 @@ export function ProposalModal({
   diagnosticAuditId,
   lineItems,
   bundleName,
+  defaultServiceTermMonths,
 }: ProposalModalProps) {
   const [clientName, setClientName] = useState(defaultClientName);
   const [clientEmail, setClientEmail] = useState(defaultClientEmail);
@@ -83,6 +86,7 @@ export function ProposalModal({
   const [discountAmount, setDiscountAmount] = useState(0);
   const [discountDescription, setDiscountDescription] = useState('');
   const [validDays, setValidDays] = useState(30);
+  const [serviceTermMonths, setServiceTermMonths] = useState<number | ''>(defaultServiceTermMonths ?? '');
   const [valueReportId, setValueReportId] = useState<string | null>(defaultValueReportId);
   const [reports, setReports] = useState<Array<{ id: string; title: string | null; total_annual_value: number | null; created_at: string }>>([]);
   const [reportsLoading, setReportsLoading] = useState(false);
@@ -241,6 +245,7 @@ export function ProposalModal({
         includeOnboardingPreview: includeOnboarding,
         onboardingContent: includeOnboarding && onboardingContent ? onboardingContent : undefined,
         attachedReportIds: Array.from(selectedReportIds),
+        serviceTermMonths: serviceTermMonths ? Number(serviceTermMonths) : undefined,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate proposal');
@@ -508,22 +513,40 @@ export function ProposalModal({
             </div>
           </div>
 
-          {/* Validity */}
+          {/* Validity & Service Term */}
           <div className="pt-4 border-t border-gray-700">
-            <h4 className="text-sm font-medium text-gray-300 mb-3">Validity</h4>
-            <div>
-              <label className="block text-xs text-gray-500 mb-1">Valid for (days)</label>
-              <select
-                value={validDays}
-                onChange={(e) => setValidDays(parseInt(e.target.value, 10))}
-                className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              >
-                <option value={7}>7 days</option>
-                <option value={14}>14 days</option>
-                <option value={30}>30 days</option>
-                <option value={60}>60 days</option>
-                <option value={90}>90 days</option>
-              </select>
+            <h4 className="text-sm font-medium text-gray-300 mb-3">Validity & Service Term</h4>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Valid for (days)</label>
+                <select
+                  value={validDays}
+                  onChange={(e) => setValidDays(parseInt(e.target.value, 10))}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white"
+                >
+                  <option value={7}>7 days</option>
+                  <option value={14}>14 days</option>
+                  <option value={30}>30 days</option>
+                  <option value={60}>60 days</option>
+                  <option value={90}>90 days</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs text-gray-500 mb-1">Service term (months)</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={60}
+                  value={serviceTermMonths}
+                  onChange={(e) => setServiceTermMonths(e.target.value ? parseInt(e.target.value, 10) : '')}
+                  placeholder="e.g. 3, 6, 12"
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500"
+                />
+                <p className="text-[11px] text-gray-600 mt-1">
+                  Default installment count when client chooses to pay in installments.
+                  {defaultServiceTermMonths ? ` Pre-filled from bundle (${defaultServiceTermMonths} months).` : ''}
+                </p>
+              </div>
             </div>
           </div>
         </div>

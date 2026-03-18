@@ -390,6 +390,7 @@ function CreateBundleModal({
   const [guaranteeDescription, setGuaranteeDescription] = useState('');
   const [ctaText, setCtaText] = useState('Get Started');
   const [ctaHref, setCtaHref] = useState('#contact');
+  const [defaultServiceTermMonths, setDefaultServiceTermMonths] = useState<number | ''>('');
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -448,6 +449,7 @@ function CreateBundleModal({
           guarantee_description: guaranteeDescription || null,
           cta_text: ctaText || 'Get Started',
           cta_href: ctaHref || '#contact',
+          default_service_term_months: defaultServiceTermMonths || null,
         }),
       });
 
@@ -566,6 +568,25 @@ function CreateBundleModal({
                 </div>
               </div>
             )}
+          </div>
+
+          {/* Service Term */}
+          <div className="border-t border-gray-800 pt-4">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Default Service Term (months)
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={60}
+              value={defaultServiceTermMonths}
+              onChange={(e) => setDefaultServiceTermMonths(e.target.value ? parseInt(e.target.value, 10) : '')}
+              placeholder="e.g. 3, 6, 12"
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Used as the default number of installments when clients choose to pay in installments.
+            </p>
           </div>
 
           {/* Pricing page (standard/decoy only; custom comes from save-as) */}
@@ -733,6 +754,9 @@ function EditBundleModal({
   );
   const [ctaText, setCtaText] = useState(bundle.cta_text ?? 'Get Started');
   const [ctaHref, setCtaHref] = useState(bundle.cta_href ?? '#contact');
+  const [editServiceTermMonths, setEditServiceTermMonths] = useState<number | ''>(
+    (bundle as any).default_service_term_months ?? ''
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -775,6 +799,7 @@ function EditBundleModal({
           guarantee_description: guaranteeDescription || null,
           cta_text: ctaText || 'Get Started',
           cta_href: ctaHref || '#contact',
+          default_service_term_months: editServiceTermMonths || null,
         }),
       });
 
@@ -826,6 +851,25 @@ function EditBundleModal({
               rows={3}
               className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500 resize-none"
             />
+          </div>
+
+          {/* Service Term */}
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Default Service Term (months)
+            </label>
+            <input
+              type="number"
+              min={1}
+              max={60}
+              value={editServiceTermMonths}
+              onChange={(e) => setEditServiceTermMonths(e.target.value ? parseInt(e.target.value, 10) : '')}
+              placeholder="e.g. 3, 6, 12"
+              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:border-blue-500"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Default installment count for proposals using this bundle.
+            </p>
           </div>
 
           {/* Base bundle - hidden for custom bundles */}
