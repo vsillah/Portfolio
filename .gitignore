@@ -50,3 +50,9 @@ design-files/about-page-video/.storyboard-auth-state.json
 
 #debug log files
 .cursor/debug-*.log
+
+# Generated dev bootstrap SQL and schema components (regenerated from production)
+scripts/dev-combined-migrations.sql
+scripts/prod-schema-dump.sql
+scripts/prod-schema-ddl.sql
+scripts/prod-schema-components/

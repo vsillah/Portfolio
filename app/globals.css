@@ -137,11 +137,12 @@ body {
    Glassmorphism Micro-Card
    ======================================== */
 
+/* Slightly more opaque than classic glass (0.4) so type stays legible; still reads as frosted, not solid */
 .glass-card {
-  background: rgba(44, 62, 80, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(212, 175, 55, 0.2);
+  background: rgba(18, 30, 49, 0.56);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(212, 175, 55, 0.22);
   border-radius: 12px;
   padding: 1rem;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
@@ -44,8 +44,8 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import {
   User, Building, Mail, MessageSquare, ChevronRight, ChevronDown, ChevronUp,
   AlertCircle, Save, FileText, DollarSign, RefreshCw, ArrowLeft, Send,
-  Layers, Package, GitFork, CreditCard, ExternalLink, Copy, XCircle,
-  Video, CheckSquare, Loader2, Upload, Trash2, Search, Edit3, ChevronLeft, Clock,
+  Layers, Package, GitFork, ExternalLink, Copy, XCircle,
+  Video, Loader2, Upload, Trash2, Clock,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -131,14 +131,13 @@ export default function ConversationPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'script' | 'products' | 'objections'>('script');
   const [notes, setNotes] = useState('');
   const [objectionInput, setObjectionInput] = useState('');
   const [selectedContent, setSelectedContent] = useState<string[]>([]);
   const [selectedBundleId, setSelectedBundleId] = useState<string | null>(null);
   const [showBundleSelector, setShowBundleSelector] = useState(false);
   const [showSaveAsBundle, setShowSaveAsBundle] = useState(false);
-  const [showProposalModal, setShowProposalModal] = useState(false);
+  const [showProposalDrawer, setShowProposalDrawer] = useState(false);
   const [valueReportId, setValueReportId] = useState<string | null>(null);
   const [currentProposal, setCurrentProposal] = useState<{
     id: string; status: string; proposalLink: string; accessCode?: string;
@@ -843,7 +842,7 @@ export default function ConversationPage() {
         };
       })
       .filter((item) => item.content != null);
-  }, [accumulatedProducts, aiRecommendations, content]);
+  }, [accumulatedProducts, content]);
 
   /* ================================================================ */
   /* Loading / error states                                            */
@@ -938,10 +937,10 @@ export default function ConversationPage() {
           </button>
         </div>
 
-        {/* Main row: Timeline | Script/Products/Objections | Streamlined Product Selection (same level) */}
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_340px] gap-4 mb-6">
+        {/* Main row: Timeline | Script + objections | Unified offer panel */}
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)_minmax(320px,480px)] gap-4 mb-6">
           {/* ---- Col 1: Conversation Timeline ---- */}
-          <div className="bg-gray-900 rounded-lg border border-gray-800 flex flex-col min-h-[320px] max-h-[60vh] overflow-hidden">
+          <div className="bg-gray-900 rounded-lg border border-gray-800 flex flex-col h-[678px] min-h-[320px] overflow-hidden">
             <div className="flex-1 min-h-0 overflow-y-auto p-4">
               {conversationState.responseHistory.length > 0 ? (
                 <ConversationTimeline responses={conversationState.responseHistory} currentStep={0} compact={false} />
@@ -955,293 +954,65 @@ export default function ConversationPage() {
             </div>
           </div>
 
-          {/* ---- Col 2: Tabs + content (Script | Products | Objections) ---- */}
-          <div className="flex flex-col min-h-[320px] max-h-[60vh] overflow-hidden">
-            <div className="flex gap-2 mb-3 shrink-0">
-              {(['script', 'products', 'objections'] as const).map(tab => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-lg font-medium text-sm transition-colors ${activeTab === tab ? 'bg-emerald-600 text-white' : 'bg-gray-900 border border-gray-700 text-gray-300 hover:border-purple-500/50'}`}>
-                  {tab === 'script' && <><FileText className="w-4 h-4 inline mr-2" />Script Guide</>}
-                  {tab === 'products' && <><DollarSign className="w-4 h-4 inline mr-2" />Products</>}
-                  {tab === 'objections' && <><AlertCircle className="w-4 h-4 inline mr-2" />Objections</>}
-                </button>
-              ))}
-            </div>
+          {/* ---- Col 2: Script Guide + objection help ---- */}
+          <div className="flex flex-col min-h-[320px] max-h-[min(75vh,720px)] xl:max-h-[calc(100vh-10rem)] overflow-hidden">
             <div className="flex-1 min-h-0 overflow-y-auto bg-gray-900 rounded-lg border border-gray-800 p-6">
-              {/* ============ SCRIPT TAB ============ */}
-              {activeTab === 'script' && (
-                <div>
-                  <DynamicScriptFlow
-                    steps={conversationState.dynamicSteps}
-                    currentStepIndex={conversationState.currentStep}
-                    onRecordResponse={handleClientResponse}
-                    onSelectStrategy={handleSelectStrategy}
-                    onCompleteStep={handleCompleteStep}
-                    aiRecommendations={aiRecommendations}
-                    isLoadingRecommendations={isLoadingRecommendations}
-                    isLoadingNextStep={isLoadingNextStep}
-                    isCallActive={conversationState.isCallActive}
-                    onStartCall={startCall}
-                    onRefreshRecommendations={refreshRecommendations}
-                  />
-                </div>
-              )}
-
-              {/* ============ PRODUCTS TAB ============ */}
-              {activeTab === 'products' && (
-                <div>
-                  {/* Bundle Quick Start */}
-                  {bundles.length > 0 && (
-                    <div className="mb-6 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                      <span className="text-sm font-medium text-white flex items-center gap-2 mb-3"><Layers className="w-4 h-4 text-purple-400" /> Quick Start from Bundle</span>
-                      <div className="flex flex-wrap gap-2">
-                        {bundles.slice(0, 5).map(b => (
-                          <button key={b.id} onClick={() => applyBundle(b.id)} className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${selectedBundleId === b.id ? 'bg-purple-900/50 border-purple-500 text-purple-200' : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500'}`}>
-                            {b.name}<span className="ml-1 text-xs text-gray-400">({b.item_count})</span>
-                          </button>
-                        ))}
-                        {bundles.length > 5 && <button onClick={() => setShowBundleSelector(true)} className="px-3 py-1.5 text-sm text-gray-400 hover:text-white">+{bundles.length - 5} more</button>}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-medium text-white">Select Content for Offer</h3>
-                    <span className="text-sm text-gray-400">{selectedContent.length} selected</span>
-                  </div>
-
-                  {/* Content by type & role */}
-                  {Object.entries(contentByTypeAndRole).map(([ct, roleGroups]) => {
-                    const collapsed = collapsedContentGroups.has(ct);
-                    const count = Object.values(roleGroups).flat().length;
-                    const selCount = Object.values(roleGroups).flat().filter(i => selectedContent.includes(`${i.content_type}:${i.content_id}`)).length;
-                    return (
-                      <div key={ct} className="mb-4">
-                        <button onClick={() => setCollapsedContentGroups(prev => { const n = new Set(prev); if (n.has(ct)) n.delete(ct); else n.add(ct); return n; })} className="w-full flex items-center gap-2 p-3 rounded-lg bg-gray-800/50 hover:bg-gray-800 border border-gray-700 transition-colors">
-                          {collapsed ? <ChevronRight className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
-                          <span className="text-xl">{CONTENT_TYPE_ICONS[ct as ContentType]}</span>
-                          <h3 className="font-medium text-white">{CONTENT_TYPE_LABELS[ct as ContentType]}</h3>
-                          <span className="text-gray-500 text-sm">({count})</span>
-                          {selCount > 0 && <span className="ml-auto px-2 py-0.5 text-xs bg-blue-900/50 text-blue-300 rounded">{selCount} selected</span>}
-                        </button>
-                        {!collapsed && (
-                          <div className="mt-3 ml-2 pl-4 border-l border-gray-700">
-                            {Object.entries(roleGroups).map(([role, items]) => (
-                              <div key={`${ct}-${role}`} className="mb-4">
-                                <h4 className="text-sm font-medium text-gray-400 mb-3">{OFFER_ROLE_LABELS[role as OfferRole] || 'Unclassified'} ({items.length})</h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                  {items.map(item => {
-                                    const k = `${item.content_type}:${item.content_id}`;
-                                    return <ContentOfferCard key={k} content={item} compact showAddButton isSelected={selectedContent.includes(k)} onAdd={() => toggleContent(item.content_type, item.content_id)} />;
-                                  })}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-
-                  {/* Offer Stack */}
-                  {selectedContent.length > 0 && (
-                    <div className="mt-6 pt-6 border-t border-gray-700">
-                      <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-                        <h4 className="font-medium text-white">Your Offer Stack</h4>
-                        <div className="flex items-center gap-2">
-                          {contact?.id && (
-                            <button
-                              onClick={async () => {
-                                if (!authSession?.access_token || !selectedContentDetails.length) return;
-                                setIsApplyingEvidencePricing(true);
-                                try {
-                                  const next: Record<string, { retail_price: number; perceived_value: number }> = {};
-                                  for (const c of selectedContentDetails) {
-                                    const r = await fetch('/api/admin/value-evidence/suggest-pricing', {
-                                      method: 'POST',
-                                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
-                                      body: JSON.stringify({ content_type: c.content_type, content_id: c.content_id, contact_submission_id: parseInt(contact!.id, 10), industry: contact!.industry || undefined, company_size: contact!.employee_count || undefined }),
-                                    });
-                                    if (r.ok) { const d = await r.json(); const p = d.pricing; if (p?.suggestedRetailPrice != null && p?.suggestedPerceivedValue != null) next[`${c.content_type}:${c.content_id}`] = { retail_price: Number(p.suggestedRetailPrice), perceived_value: Number(p.suggestedPerceivedValue) }; }
-                                  }
-                                  setPriceOverrides(prev => ({ ...prev, ...next }));
-                                } finally { setIsApplyingEvidencePricing(false); }
-                              }}
-                              disabled={isApplyingEvidencePricing}
-                              className="flex items-center gap-1 px-3 py-1.5 text-sm bg-green-900/50 border border-green-700/50 text-green-300 hover:bg-green-900/70 rounded-lg disabled:opacity-50"
-                            >
-                              {isApplyingEvidencePricing ? <RefreshCw className="w-3 h-3 animate-spin" /> : <DollarSign className="w-3 h-3" />} Apply evidence-based pricing
-                            </button>
-                          )}
-                          <button onClick={() => setShowSaveAsBundle(true)} className="flex items-center gap-1 px-3 py-1.5 text-sm bg-purple-600 hover:bg-purple-700 rounded-lg"><Save className="w-3 h-3" /> Save as Bundle</button>
-                        </div>
-                      </div>
-                      <OfferStack products={selectedAsProducts} totalPrice={grandSlamOffer.offerPrice} totalValue={grandSlamOffer.totalPerceivedValue} />
-
-                      {/* Proposal */}
-                      <div className="mt-6 pt-6 border-t border-gray-700">
-                        <h4 className="font-medium text-white flex items-center gap-2 mb-1"><FileText className="w-4 h-4 text-blue-400" /> Convert to Proposal</h4>
-                        {currentProposal ? (
-                          <div className="bg-gray-800/50 rounded-lg p-4 border border-gray-700 mt-3">
-                            <span className={`px-2 py-1 text-xs rounded ${currentProposal.status === 'paid' ? 'bg-green-900/50 text-green-300' : currentProposal.status === 'accepted' ? 'bg-blue-900/50 text-blue-300' : 'bg-gray-700 text-gray-300'}`}>{currentProposal.status}</span>
-                            <div className="flex items-center gap-2 mt-2">
-                              <input type="text" value={currentProposal.proposalLink} readOnly className="flex-1 px-3 py-2 bg-gray-900 border border-gray-700 rounded-lg text-sm text-gray-300" />
-                              <button onClick={() => navigator.clipboard.writeText(currentProposal.proposalLink)} className="px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg"><Copy className="w-4 h-4" /></button>
-                              <a href={currentProposal.proposalLink} target="_blank" rel="noopener noreferrer" className="px-3 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg"><ExternalLink className="w-4 h-4" /></a>
-                            </div>
-                            <div className="mt-4 pt-3 border-t border-gray-700">
-                              <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Reports &amp; documents</h5>
-                              {proposalDocuments.length > 0 ? (
-                                <ul className="space-y-2 mb-2">
-                                  {proposalDocuments.map((doc, index) => (
-                                    <li key={doc.id} className="flex items-center justify-between gap-2 py-1.5 px-2 rounded bg-gray-900/50">
-                                      <div className="flex items-center gap-1 shrink-0">
-                                        <button
-                                          type="button"
-                                          onClick={async () => {
-                                            if (index === 0) return;
-                                            if (!authSession?.access_token) return;
-                                            const newOrder = [...proposalDocuments];
-                                            [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
-                                            const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, {
-                                              method: 'PATCH',
-                                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
-                                              body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
-                                            });
-                                            if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
-                                          }}
-                                          disabled={index === 0}
-                                          className="p-1 text-gray-400 hover:text-white disabled:opacity-30 rounded"
-                                          title="Move up"
-                                        >
-                                          <ChevronUp className="w-3.5 h-3.5" />
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={async () => {
-                                            if (index >= proposalDocuments.length - 1) return;
-                                            if (!authSession?.access_token) return;
-                                            const newOrder = [...proposalDocuments];
-                                            [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
-                                            const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, {
-                                              method: 'PATCH',
-                                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
-                                              body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
-                                            });
-                                            if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
-                                          }}
-                                          disabled={index >= proposalDocuments.length - 1}
-                                          className="p-1 text-gray-400 hover:text-white disabled:opacity-30 rounded"
-                                          title="Move down"
-                                        >
-                                          <ChevronDown className="w-3.5 h-3.5" />
-                                        </button>
-                                      </div>
-                                      <span className="text-sm text-gray-200 truncate flex-1">{doc.title}</span>
-                                      <span className="text-xs text-gray-500 shrink-0">
-                                        {doc.document_type === 'strategy_report' ? 'Strategy' : doc.document_type === 'opportunity_quantification' ? 'Opportunity' : doc.document_type === 'proposal_package' ? 'Package' : 'Document'}
-                                      </span>
-                                      <button
-                                        type="button"
-                                        onClick={async () => {
-                                          if (!authSession?.access_token) return;
-                                          const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents/${doc.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${authSession.access_token}` } });
-                                          if (res.ok) setProposalDocuments(prev => prev.filter(d => d.id !== doc.id));
-                                        }}
-                                        className="p-1.5 text-gray-400 hover:text-red-400 rounded"
-                                        title="Remove document"
-                                      >
-                                        <Trash2 className="w-3.5 h-3.5" />
-                                      </button>
-                                    </li>
-                                  ))}
-                                </ul>
-                              ) : (
-                                <p className="text-xs text-gray-500 mb-2">No reports or documents attached yet.</p>
-                              )}
-                              <button type="button" onClick={() => setShowAttachDocumentModal(true)} className="flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300">
-                                <Upload className="w-3.5 h-3.5" /> Attach report or document (PDF)
-                              </button>
-                            </div>
-                            {/* Email Draft */}
-                            {proposalEmailDraft && (
-                              <div className="mt-4 border-t border-gray-700 pt-4">
-                                <div className="flex items-center justify-between mb-2">
-                                  <h5 className="text-sm font-medium text-gray-300 flex items-center gap-2">
-                                    <Mail className="w-4 h-4 text-blue-400" />
-                                    Email Draft
-                                  </h5>
-                                  <div className="flex gap-2">
-                                    <button
-                                      onClick={() => {
-                                        const full = `Subject: ${proposalEmailDraft.subject}\n\n${proposalEmailDraft.body}`;
-                                        navigator.clipboard.writeText(full);
-                                      }}
-                                      className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded flex items-center gap-1 transition-colors"
-                                      title="Copy email to clipboard"
-                                    >
-                                      <Copy className="w-3 h-3" />
-                                      Copy
-                                    </button>
-                                    <a
-                                      href={`mailto:${encodeURIComponent(proposalEmailDraft.to)}?subject=${encodeURIComponent(proposalEmailDraft.subject)}&body=${encodeURIComponent(proposalEmailDraft.body)}`}
-                                      className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-1 transition-colors"
-                                      title="Open in email client"
-                                    >
-                                      <Send className="w-3 h-3" />
-                                      Send
-                                    </a>
-                                  </div>
-                                </div>
-                                <div className="text-xs text-gray-500 mb-1">To: {proposalEmailDraft.to}</div>
-                                <div className="text-xs text-gray-500 mb-2">Subject: {proposalEmailDraft.subject}</div>
-                                <pre className="text-xs text-gray-300 bg-gray-900/80 rounded-lg p-3 whitespace-pre-wrap font-sans leading-relaxed max-h-48 overflow-y-auto">
-                                  {proposalEmailDraft.body}
-                                </pre>
-                              </div>
-                            )}
-                            <button onClick={() => setShowProposalModal(true)} className="mt-3 w-full text-sm text-gray-400 hover:text-white">Generate new proposal</button>
-                          </div>
-                        ) : (
-                          <button onClick={() => setShowProposalModal(true)} className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg"><CreditCard className="w-4 h-4" /> Generate Proposal &amp; Payment Link</button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* ============ OBJECTIONS TAB ============ */}
-              {activeTab === 'objections' && (
-                <div>
-                  <h3 className="font-medium text-white mb-4">Objection Handler</h3>
-                  <input type="text" value={objectionInput} onChange={e => setObjectionInput(e.target.value)} placeholder="e.g., too expensive, need to think about it..." className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 mb-6" />
+              <div className="flex items-center gap-2 mb-4">
+                <FileText className="w-5 h-5 text-emerald-400" />
+                <h2 className="text-sm font-semibold text-white">Script Guide</h2>
+              </div>
+              <DynamicScriptFlow
+                steps={conversationState.dynamicSteps}
+                currentStepIndex={conversationState.currentStep}
+                onRecordResponse={handleClientResponse}
+                onSelectStrategy={handleSelectStrategy}
+                onCompleteStep={handleCompleteStep}
+                aiRecommendations={aiRecommendations}
+                isLoadingRecommendations={isLoadingRecommendations}
+                isLoadingNextStep={isLoadingNextStep}
+                isCallActive={conversationState.isCallActive}
+                onStartCall={startCall}
+                onRefreshRecommendations={refreshRecommendations}
+              />
+              <details className="mt-6 border border-gray-700 rounded-lg bg-gray-800/30 group">
+                <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-gray-200 flex items-center gap-2 list-none [&::-webkit-details-marker]:hidden">
+                  <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                  Objection help
+                  <ChevronDown className="w-4 h-4 text-gray-500 ml-auto group-open:rotate-180 transition-transform" />
+                </summary>
+                <div className="px-4 pb-4 pt-0 border-t border-gray-700/80">
+                  <input type="text" value={objectionInput} onChange={e => setObjectionInput(e.target.value)} placeholder="e.g., too expensive, need to think about it..." className="w-full px-3 py-2 mt-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-500 text-sm" />
                   {objectionHandlers.length > 0 ? (
-                    <div className="space-y-4">
+                    <div className="space-y-3 mt-4">
                       {objectionHandlers.map((h, i) => (
-                        <div key={i} className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-                          <div className="text-sm font-medium text-gray-400 mb-2 capitalize">{h.category} Objection</div>
-                          <p className="text-gray-200">{h.response}</p>
+                        <div key={i} className="bg-gray-800 rounded-lg p-3 border border-gray-700">
+                          <div className="text-xs font-medium text-gray-400 mb-1 capitalize">{h.category} objection</div>
+                          <p className="text-sm text-gray-200">{h.response}</p>
                         </div>
                       ))}
                     </div>
-                  ) : objectionInput ? <p className="text-gray-400 text-center py-8">No specific handler found.</p> : (
-                    <div className="text-gray-500 text-center py-8"><AlertCircle className="w-12 h-12 mx-auto mb-3 text-gray-600" /><p>Type an objection above to get suggested responses</p></div>
+                  ) : objectionInput ? (
+                    <p className="text-gray-400 text-center py-6 text-sm">No specific handler found.</p>
+                  ) : (
+                    <div className="text-gray-500 text-center py-6 text-sm">
+                      <p>Type an objection above for suggested responses.</p>
+                    </div>
                   )}
-                  <div className="mt-6 pt-6 border-t border-gray-700">
-                    <h4 className="text-sm font-medium text-gray-400 mb-3">Quick Access</h4>
+                  <div className="mt-4 pt-3 border-t border-gray-700">
+                    <h4 className="text-xs font-medium text-gray-400 mb-2">Quick phrases</h4>
                     <div className="flex flex-wrap gap-2">
                       {['too expensive', 'need to think', 'talk to spouse', 'not the right time', 'tried before'].map(o => (
-                        <button key={o} onClick={() => setObjectionInput(o)} className="px-3 py-1.5 bg-gray-800 text-gray-300 rounded-full text-sm hover:bg-gray-700">{o}</button>
+                        <button key={o} type="button" onClick={() => setObjectionInput(o)} className="px-2.5 py-1 bg-gray-800 text-gray-300 rounded-full text-xs hover:bg-gray-700">{o}</button>
                       ))}
                     </div>
                   </div>
                 </div>
-              )}
+              </details>
             </div>
           </div>
 
-          {/* ---- Col 3: Streamlined Product Selection ---- */}
-          <div className="min-h-[280px] max-h-[60vh] xl:max-h-[60vh] flex flex-col">
+          {/* ---- Col 3: Offer panel (Suggested/All + bundles, catalog, stack) ---- */}
+          <div className="min-h-[280px] flex flex-col xl:min-h-0">
             <StreamlinedProductSelection
               products={selectedAsProducts}
               totalPrice={grandSlamOffer.offerPrice}
@@ -1251,9 +1022,127 @@ export default function ConversationPage() {
               selectedContent={selectedContent}
               onRemove={(contentType, contentId) => toggleContent(contentType as ContentType, contentId)}
               onToggleContent={(contentType, contentId) => toggleContent(contentType as ContentType, contentId)}
-              onConvertToProposal={() => setShowProposalModal(true)}
-              onOpenProductsTab={() => setActiveTab('products')}
+              onConvertToProposal={() => setShowProposalDrawer(true)}
               currentProposal={currentProposal ? { status: currentProposal.status, proposalLink: currentProposal.proposalLink } : null}
+              allCatalogContent={({ searchLower: catalogSearch }) => {
+                const q = catalogSearch.trim();
+                const filterItems = (items: ContentWithRole[]) =>
+                  !q
+                    ? items
+                    : items.filter(
+                        (c) =>
+                          (c.title ?? '').toLowerCase().includes(q) ||
+                          (c.description ?? '').toLowerCase().includes(q)
+                      );
+                const filteredByTypeAndRole = Object.fromEntries(
+                  Object.entries(contentByTypeAndRole)
+                    .map(([ct, roleGroups]) => {
+                      const next: Record<string, ContentWithRole[]> = {};
+                      for (const [role, items] of Object.entries(roleGroups)) {
+                        const f = filterItems(items);
+                        if (f.length) next[role] = f;
+                      }
+                      return [ct, next] as const;
+                    })
+                    .filter(([, rg]) => Object.keys(rg).length > 0)
+                ) as Record<ContentType, Record<string, ContentWithRole[]>>;
+                const hasCatalog = Object.keys(filteredByTypeAndRole).length > 0;
+                return (
+                  <>
+                    {bundles.length > 0 && (
+                      <div className="p-3 bg-gray-800/50 rounded-lg border border-gray-700">
+                        <span className="text-xs font-medium text-white flex items-center gap-2 mb-2"><Layers className="w-3.5 h-3.5 text-purple-400" /> Quick start — bundle</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          {bundles.slice(0, 5).map(b => (
+                            <button key={b.id} type="button" onClick={() => applyBundle(b.id)} className={`px-2.5 py-1 text-xs rounded-lg border transition-colors ${selectedBundleId === b.id ? 'bg-purple-900/50 border-purple-500 text-purple-200' : 'bg-gray-700 border-gray-600 text-gray-300 hover:border-gray-500'}`}>
+                              {b.name}<span className="ml-1 text-gray-400">({b.item_count})</span>
+                            </button>
+                          ))}
+                          {bundles.length > 5 && <button type="button" onClick={() => setShowBundleSelector(true)} className="px-2.5 py-1 text-xs text-gray-400 hover:text-white">+{bundles.length - 5} more</button>}
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-xs font-semibold text-gray-300 uppercase tracking-wider">Catalog by role</h3>
+                      <span className="text-xs text-gray-500">{selectedContent.length} selected</span>
+                    </div>
+                    {!hasCatalog && q ? (
+                      <p className="text-sm text-gray-500 py-2">No catalog items match your search.</p>
+                    ) : null}
+                    {Object.entries(filteredByTypeAndRole).map(([ct, roleGroups]) => {
+                      const collapsed = collapsedContentGroups.has(ct);
+                      const count = Object.values(roleGroups).flat().length;
+                      const selCount = Object.values(roleGroups).flat().filter(i => selectedContent.includes(`${i.content_type}:${i.content_id}`)).length;
+                      return (
+                        <div key={ct} className="border border-gray-700/80 rounded-lg overflow-hidden">
+                          <button type="button" onClick={() => setCollapsedContentGroups(prev => { const n = new Set(prev); if (n.has(ct)) n.delete(ct); else n.add(ct); return n; })} className="w-full flex items-center gap-2 p-2.5 bg-gray-800/40 hover:bg-gray-800/70 transition-colors text-left">
+                            {collapsed ? <ChevronRight className="w-3.5 h-3.5 text-gray-500 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 text-gray-500 shrink-0" />}
+                            <span className="text-lg leading-none">{CONTENT_TYPE_ICONS[ct as ContentType]}</span>
+                            <span className="text-sm font-medium text-white">{CONTENT_TYPE_LABELS[ct as ContentType]}</span>
+                            <span className="text-gray-500 text-xs">({count})</span>
+                            {selCount > 0 && <span className="ml-auto px-1.5 py-0.5 text-[10px] bg-blue-900/50 text-blue-300 rounded">{selCount}</span>}
+                          </button>
+                          {!collapsed && (
+                            <div className="px-2 pb-2 pt-0 border-t border-gray-700/60 max-h-[min(50vh,320px)] overflow-y-auto">
+                              {Object.entries(roleGroups).map(([role, items]) => (
+                                <div key={`${ct}-${role}`} className="mt-2 mb-3 last:mb-0">
+                                  <h4 className="text-[10px] font-medium text-gray-500 mb-1.5 uppercase">{OFFER_ROLE_LABELS[role as OfferRole] || 'Unclassified'} ({items.length})</h4>
+                                  <div className="space-y-2">
+                                    {items.map(item => {
+                                      const k = `${item.content_type}:${item.content_id}`;
+                                      return <ContentOfferCard key={k} content={item} compact showAddButton isSelected={selectedContent.includes(k)} onAdd={() => toggleContent(item.content_type, item.content_id)} />;
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </>
+                );
+              }}
+              offerFooterDetails={
+                selectedContent.length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <h4 className="text-sm font-medium text-white">Offer stack</h4>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {contact?.id && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              if (!authSession?.access_token || !selectedContentDetails.length) return;
+                              setIsApplyingEvidencePricing(true);
+                              try {
+                                const next: Record<string, { retail_price: number; perceived_value: number }> = {};
+                                for (const c of selectedContentDetails) {
+                                  const r = await fetch('/api/admin/value-evidence/suggest-pricing', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
+                                    body: JSON.stringify({ content_type: c.content_type, content_id: c.content_id, contact_submission_id: parseInt(contact!.id, 10), industry: contact!.industry || undefined, company_size: contact!.employee_count || undefined }),
+                                  });
+                                  if (r.ok) { const d = await r.json(); const p = d.pricing; if (p?.suggestedRetailPrice != null && p?.suggestedPerceivedValue != null) next[`${c.content_type}:${c.content_id}`] = { retail_price: Number(p.suggestedRetailPrice), perceived_value: Number(p.suggestedPerceivedValue) }; }
+                                }
+                                setPriceOverrides(prev => ({ ...prev, ...next }));
+                              } finally { setIsApplyingEvidencePricing(false); }
+                            }}
+                            disabled={isApplyingEvidencePricing}
+                            className="flex items-center gap-1 px-2 py-1 text-xs bg-green-900/50 border border-green-700/50 text-green-300 hover:bg-green-900/70 rounded-lg disabled:opacity-50"
+                          >
+                            {isApplyingEvidencePricing ? <RefreshCw className="w-3 h-3 animate-spin" /> : <DollarSign className="w-3 h-3" />} Evidence pricing
+                          </button>
+                        )}
+                        <button type="button" onClick={() => setShowSaveAsBundle(true)} className="flex items-center gap-1 px-2 py-1 text-xs bg-purple-600 hover:bg-purple-700 rounded-lg"><Save className="w-3 h-3" /> Save bundle</button>
+                      </div>
+                    </div>
+                    <OfferStack products={selectedAsProducts} totalPrice={grandSlamOffer.offerPrice} totalValue={grandSlamOffer.totalPerceivedValue} />
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-500">Select items from Suggested or All to build your offer stack.</p>
+                )
+              }
             />
           </div>
         </div>
@@ -1340,9 +1229,23 @@ export default function ConversationPage() {
 
       {showSaveAsBundle && <SaveAsBundleModal onClose={() => setShowSaveAsBundle(false)} onSave={saveAsBundle} itemCount={selectedContent.length} parentBundleName={bundles.find(b => b.id === selectedBundleId)?.name} />}
 
-      {showProposalModal && (
+      {showProposalDrawer && (
         <ProposalModal
-          onClose={() => setShowProposalModal(false)}
+          presentation="drawer"
+          heading="Proposal & documents"
+          reviewSection={
+            currentProposal ? (
+              <ConversationProposalReviewSection
+                currentProposal={currentProposal}
+                proposalDocuments={proposalDocuments}
+                setProposalDocuments={setProposalDocuments}
+                proposalEmailDraft={proposalEmailDraft}
+                accessToken={authSession?.access_token ?? null}
+                onOpenAttachModal={() => setShowAttachDocumentModal(true)}
+              />
+            ) : undefined
+          }
+          onClose={() => setShowProposalDrawer(false)}
           contactId={contact?.id ? parseInt(contact.id, 10) : null}
           defaultValueReportId={valueReportId}
           defaultClientName={contact?.name || ''}
@@ -1354,7 +1257,7 @@ export default function ConversationPage() {
           contactSubmissionId={salesSession?.contact_submission_id ?? null}
           diagnosticAuditId={diagnosticAuditId ? parseInt(diagnosticAuditId, 10) : null}
           bundleName={bundles.find(b => b.id === selectedBundleId)?.name || 'Custom Offer'}
-          defaultServiceTermMonths={(bundles.find(b => b.id === selectedBundleId) as any)?.default_service_term_months ?? null}
+          defaultServiceTermMonths={(bundles.find(b => b.id === selectedBundleId) as { default_service_term_months?: number | null } | undefined)?.default_service_term_months ?? null}
           lineItems={selectedContentDetails.map(c => {
             const k = `${c.content_type}:${c.content_id}`;
             const ov = priceOverrides[k];
@@ -1403,8 +1306,6 @@ export default function ConversationPage() {
                 proposalLink: result.proposalLink,
                 accessCode: result.accessCode,
               }));
-              setShowProposalModal(false);
-              // Refresh proposal documents after generation
               if (result.proposal.id) {
                 const docsRes = await fetch(`/api/admin/proposals/${result.proposal.id}/documents`, { headers: { Authorization: `Bearer ${authSession.access_token}` } });
                 if (docsRes.ok) {
@@ -1433,6 +1334,149 @@ export default function ConversationPage() {
           }}
         />
       )}
+    </div>
+  );
+}
+
+type ProposalDocRow = { id: string; document_type: string; title: string; display_order: number; created_at: string };
+
+function ConversationProposalReviewSection({
+  currentProposal,
+  proposalDocuments,
+  setProposalDocuments,
+  proposalEmailDraft,
+  accessToken,
+  onOpenAttachModal,
+}: {
+  currentProposal: { id: string; status: string; proposalLink: string };
+  proposalDocuments: ProposalDocRow[];
+  setProposalDocuments: Dispatch<SetStateAction<ProposalDocRow[]>>;
+  proposalEmailDraft: ProposalEmailDraft | null;
+  accessToken: string | null;
+  onOpenAttachModal: () => void;
+}) {
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-gray-500">
+        Adjust line items in the offer column on the left anytime. Scroll down to generate or regenerate a proposal.
+      </p>
+      <div className="bg-gray-800/50 rounded-lg p-3 border border-gray-700">
+        <span className={`inline-block px-2 py-0.5 text-xs rounded ${currentProposal.status === 'paid' ? 'bg-green-900/50 text-green-300' : currentProposal.status === 'accepted' ? 'bg-blue-900/50 text-blue-300' : 'bg-gray-700 text-gray-300'}`}>{currentProposal.status}</span>
+        <div className="flex items-center gap-2 mt-2">
+          <input type="text" value={currentProposal.proposalLink} readOnly className="flex-1 min-w-0 px-2 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-xs text-gray-300" />
+          <button type="button" onClick={() => navigator.clipboard.writeText(currentProposal.proposalLink)} className="p-2 bg-gray-700 hover:bg-gray-600 rounded-lg shrink-0" title="Copy"><Copy className="w-4 h-4" /></button>
+          <a href={currentProposal.proposalLink} target="_blank" rel="noopener noreferrer" className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg shrink-0" title="Open client view"><ExternalLink className="w-4 h-4" /></a>
+        </div>
+        <div className="mt-3 pt-3 border-t border-gray-700">
+          <h5 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-2">Reports &amp; documents</h5>
+          {proposalDocuments.length > 0 ? (
+            <ul className="space-y-2 mb-2">
+              {proposalDocuments.map((doc, index) => (
+                <li key={doc.id} className="flex items-center justify-between gap-2 py-1.5 px-2 rounded bg-gray-900/50">
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (index === 0 || !accessToken) return;
+                        const newOrder = [...proposalDocuments];
+                        [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+                        const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+                          body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
+                        });
+                        if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
+                      }}
+                      disabled={index === 0}
+                      className="p-1 text-gray-400 hover:text-white disabled:opacity-30 rounded"
+                      title="Move up"
+                    >
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (index >= proposalDocuments.length - 1 || !accessToken) return;
+                        const newOrder = [...proposalDocuments];
+                        [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+                        const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents`, {
+                          method: 'PATCH',
+                          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+                          body: JSON.stringify({ documentIds: newOrder.map(d => d.id) }),
+                        });
+                        if (res.ok) { const data = await res.json(); setProposalDocuments(data.documents ?? newOrder); }
+                      }}
+                      disabled={index >= proposalDocuments.length - 1}
+                      className="p-1 text-gray-400 hover:text-white disabled:opacity-30 rounded"
+                      title="Move down"
+                    >
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <span className="text-sm text-gray-200 truncate flex-1">{doc.title}</span>
+                  <span className="text-xs text-gray-500 shrink-0">
+                    {doc.document_type === 'strategy_report' ? 'Strategy' : doc.document_type === 'opportunity_quantification' ? 'Opportunity' : doc.document_type === 'proposal_package' ? 'Package' : 'Document'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!accessToken) return;
+                      const res = await fetch(`/api/admin/proposals/${currentProposal.id}/documents/${doc.id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${accessToken}` } });
+                      if (res.ok) setProposalDocuments(prev => prev.filter(d => d.id !== doc.id));
+                    }}
+                    className="p-1.5 text-gray-400 hover:text-red-400 rounded"
+                    title="Remove document"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-xs text-gray-500 mb-2">No reports or documents attached yet.</p>
+          )}
+          <button type="button" onClick={onOpenAttachModal} className="flex items-center gap-1.5 text-sm text-blue-400 hover:text-blue-300">
+            <Upload className="w-3.5 h-3.5" /> Attach report or document (PDF)
+          </button>
+        </div>
+        {proposalEmailDraft && (
+          <div className="mt-3 border-t border-gray-700 pt-3">
+            <div className="flex items-center justify-between mb-2">
+              <h5 className="text-sm font-medium text-gray-300 flex items-center gap-2">
+                <Mail className="w-4 h-4 text-blue-400" />
+                Email draft
+              </h5>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const full = `Subject: ${proposalEmailDraft.subject}\n\n${proposalEmailDraft.body}`;
+                    navigator.clipboard.writeText(full);
+                  }}
+                  className="px-2 py-1 text-xs bg-gray-700 hover:bg-gray-600 rounded flex items-center gap-1 transition-colors"
+                  title="Copy email to clipboard"
+                >
+                  <Copy className="w-3 h-3" />
+                  Copy
+                </button>
+                <a
+                  href={`mailto:${encodeURIComponent(proposalEmailDraft.to)}?subject=${encodeURIComponent(proposalEmailDraft.subject)}&body=${encodeURIComponent(proposalEmailDraft.body)}`}
+                  className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-1 transition-colors"
+                  title="Open in email client"
+                >
+                  <Send className="w-3 h-3" />
+                  Send
+                </a>
+              </div>
+            </div>
+            <div className="text-xs text-gray-500 mb-1">To: {proposalEmailDraft.to}</div>
+            <div className="text-xs text-gray-500 mb-2">Subject: {proposalEmailDraft.subject}</div>
+            <pre className="text-xs text-gray-300 bg-gray-900/80 rounded-lg p-3 whitespace-pre-wrap font-sans leading-relaxed max-h-40 overflow-y-auto">
+              {proposalEmailDraft.body}
+            </pre>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

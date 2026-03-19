@@ -100,9 +100,9 @@ function MissionCard({
         <Icon className="w-14 h-14 sm:w-16 sm:h-16 text-radiant-gold/30" aria-hidden />
         <span className="sr-only">{alt}</span>
       </div>
-      <div className="p-4 sm:p-5">
+      <div className="p-4 sm:p-5 bg-imperial-navy/50 backdrop-blur-sm border-t border-radiant-gold/10">
         <p className="text-[10px] font-heading uppercase tracking-[0.2em] text-radiant-gold mb-1.5">{label}</p>
-        <p className="font-body text-sm sm:text-base text-platinum-white/80 leading-snug">{line}</p>
+        <p className="font-body text-sm sm:text-base text-platinum-white/90 leading-snug">{line}</p>
       </div>
     </motion.div>
   )

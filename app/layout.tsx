@@ -4,6 +4,7 @@ import './globals.css'
 import { AuthProvider } from '@/components/AuthProvider'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import FlowingMesh from '@/components/ui/FlowingMesh'
+import DevBanner from '@/components/DevBanner'
 
 // AmaduTown Brand Typography
 const orbitron = Orbitron({
@@ -42,6 +43,7 @@ export default function RootLayout({
         <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden>
           <FlowingMesh className="fixed inset-0" opacity={0.7} />
         </div>
+        <DevBanner />
         <div className="relative z-10">
           <AuthProvider>{children}</AuthProvider>
         </div>

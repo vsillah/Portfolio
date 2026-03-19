@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { FileText, XCircle, Loader2, AlertTriangle, CheckSquare, Square, ChevronDown, ChevronUp, Sparkles, Pencil, Trash2 } from 'lucide-react';
+import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { FileText, XCircle, Loader2, AlertTriangle, CheckSquare, Square, ChevronDown, ChevronUp, Sparkles, Trash2, ExternalLink } from 'lucide-react';
 import { getCurrentSession } from '@/lib/auth';
 import { formatCurrency } from '@/lib/pricing-model';
 import type { AIOnboardingContent } from '@/lib/ai-onboarding-generator';
@@ -54,6 +54,12 @@ export interface ProposalModalProps {
   }>;
   bundleName?: string;
   defaultServiceTermMonths?: number | null;
+  /** Slide-in panel from the right (e.g. conversation page) vs centered modal */
+  presentation?: 'modal' | 'drawer';
+  /** Shown above the generate form (e.g. existing proposal link, documents, email draft) */
+  reviewSection?: ReactNode;
+  /** Header title when not using default "Generate Proposal" */
+  heading?: string;
 }
 
 const REPORT_TYPE_LABELS: Record<string, string> = {
@@ -79,6 +85,9 @@ export function ProposalModal({
   lineItems,
   bundleName,
   defaultServiceTermMonths,
+  presentation = 'modal',
+  reviewSection,
+  heading,
 }: ProposalModalProps) {
   const [clientName, setClientName] = useState(defaultClientName);
   const [clientEmail, setClientEmail] = useState(defaultClientEmail);
@@ -256,20 +265,27 @@ export function ProposalModal({
 
   const finalAmount = totalAmount - (discountAmount || 0);
 
-  return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div className="bg-gray-900 rounded-xl border border-gray-800 w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-4 border-b border-gray-800">
-          <h3 className="text-lg font-semibold flex items-center gap-2">
-            <FileText className="w-5 h-5 text-blue-400" />
-            Generate Proposal
-          </h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
-            <XCircle className="w-5 h-5" />
-          </button>
-        </div>
+  const headerTitle = heading ?? 'Generate Proposal';
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-4">
+  const header = (
+    <div className="flex items-center justify-between p-4 border-b border-gray-800 shrink-0">
+      <h3 className="text-lg font-semibold flex items-center gap-2">
+        <FileText className="w-5 h-5 text-blue-400" />
+        {headerTitle}
+      </h3>
+      <button type="button" onClick={onClose} className="text-gray-400 hover:text-white" aria-label="Close">
+        <XCircle className="w-5 h-5" />
+      </button>
+    </div>
+  );
+
+  const body = (
+    <div className="flex-1 overflow-y-auto p-6 space-y-4 min-h-0">
+      {reviewSection ? (
+        <div className="-mx-6 -mt-6 mb-2 px-6 py-4 border-b border-gray-800 bg-gray-800/20">
+          {reviewSection}
+        </div>
+      ) : null}
           {error && (
             <div className="p-3 bg-red-900/30 border border-red-800 rounded-lg text-sm text-red-200">{error}</div>
           )}
@@ -488,23 +504,35 @@ export function ProposalModal({
                   ) : (
                     <div className="space-y-1.5">
                       {gammaReports.map((gr) => (
-                        <button
+                        <div
                           key={gr.id}
-                          type="button"
-                          onClick={() => toggleReportSelection(gr.id)}
-                          className="w-full flex items-center gap-2 p-2 bg-gray-800/50 rounded hover:bg-gray-800 transition-colors text-left"
+                          className="flex items-center gap-2 p-2 bg-gray-800/50 rounded border border-gray-700/50"
                         >
-                          {selectedReportIds.has(gr.id) ? <CheckSquare className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" /> : <Square className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />}
-                          <div className="flex-1 min-w-0">
-                            <span className="text-xs text-gray-200 truncate block">{gr.title || 'Untitled Report'}</span>
-                          </div>
-                          <span className="text-[10px] text-gray-500 flex-shrink-0">
-                            {REPORT_TYPE_LABELS[gr.report_type] || gr.report_type}
-                          </span>
-                          <span className="text-[10px] text-gray-600 flex-shrink-0">
-                            {new Date(gr.created_at).toLocaleDateString()}
-                          </span>
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => toggleReportSelection(gr.id)}
+                            className="flex flex-1 min-w-0 items-center gap-2 text-left rounded hover:bg-gray-800/80 transition-colors"
+                          >
+                            {selectedReportIds.has(gr.id) ? <CheckSquare className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" /> : <Square className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />}
+                            <div className="flex-1 min-w-0">
+                              <span className="text-xs text-gray-200 truncate block">{gr.title || 'Untitled Report'}</span>
+                              <span className="text-[10px] text-gray-500">
+                                {REPORT_TYPE_LABELS[gr.report_type] || gr.report_type} · {new Date(gr.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </button>
+                          {gr.pdf_url ? (
+                            <a
+                              href={gr.pdf_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="shrink-0 flex items-center gap-1 text-[10px] font-medium text-blue-400 hover:text-blue-300 px-2 py-1 rounded border border-blue-500/40"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              Preview PDF
+                            </a>
+                          ) : null}
+                        </div>
                       ))}
                     </div>
                   )}
@@ -550,15 +578,19 @@ export function ProposalModal({
             </div>
           </div>
         </div>
+  );
 
-        <div className="p-4 border-t border-gray-800 flex items-center gap-3">
+  const footer = (
+    <div className="p-4 border-t border-gray-800 flex items-center gap-3 shrink-0">
           <button
+            type="button"
             onClick={onClose}
             className="flex-1 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors"
           >
             Cancel
           </button>
           <button
+            type="button"
             onClick={handleGenerate}
             disabled={isGenerating || !clientName.trim() || !clientEmail.trim()}
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-800 disabled:cursor-not-allowed rounded-lg transition-colors"
@@ -571,7 +603,36 @@ export function ProposalModal({
             Generate Proposal
           </button>
         </div>
+  );
+
+  const shellClass =
+    presentation === 'drawer'
+      ? 'h-full w-full max-w-xl sm:max-w-2xl flex flex-col bg-gray-900 border-l border-gray-800 shadow-2xl'
+      : 'bg-gray-900 rounded-xl border border-gray-800 w-full max-w-lg max-h-[90vh] overflow-hidden flex flex-col';
+
+  const panel = (
+    <div className={shellClass} role="dialog" aria-modal="true" aria-labelledby="proposal-modal-title">
+      <div id="proposal-modal-title" className="sr-only">
+        {headerTitle}
       </div>
+      {header}
+      {body}
+      {footer}
+    </div>
+  );
+
+  if (presentation === 'drawer') {
+    // pointer-events-none so the conversation page (e.g. offer column) stays usable while open; close via header X.
+    return (
+      <div className="fixed inset-0 z-[100] pointer-events-none flex justify-end">
+        <div className="pointer-events-auto h-full flex max-w-full shadow-2xl">{panel}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      {panel}
     </div>
   );
 }

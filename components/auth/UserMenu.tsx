@@ -64,7 +64,7 @@ export default function UserMenu() {
             className="absolute right-0 mt-3 w-64 glass-card border border-radiant-gold/20 rounded-xl overflow-hidden shadow-2xl z-50"
           >
             {/* User info header */}
-            <div className="px-4 py-4 border-b border-radiant-gold/10 bg-imperial-navy/50">
+            <div className="px-4 py-4 border-b border-radiant-gold/10 bg-imperial-navy/55 backdrop-blur-sm">
               <p className="text-platinum-white font-medium text-sm truncate">{user.email}</p>
               {isAdmin && (
                 <span className="inline-flex items-center gap-1 mt-1 text-xs text-radiant-gold">
@@ -75,7 +75,7 @@ export default function UserMenu() {
             </div>
 
             {/* Menu items */}
-            <div className="p-2">
+            <div className="p-2 bg-imperial-navy/35 backdrop-blur-sm">
               <a
                 href="/resources"
                 onClick={() => setIsOpen(false)}
