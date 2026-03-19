@@ -1,0 +1,57 @@
+name: Receive Template Update
+
+on:
+  repository_dispatch:
+    types: [template-update]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-update-pr:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "Template Bot"
+          git config user.email "template-bot@users.noreply.github.com"
+
+      - name: Fetch upstream changes
+        run: |
+          git remote add upstream https://github.com/vsillah/chatbot-template.git || true
+          git fetch upstream main
+
+      - name: Create update branch
+        run: |
+          BRANCH="update/${{ github.event.client_payload.version }}"
+          git checkout -b "$BRANCH"
+          git merge upstream/main --no-edit --strategy-option theirs || true
+          git push origin "$BRANCH"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: "update/${{ github.event.client_payload.version }}"
+          title: "Template Update: ${{ github.event.client_payload.version }}"
+          body: |
+            ## Template Update
+
+            A new version of the chatbot template is available.
+
+            **Version:** ${{ github.event.client_payload.version }}
+
+            ### What changed
+            ${{ github.event.client_payload.changelog }}
+
+            ### What to do
+            - Review the changes in the **Files changed** tab
+            - If there are no conflicts, click **Merge pull request**
+            - If there are conflicts in `config/` files, see the changelog above for migration steps
+
+            > This PR was created automatically. Your customizations in `config/` are preserved.
+          labels: template-update

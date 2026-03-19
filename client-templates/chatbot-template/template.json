@@ -2,5 +2,10 @@
   "template_content_type": "app_template",
   "use_case": "chat",
   "portfolio_content_type": "service",
-  "dependencies": ["supabase", "n8n", "openai"]
+  "dependencies": ["supabase", "n8n", "openai"],
+  "config_version": 1,
+  "structure": {
+    "buyer_territory": "config/",
+    "seller_territory": "src/"
+  }
 }

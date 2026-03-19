@@ -1,58 +1,11 @@
-# Install Guide — Chatbot Template
+# Install Guide
 
-## Prerequisites
+See the main [README.md](README.md) for complete setup instructions.
 
-- Node.js 18+
-- Supabase project
-- n8n instance (or n8n Cloud)
-- OpenAI or Anthropic API key (via n8n or app)
-
-## 1. Clone or copy
-
-Clone the spin-off repo (if available) or copy the template directory. The template is fully self-contained — all boilerplate (tsconfig, next.config, tailwind, layout, etc.) and auth utilities are included. No `copy-shared.sh` step is needed.
+## Quick Reference
 
 ```bash
-git clone https://github.com/your-org/chatbot-template.git
-cd chatbot-template
+npm run setup    # Interactive setup wizard
+npm run doctor   # Verify configuration
+npm run dev      # Start development server
 ```
-
-## 2. Install dependencies
-
-```bash
-npm install
-```
-
-## 3. Database
-
-Run the SQL files in `database/` in your Supabase SQL editor (e.g. `schema_chat.sql`, schema for system prompts if used).
-
-## 4. Environment variables
-
-Copy `.env.example` to `.env.local` and set:
-
-- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `N8N_WEBHOOK_URL` — your n8n webhook URL for chat messages
-- (Optional) `SUPABASE_SERVICE_ROLE_KEY` for server-side writes
-
-## 5. n8n workflow
-
-- Create a workflow with a Webhook trigger (POST).
-- Connect to your AI node (OpenAI, Anthropic, or AI Agent with RAG).
-- Use the payload format documented in the template README (message, sessionId, history).
-- Set response mode to "Last Node" and return the assistant reply.
-
-## 6. Run
-
-```bash
-npm run dev
-```
-
-Open the chat route and send a message. Confirm the webhook is called and responses return.
-
-## 7. Deploy
-
-Deploy to Vercel (or your host). Add the same env vars. Update n8n webhook URL if needed.
-
-## Optional: voice (VAPI)
-
-If using VAPI, add `VAPI_*` env vars and configure the voice agent to use the same n8n endpoint or your app API.
