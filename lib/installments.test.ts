@@ -44,6 +44,8 @@ describe('calculateInstallmentPlan', () => {
 
   it('generates monthly due dates from the current date', () => {
     const plan = calculateInstallmentPlan(500, 4, 0)
+    expect(plan.schedule).toHaveLength(4)
+    expect(plan.schedule.map((item) => item.number)).toEqual([1, 2, 3, 4])
     const dueDates = plan.schedule.map((item) => item.dueDate.toISOString().slice(0, 10))
 
     expect(dueDates).toEqual([
