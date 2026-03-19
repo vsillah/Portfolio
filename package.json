@@ -15,6 +15,8 @@
     "test:e2e:headed": "playwright test --headed",
     "db:health-check": "tsx scripts/database-health-check.ts",
     "db:health-check:update": "tsx scripts/database-health-check.ts --update",
+    "db:health-check:dev": "tsx scripts/database-health-check.ts --dev",
+    "db:health-check:dev:update": "tsx scripts/database-health-check.ts --dev --update",
     "printful:webhook": "tsx scripts/printful-setup-webhook.ts",
     "storyboard:assets:schematics": "tsx scripts/generate-storyboard-schematics.ts",
     "storyboard:assets:capture": "tsx scripts/capture-storyboard-assets.ts",

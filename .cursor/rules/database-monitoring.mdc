@@ -4,12 +4,17 @@ globs:
   - migrations/**/*
   - scripts/database-health-check.ts
   - .database-baseline.json
+  - .database-baseline-dev.json
   - app/api/**/*
 ---
 
 # Database Health Check — Baseline Management
 
-This project uses a database health check (`scripts/database-health-check.ts`) that runs automatically on `git push` (via a Husky pre-push hook). It compares current row counts for critical tables against `.database-baseline.json` and **blocks the push** if data loss is detected.
+This project uses a database health check (`scripts/database-health-check.ts`) that runs automatically on `git push` (via a Husky pre-push hook). It **defaults to production** credentials (`PROD_SUPABASE_URL` / `PROD_SUPABASE_SERVICE_ROLE_KEY`) so the pre-push hook guards real data. Pass `--dev` to check the dev database instead.
+
+Baselines are stored in separate files:
+- **Production:** `.database-baseline.json` (tracked in git)
+- **Dev:** `.database-baseline-dev.json` (gitignored)
 
 ## When to Rebaseline
 
@@ -20,16 +25,17 @@ After any of the following, remind the user to update the baseline:
 3. **Database restore or reset** — if the database is restored from a backup and row counts differ from the baseline.
 4. **Adding new critical tables** — if a new table should be monitored, remind the user to add it to the `CRITICAL_TABLES` array in `scripts/database-health-check.ts` and then rebaseline.
 
-## Rebaseline Command
+## Rebaseline Commands
 
+Production (default):
 ```bash
-npx tsx scripts/database-health-check.ts --update
+npm run db:health-check:update
+git add .database-baseline.json && git commit -m "Update database baseline"
 ```
 
-Then commit the updated baseline:
-
+Dev:
 ```bash
-git add .database-baseline.json && git commit -m "Update database baseline"
+npm run db:health-check:dev:update
 ```
 
 ## Monitored Tables (as of Feb 2026)
@@ -45,4 +51,4 @@ git add .database-baseline.json && git commit -m "Update database baseline"
 
 When creating or reviewing migrations, seed scripts, or any code that modifies row counts in the monitored tables, **always remind the user**:
 
-> "This change may affect database row counts. After applying, run `npx tsx scripts/database-health-check.ts --update` to rebaseline, then commit `.database-baseline.json`."
+> "This change may affect database row counts. After applying, run `npm run db:health-check:update` to rebaseline, then commit `.database-baseline.json`."

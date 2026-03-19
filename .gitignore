@@ -56,3 +56,6 @@ scripts/dev-combined-migrations.sql
 scripts/prod-schema-dump.sql
 scripts/prod-schema-ddl.sql
 scripts/prod-schema-components/
+
+# Dev database baseline (ephemeral — only prod baseline is tracked)
+.database-baseline-dev.json

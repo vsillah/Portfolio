@@ -1,13 +1,14 @@
 /**
  * DATABASE HEALTH CHECK SCRIPT
  * 
- * Monitors critical database tables and alerts if row counts drop
- * Run this script:
- * - Before deployments
- * - Daily via cron job
- * - In CI/CD pipeline
+ * Monitors critical database tables and alerts if row counts drop.
+ * Defaults to PRODUCTION credentials (PROD_SUPABASE_*) so the pre-push
+ * hook guards real data. Pass --dev to check the dev database instead.
  * 
- * Usage: npx tsx scripts/database-health-check.ts
+ * Usage:
+ *   npx tsx scripts/database-health-check.ts            # production (default)
+ *   npx tsx scripts/database-health-check.ts --dev       # dev database
+ *   npx tsx scripts/database-health-check.ts --update    # update baseline
  */
 
 // Load environment variables from .env.local (local) or from process.env (CI)
@@ -19,26 +20,37 @@ import { createClient } from '@supabase/supabase-js'
 import * as fs from 'fs'
 import * as path from 'path'
 
-// Configuration — require explicit vars so we fail with a clear message
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const useDev = process.argv.includes('--dev')
+const envLabel = useDev ? 'DEV' : 'PROD'
+
+const SUPABASE_URL = useDev
+  ? process.env.NEXT_PUBLIC_SUPABASE_URL
+  : (process.env.PROD_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL)
+
+const SUPABASE_SERVICE_KEY = useDev
+  ? process.env.SUPABASE_SERVICE_ROLE_KEY
+  : (process.env.PROD_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)
+
+const urlVar = useDev ? 'NEXT_PUBLIC_SUPABASE_URL' : 'PROD_SUPABASE_URL'
+const keyVar = useDev ? 'SUPABASE_SERVICE_ROLE_KEY' : 'PROD_SUPABASE_SERVICE_ROLE_KEY'
 
 if (!SUPABASE_URL?.trim()) {
-  console.error('❌ NEXT_PUBLIC_SUPABASE_URL is missing.')
-  console.error('   Local: add it to .env.local in the project root.')
-  console.error('   CI: add NEXT_PUBLIC_SUPABASE_URL to GitHub Actions secrets.')
+  console.error(`❌ ${urlVar} is missing.`)
+  console.error('   Add it to .env.local in the project root (or set in CI).')
   process.exit(1)
 }
 if (!SUPABASE_SERVICE_KEY?.trim()) {
-  console.error('❌ SUPABASE_SERVICE_ROLE_KEY is missing.')
-  console.error('   Local: add it to .env.local in the project root.')
-  console.error('   CI: add SUPABASE_SERVICE_ROLE_KEY to GitHub Actions secrets.')
+  console.error(`❌ ${keyVar} is missing.`)
+  console.error('   Add it to .env.local in the project root (or set in CI).')
   process.exit(1)
 }
-// Narrow types for createClient (guards above ensure defined)
+
 const SUPABASE_URL_SAFE: string = SUPABASE_URL as string
 const SUPABASE_SERVICE_KEY_SAFE: string = SUPABASE_SERVICE_KEY as string
-const BASELINE_FILE = path.join(__dirname, '../.database-baseline.json')
+const BASELINE_FILE = path.join(
+  __dirname,
+  useDev ? '../.database-baseline-dev.json' : '../.database-baseline.json'
+)
 
 // Critical tables to monitor
 const CRITICAL_TABLES = [
@@ -190,7 +202,7 @@ function compareWithBaseline(
 }
 
 async function main() {
-  console.log('🔍 Running database health check...\n')
+  console.log(`🔍 Running database health check [${envLabel}]...\n`)
 
   // Get current counts
   const currentCounts = await getTableCounts()
