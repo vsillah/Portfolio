@@ -41,7 +41,7 @@ export function Chat({
   const [sessionId, setSessionId] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
   const [isExpanded, setIsExpanded] = useState(false)
-  const [showSuggestions, setShowSuggestions] = useState(features.suggestedActions)
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(features.suggestedActions)
   const [chatMode, setChatMode] = useState<ChatMode>('text')
   const [isVoiceCallActive, setIsVoiceCallActive] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
