@@ -1,38 +1,54 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, SupabaseClient } from '@supabase/supabase-js'
 import { integrations } from './config'
 
-const supabaseUrl = integrations.supabase.url
-const supabaseAnonKey = integrations.supabase.anonKey
+let _supabase: SupabaseClient | null = null
+let _supabaseAdmin: SupabaseClient | null = null
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    'Missing Supabase environment variables. Run `npm run setup` or check your .env.local file.'
-  )
+function getSupabaseConfig() {
+  const url = integrations.supabase.url
+  const anonKey = integrations.supabase.anonKey
+  if (!url || !anonKey) {
+    throw new Error(
+      'Missing Supabase environment variables. Run `npm run setup` or check your .env.local file.'
+    )
+  }
+  return { url, anonKey, serviceRoleKey: integrations.supabase.serviceRoleKey }
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-  },
+export function getSupabase(): SupabaseClient {
+  if (!_supabase) {
+    const { url, anonKey } = getSupabaseConfig()
+    _supabase = createClient(url, anonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+      },
+    })
+  }
+  return _supabase
+}
+
+export function getSupabaseAdmin(): SupabaseClient {
+  if (!_supabaseAdmin) {
+    const { url, anonKey, serviceRoleKey } = getSupabaseConfig()
+    if (!serviceRoleKey) {
+      console.warn('[SERVER] SUPABASE_SERVICE_ROLE_KEY is missing. Admin operations may fail.')
+    }
+    _supabaseAdmin = createClient(url, serviceRoleKey || anonKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+  }
+  return _supabaseAdmin
+}
+
+/** @deprecated Use getSupabase() instead — kept for backward compatibility */
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_, prop) { return (getSupabase() as any)[prop] },
 })
 
-const serviceRoleKey = integrations.supabase.serviceRoleKey
-if (!serviceRoleKey && typeof window === 'undefined') {
-  console.warn('[SERVER] SUPABASE_SERVICE_ROLE_KEY is missing. Admin operations may fail.')
-}
-
-export const supabaseAdmin = typeof window === 'undefined'
-  ? createClient(
-      supabaseUrl,
-      serviceRoleKey || supabaseAnonKey,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
-  : null as any
+/** @deprecated Use getSupabaseAdmin() instead — kept for backward compatibility */
+export const supabaseAdmin = new Proxy({} as SupabaseClient, {
+  get(_, prop) { return (getSupabaseAdmin() as any)[prop] },
+})
