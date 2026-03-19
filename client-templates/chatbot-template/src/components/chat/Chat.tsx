@@ -34,7 +34,7 @@ export function Chat({
   initialMessage = branding.welcomeMessage,
   visitorEmail,
   visitorName,
-  suggestedActions = branding.suggestedActions as Array<{ id: string; label: string; message: string; description?: string }>,
+  suggestedActions = [...branding.suggestedActions] as Array<{ id: string; label: string; message: string; description?: string }>,
 }: ChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [isLoading, setIsLoading] = useState(false)
