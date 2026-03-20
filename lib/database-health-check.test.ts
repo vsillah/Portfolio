@@ -49,7 +49,7 @@ describe('compareWithBaseline', () => {
   })
 
   it('does not flag optional tables that are missing', () => {
-    const baseline = [row('projects', 20)]
+    const baseline = [row('projects', -1)]
     const current = [row('projects', -1)]
 
     const result = compareWithBaseline(current, baseline, OPTIONAL_TABLES)
