@@ -59,3 +59,5 @@ scripts/prod-schema-components/
 
 # Dev database baseline (ephemeral — only prod baseline is tracked)
 .database-baseline-dev.json
+# staging env files
+.env.staging
