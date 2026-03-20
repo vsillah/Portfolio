@@ -7,7 +7,7 @@
  */
 
 import { supabaseAdmin } from './supabase'
-import { n8nWebhookUrl } from './n8n'
+import { n8nWebhookUrl, isN8nOutboundDisabled, logDisabledOutbound } from './n8n'
 import { getUpsellPathsForOffer, formatUpsellAsOnboardingNote, type UpsellPath } from './upsell-paths'
 
 // ============================================================================
@@ -542,6 +542,11 @@ export async function fireOnboardingWebhook(
 ): Promise<boolean> {
   const webhookUrl = process.env.N8N_ONBOARDING_WEBHOOK_URL
     || n8nWebhookUrl('onboarding-plan-email')
+
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('fireOnboardingWebhook', webhookUrl, payload)
+    return false
+  }
 
   if (!webhookUrl) {
     console.warn('N8N_ONBOARDING_WEBHOOK_URL not configured, skipping webhook')

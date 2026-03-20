@@ -372,6 +372,7 @@ export const warmLeadPipelineScenario: TestScenario = {
       type: 'apiCall',
       endpoint: '/api/admin/outreach/ingest',
       method: 'POST',
+      useIngestSecret: true,
       body: {
         leads: [
           {
@@ -624,6 +625,215 @@ export const auditFromMeetingsScenario: TestScenario = {
 }
 
 // ============================================================================
+// Populate Demo Data — lightweight scenarios that create data via API (no SQL)
+// Use Admin → Testing → "Populate Demo Data" preset. Requires N8N_INGEST_SECRET
+// for ingest scenarios and admin session for leads API.
+// ============================================================================
+
+export const seedWarmLeadsScenario: TestScenario = {
+  id: 'seed_warm_leads',
+  name: 'Seed: Warm Leads',
+  description: 'Ingest 2 warm leads via API (Facebook friends + groups). Creates contact_submissions.',
+  journeyStage: 'lead',
+  steps: [
+    {
+      type: 'apiCall',
+      endpoint: '/api/admin/outreach/ingest',
+      method: 'POST',
+      useIngestSecret: true,
+      body: {
+        leads: [
+          {
+            name: 'Demo Warm Lead 1',
+            email: 'demo-warm1@example.com',
+            company: 'Demo Co A',
+            job_title: 'Product Manager',
+            lead_source: 'warm_facebook_friends',
+            relationship_strength: 'strong',
+            warm_source_detail: 'Direct Facebook friend'
+          },
+          {
+            name: 'Demo Warm Lead 2',
+            email: 'demo-warm2@example.com',
+            company: 'Demo Co B',
+            job_title: 'CTO',
+            lead_source: 'warm_facebook_groups',
+            relationship_strength: 'moderate',
+            warm_source_detail: 'Tech Founders Network'
+          }
+        ]
+      },
+      expectedStatus: 200,
+      description: 'Ingest warm leads'
+    }
+  ],
+  variability: { skipProbability: {}, delayRange: [500, 1000], responseVariation: false },
+  expectedOutcomes: { mustComplete: ['apiCall'], mustNotError: ['apiCall'], dataValidation: [] },
+  estimatedDuration: 5000,
+  tags: ['seed', 'populate-demo', 'warm-leads']
+}
+
+export const seedColdLeadScenario: TestScenario = {
+  id: 'seed_cold_lead',
+  name: 'Seed: Cold Lead',
+  description: 'Ingest 1 cold lead via API. Creates contact_submissions for outreach pipeline.',
+  journeyStage: 'lead',
+  steps: [
+    {
+      type: 'apiCall',
+      endpoint: '/api/admin/outreach/ingest',
+      method: 'POST',
+      useIngestSecret: true,
+      body: {
+        leads: [
+          {
+            name: 'Demo Cold Lead',
+            email: 'demo-cold@example.com',
+            company: 'Example SaaS Inc',
+            company_domain: 'example-saas.com',
+            job_title: 'CTO',
+            lead_source: 'cold_referral',
+            message: 'Demo cold lead for pipeline testing'
+          }
+        ]
+      },
+      expectedStatus: 200,
+      description: 'Ingest cold lead'
+    }
+  ],
+  variability: { skipProbability: {}, delayRange: [500, 1000], responseVariation: false },
+  expectedOutcomes: { mustComplete: ['apiCall'], mustNotError: ['apiCall'], dataValidation: [] },
+  estimatedDuration: 5000,
+  tags: ['seed', 'populate-demo', 'cold-leads']
+}
+
+export const seedDiscoveryContactScenario: TestScenario = {
+  id: 'seed_discovery_contact',
+  name: 'Seed: Discovery Call Contact',
+  description: 'Create a contact via Add Lead API for discovery call testing. Requires admin auth.',
+  journeyStage: 'lead',
+  steps: [
+    {
+      type: 'apiCall',
+      endpoint: '/api/admin/outreach/leads',
+      method: 'POST',
+      body: {
+        name: 'Demo Discovery Caller',
+        email: 'demo-discovery@example.com',
+        company: 'Demo Co',
+        input_type: 'referral',
+        message: 'Demo contact for discovery call flow'
+      },
+      expectedStatus: 200,
+      description: 'Create discovery contact'
+    }
+  ],
+  variability: { skipProbability: {}, delayRange: [500, 1000], responseVariation: false },
+  expectedOutcomes: { mustComplete: ['apiCall'], mustNotError: ['apiCall'], dataValidation: [] },
+  estimatedDuration: 5000,
+  tags: ['seed', 'populate-demo', 'discovery']
+}
+
+/** One API call to POST /api/admin/testing/demo-seed (replaces former SQL seeds). */
+function demoSeedApiScenario(
+  id: string,
+  name: string,
+  description: string,
+  key: string,
+  journeyStage: JourneyStage | JourneyStage[],
+  tags: string[]
+): TestScenario {
+  return {
+    id,
+    name,
+    description,
+    journeyStage,
+    steps: [
+      {
+        type: 'apiCall',
+        endpoint: '/api/admin/testing/demo-seed',
+        method: 'POST',
+        body: { key },
+        expectedStatus: 200,
+        description: name,
+      },
+    ],
+    variability: { skipProbability: {}, delayRange: [300, 600], responseVariation: false },
+    expectedOutcomes: { mustComplete: ['apiCall'], mustNotError: ['apiCall'], dataValidation: [] },
+    estimatedDuration: 4000,
+    tags,
+  }
+}
+
+export const seedSarahMitchellScenario = demoSeedApiScenario(
+  'seed_sarah_mitchell',
+  'Seed: Sarah Mitchell + Diagnostic',
+  'Full lead + completed diagnostic (was database_seed_test_lead.sql)',
+  'sarah_mitchell_lead',
+  'lead',
+  ['seed', 'populate-demo', 'diagnostic']
+)
+
+export const seedPaidProposalJordanScenario = demoSeedApiScenario(
+  'seed_paid_proposal_jordan',
+  'Seed: Paid Proposal (Jordan)',
+  'Paid proposal for project creation flow (was database_seed_test_proposal.sql)',
+  'paid_proposal_jordan',
+  'client',
+  ['seed', 'populate-demo', 'proposal']
+)
+
+export const seedLeadQual99999Scenario = demoSeedApiScenario(
+  'seed_lead_qual_99999',
+  'Seed: Lead Qualification Row (id 99999)',
+  'Contact for lead qualification webhook tests (was seed-lead-qualification-test-row.sql)',
+  'lead_qualification_99999',
+  'lead',
+  ['seed', 'populate-demo', 'lead-qual']
+)
+
+export const seedOnboardingProjectScenario = demoSeedApiScenario(
+  'seed_onboarding_project',
+  'Seed: Onboarding Client Project',
+  'client_projects for WF-001B (was seed-onboarding-test-client-project.sql)',
+  'onboarding_test_project',
+  'client',
+  ['seed', 'populate-demo', 'post-sale']
+)
+
+export const seedKickoffProjectScenario = demoSeedApiScenario(
+  'seed_kickoff_project',
+  'Seed: Kickoff Client Project',
+  'client_projects onboarding_completed (was seed-kickoff-test-client-project.sql)',
+  'kickoff_test_project',
+  'client',
+  ['seed', 'populate-demo', 'post-sale']
+)
+
+export const seedDiscoverySqlCompatScenario = demoSeedApiScenario(
+  'seed_discovery_sql_compat',
+  'Seed: Discovery Contact (test-discovery@)',
+  'Matches Client Journey Script discovery seed / SQL (test-discovery@example.com)',
+  'discovery_call_test_contact',
+  'lead',
+  ['seed', 'populate-demo', 'discovery']
+)
+
+/** Scenarios that populate demo data via E2E (no SQL). Run with cleanupAfter: false. */
+export const POPULATE_DEMO_SCENARIOS: TestScenario[] = [
+  seedWarmLeadsScenario,
+  seedColdLeadScenario,
+  seedDiscoveryContactScenario,
+  serviceInquiryScenario, // contactForm creates contact via public /api/contact
+  seedSarahMitchellScenario,
+  seedPaidProposalJordanScenario,
+  seedLeadQual99999Scenario,
+  seedOnboardingProjectScenario,
+  seedKickoffProjectScenario,
+  seedDiscoverySqlCompatScenario,
+]
+
+// ============================================================================
 // Scenario Collections
 // ============================================================================
 
@@ -652,7 +862,17 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   warm_lead_pipeline: warmLeadPipelineScenario,
   standalone_audit_tool: standaloneAuditToolScenario,
   client_experience_walkthrough: clientExperienceWalkthroughScenario,
-  audit_from_meetings: auditFromMeetingsScenario
+  audit_from_meetings: auditFromMeetingsScenario,
+  // Populate demo scenarios
+  seed_warm_leads: seedWarmLeadsScenario,
+  seed_cold_lead: seedColdLeadScenario,
+  seed_discovery_contact: seedDiscoveryContactScenario,
+  seed_sarah_mitchell: seedSarahMitchellScenario,
+  seed_paid_proposal_jordan: seedPaidProposalJordanScenario,
+  seed_lead_qual_99999: seedLeadQual99999Scenario,
+  seed_onboarding_project: seedOnboardingProjectScenario,
+  seed_kickoff_project: seedKickoffProjectScenario,
+  seed_discovery_sql_compat: seedDiscoverySqlCompatScenario,
 }
 
 /**

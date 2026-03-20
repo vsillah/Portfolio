@@ -81,6 +81,9 @@ export class SimulatedClient {
   // For now, we use API-based testing
   private useBrowser: boolean = false
   
+  /** Admin JWT for server-side API calls (passed from orchestrator when run from Admin UI) */
+  private adminToken?: string
+
   constructor(config: {
     persona: TestPersona
     scenario: TestScenario
@@ -88,13 +91,15 @@ export class SimulatedClient {
     clientId: string
     useBrowser?: boolean
     useMockChat?: boolean
+    adminToken?: string
   }) {
     this.persona = config.persona
     this.scenario = config.scenario
     this.testRunId = config.testRunId
     this.clientId = config.clientId
     this.useBrowser = config.useBrowser || false
-    
+    this.adminToken = config.adminToken
+
     // Generate session ID with test prefix
     this.sessionId = `test_e2e_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`
     
@@ -744,13 +749,20 @@ export class SimulatedClient {
   private async executeApiCall(step: ApiCallStep): Promise<Record<string, unknown>> {
     this.lastAction = `API call: ${step.method} ${step.endpoint}`
     
-    // Get admin session token (for admin actions)
-    const sessionResponse = await fetch(`${BASE_URL}/api/auth/session`)
+    // Auth: ingest endpoints use N8N_INGEST_SECRET; admin endpoints use adminToken (passed from Admin UI)
+    const isIngest = step.useIngestSecret ?? step.endpoint.includes('/ingest')
     let authToken = ''
-    
-    if (sessionResponse.ok) {
-      const sessionData = await sessionResponse.json()
-      authToken = sessionData?.access_token || ''
+    if (isIngest && process.env.N8N_INGEST_SECRET) {
+      authToken = process.env.N8N_INGEST_SECRET
+    } else if (this.adminToken) {
+      authToken = this.adminToken
+    } else {
+      // Fallback: try session (works only when client runs in browser context)
+      const sessionResponse = await fetch(`${BASE_URL}/api/auth/session`)
+      if (sessionResponse.ok) {
+        const sessionData = await sessionResponse.json()
+        authToken = sessionData?.access_token || ''
+      }
     }
     
     const headers: Record<string, string> = {
@@ -800,17 +812,18 @@ export class SimulatedClient {
   private async executeAdminAction(step: AdminActionStep): Promise<Record<string, unknown>> {
     this.lastAction = `Admin action: ${step.action}`
     
-    // Get admin session token
-    const sessionResponse = await fetch(`${BASE_URL}/api/auth/session`)
-    if (!sessionResponse.ok) {
-      throw new Error('Failed to get admin session')
-    }
-    
-    const sessionData = await sessionResponse.json()
-    const authToken = sessionData?.access_token
-    
+    // Use adminToken passed from orchestrator (server-side) or fetch session (browser context)
+    let authToken = this.adminToken
     if (!authToken) {
-      throw new Error('No auth token available')
+      const sessionResponse = await fetch(`${BASE_URL}/api/auth/session`)
+      if (!sessionResponse.ok) {
+        throw new Error('Failed to get admin session. Run from Admin → Testing while logged in, or pass adminToken.')
+      }
+      const sessionData = await sessionResponse.json()
+      authToken = sessionData?.access_token
+    }
+    if (!authToken) {
+      throw new Error('No auth token available for admin actions')
     }
     
     const headers = {
@@ -1151,6 +1164,7 @@ export function createSimulatedClient(config: {
   clientId?: string
   useBrowser?: boolean
   useMockChat?: boolean
+  adminToken?: string
 }): SimulatedClient {
   return new SimulatedClient({
     ...config,

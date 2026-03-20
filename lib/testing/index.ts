@@ -139,6 +139,7 @@ export {
   CHAT_SCENARIOS,
   ECOMMERCE_SCENARIOS,
   JOURNEY_SCENARIOS,
+  POPULATE_DEMO_SCENARIOS,
   
   // Utilities
   getScenario,

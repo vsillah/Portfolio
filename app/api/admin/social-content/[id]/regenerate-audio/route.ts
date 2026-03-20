@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { N8N_BASE_URL } from '@/lib/n8n'
+import { N8N_BASE_URL, isN8nOutboundDisabled } from '@/lib/n8n'
 
 export const dynamic = 'force-dynamic'
 
@@ -38,19 +38,23 @@ export async function POST(
       || `${N8N_BASE_URL}/webhook/social-content-regenerate-audio`
 
     let triggered = false
-    try {
-      const res = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'regenerate_audio',
-          content_id: id,
-          voiceover_text,
-        }),
-      })
-      triggered = res.ok
-    } catch (err) {
-      console.error('Failed to trigger audio regeneration:', err)
+    if (isN8nOutboundDisabled()) {
+      console.log(`[N8N_DISABLED] regenerate-audio → ${webhookUrl}`)
+    } else {
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'regenerate_audio',
+            content_id: id,
+            voiceover_text,
+          }),
+        })
+        triggered = res.ok
+      } catch (err) {
+        console.error('Failed to trigger audio regeneration:', err)
+      }
     }
 
     return NextResponse.json({ triggered, message: triggered

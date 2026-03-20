@@ -1,4 +1,5 @@
 -- Seed contact_submissions row for WF-000A Discovery Call Booked testing.
+-- Prefer: POST /api/admin/testing/demo-seed { "key": "discovery_call_test_contact" } or Populate Demo Data.
 -- Run in Supabase Dashboard → SQL Editor.
 -- Then run: ./scripts/trigger-discovery-call-booked-webhook.sh
 

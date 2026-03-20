@@ -5,6 +5,7 @@ import { AuthProvider } from '@/components/AuthProvider'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import FlowingMesh from '@/components/ui/FlowingMesh'
 import DevBanner from '@/components/DevBanner'
+import '@/lib/env-check'
 
 // AmaduTown Brand Typography
 const orbitron = Orbitron({

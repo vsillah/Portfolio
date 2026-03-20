@@ -1,8 +1,9 @@
 /**
  * Client Journey Scripts — metadata catalog for seed SQL + trigger webhooks.
  *
- * Used by the Admin Testing UI to display, copy, and run scripts
- * grouped by journey stage (Prospect → Lead → Client).
+ * Prefer **Admin → Testing → Populate Demo Data** (E2E) for the same data where possible;
+ * see `POST /api/admin/testing/demo-seed` and scenarios `seed_*` in `lib/testing/scenarios.ts`.
+ * Use SQL below only when you need exact parity with legacy n8n payloads or offline SQL Editor.
  */
 
 import type { JourneyStage } from './types'
@@ -71,7 +72,8 @@ const inboundLeadTrigger: JourneyScript = {
 const leadQualSeed: JourneyScript = {
   id: 'lead_qualification_seed',
   label: 'Seed: Lead Qualification Test Row',
-  description: 'Insert a test contact_submissions row for lead qualification testing.',
+  description:
+    'Insert a test contact_submissions row for lead qualification testing. E2E: run scenario seed_lead_qual_99999 or demo-seed key lead_qualification_99999.',
   stage: 'lead',
   type: 'seed_sql',
   seedSqlPath: 'scripts/seed-lead-qualification-test-row.sql',
@@ -98,7 +100,8 @@ const leadQualTrigger: JourneyScript = {
 const discoverySeed: JourneyScript = {
   id: 'discovery_call_seed',
   label: 'Seed: Discovery Call Contact',
-  description: 'Insert a test contact_submissions row for discovery call testing.',
+  description:
+    'Insert test-discovery@example.com. E2E: scenario seed_discovery_sql_compat or demo-seed key discovery_call_test_contact.',
   stage: 'lead',
   type: 'seed_sql',
   seedSqlPath: 'scripts/seed-discovery-call-test-contact.sql',
@@ -152,7 +155,8 @@ const stripeCheckout: JourneyScript = {
 const onboardingSeed: JourneyScript = {
   id: 'onboarding_call_seed',
   label: 'Seed: Onboarding Client Project',
-  description: 'Insert a test client_projects row for onboarding call testing.',
+  description:
+    'Insert test-onboarding@ client_projects row. E2E: seed_onboarding_project or demo-seed onboarding_test_project.',
   stage: 'client',
   type: 'seed_sql',
   seedSqlPath: 'scripts/seed-onboarding-test-client-project.sql',
@@ -179,7 +183,8 @@ const onboardingTrigger: JourneyScript = {
 const kickoffSeed: JourneyScript = {
   id: 'kickoff_call_seed',
   label: 'Seed: Kickoff Client Project',
-  description: 'Insert a test client_projects row for kickoff call testing.',
+  description:
+    'Insert test-kickoff@ client_projects row. E2E: seed_kickoff_project or demo-seed kickoff_test_project.',
   stage: 'client',
   type: 'seed_sql',
   seedSqlPath: 'scripts/seed-kickoff-test-client-project.sql',

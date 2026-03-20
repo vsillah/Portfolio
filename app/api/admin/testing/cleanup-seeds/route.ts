@@ -7,6 +7,11 @@ export const dynamic = 'force-dynamic'
 const TEST_CONTACT_EMAILS = [
   'test-discovery@example.com',
   'test-lead-qual-99999@example.com',
+  'sarah.mitchell@techflow.io',
+  'demo-warm1@example.com',
+  'demo-warm2@example.com',
+  'demo-cold@example.com',
+  'demo-discovery@example.com',
 ]
 
 const TEST_CLIENT_EMAILS = [
@@ -28,6 +33,18 @@ export async function POST(request: NextRequest) {
 
     const results: Record<string, number> = {}
 
+    const { data: contactRows } = await supabaseAdmin
+      .from('contact_submissions')
+      .select('id')
+      .in('email', TEST_CONTACT_EMAILS)
+
+    const contactIds = (contactRows ?? []).map((r: { id: number }) => r.id)
+    if (contactIds.length > 0) {
+      await supabaseAdmin.from('diagnostic_audits').delete().in('contact_submission_id', contactIds)
+    }
+    await supabaseAdmin.from('diagnostic_audits').delete().eq('session_id', 'test-lead-session-001')
+    await supabaseAdmin.from('chat_sessions').delete().eq('session_id', 'test-lead-session-001')
+
     const { data: contacts, error: contactErr } = await supabaseAdmin
       .from('contact_submissions')
       .delete()
@@ -38,6 +55,16 @@ export async function POST(request: NextRequest) {
       console.error('Cleanup contact_submissions error:', contactErr)
     }
     results.contact_submissions = contacts?.length ?? 0
+
+    const { data: proposalsRemoved, error: proposalErr } = await supabaseAdmin
+      .from('proposals')
+      .delete()
+      .eq('client_email', 'jordan@acmecorp.com')
+      .select('id')
+    if (proposalErr) {
+      console.error('Cleanup proposals error:', proposalErr)
+    }
+    results.proposals = proposalsRemoved?.length ?? 0
 
     const { data: projects, error: projectErr } = await supabaseAdmin
       .from('client_projects')

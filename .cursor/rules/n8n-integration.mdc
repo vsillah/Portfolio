@@ -2,6 +2,7 @@
 description: n8n webhook triggers and ingest integration patterns
 globs:
   - lib/n8n.ts
+  - lib/n8n-runtime-flags.ts
   - app/api/**/ingest/route.ts
   - app/api/**/trigger/route.ts
 alwaysApply: false
@@ -22,6 +23,11 @@ When adding features that are triggered by or ingest data from n8n:
 - Add a dedicated webhook URL env var per workflow (e.g. `N8N_VEP001_WEBHOOK_URL`, `N8N_VEP002_WEBHOOK_URL`).
 - Use `n8nWebhookUrl('path')` as the fallback so the workflow automatically follows `N8N_BASE_URL`.
 - Document the var in `.env.local` or project docs; trigger code should check for presence and skip or warn when unset.
+
+## Mock / outbound gates
+
+- Use `isN8nOutboundDisabled()` and `isMockN8nEnabled()` from `lib/n8n-runtime-flags.ts` (re-exported from `lib/n8n.ts`) before calling n8n — not raw `process.env` checks.
+- **`NEXT_PUBLIC_APP_ENV=staging`:** omitting `MOCK_N8N` and `N8N_DISABLE_OUTBOUND` defaults to **real** webhooks. Explicit `true`/`false` always wins. See `docs/staging-environment.md`.
 
 ## Trigger functions
 

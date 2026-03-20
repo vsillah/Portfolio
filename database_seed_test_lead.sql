@@ -1,5 +1,6 @@
 -- Seed Script: Test Lead for Sales Script Testing
--- Run this in Supabase SQL Editor to create a sample lead
+-- Prefer E2E: Admin → Testing → Populate Demo Data, or POST /api/admin/testing/demo-seed { "key": "sarah_mitchell_lead" }.
+-- Run this in Supabase SQL Editor only if you need raw SQL.
 
 -- Step 1: Create a test chat session
 INSERT INTO chat_sessions (session_id, visitor_email, visitor_name, created_at)

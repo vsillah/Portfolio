@@ -7,7 +7,7 @@
  */
 
 import { supabaseAdmin } from './supabase'
-import { n8nWebhookUrl } from './n8n'
+import { n8nWebhookUrl, isN8nOutboundDisabled, logDisabledOutbound } from './n8n'
 
 // ============================================================================
 // Types
@@ -243,6 +243,11 @@ const N8N_TASK_SLACK_SYNC_URL = process.env.N8N_TASK_SLACK_SYNC_WEBHOOK_URL
 export async function syncTasksToSlack(
   payload: SlackTaskSyncPayload
 ): Promise<{ synced: boolean; message: string }> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('syncTasksToSlack', N8N_TASK_SLACK_SYNC_URL, payload)
+    return { synced: false, message: 'N8N_DISABLE_OUTBOUND is true' }
+  }
+
   if (!N8N_TASK_SLACK_SYNC_URL) {
     console.warn('N8N_TASK_SLACK_SYNC_WEBHOOK_URL not configured — skipping Slack sync')
     return { synced: false, message: 'N8N_TASK_SLACK_SYNC_WEBHOOK_URL not configured' }

@@ -157,6 +157,8 @@ export interface ApiCallStep {
   expectedStatus?: number
   expectedResponse?: Record<string, unknown>
   description?: string  // Human-readable description for logging
+  /** Use N8N_INGEST_SECRET for ingest endpoints (server-side; no browser session) */
+  useIngestSecret?: boolean
 }
 
 export interface AdminActionStep {
@@ -481,6 +483,9 @@ export interface OrchestratorConfig {
   // Reporting
   screenshotOnFailure: boolean
   captureNetworkHar: boolean
+
+  /** Admin JWT for server-side API calls (needed when orchestrator runs without browser session) */
+  adminToken?: string
 }
 
 export interface OrchestratorStats {

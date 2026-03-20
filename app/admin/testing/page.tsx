@@ -120,6 +120,16 @@ const SCENARIOS: ScenarioMeta[] = [
   { id: 'audit_from_meetings', name: 'Audit from Meetings', tags: ['smoke', 'admin', 'meetings', 'audit-from-meetings'], journeyStage: 'lead' },
   { id: 'full_funnel', name: 'Full Funnel Journey', tags: ['critical'], journeyStage: ['prospect', 'lead', 'client'] },
   { id: 'browse_and_buy', name: 'Browse and Buy', tags: ['e-commerce'], journeyStage: 'client' },
+  // Populate demo (E2E-based, no SQL)
+  { id: 'seed_warm_leads', name: 'Seed: Warm Leads', tags: ['seed', 'populate-demo'], journeyStage: 'lead' },
+  { id: 'seed_cold_lead', name: 'Seed: Cold Lead', tags: ['seed', 'populate-demo'], journeyStage: 'lead' },
+  { id: 'seed_discovery_contact', name: 'Seed: Discovery Contact', tags: ['seed', 'populate-demo'], journeyStage: 'lead' },
+  { id: 'seed_sarah_mitchell', name: 'Seed: Sarah Mitchell + Diagnostic', tags: ['seed', 'populate-demo'], journeyStage: 'lead' },
+  { id: 'seed_paid_proposal_jordan', name: 'Seed: Paid Proposal (Jordan)', tags: ['seed', 'populate-demo'], journeyStage: 'client' },
+  { id: 'seed_lead_qual_99999', name: 'Seed: Lead Qual (id 99999)', tags: ['seed', 'populate-demo'], journeyStage: 'lead' },
+  { id: 'seed_onboarding_project', name: 'Seed: Onboarding Project', tags: ['seed', 'populate-demo'], journeyStage: 'client' },
+  { id: 'seed_kickoff_project', name: 'Seed: Kickoff Project', tags: ['seed', 'populate-demo'], journeyStage: 'client' },
+  { id: 'seed_discovery_sql_compat', name: 'Seed: Discovery (test-discovery@)', tags: ['seed', 'populate-demo'], journeyStage: 'lead' },
 ]
 
 const SCENARIO_PRESETS = [
@@ -127,6 +137,7 @@ const SCENARIO_PRESETS = [
   { id: 'journey', label: 'Client Journey' },
   { id: 'critical', label: 'Critical' },
   { id: 'smoke', label: 'Smoke' },
+  { id: 'populate_demo', label: 'Populate Demo Data' },
 ] as const
 
 function scenariosForStage(stage: JourneyStage): ScenarioMeta[] {
@@ -295,11 +306,13 @@ export default function TestingDashboard() {
   // Start a test run (manual scenario selection or preset)
   const startTestRun = async (preset?: string) => {
     try {
+      const session = await getCurrentSession()
       const body: Record<string, unknown> = {
         personaIds: selectedPersonas.length > 0 ? selectedPersonas : undefined,
         maxConcurrentClients: maxConcurrent,
         runDuration: runDuration * 1000,
-        cleanupAfter,
+        cleanupAfter: preset === 'populate_demo' ? false : cleanupAfter,
+        adminToken: session?.access_token ?? undefined,
       }
       if (preset) {
         body.scenarioPreset = preset
@@ -338,6 +351,20 @@ export default function TestingDashboard() {
         break
       case 'smoke':
         setSelectedScenarios(SCENARIOS.filter(s => s.tags.includes('smoke')).map(s => s.id))
+        break
+      case 'populate_demo':
+        setSelectedScenarios([
+          'seed_warm_leads',
+          'seed_cold_lead',
+          'seed_discovery_contact',
+          'service_inquiry',
+          'seed_sarah_mitchell',
+          'seed_paid_proposal_jordan',
+          'seed_lead_qual_99999',
+          'seed_onboarding_project',
+          'seed_kickoff_project',
+          'seed_discovery_sql_compat',
+        ])
         break
       case 'all':
       default:
@@ -905,14 +932,24 @@ export default function TestingDashboard() {
                   {SCENARIO_PRESETS.map(preset => (
                     <button
                       key={preset.id}
-                      onClick={() => applyPreset(preset.id)}
-                      className="px-3 py-2 rounded-lg text-sm bg-gray-700 hover:bg-gray-600 transition-colors"
+                      onClick={() =>
+                        preset.id === 'populate_demo'
+                          ? startTestRun('populate_demo')
+                          : applyPreset(preset.id)
+                      }
+                      className={`px-3 py-2 rounded-lg text-sm transition-colors ${
+                        preset.id === 'populate_demo'
+                          ? 'bg-purple-600 hover:bg-purple-500 text-white'
+                          : 'bg-gray-700 hover:bg-gray-600'
+                      }`}
                     >
                       {preset.label}
                     </button>
                   ))}
                 </div>
-                <p className="text-gray-400 text-xs mt-1">Client Journey runs scenarios across Prospect → Lead → Client in order.</p>
+                <p className="text-gray-400 text-xs mt-1">
+                  Client Journey runs scenarios across Prospect → Lead → Client. Populate Demo Data creates leads via E2E (no SQL).
+                </p>
               </div>
 
               {/* Scenarios grouped by journey stage */}

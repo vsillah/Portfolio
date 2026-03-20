@@ -4,6 +4,13 @@
  * Set N8N_BASE_URL to switch between instances (e.g. local vs n8n Cloud).
  */
 
+import {
+  isMockN8nEnabled,
+  isN8nOutboundDisabled,
+} from './n8n-runtime-flags'
+
+export { isMockN8nEnabled, isN8nOutboundDisabled }
+
 // ============================================================================
 // Configuration
 // ============================================================================
@@ -137,14 +144,29 @@ function generateSmartFallback(
 }
 
 // ============================================================================
-// Mock Mode Configuration
+// Outbound Disable Gate
 // ============================================================================
 
 /**
- * Check if mock mode is enabled
- * Set MOCK_N8N=true to bypass n8n calls and return mock responses for testing
+ * When true, ALL outbound n8n webhook calls are suppressed (fire-and-forget
+ * AND request/response). The payload that *would* have been sent is logged so
+ * contract tests and local debugging can still inspect it.
+ *
+ * Separate from MOCK_N8N: MOCK_N8N returns *mock responses* for chat/diagnostic
+ * so the UI still works. N8N_DISABLE_OUTBOUND simply prevents any fetch().
+ *
+ * Staging: set `NEXT_PUBLIC_APP_ENV=staging` and omit both vars → real n8n (see `lib/n8n-runtime-flags.ts`).
  */
-const MOCK_N8N = process.env.MOCK_N8N === 'true'
+export function logDisabledOutbound(fnName: string, url: string | undefined, payload?: unknown): void {
+  console.log(
+    `[N8N_DISABLED] ${fnName} → ${url ?? '(unset)'}`,
+    payload ? JSON.stringify(payload).slice(0, 500) : '(no payload)'
+  )
+}
+
+// ============================================================================
+// Mock Mode Configuration
+// ============================================================================
 
 /**
  * Generate mock chat response for testing
@@ -323,7 +345,7 @@ export interface LeadQualificationRequest {
 }
 
 const N8N_LEAD_WEBHOOK_URL = process.env.N8N_LEAD_WEBHOOK_URL
-  // No n8nWebhookUrl fallback — path is instance-specific (UUID or webhook-test)
+  // No n8nWebhookUrl fallback — path is instance-specific (UUID per Webhook node)
 const N8N_PROGRESS_UPDATE_WEBHOOK_URL = process.env.N8N_PROGRESS_UPDATE_WEBHOOK_URL
   || n8nWebhookUrl('progress-update')
 
@@ -334,9 +356,20 @@ const N8N_PROGRESS_UPDATE_WEBHOOK_URL = process.env.N8N_PROGRESS_UPDATE_WEBHOOK_
 export async function triggerLeadQualificationWebhook(
   request: LeadQualificationRequest
 ): Promise<void> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('triggerLeadQualificationWebhook', N8N_LEAD_WEBHOOK_URL, request)
+    return
+  }
+
   if (!N8N_LEAD_WEBHOOK_URL) {
     console.warn('N8N_LEAD_WEBHOOK_URL not configured - skipping lead qualification')
     return
+  }
+
+  if (N8N_LEAD_WEBHOOK_URL.includes('/webhook-test/')) {
+    console.warn(
+      'N8N_LEAD_WEBHOOK_URL uses /webhook-test/ — that URL is for the n8n editor test listener only and typically returns 404 for production calls. Set the Production webhook URL (.../webhook/<path>) from the Webhook node in n8n Cloud.'
+    )
   }
 
   try {
@@ -385,6 +418,11 @@ export interface EbookNurtureRequest {
 export async function triggerEbookNurtureSequence(
   request: EbookNurtureRequest
 ): Promise<void> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('triggerEbookNurtureSequence', N8N_EBOOK_NURTURE_WEBHOOK_URL, request)
+    return
+  }
+
   if (!N8N_EBOOK_NURTURE_WEBHOOK_URL) {
     console.warn('N8N_EBOOK_NURTURE_WEBHOOK_URL not configured — skipping nurture trigger')
     return
@@ -534,8 +572,12 @@ const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL
  * - chatInput: The user's message
  */
 export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatResponse> {
-  // Mock mode for testing - bypass n8n and return mock responses
-  if (MOCK_N8N) {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('sendToN8n', N8N_WEBHOOK_URL, { sessionId: request.sessionId, message: request.message.slice(0, 100) })
+    return generateMockChatResponse(request.message, request.diagnosticMode)
+  }
+
+  if (isMockN8nEnabled()) {
     console.log('[MOCK_N8N] Returning mock response for chat')
     return generateMockChatResponse(request.message, request.diagnosticMode)
   }
@@ -724,8 +766,16 @@ export async function sendToN8n(request: N8nChatRequest): Promise<N8nChatRespons
  * Can use separate webhook URL or same webhook with routing
  */
 export async function sendDiagnosticToN8n(request: DiagnosticAuditRequest): Promise<DiagnosticResponse> {
-  // Mock mode for testing - bypass n8n and return mock diagnostic responses
-  if (MOCK_N8N) {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('sendDiagnosticToN8n', process.env.N8N_DIAGNOSTIC_WEBHOOK_URL || N8N_WEBHOOK_URL, { sessionId: request.sessionId })
+    return generateMockDiagnosticResponse(
+      request.message,
+      request.currentCategory,
+      request.progress
+    )
+  }
+
+  if (isMockN8nEnabled()) {
     console.log('[MOCK_N8N] Returning mock response for diagnostic')
     return generateMockDiagnosticResponse(
       request.message,
@@ -899,7 +949,12 @@ export async function triggerDiagnosticCompletionWebhook(
   contactInfo?: { email?: string; name?: string; company?: string }
 ): Promise<void> {
   const completionWebhookUrl = process.env.N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL || N8N_LEAD_WEBHOOK_URL
-  
+
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('triggerDiagnosticCompletionWebhook', completionWebhookUrl, { diagnosticAuditId, contactInfo })
+    return
+  }
+
   if (!completionWebhookUrl) {
     console.warn('Diagnostic completion webhook URL not configured - skipping sales notification')
     return
@@ -938,6 +993,11 @@ export async function triggerDiagnosticCompletionWebhook(
  * Check if the n8n webhook is reachable
  */
 export async function checkN8nHealth(): Promise<boolean> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('checkN8nHealth', N8N_WEBHOOK_URL)
+    return true
+  }
+
   if (!N8N_WEBHOOK_URL) {
     return false
   }
@@ -1016,6 +1076,11 @@ export async function triggerOutreachGeneration(params: {
   sequence_step?: number
   is_followup?: boolean
 }): Promise<void> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('triggerOutreachGeneration', N8N_CLG002_WEBHOOK_URL, params)
+    return
+  }
+
   if (!N8N_CLG002_WEBHOOK_URL) {
     console.warn('N8N_CLG002_WEBHOOK_URL not configured - skipping outreach generation')
     return
@@ -1061,6 +1126,11 @@ export async function triggerOutreachSend(params: {
     qualification_status?: string
   }
 }): Promise<void> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('triggerOutreachSend', N8N_CLG003_WEBHOOK_URL, params)
+    return
+  }
+
   if (!N8N_CLG003_WEBHOOK_URL) {
     console.warn('N8N_CLG003_WEBHOOK_URL not configured - skipping outreach send')
     return
@@ -1112,6 +1182,11 @@ export async function triggerWarmLeadScrape(params: {
     max_leads?: number
   }
 }): Promise<{ triggered: boolean; message: string }> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('triggerWarmLeadScrape', `WRM-${params.source}`, params)
+    return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
+  }
+
   const webhookMap: Record<string, string | undefined> = {
     facebook: N8N_WRM001_WEBHOOK_URL,
     google_contacts: N8N_WRM002_WEBHOOK_URL,
@@ -1192,6 +1267,11 @@ export interface ValueEvidenceExtractionOptions {
 export async function triggerValueEvidenceExtraction(
   options?: ValueEvidenceExtractionOptions
 ): Promise<{ triggered: boolean; message: string }> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('triggerValueEvidenceExtraction', N8N_VEP001_WEBHOOK_URL, options)
+    return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
+  }
+
   if (!N8N_VEP001_WEBHOOK_URL) {
     console.warn('N8N_VEP001_WEBHOOK_URL not configured - skipping value evidence extraction')
     return { triggered: false, message: 'N8N_VEP001_WEBHOOK_URL not configured' }
@@ -1247,6 +1327,11 @@ export interface SocialListeningOptions {
 }
 
 export async function triggerSocialListening(options?: SocialListeningOptions): Promise<{ triggered: boolean; message: string }> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('triggerSocialListening', N8N_VEP002_WEBHOOK_URL, options)
+    return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
+  }
+
   if (!N8N_VEP002_WEBHOOK_URL) {
     console.warn('N8N_VEP002_WEBHOOK_URL not configured - skipping social listening')
     return { triggered: false, message: 'N8N_VEP002_WEBHOOK_URL not configured' }
@@ -1300,6 +1385,11 @@ const N8N_SOC002_WEBHOOK_URL =
 export async function triggerSocialContentExtraction(options?: {
   meetingRecordId?: string
 }): Promise<{ triggered: boolean; message: string }> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('triggerSocialContentExtraction', N8N_SOC001_WEBHOOK_URL, options)
+    return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
+  }
+
   try {
     const body: Record<string, unknown> = {
       triggered_at: new Date().toISOString(),
@@ -1342,6 +1432,11 @@ export async function triggerSocialContentPublish(payload: {
   image_url?: string | null
   voiceover_url?: string | null
 }): Promise<{ triggered: boolean; message: string }> {
+  if (isN8nOutboundDisabled()) {
+    logDisabledOutbound('triggerSocialContentPublish', N8N_SOC002_WEBHOOK_URL, payload)
+    return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
+  }
+
   try {
     const response = await fetch(N8N_SOC002_WEBHOOK_URL, {
       method: 'POST',

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { N8N_BASE_URL } from '@/lib/n8n'
+import { N8N_BASE_URL, isN8nOutboundDisabled } from '@/lib/n8n'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,24 +55,28 @@ export async function POST(
       || `${N8N_BASE_URL}/webhook/social-content-publish`
 
     let publishTriggered = false
-    try {
-      const res = await fetch(webhookUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          content_id: updated.id,
-          platform: updated.platform,
-          post_text: updated.post_text,
-          cta_text: updated.cta_text,
-          cta_url: updated.cta_url,
-          hashtags: updated.hashtags,
-          image_url: updated.image_url,
-          voiceover_url: updated.voiceover_url,
-        }),
-      })
-      publishTriggered = res.ok
-    } catch (err) {
-      console.error('Failed to trigger publish workflow:', err)
+    if (isN8nOutboundDisabled()) {
+      console.log(`[N8N_DISABLED] approve/publish → ${webhookUrl}`)
+    } else {
+      try {
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            content_id: updated.id,
+            platform: updated.platform,
+            post_text: updated.post_text,
+            cta_text: updated.cta_text,
+            cta_url: updated.cta_url,
+            hashtags: updated.hashtags,
+            image_url: updated.image_url,
+            voiceover_url: updated.voiceover_url,
+          }),
+        })
+        publishTriggered = res.ok
+      } catch (err) {
+        console.error('Failed to trigger publish workflow:', err)
+      }
     }
 
     return NextResponse.json({

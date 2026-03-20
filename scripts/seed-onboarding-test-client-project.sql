@@ -1,4 +1,5 @@
 -- Seed a client_projects row for WF-001B Onboarding Call Handler testing.
+-- Prefer: POST /api/admin/testing/demo-seed { "key": "onboarding_test_project" } or Populate Demo Data.
 -- Run in Supabase Dashboard → SQL Editor.
 -- Then run: ./scripts/trigger-onboarding-call-booked-webhook.sh
 

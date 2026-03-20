@@ -14,6 +14,7 @@ import {
   CRITICAL_SCENARIOS,
   SMOKE_TEST_SCENARIOS,
   JOURNEY_SCENARIOS,
+  POPULATE_DEMO_SCENARIOS,
   SCENARIOS_BY_ID,
   PERSONAS_BY_ID
 } from '@/lib/testing'
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
     const {
       // Scenario selection
       scenarioIds,  // Specific scenario IDs to run
-      scenarioPreset,  // 'all', 'critical', 'smoke', 'journey', 'chat', 'ecommerce'
+      scenarioPreset,  // 'all', 'critical', 'smoke', 'journey', 'populate_demo'
       
       // Persona selection
       personaIds,  // Specific persona IDs to use
@@ -49,6 +50,9 @@ export async function POST(request: NextRequest) {
       runDuration = 60000,
       maxClients,
       cleanupAfter = true,
+      
+      /** Admin JWT for server-side API calls (required for admin scenarios when run from Admin UI) */
+      adminToken,
       
       // Notes
       notes
@@ -74,6 +78,9 @@ export async function POST(request: NextRequest) {
           break
         case 'journey':
           scenarios = JOURNEY_SCENARIOS
+          break
+        case 'populate_demo':
+          scenarios = POPULATE_DEMO_SCENARIOS
           break
         default:
           scenarios = ALL_SCENARIOS
@@ -104,22 +111,29 @@ export async function POST(request: NextRequest) {
       personas = ALL_PERSONAS
     }
     
+    // Populate demo: run each scenario once, no cleanup
+    const isPopulateDemo = scenarioPreset === 'populate_demo'
+    const effectiveCleanup = isPopulateDemo ? false : cleanupAfter
+    const effectiveMaxClients = isPopulateDemo ? scenarios.length : maxClients
+    const effectiveRunDuration = isPopulateDemo ? 120000 : runDuration // ~2 min for full populate
+
     // Create orchestrator config
     const config: OrchestratorConfig = {
-      maxConcurrentClients,
-      spawnInterval,
+      maxConcurrentClients: isPopulateDemo ? scenarios.length : maxConcurrentClients,
+      spawnInterval: isPopulateDemo ? 2000 : spawnInterval,
       scenarios: scenarios.map(scenario => ({
         scenario,
         weight: 1,
         personaPool: personas
       })),
-      runDuration,
-      maxClients,
+      runDuration: effectiveRunDuration,
+      maxClients: effectiveMaxClients,
       testDataPrefix: 'test_e2e_',
-      cleanupAfter,
+      cleanupAfter: effectiveCleanup,
       headless: true,
       screenshotOnFailure: true,
-      captureNetworkHar: false
+      captureNetworkHar: false,
+      adminToken: adminToken || undefined
     }
 
     // Create and start orchestrator

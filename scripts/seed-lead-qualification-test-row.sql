@@ -1,4 +1,5 @@
 -- Seed contact_submissions row id=99999 for Lead Qualification webhook testing.
+-- Prefer: POST /api/admin/testing/demo-seed { "key": "lead_qualification_99999" } or Populate Demo Data.
 -- Run in Supabase Dashboard → SQL Editor if the TS script fails (e.g. RLS/insert restrictions).
 -- Then run: ./scripts/trigger-lead-qualification-webhook.sh
 

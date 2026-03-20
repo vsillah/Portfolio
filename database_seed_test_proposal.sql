@@ -1,6 +1,7 @@
 -- ============================================================================
 -- Test Seed: One paid proposal for testing the project creation flow.
--- Run this, then use the admin UI "Create Project" button to create the project.
+-- Prefer E2E: POST /api/admin/testing/demo-seed { "key": "paid_proposal_jordan" } or Populate Demo Data.
+-- Then use the admin UI "Create Project" button to create the project.
 -- ============================================================================
 
 INSERT INTO proposals (

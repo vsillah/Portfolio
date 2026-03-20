@@ -263,7 +263,8 @@ export class TestOrchestrator {
       scenario,
       testRunId: this.runId,
       clientId,
-      useMockChat: !process.env.OPENAI_API_KEY && !process.env.ANTHROPIC_API_KEY
+      useMockChat: !process.env.OPENAI_API_KEY && !process.env.ANTHROPIC_API_KEY,
+      adminToken: this.config.adminToken
     })
     
     this.activeClients.set(clientId, client)

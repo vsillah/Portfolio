@@ -1,4 +1,5 @@
 -- Seed a client_projects row for WF-002 Kickoff Call Scheduled testing.
+-- Prefer: POST /api/admin/testing/demo-seed { "key": "kickoff_test_project" } or Populate Demo Data.
 -- Run in Supabase Dashboard → SQL Editor.
 -- Prereq: project_status CHECK must include 'onboarding_completed' and 'kickoff_scheduled'
 --   (see migrations/2026_02_24_client_projects_expand_status_check.sql and

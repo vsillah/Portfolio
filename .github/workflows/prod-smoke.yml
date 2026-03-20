@@ -1,0 +1,62 @@
+name: Production Smoke Test
+
+on:
+  # Weekly on Monday at 7 AM UTC (adjust to nightly when comfortable)
+  schedule:
+    - cron: '0 7 * * 1'
+
+  # Allow manual trigger
+  workflow_dispatch:
+
+env:
+  PROD_URL: https://amadutown.com
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Health endpoint
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/api/health")
+          echo "Health endpoint returned $STATUS"
+          if [ "$STATUS" -ne 200 ]; then
+            echo "::error::Health endpoint returned $STATUS"
+            exit 1
+          fi
+
+      - name: Homepage
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL")
+          echo "Homepage returned $STATUS"
+          [ "$STATUS" -eq 200 ] || { echo "::error::Homepage returned $STATUS"; exit 1; }
+
+      - name: Services page
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/services")
+          echo "Services returned $STATUS"
+          [ "$STATUS" -eq 200 ] || { echo "::error::Services returned $STATUS"; exit 1; }
+
+      - name: Store page
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/store")
+          echo "Store returned $STATUS"
+          [ "$STATUS" -eq 200 ] || { echo "::error::Store returned $STATUS"; exit 1; }
+
+      - name: Resources page
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$PROD_URL/resources")
+          echo "Resources returned $STATUS"
+          [ "$STATUS" -eq 200 ] || { echo "::error::Resources returned $STATUS"; exit 1; }
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          if [ -n "${{ secrets.SLACK_WEBHOOK_URL }}" ]; then
+            curl -s -X POST "${{ secrets.SLACK_WEBHOOK_URL }}" \
+              -H 'Content-Type: application/json' \
+              -d "{\"text\":\"Production smoke test FAILED — check https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}"
+          else
+            echo "SLACK_WEBHOOK_URL not configured — skipping Slack notification"
+          fi

@@ -2,6 +2,8 @@
 
 Use this for releases, after large changes, or when hardening a flow. Run manual steps and/or the automated tests referenced below.
 
+**See also:** [Integration testing — environment matrix](./integration-testing-environment-matrix.md) (which scenarios hit n8n / Stripe / LLM and which deploy tier to use). [Staging environment](./staging-environment.md) (Vercel staging + automatic n8n defaults when `NEXT_PUBLIC_APP_ENV=staging`).
+
 ## 1. Critical paths (manual or E2E)
 
 - **Leads list**
@@ -62,3 +64,5 @@ Scenarios are mapped to three journey stages: **Prospect → Lead → Client**. 
 3. Start a test run with the linked E2E scenario to validate the outcome.
 
 Script catalog: `lib/testing/journey-scripts.ts`. Trigger API: `POST /api/admin/testing/trigger-webhook`. Seed SQL API: `GET /api/admin/testing/seed-sql`.
+
+**Seeding demo leads:** See `docs/seed-demo-leads.md`. Prefer **Admin → Testing → Populate Demo Data** (E2E) over SQL.
