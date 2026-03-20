@@ -22,6 +22,8 @@ config({ path: resolve(process.cwd(), '.env.local') })
 import { createClient } from '@supabase/supabase-js'
 import * as fs from 'fs'
 import * as path from 'path'
+import { compareWithBaseline } from '../lib/database-health-check'
+import type { TableCount } from '../lib/database-health-check'
 
 const useDev = process.argv.includes('--dev')
 const envLabel = useDev ? 'DEV' : 'PROD'
@@ -73,19 +75,6 @@ const CRITICAL_TABLES = [
 
 // Tables that may not exist yet (app returns empty when missing). Still checked, but missing is not warned/fatal.
 const OPTIONAL_TABLES = new Set(['projects', 'music', 'videos'])
-
-interface TableCount {
-  table_name: string
-  row_count: number
-  checked_at: string
-}
-
-interface HealthCheckResult {
-  status: 'healthy' | 'warning' | 'critical'
-  timestamp: string
-  tables: TableCount[]
-  issues: string[]
-}
 
 async function getTableCounts(): Promise<TableCount[]> {
   const supabase = createClient(SUPABASE_URL_SAFE, SUPABASE_SERVICE_KEY_SAFE)
@@ -147,63 +136,6 @@ function saveBaseline(counts: TableCount[]): void {
   console.log(`✅ Baseline saved to ${BASELINE_FILE}`)
 }
 
-function compareWithBaseline(
-  current: TableCount[],
-  baseline: TableCount[]
-): HealthCheckResult {
-  const issues: string[] = []
-  let status: 'healthy' | 'warning' | 'critical' = 'healthy'
-
-  for (const currentTable of current) {
-    const baselineTable = baseline.find(b => b.table_name === currentTable.table_name)
-
-    if (!baselineTable) {
-      continue // New table, not an issue
-    }
-
-    // Table disappeared (skip for optional tables that may not exist yet)
-    if (currentTable.row_count === -1 && baselineTable.row_count >= 0 && !OPTIONAL_TABLES.has(currentTable.table_name)) {
-      issues.push(
-        `🚨 CRITICAL: Table '${currentTable.table_name}' no longer exists! (had ${baselineTable.row_count} rows)`
-      )
-      status = 'critical'
-    }
-    // Significant data loss (>10% or any loss in critical revenue tables)
-    else if (currentTable.row_count < baselineTable.row_count) {
-      const lossAmount = baselineTable.row_count - currentTable.row_count
-      const lossPercent = ((lossAmount / baselineTable.row_count) * 100).toFixed(1)
-      
-      // Revenue tables are CRITICAL
-      if (['orders', 'order_items'].includes(currentTable.table_name)) {
-        issues.push(
-          `🚨 CRITICAL: '${currentTable.table_name}' lost ${lossAmount} rows (${lossPercent}%) - REVENUE DATA!`
-        )
-        status = 'critical'
-      }
-      // >10% loss in any table
-      else if (lossAmount / baselineTable.row_count > 0.1) {
-        issues.push(
-          `⚠️  WARNING: '${currentTable.table_name}' lost ${lossAmount} rows (${lossPercent}%)`
-        )
-        if (status !== 'critical') status = 'warning'
-      }
-      // Minor loss
-      else if (lossAmount > 0) {
-        issues.push(
-          `ℹ️  INFO: '${currentTable.table_name}' lost ${lossAmount} rows (${lossPercent}%)`
-        )
-      }
-    }
-  }
-
-  return {
-    status,
-    timestamp: new Date().toISOString(),
-    tables: current,
-    issues,
-  }
-}
-
 function hasExplicitProdCredentials(): boolean {
   return Boolean(
     process.env.PROD_SUPABASE_URL?.trim() && process.env.PROD_SUPABASE_SERVICE_ROLE_KEY?.trim()
@@ -250,7 +182,7 @@ async function main() {
   }
 
   // Compare with baseline
-  const result = compareWithBaseline(currentCounts, baseline)
+  const result = compareWithBaseline(currentCounts, baseline, OPTIONAL_TABLES)
 
   // Display results
   console.log('📊 Database Health Check Results\n')
