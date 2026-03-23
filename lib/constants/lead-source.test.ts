@@ -12,6 +12,7 @@ import {
 describe('lead-source constants', () => {
   it('LEAD_SOURCE_VALUES includes expected warm and cold and other', () => {
     expect(LEAD_SOURCE_VALUES).toContain('warm_facebook_friends')
+    expect(LEAD_SOURCE_VALUES).toContain('warm_facebook_groups')
     expect(LEAD_SOURCE_VALUES).toContain('cold_referral')
     expect(LEAD_SOURCE_VALUES).toContain('website_form')
     expect(LEAD_SOURCE_VALUES).toContain('other')
@@ -19,6 +20,7 @@ describe('lead-source constants', () => {
 
   it('isWarmLeadSource returns true only for warm_*', () => {
     expect(isWarmLeadSource('warm_facebook_friends')).toBe(true)
+    expect(isWarmLeadSource('warm_facebook_groups')).toBe(true)
     expect(isWarmLeadSource('warm_linkedin')).toBe(true)
     expect(isWarmLeadSource('cold_referral')).toBe(false)
     expect(isWarmLeadSource('other')).toBe(false)
@@ -56,6 +58,7 @@ describe('lead-source constants', () => {
   })
 
   it('isAllowedLeadSourceForIngest includes warm and cold prefixes only', () => {
+    expect(isAllowedLeadSourceForIngest('warm_facebook_groups')).toBe(true)
     expect(isAllowedLeadSourceForIngest('warm_linkedin')).toBe(true)
     expect(isAllowedLeadSourceForIngest('cold_referral')).toBe(true)
     expect(isAllowedLeadSourceForIngest('other')).toBe(false)
@@ -68,7 +71,8 @@ describe('lead-source constants', () => {
     expect(getRelationshipStrength('warm_linkedin')).toBe('strong')
   })
 
-  it('getRelationshipStrength returns moderate for warm_referral', () => {
+  it('getRelationshipStrength returns moderate for warm_facebook_groups and warm_referral', () => {
+    expect(getRelationshipStrength('warm_facebook_groups')).toBe('moderate')
     expect(getRelationshipStrength('warm_referral')).toBe('moderate')
   })
 

@@ -10,6 +10,7 @@
 /** All allowed lead_source values (matches DB CHECK constraint) */
 export const LEAD_SOURCE_VALUES = [
   'warm_facebook_friends',
+  'warm_facebook_groups', // Facebook group members (WF-WRM / ingest)
   'warm_google_contacts',
   'warm_linkedin',
   'warm_referral',
@@ -89,6 +90,7 @@ export function getRelationshipStrength(leadSource: string): RelationshipStrengt
     case 'warm_google_contacts':
     case 'warm_linkedin':
       return 'strong'
+    case 'warm_facebook_groups':
     case 'warm_referral':
       return 'moderate'
     default:

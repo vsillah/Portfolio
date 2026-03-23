@@ -149,11 +149,14 @@ export async function getSystemPrompt(key: string): Promise<SystemPrompt | null>
       .select('id, key, name, prompt, config, version, is_active')
       .eq('key', key)
       .eq('is_active', true)
-      .single()
+      .maybeSingle()
 
     if (error) {
       console.error(`Error fetching system prompt '${key}':`, error)
-      // Return default if available
+      return getDefaultPrompt(key)
+    }
+
+    if (!data) {
       return getDefaultPrompt(key)
     }
 

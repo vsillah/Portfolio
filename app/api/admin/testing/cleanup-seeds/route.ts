@@ -59,9 +59,14 @@ export async function POST(request: NextRequest) {
           .select('id')
 
         if (error) {
-          console.error(`Cleanup ${table} (is_test_data) error:`, error)
+          // Dev DBs without migrations/2026_03_21_add_is_test_data.sql have no column
+          if (error.code !== '42703') {
+            console.error(`Cleanup ${table} (is_test_data) error:`, error)
+          }
+          results[`${table}_flagged`] = 0
+        } else {
+          results[`${table}_flagged`] = data?.length ?? 0
         }
-        results[`${table}_flagged`] = data?.length ?? 0
       }
     }
 

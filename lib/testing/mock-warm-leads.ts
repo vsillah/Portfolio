@@ -91,10 +91,10 @@ const LINKEDIN_POST_TOPICS = [
  * Generate mock Facebook leads (friends, groups, engagement)
  */
 export function generateMockFacebookLeads(count: number): MockWarmLead[] {
-  const sources: Array<{ type: string; strength: 'strong' | 'moderate' | 'weak' }> = [
+  // Only values in LEAD_SOURCE_VALUES / contact_submissions_lead_source_check
+  const sources: Array<{ type: string; strength: 'strong' | 'moderate' }> = [
     { type: 'warm_facebook_friends', strength: 'strong' },
     { type: 'warm_facebook_groups', strength: 'moderate' },
-    { type: 'warm_facebook_engagement', strength: 'weak' }
   ]
 
   return Array.from({ length: count }, (_, i) => {
@@ -107,10 +107,8 @@ export function generateMockFacebookLeads(count: number): MockWarmLead[] {
     let sourceDetail = ''
     if (sourceConfig.type === 'warm_facebook_friends') {
       sourceDetail = 'Direct Facebook friend'
-    } else if (sourceConfig.type === 'warm_facebook_groups') {
-      sourceDetail = FACEBOOK_GROUP_NAMES[i % FACEBOOK_GROUP_NAMES.length]
     } else {
-      sourceDetail = `Liked post about ${LINKEDIN_POST_TOPICS[i % LINKEDIN_POST_TOPICS.length]}`
+      sourceDetail = FACEBOOK_GROUP_NAMES[i % FACEBOOK_GROUP_NAMES.length]
     }
 
     return {
@@ -161,22 +159,17 @@ export function generateMockGoogleContactsLeads(count: number): MockWarmLead[] {
  * Generate mock LinkedIn leads (connections, engagement)
  */
 export function generateMockLinkedInLeads(count: number): MockWarmLead[] {
-  const sources: Array<{ type: string; strength: 'strong' | 'moderate' | 'weak' }> = [
-    { type: 'warm_linkedin_connections', strength: 'strong' },
-    { type: 'warm_linkedin_engagement', strength: 'weak' }
-  ]
-
   return Array.from({ length: count }, (_, i) => {
     const firstName = FIRST_NAMES[i % FIRST_NAMES.length]
     const lastName = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)]
     const name = `${firstName} ${lastName}`
     const company = COMPANIES[i % COMPANIES.length]
-    const sourceConfig = sources[i % sources.length]
     const username = `${firstName.toLowerCase()}-${lastName.toLowerCase()}-${Math.floor(Math.random() * 1000)}`
 
-    const sourceDetail = sourceConfig.type === 'warm_linkedin_connections'
-      ? '1st-degree connection'
-      : `Engaged with post about ${LINKEDIN_POST_TOPICS[i % LINKEDIN_POST_TOPICS.length]}`
+    const sourceDetail =
+      i % 2 === 0
+        ? '1st-degree connection'
+        : `Engaged with post about ${LINKEDIN_POST_TOPICS[i % LINKEDIN_POST_TOPICS.length]}`
 
     return {
       name,
@@ -186,10 +179,10 @@ export function generateMockLinkedInLeads(count: number): MockWarmLead[] {
       job_title: JOB_TITLES[i % JOB_TITLES.length],
       industry: INDUSTRIES[i % INDUSTRIES.length],
       location: LOCATIONS[i % LOCATIONS.length],
-      lead_source: sourceConfig.type,
+      lead_source: 'warm_linkedin',
       linkedin_url: `https://linkedin.com/in/${username}`,
       linkedin_username: username,
-      relationship_strength: sourceConfig.strength,
+      relationship_strength: 'strong',
       warm_source_detail: sourceDetail,
       message: `Met through LinkedIn - ${sourceDetail}`
     }
