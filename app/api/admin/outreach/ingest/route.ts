@@ -200,6 +200,7 @@ export async function POST(request: NextRequest) {
             relationship_strength: getRelationshipStrength(lead.lead_source),
             warm_source_detail: lead.warm_source_detail?.trim() || null,
             message: lead.message || `Imported from ${lead.lead_source}`,
+            is_test_data: body.is_test_data ?? false,
           }
 
           const { error: insertError } = await supabaseAdmin

@@ -118,6 +118,9 @@ const SCENARIOS: ScenarioMeta[] = [
   { id: 'warm_lead_pipeline', name: 'Warm Lead Pipeline', tags: ['warm-leads', 'outreach', 'critical'], journeyStage: 'lead' },
   { id: 'support_escalation', name: 'Support Escalation', tags: ['chat'], journeyStage: 'lead' },
   { id: 'audit_from_meetings', name: 'Audit from Meetings', tags: ['smoke', 'admin', 'meetings', 'audit-from-meetings'], journeyStage: 'lead' },
+  { id: 'meeting_pipeline_synthetic', name: 'Meeting Pipeline (Synthetic)', tags: ['pipeline', 'synthetic', 'mock-data'], journeyStage: 'lead' },
+  { id: 'discovery_to_proposal_synthetic', name: 'Discovery to Proposal (Synthetic)', tags: ['pipeline', 'synthetic', 'mock-data'], journeyStage: ['lead', 'client'] },
+  { id: 'credential_rotation_smoke', name: 'Credential Rotation Smoke', tags: ['credential-rotation', 'smoke'], journeyStage: 'lead' },
   { id: 'full_funnel', name: 'Full Funnel Journey', tags: ['critical'], journeyStage: ['prospect', 'lead', 'client'] },
   { id: 'browse_and_buy', name: 'Browse and Buy', tags: ['e-commerce'], journeyStage: 'client' },
   // Populate demo (E2E-based, no SQL)
@@ -137,6 +140,8 @@ const SCENARIO_PRESETS = [
   { id: 'journey', label: 'Client Journey' },
   { id: 'critical', label: 'Critical' },
   { id: 'smoke', label: 'Smoke' },
+  { id: 'synthetic', label: 'Synthetic Pipeline' },
+  { id: 'credential_smoke', label: 'Credential Smoke' },
   { id: 'populate_demo', label: 'Populate Demo Data' },
 ] as const
 
@@ -351,6 +356,15 @@ export default function TestingDashboard() {
         break
       case 'smoke':
         setSelectedScenarios(SCENARIOS.filter(s => s.tags.includes('smoke')).map(s => s.id))
+        break
+      case 'synthetic':
+        setSelectedScenarios([
+          'meeting_pipeline_synthetic',
+          'discovery_to_proposal_synthetic',
+        ])
+        break
+      case 'credential_smoke':
+        setSelectedScenarios(['credential_rotation_smoke'])
         break
       case 'populate_demo':
         setSelectedScenarios([
@@ -1060,14 +1074,49 @@ export default function TestingDashboard() {
                 </div>
               </div>
               
-              {/* Start Button */}
-              <button
-                onClick={() => startTestRun()}
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-medium transition-colors"
-              >
-                <Play className="w-5 h-5" />
-                Start Test Run
-              </button>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => startTestRun()}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg font-medium transition-colors"
+                >
+                  <Play className="w-5 h-5" />
+                  Start Test Run
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!confirm('Purge ALL rows with is_test_data=true across all tables? This cannot be undone.')) return
+                    setCleanupLoading(true)
+                    showToast('info', 'Purging flagged test data...')
+                    try {
+                      const session = await getCurrentSession()
+                      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+                      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+                      const res = await fetch('/api/admin/testing/cleanup-seeds', {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({ mode: 'flag_only' }),
+                      })
+                      const data = await res.json()
+                      if (data.success) {
+                        showToast('success', `Purged ${data.totalDeleted} flagged test row(s).`)
+                      } else {
+                        showToast('error', data.error || 'Purge failed')
+                      }
+                    } catch {
+                      showToast('error', 'Failed to purge test data')
+                    } finally {
+                      setCleanupLoading(false)
+                    }
+                  }}
+                  disabled={cleanupLoading}
+                  className="flex items-center gap-2 bg-red-600/80 hover:bg-red-600 disabled:bg-gray-600 px-4 py-3 rounded-lg text-sm font-medium transition-colors"
+                  title="Delete all rows where is_test_data = true"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  {cleanupLoading ? 'Purging...' : 'Purge Test Data'}
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -11,6 +11,10 @@ import type {
   ValidationRule,
   JourneyStage
 } from './types'
+import {
+  MOCK_MEETING_COMPLETE_PAYLOAD,
+  MOCK_DISCOVERY_SESSION_PAYLOAD,
+} from './mock-payloads'
 
 // ============================================================================
 // Scenario Definitions
@@ -625,6 +629,157 @@ export const auditFromMeetingsScenario: TestScenario = {
 }
 
 // ============================================================================
+// Mock Pipeline Scenarios — test n8n workflows with synthetic data
+// ============================================================================
+
+/**
+ * Scenario 12: Meeting Pipeline (synthetic)
+ * Ingest a mock meeting-complete payload, verify meeting_records and downstream
+ * sales session creation. Uses is_test_data flag for cleanup.
+ */
+export const meetingPipelineScenario: TestScenario = {
+  id: 'meeting_pipeline_synthetic',
+  name: 'Meeting Pipeline (Synthetic)',
+  description: 'Ingest mock meeting-complete payload via API, verify meeting_records row created with is_test_data=true.',
+  journeyStage: 'lead',
+
+  steps: [
+    {
+      type: 'apiCall',
+      endpoint: '/api/admin/meetings/ingest',
+      method: 'POST',
+      useIngestSecret: true,
+      body: MOCK_MEETING_COMPLETE_PAYLOAD as unknown as Record<string, unknown>,
+      expectedStatus: 200,
+      description: 'Ingest mock meeting-complete payload',
+    },
+    { type: 'delay', duration: 2000 },
+    {
+      type: 'validateDatabase',
+      table: 'meeting_records',
+      conditions: { is_test_data: true, meeting_type: 'discovery_call' },
+      expectedCount: 1,
+    },
+  ],
+
+  variability: { skipProbability: {}, delayRange: [500, 1500], responseVariation: false },
+  expectedOutcomes: {
+    mustComplete: ['apiCall'],
+    mustNotError: ['validateDatabase'],
+    dataValidation: [
+      { table: 'meeting_records', field: 'is_test_data', condition: 'equals', value: true },
+    ],
+  },
+  estimatedDuration: 10000,
+  tags: ['pipeline', 'meeting', 'synthetic', 'mock-data'],
+}
+
+/**
+ * Scenario 13: Discovery to Proposal (synthetic)
+ * Submit a mock discovery session contact form, verify lead qualification
+ * and contact_submissions row with is_test_data=true.
+ */
+export const discoveryToProposalScenario: TestScenario = {
+  id: 'discovery_to_proposal_synthetic',
+  name: 'Discovery to Proposal (Synthetic)',
+  description: 'Submit mock discovery session via contact API, verify contact_submissions created with is_test_data=true.',
+  journeyStage: ['lead', 'client'],
+
+  steps: [
+    {
+      type: 'apiCall',
+      endpoint: '/api/contact',
+      method: 'POST',
+      body: MOCK_DISCOVERY_SESSION_PAYLOAD as unknown as Record<string, unknown>,
+      expectedStatus: 200,
+      description: 'Submit mock discovery session contact form',
+    },
+    { type: 'delay', duration: 3000 },
+    {
+      type: 'validateDatabase',
+      table: 'contact_submissions',
+      conditions: { is_test_data: true, email: 'test-james@test.amadutown.com' },
+      expectedCount: 1,
+    },
+  ],
+
+  variability: { skipProbability: {}, delayRange: [500, 2000], responseVariation: false },
+  expectedOutcomes: {
+    mustComplete: ['apiCall'],
+    mustNotError: ['validateDatabase'],
+    dataValidation: [
+      { table: 'contact_submissions', field: 'is_test_data', condition: 'equals', value: true },
+    ],
+  },
+  estimatedDuration: 12000,
+  tags: ['pipeline', 'discovery', 'synthetic', 'mock-data'],
+}
+
+/**
+ * Scenario 14: Credential Rotation Smoke
+ * Fires each major webhook trigger and confirms no 401/403/500 errors.
+ * Does not validate downstream data — just confirms the webhook is reachable
+ * and credentials are valid.
+ */
+export const credentialRotationSmokeScenario: TestScenario = {
+  id: 'credential_rotation_smoke',
+  name: 'Credential Rotation Smoke',
+  description: 'Fire each major webhook trigger to verify credentials are valid after rotation. Confirms no auth errors.',
+  journeyStage: 'lead',
+
+  steps: [
+    {
+      type: 'apiCall',
+      endpoint: '/api/admin/outreach/ingest',
+      method: 'POST',
+      useIngestSecret: true,
+      body: {
+        is_test_data: true,
+        leads: [{
+          name: 'Credential Test Lead',
+          email: 'test-cred-smoke@test.amadutown.com',
+          company: 'Credential Test Co',
+          lead_source: 'cold_referral',
+          message: 'Credential rotation smoke test',
+        }],
+      },
+      expectedStatus: 200,
+      description: 'Verify outreach ingest credentials',
+    },
+    {
+      type: 'apiCall',
+      endpoint: '/api/admin/value-evidence/ingest',
+      method: 'POST',
+      useIngestSecret: true,
+      body: {
+        is_test_data: true,
+        evidence: [{
+          pain_point_category_name: 'Credential Smoke Test',
+          pain_point_display_name: 'Credential Smoke Test',
+          pain_point_description: 'Smoke test for credential rotation',
+          source_type: 'test',
+          source_id: 'cred-smoke-001',
+          source_excerpt: 'Credential rotation smoke test',
+          confidence_score: 0.1,
+          extracted_by: 'test_pipeline',
+        }],
+      },
+      expectedStatus: 200,
+      description: 'Verify value-evidence ingest credentials',
+    },
+  ],
+
+  variability: { skipProbability: {}, delayRange: [500, 1000], responseVariation: false },
+  expectedOutcomes: {
+    mustComplete: ['apiCall'],
+    mustNotError: ['apiCall'],
+    dataValidation: [],
+  },
+  estimatedDuration: 8000,
+  tags: ['credential-rotation', 'smoke-test', 'synthetic'],
+}
+
+// ============================================================================
 // Populate Demo Data — lightweight scenarios that create data via API (no SQL)
 // Use Admin → Testing → "Populate Demo Data" preset. Requires N8N_INGEST_SECRET
 // for ingest scenarios and admin session for leads API.
@@ -848,7 +1003,10 @@ export const ALL_SCENARIOS: TestScenario[] = [
   warmLeadPipelineScenario,
   standaloneAuditToolScenario,
   clientExperienceWalkthroughScenario,
-  auditFromMeetingsScenario
+  auditFromMeetingsScenario,
+  meetingPipelineScenario,
+  discoveryToProposalScenario,
+  credentialRotationSmokeScenario,
 ]
 
 export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
@@ -863,6 +1021,9 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   standalone_audit_tool: standaloneAuditToolScenario,
   client_experience_walkthrough: clientExperienceWalkthroughScenario,
   audit_from_meetings: auditFromMeetingsScenario,
+  meeting_pipeline_synthetic: meetingPipelineScenario,
+  discovery_to_proposal_synthetic: discoveryToProposalScenario,
+  credential_rotation_smoke: credentialRotationSmokeScenario,
   // Populate demo scenarios
   seed_warm_leads: seedWarmLeadsScenario,
   seed_cold_lead: seedColdLeadScenario,

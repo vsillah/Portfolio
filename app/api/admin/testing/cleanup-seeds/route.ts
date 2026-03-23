@@ -20,9 +20,22 @@ const TEST_CLIENT_EMAILS = [
   'test-stripe@example.com',
 ]
 
+const TABLES_WITH_TEST_FLAG = [
+  'pain_point_evidence',
+  'market_intelligence',
+  'cost_events',
+  'outreach_queue',
+  'social_content_queue',
+  'meeting_records',
+  'sales_sessions',
+  'client_projects',
+  'contact_submissions',
+] as const
+
 /**
  * POST /api/admin/testing/cleanup-seeds
  * Deletes known test seed rows from contact_submissions and client_projects.
+ * Also purges all rows where is_test_data = true across flagged tables.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -31,51 +44,73 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: auth.error }, { status: auth.status })
     }
 
+    const body = await request.json().catch(() => ({}))
+    const mode: 'all' | 'email_only' | 'flag_only' = body.mode ?? 'all'
+
     const results: Record<string, number> = {}
 
-    const { data: contactRows } = await supabaseAdmin
-      .from('contact_submissions')
-      .select('id')
-      .in('email', TEST_CONTACT_EMAILS)
+    // Phase 1: Delete by is_test_data flag
+    if (mode === 'all' || mode === 'flag_only') {
+      for (const table of TABLES_WITH_TEST_FLAG) {
+        const { data, error } = await supabaseAdmin
+          .from(table)
+          .delete()
+          .eq('is_test_data', true)
+          .select('id')
 
-    const contactIds = (contactRows ?? []).map((r: { id: number }) => r.id)
-    if (contactIds.length > 0) {
-      await supabaseAdmin.from('diagnostic_audits').delete().in('contact_submission_id', contactIds)
+        if (error) {
+          console.error(`Cleanup ${table} (is_test_data) error:`, error)
+        }
+        results[`${table}_flagged`] = data?.length ?? 0
+      }
     }
-    await supabaseAdmin.from('diagnostic_audits').delete().eq('session_id', 'test-lead-session-001')
-    await supabaseAdmin.from('chat_sessions').delete().eq('session_id', 'test-lead-session-001')
 
-    const { data: contacts, error: contactErr } = await supabaseAdmin
-      .from('contact_submissions')
-      .delete()
-      .in('email', TEST_CONTACT_EMAILS)
-      .select('id')
+    // Phase 2: Delete by known test emails (legacy approach)
+    if (mode === 'all' || mode === 'email_only') {
+      const { data: contactRows } = await supabaseAdmin
+        .from('contact_submissions')
+        .select('id')
+        .in('email', TEST_CONTACT_EMAILS)
 
-    if (contactErr) {
-      console.error('Cleanup contact_submissions error:', contactErr)
+      const contactIds = (contactRows ?? []).map((r: { id: number }) => r.id)
+      if (contactIds.length > 0) {
+        await supabaseAdmin.from('diagnostic_audits').delete().in('contact_submission_id', contactIds)
+      }
+      await supabaseAdmin.from('diagnostic_audits').delete().eq('session_id', 'test-lead-session-001')
+      await supabaseAdmin.from('chat_sessions').delete().eq('session_id', 'test-lead-session-001')
+
+      const { data: contacts, error: contactErr } = await supabaseAdmin
+        .from('contact_submissions')
+        .delete()
+        .in('email', TEST_CONTACT_EMAILS)
+        .select('id')
+
+      if (contactErr) {
+        console.error('Cleanup contact_submissions error:', contactErr)
+      }
+      results.contact_submissions_email = contacts?.length ?? 0
+
+      const { data: proposalsRemoved, error: proposalErr } = await supabaseAdmin
+        .from('proposals')
+        .delete()
+        .eq('client_email', 'jordan@acmecorp.com')
+        .select('id')
+      if (proposalErr) {
+        console.error('Cleanup proposals error:', proposalErr)
+      }
+      results.proposals = proposalsRemoved?.length ?? 0
+
+      const { data: projects, error: projectErr } = await supabaseAdmin
+        .from('client_projects')
+        .delete()
+        .in('client_email', TEST_CLIENT_EMAILS)
+        .select('id')
+
+      if (projectErr) {
+        console.error('Cleanup client_projects error:', projectErr)
+      }
+      results.client_projects_email = projects?.length ?? 0
     }
-    results.contact_submissions = contacts?.length ?? 0
-
-    const { data: proposalsRemoved, error: proposalErr } = await supabaseAdmin
-      .from('proposals')
-      .delete()
-      .eq('client_email', 'jordan@acmecorp.com')
-      .select('id')
-    if (proposalErr) {
-      console.error('Cleanup proposals error:', proposalErr)
-    }
-    results.proposals = proposalsRemoved?.length ?? 0
-
-    const { data: projects, error: projectErr } = await supabaseAdmin
-      .from('client_projects')
-      .delete()
-      .in('client_email', TEST_CLIENT_EMAILS)
-      .select('id')
-
-    if (projectErr) {
-      console.error('Cleanup client_projects error:', projectErr)
-    }
-    results.client_projects = projects?.length ?? 0
 
     const totalDeleted = Object.values(results).reduce((a, b) => a + b, 0)
 

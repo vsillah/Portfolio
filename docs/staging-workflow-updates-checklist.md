@@ -2,6 +2,11 @@
 
 For each workflow copied into **ATAS Staging**, check and update the items below before activating.
 
+**See also**
+
+- [Staging Vercel ↔ n8n env sync](./staging-vercel-n8n-sync.md) — copy `N8N_*` values to Vercel staging and redeploy.
+- [Staging n8n activation matrix](./staging-n8n-activation-matrix.md) — workflow IDs, MCP validation/run results, and blockers.
+
 ---
 
 ## ✅ **WF-RAG-CHAT: Public Chatbot** (HIGH PRIORITY)

@@ -361,6 +361,11 @@ export async function triggerLeadQualificationWebhook(
     return
   }
 
+  if (isMockN8nEnabled()) {
+    logDisabledOutbound('[MOCK_N8N] triggerLeadQualificationWebhook', N8N_LEAD_WEBHOOK_URL, request)
+    return
+  }
+
   if (!N8N_LEAD_WEBHOOK_URL) {
     console.warn('N8N_LEAD_WEBHOOK_URL not configured - skipping lead qualification')
     return
@@ -420,6 +425,11 @@ export async function triggerEbookNurtureSequence(
 ): Promise<void> {
   if (isN8nOutboundDisabled()) {
     logDisabledOutbound('triggerEbookNurtureSequence', N8N_EBOOK_NURTURE_WEBHOOK_URL, request)
+    return
+  }
+
+  if (isMockN8nEnabled()) {
+    logDisabledOutbound('[MOCK_N8N] triggerEbookNurtureSequence', N8N_EBOOK_NURTURE_WEBHOOK_URL, request)
     return
   }
 
@@ -955,6 +965,11 @@ export async function triggerDiagnosticCompletionWebhook(
     return
   }
 
+  if (isMockN8nEnabled()) {
+    logDisabledOutbound('[MOCK_N8N] triggerDiagnosticCompletionWebhook', completionWebhookUrl, { diagnosticAuditId, contactInfo })
+    return
+  }
+
   if (!completionWebhookUrl) {
     console.warn('Diagnostic completion webhook URL not configured - skipping sales notification')
     return
@@ -1081,6 +1096,11 @@ export async function triggerOutreachGeneration(params: {
     return
   }
 
+  if (isMockN8nEnabled()) {
+    logDisabledOutbound('[MOCK_N8N] triggerOutreachGeneration', N8N_CLG002_WEBHOOK_URL, params)
+    return
+  }
+
   if (!N8N_CLG002_WEBHOOK_URL) {
     console.warn('N8N_CLG002_WEBHOOK_URL not configured - skipping outreach generation')
     return
@@ -1128,6 +1148,11 @@ export async function triggerOutreachSend(params: {
 }): Promise<void> {
   if (isN8nOutboundDisabled()) {
     logDisabledOutbound('triggerOutreachSend', N8N_CLG003_WEBHOOK_URL, params)
+    return
+  }
+
+  if (isMockN8nEnabled()) {
+    logDisabledOutbound('[MOCK_N8N] triggerOutreachSend', N8N_CLG003_WEBHOOK_URL, params)
     return
   }
 
@@ -1185,6 +1210,11 @@ export async function triggerWarmLeadScrape(params: {
   if (isN8nOutboundDisabled()) {
     logDisabledOutbound('triggerWarmLeadScrape', `WRM-${params.source}`, params)
     return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
+  }
+
+  if (isMockN8nEnabled()) {
+    logDisabledOutbound('[MOCK_N8N] triggerWarmLeadScrape', `WRM-${params.source}`, params)
+    return { triggered: true, message: `[MOCK] ${params.source} scrape logged (not sent)` }
   }
 
   const webhookMap: Record<string, string | undefined> = {
@@ -1272,6 +1302,11 @@ export async function triggerValueEvidenceExtraction(
     return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
   }
 
+  if (isMockN8nEnabled()) {
+    logDisabledOutbound('[MOCK_N8N] triggerValueEvidenceExtraction', N8N_VEP001_WEBHOOK_URL, options)
+    return { triggered: true, message: '[MOCK] VEP-001 extraction logged (not sent)' }
+  }
+
   if (!N8N_VEP001_WEBHOOK_URL) {
     console.warn('N8N_VEP001_WEBHOOK_URL not configured - skipping value evidence extraction')
     return { triggered: false, message: 'N8N_VEP001_WEBHOOK_URL not configured' }
@@ -1332,6 +1367,11 @@ export async function triggerSocialListening(options?: SocialListeningOptions): 
     return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
   }
 
+  if (isMockN8nEnabled()) {
+    logDisabledOutbound('[MOCK_N8N] triggerSocialListening', N8N_VEP002_WEBHOOK_URL, options)
+    return { triggered: true, message: '[MOCK] VEP-002 social listening logged (not sent)' }
+  }
+
   if (!N8N_VEP002_WEBHOOK_URL) {
     console.warn('N8N_VEP002_WEBHOOK_URL not configured - skipping social listening')
     return { triggered: false, message: 'N8N_VEP002_WEBHOOK_URL not configured' }
@@ -1390,6 +1430,11 @@ export async function triggerSocialContentExtraction(options?: {
     return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
   }
 
+  if (isMockN8nEnabled()) {
+    logDisabledOutbound('[MOCK_N8N] triggerSocialContentExtraction', N8N_SOC001_WEBHOOK_URL, options)
+    return { triggered: true, message: '[MOCK] SOC-001 extraction logged (not sent)' }
+  }
+
   try {
     const body: Record<string, unknown> = {
       triggered_at: new Date().toISOString(),
@@ -1435,6 +1480,11 @@ export async function triggerSocialContentPublish(payload: {
   if (isN8nOutboundDisabled()) {
     logDisabledOutbound('triggerSocialContentPublish', N8N_SOC002_WEBHOOK_URL, payload)
     return { triggered: false, message: 'N8N_DISABLE_OUTBOUND is true' }
+  }
+
+  if (isMockN8nEnabled()) {
+    logDisabledOutbound('[MOCK_N8N] triggerSocialContentPublish', N8N_SOC002_WEBHOOK_URL, payload)
+    return { triggered: true, message: '[MOCK] SOC-002 publish logged (not sent)' }
   }
 
   try {

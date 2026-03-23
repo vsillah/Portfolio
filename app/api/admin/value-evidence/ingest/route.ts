@@ -115,6 +115,7 @@ export async function POST(request: NextRequest) {
             confidence_score: item.confidence_score ?? 0.5,
             extracted_by: item.extracted_by ?? 'ai_classifier',
             contact_submission_id: item.contact_submission_id ?? null,
+            is_test_data: body.is_test_data ?? false,
           })
 
         if (insertError) {

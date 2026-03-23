@@ -479,6 +479,111 @@ export const PERSONAS_BY_ID: Record<string, TestPersona> = {
 }
 
 // ============================================================================
+// Synthetic PII — Fake contact details paired with real business context.
+// Only PII (names, emails, phones, LinkedIn URLs) is fabricated.
+// Company names, industries, tech stacks, and challenges are realistic.
+// ============================================================================
+
+export interface SyntheticContactInfo {
+  name: string
+  email: string
+  phone: string
+  linkedinUrl: string
+  company: string
+  industry: string
+  jobTitle: string
+}
+
+export const SYNTHETIC_CONTACTS: SyntheticContactInfo[] = [
+  {
+    name: 'Amara Okafor',
+    email: 'test-amara@test.amadutown.com',
+    phone: '+1-555-0101',
+    linkedinUrl: 'https://linkedin.com/in/test-amara-okafor',
+    company: 'Meridian Health Systems',
+    industry: 'Healthcare IT',
+    jobTitle: 'VP of Operations',
+  },
+  {
+    name: 'James Whitfield',
+    email: 'test-james@test.amadutown.com',
+    phone: '+1-555-0102',
+    linkedinUrl: 'https://linkedin.com/in/test-james-whitfield',
+    company: 'Apex Manufacturing Group',
+    industry: 'Industrial Manufacturing',
+    jobTitle: 'Director of Digital Transformation',
+  },
+  {
+    name: 'Priya Sharma',
+    email: 'test-priya@test.amadutown.com',
+    phone: '+1-555-0103',
+    linkedinUrl: 'https://linkedin.com/in/test-priya-sharma',
+    company: 'NovaTech Solutions',
+    industry: 'SaaS / B2B Software',
+    jobTitle: 'Chief Revenue Officer',
+  },
+  {
+    name: 'Marcus Chen',
+    email: 'test-marcus@test.amadutown.com',
+    phone: '+1-555-0104',
+    linkedinUrl: 'https://linkedin.com/in/test-marcus-chen',
+    company: 'Greenfield Capital Partners',
+    industry: 'Financial Services',
+    jobTitle: 'Managing Partner',
+  },
+  {
+    name: 'Fatima Al-Rashid',
+    email: 'test-fatima@test.amadutown.com',
+    phone: '+1-555-0105',
+    linkedinUrl: 'https://linkedin.com/in/test-fatima-alrashid',
+    company: 'Coastal Logistics Co',
+    industry: 'Supply Chain / Logistics',
+    jobTitle: 'COO',
+  },
+]
+
+/**
+ * Get a synthetic contact by index (wraps around).
+ */
+export function getSyntheticContact(index: number): SyntheticContactInfo {
+  return SYNTHETIC_CONTACTS[index % SYNTHETIC_CONTACTS.length]
+}
+
+// ============================================================================
+// Meeting Transcript Fixtures — Fake PII, real business discussion
+// ============================================================================
+
+export const MOCK_MEETING_TRANSCRIPTS = {
+  discovery_call: `[00:00] Vambah: Thanks for joining, Amara. I know you mentioned your team is spending a lot of time on manual patient intake workflows. Can you walk me through what that looks like day to day?
+
+[00:45] Amara: Sure. Right now our front desk staff manually enters patient info from paper forms into our EHR system. It takes about 15 minutes per patient, and we see 80-100 patients a day across three locations.
+
+[02:10] Vambah: So that's roughly 20-25 hours of data entry per day across your locations. Have you looked at any automation for that?
+
+[02:30] Amara: We tried a basic OCR tool last year but the accuracy was only about 70%, which meant staff had to verify everything anyway. We need something that can handle handwritten forms and integrate directly with our Epic EHR instance.
+
+[03:15] Vambah: That's a common challenge in healthcare IT. The good news is modern document AI has gotten significantly better at handwriting recognition. What's your budget range for solving this?
+
+[03:45] Amara: We've allocated $30K-$50K for this quarter's digital transformation initiatives. If we can prove ROI on intake automation, there's more budget available for Q3.
+
+[04:20] Vambah: Based on what you've described — 25 hours/day of manual entry at roughly $22/hour loaded cost — you're looking at about $143K annually in labor costs for data entry alone. Even a 60% reduction would pay for itself in under 3 months.`,
+
+  follow_up: `[00:00] Vambah: James, good to reconnect. Last time we discussed the challenges your plant managers are having with production scheduling. Have things changed since we last spoke?
+
+[00:30] James: Actually yes — we had a major scheduling conflict last week that cost us about $45K in overtime and expedited shipping. The plant managers are still using spreadsheets and email to coordinate across our four facilities.
+
+[01:15] Vambah: That's exactly the kind of pain point where workflow automation can have immediate impact. When you say spreadsheets, are we talking Excel files being emailed back and forth?
+
+[01:30] James: Worse — Google Sheets with manual copy-paste between them. No version control, no audit trail. Our quality team flagged it as a compliance risk for our ISO certification.
+
+[02:00] Vambah: So you have both a cost problem and a compliance risk. Let me share what we've done for similar manufacturers. We typically set up an n8n workflow that pulls production orders from your ERP, auto-generates schedules based on capacity constraints, and pushes updates to a shared dashboard. The whole thing runs on autopilot with human review only for exceptions.
+
+[02:45] James: That sounds like exactly what we need. What's the typical implementation timeline?
+
+[03:00] Vambah: For a four-facility setup like yours, usually 6-8 weeks from kickoff to production. We'd start with one facility as a pilot.`,
+}
+
+// ============================================================================
 // Persona Utilities
 // ============================================================================
 
