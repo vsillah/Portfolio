@@ -9,6 +9,8 @@ import type { DiagnosticAuditData, DiagnosticCategory, DiagnosticProgress } from
 /** audit_type values on diagnostic_audits; must match DB CHECK constraint. */
 export type DiagnosticAuditType = 'chat' | 'standalone' | 'in_person' | 'from_meetings'
 
+export type ReportTier = 'bronze' | 'silver' | 'gold' | 'platinum'
+
 export interface DiagnosticAuditRecord {
   id: string
   session_id: string
@@ -35,6 +37,18 @@ export interface DiagnosticAuditRecord {
   started_at: string
   completed_at?: string | null
   updated_at: string
+  /** Phase 1: context capture fields */
+  business_name?: string | null
+  website_url?: string | null
+  contact_email?: string | null
+  industry_slug?: string | null
+  industry_gics_code?: string | null
+  enriched_tech_stack?: Record<string, unknown> | null
+  value_estimate?: Record<string, unknown> | null
+  report_tier?: ReportTier | null
+  /** Phase 2: visual analysis fields */
+  website_screenshot_path?: string | null
+  website_annotations?: Array<Record<string, unknown>> | null
 }
 
 /**
@@ -58,6 +72,15 @@ export async function saveDiagnosticAudit(
     auditType?: DiagnosticAuditType
     /** When auditType = from_meetings, list of meeting_records.id for traceability. */
     sourceMeetingIds?: string[]
+    /** Phase 1: context capture fields */
+    businessName?: string
+    websiteUrl?: string
+    contactEmail?: string
+    industrySlug?: string
+    industryGicsCode?: string
+    enrichedTechStack?: Record<string, unknown>
+    valueEstimate?: Record<string, unknown>
+    reportTier?: ReportTier
   }
 ): Promise<{ id: string; error?: Error }> {
   try {
@@ -149,6 +172,15 @@ export async function saveDiagnosticAudit(
     if (data.sourceMeetingIds && Array.isArray(data.sourceMeetingIds) && data.sourceMeetingIds.length > 0) {
       updateData.source_meeting_ids = data.sourceMeetingIds
     }
+
+    if (data.businessName !== undefined) updateData.business_name = data.businessName
+    if (data.websiteUrl !== undefined) updateData.website_url = data.websiteUrl
+    if (data.contactEmail !== undefined) updateData.contact_email = data.contactEmail
+    if (data.industrySlug !== undefined) updateData.industry_slug = data.industrySlug
+    if (data.industryGicsCode !== undefined) updateData.industry_gics_code = data.industryGicsCode
+    if (data.enrichedTechStack !== undefined) updateData.enriched_tech_stack = data.enrichedTechStack
+    if (data.valueEstimate !== undefined) updateData.value_estimate = data.valueEstimate
+    if (data.reportTier !== undefined) updateData.report_tier = data.reportTier
 
     // Lead dashboard: questions per category (e.g. from n8n or chat flow)
     if (data.questionsByCategory && typeof data.questionsByCategory === 'object') {
