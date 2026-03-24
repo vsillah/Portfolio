@@ -11,8 +11,18 @@ import {
   type AuditCategoryConfig,
   type AuditField,
 } from '@/lib/audit-questions'
+import { getIndustryOptions } from '@/lib/constants/industry'
 
-type Step = 'intro' | 'form' | 'results'
+type Step = 'intro' | 'context' | 'form' | 'results'
+
+const INDUSTRY_OPTIONS = getIndustryOptions()
+
+interface ContextFormData {
+  businessName: string
+  websiteUrl: string
+  email: string
+  industry: string
+}
 
 interface AuditState {
   sessionId: string
@@ -33,6 +43,16 @@ interface FetchedAudit {
   recommendedActions?: string[]
   urgencyScore?: number | null
   opportunityScore?: number | null
+  businessName?: string | null
+  websiteUrl?: string | null
+  contactEmail?: string | null
+  industrySlug?: string | null
+  enrichedTechStack?: {
+    domain?: string
+    technologies?: Array<{ name: string; tag?: string; categories?: string[] }>
+    byTag?: Record<string, string[]>
+  } | null
+  reportTier?: string | null
 }
 
 /** Score band for color and copy: 0–3 low, 4–6 mid, 7–10 high */
@@ -457,6 +477,13 @@ export default function AuditToolPage() {
   const [submittedByCategory, setSubmittedByCategory] = useState<Record<string, Record<string, string | string[] | boolean>>>({})
   /** Results: expandable "What your scores mean" drawer (collapsed by default) */
   const [scoreDefinitionsOpen, setScoreDefinitionsOpen] = useState(false)
+  /** Step 0: context capture form */
+  const [contextForm, setContextForm] = useState<ContextFormData>({
+    businessName: '',
+    websiteUrl: '',
+    email: '',
+    industry: '',
+  })
 
   const category = AUDIT_CATEGORIES[categoryIndex] as AuditCategoryConfig | undefined
   const isLastCategory = categoryIndex === AUDIT_CATEGORIES.length - 1
@@ -465,7 +492,17 @@ export default function AuditToolPage() {
     setError('')
     setSubmitting(true)
     try {
-      const res = await fetch('/api/tools/audit/start', { method: 'POST' })
+      const body: Record<string, string> = {}
+      if (contextForm.businessName.trim()) body.businessName = contextForm.businessName.trim()
+      if (contextForm.websiteUrl.trim()) body.websiteUrl = contextForm.websiteUrl.trim()
+      if (contextForm.email.trim()) body.email = contextForm.email.trim()
+      if (contextForm.industry) body.industry = contextForm.industry
+
+      const res = await fetch('/api/tools/audit/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
         setError(data?.error || 'Could not start audit')
@@ -480,7 +517,7 @@ export default function AuditToolPage() {
     } finally {
       setSubmitting(false)
     }
-  }, [])
+  }, [contextForm])
 
   const submitCategory = useCallback(async () => {
     if (!auditState || !category) return
@@ -554,14 +591,133 @@ export default function AuditToolPage() {
               {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
               <button
                 type="button"
-                onClick={startAudit}
-                disabled={submitting}
+                onClick={() => setStep('context')}
                 className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-imperial-navy disabled:opacity-50"
               >
-                {submitting ? 'Starting…' : 'Start audit'}
+                Get started
               </button>
               <p className="text-platinum-white/50 text-sm">
                 <Link href="/" className="text-radiant-gold/80 hover:underline">Back to home</Link>
+              </p>
+            </motion.div>
+          )}
+
+          {step === 'context' && (
+            <motion.div
+              key="context"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="space-y-6"
+            >
+              <h1 className="text-3xl font-bold text-radiant-gold">Tell us about your business</h1>
+              <p className="text-platinum-white/80">
+                The more context you provide, the more personalized your report will be.
+                All fields are optional &mdash; you can skip ahead and come back later.
+              </p>
+
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="ctx-name" className="block text-sm font-medium text-platinum-white/80 mb-1">
+                    Business name
+                  </label>
+                  <input
+                    id="ctx-name"
+                    type="text"
+                    value={contextForm.businessName}
+                    onChange={(e) => setContextForm((p) => ({ ...p, businessName: e.target.value }))}
+                    placeholder="Acme Corp"
+                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="ctx-url" className="block text-sm font-medium text-platinum-white/80 mb-1">
+                    Website URL
+                  </label>
+                  <input
+                    id="ctx-url"
+                    type="url"
+                    value={contextForm.websiteUrl}
+                    onChange={(e) => setContextForm((p) => ({ ...p, websiteUrl: e.target.value }))}
+                    placeholder="https://example.com"
+                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+                  />
+                  <p className="text-platinum-white/50 text-xs mt-1">
+                    We&apos;ll analyze your site to detect your tech stack and tailor recommendations.
+                  </p>
+                </div>
+
+                <div>
+                  <label htmlFor="ctx-email" className="block text-sm font-medium text-platinum-white/80 mb-1">
+                    Email
+                  </label>
+                  <input
+                    id="ctx-email"
+                    type="email"
+                    value={contextForm.email}
+                    onChange={(e) => setContextForm((p) => ({ ...p, email: e.target.value }))}
+                    placeholder="you@example.com"
+                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+                  />
+                  <p className="text-platinum-white/50 text-xs mt-1">
+                    Required for your personalized strategy report. We won&apos;t spam you.
+                  </p>
+                </div>
+
+                <div>
+                  <label htmlFor="ctx-industry" className="block text-sm font-medium text-platinum-white/80 mb-1">
+                    Industry
+                  </label>
+                  <select
+                    id="ctx-industry"
+                    value={contextForm.industry}
+                    onChange={(e) => setContextForm((p) => ({ ...p, industry: e.target.value }))}
+                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+                  >
+                    <option value="">Select your industry…</option>
+                    {INDUSTRY_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Tier preview hint */}
+              {(contextForm.email || contextForm.websiteUrl || contextForm.industry) && (
+                <div className="rounded-lg border border-radiant-gold/20 bg-radiant-gold/5 p-3">
+                  <p className="text-sm text-platinum-white/80">
+                    {contextForm.email && contextForm.websiteUrl && contextForm.industry
+                      ? '✨ Full Analysis — you\'ll get a personalized report with tech stack analysis, industry benchmarks, and a strategy deck.'
+                      : contextForm.email
+                        ? '📊 Smart Report — complete your URL and industry for the full analysis.'
+                        : '📋 Add your email to unlock the personalized report tier.'}
+                  </p>
+                </div>
+              )}
+
+              {error && <p className="text-red-400 text-sm" role="alert">{error}</p>}
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStep('intro')}
+                  className="px-4 py-2 rounded-lg border border-radiant-gold/40 text-platinum-white hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={startAudit}
+                  disabled={submitting}
+                  className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-imperial-navy disabled:opacity-50"
+                >
+                  {submitting ? 'Starting…' : 'Begin audit'}
+                </button>
+              </div>
+              <p className="text-platinum-white/50 text-xs">
+                All fields are optional. You can skip ahead and still get a basic report.
               </p>
             </motion.div>
           )}
@@ -669,7 +825,25 @@ export default function AuditToolPage() {
               exit={{ opacity: 0 }}
               className="space-y-6"
             >
-              <h1 className="text-3xl font-bold text-radiant-gold">Your audit is complete</h1>
+              <h1 className="text-3xl font-bold text-radiant-gold">
+                {results?.businessName ? `${results.businessName} — Audit Complete` : 'Your audit is complete'}
+              </h1>
+
+              {/* Report tier badge */}
+              {results?.reportTier && results.reportTier !== 'bronze' && (
+                <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium ${
+                  results.reportTier === 'platinum' ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-200'
+                    : results.reportTier === 'gold' ? 'bg-yellow-500/20 border-yellow-400/40 text-yellow-200'
+                    : 'bg-slate-400/20 border-slate-300/40 text-slate-200'
+                }`}>
+                  <span>
+                    {results.reportTier === 'platinum' ? 'Strategy Package'
+                      : results.reportTier === 'gold' ? 'Full Analysis'
+                      : 'Smart Report'}
+                  </span>
+                </div>
+              )}
+
               {results ? (
                 <>
                   {/* Capture summary: same 6-step progress indicator as the form; checkmark when that category had responses */}
@@ -863,6 +1037,93 @@ export default function AuditToolPage() {
                     )
                   })()}
 
+                  {/* Tech stack comparison (Gold tier — when BuiltWith data available) */}
+                  {results.enrichedTechStack?.technologies && results.enrichedTechStack.technologies.length > 0 && (
+                    <div className="rounded-lg border border-radiant-gold/30 bg-black/20 p-4">
+                      <h2 className="text-lg font-semibold text-platinum-white mb-2">Tech Stack Analysis</h2>
+                      <p className="text-platinum-white/70 text-sm mb-3">
+                        We detected the following technologies on <span className="text-radiant-gold">{results.enrichedTechStack.domain || results.websiteUrl}</span>:
+                      </p>
+                      {results.enrichedTechStack.byTag && Object.keys(results.enrichedTechStack.byTag).length > 0 ? (
+                        <div className="grid grid-cols-2 gap-2">
+                          {Object.entries(results.enrichedTechStack.byTag).slice(0, 8).map(([tag, tools]) => (
+                            <div key={tag} className="rounded-md bg-platinum-white/5 p-2">
+                              <p className="text-xs font-medium text-radiant-gold/80">{tag}</p>
+                              <p className="text-sm text-platinum-white/90">{(tools as string[]).join(', ')}</p>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {results.enrichedTechStack.technologies.slice(0, 12).map((tech) => (
+                            <span key={tech.name} className="inline-block rounded-full bg-platinum-white/10 px-3 py-1 text-xs text-platinum-white/80">
+                              {tech.name}
+                            </span>
+                          ))}
+                          {results.enrichedTechStack.technologies.length > 12 && (
+                            <span className="inline-block rounded-full bg-platinum-white/5 px-3 py-1 text-xs text-platinum-white/50">
+                              +{results.enrichedTechStack.technologies.length - 12} more
+                            </span>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Cross-reference with self-reported stack */}
+                      {typeof results.techStack?.crm === 'string' && results.techStack.crm && (
+                        <div className="mt-3 pt-3 border-t border-platinum-white/10">
+                          <p className="text-xs text-platinum-white/60">
+                            You reported using <span className="text-platinum-white/80">{results.techStack.crm}</span> as your CRM
+                            {typeof results.techStack.marketing === 'string' && results.techStack.marketing ? ` and ${results.techStack.marketing} for marketing` : ''}.
+                            {results.enrichedTechStack?.byTag?.['Analytics'] ? ' We also detected analytics tools on your site.' : ''}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Locked section prompts for upgradeable tiers */}
+                  {(!results.enrichedTechStack?.technologies || results.enrichedTechStack.technologies.length === 0) && !results.websiteUrl && (
+                    <div className="rounded-lg border border-dashed border-platinum-white/20 bg-black/10 p-4">
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl opacity-60">🔒</span>
+                        <div>
+                          <p className="text-sm font-medium text-platinum-white/80">Tech Stack Analysis</p>
+                          <p className="text-xs text-platinum-white/60 mt-0.5">
+                            Add your website URL to unlock a comparison of your detected tech stack vs. what you reported.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!results.websiteUrl && (
+                    <div className="rounded-lg border border-dashed border-platinum-white/20 bg-black/10 p-4">
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl opacity-60">🔒</span>
+                        <div>
+                          <p className="text-sm font-medium text-platinum-white/80">Website Visual Analysis</p>
+                          <p className="text-xs text-platinum-white/60 mt-0.5">
+                            Add your website URL and industry to unlock an annotated analysis of your site with specific improvement recommendations.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {(!results.contactEmail || !results.websiteUrl || !results.industrySlug) && (
+                    <div className="rounded-lg border border-dashed border-platinum-white/20 bg-black/10 p-4">
+                      <div className="flex items-start gap-3">
+                        <span className="text-2xl opacity-60">🔒</span>
+                        <div>
+                          <p className="text-sm font-medium text-platinum-white/80">Personalized Strategy Deck</p>
+                          <p className="text-xs text-platinum-white/60 mt-0.5">
+                            Complete your audit with email, website URL, and industry to unlock a downloadable strategy deck tailored to your business.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-platinum-white/60 text-sm">
                     Your responses have been saved. You can start a new audit anytime or head to Resources to find tools that match your goals.
                   </p>
@@ -883,6 +1144,7 @@ export default function AuditToolPage() {
                     setSubmittedByCategory({})
                     setScoreDefinitionsOpen(false)
                     setError('')
+                    setContextForm({ businessName: '', websiteUrl: '', email: '', industry: '' })
                   }}
                   className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-imperial-navy"
                 >

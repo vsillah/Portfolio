@@ -7,6 +7,7 @@ import { ChatMessage, type ChatMessageProps } from './ChatMessage'
 import { ChatInput } from './ChatInput'
 import { VoiceChat } from './VoiceChat'
 import { CalendlyEmbed } from './CalendlyEmbed'
+import { DiagnosticContextPanel } from './DiagnosticContextPanel'
 import { generateSessionId, CHAT_STORAGE_KEY } from '@/lib/chat-utils'
 import { isValidCalendlyUrl } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
@@ -400,6 +401,16 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
         if (data.diagnosticComplete) {
           setIsDiagnosticMode(false)
           setCurrentCategory(null)
+          // Show report link after completion
+          if (data.diagnosticAuditId || diagnosticAuditId) {
+            const completedId = data.diagnosticAuditId || diagnosticAuditId
+            const reportMessage: Message = {
+              id: `report-cta-${Date.now()}`,
+              content: `Your diagnostic is complete! [View your full report](/tools/audit/report/${completedId}) to see your personalized analysis.`,
+              role: 'assistant',
+            }
+            setMessages(prev => [...prev, reportMessage])
+          }
         }
       }
 
@@ -846,6 +857,14 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
 
               <div ref={messagesEndRef} />
             </div>
+
+            {/* Context capture panel for diagnostic upgrade */}
+            {diagnosticAuditId && (isDiagnosticMode || diagnosticProgress?.completedCategories?.length === 6) && (
+              <DiagnosticContextPanel
+                auditId={diagnosticAuditId}
+                visible
+              />
+            )}
 
             {/* Input Area - Text or Voice */}
             <div className="p-4 border-t border-radiant-gold/10 bg-silicon-slate/10">
