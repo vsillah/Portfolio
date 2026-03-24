@@ -77,6 +77,14 @@ export async function GET(request: NextRequest) {
         startedAt: audit.started_at,
         completedAt: audit.completed_at,
         updatedAt: audit.updated_at,
+        businessName: audit.business_name ?? null,
+        websiteUrl: audit.website_url ?? null,
+        contactEmail: audit.contact_email ?? null,
+        industrySlug: audit.industry_slug ?? null,
+        industryGicsCode: audit.industry_gics_code ?? null,
+        enrichedTechStack: audit.enriched_tech_stack ?? null,
+        valueEstimate: audit.value_estimate ?? null,
+        reportTier: audit.report_tier ?? 'bronze',
       },
     })
   } catch (error) {
