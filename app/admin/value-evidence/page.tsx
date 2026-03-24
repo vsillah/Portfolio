@@ -26,6 +26,10 @@ import {
   BookOpen,
   Layers,
   ExternalLink,
+  Pencil,
+  Trash2,
+  Save,
+  X,
 } from 'lucide-react'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -33,6 +37,7 @@ import remarkGfm from 'remark-gfm'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import { getIndustryDisplayName, INDUSTRY_SLUGS } from '@/lib/constants/industry'
 
 // ============================================================================
 // Types
@@ -54,6 +59,7 @@ interface DashboardData {
     name: string
     display_name: string
     frequency_count: number
+    evidence_count: number
     avg_monetary_impact: number | null
     industry_tags: string[]
   }>
@@ -176,6 +182,14 @@ export default function ValueEvidencePage() {
     }
   }, [])
 
+  /** Bumps when the header refresh runs so tab-local lists (Market Intel, etc.) reload too. */
+  const [pageRefreshNonce, setPageRefreshNonce] = useState(0)
+
+  const handleHeaderRefresh = useCallback(async () => {
+    await fetchDashboard()
+    setPageRefreshNonce(n => n + 1)
+  }, [fetchDashboard])
+
   useEffect(() => {
     fetchDashboard()
   }, [fetchDashboard])
@@ -197,10 +211,11 @@ export default function ValueEvidencePage() {
       })
 
       const data = await res.json()
-      setTriggerResult({
-        type: data.triggered ? 'success' : 'error',
-        message: data.message,
-      })
+      if (data.triggered) {
+        setTriggerResult({ type: 'success', message: data.message })
+      } else {
+        setTriggerResult({ type: 'error', message: data.message })
+      }
     } catch (error: any) {
       setTriggerResult({ type: 'error', message: error.message })
     } finally {
@@ -213,7 +228,7 @@ export default function ValueEvidencePage() {
     { id: 'pain-points', label: 'Pain Points', icon: Target },
     { id: 'market-intel', label: 'Market Intel', icon: Globe },
     { id: 'benchmarks', label: 'Benchmarks', icon: BookOpen },
-    { id: 'calculations', label: '$ Calculations', icon: DollarSign },
+    { id: 'calculations', label: 'Calculations', icon: DollarSign },
     { id: 'reports', label: 'Reports', icon: FileText },
   ]
 
@@ -244,7 +259,8 @@ export default function ValueEvidencePage() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={fetchDashboard}
+                onClick={handleHeaderRefresh}
+                title="Refresh dashboard and the current tab’s data"
                 className="p-2 bg-silicon-slate border border-silicon-slate rounded-lg hover:bg-silicon-slate/80"
               >
                 <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
@@ -468,7 +484,7 @@ export default function ValueEvidencePage() {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm text-platinum-white/80">{pp.frequency_count} observations</span>
+                        <span className={`text-sm ${pp.evidence_count > 0 ? 'text-green-400 font-medium' : 'text-platinum-white/50'}`}>{pp.evidence_count} evidence</span>
                         {pp.avg_monetary_impact && (
                           <div className="text-green-400 text-sm font-medium">
                             {formatCurrency(pp.avg_monetary_impact)}/yr avg
@@ -556,24 +572,24 @@ export default function ValueEvidencePage() {
 
           {/* Pain Points Tab */}
           {activeTab === 'pain-points' && (
-            <PainPointsTab />
+            <PainPointsTab pageRefreshNonce={pageRefreshNonce} />
           )}
 
           {/* Market Intel Tab */}
           {activeTab === 'market-intel' && (
-            <MarketIntelTab />
+            <MarketIntelTab pageRefreshNonce={pageRefreshNonce} />
           )}
           {/* Benchmarks Tab */}
           {activeTab === 'benchmarks' && (
-            <BenchmarksTab />
+            <BenchmarksTab pageRefreshNonce={pageRefreshNonce} />
           )}
           {/* Calculations Tab */}
           {activeTab === 'calculations' && (
-            <CalculationsTab />
+            <CalculationsTab pageRefreshNonce={pageRefreshNonce} />
           )}
           {/* Reports Tab */}
           {activeTab === 'reports' && (
-            <ReportsTab />
+            <ReportsTab pageRefreshNonce={pageRefreshNonce} />
           )}
         </motion.div>
       </div>
@@ -608,111 +624,83 @@ function WorkflowRunCard({
   label,
   run,
   platformStats,
-  color,
 }: {
   label: string
   run?: { triggered_at: string; completed_at?: string; status: string; stages?: Record<string, string>; items_inserted?: number; error_message?: string } | null
   platformStats?: Record<string, { count: number; lastScraped: string | null }>
   color: 'blue' | 'purple'
 }) {
-  const colorClasses = color === 'blue'
-    ? 'bg-silicon-slate/50 border-radiant-gold/30'
-    : 'bg-silicon-slate/50 border-radiant-gold/30'
-  const accentColor = 'text-radiant-gold'
-
   const lastTriggered = run?.triggered_at ? new Date(run.triggered_at).toLocaleString() : null
-  const lastCompleted = run?.completed_at ? new Date(run.completed_at).toLocaleString() : null
-  const status = run?.status || 'idle'
-  const stages = run?.stages || (platformStats && Object.fromEntries(
-    Object.entries(platformStats).map(([p, s]) => [
-      p,
-      s.count > 0 ? (s.lastScraped ? 'complete' : 'complete') : 'pending',
-    ])
-  ))
-  const stageEntries = stages ? Object.entries(stages).filter(([, v]) => v) : []
-  const completeCount = stageEntries.filter(([, v]) => v === 'complete' || v === 'success').length
-  const totalCount = stageEntries.length || (platformStats ? Object.keys(platformStats).length : 4)
-  const progress = totalCount > 0 ? Math.round((completeCount / totalCount) * 100) : 0
+  const platformEntries = platformStats
+    ? Object.entries(platformStats).filter(([, s]) => s.count > 0)
+    : []
+  const totalItems = platformEntries.reduce((sum, [, s]) => sum + s.count, 0)
 
   return (
-    <div className={`p-5 ${colorClasses} border rounded-xl`}>
+    <div className="p-5 bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl">
       <h3 className="font-semibold mb-3 flex items-center gap-2">
-        <span className={accentColor}>{label}</span>
+        <span className="text-radiant-gold">{label}</span>
       </h3>
       <div className="space-y-2 text-sm">
-        {lastTriggered && (
+        {lastTriggered ? (
           <div className="text-platinum-white/80">
             Last triggered: <span className="text-platinum-white">{lastTriggered}</span>
           </div>
+        ) : (
+          <p className="text-platinum-white/60 text-xs">Not yet triggered. Use the play button above.</p>
         )}
-        {lastCompleted && status !== 'running' && (
+
+        {totalItems > 0 && (
           <div className="text-platinum-white/80">
-            Last completed: <span className="text-platinum-white">{lastCompleted}</span>
+            Total scraped: <span className="text-green-400 font-medium">{totalItems.toLocaleString()} items</span>
           </div>
         )}
-        {status === 'running' && (
-          <div className="text-amber-400 flex items-center gap-2">
-            <RefreshCw size={14} className="animate-spin" /> Running…
-          </div>
-        )}
-        {status === 'failed' && run?.error_message && (
-          <div className="text-red-400 text-xs truncate" title={run.error_message}>{run.error_message}</div>
-        )}
-        {run?.items_inserted != null && run.items_inserted > 0 && (
-          <div className="text-platinum-white/80">
-            Items inserted: <span className="text-green-400">{run.items_inserted}</span>
-          </div>
-        )}
-        {(stageEntries.length > 0 || (platformStats && Object.keys(platformStats).length > 0)) && (
-          <div className="mt-2">
-            <div className="flex justify-between text-xs text-platinum-white/60 mb-1">
-              <span>Stages</span>
-              <span>{completeCount}/{totalCount} complete</span>
-            </div>
-            <div className="h-2 bg-silicon-slate rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.5 }}
-                className={`h-full rounded-full ${color === 'blue' ? 'bg-blue-500' : 'bg-purple-500'}`}
-              />
-            </div>
-            <div className="flex flex-wrap gap-1 mt-1.5">
-              {(stageEntries.length ? stageEntries : Object.entries(platformStats || {}).map(([p, s]) => [p, s.count > 0 ? 'complete' : 'pending'] as const)).slice(0, 6).map(([stage, st]) => (
+
+        {platformEntries.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-2">
+            {platformEntries.map(([platform, stats]) => (
+              <span
+                key={platform}
+                className="text-[10px] px-2 py-0.5 rounded bg-green-900/40 text-green-400"
+                title={`Last scraped: ${stats.lastScraped ? new Date(stats.lastScraped).toLocaleString() : 'unknown'}`}
+              >
+                {platform.replace(/_/g, ' ')} ({stats.count})
+              </span>
+            ))}
+            {platformStats && Object.entries(platformStats)
+              .filter(([, s]) => s.count === 0)
+              .slice(0, 4)
+              .map(([platform]) => (
                 <span
-                  key={stage}
-                  className={`text-[10px] px-1.5 py-0.5 rounded ${
-                    st === 'complete' || st === 'success'
-                      ? 'bg-green-900/50 text-green-400'
-                      : st === 'running'
-                        ? 'bg-amber-900/50 text-amber-400'
-                        : 'bg-silicon-slate/80/50 text-platinum-white/60'
-                  }`}
-                  title={typeof platformStats?.[stage] === 'object' ? `${platformStats[stage].count} items, last: ${platformStats[stage].lastScraped || 'never'}` : undefined}
+                  key={platform}
+                  className="text-[10px] px-2 py-0.5 rounded bg-silicon-slate/80 text-platinum-white/40"
                 >
-                  {stage.replace(/_/g, ' ')}
-                  {typeof platformStats?.[stage] === 'object' && platformStats[stage].count > 0 && (
-                    <span className="ml-0.5 opacity-75">({platformStats[stage].count})</span>
-                  )}
+                  {platform.replace(/_/g, ' ')}
                 </span>
-              ))}
-            </div>
+              ))
+            }
           </div>
-        )}
-        {!lastTriggered && !platformStats && (
-          <p className="text-platinum-white/60 text-xs">Click the play button above to trigger.</p>
         )}
       </div>
     </div>
   )
 }
 
-function PainPointsTab() {
+function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   const [painPoints, setPainPoints] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [evidenceMap, setEvidenceMap] = useState<Record<string, any[]>>({})
+  const [calcsMap, setCalcsMap] = useState<Record<string, any[]>>({})
+  const [evidenceLoading, setEvidenceLoading] = useState<string | null>(null)
+
+  const [sortBy, setSortBy] = useState<'evidence' | 'calculations' | 'name' | 'impact'>('evidence')
+  const [filterIndustry, setFilterIndustry] = useState<string>('all')
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     async function fetch_pp() {
+      setLoading(true)
       try {
         const session = await getCurrentSession()
         if (!session?.access_token) return
@@ -732,7 +720,97 @@ function PainPointsTab() {
       }
     }
     fetch_pp()
-  }, [])
+  }, [pageRefreshNonce])
+
+  const allIndustryTags = React.useMemo(() => {
+    const tags = new Set<string>()
+    for (const pp of painPoints) {
+      for (const tag of pp.industry_tags || []) tags.add(tag)
+    }
+    return Array.from(tags).sort()
+  }, [painPoints])
+
+  const filteredAndSorted = React.useMemo(() => {
+    let list = [...painPoints]
+
+    if (filterIndustry !== 'all') {
+      list = list.filter(pp => pp.industry_tags?.includes(filterIndustry))
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      list = list.filter(pp =>
+        pp.display_name?.toLowerCase().includes(q) ||
+        pp.description?.toLowerCase().includes(q) ||
+        pp.name?.toLowerCase().includes(q)
+      )
+    }
+
+    list.sort((a, b) => {
+      switch (sortBy) {
+        case 'evidence': return (b.evidence_count || 0) - (a.evidence_count || 0)
+        case 'calculations': return (b.calculation_count || 0) - (a.calculation_count || 0)
+        case 'impact': return (parseFloat(b.avg_monetary_impact) || 0) - (parseFloat(a.avg_monetary_impact) || 0)
+        case 'name': return (a.display_name || '').localeCompare(b.display_name || '')
+        default: return 0
+      }
+    })
+
+    return list
+  }, [painPoints, filterIndustry, searchQuery, sortBy])
+
+  const toggleExpand = async (ppId: string) => {
+    if (expandedId === ppId) {
+      setExpandedId(null)
+      return
+    }
+    setExpandedId(ppId)
+
+    const needsEvidence = !evidenceMap[ppId]
+    const needsCalcs = !calcsMap[ppId]
+
+    if (needsEvidence || needsCalcs) {
+      setEvidenceLoading(ppId)
+      try {
+        const session = await getCurrentSession()
+        if (!session?.access_token) return
+
+        const fetches: Promise<void>[] = []
+
+        if (needsEvidence) {
+          fetches.push(
+            fetch(`/api/admin/value-evidence/pain-points/${ppId}/evidence`, {
+              headers: { Authorization: `Bearer ${session.access_token}` },
+            }).then(async res => {
+              if (res.ok) {
+                const data = await res.json()
+                setEvidenceMap(prev => ({ ...prev, [ppId]: data.evidence || [] }))
+              }
+            })
+          )
+        }
+
+        if (needsCalcs) {
+          fetches.push(
+            fetch(`/api/admin/value-evidence/calculations?pain_point_id=${ppId}`, {
+              headers: { Authorization: `Bearer ${session.access_token}` },
+            }).then(async res => {
+              if (res.ok) {
+                const data = await res.json()
+                setCalcsMap(prev => ({ ...prev, [ppId]: data.calculations || [] }))
+              }
+            })
+          )
+        }
+
+        await Promise.all(fetches)
+      } catch (error) {
+        console.error('Expand fetch error:', error)
+      } finally {
+        setEvidenceLoading(null)
+      }
+    }
+  }
 
   if (loading) {
     return (
@@ -745,66 +823,239 @@ function PainPointsTab() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Pain Point Categories ({painPoints.length})</h2>
+        <h2 className="text-xl font-semibold">Pain Point Categories ({filteredAndSorted.length}{filteredAndSorted.length !== painPoints.length ? ` of ${painPoints.length}` : ''})</h2>
+      </div>
+
+      {/* Sort / Filter / Search toolbar */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-platinum-white/40" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search pain points…"
+            className="w-full pl-9 pr-3 py-2 bg-silicon-slate/60 border border-silicon-slate rounded-lg text-sm text-foreground placeholder:text-platinum-white/40 focus:outline-none focus:border-radiant-gold/50"
+          />
+        </div>
+
+        <select
+          value={sortBy}
+          onChange={e => setSortBy(e.target.value as typeof sortBy)}
+          className="px-3 py-2 bg-silicon-slate/60 border border-silicon-slate rounded-lg text-sm text-foreground focus:outline-none focus:border-radiant-gold/50"
+        >
+          <option value="evidence">Sort: Most Evidence</option>
+          <option value="calculations">Sort: Most Calculations</option>
+          <option value="impact">Sort: Highest Impact</option>
+          <option value="name">Sort: A → Z</option>
+        </select>
+
+        <select
+          value={filterIndustry}
+          onChange={e => setFilterIndustry(e.target.value)}
+          className="px-3 py-2 bg-silicon-slate/60 border border-silicon-slate rounded-lg text-sm text-foreground focus:outline-none focus:border-radiant-gold/50"
+        >
+          <option value="all">All Industries</option>
+          {allIndustryTags.map(tag => (
+            <option key={tag} value={tag}>{tag.replace(/_/g, ' ')}</option>
+          ))}
+        </select>
+
+        {(filterIndustry !== 'all' || searchQuery.trim()) && (
+          <button
+            onClick={() => { setFilterIndustry('all'); setSearchQuery('') }}
+            className="text-xs text-radiant-gold hover:underline"
+          >
+            Clear filters
+          </button>
+        )}
       </div>
 
       <div className="space-y-3">
-        {painPoints.map(pp => (
-          <motion.div
-            key={pp.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="p-4 bg-silicon-slate/50 border border-silicon-slate rounded-xl"
-          >
-            <div className="flex items-start justify-between">
-              <div>
-                <h3 className="font-semibold text-foreground">{pp.display_name}</h3>
-                {pp.description && (
-                  <p className="text-sm text-platinum-white/80 mt-1">{pp.description}</p>
-                )}
-                <div className="flex gap-2 mt-2">
-                  {pp.industry_tags?.slice(0, 5).map((tag: string) => (
-                    <span
-                      key={tag}
-                      className="text-xs px-2 py-0.5 bg-silicon-slate/80/50 rounded-full text-platinum-white/80"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-                {pp.related_services?.length > 0 && (
-                  <div className="flex gap-2 mt-1">
-                    {pp.related_services.map((svc: string) => (
-                      <span
-                        key={svc}
-                        className="text-xs px-2 py-0.5 bg-radiant-gold/20/30 rounded-full text-radiant-gold"
-                      >
-                        {svc}
-                      </span>
-                    ))}
+        {filteredAndSorted.map(pp => {
+          const isExpanded = expandedId === pp.id
+          const evidence = evidenceMap[pp.id]
+          return (
+            <motion.div
+              key={pp.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-hidden"
+            >
+              <button
+                onClick={() => toggleExpand(pp.id)}
+                className="w-full p-4 text-left hover:bg-silicon-slate/70 transition-colors"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-semibold text-foreground">{pp.display_name}</h3>
+                      {isExpanded ? <ChevronUp size={16} className="text-platinum-white/60" /> : <ChevronDown size={16} className="text-platinum-white/60" />}
+                    </div>
+                    {pp.description && (
+                      <p className="text-sm text-platinum-white/80 mt-1">{pp.description}</p>
+                    )}
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {pp.industry_tags?.slice(0, 5).map((tag: string) => (
+                        <span
+                          key={tag}
+                          className="text-xs px-2 py-0.5 bg-silicon-slate/80 rounded-full text-platinum-white/80"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    {pp.related_services?.length > 0 && (
+                      <div className="flex gap-2 mt-1">
+                        {pp.related_services.map((svc: string) => (
+                          <span
+                            key={svc}
+                            className="text-xs px-2 py-0.5 bg-radiant-gold/20 rounded-full text-radiant-gold"
+                          >
+                            {svc}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-              <div className="text-right space-y-1 ml-4 flex-shrink-0">
-                <div className="text-sm text-platinum-white/80">
-                  <span className="font-medium text-foreground">{pp.frequency_count}</span> observations
-                </div>
-                <div className="text-sm text-platinum-white/80">
-                  <span className="font-medium text-radiant-gold">{pp.evidence_count}</span> evidence
-                </div>
-                <div className="text-sm text-platinum-white/80">
-                  <span className="font-medium text-green-400">{pp.calculation_count}</span> calculations
-                </div>
-                {pp.avg_monetary_impact && (
-                  <div className="text-green-400 font-semibold text-sm">
-                    {formatCurrency(pp.avg_monetary_impact)}/yr
+                  <div className="text-right space-y-1 ml-4 flex-shrink-0">
+                    <div className="text-sm text-platinum-white/80">
+                      <span className={`font-medium ${pp.evidence_count > 0 ? 'text-radiant-gold' : 'text-platinum-white/50'}`}>{pp.evidence_count}</span> evidence
+                    </div>
+                    <div className="text-sm text-platinum-white/80">
+                      <span className="font-medium text-green-400">{pp.calculation_count}</span> calculations
+                    </div>
+                    {pp.avg_monetary_impact && (
+                      <div className="text-green-400 font-semibold text-sm">
+                        {formatCurrency(pp.avg_monetary_impact)}/yr
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        ))}
+                </div>
+              </button>
 
+              <AnimatePresence>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="border-t border-silicon-slate"
+                  >
+                    <div className="p-4 space-y-5">
+                      {evidenceLoading === pp.id && (
+                        <div className="flex items-center gap-2 py-3 text-sm text-platinum-white/60">
+                          <RefreshCw size={14} className="animate-spin" /> Loading…
+                        </div>
+                      )}
+
+                      {/* Evidence section */}
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-medium text-platinum-white/80">Evidence ({pp.evidence_count})</h4>
+                        {evidence && evidence.length === 0 && (
+                          <p className="text-sm text-platinum-white/50 py-2">No evidence collected yet for this pain point.</p>
+                        )}
+                        {evidence && evidence.map((ev: any) => (
+                          <div key={ev.id} className="p-3 bg-silicon-slate/70 rounded-lg space-y-1.5">
+                            <div className="flex items-center gap-2 text-xs text-platinum-white/60">
+                              <span className="px-1.5 py-0.5 bg-purple-600/20 rounded text-purple-300 capitalize">
+                                {ev.source_type?.replace(/_/g, ' ')}
+                              </span>
+                              {ev.industry && (
+                                <span className="px-1.5 py-0.5 bg-blue-600/20 rounded text-blue-300">
+                                  {ev.industry}
+                                </span>
+                              )}
+                              {ev.confidence_score != null && (
+                                <span className="text-radiant-gold">
+                                  {Math.round(ev.confidence_score * 100)}% confidence
+                                </span>
+                              )}
+                              {ev.monetary_indicator != null && parseFloat(ev.monetary_indicator) > 0 && (
+                                <span className="text-green-400 font-medium">
+                                  {formatCurrency(parseFloat(ev.monetary_indicator))}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-foreground leading-relaxed">
+                              &ldquo;{ev.source_excerpt}&rdquo;
+                            </p>
+                            {ev.monetary_context && (
+                              <p className="text-xs text-platinum-white/50 italic">Cost context: {ev.monetary_context}</p>
+                            )}
+                            <div className="text-xs text-platinum-white/40">
+                              {ev.extracted_by && <span>Extracted by: {ev.extracted_by}</span>}
+                              {ev.created_at && <span className="ml-3">{new Date(ev.created_at).toLocaleDateString()}</span>}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Calculations section */}
+                      {calcsMap[pp.id] !== undefined && (
+                        <div className="space-y-3 border-t border-silicon-slate pt-4">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-sm font-medium text-platinum-white/80 flex items-center gap-1.5">
+                              <DollarSign size={14} className="text-green-400" />
+                              Calculations ({calcsMap[pp.id].length})
+                            </h4>
+                          </div>
+                          {calcsMap[pp.id].length === 0 && (
+                            <p className="text-sm text-platinum-white/50 py-2">No calculations generated for this pain point yet.</p>
+                          )}
+                          {calcsMap[pp.id].slice(0, 5).map((calc: any) => (
+                            <div key={calc.id} className="p-3 bg-green-950/30 border border-green-900/40 rounded-lg space-y-1">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2 text-xs">
+                                  <span className="px-1.5 py-0.5 bg-green-600/20 rounded text-green-300 font-medium">
+                                    {formatCurrency(calc.annual_value)}/yr
+                                  </span>
+                                  <span className="text-platinum-white/60">{calc.industry?.replace(/_/g, ' ')}</span>
+                                  <span className="text-platinum-white/40">{calc.company_size_range} employees</span>
+                                </div>
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded ${
+                                  calc.confidence_level === 'high' ? 'bg-green-600/20 text-green-300' :
+                                  calc.confidence_level === 'medium' ? 'bg-yellow-600/20 text-yellow-300' :
+                                  'bg-red-600/20 text-red-300'
+                                }`}>
+                                  {calc.confidence_level}
+                                </span>
+                              </div>
+                              <p className="text-xs text-platinum-white/60 font-mono">
+                                {calc.formula_expression}
+                              </p>
+                              <div className="flex items-center gap-2 text-[10px] text-platinum-white/40">
+                                <span>{calc.calculation_method?.replace(/_/g, ' ')}</span>
+                                {calc.evidence_count > 0 && (
+                                  <span className="text-radiant-gold">{calc.evidence_count} evidence</span>
+                                )}
+                                {calc.generated_by === 'ai' && (
+                                  <span className="px-1 py-0.5 bg-purple-600/20 rounded text-purple-300">evidence-adjusted</span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                          {calcsMap[pp.id].length > 5 && (
+                            <p className="text-xs text-platinum-white/50">Showing top 5 of {calcsMap[pp.id].length} calculations</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )
+        })}
+
+        {filteredAndSorted.length === 0 && painPoints.length > 0 && (
+          <div className="text-center py-12 text-platinum-white/60">
+            <Search size={48} className="mx-auto mb-4 opacity-50" />
+            <p className="text-lg">No matching pain points</p>
+            <p className="text-sm mt-1">Try adjusting your search or filters.</p>
+          </div>
+        )}
         {painPoints.length === 0 && (
           <div className="text-center py-12 text-platinum-white/60">
             <Target size={48} className="mx-auto mb-4 opacity-50" />
@@ -821,17 +1072,22 @@ function PainPointsTab() {
 // Market Intel Tab
 // ============================================================================
 
-function MarketIntelTab() {
+function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState<string | null>(null)
   const [platform, setPlatform] = useState<string>('')
   const [processedFilter, setProcessedFilter] = useState<string>('')
 
   const fetchItems = useCallback(async () => {
     setLoading(true)
+    setLoadError(null)
     try {
       const session = await getCurrentSession()
-      if (!session?.access_token) return
+      if (!session?.access_token) {
+        setLoadError('Sign in is required to load this list.')
+        return
+      }
 
       const params = new URLSearchParams()
       if (platform) params.set('platform', platform)
@@ -845,9 +1101,17 @@ function MarketIntelTab() {
       if (res.ok) {
         const data = await res.json()
         setItems(data.items || [])
+        return
+      }
+
+      if (res.status === 401 || res.status === 403) {
+        setLoadError('Your session may have expired. Reload the page or sign in again.')
+      } else {
+        setLoadError('Could not load market intelligence. Try again in a moment.')
       }
     } catch (error) {
       console.error('Market intel fetch error:', error)
+      setLoadError('Could not load market intelligence. Try again in a moment.')
     } finally {
       setLoading(false)
     }
@@ -855,7 +1119,7 @@ function MarketIntelTab() {
 
   useEffect(() => {
     fetchItems()
-  }, [fetchItems])
+  }, [fetchItems, pageRefreshNonce])
 
   if (loading) {
     return (
@@ -904,6 +1168,11 @@ function MarketIntelTab() {
       </div>
 
       <div className="space-y-3 max-h-[70vh] overflow-y-auto">
+        {loadError && (
+          <div className="p-3 rounded-lg border border-amber-500/40 bg-amber-900/20 text-amber-200 text-sm">
+            {loadError}
+          </div>
+        )}
         {items.map(item => (
           <motion.div
             key={item.id}
@@ -958,7 +1227,7 @@ function MarketIntelTab() {
             <Globe size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg">No market intelligence yet</p>
             <p className="text-sm mt-1 max-w-md mx-auto">
-              Run the Social Listening workflow from the Dashboard tab. It scrapes Reddit, Google Maps, G2, Capterra and POSTs to <code className="text-xs bg-silicon-slate px-1 rounded">/api/admin/value-evidence/ingest-market</code>.
+              Refresh only reloads data already stored in the database; it does not run scraping. Run the Social Listening workflow from the Dashboard tab. It scrapes Reddit, Google Maps, G2, Capterra and POSTs to <code className="text-xs bg-silicon-slate px-1 rounded">/api/admin/value-evidence/ingest-market</code>.
             </p>
             <div className="mt-6 text-left max-w-lg mx-auto p-4 bg-silicon-slate/70/50 rounded-lg border border-silicon-slate text-xs text-platinum-white/80 space-y-2">
               <p className="font-medium text-platinum-white">If data still doesn&apos;t appear after running:</p>
@@ -980,11 +1249,271 @@ function MarketIntelTab() {
 // Benchmarks Tab
 // ============================================================================
 
-function BenchmarksTab() {
+const BENCHMARK_TYPES = [
+  'avg_hourly_wage',
+  'avg_employee_cost',
+  'avg_error_cost',
+  'avg_daily_revenue',
+  'avg_deal_size',
+  'avg_close_rate',
+  'avg_lead_value',
+]
+
+const SIZE_RANGES = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1001+']
+
+function BenchmarkCard({ b, onUpdate, onDelete }: {
+  b: any
+  onUpdate: () => void
+  onDelete: (id: string) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [editValue, setEditValue] = useState(String(b.value))
+  const [editSource, setEditSource] = useState(b.source || '')
+  const [editYear, setEditYear] = useState(String(b.year || ''))
+  const [editNotes, setEditNotes] = useState(b.notes || '')
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+
+      const res = await fetch('/api/admin/value-evidence/benchmarks', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          id: b.id,
+          value: parseFloat(editValue),
+          source: editSource,
+          year: parseInt(editYear),
+          notes: editNotes || null,
+        }),
+      })
+
+      if (res.ok) {
+        setEditing(false)
+        onUpdate()
+      }
+    } catch (error) {
+      console.error('Save benchmark error:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setEditValue(String(b.value))
+    setEditSource(b.source || '')
+    setEditYear(String(b.year || ''))
+    setEditNotes(b.notes || '')
+    setEditing(false)
+  }
+
+  if (editing) {
+    return (
+      <div className="p-3 bg-silicon-slate/70 rounded-lg border border-blue-500/40 space-y-2">
+        <div className="text-xs text-platinum-white/80 uppercase tracking-wide">
+          {b.benchmark_type?.replace(/_/g, ' ')}
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[10px] text-platinum-white/50">Value</label>
+            <input
+              type="number"
+              step="any"
+              value={editValue}
+              onChange={e => setEditValue(e.target.value)}
+              className="w-full px-2 py-1 bg-silicon-slate border border-silicon-slate rounded text-sm text-teal-400"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] text-platinum-white/50">Year</label>
+            <input
+              type="number"
+              value={editYear}
+              onChange={e => setEditYear(e.target.value)}
+              className="w-full px-2 py-1 bg-silicon-slate border border-silicon-slate rounded text-sm"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="text-[10px] text-platinum-white/50">Source</label>
+          <input
+            type="text"
+            value={editSource}
+            onChange={e => setEditSource(e.target.value)}
+            className="w-full px-2 py-1 bg-silicon-slate border border-silicon-slate rounded text-sm"
+          />
+        </div>
+        <div>
+          <label className="text-[10px] text-platinum-white/50">Notes</label>
+          <input
+            type="text"
+            value={editNotes}
+            onChange={e => setEditNotes(e.target.value)}
+            className="w-full px-2 py-1 bg-silicon-slate border border-silicon-slate rounded text-sm"
+          />
+        </div>
+        <div className="flex items-center gap-1 justify-end">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="p-1 text-green-400 hover:text-green-300"
+            title="Save"
+          >
+            {saving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
+          </button>
+          <button onClick={handleCancel} className="p-1 text-platinum-white/60 hover:text-platinum-white" title="Cancel">
+            <X size={14} />
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-3 bg-silicon-slate/70 rounded-lg border border-silicon-slate/50 group relative">
+      <div className="text-xs text-platinum-white/80 uppercase tracking-wide">
+        {b.benchmark_type?.replace(/_/g, ' ')}
+      </div>
+      <div className="text-lg font-semibold text-teal-400 mt-0.5">
+        {b.benchmark_type === 'avg_close_rate'
+          ? `${(parseFloat(b.value) * 100).toFixed(1)}%`
+          : formatCurrency(parseFloat(b.value))}
+      </div>
+      <div className="text-xs text-platinum-white/60 mt-1">
+        {b.company_size_range} emp · {b.source} ({b.year})
+      </div>
+      {b.notes && (
+        <div className="text-xs text-platinum-white/60 mt-1 truncate" title={b.notes}>{b.notes}</div>
+      )}
+      <div className="absolute top-2 right-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button onClick={() => setEditing(true)} className="p-1 text-platinum-white/40 hover:text-blue-400 transition-colors" title="Edit">
+          <Pencil size={12} />
+        </button>
+        <button onClick={() => onDelete(b.id)} className="p-1 text-platinum-white/40 hover:text-red-400 transition-colors" title="Delete">
+          <Trash2 size={12} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function AddBenchmarkForm({ onCreated, onCancel }: { onCreated: () => void; onCancel: () => void }) {
+  const [saving, setSaving] = useState(false)
+  const [form, setForm] = useState({
+    industry: '',
+    company_size_range: '11-50',
+    benchmark_type: 'avg_hourly_wage',
+    value: '',
+    source: 'BLS / Industry Report',
+    year: String(new Date().getFullYear()),
+    notes: '',
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!form.industry || !form.value) return
+    setSaving(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+
+      const res = await fetch('/api/admin/value-evidence/benchmarks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          ...form,
+          value: parseFloat(form.value),
+          year: parseInt(form.year),
+          notes: form.notes || null,
+        }),
+      })
+
+      if (res.ok) {
+        onCreated()
+      }
+    } catch (error) {
+      console.error('Create benchmark error:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const inputCls = 'w-full px-2 py-1.5 bg-silicon-slate border border-silicon-slate rounded text-sm'
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-silicon-slate/50 border border-teal-500/30 rounded-xl p-5 space-y-3">
+      <h3 className="text-sm font-semibold text-teal-300">Add Benchmark</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label className="text-[10px] text-platinum-white/50 uppercase">Industry</label>
+          <select value={form.industry} onChange={e => setForm(f => ({ ...f, industry: e.target.value }))} className={inputCls} required>
+            <option value="">Select…</option>
+            {INDUSTRY_SLUGS.map(s => (
+              <option key={s} value={s}>{getIndustryDisplayName(s)}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-[10px] text-platinum-white/50 uppercase">Size Range</label>
+          <select value={form.company_size_range} onChange={e => setForm(f => ({ ...f, company_size_range: e.target.value }))} className={inputCls}>
+            {SIZE_RANGES.map(s => <option key={s} value={s}>{s} emp</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="text-[10px] text-platinum-white/50 uppercase">Benchmark Type</label>
+          <select value={form.benchmark_type} onChange={e => setForm(f => ({ ...f, benchmark_type: e.target.value }))} className={inputCls}>
+            {BENCHMARK_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
+          </select>
+        </div>
+        <div>
+          <label className="text-[10px] text-platinum-white/50 uppercase">Value</label>
+          <input type="number" step="any" value={form.value} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} className={inputCls} required placeholder="e.g. 45.00" />
+        </div>
+        <div>
+          <label className="text-[10px] text-platinum-white/50 uppercase">Source</label>
+          <input type="text" value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))} className={inputCls} required />
+        </div>
+        <div>
+          <label className="text-[10px] text-platinum-white/50 uppercase">Year</label>
+          <input type="number" value={form.year} onChange={e => setForm(f => ({ ...f, year: e.target.value }))} className={inputCls} required />
+        </div>
+      </div>
+      <div>
+        <label className="text-[10px] text-platinum-white/50 uppercase">Notes (optional)</label>
+        <input type="text" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className={inputCls} placeholder="Optional context" />
+      </div>
+      <div className="flex items-center gap-2 justify-end">
+        <button type="button" onClick={onCancel} className="px-3 py-1.5 text-sm text-platinum-white/60 hover:text-platinum-white">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving || !form.industry || !form.value}
+          className="px-4 py-1.5 bg-teal-600/30 border border-teal-500/50 rounded-lg text-teal-300 hover:bg-teal-600/50 disabled:opacity-50 flex items-center gap-2 text-sm"
+        >
+          {saving ? <RefreshCw size={14} className="animate-spin" /> : <Plus size={14} />}
+          Add
+        </button>
+      </div>
+    </form>
+  )
+}
+
+function BenchmarksTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   const [benchmarks, setBenchmarks] = useState<any[]>([])
   const [grouped, setGrouped] = useState<Record<string, any[]>>({})
   const [loading, setLoading] = useState(true)
   const [industryFilter, setIndustryFilter] = useState('')
+  const [showAddForm, setShowAddForm] = useState(false)
 
   const fetchBenchmarks = useCallback(async () => {
     setLoading(true)
@@ -1011,7 +1540,26 @@ function BenchmarksTab() {
 
   useEffect(() => {
     fetchBenchmarks()
-  }, [fetchBenchmarks])
+  }, [fetchBenchmarks, pageRefreshNonce])
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Permanently delete this benchmark? This cannot be undone.')) return
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+
+      const res = await fetch(`/api/admin/value-evidence/benchmarks?id=${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+
+      if (res.ok) {
+        await fetchBenchmarks()
+      }
+    } catch (error) {
+      console.error('Delete benchmark error:', error)
+    }
+  }
 
   if (loading) {
     return (
@@ -1034,13 +1582,27 @@ function BenchmarksTab() {
         >
           <option value="">All industries</option>
           {industries.map(ind => (
-            <option key={ind} value={ind}>{ind === '_default' ? 'Default (fallback)' : ind}</option>
+            <option key={ind} value={ind}>{getIndustryDisplayName(ind)}</option>
           ))}
         </select>
+        <button
+          onClick={() => setShowAddForm(v => !v)}
+          className="px-4 py-1.5 bg-teal-600/30 border border-teal-500/50 rounded-lg text-teal-300 hover:bg-teal-600/50 flex items-center gap-2 text-sm"
+        >
+          <Plus size={14} />
+          Add Benchmark
+        </button>
         <button onClick={fetchBenchmarks} className="p-1.5 bg-silicon-slate/80 rounded-lg hover:bg-gray-600">
           <RefreshCw size={16} />
         </button>
       </div>
+
+      {showAddForm && (
+        <AddBenchmarkForm
+          onCreated={() => { setShowAddForm(false); fetchBenchmarks() }}
+          onCancel={() => setShowAddForm(false)}
+        />
+      )}
 
       <div className="space-y-6">
         {industries.map(industry => {
@@ -1049,29 +1611,11 @@ function BenchmarksTab() {
           return (
             <div key={industry} className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-5">
               <h3 className="text-lg font-medium mb-4 text-teal-300">
-                {industry === '_default' ? 'Default (fallback)' : industry.replace(/_/g, ' ')}
+                {industry === '_default' ? 'Default (fallback)' : getIndustryDisplayName(industry)}
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 {list.map((b: any) => (
-                  <div
-                    key={b.id}
-                    className="p-3 bg-silicon-slate/70/50 rounded-lg border border-silicon-slate/50"
-                  >
-                    <div className="text-xs text-platinum-white/80 uppercase tracking-wide">
-                      {b.benchmark_type?.replace(/_/g, ' ')}
-                    </div>
-                    <div className="text-lg font-semibold text-teal-400 mt-0.5">
-                      {b.benchmark_type === 'avg_close_rate'
-                        ? `${(parseFloat(b.value) * 100).toFixed(1)}%`
-                        : formatCurrency(parseFloat(b.value))}
-                    </div>
-                    <div className="text-xs text-platinum-white/60 mt-1">
-                      {b.company_size_range} emp · {b.source} ({b.year})
-                    </div>
-                    {b.notes && (
-                      <div className="text-xs text-platinum-white/60 mt-1 truncate" title={b.notes}>{b.notes}</div>
-                    )}
-                  </div>
+                  <BenchmarkCard key={b.id} b={b} onUpdate={fetchBenchmarks} onDelete={handleDelete} />
                 ))}
               </div>
             </div>
@@ -1082,7 +1626,7 @@ function BenchmarksTab() {
           <div className="text-center py-12 text-platinum-white/60">
             <BookOpen size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg">No benchmarks yet</p>
-            <p className="text-sm mt-1">Add industry benchmarks via API or seed data. Used for monetary calculations.</p>
+            <p className="text-sm mt-1">Click &quot;Add Benchmark&quot; above or seed data via scripts.</p>
           </div>
         )}
       </div>
@@ -1094,13 +1638,299 @@ function BenchmarksTab() {
 // Calculations Tab
 // ============================================================================
 
-function CalculationsTab() {
+function CalculationCard({ calc, onUpdate, onDelete }: {
+  calc: any
+  onUpdate: () => void
+  onDelete: (id: string) => void
+}) {
+  const [editing, setEditing] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [expanded, setExpanded] = useState(false)
+  const [editValue, setEditValue] = useState(String(calc.annual_value))
+  const [editConfidence, setEditConfidence] = useState(calc.confidence_level || 'medium')
+  const [evidence, setEvidence] = useState<any[] | null>(null)
+  const [evidenceLoading, setEvidenceLoading] = useState(false)
+
+  const Icon = METHOD_ICONS[calc.calculation_method] || DollarSign
+  const formulaInputs = calc.formula_inputs || {}
+  const inputEntries = Object.entries(formulaInputs).filter(([, v]) => v != null)
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+
+      const res = await fetch('/api/admin/value-evidence/calculations', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          id: calc.id,
+          annual_value: parseFloat(editValue),
+          confidence_level: editConfidence,
+        }),
+      })
+
+      if (res.ok) {
+        setEditing(false)
+        onUpdate()
+      }
+    } catch (error) {
+      console.error('Save calculation error:', error)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setEditValue(String(calc.annual_value))
+    setEditConfidence(calc.confidence_level || 'medium')
+    setEditing(false)
+  }
+
+  const toggleExpanded = async () => {
+    const willExpand = !expanded
+    setExpanded(willExpand)
+    if (willExpand && evidence === null && calc.evidence_count > 0) {
+      setEvidenceLoading(true)
+      try {
+        const session = await getCurrentSession()
+        if (!session?.access_token) return
+        const ppId = calc.pain_point_category_id || calc.pain_point_categories?.id
+        if (!ppId) return
+        const res = await fetch(`/api/admin/value-evidence/pain-points/${ppId}/evidence`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setEvidence(data.evidence || [])
+        }
+      } catch (err) {
+        console.error('Evidence fetch error:', err)
+      } finally {
+        setEvidenceLoading(false)
+      }
+    }
+  }
+
+  return (
+    <motion.div
+      key={calc.id}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-hidden"
+    >
+      <button
+        onClick={toggleExpanded}
+        className="w-full p-4 text-left hover:bg-silicon-slate/70 transition-colors"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex gap-3">
+            <div className="w-9 h-9 rounded bg-green-600/20 flex items-center justify-center flex-shrink-0">
+              <Icon size={18} className="text-green-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-medium text-foreground">
+                  {(calc.pain_point_categories as any)?.display_name || 'Unknown'}
+                </span>
+                {expanded ? <ChevronUp size={14} className="text-platinum-white/60" /> : <ChevronDown size={14} className="text-platinum-white/60" />}
+              </div>
+              <div className="text-sm text-platinum-white/80">
+                {getIndustryDisplayName(calc.industry)} · {calc.company_size_range} emp
+              </div>
+              <div className="text-xs text-platinum-white/60 mt-1 font-mono" title={calc.formula_expression}>
+                {calc.formula_expression?.slice(0, 80)}{calc.formula_expression?.length > 80 ? '…' : ''}
+              </div>
+            </div>
+          </div>
+          <div className="text-right flex-shrink-0" onClick={e => e.stopPropagation()}>
+            {editing ? (
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-platinum-white/60">$/yr</span>
+                  <input
+                    type="number"
+                    value={editValue}
+                    onChange={e => setEditValue(e.target.value)}
+                    className="w-28 px-2 py-1 bg-silicon-slate border border-silicon-slate rounded text-sm text-right text-green-400"
+                  />
+                </div>
+                <select
+                  value={editConfidence}
+                  onChange={e => setEditConfidence(e.target.value)}
+                  className="w-full px-2 py-1 bg-silicon-slate border border-silicon-slate rounded text-xs"
+                >
+                  <option value="high">high</option>
+                  <option value="medium">medium</option>
+                  <option value="low">low</option>
+                </select>
+                <div className="flex items-center gap-1 justify-end">
+                  <button
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="p-1 text-green-400 hover:text-green-300"
+                    title="Save"
+                  >
+                    {saving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
+                  </button>
+                  <button onClick={handleCancel} className="p-1 text-platinum-white/60 hover:text-platinum-white" title="Cancel">
+                    <X size={14} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="text-green-400 font-semibold">
+                  {formatCurrency(parseFloat(calc.annual_value))}/yr
+                </div>
+                <div className="flex items-center gap-1 justify-end mt-0.5">
+                  <span className={`text-xs px-1.5 py-0.5 rounded ${CONFIDENCE_COLORS[calc.confidence_level] || ''}`}>
+                    {calc.confidence_level}
+                  </span>
+                  <span className={`text-xs ${calc.evidence_count > 0 ? 'text-radiant-gold' : 'text-platinum-white/60'}`}>
+                    {calc.evidence_count} evidence
+                  </span>
+                </div>
+                {calc.generated_by === 'ai' && (
+                  <div className="text-[10px] text-purple-300 mt-0.5 text-right">evidence-adjusted</div>
+                )}
+                <div className="flex items-center gap-1 justify-end mt-1.5">
+                  <button onClick={() => setEditing(true)} className="p-1 text-platinum-white/40 hover:text-blue-400 transition-colors" title="Edit">
+                    <Pencil size={13} />
+                  </button>
+                  <button onClick={() => onDelete(calc.id)} className="p-1 text-platinum-white/40 hover:text-red-400 transition-colors" title="Delete">
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </button>
+
+      <AnimatePresence>
+        {expanded && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="border-t border-silicon-slate"
+          >
+            <div className="p-4 space-y-4">
+              {calc.formula_expression && (
+                <div>
+                  <h4 className="text-xs font-medium text-platinum-white/60 uppercase tracking-wider mb-1.5">Formula</h4>
+                  <p className="text-sm font-mono text-foreground bg-silicon-slate/70 rounded-lg p-3 break-all">
+                    {calc.formula_expression}
+                  </p>
+                </div>
+              )}
+
+              {inputEntries.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-medium text-platinum-white/60 uppercase tracking-wider mb-1.5">Inputs</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {inputEntries.map(([key, val]) => (
+                      <div key={key} className="p-2 bg-silicon-slate/70 rounded-lg">
+                        <div className="text-xs text-platinum-white/50 capitalize">{key.replace(/_/g, ' ')}</div>
+                        <div className="text-sm text-foreground font-medium">
+                          {typeof val === 'number' ? val.toLocaleString() : String(val)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-4 text-xs text-platinum-white/50">
+                <span>Method: <span className="text-platinum-white/80 capitalize">{calc.calculation_method?.replace(/_/g, ' ')}</span></span>
+                <span>Generated by: <span className="text-platinum-white/80">{calc.generated_by || 'unknown'}</span></span>
+                {calc.benchmark_ids?.length > 0 && (
+                  <span>Benchmarks used: <span className="text-platinum-white/80">{calc.benchmark_ids.length}</span></span>
+                )}
+                {calc.created_at && (
+                  <span>Created: <span className="text-platinum-white/80">{new Date(calc.created_at).toLocaleDateString()}</span></span>
+                )}
+              </div>
+
+              {/* Evidence section */}
+              {calc.evidence_count > 0 && (
+                <div className="border-t border-silicon-slate pt-3 space-y-2">
+                  <h4 className="text-xs font-medium text-platinum-white/60 uppercase tracking-wider flex items-center gap-1.5">
+                    <BookOpen size={12} />
+                    Supporting Evidence ({calc.evidence_count})
+                  </h4>
+                  {evidenceLoading && (
+                    <div className="flex items-center gap-2 py-2 text-xs text-platinum-white/50">
+                      <RefreshCw size={12} className="animate-spin" /> Loading evidence…
+                    </div>
+                  )}
+                  {evidence && evidence.length === 0 && (
+                    <p className="text-xs text-platinum-white/40 py-1">No evidence items found.</p>
+                  )}
+                  {evidence && evidence.map((ev: any) => (
+                    <div key={ev.id} className="p-2.5 bg-silicon-slate/70 rounded-lg space-y-1">
+                      <div className="flex items-center gap-2 text-[10px] text-platinum-white/50">
+                        <span className="px-1.5 py-0.5 bg-purple-600/20 rounded text-purple-300 capitalize">
+                          {ev.source_type?.replace(/_/g, ' ')}
+                        </span>
+                        {ev.industry && (
+                          <span className="px-1.5 py-0.5 bg-blue-600/20 rounded text-blue-300">
+                            {ev.industry}
+                          </span>
+                        )}
+                        {ev.confidence_score != null && (
+                          <span className="text-radiant-gold">
+                            {Math.round(ev.confidence_score * 100)}% confidence
+                          </span>
+                        )}
+                        {ev.monetary_indicator != null && parseFloat(ev.monetary_indicator) > 0 && (
+                          <span className="text-green-400 font-medium">
+                            {formatCurrency(parseFloat(ev.monetary_indicator))}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-foreground leading-relaxed">
+                        &ldquo;{ev.source_excerpt}&rdquo;
+                      </p>
+                      {ev.monetary_context && (
+                        <p className="text-[10px] text-platinum-white/40 italic">Cost context: {ev.monetary_context}</p>
+                      )}
+                      <div className="text-[10px] text-platinum-white/30">
+                        {ev.extracted_by && <span>Extracted by: {ev.extracted_by}</span>}
+                        {ev.created_at && <span className="ml-2">{new Date(ev.created_at).toLocaleDateString()}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {calc.evidence_count === 0 && (
+                <div className="border-t border-silicon-slate pt-3">
+                  <p className="text-xs text-platinum-white/40">No evidence linked to this calculation yet. Run the Social Listening workflow or click Recalculate to link existing evidence.</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  )
+}
+
+function CalculationsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   const [calculations, setCalculations] = useState<any[]>([])
   const [painPoints, setPainPoints] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [industryFilter, setIndustryFilter] = useState('')
   const [painPointFilter, setPainPointFilter] = useState('')
   const [generating, setGenerating] = useState(false)
+  const [recalculating, setRecalculating] = useState(false)
+  const [recalcResult, setRecalcResult] = useState<string | null>(null)
 
   const fetchCalculations = useCallback(async () => {
     setLoading(true)
@@ -1138,7 +1968,7 @@ function CalculationsTab() {
 
   useEffect(() => {
     fetchCalculations()
-  }, [fetchCalculations])
+  }, [fetchCalculations, pageRefreshNonce])
 
   const handleGenerate = async () => {
     if (!painPoints.length || !industryFilter) return
@@ -1174,6 +2004,65 @@ function CalculationsTab() {
     }
   }
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('Remove this calculation? It will be deactivated and hidden from lists.')) return
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+
+      const res = await fetch(`/api/admin/value-evidence/calculations?id=${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+
+      if (res.ok) {
+        await fetchCalculations()
+      }
+    } catch (error) {
+      console.error('Delete calculation error:', error)
+    }
+  }
+
+  const handleRecalculate = async () => {
+    setRecalculating(true)
+    setRecalcResult(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+
+      const body: Record<string, string> = {}
+      if (painPointFilter) body.pain_point_category_id = painPointFilter
+      if (industryFilter) body.industry = industryFilter
+
+      const res = await fetch('/api/admin/value-evidence/calculations/recalculate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(body),
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setRecalcResult(
+          `Updated ${data.calculationsUpdated} calculations across ${data.categoriesProcessed} categories` +
+          (data.calculationsRecalculated > 0
+            ? `. ${data.calculationsRecalculated} recalculated with evidence-based values.`
+            : '.')
+        )
+        await fetchCalculations()
+      } else {
+        setRecalcResult('Recalculation failed. Please try again.')
+      }
+    } catch (error) {
+      console.error('Recalculate error:', error)
+      setRecalcResult('Recalculation failed. Please try again.')
+    } finally {
+      setRecalculating(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -1195,10 +2084,10 @@ function CalculationsTab() {
         >
           <option value="">All industries</option>
           {industries.map(ind => (
-            <option key={ind} value={ind}>{ind.replace(/_/g, ' ')}</option>
+            <option key={ind} value={ind}>{getIndustryDisplayName(ind)}</option>
           ))}
-          {industries.length === 0 && ['professional_services', 'saas', 'ecommerce', 'healthcare'].map(ind => (
-            <option key={ind} value={ind}>{ind.replace(/_/g, ' ')}</option>
+          {industries.length === 0 && INDUSTRY_SLUGS.map(ind => (
+            <option key={ind} value={ind}>{getIndustryDisplayName(ind)}</option>
           ))}
         </select>
         <select
@@ -1219,53 +2108,38 @@ function CalculationsTab() {
           {generating ? <RefreshCw size={14} className="animate-spin" /> : <Plus size={14} />}
           Generate
         </button>
+        <button
+          onClick={handleRecalculate}
+          disabled={recalculating}
+          className="px-4 py-1.5 bg-purple-600/30 border border-purple-500/50 rounded-lg text-purple-300 hover:bg-purple-600/50 disabled:opacity-50 flex items-center gap-2"
+          title="Re-link evidence and recalculate confidence levels and values"
+        >
+          {recalculating ? <RefreshCw size={14} className="animate-spin" /> : <Zap size={14} />}
+          Recalculate
+        </button>
         <button onClick={fetchCalculations} className="p-1.5 bg-silicon-slate/80 rounded-lg hover:bg-gray-600">
           <RefreshCw size={16} />
         </button>
       </div>
 
+      {recalcResult && (
+        <div className="px-4 py-2.5 bg-purple-900/30 border border-purple-500/30 rounded-lg text-sm text-purple-200 flex items-center justify-between">
+          <span>{recalcResult}</span>
+          <button onClick={() => setRecalcResult(null)} className="text-purple-400 hover:text-purple-200 ml-3">
+            <X size={14} />
+          </button>
+        </div>
+      )}
+
       <div className="space-y-3 max-h-[65vh] overflow-y-auto">
-        {calculations.map(calc => {
-          const Icon = METHOD_ICONS[calc.calculation_method] || DollarSign
-          return (
-            <motion.div
-              key={calc.id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="p-4 bg-silicon-slate/50 border border-silicon-slate rounded-xl"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex gap-3">
-                  <div className="w-9 h-9 rounded bg-green-600/20 flex items-center justify-center flex-shrink-0">
-                    <Icon size={18} className="text-green-400" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-foreground">
-                      {(calc.pain_point_categories as any)?.display_name || 'Unknown'}
-                    </div>
-                    <div className="text-sm text-platinum-white/80">
-                      {calc.industry?.replace(/_/g, ' ')} · {calc.company_size_range} emp
-                    </div>
-                    <div className="text-xs text-platinum-white/60 mt-1 font-mono" title={calc.formula_expression}>
-                      {calc.formula_expression?.slice(0, 80)}{calc.formula_expression?.length > 80 ? '…' : ''}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right flex-shrink-0">
-                  <div className="text-green-400 font-semibold">
-                    {formatCurrency(parseFloat(calc.annual_value))}/yr
-                  </div>
-                  <div className="flex items-center gap-1 justify-end mt-0.5">
-                    <span className={`text-xs px-1.5 py-0.5 rounded ${CONFIDENCE_COLORS[calc.confidence_level] || ''}`}>
-                      {calc.confidence_level}
-                    </span>
-                    <span className="text-xs text-platinum-white/60">{calc.evidence_count} evidence</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )
-        })}
+        {calculations.map(calc => (
+          <CalculationCard
+            key={calc.id}
+            calc={calc}
+            onUpdate={fetchCalculations}
+            onDelete={handleDelete}
+          />
+        ))}
 
         {calculations.length === 0 && (
           <div className="text-center py-12 text-platinum-white/60">
@@ -1283,12 +2157,25 @@ function CalculationsTab() {
 // Reports Tab
 // ============================================================================
 
-function ReportsTab() {
+function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   const [reports, setReports] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [typeFilter, setTypeFilter] = useState('')
   const [selectedReport, setSelectedReport] = useState<any | null>(null)
   const [reportDetail, setReportDetail] = useState<{ report: any; contact: any } | null>(null)
+
+  // Generate for Contact state
+  const [showContactPicker, setShowContactPicker] = useState(false)
+  const [contacts, setContacts] = useState<{ id: number; name: string; email: string; company: string | null }[]>([])
+  const [contactSearch, setContactSearch] = useState('')
+  const [generating, setGenerating] = useState(false)
+  const [generateToast, setGenerateToast] = useState<{
+    contactName: string
+    company?: string
+    totalAnnualValue: number
+    reportId: string
+    contactId: number
+  } | null>(null)
 
   const fetchReports = useCallback(async () => {
     setLoading(true)
@@ -1314,7 +2201,77 @@ function ReportsTab() {
 
   useEffect(() => {
     fetchReports()
-  }, [fetchReports])
+  }, [fetchReports, pageRefreshNonce])
+
+  const fetchContacts = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+      const res = await fetch('/api/admin/contact-submissions?limit=200', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setContacts(data.submissions || data.contacts || [])
+      }
+    } catch {
+      // Non-critical
+    }
+  }, [])
+
+  useEffect(() => {
+    if (showContactPicker && contacts.length === 0) {
+      fetchContacts()
+    }
+  }, [showContactPicker, contacts.length, fetchContacts])
+
+  const handleGenerate = async (contactId: number, contactName: string, company?: string) => {
+    setGenerating(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+
+      const res = await fetch('/api/admin/value-evidence/reports/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ contact_submission_id: contactId, report_type: 'client_facing' }),
+      })
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || 'Generation failed')
+      }
+
+      const data = await res.json()
+      const report = data.report
+      setGenerateToast({
+        contactName,
+        company,
+        totalAnnualValue: report.totalAnnualValue ?? 0,
+        reportId: report.id,
+        contactId,
+      })
+      setShowContactPicker(false)
+      setContactSearch('')
+      fetchReports()
+    } catch (err) {
+      console.error('Generate error:', err)
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  const filteredContacts = contactSearch
+    ? contacts.filter(
+        c =>
+          c.name?.toLowerCase().includes(contactSearch.toLowerCase()) ||
+          c.company?.toLowerCase().includes(contactSearch.toLowerCase()) ||
+          c.email?.toLowerCase().includes(contactSearch.toLowerCase())
+      )
+    : contacts.slice(0, 20)
 
   const openReport = async (id: string) => {
     try {
@@ -1358,7 +2315,105 @@ function ReportsTab() {
         <button onClick={fetchReports} className="p-1.5 bg-silicon-slate/80 rounded-lg hover:bg-gray-600">
           <RefreshCw size={16} />
         </button>
+        <button
+          onClick={() => setShowContactPicker(true)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 rounded-lg text-sm hover:bg-emerald-600/30 transition-colors"
+        >
+          <Plus size={14} />
+          Generate for Contact
+        </button>
       </div>
+
+      {/* Contact Picker Modal */}
+      {showContactPicker && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-gray-900 border border-gray-700 rounded-xl w-full max-w-md p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-white">Generate Report for Contact</h3>
+              <button
+                onClick={() => { setShowContactPicker(false); setContactSearch('') }}
+                className="p-1 text-gray-400 hover:text-gray-200"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="relative">
+              <Search size={16} className="absolute left-3 top-2.5 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search contacts..."
+                value={contactSearch}
+                onChange={e => setContactSearch(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
+                autoFocus
+              />
+            </div>
+            <div className="max-h-60 overflow-y-auto space-y-1">
+              {filteredContacts.length === 0 ? (
+                <p className="text-sm text-gray-500 text-center py-4">No contacts found</p>
+              ) : (
+                filteredContacts.map(c => (
+                  <button
+                    key={c.id}
+                    onClick={() => handleGenerate(c.id, c.name || 'Unknown', c.company || undefined)}
+                    disabled={generating}
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors disabled:opacity-50"
+                  >
+                    <div className="text-sm font-medium text-white">{c.name || 'Unknown'}</div>
+                    <div className="text-xs text-gray-400">
+                      {c.email}{c.company ? ` · ${c.company}` : ''}
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+            {generating && (
+              <div className="flex items-center gap-2 text-sm text-emerald-400">
+                <RefreshCw size={14} className="animate-spin" />
+                Generating report...
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Generate Toast */}
+      {generateToast && (
+        <div className="fixed bottom-0 inset-x-0 z-50 bg-gray-900/95 border-t border-emerald-500/30 backdrop-blur-sm px-4 py-3">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3 min-w-0">
+              <CheckCircle2 size={20} className="text-emerald-400 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-white truncate">
+                  Report generated for {generateToast.contactName}
+                  {generateToast.company ? ` (${generateToast.company})` : ''}
+                </p>
+                <p className="text-xs text-gray-400">
+                  {formatCurrency(generateToast.totalAnnualValue)}/yr
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Link
+                href={`/admin/value-evidence/reports/${generateToast.reportId}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-silicon-slate/80 border border-silicon-slate rounded-lg text-sm text-platinum-white hover:bg-silicon-slate transition-colors"
+              >
+                <ExternalLink size={14} />
+                View Report
+              </Link>
+              <Link
+                href={`/admin/reports/gamma?type=value_quantification&contactId=${generateToast.contactId}&valueReportId=${generateToast.reportId}`}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white rounded-lg text-sm hover:bg-emerald-700 transition-colors"
+              >
+                Generate Gamma Deck
+              </Link>
+              <button onClick={() => setGenerateToast(null)} className="p-1 text-gray-500 hover:text-gray-300">
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-3 max-h-[65vh] overflow-y-auto">

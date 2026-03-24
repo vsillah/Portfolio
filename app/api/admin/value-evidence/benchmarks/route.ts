@@ -89,3 +89,74 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ benchmark: data })
 }
+
+/**
+ * PUT /api/admin/value-evidence/benchmarks
+ * Update an existing benchmark's editable fields
+ */
+export async function PUT(request: NextRequest) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  const body = await request.json()
+  const { id, value, source, source_url, year, notes } = body
+
+  if (!id) {
+    return NextResponse.json({ error: 'id is required' }, { status: 400 })
+  }
+
+  const updates: Record<string, unknown> = {}
+  if (value !== undefined) updates.value = value
+  if (source !== undefined) updates.source = source
+  if (source_url !== undefined) updates.source_url = source_url
+  if (year !== undefined) updates.year = year
+  if (notes !== undefined) updates.notes = notes
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('industry_benchmarks')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ benchmark: data })
+}
+
+/**
+ * DELETE /api/admin/value-evidence/benchmarks
+ * Hard-delete a benchmark row
+ */
+export async function DELETE(request: NextRequest) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get('id')
+
+  if (!id) {
+    return NextResponse.json({ error: 'id query param is required' }, { status: 400 })
+  }
+
+  const { error } = await supabaseAdmin
+    .from('industry_benchmarks')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true })
+}

@@ -35,6 +35,8 @@ export interface ExternalInputs {
   customInstructions?: string
 }
 
+export type ExternalInputSourceMode = 'provided' | 'none'
+
 export interface GammaReportParams {
   reportType: GammaReportType
   contactSubmissionId?: number
@@ -43,6 +45,7 @@ export interface GammaReportParams {
   proposalId?: string
   serviceIds?: string[]
   externalInputs?: ExternalInputs
+  externalInputSources?: Partial<Record<'thirdPartyFindings' | 'competitorPlatform' | 'siteCrawlData', ExternalInputSourceMode>>
   theme?: string
   gammaOptions?: Partial<GammaGenerateOptions>
 }
@@ -145,6 +148,76 @@ interface BenchmarkData {
   benchmark_type: string
   value: number
   source: string
+}
+
+// ---------------------------------------------------------------------------
+// Derived Metrics — single source of truth for all templates
+// ---------------------------------------------------------------------------
+
+export interface DerivedMetrics {
+  totalAnnualValue: number | null
+  estimatedInvestment: number | null
+  roi: number | null
+  paybackMonths: number | null
+  topPainPoints: ValueStatementData[]
+  urgencyScore: number | null
+  opportunityScore: number | null
+}
+
+export function computeDerivedMetrics(ctx: ReportContext): DerivedMetrics {
+  const vr = ctx.valueReport
+  const totalAnnualValue = vr?.total_annual_value ?? null
+  const statements = vr?.value_statements ?? []
+
+  const estimatedInvestment = estimateTotalInvestment(statements, ctx.services) || null
+
+  let roi: number | null = null
+  let paybackMonths: number | null = null
+  if (totalAnnualValue && totalAnnualValue > 0 && estimatedInvestment && estimatedInvestment > 0) {
+    roi = Math.round(((totalAnnualValue - estimatedInvestment) / estimatedInvestment) * 100)
+    paybackMonths = Math.round((estimatedInvestment / (totalAnnualValue / 12)) * 10) / 10
+  }
+
+  const topPainPoints = [...statements]
+    .sort((a, b) => b.annualValue - a.annualValue)
+    .slice(0, 5)
+
+  return {
+    totalAnnualValue,
+    estimatedInvestment,
+    roi,
+    paybackMonths,
+    topPainPoints,
+    urgencyScore: ctx.audit?.urgency_score ?? null,
+    opportunityScore: ctx.audit?.opportunity_score ?? null,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Formatting helpers
+// ---------------------------------------------------------------------------
+
+function formatAuditSection(data: Record<string, unknown> | null, fallback: string): string {
+  if (!data || typeof data !== 'object') return fallback
+  const entries = Object.entries(data)
+  if (entries.length === 0) return fallback
+  return entries
+    .map(([key, value]) => {
+      const label = key
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, (c) => c.toUpperCase())
+      if (Array.isArray(value)) {
+        return `- **${label}:** ${value.join(', ')}`
+      }
+      if (typeof value === 'object' && value !== null) {
+        const sub = Object.entries(value as Record<string, unknown>)
+          .map(([k, v]) => `${k.replace(/_/g, ' ')}: ${String(v)}`)
+          .join('; ')
+        return `- **${label}:** ${sub}`
+      }
+      return `- **${label}:** ${String(value)}`
+    })
+    .join('\n')
 }
 
 // ---------------------------------------------------------------------------
@@ -412,7 +485,9 @@ function buildValueQuantificationPrompt(
     ctx.contact?.employee_count || ctx.valueReport?.company_size_range || '11-50'
   )
   const statements = ctx.valueReport?.value_statements || []
-  const totalAnnualValue = ctx.valueReport?.total_annual_value || 0
+  const metrics = computeDerivedMetrics(ctx)
+  const totalAnnualValue = metrics.totalAnnualValue || 0
+  const totalInvestment = metrics.estimatedInvestment || 0
 
   const title = `The Cost of Standing Still: ${orgName} Opportunity Quantification`
 
@@ -444,23 +519,38 @@ This analysis quantifies the opportunity using Amadutown's standardized value ca
 **What This Tells ${orgName}:** Exactly how much value is being left on the table, which fixes deliver the highest return per dollar, and how quickly the investment pays for itself.
 `)
 
-  // --- Slide 3: Top-Line Opportunity ---
-  const totalInvestment = estimateTotalInvestment(statements, ctx.services)
-  const roi = totalAnnualValue > 0 && totalInvestment > 0
-    ? Math.round(((totalAnnualValue - totalInvestment) / totalInvestment) * 100)
-    : 0
-  const paybackMonths = totalInvestment > 0 && totalAnnualValue > 0
-    ? Math.round((totalInvestment / (totalAnnualValue / 12)) * 10) / 10
-    : 0
+  // --- Slide 2b: Current State Assessment (from diagnostic audit) ---
+  if (ctx.audit) {
+    let assessmentSlide = `
+# CURRENT STATE ASSESSMENT
+## Where ${orgName} Stands Today
+`
+    if (ctx.audit.diagnostic_summary) {
+      assessmentSlide += `\n${ctx.audit.diagnostic_summary}\n`
+    }
+    if (metrics.urgencyScore !== null || metrics.opportunityScore !== null) {
+      assessmentSlide += `\n`
+      if (metrics.urgencyScore !== null) assessmentSlide += `**Urgency Score:** ${metrics.urgencyScore}/10 | `
+      if (metrics.opportunityScore !== null) assessmentSlide += `**Opportunity Score:** ${metrics.opportunityScore}/10\n`
+    }
+    if (ctx.audit.key_insights && ctx.audit.key_insights.length > 0) {
+      assessmentSlide += `\n**Key Findings:**\n`
+      for (const insight of ctx.audit.key_insights.slice(0, 3)) {
+        assessmentSlide += `- ${insight}\n`
+      }
+    }
+    sections.push(assessmentSlide)
+  }
 
+  // --- Slide 3: Top-Line Opportunity ---
   sections.push(`
 # TOP-LINE OPPORTUNITY
 ## Four Numbers Every Board Member Should Know
 
 - **${formatCurrency(totalAnnualValue)}** — Annual Value at Stake (across all ${statements.length} identified pain points)
 - **${formatCurrency(totalInvestment)}** — Total Investment (phased over 3–6 months, all tracks combined)
-- **${roi}%** — First-Year ROI (return on investment in year one alone)
-- **${paybackMonths} months** — Payback Period (months to fully break even on the investment)
+- **${metrics.roi || 0}%** — First-Year ROI (return on investment in year one alone)
+- **${metrics.paybackMonths || 0} months** — Payback Period (months to fully break even on the investment)
 `)
 
   // --- Slide 4: Overview Table ---
@@ -481,9 +571,9 @@ Each identified pain point is assigned a calculation method from ATAS Value & Pr
   }
 
   // --- Slides 5-9: Per-Pain-Point Detail Cards ---
-  for (const stmt of statements.slice(0, 5)) {
-    const stmtRoi = stmt.annualValue > 0 ? Math.round(((stmt.annualValue - 3000) / 3000) * 100) : 0
-    sections.push(`
+  const recommendedActions = ctx.audit?.recommended_actions ?? []
+  for (const stmt of metrics.topPainPoints) {
+    let card = `
 # ${stmt.painPoint}
 
 **The Problem:** This area represents an estimated ${formatCurrency(stmt.annualValue)}/year in unrealized value.
@@ -494,7 +584,14 @@ ${stmt.formulaReadable}
 **Annual Lift:** ${formatCurrency(stmt.annualValue)}
 **Evidence:** ${stmt.evidenceSummary}
 **Confidence:** ${CONFIDENCE_LABELS[stmt.confidence]}
-`)
+`
+    const matchingAction = recommendedActions.find(
+      (a: string) => a.toLowerCase().includes(stmt.painPoint.toLowerCase().split(' ')[0])
+    )
+    if (matchingAction) {
+      card += `\n**Recommended Action:** ${matchingAction}\n`
+    }
+    sections.push(card)
   }
 
   // --- Slide 10: Money Slide ---
@@ -533,7 +630,9 @@ Year 2 Effect: Once the initial investment is recovered, recurring annual value 
   const yr3 = Math.round(totalAnnualValue * 1.44)
   const threeYearTotal = totalAnnualValue + yr2 + yr3
   const threeYearNet = threeYearTotal - totalInvestment
-  const threeYearRoi = totalInvestment > 0 ? Math.round((threeYearNet / totalInvestment) * 100) : 0
+  const threeYearRoi = totalInvestment > 0
+    ? Math.round((threeYearNet / totalInvestment) * 100)
+    : 0
 
   sections.push(`
 # PROJECTION
@@ -645,6 +744,7 @@ function buildImplementationStrategyPrompt(
   const orgName = ctx.contact?.company || 'the Organization'
   const domain = params.externalInputs?.siteCrawlData ? 'Website UX Redesign' : 'Digital Strategy'
   const title = `${orgName} ${domain}: Implementation Strategy`
+  const metrics = computeDerivedMetrics(ctx)
 
   const sections: string[] = []
 
@@ -719,6 +819,30 @@ ${ctx.audit.recommended_actions.map((action: string) => `- ${action}`).join('\n'
     }
   }
 
+  // --- Financial Case for Action (from value report, if available) ---
+  if (metrics.totalAnnualValue && metrics.totalAnnualValue > 0) {
+    let financialSlide = `
+# FINANCIAL CASE FOR ACTION
+## The Quantified Cost of Standing Still
+
+Every recommendation in this strategy has a measurable financial impact. The value evidence below comes from ATAS's standardized calculation engine.
+
+- **Total Annual Value at Stake:** ${formatCurrency(metrics.totalAnnualValue)}
+`
+    if (metrics.estimatedInvestment) financialSlide += `- **Estimated Total Investment:** ${formatCurrency(metrics.estimatedInvestment)}\n`
+    if (metrics.roi !== null) financialSlide += `- **Projected First-Year ROI:** ${metrics.roi}%\n`
+    if (metrics.paybackMonths !== null) financialSlide += `- **Payback Period:** ${metrics.paybackMonths} months\n`
+
+    if (metrics.topPainPoints.length > 0) {
+      financialSlide += `\n**Top Opportunity Areas:**\n\n`
+      financialSlide += `| Pain Point | Annual Value | Confidence |\n|-----------|-------------|------------|\n`
+      for (const pp of metrics.topPainPoints) {
+        financialSlide += `| ${pp.painPoint} | ${formatCurrency(pp.annualValue)} | ${CONFIDENCE_LABELS[pp.confidence]} |\n`
+      }
+    }
+    sections.push(financialSlide)
+  }
+
   // --- Slide 9: Track 1 — DIY ---
   sections.push(`
 # TRACK 1: DIY — Self-Service Implementation
@@ -790,6 +914,15 @@ ${offering.differentiation}
   }
 
   // --- Slide 16: Investment Comparison ---
+  const implInvestment = metrics.estimatedInvestment
+  const implAnnualValue = metrics.totalAnnualValue
+  const atasInvestLabel = implInvestment
+    ? `${formatCurrency(implInvestment)} phased over 3–6 months`
+    : '$14,000–$23,000 phased over 3–6 months'
+  const atasOutcomeExtra = implAnnualValue
+    ? ` | Projected annual value: ${formatCurrency(implAnnualValue)}`
+    : ''
+
   sections.push(`
 # Total Investment Comparison
 
@@ -799,25 +932,31 @@ Three paths forward — each with a different level of strategic depth, resource
 |--------|-----------|----------|---------|
 | Option A — DIY Only | $0 + ~40 hrs staff time | 2–3 months | Cleaner pages, same brand, no automation |
 | Option B — Platform Services | $0–$3,500 one-time + subscription | 1–2 months | Fresh design, basic email automation |
-| Option C — ATAS Full Partnership | $14,000–$23,000 phased over 3–6 months | 3–6 months | Complete transformation: AI automation, sustainable growth systems, brand authority |
+| Option C — ATAS Full Partnership | ${atasInvestLabel} | 3–6 months | Complete transformation: AI automation, sustainable growth systems, brand authority${atasOutcomeExtra} |
 
-ATAS recommends Option C implemented in phases to spread investment, demonstrate early wins, and build internal capacity alongside the build.
+ATAS recommends Option C implemented in phases to spread investment, demonstrate early wins, and build internal capacity alongside the build.${metrics.roi !== null ? ` Projected first-year ROI: ${metrics.roi}%.` : ''}
 `)
 
   // --- Slide 17: Phased Approach ---
+  const phasedPainPoints = metrics.topPainPoints
+  const phase1Value = phasedPainPoints.slice(0, 2).reduce((s, p) => s + p.annualValue, 0)
+  const phase2Value = phasedPainPoints.slice(2, 4).reduce((s, p) => s + p.annualValue, 0)
+  const phase3Value = phasedPainPoints.slice(4).reduce((s, p) => s + p.annualValue, 0)
+  const hasPhaseValues = phasedPainPoints.length > 0
+
   sections.push(`
 # Recommended Phased Approach
 
 A phased implementation reduces risk, allows ${orgName} to see early results, and builds internal capability alongside each deliverable.
 
 **Phase 1: Foundation (Months 1–2, $5,000–$7,000)**
-Brand strategy, navigation restructure, full content audit, platform design change request initiated.
+Brand strategy, navigation restructure, full content audit, platform design change request initiated.${hasPhaseValues && phase1Value > 0 ? `\nTargeted annual value: ${formatCurrency(phase1Value)}` : ''}
 
 **Phase 2: Build (Months 2–4, $5,000–$8,000)**
-Homepage redesign, conversion optimization, AI content system deployment, automation setup.
+Homepage redesign, conversion optimization, AI content system deployment, automation setup.${hasPhaseValues && phase2Value > 0 ? `\nTargeted annual value: ${formatCurrency(phase2Value)}` : ''}
 
 **Phase 3: Scale (Months 4–6, $4,000–$8,000)**
-Social media activation, donor/engagement automation, merch store launch, partnership pitches, staff training and handoff.
+Social media activation, donor/engagement automation, merch store launch, partnership pitches, staff training and handoff.${hasPhaseValues && phase3Value > 0 ? `\nTargeted annual value: ${formatCurrency(phase3Value)}` : ''}
 `)
 
   // --- Slide 18: Why ATAS ---
@@ -863,14 +1002,22 @@ function buildAuditSummaryPrompt(
   params: GammaReportParams
 ): { inputText: string; title: string } {
   const orgName = ctx.contact?.company || 'the Organization'
+  const metrics = computeDerivedMetrics(ctx)
   const title = `${orgName} — Diagnostic Audit Summary`
 
   const sections: string[] = []
 
-  sections.push(`# ${title}\n\nPrepared by Amadutown Advisory Solutions\n${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`)
+  // --- Slide 1: Title + scores ---
+  let titleSlide = `# ${title}\n\nPrepared by Amadutown Advisory Solutions\n${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
+  if (metrics.urgencyScore !== null || metrics.opportunityScore !== null) {
+    titleSlide += `\n\n`
+    if (metrics.urgencyScore !== null) titleSlide += `**Urgency Score:** ${metrics.urgencyScore}/10 | `
+    if (metrics.opportunityScore !== null) titleSlide += `**Opportunity Score:** ${metrics.opportunityScore}/10`
+  }
+  sections.push(titleSlide)
 
   if (ctx.audit) {
-    const categories = [
+    const categories: { key: keyof AuditData; label: string }[] = [
       { key: 'business_challenges', label: 'Business Challenges' },
       { key: 'tech_stack', label: 'Technology Stack' },
       { key: 'automation_needs', label: 'Automation Needs' },
@@ -880,9 +1027,9 @@ function buildAuditSummaryPrompt(
     ]
 
     for (const cat of categories) {
-      const data = ctx.audit[cat.key as keyof AuditData]
+      const data = ctx.audit[cat.key]
       if (data && typeof data === 'object') {
-        sections.push(`# ${cat.label}\n\n${JSON.stringify(data, null, 2)}`)
+        sections.push(`# ${cat.label}\n\n${formatAuditSection(data as Record<string, unknown>, 'No data available.')}`)
       }
     }
 
@@ -895,6 +1042,23 @@ function buildAuditSummaryPrompt(
     if (ctx.audit.recommended_actions?.length) {
       sections.push(`# Recommended Actions\n\n${ctx.audit.recommended_actions.map((a: string) => `- ${a}`).join('\n')}`)
     }
+  }
+
+  // --- Financial Impact slide (from value report, if available) ---
+  if (ctx.valueReport && metrics.totalAnnualValue && metrics.totalAnnualValue > 0) {
+    let financialSlide = `# Financial Impact\n## Quantified Cost of Inaction\n\n`
+    financialSlide += `- **Total Annual Value at Stake:** ${formatCurrency(metrics.totalAnnualValue)}\n`
+    if (metrics.estimatedInvestment) financialSlide += `- **Estimated Investment:** ${formatCurrency(metrics.estimatedInvestment)}\n`
+    if (metrics.roi !== null) financialSlide += `- **Projected First-Year ROI:** ${metrics.roi}%\n`
+    if (metrics.paybackMonths !== null) financialSlide += `- **Payback Period:** ${metrics.paybackMonths} months\n`
+
+    if (metrics.topPainPoints.length > 0) {
+      financialSlide += `\n**Top Opportunity Areas:**\n`
+      for (const pp of metrics.topPainPoints.slice(0, 3)) {
+        financialSlide += `- ${pp.painPoint}: ${formatCurrency(pp.annualValue)}/yr\n`
+      }
+    }
+    sections.push(financialSlide)
   }
 
   sections.push(`# Next Steps\n\nContact Amadutown Advisory Solutions at amadutown.com to discuss these findings.`)
@@ -912,6 +1076,7 @@ function buildProspectOverviewPrompt(
 ): { inputText: string; title: string } {
   const orgName = ctx.contact?.company || 'the Organization'
   const industry = ctx.contact?.industry || 'general'
+  const metrics = computeDerivedMetrics(ctx)
   const title = `${orgName} — AI & Automation Opportunity Overview`
 
   const sections: string[] = []
@@ -920,8 +1085,29 @@ function buildProspectOverviewPrompt(
 
   sections.push(`# About ${orgName}\n\nIndustry: ${industry}\nSize: ${ctx.contact?.employee_count || 'Unknown'}`)
 
+  // Assessment Snapshot (light, one slide — skip if no audit)
+  if (ctx.audit?.diagnostic_summary) {
+    let snapshot = `# Assessment Snapshot\n\n${ctx.audit.diagnostic_summary}`
+    if (metrics.urgencyScore !== null) snapshot += `\n\n**Urgency:** ${metrics.urgencyScore}/10`
+    if (metrics.opportunityScore !== null) snapshot += ` | **Opportunity:** ${metrics.opportunityScore}/10`
+    sections.push(snapshot)
+  }
+
   if (ctx.painPoints.length > 0) {
     sections.push(`# Common Pain Points in ${industry}\n\n${ctx.painPoints.slice(0, 6).map((pp) => `- **${pp.display_name}**: ${pp.description || 'A common challenge in this industry'}`).join('\n')}`)
+  }
+
+  // Potential Annual Impact (light, one slide — skip if no value report)
+  if (metrics.totalAnnualValue && metrics.totalAnnualValue > 0) {
+    let impactSlide = `# Potential Annual Impact\n## Quantified Opportunity for ${orgName}\n\n`
+    impactSlide += `**Total Annual Value at Stake:** ${formatCurrency(metrics.totalAnnualValue)}\n\n`
+    if (metrics.topPainPoints.length > 0) {
+      impactSlide += `**Top Opportunity Areas:**\n`
+      for (const pp of metrics.topPainPoints.slice(0, 3)) {
+        impactSlide += `- ${pp.painPoint}: ${formatCurrency(pp.annualValue)}/yr\n`
+      }
+    }
+    sections.push(impactSlide)
   }
 
   if (ctx.services.length > 0) {

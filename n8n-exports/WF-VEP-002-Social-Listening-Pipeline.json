@@ -60,7 +60,7 @@
             {
               "id": "industry",
               "name": "industry",
-              "value": "={{ $json.body?.industry || 'marketing_agency' }}",
+              "value": "={{ $json.body?.industry || 'professional_services' }}",
               "type": "string"
             },
             {
@@ -630,7 +630,7 @@
               {
                 "id": "industry",
                 "name": "industry",
-                "value": "={{ $json.body?.industry || 'marketing_agency' }}",
+                "value": "={{ $json.body?.industry || 'professional_services' }}",
                 "type": "string"
               },
               {

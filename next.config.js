@@ -8,6 +8,7 @@ const nextConfig = {
       bodySizeLimit: '50mb',
     },
     optimizePackageImports: ['lucide-react', 'framer-motion', 'recharts'],
+    serverComponentsExternalPackages: ['pdf-parse', 'mammoth'],
   },
 }
 

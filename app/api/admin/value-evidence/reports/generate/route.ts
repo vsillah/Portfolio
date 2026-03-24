@@ -59,10 +59,10 @@ export async function POST(request: NextRequest) {
         id: reportId,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Report generation error:', error)
     return NextResponse.json(
-      { error: 'Failed to generate report', details: error.message },
+      { error: 'Something went wrong generating the report. Please try again.' },
       { status: 500 }
     )
   }

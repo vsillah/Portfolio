@@ -19,23 +19,29 @@ export async function GET(request: NextRequest) {
     .from('pain_point_categories')
     .select('id, name, display_name, frequency_count, avg_monetary_impact, industry_tags')
     .eq('is_active', true)
-    .order('frequency_count', { ascending: false })
-    .limit(20)
+    .limit(50)
 
-  // Total evidence count
-  const { count: totalEvidence } = await supabaseAdmin
+  // Evidence per category + total + source breakdown (single query)
+  const { data: allEvidence } = await supabaseAdmin
     .from('pain_point_evidence')
-    .select('*', { count: 'exact', head: true })
+    .select('pain_point_category_id, source_type')
 
-  // Evidence by source type
-  const { data: evidenceBySource } = await supabaseAdmin
-    .from('pain_point_evidence')
-    .select('source_type')
-
+  const evidenceCountMap: Record<string, number> = {}
   const sourceBreakdown: Record<string, number> = {}
-  for (const e of evidenceBySource || []) {
+  for (const e of allEvidence || []) {
+    evidenceCountMap[e.pain_point_category_id] = (evidenceCountMap[e.pain_point_category_id] || 0) + 1
     sourceBreakdown[e.source_type] = (sourceBreakdown[e.source_type] || 0) + 1
   }
+  const totalEvidence = allEvidence?.length || 0
+
+  // Sort categories by actual evidence count, then by frequency_count as tiebreaker
+  const enrichedCategories = (categories || [])
+    .map((cat: any) => ({
+      ...cat,
+      evidence_count: evidenceCountMap[cat.id] || 0,
+    }))
+    .sort((a: any, b: any) => b.evidence_count - a.evidence_count || b.frequency_count - a.frequency_count)
+    .slice(0, 20)
 
   // Market intelligence stats
   const { count: totalMarketIntel } = await supabaseAdmin
@@ -131,8 +137,8 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({
     overview: {
-      totalPainPoints: categories?.length || 0,
-      totalEvidence: totalEvidence || 0,
+      totalPainPoints: enrichedCategories.length,
+      totalEvidence: totalEvidence,
       totalMarketIntel: totalMarketIntel || 0,
       unprocessedMarketIntel: unprocessedMarketIntel || 0,
       totalCalculations: calcsByIndustry?.length || 0,
@@ -140,7 +146,7 @@ export async function GET(request: NextRequest) {
       totalBenchmarks: totalBenchmarks || 0,
       totalContentMappings: totalMappings || 0,
     },
-    topPainPoints: categories || [],
+    topPainPoints: enrichedCategories,
     topCalculations: topCalculations || [],
     evidenceBySource: sourceBreakdown,
     industryBreakdown: industryTotals,

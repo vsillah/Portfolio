@@ -21,8 +21,10 @@ import {
   CheckCircle,
   Search,
   Video,
+  Info,
 } from 'lucide-react';
 import Link from 'next/link';
+import ExternalInputCard, { type ReportContextPreview } from '@/components/admin/ExternalInputCard';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -103,11 +105,13 @@ function GammaReportsContent() {
   const [valueReportId, setValueReportId] = useState<string>(searchParams.get('valueReportId') || '');
   const [valueReports, setValueReports] = useState<{ id: string; title: string }[]>([]);
 
-  // External inputs
-  const [thirdPartyFindings, setThirdPartyFindings] = useState('');
-  const [competitorPlatform, setCompetitorPlatform] = useState('');
-  const [siteCrawlData, setSiteCrawlData] = useState('');
+  // External inputs (smart cards)
+  const [assembledFindings, setAssembledFindings] = useState<string | undefined>();
+  const [assembledCompetitor, setAssembledCompetitor] = useState<string | undefined>();
+  const [assembledSiteData, setAssembledSiteData] = useState<string | undefined>();
   const [customInstructions, setCustomInstructions] = useState('');
+  const [previewData, setPreviewData] = useState<ReportContextPreview | null>(null);
+  const [loadingPreview, setLoadingPreview] = useState(false);
 
   // Generation state
   const [generating, setGenerating] = useState(false);
@@ -191,6 +195,36 @@ function GammaReportsContent() {
     load();
   }, [contactId, getToken]);
 
+  // Fetch report context preview for ExternalInputCards
+  useEffect(() => {
+    if (!contactId) {
+      setPreviewData(null);
+      return;
+    }
+    let cancelled = false;
+    async function load() {
+      setLoadingPreview(true);
+      try {
+        const token = await getToken();
+        const params = new URLSearchParams({ contactId });
+        if (auditId) params.set('auditId', auditId);
+        const res = await fetch(`/api/admin/value-evidence/report-context-preview?${params}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          setPreviewData(data);
+        }
+      } catch {
+        // preview is non-critical; cards show empty state
+      } finally {
+        if (!cancelled) setLoadingPreview(false);
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [contactId, auditId, getToken]);
+
   // Fetch report history
   const fetchReports = useCallback(async () => {
     setLoadingReports(true);
@@ -220,10 +254,15 @@ function GammaReportsContent() {
       const body: Record<string, unknown> = {
         reportType,
         externalInputs: {
-          thirdPartyFindings: thirdPartyFindings || undefined,
-          competitorPlatform: competitorPlatform || undefined,
-          siteCrawlData: siteCrawlData || undefined,
+          thirdPartyFindings: assembledFindings || undefined,
+          competitorPlatform: assembledCompetitor || undefined,
+          siteCrawlData: assembledSiteData || undefined,
           customInstructions: customInstructions || undefined,
+        },
+        externalInputSources: {
+          thirdPartyFindings: assembledFindings ? 'provided' : 'none',
+          competitorPlatform: assembledCompetitor ? 'provided' : 'none',
+          siteCrawlData: assembledSiteData ? 'provided' : 'none',
         },
       };
 
@@ -424,54 +463,45 @@ function GammaReportsContent() {
           )}
         </div>
 
-        {/* External Inputs */}
-        <div className="bg-gray-900 rounded-lg border border-gray-800 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-white">External Inputs</h2>
-          <p className="text-sm text-gray-400">
-            Paste third-party findings, competitor info, or site data to enrich the report.
-          </p>
-
+        {/* External Inputs — smart cards */}
+        <div className="space-y-3">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Third-Party Audit Findings
-            </label>
-            <textarea
-              value={thirdPartyFindings}
-              onChange={(e) => setThirdPartyFindings(e.target.value)}
-              placeholder="Paste consulting recommendations, audit findings, or assessment results..."
-              rows={4}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none resize-y"
-            />
+            <h2 className="text-lg font-semibold text-white">External Inputs</h2>
+            <p className="text-sm text-gray-400 mt-1">
+              Include database data and/or upload files to enrich the report. Both sources can be used together.
+            </p>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Competitor / Platform Info
-            </label>
-            <textarea
-              value={competitorPlatform}
-              onChange={(e) => setCompetitorPlatform(e.target.value)}
-              placeholder="Platform capabilities, pricing, limitations (e.g. Firespring features, Squarespace plans)..."
-              rows={3}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none resize-y"
-            />
-          </div>
+          <ExternalInputCard
+            title="Audit Findings"
+            slot="thirdPartyFindings"
+            previewData={previewData}
+            loading={loadingPreview}
+            onChange={setAssembledFindings}
+            getToken={getToken}
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Site Crawl Data
-            </label>
-            <textarea
-              value={siteCrawlData}
-              onChange={(e) => setSiteCrawlData(e.target.value)}
-              placeholder="Page count, navigation structure, bounce rates, key metrics from site audit..."
-              rows={3}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none resize-y"
-            />
-          </div>
+          <ExternalInputCard
+            title="Competitor / Platform Info"
+            slot="competitorPlatform"
+            previewData={previewData}
+            loading={loadingPreview}
+            onChange={setAssembledCompetitor}
+            getToken={getToken}
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+          <ExternalInputCard
+            title="Site / Tech Data"
+            slot="siteCrawlData"
+            previewData={previewData}
+            loading={loadingPreview}
+            onChange={setAssembledSiteData}
+            getToken={getToken}
+          />
+
+          {/* Custom Instructions — kept as textarea */}
+          <div className="bg-gray-900 rounded-lg border border-gray-800 p-5">
+            <label className="block text-sm font-semibold text-white mb-2">
               Custom Instructions
             </label>
             <textarea
@@ -483,6 +513,15 @@ function GammaReportsContent() {
             />
           </div>
         </div>
+
+        {/* Data Completeness Indicator */}
+        <DataCompletenessPanel
+          hasContact={!!contactId}
+          hasAudit={!!auditId}
+          hasValueReport={!!valueReportId}
+          serviceCount={0}
+          reportType={reportType}
+        />
 
         {/* Generate Button */}
         <div className="flex items-center gap-4">
@@ -720,4 +759,91 @@ function StatusBadge({ status }: { status: string }) {
         </span>
       );
   }
+}
+
+// Describes which data sources each template benefits from
+const TEMPLATE_DATA_NEEDS: Record<string, { required: string[]; optional: string[] }> = {
+  value_quantification: {
+    required: ['Value Report'],
+    optional: ['Contact', 'Diagnostic Audit'],
+  },
+  implementation_strategy: {
+    required: ['Contact'],
+    optional: ['Diagnostic Audit', 'Value Report'],
+  },
+  audit_summary: {
+    required: ['Diagnostic Audit'],
+    optional: ['Contact', 'Value Report'],
+  },
+  prospect_overview: {
+    required: ['Contact'],
+    optional: ['Diagnostic Audit', 'Value Report'],
+  },
+};
+
+function DataCompletenessPanel({
+  hasContact,
+  hasAudit,
+  hasValueReport,
+  serviceCount,
+  reportType,
+}: {
+  hasContact: boolean;
+  hasAudit: boolean;
+  hasValueReport: boolean;
+  serviceCount: number;
+  reportType: string;
+}) {
+  const sources = [
+    { label: 'Contact', available: hasContact },
+    { label: 'Diagnostic Audit', available: hasAudit },
+    { label: 'Value Report', available: hasValueReport },
+  ];
+
+  const needs = TEMPLATE_DATA_NEEDS[reportType] || { required: [], optional: [] };
+  const missingRequired = needs.required.filter(
+    (n: string) => !sources.find((s) => s.label === n)?.available
+  );
+  const missingOptional = needs.optional.filter(
+    (n: string) => !sources.find((s) => s.label === n)?.available
+  );
+  const allOptionalPresent = missingOptional.length === 0;
+
+  return (
+    <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Info className="w-4 h-4 text-gray-400" />
+        <span className="text-sm font-medium text-gray-300">Data Sources</span>
+      </div>
+      <div className="flex flex-wrap gap-3">
+        {sources.map((s) => (
+          <span
+            key={s.label}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+              s.available
+                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                : 'bg-gray-800 text-gray-500 border border-gray-700'
+            }`}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full ${s.available ? 'bg-emerald-400' : 'bg-gray-600'}`} />
+            {s.label}
+          </span>
+        ))}
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          Services (auto-loaded)
+        </span>
+      </div>
+      {missingRequired.length > 0 && (
+        <p className="text-xs text-amber-400 mt-2">
+          Recommended for this template: {missingRequired.join(', ')}
+        </p>
+      )}
+      {missingRequired.length === 0 && !allOptionalPresent && (
+        <p className="text-xs text-gray-500 mt-2">
+          Optional data not selected: {missingOptional.join(', ')} — some slides will be omitted.
+        </p>
+      )}
+    </div>
+  );
 }

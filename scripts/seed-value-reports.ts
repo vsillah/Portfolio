@@ -32,6 +32,34 @@ const REPORTS_TO_GENERATE = [
     companyName: 'Urban Goods Co.',
     reportType: 'internal_audit' as const,
   },
+  {
+    industry: 'management_consulting',
+    companySize: '11-50',
+    companyName: 'Pinnacle Strategy Group',
+    contactName: 'David Okafor',
+    reportType: 'client_facing' as const,
+  },
+  {
+    industry: 'nonprofit',
+    companySize: '11-50',
+    companyName: 'Community Impact Alliance',
+    contactName: 'Maria Santos',
+    reportType: 'client_facing' as const,
+  },
+  {
+    industry: 'management_consulting',
+    companySize: '1-10',
+    companyName: 'Catalyst Advisors',
+    contactName: 'Aisha Rahman',
+    reportType: 'client_facing' as const,
+  },
+  {
+    industry: 'nonprofit',
+    companySize: '1-10',
+    companyName: 'Bright Futures Foundation',
+    contactName: 'James Whitfield',
+    reportType: 'client_facing' as const,
+  },
 ];
 
 async function main() {

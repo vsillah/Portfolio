@@ -16,6 +16,7 @@ import QuickOverview from '@/components/client-dashboard/QuickOverview'
 import AccelerationCards from '@/components/client-dashboard/AccelerationCards'
 import CampaignProgressSection from '@/components/client-dashboard/CampaignProgressSection'
 import DocumentsSection from '@/components/client-dashboard/DocumentsSection'
+import ReportsSection from '@/components/client-dashboard/ReportsSection'
 import TimeTrackingSection from '@/components/client-dashboard/TimeTrackingSection'
 import MeetingHistory from '@/components/client-dashboard/MeetingHistory'
 import type { DashboardData, LeadDashboardData, DashboardTask } from '@/lib/client-dashboard'
@@ -193,6 +194,8 @@ export default function ClientDashboardPage() {
     timeTracking,
     nextMeeting,
     valueReport,
+    valueReports,
+    gammaReports,
   } = dashboard as DashboardData
 
   const tasksCompleted = tasks.filter((t: DashboardTask) => t.status === 'complete').length
@@ -258,7 +261,15 @@ export default function ClientDashboardPage() {
           </div>
         </div>
 
-        {/* Row 3: Documents & Time Investment */}
+        {/* Row 3: Reports & Presentations (only when reports exist) */}
+        {((valueReports && valueReports.length > 0) || (gammaReports && gammaReports.length > 0)) && (
+          <ReportsSection
+            valueReports={valueReports || []}
+            gammaReports={gammaReports || []}
+          />
+        )}
+
+        {/* Row 4: Documents & Time Investment */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <DocumentsSection documents={documents || []} />
           <TimeTrackingSection
@@ -267,7 +278,7 @@ export default function ClientDashboardPage() {
           />
         </div>
 
-        {/* Row 4: Gap Analysis */}
+        {/* Row 5: Gap Analysis */}
         <GapAnalysisPanel gaps={gapAnalysis} />
 
         {/* Row 4: Acceleration Opportunities */}

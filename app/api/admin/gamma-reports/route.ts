@@ -97,7 +97,10 @@ export async function POST(request: NextRequest) {
         value_report_id: body.valueReportId || null,
         proposal_id: body.proposalId || null,
         input_text: inputText,
-        external_inputs: body.externalInputs || {},
+        external_inputs: {
+          ...(body.externalInputs || {}),
+          ...(body.externalInputSources ? { _sources: body.externalInputSources } : {}),
+        },
         gamma_options: options,
         status: 'generating',
         created_by: auth.user.id,

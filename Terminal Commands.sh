@@ -56,3 +56,7 @@ git commit -m "add comments to the project"
 git checkout staging
 git pull
 git checkout main
+
+
+#how to kill a process on port 3000
+lsof -ti:3000 | xargs kill -9

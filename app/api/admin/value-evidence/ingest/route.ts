@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { linkEvidenceToCalculations, refreshCategoryStats } from '@/lib/value-evidence-linker'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,11 +61,12 @@ export async function POST(request: NextRequest) {
     }
 
     const insertedContactIds = new Set<number>()
+    const affectedCategoryIds = new Set<string>()
 
     for (const item of evidenceItems) {
       try {
         // Validate required fields
-        if (!item.pain_point_category_name || !item.source_type || !item.source_id || !item.source_excerpt) {
+        if (!item.pain_point_category_name || !item.source_type || !item.source_excerpt) {
           results.errors.push(`Missing required fields for item: ${JSON.stringify(item).substring(0, 100)}`)
           continue
         }
@@ -106,7 +108,7 @@ export async function POST(request: NextRequest) {
           .insert({
             pain_point_category_id: categoryId,
             source_type: item.source_type,
-            source_id: item.source_id,
+            source_id: item.source_id || '',
             source_excerpt: item.source_excerpt,
             industry: item.industry || null,
             company_size: item.company_size || null,
@@ -124,32 +126,10 @@ export async function POST(request: NextRequest) {
         }
 
         results.inserted++
+        affectedCategoryIds.add(categoryId)
         if (item.contact_submission_id != null) {
           insertedContactIds.add(item.contact_submission_id)
         }
-
-        // Update frequency count on category
-        await supabaseAdmin.rpc('increment_counter', {
-          table_name: 'pain_point_categories',
-          column_name: 'frequency_count',
-          row_id: categoryId,
-        }).catch(() => {
-          // Fallback: manual increment if RPC doesn't exist
-          supabaseAdmin
-            .from('pain_point_categories')
-            .select('frequency_count')
-            .eq('id', categoryId)
-            .single()
-            .then(({ data }: { data: { frequency_count: number } | null }) => {
-              if (data) {
-                supabaseAdmin
-                  .from('pain_point_categories')
-                  .update({ frequency_count: (data.frequency_count ?? 0) + 1 })
-                  .eq('id', categoryId)
-                  .then(() => {})
-              }
-            })
-        })
 
         // Update industry_tags if new industry
         if (item.industry) {
@@ -173,6 +153,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Refresh category stats and link evidence to calculations
+    let calculationsUpdated = 0
+    for (const catId of affectedCategoryIds) {
+      await refreshCategoryStats(supabaseAdmin!, catId)
+
+      // Link evidence to calculations (updates evidence_count, confidence, and potentially annual_value)
+      try {
+        const linkResult = await linkEvidenceToCalculations(catId)
+        calculationsUpdated += linkResult.updated
+      } catch (linkErr: any) {
+        console.warn(`Evidence linking failed for category ${catId}:`, linkErr.message)
+      }
+    }
+
     if (insertedContactIds.size > 0) {
       const ids = [...insertedContactIds]
       const { error: statusError } = await supabaseAdmin
@@ -185,7 +179,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(results)
+    return NextResponse.json({ ...results, calculationsUpdated })
   } catch (error: any) {
     console.error('Value evidence ingest error:', error)
     return NextResponse.json(

@@ -139,6 +139,26 @@ export interface TimeTrackingData {
   by_target: TimeEntrySummary[]
 }
 
+export interface ClientValueReport {
+  id: string
+  title: string
+  report_type: string
+  industry: string
+  company_size_range: string
+  total_annual_value: number
+  summary_markdown: string
+  value_statements: unknown[]
+  created_at: string
+}
+
+export interface ClientGammaReport {
+  id: string
+  title: string
+  report_type: string
+  gamma_url: string
+  created_at: string
+}
+
 export interface DashboardData {
   project: {
     id: string
@@ -180,6 +200,8 @@ export interface DashboardData {
     total_annual_value: number | null
     value_statements: unknown[]
   } | null
+  valueReports: ClientValueReport[]
+  gammaReports: ClientGammaReport[]
 }
 
 // ============================================================================
@@ -440,6 +462,8 @@ export async function getDashboardByToken(
     proposalAttachmentsResult,
     onboardingDocsResult,
     timeEntriesResult,
+    allValueReportsResult,
+    allGammaReportsResult,
   ] = await Promise.all([
     // Diagnostic audit via contact_submission -> diagnostic_audits
     project.contact_submission_id
@@ -549,6 +573,26 @@ export async function getDashboardByToken(
       .eq('client_project_id', projectId)
       .eq('is_running', false)
       .not('duration_seconds', 'is', null),
+
+    // All value reports for this contact
+    project.contact_submission_id
+      ? supabaseAdmin
+          .from('value_reports')
+          .select('id, title, report_type, industry, company_size_range, total_annual_value, summary_markdown, value_statements, created_at')
+          .eq('contact_submission_id', project.contact_submission_id)
+          .order('created_at', { ascending: false })
+      : Promise.resolve({ data: null, error: null }),
+
+    // All completed gamma reports for this contact
+    project.contact_submission_id
+      ? supabaseAdmin
+          .from('gamma_reports')
+          .select('id, title, report_type, gamma_url, created_at')
+          .eq('contact_submission_id', project.contact_submission_id)
+          .eq('status', 'completed')
+          .not('gamma_url', 'is', null)
+          .order('created_at', { ascending: false })
+      : Promise.resolve({ data: null, error: null }),
   ])
 
   const audit = auditResult.data
@@ -730,6 +774,9 @@ export async function getDashboardByToken(
       }
     : null
 
+  const valueReports = (allValueReportsResult.data || []) as ClientValueReport[]
+  const gammaReports = (allGammaReportsResult.data || []) as ClientGammaReport[]
+
   return {
     data: {
       project: {
@@ -756,6 +803,8 @@ export async function getDashboardByToken(
       timeTracking,
       nextMeeting: meetingResult.data || null,
       valueReport: valueReportResult.data || null,
+      valueReports,
+      gammaReports,
     },
     stage: 'client',
   }

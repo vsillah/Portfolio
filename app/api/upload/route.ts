@@ -30,11 +30,16 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validate file type (images and PDFs)
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml', 'application/pdf']
+    const allowedTypes = [
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+      'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      'text/plain', 'text/csv',
+    ]
     if (!file.type.startsWith('image/') && !allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { error: 'Only image and PDF files are allowed' },
+        { error: 'Unsupported file type. Allowed: images, PDF, DOCX, PPTX, text, CSV.' },
         { status: 400 }
       )
     }

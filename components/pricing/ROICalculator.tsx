@@ -3,6 +3,7 @@
 import { useState, useCallback } from 'react';
 import { formatCurrency } from '@/lib/pricing-model';
 import { PricingMethodologyNote } from '@/components/pricing/PricingMethodologyNote';
+import { INDUSTRIES as INDUSTRY_DEFS, isNonprofitIndustry } from '@/lib/constants/industry';
 
 interface ROICalculatorProps {
   className?: string;
@@ -10,20 +11,23 @@ interface ROICalculatorProps {
   onContextChange?: (industry: string, companySize: string) => void;
 }
 
-// Industries with isNonprofit flag for CI tier recommendations.
-// Rates are per-industry estimates aligned with industry_benchmarks DB table values.
+// ROI-specific rates per industry, aligned with industry_benchmarks DB values.
 // These drive the ROI estimate; dynamic tier retail values use lib/dynamic-pricing.ts instead.
 const INDUSTRIES = [
-  { value: 'technology', label: 'Technology', hourlyRate: 55, dealSize: 8000, employeeCost: 85000, isNonprofit: false },
-  { value: 'professional_services', label: 'Professional Services', hourlyRate: 65, dealSize: 10000, employeeCost: 75000, isNonprofit: false },
-  { value: 'healthcare', label: 'Healthcare', hourlyRate: 50, dealSize: 6000, employeeCost: 65000, isNonprofit: false },
-  { value: 'financial_services', label: 'Financial Services', hourlyRate: 70, dealSize: 15000, employeeCost: 90000, isNonprofit: false },
-  { value: 'retail', label: 'Retail / E-Commerce', hourlyRate: 35, dealSize: 3000, employeeCost: 45000, isNonprofit: false },
-  { value: 'manufacturing', label: 'Manufacturing', hourlyRate: 40, dealSize: 12000, employeeCost: 55000, isNonprofit: false },
-  { value: 'real_estate', label: 'Real Estate', hourlyRate: 45, dealSize: 8000, employeeCost: 60000, isNonprofit: false },
-  { value: 'education', label: 'Education', hourlyRate: 35, dealSize: 4000, employeeCost: 50000, isNonprofit: true },
-  { value: 'nonprofit', label: 'Nonprofit / NGO', hourlyRate: 30, dealSize: 3000, employeeCost: 45000, isNonprofit: true },
-  { value: 'other', label: 'Other', hourlyRate: 40, dealSize: 5000, employeeCost: 60000, isNonprofit: false },
+  { value: 'saas',                   label: INDUSTRY_DEFS.saas.displayName,                   hourlyRate: 55, dealSize: 15000, employeeCost: 95000,  isNonprofit: false },
+  { value: 'professional_services',  label: INDUSTRY_DEFS.professional_services.displayName,  hourlyRate: 45, dealSize: 8500,  employeeCost: 75000,  isNonprofit: false },
+  { value: 'management_consulting',  label: INDUSTRY_DEFS.management_consulting.displayName,  hourlyRate: 85, dealSize: 75000, employeeCost: 145000, isNonprofit: false },
+  { value: 'healthcare',             label: INDUSTRY_DEFS.healthcare.displayName,             hourlyRate: 40, dealSize: 25000, employeeCost: 70000,  isNonprofit: false },
+  { value: 'finance',                label: INDUSTRY_DEFS.finance.displayName,                hourlyRate: 70, dealSize: 50000, employeeCost: 120000, isNonprofit: false },
+  { value: 'ecommerce',              label: INDUSTRY_DEFS.ecommerce.displayName,              hourlyRate: 35, dealSize: 85,    employeeCost: 60000,  isNonprofit: false },
+  { value: 'retail',                 label: INDUSTRY_DEFS.retail.displayName,                 hourlyRate: 25, dealSize: 65,    employeeCost: 48000,  isNonprofit: false },
+  { value: 'manufacturing',          label: INDUSTRY_DEFS.manufacturing.displayName,          hourlyRate: 40, dealSize: 75000, employeeCost: 72000,  isNonprofit: false },
+  { value: 'real_estate',            label: INDUSTRY_DEFS.real_estate.displayName,            hourlyRate: 50, dealSize: 12000, employeeCost: 80000,  isNonprofit: false },
+  { value: 'insurance',              label: INDUSTRY_DEFS.insurance.displayName,              hourlyRate: 55, dealSize: 8000,  employeeCost: 95000,  isNonprofit: false },
+  { value: 'marketing',              label: INDUSTRY_DEFS.marketing.displayName,              hourlyRate: 60, dealSize: 15000, employeeCost: 95000,  isNonprofit: false },
+  { value: 'education',              label: INDUSTRY_DEFS.education.displayName,              hourlyRate: 35, dealSize: 4000,  employeeCost: 50000,  isNonprofit: true },
+  { value: 'nonprofit',              label: INDUSTRY_DEFS.nonprofit.displayName,              hourlyRate: 30, dealSize: 50000, employeeCost: 58000,  isNonprofit: true },
+  { value: 'other',                  label: 'Other',                                          hourlyRate: 40, dealSize: 5000,  employeeCost: 65000,  isNonprofit: false },
 ];
 
 const COMPANY_SIZES = [

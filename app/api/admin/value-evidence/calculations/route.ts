@@ -100,3 +100,73 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ calculation: data })
 }
+
+/**
+ * PUT /api/admin/value-evidence/calculations
+ * Update an existing calculation's editable fields
+ */
+export async function PUT(request: NextRequest) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  const body = await request.json()
+  const { id, formula_inputs, annual_value, confidence_level, is_active } = body
+
+  if (!id) {
+    return NextResponse.json({ error: 'id is required' }, { status: 400 })
+  }
+
+  const updates: Record<string, unknown> = {}
+  if (formula_inputs !== undefined) updates.formula_inputs = formula_inputs
+  if (annual_value !== undefined) updates.annual_value = annual_value
+  if (confidence_level !== undefined) updates.confidence_level = confidence_level
+  if (is_active !== undefined) updates.is_active = is_active
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('value_calculations')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ calculation: data })
+}
+
+/**
+ * DELETE /api/admin/value-evidence/calculations
+ * Soft-delete (deactivate) a calculation
+ */
+export async function DELETE(request: NextRequest) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  const { searchParams } = new URL(request.url)
+  const id = searchParams.get('id')
+
+  if (!id) {
+    return NextResponse.json({ error: 'id query param is required' }, { status: 400 })
+  }
+
+  const { error } = await supabaseAdmin
+    .from('value_calculations')
+    .update({ is_active: false })
+    .eq('id', id)
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ success: true })
+}

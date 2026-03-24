@@ -9,6 +9,7 @@
  *
  * Usage:
  *   npx tsx scripts/seed-lead-magnets.ts
+ *   npx tsx scripts/seed-lead-magnets.ts --env-file .env.staging
  *
  * Requires:
  *   NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local
@@ -25,7 +26,15 @@ import * as path from 'path'
 
 import { LEAD_MAGNET_FUNNEL_STAGES } from '../lib/constants/lead-magnet-funnel'
 
-dotenv.config({ path: path.resolve(process.cwd(), '.env.local') })
+function resolveEnvFile(): string {
+  const i = process.argv.indexOf('--env-file')
+  if (i >= 0 && process.argv[i + 1]) {
+    return path.resolve(process.cwd(), process.argv[i + 1])
+  }
+  return path.resolve(process.cwd(), '.env.local')
+}
+
+dotenv.config({ path: resolveEnvFile() })
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY

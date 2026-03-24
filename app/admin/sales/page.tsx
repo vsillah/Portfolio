@@ -11,6 +11,7 @@ import {
 } from '@/lib/sales-scripts';
 import { FunnelStageBadge } from '@/components/admin/sales/FunnelStageSelector';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
+import ReportActionToast from '@/components/admin/ReportActionToast';
 import { 
   Users, 
   TrendingUp, 
@@ -31,6 +32,8 @@ import {
   Star,
   ArrowUpRight,
   Trash2,
+  Zap,
+  Presentation,
 } from 'lucide-react';
 
 interface LeadAudit {
@@ -97,6 +100,22 @@ interface ConversationSession {
   diagnostic_audit_id: string | null;
 }
 
+interface ReportStatus {
+  reportId: string;
+  totalAnnualValue: number;
+  reportType: string;
+  gammaReportId?: string;
+  gammaUrl?: string;
+}
+
+interface ToastData {
+  contactName: string;
+  company?: string;
+  totalAnnualValue: number;
+  reportId: string;
+  contactId: number;
+}
+
 export default function SalesDashboardPage() {
   const { user } = useAuth();
   const [leads, setLeads] = useState<LeadRow[]>([]);
@@ -105,6 +124,9 @@ export default function SalesDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
+  const [reportStatuses, setReportStatuses] = useState<Record<string, ReportStatus | null>>({});
+  const [generatingReportFor, setGeneratingReportFor] = useState<number | null>(null);
+  const [toastData, setToastData] = useState<ToastData | null>(null);
   
   // Filters
   const [searchQuery, setSearchQuery] = useState('');
@@ -148,12 +170,84 @@ export default function SalesDashboardPage() {
     }
   }, [minUrgency]);
 
+  // Fetch report statuses whenever leads are loaded
+  const fetchReportStatuses = useCallback(async (leadRows: LeadRow[]) => {
+    const ids = leadRows.map(l => l.contact_id).filter(Boolean);
+    if (ids.length === 0) return;
+
+    try {
+      const session = await getCurrentSession();
+      if (!session?.access_token) return;
+
+      const res = await fetch(
+        `/api/admin/value-evidence/reports/status?contactIds=${ids.join(',')}`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setReportStatuses(data.statuses || {});
+      }
+    } catch {
+      // Non-critical — statuses just won't show
+    }
+  }, []);
+
   // Fetch when user becomes available or filters change
   useEffect(() => {
     if (user) {
       fetchData();
     }
   }, [user, fetchData]);
+
+  // Fetch report statuses after leads load
+  useEffect(() => {
+    if (leads.length > 0) {
+      fetchReportStatuses(leads);
+    }
+  }, [leads, fetchReportStatuses]);
+
+  const handleGenerateReport = async (contactId: number, name: string, company?: string) => {
+    const session = await getCurrentSession();
+    if (!session?.access_token) return;
+
+    setGeneratingReportFor(contactId);
+    try {
+      const res = await fetch('/api/admin/value-evidence/reports/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          contact_submission_id: contactId,
+          report_type: 'client_facing',
+        }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || 'Failed to generate report');
+      }
+
+      const data = await res.json();
+      const report = data.report;
+
+      setToastData({
+        contactName: name || 'Unknown',
+        company: company || undefined,
+        totalAnnualValue: report.totalAnnualValue ?? 0,
+        reportId: report.id,
+        contactId,
+      });
+
+      // Refresh report statuses
+      await fetchReportStatuses(leads);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate report');
+    } finally {
+      setGeneratingReportFor(null);
+    }
+  };
 
   // Filter and sort leads
   const filteredLeads = leads
@@ -415,8 +509,20 @@ export default function SalesDashboardPage() {
                     <tr key={lead.contact_id} className="hover:bg-silicon-slate/50">
                       <td className="px-4 py-4">
                         <div>
-                          <div className="font-medium text-foreground">
+                          <div className="font-medium text-foreground flex items-center gap-2">
                             {lead.name || 'Unknown'}
+                            {(() => {
+                              const status = reportStatuses[String(lead.contact_id)];
+                              if (!status) return null;
+                              return (
+                                <span className="inline-flex items-center gap-1">
+                                  <span className="w-2 h-2 rounded-full bg-emerald-400" title="Value report generated" />
+                                  {status.gammaUrl && (
+                                    <span className="w-2 h-2 rounded-full bg-purple-400" title="Gamma deck ready" />
+                                  )}
+                                </span>
+                              );
+                            })()}
                           </div>
                           <div className="text-sm text-platinum-white/80">{lead.email}</div>
                           {lead.company && (
@@ -503,6 +609,43 @@ export default function SalesDashboardPage() {
                       </td>
                       <td className="px-4 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
+                          {(() => {
+                            const status = reportStatuses[String(lead.contact_id)];
+                            if (status) {
+                              return (
+                                <Link
+                                  href={`/admin/value-evidence/reports/${status.reportId}`}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-emerald-400 hover:text-emerald-300 text-sm transition-colors"
+                                  title="View value report"
+                                >
+                                  <FileText className="w-3.5 h-3.5" />
+                                  Report ✓
+                                </Link>
+                              );
+                            }
+                            return (
+                              <button
+                                onClick={() =>
+                                  handleGenerateReport(
+                                    lead.contact_id,
+                                    lead.name || 'Unknown',
+                                    lead.company || undefined
+                                  )
+                                }
+                                disabled={generatingReportFor === lead.contact_id}
+                                className="inline-flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 rounded-lg text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {generatingReportFor === lead.contact_id ? (
+                                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                ) : (
+                                  <Zap className="w-3.5 h-3.5" />
+                                )}
+                                {generatingReportFor === lead.contact_id
+                                  ? 'Generating...'
+                                  : 'Generate Report'}
+                              </button>
+                            );
+                          })()}
                           <Link
                             href={`/admin/outreach?tab=leads&id=${lead.contact_id}`}
                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-900/30 hover:bg-purple-800/50 text-purple-400 rounded-lg text-sm transition-colors"
@@ -610,6 +753,18 @@ export default function SalesDashboardPage() {
           </div>
         )}
       </div>
+
+      {/* Report Action Toast */}
+      {toastData && (
+        <ReportActionToast
+          contactName={toastData.contactName}
+          company={toastData.company}
+          totalAnnualValue={toastData.totalAnnualValue}
+          reportId={toastData.reportId}
+          contactId={toastData.contactId}
+          onDismiss={() => setToastData(null)}
+        />
+      )}
     </div>
   );
 }
