@@ -370,7 +370,6 @@ export default function MerchandiseManagementPage() {
                           width={128}
                           height={128}
                           className="object-contain rounded-lg"
-                          unoptimized
                         />
                         <button
                           onClick={(e) => {
@@ -391,7 +390,6 @@ export default function MerchandiseManagementPage() {
                           width={128}
                           height={128}
                           className="object-contain rounded-lg"
-                          unoptimized
                           onError={(e) => {
                             e.currentTarget.style.display = 'none'
                           }}
@@ -616,7 +614,6 @@ export default function MerchandiseManagementPage() {
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 320px"
-                        unoptimized
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">

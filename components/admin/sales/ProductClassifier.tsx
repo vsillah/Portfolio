@@ -178,7 +178,7 @@ export function ProductClassifier({
         <div className="flex items-center gap-4">
           {product.image_url ? (
             <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0">
-              <Image src={product.image_url} alt={product.title} fill className="object-cover" sizes="48px" unoptimized />
+              <Image src={product.image_url} alt={product.title} fill className="object-cover" sizes="48px" />
             </div>
           ) : (
             <div className="w-12 h-12 rounded bg-gray-200 flex items-center justify-center">
@@ -544,7 +544,7 @@ export function ContentClassifier({
         <div className="flex items-center gap-4">
           {content.image_url ? (
             <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0">
-              <Image src={content.image_url} alt={content.title} fill className="object-cover" sizes="48px" unoptimized />
+              <Image src={content.image_url} alt={content.title} fill className="object-cover" sizes="48px" />
             </div>
           ) : (
             <div className="w-12 h-12 rounded bg-gray-800 flex items-center justify-center text-2xl">

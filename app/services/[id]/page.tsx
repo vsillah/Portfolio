@@ -195,7 +195,6 @@ export default function ServiceDetailPage() {
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 800px"
-                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">

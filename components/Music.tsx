@@ -122,7 +122,6 @@ export default function Music() {
                     fill
                     className="object-cover transition-transform duration-700 group-hover:scale-110"
                     sizes="(max-width: 768px) 100vw, 320px"
-                    unoptimized
                     onError={(e) => { e.currentTarget.src = '/V 9T Sitting.jpg' }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent opacity-60" />

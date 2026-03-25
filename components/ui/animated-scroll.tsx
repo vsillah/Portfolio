@@ -256,7 +256,7 @@ const timelineData = [
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
              <div className="relative h-32 w-full rounded-lg overflow-hidden border border-silicon-slate">
-               <Image src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&fit=crop&q=60" fill className="object-cover rounded-lg" sizes="(max-width: 768px) 100vw, 50vw" unoptimized alt="Strategic Meeting" />
+               <Image src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=600&auto=format&fit=crop&q=60" fill className="object-cover rounded-lg" sizes="(max-width: 768px) 100vw, 50vw" alt="Strategic Meeting" />
              </div>
              <div className="relative h-32 w-full rounded-lg overflow-hidden border border-silicon-slate">
                <Image src="/vs-autumn.jpg" fill className="object-cover rounded-lg" sizes="(max-width: 768px) 100vw, 50vw" alt="Vambah Sillah" onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1557683316-973673baf926?w=600&auto=format&fit=crop&q=60"; e.currentTarget.onerror = null; }} />
@@ -280,7 +280,7 @@ const timelineData = [
             </ul>
           </div>
           <div className="relative h-40 w-full rounded-lg overflow-hidden border border-silicon-slate">
-            <Image src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=60" fill className="object-cover rounded-lg" sizes="100vw" unoptimized alt="Team Collaboration" />
+            <Image src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=800&auto=format&fit=crop&q=60" fill className="object-cover rounded-lg" sizes="100vw" alt="Team Collaboration" />
           </div>
         </div>
       ),
@@ -678,7 +678,6 @@ export default function ScrollAdventure() {
                       fill
                       className="object-cover"
                       sizes="100vw"
-                      unoptimized
                       onError={(e) => {
                         e.currentTarget.src = "https://images.unsplash.com/photo-1557683316-973673baf926?w=900&auto=format&fit=crop&q=80";
                         e.currentTarget.onerror = null;
@@ -721,7 +720,6 @@ export default function ScrollAdventure() {
                       fill
                       className="object-cover"
                       sizes="100vw"
-                      unoptimized
                       onError={(e) => {
                         e.currentTarget.src = "https://images.unsplash.com/photo-1497215728101-856f4ea42174?w=900&auto=format&fit=crop&q=80";
                         e.currentTarget.onerror = null;

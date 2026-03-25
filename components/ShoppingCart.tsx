@@ -273,7 +273,6 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                   fill
                                   className="object-cover"
                                   sizes="80px"
-                                  unoptimized
                                 />
                               ) : (
                                 <div className="text-platinum-white/60 text-xs text-center p-2">
@@ -351,7 +350,6 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                   fill
                                   className="object-cover"
                                   sizes="80px"
-                                  unoptimized
                                 />
                               ) : (
                                 <div className="text-platinum-white/60 text-xs text-center p-2">

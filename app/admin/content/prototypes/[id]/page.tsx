@@ -841,7 +841,7 @@ export default function PrototypeEditPage({ params }: { params: { id: string } }
                     {formData.thumbnail_url ? (
                       <div className="space-y-3">
                         <div className="relative aspect-video rounded-lg overflow-hidden border border-gray-700">
-                          <Image src={formData.thumbnail_url} alt="Thumbnail" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" unoptimized />
+                          <Image src={formData.thumbnail_url} alt="Thumbnail" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
                           <button
                             type="button"
                             onClick={handleRemoveThumbnail}

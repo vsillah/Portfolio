@@ -150,7 +150,6 @@ export const ProductCard = ({
           fill
           className="object-cover object-left-top rounded-xl"
           sizes="(max-width: 768px) 100vw, 400px"
-          unoptimized
           alt={product.title}
         />
       </a>

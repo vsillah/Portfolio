@@ -110,7 +110,6 @@ export default function PrototypeCard({ prototype, user, index, onEnrollmentSucc
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-110 grayscale-[30%] group-hover:grayscale-0"
             sizes="(max-width: 768px) 100vw, 400px"
-            unoptimized
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-silicon-slate via-transparent to-transparent opacity-60" />

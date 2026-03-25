@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform, useReducedMotion, type MotionStyle } from 'framer-motion'
 import { ArrowRight, ArrowDown, Sparkles, Brain, Rocket, Music, Heart, Building2, RefreshCw } from 'lucide-react'
 import { useRef } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { MagneticButton } from './ui/MagneticButton'
 
@@ -405,10 +406,13 @@ export default function Hero() {
             {/* Wallpaper Container */}
             <div className="relative aspect-square rounded-3xl overflow-hidden border-2 border-radiant-gold/30 shadow-2xl">
               {/* Wallpaper Image — CSS animated brightness pulse */}
-              <img
-                src="/wallpaper.png"
+              <Image
+                src="/wallpaper.webp"
                 alt="AmaduTown Brand Visual"
-                className="w-full h-full object-cover hero-wallpaper-pulse"
+                fill
+                priority
+                sizes="(max-width: 640px) 320px, 400px"
+                className="object-cover hero-wallpaper-pulse"
               />
               
               {/* Logo Glow Overlay — CSS animated */}

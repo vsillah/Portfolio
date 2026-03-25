@@ -104,7 +104,7 @@ export default function MockupViewer({ images, alt = 'Product mockup', className
                 }`}
               >
                 <div className="relative w-full h-full">
-                  <Image src={image} alt={`${alt} thumbnail ${index + 1}`} fill className="object-cover" sizes="80px" unoptimized />
+                  <Image src={image} alt={`${alt} thumbnail ${index + 1}`} fill className="object-cover" sizes="80px" />
                 </div>
               </button>
             ))}
@@ -135,7 +135,6 @@ export default function MockupViewer({ images, alt = 'Product mockup', className
                 fill
                 className="object-contain"
                 sizes="100vw"
-                unoptimized
               />
               <button
                 onClick={() => setIsZoomed(false)}

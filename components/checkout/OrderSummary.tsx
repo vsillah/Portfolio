@@ -188,7 +188,6 @@ export default function OrderSummary({
                         fill
                         className="object-cover"
                         sizes="56px"
-                        unoptimized
                       />
                     ) : (
                       <Users className="text-platinum-white/60" size={20} />
@@ -299,7 +298,6 @@ export default function OrderSummary({
                         fill
                         className="object-cover"
                         sizes="56px"
-                        unoptimized
                       />
                     ) : (
                       <DollarSign className="text-platinum-white/60" size={20} />

@@ -81,6 +81,7 @@ export default function Navigation() {
               alt="AmaduTown"
               width={120}
               height={60}
+              priority
               className="object-contain h-[60px] w-auto"
             />
           </a>

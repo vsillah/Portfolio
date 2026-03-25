@@ -6,9 +6,11 @@ import { ArrowRight, Send, DollarSign, TrendingUp, FolderKanban, BarChart3, Sett
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
-import AdminPieChart from '@/components/admin/AdminPieChart'
-import AdminBarChart from '@/components/admin/AdminBarChart'
-import AdminFunnelChart from '@/components/admin/AdminFunnelChart'
+import dynamic from 'next/dynamic'
+
+const AdminPieChart = dynamic(() => import('@/components/admin/AdminPieChart'), { ssr: false })
+const AdminBarChart = dynamic(() => import('@/components/admin/AdminBarChart'), { ssr: false })
+const AdminFunnelChart = dynamic(() => import('@/components/admin/AdminFunnelChart'), { ssr: false })
 
 export default function AdminDashboard() {
   return (
@@ -72,117 +74,82 @@ function AdminDashboardContent() {
   const [qualityError, setQualityError] = useState(false)
   const [configError, setConfigError] = useState(false)
 
-  const fetchPipeline = useCallback(async () => {
-    setPipelineError(false)
+  const fetchAll = useCallback(async () => {
     const session = await getCurrentSession()
     if (!session?.access_token) {
       setPipelineError(true)
-      return
-    }
-    const headers = { Authorization: `Bearer ${session.access_token}` }
-    Promise.all([
-      fetch('/api/admin/outreach/dashboard', { headers }).then((r) => r.ok ? r.json() : null),
-      fetch('/api/admin/value-evidence/dashboard', { headers }).then((r) => r.ok ? r.json() : null),
-      fetch('/api/admin/value-evidence/reports?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
-    ])
-      .then(([outreach, valueEvidence, reportsRes]) => {
-        setPipeline({
-          outreach: outreach ?? null,
-          valueEvidence: valueEvidence ?? null,
-          reports: (reportsRes as ValueReportsRes)?.reports ?? null,
-        })
-      })
-      .catch(() => setPipelineError(true))
-  }, [])
-
-  const fetchSales = useCallback(async () => {
-    setSalesError(false)
-    const session = await getCurrentSession()
-    if (!session?.access_token) {
       setSalesError(true)
-      return
-    }
-    const headers = { Authorization: `Bearer ${session.access_token}` }
-    Promise.all([
-      fetch('/api/admin/sales', { headers }).then((r) => r.ok ? r.json() : null),
-      fetch('/api/admin/campaigns?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
-    ])
-      .then(([salesRes, campaignsRes]) => {
-        setSales({
-          stats: (salesRes as SalesRes)?.stats ?? null,
-          campaigns: (campaignsRes as CampaignsRes)?.data ?? null,
-        })
-      })
-      .catch(() => setSalesError(true))
-  }, [])
-
-  const fetchPostSale = useCallback(async () => {
-    setPostSaleError(false)
-    const session = await getCurrentSession()
-    if (!session?.access_token) {
       setPostSaleError(true)
-      return
-    }
-    const headers = { Authorization: `Bearer ${session.access_token}` }
-    Promise.all([
-      fetch('/api/admin/client-projects?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
-      fetch('/api/meeting-action-tasks', { headers }).then((r) => r.ok ? r.json() : null),
-      fetch('/api/admin/guarantees?limit=3', { headers }).then((r) => r.ok ? r.json() : null),
-    ])
-      .then(([projectsRes, tasksRes, guaranteesRes]) => {
-        const tasks = (tasksRes as MeetingTasksRes)?.tasks ?? []
-        setPostSale({
-          projects: (projectsRes as ClientProjectsRes)?.projects ?? null,
-          tasks: Array.isArray(tasks) ? tasks.slice(0, 5) : null,
-          guarantees: (guaranteesRes as GuaranteesRes)?.data ?? null,
-        })
-      })
-      .catch(() => setPostSaleError(true))
-  }, [])
-
-  const fetchQuality = useCallback(async () => {
-    setQualityError(false)
-    const session = await getCurrentSession()
-    if (!session?.access_token) {
       setQualityError(true)
-      return
-    }
-    const headers = { Authorization: `Bearer ${session.access_token}` }
-    Promise.all([
-      fetch('/api/admin/chat-eval/stats?days=7', { headers }).then((r) => r.ok ? r.json() : null),
-      fetch('/api/admin/chat-eval?limit=5', { headers }).then((r) => r.ok ? r.json() : null),
-      fetch('/api/analytics/stats?days=7', { headers }).then((r) => r.ok ? r.json() : null),
-    ])
-      .then(([chatStats, chatSessionsRes, analytics]) => {
-        const sess = (chatSessionsRes as ChatEvalSessionsRes)?.sessions ?? null
-        setQuality({
-          chatStats: chatStats ?? null,
-          chatSessions: sess ?? null,
-          analytics: analytics ?? null,
-        })
-      })
-      .catch(() => setQualityError(true))
-  }, [])
-
-  const fetchConfig = useCallback(async () => {
-    setConfigError(false)
-    const session = await getCurrentSession()
-    if (!session?.access_token) {
       setConfigError(true)
       return
     }
     const headers = { Authorization: `Bearer ${session.access_token}` }
-    fetch('/api/admin/configuration/counts', { headers })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((data) => setConfig(data ?? null))
-      .catch(() => setConfigError(true))
+    const safeFetch = (url: string) => fetch(url, { headers }).then((r) => r.ok ? r.json() : null)
+
+    const [
+      outreach, valueEvidence, reportsRes,
+      salesRes, campaignsRes,
+      projectsRes, tasksRes, guaranteesRes,
+      chatStats, chatSessionsRes, analyticsRes,
+      configRes,
+    ] = await Promise.all([
+      safeFetch('/api/admin/outreach/dashboard').catch(() => null),
+      safeFetch('/api/admin/value-evidence/dashboard').catch(() => null),
+      safeFetch('/api/admin/value-evidence/reports?limit=5').catch(() => null),
+      safeFetch('/api/admin/sales').catch(() => null),
+      safeFetch('/api/admin/campaigns?limit=5').catch(() => null),
+      safeFetch('/api/admin/client-projects?limit=5').catch(() => null),
+      safeFetch('/api/meeting-action-tasks').catch(() => null),
+      safeFetch('/api/admin/guarantees?limit=3').catch(() => null),
+      safeFetch('/api/admin/chat-eval/stats?days=7').catch(() => null),
+      safeFetch('/api/admin/chat-eval?limit=5').catch(() => null),
+      safeFetch('/api/analytics/stats?days=7').catch(() => null),
+      safeFetch('/api/admin/configuration/counts').catch(() => null),
+    ])
+
+    if (outreach || valueEvidence || reportsRes) {
+      setPipeline({
+        outreach: outreach ?? null,
+        valueEvidence: valueEvidence ?? null,
+        reports: (reportsRes as ValueReportsRes)?.reports ?? null,
+      })
+    } else { setPipelineError(true) }
+
+    if (salesRes || campaignsRes) {
+      setSales({
+        stats: (salesRes as SalesRes)?.stats ?? null,
+        campaigns: (campaignsRes as CampaignsRes)?.data ?? null,
+      })
+    } else { setSalesError(true) }
+
+    const tasks = (tasksRes as MeetingTasksRes)?.tasks ?? []
+    if (projectsRes || tasksRes || guaranteesRes) {
+      setPostSale({
+        projects: (projectsRes as ClientProjectsRes)?.projects ?? null,
+        tasks: Array.isArray(tasks) ? tasks.slice(0, 5) : null,
+        guarantees: (guaranteesRes as GuaranteesRes)?.data ?? null,
+      })
+    } else { setPostSaleError(true) }
+
+    if (chatStats || chatSessionsRes || analyticsRes) {
+      setQuality({
+        chatStats: chatStats ?? null,
+        chatSessions: (chatSessionsRes as ChatEvalSessionsRes)?.sessions ?? null,
+        analytics: analyticsRes ?? null,
+      })
+    } else { setQualityError(true) }
+
+    if (configRes) { setConfig(configRes) } else { setConfigError(true) }
   }, [])
 
-  useEffect(() => { fetchPipeline() }, [fetchPipeline])
-  useEffect(() => { fetchSales() }, [fetchSales])
-  useEffect(() => { fetchPostSale() }, [fetchPostSale])
-  useEffect(() => { fetchQuality() }, [fetchQuality])
-  useEffect(() => { fetchConfig() }, [fetchConfig])
+  const fetchPipeline = fetchAll
+  const fetchSales = fetchAll
+  const fetchPostSale = fetchAll
+  const fetchQuality = fetchAll
+  const fetchConfig = fetchAll
+
+  useEffect(() => { fetchAll() }, [fetchAll])
 
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">

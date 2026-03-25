@@ -452,7 +452,6 @@ export default function PrototypesManagementPage() {
                               fill
                               className="object-cover"
                               sizes="(max-width: 768px) 100vw, 50vw"
-                              unoptimized
                             />
                             <button
                               type="button"
@@ -679,7 +678,6 @@ export default function PrototypesManagementPage() {
                             fill
                             className="object-cover"
                             sizes="80px"
-                            unoptimized
                           />
                         </div>
                       ) : (
