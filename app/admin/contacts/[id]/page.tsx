@@ -1,0 +1,539 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import { useParams } from 'next/navigation'
+import Link from 'next/link'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import { getCurrentSession } from '@/lib/auth'
+import { EMAIL_TEMPLATE_KEYS, PROMPT_DISPLAY_NAMES, type EmailTemplateKey } from '@/lib/constants/prompt-keys'
+import {
+  User, Mail, Building2, Calendar, ExternalLink, FileText,
+  Video, BarChart3, Send, Loader2, CheckCircle, AlertCircle, Clock,
+  ChevronDown, ChevronUp, Sparkles, Plus, Eye, MessageSquare,
+  RefreshCw, Copy, Check,
+} from 'lucide-react'
+
+/* ───────── Types ───────── */
+
+interface Contact {
+  id: number
+  name: string
+  email: string
+  company: string | null
+  industry: string | null
+  lead_source: string | null
+  lead_score: number | null
+  outreach_status: string | null
+  created_at: string
+  employee_count: string | null
+}
+
+interface GammaReport { id: string; report_type: string; title: string | null; gamma_url: string | null; status: string; created_at: string }
+interface VideoJob { id: string; script_source: string; heygen_status: string | null; video_url: string | null; thumbnail_url: string | null; channel: string; gamma_report_id: string | null; created_at: string }
+interface ValueReport { id: string; title: string | null; report_type: string; created_at: string }
+interface Audit { id: number; status: string; created_at: string }
+interface OutreachItem { id: string; channel: string; subject: string | null; status: string; created_at: string }
+interface Delivery { id: string; subject: string; recipient_email: string; asset_ids: unknown; dashboard_token: string | null; sent_at: string; status: string }
+interface DashboardAccess { access_token: string; client_email: string }
+interface SalesSession { id: string; created_at: string }
+interface TimelineEvent { type: string; date: string; title: string; detail?: string; id?: string }
+
+interface ContactData {
+  contact: Contact
+  gammaReports: GammaReport[]
+  videos: VideoJob[]
+  valueReports: ValueReport[]
+  audits: Audit[]
+  outreach: OutreachItem[]
+  deliveries: Delivery[]
+  dashboardAccess: DashboardAccess | null
+  salesSessions: SalesSession[]
+  timeline: TimelineEvent[]
+  suggestedTemplate: EmailTemplateKey
+}
+
+interface AssetRef { type: 'gamma_report' | 'video' | 'value_report'; id: string }
+
+/* ───────── Helpers ───────── */
+
+function StatusBadge({ status }: { status: string }) {
+  const colors: Record<string, string> = {
+    completed: 'bg-emerald-900/50 text-emerald-400 border-emerald-800',
+    generating: 'bg-amber-900/50 text-amber-400 border-amber-800',
+    pending: 'bg-blue-900/50 text-blue-400 border-blue-800',
+    failed: 'bg-red-900/50 text-red-400 border-red-800',
+    sent: 'bg-emerald-900/50 text-emerald-400 border-emerald-800',
+    approved: 'bg-teal-900/50 text-teal-400 border-teal-800',
+    draft: 'bg-gray-800/50 text-gray-400 border-gray-700',
+  }
+  const cls = colors[status] || 'bg-gray-800/50 text-gray-400 border-gray-700'
+  return <span className={`text-[10px] px-1.5 py-0.5 rounded border ${cls}`}>{status}</span>
+}
+
+function formatDate(d: string) {
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+}
+
+function formatDateTime(d: string) {
+  return new Date(d).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+}
+
+const timelineIcons: Record<string, typeof User> = {
+  contact: User, audit: BarChart3, gamma: FileText, video: Video,
+  value_report: BarChart3, outreach: MessageSquare, delivery: Send, sales: Sparkles,
+}
+
+/* ───────── Page ───────── */
+
+function ContactDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const [data, setData] = useState<ContactData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Compose state
+  const [composeOpen, setComposeOpen] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplateKey>('email_asset_delivery')
+  const [selectedAssets, setSelectedAssets] = useState<AssetRef[]>([])
+  const [customNote, setCustomNote] = useState('')
+  const [includeDashboard, setIncludeDashboard] = useState(true)
+  const [drafting, setDrafting] = useState(false)
+  const [draftSubject, setDraftSubject] = useState('')
+  const [draftBody, setDraftBody] = useState('')
+  const [sending, setSending] = useState(false)
+  const [sendResult, setSendResult] = useState<{ success: boolean; error?: string } | null>(null)
+  const [copied, setCopied] = useState(false)
+
+  // Sections
+  const [showDeliveries, setShowDeliveries] = useState(false)
+  const [showTimeline, setShowTimeline] = useState(true)
+
+  const getToken = useCallback(async () => {
+    const s = await getCurrentSession()
+    return s?.access_token || ''
+  }, [])
+
+  const fetchData = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const token = await getToken()
+      const res = await fetch(`/api/admin/contacts/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        setError(d.error || 'Failed to load contact')
+        return
+      }
+      const d: ContactData = await res.json()
+      setData(d)
+
+      // Pre-select completed assets
+      const preselected: AssetRef[] = []
+      for (const g of d.gammaReports) {
+        if (g.status === 'completed' && g.gamma_url) preselected.push({ type: 'gamma_report', id: g.id })
+      }
+      for (const v of d.videos) {
+        if (v.heygen_status === 'completed' && v.video_url) preselected.push({ type: 'video', id: v.id })
+      }
+      for (const vr of d.valueReports) {
+        preselected.push({ type: 'value_report', id: vr.id })
+      }
+      setSelectedAssets(preselected)
+      if (d.suggestedTemplate) setSelectedTemplate(d.suggestedTemplate)
+    } catch {
+      setError('Failed to load contact data')
+    } finally {
+      setLoading(false)
+    }
+  }, [id, getToken])
+
+  useEffect(() => { fetchData() }, [fetchData])
+
+  function toggleAsset(ref: AssetRef) {
+    setSelectedAssets(prev => {
+      const exists = prev.find(a => a.type === ref.type && a.id === ref.id)
+      if (exists) return prev.filter(a => !(a.type === ref.type && a.id === ref.id))
+      return [...prev, ref]
+    })
+  }
+
+  function isSelected(type: string, assetId: string) {
+    return selectedAssets.some(a => a.type === type && a.id === assetId)
+  }
+
+  async function handleGenerateDraft() {
+    setDrafting(true)
+    setSendResult(null)
+    try {
+      const token = await getToken()
+      const res = await fetch(`/api/admin/contacts/${id}/compose-delivery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ assetIds: selectedAssets, templateKey: selectedTemplate, customNote, includeDashboardLink: includeDashboard }),
+      })
+      const d = await res.json()
+      if (!res.ok) { setSendResult({ success: false, error: d.error || 'Draft generation failed' }); return }
+      setDraftSubject(d.subject || '')
+      setDraftBody(d.body || '')
+    } catch {
+      setSendResult({ success: false, error: 'Failed to generate draft' })
+    } finally {
+      setDrafting(false)
+    }
+  }
+
+  async function handleSend() {
+    if (!data || !draftSubject || !draftBody) return
+    setSending(true)
+    setSendResult(null)
+    try {
+      const token = await getToken()
+      const res = await fetch(`/api/admin/contacts/${id}/send-delivery`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          subject: draftSubject,
+          body: draftBody,
+          recipientEmail: data.contact.email,
+          assetIds: selectedAssets,
+          includeDashboardLink: includeDashboard,
+        }),
+      })
+      const d = await res.json()
+      if (!res.ok) { setSendResult({ success: false, error: d.error || 'Send failed' }); return }
+      setSendResult({ success: true })
+      setComposeOpen(false)
+      setDraftSubject('')
+      setDraftBody('')
+      fetchData()
+    } catch {
+      setSendResult({ success: false, error: 'Unexpected error sending email' })
+    } finally {
+      setSending(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <ProtectedRoute requireAdmin>
+        <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
+        </div>
+      </ProtectedRoute>
+    )
+  }
+
+  if (error || !data) {
+    return (
+      <ProtectedRoute requireAdmin>
+        <div className="min-h-screen bg-gray-950 p-8">
+          <div className="max-w-4xl mx-auto bg-red-900/20 border border-red-800 rounded-lg p-6">
+            <p className="text-red-400">{error || 'Contact not found'}</p>
+            <Link href="/admin/outreach" className="text-sm text-teal-400 hover:underline mt-2 inline-block">Back to Outreach</Link>
+          </div>
+        </div>
+      </ProtectedRoute>
+    )
+  }
+
+  const { contact, gammaReports, videos, valueReports, audits, deliveries, dashboardAccess, salesSessions, timeline } = data
+  const hasAnyAsset = gammaReports.length > 0 || videos.length > 0 || valueReports.length > 0
+
+  return (
+    <ProtectedRoute requireAdmin>
+      <div className="min-h-screen bg-gray-950 p-4 md:p-8">
+        <div className="max-w-5xl mx-auto space-y-6">
+
+          <Breadcrumbs items={[
+            { label: 'Admin', href: '/admin' },
+            { label: 'Outreach', href: '/admin/outreach' },
+            { label: contact.name },
+          ]} />
+
+          {/* ── Header ── */}
+          <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-6">
+            <div className="flex items-start justify-between flex-wrap gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <User className="w-6 h-6 text-teal-400" />
+                  {contact.name}
+                </h1>
+                <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-400">
+                  <span className="flex items-center gap-1"><Mail className="w-3.5 h-3.5" />{contact.email}</span>
+                  {contact.company && <span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5" />{contact.company}</span>}
+                  {contact.industry && <span className="text-gray-500">({contact.industry})</span>}
+                  
+                </div>
+                <div className="flex flex-wrap items-center gap-2 mt-3">
+                  {contact.lead_source && <StatusBadge status={contact.lead_source} />}
+                  {contact.outreach_status && <StatusBadge status={contact.outreach_status} />}
+                  {contact.lead_score != null && <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-900/50 text-purple-400 border border-purple-800">Score: {contact.lead_score}</span>}
+                  <span className="text-[10px] text-gray-500 flex items-center gap-1"><Calendar className="w-3 h-3" />Since {formatDate(contact.created_at)}</span>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                {dashboardAccess && (
+                  <a href={`/client/dashboard/${dashboardAccess.access_token}`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-teal-400 rounded-lg flex items-center gap-1.5 transition-colors">
+                    <Eye className="w-3.5 h-3.5" /> Client Dashboard
+                  </a>
+                )}
+                <button onClick={fetchData} className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg flex items-center gap-1.5 transition-colors">
+                  <RefreshCw className="w-3.5 h-3.5" /> Refresh
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Assets ── */}
+          <div className="space-y-3">
+            <h2 className="text-lg font-semibold text-white">Assets</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {/* Gamma Reports */}
+              {gammaReports.map(g => (
+                <div key={g.id} className={`bg-gray-900/50 border rounded-lg p-4 transition-colors cursor-pointer ${isSelected('gamma_report', g.id) ? 'border-teal-600 bg-teal-900/10' : 'border-gray-800 hover:border-gray-700'}`} onClick={() => toggleAsset({ type: 'gamma_report', id: g.id })}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                      <span className="text-sm font-medium text-white truncate">{g.title || g.report_type}</span>
+                    </div>
+                    <StatusBadge status={g.status} />
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-2">{formatDate(g.created_at)} &middot; {g.report_type}</p>
+                  {g.gamma_url && (
+                    <a href={g.gamma_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[10px] text-teal-400 hover:underline mt-1 inline-flex items-center gap-1">
+                      <ExternalLink className="w-3 h-3" /> View deck
+                    </a>
+                  )}
+                </div>
+              ))}
+
+              {/* Videos */}
+              {videos.map(v => (
+                <div key={v.id} className={`bg-gray-900/50 border rounded-lg p-4 transition-colors cursor-pointer ${isSelected('video', v.id) ? 'border-teal-600 bg-teal-900/10' : 'border-gray-800 hover:border-gray-700'}`} onClick={() => toggleAsset({ type: 'video', id: v.id })}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Video className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                      <span className="text-sm font-medium text-white truncate">Video ({v.channel})</span>
+                    </div>
+                    <StatusBadge status={v.heygen_status || 'unknown'} />
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-2">{formatDate(v.created_at)} &middot; {v.script_source}</p>
+                  {v.video_url && (
+                    <a href={v.video_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[10px] text-teal-400 hover:underline mt-1 inline-flex items-center gap-1">
+                      <ExternalLink className="w-3 h-3" /> Watch
+                    </a>
+                  )}
+                </div>
+              ))}
+
+              {/* Value Reports */}
+              {valueReports.map(vr => (
+                <div key={vr.id} className={`bg-gray-900/50 border rounded-lg p-4 transition-colors cursor-pointer ${isSelected('value_report', vr.id) ? 'border-teal-600 bg-teal-900/10' : 'border-gray-800 hover:border-gray-700'}`} onClick={() => toggleAsset({ type: 'value_report', id: vr.id })}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4 text-purple-400 flex-shrink-0" />
+                      <span className="text-sm font-medium text-white truncate">{vr.title || vr.report_type}</span>
+                    </div>
+                    <StatusBadge status="completed" />
+                  </div>
+                  <p className="text-[10px] text-gray-500 mt-2">{formatDate(vr.created_at)} &middot; {vr.report_type}</p>
+                </div>
+              ))}
+
+              {/* Empty state + quick actions */}
+              {!hasAnyAsset && (
+                <div className="col-span-full bg-gray-900/30 border border-dashed border-gray-700 rounded-lg p-8 text-center">
+                  <p className="text-gray-500 text-sm">No assets generated yet for this contact.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Quick Generate Links */}
+            <div className="flex flex-wrap gap-2 pt-1">
+              <Link href={`/admin/reports/gamma?contactId=${contact.id}`} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-emerald-400 rounded-lg flex items-center gap-1.5 transition-colors">
+                <Plus className="w-3 h-3" /> Generate Deck
+              </Link>
+              <Link href={`/admin/value-evidence?contactId=${contact.id}`} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-purple-400 rounded-lg flex items-center gap-1.5 transition-colors">
+                <Plus className="w-3 h-3" /> Generate Value Report
+              </Link>
+              {salesSessions.length === 0 && (
+                <Link href={`/admin/sales?newSession=true&contactId=${contact.id}`} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-amber-400 rounded-lg flex items-center gap-1.5 transition-colors">
+                  <Plus className="w-3 h-3" /> Start Sales Conversation
+                </Link>
+              )}
+            </div>
+          </div>
+
+          {/* ── Compose Delivery Email ── */}
+          <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">
+            <button onClick={() => setComposeOpen(!composeOpen)} className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/30 transition-colors">
+              <div className="flex items-center gap-2">
+                <Send className="w-5 h-5 text-teal-400" />
+                <span className="text-base font-semibold text-white">Compose Delivery Email</span>
+                {selectedAssets.length > 0 && <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-900/50 text-teal-400 border border-teal-800">{selectedAssets.length} asset{selectedAssets.length !== 1 ? 's' : ''} selected</span>}
+              </div>
+              {composeOpen ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+            </button>
+
+            {composeOpen && (
+              <div className="px-6 pb-6 space-y-4 border-t border-gray-800 pt-4">
+                {/* Template selector */}
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Email template</label>
+                  <div className="flex items-center gap-3">
+                    <select
+                      value={selectedTemplate}
+                      onChange={e => setSelectedTemplate(e.target.value as EmailTemplateKey)}
+                      className="flex-1 bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500"
+                    >
+                      {EMAIL_TEMPLATE_KEYS.map(k => (
+                        <option key={k} value={k}>
+                          {PROMPT_DISPLAY_NAMES[k] || k}
+                          {k === data?.suggestedTemplate ? ' (suggested)' : ''}
+                        </option>
+                      ))}
+                    </select>
+                    <Link href={`/admin/prompts/${selectedTemplate}`} target="_blank" className="text-[10px] text-gray-500 hover:text-teal-400 transition-colors whitespace-nowrap">
+                      Edit template &rarr;
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between flex-wrap gap-3">
+                  <label className="flex items-center gap-2 text-sm text-gray-300">
+                    <input type="checkbox" checked={includeDashboard} onChange={e => setIncludeDashboard(e.target.checked)} className="rounded bg-gray-800 border-gray-600 text-teal-500 focus:ring-teal-500" />
+                    Include dashboard link
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-gray-400 mb-1">Custom note (optional)</label>
+                  <textarea
+                    value={customNote}
+                    onChange={e => setCustomNote(e.target.value)}
+                    rows={2}
+                    placeholder="Any additional context for the AI draft..."
+                    className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-600 focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 resize-none"
+                  />
+                </div>
+
+                <button onClick={handleGenerateDraft} disabled={drafting} className="px-4 py-2 bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-sm font-medium rounded-lg hover:from-teal-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all">
+                  {drafting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  {drafting ? 'Generating draft...' : 'Generate Draft'}
+                </button>
+
+                {(draftSubject || draftBody) && (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Subject</label>
+                      <input
+                        type="text"
+                        value={draftSubject}
+                        onChange={e => setDraftSubject(e.target.value)}
+                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-gray-400 mb-1">Body</label>
+                      <textarea
+                        value={draftBody}
+                        onChange={e => setDraftBody(e.target.value)}
+                        rows={10}
+                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500 resize-y font-mono text-xs leading-relaxed"
+                      />
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <button onClick={handleSend} disabled={sending || !draftSubject || !draftBody} className="px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all">
+                        {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                        {sending ? 'Sending...' : `Send to ${contact.email}`}
+                      </button>
+                      <button onClick={() => { navigator.clipboard.writeText(`Subject: ${draftSubject}\n\n${draftBody}`); setCopied(true); setTimeout(() => setCopied(false), 2000) }} className="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg flex items-center gap-1.5 text-xs transition-colors">
+                        {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        {copied ? 'Copied' : 'Copy'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {sendResult && (
+                  <div className={`rounded-lg p-3 flex items-center gap-2 text-sm ${sendResult.success ? 'bg-emerald-900/20 border border-emerald-800 text-emerald-400' : 'bg-red-900/20 border border-red-800 text-red-400'}`}>
+                    {sendResult.success ? <CheckCircle className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+                    {sendResult.success ? 'Email sent successfully!' : sendResult.error}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── Delivery History ── */}
+          {deliveries.length > 0 && (
+            <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">
+              <button onClick={() => setShowDeliveries(!showDeliveries)} className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/30 transition-colors">
+                <div className="flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-gray-400" />
+                  <span className="text-base font-semibold text-white">Delivery History</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">{deliveries.length}</span>
+                </div>
+                {showDeliveries ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+              </button>
+              {showDeliveries && (
+                <div className="px-6 pb-4 space-y-2 border-t border-gray-800 pt-3">
+                  {deliveries.map(d => (
+                    <div key={d.id} className="flex items-center justify-between py-2 border-b border-gray-800/50 last:border-0">
+                      <div>
+                        <p className="text-sm text-white">{d.subject}</p>
+                        <p className="text-[10px] text-gray-500">To: {d.recipient_email} &middot; {formatDateTime(d.sent_at)}</p>
+                      </div>
+                      <StatusBadge status={d.status} />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ── Timeline ── */}
+          <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">
+            <button onClick={() => setShowTimeline(!showTimeline)} className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/30 transition-colors">
+              <div className="flex items-center gap-2">
+                <Clock className="w-5 h-5 text-gray-400" />
+                <span className="text-base font-semibold text-white">Activity Timeline</span>
+              </div>
+              {showTimeline ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+            </button>
+            {showTimeline && (
+              <div className="px-6 pb-4 border-t border-gray-800 pt-3">
+                <div className="space-y-0">
+                  {timeline.slice(0, 30).map((event, i) => {
+                    const Icon = timelineIcons[event.type] || Clock
+                    return (
+                      <div key={`${event.type}-${event.id || i}`} className="flex items-start gap-3 py-2.5 border-b border-gray-800/30 last:border-0">
+                        <div className="mt-0.5 w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+                          <Icon className="w-3 h-3 text-gray-400" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-white">{event.title}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-[10px] text-gray-500">{formatDateTime(event.date)}</span>
+                            {event.detail && <StatusBadge status={event.detail} />}
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                  {timeline.length === 0 && <p className="text-sm text-gray-500 py-2">No activity yet.</p>}
+                </div>
+              </div>
+            )}
+          </div>
+
+        </div>
+      </div>
+    </ProtectedRoute>
+  )
+}
+
+export default ContactDetailPage

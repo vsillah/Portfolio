@@ -30,7 +30,7 @@ const transporter = gmailUser && gmailPass
     })
   : null;
 
-async function sendEmail(payload: EmailPayload): Promise<boolean> {
+export async function sendEmail(payload: EmailPayload): Promise<boolean> {
   if (!transporter || !gmailUser) {
     console.warn('[NOTIFICATION EMAIL] Gmail not configured — logging instead:', {
       to: payload.to,

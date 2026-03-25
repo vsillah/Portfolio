@@ -510,7 +510,7 @@ export default function SalesDashboardPage() {
                       <td className="px-4 py-4">
                         <div>
                           <div className="font-medium text-foreground flex items-center gap-2">
-                            {lead.name || 'Unknown'}
+                            <Link href={`/admin/contacts/${lead.contact_id}`} className="hover:text-teal-400 transition-colors">{lead.name || 'Unknown'}</Link>
                             {(() => {
                               const status = reportStatuses[String(lead.contact_id)];
                               if (!status) return null;

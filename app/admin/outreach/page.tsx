@@ -1024,7 +1024,9 @@ function OutreachContent() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-white">
-                          {item.contact_submissions?.name || 'Unknown'}
+                          <Link href={`/admin/contacts/${item.contact_submission_id}`} className="hover:text-teal-400 transition-colors">
+                            {item.contact_submissions?.name || 'Unknown'}
+                          </Link>
                         </h3>
                         <span className={`px-2 py-0.5 rounded text-xs ${getScoreBadgeColor(item.contact_submissions?.lead_score)}`}>
                           Score: {item.contact_submissions?.lead_score || 'N/A'}
@@ -2306,7 +2308,9 @@ function OutreachContent() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <h3 className="font-semibold text-white">
-                                {lead.name}
+                                <Link href={`/admin/contacts/${lead.id}`} className="hover:text-teal-400 transition-colors">
+                                  {lead.name}
+                                </Link>
                               </h3>
                               {lead.lead_score !== null && (
                                 <span className={`px-2 py-0.5 rounded text-xs ${getScoreBadgeColor(lead.lead_score)}`}>
