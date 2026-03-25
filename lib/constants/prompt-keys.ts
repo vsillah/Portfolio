@@ -10,6 +10,11 @@ export const PROMPT_KEYS = [
   'diagnostic',
   'client_email_reply',
   'video_prompt_formatter',
+  'email_cold_outreach',
+  'email_asset_delivery',
+  'email_follow_up',
+  'email_proposal_delivery',
+  'email_onboarding_welcome',
 ] as const
 
 export type PromptKey = (typeof PROMPT_KEYS)[number]
@@ -22,7 +27,23 @@ export const PROMPT_DISPLAY_NAMES: Record<string, string> = {
   diagnostic: 'Diagnostic',
   client_email_reply: 'Client Email Reply',
   video_prompt_formatter: 'Video Prompt Formatter',
+  email_cold_outreach: 'Cold Outreach Email',
+  email_asset_delivery: 'Asset Delivery Email',
+  email_follow_up: 'Follow-Up Email',
+  email_proposal_delivery: 'Proposal Delivery Email',
+  email_onboarding_welcome: 'Onboarding Welcome Email',
 }
+
+/** Subset of prompt keys that are Saraev email templates, for the compose panel dropdown. */
+export const EMAIL_TEMPLATE_KEYS = [
+  'email_cold_outreach',
+  'email_asset_delivery',
+  'email_follow_up',
+  'email_proposal_delivery',
+  'email_onboarding_welcome',
+] as const
+
+export type EmailTemplateKey = (typeof EMAIL_TEMPLATE_KEYS)[number]
 
 export function getPromptDisplayName(key: string): string {
   return PROMPT_DISPLAY_NAMES[key] ?? key
