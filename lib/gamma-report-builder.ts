@@ -276,9 +276,7 @@ export async function buildGammaReportInput(
     ...params.gammaOptions,
   }
 
-  if (params.theme) {
-    options.themeId = params.theme
-  }
+  options.themeId = params.theme || process.env.GAMMA_DEFAULT_THEME_ID || undefined
 
   if (params.externalInputs?.customInstructions) {
     options.additionalInstructions = params.externalInputs.customInstructions
@@ -460,9 +458,7 @@ function buildGammaReportInputFromContext(
     ...params.gammaOptions,
   }
 
-  if (params.theme) {
-    options.themeId = params.theme
-  }
+  options.themeId = params.theme || process.env.GAMMA_DEFAULT_THEME_ID || undefined
 
   if (params.externalInputs?.customInstructions) {
     options.additionalInstructions = params.externalInputs.customInstructions

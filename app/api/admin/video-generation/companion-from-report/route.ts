@@ -93,10 +93,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const templateId = process.env.HEYGEN_TEMPLATE_ID
-    const brandVoiceId = process.env.HEYGEN_BRAND_VOICE_ID
-    const avatarId = process.env.HEYGEN_AVATAR_ID
-    const voiceId = process.env.HEYGEN_VOICE_ID
+    const templateId = (body.templateId as string)?.trim() || process.env.HEYGEN_TEMPLATE_ID
+    const brandVoiceId = (body.brandVoiceId as string)?.trim() || process.env.HEYGEN_BRAND_VOICE_ID
+    const avatarId = (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
+    const voiceId = (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
     if (!templateId && (!avatarId || !voiceId)) {
       return NextResponse.json(
         { error: 'HeyGen template or avatar and voice must be configured.' },

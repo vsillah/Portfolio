@@ -33,11 +33,14 @@ export async function POST(request: NextRequest) {
       (body.title as string)?.trim() ||
       `One-pager from script (${new Date().toLocaleDateString()})`
 
+    const themeId = (body.theme as string)?.trim() || process.env.GAMMA_DEFAULT_THEME_ID || undefined
+
     const options = {
       format: 'presentation' as const,
       textMode: 'condense' as const,
       numCards: 8,
       exportAs: 'pdf' as const,
+      themeId,
       textOptions: {
         amount: 'brief' as const,
         tone: 'professional',

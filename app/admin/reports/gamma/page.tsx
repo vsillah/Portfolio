@@ -22,6 +22,8 @@ import {
   Search,
   Video,
   Info,
+  Palette,
+  User,
 } from 'lucide-react';
 import Link from 'next/link';
 import ExternalInputCard, { type ReportContextPreview } from '@/components/admin/ExternalInputCard';
@@ -126,6 +128,17 @@ function GammaReportsContent() {
   const [companionJobId, setCompanionJobId] = useState<string | null>(null);
   const [companionReportId, setCompanionReportId] = useState<string | null>(null);
 
+  // Avatar
+  const [avatars, setAvatars] = useState<{ id: string; name: string }[]>([]);
+  const [avatarsLoading, setAvatarsLoading] = useState(true);
+  const [selectedAvatarId, setSelectedAvatarId] = useState('');
+
+  // Theme
+  const [themes, setThemes] = useState<{ id: string; name: string }[]>([]);
+  const [defaultThemeId, setDefaultThemeId] = useState<string | null>(null);
+  const [selectedTheme, setSelectedTheme] = useState<string>('');
+  const [loadingThemes, setLoadingThemes] = useState(true);
+
   // History
   const [reports, setReports] = useState<GammaReport[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
@@ -135,10 +148,57 @@ function GammaReportsContent() {
     return s?.access_token || '';
   }, [session]);
 
-  // Fetch contacts
+  // Fetch avatars
   useEffect(() => {
+    if (!session) return;
     async function load() {
       const token = await getToken();
+      if (!token) return;
+      try {
+        const res = await fetch('/api/admin/video-generation/avatars', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.avatars)) setAvatars(data.avatars);
+        }
+      } catch { /* non-critical */ }
+      setAvatarsLoading(false);
+    }
+    load();
+  }, [session, getToken]);
+
+  // Fetch themes
+  useEffect(() => {
+    if (!session) return;
+    async function load() {
+      const token = await getToken();
+      if (!token) return;
+      setLoadingThemes(true);
+      try {
+        const res = await fetch('/api/admin/gamma-reports/themes', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const list = Array.isArray(data.themes) ? data.themes : [];
+          setThemes(list.map((t: { id: string; name?: string }) => ({ id: t.id, name: t.name || t.id })));
+          const dflt = data.defaultThemeId || '';
+          setDefaultThemeId(dflt);
+          setSelectedTheme(dflt);
+        }
+      } catch { /* non-critical */ }
+      setLoadingThemes(false);
+    }
+    load();
+  }, [session, getToken]);
+
+  // Fetch contacts
+  useEffect(() => {
+    if (!session) return;
+    async function load() {
+      const token = await getToken();
+      if (!token) return;
       const res = await fetch('/api/admin/contact-submissions?limit=200', {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -149,7 +209,7 @@ function GammaReportsContent() {
       }
     }
     load();
-  }, [getToken]);
+  }, [session, getToken]);
 
   // Fetch audits when contact changes
   useEffect(() => {
@@ -225,10 +285,11 @@ function GammaReportsContent() {
     return () => { cancelled = true; };
   }, [contactId, auditId, getToken]);
 
-  // Fetch report history
+  // Fetch report history — waits for session to avoid 401 on initial mount
   const fetchReports = useCallback(async () => {
-    setLoadingReports(true);
     const token = await getToken();
+    if (!token) return;
+    setLoadingReports(true);
     const res = await fetch('/api/admin/gamma-reports?limit=20', {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -240,8 +301,8 @@ function GammaReportsContent() {
   }, [getToken]);
 
   useEffect(() => {
-    fetchReports();
-  }, [fetchReports]);
+    if (session) fetchReports();
+  }, [session, fetchReports]);
 
   // Generate report
   async function handleGenerate() {
@@ -269,6 +330,7 @@ function GammaReportsContent() {
       if (contactId) body.contactSubmissionId = parseInt(contactId, 10);
       if (auditId) body.diagnosticAuditId = parseInt(auditId, 10);
       if (valueReportId) body.valueReportId = valueReportId;
+      if (selectedTheme) body.theme = selectedTheme;
 
       const res = await fetch('/api/admin/gamma-reports', {
         method: 'POST',
@@ -324,7 +386,10 @@ function GammaReportsContent() {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ gammaReportId: reportId }),
+        body: JSON.stringify({
+          gammaReportId: reportId,
+          avatarId: selectedAvatarId || undefined,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -523,6 +588,66 @@ function GammaReportsContent() {
           reportType={reportType}
         />
 
+        {/* Theme Selector */}
+        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Palette className="w-4 h-4 text-gray-400" />
+            <span className="text-sm font-medium text-gray-300">Theme</span>
+            {selectedTheme === defaultThemeId && defaultThemeId && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/50 text-emerald-400 border border-emerald-800">default</span>
+            )}
+          </div>
+          {loadingThemes ? (
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading themes...
+            </div>
+          ) : themes.length === 0 ? (
+            <p className="text-xs text-gray-500">No themes available. Reports will use workspace default.</p>
+          ) : (
+            <select
+              value={selectedTheme}
+              onChange={(e) => setSelectedTheme(e.target.value)}
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500"
+            >
+              <option value="">Workspace default</option>
+              {themes.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.name}{t.id === defaultThemeId ? ' (AmaduTown)' : ''}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        {/* Avatar Selector */}
+        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <User className="w-4 h-4 text-gray-400" />
+            <span className="text-sm font-medium text-gray-300">Avatar</span>
+            {!selectedAvatarId && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/50 text-emerald-400 border border-emerald-800">default</span>
+            )}
+          </div>
+          {avatarsLoading ? (
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading avatars...
+            </div>
+          ) : avatars.length === 0 ? (
+            <p className="text-xs text-gray-500">No avatars found. Videos will use env default.</p>
+          ) : (
+            <select
+              value={selectedAvatarId}
+              onChange={(e) => setSelectedAvatarId(e.target.value)}
+              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500"
+            >
+              <option value="">Default (env)</option>
+              {avatars.map((a) => (
+                <option key={a.id} value={a.id}>{a.name}</option>
+              ))}
+            </select>
+          )}
+        </div>
+
         {/* Generate Button */}
         <div className="flex items-center gap-4">
           <button
@@ -687,7 +812,11 @@ function GammaReportsContent() {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-gray-400">
-                        {report.contact_submissions?.name || '—'}
+                        {report.contact_submissions ? (
+                          <Link href={`/admin/contacts/${report.contact_submissions.id}`} className="hover:text-teal-400 transition-colors">
+                            {report.contact_submissions.name}
+                          </Link>
+                        ) : '—'}
                       </td>
                       <td className="px-4 py-3">
                         <StatusBadge status={report.status} />
