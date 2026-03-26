@@ -54,7 +54,7 @@ When **auto-generating** a value (no existing saved calculation), the following 
 
 | Pain point (name)        | Method              | Default inputs |
 |--------------------------|---------------------|----------------------------------------|
-| `manual_data_entry`      | time_saved          | `hours_per_week: 10`, `weeks_per_year: 52` |
+| `manual_processes`       | time_saved          | `hours_per_week: 10`, `weeks_per_year: 52` |
 | `slow_response_times`    | opportunity_cost    | `missed_opportunities: 50`, `close_rate: 0.25` |
 | `inconsistent_followup` | opportunity_cost    | `missed_opportunities: 100`, `close_rate: 0.20` |
 | `scattered_tools`        | time_saved          | `hours_per_week: 5`, `weeks_per_year: 52` |
