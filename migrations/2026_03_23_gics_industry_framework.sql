@@ -189,7 +189,7 @@ UPDATE industry_benchmarks SET gics_code = '900010' WHERE industry = 'nonprofit'
 UPDATE pain_point_categories
 SET industry_tags = array_append(industry_tags, 'management_consulting')
 WHERE name IN (
-  'manual_data_entry',
+  'manual_processes',
   'slow_response_times',
   'inconsistent_followup',
   'scattered_tools',
@@ -205,7 +205,7 @@ AND NOT ('management_consulting' = ANY(industry_tags));
 UPDATE pain_point_categories
 SET industry_tags = array_append(industry_tags, 'nonprofit')
 WHERE name IN (
-  'manual_data_entry',
+  'manual_processes',
   'manual_reporting',
   'scattered_tools',
   'inconsistent_followup',

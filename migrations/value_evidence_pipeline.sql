@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS pain_point_categories (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
   -- Identity
-  name TEXT NOT NULL UNIQUE,              -- e.g., "manual_data_entry"
+  name TEXT NOT NULL UNIQUE,              -- e.g., "manual_processes"
   display_name TEXT NOT NULL,             -- e.g., "Manual Data Entry"
   description TEXT,                       -- What this pain point means
 
@@ -42,7 +42,7 @@ CREATE INDEX IF NOT EXISTS idx_pain_point_categories_frequency
 ON pain_point_categories(frequency_count DESC);
 
 COMMENT ON TABLE pain_point_categories IS 'Dynamic master list of pain point types. Grows as AI discovers new categories from social media, diagnostics, and lead data.';
-COMMENT ON COLUMN pain_point_categories.name IS 'Machine-readable slug e.g. manual_data_entry';
+COMMENT ON COLUMN pain_point_categories.name IS 'Machine-readable slug e.g. manual_processes';
 COMMENT ON COLUMN pain_point_categories.industry_tags IS 'Array of industries where this pain point commonly appears, populated dynamically';
 COMMENT ON COLUMN pain_point_categories.frequency_count IS 'Total times this pain point has been observed across all evidence sources';
 COMMENT ON COLUMN pain_point_categories.avg_monetary_impact IS 'Rolling average annual dollar impact across all calculations';
@@ -586,10 +586,10 @@ COMMENT ON VIEW content_value_map IS 'Products/services mapped to their pain poi
 -- These are common pain points for B2B AI/automation consulting
 -- ============================================================================
 INSERT INTO pain_point_categories (name, display_name, description, related_services, industry_tags) VALUES
-  ('manual_data_entry', 'Manual Data Entry', 'Time spent on repetitive data entry tasks that could be automated', ARRAY['consulting', 'training'], ARRAY['professional_services', 'healthcare', 'finance']),
+  ('manual_processes', 'Manual & Unautomated Processes', 'Time spent on repetitive manual tasks — data entry, manual workflows, and processes that could be automated', ARRAY['consulting', 'training'], ARRAY['professional_services', 'healthcare', 'finance']),
   ('slow_response_times', 'Slow Client Response Times', 'Delayed responses to client inquiries leading to lost opportunities', ARRAY['consulting', 'coaching'], ARRAY['professional_services', 'ecommerce', 'saas']),
   ('inconsistent_followup', 'Inconsistent Follow-up', 'Leads falling through the cracks due to lack of systematic follow-up', ARRAY['consulting', 'training'], ARRAY['professional_services', 'real_estate', 'insurance']),
-  ('scattered_tools', 'Scattered Tools & Data Silos', 'Using multiple disconnected tools leading to lost context and double-work', ARRAY['consulting', 'training'], ARRAY['saas', 'professional_services', 'ecommerce']),
+  ('scattered_tools', 'Scattered Tools & Data', 'Using multiple disconnected tools and fragmented data leading to lost context, double-work, and inability to find information', ARRAY['consulting', 'training'], ARRAY['saas', 'professional_services', 'ecommerce']),
   ('manual_reporting', 'Manual Reporting & Analytics', 'Hours spent creating reports that could be auto-generated', ARRAY['consulting', 'training'], ARRAY['finance', 'marketing', 'professional_services']),
   ('poor_lead_qualification', 'Poor Lead Qualification', 'Wasting time on unqualified leads due to lack of scoring/filtering', ARRAY['consulting', 'coaching'], ARRAY['saas', 'professional_services', 'real_estate']),
   ('knowledge_loss', 'Tribal Knowledge & Documentation Gaps', 'Critical business knowledge lives in peoples heads, not systems', ARRAY['training', 'consulting'], ARRAY['manufacturing', 'professional_services', 'healthcare']),

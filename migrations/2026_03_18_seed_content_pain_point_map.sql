@@ -57,7 +57,7 @@ FROM services s, pain_point_categories ppc
 WHERE s.title = 'AI Voice Agent — Inbound' AND ppc.name = 'poor_lead_qualification'
 ON CONFLICT DO NOTHING;
 
--- AI Email Sequence Builder → inconsistent_followup (85%), manual_data_entry (50%)
+-- AI Email Sequence Builder → inconsistent_followup (85%), manual_processes (50%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 85, 'Automated email sequences ensure consistent follow-up'
 FROM services s, pain_point_categories ppc
@@ -67,7 +67,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 50, 'Reduces manual email composition'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'AI Email Sequence Builder' AND ppc.name = 'manual_data_entry'
+WHERE s.title = 'AI Email Sequence Builder' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
 -- Lead Generation Workflow Agent → poor_lead_qualification (85%), inconsistent_followup (75%), poor_lead_tracking (70%)
@@ -108,7 +108,7 @@ FROM services s, pain_point_categories ppc
 WHERE s.title = 'Inbound Lead Tracking System' AND ppc.name = 'scattered_tools'
 ON CONFLICT DO NOTHING;
 
--- Custom Reporting & Analytics Dashboard → manual_reporting (90%), no_analytics (85%), scattered_data (70%)
+-- Custom Reporting & Analytics Dashboard → manual_reporting (90%), no_analytics (85%), scattered_tools (70%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 90, 'Automated dashboards replace manual report building'
 FROM services s, pain_point_categories ppc
@@ -124,10 +124,10 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 70, 'Unifies scattered data sources into one view'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'Custom Reporting & Analytics Dashboard' AND ppc.name = 'scattered_data'
+WHERE s.title = 'Custom Reporting & Analytics Dashboard' AND ppc.name = 'scattered_tools'
 ON CONFLICT DO NOTHING;
 
--- Client Onboarding Automation → employee_onboarding (85%), manual_data_entry (60%), no_automation (75%)
+-- Client Onboarding Automation → employee_onboarding (85%), manual_processes (75%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 85, 'Streamlines client/employee onboarding'
 FROM services s, pain_point_categories ppc
@@ -135,56 +135,38 @@ WHERE s.title = 'Client Onboarding Automation' AND ppc.name = 'employee_onboardi
 ON CONFLICT DO NOTHING;
 
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
-SELECT 'service', s.id::text, ppc.id, 60, 'Eliminates manual data collection during onboarding'
+SELECT 'service', s.id::text, ppc.id, 75, 'Replaces manual onboarding steps and data collection with automation'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'Client Onboarding Automation' AND ppc.name = 'manual_data_entry'
+WHERE s.title = 'Client Onboarding Automation' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
+-- Data Migration & Onboarding → scattered_tools (80%), manual_processes (70%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
-SELECT 'service', s.id::text, ppc.id, 75, 'Replaces manual onboarding steps with automation'
-FROM services s, pain_point_categories ppc
-WHERE s.title = 'Client Onboarding Automation' AND ppc.name = 'no_automation'
-ON CONFLICT DO NOTHING;
-
--- Data Migration & Onboarding → scattered_tools (80%), scattered_data (75%), manual_data_entry (70%)
-INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
-SELECT 'service', s.id::text, ppc.id, 80, 'Consolidates tools during migration'
+SELECT 'service', s.id::text, ppc.id, 80, 'Consolidates tools and unifies scattered data during migration'
 FROM services s, pain_point_categories ppc
 WHERE s.title = 'Data Migration & Onboarding' AND ppc.name = 'scattered_tools'
 ON CONFLICT DO NOTHING;
 
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
-SELECT 'service', s.id::text, ppc.id, 75, 'Unifies scattered data during migration'
-FROM services s, pain_point_categories ppc
-WHERE s.title = 'Data Migration & Onboarding' AND ppc.name = 'scattered_data'
-ON CONFLICT DO NOTHING;
-
-INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 70, 'Automates data entry during migration'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'Data Migration & Onboarding' AND ppc.name = 'manual_data_entry'
+WHERE s.title = 'Data Migration & Onboarding' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
--- Custom API / ERP Integrations → scattered_tools (85%), scattered_data (80%), no_automation (70%)
+-- Custom API / ERP Integrations → scattered_tools (85%), manual_processes (70%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
-SELECT 'service', s.id::text, ppc.id, 85, 'Connects disconnected systems via API'
+SELECT 'service', s.id::text, ppc.id, 85, 'Connects disconnected systems and eliminates data silos via API'
 FROM services s, pain_point_categories ppc
 WHERE s.title = 'Custom API / ERP Integrations' AND ppc.name = 'scattered_tools'
 ON CONFLICT DO NOTHING;
 
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
-SELECT 'service', s.id::text, ppc.id, 80, 'Eliminates data silos between systems'
-FROM services s, pain_point_categories ppc
-WHERE s.title = 'Custom API / ERP Integrations' AND ppc.name = 'scattered_data'
-ON CONFLICT DO NOTHING;
-
-INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 70, 'Automates data flow between systems'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'Custom API / ERP Integrations' AND ppc.name = 'no_automation'
+WHERE s.title = 'Custom API / ERP Integrations' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
--- RAG Knowledge Base System → knowledge_loss (90%), employee_onboarding (60%), scattered_data (55%)
+-- RAG Knowledge Base System → knowledge_loss (90%), employee_onboarding (60%), scattered_tools (55%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 90, 'Captures tribal knowledge in searchable AI system'
 FROM services s, pain_point_categories ppc
@@ -200,26 +182,20 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 55, 'Centralizes scattered institutional knowledge'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'RAG Knowledge Base System' AND ppc.name = 'scattered_data'
+WHERE s.title = 'RAG Knowledge Base System' AND ppc.name = 'scattered_tools'
 ON CONFLICT DO NOTHING;
 
--- Social Media Content Agent → manual_data_entry (65%), scaling_bottlenecks (60%), no_automation (70%)
+-- Social Media Content Agent → manual_processes (70%), scaling_bottlenecks (60%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
-SELECT 'service', s.id::text, ppc.id, 65, 'Automates content creation that was manual'
+SELECT 'service', s.id::text, ppc.id, 70, 'Automates content creation and social posting that were manual'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'Social Media Content Agent' AND ppc.name = 'manual_data_entry'
+WHERE s.title = 'Social Media Content Agent' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 60, 'Removes content production as scaling bottleneck'
 FROM services s, pain_point_categories ppc
 WHERE s.title = 'Social Media Content Agent' AND ppc.name = 'scaling_bottlenecks'
-ON CONFLICT DO NOTHING;
-
-INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
-SELECT 'service', s.id::text, ppc.id, 70, 'Replaces manual social posting with AI agent'
-FROM services s, pain_point_categories ppc
-WHERE s.title = 'Social Media Content Agent' AND ppc.name = 'no_automation'
 ON CONFLICT DO NOTHING;
 
 -- Management Consulting → scaling_bottlenecks (80%), knowledge_loss (50%), missed_deadlines (55%)
@@ -277,7 +253,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 55, 'App automates client interactions'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'Mobile App Generation' AND ppc.name = 'no_automation'
+WHERE s.title = 'Mobile App Generation' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
 -- AI Strategy Workshop (Full-Day, Half-Day, Recorded) → scaling_bottlenecks (60%), no_automation (65%), knowledge_loss (50%)
@@ -290,7 +266,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 65, 'Workshop maps automation opportunities'
 FROM services s, pain_point_categories ppc
-WHERE s.title LIKE 'AI Strategy Workshop%' AND ppc.name = 'no_automation'
+WHERE s.title LIKE 'AI Strategy Workshop%' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
@@ -315,7 +291,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 50, 'Training enables team to implement automation'
 FROM services s, pain_point_categories ppc
-WHERE s.service_type = 'training' AND ppc.name = 'no_automation'
+WHERE s.service_type = 'training' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
 -- 1-on-1 AI Coaching → scaling_bottlenecks (65%), knowledge_loss (60%)
@@ -360,10 +336,10 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 55, 'Advisory identifies automation opportunities'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'Monthly Advisory Retainer' AND ppc.name = 'no_automation'
+WHERE s.title = 'Monthly Advisory Retainer' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
--- Shared Analytics Dashboard → no_analytics (80%), manual_reporting (70%), scattered_data (60%)
+-- Shared Analytics Dashboard → no_analytics (80%), manual_reporting (70%), scattered_tools (60%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 80, 'Provides analytics visibility to the team'
 FROM services s, pain_point_categories ppc
@@ -379,7 +355,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 60, 'Dashboard unifies scattered data sources'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'Shared Analytics Dashboard' AND ppc.name = 'scattered_data'
+WHERE s.title = 'Shared Analytics Dashboard' AND ppc.name = 'scattered_tools'
 ON CONFLICT DO NOTHING;
 
 -- ============================================================================
@@ -431,7 +407,7 @@ FROM products p, pain_point_categories ppc
 WHERE p.title = 'Diagnostic Template' AND ppc.name = 'knowledge_loss'
 ON CONFLICT DO NOTHING;
 
--- n8n Warm Lead Pack → poor_lead_qualification (70%), inconsistent_followup (65%), no_automation (60%)
+-- n8n Warm Lead Pack → poor_lead_qualification (70%), inconsistent_followup (65%), manual_processes (60%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'product', p.id::text, ppc.id, 70, 'Warm lead workflows with qualification logic'
 FROM products p, pain_point_categories ppc
@@ -447,7 +423,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'product', p.id::text, ppc.id, 60, 'Pre-built automation workflows'
 FROM products p, pain_point_categories ppc
-WHERE p.title = 'n8n Warm Lead Pack' AND ppc.name = 'no_automation'
+WHERE p.title = 'n8n Warm Lead Pack' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
 -- AI Audit Calculator → no_analytics (65%), scaling_bottlenecks (50%)
@@ -463,17 +439,11 @@ FROM products p, pain_point_categories ppc
 WHERE p.title = 'AI Audit Calculator' AND ppc.name = 'scaling_bottlenecks'
 ON CONFLICT DO NOTHING;
 
--- Content Automation Templates → manual_data_entry (55%), no_automation (65%)
+-- Content Automation Templates → manual_processes (65%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
-SELECT 'service', s.id::text, ppc.id, 55, 'Templates reduce manual content creation'
+SELECT 'service', s.id::text, ppc.id, 65, 'Pre-built automation templates reduce manual content creation'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'Content Automation Templates' AND ppc.name = 'manual_data_entry'
-ON CONFLICT DO NOTHING;
-
-INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
-SELECT 'service', s.id::text, ppc.id, 65, 'Pre-built automation templates'
-FROM services s, pain_point_categories ppc
-WHERE s.title = 'Content Automation Templates' AND ppc.name = 'no_automation'
+WHERE s.title = 'Content Automation Templates' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
 -- Lead Tracking Templates → poor_lead_tracking (65%), inconsistent_followup (50%)
@@ -489,7 +459,7 @@ FROM services s, pain_point_categories ppc
 WHERE s.title = 'Lead Tracking Templates' AND ppc.name = 'inconsistent_followup'
 ON CONFLICT DO NOTHING;
 
--- AI Email Sequence Templates → inconsistent_followup (70%), manual_data_entry (45%)
+-- AI Email Sequence Templates → inconsistent_followup (70%), manual_processes (45%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 70, 'Pre-built email sequences for consistent follow-up'
 FROM services s, pain_point_categories ppc
@@ -499,10 +469,10 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 45, 'Templates reduce manual email writing'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'AI Email Sequence Templates' AND ppc.name = 'manual_data_entry'
+WHERE s.title = 'AI Email Sequence Templates' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
 
--- Pre-Built Chatbot Template — Self-Install → slow_response_times (55%), no_automation (50%)
+-- Pre-Built Chatbot Template — Self-Install → slow_response_times (55%), manual_processes (50%)
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 55, 'Self-install chatbot for faster responses'
 FROM services s, pain_point_categories ppc
@@ -512,5 +482,5 @@ ON CONFLICT DO NOTHING;
 INSERT INTO content_pain_point_map (content_type, content_id, pain_point_category_id, impact_percentage, notes)
 SELECT 'service', s.id::text, ppc.id, 50, 'Pre-built automation template'
 FROM services s, pain_point_categories ppc
-WHERE s.title = 'Pre-Built Chatbot Template — Self-Install' AND ppc.name = 'no_automation'
+WHERE s.title = 'Pre-Built Chatbot Template — Self-Install' AND ppc.name = 'manual_processes'
 ON CONFLICT DO NOTHING;
