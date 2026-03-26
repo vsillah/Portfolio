@@ -42,6 +42,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Pain point category not found' }, { status: 404 })
   }
 
+  // Validate industry is relevant to this category
+  if (industry !== '_default' && category.industry_tags?.length > 0 && !category.industry_tags.includes(industry)) {
+    return NextResponse.json(
+      { error: `Industry "${industry}" is not relevant to "${category.display_name}". Allowed: ${category.industry_tags.join(', ')}` },
+      { status: 400 }
+    )
+  }
+
   // Get benchmarks
   const { data: benchmarks } = await supabaseAdmin
     .from('industry_benchmarks')

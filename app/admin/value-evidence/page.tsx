@@ -939,6 +939,19 @@ function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
                     </div>
                     <div className="text-sm text-platinum-white/80">
                       <span className="font-medium text-green-400">{pp.calculation_count}</span> calculations
+                      {pp.confidence_breakdown && pp.calculation_count > 0 && (
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          {pp.confidence_breakdown.high > 0 && (
+                            <span className="text-[10px] px-1 py-0.5 rounded bg-green-600/20 text-green-400">{pp.confidence_breakdown.high} high</span>
+                          )}
+                          {pp.confidence_breakdown.medium > 0 && (
+                            <span className="text-[10px] px-1 py-0.5 rounded bg-yellow-600/20 text-yellow-400">{pp.confidence_breakdown.medium} med</span>
+                          )}
+                          {pp.confidence_breakdown.low > 0 && (
+                            <span className="text-[10px] px-1 py-0.5 rounded bg-red-600/20 text-red-400">{pp.confidence_breakdown.low} low</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     {pp.avg_monetary_impact && (
                       <div className="text-green-400 font-semibold text-sm">

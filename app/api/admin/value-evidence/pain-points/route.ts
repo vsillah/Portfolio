@@ -34,21 +34,29 @@ export async function GET(request: NextRequest) {
     countMap[e.pain_point_category_id] = (countMap[e.pain_point_category_id] || 0) + 1
   }
 
-  // Get calculation counts per category
-  const { data: calcCounts } = await supabaseAdmin
+  // Get calculation counts + confidence breakdown per category
+  const { data: calcRows } = await supabaseAdmin
     .from('value_calculations')
-    .select('pain_point_category_id')
+    .select('pain_point_category_id, confidence_level')
     .eq('is_active', true)
 
   const calcMap: Record<string, number> = {}
-  for (const c of calcCounts || []) {
-    calcMap[c.pain_point_category_id] = (calcMap[c.pain_point_category_id] || 0) + 1
+  const confidenceMap: Record<string, { high: number; medium: number; low: number }> = {}
+  for (const c of calcRows || []) {
+    const catId = c.pain_point_category_id
+    calcMap[catId] = (calcMap[catId] || 0) + 1
+    if (!confidenceMap[catId]) confidenceMap[catId] = { high: 0, medium: 0, low: 0 }
+    const level = c.confidence_level as 'high' | 'medium' | 'low'
+    if (confidenceMap[catId][level] !== undefined) {
+      confidenceMap[catId][level]++
+    }
   }
 
   const enriched = (data || []).map((pp: any) => ({
     ...pp,
     evidence_count: countMap[pp.id] || 0,
     calculation_count: calcMap[pp.id] || 0,
+    confidence_breakdown: confidenceMap[pp.id] || { high: 0, medium: 0, low: 0 },
   }))
 
   return NextResponse.json({ painPoints: enriched })

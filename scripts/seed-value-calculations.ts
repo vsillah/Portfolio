@@ -58,7 +58,10 @@ async function main() {
   let duplicates = 0;
 
   for (const cat of categories as PainPointCategory[]) {
-    for (const industry of INDUSTRIES) {
+    const allowedIndustries = cat.industry_tags?.length
+      ? [...new Set([...cat.industry_tags, '_default'])].filter(i => INDUSTRIES.includes(i) || i === '_default')
+      : INDUSTRIES
+    for (const industry of allowedIndustries) {
       for (const size of SIZES) {
         const normalizedSize = normalizeCompanySize(size);
 

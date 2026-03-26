@@ -10,7 +10,7 @@
  */
 
 import { supabaseAdmin } from '@/lib/supabase'
-import { refreshCategoryStats } from '@/lib/value-evidence-linker'
+import { refreshCategoryStats, linkEvidenceToCalculations } from '@/lib/value-evidence-linker'
 
 // ============================================================================
 // Types
@@ -303,12 +303,17 @@ export async function classifyMarketIntel(
       .eq('id', row.id)
   }
 
-  // Refresh stats for affected categories
+  // Refresh stats and link evidence to calculations for affected categories
   for (const catId of affectedCategoryIds) {
     try {
       await refreshCategoryStats(sb, catId)
     } catch (err: any) {
       summary.errors.push(`Stats refresh failed for ${catId}: ${err.message}`)
+    }
+    try {
+      await linkEvidenceToCalculations(catId)
+    } catch (err: any) {
+      summary.errors.push(`Calc linking failed for ${catId}: ${err.message}`)
     }
   }
 
