@@ -45,7 +45,7 @@ import {
   User, Building, Mail, MessageSquare, ChevronRight, ChevronDown, ChevronUp,
   AlertCircle, Save, FileText, DollarSign, RefreshCw, ArrowLeft, Send,
   Layers, Package, GitFork, ExternalLink, Copy, XCircle,
-  Video, Loader2, Upload, Trash2, Clock,
+  Video, Loader2, Upload, Trash2, Clock, CheckCircle,
 } from 'lucide-react';
 
 /* ------------------------------------------------------------------ */
@@ -1242,6 +1242,7 @@ export default function ConversationPage() {
                 proposalEmailDraft={proposalEmailDraft}
                 accessToken={authSession?.access_token ?? null}
                 onOpenAttachModal={() => setShowAttachDocumentModal(true)}
+                contactSubmissionId={salesSession?.contact_submission_id ?? null}
               />
             ) : undefined
           }
@@ -1347,6 +1348,7 @@ function ConversationProposalReviewSection({
   proposalEmailDraft,
   accessToken,
   onOpenAttachModal,
+  contactSubmissionId,
 }: {
   currentProposal: { id: string; status: string; proposalLink: string };
   proposalDocuments: ProposalDocRow[];
@@ -1354,7 +1356,38 @@ function ConversationProposalReviewSection({
   proposalEmailDraft: ProposalEmailDraft | null;
   accessToken: string | null;
   onOpenAttachModal: () => void;
+  contactSubmissionId: number | null;
 }) {
+  const [proposalLogged, setProposalLogged] = useState(false)
+  const [loggingProposal, setLoggingProposal] = useState(false)
+
+  const logProposalSent = async () => {
+    if (!accessToken || !contactSubmissionId || !proposalEmailDraft) return
+    setLoggingProposal(true)
+    try {
+      const res = await fetch('/api/admin/communications/log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+        body: JSON.stringify({
+          contactSubmissionId,
+          channel: 'email',
+          direction: 'outbound',
+          messageType: 'proposal',
+          subject: proposalEmailDraft.subject,
+          body: proposalEmailDraft.body,
+          sourceSystem: 'proposal',
+          sourceId: currentProposal.id,
+          status: 'sent',
+          metadata: { proposal_id: currentProposal.id, proposal_link: currentProposal.proposalLink },
+        }),
+      })
+      if (res.ok) setProposalLogged(true)
+    } catch {
+      /* fire-and-forget */
+    } finally {
+      setLoggingProposal(false)
+    }
+  }
   return (
     <div className="space-y-3">
       <p className="text-xs text-gray-500">
@@ -1463,10 +1496,29 @@ function ConversationProposalReviewSection({
                   href={`mailto:${encodeURIComponent(proposalEmailDraft.to)}?subject=${encodeURIComponent(proposalEmailDraft.subject)}&body=${encodeURIComponent(proposalEmailDraft.body)}`}
                   className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-700 rounded flex items-center gap-1 transition-colors"
                   title="Open in email client"
+                  onClick={logProposalSent}
                 >
                   <Send className="w-3 h-3" />
                   Send
                 </a>
+                {contactSubmissionId && !proposalLogged && (
+                  <button
+                    type="button"
+                    onClick={logProposalSent}
+                    disabled={loggingProposal}
+                    className="px-2 py-1 text-xs bg-emerald-700 hover:bg-emerald-600 rounded flex items-center gap-1 transition-colors disabled:opacity-50"
+                    title="Log this email as sent in the communication timeline"
+                  >
+                    <CheckCircle className="w-3 h-3" />
+                    {loggingProposal ? 'Logging...' : 'Log sent'}
+                  </button>
+                )}
+                {proposalLogged && (
+                  <span className="px-2 py-1 text-xs text-emerald-400 flex items-center gap-1">
+                    <CheckCircle className="w-3 h-3" />
+                    Logged
+                  </span>
+                )}
               </div>
             </div>
             <div className="text-xs text-gray-500 mb-1">To: {proposalEmailDraft.to}</div>

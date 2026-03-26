@@ -17,7 +17,10 @@ import {
   XCircle,
   Plus,
   Settings,
-  Mail
+  Mail,
+  Share2,
+  PenTool,
+  ImageIcon,
 } from 'lucide-react'
 import { getPromptDisplayName } from '@/lib/constants/prompt-keys'
 
@@ -40,6 +43,9 @@ const PROMPT_ICONS: Record<string, typeof MessageSquare> = {
   diagnostic: ClipboardCheck,
   llm_judge: Scale,
   client_email_reply: Mail,
+  social_topic_extraction: Share2,
+  social_copywriting: PenTool,
+  social_image_generation: ImageIcon,
 }
 
 const PROMPT_COLORS: Record<string, string> = {
@@ -48,6 +54,9 @@ const PROMPT_COLORS: Record<string, string> = {
   diagnostic: 'from-amber-500 to-orange-500',
   llm_judge: 'from-emerald-500 to-teal-500',
   client_email_reply: 'from-violet-500 to-indigo-500',
+  social_topic_extraction: 'from-amber-500 to-orange-500',
+  social_copywriting: 'from-orange-500 to-red-500',
+  social_image_generation: 'from-rose-500 to-pink-500',
 }
 
 export default function PromptsPage() {
@@ -304,6 +313,18 @@ function PromptsContent() {
             <div>
               <p className="font-semibold text-platinum-white mb-1">Client Email Draft Reply</p>
               <p>Used when generating draft email replies to inbound client emails (Gmail workflow and in-app drafts).</p>
+            </div>
+            <div>
+              <p className="font-semibold text-platinum-white mb-1">Social — Topic Extraction</p>
+              <p>Extracts social-media-worthy topics from meeting transcripts using Hormozi frameworks.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-platinum-white mb-1">Social — Copywriting</p>
+              <p>Generates LinkedIn post text with hook, story, framework lesson, and CTA.</p>
+            </div>
+            <div>
+              <p className="font-semibold text-platinum-white mb-1">Social — Image Generation</p>
+              <p>Template for branded framework diagram images (navy/gold palette, 1:1 ratio).</p>
             </div>
           </div>
         </div>

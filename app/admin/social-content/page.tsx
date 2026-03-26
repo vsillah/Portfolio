@@ -18,6 +18,9 @@ import {
   Image as ImageIcon,
   Volume2,
   Linkedin,
+  Play,
+  Zap,
+  AlertCircle,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -48,6 +51,13 @@ interface Pagination {
   totalPages: number
 }
 
+interface MeetingRecord {
+  id: string
+  meeting_type: string
+  meeting_date: string
+  created_at: string
+}
+
 function SocialContentQueuePage() {
   const [items, setItems] = useState<SocialContentItem[]>([])
   const [stats, setStats] = useState<Stats>({ draft: 0, approved: 0, scheduled: 0, published: 0, rejected: 0, total: 0 })
@@ -56,6 +66,13 @@ function SocialContentQueuePage() {
   const [statusFilter, setStatusFilter] = useState<ContentStatus | 'all'>('all')
   const [platformFilter, setPlatformFilter] = useState<SocialPlatform | 'all'>('all')
   const [search, setSearch] = useState('')
+
+  // Extraction trigger state
+  const [meetings, setMeetings] = useState<MeetingRecord[]>([])
+  const [selectedMeeting, setSelectedMeeting] = useState<string>('')
+  const [triggerLoading, setTriggerLoading] = useState(false)
+  const [triggerResult, setTriggerResult] = useState<{ success: boolean; message: string } | null>(null)
+  const [showTriggerPanel, setShowTriggerPanel] = useState(false)
 
   const fetchItems = useCallback(async (page = 1) => {
     setLoading(true)
@@ -91,6 +108,59 @@ function SocialContentQueuePage() {
     fetchItems()
   }, [fetchItems])
 
+  const fetchMeetings = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch('/api/admin/social-content/trigger?limit=20', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setMeetings(data.meetings ?? [])
+      }
+    } catch (err) {
+      console.error('Failed to fetch meetings:', err)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (showTriggerPanel && meetings.length === 0) {
+      fetchMeetings()
+    }
+  }, [showTriggerPanel, meetings.length, fetchMeetings])
+
+  const handleTriggerExtraction = async () => {
+    setTriggerLoading(true)
+    setTriggerResult(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const body: Record<string, string> = {}
+      if (selectedMeeting) body.meeting_record_id = selectedMeeting
+      const res = await fetch('/api/admin/social-content/trigger', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json()
+      setTriggerResult({
+        success: data.success ?? false,
+        message: data.message ?? (res.ok ? 'Extraction triggered' : 'Failed to trigger extraction'),
+      })
+      if (data.success) {
+        setTimeout(() => fetchItems(), 5000)
+      }
+    } catch {
+      setTriggerResult({ success: false, message: 'Network error — could not reach the server.' })
+    } finally {
+      setTriggerLoading(false)
+    }
+  }
+
   const platformIcon = (platform: string) => {
     if (platform === 'linkedin') return <Linkedin className="w-4 h-4 text-blue-400" />
     return <Share2 className="w-4 h-4 text-gray-400" />
@@ -109,6 +179,76 @@ function SocialContentQueuePage() {
           <h1 className="text-2xl font-bold">Social Content Queue</h1>
           <p className="text-gray-400 text-sm">AI-generated posts from meeting transcripts — review, edit, and publish</p>
         </div>
+      </div>
+
+      {/* Extraction Trigger */}
+      <div className="mb-6">
+        <button
+          onClick={() => setShowTriggerPanel((p) => !p)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all"
+        >
+          <Zap className="w-4 h-4" />
+          Run Extraction
+        </button>
+
+        {showTriggerPanel && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-3 bg-gray-900 border border-gray-800 rounded-xl p-5"
+          >
+            <h3 className="text-sm font-semibold text-gray-200 mb-3">Trigger Content Extraction (WF-SOC-001)</h3>
+            <p className="text-xs text-gray-500 mb-4">
+              Runs the n8n workflow that extracts social content from meeting transcripts. Leave the meeting selector empty to process all recent meetings.
+            </p>
+
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="flex-1 min-w-[220px]">
+                <label className="block text-xs text-gray-400 mb-1">Meeting (optional)</label>
+                <select
+                  value={selectedMeeting}
+                  onChange={(e) => setSelectedMeeting(e.target.value)}
+                  className="w-full bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="">All recent meetings</option>
+                  {meetings.map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.meeting_type} — {new Date(m.meeting_date).toLocaleDateString()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={handleTriggerExtraction}
+                disabled={triggerLoading}
+                className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {triggerLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Play className="w-4 h-4" />
+                )}
+                {triggerLoading ? 'Running...' : 'Start Extraction'}
+              </button>
+            </div>
+
+            {triggerResult && (
+              <div className={`mt-3 flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
+                triggerResult.success
+                  ? 'bg-green-500/10 text-green-400 border border-green-500/30'
+                  : 'bg-red-500/10 text-red-400 border border-red-500/30'
+              }`}>
+                {triggerResult.success ? (
+                  <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+                ) : (
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                )}
+                {triggerResult.message}
+              </div>
+            )}
+          </motion.div>
+        )}
       </div>
 
       {/* Stats */}

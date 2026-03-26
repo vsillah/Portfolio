@@ -11,7 +11,7 @@ import {
   User, Mail, Building2, Calendar, ExternalLink, FileText,
   Video, BarChart3, Send, Loader2, CheckCircle, AlertCircle, Clock,
   ChevronDown, ChevronUp, Sparkles, Plus, Eye, MessageSquare,
-  RefreshCw, Copy, Check,
+  RefreshCw, Copy, Check, Linkedin, Filter,
 } from 'lucide-react'
 
 /* ───────── Types ───────── */
@@ -39,6 +39,23 @@ interface DashboardAccess { access_token: string; client_email: string }
 interface SalesSession { id: string; created_at: string }
 interface TimelineEvent { type: string; date: string; title: string; detail?: string; id?: string }
 
+interface Communication {
+  id: string
+  channel: string
+  direction: string
+  message_type: string
+  subject: string | null
+  body: string
+  source_system: string
+  source_id: string | null
+  prompt_key: string | null
+  status: string
+  sent_at: string | null
+  sent_by: string | null
+  metadata: Record<string, unknown>
+  created_at: string
+}
+
 interface ContactData {
   contact: Contact
   gammaReports: GammaReport[]
@@ -47,6 +64,7 @@ interface ContactData {
   audits: Audit[]
   outreach: OutreachItem[]
   deliveries: Delivery[]
+  communications: Communication[]
   dashboardAccess: DashboardAccess | null
   salesSessions: SalesSession[]
   timeline: TimelineEvent[]
@@ -108,6 +126,10 @@ function ContactDetailPage() {
   // Sections
   const [showDeliveries, setShowDeliveries] = useState(false)
   const [showTimeline, setShowTimeline] = useState(true)
+  const [showComms, setShowComms] = useState(true)
+  const [commsChannelFilter, setCommsChannelFilter] = useState<string>('all')
+  const [commsTypeFilter, setCommsTypeFilter] = useState<string>('all')
+  const [expandedCommId, setExpandedCommId] = useState<string | null>(null)
 
   const getToken = useCallback(async () => {
     const s = await getCurrentSession()
@@ -494,6 +516,135 @@ function ContactDetailPage() {
               )}
             </div>
           )}
+
+          {/* ── Communications (unified timeline) ── */}
+          <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">
+            <button onClick={() => setShowComms(!showComms)} className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/30 transition-colors">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-amber-400" />
+                <span className="text-base font-semibold text-white">Communications</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">{data?.communications?.length ?? 0}</span>
+              </div>
+              {showComms ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
+            </button>
+            {showComms && (
+              <div className="px-6 pb-4 border-t border-gray-800 pt-3">
+                {/* Filters */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  <div className="flex items-center gap-1.5">
+                    <Filter className="w-3 h-3 text-gray-500" />
+                    <select
+                      value={commsChannelFilter}
+                      onChange={e => setCommsChannelFilter(e.target.value)}
+                      className="text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-300"
+                    >
+                      <option value="all">All Channels</option>
+                      <option value="email">Email</option>
+                      <option value="linkedin">LinkedIn</option>
+                    </select>
+                  </div>
+                  <select
+                    value={commsTypeFilter}
+                    onChange={e => setCommsTypeFilter(e.target.value)}
+                    className="text-xs bg-gray-800 border border-gray-700 rounded px-2 py-1 text-gray-300"
+                  >
+                    <option value="all">All Types</option>
+                    <option value="cold_outreach">Cold Outreach</option>
+                    <option value="asset_delivery">Asset Delivery</option>
+                    <option value="proposal">Proposal</option>
+                    <option value="follow_up">Follow-Up</option>
+                    <option value="nurture">Nurture</option>
+                    <option value="reply">Reply</option>
+                    <option value="manual">Manual</option>
+                  </select>
+                </div>
+
+                {/* Message list */}
+                {(() => {
+                  const comms = (data?.communications ?? []).filter(c => {
+                    if (commsChannelFilter !== 'all' && c.channel !== commsChannelFilter) return false
+                    if (commsTypeFilter !== 'all' && c.message_type !== commsTypeFilter) return false
+                    return true
+                  })
+                  if (comms.length === 0) {
+                    return <p className="text-sm text-gray-500 py-2">No communications recorded yet.</p>
+                  }
+                  return (
+                    <div className="space-y-0">
+                      {comms.map(c => {
+                        const isExpanded = expandedCommId === c.id
+                        const ChannelIcon = c.channel === 'linkedin' ? Linkedin : Mail
+                        const channelColor = c.channel === 'linkedin' ? 'text-blue-400' : 'text-gray-400'
+                        const typeColors: Record<string, string> = {
+                          cold_outreach: 'bg-blue-900/40 text-blue-300 border-blue-800',
+                          asset_delivery: 'bg-emerald-900/40 text-emerald-300 border-emerald-800',
+                          proposal: 'bg-amber-900/40 text-amber-300 border-amber-800',
+                          follow_up: 'bg-purple-900/40 text-purple-300 border-purple-800',
+                          nurture: 'bg-cyan-900/40 text-cyan-300 border-cyan-800',
+                          reply: 'bg-green-900/40 text-green-300 border-green-800',
+                          manual: 'bg-gray-800/50 text-gray-300 border-gray-700',
+                        }
+                        const typeLabels: Record<string, string> = {
+                          cold_outreach: 'Cold Outreach',
+                          asset_delivery: 'Asset Delivery',
+                          proposal: 'Proposal',
+                          follow_up: 'Follow-Up',
+                          nurture: 'Nurture',
+                          reply: 'Reply',
+                          manual: 'Manual',
+                        }
+                        const sourceLabels: Record<string, string> = {
+                          outreach_queue: 'Outreach Queue',
+                          delivery_email: 'Delivery Email',
+                          proposal: 'Proposal',
+                          nurture: 'Nurture',
+                          heygen: 'HeyGen',
+                          manual: 'Manual',
+                        }
+                        return (
+                          <div key={c.id} className="border-b border-gray-800/30 last:border-0">
+                            <button
+                              onClick={() => setExpandedCommId(isExpanded ? null : c.id)}
+                              className="w-full flex items-start gap-3 py-3 text-left hover:bg-gray-800/20 transition-colors rounded px-1"
+                            >
+                              <div className="mt-0.5 w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+                                <ChannelIcon className={`w-3 h-3 ${channelColor}`} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className={`text-[10px] px-1.5 py-0.5 rounded border ${typeColors[c.message_type] || typeColors.manual}`}>
+                                    {typeLabels[c.message_type] || c.message_type}
+                                  </span>
+                                  <StatusBadge status={c.status} />
+                                  <span className="text-[10px] text-gray-600">{c.direction}</span>
+                                </div>
+                                <p className="text-sm text-white mt-1 truncate">{c.subject || '(no subject)'}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <span className="text-[10px] text-gray-500">{formatDateTime(c.sent_at || c.created_at)}</span>
+                                  <span className="text-[10px] text-gray-600">via {sourceLabels[c.source_system] || c.source_system}</span>
+                                  {c.prompt_key && (
+                                    <span className="text-[10px] text-purple-400">prompt: {c.prompt_key}</span>
+                                  )}
+                                </div>
+                              </div>
+                              {isExpanded ? <ChevronUp className="w-4 h-4 text-gray-500 mt-1" /> : <ChevronDown className="w-4 h-4 text-gray-500 mt-1" />}
+                            </button>
+                            {isExpanded && (
+                              <div className="ml-9 mb-3 bg-gray-900/80 rounded-lg p-3 border border-gray-800">
+                                <pre className="text-xs text-gray-300 whitespace-pre-wrap font-sans leading-relaxed max-h-60 overflow-y-auto">
+                                  {c.body}
+                                </pre>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )
+                })()}
+              </div>
+            )}
+          </div>
 
           {/* ── Timeline ── */}
           <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">
