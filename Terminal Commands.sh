@@ -60,3 +60,5 @@ git checkout main
 
 #how to kill a process on port 3000
 lsof -ti:3000 | xargs kill -9
+
+cd /users/mac15/my-portfolio/
