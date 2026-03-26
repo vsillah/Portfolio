@@ -77,44 +77,49 @@ export async function POST(request: NextRequest) {
           if (relevanceScore < 0 || relevanceScore > 10) relevanceScore = null
         }
 
-        // Dedup by source_url if provided
-        if (item.source_url) {
-          const { data: existing } = await supabaseAdmin
-            .from('market_intelligence')
-            .select('id')
-            .eq('source_url', item.source_url)
-            .limit(1)
-            .single()
+        const row = {
+          source_platform: item.source_platform,
+          source_url: item.source_url || null,
+          source_author: item.source_author || null,
+          content_text: item.content_text,
+          content_type: item.content_type,
+          industry_detected: item.industry_detected ?? null,
+          company_size_detected: item.company_size_detected ?? null,
+          author_role_detected: item.author_role_detected ?? null,
+          monetary_mentions: item.monetary_mentions ?? [],
+          sentiment_score: item.sentiment_score ?? null,
+          relevance_score: relevanceScore,
+          is_processed: false,
+        }
 
-          if (existing) {
-            results.duplicates++
+        if (item.source_url) {
+          // DB has a partial unique index on source_url (WHERE source_url IS NOT NULL AND != '').
+          // upsert with ignoreDuplicates skips rows that conflict — no race condition.
+          const { error: upsertError, count } = await supabaseAdmin
+            .from('market_intelligence')
+            .upsert(row, { onConflict: 'source_url', ignoreDuplicates: true, count: 'exact' })
+
+          if (upsertError) {
+            results.errors.push(`Upsert failed: ${upsertError.message}`)
             continue
           }
+          if (count === 0) {
+            results.duplicates++
+          } else {
+            results.inserted++
+          }
+        } else {
+          // No source_url — no dedup possible, just insert
+          const { error: insertError } = await supabaseAdmin
+            .from('market_intelligence')
+            .insert(row)
+
+          if (insertError) {
+            results.errors.push(`Insert failed: ${insertError.message}`)
+            continue
+          }
+          results.inserted++
         }
-
-        const { error: insertError } = await supabaseAdmin
-          .from('market_intelligence')
-          .insert({
-            source_platform: item.source_platform,
-            source_url: item.source_url || null,
-            source_author: item.source_author || null,
-            content_text: item.content_text,
-            content_type: item.content_type,
-            industry_detected: item.industry_detected ?? null,
-            company_size_detected: item.company_size_detected ?? null,
-            author_role_detected: item.author_role_detected ?? null,
-            monetary_mentions: item.monetary_mentions ?? [],
-            sentiment_score: item.sentiment_score ?? null,
-            relevance_score: relevanceScore,
-            is_processed: false,
-          })
-
-        if (insertError) {
-          results.errors.push(`Insert failed: ${insertError.message}`)
-          continue
-        }
-
-        results.inserted++
       } catch (itemError: any) {
         results.errors.push(`Unexpected error: ${itemError.message}`)
       }

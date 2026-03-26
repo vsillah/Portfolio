@@ -1,19 +1,15 @@
 {
-  "updatedAt": "2026-02-10T18:02:42.325Z",
-  "createdAt": "2026-02-10T04:34:38.567Z",
-  "id": "jrnaN1yp8nSDKJB9",
+  "updatedAt": "2026-03-26T17:02:55.125Z",
+  "createdAt": "2026-02-22T02:10:32.994Z",
+  "id": "gUyOBZOknpAt41aF",
   "name": "WF-VEP-002: Social Listening Pipeline",
   "description": null,
   "active": true,
   "isArchived": false,
   "nodes": [
     {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "vep-002-social",
-        "options": {}
-      },
       "name": "Webhook Trigger",
+      "webhookId": "c8e0dcb1-35f3-4f74-9311-3d78e4d06bcf",
       "id": "webhook-trigger",
       "typeVersion": 2,
       "position": [
@@ -21,29 +17,28 @@
         400
       ],
       "type": "n8n-nodes-base.webhook",
-      "webhookId": "c8e0dcb1-35f3-4f74-9311-3d78e4d06bcf"
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vep-002-social",
+        "options": {}
+      }
     },
     {
-      "parameters": {
-        "content": "## WF-VEP-002: Social Listening Pipeline\n\nScrapes external platforms for pain point mentions using Apify actors:\n1. Reddit (subreddit search)\n2. Google Maps Reviews (competitor reviews)\n\nFlow:\n- Webhook trigger from admin dashboard\n- Parallel Apify scrapes per platform\n- Raw data ingested to /api/admin/value-evidence/ingest-market\n- AI classifies pain points from scraped content\n- Classified results sent to /api/admin/value-evidence/ingest",
-        "height": 250,
-        "width": 440
-      },
       "name": "WF-VEP-002 Overview",
       "id": "sticky-overview",
       "typeVersion": 1,
       "position": [
         -288,
-        -192
+        -304
       ],
-      "type": "n8n-nodes-base.stickyNote"
+      "type": "n8n-nodes-base.stickyNote",
+      "parameters": {
+        "content": "## WF-VEP-002: Social Listening Pipeline\n\nFlow: Webhook \u2192 Scrape 5 platforms (Reddit, Google Maps, LinkedIn, G2, Capterra) \u2192 Extract \u2192 Merge All \u2192 Filter \u2192 POST Market Intel + AI Classify (batched) \u2192 POST Pain Points\n\nPlatforms: Reddit (keyword search), Google Maps (place reviews), LinkedIn (post search), G2 (product reviews), Capterra (product reviews)\n\nEnvironment vars: PORTFOLIO_BASE_URL, N8N_INGEST_SECRET",
+        "height": 200,
+        "width": 440
+      }
     },
     {
-      "parameters": {
-        "content": "## Required Setup\n\n1. **Apify API Token**: Set env var APIFY_API_TOKEN\n2. **Anthropic API Key**: Add as HTTP Header Auth credential\n3. **Environment variables**:\n   - PORTFOLIO_BASE_URL\n   - N8N_INGEST_SECRET\n   - APIFY_API_TOKEN\n4. Customize search keywords in Set Search Parameters node",
-        "height": 200,
-        "width": 432
-      },
       "name": "Setup Notes",
       "id": "sticky-setup",
       "typeVersion": 1,
@@ -51,34 +46,14 @@
         -288,
         96
       ],
-      "type": "n8n-nodes-base.stickyNote"
+      "type": "n8n-nodes-base.stickyNote",
+      "parameters": {
+        "content": "## Required Setup\n1. Apify credentials\n2. Anthropic credentials (HTTP Header Auth)\n3. Env vars: PORTFOLIO_BASE_URL, N8N_INGEST_SECRET",
+        "height": 160,
+        "width": 432
+      }
     },
     {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "industry",
-              "name": "industry",
-              "value": "={{ $json.body?.industry || 'professional_services' }}",
-              "type": "string"
-            },
-            {
-              "id": "keywords",
-              "name": "keywords",
-              "value": "={{ ($json.body?.keywords || ['agency pain points', 'marketing automation problems', 'client management challenges']).join(',') }}",
-              "type": "string"
-            },
-            {
-              "id": "maxResults",
-              "name": "maxResults",
-              "value": "=20",
-              "type": "number"
-            }
-          ]
-        },
-        "options": {}
-      },
       "name": "Set Search Parameters",
       "id": "set-params",
       "typeVersion": 3.4,
@@ -86,94 +61,102 @@
         288,
         400
       ],
-      "type": "n8n-nodes-base.set"
-    },
-    {
+      "type": "n8n-nodes-base.set",
       "parameters": {
-        "method": "POST",
-        "url": "https://api.apify.com/v2/acts/trudax~reddit-scraper-lite/runs?waitForFinish=120",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
+        "assignments": {
+          "assignments": [
             {
-              "name": "Authorization",
-              "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
+              "id": "industry",
+              "name": "industry",
+              "type": "string",
+              "value": "={{ $json.body && $json.body.industry ? $json.body.industry : 'small_business' }}"
             },
             {
-              "name": "content-type",
-              "value": "application/json"
+              "id": "searchTerms",
+              "name": "searchTerms",
+              "type": "string",
+              "value": "={{ JSON.stringify($json.body && $json.body.searchTerms ? $json.body.searchTerms : ['small business technology challenges', 'nonprofit operations software pain points', 'minority business owner automation struggles']) }}"
+            },
+            {
+              "id": "googleMapsQuery",
+              "name": "googleMapsQuery",
+              "type": "string",
+              "value": "={{ $json.body && $json.body.googleMapsQuery ? $json.body.googleMapsQuery : 'IT consulting small business' }}"
+            },
+            {
+              "id": "maxResults",
+              "name": "maxResults",
+              "type": "number",
+              "value": "={{ $json.body && $json.body.maxResults ? $json.body.maxResults : 20 }}"
+            },
+            {
+              "id": "linkedinKeywords",
+              "name": "linkedinKeywords",
+              "type": "string",
+              "value": "={{ JSON.stringify($json.body && $json.body.linkedinKeywords ? $json.body.linkedinKeywords : ['small business automation challenges', 'nonprofit technology struggles', 'black owned business operations']) }}"
+            },
+            {
+              "id": "g2ProductUrls",
+              "name": "g2ProductUrls",
+              "type": "string",
+              "value": "={{ JSON.stringify($json.body && $json.body.g2ProductUrls ? $json.body.g2ProductUrls : ['https://www.g2.com/products/hubspot-crm/reviews', 'https://www.g2.com/products/mailchimp-intuit-mailchimp/reviews', 'https://www.g2.com/products/monday-com/reviews', 'https://www.g2.com/products/quickbooks-online/reviews', 'https://www.g2.com/products/bloomerang/reviews']) }}"
+            },
+            {
+              "id": "capterraProductUrls",
+              "name": "capterraProductUrls",
+              "type": "string",
+              "value": "={{ JSON.stringify($json.body && $json.body.capterraProductUrls ? $json.body.capterraProductUrls : ['https://www.capterra.com/p/140827/HubSpot/', 'https://www.capterra.com/p/233073/monday-com/', 'https://www.capterra.com/p/140127/Mailchimp/', 'https://www.capterra.com/p/205656/Bloomerang/', 'https://www.capterra.com/p/16666/QuickBooks/']) }}"
             }
           ]
         },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"searches\": {{ JSON.stringify($json.keywords.split(',').map(k => k.trim())) }},\n  \"sort\": \"relevance\",\n  \"time\": \"month\",\n  \"maxItems\": {{ $json.maxResults }},\n  \"searchComments\": true,\n  \"searchCommunities\": false\n}",
-        "options": {
-          "timeout": 180000
-        }
-      },
+        "options": {}
+      }
+    },
+    {
       "name": "Scrape Reddit",
       "id": "scrape-reddit",
-      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "typeVersion": 1,
       "position": [
         608,
         256
       ],
-      "type": "n8n-nodes-base.httpRequest",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "parameters": {
+        "actorId": "trudax~reddit-scraper-lite",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ searches: $json.keywords.split(',').map(k => k.trim()), sort: 'new', time: 'month', maxItems: $json.maxResults, maxPostCount: $json.maxResults, searchPosts: true, proxy: { useApifyProxy: true, apifyProxyGroups: ['RESIDENTIAL'] } }) }}"
+      },
       "credentials": {
-        "httpHeaderAuth": {
-          "id": "wbhtM74echqqYM9t",
-          "name": "Apify Token"
+        "apifyApi": {
+          "id": "8NpkWWjCZpHPCNAB",
+          "name": "Apify account"
         }
       }
     },
     {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.apify.com/v2/acts/compass~crawler-google-places/runs?waitForFinish=120",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
-            },
-            {
-              "name": "content-type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"searchStringsArray\": {{ JSON.stringify($json.keywords.split(',').slice(0, 3).map(k => k.trim() + ' services')) }},\n  \"maxCrawledPlacesPerSearch\": 5,\n  \"maxReviews\": 10,\n  \"language\": \"en\"\n}",
-        "options": {
-          "timeout": 180000
-        }
-      },
       "name": "Scrape Google Maps",
       "id": "scrape-gmaps",
-      "typeVersion": 4.2,
+      "onError": "continueRegularOutput",
+      "typeVersion": 1,
       "position": [
         608,
         560
       ],
-      "type": "n8n-nodes-base.httpRequest",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "parameters": {
+        "actorId": "compass~crawler-google-places",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ searchStringsArray: $json.keywords.split(',').map(k => k.trim()), maxCrawledPlacesPerSearch: Math.ceil($json.maxResults / 3), language: 'en', maxReviews: 10 }) }}"
+      },
       "credentials": {
-        "httpHeaderAuth": {
-          "id": "wbhtM74echqqYM9t",
-          "name": "Apify Token"
+        "apifyApi": {
+          "id": "8NpkWWjCZpHPCNAB",
+          "name": "Apify account"
         }
       }
     },
     {
-      "parameters": {
-        "jsCode": "const response = $input.first().json;\nconst items = response?.data?.defaultDatasetId ? [] : (response?.items || response?.data?.items || []);\nconst results = [];\n\nfor (const item of (items || []).slice(0, 30)) {\n  results.push({\n    json: {\n      platform: 'reddit',\n      content_type: 'social_post',\n      title: item.title || '',\n      body: (item.body || item.text || item.selftext || '').substring(0, 2000),\n      url: item.url || '',\n      author: item.author || '',\n      score: item.score || item.upVotes || 0,\n      created_at: item.createdAt || item.created || new Date().toISOString()\n    }\n  });\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'reddit' } }];"
-      },
       "name": "Extract Reddit Results",
       "id": "extract-reddit",
       "typeVersion": 2,
@@ -181,12 +164,12 @@
         912,
         256
       ],
-      "type": "n8n-nodes-base.code"
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items.slice(0, 30)) {\n  const d = item.json;\n  results.push({ json: { platform: 'reddit', content_type: 'social_post', title: d.title || '', body: (d.body || d.text || d.selftext || '').substring(0, 2000), url: d.url || '', author: d.author || '', score: d.score || d.upVotes || 0, created_at: d.createdAt || d.created || new Date().toISOString() } });\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'reddit' } }];"
+      }
     },
     {
-      "parameters": {
-        "jsCode": "const response = $input.first().json;\nconst items = response?.data?.defaultDatasetId ? [] : (response?.items || response?.data?.items || []);\nconst results = [];\n\nfor (const place of (items || [])) {\n  const reviews = place.reviews || [];\n  for (const review of reviews.slice(0, 10)) {\n    if (review.stars && review.stars <= 3) {\n      results.push({\n        json: {\n          platform: 'google_maps',\n          content_type: 'review',\n          title: place.title || place.name || '',\n          body: (review.text || review.textTranslated || '').substring(0, 2000),\n          url: place.url || place.placeUrl || '',\n          author: review.name || '',\n          score: review.stars || 0,\n          created_at: review.publishedAtDate || new Date().toISOString()\n        }\n      });\n    }\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'google_maps' } }];"
-      },
       "name": "Extract GMaps Results",
       "id": "extract-gmaps",
       "typeVersion": 2,
@@ -194,20 +177,20 @@
         912,
         560
       ],
-      "type": "n8n-nodes-base.code"
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nfor (const place of items) {\n  const d = place.json;\n  const reviews = d.reviews || [];\n  const placeUrl = d.url || d.placeUrl || '';\n  for (const review of reviews.slice(0, 10)) {\n    const author = review.name || review.reviewerName || 'anonymous';\n    const dateStr = review.publishedAtDate || '';\n    const safeAuthor = author.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 40);\n    const safeDate = dateStr.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);\n    const uniqueUrl = placeUrl ? `${placeUrl}#review-${safeAuthor}-${safeDate}` : '';\n    results.push({ json: { platform: 'google_maps', content_type: 'review', title: d.title || d.name || '', body: (review.text || review.textTranslated || '').substring(0, 2000), url: uniqueUrl, author: author, score: review.stars || 0, created_at: review.publishedAtDate || new Date().toISOString() } });\n  }\n  if (reviews.length === 0) {\n    results.push({ json: { platform: 'google_maps', content_type: 'listing', title: d.title || d.name || '', body: (d.description || d.categoryName || '').substring(0, 2000), url: placeUrl, author: '', score: d.totalScore || 0, created_at: new Date().toISOString() } });\n  }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'google_maps' } }];"
+      }
     },
     {
-      "parameters": {},
-      "name": "Merge Scraped Content",
-      "id": "merge-scraped",
-      "typeVersion": 3,
+      "name": "Filter Non-Empty",
+      "id": "filter-nonempty",
+      "typeVersion": 2,
       "position": [
-        1200,
+        1456,
         400
       ],
-      "type": "n8n-nodes-base.merge"
-    },
-    {
+      "type": "n8n-nodes-base.if",
       "parameters": {
         "conditions": {
           "options": {
@@ -218,73 +201,74 @@
           "conditions": [
             {
               "id": "has-content",
-              "leftValue": "={{ $json._empty }}",
-              "rightValue": true,
+              "leftValue": "={{ $json._empty === true }}",
+              "rightValue": false,
               "operator": {
                 "type": "boolean",
-                "operation": "notTrue"
+                "operation": "equals",
+                "singleValue": true
               }
             }
           ],
           "combinator": "and"
         },
         "options": {}
-      },
-      "name": "Filter Non-Empty",
-      "id": "filter-nonempty",
-      "typeVersion": 2,
-      "position": [
-        1456,
-        400
-      ],
-      "type": "n8n-nodes-base.if"
+      }
     },
     {
+      "name": "POST Raw to Market Intel",
+      "id": "ingest-market",
+      "typeVersion": 4.2,
+      "position": [
+        1712,
+        200
+      ],
+      "type": "n8n-nodes-base.httpRequest",
       "parameters": {
         "method": "POST",
-        "url": "=https://amadutown.com/api/admin/value-evidence/ingest-market",
+        "url": "={{ $vars.PORTFOLIO_BASE_URL }}/api/admin/value-evidence/ingest-market",
+        "specifyBody": "json",
+        "sendBody": true,
         "sendHeaders": true,
+        "jsonBody": "={{ JSON.stringify({ items: [{ source_platform: $json.platform, content_text: ($json.title || '') + (($json.title && $json.body) ? '\\n\\n' : '') + ($json.body || ''), content_type: $json.content_type === 'social_post' ? 'post' : ($json.content_type === 'review' ? 'review' : 'other'), source_url: $json.url || '', source_author: $json.author || '' }] }) }}",
+        "options": {},
         "headerParameters": {
           "parameters": [
             {
-              "name": "x-ingest-secret",
-              "value": "={{ $env.N8N_INGEST_SECRET }}"
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET }}"
             },
             {
               "name": "content-type",
               "value": "application/json"
             }
           ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"platform\": \"{{ $json.platform }}\",\n  \"content_type\": \"{{ $json.content_type }}\",\n  \"title\": {{ JSON.stringify($json.title) }},\n  \"body\": {{ JSON.stringify($json.body) }},\n  \"url\": \"{{ $json.url }}\",\n  \"author\": {{ JSON.stringify($json.author) }},\n  \"engagement_score\": {{ $json.score || 0 }},\n  \"scraped_at\": \"{{ $json.created_at }}\"\n}",
-        "options": {}
-      },
-      "name": "POST Raw to Market Intel",
-      "id": "ingest-market",
-      "typeVersion": 4.2,
+        }
+      }
+    },
+    {
+      "name": "Bundle for AI",
+      "id": "bundle-for-ai",
+      "typeVersion": 2,
       "position": [
         1712,
-        304
+        600
       ],
-      "type": "n8n-nodes-base.httpRequest"
-    },
-    {
+      "type": "n8n-nodes-base.code",
       "parameters": {
-        "batchSize": 5,
-        "options": {}
-      },
-      "name": "Batch for AI Classification",
-      "id": "batch-for-ai",
-      "typeVersion": 3,
-      "position": [
-        1952,
-        304
-      ],
-      "type": "n8n-nodes-base.splitInBatches"
+        "jsCode": "const items = $input.all();\nconst batchSize = 10;\nconst batches = [];\nfor (let i = 0; i < items.length; i += batchSize) {\n  const batch = items.slice(i, i + batchSize);\n  const contentList = batch.map((item, idx) => {\n    const d = item.json;\n    return `--- Item ${idx + 1} ---\\nPlatform: ${d.platform}\\nTitle: ${d.title}\\nContent: ${(d.body || '').substring(0, 800)}\\nURL: ${d.url || ''}`;\n  }).join('\\n\\n');\n  batches.push({ json: { batchIndex: Math.floor(i / batchSize), itemCount: batch.length, contentList: contentList } });\n}\nreturn batches.length > 0 ? batches : [{ json: { _skip: true } }];"
+      }
     },
     {
+      "name": "AI Classify Social Content",
+      "id": "ai-classify-social",
+      "onError": "continueRegularOutput",
+      "typeVersion": 4.2,
+      "position": [
+        1960,
+        600
+      ],
+      "type": "n8n-nodes-base.httpRequest",
       "parameters": {
         "method": "POST",
         "url": "https://api.anthropic.com/v1/messages",
@@ -305,55 +289,260 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"You are a business pain point classifier for {{ $('Set Search Parameters').first().json.industry }} companies.\\n\\nAnalyze this social media content and extract business pain points:\\n\\nPlatform: {{ $json.platform }}\\nTitle: {{ $json.title }}\\nContent: {{ $json.body }}\\n\\nReturn a JSON array of pain points found. Each object should have:\\n- category: one of [manual_reporting, slow_onboarding, no_automation, poor_lead_tracking, scattered_data, inconsistent_branding, missed_deadlines, no_analytics, manual_invoicing, poor_communication]\\n- severity: high, medium, or low\\n- confidence_score: 0.0 to 1.0\\n- source_excerpt: the relevant quote (max 200 chars)\\n- monetary_indicator: any dollar amount or time cost mentioned (or null)\\n\\nIf no relevant pain points found, return an empty array [].\\nReturn ONLY valid JSON. No explanation.\"\n    }\n  ]\n}",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, messages: [{ role: 'user', content: 'You are a business pain point classifier for ' + $('Set Search Parameters').first().json.industry + ' companies.\\n\\nAnalyze these ' + $json.itemCount + ' social media items and extract business pain points:\\n\\n' + $json.contentList + '\\n\\nMap each pain point to ONE of these existing categories (use the exact name):\\n- manual_data_entry: Time spent on repetitive data entry tasks that could be automated\\n- slow_response_times: Delayed responses to client inquiries leading to lost opportunities\\n- inconsistent_followup: Leads falling through the cracks due to lack of systematic follow-up\\n- scattered_tools: Using multiple disconnected tools leading to lost context and double-work\\n- manual_reporting: Hours spent creating reports that could be auto-generated\\n- poor_lead_qualification: Wasting time on unqualified leads due to lack of scoring/filtering\\n- knowledge_loss: Critical business knowledge lives in peoples heads, not systems\\n- scaling_bottlenecks: Manual processes preventing business growth beyond current capacity\\n- employee_onboarding: New hires take too long to become productive due to poor systems\\n- customer_churn: Losing customers due to reactive rather than proactive engagement\\n\\nReturn a JSON array of pain points found across ALL items. Each object should have:\\n- category: one of the exact category names listed above\\n- severity: high, medium, or low\\n- confidence_score: 0.0 to 1.0\\n- source_excerpt: the relevant quote (max 200 chars)\\n- monetary_indicator: any dollar amount or time cost mentioned (or null)\\n\\nOnly classify content that genuinely relates to a business pain point. Skip irrelevant content.\\nIf no relevant pain points found in any item, return an empty array [].\\nReturn ONLY valid JSON. No explanation.' }] }) }}",
         "options": {}
       },
-      "name": "AI Classify Social Content",
-      "id": "ai-classify-social",
-      "typeVersion": 4.2,
-      "position": [
-        2208,
-        304
-      ],
-      "type": "n8n-nodes-base.httpRequest",
       "credentials": {
         "httpHeaderAuth": {
-          "id": "",
+          "id": "mAKMzoCV2v6m2QoM",
           "name": "Anthropic API Key"
         }
       }
     },
     {
-      "parameters": {
-        "jsCode": "const items = $input.all();\nconst results = [];\nconst industry = $('Set Search Parameters').first().json.industry;\n// Replace REPLACE_WITH_N8N_INGEST_SECRET with your N8N_INGEST_SECRET from .env.local:\nconst baseUrl = 'https://amadutown.com';\nconst secret = 'REPLACE_WITH_N8N_INGEST_SECRET';\n\nfor (const item of items) {\n  try {\n    const aiResponse = item.json;\n    const batchItem = $('Batch for AI Classification').item?.json || {};\n    const url = batchItem.url || '';\n\n    let textContent = '';\n    if (aiResponse.content && Array.isArray(aiResponse.content)) {\n      textContent = aiResponse.content.map(c => c.text || '').join('');\n    }\n\n    const jsonMatch = textContent.match(/\\[[\\s\\S]*\\]/);\n    if (!jsonMatch) continue;\n\n    const painPoints = JSON.parse(jsonMatch[0]);\n\n    for (const pp of painPoints) {\n      if (!pp.category || !pp.severity) continue;\n      \n      try {\n        const res = await fetch(`${baseUrl}/api/admin/value-evidence/ingest`, {\n          method: 'POST',\n          headers: {\n            'Content-Type': 'application/json',\n            'Authorization': 'Bearer ' + secret\n          },\n          body: JSON.stringify({\n            evidence: [{\n              pain_point_category_name: pp.category,\n              source_type: 'social_media',\n              source_id: url,\n              source_excerpt: (pp.source_excerpt || '').substring(0, 500),\n              confidence_score: pp.confidence_score ?? 0.4,\n              monetary_indicator: pp.monetary_indicator ?? null,\n              industry: industry || null\n            }]\n          })\n        });\n        results.push({ json: { status: res.ok ? 'ingested' : 'failed', category: pp.category, statusCode: res.status } });\n      } catch (err) {\n        results.push({ json: { status: 'failed', category: pp.category, error: err.message } });\n      }\n    }\n  } catch (err) {\n    // Skip parsing failures\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { status: 'no_pain_points_found' } }];"
-      },
-      "name": "Parse and POST Results",
-      "id": "parse-and-post",
+      "name": "Parse AI Response",
+      "id": "parse-ai-response",
       "typeVersion": 2,
       "position": [
-        2464,
-        304
+        2200,
+        600
       ],
-      "type": "n8n-nodes-base.code"
+      "type": "n8n-nodes-base.code",
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nconst industry = $('Set Search Parameters').first().json.industry;\n\nfunction parseMonetary(val) {\n  if (val == null) return null;\n  if (typeof val === 'number') return val;\n  const str = String(val);\n  const match = str.match(/\\$?([\\d,]+\\.?\\d*)/);\n  if (match) return parseFloat(match[1].replace(/,/g, ''));\n  return null;\n}\n\nfor (const item of items) {\n  try {\n    const aiResponse = item.json;\n    let textContent = '';\n    if (aiResponse.content && Array.isArray(aiResponse.content)) {\n      textContent = aiResponse.content.map(c => c.text || '').join('');\n    } else if (typeof aiResponse.text === 'string') {\n      textContent = aiResponse.text;\n    } else if (typeof aiResponse.message === 'object' && aiResponse.message?.content) {\n      textContent = Array.isArray(aiResponse.message.content)\n        ? aiResponse.message.content.map(c => c.text || '').join('')\n        : String(aiResponse.message.content);\n    }\n    const jsonMatch = textContent.match(/\\[[\\s\\S]*\\]/);\n    if (!jsonMatch) continue;\n    const painPoints = JSON.parse(jsonMatch[0]);\n    for (const pp of painPoints) {\n      if (!pp.category || !pp.severity) continue;\n      results.push({ json: { pain_point_category_name: pp.category, source_type: 'market_intelligence', source_id: pp.source_excerpt ? pp.source_excerpt.substring(0, 50) : 'social_scrape', source_excerpt: (pp.source_excerpt || '').substring(0, 500), confidence_score: pp.confidence_score ?? 0.4, monetary_indicator: parseMonetary(pp.monetary_indicator), monetary_context: (typeof pp.monetary_indicator === 'string' && pp.monetary_indicator) ? pp.monetary_indicator : null, industry: industry || null } });\n    }\n  } catch (err) { /* skip */ }\n}\nreturn results.length > 0 ? results : [{ json: { _skip: true } }];"
+      }
     },
     {
-      "parameters": {},
-      "name": "Continue Batch Loop",
-      "id": "continue-batch",
+      "name": "Filter Valid Pain Points",
+      "id": "filter-valid-pp",
+      "typeVersion": 2,
+      "position": [
+        2440,
+        600
+      ],
+      "type": "n8n-nodes-base.if",
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "has-pp",
+              "leftValue": "={{ $json._skip === true }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "name": "POST Pain Points",
+      "id": "post-pain-points",
+      "typeVersion": 4.2,
+      "position": [
+        2680,
+        500
+      ],
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.PORTFOLIO_BASE_URL }}/api/admin/value-evidence/ingest",
+        "specifyBody": "json",
+        "sendBody": true,
+        "sendHeaders": true,
+        "jsonBody": "={{ JSON.stringify({ evidence: [{ pain_point_category_name: $json.pain_point_category_name, source_type: $json.source_type, source_id: $json.source_id, source_excerpt: $json.source_excerpt, confidence_score: $json.confidence_score, monetary_indicator: $json.monetary_indicator, monetary_context: $json.monetary_context, industry: $json.industry }] }) }}",
+        "options": {},
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET }}"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "scrape-linkedin",
+      "name": "Scrape LinkedIn",
+      "type": "@apify/n8n-nodes-apify.apify",
       "typeVersion": 1,
       "position": [
-        2704,
-        304
+        608,
+        800
       ],
-      "type": "n8n-nodes-base.noOp"
+      "parameters": {
+        "actorId": "harvestapi~linkedin-post-search",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ searchQueries: JSON.parse($json.linkedinKeywords), maxPosts: $json.maxResults, postedLimit: 'month', sortBy: 'date' }) }}"
+      },
+      "credentials": {
+        "apifyApi": {
+          "id": "8NpkWWjCZpHPCNAB",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "extract-linkedin",
+      "name": "Extract LinkedIn Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        912,
+        800
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items.slice(0, 30)) {\n  const d = item.json;\n  const body = String(d.content || d.text || d.commentary || '').substring(0, 2000);\n  if (!body || body.length < 20) continue;\n  const authorName = (d.author && typeof d.author === 'object') ? (d.author.name || '') : String(d.author || '');\n  const postDate = (d.postedAt && typeof d.postedAt === 'object') ? (d.postedAt.date || '') : String(d.postedAt || '');\n  results.push({\n    json: {\n      platform: 'linkedin',\n      content_type: 'post',\n      title: '',\n      body: body,\n      url: d.linkedinUrl || d.url || d.postUrl || '',\n      author: authorName,\n      score: (d.socialDetail && d.socialDetail.totalSocialActivityCounts) ? (d.socialDetail.totalSocialActivityCounts.numLikes || 0) : (d.numLikes || d.likeCount || 0),\n      created_at: postDate || new Date().toISOString()\n    }\n  });\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'linkedin' } }];"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "scrape-g2",
+      "name": "Scrape G2 Reviews",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        1060
+      ],
+      "parameters": {
+        "jsCode": "const urls = JSON.parse($json.g2ProductUrls);\nconst results = [];\nfor (const url of urls) {\n  results.push({ json: { url: url, maxReviews: 10, lookbackDays: 90 } });\n}\nreturn results;"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "run-g2-actor",
+      "name": "Run G2 Actor",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        912,
+        1060
+      ],
+      "parameters": {
+        "actorId": "focused_vanguard~g2-reviews-scraper",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ url: $json.url, maxReviews: $json.maxReviews, lookbackDays: $json.lookbackDays || 90 }) }}"
+      },
+      "credentials": {
+        "apifyApi": {
+          "id": "8NpkWWjCZpHPCNAB",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "extract-g2",
+      "name": "Extract G2 Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        1060
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items.slice(0, 50)) {\n  const d = item.json;\n  const pros = d.pros || d.advantages || '';\n  const cons = d.cons || d.disadvantages || '';\n  const review = d.content || d.review_text || d.text || d.comment || d.review || '';\n  const body = [pros ? `Pros: ${pros}` : '', cons ? `Cons: ${cons}` : '', review].filter(Boolean).join('\\n').substring(0, 2000);\n  if (!body || body.length < 20) continue;\n  // Build unique URL: use the review's unique id from the actor, or fall back to product URL + author hash\n  let reviewUrl = '';\n  if (d.id) {\n    const productUrl = d.product_url || d.review_url || d.url || '';\n    const baseUrl = productUrl.split('?')[0];\n    reviewUrl = baseUrl ? `${baseUrl}#${d.id}` : d.id;\n  } else {\n    const productUrl = d.product_url || d.review_url || d.url || '';\n    const author = d.author || d.reviewer_name || d.reviewerName || 'anon';\n    const date = d.date_posted || d.date || d.published_date || d.publishedDate || '';\n    const safeAuthor = author.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 40);\n    const safeDate = date.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);\n    reviewUrl = productUrl ? `${productUrl.split('?')[0]}#review-${safeAuthor}-${safeDate}` : `g2-review-${safeAuthor}-${safeDate}`;\n  }\n  results.push({\n    json: {\n      platform: 'g2',\n      content_type: 'review',\n      title: d.title || d.product_name || d.productName || '',\n      body: body,\n      url: reviewUrl,\n      author: d.author || d.reviewer_name || d.reviewerName || '',\n      score: d.rating || d.star_rating || d.overall_rating || 0,\n      created_at: d.date_posted || d.date || d.published_date || d.publishedDate || new Date().toISOString()\n    }\n  });\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'g2' } }];"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "scrape-capterra",
+      "name": "Scrape Capterra Reviews",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        1320
+      ],
+      "parameters": {
+        "jsCode": "const urls = JSON.parse($json.capterraProductUrls);\nconst results = [];\nfor (const url of urls) {\n  results.push({ json: { url: url, maxReviews: 10 } });\n}\nreturn results;"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "run-capterra-actor",
+      "name": "Run Capterra Actor",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "typeVersion": 1,
+      "position": [
+        912,
+        1320
+      ],
+      "parameters": {
+        "actorId": "dionysus_way~capterra-reviews",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ startUrls: [$json.url], maxReviews: $json.maxReviews }) }}"
+      },
+      "credentials": {
+        "apifyApi": {
+          "id": "8NpkWWjCZpHPCNAB",
+          "name": "Apify account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "extract-capterra",
+      "name": "Extract Capterra Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        1320
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items.slice(0, 50)) {\n  const d = item.json;\n  const pros = d.pros || d.advantages || '';\n  const cons = d.cons || d.disadvantages || '';\n  const overall = d.comments || d.overall || d.text || d.review || d.comment || '';\n  const body = [pros ? `Pros: ${pros}` : '', cons ? `Cons: ${cons}` : '', overall ? `Overall: ${overall}` : ''].filter(Boolean).join('\\n').substring(0, 2000);\n  if (!body || body.length < 20) continue;\n  // Capterra actor provides unique reviewUrl per review\n  const reviewUrl = d.reviewUrl || d.review_url || '';\n  let uniqueUrl = reviewUrl;\n  if (!uniqueUrl) {\n    const productUrl = d.productUrl || d.url || '';\n    if (d.id) {\n      uniqueUrl = productUrl ? `${productUrl}#capterra-${d.id}` : `capterra-review-${d.id}`;\n    } else {\n      const author = d.author || d.reviewer || 'anon';\n      const date = d.date || '';\n      const safeAuthor = author.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 40);\n      const safeDate = date.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);\n      uniqueUrl = productUrl ? `${productUrl}#review-${safeAuthor}-${safeDate}` : `capterra-review-${safeAuthor}-${safeDate}`;\n    }\n  }\n  results.push({\n    json: {\n      platform: 'capterra',\n      content_type: 'review',\n      title: d.title || d.product_name || d.productName || '',\n      body: body,\n      url: uniqueUrl,\n      author: d.author || d.reviewer || d.reviewerName || d.reviewer_name || '',\n      score: d.rating || d.overallRating || d.overall_rating || 0,\n      created_at: d.date || d.reviewDate || d.published_date || new Date().toISOString()\n    }\n  });\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'capterra' } }];"
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "id": "merge-all-content",
+      "name": "Merge All Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        800
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nreturn items;"
+      }
     }
   ],
   "connections": {
-    "Webhook Trigger": {
+    "Scrape Google Maps": {
       "main": [
         [
           {
-            "node": "Set Search Parameters",
+            "node": "Extract GMaps Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Reddit": {
+      "main": [
+        [
+          {
+            "node": "Extract Reddit Results",
             "type": "main",
             "index": 0
           }
@@ -372,59 +561,30 @@
             "node": "Scrape Google Maps",
             "type": "main",
             "index": 0
-          }
-        ]
-      ]
-    },
-    "Scrape Reddit": {
-      "main": [
-        [
+          },
           {
-            "node": "Extract Reddit Results",
+            "node": "Scrape LinkedIn",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scrape G2 Reviews",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scrape Capterra Reviews",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Scrape Google Maps": {
+    "Webhook Trigger": {
       "main": [
         [
           {
-            "node": "Extract GMaps Results",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract Reddit Results": {
-      "main": [
-        [
-          {
-            "node": "Merge Scraped Content",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract GMaps Results": {
-      "main": [
-        [
-          {
-            "node": "Merge Scraped Content",
-            "type": "main",
-            "index": 1
-          }
-        ]
-      ]
-    },
-    "Merge Scraped Content": {
-      "main": [
-        [
-          {
-            "node": "Filter Non-Empty",
+            "node": "Set Search Parameters",
             "type": "main",
             "index": 0
           }
@@ -438,23 +598,16 @@
             "node": "POST Raw to Market Intel",
             "type": "main",
             "index": 0
-          }
-        ],
-        []
-      ]
-    },
-    "POST Raw to Market Intel": {
-      "main": [
-        [
+          },
           {
-            "node": "Batch for AI Classification",
+            "node": "Bundle for AI",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Batch for AI Classification": {
+    "Bundle for AI": {
       "main": [
         [
           {
@@ -462,37 +615,157 @@
             "type": "main",
             "index": 0
           }
-        ],
-        []
+        ]
       ]
     },
     "AI Classify Social Content": {
       "main": [
         [
           {
-            "node": "Parse and POST Results",
+            "node": "Parse AI Response",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Parse and POST Results": {
+    "Parse AI Response": {
       "main": [
         [
           {
-            "node": "Continue Batch Loop",
+            "node": "Filter Valid Pain Points",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Continue Batch Loop": {
+    "Filter Valid Pain Points": {
       "main": [
         [
           {
-            "node": "Batch for AI Classification",
+            "node": "POST Pain Points",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Extract LinkedIn Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape G2 Reviews": {
+      "main": [
+        [
+          {
+            "node": "Run G2 Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run G2 Actor": {
+      "main": [
+        [
+          {
+            "node": "Extract G2 Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scrape Capterra Reviews": {
+      "main": [
+        [
+          {
+            "node": "Run Capterra Actor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Capterra Actor": {
+      "main": [
+        [
+          {
+            "node": "Extract Capterra Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Reddit Results": {
+      "main": [
+        [
+          {
+            "node": "Merge All Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract GMaps Results": {
+      "main": [
+        [
+          {
+            "node": "Merge All Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract LinkedIn Results": {
+      "main": [
+        [
+          {
+            "node": "Merge All Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract G2 Results": {
+      "main": [
+        [
+          {
+            "node": "Merge All Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Capterra Results": {
+      "main": [
+        [
+          {
+            "node": "Merge All Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge All Content": {
+      "main": [
+        [
+          {
+            "node": "Filter Non-Empty",
             "type": "main",
             "index": 0
           }
@@ -506,84 +779,23 @@
     "availableInMCP": false
   },
   "staticData": null,
-  "meta": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
   "pinData": {},
-  "versionId": "1721ee54-80b7-4dc5-90a4-30cd64314d4c",
-  "activeVersionId": "1721ee54-80b7-4dc5-90a4-30cd64314d4c",
-  "versionCounter": 11,
+  "versionId": "2b8a4f96-8e27-4396-b516-9113888d84cf",
+  "activeVersionId": "2b8a4f96-8e27-4396-b516-9113888d84cf",
+  "versionCounter": 108,
   "triggerCount": 1,
-  "shared": [
-    {
-      "updatedAt": "2026-02-10T04:34:38.569Z",
-      "createdAt": "2026-02-10T04:34:38.569Z",
-      "role": "workflow:owner",
-      "workflowId": "jrnaN1yp8nSDKJB9",
-      "projectId": "TeIheDYiQkebiIvt",
-      "project": {
-        "updatedAt": "2025-12-13T01:11:01.102Z",
-        "createdAt": "2025-12-13T01:09:43.703Z",
-        "id": "TeIheDYiQkebiIvt",
-        "name": "Vambah Sillah <vsillah@gmail.com>",
-        "type": "personal",
-        "icon": null,
-        "description": null,
-        "creatorId": "40690b8a-67b7-469e-b617-699a163b2224",
-        "projectRelations": [
-          {
-            "updatedAt": "2025-12-13T01:09:43.704Z",
-            "createdAt": "2025-12-13T01:09:43.704Z",
-            "userId": "40690b8a-67b7-469e-b617-699a163b2224",
-            "projectId": "TeIheDYiQkebiIvt",
-            "user": {
-              "updatedAt": "2026-02-10T11:23:32.000Z",
-              "createdAt": "2025-12-13T01:09:43.182Z",
-              "id": "40690b8a-67b7-469e-b617-699a163b2224",
-              "email": "vsillah@gmail.com",
-              "firstName": "Vambah",
-              "lastName": "Sillah",
-              "personalizationAnswers": {
-                "version": "v4",
-                "personalization_survey_submitted_at": "2025-12-13T01:11:28.944Z",
-                "personalization_survey_n8n_version": "1.123.5",
-                "companySize": "<20",
-                "companyType": "saas",
-                "role": "business-owner",
-                "reportedSource": "youtube"
-              },
-              "settings": {
-                "userActivated": true,
-                "easyAIWorkflowOnboarded": true,
-                "firstSuccessfulWorkflowId": "nWF9u3cNrB7BRtb5",
-                "userActivatedAt": 1766783175251,
-                "npsSurvey": {
-                  "responded": true,
-                  "lastShownAt": 1770330867466
-                }
-              },
-              "disabled": false,
-              "mfaEnabled": false,
-              "lastActiveAt": "2026-02-10",
-              "isPending": false
-            }
-          }
-        ]
-      }
-    }
-  ],
-  "tags": [],
   "activeVersion": {
-    "updatedAt": "2026-02-10T18:02:46.000Z",
-    "createdAt": "2026-02-10T18:02:42.326Z",
-    "versionId": "1721ee54-80b7-4dc5-90a4-30cd64314d4c",
-    "workflowId": "jrnaN1yp8nSDKJB9",
+    "updatedAt": "2026-03-26T17:02:55.126Z",
+    "createdAt": "2026-03-26T17:02:55.126Z",
+    "versionId": "2b8a4f96-8e27-4396-b516-9113888d84cf",
+    "workflowId": "gUyOBZOknpAt41aF",
     "nodes": [
       {
-        "parameters": {
-          "httpMethod": "POST",
-          "path": "vep-002-social",
-          "options": {}
-        },
         "name": "Webhook Trigger",
+        "webhookId": "c8e0dcb1-35f3-4f74-9311-3d78e4d06bcf",
         "id": "webhook-trigger",
         "typeVersion": 2,
         "position": [
@@ -591,29 +803,28 @@
           400
         ],
         "type": "n8n-nodes-base.webhook",
-        "webhookId": "c8e0dcb1-35f3-4f74-9311-3d78e4d06bcf"
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "vep-002-social",
+          "options": {}
+        }
       },
       {
-        "parameters": {
-          "content": "## WF-VEP-002: Social Listening Pipeline\n\nScrapes external platforms for pain point mentions using Apify actors:\n1. Reddit (subreddit search)\n2. Google Maps Reviews (competitor reviews)\n\nFlow:\n- Webhook trigger from admin dashboard\n- Parallel Apify scrapes per platform\n- Raw data ingested to /api/admin/value-evidence/ingest-market\n- AI classifies pain points from scraped content\n- Classified results sent to /api/admin/value-evidence/ingest",
-          "height": 250,
-          "width": 440
-        },
         "name": "WF-VEP-002 Overview",
         "id": "sticky-overview",
         "typeVersion": 1,
         "position": [
           -288,
-          -192
+          -304
         ],
-        "type": "n8n-nodes-base.stickyNote"
+        "type": "n8n-nodes-base.stickyNote",
+        "parameters": {
+          "content": "## WF-VEP-002: Social Listening Pipeline\n\nFlow: Webhook \u2192 Scrape 5 platforms (Reddit, Google Maps, LinkedIn, G2, Capterra) \u2192 Extract \u2192 Merge All \u2192 Filter \u2192 POST Market Intel + AI Classify (batched) \u2192 POST Pain Points\n\nPlatforms: Reddit (keyword search), Google Maps (place reviews), LinkedIn (post search), G2 (product reviews), Capterra (product reviews)\n\nEnvironment vars: PORTFOLIO_BASE_URL, N8N_INGEST_SECRET",
+          "height": 200,
+          "width": 440
+        }
       },
       {
-        "parameters": {
-          "content": "## Required Setup\n\n1. **Apify API Token**: Set env var APIFY_API_TOKEN\n2. **Anthropic API Key**: Add as HTTP Header Auth credential\n3. **Environment variables**:\n   - PORTFOLIO_BASE_URL\n   - N8N_INGEST_SECRET\n   - APIFY_API_TOKEN\n4. Customize search keywords in Set Search Parameters node",
-          "height": 200,
-          "width": 432
-        },
         "name": "Setup Notes",
         "id": "sticky-setup",
         "typeVersion": 1,
@@ -621,34 +832,14 @@
           -288,
           96
         ],
-        "type": "n8n-nodes-base.stickyNote"
+        "type": "n8n-nodes-base.stickyNote",
+        "parameters": {
+          "content": "## Required Setup\n1. Apify credentials\n2. Anthropic credentials (HTTP Header Auth)\n3. Env vars: PORTFOLIO_BASE_URL, N8N_INGEST_SECRET",
+          "height": 160,
+          "width": 432
+        }
       },
       {
-        "parameters": {
-          "assignments": {
-            "assignments": [
-              {
-                "id": "industry",
-                "name": "industry",
-                "value": "={{ $json.body?.industry || 'professional_services' }}",
-                "type": "string"
-              },
-              {
-                "id": "keywords",
-                "name": "keywords",
-                "value": "={{ ($json.body?.keywords || ['agency pain points', 'marketing automation problems', 'client management challenges']).join(',') }}",
-                "type": "string"
-              },
-              {
-                "id": "maxResults",
-                "name": "maxResults",
-                "value": "=20",
-                "type": "number"
-              }
-            ]
-          },
-          "options": {}
-        },
         "name": "Set Search Parameters",
         "id": "set-params",
         "typeVersion": 3.4,
@@ -656,94 +847,102 @@
           288,
           400
         ],
-        "type": "n8n-nodes-base.set"
-      },
-      {
+        "type": "n8n-nodes-base.set",
         "parameters": {
-          "method": "POST",
-          "url": "https://api.apify.com/v2/acts/trudax~reddit-scraper-lite/runs?waitForFinish=120",
-          "authentication": "genericCredentialType",
-          "genericAuthType": "httpHeaderAuth",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
+          "assignments": {
+            "assignments": [
               {
-                "name": "Authorization",
-                "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
+                "id": "industry",
+                "name": "industry",
+                "type": "string",
+                "value": "={{ $json.body && $json.body.industry ? $json.body.industry : 'small_business' }}"
               },
               {
-                "name": "content-type",
-                "value": "application/json"
+                "id": "searchTerms",
+                "name": "searchTerms",
+                "type": "string",
+                "value": "={{ JSON.stringify($json.body && $json.body.searchTerms ? $json.body.searchTerms : ['small business technology challenges', 'nonprofit operations software pain points', 'minority business owner automation struggles']) }}"
+              },
+              {
+                "id": "googleMapsQuery",
+                "name": "googleMapsQuery",
+                "type": "string",
+                "value": "={{ $json.body && $json.body.googleMapsQuery ? $json.body.googleMapsQuery : 'IT consulting small business' }}"
+              },
+              {
+                "id": "maxResults",
+                "name": "maxResults",
+                "type": "number",
+                "value": "={{ $json.body && $json.body.maxResults ? $json.body.maxResults : 20 }}"
+              },
+              {
+                "id": "linkedinKeywords",
+                "name": "linkedinKeywords",
+                "type": "string",
+                "value": "={{ JSON.stringify($json.body && $json.body.linkedinKeywords ? $json.body.linkedinKeywords : ['small business automation challenges', 'nonprofit technology struggles', 'black owned business operations']) }}"
+              },
+              {
+                "id": "g2ProductUrls",
+                "name": "g2ProductUrls",
+                "type": "string",
+                "value": "={{ JSON.stringify($json.body && $json.body.g2ProductUrls ? $json.body.g2ProductUrls : ['https://www.g2.com/products/hubspot-crm/reviews', 'https://www.g2.com/products/mailchimp-intuit-mailchimp/reviews', 'https://www.g2.com/products/monday-com/reviews', 'https://www.g2.com/products/quickbooks-online/reviews', 'https://www.g2.com/products/bloomerang/reviews']) }}"
+              },
+              {
+                "id": "capterraProductUrls",
+                "name": "capterraProductUrls",
+                "type": "string",
+                "value": "={{ JSON.stringify($json.body && $json.body.capterraProductUrls ? $json.body.capterraProductUrls : ['https://www.capterra.com/p/140827/HubSpot/', 'https://www.capterra.com/p/233073/monday-com/', 'https://www.capterra.com/p/140127/Mailchimp/', 'https://www.capterra.com/p/205656/Bloomerang/', 'https://www.capterra.com/p/16666/QuickBooks/']) }}"
               }
             ]
           },
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={\n  \"searches\": {{ JSON.stringify($json.keywords.split(',').map(k => k.trim())) }},\n  \"sort\": \"relevance\",\n  \"time\": \"month\",\n  \"maxItems\": {{ $json.maxResults }},\n  \"searchComments\": true,\n  \"searchCommunities\": false\n}",
-          "options": {
-            "timeout": 180000
-          }
-        },
+          "options": {}
+        }
+      },
+      {
         "name": "Scrape Reddit",
         "id": "scrape-reddit",
-        "typeVersion": 4.2,
+        "onError": "continueRegularOutput",
+        "typeVersion": 1,
         "position": [
           608,
           256
         ],
-        "type": "n8n-nodes-base.httpRequest",
+        "type": "@apify/n8n-nodes-apify.apify",
+        "parameters": {
+          "actorId": "trudax~reddit-scraper-lite",
+          "operation": "Run actor and get dataset",
+          "customBody": "={{ JSON.stringify({ searches: $json.keywords.split(',').map(k => k.trim()), sort: 'new', time: 'month', maxItems: $json.maxResults, maxPostCount: $json.maxResults, searchPosts: true, proxy: { useApifyProxy: true, apifyProxyGroups: ['RESIDENTIAL'] } }) }}"
+        },
         "credentials": {
-          "httpHeaderAuth": {
-            "id": "wbhtM74echqqYM9t",
-            "name": "Apify Token"
+          "apifyApi": {
+            "id": "8NpkWWjCZpHPCNAB",
+            "name": "Apify account"
           }
         }
       },
       {
-        "parameters": {
-          "method": "POST",
-          "url": "https://api.apify.com/v2/acts/compass~crawler-google-places/runs?waitForFinish=120",
-          "authentication": "genericCredentialType",
-          "genericAuthType": "httpHeaderAuth",
-          "sendHeaders": true,
-          "headerParameters": {
-            "parameters": [
-              {
-                "name": "Authorization",
-                "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
-              },
-              {
-                "name": "content-type",
-                "value": "application/json"
-              }
-            ]
-          },
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={\n  \"searchStringsArray\": {{ JSON.stringify($json.keywords.split(',').slice(0, 3).map(k => k.trim() + ' services')) }},\n  \"maxCrawledPlacesPerSearch\": 5,\n  \"maxReviews\": 10,\n  \"language\": \"en\"\n}",
-          "options": {
-            "timeout": 180000
-          }
-        },
         "name": "Scrape Google Maps",
         "id": "scrape-gmaps",
-        "typeVersion": 4.2,
+        "onError": "continueRegularOutput",
+        "typeVersion": 1,
         "position": [
           608,
           560
         ],
-        "type": "n8n-nodes-base.httpRequest",
+        "type": "@apify/n8n-nodes-apify.apify",
+        "parameters": {
+          "actorId": "compass~crawler-google-places",
+          "operation": "Run actor and get dataset",
+          "customBody": "={{ JSON.stringify({ searchStringsArray: $json.keywords.split(',').map(k => k.trim()), maxCrawledPlacesPerSearch: Math.ceil($json.maxResults / 3), language: 'en', maxReviews: 10 }) }}"
+        },
         "credentials": {
-          "httpHeaderAuth": {
-            "id": "wbhtM74echqqYM9t",
-            "name": "Apify Token"
+          "apifyApi": {
+            "id": "8NpkWWjCZpHPCNAB",
+            "name": "Apify account"
           }
         }
       },
       {
-        "parameters": {
-          "jsCode": "const response = $input.first().json;\nconst items = response?.data?.defaultDatasetId ? [] : (response?.items || response?.data?.items || []);\nconst results = [];\n\nfor (const item of (items || []).slice(0, 30)) {\n  results.push({\n    json: {\n      platform: 'reddit',\n      content_type: 'social_post',\n      title: item.title || '',\n      body: (item.body || item.text || item.selftext || '').substring(0, 2000),\n      url: item.url || '',\n      author: item.author || '',\n      score: item.score || item.upVotes || 0,\n      created_at: item.createdAt || item.created || new Date().toISOString()\n    }\n  });\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'reddit' } }];"
-        },
         "name": "Extract Reddit Results",
         "id": "extract-reddit",
         "typeVersion": 2,
@@ -751,12 +950,12 @@
           912,
           256
         ],
-        "type": "n8n-nodes-base.code"
+        "type": "n8n-nodes-base.code",
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items.slice(0, 30)) {\n  const d = item.json;\n  results.push({ json: { platform: 'reddit', content_type: 'social_post', title: d.title || '', body: (d.body || d.text || d.selftext || '').substring(0, 2000), url: d.url || '', author: d.author || '', score: d.score || d.upVotes || 0, created_at: d.createdAt || d.created || new Date().toISOString() } });\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'reddit' } }];"
+        }
       },
       {
-        "parameters": {
-          "jsCode": "const response = $input.first().json;\nconst items = response?.data?.defaultDatasetId ? [] : (response?.items || response?.data?.items || []);\nconst results = [];\n\nfor (const place of (items || [])) {\n  const reviews = place.reviews || [];\n  for (const review of reviews.slice(0, 10)) {\n    if (review.stars && review.stars <= 3) {\n      results.push({\n        json: {\n          platform: 'google_maps',\n          content_type: 'review',\n          title: place.title || place.name || '',\n          body: (review.text || review.textTranslated || '').substring(0, 2000),\n          url: place.url || place.placeUrl || '',\n          author: review.name || '',\n          score: review.stars || 0,\n          created_at: review.publishedAtDate || new Date().toISOString()\n        }\n      });\n    }\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'google_maps' } }];"
-        },
         "name": "Extract GMaps Results",
         "id": "extract-gmaps",
         "typeVersion": 2,
@@ -764,20 +963,20 @@
           912,
           560
         ],
-        "type": "n8n-nodes-base.code"
+        "type": "n8n-nodes-base.code",
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst results = [];\nfor (const place of items) {\n  const d = place.json;\n  const reviews = d.reviews || [];\n  const placeUrl = d.url || d.placeUrl || '';\n  for (const review of reviews.slice(0, 10)) {\n    const author = review.name || review.reviewerName || 'anonymous';\n    const dateStr = review.publishedAtDate || '';\n    const safeAuthor = author.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 40);\n    const safeDate = dateStr.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);\n    const uniqueUrl = placeUrl ? `${placeUrl}#review-${safeAuthor}-${safeDate}` : '';\n    results.push({ json: { platform: 'google_maps', content_type: 'review', title: d.title || d.name || '', body: (review.text || review.textTranslated || '').substring(0, 2000), url: uniqueUrl, author: author, score: review.stars || 0, created_at: review.publishedAtDate || new Date().toISOString() } });\n  }\n  if (reviews.length === 0) {\n    results.push({ json: { platform: 'google_maps', content_type: 'listing', title: d.title || d.name || '', body: (d.description || d.categoryName || '').substring(0, 2000), url: placeUrl, author: '', score: d.totalScore || 0, created_at: new Date().toISOString() } });\n  }\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'google_maps' } }];"
+        }
       },
       {
-        "parameters": {},
-        "name": "Merge Scraped Content",
-        "id": "merge-scraped",
-        "typeVersion": 3,
+        "name": "Filter Non-Empty",
+        "id": "filter-nonempty",
+        "typeVersion": 2,
         "position": [
-          1200,
+          1456,
           400
         ],
-        "type": "n8n-nodes-base.merge"
-      },
-      {
+        "type": "n8n-nodes-base.if",
         "parameters": {
           "conditions": {
             "options": {
@@ -788,73 +987,74 @@
             "conditions": [
               {
                 "id": "has-content",
-                "leftValue": "={{ $json._empty }}",
-                "rightValue": true,
+                "leftValue": "={{ $json._empty === true }}",
+                "rightValue": false,
                 "operator": {
                   "type": "boolean",
-                  "operation": "notTrue"
+                  "operation": "equals",
+                  "singleValue": true
                 }
               }
             ],
             "combinator": "and"
           },
           "options": {}
-        },
-        "name": "Filter Non-Empty",
-        "id": "filter-nonempty",
-        "typeVersion": 2,
-        "position": [
-          1456,
-          400
-        ],
-        "type": "n8n-nodes-base.if"
+        }
       },
       {
+        "name": "POST Raw to Market Intel",
+        "id": "ingest-market",
+        "typeVersion": 4.2,
+        "position": [
+          1712,
+          200
+        ],
+        "type": "n8n-nodes-base.httpRequest",
         "parameters": {
           "method": "POST",
-          "url": "=https://amadutown.com/api/admin/value-evidence/ingest-market",
+          "url": "={{ $vars.PORTFOLIO_BASE_URL }}/api/admin/value-evidence/ingest-market",
+          "specifyBody": "json",
+          "sendBody": true,
           "sendHeaders": true,
+          "jsonBody": "={{ JSON.stringify({ items: [{ source_platform: $json.platform, content_text: ($json.title || '') + (($json.title && $json.body) ? '\\n\\n' : '') + ($json.body || ''), content_type: $json.content_type === 'social_post' ? 'post' : ($json.content_type === 'review' ? 'review' : 'other'), source_url: $json.url || '', source_author: $json.author || '' }] }) }}",
+          "options": {},
           "headerParameters": {
             "parameters": [
               {
-                "name": "x-ingest-secret",
-                "value": "={{ $env.N8N_INGEST_SECRET }}"
+                "name": "Authorization",
+                "value": "=Bearer {{ $vars.N8N_INGEST_SECRET }}"
               },
               {
                 "name": "content-type",
                 "value": "application/json"
               }
             ]
-          },
-          "sendBody": true,
-          "specifyBody": "json",
-          "jsonBody": "={\n  \"platform\": \"{{ $json.platform }}\",\n  \"content_type\": \"{{ $json.content_type }}\",\n  \"title\": {{ JSON.stringify($json.title) }},\n  \"body\": {{ JSON.stringify($json.body) }},\n  \"url\": \"{{ $json.url }}\",\n  \"author\": {{ JSON.stringify($json.author) }},\n  \"engagement_score\": {{ $json.score || 0 }},\n  \"scraped_at\": \"{{ $json.created_at }}\"\n}",
-          "options": {}
-        },
-        "name": "POST Raw to Market Intel",
-        "id": "ingest-market",
-        "typeVersion": 4.2,
+          }
+        }
+      },
+      {
+        "name": "Bundle for AI",
+        "id": "bundle-for-ai",
+        "typeVersion": 2,
         "position": [
           1712,
-          304
+          600
         ],
-        "type": "n8n-nodes-base.httpRequest"
-      },
-      {
+        "type": "n8n-nodes-base.code",
         "parameters": {
-          "batchSize": 5,
-          "options": {}
-        },
-        "name": "Batch for AI Classification",
-        "id": "batch-for-ai",
-        "typeVersion": 3,
-        "position": [
-          1952,
-          304
-        ],
-        "type": "n8n-nodes-base.splitInBatches"
+          "jsCode": "const items = $input.all();\nconst batchSize = 10;\nconst batches = [];\nfor (let i = 0; i < items.length; i += batchSize) {\n  const batch = items.slice(i, i + batchSize);\n  const contentList = batch.map((item, idx) => {\n    const d = item.json;\n    return `--- Item ${idx + 1} ---\\nPlatform: ${d.platform}\\nTitle: ${d.title}\\nContent: ${(d.body || '').substring(0, 800)}\\nURL: ${d.url || ''}`;\n  }).join('\\n\\n');\n  batches.push({ json: { batchIndex: Math.floor(i / batchSize), itemCount: batch.length, contentList: contentList } });\n}\nreturn batches.length > 0 ? batches : [{ json: { _skip: true } }];"
+        }
       },
       {
+        "name": "AI Classify Social Content",
+        "id": "ai-classify-social",
+        "onError": "continueRegularOutput",
+        "typeVersion": 4.2,
+        "position": [
+          1960,
+          600
+        ],
+        "type": "n8n-nodes-base.httpRequest",
         "parameters": {
           "method": "POST",
           "url": "https://api.anthropic.com/v1/messages",
@@ -875,55 +1075,260 @@
           },
           "sendBody": true,
           "specifyBody": "json",
-          "jsonBody": "={\n  \"model\": \"claude-sonnet-4-20250514\",\n  \"max_tokens\": 2000,\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"You are a business pain point classifier for {{ $('Set Search Parameters').first().json.industry }} companies.\\n\\nAnalyze this social media content and extract business pain points:\\n\\nPlatform: {{ $json.platform }}\\nTitle: {{ $json.title }}\\nContent: {{ $json.body }}\\n\\nReturn a JSON array of pain points found. Each object should have:\\n- category: one of [manual_reporting, slow_onboarding, no_automation, poor_lead_tracking, scattered_data, inconsistent_branding, missed_deadlines, no_analytics, manual_invoicing, poor_communication]\\n- severity: high, medium, or low\\n- confidence_score: 0.0 to 1.0\\n- source_excerpt: the relevant quote (max 200 chars)\\n- monetary_indicator: any dollar amount or time cost mentioned (or null)\\n\\nIf no relevant pain points found, return an empty array [].\\nReturn ONLY valid JSON. No explanation.\"\n    }\n  ]\n}",
+          "jsonBody": "={{ JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 4000, messages: [{ role: 'user', content: 'You are a business pain point classifier for ' + $('Set Search Parameters').first().json.industry + ' companies.\\n\\nAnalyze these ' + $json.itemCount + ' social media items and extract business pain points:\\n\\n' + $json.contentList + '\\n\\nMap each pain point to ONE of these existing categories (use the exact name):\\n- manual_data_entry: Time spent on repetitive data entry tasks that could be automated\\n- slow_response_times: Delayed responses to client inquiries leading to lost opportunities\\n- inconsistent_followup: Leads falling through the cracks due to lack of systematic follow-up\\n- scattered_tools: Using multiple disconnected tools leading to lost context and double-work\\n- manual_reporting: Hours spent creating reports that could be auto-generated\\n- poor_lead_qualification: Wasting time on unqualified leads due to lack of scoring/filtering\\n- knowledge_loss: Critical business knowledge lives in peoples heads, not systems\\n- scaling_bottlenecks: Manual processes preventing business growth beyond current capacity\\n- employee_onboarding: New hires take too long to become productive due to poor systems\\n- customer_churn: Losing customers due to reactive rather than proactive engagement\\n\\nReturn a JSON array of pain points found across ALL items. Each object should have:\\n- category: one of the exact category names listed above\\n- severity: high, medium, or low\\n- confidence_score: 0.0 to 1.0\\n- source_excerpt: the relevant quote (max 200 chars)\\n- monetary_indicator: any dollar amount or time cost mentioned (or null)\\n\\nOnly classify content that genuinely relates to a business pain point. Skip irrelevant content.\\nIf no relevant pain points found in any item, return an empty array [].\\nReturn ONLY valid JSON. No explanation.' }] }) }}",
           "options": {}
         },
-        "name": "AI Classify Social Content",
-        "id": "ai-classify-social",
-        "typeVersion": 4.2,
-        "position": [
-          2208,
-          304
-        ],
-        "type": "n8n-nodes-base.httpRequest",
         "credentials": {
           "httpHeaderAuth": {
-            "id": "",
+            "id": "mAKMzoCV2v6m2QoM",
             "name": "Anthropic API Key"
           }
         }
       },
       {
-        "parameters": {
-          "jsCode": "const items = $input.all();\nconst results = [];\nconst industry = $('Set Search Parameters').first().json.industry;\n// Replace REPLACE_WITH_N8N_INGEST_SECRET with your N8N_INGEST_SECRET from .env.local:\nconst baseUrl = 'https://amadutown.com';\nconst secret = 'REPLACE_WITH_N8N_INGEST_SECRET';\n\nfor (const item of items) {\n  try {\n    const aiResponse = item.json;\n    const batchItem = $('Batch for AI Classification').item?.json || {};\n    const url = batchItem.url || '';\n\n    let textContent = '';\n    if (aiResponse.content && Array.isArray(aiResponse.content)) {\n      textContent = aiResponse.content.map(c => c.text || '').join('');\n    }\n\n    const jsonMatch = textContent.match(/\\[[\\s\\S]*\\]/);\n    if (!jsonMatch) continue;\n\n    const painPoints = JSON.parse(jsonMatch[0]);\n\n    for (const pp of painPoints) {\n      if (!pp.category || !pp.severity) continue;\n      \n      try {\n        const res = await fetch(`${baseUrl}/api/admin/value-evidence/ingest`, {\n          method: 'POST',\n          headers: {\n            'Content-Type': 'application/json',\n            'Authorization': 'Bearer ' + secret\n          },\n          body: JSON.stringify({\n            evidence: [{\n              pain_point_category_name: pp.category,\n              source_type: 'social_media',\n              source_id: url,\n              source_excerpt: (pp.source_excerpt || '').substring(0, 500),\n              confidence_score: pp.confidence_score ?? 0.4,\n              monetary_indicator: pp.monetary_indicator ?? null,\n              industry: industry || null\n            }]\n          })\n        });\n        results.push({ json: { status: res.ok ? 'ingested' : 'failed', category: pp.category, statusCode: res.status } });\n      } catch (err) {\n        results.push({ json: { status: 'failed', category: pp.category, error: err.message } });\n      }\n    }\n  } catch (err) {\n    // Skip parsing failures\n  }\n}\n\nreturn results.length > 0 ? results : [{ json: { status: 'no_pain_points_found' } }];"
-        },
-        "name": "Parse and POST Results",
-        "id": "parse-and-post",
+        "name": "Parse AI Response",
+        "id": "parse-ai-response",
         "typeVersion": 2,
         "position": [
-          2464,
-          304
+          2200,
+          600
         ],
-        "type": "n8n-nodes-base.code"
+        "type": "n8n-nodes-base.code",
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst results = [];\nconst industry = $('Set Search Parameters').first().json.industry;\n\nfunction parseMonetary(val) {\n  if (val == null) return null;\n  if (typeof val === 'number') return val;\n  const str = String(val);\n  const match = str.match(/\\$?([\\d,]+\\.?\\d*)/);\n  if (match) return parseFloat(match[1].replace(/,/g, ''));\n  return null;\n}\n\nfor (const item of items) {\n  try {\n    const aiResponse = item.json;\n    let textContent = '';\n    if (aiResponse.content && Array.isArray(aiResponse.content)) {\n      textContent = aiResponse.content.map(c => c.text || '').join('');\n    } else if (typeof aiResponse.text === 'string') {\n      textContent = aiResponse.text;\n    } else if (typeof aiResponse.message === 'object' && aiResponse.message?.content) {\n      textContent = Array.isArray(aiResponse.message.content)\n        ? aiResponse.message.content.map(c => c.text || '').join('')\n        : String(aiResponse.message.content);\n    }\n    const jsonMatch = textContent.match(/\\[[\\s\\S]*\\]/);\n    if (!jsonMatch) continue;\n    const painPoints = JSON.parse(jsonMatch[0]);\n    for (const pp of painPoints) {\n      if (!pp.category || !pp.severity) continue;\n      results.push({ json: { pain_point_category_name: pp.category, source_type: 'market_intelligence', source_id: pp.source_excerpt ? pp.source_excerpt.substring(0, 50) : 'social_scrape', source_excerpt: (pp.source_excerpt || '').substring(0, 500), confidence_score: pp.confidence_score ?? 0.4, monetary_indicator: parseMonetary(pp.monetary_indicator), monetary_context: (typeof pp.monetary_indicator === 'string' && pp.monetary_indicator) ? pp.monetary_indicator : null, industry: industry || null } });\n    }\n  } catch (err) { /* skip */ }\n}\nreturn results.length > 0 ? results : [{ json: { _skip: true } }];"
+        }
       },
       {
-        "parameters": {},
-        "name": "Continue Batch Loop",
-        "id": "continue-batch",
+        "name": "Filter Valid Pain Points",
+        "id": "filter-valid-pp",
+        "typeVersion": 2,
+        "position": [
+          2440,
+          600
+        ],
+        "type": "n8n-nodes-base.if",
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "has-pp",
+                "leftValue": "={{ $json._skip === true }}",
+                "rightValue": false,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "equals",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        }
+      },
+      {
+        "name": "POST Pain Points",
+        "id": "post-pain-points",
+        "typeVersion": 4.2,
+        "position": [
+          2680,
+          500
+        ],
+        "type": "n8n-nodes-base.httpRequest",
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $vars.PORTFOLIO_BASE_URL }}/api/admin/value-evidence/ingest",
+          "specifyBody": "json",
+          "sendBody": true,
+          "sendHeaders": true,
+          "jsonBody": "={{ JSON.stringify({ evidence: [{ pain_point_category_name: $json.pain_point_category_name, source_type: $json.source_type, source_id: $json.source_id, source_excerpt: $json.source_excerpt, confidence_score: $json.confidence_score, monetary_indicator: $json.monetary_indicator, monetary_context: $json.monetary_context, industry: $json.industry }] }) }}",
+          "options": {},
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $vars.N8N_INGEST_SECRET }}"
+              },
+              {
+                "name": "content-type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "scrape-linkedin",
+        "name": "Scrape LinkedIn",
+        "type": "@apify/n8n-nodes-apify.apify",
         "typeVersion": 1,
         "position": [
-          2704,
-          304
+          608,
+          800
         ],
-        "type": "n8n-nodes-base.noOp"
+        "parameters": {
+          "actorId": "harvestapi~linkedin-post-search",
+          "operation": "Run actor and get dataset",
+          "customBody": "={{ JSON.stringify({ searchQueries: JSON.parse($json.linkedinKeywords), maxPosts: $json.maxResults, postedLimit: 'month', sortBy: 'date' }) }}"
+        },
+        "credentials": {
+          "apifyApi": {
+            "id": "8NpkWWjCZpHPCNAB",
+            "name": "Apify account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "extract-linkedin",
+        "name": "Extract LinkedIn Results",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          912,
+          800
+        ],
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items.slice(0, 30)) {\n  const d = item.json;\n  const body = String(d.content || d.text || d.commentary || '').substring(0, 2000);\n  if (!body || body.length < 20) continue;\n  const authorName = (d.author && typeof d.author === 'object') ? (d.author.name || '') : String(d.author || '');\n  const postDate = (d.postedAt && typeof d.postedAt === 'object') ? (d.postedAt.date || '') : String(d.postedAt || '');\n  results.push({\n    json: {\n      platform: 'linkedin',\n      content_type: 'post',\n      title: '',\n      body: body,\n      url: d.linkedinUrl || d.url || d.postUrl || '',\n      author: authorName,\n      score: (d.socialDetail && d.socialDetail.totalSocialActivityCounts) ? (d.socialDetail.totalSocialActivityCounts.numLikes || 0) : (d.numLikes || d.likeCount || 0),\n      created_at: postDate || new Date().toISOString()\n    }\n  });\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'linkedin' } }];"
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "scrape-g2",
+        "name": "Scrape G2 Reviews",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          608,
+          1060
+        ],
+        "parameters": {
+          "jsCode": "const urls = JSON.parse($json.g2ProductUrls);\nconst results = [];\nfor (const url of urls) {\n  results.push({ json: { url: url, maxReviews: 10, lookbackDays: 90 } });\n}\nreturn results;"
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "run-g2-actor",
+        "name": "Run G2 Actor",
+        "type": "@apify/n8n-nodes-apify.apify",
+        "typeVersion": 1,
+        "position": [
+          912,
+          1060
+        ],
+        "parameters": {
+          "actorId": "focused_vanguard~g2-reviews-scraper",
+          "operation": "Run actor and get dataset",
+          "customBody": "={{ JSON.stringify({ url: $json.url, maxReviews: $json.maxReviews, lookbackDays: $json.lookbackDays || 90 }) }}"
+        },
+        "credentials": {
+          "apifyApi": {
+            "id": "8NpkWWjCZpHPCNAB",
+            "name": "Apify account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "extract-g2",
+        "name": "Extract G2 Results",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1200,
+          1060
+        ],
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items.slice(0, 50)) {\n  const d = item.json;\n  const pros = d.pros || d.advantages || '';\n  const cons = d.cons || d.disadvantages || '';\n  const review = d.content || d.review_text || d.text || d.comment || d.review || '';\n  const body = [pros ? `Pros: ${pros}` : '', cons ? `Cons: ${cons}` : '', review].filter(Boolean).join('\\n').substring(0, 2000);\n  if (!body || body.length < 20) continue;\n  // Build unique URL: use the review's unique id from the actor, or fall back to product URL + author hash\n  let reviewUrl = '';\n  if (d.id) {\n    const productUrl = d.product_url || d.review_url || d.url || '';\n    const baseUrl = productUrl.split('?')[0];\n    reviewUrl = baseUrl ? `${baseUrl}#${d.id}` : d.id;\n  } else {\n    const productUrl = d.product_url || d.review_url || d.url || '';\n    const author = d.author || d.reviewer_name || d.reviewerName || 'anon';\n    const date = d.date_posted || d.date || d.published_date || d.publishedDate || '';\n    const safeAuthor = author.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 40);\n    const safeDate = date.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);\n    reviewUrl = productUrl ? `${productUrl.split('?')[0]}#review-${safeAuthor}-${safeDate}` : `g2-review-${safeAuthor}-${safeDate}`;\n  }\n  results.push({\n    json: {\n      platform: 'g2',\n      content_type: 'review',\n      title: d.title || d.product_name || d.productName || '',\n      body: body,\n      url: reviewUrl,\n      author: d.author || d.reviewer_name || d.reviewerName || '',\n      score: d.rating || d.star_rating || d.overall_rating || 0,\n      created_at: d.date_posted || d.date || d.published_date || d.publishedDate || new Date().toISOString()\n    }\n  });\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'g2' } }];"
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "scrape-capterra",
+        "name": "Scrape Capterra Reviews",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          608,
+          1320
+        ],
+        "parameters": {
+          "jsCode": "const urls = JSON.parse($json.capterraProductUrls);\nconst results = [];\nfor (const url of urls) {\n  results.push({ json: { url: url, maxReviews: 10 } });\n}\nreturn results;"
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "run-capterra-actor",
+        "name": "Run Capterra Actor",
+        "type": "@apify/n8n-nodes-apify.apify",
+        "typeVersion": 1,
+        "position": [
+          912,
+          1320
+        ],
+        "parameters": {
+          "actorId": "dionysus_way~capterra-reviews",
+          "operation": "Run actor and get dataset",
+          "customBody": "={{ JSON.stringify({ startUrls: [$json.url], maxReviews: $json.maxReviews }) }}"
+        },
+        "credentials": {
+          "apifyApi": {
+            "id": "8NpkWWjCZpHPCNAB",
+            "name": "Apify account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "extract-capterra",
+        "name": "Extract Capterra Results",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1200,
+          1320
+        ],
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items.slice(0, 50)) {\n  const d = item.json;\n  const pros = d.pros || d.advantages || '';\n  const cons = d.cons || d.disadvantages || '';\n  const overall = d.comments || d.overall || d.text || d.review || d.comment || '';\n  const body = [pros ? `Pros: ${pros}` : '', cons ? `Cons: ${cons}` : '', overall ? `Overall: ${overall}` : ''].filter(Boolean).join('\\n').substring(0, 2000);\n  if (!body || body.length < 20) continue;\n  // Capterra actor provides unique reviewUrl per review\n  const reviewUrl = d.reviewUrl || d.review_url || '';\n  let uniqueUrl = reviewUrl;\n  if (!uniqueUrl) {\n    const productUrl = d.productUrl || d.url || '';\n    if (d.id) {\n      uniqueUrl = productUrl ? `${productUrl}#capterra-${d.id}` : `capterra-review-${d.id}`;\n    } else {\n      const author = d.author || d.reviewer || 'anon';\n      const date = d.date || '';\n      const safeAuthor = author.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 40);\n      const safeDate = date.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 20);\n      uniqueUrl = productUrl ? `${productUrl}#review-${safeAuthor}-${safeDate}` : `capterra-review-${safeAuthor}-${safeDate}`;\n    }\n  }\n  results.push({\n    json: {\n      platform: 'capterra',\n      content_type: 'review',\n      title: d.title || d.product_name || d.productName || '',\n      body: body,\n      url: uniqueUrl,\n      author: d.author || d.reviewer || d.reviewerName || d.reviewer_name || '',\n      score: d.rating || d.overallRating || d.overall_rating || 0,\n      created_at: d.date || d.reviewDate || d.published_date || new Date().toISOString()\n    }\n  });\n}\nreturn results.length > 0 ? results : [{ json: { _empty: true, platform: 'capterra' } }];"
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "id": "merge-all-content",
+        "name": "Merge All Content",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1456,
+          800
+        ],
+        "parameters": {
+          "jsCode": "const items = $input.all();\nreturn items;"
+        }
       }
     ],
     "connections": {
-      "Webhook Trigger": {
+      "Scrape Google Maps": {
         "main": [
           [
             {
-              "node": "Set Search Parameters",
+              "node": "Extract GMaps Results",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape Reddit": {
+        "main": [
+          [
+            {
+              "node": "Extract Reddit Results",
               "type": "main",
               "index": 0
             }
@@ -942,59 +1347,30 @@
               "node": "Scrape Google Maps",
               "type": "main",
               "index": 0
-            }
-          ]
-        ]
-      },
-      "Scrape Reddit": {
-        "main": [
-          [
+            },
             {
-              "node": "Extract Reddit Results",
+              "node": "Scrape LinkedIn",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Scrape G2 Reviews",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Scrape Capterra Reviews",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Scrape Google Maps": {
+      "Webhook Trigger": {
         "main": [
           [
             {
-              "node": "Extract GMaps Results",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Extract Reddit Results": {
-        "main": [
-          [
-            {
-              "node": "Merge Scraped Content",
-              "type": "main",
-              "index": 0
-            }
-          ]
-        ]
-      },
-      "Extract GMaps Results": {
-        "main": [
-          [
-            {
-              "node": "Merge Scraped Content",
-              "type": "main",
-              "index": 1
-            }
-          ]
-        ]
-      },
-      "Merge Scraped Content": {
-        "main": [
-          [
-            {
-              "node": "Filter Non-Empty",
+              "node": "Set Search Parameters",
               "type": "main",
               "index": 0
             }
@@ -1008,23 +1384,16 @@
               "node": "POST Raw to Market Intel",
               "type": "main",
               "index": 0
-            }
-          ],
-          []
-        ]
-      },
-      "POST Raw to Market Intel": {
-        "main": [
-          [
+            },
             {
-              "node": "Batch for AI Classification",
+              "node": "Bundle for AI",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Batch for AI Classification": {
+      "Bundle for AI": {
         "main": [
           [
             {
@@ -1032,37 +1401,157 @@
               "type": "main",
               "index": 0
             }
-          ],
-          []
+          ]
         ]
       },
       "AI Classify Social Content": {
         "main": [
           [
             {
-              "node": "Parse and POST Results",
+              "node": "Parse AI Response",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Parse and POST Results": {
+      "Parse AI Response": {
         "main": [
           [
             {
-              "node": "Continue Batch Loop",
+              "node": "Filter Valid Pain Points",
               "type": "main",
               "index": 0
             }
           ]
         ]
       },
-      "Continue Batch Loop": {
+      "Filter Valid Pain Points": {
         "main": [
           [
             {
-              "node": "Batch for AI Classification",
+              "node": "POST Pain Points",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape LinkedIn": {
+        "main": [
+          [
+            {
+              "node": "Extract LinkedIn Results",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape G2 Reviews": {
+        "main": [
+          [
+            {
+              "node": "Run G2 Actor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Run G2 Actor": {
+        "main": [
+          [
+            {
+              "node": "Extract G2 Results",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Scrape Capterra Reviews": {
+        "main": [
+          [
+            {
+              "node": "Run Capterra Actor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Run Capterra Actor": {
+        "main": [
+          [
+            {
+              "node": "Extract Capterra Results",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Reddit Results": {
+        "main": [
+          [
+            {
+              "node": "Merge All Content",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract GMaps Results": {
+        "main": [
+          [
+            {
+              "node": "Merge All Content",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract LinkedIn Results": {
+        "main": [
+          [
+            {
+              "node": "Merge All Content",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract G2 Results": {
+        "main": [
+          [
+            {
+              "node": "Merge All Content",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract Capterra Results": {
+        "main": [
+          [
+            {
+              "node": "Merge All Content",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge All Content": {
+        "main": [
+          [
+            {
+              "node": "Filter Non-Empty",
               "type": "main",
               "index": 0
             }
@@ -1071,17 +1560,25 @@
       }
     },
     "authors": "Vambah Sillah",
-    "name": "Version 1721ee54",
-    "description": "",
+    "name": null,
+    "description": null,
     "autosaved": false,
     "workflowPublishHistory": [
       {
-        "createdAt": "2026-02-10T18:02:46.091Z",
-        "id": 277,
-        "workflowId": "jrnaN1yp8nSDKJB9",
-        "versionId": "1721ee54-80b7-4dc5-90a4-30cd64314d4c",
+        "createdAt": "2026-03-26T17:02:55.497Z",
+        "id": 664,
+        "workflowId": "gUyOBZOknpAt41aF",
+        "versionId": "2b8a4f96-8e27-4396-b516-9113888d84cf",
         "event": "activated",
-        "userId": "40690b8a-67b7-469e-b617-699a163b2224"
+        "userId": "5ac96893-047a-40c9-8b9a-29b51d7a264d"
+      },
+      {
+        "createdAt": "2026-03-26T17:02:55.275Z",
+        "id": 663,
+        "workflowId": "gUyOBZOknpAt41aF",
+        "versionId": "2b8a4f96-8e27-4396-b516-9113888d84cf",
+        "event": "deactivated",
+        "userId": "5ac96893-047a-40c9-8b9a-29b51d7a264d"
       }
     ]
   }
