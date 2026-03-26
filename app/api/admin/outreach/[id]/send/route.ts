@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { n8nWebhookUrl, isN8nOutboundDisabled } from '@/lib/n8n'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import { logCommunication } from '@/lib/communications'
 
 export const dynamic = 'force-dynamic'
 
@@ -102,6 +103,23 @@ export async function POST(
       console.error('n8n webhook error:', webhookError)
       // Fire-and-forget is acceptable -- the workflow will handle retries
     }
+
+    logCommunication({
+      contactSubmissionId: item.contact_submission_id,
+      channel: item.channel as 'email' | 'linkedin',
+      direction: 'outbound',
+      messageType: 'cold_outreach',
+      subject: item.subject,
+      body: item.body,
+      sourceSystem: 'outreach_queue',
+      sourceId: item.id,
+      status: 'queued',
+      sentBy: authResult.user.id,
+      metadata: {
+        sequence_step: item.sequence_step,
+        outreach_queue_id: item.id,
+      },
+    })
 
     return NextResponse.json({
       message: 'Send workflow triggered',

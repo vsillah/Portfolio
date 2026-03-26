@@ -51,6 +51,7 @@ export async function GET(
     deliveryRes,
     dashboardRes,
     salesRes,
+    communicationsRes,
   ] = await Promise.all([
     supabaseAdmin
       .from('gamma_reports')
@@ -103,6 +104,13 @@ export async function GET(
       .eq('contact_submission_id', contactId)
       .order('created_at', { ascending: false })
       .limit(5),
+
+    supabaseAdmin
+      .from('contact_communications')
+      .select('id, channel, direction, message_type, subject, body, source_system, source_id, prompt_key, status, sent_at, sent_by, metadata, created_at')
+      .eq('contact_submission_id', contactId)
+      .order('created_at', { ascending: false })
+      .limit(50),
   ])
 
   // Build timeline from all events
@@ -149,6 +157,7 @@ export async function GET(
     contact,
     ...pageData,
     outreach: outreachRes.data ?? [],
+    communications: communicationsRes.data ?? [],
     dashboardAccess: dashboardRes.data?.[0] ?? null,
     timeline,
     suggestedTemplate,
