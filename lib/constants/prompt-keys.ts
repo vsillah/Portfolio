@@ -15,6 +15,9 @@ export const PROMPT_KEYS = [
   'email_follow_up',
   'email_proposal_delivery',
   'email_onboarding_welcome',
+  'social_topic_extraction',
+  'social_copywriting',
+  'social_image_generation',
 ] as const
 
 export type PromptKey = (typeof PROMPT_KEYS)[number]
@@ -32,7 +35,19 @@ export const PROMPT_DISPLAY_NAMES: Record<string, string> = {
   email_follow_up: 'Follow-Up Email',
   email_proposal_delivery: 'Proposal Delivery Email',
   email_onboarding_welcome: 'Onboarding Welcome Email',
+  social_topic_extraction: 'Social — Topic Extraction',
+  social_copywriting: 'Social — Copywriting',
+  social_image_generation: 'Social — Image Generation',
 }
+
+/** Subset of prompt keys for the social content pipeline. */
+export const SOCIAL_PROMPT_KEYS = [
+  'social_topic_extraction',
+  'social_copywriting',
+  'social_image_generation',
+] as const
+
+export type SocialPromptKey = (typeof SOCIAL_PROMPT_KEYS)[number]
 
 /** Subset of prompt keys that are Saraev email templates, for the compose panel dropdown. */
 export const EMAIL_TEMPLATE_KEYS = [

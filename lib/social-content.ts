@@ -233,12 +233,33 @@ The image should look like a slide from a premium consulting deck — the kind o
 // Helpers
 // ============================================================================
 
+/**
+ * Build image prompt using the hardcoded template (synchronous).
+ * Prefer buildImagePromptDynamic() when running server-side to pick up admin edits.
+ */
 export function buildImagePrompt(
   visualType: FrameworkVisualType,
   topic: string,
   keyElements: string
 ): string {
   return FRAMEWORK_IMAGE_PROMPT_TEMPLATE
+    .replace('{framework_visual_type}', visualType)
+    .replace('{topic}', topic)
+    .replace('{key_elements}', keyElements)
+}
+
+/**
+ * Build image prompt from the DB-backed template (async, server-side only).
+ * Falls back to the hardcoded FRAMEWORK_IMAGE_PROMPT_TEMPLATE if no DB row.
+ */
+export async function buildImagePromptDynamic(
+  visualType: FrameworkVisualType,
+  topic: string,
+  keyElements: string
+): Promise<string> {
+  const { getSocialImagePrompt } = await import('./system-prompts')
+  const template = await getSocialImagePrompt()
+  return template
     .replace('{framework_visual_type}', visualType)
     .replace('{topic}', topic)
     .replace('{key_elements}', keyElements)

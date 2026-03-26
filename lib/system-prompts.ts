@@ -4,6 +4,11 @@
  */
 
 import { supabaseAdmin } from './supabase'
+import {
+  HORMOZI_TOPIC_EXTRACTION_PROMPT,
+  HORMOZI_COPYWRITING_PROMPT,
+  FRAMEWORK_IMAGE_PROMPT_TEMPLATE,
+} from './social-content'
 
 export interface SystemPrompt {
   id: string
@@ -117,6 +122,10 @@ TONE: [conversational, educational, etc.]
 ANGLE / HOOK: [what makes this interesting]
 
 If the user provided audience/tone/angle explicitly, use those. Otherwise infer from the content. Keep it concise -- this will be injected into a larger video ideas generation prompt alongside portfolio context.`,
+
+  social_topic_extraction: HORMOZI_TOPIC_EXTRACTION_PROMPT,
+  social_copywriting: HORMOZI_COPYWRITING_PROMPT,
+  social_image_generation: FRAMEWORK_IMAGE_PROMPT_TEMPLATE,
 }
 
 const DEFAULT_CONFIGS: Record<string, PromptConfig> = {
@@ -126,6 +135,10 @@ const DEFAULT_CONFIGS: Record<string, PromptConfig> = {
   diagnostic: { temperature: 0.7, maxTokens: 1024 },
   client_email_reply: { temperature: 0.6, maxTokens: 1024 },
   video_prompt_formatter: { temperature: 0.5, maxTokens: 800, model: 'gpt-4o-mini' },
+
+  social_topic_extraction: { temperature: 0.6, maxTokens: 2048 },
+  social_copywriting: { temperature: 0.8, maxTokens: 1024 },
+  social_image_generation: { temperature: 0.4, maxTokens: 512 },
 }
 
 // Cache for prompts (5 minute TTL)
@@ -287,6 +300,50 @@ export function clearPromptCache(key?: string) {
 export async function getPromptConfig(key: string): Promise<PromptConfig> {
   const prompt = await getSystemPrompt(key)
   return (prompt?.config || DEFAULT_CONFIGS[key] || {}) as PromptConfig
+}
+
+/**
+ * Get the social content topic extraction prompt (Hormozi framework).
+ * Used by WF-SOC-001 to extract topics from meeting transcripts.
+ */
+export async function getSocialTopicExtractionPrompt(): Promise<string> {
+  const prompt = await getSystemPrompt('social_topic_extraction')
+  return prompt?.prompt || DEFAULT_PROMPTS.social_topic_extraction
+}
+
+/**
+ * Get the social content copywriting prompt (Hormozi style).
+ * Used by WF-SOC-001 to generate LinkedIn post text.
+ */
+export async function getSocialCopywritingPrompt(): Promise<string> {
+  const prompt = await getSystemPrompt('social_copywriting')
+  return prompt?.prompt || DEFAULT_PROMPTS.social_copywriting
+}
+
+/**
+ * Get the social content image generation prompt template.
+ * Contains {framework_visual_type}, {topic}, {key_elements} placeholders.
+ */
+export async function getSocialImagePrompt(): Promise<string> {
+  const prompt = await getSystemPrompt('social_image_generation')
+  return prompt?.prompt || DEFAULT_PROMPTS.social_image_generation
+}
+
+/**
+ * Get all three social content prompts in one call.
+ * Used when triggering WF-SOC-001 to send all prompts to the n8n workflow.
+ */
+export async function getSocialContentPrompts(): Promise<{
+  topicExtraction: string
+  copywriting: string
+  imageGeneration: string
+}> {
+  const [topicExtraction, copywriting, imageGeneration] = await Promise.all([
+    getSocialTopicExtractionPrompt(),
+    getSocialCopywritingPrompt(),
+    getSocialImagePrompt(),
+  ])
+  return { topicExtraction, copywriting, imageGeneration }
 }
 
 /**

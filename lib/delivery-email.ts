@@ -8,6 +8,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase'
 import { getSystemPrompt } from '@/lib/system-prompts'
+import { logCommunication } from '@/lib/communications'
 import { recordOpenAICost } from '@/lib/cost-calculator'
 import { sendEmail } from '@/lib/notifications'
 import type { EmailTemplateKey } from '@/lib/constants/prompt-keys'
@@ -624,6 +625,24 @@ export async function sendDeliveryEmail(input: SendDeliveryInput): Promise<{ suc
   if (insertErr) {
     console.error('[Delivery email] Failed to log delivery:', insertErr)
   }
+
+  logCommunication({
+    contactSubmissionId: input.contactId,
+    channel: 'email',
+    direction: 'outbound',
+    messageType: 'asset_delivery',
+    subject: input.subject,
+    body: input.body,
+    sourceSystem: 'delivery_email',
+    sourceId: delivery?.id ?? undefined,
+    status: success ? 'sent' : 'failed',
+    sentBy: input.sentBy,
+    metadata: {
+      recipient_email: input.recipientEmail,
+      asset_count: input.assetIds.length,
+      has_dashboard: !!input.dashboardToken,
+    },
+  })
 
   return {
     success,

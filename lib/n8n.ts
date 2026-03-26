@@ -1419,11 +1419,17 @@ const N8N_SOC002_WEBHOOK_URL =
   process.env.N8N_SOC002_WEBHOOK_URL || n8nWebhookUrl('social-content-publish')
 
 /**
- * Trigger WF-SOC-001: Extract social content from recent meetings
- * Can be triggered manually from admin or runs on a schedule in n8n
+ * Trigger WF-SOC-001: Extract social content from recent meetings.
+ * When called with prompts, sends them in the webhook body so n8n uses the
+ * admin-configured versions instead of its own hardcoded copies.
  */
 export async function triggerSocialContentExtraction(options?: {
   meetingRecordId?: string
+  prompts?: {
+    topicExtraction: string
+    copywriting: string
+    imageGeneration: string
+  }
 }): Promise<{ triggered: boolean; message: string }> {
   if (isN8nOutboundDisabled()) {
     logDisabledOutbound('triggerSocialContentExtraction', N8N_SOC001_WEBHOOK_URL, options)
@@ -1443,6 +1449,9 @@ export async function triggerSocialContentExtraction(options?: {
     }
     if (options?.meetingRecordId) {
       body.meeting_record_id = options.meetingRecordId
+    }
+    if (options?.prompts) {
+      body.prompts = options.prompts
     }
 
     const response = await fetch(N8N_SOC001_WEBHOOK_URL, {
