@@ -1354,7 +1354,7 @@ export async function triggerValueEvidenceExtraction(
  * Trigger the social listening workflow (WF-VEP-002)
  * Scrapes LinkedIn, Reddit, G2, Capterra, etc. for pain point mentions
  * Results are POSTed back to /api/admin/value-evidence/ingest-market
- * then classified and sent to /api/admin/value-evidence/ingest
+ * which auto-classifies them into pain_point_evidence on insert
  */
 export interface SocialListeningOptions {
   /** Run ID for progress/complete callbacks; n8n can echo this back to update run status. */

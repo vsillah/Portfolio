@@ -733,10 +733,15 @@ function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
     return Array.from(tags).sort()
   }, [painPoints])
 
+  const painPointsWithData = React.useMemo(
+    () => painPoints.filter(pp => (pp.evidence_count || 0) > 0 || (pp.calculation_count || 0) > 0).length,
+    [painPoints]
+  )
+
   const [ppPage, setPpPage] = useState(1)
 
   const filteredAndSorted = React.useMemo(() => {
-    let list = [...painPoints]
+    let list = [...painPoints].filter(pp => (pp.evidence_count || 0) > 0 || (pp.calculation_count || 0) > 0)
 
     if (filterIndustry !== 'all') {
       list = list.filter(pp => pp.industry_tags?.includes(filterIndustry))
@@ -833,7 +838,7 @@ function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Pain Point Categories ({filteredAndSorted.length}{filteredAndSorted.length !== painPoints.length ? ` of ${painPoints.length}` : ''})</h2>
+        <h2 className="text-xl font-semibold">Pain Point Categories ({filteredAndSorted.length}{filteredAndSorted.length !== painPointsWithData ? ` of ${painPointsWithData}` : ''})</h2>
       </div>
 
       {/* Sort / Filter / Search toolbar */}

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { classifyMarketIntel } from '@/lib/market-intel-classifier'
 
 export const dynamic = 'force-dynamic'
 
@@ -125,7 +126,25 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(results)
+    // Auto-classify newly inserted records into pain point evidence
+    let classification: { evidenceCreated: number; irrelevant: number } | null = null
+    if (results.inserted > 0) {
+      try {
+        const classifyResult = await classifyMarketIntel(results.inserted)
+        classification = {
+          evidenceCreated: classifyResult.evidenceCreated,
+          irrelevant: classifyResult.irrelevant,
+        }
+        if (classifyResult.errors.length > 0) {
+          results.errors.push(...classifyResult.errors.map(e => `[classify] ${e}`))
+        }
+      } catch (classifyError: any) {
+        console.error('Auto-classification failed (non-blocking):', classifyError)
+        results.errors.push(`[classify] ${classifyError.message}`)
+      }
+    }
+
+    return NextResponse.json({ ...results, classification })
   } catch (error: any) {
     console.error('Market intelligence ingest error:', error)
     return NextResponse.json(
