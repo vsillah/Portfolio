@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  const platforms = [...new Set((platformRows || []).map(r => r.source_platform))].sort()
+  const platforms = [...new Set((platformRows || []).map((r: { source_platform: string }) => r.source_platform))].sort()
 
   return NextResponse.json({
     items: data || [],

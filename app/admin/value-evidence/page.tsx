@@ -2100,6 +2100,12 @@ function CalculationsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
     }
   }
 
+  useEffect(() => { setCalcPage(1) }, [industryFilter, painPointFilter])
+
+  const calcTotalPages = Math.max(1, Math.ceil(calculations.length / PAGE_SIZE))
+  const calcPageItems = calculations.slice((calcPage - 1) * PAGE_SIZE, calcPage * PAGE_SIZE)
+  const industries = [...new Set(calculations.map((c: any) => c.industry).filter(Boolean))].sort()
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -2107,12 +2113,6 @@ function CalculationsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
       </div>
     )
   }
-
-  useEffect(() => { setCalcPage(1) }, [industryFilter, painPointFilter])
-
-  const calcTotalPages = Math.max(1, Math.ceil(calculations.length / PAGE_SIZE))
-  const calcPageItems = calculations.slice((calcPage - 1) * PAGE_SIZE, calcPage * PAGE_SIZE)
-  const industries = [...new Set(calculations.map((c: any) => c.industry).filter(Boolean))].sort()
 
   return (
     <div className="space-y-4">
