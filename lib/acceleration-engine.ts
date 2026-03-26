@@ -315,8 +315,8 @@ function findContentMatches(
   // Map assessment categories to pain point categories (heuristic)
   const categoryToPainPoints: Record<string, string[]> = {
     business_challenges: ['scaling_bottlenecks', 'customer_churn'],
-    tech_stack: ['scattered_tools', 'manual_data_entry'],
-    automation_needs: ['manual_data_entry', 'manual_reporting', 'employee_onboarding'],
+    tech_stack: ['scattered_tools', 'manual_processes'],
+    automation_needs: ['manual_processes', 'manual_reporting', 'employee_onboarding'],
     ai_readiness: ['slow_response_times', 'poor_lead_qualification'],
     budget_timeline: ['knowledge_loss', 'scaling_bottlenecks'],
     decision_making: ['inconsistent_followup', 'poor_lead_qualification'],

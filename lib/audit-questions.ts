@@ -74,7 +74,7 @@ const PRIMARY_CHALLENGES = [
 ]
 
 const PAIN_POINTS = [
-  { value: 'manual_data_entry', label: 'Manual data entry' },
+  { value: 'manual_processes', label: 'Manual / unautomated processes' },
   { value: 'spreadsheet_overload', label: 'Spreadsheet overload' },
   { value: 'no_single_source', label: 'No single source of truth' },
   { value: 'slow_lead_response', label: 'Slow lead response time' },

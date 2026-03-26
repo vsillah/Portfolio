@@ -85,6 +85,9 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'tool sprawl', 'integration', 'switching between', 'copy paste between',
     'double entry', 'duplicate data', 'fragmented', 'no single source of truth',
     'multiple platforms', 'context switching', 'app fatigue',
+    'scattered data', 'data everywhere', 'data in spreadsheets',
+    'can\'t find data', 'data access', 'data management',
+    'unorganized data', 'messy data', 'data chaos',
   ],
   inconsistent_followup: [
     'follow up', 'follow-up', 'followup', 'falling through the cracks',
@@ -92,10 +95,13 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'dropped the ball', 'never heard back', 'inconsistent communication',
     'no response', 'ghosted', 'lost track',
   ],
-  manual_data_entry: [
+  manual_processes: [
     'manual data entry', 'data entry', 'entering data', 'copy paste',
     'manual input', 'typing in', 'manually entering', 'repetitive entry',
     'form filling', 'data migration', 'transcription', 'keying in data',
+    'no automation', 'lack of automation', 'everything manual', 'automate',
+    'workflow automation', 'repetitive task', 'manual workflow', 'manual process',
+    'could be automated', 'still doing it manually', 'automation opportunity',
   ],
   knowledge_loss: [
     'tribal knowledge', 'documentation', 'knowledge loss', 'brain drain',
@@ -113,21 +119,11 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'client waiting', 'turnaround time', 'slow to reply', 'sla',
     'service level', 'ticket response', 'support response', 'queue',
   ],
-  no_automation: [
-    'no automation', 'lack of automation', 'everything manual', 'automate',
-    'workflow automation', 'repetitive task', 'manual workflow', 'manual process',
-    'could be automated', 'still doing it manually', 'automation opportunity',
-  ],
   poor_communication: [
     'poor communication', 'miscommunication', 'communication gap',
     'information doesn\'t flow', 'nobody told me', 'email overload',
     'communication breakdown', 'team communication', 'internal communication',
     'siloed communication', 'slack overload',
-  ],
-  scattered_data: [
-    'scattered data', 'data everywhere', 'data in spreadsheets',
-    'can\'t find data', 'data access', 'data management',
-    'unorganized data', 'messy data', 'data chaos',
   ],
 }
 

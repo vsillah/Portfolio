@@ -415,7 +415,7 @@ export const PAIN_POINT_DEFAULT_METHODS: Record<string, {
   method: CalculationMethod;
   defaultInputs: Record<string, number>;
 }> = {
-  manual_data_entry: {
+  manual_processes: {
     method: 'time_saved',
     defaultInputs: { hours_per_week: 10, weeks_per_year: 52 },
   },
