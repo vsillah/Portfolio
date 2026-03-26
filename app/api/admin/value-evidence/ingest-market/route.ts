@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       errors: [] as string[],
     }
 
-    const VALID_PLATFORMS = ['linkedin', 'reddit', 'g2', 'capterra', 'trustradius', 'facebook', 'twitter', 'google_maps', 'youtube', 'quora', 'other']
+    const VALID_PLATFORMS = ['linkedin', 'reddit', 'g2', 'capterra', 'trustradius', 'facebook', 'twitter', 'google_maps']
     const VALID_CONTENT_TYPES = ['post', 'comment', 'review', 'question', 'article', 'other']
 
     for (const item of items) {

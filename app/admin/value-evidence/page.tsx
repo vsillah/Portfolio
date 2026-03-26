@@ -36,6 +36,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import Pagination from '@/components/admin/Pagination'
 import { getCurrentSession } from '@/lib/auth'
 import { getIndustryDisplayName, INDUSTRY_SLUGS } from '@/lib/constants/industry'
 
@@ -686,6 +687,8 @@ function WorkflowRunCard({
   )
 }
 
+const PAGE_SIZE = 50
+
 function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   const [painPoints, setPainPoints] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -730,6 +733,8 @@ function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
     return Array.from(tags).sort()
   }, [painPoints])
 
+  const [ppPage, setPpPage] = useState(1)
+
   const filteredAndSorted = React.useMemo(() => {
     let list = [...painPoints]
 
@@ -758,6 +763,11 @@ function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
 
     return list
   }, [painPoints, filterIndustry, searchQuery, sortBy])
+
+  useEffect(() => { setPpPage(1) }, [filterIndustry, searchQuery, sortBy])
+
+  const ppTotalPages = Math.max(1, Math.ceil(filteredAndSorted.length / PAGE_SIZE))
+  const ppPageItems = filteredAndSorted.slice((ppPage - 1) * PAGE_SIZE, ppPage * PAGE_SIZE)
 
   const toggleExpand = async (ppId: string) => {
     if (expandedId === ppId) {
@@ -872,7 +882,7 @@ function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
       </div>
 
       <div className="space-y-3">
-        {filteredAndSorted.map(pp => {
+        {ppPageItems.map(pp => {
           const isExpanded = expandedId === pp.id
           const evidence = evidenceMap[pp.id]
           return (
@@ -1049,6 +1059,14 @@ function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
           )
         })}
 
+        <Pagination
+          page={ppPage}
+          totalPages={ppTotalPages}
+          total={filteredAndSorted.length}
+          pageSize={PAGE_SIZE}
+          onPageChange={setPpPage}
+        />
+
         {filteredAndSorted.length === 0 && painPoints.length > 0 && (
           <div className="text-center py-12 text-platinum-white/60">
             <Search size={48} className="mx-auto mb-4 opacity-50" />
@@ -1074,12 +1092,17 @@ function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
 
 function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   const [items, setItems] = useState<any[]>([])
+  const [platforms, setPlatforms] = useState<string[]>([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [platform, setPlatform] = useState<string>('')
   const [processedFilter, setProcessedFilter] = useState<string>('')
 
-  const fetchItems = useCallback(async () => {
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+
+  const fetchPage = useCallback(async (pageNum: number) => {
     setLoading(true)
     setLoadError(null)
     try {
@@ -1093,6 +1116,8 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
       if (platform) params.set('platform', platform)
       if (processedFilter === 'processed') params.set('is_processed', 'true')
       else if (processedFilter === 'unprocessed') params.set('is_processed', 'false')
+      params.set('limit', String(PAGE_SIZE))
+      params.set('offset', String((pageNum - 1) * PAGE_SIZE))
 
       const res = await fetch(`/api/admin/value-evidence/market-intel?${params}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -1101,6 +1126,9 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
       if (res.ok) {
         const data = await res.json()
         setItems(data.items || [])
+        setTotal(data.total ?? 0)
+        setPage(pageNum)
+        if (data.platforms) setPlatforms(data.platforms)
         return
       }
 
@@ -1118,8 +1146,8 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   }, [platform, processedFilter])
 
   useEffect(() => {
-    fetchItems()
-  }, [fetchItems, pageRefreshNonce])
+    fetchPage(1)
+  }, [fetchPage, pageRefreshNonce])
 
   if (loading) {
     return (
@@ -1132,7 +1160,9 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-4">
-        <h2 className="text-xl font-semibold">Market Intelligence ({items.length})</h2>
+        <h2 className="text-xl font-semibold">
+          Market Intelligence ({total})
+        </h2>
         <div className="flex gap-2">
           <select
             value={platform}
@@ -1140,14 +1170,11 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
             className="px-3 py-1.5 bg-silicon-slate border border-silicon-slate rounded-lg text-sm"
           >
             <option value="">All platforms</option>
-            <option value="reddit">Reddit</option>
-            <option value="linkedin">LinkedIn</option>
-            <option value="g2">G2</option>
-            <option value="capterra">Capterra</option>
-            <option value="google_maps">Google Maps</option>
-            <option value="youtube">YouTube</option>
-            <option value="quora">Quora</option>
-            <option value="other">Other</option>
+            {platforms.map(p => (
+              <option key={p} value={p}>
+                {p.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}
+              </option>
+            ))}
           </select>
           <select
             value={processedFilter}
@@ -1159,7 +1186,7 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
             <option value="processed">Processed</option>
           </select>
           <button
-            onClick={fetchItems}
+            onClick={() => fetchPage(1)}
             className="p-1.5 bg-silicon-slate/80 rounded-lg hover:bg-gray-600"
           >
             <RefreshCw size={16} />
@@ -1167,7 +1194,7 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
         </div>
       </div>
 
-      <div className="space-y-3 max-h-[70vh] overflow-y-auto">
+      <div className="space-y-3">
         {loadError && (
           <div className="p-3 rounded-lg border border-amber-500/40 bg-amber-900/20 text-amber-200 text-sm">
             {loadError}
@@ -1222,7 +1249,16 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
           </motion.div>
         ))}
 
-        {items.length === 0 && (
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          total={total}
+          pageSize={PAGE_SIZE}
+          loading={loading}
+          onPageChange={fetchPage}
+        />
+
+        {items.length === 0 && !loading && (
           <div className="text-center py-12 text-platinum-white/60">
             <Globe size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg">No market intelligence yet</p>
@@ -1928,6 +1964,7 @@ function CalculationsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   const [loading, setLoading] = useState(true)
   const [industryFilter, setIndustryFilter] = useState('')
   const [painPointFilter, setPainPointFilter] = useState('')
+  const [calcPage, setCalcPage] = useState(1)
   const [generating, setGenerating] = useState(false)
   const [recalculating, setRecalculating] = useState(false)
   const [recalcResult, setRecalcResult] = useState<string | null>(null)
@@ -2071,6 +2108,10 @@ function CalculationsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
     )
   }
 
+  useEffect(() => { setCalcPage(1) }, [industryFilter, painPointFilter])
+
+  const calcTotalPages = Math.max(1, Math.ceil(calculations.length / PAGE_SIZE))
+  const calcPageItems = calculations.slice((calcPage - 1) * PAGE_SIZE, calcPage * PAGE_SIZE)
   const industries = [...new Set(calculations.map((c: any) => c.industry).filter(Boolean))].sort()
 
   return (
@@ -2131,8 +2172,8 @@ function CalculationsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
         </div>
       )}
 
-      <div className="space-y-3 max-h-[65vh] overflow-y-auto">
-        {calculations.map(calc => (
+      <div className="space-y-3">
+        {calcPageItems.map(calc => (
           <CalculationCard
             key={calc.id}
             calc={calc}
@@ -2140,6 +2181,14 @@ function CalculationsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
             onDelete={handleDelete}
           />
         ))}
+
+        <Pagination
+          page={calcPage}
+          totalPages={calcTotalPages}
+          total={calculations.length}
+          pageSize={PAGE_SIZE}
+          onPageChange={setCalcPage}
+        />
 
         {calculations.length === 0 && (
           <div className="text-center py-12 text-platinum-white/60">
@@ -2161,6 +2210,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   const [reports, setReports] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [typeFilter, setTypeFilter] = useState('')
+  const [reportPage, setReportPage] = useState(1)
   const [selectedReport, setSelectedReport] = useState<any | null>(null)
   const [reportDetail, setReportDetail] = useState<{ report: any; contact: any } | null>(null)
 
@@ -2202,6 +2252,11 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   useEffect(() => {
     fetchReports()
   }, [fetchReports, pageRefreshNonce])
+
+  useEffect(() => { setReportPage(1) }, [typeFilter])
+
+  const reportTotalPages = Math.max(1, Math.ceil(reports.length / PAGE_SIZE))
+  const reportPageItems = reports.slice((reportPage - 1) * PAGE_SIZE, reportPage * PAGE_SIZE)
 
   const fetchContacts = useCallback(async () => {
     try {
@@ -2416,8 +2471,8 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="space-y-3 max-h-[65vh] overflow-y-auto">
-          {reports.map(r => (
+        <div className="space-y-3">
+          {reportPageItems.map(r => (
             <motion.div
               key={r.id}
               initial={{ opacity: 0 }}
@@ -2444,6 +2499,14 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
               </div>
             </motion.div>
           ))}
+
+          <Pagination
+            page={reportPage}
+            totalPages={reportTotalPages}
+            total={reports.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={setReportPage}
+          />
 
           {reports.length === 0 && (
             <div className="text-center py-12 text-platinum-white/60">
