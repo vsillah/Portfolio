@@ -34,17 +34,29 @@ function makeBenchmark(
 
 describe('value-calculations regression coverage', () => {
   it('uses fallback order in findBestBenchmark', () => {
-    const benchmarks: IndustryBenchmark[] = [
+    const withExact: IndustryBenchmark[] = [
+      makeBenchmark('same-industry', 'healthcare', '51-200', 'avg_hourly_wage', 65),
       makeBenchmark('exact', 'healthcare', '11-50', 'avg_hourly_wage', 70),
+      makeBenchmark('default-size', '_default', '11-50', 'avg_hourly_wage', 55),
+      makeBenchmark('default-any', '_default', '201-1000', 'avg_hourly_wage', 45),
+    ]
+    const withoutExact: IndustryBenchmark[] = [
       makeBenchmark('same-industry', 'healthcare', '51-200', 'avg_hourly_wage', 65),
       makeBenchmark('default-size', '_default', '11-50', 'avg_hourly_wage', 55),
       makeBenchmark('default-any', '_default', '201-1000', 'avg_hourly_wage', 45),
     ]
+    const defaultOnly: IndustryBenchmark[] = [
+      makeBenchmark('default-size', '_default', '11-50', 'avg_hourly_wage', 55),
+      makeBenchmark('default-any', '_default', '201-1000', 'avg_hourly_wage', 45),
+    ]
+    const defaultAnyOnly: IndustryBenchmark[] = [
+      makeBenchmark('default-any', '_default', '201-1000', 'avg_hourly_wage', 45),
+    ]
 
-    expect(findBestBenchmark(benchmarks, 'healthcare', '11-50', 'avg_hourly_wage')?.id).toBe('exact')
-    expect(findBestBenchmark(benchmarks, 'healthcare', '1-10', 'avg_hourly_wage')?.id).toBe('same-industry')
-    expect(findBestBenchmark(benchmarks, 'retail', '11-50', 'avg_hourly_wage')?.id).toBe('default-size')
-    expect(findBestBenchmark(benchmarks, 'retail', '1-10', 'avg_hourly_wage')?.id).toBe('default-any')
+    expect(findBestBenchmark(withExact, 'healthcare', '11-50', 'avg_hourly_wage')?.id).toBe('exact')
+    expect(findBestBenchmark(withoutExact, 'healthcare', '1-10', 'avg_hourly_wage')?.id).toBe('same-industry')
+    expect(findBestBenchmark(defaultOnly, 'retail', '11-50', 'avg_hourly_wage')?.id).toBe('default-size')
+    expect(findBestBenchmark(defaultAnyOnly, 'retail', '1-10', 'avg_hourly_wage')?.id).toBe('default-any')
   })
 
   it('normalizes company size from common messy formats', () => {
