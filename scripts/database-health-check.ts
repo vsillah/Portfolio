@@ -19,70 +19,33 @@ config({ path: resolve(process.cwd(), '.env.local') })
 import { createClient } from '@supabase/supabase-js'
 import * as fs from 'fs'
 import * as path from 'path'
+import {
+  compareWithBaseline,
+  CRITICAL_TABLES,
+  OPTIONAL_TABLES,
+  resolveHealthCheckEnv,
+  type TableCount,
+} from '../lib/database-health-check'
 
-const useDev = process.argv.includes('--dev')
-const envLabel = useDev ? 'DEV' : 'PROD'
+const envConfig = resolveHealthCheckEnv(process.argv, process.env)
 
-const SUPABASE_URL = useDev
-  ? process.env.NEXT_PUBLIC_SUPABASE_URL
-  : (process.env.PROD_SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL)
-
-const SUPABASE_SERVICE_KEY = useDev
-  ? process.env.SUPABASE_SERVICE_ROLE_KEY
-  : (process.env.PROD_SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY)
-
-const urlVar = useDev ? 'NEXT_PUBLIC_SUPABASE_URL' : 'PROD_SUPABASE_URL'
-const keyVar = useDev ? 'SUPABASE_SERVICE_ROLE_KEY' : 'PROD_SUPABASE_SERVICE_ROLE_KEY'
-
-if (!SUPABASE_URL?.trim()) {
-  console.error(`❌ ${urlVar} is missing.`)
+if (!envConfig.supabaseUrl?.trim()) {
+  console.error(`❌ ${envConfig.urlVar} is missing.`)
   console.error('   Add it to .env.local in the project root (or set in CI).')
   process.exit(1)
 }
-if (!SUPABASE_SERVICE_KEY?.trim()) {
-  console.error(`❌ ${keyVar} is missing.`)
+if (!envConfig.supabaseServiceKey?.trim()) {
+  console.error(`❌ ${envConfig.keyVar} is missing.`)
   console.error('   Add it to .env.local in the project root (or set in CI).')
   process.exit(1)
 }
 
-const SUPABASE_URL_SAFE: string = SUPABASE_URL as string
-const SUPABASE_SERVICE_KEY_SAFE: string = SUPABASE_SERVICE_KEY as string
+const SUPABASE_URL_SAFE: string = envConfig.supabaseUrl as string
+const SUPABASE_SERVICE_KEY_SAFE: string = envConfig.supabaseServiceKey as string
 const BASELINE_FILE = path.join(
   __dirname,
-  useDev ? '../.database-baseline-dev.json' : '../.database-baseline.json'
+  `../${envConfig.baselineFileName}`
 )
-
-// Critical tables to monitor
-const CRITICAL_TABLES = [
-  'projects',
-  'music',
-  'videos',
-  'publications',
-  'products',
-  'app_prototypes',
-  'orders',
-  'order_items',
-  'discount_codes',
-  'user_profiles',
-  'client_projects',
-  'module_sync_custom',
-]
-
-// Tables that may not exist yet (app returns empty when missing). Still checked, but missing is not warned/fatal.
-const OPTIONAL_TABLES = new Set(['projects', 'music', 'videos'])
-
-interface TableCount {
-  table_name: string
-  row_count: number
-  checked_at: string
-}
-
-interface HealthCheckResult {
-  status: 'healthy' | 'warning' | 'critical'
-  timestamp: string
-  tables: TableCount[]
-  issues: string[]
-}
 
 async function getTableCounts(): Promise<TableCount[]> {
   const supabase = createClient(SUPABASE_URL_SAFE, SUPABASE_SERVICE_KEY_SAFE)
@@ -144,65 +107,8 @@ function saveBaseline(counts: TableCount[]): void {
   console.log(`✅ Baseline saved to ${BASELINE_FILE}`)
 }
 
-function compareWithBaseline(
-  current: TableCount[],
-  baseline: TableCount[]
-): HealthCheckResult {
-  const issues: string[] = []
-  let status: 'healthy' | 'warning' | 'critical' = 'healthy'
-
-  for (const currentTable of current) {
-    const baselineTable = baseline.find(b => b.table_name === currentTable.table_name)
-
-    if (!baselineTable) {
-      continue // New table, not an issue
-    }
-
-    // Table disappeared (skip for optional tables that may not exist yet)
-    if (currentTable.row_count === -1 && baselineTable.row_count >= 0 && !OPTIONAL_TABLES.has(currentTable.table_name)) {
-      issues.push(
-        `🚨 CRITICAL: Table '${currentTable.table_name}' no longer exists! (had ${baselineTable.row_count} rows)`
-      )
-      status = 'critical'
-    }
-    // Significant data loss (>10% or any loss in critical revenue tables)
-    else if (currentTable.row_count < baselineTable.row_count) {
-      const lossAmount = baselineTable.row_count - currentTable.row_count
-      const lossPercent = ((lossAmount / baselineTable.row_count) * 100).toFixed(1)
-      
-      // Revenue tables are CRITICAL
-      if (['orders', 'order_items'].includes(currentTable.table_name)) {
-        issues.push(
-          `🚨 CRITICAL: '${currentTable.table_name}' lost ${lossAmount} rows (${lossPercent}%) - REVENUE DATA!`
-        )
-        status = 'critical'
-      }
-      // >10% loss in any table
-      else if (lossAmount / baselineTable.row_count > 0.1) {
-        issues.push(
-          `⚠️  WARNING: '${currentTable.table_name}' lost ${lossAmount} rows (${lossPercent}%)`
-        )
-        if (status !== 'critical') status = 'warning'
-      }
-      // Minor loss
-      else if (lossAmount > 0) {
-        issues.push(
-          `ℹ️  INFO: '${currentTable.table_name}' lost ${lossAmount} rows (${lossPercent}%)`
-        )
-      }
-    }
-  }
-
-  return {
-    status,
-    timestamp: new Date().toISOString(),
-    tables: current,
-    issues,
-  }
-}
-
 async function main() {
-  console.log(`🔍 Running database health check [${envLabel}]...\n`)
+  console.log(`🔍 Running database health check [${envConfig.envLabel}]...\n`)
 
   // Get current counts
   const currentCounts = await getTableCounts()
