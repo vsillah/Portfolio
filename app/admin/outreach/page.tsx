@@ -37,6 +37,7 @@ import {
   RotateCcw,
   Cpu,
   Loader2,
+  FileText,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -274,6 +275,19 @@ function OutreachContent() {
   const [addLeadQuickWins, setAddLeadQuickWins] = useState('')
   const [addLeadPainPoints, setAddLeadPainPoints] = useState('')
   const [showVepSection, setShowVepSection] = useState(false)
+  const [addLeadMeetingId, setAddLeadMeetingId] = useState<string | null>(null)
+  const [addLeadMeetings, setAddLeadMeetings] = useState<{ id: string; meeting_type: string; meeting_date: string; transcript_preview?: string; contact_name?: string | null; contact_submission_id?: number | null }[]>([])
+  const [addLeadMeetingsLoading, setAddLeadMeetingsLoading] = useState(false)
+  const [addLeadExtractLoading, setAddLeadExtractLoading] = useState(false)
+  const [addLeadMeetingSummary, setAddLeadMeetingSummary] = useState('')
+  const [addLeadMeetingPainPoints, setAddLeadMeetingPainPoints] = useState('')
+  const [addLeadOutreachToast, setAddLeadOutreachToast] = useState(false)
+  const [addLeadMeetingTab, setAddLeadMeetingTab] = useState<'select' | 'paste'>('select')
+  const [addLeadPasteText, setAddLeadPasteText] = useState('')
+  const [addLeadPasteTitle, setAddLeadPasteTitle] = useState('')
+  const [addLeadPasteAttendeeName, setAddLeadPasteAttendeeName] = useState('')
+  const [addLeadPasteAttendeeEmail, setAddLeadPasteAttendeeEmail] = useState('')
+  const [addLeadPasteSaving, setAddLeadPasteSaving] = useState(false)
 
   // Value evidence: lead selection and push
   const [selectedLeadIds, setSelectedLeadIds] = useState<Set<number>>(new Set())
@@ -689,6 +703,130 @@ function OutreachContent() {
     setAddLeadPainPoints('')
     setShowVepSection(false)
     setAddLeadError(null)
+    setAddLeadMeetingId(null)
+    setAddLeadMeetings([])
+    setAddLeadExtractLoading(false)
+    setAddLeadMeetingSummary('')
+    setAddLeadMeetingPainPoints('')
+    setAddLeadMeetingTab('select')
+    setAddLeadPasteText('')
+    setAddLeadPasteTitle('')
+    setAddLeadPasteAttendeeName('')
+    setAddLeadPasteAttendeeEmail('')
+    setAddLeadPasteSaving(false)
+  }
+
+  const fetchMeetingsForPicker = async () => {
+    setAddLeadMeetingsLoading(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch('/api/admin/meetings?unlinked_only=false&limit=50', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setAddLeadMeetings(data.meetings || [])
+      }
+    } catch {
+      // Silently fail; meeting list is optional
+    } finally {
+      setAddLeadMeetingsLoading(false)
+    }
+  }
+
+  const handleExtractFromMeeting = async (meetingId: string) => {
+    setAddLeadExtractLoading(true)
+    setAddLeadError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/meetings/${meetingId}/extract-lead-fields`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      })
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        setAddLeadError(err.error || 'Failed to extract lead fields')
+        return
+      }
+      const { fields } = await res.json()
+      if (fields.name) setAddLeadName(fields.name)
+      if (fields.email) setAddLeadEmail(fields.email)
+      if (fields.company) setAddLeadCompany(fields.company)
+      if (fields.company_website) setAddLeadCompanyWebsite(fields.company_website)
+      if (fields.linkedin_url) setAddLeadLinkedInUrl(fields.linkedin_url)
+      if (fields.job_title) setAddLeadJobTitle(fields.job_title)
+      if (fields.industry) setAddLeadIndustry(fields.industry)
+      if (fields.phone) setAddLeadPhone(fields.phone)
+      if (fields.pain_points) {
+        setAddLeadPainPoints(fields.pain_points)
+        setAddLeadMeetingPainPoints(fields.pain_points)
+        setShowVepSection(true)
+      }
+      if (fields.quick_wins) {
+        setAddLeadQuickWins(fields.quick_wins)
+        setShowVepSection(true)
+      }
+      if (fields.employee_count) {
+        setAddLeadEmployeeCount(fields.employee_count)
+        setShowVepSection(true)
+      }
+      if (fields.meeting_context_summary) {
+        setAddLeadMessage(fields.meeting_context_summary)
+        setAddLeadMeetingSummary(fields.meeting_context_summary)
+      }
+    } catch {
+      setAddLeadError('Failed to extract lead fields from meeting')
+    } finally {
+      setAddLeadExtractLoading(false)
+    }
+  }
+
+  const handlePasteAndExtract = async () => {
+    const text = addLeadPasteText.trim()
+    if (!text) return
+    setAddLeadPasteSaving(true)
+    setAddLeadError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const ingestRes = await fetch('/api/admin/meetings/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          transcript: text,
+          title: addLeadPasteTitle.trim() || undefined,
+          attendee_name: addLeadPasteAttendeeName.trim() || undefined,
+          attendee_email: addLeadPasteAttendeeEmail.trim() || undefined,
+          meeting_type: 'external',
+        }),
+      })
+      if (!ingestRes.ok) {
+        const err = await ingestRes.json().catch(() => ({}))
+        setAddLeadError(err.error || 'Failed to save transcript')
+        return
+      }
+      const { meeting } = await ingestRes.json()
+      const newId = meeting.id as string
+
+      setAddLeadMeetingId(newId)
+      setAddLeadMeetings((prev) => [
+        { id: newId, meeting_type: 'external', meeting_date: meeting.meeting_date, transcript_preview: text.substring(0, 120) },
+        ...prev,
+      ])
+      setAddLeadMeetingTab('select')
+
+      await handleExtractFromMeeting(newId)
+    } catch {
+      setAddLeadError('Failed to save and extract from transcript')
+    } finally {
+      setAddLeadPasteSaving(false)
+    }
   }
 
   const handleAddLeadSubmit = async (e: React.FormEvent) => {
@@ -701,7 +839,7 @@ function OutreachContent() {
         setAddLeadError('Not authenticated')
         return
       }
-      const payload = {
+      const payload: Record<string, unknown> = {
         name: addLeadName.trim(),
         email: addLeadEmail.trim() || undefined,
         company: addLeadCompany.trim() || undefined,
@@ -715,6 +853,12 @@ function OutreachContent() {
         employee_count: addLeadEmployeeCount.trim() || undefined,
         quick_wins: addLeadQuickWins.trim() || undefined,
         rep_pain_points: addLeadPainPoints.trim() || undefined,
+      }
+      if (addLeadMeetingId) {
+        payload.meeting_record_id = addLeadMeetingId
+        payload.meeting_summary = addLeadMeetingSummary || undefined
+        payload.meeting_pain_points = addLeadMeetingPainPoints || undefined
+        payload.generate_outreach = true
       }
       const response = await fetch('/api/admin/outreach/leads', {
         method: 'POST',
@@ -730,6 +874,10 @@ function OutreachContent() {
         return
       }
       setAddLeadSuccessId(data.id ?? null)
+      if (data.outreach_queued) {
+        setAddLeadOutreachToast(true)
+        setTimeout(() => setAddLeadOutreachToast(false), 8000)
+      }
       setShowAddLeadModal(false)
       resetAddLeadForm()
       await fetchLeads()
@@ -1406,9 +1554,9 @@ function OutreachContent() {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.95, opacity: 0 }}
                     onClick={(e) => e.stopPropagation()}
-                    className="w-full max-w-md bg-background border border-silicon-slate rounded-xl shadow-xl p-6"
+                    className="w-full max-w-md max-h-[85vh] overflow-hidden flex flex-col bg-background border border-silicon-slate rounded-xl shadow-xl"
                   >
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center justify-between p-6 pb-4">
                       <h3 className="text-lg font-semibold text-white">Add lead</h3>
                       <button
                         type="button"
@@ -1418,7 +1566,7 @@ function OutreachContent() {
                         <X size={18} />
                       </button>
                     </div>
-                    <form onSubmit={handleAddLeadSubmit} className="space-y-4">
+                    <form id="add-lead-form" onSubmit={handleAddLeadSubmit} className="flex-1 overflow-y-auto px-6 space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-platinum-white/80 mb-1">Name *</label>
                         <input
@@ -1504,16 +1652,168 @@ function OutreachContent() {
                         <label className="block text-sm font-medium text-platinum-white/80 mb-1">How did you get this lead?</label>
                         <select
                           value={addLeadInputType}
-                          onChange={(e) => setAddLeadInputType(e.target.value)}
+                          onChange={(e) => {
+                            const val = e.target.value
+                            setAddLeadInputType(val)
+                            if (val === 'meeting' && addLeadMeetings.length === 0) {
+                              fetchMeetingsForPicker()
+                            }
+                            if (val !== 'meeting') {
+                              setAddLeadMeetingId(null)
+                            }
+                          }}
                           className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white focus:outline-none focus:border-radiant-gold"
                         >
                           <option value="linkedin">LinkedIn</option>
                           <option value="referral">Referral</option>
                           <option value="business_card">Business card</option>
                           <option value="event">Event</option>
+                          <option value="meeting">Meeting</option>
                           <option value="other">Other</option>
                         </select>
                       </div>
+                      {addLeadInputType === 'meeting' && (
+                        <div className="space-y-3 p-3 rounded-lg border border-purple-700/50 bg-purple-900/20">
+                          <div className="flex rounded-lg overflow-hidden border border-purple-700/40">
+                            <button
+                              type="button"
+                              onClick={() => setAddLeadMeetingTab('select')}
+                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'select' ? 'bg-purple-700/60 text-purple-100' : 'bg-silicon-slate/30 text-platinum-white/50 hover:text-platinum-white/80'}`}
+                            >
+                              <Search size={12} /> Existing meeting
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAddLeadMeetingTab('paste')}
+                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'paste' ? 'bg-purple-700/60 text-purple-100' : 'bg-silicon-slate/30 text-platinum-white/50 hover:text-platinum-white/80'}`}
+                            >
+                              <FileText size={12} /> Paste transcript
+                            </button>
+                          </div>
+
+                          {addLeadMeetingTab === 'select' && (
+                            <>
+                              <div>
+                                <label className="block text-sm font-medium text-purple-300 mb-1">Select meeting</label>
+                                {addLeadMeetingsLoading ? (
+                                  <div className="flex items-center gap-2 text-sm text-platinum-white/60 py-2">
+                                    <Loader2 size={14} className="animate-spin" /> Loading meetings...
+                                  </div>
+                                ) : (
+                                  <select
+                                    value={addLeadMeetingId || ''}
+                                    onChange={(e) => setAddLeadMeetingId(e.target.value || null)}
+                                    className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white focus:outline-none focus:border-purple-500"
+                                  >
+                                    <option value="">Choose a meeting...</option>
+                                    {addLeadMeetings.map((m) => (
+                                      <option key={m.id} value={m.id}>
+                                        {m.meeting_date ? new Date(m.meeting_date).toLocaleDateString() : 'No date'} — {m.meeting_type}{m.contact_name ? ` (linked: ${m.contact_name})` : ''}
+                                      </option>
+                                    ))}
+                                  </select>
+                                )}
+                              </div>
+                              {addLeadMeetingId && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleExtractFromMeeting(addLeadMeetingId)}
+                                  disabled={addLeadExtractLoading}
+                                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-purple-700/50 hover:bg-purple-700/70 text-purple-200 text-sm font-medium transition-colors disabled:opacity-50"
+                                >
+                                  {addLeadExtractLoading ? (
+                                    <>
+                                      <Loader2 size={14} className="animate-spin" />
+                                      Analyzing transcript...
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Cpu size={14} />
+                                      Extract lead info from transcript
+                                    </>
+                                  )}
+                                </button>
+                              )}
+                            </>
+                          )}
+
+                          {addLeadMeetingTab === 'paste' && (
+                            <>
+                              <div>
+                                <label className="block text-sm font-medium text-purple-300 mb-1">Meeting title (optional)</label>
+                                <input
+                                  type="text"
+                                  value={addLeadPasteTitle}
+                                  onChange={(e) => setAddLeadPasteTitle(e.target.value)}
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-purple-500"
+                                  placeholder="e.g. Coffee chat with Jane at FinTech Summit"
+                                />
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <label className="block text-sm font-medium text-purple-300 mb-1">Attendee name</label>
+                                  <input
+                                    type="text"
+                                    value={addLeadPasteAttendeeName}
+                                    onChange={(e) => setAddLeadPasteAttendeeName(e.target.value)}
+                                    className="w-full px-3 py-1.5 text-sm bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-purple-500"
+                                    placeholder="Jane Doe"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-purple-300 mb-1">Attendee email</label>
+                                  <input
+                                    type="email"
+                                    value={addLeadPasteAttendeeEmail}
+                                    onChange={(e) => setAddLeadPasteAttendeeEmail(e.target.value)}
+                                    className="w-full px-3 py-1.5 text-sm bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-purple-500"
+                                    placeholder="jane@example.com"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-purple-300 mb-1">Transcript</label>
+                                <textarea
+                                  value={addLeadPasteText}
+                                  onChange={(e) => setAddLeadPasteText(e.target.value)}
+                                  rows={6}
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-purple-500 resize-y text-sm"
+                                  placeholder="Paste your meeting transcript here..."
+                                />
+                                {addLeadPasteText.trim() && (
+                                  <p className="text-xs text-platinum-white/40 mt-1">{addLeadPasteText.trim().length.toLocaleString()} characters</p>
+                                )}
+                              </div>
+                              <button
+                                type="button"
+                                onClick={handlePasteAndExtract}
+                                disabled={!addLeadPasteText.trim() || addLeadPasteSaving || addLeadExtractLoading}
+                                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-purple-700/50 hover:bg-purple-700/70 text-purple-200 text-sm font-medium transition-colors disabled:opacity-50"
+                              >
+                                {addLeadPasteSaving || addLeadExtractLoading ? (
+                                  <>
+                                    <Loader2 size={14} className="animate-spin" />
+                                    {addLeadPasteSaving ? 'Saving transcript...' : 'Extracting lead info...'}
+                                  </>
+                                ) : (
+                                  <>
+                                    <Cpu size={14} />
+                                    Save &amp; Extract lead info
+                                  </>
+                                )}
+                              </button>
+                            </>
+                          )}
+
+                          {addLeadExtractLoading && (
+                            <div className="space-y-2">
+                              {[1, 2, 3, 4].map((i) => (
+                                <div key={i} className="h-8 rounded bg-silicon-slate/50 animate-pulse" />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                       <div>
                         <label className="block text-sm font-medium text-platinum-white/80 mb-1">Message / notes</label>
                         <textarea
@@ -1580,23 +1880,25 @@ function OutreachContent() {
                           {addLeadError}
                         </div>
                       )}
-                      <div className="flex gap-3 pt-2">
-                        <button
-                          type="submit"
-                          disabled={addLeadLoading || !addLeadName.trim()}
-                          className="flex-1 px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
-                        >
-                          {addLeadLoading ? 'Adding...' : 'Add lead'}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => !addLeadLoading && setShowAddLeadModal(false)}
-                          className="px-4 py-2 bg-silicon-slate/50 hover:bg-silicon-slate rounded-lg transition-colors"
-                        >
-                          Cancel
-                        </button>
-                      </div>
+                      <div className="h-4" />
                     </form>
+                    <div className="flex gap-3 p-6 pt-4 border-t border-silicon-slate">
+                      <button
+                        type="submit"
+                        form="add-lead-form"
+                        disabled={addLeadLoading || addLeadExtractLoading || !addLeadName.trim()}
+                        className="flex-1 px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-medium transition-colors"
+                      >
+                        {addLeadLoading ? 'Adding...' : addLeadInputType === 'meeting' && addLeadMeetingId ? 'Add lead & queue email' : 'Add lead'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => !addLeadLoading && setShowAddLeadModal(false)}
+                        className="px-4 py-2 bg-silicon-slate/50 hover:bg-silicon-slate rounded-lg transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </motion.div>
                 </motion.div>
               )}
@@ -1614,6 +1916,24 @@ function OutreachContent() {
                 <button
                   type="button"
                   onClick={() => setAddLeadSuccessId(null)}
+                  className="ml-auto p-1 hover:bg-silicon-slate rounded"
+                >
+                  <X size={14} />
+                </button>
+              </motion.div>
+            )}
+            {addLeadOutreachToast && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="mb-4 p-3 rounded-lg bg-purple-900/30 border border-purple-700 text-purple-300 text-sm flex items-center gap-2"
+              >
+                <Mail size={16} />
+                Discovery email is being generated — check the Message Queue in ~30 seconds.
+                <button
+                  type="button"
+                  onClick={() => setAddLeadOutreachToast(false)}
                   className="ml-auto p-1 hover:bg-silicon-slate rounded"
                 >
                   <X size={14} />
