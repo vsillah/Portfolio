@@ -38,6 +38,8 @@ import {
   Cpu,
   Loader2,
   FileText,
+  CalendarCheck,
+  ChevronRight,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -180,6 +182,8 @@ function EvidenceCard({ evidence }: { evidence: { id: string; display_name: stri
   )
 }
 
+const READAI_CACHE_TTL_MS = 5 * 60 * 1000
+
 export default function OutreachAdminPage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -282,7 +286,16 @@ function OutreachContent() {
   const [addLeadMeetingSummary, setAddLeadMeetingSummary] = useState('')
   const [addLeadMeetingPainPoints, setAddLeadMeetingPainPoints] = useState('')
   const [addLeadOutreachToast, setAddLeadOutreachToast] = useState(false)
-  const [addLeadMeetingTab, setAddLeadMeetingTab] = useState<'select' | 'paste'>('select')
+  const [addLeadMeetingTab, setAddLeadMeetingTab] = useState<'select' | 'paste' | 'readai'>('select')
+  const [addLeadReadAiEmail, setAddLeadReadAiEmail] = useState('')
+  const [addLeadReadAiMeetings, setAddLeadReadAiMeetings] = useState<Array<{
+    id: string; title: string; start_time_ms: number; end_time_ms: number | null
+    participants: Array<{ name: string; email: string | null }>
+    platform: string; report_url: string; summary: string | null
+    action_items: Array<{ text: string; assignee?: string }> | null
+  }>>([])
+  const [addLeadReadAiLoading, setAddLeadReadAiLoading] = useState(false)
+  const [addLeadReadAiSearched, setAddLeadReadAiSearched] = useState(false)
   const [addLeadPasteText, setAddLeadPasteText] = useState('')
   const [addLeadPasteTitle, setAddLeadPasteTitle] = useState('')
   const [addLeadPasteAttendeeName, setAddLeadPasteAttendeeName] = useState('')
@@ -343,6 +356,35 @@ function OutreachContent() {
   const [unifiedModalReRunEnrichment, setUnifiedModalReRunEnrichment] = useState(true)
   const [unifiedModalSaveLoading, setUnifiedModalSaveLoading] = useState(false)
   const [unifiedModalSaveError, setUnifiedModalSaveError] = useState<string | null>(null)
+
+  // Read.ai meeting context — shared cache + modal state
+  type ReadAiMeetingItem = {
+    id: string; title: string; start_time_ms: number; end_time_ms: number | null
+    participants: Array<{ name: string; email: string | null }>
+    platform: string; report_url: string; summary: string | null
+    action_items: Array<{ text: string; assignee?: string }> | null
+  }
+  const readAiCacheRef = useRef<Record<string, { meetings: ReadAiMeetingItem[]; fetchedAt: number }>>({})
+
+  const [meetingsByLead, setMeetingsByLead] = useState<Record<number, ReadAiMeetingItem[]>>({})
+  const [meetingsLoading, setMeetingsLoading] = useState<Record<number, boolean>>({})
+  const [selectedMeetingIds, setSelectedMeetingIds] = useState<Record<number, Set<string>>>({})
+  const [meetingImportLoading, setMeetingImportLoading] = useState(false)
+  const [meetingSectionExpanded, setMeetingSectionExpanded] = useState<Record<number, boolean>>({})
+  const [, setReadAiCacheTick] = useState(0)
+
+  const getReadAiCacheAge = useCallback((email: string): string | null => {
+    const cached = readAiCacheRef.current[email.toLowerCase().trim()]
+    if (!cached) return null
+    const seconds = Math.floor((Date.now() - cached.fetchedAt) / 1000)
+    if (seconds < 60) return 'just now'
+    const minutes = Math.floor(seconds / 60)
+    return `${minutes}m ago`
+  }, [])
+
+  const bustReadAiCache = useCallback((email: string) => {
+    delete readAiCacheRef.current[email.toLowerCase().trim()]
+  }, [])
 
   // Tech stack lookup (BuiltWith) — modal state
   const [techStackLoading, setTechStackLoading] = useState(false)
@@ -549,17 +591,127 @@ function OutreachContent() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Preflight failed')
-      setEnrichModalLeads(data.leads || [])
+      const leads = data.leads || []
+      setEnrichModalLeads(leads)
       setEnrichModalForm({})
       setUnifiedModalReRunEnrichment(true)
       setUnifiedModalSaveError(null)
+      setMeetingsByLead({})
+      setSelectedMeetingIds({})
+      setMeetingSectionExpanded({})
       setShowEnrichModal(true)
+
+      // Fetch Read.ai meetings for each lead with an email (async, non-blocking)
+      for (const lead of leads) {
+        if (lead.email) {
+          fetchMeetingsForLead(lead.id, lead.email, session.access_token)
+        }
+      }
     } catch (e) {
       console.error(e)
     } finally {
       setPushLoading(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const fetchMeetingsForLead = useCallback(async (leadId: number, email: string, accessToken: string, forceRefresh?: boolean) => {
+    const cacheKey = email.toLowerCase().trim()
+
+    if (!forceRefresh) {
+      const cached = readAiCacheRef.current[cacheKey]
+      if (cached && Date.now() - cached.fetchedAt < READAI_CACHE_TTL_MS) {
+        setMeetingsByLead((prev) => ({ ...prev, [leadId]: cached.meetings }))
+        if (cached.meetings.length > 0) {
+          setMeetingSectionExpanded((prev) => ({ ...prev, [leadId]: true }))
+        }
+        return
+      }
+    }
+
+    setMeetingsLoading((prev) => ({ ...prev, [leadId]: true }))
+    try {
+      const res = await fetch(`/api/admin/read-ai/meetings?email=${encodeURIComponent(email)}`, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const meetings = data.meetings || []
+        readAiCacheRef.current[cacheKey] = { meetings, fetchedAt: Date.now() }
+        setReadAiCacheTick((t) => t + 1)
+        setMeetingsByLead((prev) => ({ ...prev, [leadId]: meetings }))
+        if (meetings.length > 0) {
+          setMeetingSectionExpanded((prev) => ({ ...prev, [leadId]: true }))
+        }
+      }
+    } catch (err) {
+      console.error(`[read-ai] Failed to fetch meetings for lead ${leadId}:`, err)
+    } finally {
+      setMeetingsLoading((prev) => ({ ...prev, [leadId]: false }))
+    }
+  }, [])
+
+  const handleToggleMeeting = useCallback((leadId: number, meetingId: string) => {
+    setSelectedMeetingIds((prev) => {
+      const current = prev[leadId] ?? new Set<string>()
+      const next = new Set(current)
+      if (next.has(meetingId)) next.delete(meetingId)
+      else next.add(meetingId)
+      return { ...prev, [leadId]: next }
+    })
+  }, [])
+
+  const handleImportMeetings = useCallback(async (leadId: number) => {
+    const selected = selectedMeetingIds[leadId]
+    if (!selected || selected.size === 0) return
+
+    const session = await getCurrentSession()
+    if (!session) return
+
+    setMeetingImportLoading(true)
+    try {
+      const summaryParts: string[] = []
+      const actionItemParts: string[] = []
+
+      for (const meetingId of selected) {
+        const res = await fetch(`/api/admin/read-ai/meetings/${meetingId}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (!res.ok) continue
+        const { meeting } = await res.json()
+
+        if (meeting.summary) {
+          const date = new Date(meeting.start_time_ms).toLocaleDateString()
+          summaryParts.push(`--- From meeting: ${meeting.title} (${date}) ---\n${meeting.summary}`)
+        }
+        if (meeting.action_items?.length) {
+          const date = new Date(meeting.start_time_ms).toLocaleDateString()
+          const items = meeting.action_items.map((ai: { text: string }) => `• ${ai.text}`).join('\n')
+          actionItemParts.push(`--- From meeting: ${meeting.title} (${date}) ---\n${items}`)
+        }
+      }
+
+      setEnrichModalForm((prev) => {
+        const existing = prev[leadId] || {}
+        const currentPain = existing.rep_pain_points ?? ''
+        const currentQuickWins = existing.quick_wins ?? ''
+        return {
+          ...prev,
+          [leadId]: {
+            ...existing,
+            rep_pain_points: [currentPain, ...summaryParts].filter(Boolean).join('\n\n'),
+            quick_wins: [currentQuickWins, ...actionItemParts].filter(Boolean).join('\n\n'),
+          },
+        }
+      })
+
+      setSelectedMeetingIds((prev) => ({ ...prev, [leadId]: new Set<string>() }))
+    } catch (err) {
+      console.error('[read-ai] Import failed:', err)
+    } finally {
+      setMeetingImportLoading(false)
+    }
+  }, [selectedMeetingIds])
 
   const updateLeadDncOrRemoved = useCallback(
     async (leadId: number, payload: { do_not_contact?: boolean; removed_at?: string | null }) => {
@@ -826,6 +978,100 @@ function OutreachContent() {
       setAddLeadError('Failed to save and extract from transcript')
     } finally {
       setAddLeadPasteSaving(false)
+    }
+  }
+
+  const handleAddLeadReadAiSearch = async (forceRefresh?: boolean) => {
+    const email = addLeadReadAiEmail.trim()
+    if (!email) return
+
+    if (!forceRefresh) {
+      const cacheKey = email.toLowerCase()
+      const cached = readAiCacheRef.current[cacheKey]
+      if (cached && Date.now() - cached.fetchedAt < READAI_CACHE_TTL_MS) {
+        setAddLeadReadAiMeetings(cached.meetings)
+        setAddLeadReadAiSearched(true)
+        return
+      }
+    }
+
+    const session = await getCurrentSession()
+    if (!session) return
+    setAddLeadReadAiLoading(true)
+    setAddLeadReadAiSearched(false)
+    try {
+      const res = await fetch(`/api/admin/read-ai/meetings?email=${encodeURIComponent(email)}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        const meetings = data.meetings || []
+        readAiCacheRef.current[email.toLowerCase()] = { meetings, fetchedAt: Date.now() }
+        setReadAiCacheTick((t) => t + 1)
+        setAddLeadReadAiMeetings(meetings)
+      }
+    } catch (err) {
+      console.error('[read-ai] Add Lead search failed:', err)
+    } finally {
+      setAddLeadReadAiLoading(false)
+      setAddLeadReadAiSearched(true)
+    }
+  }
+
+  const handleAddLeadReadAiImport = async (meetingId: string) => {
+    const session = await getCurrentSession()
+    if (!session) return
+    setAddLeadExtractLoading(true)
+    try {
+      const res = await fetch(`/api/admin/read-ai/meetings/${meetingId}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (!res.ok) return
+      const { meeting } = await res.json()
+
+      // Ingest the transcript into meeting_records so it follows the existing pipeline
+      const ingestRes = await fetch('/api/admin/meetings/ingest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+        body: JSON.stringify({
+          transcript: meeting.transcript?.text || meeting.summary || '',
+          title: meeting.title,
+          attendee_email: addLeadReadAiEmail.trim() || undefined,
+          meeting_type: 'external',
+        }),
+      })
+      if (ingestRes.ok) {
+        const { meeting: saved } = await ingestRes.json()
+        setAddLeadMeetingId(saved.id)
+        setAddLeadMeetings((prev) => [
+          { id: saved.id, meeting_type: 'external', meeting_date: saved.meeting_date },
+          ...prev,
+        ])
+      }
+
+      // Populate form fields from meeting data
+      if (meeting.summary) {
+        setAddLeadPainPoints((prev) => [prev, `--- From meeting: ${meeting.title} ---\n${meeting.summary}`].filter(Boolean).join('\n\n'))
+      }
+      if (meeting.action_items?.length) {
+        const items = meeting.action_items.map((ai: { text: string }) => `• ${ai.text}`).join('\n')
+        setAddLeadQuickWins((prev) => [prev, `--- From meeting: ${meeting.title} ---\n${items}`].filter(Boolean).join('\n\n'))
+      }
+
+      // Auto-fill name/email from participant if fields are empty
+      const attendee = meeting.participants?.find((p: { email: string | null }) =>
+        p.email?.toLowerCase() === addLeadReadAiEmail.trim().toLowerCase()
+      )
+      if (attendee) {
+        if (!addLeadName.trim() && attendee.name) setAddLeadName(attendee.name)
+        if (!addLeadEmail.trim() && attendee.email) setAddLeadEmail(attendee.email)
+      }
+
+      setAddLeadMeetingTab('select')
+    } catch (err) {
+      console.error('[read-ai] Import to Add Lead failed:', err)
+    } finally {
+      setAddLeadExtractLoading(false)
     }
   }
 
@@ -1655,8 +1901,10 @@ function OutreachContent() {
                           onChange={(e) => {
                             const val = e.target.value
                             setAddLeadInputType(val)
-                            if (val === 'meeting' && addLeadMeetings.length === 0) {
-                              fetchMeetingsForPicker()
+                            if (val === 'meeting') {
+                              setAddLeadMeetingTab('readai')
+                              if (addLeadEmail.trim()) setAddLeadReadAiEmail(addLeadEmail.trim())
+                              if (addLeadMeetings.length === 0) fetchMeetingsForPicker()
                             }
                             if (val !== 'meeting') {
                               setAddLeadMeetingId(null)
@@ -1677,19 +1925,109 @@ function OutreachContent() {
                           <div className="flex rounded-lg overflow-hidden border border-purple-700/40">
                             <button
                               type="button"
+                              onClick={() => setAddLeadMeetingTab('readai')}
+                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'readai' ? 'bg-cyan-700/60 text-cyan-100' : 'bg-silicon-slate/30 text-platinum-white/50 hover:text-platinum-white/80'}`}
+                            >
+                              <CalendarCheck size={12} /> Read.ai
+                            </button>
+                            <button
+                              type="button"
                               onClick={() => setAddLeadMeetingTab('select')}
                               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'select' ? 'bg-purple-700/60 text-purple-100' : 'bg-silicon-slate/30 text-platinum-white/50 hover:text-platinum-white/80'}`}
                             >
-                              <Search size={12} /> Existing meeting
+                              <Search size={12} /> Existing
                             </button>
                             <button
                               type="button"
                               onClick={() => setAddLeadMeetingTab('paste')}
                               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'paste' ? 'bg-purple-700/60 text-purple-100' : 'bg-silicon-slate/30 text-platinum-white/50 hover:text-platinum-white/80'}`}
                             >
-                              <FileText size={12} /> Paste transcript
+                              <FileText size={12} /> Paste
                             </button>
                           </div>
+
+                          {addLeadMeetingTab === 'readai' && (
+                            <div className="space-y-3">
+                              <div className="flex gap-2">
+                                <input
+                                  type="email"
+                                  value={addLeadReadAiEmail}
+                                  onChange={(e) => setAddLeadReadAiEmail(e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && handleAddLeadReadAiSearch()}
+                                  className="flex-1 px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-cyan-500 text-sm"
+                                  placeholder="Search by attendee email..."
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleAddLeadReadAiSearch()}
+                                  disabled={!addLeadReadAiEmail.trim() || addLeadReadAiLoading}
+                                  className="px-3 py-2 rounded-lg bg-cyan-700/50 hover:bg-cyan-700/70 text-cyan-200 text-sm font-medium disabled:opacity-50 flex items-center gap-1.5"
+                                >
+                                  {addLeadReadAiLoading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                                  Search
+                                </button>
+                              </div>
+
+                              {addLeadReadAiLoading && (
+                                <div className="flex items-center gap-2 text-sm text-platinum-white/60 py-2">
+                                  <Loader2 size={14} className="animate-spin" />
+                                  Searching Read.ai meetings...
+                                </div>
+                              )}
+
+                              {addLeadReadAiSearched && !addLeadReadAiLoading && addLeadReadAiMeetings.length === 0 && (
+                                <p className="text-sm text-platinum-white/50 py-1">No meetings found with this email in the last 30 days.</p>
+                              )}
+
+                              {addLeadReadAiSearched && !addLeadReadAiLoading && getReadAiCacheAge(addLeadReadAiEmail) && (
+                                <div className="flex items-center gap-2 text-[10px] text-platinum-white/40">
+                                  <span>Fetched {getReadAiCacheAge(addLeadReadAiEmail)}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAddLeadReadAiSearch(true)}
+                                    className="flex items-center gap-1 hover:text-cyan-400 transition-colors"
+                                  >
+                                    <RefreshCw size={10} /> Refresh
+                                  </button>
+                                </div>
+                              )}
+
+                              {addLeadReadAiMeetings.map((m) => {
+                                const date = new Date(m.start_time_ms)
+                                return (
+                                  <div
+                                    key={m.id}
+                                    className="p-3 rounded-lg border border-silicon-slate/60 bg-silicon-slate/30 space-y-2"
+                                  >
+                                    <div className="flex items-center justify-between gap-2">
+                                      <div className="min-w-0">
+                                        <div className="text-sm font-medium text-white truncate">{m.title}</div>
+                                        <div className="text-xs text-platinum-white/50">
+                                          {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                          {m.platform && <span className="ml-1 capitalize">· {m.platform}</span>}
+                                        </div>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleAddLeadReadAiImport(m.id)}
+                                        disabled={addLeadExtractLoading}
+                                        className="shrink-0 px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium disabled:opacity-50 flex items-center gap-1.5"
+                                      >
+                                        {addLeadExtractLoading ? <Loader2 size={12} className="animate-spin" /> : <Plus size={12} />}
+                                        Import
+                                      </button>
+                                    </div>
+                                    {m.summary && (
+                                      <p className="text-xs text-platinum-white/60 line-clamp-2">{m.summary}</p>
+                                    )}
+                                    <div className="text-xs text-platinum-white/40">
+                                      {m.participants.map((p) => p.name).filter(Boolean).join(', ')}
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          )}
 
                           {addLeadMeetingTab === 'select' && (
                             <>
@@ -2140,6 +2478,126 @@ function OutreachContent() {
                               </div>
                             </div>
                           </div>
+
+                          {/* Meeting Context section (Read.ai) */}
+                          {l.email && (
+                            <div className="pt-3 border-t border-silicon-slate">
+                              <div className="flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => setMeetingSectionExpanded((prev) => ({ ...prev, [l.id]: !prev[l.id] }))}
+                                  className="flex items-center gap-2 flex-1 text-left"
+                                >
+                                  <CalendarCheck size={16} className="text-cyan-400" />
+                                  <h4 className="text-sm font-medium text-platinum-white/80 flex-1">
+                                    Meeting Context
+                                    {(meetingsByLead[l.id]?.length ?? 0) > 0 && (
+                                      <span className="ml-2 text-xs text-cyan-400">
+                                        ({meetingsByLead[l.id].length} found)
+                                      </span>
+                                    )}
+                                  </h4>
+                                  {meetingsLoading[l.id] ? (
+                                    <Loader2 size={14} className="animate-spin text-platinum-white/60" />
+                                  ) : (
+                                    <ChevronRight
+                                      size={14}
+                                      className={`text-platinum-white/60 transition-transform ${meetingSectionExpanded[l.id] ? 'rotate-90' : ''}`}
+                                    />
+                                  )}
+                                </button>
+                                {l.email && getReadAiCacheAge(l.email) && !meetingsLoading[l.id] && (
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-[10px] text-platinum-white/40">{getReadAiCacheAge(l.email)}</span>
+                                    <button
+                                      type="button"
+                                      title="Refresh from Read.ai"
+                                      onClick={async (e) => {
+                                        e.stopPropagation()
+                                        const session = await getCurrentSession()
+                                        if (session && l.email) {
+                                          bustReadAiCache(l.email)
+                                          fetchMeetingsForLead(l.id, l.email, session.access_token, true)
+                                        }
+                                      }}
+                                      className="p-1 rounded hover:bg-silicon-slate/60 text-platinum-white/40 hover:text-cyan-400 transition-colors"
+                                    >
+                                      <RefreshCw size={12} />
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+
+                              {meetingSectionExpanded[l.id] && (
+                                <div className="mt-2 space-y-2">
+                                  {meetingsLoading[l.id] && (
+                                    <div className="flex items-center gap-2 text-sm text-platinum-white/60 py-2">
+                                      <Loader2 size={14} className="animate-spin" />
+                                      Searching Read.ai for meetings with {l.email}...
+                                    </div>
+                                  )}
+
+                                  {!meetingsLoading[l.id] && (meetingsByLead[l.id]?.length ?? 0) === 0 && (
+                                    <p className="text-sm text-platinum-white/50 py-1">
+                                      No meetings found with this contact in the last 30 days.
+                                    </p>
+                                  )}
+
+                                  {(meetingsByLead[l.id] || []).map((m) => {
+                                    const isSelected = selectedMeetingIds[l.id]?.has(m.id) ?? false
+                                    const date = new Date(m.start_time_ms)
+                                    return (
+                                      <label
+                                        key={m.id}
+                                        className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                                          isSelected
+                                            ? 'border-cyan-500 bg-cyan-900/20'
+                                            : 'border-silicon-slate/60 bg-silicon-slate/30 hover:border-silicon-slate'
+                                        }`}
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          checked={isSelected}
+                                          onChange={() => handleToggleMeeting(l.id, m.id)}
+                                          className="mt-1 rounded border-silicon-slate bg-silicon-slate/50 text-cyan-400 focus:ring-cyan-400"
+                                        />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-sm font-medium text-white truncate">{m.title}</span>
+                                            <span className="text-xs text-platinum-white/50 shrink-0">
+                                              {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </span>
+                                          </div>
+                                          <div className="text-xs text-platinum-white/50 mt-0.5">
+                                            {m.participants.map((p) => p.name).filter(Boolean).join(', ')}
+                                            {m.platform && <span className="ml-1 capitalize">· {m.platform}</span>}
+                                          </div>
+                                          {m.summary && (
+                                            <p className="text-xs text-platinum-white/60 mt-1 line-clamp-2">{m.summary}</p>
+                                          )}
+                                        </div>
+                                      </label>
+                                    )
+                                  })}
+
+                                  {(selectedMeetingIds[l.id]?.size ?? 0) > 0 && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleImportMeetings(l.id)}
+                                      disabled={meetingImportLoading}
+                                      className="w-full px-3 py-2 text-sm font-medium rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white disabled:opacity-50 flex items-center justify-center gap-2"
+                                    >
+                                      {meetingImportLoading ? (
+                                        <><Loader2 size={14} className="animate-spin" /> Importing...</>
+                                      ) : (
+                                        <>Import {selectedMeetingIds[l.id].size} meeting{selectedMeetingIds[l.id].size > 1 ? 's' : ''} into enrichment</>
+                                      )}
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          )}
                         </div>
                       ))}
                       {enrichModalLeads.length === 1 && (
