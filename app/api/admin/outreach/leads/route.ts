@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { triggerLeadQualificationWebhook } from '@/lib/n8n'
+import { triggerLeadQualificationWebhook, triggerOutreachGeneration } from '@/lib/n8n'
 import { leadSourceFromInputType } from '@/lib/constants/lead-source'
 
 export const dynamic = 'force-dynamic'
@@ -11,6 +11,16 @@ function normalizeUrl(url: string | undefined): string | null {
   const trimmed = url.trim()
   if (trimmed.match(/^https?:\/\//i)) return trimmed
   return `https://${trimmed}`
+}
+
+async function linkMeetingToLead(meetingRecordId: string, contactSubmissionId: number) {
+  const { error } = await supabaseAdmin
+    .from('meeting_records')
+    .update({ contact_submission_id: contactSubmissionId })
+    .eq('id', meetingRecordId)
+  if (error) {
+    console.error('Failed to link meeting to lead:', error)
+  }
 }
 
 /**
@@ -46,6 +56,10 @@ export async function POST(request: NextRequest) {
       employee_count,
       quick_wins,
       rep_pain_points,
+      meeting_record_id,
+      meeting_summary,
+      meeting_pain_points,
+      generate_outreach,
     } = body as {
       name?: string
       email?: string
@@ -63,6 +77,10 @@ export async function POST(request: NextRequest) {
       employee_count?: string
       quick_wins?: string
       rep_pain_points?: string
+      meeting_record_id?: string
+      meeting_summary?: string
+      meeting_pain_points?: string
+      generate_outreach?: boolean
     }
 
     const leadSource = leadSourceFromInputType(input_type)
@@ -156,6 +174,10 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      if (meeting_record_id) {
+        await linkMeetingToLead(meeting_record_id, existingId)
+      }
+
       return NextResponse.json(
         { id: existingId, updated: true },
         { status: 200 }
@@ -199,6 +221,10 @@ export async function POST(request: NextRequest) {
 
     const newId = inserted.id as number
 
+    if (meeting_record_id) {
+      await linkMeetingToLead(meeting_record_id, newId)
+    }
+
     triggerLeadQualificationWebhook({
       submissionId: String(newId),
       submittedAt: new Date().toISOString(),
@@ -210,13 +236,28 @@ export async function POST(request: NextRequest) {
       phone: phone_number?.trim() || undefined,
       linkedinUrl: normalizedLinkedinUrl || undefined,
       message: displayMessage,
-      source: 'manual_entry',
+      source: input_type === 'meeting' ? 'meeting' : 'manual_entry',
     }).catch((err) => {
       console.error('Lead qualification webhook failed:', err)
     })
 
+    const shouldGenerateOutreach = generate_outreach || input_type === 'meeting'
+    if (shouldGenerateOutreach) {
+      triggerOutreachGeneration({
+        contact_id: newId,
+        score_tier: 'hot',
+        lead_score: 80,
+        sequence_step: 1,
+        is_followup: false,
+        meeting_summary: meeting_summary || undefined,
+        pain_points: meeting_pain_points || rep_pain_points || undefined,
+      }).catch((err) => {
+        console.error('Outreach generation webhook failed:', err)
+      })
+    }
+
     return NextResponse.json(
-      { id: newId, created: true },
+      { id: newId, created: true, outreach_queued: shouldGenerateOutreach },
       { status: 201 }
     )
   } catch (error) {
