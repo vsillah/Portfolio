@@ -14,6 +14,7 @@ export const LEAD_SOURCE_VALUES = [
   'warm_google_contacts',
   'warm_linkedin',
   'warm_referral',
+  'warm_meeting', // Leads created from meeting transcripts
   'cold_apollo',
   'cold_hunter',
   'cold_referral',
@@ -46,6 +47,7 @@ export const INPUT_TYPE_TO_LEAD_SOURCE: Record<string, LeadSource> = {
   referral: 'cold_referral',
   business_card: 'cold_business_card',
   event: 'cold_event',
+  meeting: 'warm_meeting',
   other: 'other',
 }
 
@@ -62,6 +64,7 @@ export const LEAD_SOURCE_TO_INPUT_TYPE: Record<string, string> = {
   cold_referral: 'referral',
   cold_business_card: 'business_card',
   cold_event: 'event',
+  warm_meeting: 'meeting',
   other: 'other',
 }
 
@@ -92,6 +95,7 @@ export function getRelationshipStrength(leadSource: string): RelationshipStrengt
       return 'strong'
     case 'warm_facebook_groups':
     case 'warm_referral':
+    case 'warm_meeting':
       return 'moderate'
     default:
       return 'weak'

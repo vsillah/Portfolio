@@ -1090,6 +1090,8 @@ export async function triggerOutreachGeneration(params: {
   lead_score: number
   sequence_step?: number
   is_followup?: boolean
+  meeting_summary?: string
+  pain_points?: string
 }): Promise<void> {
   if (isN8nOutboundDisabled()) {
     logDisabledOutbound('triggerOutreachGeneration', N8N_CLG002_WEBHOOK_URL, params)
