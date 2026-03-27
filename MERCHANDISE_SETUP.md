@@ -25,7 +25,7 @@ This extends your existing tables:
 Add to your `.env.local`:
 ```env
 PRINTFUL_API_KEY=your_printful_api_key
-PRINTFUL_STORE_ID=your_store_id (optional)
+PRINTFUL_STORE_ID=your_store_id
 PRINTFUL_WEBHOOK_SECRET=your_webhook_secret
 AMADUTOWN_LOGO_URL=https://your-logo-url.com/logo.png
 ```
@@ -35,8 +35,8 @@ AMADUTOWN_LOGO_URL=https://your-logo-url.com/logo.png
 2. Go to Dashboard → Stores → API
 3. Generate API key
 4. Copy API key to `PRINTFUL_API_KEY`
-5. Find your Store ID in the URL when viewing your store (e.g., `https://www.printful.com/dashboard/stores/12345678` → Store ID is `12345678`)
-6. Copy Store ID to `PRINTFUL_STORE_ID`
+5. **Store ID is required** for sync, orders, shipping, and mockups. Find it in the URL when viewing your store (e.g., `https://www.printful.com/dashboard/stores/12345678` → Store ID is `12345678`)
+6. Copy Store ID to `PRINTFUL_STORE_ID` (and the same value in Vercel/production env if you deploy there). Restart `npm run dev` after changing `.env.local`.
 
 **Setting Up Webhooks (for real-time product sync):**
 1. Go to Printful Dashboard → Settings → Stores → Your Store → Webhooks
@@ -209,7 +209,7 @@ Orders are sent to Printful automatically when **Stripe** fires `payment_intent.
 
 1. **Environment**
    - Set `PRINTFUL_API_KEY` in Vercel (or your host) and redeploy. Without it, auto-fulfill fails silently and is only logged.
-   - Optional: set `PRINTFUL_STORE_ID` if you use multiple Printful stores.
+   - Set `PRINTFUL_STORE_ID` for every environment; Printful’s API requires it for store-scoped endpoints.
 
 2. **Stripe webhook**
    - In Stripe Dashboard → Developers → Webhooks, ensure the endpoint receives **payment_intent.succeeded**.

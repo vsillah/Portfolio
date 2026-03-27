@@ -8,6 +8,10 @@ const nextConfig = {
       { protocol: 'https', hostname: '*.supabase.co' },
       { protocol: 'https', hostname: '*.supabase.in' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
+      // Printful sync thumbnails + catalog assets (merchandise store)
+      { protocol: 'https', hostname: 'files.cdn.printful.com' },
+      // Mockup generator output (temporary URLs on S3 accelerate)
+      { protocol: 'https', hostname: 'printful-upload.s3-accelerate.amazonaws.com' },
     ],
   },
   experimental: {

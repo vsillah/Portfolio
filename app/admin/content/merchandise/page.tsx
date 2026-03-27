@@ -55,9 +55,39 @@ export default function MerchandiseManagementPage() {
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const [uploadingLogo, setUploadingLogo] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [printfulEnv, setPrintfulEnv] = useState<{
+    apiKeySet: boolean
+    storeIdSet: boolean
+  } | null>(null)
 
   useEffect(() => {
     fetchProducts()
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    ;(async () => {
+      try {
+        const session = await getCurrentSession()
+        if (!session) return
+        const res = await fetch('/api/admin/printful/config-status', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (!res.ok || cancelled) return
+        const data = await res.json()
+        if (!cancelled) {
+          setPrintfulEnv({
+            apiKeySet: Boolean(data.apiKeySet),
+            storeIdSet: Boolean(data.storeIdSet),
+          })
+        }
+      } catch {
+        /* ignore */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const handleLogoFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,7 +194,19 @@ export default function MerchandiseManagementPage() {
     }
   }
 
+  const printfulConfigBlocksSync =
+    printfulEnv !== null &&
+    (!printfulEnv.apiKeySet || !printfulEnv.storeIdSet)
+
   const handleSync = async () => {
+    if (printfulConfigBlocksSync) {
+      setSyncStatus({
+        success: false,
+        message:
+          'Add PRINTFUL_API_KEY and PRINTFUL_STORE_ID to your environment, then restart the dev server.',
+      })
+      return
+    }
     setSyncing(true)
     setSyncStatus(null)
 
@@ -327,6 +369,31 @@ export default function MerchandiseManagementPage() {
             <p className="text-gray-400">Manage print-on-demand products from Printful</p>
           </div>
 
+          {printfulEnv && (!printfulEnv.apiKeySet || !printfulEnv.storeIdSet) && (
+            <div
+              className="mb-8 rounded-xl border border-red-500/40 bg-red-950/30 px-4 py-3 text-sm text-red-100"
+              role="alert"
+            >
+              <p className="font-semibold text-red-200 mb-2">Printful environment incomplete</p>
+              {!printfulEnv.apiKeySet && (
+                <p className="mb-1">
+                  Set <code className="text-red-100/90 bg-black/30 px-1 rounded">PRINTFUL_API_KEY</code> in{' '}
+                  <code className="text-red-100/90 bg-black/30 px-1 rounded">.env.local</code> (or Vercel env vars).
+                </p>
+              )}
+              {!printfulEnv.storeIdSet && (
+                <p className="mb-1">
+                  Set <code className="text-red-100/90 bg-black/30 px-1 rounded">PRINTFUL_STORE_ID</code> — Printful
+                  requires it for sync, orders, shipping, and mockups. In Printful:{' '}
+                  <strong>Dashboard → Stores</strong>, open your store; the number in the URL after{' '}
+                  <code className="text-red-100/90 bg-black/30 px-1 rounded">/stores/</code> is the store ID.
+                  Restart <code className="text-red-100/90 bg-black/30 px-1 rounded">npm run dev</code> after editing{' '}
+                  <code className="text-red-100/90 bg-black/30 px-1 rounded">.env.local</code>.
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Sync Section */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -468,7 +535,7 @@ export default function MerchandiseManagementPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <motion.button
                   onClick={handleSync}
-                  disabled={syncing || uploadingLogo}
+                  disabled={syncing || uploadingLogo || printfulConfigBlocksSync}
                   whileHover={{ scale: syncing || uploadingLogo ? 1 : 1.02 }}
                   whileTap={{ scale: syncing || uploadingLogo ? 1 : 0.98 }}
                   className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -509,7 +576,7 @@ export default function MerchandiseManagementPage() {
                       setTestingConnection(false)
                     }
                   }}
-                  disabled={testingConnection}
+                  disabled={testingConnection || printfulConfigBlocksSync}
                   className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white text-sm font-medium rounded-lg flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-600"
                 >
                   {testingConnection ? (

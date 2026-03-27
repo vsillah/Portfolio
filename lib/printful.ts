@@ -3,6 +3,10 @@
 
 const PRINTFUL_API_BASE = 'https://api.printful.com'
 
+/** Shown when sync/orders/shipping/mockup calls run without PRINTFUL_STORE_ID */
+export const PRINTFUL_STORE_ID_REQUIRED_MESSAGE =
+  'Printful requires a store ID for this operation. Set PRINTFUL_STORE_ID in your environment (.env.local locally, or Vercel → Project → Settings → Environment Variables for production). Find it in Printful: Dashboard → Stores → open your store → the numeric ID in the URL (e.g. …/stores/12345678 → 12345678). Restart the dev server after changing .env.local.'
+
 export interface PrintfulProduct {
   id: number
   name: string
@@ -141,6 +145,22 @@ class PrintfulClient {
     if (!this.apiKey) {
       console.warn('PRINTFUL_API_KEY is not set')
     }
+    if (!this.storeId?.trim()) {
+      console.warn(
+        'PRINTFUL_STORE_ID is not set — Printful store sync, orders, shipping quotes, and mockups will fail until it is set'
+      )
+    }
+  }
+
+  /** Endpoints that require X-PF-Store-Id (Printful returns "requires store_id" without it) */
+  private static endpointRequiresStoreId(endpoint: string): boolean {
+    const path = (endpoint.split('?')[0] || '').trim()
+    return (
+      path.startsWith('/store') ||
+      path.startsWith('/orders') ||
+      path.startsWith('/shipping') ||
+      path.startsWith('/mockup-generator')
+    )
   }
 
   private async request<T>(
@@ -151,15 +171,19 @@ class PrintfulClient {
       throw new Error('Printful API key is not configured')
     }
 
+    if (PrintfulClient.endpointRequiresStoreId(endpoint) && !this.storeId?.trim()) {
+      throw new Error(PRINTFUL_STORE_ID_REQUIRED_MESSAGE)
+    }
+
     const url = `${PRINTFUL_API_BASE}${endpoint}`
     const headers: Record<string, string> = {
       'Authorization': `Bearer ${this.apiKey}`,
       'Content-Type': 'application/json',
     }
-    
-    // Add store ID header if configured
-    if (this.storeId) {
-      headers['X-PF-Store-Id'] = this.storeId
+
+    const trimmedStore = this.storeId?.trim()
+    if (trimmedStore) {
+      headers['X-PF-Store-Id'] = trimmedStore
     }
     
     // Merge any additional headers
@@ -214,16 +238,32 @@ class PrintfulClient {
       sync_product: any
       sync_variants: any[]
     }>(`/store/products/${productId}`)
-    
+
+    const sp = response.sync_product || {}
+    let imageUrl =
+      (typeof sp.thumbnail_url === 'string' && sp.thumbnail_url) ||
+      (typeof sp.thumbnail === 'string' && sp.thumbnail) ||
+      ''
+    if (!imageUrl && response.sync_variants?.length) {
+      const v0 = response.sync_variants[0]
+      const file0 = v0?.files?.[0]
+      imageUrl =
+        (typeof v0?.product?.image === 'string' && v0.product.image) ||
+        (typeof file0?.thumbnail_url === 'string' && file0.thumbnail_url) ||
+        (typeof file0?.preview_url === 'string' && file0.preview_url) ||
+        (typeof file0?.url === 'string' && file0.url) ||
+        ''
+    }
+
     // Map sync_product to our interface
     const product: PrintfulProduct = {
-      id: response.sync_product?.id || productId,
-      name: response.sync_product?.name || '',
-      type: response.sync_product?.type || '',
-      type_name: response.sync_product?.type_name || '',
-      brand: response.sync_product?.brand || '',
-      model: response.sync_product?.model || '',
-      image: response.sync_product?.thumbnail_url || '',
+      id: sp.id || productId,
+      name: sp.name || '',
+      type: sp.type || '',
+      type_name: sp.type_name || '',
+      brand: sp.brand || '',
+      model: sp.model || '',
+      image: imageUrl,
       variant_count: response.sync_variants?.length || 0,
       currency: 'USD',
       files: [],

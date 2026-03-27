@@ -165,7 +165,16 @@ export default function ProductDetailPage() {
   }
 
   const isMerchandise = product.is_print_on_demand
-  const mockupImages = selectedVariant?.mockup_urls || product.image_url ? [product.image_url!] : []
+  const heroImageUrls = (() => {
+    const mocks = selectedVariant?.mockup_urls
+    if (Array.isArray(mocks)) {
+      const urls = mocks.filter((u): u is string => typeof u === 'string' && u.length > 0)
+      if (urls.length > 0) return urls
+    }
+    if (product.image_url) return [product.image_url]
+    return []
+  })()
+  const heroSrc = heroImageUrls[0]
 
   // Deliverables / what's included (aligned with service detail)
   const deliverablesList: string[] = []
@@ -243,9 +252,9 @@ export default function ProductDetailPage() {
           >
             {/* Hero */}
             <div className="relative h-64 md:h-80 bg-gradient-to-br from-bronze/20 to-radiant-gold/20">
-              {(product.image_url || (mockupImages.length > 0 && mockupImages[0])) ? (
+              {heroSrc ? (
                 <Image
-                  src={product.image_url || mockupImages[0]}
+                  src={heroSrc}
                   alt={product.title}
                   fill
                   className="object-cover"
