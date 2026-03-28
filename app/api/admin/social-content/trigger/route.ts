@@ -98,9 +98,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const enrichedMeetings = (meetings ?? []).map((m: any) => {
-      const notes = m.structured_notes as Record<string, unknown> | null
+    const enrichedMeetings = (meetings ?? []).map((m: {
+      id: string; meeting_type: string; meeting_date: string; created_at: string;
+      transcript: string | null; structured_notes: Record<string, unknown> | null;
+      duration_minutes: number | null;
+    }) => {
+      const notes = m.structured_notes
       const summary = notes?.summary as string | undefined
       const title = notes?.title as string | undefined
 
