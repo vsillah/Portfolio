@@ -28,8 +28,13 @@ export async function POST(
       return NextResponse.json({ error: 'image_prompt is required' }, { status: 400 })
     }
 
-    // Update the prompt in the queue
-    const updateFields: Record<string, unknown> = { image_prompt }
+    const updateFields: Record<string, unknown> = {
+      image_prompt,
+      content_format: 'single_image',
+      carousel_slides: null,
+      carousel_pdf_url: null,
+      carousel_slide_urls: null,
+    }
     if (framework_visual_type) {
       updateFields.framework_visual_type = framework_visual_type
     }
@@ -44,45 +49,11 @@ export async function POST(
       process.env.N8N_SOC_REGENERATE_IMAGE_WEBHOOK_URL ||
       n8nWebhookUrl('social-content-regenerate-image')
 
-    const webhookSource = process.env.N8N_SOC_REGENERATE_IMAGE_WEBHOOK_URL
-      ? 'N8N_SOC_REGENERATE_IMAGE_WEBHOOK_URL'
-      : 'default_social_content_regenerate_image'
-
     let triggered = false
     let n8nImageUrl: string | null = null
     if (isN8nOutboundDisabled()) {
-      // #region agent log
-      fetch('http://127.0.0.1:7894/ingest/43158677-08a7-444a-823b-2b427e92bdf0', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '837df0' },
-        body: JSON.stringify({
-          sessionId: '837df0',
-          runId: 'post-fix',
-          hypothesisId: 'B',
-          location: 'regenerate-image/route.ts:n8n-disabled',
-          message: 'N8N outbound disabled; fetch skipped',
-          data: { webhookSource, contentId: id },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {})
-      // #endregion
       console.log(`[N8N_DISABLED] regenerate-image → ${webhookUrl}`)
     } else {
-      // #region agent log
-      fetch('http://127.0.0.1:7894/ingest/43158677-08a7-444a-823b-2b427e92bdf0', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '837df0' },
-        body: JSON.stringify({
-          sessionId: '837df0',
-          runId: 'post-fix',
-          hypothesisId: 'A',
-          location: 'regenerate-image/route.ts:pre-fetch',
-          message: 'Regenerate image webhook target',
-          data: { webhookSource, contentId: id },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {})
-      // #endregion
       try {
         const res = await fetch(webhookUrl, {
           method: 'POST',
@@ -94,48 +65,15 @@ export async function POST(
             framework_visual_type: framework_visual_type || null,
           }),
         })
-        let bodyPreview = ''
         try {
           const bodyText = await res.clone().text()
-          bodyPreview = bodyText.slice(0, 200)
           const parsed = JSON.parse(bodyText)
           if (parsed.image_url) n8nImageUrl = parsed.image_url
         } catch {
           /* ignore parse errors */
         }
         triggered = res.ok
-        // #region agent log
-        fetch('http://127.0.0.1:7894/ingest/43158677-08a7-444a-823b-2b427e92bdf0', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '837df0' },
-          body: JSON.stringify({
-            sessionId: '837df0',
-            runId: 'post-fix',
-            hypothesisId: 'C',
-            location: 'regenerate-image/route.ts:post-fetch',
-            message: 'n8n HTTP response',
-            data: { status: res.status, ok: res.ok, triggered, bodyPreview },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {})
-        // #endregion
       } catch (err) {
-        // #region agent log
-        const errMsg = err instanceof Error ? err.message : String(err)
-        fetch('http://127.0.0.1:7894/ingest/43158677-08a7-444a-823b-2b427e92bdf0', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '837df0' },
-          body: JSON.stringify({
-            sessionId: '837df0',
-            runId: 'post-fix',
-            hypothesisId: 'D',
-            location: 'regenerate-image/route.ts:fetch-error',
-            message: 'fetch threw',
-            data: { errMsg },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {})
-        // #endregion
         console.error('Failed to trigger image regeneration:', err)
       }
     }

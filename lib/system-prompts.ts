@@ -8,6 +8,7 @@ import {
   HORMOZI_TOPIC_EXTRACTION_PROMPT,
   HORMOZI_COPYWRITING_PROMPT,
   FRAMEWORK_IMAGE_PROMPT_TEMPLATE,
+  CAROUSEL_SLIDES_PROMPT,
 } from './social-content'
 
 export interface SystemPrompt {
@@ -126,6 +127,7 @@ If the user provided audience/tone/angle explicitly, use those. Otherwise infer 
   social_topic_extraction: HORMOZI_TOPIC_EXTRACTION_PROMPT,
   social_copywriting: HORMOZI_COPYWRITING_PROMPT,
   social_image_generation: FRAMEWORK_IMAGE_PROMPT_TEMPLATE,
+  social_carousel_slides: CAROUSEL_SLIDES_PROMPT,
 }
 
 const DEFAULT_CONFIGS: Record<string, PromptConfig> = {
@@ -139,6 +141,7 @@ const DEFAULT_CONFIGS: Record<string, PromptConfig> = {
   social_topic_extraction: { temperature: 0.6, maxTokens: 2048 },
   social_copywriting: { temperature: 0.8, maxTokens: 1024 },
   social_image_generation: { temperature: 0.4, maxTokens: 512 },
+  social_carousel_slides: { temperature: 0.7, maxTokens: 4096 },
 }
 
 // Cache for prompts (5 minute TTL)
@@ -330,20 +333,31 @@ export async function getSocialImagePrompt(): Promise<string> {
 }
 
 /**
- * Get all three social content prompts in one call.
+ * Get the social content carousel slides prompt.
+ * Used to generate structured JSON slide content for LinkedIn carousels.
+ */
+export async function getSocialCarouselSlidesPrompt(): Promise<string> {
+  const prompt = await getSystemPrompt('social_carousel_slides')
+  return prompt?.prompt || DEFAULT_PROMPTS.social_carousel_slides
+}
+
+/**
+ * Get all social content prompts in one call.
  * Used when triggering WF-SOC-001 to send all prompts to the n8n workflow.
  */
 export async function getSocialContentPrompts(): Promise<{
   topicExtraction: string
   copywriting: string
   imageGeneration: string
+  carouselSlides: string
 }> {
-  const [topicExtraction, copywriting, imageGeneration] = await Promise.all([
+  const [topicExtraction, copywriting, imageGeneration, carouselSlides] = await Promise.all([
     getSocialTopicExtractionPrompt(),
     getSocialCopywritingPrompt(),
     getSocialImagePrompt(),
+    getSocialCarouselSlidesPrompt(),
   ])
-  return { topicExtraction, copywriting, imageGeneration }
+  return { topicExtraction, copywriting, imageGeneration, carouselSlides }
 }
 
 /**

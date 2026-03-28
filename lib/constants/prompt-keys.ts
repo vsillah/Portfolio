@@ -18,6 +18,7 @@ export const PROMPT_KEYS = [
   'social_topic_extraction',
   'social_copywriting',
   'social_image_generation',
+  'social_carousel_slides',
 ] as const
 
 export type PromptKey = (typeof PROMPT_KEYS)[number]
@@ -38,6 +39,7 @@ export const PROMPT_DISPLAY_NAMES: Record<string, string> = {
   social_topic_extraction: 'Social — Topic Extraction',
   social_copywriting: 'Social — Copywriting',
   social_image_generation: 'Social — Image Generation',
+  social_carousel_slides: 'Social — Carousel Slides',
 }
 
 /** Subset of prompt keys for the social content pipeline. */
@@ -45,6 +47,7 @@ export const SOCIAL_PROMPT_KEYS = [
   'social_topic_extraction',
   'social_copywriting',
   'social_image_generation',
+  'social_carousel_slides',
 ] as const
 
 export type SocialPromptKey = (typeof SOCIAL_PROMPT_KEYS)[number]

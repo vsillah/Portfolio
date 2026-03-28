@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.3.2",
+    "@sparticuz/chromium": "^143.0.4",
     "@stripe/react-stripe-js": "^2.4.0",
     "@stripe/stripe-js": "^2.2.0",
     "@supabase/supabase-js": "^2.89.0",
@@ -42,7 +43,9 @@
     "mermaid": "^11.12.2",
     "next": "^14.0.4",
     "nodemailer": "^8.0.1",
+    "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
+    "playwright-core": "^1.58.2",
     "react": "^18.2.0",
     "react-calendly": "^4.4.0",
     "react-dom": "^18.2.0",
