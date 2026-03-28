@@ -7,9 +7,13 @@
 // Types
 // ============================================================================
 
-export type SocialPlatform = 'linkedin' | 'instagram' | 'facebook'
+export type SocialPlatform = 'linkedin' | 'instagram' | 'facebook' | 'youtube'
 
 export type ContentStatus = 'draft' | 'approved' | 'scheduled' | 'published' | 'rejected'
+
+export type PublishStatus = 'pending' | 'publishing' | 'published' | 'failed' | 'skipped'
+
+export type VideoGenerationMethod = 'heygen_avatar' | 'animated_image' | 'none'
 
 export type FrameworkVisualType =
   | 'flowchart'
@@ -60,6 +64,10 @@ export interface SocialContentItem {
   platform_post_id: string | null
   admin_notes: string | null
   reviewed_by: string | null
+  target_platforms: SocialPlatform[]
+  video_generation_method: VideoGenerationMethod
+  youtube_title: string | null
+  youtube_description: string | null
   created_at: string
   updated_at: string
   // Joined from meeting_records when fetching detail
@@ -72,6 +80,21 @@ export interface SocialContentItem {
     key_decisions: unknown
     attendees: unknown
   }
+  // Joined from social_content_publishes
+  publishes?: SocialContentPublish[]
+}
+
+export interface SocialContentPublish {
+  id: string
+  content_id: string
+  platform: SocialPlatform
+  status: PublishStatus
+  platform_post_id: string | null
+  platform_post_url: string | null
+  error_message: string | null
+  published_at: string | null
+  created_at: string
+  updated_at: string
 }
 
 export interface SocialContentConfig {
@@ -90,9 +113,23 @@ export interface SocialContentConfig {
 
 export const PLATFORMS: { value: SocialPlatform; label: string; enabled: boolean }[] = [
   { value: 'linkedin', label: 'LinkedIn', enabled: true },
+  { value: 'youtube', label: 'YouTube', enabled: false },
   { value: 'instagram', label: 'Instagram', enabled: false },
   { value: 'facebook', label: 'Facebook', enabled: false },
 ]
+
+export const PUBLISH_STATUS_CONFIG: Record<PublishStatus, {
+  label: string
+  color: string
+  bgColor: string
+  borderColor: string
+}> = {
+  pending: { label: 'Pending', color: 'text-gray-400', bgColor: 'bg-gray-500/20', borderColor: 'border-gray-500/50' },
+  publishing: { label: 'Publishing...', color: 'text-blue-400', bgColor: 'bg-blue-500/20', borderColor: 'border-blue-500/50' },
+  published: { label: 'Published', color: 'text-green-400', bgColor: 'bg-green-500/20', borderColor: 'border-green-500/50' },
+  failed: { label: 'Failed', color: 'text-red-400', bgColor: 'bg-red-500/20', borderColor: 'border-red-500/50' },
+  skipped: { label: 'Skipped', color: 'text-amber-400', bgColor: 'bg-amber-500/20', borderColor: 'border-amber-500/50' },
+}
 
 export const CONTENT_STATUSES: { value: ContentStatus; label: string }[] = [
   { value: 'draft', label: 'Draft' },

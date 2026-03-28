@@ -40,8 +40,15 @@ export async function GET(
       meetingRecord = meeting
     }
 
+    // Load per-platform publish records
+    const { data: publishes } = await supabaseAdmin
+      .from('social_content_publishes')
+      .select('*')
+      .eq('content_id', id)
+      .order('created_at', { ascending: true })
+
     return NextResponse.json({
-      item: { ...data, meeting_record: meetingRecord },
+      item: { ...data, meeting_record: meetingRecord, publishes: publishes || [] },
     })
   } catch (error) {
     console.error('Error in GET /api/admin/social-content/[id]:', error)
@@ -70,7 +77,8 @@ export async function PUT(
       'post_text', 'cta_text', 'cta_url', 'hashtags',
       'image_prompt', 'voiceover_text', 'platform',
       'status', 'scheduled_for', 'admin_notes',
-      'framework_visual_type',
+      'framework_visual_type', 'target_platforms',
+      'video_generation_method', 'youtube_title', 'youtube_description',
     ]
 
     const sanitized: Record<string, unknown> = {}
