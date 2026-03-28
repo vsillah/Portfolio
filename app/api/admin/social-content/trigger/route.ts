@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
 
     const { data: meetings, error } = await supabaseAdmin
       .from('meeting_records')
-      .select('id, meeting_type, meeting_date, created_at')
+      .select('id, meeting_type, meeting_date, created_at, transcript, structured_notes, duration_minutes')
       .order('meeting_date', { ascending: false })
       .limit(limit)
 
@@ -83,8 +83,51 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch meeting records' }, { status: 500 })
     }
 
+    const meetingIds = (meetings ?? []).map((m: { id: string }) => m.id)
+    const { data: queuedItems } = meetingIds.length > 0
+      ? await supabaseAdmin
+          .from('social_content_queue')
+          .select('meeting_record_id')
+          .in('meeting_record_id', meetingIds)
+      : { data: [] }
+
+    const queuedCounts = new Map<string, number>()
+    for (const item of queuedItems ?? []) {
+      if (item.meeting_record_id) {
+        queuedCounts.set(item.meeting_record_id, (queuedCounts.get(item.meeting_record_id) || 0) + 1)
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const enrichedMeetings = (meetings ?? []).map((m: any) => {
+      const notes = m.structured_notes as Record<string, unknown> | null
+      const summary = notes?.summary as string | undefined
+      const title = notes?.title as string | undefined
+
+      let snippet = title || summary || ''
+      if (!snippet && m.transcript) {
+        const cleaned = (m.transcript as string)
+          .replace(/<[^>]+>/g, '')
+          .replace(/\*[^*]+\*/g, '')
+          .replace(/https?:\/\/\S+/g, '')
+          .replace(/\s+/g, ' ')
+          .trim()
+        snippet = cleaned.slice(0, 80)
+      }
+
+      return {
+        id: m.id,
+        meeting_type: m.meeting_type,
+        meeting_date: m.meeting_date,
+        created_at: m.created_at,
+        duration_minutes: m.duration_minutes,
+        snippet: snippet || null,
+        queued_count: queuedCounts.get(m.id) || 0,
+      }
+    })
+
     return NextResponse.json({
-      meetings: meetings ?? [],
+      meetings: enrichedMeetings,
     })
   } catch (error) {
     console.error('Error in GET /api/admin/social-content/trigger:', error)

@@ -56,6 +56,9 @@ interface MeetingRecord {
   meeting_type: string
   meeting_date: string
   created_at: string
+  duration_minutes: number | null
+  snippet: string | null
+  queued_count: number
 }
 
 function SocialContentQueuePage() {
@@ -212,11 +215,20 @@ function SocialContentQueuePage() {
                   className="w-full bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-2 text-sm"
                 >
                   <option value="">All recent meetings</option>
-                  {meetings.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.meeting_type} — {new Date(m.meeting_date).toLocaleDateString()}
-                    </option>
-                  ))}
+                  {meetings.map((m) => {
+                    const date = new Date(m.meeting_date)
+                    const dateStr = date.toLocaleDateString()
+                    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    const type = m.meeting_type.replace(/_/g, ' ')
+                    const duration = m.duration_minutes ? ` · ${m.duration_minutes}m` : ''
+                    const snippet = m.snippet ? ` — ${m.snippet.slice(0, 40)}${m.snippet.length > 40 ? '…' : ''}` : ''
+                    const processed = m.queued_count > 0 ? ` (${m.queued_count} post${m.queued_count > 1 ? 's' : ''})` : ''
+                    return (
+                      <option key={m.id} value={m.id}>
+                        {type} · {dateStr} {timeStr}{duration}{snippet}{processed}
+                      </option>
+                    )
+                  })}
                 </select>
               </div>
               <button
