@@ -209,6 +209,24 @@ function SocialContentDetailPage() {
       })
 
       const data = await res.json()
+      // #region agent log
+      fetch('http://127.0.0.1:7894/ingest/43158677-08a7-444a-823b-2b427e92bdf0', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '837df0' },
+        body: JSON.stringify({
+          sessionId: '837df0',
+          runId: 'post-fix',
+          hypothesisId: 'E',
+          location: 'social-content/[id]/page.tsx:regenerate-image-response',
+          message: 'client received regenerate-image API response',
+          data: { httpStatus: res.status, triggered: !!data.triggered },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion
+      if (data.triggered && data.image_url) {
+        setItem(prev => prev ? { ...prev, image_url: data.image_url } : prev)
+      }
       showMsg(data.triggered ? 'success' : 'error', data.message)
     } catch {
       showMsg('error', 'Failed to trigger image regeneration')

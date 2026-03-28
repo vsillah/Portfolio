@@ -18,6 +18,8 @@ When adding features that are triggered by or ingest data from n8n:
 - Use `n8nWebhookUrl(path)` from `lib/n8n.ts` to build webhook URLs: `n8nWebhookUrl('clg-outreach-gen')` produces `${N8N_BASE_URL}/webhook/clg-outreach-gen`.
 - Per-workflow env vars (e.g. `N8N_VEP001_WEBHOOK_URL`) override the base URL when set. Use them for workflows with instance-specific paths (e.g. UUID-based chat trigger).
 
+For **where production values live** (hosting dashboard vs code defaults) and social-content webhook segments, see **`docs/deploy-context.md`**.
+
 ## Environment variables
 
 - Add a dedicated webhook URL env var per workflow (e.g. `N8N_VEP001_WEBHOOK_URL`, `N8N_VEP002_WEBHOOK_URL`).

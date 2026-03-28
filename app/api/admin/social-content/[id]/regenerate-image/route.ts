@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { N8N_BASE_URL, isN8nOutboundDisabled } from '@/lib/n8n'
+import { isN8nOutboundDisabled, n8nWebhookUrl } from '@/lib/n8n'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,14 +39,50 @@ export async function POST(
       .update(updateFields)
       .eq('id', id)
 
-    // Trigger image regeneration via n8n
-    const webhookUrl = process.env.N8N_SOC001_WEBHOOK_URL
-      || `${N8N_BASE_URL}/webhook/social-content-regenerate-image`
+    // Trigger image regeneration via n8n (never use N8N_SOC001_WEBHOOK_URL — that is the extract workflow)
+    const webhookUrl =
+      process.env.N8N_SOC_REGENERATE_IMAGE_WEBHOOK_URL ||
+      n8nWebhookUrl('social-content-regenerate-image')
+
+    const webhookSource = process.env.N8N_SOC_REGENERATE_IMAGE_WEBHOOK_URL
+      ? 'N8N_SOC_REGENERATE_IMAGE_WEBHOOK_URL'
+      : 'default_social_content_regenerate_image'
 
     let triggered = false
+    let n8nImageUrl: string | null = null
     if (isN8nOutboundDisabled()) {
+      // #region agent log
+      fetch('http://127.0.0.1:7894/ingest/43158677-08a7-444a-823b-2b427e92bdf0', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '837df0' },
+        body: JSON.stringify({
+          sessionId: '837df0',
+          runId: 'post-fix',
+          hypothesisId: 'B',
+          location: 'regenerate-image/route.ts:n8n-disabled',
+          message: 'N8N outbound disabled; fetch skipped',
+          data: { webhookSource, contentId: id },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion
       console.log(`[N8N_DISABLED] regenerate-image → ${webhookUrl}`)
     } else {
+      // #region agent log
+      fetch('http://127.0.0.1:7894/ingest/43158677-08a7-444a-823b-2b427e92bdf0', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '837df0' },
+        body: JSON.stringify({
+          sessionId: '837df0',
+          runId: 'post-fix',
+          hypothesisId: 'A',
+          location: 'regenerate-image/route.ts:pre-fetch',
+          message: 'Regenerate image webhook target',
+          data: { webhookSource, contentId: id },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion
       try {
         const res = await fetch(webhookUrl, {
           method: 'POST',
@@ -58,15 +94,58 @@ export async function POST(
             framework_visual_type: framework_visual_type || null,
           }),
         })
+        let bodyPreview = ''
+        try {
+          const bodyText = await res.clone().text()
+          bodyPreview = bodyText.slice(0, 200)
+          const parsed = JSON.parse(bodyText)
+          if (parsed.image_url) n8nImageUrl = parsed.image_url
+        } catch {
+          /* ignore parse errors */
+        }
         triggered = res.ok
+        // #region agent log
+        fetch('http://127.0.0.1:7894/ingest/43158677-08a7-444a-823b-2b427e92bdf0', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '837df0' },
+          body: JSON.stringify({
+            sessionId: '837df0',
+            runId: 'post-fix',
+            hypothesisId: 'C',
+            location: 'regenerate-image/route.ts:post-fetch',
+            message: 'n8n HTTP response',
+            data: { status: res.status, ok: res.ok, triggered, bodyPreview },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {})
+        // #endregion
       } catch (err) {
+        // #region agent log
+        const errMsg = err instanceof Error ? err.message : String(err)
+        fetch('http://127.0.0.1:7894/ingest/43158677-08a7-444a-823b-2b427e92bdf0', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '837df0' },
+          body: JSON.stringify({
+            sessionId: '837df0',
+            runId: 'post-fix',
+            hypothesisId: 'D',
+            location: 'regenerate-image/route.ts:fetch-error',
+            message: 'fetch threw',
+            data: { errMsg },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {})
+        // #endregion
         console.error('Failed to trigger image regeneration:', err)
       }
     }
 
-    return NextResponse.json({ triggered, message: triggered
-      ? 'Image regeneration triggered. The new image will appear shortly.'
-      : 'Could not trigger image regeneration. Check n8n workflow status.'
+    return NextResponse.json({
+      triggered,
+      image_url: n8nImageUrl,
+      message: triggered
+        ? 'Image regeneration triggered. The new image will appear shortly.'
+        : 'Could not trigger image regeneration. Check n8n workflow status.',
     })
   } catch (error) {
     console.error('Error in POST /api/admin/social-content/[id]/regenerate-image:', error)

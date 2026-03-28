@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { N8N_BASE_URL, isN8nOutboundDisabled } from '@/lib/n8n'
+import { isN8nOutboundDisabled, n8nWebhookUrl } from '@/lib/n8n'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,9 +33,10 @@ export async function POST(
       .update({ voiceover_text })
       .eq('id', id)
 
-    // Trigger audio regeneration via n8n
-    const webhookUrl = process.env.N8N_SOC001_WEBHOOK_URL
-      || `${N8N_BASE_URL}/webhook/social-content-regenerate-audio`
+    // Trigger audio regeneration via n8n (never use N8N_SOC001_WEBHOOK_URL — that is the extract workflow)
+    const webhookUrl =
+      process.env.N8N_SOC_REGENERATE_AUDIO_WEBHOOK_URL ||
+      n8nWebhookUrl('social-content-regenerate-audio')
 
     let triggered = false
     if (isN8nOutboundDisabled()) {

@@ -1,0 +1,13 @@
+---
+description: Production deploy, Vercel env vars, and n8n webhook defaults — read before answering where prod values live
+globs:
+alwaysApply: false
+---
+
+# Deploy context
+
+When the task involves **production or Preview environment variables**, **which n8n webhook URL a deploy uses**, **Vercel (or host) configuration**, or **tracing effective URLs from code**:
+
+1. Read **`docs/deploy-context.md`** first.
+2. Do not assume secret values exist in the repo; name the variable and point humans to the hosting dashboard for overrides.
+3. Derive defaults from **`lib/n8n.ts`** and the relevant API route (`process.env.N8N_*`).
