@@ -40,6 +40,7 @@ import {
   FileText,
   CalendarCheck,
   ChevronRight,
+  MoreHorizontal,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -247,6 +248,7 @@ function OutreachContent() {
   const [leadsPage, setLeadsPage] = useState(1)
   const leadsPerPage = 50
   const [leadActionId, setLeadActionId] = useState<number | null>(null)
+  const [leadRowMenuOpenId, setLeadRowMenuOpenId] = useState<number | null>(null)
 
   // Escalations tab state
   const [escalations, setEscalations] = useState<ChatEscalationRow[]>([])
@@ -323,6 +325,7 @@ function OutreachContent() {
     rep_pain_points: string | null
     has_diagnostic: boolean
     has_extractable_text: boolean
+    evidence_count?: number
   }>>([])
   const [enrichModalForm, setEnrichModalForm] = useState<Record<number, {
     name?: string
@@ -356,6 +359,8 @@ function OutreachContent() {
   const [unifiedModalReRunEnrichment, setUnifiedModalReRunEnrichment] = useState(true)
   const [unifiedModalSaveLoading, setUnifiedModalSaveLoading] = useState(false)
   const [unifiedModalSaveError, setUnifiedModalSaveError] = useState<string | null>(null)
+  /** After a successful Push from this modal, show Classify instead of Push (also when preflight shows all leads already have evidence). */
+  const [enrichModalVepPushCompleted, setEnrichModalVepPushCompleted] = useState(false)
 
   // Read.ai meeting context — shared cache + modal state
   type ReadAiMeetingItem = {
@@ -372,6 +377,39 @@ function OutreachContent() {
   const [meetingImportLoading, setMeetingImportLoading] = useState(false)
   const [meetingSectionExpanded, setMeetingSectionExpanded] = useState<Record<number, boolean>>({})
   const [, setReadAiCacheTick] = useState(0)
+
+  // Pending meeting imports — staged for admin approval before merging into form fields
+  type PendingMeetingImport = {
+    meetingId: string
+    meetingTitle: string
+    meetingDate: string
+    type: 'pain_points' | 'quick_wins'
+    content: string
+  }
+  const [pendingMeetingImports, setPendingMeetingImports] = useState<Record<number, PendingMeetingImport[]>>({})
+
+  // Generate outreach state
+  const [generateOutreachLoading, setGenerateOutreachLoading] = useState<number | null>(null)
+  const [generateOutreachToast, setGenerateOutreachToast] = useState<string | null>(null)
+
+  // Pain point classification in enrich modal
+  type ClassifiedPainPoint = {
+    text: string
+    categoryId: string
+    categoryName: string
+    categoryDisplayName: string
+    confidence: number
+    method: 'keyword' | 'ai'
+  }
+  const [enrichClassifiedItems, setEnrichClassifiedItems] = useState<Record<number, ClassifiedPainPoint[]>>({})
+  const [enrichClassifyLoading, setEnrichClassifyLoading] = useState<Record<number, boolean>>({})
+
+  // Add Lead modal: pending extracted suggestions for admin approval
+  type PendingExtractSuggestion = {
+    field: 'pain_points' | 'quick_wins'
+    content: string
+  }
+  const [addLeadPendingExtracts, setAddLeadPendingExtracts] = useState<PendingExtractSuggestion[]>([])
 
   const getReadAiCacheAge = useCallback((email: string): string | null => {
     const cached = readAiCacheRef.current[email.toLowerCase().trim()]
@@ -566,6 +604,28 @@ function OutreachContent() {
     return () => { cancelled = true }
   }, [activeTab, expandedLeadId])
 
+  useEffect(() => {
+    if (leadRowMenuOpenId == null) return
+    const close = () => setLeadRowMenuOpenId(null)
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') close()
+    }
+    const onPointerDown = (e: PointerEvent) => {
+      const wrap = document.getElementById(`lead-actions-wrap-${leadRowMenuOpenId}`)
+      if (wrap && !wrap.contains(e.target as Node)) close()
+    }
+    document.addEventListener('keydown', onKey)
+    document.addEventListener('pointerdown', onPointerDown)
+    return () => {
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('pointerdown', onPointerDown)
+    }
+  }, [leadRowMenuOpenId])
+
+  useEffect(() => {
+    setLeadRowMenuOpenId(null)
+  }, [activeTab])
+
   // Handle tab changes with URL updates
   const handleTabChange = (tab: TabType) => {
     setActiveTab(tab)
@@ -580,6 +640,7 @@ function OutreachContent() {
     const session = await getCurrentSession()
     if (!session) return
     setPushLoading(true)
+    setEnrichModalVepPushCompleted(false)
     try {
       const res = await fetch('/api/admin/value-evidence/extract-leads/preflight', {
         method: 'POST',
@@ -599,6 +660,9 @@ function OutreachContent() {
       setMeetingsByLead({})
       setSelectedMeetingIds({})
       setMeetingSectionExpanded({})
+      setPendingMeetingImports({})
+      setEnrichClassifiedItems({})
+      setEnrichClassifyLoading({})
       setShowEnrichModal(true)
 
       // Fetch Read.ai meetings for each lead with an email (async, non-blocking)
@@ -670,8 +734,7 @@ function OutreachContent() {
 
     setMeetingImportLoading(true)
     try {
-      const summaryParts: string[] = []
-      const actionItemParts: string[] = []
+      const pending: PendingMeetingImport[] = []
 
       for (const meetingId of selected) {
         const res = await fetch(`/api/admin/read-ai/meetings/${meetingId}`, {
@@ -680,30 +743,34 @@ function OutreachContent() {
         if (!res.ok) continue
         const { meeting } = await res.json()
 
+        const date = new Date(meeting.start_time_ms).toLocaleDateString()
+
         if (meeting.summary) {
-          const date = new Date(meeting.start_time_ms).toLocaleDateString()
-          summaryParts.push(`--- From meeting: ${meeting.title} (${date}) ---\n${meeting.summary}`)
+          pending.push({
+            meetingId,
+            meetingTitle: meeting.title,
+            meetingDate: date,
+            type: 'pain_points',
+            content: meeting.summary,
+          })
         }
         if (meeting.action_items?.length) {
-          const date = new Date(meeting.start_time_ms).toLocaleDateString()
-          const items = meeting.action_items.map((ai: { text: string }) => `• ${ai.text}`).join('\n')
-          actionItemParts.push(`--- From meeting: ${meeting.title} (${date}) ---\n${items}`)
+          const items = meeting.action_items.filter((ai: { text: string }) => ai.text).map((ai: { text: string }) => `• ${ai.text}`).join('\n')
+          if (!items) continue
+          pending.push({
+            meetingId,
+            meetingTitle: meeting.title,
+            meetingDate: date,
+            type: 'quick_wins',
+            content: items,
+          })
         }
       }
 
-      setEnrichModalForm((prev) => {
-        const existing = prev[leadId] || {}
-        const currentPain = existing.rep_pain_points ?? ''
-        const currentQuickWins = existing.quick_wins ?? ''
-        return {
-          ...prev,
-          [leadId]: {
-            ...existing,
-            rep_pain_points: [currentPain, ...summaryParts].filter(Boolean).join('\n\n'),
-            quick_wins: [currentQuickWins, ...actionItemParts].filter(Boolean).join('\n\n'),
-          },
-        }
-      })
+      setPendingMeetingImports((prev) => ({
+        ...prev,
+        [leadId]: [...(prev[leadId] || []), ...pending],
+      }))
 
       setSelectedMeetingIds((prev) => ({ ...prev, [leadId]: new Set<string>() }))
     } catch (err) {
@@ -712,6 +779,70 @@ function OutreachContent() {
       setMeetingImportLoading(false)
     }
   }, [selectedMeetingIds])
+
+  const handleApproveMeetingImport = useCallback((leadId: number, index: number) => {
+    const items = pendingMeetingImports[leadId]
+    if (!items || !items[index]) return
+
+    const item = items[index]
+    const formatted = `--- From meeting: ${item.meetingTitle} (${item.meetingDate}) ---\n${item.content}`
+
+    setEnrichModalForm((prev) => {
+      const existing = prev[leadId] || {}
+      const field = item.type === 'pain_points' ? 'rep_pain_points' : 'quick_wins'
+      const current = existing[field] ?? ''
+      return {
+        ...prev,
+        [leadId]: {
+          ...existing,
+          [field]: [current, formatted].filter(Boolean).join('\n\n'),
+        },
+      }
+    })
+
+    setPendingMeetingImports((prev) => ({
+      ...prev,
+      [leadId]: items.filter((_, i) => i !== index),
+    }))
+  }, [pendingMeetingImports])
+
+  const handleDeclineMeetingImport = useCallback((leadId: number, index: number) => {
+    setPendingMeetingImports((prev) => ({
+      ...prev,
+      [leadId]: (prev[leadId] || []).filter((_, i) => i !== index),
+    }))
+  }, [])
+
+  const handleApproveAllMeetingImports = useCallback((leadId: number) => {
+    const items = pendingMeetingImports[leadId]
+    if (!items || items.length === 0) return
+
+    setEnrichModalForm((prev) => {
+      const existing = prev[leadId] || {}
+      let painPoints = existing.rep_pain_points ?? ''
+      let quickWins = existing.quick_wins ?? ''
+
+      for (const item of items) {
+        const formatted = `--- From meeting: ${item.meetingTitle} (${item.meetingDate}) ---\n${item.content}`
+        if (item.type === 'pain_points') {
+          painPoints = [painPoints, formatted].filter(Boolean).join('\n\n')
+        } else {
+          quickWins = [quickWins, formatted].filter(Boolean).join('\n\n')
+        }
+      }
+
+      return {
+        ...prev,
+        [leadId]: { ...existing, rep_pain_points: painPoints, quick_wins: quickWins },
+      }
+    })
+
+    setPendingMeetingImports((prev) => ({ ...prev, [leadId]: [] }))
+  }, [pendingMeetingImports])
+
+  const handleDeclineAllMeetingImports = useCallback((leadId: number) => {
+    setPendingMeetingImports((prev) => ({ ...prev, [leadId]: [] }))
+  }, [])
 
   const updateLeadDncOrRemoved = useCallback(
     async (leadId: number, payload: { do_not_contact?: boolean; removed_at?: string | null }) => {
@@ -866,6 +997,7 @@ function OutreachContent() {
     setAddLeadPasteAttendeeName('')
     setAddLeadPasteAttendeeEmail('')
     setAddLeadPasteSaving(false)
+    setAddLeadPendingExtracts([])
   }
 
   const fetchMeetingsForPicker = async () => {
@@ -914,14 +1046,18 @@ function OutreachContent() {
       if (fields.job_title) setAddLeadJobTitle(fields.job_title)
       if (fields.industry) setAddLeadIndustry(fields.industry)
       if (fields.phone) setAddLeadPhone(fields.phone)
+      const pendingSuggestions: PendingExtractSuggestion[] = []
       if (fields.pain_points) {
-        setAddLeadPainPoints(fields.pain_points)
+        pendingSuggestions.push({ field: 'pain_points', content: fields.pain_points })
         setAddLeadMeetingPainPoints(fields.pain_points)
         setShowVepSection(true)
       }
       if (fields.quick_wins) {
-        setAddLeadQuickWins(fields.quick_wins)
+        pendingSuggestions.push({ field: 'quick_wins', content: fields.quick_wins })
         setShowVepSection(true)
+      }
+      if (pendingSuggestions.length > 0) {
+        setAddLeadPendingExtracts((prev) => [...prev, ...pendingSuggestions])
       }
       if (fields.employee_count) {
         setAddLeadEmployeeCount(fields.employee_count)
@@ -1054,7 +1190,8 @@ function OutreachContent() {
         setAddLeadPainPoints((prev) => [prev, `--- From meeting: ${meeting.title} ---\n${meeting.summary}`].filter(Boolean).join('\n\n'))
       }
       if (meeting.action_items?.length) {
-        const items = meeting.action_items.map((ai: { text: string }) => `• ${ai.text}`).join('\n')
+        const items = meeting.action_items.filter((ai: { text: string }) => ai.text).map((ai: { text: string }) => `• ${ai.text}`).join('\n')
+        if (!items) return
         setAddLeadQuickWins((prev) => [prev, `--- From meeting: ${meeting.title} ---\n${items}`].filter(Boolean).join('\n\n'))
       }
 
@@ -2162,6 +2299,82 @@ function OutreachContent() {
                           placeholder="Optional notes"
                         />
                       </div>
+                      {/* Pending AI-extracted suggestions for admin approval */}
+                      {addLeadPendingExtracts.length > 0 && (
+                        <div className="p-3 rounded-lg border border-amber-700/50 bg-amber-900/10 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-sm font-medium text-amber-400 flex items-center gap-2">
+                              <AlertTriangle size={14} />
+                              Review extracted items ({addLeadPendingExtracts.length})
+                            </h4>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  for (const item of addLeadPendingExtracts) {
+                                    if (item.field === 'pain_points') {
+                                      setAddLeadPainPoints((prev) => [prev, item.content].filter(Boolean).join('\n\n'))
+                                    } else {
+                                      setAddLeadQuickWins((prev) => [prev, item.content].filter(Boolean).join('\n\n'))
+                                    }
+                                  }
+                                  setAddLeadPendingExtracts([])
+                                  setShowVepSection(true)
+                                }}
+                                className="px-2 py-1 text-xs font-medium rounded bg-green-900/50 text-green-400 border border-green-700 hover:bg-green-800/50"
+                              >
+                                Approve all
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setAddLeadPendingExtracts([])}
+                                className="px-2 py-1 text-xs font-medium rounded bg-red-900/50 text-red-400 border border-red-700 hover:bg-red-800/50"
+                              >
+                                Decline all
+                              </button>
+                            </div>
+                          </div>
+                          {addLeadPendingExtracts.map((item, idx) => (
+                            <div key={idx} className="flex items-start gap-2 p-2 rounded bg-silicon-slate/30">
+                              <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-medium uppercase ${
+                                item.field === 'pain_points'
+                                  ? 'bg-red-900/50 text-red-400'
+                                  : 'bg-green-900/50 text-green-400'
+                              }`}>
+                                {item.field === 'pain_points' ? 'Pain point' : 'Quick win'}
+                              </span>
+                              <p className="flex-1 text-sm text-platinum-white/80 line-clamp-2">{item.content}</p>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (item.field === 'pain_points') {
+                                      setAddLeadPainPoints((prev) => [prev, item.content].filter(Boolean).join('\n\n'))
+                                    } else {
+                                      setAddLeadQuickWins((prev) => [prev, item.content].filter(Boolean).join('\n\n'))
+                                    }
+                                    setAddLeadPendingExtracts((prev) => prev.filter((_, i) => i !== idx))
+                                    setShowVepSection(true)
+                                  }}
+                                  className="p-1 rounded hover:bg-green-900/50 text-green-400"
+                                  title="Approve"
+                                >
+                                  <CheckCircle size={14} />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setAddLeadPendingExtracts((prev) => prev.filter((_, i) => i !== idx))}
+                                  className="p-1 rounded hover:bg-red-900/50 text-red-400"
+                                  title="Decline"
+                                >
+                                  <XCircle size={14} />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
                       <div className="border border-silicon-slate rounded-lg overflow-hidden">
                         <button
                           type="button"
@@ -2598,6 +2811,99 @@ function OutreachContent() {
                               )}
                             </div>
                           )}
+
+                          {/* Review Meeting Notes — pending approval */}
+                          {(pendingMeetingImports[l.id]?.length ?? 0) > 0 && (
+                            <div className="pt-3 border-t border-silicon-slate">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="text-sm font-medium text-amber-400 flex items-center gap-2">
+                                  <AlertTriangle size={14} />
+                                  Review Meeting Notes ({pendingMeetingImports[l.id].length} pending)
+                                </h4>
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleApproveAllMeetingImports(l.id)}
+                                    className="px-2 py-1 text-xs font-medium rounded bg-green-900/50 text-green-400 border border-green-700 hover:bg-green-800/50"
+                                  >
+                                    Approve all
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeclineAllMeetingImports(l.id)}
+                                    className="px-2 py-1 text-xs font-medium rounded bg-red-900/50 text-red-400 border border-red-700 hover:bg-red-800/50"
+                                  >
+                                    Decline all
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                {pendingMeetingImports[l.id].map((item, idx) => (
+                                  <div
+                                    key={`${item.meetingId}-${item.type}-${idx}`}
+                                    className="p-3 rounded-lg border border-amber-700/50 bg-amber-900/10"
+                                  >
+                                    <div className="flex items-center justify-between mb-1">
+                                      <div className="flex items-center gap-2">
+                                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium uppercase ${
+                                          item.type === 'pain_points'
+                                            ? 'bg-red-900/50 text-red-400'
+                                            : 'bg-green-900/50 text-green-400'
+                                        }`}>
+                                          {item.type === 'pain_points' ? 'Pain point' : 'Quick win'}
+                                        </span>
+                                        <span className="text-xs text-platinum-white/50">
+                                          {item.meetingTitle} ({item.meetingDate})
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleApproveMeetingImport(l.id, idx)}
+                                          className="p-1 rounded hover:bg-green-900/50 text-green-400 transition-colors"
+                                          title="Approve"
+                                        >
+                                          <CheckCircle size={16} />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleDeclineMeetingImport(l.id, idx)}
+                                          className="p-1 rounded hover:bg-red-900/50 text-red-400 transition-colors"
+                                          title="Decline"
+                                        >
+                                          <XCircle size={16} />
+                                        </button>
+                                      </div>
+                                    </div>
+                                    <p className="text-sm text-platinum-white/80 line-clamp-3 whitespace-pre-wrap">
+                                      {item.content}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Classified pain points preview */}
+                          {(enrichClassifiedItems[l.id]?.length ?? 0) > 0 && (
+                            <div className="pt-3 border-t border-silicon-slate">
+                              <h4 className="text-sm font-medium text-purple-400 mb-2 flex items-center gap-2">
+                                <BarChart3 size={14} />
+                                Classified Pain Points ({enrichClassifiedItems[l.id].length})
+                              </h4>
+                              <div className="flex flex-wrap gap-1.5">
+                                {enrichClassifiedItems[l.id].map((item, idx) => (
+                                  <span
+                                    key={idx}
+                                    className="px-2 py-1 rounded text-xs bg-purple-900/30 text-purple-300 border border-purple-700/50"
+                                    title={`${item.text}\n\nCategory: ${item.categoryDisplayName}\nConfidence: ${(item.confidence * 100).toFixed(0)}%\nMethod: ${item.method}`}
+                                  >
+                                    {item.categoryDisplayName} ({(item.confidence * 100).toFixed(0)}%)
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       ))}
                       {enrichModalLeads.length === 1 && (
@@ -2621,109 +2927,210 @@ function OutreachContent() {
                         </div>
                       )}
                     </div>
-                    <div className="p-4 border-t border-silicon-slate flex flex-wrap justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => !pushLoading && !unifiedModalSaveLoading && setShowEnrichModal(false)}
-                        disabled={pushLoading || unifiedModalSaveLoading}
-                        className="px-4 py-2 bg-silicon-slate/50 hover:bg-silicon-slate rounded-lg disabled:opacity-50"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        disabled={pushLoading || unifiedModalSaveLoading || enrichModalLeads.some((l) => !(enrichModalForm[l.id]?.name ?? l.name)?.trim())}
-                        onClick={async () => {
-                          const session = await getCurrentSession()
-                          if (!session) return
-                          setUnifiedModalSaveError(null)
-                          setUnifiedModalSaveLoading(true)
-                          try {
-                            for (const l of enrichModalLeads) {
-                              const f = enrichModalForm[l.id]
-                              const name = (f?.name ?? l.name ?? '').trim()
-                              if (!name) continue
-                              const payload = {
-                                name,
-                                email: (f?.email ?? l.email ?? '').trim() || undefined,
-                                company: (f?.company ?? l.company ?? '').trim() || undefined,
-                                company_domain: (f?.company_domain ?? l.company_domain ?? '').trim() || undefined,
-                                linkedin_url: (f?.linkedin_url ?? l.linkedin_url ?? '').trim() || undefined,
-                                job_title: (f?.job_title ?? l.job_title ?? '').trim() || undefined,
-                                industry: (f?.industry ?? l.industry ?? '').trim() || undefined,
-                                phone_number: (f?.phone_number ?? l.phone_number ?? '').trim() || undefined,
-                                message: (f?.message ?? l.message ?? '').trim() || undefined,
-                                input_type: f?.input_type ?? inputTypeFromLeadSource(l.lead_source),
-                                employee_count: (f?.employee_count ?? l.employee_count ?? '').trim() || undefined,
-                                quick_wins: (f?.quick_wins ?? l.quick_wins ?? '').trim() || undefined,
-                                rep_pain_points: (f?.rep_pain_points ?? l.rep_pain_points ?? '').trim() || undefined,
-                                re_run_enrichment: enrichModalLeads.length === 1 ? unifiedModalReRunEnrichment : false,
-                              }
-                              const res = await fetch(`/api/admin/outreach/leads/${l.id}`, {
-                                method: 'PATCH',
-                                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-                                body: JSON.stringify(payload),
-                              })
-                              const data = await res.json().catch(() => ({}))
-                              if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
-                            }
-                            setShowEnrichModal(false)
-                            setSelectedLeadIds(new Set())
-                            await fetchLeads()
-                          } catch (err) {
-                            setUnifiedModalSaveError(err instanceof Error ? err.message : 'Failed to save')
-                          } finally {
-                            setUnifiedModalSaveLoading(false)
-                          }
-                        }}
-                        className="px-4 py-2 bg-silicon-slate hover:bg-silicon-slate rounded-lg font-medium disabled:opacity-50"
-                      >
-                        {unifiedModalSaveLoading ? 'Saving...' : 'Save changes'}
-                      </button>
-                      <button
-                        type="button"
-                        disabled={pushLoading || unifiedModalSaveLoading}
-                        onClick={async () => {
-                          const session = await getCurrentSession()
-                          if (!session) return
-                          setPushLoading(true)
-                          try {
-                            const leadsPayload = enrichModalLeads.map((l) => {
-                              const form = enrichModalForm[l.id]
-                              const base = { contact_submission_id: l.id }
-                              const vals = {
-                                rep_pain_points: form?.rep_pain_points ?? l.rep_pain_points,
-                                message: form?.message ?? l.message,
-                                quick_wins: form?.quick_wins ?? l.quick_wins,
-                                industry: form?.industry ?? l.industry,
-                                employee_count: form?.employee_count ?? l.employee_count,
-                                company: form?.company ?? l.company,
-                                company_domain: form?.company_domain ?? l.company_domain,
-                              }
-                              return { ...base, ...Object.fromEntries(Object.entries(vals).filter(([, v]) => v != null && String(v).trim())) }
-                            })
-                            const res = await fetch('/api/admin/value-evidence/extract-leads', {
-                              method: 'POST',
-                              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-                              body: JSON.stringify({ leads: leadsPayload }),
-                            })
-                            const data = await res.json()
-                            if (!res.ok) throw new Error(data.error || 'Request failed')
-                            setShowEnrichModal(false)
-                            // Start polling for extraction status
-                            startVepPolling()
-                            setSelectedLeadIds(new Set())
-                            await fetchLeads()
-                          } catch (e) {
-                            console.error(e)
-                          } finally {
-                            setPushLoading(false)
-                          }
-                        }}
-                        className="px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 rounded-lg font-medium"
-                      >
-                        {pushLoading ? 'Pushing...' : 'Push to Value Evidence'}
-                      </button>
+                    <div className="p-4 border-t border-silicon-slate flex flex-col gap-2">
+                      {(() => {
+                        const allLeadsAlreadyHaveEvidence =
+                          enrichModalLeads.length > 0 &&
+                          enrichModalLeads.every((l) => (l.evidence_count ?? 0) > 0)
+                        const showClassifyPrimary =
+                          enrichModalVepPushCompleted || allLeadsAlreadyHaveEvidence
+                        const hasClassifyPayload = enrichModalLeads.some((l) => {
+                          const f = enrichModalForm[l.id]
+                          const pain = (f?.rep_pain_points ?? l.rep_pain_points ?? '').trim()
+                          const qw = (f?.quick_wins ?? l.quick_wins ?? '').trim()
+                          return Boolean(pain || qw)
+                        })
+                        const anyExtractable = enrichModalLeads.some((l) => l.has_extractable_text)
+
+                        return (
+                          <>
+                            {showClassifyPrimary && enrichModalVepPushCompleted && !allLeadsAlreadyHaveEvidence ? (
+                              <p className="text-xs text-platinum-white/60 text-right">
+                                Push started. Next, classify pain points and quick wins to store structured evidence.
+                              </p>
+                            ) : null}
+                            <div className="flex flex-wrap justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => !pushLoading && !unifiedModalSaveLoading && setShowEnrichModal(false)}
+                                disabled={pushLoading || unifiedModalSaveLoading}
+                                className="px-4 py-2 bg-silicon-slate/50 hover:bg-silicon-slate rounded-lg disabled:opacity-50"
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                disabled={
+                                  pushLoading ||
+                                  unifiedModalSaveLoading ||
+                                  enrichModalLeads.some((l) => !(enrichModalForm[l.id]?.name ?? l.name)?.trim())
+                                }
+                                onClick={async () => {
+                                  const session = await getCurrentSession()
+                                  if (!session) return
+                                  setUnifiedModalSaveError(null)
+                                  setUnifiedModalSaveLoading(true)
+                                  try {
+                                    for (const l of enrichModalLeads) {
+                                      const f = enrichModalForm[l.id]
+                                      const name = (f?.name ?? l.name ?? '').trim()
+                                      if (!name) continue
+                                      const payload = {
+                                        name,
+                                        email: (f?.email ?? l.email ?? '').trim() || undefined,
+                                        company: (f?.company ?? l.company ?? '').trim() || undefined,
+                                        company_domain: (f?.company_domain ?? l.company_domain ?? '').trim() || undefined,
+                                        linkedin_url: (f?.linkedin_url ?? l.linkedin_url ?? '').trim() || undefined,
+                                        job_title: (f?.job_title ?? l.job_title ?? '').trim() || undefined,
+                                        industry: (f?.industry ?? l.industry ?? '').trim() || undefined,
+                                        phone_number: (f?.phone_number ?? l.phone_number ?? '').trim() || undefined,
+                                        message: (f?.message ?? l.message ?? '').trim() || undefined,
+                                        input_type: f?.input_type ?? inputTypeFromLeadSource(l.lead_source),
+                                        employee_count: (f?.employee_count ?? l.employee_count ?? '').trim() || undefined,
+                                        quick_wins: (f?.quick_wins ?? l.quick_wins ?? '').trim() || undefined,
+                                        rep_pain_points: (f?.rep_pain_points ?? l.rep_pain_points ?? '').trim() || undefined,
+                                        re_run_enrichment: enrichModalLeads.length === 1 ? unifiedModalReRunEnrichment : false,
+                                      }
+                                      const res = await fetch(`/api/admin/outreach/leads/${l.id}`, {
+                                        method: 'PATCH',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          Authorization: `Bearer ${session.access_token}`,
+                                        },
+                                        body: JSON.stringify(payload),
+                                      })
+                                      const data = await res.json().catch(() => ({}))
+                                      if (!res.ok) throw new Error(data.error || `Request failed (${res.status})`)
+                                    }
+                                    setShowEnrichModal(false)
+                                    setSelectedLeadIds(new Set())
+                                    await fetchLeads()
+                                  } catch (err) {
+                                    setUnifiedModalSaveError(err instanceof Error ? err.message : 'Failed to save')
+                                  } finally {
+                                    setUnifiedModalSaveLoading(false)
+                                  }
+                                }}
+                                className="px-4 py-2 bg-silicon-slate hover:bg-silicon-slate rounded-lg font-medium disabled:opacity-50"
+                              >
+                                {unifiedModalSaveLoading ? 'Saving...' : 'Save changes'}
+                              </button>
+                              {showClassifyPrimary ? (
+                                <button
+                                  type="button"
+                                  disabled={
+                                    !hasClassifyPayload ||
+                                    Object.values(enrichClassifyLoading).some(Boolean) ||
+                                    pushLoading ||
+                                    unifiedModalSaveLoading
+                                  }
+                                  title={
+                                    !hasClassifyPayload
+                                      ? 'Add pain points or quick wins above to classify'
+                                      : undefined
+                                  }
+                                  onClick={async () => {
+                                    const session = await getCurrentSession()
+                                    if (!session) return
+                                    for (const l of enrichModalLeads) {
+                                      const form = enrichModalForm[l.id]
+                                      const painPoints = form?.rep_pain_points ?? l.rep_pain_points ?? ''
+                                      const quickWins = form?.quick_wins ?? l.quick_wins ?? ''
+                                      if (!painPoints.trim() && !quickWins.trim()) continue
+                                      setEnrichClassifyLoading((prev) => ({ ...prev, [l.id]: true }))
+                                      try {
+                                        const res = await fetch('/api/admin/meetings/classify-pain-points', {
+                                          method: 'POST',
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                            Authorization: `Bearer ${session.access_token}`,
+                                          },
+                                          body: JSON.stringify({
+                                            pain_points: painPoints,
+                                            quick_wins: quickWins,
+                                            contact_submission_id: l.id,
+                                            insert_evidence: true,
+                                          }),
+                                        })
+                                        const data = await res.json()
+                                        if (res.ok && data.classified) {
+                                          setEnrichClassifiedItems((prev) => ({ ...prev, [l.id]: data.classified }))
+                                        }
+                                      } catch (err) {
+                                        console.error('Classify failed:', err)
+                                      } finally {
+                                        setEnrichClassifyLoading((prev) => ({ ...prev, [l.id]: false }))
+                                      }
+                                    }
+                                  }}
+                                  className="px-4 py-2 bg-purple-600/80 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg font-medium"
+                                >
+                                  {Object.values(enrichClassifyLoading).some(Boolean)
+                                    ? 'Classifying...'
+                                    : 'Classify & Store Evidence'}
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  disabled={pushLoading || unifiedModalSaveLoading || !anyExtractable}
+                                  title={
+                                    !anyExtractable
+                                      ? 'Add notes, diagnostic, or report data before pushing'
+                                      : undefined
+                                  }
+                                  onClick={async () => {
+                                    const session = await getCurrentSession()
+                                    if (!session) return
+                                    setPushLoading(true)
+                                    try {
+                                      const leadsPayload = enrichModalLeads.map((l) => {
+                                        const form = enrichModalForm[l.id]
+                                        const base = { contact_submission_id: l.id }
+                                        const vals = {
+                                          rep_pain_points: form?.rep_pain_points ?? l.rep_pain_points,
+                                          message: form?.message ?? l.message,
+                                          quick_wins: form?.quick_wins ?? l.quick_wins,
+                                          industry: form?.industry ?? l.industry,
+                                          employee_count: form?.employee_count ?? l.employee_count,
+                                          company: form?.company ?? l.company,
+                                          company_domain: form?.company_domain ?? l.company_domain,
+                                        }
+                                        return {
+                                          ...base,
+                                          ...Object.fromEntries(
+                                            Object.entries(vals).filter(([, v]) => v != null && String(v).trim())
+                                          ),
+                                        }
+                                      })
+                                      const res = await fetch('/api/admin/value-evidence/extract-leads', {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          Authorization: `Bearer ${session.access_token}`,
+                                        },
+                                        body: JSON.stringify({ leads: leadsPayload }),
+                                      })
+                                      const data = await res.json()
+                                      if (!res.ok) throw new Error(data.error || 'Request failed')
+                                      setEnrichModalVepPushCompleted(true)
+                                      startVepPolling()
+                                      setSelectedLeadIds(new Set())
+                                      await fetchLeads()
+                                    } catch (e) {
+                                      console.error(e)
+                                    } finally {
+                                      setPushLoading(false)
+                                    }
+                                  }}
+                                  className="px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 rounded-lg font-medium"
+                                >
+                                  {pushLoading ? 'Pushing...' : 'Push to Value Evidence'}
+                                </button>
+                              )}
+                            </div>
+                          </>
+                        )
+                      })()}
                     </div>
                   </motion.div>
                 </motion.div>
@@ -2979,6 +3386,28 @@ function OutreachContent() {
               )}
             </AnimatePresence>
 
+            {/* Generate outreach toast */}
+            <AnimatePresence>
+              {generateOutreachToast && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="mb-4 p-3 rounded-lg bg-emerald-900/30 border border-emerald-700 text-emerald-300 text-sm flex items-center gap-2"
+                >
+                  <Mail size={16} />
+                  {generateOutreachToast}
+                  <button
+                    type="button"
+                    onClick={() => setGenerateOutreachToast(null)}
+                    className="ml-auto p-1 rounded hover:bg-emerald-800/50"
+                  >
+                    <X size={14} />
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Leads List */}
             {leadsLoading ? (
               <div className="flex items-center justify-center py-20">
@@ -3045,7 +3474,9 @@ function OutreachContent() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-hidden"
+                        className={`bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-visible ${
+                          leadRowMenuOpenId === lead.id ? 'relative z-20' : ''
+                        }`}
                       >
                         {/* Lead Card Header */}
                         <div className="p-4 flex items-start gap-3">
@@ -3086,8 +3517,13 @@ function OutreachContent() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                               <h3 className="font-semibold text-white">
-                                <Link href={`/admin/contacts/${lead.id}`} className="hover:text-teal-400 transition-colors">
-                                  {lead.name}
+                                <Link
+                                  href={`/admin/contacts/${lead.id}`}
+                                  className="inline-flex items-center gap-1.5 text-white hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
+                                  title="Open contact record"
+                                >
+                                  <span>{lead.name}</span>
+                                  <ExternalLink size={13} className="shrink-0 opacity-70 text-teal-400/90" aria-hidden />
                                 </Link>
                               </h3>
                               {lead.lead_score !== null && (
@@ -3122,10 +3558,18 @@ function OutreachContent() {
                                   {lead.company}
                                 </span>
                               )}
-                              <span className="flex items-center gap-1">
-                                <MessageSquare size={12} />
-                                {lead.messages_count} messages ({lead.messages_sent} sent)
-                              </span>
+                              <Link
+                                href={`/admin/outreach?tab=queue&contact=${lead.id}`}
+                                className="inline-flex items-center gap-1 text-platinum-white/80 hover:text-blue-300 transition-colors underline decoration-dotted decoration-blue-400/50 underline-offset-2 hover:decoration-blue-300"
+                                title={`Open message queue (${lead.messages_count} messages, ${lead.messages_sent} sent)`}
+                                aria-label={`Open message queue for ${lead.name}`}
+                              >
+                                <MessageSquare size={12} className="shrink-0" aria-hidden />
+                                <span>
+                                  {lead.messages_count} messages ({lead.messages_sent} sent)
+                                </span>
+                                <ExternalLink size={11} className="shrink-0 opacity-60" aria-hidden />
+                              </Link>
                               {lead.has_reply && (
                                 <span className="flex items-center gap-1 text-green-400">
                                   <CheckCircle size={12} />
@@ -3164,34 +3608,67 @@ function OutreachContent() {
                                   Evidence: {lead.evidence_count}
                                 </button>
                               )}
-                              {lead.last_vep_status === 'pending' && lead.evidence_count === 0 && (
-                                <span className="px-2 py-1 rounded text-xs font-medium bg-amber-900/50 text-amber-400 border border-amber-700 flex items-center gap-1">
-                                    <RefreshCw size={12} className="animate-spin" />
-                                    Extracting...
-                                  </span>
-                              )}
-                              {lead.last_vep_status === 'pending' &&
-                                lead.evidence_count === 0 &&
-                                lead.last_vep_triggered_at &&
-                                Date.now() - new Date(lead.last_vep_triggered_at).getTime() > 10 * 60 * 1000 && (
-                                  <span className="px-2 py-1 rounded text-xs font-medium bg-red-900/50 text-red-400 border border-red-700">
-                                    Push may have failed
-                                  </span>
-                                )}
-                              {lead.last_vep_status === 'failed' && (
-                                <span className="px-2 py-1 rounded text-xs font-medium bg-red-900/50 text-red-400 border border-red-700">
-                                  Push failed
-                                </span>
-                              )}
-                              {lead.evidence_count === 0 &&
-                                lead.last_vep_status !== 'pending' &&
-                                lead.last_vep_status !== 'failed' &&
-                                (!lead.last_vep_triggered_at ||
-                                  (lead.last_vep_status !== 'pending' && lead.last_vep_status !== 'success')) && (
-                                  <span className="px-2 py-1 rounded text-xs font-medium bg-gray-700 text-platinum-white/80">
-                                    No evidence
-                                  </span>
-                                )}
+                              {(() => {
+                                const vepStaleMs = 10 * 60 * 1000
+                                const isVepStalePending =
+                                  lead.last_vep_status === 'pending' &&
+                                  lead.evidence_count === 0 &&
+                                  !!lead.last_vep_triggered_at &&
+                                  Date.now() - new Date(lead.last_vep_triggered_at).getTime() > vepStaleMs
+                                const isVepFreshPending =
+                                  lead.last_vep_status === 'pending' &&
+                                  lead.evidence_count === 0 &&
+                                  !isVepStalePending
+                                const showVepPushChip =
+                                  lead.evidence_count === 0 &&
+                                  (lead.last_vep_status !== 'pending' || isVepStalePending)
+
+                                if (isVepFreshPending) {
+                                  return (
+                                    <span className="px-2 py-1 rounded text-xs font-medium bg-amber-900/50 text-amber-400 border border-amber-700 flex items-center gap-1">
+                                      <RefreshCw size={12} className="animate-spin" aria-hidden />
+                                      Extracting…
+                                    </span>
+                                  )
+                                }
+
+                                if (!showVepPushChip) return null
+
+                                const failed = lead.last_vep_status === 'failed'
+                                const chipLabel = failed
+                                  ? 'Push failed'
+                                  : isVepStalePending
+                                    ? 'Stalled — retry'
+                                    : 'No evidence'
+                                const canPush = lead.has_extractable_text && !pushLoading
+                                const pushTitle = !lead.has_extractable_text
+                                  ? 'Add notes, diagnostic, or report data before pushing to Value Evidence'
+                                  : failed || isVepStalePending
+                                    ? 'Open review and retry Value Evidence extraction'
+                                    : 'Open review and push to Value Evidence'
+
+                                return (
+                                  <button
+                                    type="button"
+                                    disabled={!canPush}
+                                    onClick={() => openReviewEnrichModal([lead.id])}
+                                    title={pushTitle}
+                                    aria-label={pushTitle}
+                                    className={`group inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500/40 ${
+                                      failed
+                                        ? 'bg-red-900/35 text-red-200 border-red-700/60 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
+                                        : isVepStalePending
+                                          ? 'bg-amber-900/35 text-amber-200 border-amber-700/60 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
+                                          : 'bg-gray-700/90 text-platinum-white/85 border-gray-600 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
+                                    } disabled:opacity-55 disabled:cursor-not-allowed`}
+                                  >
+                                    <span>{chipLabel}</span>
+                                    {canPush && (
+                                      <Cpu size={12} className="opacity-0 group-hover:opacity-100 transition-opacity shrink-0" aria-hidden />
+                                    )}
+                                  </button>
+                                )
+                              })()}
                             </div>
                           </div>
 
@@ -3240,109 +3717,171 @@ function OutreachContent() {
                                 Refresh evidence
                               </button>
                             )}
-                            {/* Show Push/Retry only when not pending, or pending and >10min (then Retry) */}
-                            {lead.evidence_count === 0 &&
-                              (lead.last_vep_status !== 'pending' ||
-                                (lead.last_vep_triggered_at &&
-                                  Date.now() - new Date(lead.last_vep_triggered_at).getTime() > 10 * 60 * 1000)) && (
+                            {lead.last_vep_status === 'pending' && lead.evidence_count === 0 && (
                               <button
                                 type="button"
-                                onClick={() => openReviewEnrichModal([lead.id])}
-                                disabled={pushLoading || !lead.has_extractable_text}
-                                className="px-3 py-2 bg-purple-600/80 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg text-sm font-medium transition-colors"
+                                onClick={async () => {
+                                  const session = await getCurrentSession()
+                                  if (!session) return
+                                  setPushLoading(true)
+                                  try {
+                                    const res = await fetch('/api/admin/value-evidence/extract-leads/cancel', {
+                                      method: 'POST',
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                        Authorization: `Bearer ${session.access_token}`,
+                                      },
+                                      body: JSON.stringify({ contact_submission_ids: [lead.id] }),
+                                    })
+                                    if (res.ok) await fetchLeads()
+                                  } finally {
+                                    setPushLoading(false)
+                                  }
+                                }}
+                                disabled={pushLoading}
+                                className="px-3 py-2 bg-amber-900/50 hover:bg-amber-800/50 text-amber-300 border border-amber-700 rounded-lg text-sm font-medium transition-colors"
                               >
-                                {lead.last_vep_status === 'failed' ||
-                                (lead.last_vep_status === 'pending' &&
-                                  lead.last_vep_triggered_at &&
-                                  Date.now() - new Date(lead.last_vep_triggered_at).getTime() > 10 * 60 * 1000)
-                                  ? 'Retry'
-                                  : 'Push to Value Evidence'}
+                                Cancel extraction
                               </button>
                             )}
-                            {lead.last_vep_status === 'pending' && lead.evidence_count === 0 && (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={async () => {
-                                    const session = await getCurrentSession()
-                                    if (!session) return
-                                    setPushLoading(true)
-                                    try {
-                                      const res = await fetch('/api/admin/value-evidence/extract-leads/cancel', {
-                                        method: 'POST',
-                                        headers: {
-                                          'Content-Type': 'application/json',
-                                          Authorization: `Bearer ${session.access_token}`,
-                                        },
-                                        body: JSON.stringify({ contact_submission_ids: [lead.id] }),
-                                      })
-                                      if (res.ok) await fetchLeads()
-                                    } finally {
-                                      setPushLoading(false)
-                                    }
-                                  }}
-                                  disabled={pushLoading}
-                                  className="px-3 py-2 bg-amber-900/50 hover:bg-amber-800/50 text-amber-300 border border-amber-700 rounded-lg text-sm font-medium transition-colors"
-                                >
-                                  Cancel extraction
-                                </button>
-                                <span className="px-3 py-2 text-sm text-platinum-white/60">Extracting...</span>
-                              </>
-                            )}
-                            <button
-                              onClick={() => openReviewEnrichModal([lead.id])}
-                              className="px-3 py-2 bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                            >
-                              <Edit3 size={14} />
-                              Edit
-                            </button>
                             {!lead.do_not_contact && !lead.removed_at && (
                               <button
                                 type="button"
-                                onClick={() => updateLeadDncOrRemoved(lead.id, { do_not_contact: true })}
-                                disabled={leadActionId === lead.id}
-                                className="px-3 py-2 bg-amber-900/30 hover:bg-amber-800/50 text-amber-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
-                                title="Do not contact: will not be overwritten by future ingest"
-                              >
-                                <ShieldOff size={14} />
-                                Do not contact
-                              </button>
-                            )}
-                            {!lead.removed_at && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (window.confirm(`Remove "${lead.name}" from the lead list? You can restore from "Removed" view.`)) {
-                                    updateLeadDncOrRemoved(lead.id, { removed_at: new Date().toISOString() })
+                                onClick={async () => {
+                                  const session = await getCurrentSession()
+                                  if (!session) return
+                                  setGenerateOutreachLoading(lead.id)
+                                  try {
+                                    const res = await fetch(`/api/admin/outreach/leads/${lead.id}/generate`, {
+                                      method: 'POST',
+                                      headers: {
+                                        'Content-Type': 'application/json',
+                                        Authorization: `Bearer ${session.access_token}`,
+                                      },
+                                    })
+                                    const data = await res.json()
+                                    if (res.ok && data.triggered) {
+                                      setGenerateOutreachToast(`Email generation started for ${lead.name}`)
+                                      setTimeout(() => setGenerateOutreachToast(null), 4000)
+                                    }
+                                  } catch (err) {
+                                    console.error('Generate outreach failed:', err)
+                                  } finally {
+                                    setGenerateOutreachLoading(null)
                                   }
                                 }}
-                                disabled={leadActionId === lead.id}
-                                className="px-3 py-2 bg-red-900/30 hover:bg-red-800/50 text-red-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
-                                title="Remove from active list"
+                                disabled={generateOutreachLoading === lead.id}
+                                className="px-3 py-2 bg-emerald-900/30 hover:bg-emerald-800/50 text-emerald-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
                               >
-                                <Trash2 size={14} />
-                                Remove
+                                {generateOutreachLoading === lead.id ? (
+                                  <Loader2 size={14} className="animate-spin" />
+                                ) : (
+                                  <Mail size={14} />
+                                )}
+                                Generate Email
                               </button>
                             )}
-                            {lead.removed_at && (
+                            <div className="relative shrink-0" id={`lead-actions-wrap-${lead.id}`}>
                               <button
                                 type="button"
-                                onClick={() => updateLeadDncOrRemoved(lead.id, { removed_at: null })}
-                                disabled={leadActionId === lead.id}
-                                className="px-3 py-2 bg-green-900/30 hover:bg-green-800/50 text-green-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
-                                title="Restore to active list"
+                                aria-expanded={leadRowMenuOpenId === lead.id}
+                                aria-haspopup="menu"
+                                aria-label="More lead actions"
+                                onClick={() =>
+                                  setLeadRowMenuOpenId(leadRowMenuOpenId === lead.id ? null : lead.id)
+                                }
+                                className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white/90 transition-colors flex items-center justify-center"
                               >
-                                <RotateCcw size={14} />
-                                Restore
+                                <MoreHorizontal size={18} />
                               </button>
-                            )}
-                            <Link
-                              href={`/admin/outreach?tab=queue&contact=${lead.id}`}
-                              className="px-3 py-2 bg-blue-900/30 hover:bg-blue-800/50 text-blue-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                            >
-                              <MessageSquare size={14} />
-                              View Messages
-                            </Link>
+                              {leadRowMenuOpenId === lead.id && (
+                                <div
+                                  role="menu"
+                                  className="absolute right-0 top-full mt-1 z-50 min-w-[13rem] py-1 rounded-lg border border-silicon-slate bg-imperial-navy shadow-xl"
+                                >
+                                  <button
+                                    type="button"
+                                    role="menuitem"
+                                    className="w-full text-left px-3 py-2 text-sm text-platinum-white hover:bg-silicon-slate/60 flex items-center gap-2"
+                                    onClick={() => {
+                                      setLeadRowMenuOpenId(null)
+                                      void openReviewEnrichModal([lead.id])
+                                    }}
+                                  >
+                                    <Edit3 size={14} className="shrink-0 opacity-80" />
+                                    Review and edit
+                                  </button>
+                                  {!lead.removed_at && lead.do_not_contact && (
+                                    <button
+                                      type="button"
+                                      role="menuitem"
+                                      className="w-full text-left px-3 py-2 text-sm text-emerald-300 hover:bg-silicon-slate/60 flex items-center gap-2"
+                                      disabled={leadActionId === lead.id}
+                                      onClick={() => {
+                                        setLeadRowMenuOpenId(null)
+                                        void updateLeadDncOrRemoved(lead.id, { do_not_contact: false })
+                                      }}
+                                    >
+                                      <RotateCcw size={14} className="shrink-0 opacity-80" />
+                                      Allow contact again
+                                    </button>
+                                  )}
+                                  {!lead.do_not_contact && !lead.removed_at && (
+                                    <button
+                                      type="button"
+                                      role="menuitem"
+                                      className="w-full text-left px-3 py-2 text-sm text-amber-200 hover:bg-silicon-slate/60 flex items-center gap-2"
+                                      disabled={leadActionId === lead.id}
+                                      title="Will not be overwritten by future ingest"
+                                      onClick={() => {
+                                        setLeadRowMenuOpenId(null)
+                                        void updateLeadDncOrRemoved(lead.id, { do_not_contact: true })
+                                      }}
+                                    >
+                                      <ShieldOff size={14} className="shrink-0 opacity-80" />
+                                      Do not contact
+                                    </button>
+                                  )}
+                                  {!lead.removed_at ? (
+                                    <button
+                                      type="button"
+                                      role="menuitem"
+                                      className="w-full text-left px-3 py-2 text-sm text-red-300 hover:bg-red-950/40 flex items-center gap-2"
+                                      disabled={leadActionId === lead.id}
+                                      onClick={() => {
+                                        setLeadRowMenuOpenId(null)
+                                        if (
+                                          window.confirm(
+                                            `Remove "${lead.name}" from the lead list? You can restore from "Removed" view.`
+                                          )
+                                        ) {
+                                          void updateLeadDncOrRemoved(lead.id, {
+                                            removed_at: new Date().toISOString(),
+                                          })
+                                        }
+                                      }}
+                                    >
+                                      <Trash2 size={14} className="shrink-0 opacity-80" />
+                                      Remove from list
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      role="menuitem"
+                                      className="w-full text-left px-3 py-2 text-sm text-green-300 hover:bg-silicon-slate/60 flex items-center gap-2"
+                                      disabled={leadActionId === lead.id}
+                                      onClick={() => {
+                                        setLeadRowMenuOpenId(null)
+                                        void updateLeadDncOrRemoved(lead.id, { removed_at: null })
+                                      }}
+                                    >
+                                      <RotateCcw size={14} className="shrink-0 opacity-80" />
+                                      Restore to list
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+                            </div>
                             <button
                               onClick={() =>
                                 setExpandedLeadId(expandedLeadId === lead.id ? null : lead.id)
@@ -3365,7 +3904,7 @@ function OutreachContent() {
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: 'auto', opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="border-t border-silicon-slate"
+                              className="border-t border-silicon-slate overflow-hidden rounded-b-xl"
                             >
                               <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 {/* Contact Info */}

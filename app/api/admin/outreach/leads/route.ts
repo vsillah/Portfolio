@@ -178,8 +178,23 @@ export async function POST(request: NextRequest) {
         await linkMeetingToLead(meeting_record_id, existingId)
       }
 
+      const shouldGenerateOutreachOnUpdate = generate_outreach || input_type === 'meeting'
+      if (shouldGenerateOutreachOnUpdate) {
+        triggerOutreachGeneration({
+          contact_id: existingId,
+          score_tier: 'hot',
+          lead_score: 80,
+          sequence_step: 1,
+          is_followup: false,
+          meeting_summary: meeting_summary || undefined,
+          pain_points: meeting_pain_points || rep_pain_points || undefined,
+        }).catch((err) => {
+          console.error('Outreach generation webhook failed (update path):', err)
+        })
+      }
+
       return NextResponse.json(
-        { id: existingId, updated: true },
+        { id: existingId, updated: true, outreach_queued: shouldGenerateOutreachOnUpdate },
         { status: 200 }
       )
     }

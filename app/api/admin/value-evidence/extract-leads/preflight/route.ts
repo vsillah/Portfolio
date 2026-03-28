@@ -24,6 +24,8 @@ export interface PreflightLead {
   rep_pain_points: string | null
   has_diagnostic: boolean
   has_extractable_text: boolean
+  /** Rows in pain_point_evidence for this contact (for modal: classify phase after push or when already extracted). */
+  evidence_count: number
 }
 
 /**
@@ -93,6 +95,23 @@ export async function POST(request: NextRequest) {
       (completedAudits || []).map((a: { contact_submission_id: number }) => a.contact_submission_id)
     )
 
+    const { data: evidenceRows, error: evidenceCountError } = await supabaseAdmin
+      .from('pain_point_evidence')
+      .select('contact_submission_id')
+      .in('contact_submission_id', uniqueIds)
+
+    if (evidenceCountError) {
+      console.error('Preflight pain_point_evidence count error:', evidenceCountError)
+    }
+
+    const evidenceCountByContact = new Map<number, number>()
+    for (const row of evidenceRows || []) {
+      const cid = row.contact_submission_id as number
+      if (typeof cid === 'number' && Number.isFinite(cid)) {
+        evidenceCountByContact.set(cid, (evidenceCountByContact.get(cid) ?? 0) + 1)
+      }
+    }
+
     const leads: PreflightLead[] = (contacts || []).map((c: {
       id: number
       name: string
@@ -145,6 +164,7 @@ export async function POST(request: NextRequest) {
         rep_pain_points,
         has_diagnostic,
         has_extractable_text,
+        evidence_count: evidenceCountByContact.get(c.id) ?? 0,
       }
     })
 
