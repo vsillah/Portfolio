@@ -1,5 +1,11 @@
 {
-  "name": "WF-SOC-001 Social Content Extraction",
+  "updatedAt": "2026-03-28T13:29:46.905Z",
+  "createdAt": "2026-03-20T15:29:55.219Z",
+  "id": "7w0m68a8ad6BkdzV",
+  "name": "WF-SOC-001-STAG: Social Content Extraction",
+  "description": null,
+  "active": true,
+  "isArchived": false,
   "nodes": [
     {
       "parameters": {
@@ -12,48 +18,56 @@
           ]
         }
       },
-      "id": "schedule-trigger",
       "name": "Daily 9AM Weekdays",
-      "type": "n8n-nodes-base.scheduleTrigger",
+      "id": "ed4e030d-0cbd-4bb0-be22-9e10d6c39123",
       "typeVersion": 1.2,
-      "position": [0, 0],
-      "notes": "Runs Mon-Fri at 9AM. Also accepts manual webhook trigger."
+      "position": [
+        0,
+        0
+      ],
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "disabled": true
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "=https://n8n.amadutown.com/webhook/social-content-extract",
+        "httpMethod": "POST",
+        "path": "e424d1e8-363c-477f-8608-57a87c63ff83",
+        "responseMode": "lastNode",
         "options": {}
       },
-      "id": "webhook-trigger",
       "name": "Manual Trigger Webhook",
+      "id": "637e5a55-f027-4d36-98dd-ed2cf4cff1f2",
+      "typeVersion": 2,
+      "position": [
+        0,
+        208
+      ],
       "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [0, 200],
-      "webhookId": "social-content-extract",
-      "notes": "Manual trigger from admin UI or API"
+      "webhookId": "e424d1e8-363c-477f-8608-57a87c63ff83"
     },
     {
       "parameters": {
-        "jsCode": "const SUPABASE_URL = 'https://byoriebhtbysanjhimlu.supabase.co';\nconst SUPABASE_KEY = 'REPLACE_WITH_SUPABASE_SERVICE_ROLE_KEY';\nconst headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };\nconst queueResp = await fetch(`${SUPABASE_URL}/rest/v1/social_content_queue?select=meeting_record_id&meeting_record_id=not.is.null`, { headers });\nconst queued = await queueResp.json();\nconst queuedIds = queued.map(r => r.meeting_record_id);\nconst sevenDaysAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString();\nconst meetingsResp = await fetch(`${SUPABASE_URL}/rest/v1/meeting_records?select=*&created_at=gte.${sevenDaysAgo}&order=created_at.desc&limit=10`, { headers });\nconst meetings = await meetingsResp.json();\nconst unprocessed = meetings.filter(m => !queuedIds.includes(m.id));\nif (unprocessed.length === 0) return [{ json: { _empty: true, message: 'No unprocessed meetings found' } }];\nreturn unprocessed.map(m => ({ json: m }));"
+        "jsCode": "const SUPABASE_URL = $vars.STAG_SUPABASE_URL;\nconst SUPABASE_KEY = $vars.STAG_SUPABASE_SERVICE_ROLE_KEY;\nif (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Set STAG_SUPABASE_URL and STAG_SUPABASE_SERVICE_ROLE_KEY in n8n Variables');\nconst headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };\nconst queued = await this.helpers.httpRequest({ method: 'GET', url: `${SUPABASE_URL}/rest/v1/social_content_queue?select=meeting_record_id&meeting_record_id=not.is.null`, headers, json: true });\nconst queuedIds = (Array.isArray(queued) ? queued : []).map(r => r.meeting_record_id);\nconst sevenDaysAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString();\nconst meetings = await this.helpers.httpRequest({ method: 'GET', url: `${SUPABASE_URL}/rest/v1/meeting_records?select=*&created_at=gte.${sevenDaysAgo}&order=created_at.desc&limit=10`, headers, json: true });\nconst unprocessed = (Array.isArray(meetings) ? meetings : []).filter(m => !queuedIds.includes(m.id));\nif (unprocessed.length === 0) return [{ json: { _empty: true, message: 'No unprocessed meetings found' } }];\nreturn unprocessed.map(m => ({ json: m }));"
       },
-      "id": "fetch-meetings-code",
       "name": "Fetch Unprocessed Meetings",
-      "type": "n8n-nodes-base.code",
+      "id": "80f32341-952d-4b91-b60f-b6f9fafbb0c1",
       "typeVersion": 2,
-      "position": [300, 100],
-      "notes": "Fetches meetings not yet processed for social content via Supabase REST API"
+      "position": [
+        304,
+        112
+      ],
+      "type": "n8n-nodes-base.code"
     },
     {
       "parameters": {
-        "url": "https://amadutown.app.n8n.cloud/webhook/amadutown-rag-query",
         "method": "POST",
+        "url": "={{ $vars.STAG_RAG_QUERY_WEBHOOK_URL }}",
         "sendBody": true,
         "bodyParameters": {
           "parameters": [
             {
               "name": "query",
-              "value": "={{ 'Personal stories, case studies, and experiences related to: ' + $json.structured_notes?.summary || $json.transcript?.substring(0, 500) || 'general business consulting' }}"
+              "value": "={{ 'Personal stories, case studies, and experiences related to: ' + ($json.structured_notes?.summary || $json.transcript?.substring(0, 500) || 'general business consulting') }}"
             }
           ]
         },
@@ -61,140 +75,143 @@
           "timeout": 30000
         }
       },
-      "id": "rag-query",
       "name": "RAG Personal Context",
-      "type": "n8n-nodes-base.httpRequest",
+      "id": "892bd179-b6db-4e64-98c2-a10c246c070b",
       "typeVersion": 4.2,
-      "position": [550, 100],
-      "notes": "Query Pinecone RAG for personal stories and context to weave into posts"
+      "position": [
+        560,
+        112
+      ],
+      "type": "n8n-nodes-base.httpRequest"
     },
     {
       "parameters": {
-        "model": "gpt-4o",
-        "messages": {
-          "values": [
-            {
-              "role": "system",
-              "content": "You are an expert content strategist who follows Alex Hormozi's communication frameworks from $100M Offers and $100M Leads.\n\nGiven a meeting transcript and personal context from the creator's knowledge base, extract 1-3 social-media-worthy topics.\n\nFor each topic, provide:\n1. topic: A one-liner describing the core idea\n2. angle: What makes this interesting to the target audience\n3. key_insight: The transferable takeaway\n4. personal_tie_in: How this connects to the creator's personal experience\n5. hormozi_framework: Which framework applies (value_equation, offer_creation, lead_magnet, dream_outcome, risk_reversal, scarcity_urgency, proof_stacking)\n6. framework_visual: Which diagram type (flowchart, matrix, equation, funnel, before_after, architecture, pillars, timeline, cycle)\n\nReturn valid JSON array of topics. Focus on insights that would make a LinkedIn audience stop scrolling."
-            },
-            {
-              "role": "user",
-              "content": "=Meeting Type: {{ $node['Fetch Unprocessed Meetings'].json.meeting_type }}\n\nStructured Notes:\n{{ JSON.stringify($node['Fetch Unprocessed Meetings'].json.structured_notes) }}\n\nKey Decisions:\n{{ JSON.stringify($node['Fetch Unprocessed Meetings'].json.key_decisions) }}\n\nTranscript (excerpt):\n{{ ($node['Fetch Unprocessed Meetings'].json.transcript || '').substring(0, 5000) }}\n\nPersonal Context from RAG:\n{{ JSON.stringify($node['RAG Personal Context'].json) }}"
-            }
-          ]
-        },
+        "model": "o4-mini",
         "options": {
-          "temperature": 0.7,
-          "maxTokens": 2000
-        }
+          "maxTokens": 2000,
+          "temperature": 0.7
+        },
+        "requestOptions": {},
+        "prompt": "={{ (() => { const webhookPrompts = $node['Manual Trigger Webhook'].first()?.json?.prompts; const adminPrompt = webhookPrompts?.topicExtraction; if (adminPrompt) return adminPrompt + '\\n\\nMeeting data:\\n' + JSON.stringify($json) + '\\n\\nRAG personal context:\\n' + JSON.stringify($node['RAG Personal Context'].json); return 'You are a content strategist for Vambah Sillah (Mad Hadda), founder of AmaduTown Advisory Solutions. Vambah uses technology as the great equalizer for minority-owned businesses. Analyze the following meeting transcript and RAG context to extract 1-3 compelling content topics for LinkedIn.\\n\\nContent pillars: ai_product_management, corporate_navigation, business_automation, personal_brand, minority_business_empowerment, sales_psychology\\n\\nMeeting data:\\n' + JSON.stringify($json) + '\\n\\nRAG personal context:\\n' + JSON.stringify($node['RAG Personal Context'].json) + '\\n\\nFor each topic, return a JSON array where each object has:\\n- topic: a concise topic title\\n- angle: the unique angle or perspective\\n- key_insight: the main takeaway (1-2 sentences)\\n- personal_tie_in: how this connects to personal experience\\n- hormozi_framework: one of [value_equation, dream_outcome, perceived_likelihood, time_delay, effort_sacrifice]\\n- framework_visual: one of [architecture, flowchart, comparison, pyramid, matrix]\\n- content_pillar: which content pillar this best fits\\n- principle_count: how many distinct sub-principles or steps this topic naturally breaks into (0 if not applicable, 3+ if it is a listicle or multi-step concept suitable for a carousel)\\n- transcript_evidence: a verbatim quote (1-3 sentences) from the meeting transcript that this topic is based on. Critical for traceability. If no clear quote exists write No direct transcript match.\\n\\nReturn ONLY valid JSON. No explanation.'; })() }}"
       },
-      "id": "extract-topics",
       "name": "AI Extract Topics",
+      "id": "5a2ae6db-4879-4cf8-8a32-276c2136956b",
+      "typeVersion": 1.1,
+      "position": [
+        800,
+        112
+      ],
       "type": "n8n-nodes-base.openAi",
-      "typeVersion": 1.8,
-      "position": [800, 100],
-      "notes": "Extract social-worthy topics using Hormozi frameworks"
-    },
-    {
-      "parameters": {
-        "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || response.message?.content || '{}';\n\nlet topics;\ntry {\n  topics = JSON.parse(content);\n  if (!Array.isArray(topics)) topics = [topics];\n} catch (e) {\n  const match = content.match(/\\[.*\\]/s);\n  topics = match ? JSON.parse(match[0]) : [{ topic: content, angle: 'General insight', key_insight: content, personal_tie_in: '', hormozi_framework: 'value_equation', framework_visual: 'architecture' }];\n}\n\nreturn topics.map(t => ({ json: { ...t, meeting_record_id: $node['Fetch Unprocessed Meetings'].json.id, rag_context: $node['RAG Personal Context'].json } }));"
-      },
-      "id": "parse-topics",
-      "name": "Parse Topics",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [1050, 100],
-      "notes": "Parse AI response into individual topic items"
-    },
-    {
-      "parameters": {
-        "model": "gpt-4o",
-        "messages": {
-          "values": [
-            {
-              "role": "system",
-              "content": "You are a LinkedIn content writer who follows Alex Hormozi's communication style. Write a post that will make people stop scrolling.\n\nRULES:\n1. Hook (first 2 lines): Pattern-interrupt. Use contrarian take, bold claim with number, challenging question, or 'Most people think X, but Y'.\n2. Story/Proof (middle): Weave in personal experience from RAG context — real client outcomes, specific numbers from past projects.\n3. Lesson (framework): Name the principle. Make it a transferable framework.\n4. CTA (last 2 lines): Clear, specific call to action.\n\nFORMAT: Short paragraphs (1-2 sentences), line breaks between thoughts, no walls of text, conversational tone, 150-300 words. Include 3-5 hashtags at the end.\n\nReturn JSON: { post_text, cta_text, cta_url, hashtags: string[], hormozi_framework: { framework_type, hook_type, proof_pattern, cta_pattern } }"
-            },
-            {
-              "role": "user",
-              "content": "=Topic: {{ $json.topic }}\nAngle: {{ $json.angle }}\nKey Insight: {{ $json.key_insight }}\nPersonal Tie-in: {{ $json.personal_tie_in }}\nHormozi Framework: {{ $json.hormozi_framework }}\nFramework Visual: {{ $json.framework_visual }}\n\nRAG Context:\n{{ JSON.stringify($json.rag_context) }}"
-            }
-          ]
-        },
-        "options": {
-          "temperature": 0.8,
-          "maxTokens": 1500
+      "credentials": {
+        "openAiApi": {
+          "id": "4vQ08xSYAyUfXvFe",
+          "name": "OpenAi Staging Account"
         }
-      },
-      "id": "write-post",
-      "name": "Hormozi Copywriting",
-      "type": "n8n-nodes-base.openAi",
-      "typeVersion": 1.8,
-      "position": [1300, 100],
-      "notes": "Write Hormozi-style LinkedIn post with CTA"
+      }
     },
     {
       "parameters": {
-        "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || response.message?.content || '{}';\n\nlet post;\ntry {\n  post = JSON.parse(content);\n} catch (e) {\n  const match = content.match(/\\{.*\\}/s);\n  post = match ? JSON.parse(match[0]) : { post_text: content, cta_text: '', cta_url: 'https://amadutown.com', hashtags: ['business', 'automation'], hormozi_framework: {} };\n}\n\nconst prev = $node['Parse Topics'].json;\n\nreturn [{ json: {\n  meeting_record_id: prev.meeting_record_id,\n  platform: 'linkedin',\n  status: 'draft',\n  post_text: post.post_text,\n  cta_text: post.cta_text || null,\n  cta_url: post.cta_url || 'https://amadutown.com',\n  hashtags: post.hashtags || [],\n  framework_visual_type: prev.framework_visual,\n  topic_extracted: { topic: prev.topic, angle: prev.angle, key_insight: prev.key_insight, personal_tie_in: prev.personal_tie_in, framework_visual: prev.framework_visual },\n  hormozi_framework: post.hormozi_framework || {},\n  rag_context: prev.rag_context || {},\n  image_prompt: `Create a clean, professional ${prev.framework_visual} illustration for LinkedIn. Topic: ${prev.topic}. Style: deep navy (#121E31) background, gold (#D4AF37) accents, platinum white (#EAECEE) text, geometric sans-serif headings, premium minimal aesthetic, no stock photos, pure diagram/framework visual, 1:1 aspect ratio.`,\n  voiceover_text: post.post_text\n} }];"
+        "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || response.message?.content || '{}';\n\nlet topics;\ntry {\n  topics = JSON.parse(content);\n  if (!Array.isArray(topics)) topics = [topics];\n} catch (e) {\n  const match = content.match(/\\[.*\\]/s);\n  topics = match ? JSON.parse(match[0]) : [{ topic: content, angle: 'General insight', key_insight: content, personal_tie_in: '', hormozi_framework: 'value_equation', framework_visual: 'architecture', content_pillar: null, principle_count: 0, transcript_evidence: '' }];\n}\n\nreturn topics.map(t => ({ json: { ...t, meeting_record_id: $node['Fetch Unprocessed Meetings'].json.id, rag_context: $node['RAG Personal Context'].json, content_pillar: t.content_pillar || null, principle_count: parseInt(t.principle_count) || 0, transcript_evidence: t.transcript_evidence || '' } }));"
       },
-      "id": "format-post",
-      "name": "Format Post Data",
-      "type": "n8n-nodes-base.code",
+      "name": "Parse Topics",
+      "id": "d75b9748-05dd-40a3-b416-e5d6807689ca",
       "typeVersion": 2,
-      "position": [1550, 100],
-      "notes": "Format post data for Gemini image gen and queue insertion"
+      "position": [
+        1056,
+        112
+      ],
+      "type": "n8n-nodes-base.code"
     },
     {
       "parameters": {
-        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
+        "model": "o4-mini",
+        "options": {
+          "maxTokens": 1500,
+          "temperature": 0.8
+        },
+        "requestOptions": {},
+        "prompt": "={{ (() => { const webhookPrompts = $node['Manual Trigger Webhook'].first()?.json?.prompts; const adminPrompt = webhookPrompts?.copywriting; if (adminPrompt) return adminPrompt + '\\n\\nTopic: ' + $json.topic + '\\nAngle: ' + $json.angle + '\\nKey Insight: ' + $json.key_insight + '\\nPersonal Tie-In: ' + $json.personal_tie_in + '\\nFramework: ' + $json.hormozi_framework + '\\nVisual Type: ' + $json.framework_visual + '\\nContent Pillar: ' + ($json.content_pillar || '') + '\\n\\nReturn a JSON object with: post_text, companion_post_text, cta_text, cta_url (https://amadutown.com), hashtags (array without #), content_pillar, hormozi_framework (object with framework_type, hook_type, proof_pattern, cta_pattern). Return ONLY valid JSON.'; return 'You are writing a LinkedIn post as Vambah Sillah (Mad Hadda), founder of AmaduTown Advisory Solutions. Write in Vambah\\'s authentic voice: direct statements over hedging, no AI-isms (never say journey, leverage, game-changer, unlock, empower), natural transitions, specificity with real numbers and scenarios, personal narrative, and conversational authority.\\n\\nTopic: ' + $json.topic + '\\nAngle: ' + $json.angle + '\\nKey Insight: ' + $json.key_insight + '\\nPersonal Tie-In: ' + $json.personal_tie_in + '\\nFramework: ' + $json.hormozi_framework + '\\nVisual Type: ' + $json.framework_visual + '\\nContent Pillar: ' + ($json.content_pillar || '') + '\\n\\nReturn a JSON object with:\\n- post_text: the full LinkedIn post (1000-1800 chars). Start with a bold hook. Use short paragraphs. End with a clear takeaway. Sign off with a conversational question.\\n- companion_post_text: a shorter version (800-1200 chars) for carousel companion posts. Teases the carousel content without repeating it.\\n- cta_text: a call-to-action line\\n- cta_url: https://amadutown.com\\n- hashtags: array of 3-5 relevant hashtags (without #)\\n- content_pillar: which pillar this post best fits\\n- hormozi_framework: object with { framework_type, hook_type, proof_pattern, cta_pattern }\\n\\nReturn ONLY valid JSON. No explanation.'; })() }}"
+      },
+      "name": "Hormozi Copywriting",
+      "id": "52f52b5e-39f6-484b-a79c-d6d397a6413e",
+      "typeVersion": 1.1,
+      "position": [
+        1312,
+        112
+      ],
+      "type": "n8n-nodes-base.openAi",
+      "credentials": {
+        "openAiApi": {
+          "id": "4vQ08xSYAyUfXvFe",
+          "name": "OpenAi Staging Account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || response.message?.content || '{}';\n\nlet post;\ntry {\n  post = JSON.parse(content);\n} catch (e) {\n  const match = content.match(/\\{.*\\}/s);\n  post = match ? JSON.parse(match[0]) : { post_text: content, cta_text: '', cta_url: 'https://amadutown.com', hashtags: ['business', 'automation'], hormozi_framework: {} };\n}\n\nconst prev = $node['Parse Topics'].json;\nconst principleCount = prev.principle_count || 0;\nconst contentFormat = principleCount >= 3 ? 'carousel' : 'single_image';\n\nlet imagePrompt;\ntry {\n  const webhookPrompts = $node['Manual Trigger Webhook'].first()?.json?.prompts;\n  if (webhookPrompts?.imageGeneration) {\n    imagePrompt = webhookPrompts.imageGeneration\n      .replace('{framework_visual_type}', prev.framework_visual || 'architecture')\n      .replace('{topic}', prev.topic || '')\n      .replace('{key_elements}', prev.key_insight || '');\n  }\n} catch (e) { /* scheduled run - no webhook data */ }\n\nif (!imagePrompt) {\n  imagePrompt = `Create a clean, professional ${prev.framework_visual} illustration for LinkedIn. Topic: ${prev.topic}. Style: deep navy (#121E31) background, gold (#D4AF37) accents, platinum white (#EAECEE) text, geometric sans-serif headings, premium minimal aesthetic, no stock photos, pure diagram/framework visual, 1:1 aspect ratio.`;\n}\n\nreturn [{ json: {\n  meeting_record_id: prev.meeting_record_id,\n  platform: 'linkedin',\n  status: 'draft',\n  post_text: post.post_text,\n  companion_post_text: post.companion_post_text || null,\n  cta_text: post.cta_text || null,\n  cta_url: post.cta_url || 'https://amadutown.com',\n  hashtags: post.hashtags || [],\n  framework_visual_type: prev.framework_visual,\n  content_format: contentFormat,\n  content_pillar: post.content_pillar || prev.content_pillar || null,\n  topic_extracted: { topic: prev.topic, angle: prev.angle, key_insight: prev.key_insight, personal_tie_in: prev.personal_tie_in, framework_visual: prev.framework_visual, transcript_evidence: prev.transcript_evidence || '' },\n  hormozi_framework: post.hormozi_framework || {},\n  rag_context: prev.rag_context || {},\n  image_prompt: imagePrompt,\n  voiceover_text: post.post_text,\n  principle_count: principleCount\n} }];"
+      },
+      "name": "Format Post Data",
+      "id": "a53a28bb-d131-48b5-a430-c5774f1359ef",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        112
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
         "method": "POST",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.image_prompt }] }], generationConfig: { responseModalities: ['IMAGE', 'TEXT'], imageSizeOptions: { aspectRatio: '1:1' } } }) }}",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
             {
               "name": "key",
-              "value": "REPLACE_WITH_GEMINI_API_KEY"
+              "value": "={{ $vars.STAG_GEMINI_API_KEY }}"
             }
           ]
         },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.image_prompt }] }], generationConfig: { responseModalities: ['IMAGE', 'TEXT'], imageSizeOptions: { aspectRatio: '1:1' } } }) }}",
         "options": {
           "timeout": 60000
         }
       },
-      "id": "gemini-image",
       "name": "Gemini Image Gen",
-      "type": "n8n-nodes-base.httpRequest",
+      "id": "6d516624-8db1-47c2-b14c-f239d6eb6a16",
       "typeVersion": 4.2,
-      "position": [1800, 100],
-      "notes": "Generate framework illustration via Gemini 2.0. Swappable: replace URL and body for DALL-E or Flux."
+      "position": [
+        2064,
+        300
+      ],
+      "type": "n8n-nodes-base.httpRequest"
     },
     {
       "parameters": {
-        "jsCode": "// Extract base64 image from Gemini response and prepare for Supabase upload\nconst geminiResponse = $input.first().json;\nconst prev = $node['Format Post Data'].json;\n\nlet imageBase64 = null;\nlet imageMimeType = 'image/png';\n\nif (geminiResponse.candidates?.[0]?.content?.parts) {\n  for (const part of geminiResponse.candidates[0].content.parts) {\n    if (part.inlineData) {\n      imageBase64 = part.inlineData.data;\n      imageMimeType = part.inlineData.mimeType || 'image/png';\n      break;\n    }\n  }\n}\n\nreturn [{ json: { ...prev, imageBase64, imageMimeType, hasImage: !!imageBase64 } }];"
+        "jsCode": "const geminiResponse = $input.first().json;\nconst prev = $node['Format Post Data'].json;\n\nlet imageBase64 = null;\nlet imageMimeType = 'image/png';\n\nif (geminiResponse.candidates?.[0]?.content?.parts) {\n  for (const part of geminiResponse.candidates[0].content.parts) {\n    if (part.inlineData) {\n      imageBase64 = part.inlineData.data;\n      imageMimeType = part.inlineData.mimeType || 'image/png';\n      break;\n    }\n  }\n}\n\nreturn [{ json: { ...prev, imageBase64, imageMimeType, hasImage: !!imageBase64 } }];"
       },
-      "id": "process-image",
       "name": "Process Image",
-      "type": "n8n-nodes-base.code",
+      "id": "40dc3f05-cb06-4bb7-9e33-54a4a788d78a",
       "typeVersion": 2,
-      "position": [2050, 100],
-      "notes": "Extract base64 image from Gemini response"
+      "position": [
+        2304,
+        300
+      ],
+      "type": "n8n-nodes-base.code"
     },
     {
       "parameters": {
-        "url": "https://api.elevenlabs.io/v1/text-to-speech/NMPIvMY9syNQoLVKqig8",
         "method": "POST",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ text: $json.voiceover_text?.substring(0, 5000) || $json.post_text?.substring(0, 5000), model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }) }}",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/NMPIvMY9syNQoLVKqig8",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
             {
               "name": "xi-api-key",
-              "value": "REPLACE_WITH_ELEVENLABS_API_KEY"
+              "value": "={{ $vars.STAG_ELEVENLABS_API_KEY }}"
             },
             {
               "name": "Content-Type",
@@ -206,90 +223,1040 @@
             }
           ]
         },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ text: $json.voiceover_text?.substring(0, 5000) || $json.post_text?.substring(0, 5000), model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }) }}",
         "options": {
-          "timeout": 60000,
           "response": {
             "response": {
               "responseFormat": "file"
             }
-          }
+          },
+          "timeout": 60000
         }
       },
-      "id": "elevenlabs-tts",
       "name": "ElevenLabs Voiceover",
-      "type": "n8n-nodes-base.httpRequest",
+      "id": "c1a35a4d-f5bd-4adf-acfc-b2d794768e6b",
       "typeVersion": 4.2,
-      "position": [2300, 100],
-      "notes": "Generate voiceover via ElevenLabs TTS API. Swappable: replace with Google TTS or Amazon Polly."
+      "position": [
+        2560,
+        300
+      ],
+      "type": "n8n-nodes-base.httpRequest"
     },
     {
       "parameters": {
-        "jsCode": "const SUPABASE_URL = 'https://byoriebhtbysanjhimlu.supabase.co';\nconst SUPABASE_KEY = 'REPLACE_WITH_SUPABASE_SERVICE_ROLE_KEY';\nconst data = $node['Process Image'].json;\nconst row = {\n  meeting_record_id: data.meeting_record_id,\n  platform: data.platform || 'linkedin',\n  status: 'draft',\n  post_text: data.post_text,\n  cta_text: data.cta_text || null,\n  cta_url: data.cta_url || 'https://amadutown.com',\n  hashtags: data.hashtags || [],\n  framework_visual_type: data.framework_visual_type || null,\n  topic_extracted: data.topic_extracted || {},\n  hormozi_framework: data.hormozi_framework || {},\n  rag_context: data.rag_context || {},\n  image_prompt: data.image_prompt || '',\n  voiceover_text: data.voiceover_text || ''\n};\nconst resp = await fetch(`${SUPABASE_URL}/rest/v1/social_content_queue`, {\n  method: 'POST',\n  headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },\n  body: JSON.stringify(row)\n});\nconst result = await resp.json();\nreturn [{ json: Array.isArray(result) ? result[0] : result }];"
+        "jsCode": "const SUPABASE_URL = $vars.STAG_SUPABASE_URL;\nconst SUPABASE_KEY = $vars.STAG_SUPABASE_SERVICE_ROLE_KEY;\nif (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Set STAG_SUPABASE_URL and STAG_SUPABASE_SERVICE_ROLE_KEY in n8n Variables');\nconst data = $node['Process Image'].json;\nconst row = {\n  meeting_record_id: data.meeting_record_id,\n  platform: data.platform || 'linkedin',\n  status: 'draft',\n  post_text: data.post_text,\n  companion_post_text: data.companion_post_text || null,\n  cta_text: data.cta_text || null,\n  cta_url: data.cta_url || 'https://amadutown.com',\n  hashtags: data.hashtags || [],\n  framework_visual_type: data.framework_visual_type || null,\n  content_format: 'single_image',\n  content_pillar: data.content_pillar || null,\n  topic_extracted: data.topic_extracted || {},\n  hormozi_framework: data.hormozi_framework || {},\n  rag_context: data.rag_context || {},\n  image_prompt: data.image_prompt || '',\n  voiceover_text: data.voiceover_text || ''\n};\nconst result = await this.helpers.httpRequest({\n  method: 'POST',\n  url: `${SUPABASE_URL}/rest/v1/social_content_queue`,\n  headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },\n  body: row,\n  json: true\n});\nreturn [{ json: Array.isArray(result) ? result[0] : result }];"
       },
-      "id": "save-to-queue-code",
       "name": "Save to Queue",
+      "id": "bd63a548-2edd-4470-adc8-615a2203f116",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        300
+      ],
+      "type": "n8n-nodes-base.code"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0AGT0MD1HR",
+          "mode": "list",
+          "cachedResultName": "project-test-kickoff-caller"
+        },
+        "text": "=:sparkles: *[STAGING] New Social Content Draft*\n\n*Topic:* {{ $input.first().json.topic_extracted?.topic || 'New post' }}\n*Format:* {{ $input.first().json.content_format || 'single_image' }}\n*Framework:* {{ $input.first().json.framework_visual_type || 'N/A' }}\n*Platform:* LinkedIn\n\n_Preview:_ {{ $input.first().json.post_text?.substring(0, 200) }}...\n\n<https://portfolio-staging-ten.vercel.app/admin/social-content|Review in Admin \u2192>",
+        "otherOptions": {},
+        "operation": "post"
+      },
+      "name": "Slack Notification",
+      "id": "085e0d9c-c0f0-4a5a-8929-cb77df6c1263",
+      "typeVersion": 2.2,
+      "position": [
+        3056,
+        112
+      ],
+      "type": "n8n-nodes-base.slack",
+      "webhookId": "1186c44d-c46b-41b4-a38c-b2a23329ef5d",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "VT5HUWjPPVBT6Juk",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "id": "cc096e4b-8a0e-4c03-9349-c3ccfbb4146f",
+      "name": "Decide Format",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        112
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "carousel-check",
+              "leftValue": "={{ $json.content_format }}",
+              "rightValue": "carousel",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "5609c09a-f997-4181-a2c2-8f77eaa24d60",
+      "name": "Generate Carousel Slides",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1.1,
+      "position": [
+        2064,
+        -100
+      ],
+      "parameters": {
+        "model": "o4-mini",
+        "options": {
+          "maxTokens": 4096,
+          "temperature": 0.7
+        },
+        "requestOptions": {},
+        "prompt": "={{ (() => { const webhookPrompts = $node['Manual Trigger Webhook'].first()?.json?.prompts; const carouselPrompt = webhookPrompts?.carouselSlides || 'You are generating structured slide content for a LinkedIn carousel post by Vambah Sillah (Mad Hadda), founder of AmaduTown Advisory Solutions. Generate a JSON array of slide objects. Slide types: cover (title, subtitle), hook (headline, subtext), principle (number, pill, headline, accent_word, body), quote (quote_text, attribution), cta (headline, subtext, url). Structure: cover -> hook -> 3-7 principles -> quote -> cta. Each object MUST have a type field. Return ONLY valid JSON array.'; return carouselPrompt + '\\n\\nTopic: ' + $json.topic_extracted?.topic + '\\nKey Insight: ' + $json.topic_extracted?.key_insight + '\\nPersonal Tie-In: ' + $json.topic_extracted?.personal_tie_in + '\\nFramework: ' + JSON.stringify($json.hormozi_framework) + '\\nPost Text: ' + $json.post_text + '\\nHashtags: ' + ($json.hashtags || []).join(', '); })() }}"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "4vQ08xSYAyUfXvFe",
+          "name": "OpenAi Staging Account"
+        }
+      }
+    },
+    {
+      "id": "cdd5a692-bae9-4517-b670-a4b9d41a6146",
+      "name": "Parse Carousel Slides",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [2550, 100],
-      "notes": "Insert draft into social_content_queue via Supabase REST API"
+      "position": [
+        2304,
+        -100
+      ],
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || response.message?.content || '[]';\n\nlet slides;\ntry {\n  const parsed = JSON.parse(content);\n  slides = Array.isArray(parsed) ? parsed : parsed.slides || [];\n} catch (e) {\n  const match = content.match(/\\[.*\\]/s);\n  slides = match ? JSON.parse(match[0]) : [];\n}\n\nif (slides.length === 0) throw new Error('Failed to parse carousel slides from AI response');\n\nconst prev = $node['Format Post Data'].json;\nreturn [{ json: { ...prev, carousel_slides: slides } }];"
+      }
     },
     {
+      "id": "4449c0b5-543b-4986-986c-0aaa18ecc624",
+      "name": "Render Carousel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2560,
+        -100
+      ],
       "parameters": {
-        "channel": "#social-content",
-        "text": "=:sparkles: *New Social Content Draft*\n\n*Topic:* {{ $node['Process Image'].json.topic_extracted?.topic || 'New post' }}\n*Framework:* {{ $node['Process Image'].json.framework_visual_type || 'N/A' }}\n*Platform:* LinkedIn\n\n_Preview:_ {{ $node['Process Image'].json.post_text?.substring(0, 200) }}...\n\n<https://amadutown.com/admin/social-content|Review in Admin →>",
-        "otherOptions": {}
-      },
-      "id": "slack-notify",
-      "name": "Slack Notification",
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.2,
-      "position": [2800, 100],
-      "notes": "Notify #social-content channel with draft summary and admin link"
+        "method": "POST",
+        "url": "={{ $vars.STAG_APP_URL || 'https://portfolio-staging-ten.vercel.app' }}/api/admin/social-content/render-carousel",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $vars.STAG_N8N_INGEST_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ content_id: 'pending', carousel_slides: $json.carousel_slides }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      }
+    },
+    {
+      "id": "c1176ba9-e557-43b0-adeb-641be186bb82",
+      "name": "Save to Queue (Carousel)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        -100
+      ],
+      "parameters": {
+        "jsCode": "const SUPABASE_URL = $vars.STAG_SUPABASE_URL;\nconst SUPABASE_KEY = $vars.STAG_SUPABASE_SERVICE_ROLE_KEY;\nif (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Set STAG_SUPABASE_URL and STAG_SUPABASE_SERVICE_ROLE_KEY in n8n Variables');\n\nconst data = $node['Parse Carousel Slides'].json;\nconst renderResult = $input.first().json;\n\nconst row = {\n  meeting_record_id: data.meeting_record_id,\n  platform: data.platform || 'linkedin',\n  status: 'draft',\n  post_text: data.companion_post_text || data.post_text,\n  companion_post_text: data.companion_post_text || null,\n  cta_text: data.cta_text || null,\n  cta_url: data.cta_url || 'https://amadutown.com',\n  hashtags: data.hashtags || [],\n  framework_visual_type: data.framework_visual_type || null,\n  content_format: 'carousel',\n  content_pillar: data.content_pillar || null,\n  topic_extracted: data.topic_extracted || {},\n  hormozi_framework: data.hormozi_framework || {},\n  rag_context: data.rag_context || {},\n  image_prompt: data.image_prompt || '',\n  voiceover_text: data.voiceover_text || '',\n  carousel_slides: data.carousel_slides || [],\n  carousel_pdf_url: renderResult.carousel_pdf_url || null,\n  carousel_slide_urls: renderResult.carousel_slide_urls || []\n};\n\nconst result = await this.helpers.httpRequest({\n  method: 'POST',\n  url: `${SUPABASE_URL}/rest/v1/social_content_queue`,\n  headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },\n  body: row,\n  json: true\n});\n\nconst saved = Array.isArray(result) ? result[0] : result;\nreturn [{ json: saved }];"
+      }
     }
   ],
   "connections": {
     "Daily 9AM Weekdays": {
-      "main": [[{ "node": "Fetch Unprocessed Meetings", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Fetch Unprocessed Meetings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Manual Trigger Webhook": {
-      "main": [[{ "node": "Fetch Unprocessed Meetings", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Fetch Unprocessed Meetings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Fetch Unprocessed Meetings": {
-      "main": [[{ "node": "RAG Personal Context", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "RAG Personal Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "RAG Personal Context": {
-      "main": [[{ "node": "AI Extract Topics", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "AI Extract Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "AI Extract Topics": {
-      "main": [[{ "node": "Parse Topics", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Parse Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Parse Topics": {
-      "main": [[{ "node": "Hormozi Copywriting", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Hormozi Copywriting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Hormozi Copywriting": {
-      "main": [[{ "node": "Format Post Data", "type": "main", "index": 0 }]]
-    },
-    "Format Post Data": {
-      "main": [[{ "node": "Gemini Image Gen", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Format Post Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Gemini Image Gen": {
-      "main": [[{ "node": "Process Image", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Process Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Process Image": {
-      "main": [[{ "node": "ElevenLabs Voiceover", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "ElevenLabs Voiceover",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "ElevenLabs Voiceover": {
-      "main": [[{ "node": "Save to Queue", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Save to Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Post Data": {
+      "main": [
+        [
+          {
+            "node": "Decide Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide Format": {
+      "main": [
+        [
+          {
+            "node": "Generate Carousel Slides",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gemini Image Gen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Carousel Slides": {
+      "main": [
+        [
+          {
+            "node": "Parse Carousel Slides",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Carousel Slides": {
+      "main": [
+        [
+          {
+            "node": "Render Carousel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Carousel": {
+      "main": [
+        [
+          {
+            "node": "Save to Queue (Carousel)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Queue (Carousel)": {
+      "main": [
+        [
+          {
+            "node": "Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Save to Queue": {
-      "main": [[{ "node": "Slack Notification", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {
     "executionOrder": "v1",
+    "timezone": "America/New_York",
     "saveDataErrorExecution": "all",
     "saveDataSuccessExecution": "all",
     "saveManualExecutions": true,
-    "timezone": "America/New_York"
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "staticData": {
+    "node:Daily 9AM Weekdays": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "d88181b9-aea4-4e23-a165-f2ffbb30eaea",
+  "activeVersionId": "d88181b9-aea4-4e23-a165-f2ffbb30eaea",
+  "versionCounter": 62,
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-03-20T15:30:09.952Z",
+      "createdAt": "2026-03-20T15:30:09.952Z",
+      "role": "workflow:owner",
+      "workflowId": "7w0m68a8ad6BkdzV",
+      "projectId": "9JToCjbBoRUoQRkH",
+      "project": {
+        "updatedAt": "2026-03-20T15:26:05.000Z",
+        "createdAt": "2026-03-20T15:22:32.837Z",
+        "id": "9JToCjbBoRUoQRkH",
+        "name": "ATAS Staging",
+        "type": "team",
+        "icon": {
+          "type": "icon",
+          "value": "layers"
+        },
+        "description": "",
+        "creatorId": "5ac96893-047a-40c9-8b9a-29b51d7a264d"
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-03-28T13:29:46.907Z",
+    "createdAt": "2026-03-28T13:29:46.907Z",
+    "versionId": "d88181b9-aea4-4e23-a165-f2ffbb30eaea",
+    "workflowId": "7w0m68a8ad6BkdzV",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "cronExpression",
+                "expression": "0 9 * * 1-5"
+              }
+            ]
+          }
+        },
+        "name": "Daily 9AM Weekdays",
+        "id": "ed4e030d-0cbd-4bb0-be22-9e10d6c39123",
+        "typeVersion": 1.2,
+        "position": [
+          0,
+          0
+        ],
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "disabled": true
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "e424d1e8-363c-477f-8608-57a87c63ff83",
+          "responseMode": "lastNode",
+          "options": {}
+        },
+        "name": "Manual Trigger Webhook",
+        "id": "637e5a55-f027-4d36-98dd-ed2cf4cff1f2",
+        "typeVersion": 2,
+        "position": [
+          0,
+          208
+        ],
+        "type": "n8n-nodes-base.webhook",
+        "webhookId": "e424d1e8-363c-477f-8608-57a87c63ff83"
+      },
+      {
+        "parameters": {
+          "jsCode": "const SUPABASE_URL = $vars.STAG_SUPABASE_URL;\nconst SUPABASE_KEY = $vars.STAG_SUPABASE_SERVICE_ROLE_KEY;\nif (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Set STAG_SUPABASE_URL and STAG_SUPABASE_SERVICE_ROLE_KEY in n8n Variables');\nconst headers = { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` };\nconst queued = await this.helpers.httpRequest({ method: 'GET', url: `${SUPABASE_URL}/rest/v1/social_content_queue?select=meeting_record_id&meeting_record_id=not.is.null`, headers, json: true });\nconst queuedIds = (Array.isArray(queued) ? queued : []).map(r => r.meeting_record_id);\nconst sevenDaysAgo = new Date(Date.now() - 7*24*60*60*1000).toISOString();\nconst meetings = await this.helpers.httpRequest({ method: 'GET', url: `${SUPABASE_URL}/rest/v1/meeting_records?select=*&created_at=gte.${sevenDaysAgo}&order=created_at.desc&limit=10`, headers, json: true });\nconst unprocessed = (Array.isArray(meetings) ? meetings : []).filter(m => !queuedIds.includes(m.id));\nif (unprocessed.length === 0) return [{ json: { _empty: true, message: 'No unprocessed meetings found' } }];\nreturn unprocessed.map(m => ({ json: m }));"
+        },
+        "name": "Fetch Unprocessed Meetings",
+        "id": "80f32341-952d-4b91-b60f-b6f9fafbb0c1",
+        "typeVersion": 2,
+        "position": [
+          304,
+          112
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $vars.STAG_RAG_QUERY_WEBHOOK_URL }}",
+          "sendBody": true,
+          "bodyParameters": {
+            "parameters": [
+              {
+                "name": "query",
+                "value": "={{ 'Personal stories, case studies, and experiences related to: ' + ($json.structured_notes?.summary || $json.transcript?.substring(0, 500) || 'general business consulting') }}"
+              }
+            ]
+          },
+          "options": {
+            "timeout": 30000
+          }
+        },
+        "name": "RAG Personal Context",
+        "id": "892bd179-b6db-4e64-98c2-a10c246c070b",
+        "typeVersion": 4.2,
+        "position": [
+          560,
+          112
+        ],
+        "type": "n8n-nodes-base.httpRequest"
+      },
+      {
+        "parameters": {
+          "model": "o4-mini",
+          "options": {
+            "maxTokens": 2000,
+            "temperature": 0.7
+          },
+          "requestOptions": {},
+          "prompt": "={{ (() => { const webhookPrompts = $node['Manual Trigger Webhook'].first()?.json?.prompts; const adminPrompt = webhookPrompts?.topicExtraction; if (adminPrompt) return adminPrompt + '\\n\\nMeeting data:\\n' + JSON.stringify($json) + '\\n\\nRAG personal context:\\n' + JSON.stringify($node['RAG Personal Context'].json); return 'You are a content strategist for Vambah Sillah (Mad Hadda), founder of AmaduTown Advisory Solutions. Vambah uses technology as the great equalizer for minority-owned businesses. Analyze the following meeting transcript and RAG context to extract 1-3 compelling content topics for LinkedIn.\\n\\nContent pillars: ai_product_management, corporate_navigation, business_automation, personal_brand, minority_business_empowerment, sales_psychology\\n\\nMeeting data:\\n' + JSON.stringify($json) + '\\n\\nRAG personal context:\\n' + JSON.stringify($node['RAG Personal Context'].json) + '\\n\\nFor each topic, return a JSON array where each object has:\\n- topic: a concise topic title\\n- angle: the unique angle or perspective\\n- key_insight: the main takeaway (1-2 sentences)\\n- personal_tie_in: how this connects to personal experience\\n- hormozi_framework: one of [value_equation, dream_outcome, perceived_likelihood, time_delay, effort_sacrifice]\\n- framework_visual: one of [architecture, flowchart, comparison, pyramid, matrix]\\n- content_pillar: which content pillar this best fits\\n- principle_count: how many distinct sub-principles or steps this topic naturally breaks into (0 if not applicable, 3+ if it is a listicle or multi-step concept suitable for a carousel)\\n- transcript_evidence: a verbatim quote (1-3 sentences) from the meeting transcript that this topic is based on. Critical for traceability. If no clear quote exists write No direct transcript match.\\n\\nReturn ONLY valid JSON. No explanation.'; })() }}"
+        },
+        "name": "AI Extract Topics",
+        "id": "5a2ae6db-4879-4cf8-8a32-276c2136956b",
+        "typeVersion": 1.1,
+        "position": [
+          800,
+          112
+        ],
+        "type": "n8n-nodes-base.openAi",
+        "credentials": {
+          "openAiApi": {
+            "id": "4vQ08xSYAyUfXvFe",
+            "name": "OpenAi Staging Account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || response.message?.content || '{}';\n\nlet topics;\ntry {\n  topics = JSON.parse(content);\n  if (!Array.isArray(topics)) topics = [topics];\n} catch (e) {\n  const match = content.match(/\\[.*\\]/s);\n  topics = match ? JSON.parse(match[0]) : [{ topic: content, angle: 'General insight', key_insight: content, personal_tie_in: '', hormozi_framework: 'value_equation', framework_visual: 'architecture', content_pillar: null, principle_count: 0, transcript_evidence: '' }];\n}\n\nreturn topics.map(t => ({ json: { ...t, meeting_record_id: $node['Fetch Unprocessed Meetings'].json.id, rag_context: $node['RAG Personal Context'].json, content_pillar: t.content_pillar || null, principle_count: parseInt(t.principle_count) || 0, transcript_evidence: t.transcript_evidence || '' } }));"
+        },
+        "name": "Parse Topics",
+        "id": "d75b9748-05dd-40a3-b416-e5d6807689ca",
+        "typeVersion": 2,
+        "position": [
+          1056,
+          112
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "model": "o4-mini",
+          "options": {
+            "maxTokens": 1500,
+            "temperature": 0.8
+          },
+          "requestOptions": {},
+          "prompt": "={{ (() => { const webhookPrompts = $node['Manual Trigger Webhook'].first()?.json?.prompts; const adminPrompt = webhookPrompts?.copywriting; if (adminPrompt) return adminPrompt + '\\n\\nTopic: ' + $json.topic + '\\nAngle: ' + $json.angle + '\\nKey Insight: ' + $json.key_insight + '\\nPersonal Tie-In: ' + $json.personal_tie_in + '\\nFramework: ' + $json.hormozi_framework + '\\nVisual Type: ' + $json.framework_visual + '\\nContent Pillar: ' + ($json.content_pillar || '') + '\\n\\nReturn a JSON object with: post_text, companion_post_text, cta_text, cta_url (https://amadutown.com), hashtags (array without #), content_pillar, hormozi_framework (object with framework_type, hook_type, proof_pattern, cta_pattern). Return ONLY valid JSON.'; return 'You are writing a LinkedIn post as Vambah Sillah (Mad Hadda), founder of AmaduTown Advisory Solutions. Write in Vambah\\'s authentic voice: direct statements over hedging, no AI-isms (never say journey, leverage, game-changer, unlock, empower), natural transitions, specificity with real numbers and scenarios, personal narrative, and conversational authority.\\n\\nTopic: ' + $json.topic + '\\nAngle: ' + $json.angle + '\\nKey Insight: ' + $json.key_insight + '\\nPersonal Tie-In: ' + $json.personal_tie_in + '\\nFramework: ' + $json.hormozi_framework + '\\nVisual Type: ' + $json.framework_visual + '\\nContent Pillar: ' + ($json.content_pillar || '') + '\\n\\nReturn a JSON object with:\\n- post_text: the full LinkedIn post (1000-1800 chars). Start with a bold hook. Use short paragraphs. End with a clear takeaway. Sign off with a conversational question.\\n- companion_post_text: a shorter version (800-1200 chars) for carousel companion posts. Teases the carousel content without repeating it.\\n- cta_text: a call-to-action line\\n- cta_url: https://amadutown.com\\n- hashtags: array of 3-5 relevant hashtags (without #)\\n- content_pillar: which pillar this post best fits\\n- hormozi_framework: object with { framework_type, hook_type, proof_pattern, cta_pattern }\\n\\nReturn ONLY valid JSON. No explanation.'; })() }}"
+        },
+        "name": "Hormozi Copywriting",
+        "id": "52f52b5e-39f6-484b-a79c-d6d397a6413e",
+        "typeVersion": 1.1,
+        "position": [
+          1312,
+          112
+        ],
+        "type": "n8n-nodes-base.openAi",
+        "credentials": {
+          "openAiApi": {
+            "id": "4vQ08xSYAyUfXvFe",
+            "name": "OpenAi Staging Account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || response.message?.content || '{}';\n\nlet post;\ntry {\n  post = JSON.parse(content);\n} catch (e) {\n  const match = content.match(/\\{.*\\}/s);\n  post = match ? JSON.parse(match[0]) : { post_text: content, cta_text: '', cta_url: 'https://amadutown.com', hashtags: ['business', 'automation'], hormozi_framework: {} };\n}\n\nconst prev = $node['Parse Topics'].json;\nconst principleCount = prev.principle_count || 0;\nconst contentFormat = principleCount >= 3 ? 'carousel' : 'single_image';\n\nlet imagePrompt;\ntry {\n  const webhookPrompts = $node['Manual Trigger Webhook'].first()?.json?.prompts;\n  if (webhookPrompts?.imageGeneration) {\n    imagePrompt = webhookPrompts.imageGeneration\n      .replace('{framework_visual_type}', prev.framework_visual || 'architecture')\n      .replace('{topic}', prev.topic || '')\n      .replace('{key_elements}', prev.key_insight || '');\n  }\n} catch (e) { /* scheduled run - no webhook data */ }\n\nif (!imagePrompt) {\n  imagePrompt = `Create a clean, professional ${prev.framework_visual} illustration for LinkedIn. Topic: ${prev.topic}. Style: deep navy (#121E31) background, gold (#D4AF37) accents, platinum white (#EAECEE) text, geometric sans-serif headings, premium minimal aesthetic, no stock photos, pure diagram/framework visual, 1:1 aspect ratio.`;\n}\n\nreturn [{ json: {\n  meeting_record_id: prev.meeting_record_id,\n  platform: 'linkedin',\n  status: 'draft',\n  post_text: post.post_text,\n  companion_post_text: post.companion_post_text || null,\n  cta_text: post.cta_text || null,\n  cta_url: post.cta_url || 'https://amadutown.com',\n  hashtags: post.hashtags || [],\n  framework_visual_type: prev.framework_visual,\n  content_format: contentFormat,\n  content_pillar: post.content_pillar || prev.content_pillar || null,\n  topic_extracted: { topic: prev.topic, angle: prev.angle, key_insight: prev.key_insight, personal_tie_in: prev.personal_tie_in, framework_visual: prev.framework_visual, transcript_evidence: prev.transcript_evidence || '' },\n  hormozi_framework: post.hormozi_framework || {},\n  rag_context: prev.rag_context || {},\n  image_prompt: imagePrompt,\n  voiceover_text: post.post_text,\n  principle_count: principleCount\n} }];"
+        },
+        "name": "Format Post Data",
+        "id": "a53a28bb-d131-48b5-a430-c5774f1359ef",
+        "typeVersion": 2,
+        "position": [
+          1552,
+          112
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
+          "sendQuery": true,
+          "queryParameters": {
+            "parameters": [
+              {
+                "name": "key",
+                "value": "={{ $vars.STAG_GEMINI_API_KEY }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ contents: [{ parts: [{ text: $json.image_prompt }] }], generationConfig: { responseModalities: ['IMAGE', 'TEXT'], imageSizeOptions: { aspectRatio: '1:1' } } }) }}",
+          "options": {
+            "timeout": 60000
+          }
+        },
+        "name": "Gemini Image Gen",
+        "id": "6d516624-8db1-47c2-b14c-f239d6eb6a16",
+        "typeVersion": 4.2,
+        "position": [
+          2064,
+          300
+        ],
+        "type": "n8n-nodes-base.httpRequest"
+      },
+      {
+        "parameters": {
+          "jsCode": "const geminiResponse = $input.first().json;\nconst prev = $node['Format Post Data'].json;\n\nlet imageBase64 = null;\nlet imageMimeType = 'image/png';\n\nif (geminiResponse.candidates?.[0]?.content?.parts) {\n  for (const part of geminiResponse.candidates[0].content.parts) {\n    if (part.inlineData) {\n      imageBase64 = part.inlineData.data;\n      imageMimeType = part.inlineData.mimeType || 'image/png';\n      break;\n    }\n  }\n}\n\nreturn [{ json: { ...prev, imageBase64, imageMimeType, hasImage: !!imageBase64 } }];"
+        },
+        "name": "Process Image",
+        "id": "40dc3f05-cb06-4bb7-9e33-54a4a788d78a",
+        "typeVersion": 2,
+        "position": [
+          2304,
+          300
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.elevenlabs.io/v1/text-to-speech/NMPIvMY9syNQoLVKqig8",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "xi-api-key",
+                "value": "={{ $vars.STAG_ELEVENLABS_API_KEY }}"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Accept",
+                "value": "audio/mpeg"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ text: $json.voiceover_text?.substring(0, 5000) || $json.post_text?.substring(0, 5000), model_id: 'eleven_multilingual_v2', voice_settings: { stability: 0.5, similarity_boost: 0.75 } }) }}",
+          "options": {
+            "response": {
+              "response": {
+                "responseFormat": "file"
+              }
+            },
+            "timeout": 60000
+          }
+        },
+        "name": "ElevenLabs Voiceover",
+        "id": "c1a35a4d-f5bd-4adf-acfc-b2d794768e6b",
+        "typeVersion": 4.2,
+        "position": [
+          2560,
+          300
+        ],
+        "type": "n8n-nodes-base.httpRequest"
+      },
+      {
+        "parameters": {
+          "jsCode": "const SUPABASE_URL = $vars.STAG_SUPABASE_URL;\nconst SUPABASE_KEY = $vars.STAG_SUPABASE_SERVICE_ROLE_KEY;\nif (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Set STAG_SUPABASE_URL and STAG_SUPABASE_SERVICE_ROLE_KEY in n8n Variables');\nconst data = $node['Process Image'].json;\nconst row = {\n  meeting_record_id: data.meeting_record_id,\n  platform: data.platform || 'linkedin',\n  status: 'draft',\n  post_text: data.post_text,\n  companion_post_text: data.companion_post_text || null,\n  cta_text: data.cta_text || null,\n  cta_url: data.cta_url || 'https://amadutown.com',\n  hashtags: data.hashtags || [],\n  framework_visual_type: data.framework_visual_type || null,\n  content_format: 'single_image',\n  content_pillar: data.content_pillar || null,\n  topic_extracted: data.topic_extracted || {},\n  hormozi_framework: data.hormozi_framework || {},\n  rag_context: data.rag_context || {},\n  image_prompt: data.image_prompt || '',\n  voiceover_text: data.voiceover_text || ''\n};\nconst result = await this.helpers.httpRequest({\n  method: 'POST',\n  url: `${SUPABASE_URL}/rest/v1/social_content_queue`,\n  headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },\n  body: row,\n  json: true\n});\nreturn [{ json: Array.isArray(result) ? result[0] : result }];"
+        },
+        "name": "Save to Queue",
+        "id": "bd63a548-2edd-4470-adc8-615a2203f116",
+        "typeVersion": 2,
+        "position": [
+          2800,
+          300
+        ],
+        "type": "n8n-nodes-base.code"
+      },
+      {
+        "parameters": {
+          "authentication": "oAuth2",
+          "select": "channel",
+          "channelId": {
+            "__rl": true,
+            "value": "C0AGT0MD1HR",
+            "mode": "list",
+            "cachedResultName": "project-test-kickoff-caller"
+          },
+          "text": "=:sparkles: *[STAGING] New Social Content Draft*\n\n*Topic:* {{ $input.first().json.topic_extracted?.topic || 'New post' }}\n*Format:* {{ $input.first().json.content_format || 'single_image' }}\n*Framework:* {{ $input.first().json.framework_visual_type || 'N/A' }}\n*Platform:* LinkedIn\n\n_Preview:_ {{ $input.first().json.post_text?.substring(0, 200) }}...\n\n<https://portfolio-staging-ten.vercel.app/admin/social-content|Review in Admin \u2192>",
+          "otherOptions": {},
+          "operation": "post"
+        },
+        "name": "Slack Notification",
+        "id": "085e0d9c-c0f0-4a5a-8929-cb77df6c1263",
+        "typeVersion": 2.2,
+        "position": [
+          3056,
+          112
+        ],
+        "type": "n8n-nodes-base.slack",
+        "webhookId": "1186c44d-c46b-41b4-a38c-b2a23329ef5d",
+        "credentials": {
+          "slackOAuth2Api": {
+            "id": "VT5HUWjPPVBT6Juk",
+            "name": "Slack account"
+          }
+        }
+      },
+      {
+        "id": "cc096e4b-8a0e-4c03-9349-c3ccfbb4146f",
+        "name": "Decide Format",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.2,
+        "position": [
+          1808,
+          112
+        ],
+        "parameters": {
+          "conditions": {
+            "options": {
+              "version": 2,
+              "leftValue": "",
+              "caseSensitive": true,
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "carousel-check",
+                "leftValue": "={{ $json.content_format }}",
+                "rightValue": "carousel",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          }
+        }
+      },
+      {
+        "id": "5609c09a-f997-4181-a2c2-8f77eaa24d60",
+        "name": "Generate Carousel Slides",
+        "type": "n8n-nodes-base.openAi",
+        "typeVersion": 1.1,
+        "position": [
+          2064,
+          -100
+        ],
+        "parameters": {
+          "model": "o4-mini",
+          "options": {
+            "maxTokens": 4096,
+            "temperature": 0.7
+          },
+          "requestOptions": {},
+          "prompt": "={{ (() => { const webhookPrompts = $node['Manual Trigger Webhook'].first()?.json?.prompts; const carouselPrompt = webhookPrompts?.carouselSlides || 'You are generating structured slide content for a LinkedIn carousel post by Vambah Sillah (Mad Hadda), founder of AmaduTown Advisory Solutions. Generate a JSON array of slide objects. Slide types: cover (title, subtitle), hook (headline, subtext), principle (number, pill, headline, accent_word, body), quote (quote_text, attribution), cta (headline, subtext, url). Structure: cover -> hook -> 3-7 principles -> quote -> cta. Each object MUST have a type field. Return ONLY valid JSON array.'; return carouselPrompt + '\\n\\nTopic: ' + $json.topic_extracted?.topic + '\\nKey Insight: ' + $json.topic_extracted?.key_insight + '\\nPersonal Tie-In: ' + $json.topic_extracted?.personal_tie_in + '\\nFramework: ' + JSON.stringify($json.hormozi_framework) + '\\nPost Text: ' + $json.post_text + '\\nHashtags: ' + ($json.hashtags || []).join(', '); })() }}"
+        },
+        "credentials": {
+          "openAiApi": {
+            "id": "4vQ08xSYAyUfXvFe",
+            "name": "OpenAi Staging Account"
+          }
+        }
+      },
+      {
+        "id": "cdd5a692-bae9-4517-b670-a4b9d41a6146",
+        "name": "Parse Carousel Slides",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2304,
+          -100
+        ],
+        "parameters": {
+          "jsCode": "const response = $input.first().json;\nconst content = response.choices?.[0]?.message?.content || response.message?.content || '[]';\n\nlet slides;\ntry {\n  const parsed = JSON.parse(content);\n  slides = Array.isArray(parsed) ? parsed : parsed.slides || [];\n} catch (e) {\n  const match = content.match(/\\[.*\\]/s);\n  slides = match ? JSON.parse(match[0]) : [];\n}\n\nif (slides.length === 0) throw new Error('Failed to parse carousel slides from AI response');\n\nconst prev = $node['Format Post Data'].json;\nreturn [{ json: { ...prev, carousel_slides: slides } }];"
+        }
+      },
+      {
+        "id": "4449c0b5-543b-4986-986c-0aaa18ecc624",
+        "name": "Render Carousel",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2560,
+          -100
+        ],
+        "parameters": {
+          "method": "POST",
+          "url": "={{ $vars.STAG_APP_URL || 'https://portfolio-staging-ten.vercel.app' }}/api/admin/social-content/render-carousel",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "={{ 'Bearer ' + $vars.STAG_N8N_INGEST_SECRET }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ content_id: 'pending', carousel_slides: $json.carousel_slides }) }}",
+          "options": {
+            "timeout": 120000
+          }
+        }
+      },
+      {
+        "id": "c1176ba9-e557-43b0-adeb-641be186bb82",
+        "name": "Save to Queue (Carousel)",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2800,
+          -100
+        ],
+        "parameters": {
+          "jsCode": "const SUPABASE_URL = $vars.STAG_SUPABASE_URL;\nconst SUPABASE_KEY = $vars.STAG_SUPABASE_SERVICE_ROLE_KEY;\nif (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('Set STAG_SUPABASE_URL and STAG_SUPABASE_SERVICE_ROLE_KEY in n8n Variables');\n\nconst data = $node['Parse Carousel Slides'].json;\nconst renderResult = $input.first().json;\n\nconst row = {\n  meeting_record_id: data.meeting_record_id,\n  platform: data.platform || 'linkedin',\n  status: 'draft',\n  post_text: data.companion_post_text || data.post_text,\n  companion_post_text: data.companion_post_text || null,\n  cta_text: data.cta_text || null,\n  cta_url: data.cta_url || 'https://amadutown.com',\n  hashtags: data.hashtags || [],\n  framework_visual_type: data.framework_visual_type || null,\n  content_format: 'carousel',\n  content_pillar: data.content_pillar || null,\n  topic_extracted: data.topic_extracted || {},\n  hormozi_framework: data.hormozi_framework || {},\n  rag_context: data.rag_context || {},\n  image_prompt: data.image_prompt || '',\n  voiceover_text: data.voiceover_text || '',\n  carousel_slides: data.carousel_slides || [],\n  carousel_pdf_url: renderResult.carousel_pdf_url || null,\n  carousel_slide_urls: renderResult.carousel_slide_urls || []\n};\n\nconst result = await this.helpers.httpRequest({\n  method: 'POST',\n  url: `${SUPABASE_URL}/rest/v1/social_content_queue`,\n  headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },\n  body: row,\n  json: true\n});\n\nconst saved = Array.isArray(result) ? result[0] : result;\nreturn [{ json: saved }];"
+        }
+      }
+    ],
+    "connections": {
+      "Daily 9AM Weekdays": {
+        "main": [
+          [
+            {
+              "node": "Fetch Unprocessed Meetings",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Manual Trigger Webhook": {
+        "main": [
+          [
+            {
+              "node": "Fetch Unprocessed Meetings",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Fetch Unprocessed Meetings": {
+        "main": [
+          [
+            {
+              "node": "RAG Personal Context",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "RAG Personal Context": {
+        "main": [
+          [
+            {
+              "node": "AI Extract Topics",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "AI Extract Topics": {
+        "main": [
+          [
+            {
+              "node": "Parse Topics",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Topics": {
+        "main": [
+          [
+            {
+              "node": "Hormozi Copywriting",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Hormozi Copywriting": {
+        "main": [
+          [
+            {
+              "node": "Format Post Data",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Gemini Image Gen": {
+        "main": [
+          [
+            {
+              "node": "Process Image",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Process Image": {
+        "main": [
+          [
+            {
+              "node": "ElevenLabs Voiceover",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "ElevenLabs Voiceover": {
+        "main": [
+          [
+            {
+              "node": "Save to Queue",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Post Data": {
+        "main": [
+          [
+            {
+              "node": "Decide Format",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Decide Format": {
+        "main": [
+          [
+            {
+              "node": "Generate Carousel Slides",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Gemini Image Gen",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Generate Carousel Slides": {
+        "main": [
+          [
+            {
+              "node": "Parse Carousel Slides",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Carousel Slides": {
+        "main": [
+          [
+            {
+              "node": "Render Carousel",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Render Carousel": {
+        "main": [
+          [
+            {
+              "node": "Save to Queue (Carousel)",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Save to Queue (Carousel)": {
+        "main": [
+          [
+            {
+              "node": "Slack Notification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Save to Queue": {
+        "main": [
+          [
+            {
+              "node": "Slack Notification",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "Vambah Sillah",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-03-28T13:29:47.137Z",
+        "id": 752,
+        "workflowId": "7w0m68a8ad6BkdzV",
+        "versionId": "d88181b9-aea4-4e23-a165-f2ffbb30eaea",
+        "event": "activated",
+        "userId": "5ac96893-047a-40c9-8b9a-29b51d7a264d"
+      },
+      {
+        "createdAt": "2026-03-28T13:29:47.038Z",
+        "id": 751,
+        "workflowId": "7w0m68a8ad6BkdzV",
+        "versionId": "d88181b9-aea4-4e23-a165-f2ffbb30eaea",
+        "event": "deactivated",
+        "userId": "5ac96893-047a-40c9-8b9a-29b51d7a264d"
+      }
+    ]
   }
 }

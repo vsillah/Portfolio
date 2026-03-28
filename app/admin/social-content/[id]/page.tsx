@@ -24,6 +24,9 @@ import {
   Sparkles,
   ExternalLink,
   AlertCircle,
+  LayoutGrid,
+  Download,
+  ArrowRightLeft,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -67,6 +70,8 @@ function SocialContentDetailPage() {
   const [approving, setApproving] = useState(false)
   const [regeneratingImage, setRegeneratingImage] = useState(false)
   const [regeneratingAudio, setRegeneratingAudio] = useState(false)
+  const [convertingFormat, setConvertingFormat] = useState(false)
+  const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
   const [showSource, setShowSource] = useState(false)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
@@ -325,6 +330,78 @@ function SocialContentDetailPage() {
     }
   }
 
+  const handleConvertToCarousel = async () => {
+    if (!confirm('Convert this post to a carousel? This will generate slides from the post content and replace the current image.')) return
+    setConvertingFormat(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch(`/api/admin/social-content/${id}/convert-to-carousel`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        setItem(prev => prev ? {
+          ...prev,
+          content_format: 'carousel',
+          carousel_slides: data.carousel_slides,
+          carousel_slide_urls: data.carousel_slide_urls,
+          carousel_pdf_url: data.carousel_pdf_url,
+        } : prev)
+        setSelectedSlide(0)
+        showMsg('success', `Carousel generated with ${data.slide_count} slides`)
+      } else {
+        showMsg('error', data.error || 'Failed to convert to carousel')
+      }
+    } catch {
+      showMsg('error', 'Failed to convert to carousel')
+    } finally {
+      setConvertingFormat(false)
+    }
+  }
+
+  const handleConvertToSingleImage = async () => {
+    if (!confirm('Convert this post to a single image? This will clear all carousel data and regenerate the framework illustration.')) return
+    await handleRegenerateImage()
+  }
+
+  const handleRegenerateCarousel = async () => {
+    if (!item?.carousel_slides) return
+    setConvertingFormat(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+
+      const res = await fetch('/api/admin/social-content/render-carousel', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content_id: id }),
+      })
+
+      const data = await res.json()
+      if (data.success) {
+        setItem(prev => prev ? {
+          ...prev,
+          carousel_slide_urls: data.carousel_slide_urls,
+          carousel_pdf_url: data.carousel_pdf_url,
+        } : prev)
+        showMsg('success', 'Carousel re-rendered successfully')
+      } else {
+        showMsg('error', data.error || 'Failed to re-render carousel')
+      }
+    } catch {
+      showMsg('error', 'Failed to re-render carousel')
+    } finally {
+      setConvertingFormat(false)
+    }
+  }
+
   const togglePlatform = (platform: SocialPlatform) => {
     setTargetPlatforms(prev =>
       prev.includes(platform)
@@ -471,36 +548,133 @@ function SocialContentDetailPage() {
               />
             </div>
 
-            {/* Image section */}
+            {/* Visual Media section (single image or carousel) */}
             <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4" /> Framework Illustration
-                </h3>
-                {isEditable && (
-                  <button
-                    onClick={handleRegenerateImage}
-                    disabled={regeneratingImage || !imagePrompt}
-                    className="flex items-center gap-1 px-2 py-1 bg-purple-900/50 hover:bg-purple-900/70 text-purple-300 rounded-lg text-xs transition-colors disabled:opacity-50"
-                  >
-                    {regeneratingImage ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                    Regenerate
-                  </button>
-                )}
-              </div>
-              {item.image_url ? (
-                <div className="rounded-lg overflow-hidden mb-3 bg-gray-800 relative w-full h-[400px]">
-                  <Image src={item.image_url} alt="Generated framework illustration" className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" />
-                </div>
-              ) : (
-                <div className="rounded-lg bg-gray-800 h-48 flex items-center justify-center mb-3">
-                  <div className="text-center text-gray-500">
-                    <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-xs">No image generated yet</p>
+              {item.content_format === 'carousel' ? (
+                <>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                      <LayoutGrid className="w-4 h-4" /> Carousel ({item.carousel_slide_urls?.length || 0} slides)
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      {item.carousel_pdf_url && (
+                        <a
+                          href={item.carousel_pdf_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-1 px-2 py-1 bg-blue-900/50 hover:bg-blue-900/70 text-blue-300 rounded-lg text-xs transition-colors"
+                        >
+                          <Download className="w-3 h-3" /> PDF
+                        </a>
+                      )}
+                      {isEditable && (
+                        <>
+                          <button
+                            onClick={handleRegenerateCarousel}
+                            disabled={convertingFormat}
+                            className="flex items-center gap-1 px-2 py-1 bg-purple-900/50 hover:bg-purple-900/70 text-purple-300 rounded-lg text-xs transition-colors disabled:opacity-50"
+                          >
+                            {convertingFormat ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                            Re-render
+                          </button>
+                          <button
+                            onClick={handleConvertToSingleImage}
+                            disabled={convertingFormat || regeneratingImage}
+                            className="flex items-center gap-1 px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-xs transition-colors disabled:opacity-50"
+                          >
+                            <ArrowRightLeft className="w-3 h-3" /> Single Image
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
+                  {item.carousel_slide_urls && item.carousel_slide_urls.length > 0 ? (
+                    <div className="space-y-3">
+                      <div className="rounded-lg overflow-hidden bg-gray-800 relative w-full aspect-square">
+                        <Image
+                          src={item.carousel_slide_urls[selectedSlide] || item.carousel_slide_urls[0]}
+                          alt={`Slide ${selectedSlide + 1}`}
+                          className="object-contain"
+                          fill
+                          sizes="(max-width: 800px) 100vw, 800px"
+                        />
+                      </div>
+                      <div className="flex gap-2 overflow-x-auto pb-1">
+                        {item.carousel_slide_urls.map((url, i) => (
+                          <button
+                            key={i}
+                            onClick={() => setSelectedSlide(i)}
+                            className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${
+                              selectedSlide === i ? 'border-purple-500' : 'border-gray-700 hover:border-gray-500'
+                            }`}
+                          >
+                            <Image src={url} alt={`Slide ${i + 1}`} width={64} height={64} className="object-cover w-full h-full" />
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-lg bg-gray-800 h-48 flex items-center justify-center mb-3">
+                      <div className="text-center text-gray-500">
+                        <LayoutGrid className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-xs">Slides not yet rendered</p>
+                        {isEditable && (
+                          <button
+                            onClick={handleRegenerateCarousel}
+                            disabled={convertingFormat}
+                            className="mt-2 text-xs text-purple-400 hover:text-purple-300"
+                          >
+                            {convertingFormat ? 'Rendering...' : 'Render now'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4" /> Framework Illustration
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      {isEditable && (
+                        <>
+                          <button
+                            onClick={handleRegenerateImage}
+                            disabled={regeneratingImage || !imagePrompt}
+                            className="flex items-center gap-1 px-2 py-1 bg-purple-900/50 hover:bg-purple-900/70 text-purple-300 rounded-lg text-xs transition-colors disabled:opacity-50"
+                          >
+                            {regeneratingImage ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                            Regenerate
+                          </button>
+                          <button
+                            onClick={handleConvertToCarousel}
+                            disabled={convertingFormat}
+                            className="flex items-center gap-1 px-2 py-1 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-xs transition-colors disabled:opacity-50"
+                          >
+                            {convertingFormat ? <Loader2 className="w-3 h-3 animate-spin" /> : <ArrowRightLeft className="w-3 h-3" />}
+                            Carousel
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  {item.image_url ? (
+                    <div className="rounded-lg overflow-hidden mb-3 bg-gray-800 relative w-full h-[400px]">
+                      <Image src={item.image_url} alt="Generated framework illustration" className="object-contain" fill sizes="(max-width: 800px) 100vw, 800px" />
+                    </div>
+                  ) : (
+                    <div className="rounded-lg bg-gray-800 h-48 flex items-center justify-center mb-3">
+                      <div className="text-center text-gray-500">
+                        <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-xs">No image generated yet</p>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
-              <div className="space-y-2">
+              <div className="space-y-2 mt-3">
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Visual Type</label>
                   <select
@@ -597,19 +771,34 @@ function SocialContentDetailPage() {
                         {item.topic_extracted.personal_tie_in && (
                           <div><span className="text-gray-500">Personal tie-in:</span> {item.topic_extracted.personal_tie_in}</div>
                         )}
+                        {item.topic_extracted.transcript_evidence && (
+                          <div className="mt-2 border-t border-gray-700 pt-2">
+                            <span className="text-gray-500">Transcript source:</span>
+                            <blockquote className="mt-1 pl-3 border-l-2 border-amber-500/50 text-gray-300 italic">
+                              {item.topic_extracted.transcript_evidence}
+                            </blockquote>
+                          </div>
+                        )}
                       </div>
                     )}
-                    {item.hormozi_framework && (
-                      <div className="bg-gray-800 rounded-lg p-3">
-                        <div className="font-medium text-gray-300 mb-1 flex items-center gap-1">
-                          <Sparkles className="w-3 h-3 text-amber-400" /> Hormozi Framework
+                    {item.hormozi_framework && (() => {
+                      const hf = item.hormozi_framework as Record<string, unknown>
+                      const entries = Object.entries(hf).filter(([, v]) => v && String(v).trim())
+                      if (entries.length === 0) return null
+                      return (
+                        <div className="bg-gray-800 rounded-lg p-3">
+                          <div className="font-medium text-gray-300 mb-1 flex items-center gap-1">
+                            <Sparkles className="w-3 h-3 text-amber-400" /> Hormozi Framework
+                          </div>
+                          {entries.map(([key, val]) => (
+                            <div key={key}>
+                              <span className="text-gray-500 capitalize">{key.replace(/_/g, ' ')}:</span>{' '}
+                              {String(val)}
+                            </div>
+                          ))}
                         </div>
-                        <div><span className="text-gray-500">Type:</span> {item.hormozi_framework.framework_type}</div>
-                        <div><span className="text-gray-500">Hook:</span> {item.hormozi_framework.hook_type}</div>
-                        <div><span className="text-gray-500">Proof:</span> {item.hormozi_framework.proof_pattern}</div>
-                        <div><span className="text-gray-500">CTA:</span> {item.hormozi_framework.cta_pattern}</div>
-                      </div>
-                    )}
+                      )
+                    })()}
                     {item.rag_context && (
                       <div className="bg-gray-800 rounded-lg p-3">
                         <div className="font-medium text-gray-300 mb-1">RAG Personal Context</div>
@@ -652,11 +841,18 @@ function SocialContentDetailPage() {
                 <div className="text-sm whitespace-pre-wrap leading-relaxed mb-3">
                   {getFullPostText({ ...item, post_text: postText, cta_text: ctaText, cta_url: ctaUrl, hashtags: hashtags.split(',').map(t => t.trim()).filter(Boolean) })}
                 </div>
-                {item.image_url && (
+                {item.content_format === 'carousel' && item.carousel_slide_urls && item.carousel_slide_urls.length > 0 ? (
+                  <div className="rounded-lg overflow-hidden border border-gray-200 relative w-full aspect-square">
+                    <Image src={item.carousel_slide_urls[0]} alt="Carousel cover" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
+                    <div className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-1.5 py-0.5 rounded">
+                      1/{item.carousel_slide_urls.length}
+                    </div>
+                  </div>
+                ) : item.image_url ? (
                   <div className="rounded-lg overflow-hidden border border-gray-200 relative w-full aspect-video">
                     <Image src={item.image_url} alt="Post image" className="object-cover" fill sizes="(max-width: 600px) 100vw, 600px" />
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
           </div>
