@@ -27,6 +27,8 @@ import {
   LayoutGrid,
   Download,
   ArrowRightLeft,
+  Maximize2,
+  X,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -74,6 +76,7 @@ function SocialContentDetailPage() {
   const [selectedSlide, setSelectedSlide] = useState(0)
   const [publishing, setPublishing] = useState(false)
   const [showSource, setShowSource] = useState(false)
+  const [expandedSection, setExpandedSection] = useState<'rag' | 'transcript' | null>(null)
   const [showConfirmModal, setShowConfirmModal] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [targetPlatforms, setTargetPlatforms] = useState<SocialPlatform[]>(['linkedin'])
@@ -789,16 +792,16 @@ function SocialContentDetailPage() {
                   <div className="bg-gray-800 rounded-lg p-3 text-xs text-gray-400">
                     <div className="font-medium text-gray-300 mb-2">Extracted Topic</div>
                     <div className="space-y-1">
-                      <div><span className="text-gray-500">Topic:</span> {item.topic_extracted.topic}</div>
-                      <div><span className="text-gray-500">Angle:</span> {item.topic_extracted.angle}</div>
-                      <div><span className="text-gray-500">Insight:</span> {item.topic_extracted.key_insight}</div>
+                      <div className="break-words"><span className="text-gray-500">Topic:</span> {item.topic_extracted.topic}</div>
+                      <div className="break-words"><span className="text-gray-500">Angle:</span> {item.topic_extracted.angle}</div>
+                      <div className="break-words"><span className="text-gray-500">Insight:</span> {item.topic_extracted.key_insight}</div>
                       {item.topic_extracted.personal_tie_in && (
-                        <div><span className="text-gray-500">Personal tie-in:</span> {item.topic_extracted.personal_tie_in}</div>
+                        <div className="break-words"><span className="text-gray-500">Personal tie-in:</span> {item.topic_extracted.personal_tie_in}</div>
                       )}
                       {item.topic_extracted.transcript_evidence && (
                         <div className="mt-2 border-t border-gray-700 pt-2">
                           <span className="text-gray-500">Transcript evidence:</span>
-                          <blockquote className="mt-1 pl-3 border-l-2 border-amber-500/50 text-gray-300 italic">
+                          <blockquote className="mt-1 pl-3 border-l-2 border-amber-500/50 text-gray-300 italic break-words">
                             {item.topic_extracted.transcript_evidence}
                           </blockquote>
                         </div>
@@ -828,7 +831,7 @@ function SocialContentDetailPage() {
                             <Sparkles className="w-3 h-3 text-amber-400" /> Hormozi Framework
                           </div>
                           {entries.map(([key, val]) => (
-                            <div key={key}>
+                            <div key={key} className="break-words">
                               <span className="text-gray-500 capitalize">{key.replace(/_/g, ' ')}:</span>{' '}
                               {String(val)}
                             </div>
@@ -838,25 +841,83 @@ function SocialContentDetailPage() {
                     })()}
                     {item.rag_context && (
                       <div className="bg-gray-800 rounded-lg p-3">
-                        <div className="font-medium text-gray-300 mb-1">RAG Personal Context</div>
-                        <pre className="text-xs text-gray-400 whitespace-pre-wrap overflow-auto max-h-40">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="font-medium text-gray-300">RAG Personal Context</div>
+                          <button
+                            onClick={() => setExpandedSection('rag')}
+                            className="p-1 text-gray-500 hover:text-gray-300 transition-colors"
+                            title="Expand"
+                          >
+                            <Maximize2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <div className="text-xs text-gray-400 whitespace-pre-wrap break-words overflow-y-auto max-h-48">
                           {JSON.stringify(item.rag_context, null, 2)}
-                        </pre>
+                        </div>
                       </div>
                     )}
                     {item.meeting_record.transcript && (
-                      <div>
-                        <div className="text-gray-500 mb-1">Full transcript:</div>
-                        <pre className="bg-gray-800 rounded-lg p-3 text-xs text-gray-400 whitespace-pre-wrap overflow-auto max-h-80">
-                          {item.meeting_record.transcript.slice(0, 5000)}
-                          {item.meeting_record.transcript.length > 5000 ? '\n...(truncated)' : ''}
-                        </pre>
+                      <div className="bg-gray-800 rounded-lg p-3">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="font-medium text-gray-300">Full transcript</div>
+                          <button
+                            onClick={() => setExpandedSection('transcript')}
+                            className="p-1 text-gray-500 hover:text-gray-300 transition-colors"
+                            title="Expand"
+                          >
+                            <Maximize2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                        <div className="text-xs text-gray-400 whitespace-pre-wrap break-words overflow-y-auto max-h-48">
+                          {item.meeting_record.transcript}
+                        </div>
                       </div>
                     )}
                   </div>
                 )}
               </div>
             )}
+
+            {/* Expanded content modal */}
+            <AnimatePresence>
+              {expandedSection && item?.meeting_record && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/70 backdrop-blur-sm"
+                  onClick={() => setExpandedSection(null)}
+                >
+                  <motion.div
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    className="bg-gray-900 border border-gray-700 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex items-center justify-between p-4 border-b border-gray-800">
+                      <h3 className="text-sm font-semibold text-gray-200">
+                        {expandedSection === 'rag' ? 'RAG Personal Context' : 'Full Transcript'}
+                      </h3>
+                      <button
+                        onClick={() => setExpandedSection(null)}
+                        className="p-1.5 text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded-lg transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-4">
+                      <div className="text-sm text-gray-300 whitespace-pre-wrap break-words leading-relaxed">
+                        {expandedSection === 'rag'
+                          ? JSON.stringify(item.rag_context, null, 2)
+                          : item.meeting_record.transcript
+                        }
+                      </div>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Right column: Preview */}
