@@ -57,6 +57,8 @@ interface MeetingRecord {
   meeting_date: string
   created_at: string
   duration_minutes: number | null
+  meeting_title: string | null
+  source_url: string | null
   snippet: string | null
   queued_count: number
 }
@@ -219,13 +221,12 @@ function SocialContentQueuePage() {
                     const date = new Date(m.meeting_date)
                     const dateStr = date.toLocaleDateString()
                     const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                    const type = m.meeting_type.replace(/_/g, ' ')
+                    const title = m.meeting_title || m.meeting_type.replace(/_/g, ' ')
                     const duration = m.duration_minutes ? ` · ${m.duration_minutes}m` : ''
-                    const snippet = m.snippet ? ` — ${m.snippet.slice(0, 40)}${m.snippet.length > 40 ? '…' : ''}` : ''
                     const processed = m.queued_count > 0 ? ` (${m.queued_count} post${m.queued_count > 1 ? 's' : ''})` : ''
                     return (
                       <option key={m.id} value={m.id}>
-                        {type} · {dateStr} {timeStr}{duration}{snippet}{processed}
+                        {title} — {dateStr} {timeStr}{duration}{processed}
                       </option>
                     )
                   })}
@@ -367,8 +368,14 @@ function SocialContentQueuePage() {
                       <p className="text-sm text-gray-300 line-clamp-2">
                         {truncateForPreview(item.post_text, 200)}
                       </p>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-3 mt-2 text-xs text-gray-500 flex-wrap">
                         <span>{new Date(item.created_at).toLocaleDateString()}</span>
+                        {item.meeting_title && (
+                          <span className="flex items-center gap-1 text-blue-400/70 truncate max-w-[250px]">
+                            <FileText className="w-3 h-3 flex-shrink-0" />
+                            {item.meeting_title}
+                          </span>
+                        )}
                         {item.hashtags?.length > 0 && (
                           <span className="text-amber-500/70 truncate max-w-[200px]">
                             {formatHashtags(item.hashtags.slice(0, 3))}

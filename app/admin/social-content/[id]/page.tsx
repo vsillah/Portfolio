@@ -740,47 +740,84 @@ function SocialContentDetailPage() {
               </div>
             </div>
 
-            {/* Source context */}
+            {/* Source Meeting Traceability */}
             {item.meeting_record && (
-              <div className="bg-gray-900 border border-gray-800 rounded-xl p-4">
+              <div className="bg-gray-900 border border-gray-800 rounded-xl p-4 space-y-3">
+                {/* Meeting header — always visible */}
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <FileText className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                      <h4 className="text-sm font-medium text-gray-200 truncate">
+                        {item.meeting_record.meeting_title || `${item.meeting_record.meeting_type?.replace(/_/g, ' ')} meeting`}
+                      </h4>
+                    </div>
+                    <div className="flex items-center gap-3 text-xs text-gray-500 ml-6">
+                      <span className="capitalize">{item.meeting_record.meeting_type?.replace(/_/g, ' ')}</span>
+                      <span>{new Date(item.meeting_record.meeting_date).toLocaleDateString()} {new Date(item.meeting_record.meeting_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      {item.meeting_record.duration_minutes && (
+                        <span>{item.meeting_record.duration_minutes}m</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {item.meeting_record.source_url && (
+                      <a
+                        href={item.meeting_record.source_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 bg-blue-500/10 px-2 py-1 rounded-lg border border-blue-500/30 hover:border-blue-500/50 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3" /> Read.AI
+                      </a>
+                    )}
+                    {item.meeting_record.recording_url && (
+                      <a
+                        href={item.meeting_record.recording_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/30 hover:border-emerald-500/50 transition-colors"
+                      >
+                        <ExternalLink className="w-3 h-3" /> Recording
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {/* Extracted topic — always visible when present */}
+                {item.topic_extracted && (
+                  <div className="bg-gray-800 rounded-lg p-3 text-xs text-gray-400">
+                    <div className="font-medium text-gray-300 mb-2">Extracted Topic</div>
+                    <div className="space-y-1">
+                      <div><span className="text-gray-500">Topic:</span> {item.topic_extracted.topic}</div>
+                      <div><span className="text-gray-500">Angle:</span> {item.topic_extracted.angle}</div>
+                      <div><span className="text-gray-500">Insight:</span> {item.topic_extracted.key_insight}</div>
+                      {item.topic_extracted.personal_tie_in && (
+                        <div><span className="text-gray-500">Personal tie-in:</span> {item.topic_extracted.personal_tie_in}</div>
+                      )}
+                      {item.topic_extracted.transcript_evidence && (
+                        <div className="mt-2 border-t border-gray-700 pt-2">
+                          <span className="text-gray-500">Transcript evidence:</span>
+                          <blockquote className="mt-1 pl-3 border-l-2 border-amber-500/50 text-gray-300 italic">
+                            {item.topic_extracted.transcript_evidence}
+                          </blockquote>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Collapsible deeper context */}
                 <button
                   onClick={() => setShowSource(!showSource)}
-                  className="flex items-center justify-between w-full text-sm font-medium text-gray-400"
+                  className="flex items-center gap-2 text-xs text-gray-500 hover:text-gray-400 transition-colors"
                 >
-                  <span className="flex items-center gap-2">
-                    <FileText className="w-4 h-4" /> Source Meeting Context
-                  </span>
-                  {showSource ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {showSource ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                  {showSource ? 'Hide' : 'Show'} full context (framework, RAG, transcript)
                 </button>
+
                 {showSource && (
-                  <div className="mt-3 space-y-3 text-xs text-gray-400">
-                    <div>
-                      <span className="text-gray-500">Type:</span>{' '}
-                      <span className="capitalize">{item.meeting_record.meeting_type?.replace('_', ' ')}</span>
-                    </div>
-                    <div>
-                      <span className="text-gray-500">Date:</span>{' '}
-                      {new Date(item.meeting_record.meeting_date).toLocaleDateString()}
-                    </div>
-                    {item.topic_extracted && (
-                      <div className="bg-gray-800 rounded-lg p-3">
-                        <div className="font-medium text-gray-300 mb-1">Extracted Topic</div>
-                        <div><span className="text-gray-500">Topic:</span> {item.topic_extracted.topic}</div>
-                        <div><span className="text-gray-500">Angle:</span> {item.topic_extracted.angle}</div>
-                        <div><span className="text-gray-500">Insight:</span> {item.topic_extracted.key_insight}</div>
-                        {item.topic_extracted.personal_tie_in && (
-                          <div><span className="text-gray-500">Personal tie-in:</span> {item.topic_extracted.personal_tie_in}</div>
-                        )}
-                        {item.topic_extracted.transcript_evidence && (
-                          <div className="mt-2 border-t border-gray-700 pt-2">
-                            <span className="text-gray-500">Transcript source:</span>
-                            <blockquote className="mt-1 pl-3 border-l-2 border-amber-500/50 text-gray-300 italic">
-                              {item.topic_extracted.transcript_evidence}
-                            </blockquote>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                  <div className="space-y-3 text-xs text-gray-400">
                     {item.hormozi_framework && (() => {
                       const hf = item.hormozi_framework as Record<string, unknown>
                       const entries = Object.entries(hf).filter(([, v]) => v && String(v).trim())
@@ -809,10 +846,10 @@ function SocialContentDetailPage() {
                     )}
                     {item.meeting_record.transcript && (
                       <div>
-                        <div className="text-gray-500 mb-1">Transcript excerpt:</div>
-                        <pre className="bg-gray-800 rounded-lg p-3 text-xs text-gray-400 whitespace-pre-wrap overflow-auto max-h-60">
-                          {item.meeting_record.transcript.slice(0, 2000)}
-                          {item.meeting_record.transcript.length > 2000 ? '\n...(truncated)' : ''}
+                        <div className="text-gray-500 mb-1">Full transcript:</div>
+                        <pre className="bg-gray-800 rounded-lg p-3 text-xs text-gray-400 whitespace-pre-wrap overflow-auto max-h-80">
+                          {item.meeting_record.transcript.slice(0, 5000)}
+                          {item.meeting_record.transcript.length > 5000 ? '\n...(truncated)' : ''}
                         </pre>
                       </div>
                     )}

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import { extractMeetingTitle, extractMeetingSourceUrl } from '@/lib/social-content'
 
 export const dynamic = 'force-dynamic'
 
@@ -34,10 +35,17 @@ export async function GET(
     if (data.meeting_record_id) {
       const { data: meeting } = await supabaseAdmin
         .from('meeting_records')
-        .select('id, meeting_type, meeting_date, transcript, structured_notes, key_decisions, attendees')
+        .select('id, meeting_type, meeting_date, transcript, raw_notes, recording_url, structured_notes, key_decisions, attendees, duration_minutes')
         .eq('id', data.meeting_record_id)
         .single()
-      meetingRecord = meeting
+      if (meeting) {
+        const notes = meeting.structured_notes as Record<string, unknown> | null
+        meetingRecord = {
+          ...meeting,
+          meeting_title: extractMeetingTitle(meeting.raw_notes, notes),
+          source_url: extractMeetingSourceUrl(meeting.raw_notes),
+        }
+      }
     }
 
     // Load per-platform publish records

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import { extractMeetingTitle } from '@/lib/social-content'
 import type { ContentStatus, SocialPlatform } from '@/lib/social-content'
 
 export const dynamic = 'force-dynamic'
@@ -51,6 +52,26 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to fetch social content' }, { status: 500 })
     }
 
+    const meetingIds = [...new Set((data || []).map((d: { meeting_record_id: string | null }) => d.meeting_record_id).filter(Boolean))] as string[]
+
+    const meetingTitleMap = new Map<string, string | null>()
+    if (meetingIds.length > 0) {
+      const { data: meetings } = await supabaseAdmin
+        .from('meeting_records')
+        .select('id, raw_notes, structured_notes')
+        .in('id', meetingIds)
+
+      for (const m of meetings || []) {
+        const notes = m.structured_notes as Record<string, unknown> | null
+        meetingTitleMap.set(m.id, extractMeetingTitle(m.raw_notes, notes))
+      }
+    }
+
+    const enrichedItems = (data || []).map((item: { meeting_record_id: string | null; [key: string]: unknown }) => ({
+      ...item,
+      meeting_title: item.meeting_record_id ? (meetingTitleMap.get(item.meeting_record_id) || null) : null,
+    }))
+
     // Compute stats across all items (unfiltered)
     const { data: allItems } = await supabaseAdmin
       .from('social_content_queue')
@@ -64,7 +85,7 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json({
-      items: data || [],
+      items: enrichedItems,
       stats,
       pagination: {
         page,

@@ -3,6 +3,7 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { triggerSocialContentExtraction } from '@/lib/n8n'
 import { getSocialContentPrompts } from '@/lib/system-prompts'
 import { supabaseAdmin } from '@/lib/supabase'
+import { extractMeetingTitle, extractMeetingSourceUrl } from '@/lib/social-content'
 
 export const dynamic = 'force-dynamic'
 
@@ -74,7 +75,7 @@ export async function GET(request: NextRequest) {
 
     const { data: meetings, error } = await supabaseAdmin
       .from('meeting_records')
-      .select('id, meeting_type, meeting_date, created_at, transcript, structured_notes, duration_minutes')
+      .select('id, meeting_type, meeting_date, created_at, transcript, structured_notes, duration_minutes, raw_notes')
       .order('meeting_date', { ascending: false })
       .limit(limit)
 
@@ -101,13 +102,13 @@ export async function GET(request: NextRequest) {
     const enrichedMeetings = (meetings ?? []).map((m: {
       id: string; meeting_type: string; meeting_date: string; created_at: string;
       transcript: string | null; structured_notes: Record<string, unknown> | null;
-      duration_minutes: number | null;
+      duration_minutes: number | null; raw_notes: string | null;
     }) => {
       const notes = m.structured_notes
-      const summary = notes?.summary as string | undefined
-      const title = notes?.title as string | undefined
+      const meetingTitle = extractMeetingTitle(m.raw_notes, notes)
 
-      let snippet = title || summary || ''
+      const summary = notes?.summary as string | undefined
+      let snippet = summary || ''
       if (!snippet && m.transcript) {
         const cleaned = (m.transcript as string)
           .replace(/<[^>]+>/g, '')
@@ -124,6 +125,8 @@ export async function GET(request: NextRequest) {
         meeting_date: m.meeting_date,
         created_at: m.created_at,
         duration_minutes: m.duration_minutes,
+        meeting_title: meetingTitle,
+        source_url: extractMeetingSourceUrl(m.raw_notes),
         snippet: snippet || null,
         queued_count: queuedCounts.get(m.id) || 0,
       }

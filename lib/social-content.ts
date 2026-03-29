@@ -78,15 +78,22 @@ export interface SocialContentItem {
   carousel_slide_urls?: string[] | null
   created_at: string
   updated_at: string
+  // Computed from meeting_records when fetching list
+  meeting_title?: string | null
   // Joined from meeting_records when fetching detail
   meeting_record?: {
     id: string
     meeting_type: string
     meeting_date: string
     transcript: string | null
+    raw_notes: string | null
+    recording_url: string | null
     structured_notes: unknown
     key_decisions: unknown
     attendees: unknown
+    duration_minutes: number | null
+    meeting_title: string | null
+    source_url: string | null
   }
   // Joined from social_content_publishes
   publishes?: SocialContentPublish[]
@@ -389,6 +396,42 @@ export async function buildImagePromptDynamic(
     .replace('{framework_visual_type}', visualType)
     .replace('{topic}', topic)
     .replace('{key_elements}', keyElements)
+}
+
+/**
+ * Extract the meeting title from raw_notes (Slack-formatted Read.AI/Fireflies link)
+ * or from structured_notes.title. Returns null if no title can be extracted.
+ *
+ * Slack link format: `<https://app.read.ai/...|Meeting Title Here >`
+ */
+export function extractMeetingTitle(
+  rawNotes: string | null | undefined,
+  structuredNotes?: Record<string, unknown> | null
+): string | null {
+  if (structuredNotes?.title && typeof structuredNotes.title === 'string') {
+    return structuredNotes.title.trim()
+  }
+
+  if (!rawNotes) return null
+
+  const slackLinkMatch = rawNotes.match(/\|([^>]+?)>/)
+  if (slackLinkMatch) {
+    return slackLinkMatch[1].trim().replace(/\s*\*?\s*$/, '').trim()
+  }
+
+  return null
+}
+
+/**
+ * Extract the Read.AI (or similar) analytics URL from raw_notes.
+ */
+export function extractMeetingSourceUrl(rawNotes: string | null | undefined): string | null {
+  if (!rawNotes) return null
+
+  const urlMatch = rawNotes.match(/<(https?:\/\/[^|>]+)/)
+  if (urlMatch) return urlMatch[1].replace(/&amp;/g, '&')
+
+  return null
 }
 
 export function truncateForPreview(text: string, maxLength = 280): string {
