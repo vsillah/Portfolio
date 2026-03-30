@@ -18,7 +18,9 @@ import {
   Code,
   MessageSquare,
   Sparkles,
-  Loader2
+  Loader2,
+  ThumbsUp,
+  ThumbsDown,
 } from 'lucide-react'
 
 interface Diagnosis {
@@ -63,6 +65,7 @@ function DiagnosesContent() {
   const [loading, setLoading] = useState(true)
   const [filterStatus, setFilterStatus] = useState<string | null>(null)
   const [filterErrorType, setFilterErrorType] = useState<string | null>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   const fetchDiagnoses = useCallback(async () => {
     setLoading(true)
@@ -92,6 +95,50 @@ function DiagnosesContent() {
   useEffect(() => {
     fetchDiagnoses()
   }, [fetchDiagnoses])
+
+  const handleQuickApprove = async (e: React.MouseEvent, diagId: string) => {
+    e.stopPropagation()
+    setActionLoading(diagId)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      await fetch(`/api/admin/chat-eval/diagnoses/${diagId}/approve`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({}),
+      })
+      fetchDiagnoses()
+    } catch (err) {
+      console.error('Failed to approve:', err)
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleQuickReject = async (e: React.MouseEvent, diagId: string) => {
+    e.stopPropagation()
+    setActionLoading(diagId)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      await fetch(`/api/admin/chat-eval/diagnoses/${diagId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'rejected' }),
+      })
+      fetchDiagnoses()
+    } catch (err) {
+      console.error('Failed to reject:', err)
+    } finally {
+      setActionLoading(null)
+    }
+  }
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -314,6 +361,30 @@ function DiagnosesContent() {
                   </div>
 
                   <div className="flex items-center gap-2 ml-4">
+                    {(diag.status === 'pending' || diag.status === 'reviewed') && (
+                      <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          onClick={(e) => handleQuickApprove(e, diag.id)}
+                          disabled={actionLoading === diag.id}
+                          title="Approve"
+                          className="p-1.5 rounded-lg bg-emerald-900/30 hover:bg-emerald-900/60 text-emerald-400 border border-emerald-800/50 transition-colors disabled:opacity-50"
+                        >
+                          {actionLoading === diag.id ? (
+                            <Loader2 size={14} className="animate-spin" />
+                          ) : (
+                            <ThumbsUp size={14} />
+                          )}
+                        </button>
+                        <button
+                          onClick={(e) => handleQuickReject(e, diag.id)}
+                          disabled={actionLoading === diag.id}
+                          title="Reject"
+                          className="p-1.5 rounded-lg bg-red-900/30 hover:bg-red-900/60 text-red-400 border border-red-800/50 transition-colors disabled:opacity-50"
+                        >
+                          <ThumbsDown size={14} />
+                        </button>
+                      </div>
+                    )}
                     <ChevronRight size={20} className="text-platinum-white/40" />
                   </div>
                 </div>
