@@ -355,6 +355,9 @@ function OutreachContent() {
   const vepPollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [vepPollingActive, setVepPollingActive] = useState(false)
 
+  // Last VEP extraction run (from value_evidence_workflow_runs)
+  const [lastVepRun, setLastVepRun] = useState<{ triggered_at: string; status: string } | null>(null)
+
   // Unified lead modal: re-run enrichment (for Save), loading, error
   const [unifiedModalReRunEnrichment, setUnifiedModalReRunEnrichment] = useState(true)
   const [unifiedModalSaveLoading, setUnifiedModalSaveLoading] = useState(false)
@@ -569,6 +572,24 @@ function OutreachContent() {
         vepPollingRef.current = null
       }
     }
+  }, [])
+
+  // Fetch latest VEP extraction run (one-time on mount)
+  useEffect(() => {
+    async function fetchLastVepRun() {
+      try {
+        const session = await getCurrentSession()
+        if (!session) return
+        const res = await fetch('/api/admin/value-evidence/workflow-status', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          if (data.vep001) setLastVepRun({ triggered_at: data.vep001.triggered_at, status: data.vep001.status })
+        }
+      } catch { /* non-critical */ }
+    }
+    fetchLastVepRun()
   }, [])
 
   useEffect(() => {
@@ -1304,7 +1325,7 @@ function OutreachContent() {
 
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div>
+          <div className="flex-1">
             <h1 className="text-3xl font-bold gradient-text">
               Lead Pipeline
             </h1>
@@ -1316,6 +1337,25 @@ function OutreachContent() {
                   : 'Manage all leads, view details, and track progress'}
             </p>
           </div>
+          {lastVepRun && (
+            <div className="text-right text-xs text-platinum-white/50 flex-shrink-0 mr-4">
+              <div>
+                Last VEP extraction:{' '}
+                <span className="text-platinum-white/80">
+                  {new Date(lastVepRun.triggered_at).toLocaleString()}
+                </span>
+              </div>
+              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium mt-0.5 ${
+                lastVepRun.status === 'success'
+                  ? 'bg-green-500/20 text-green-400'
+                  : lastVepRun.status === 'failed'
+                    ? 'bg-red-500/20 text-red-400'
+                    : 'bg-amber-500/20 text-amber-400'
+              }`}>
+                {lastVepRun.status}
+              </span>
+            </div>
+          )}
           <div className="flex items-center gap-3">
             <Link href="/admin/outreach/dashboard">
               <button className="flex items-center gap-2 px-4 py-2 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors">
