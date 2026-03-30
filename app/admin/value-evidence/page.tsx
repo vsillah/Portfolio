@@ -24,7 +24,6 @@ import {
   ArrowRight,
   Globe,
   BookOpen,
-  Layers,
   ExternalLink,
   Pencil,
   Trash2,
@@ -161,6 +160,8 @@ export default function ValueEvidencePage() {
   const [loading, setLoading] = useState(true)
   const [triggering, setTriggering] = useState<string | null>(null)
   const [triggerResult, setTriggerResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [focusPainPointId, setFocusPainPointId] = useState<string | null>(null)
+  const [focusCalculationPainPointId, setFocusCalculationPainPointId] = useState<string | null>(null)
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true)
@@ -224,13 +225,13 @@ export default function ValueEvidencePage() {
     }
   }
 
-  const tabs: { id: TabName; label: string; icon: typeof DollarSign }[] = [
+  const tabs: { id: TabName; label: string; icon: typeof DollarSign; count?: number; accentClass?: string }[] = [
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-    { id: 'pain-points', label: 'Pain Points', icon: Target },
-    { id: 'market-intel', label: 'Market Intel', icon: Globe },
-    { id: 'benchmarks', label: 'Benchmarks', icon: BookOpen },
-    { id: 'calculations', label: 'Calculations', icon: DollarSign },
-    { id: 'reports', label: 'Reports', icon: FileText },
+    { id: 'pain-points', label: 'Pain Points', icon: Target, count: dashData?.overview.totalPainPoints, accentClass: 'bg-purple-500/30 text-purple-300' },
+    { id: 'market-intel', label: 'Market Intel', icon: Globe, count: dashData?.overview.totalMarketIntel, accentClass: 'bg-cyan-500/30 text-cyan-300' },
+    { id: 'benchmarks', label: 'Benchmarks', icon: BookOpen, count: dashData?.overview.totalBenchmarks, accentClass: 'bg-teal-500/30 text-teal-300' },
+    { id: 'calculations', label: 'Calculations', icon: DollarSign, count: dashData?.overview.totalCalculations, accentClass: 'bg-green-500/30 text-green-300' },
+    { id: 'reports', label: 'Reports', icon: FileText, count: dashData?.overview.totalReports, accentClass: 'bg-amber-500/30 text-amber-300' },
   ]
 
   return (
@@ -269,26 +270,65 @@ export default function ValueEvidencePage() {
             </div>
           </div>
 
-          {/* Tab Navigation */}
-          <div className="flex gap-1 bg-silicon-slate/50 border border-silicon-slate rounded-xl p-1 mb-8 overflow-x-auto">
+          {/* Tab Navigation with count badges */}
+          <div className="flex gap-1 bg-silicon-slate/50 border border-silicon-slate rounded-xl p-1 mb-2 overflow-x-auto">
             {tabs.map(tab => {
               const Icon = tab.icon
+              const isActive = activeTab === tab.id
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
-                    activeTab === tab.id
+                    isActive
                       ? 'bg-green-600/30 text-green-300 border border-green-500/50'
                       : 'text-platinum-white/80 hover:text-foreground hover:bg-silicon-slate/50'
                   }`}
                 >
                   <Icon size={16} />
                   {tab.label}
+                  {tab.count !== undefined && (
+                    <span className={`ml-0.5 text-[11px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums ${
+                      isActive
+                        ? (tab.accentClass || 'bg-green-500/30 text-green-300')
+                        : 'bg-silicon-slate/80 text-platinum-white/60'
+                    }`}>
+                      {tab.count.toLocaleString()}
+                    </span>
+                  )}
                 </button>
               )
             })}
           </div>
+
+          {/* Secondary metrics bar */}
+          {activeTab === 'dashboard' && dashData && (
+            <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-platinum-white/60 mb-6 px-1">
+              <span>Evidence: <span className="text-platinum-white/90 font-medium">{dashData.overview.totalEvidence.toLocaleString()}</span>
+                {dashData.evidenceBySource && Object.keys(dashData.evidenceBySource).length > 0 && (
+                  <span className="text-platinum-white/50 ml-1">
+                    ({Object.entries(dashData.evidenceBySource).map(([src, cnt], i) => (
+                      <span key={src}>
+                        {i > 0 && ', '}
+                        <span className="capitalize">{src.replace(/_/g, ' ')}</span> {cnt}
+                      </span>
+                    ))})
+                  </span>
+                )}
+              </span>
+              <span className="text-silicon-slate">·</span>
+              <span>Industries: <span className="text-platinum-white/90 font-medium">{Object.keys(dashData.industryBreakdown || {}).filter(k => k !== '_default').length}</span></span>
+              <span className="text-silicon-slate">·</span>
+              <span>Content Mapped: <span className="text-platinum-white/90 font-medium">{dashData.overview.totalContentMappings}</span></span>
+              {(dashData.overview.unprocessedMarketIntel || 0) > 0 && (
+                <>
+                  <span className="text-silicon-slate">·</span>
+                  <span className="text-amber-400">{dashData.overview.unprocessedMarketIntel} unprocessed intel</span>
+                </>
+              )}
+            </div>
+          )}
+          {activeTab !== 'dashboard' && <div className="mb-6" />}
 
           {/* Alert for trigger results */}
           <AnimatePresence>
@@ -322,258 +362,167 @@ export default function ValueEvidencePage() {
           {/* Dashboard Tab */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <StatCard
-                  label="Pain Points"
-                  value={dashData?.overview.totalPainPoints || 0}
-                  icon={Target}
-                  color="text-purple-400"
-                />
-                <StatCard
-                  label="Evidence"
-                  value={dashData?.overview.totalEvidence || 0}
-                  icon={Database}
-                  color="text-radiant-gold"
-                />
-                <StatCard
-                  label="Calculations"
-                  value={dashData?.overview.totalCalculations || 0}
-                  icon={DollarSign}
-                  color="text-green-400"
-                />
-                <StatCard
-                  label="Reports"
-                  value={dashData?.overview.totalReports || 0}
-                  icon={FileText}
-                  color="text-amber-400"
-                />
-              </div>
-
-              {/* Secondary Stats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <StatCard
-                  label="Market Intel"
-                  value={dashData?.overview.totalMarketIntel || 0}
-                  icon={Globe}
-                  color="text-cyan-400"
-                  subtitle={dashData?.overview.unprocessedMarketIntel
-                    ? `${dashData.overview.unprocessedMarketIntel} unprocessed`
-                    : undefined}
-                />
-                <StatCard
-                  label="Benchmarks"
-                  value={dashData?.overview.totalBenchmarks || 0}
-                  icon={BookOpen}
-                  color="text-teal-400"
-                />
-                <StatCard
-                  label="Content Mapped"
-                  value={dashData?.overview.totalContentMappings || 0}
-                  icon={Layers}
-                  color="text-pink-400"
-                />
-                <StatCard
-                  label="Industries"
-                  value={Object.keys(dashData?.industryBreakdown || {}).filter(k => k !== '_default').length}
-                  icon={BarChart3}
-                  color="text-orange-400"
-                />
-              </div>
-
-              {/* Trigger Actions */}
+              {/* Workflow Triggers — primary actions, top of page */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <motion.div
-                  whileHover={{ scale: 1.01 }}
-                  className="p-5 bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-600/30 flex items-center justify-center">
-                        <Database size={20} className="text-radiant-gold" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Internal Extraction</h3>
-                        <p className="text-xs text-platinum-white/80">Extract pain points from diagnostics, quick wins, reports</p>
-                      </div>
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => handleTrigger('internal_extraction')}
-                      disabled={triggering !== null}
-                      className="p-2 bg-radiant-gold/30 border border-radiant-gold/50 rounded-lg hover:bg-radiant-gold/50 disabled:opacity-50"
-                    >
-                      {triggering === 'internal_extraction' ? (
-                        <RefreshCw size={18} className="animate-spin text-radiant-gold" />
-                      ) : (
-                        <Play size={18} className="text-radiant-gold" />
-                      )}
-                    </motion.button>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ scale: 1.01 }}
-                  className="p-5 bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-purple-600/30 flex items-center justify-center">
-                        <Globe size={20} className="text-purple-400" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Social Listening</h3>
-                        <p className="text-xs text-platinum-white/80">Scrape LinkedIn, Reddit, G2, Capterra for pain points</p>
-                      </div>
-                    </div>
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={() => handleTrigger('social_listening')}
-                      disabled={triggering !== null}
-                      className="p-2 bg-radiant-gold/30 border border-radiant-gold/50 rounded-lg hover:bg-radiant-gold/50 disabled:opacity-50"
-                    >
-                      {triggering === 'social_listening' ? (
-                        <RefreshCw size={18} className="animate-spin text-purple-400" />
-                      ) : (
-                        <Play size={18} className="text-purple-400" />
-                      )}
-                    </motion.button>
-                  </div>
-                </motion.div>
-              </div>
-
-              {/* Workflow Progress & Last Run */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <WorkflowRunCard
+                <UnifiedWorkflowCard
                   label="Internal Extraction"
+                  description="Extract pain points from diagnostics, quick wins, reports"
+                  icon={Database}
+                  iconBgClass="bg-blue-600/30"
+                  iconColorClass="text-radiant-gold"
                   run={dashData?.workflowRuns?.vep001}
-                  color="blue"
+                  triggering={triggering === 'internal_extraction'}
+                  onTrigger={() => handleTrigger('internal_extraction')}
+                  disabled={triggering !== null}
                 />
-                <WorkflowRunCard
+                <UnifiedWorkflowCard
                   label="Social Listening"
+                  description="Scrape LinkedIn, Reddit, G2, Capterra for pain points"
+                  icon={Globe}
+                  iconBgClass="bg-purple-600/30"
+                  iconColorClass="text-purple-400"
                   run={dashData?.workflowRuns?.vep002}
                   platformStats={dashData?.marketIntelByPlatform}
-                  color="purple"
+                  triggering={triggering === 'social_listening'}
+                  onTrigger={() => handleTrigger('social_listening')}
+                  disabled={triggering !== null}
                 />
               </div>
 
-              {/* Top Pain Points */}
-              <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-5">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Target size={18} className="text-purple-400" />
-                  Top Pain Points
-                </h3>
-                <div className="space-y-3">
-                  {(dashData?.topPainPoints || []).slice(0, 8).map(pp => (
-                    <div
-                      key={pp.id}
-                      className="flex items-center justify-between p-3 bg-silicon-slate/70/50 rounded-lg"
-                    >
-                      <div>
-                        <span className="font-medium">{pp.display_name}</span>
-                        <div className="flex gap-2 mt-1">
-                          {pp.industry_tags.slice(0, 3).map(tag => (
-                            <span
-                              key={tag}
-                              className="text-xs px-2 py-0.5 bg-silicon-slate/80/50 rounded-full text-platinum-white/80"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <span className={`text-sm ${pp.evidence_count > 0 ? 'text-green-400 font-medium' : 'text-platinum-white/50'}`}>{pp.evidence_count} evidence</span>
-                        {pp.avg_monetary_impact && (
-                          <div className="text-green-400 text-sm font-medium">
-                            {formatCurrency(pp.avg_monetary_impact)}/yr avg
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {(!dashData?.topPainPoints || dashData.topPainPoints.length === 0) && (
-                    <p className="text-platinum-white/60 text-center py-4">
-                      No pain points yet. Run the Internal Extraction workflow to populate.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Top Calculations */}
-              <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-5">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <DollarSign size={18} className="text-green-400" />
-                  Top Value Calculations
-                </h3>
-                <div className="space-y-3">
-                  {(dashData?.topCalculations || []).map(calc => {
-                    const Icon = METHOD_ICONS[calc.calculation_method] || DollarSign
-                    return (
-                      <div
-                        key={calc.id}
-                        className="flex items-center justify-between p-3 bg-silicon-slate/70/50 rounded-lg"
+              {/* 2-column layout for lists */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left column */}
+                <div className="space-y-6">
+                  {/* Top Pain Points — clickable */}
+                  <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <Target size={18} className="text-purple-400" />
+                        Top Pain Points
+                      </h3>
+                      <button
+                        onClick={() => setActiveTab('pain-points')}
+                        className="text-xs text-radiant-gold hover:underline flex items-center gap-1"
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded bg-green-600/20 flex items-center justify-center">
-                            <Icon size={16} className="text-green-400" />
-                          </div>
-                          <div>
-                            <span className="font-medium">{(calc.pain_point_categories as any)?.display_name}</span>
-                            <div className="text-xs text-platinum-white/80">
-                              {calc.industry} &middot; {calc.company_size_range} emp
+                        View all <ArrowRight size={12} />
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {(dashData?.topPainPoints || []).slice(0, 8).map(pp => (
+                        <button
+                          key={pp.id}
+                          onClick={() => { setFocusPainPointId(pp.id); setActiveTab('pain-points') }}
+                          className="w-full flex items-center justify-between p-3 bg-silicon-slate/30 rounded-lg cursor-pointer hover:bg-silicon-slate/60 transition-colors group focus-visible:ring-2 focus-visible:ring-radiant-gold/50 focus-visible:outline-none text-left"
+                        >
+                          <div className="min-w-0">
+                            <span className="font-medium block truncate">{pp.display_name}</span>
+                            <div className="flex gap-2 mt-1">
+                              {pp.industry_tags.slice(0, 3).map(tag => (
+                                <span
+                                  key={tag}
+                                  className="text-xs px-2 py-0.5 bg-silicon-slate/80 rounded-full text-platinum-white/70"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
                             </div>
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-green-400 font-semibold">
-                            {formatCurrency(calc.annual_value)}/yr
-                          </span>
-                          <div className="flex items-center gap-1 justify-end mt-0.5">
-                            <span className={`text-xs px-1.5 py-0.5 rounded ${CONFIDENCE_COLORS[calc.confidence_level] || ''}`}>
-                              {calc.confidence_level}
-                            </span>
-                            <span className="text-xs text-platinum-white/60">
-                              {calc.evidence_count} evidence
-                            </span>
+                          <div className="flex items-center gap-3 flex-shrink-0 ml-3">
+                            <div className="text-right">
+                              <span className={`text-sm ${pp.evidence_count > 0 ? 'text-green-400 font-medium' : 'text-platinum-white/50'}`}>{pp.evidence_count} evidence</span>
+                              {pp.avg_monetary_impact && (
+                                <div className="text-green-400 text-sm font-medium">
+                                  {formatCurrency(pp.avg_monetary_impact)}/yr
+                                </div>
+                              )}
+                            </div>
+                            <ArrowRight size={14} className="text-platinum-white/20 group-hover:text-platinum-white/60 transition-colors" />
                           </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                  {(!dashData?.topCalculations || dashData.topCalculations.length === 0) && (
-                    <p className="text-platinum-white/60 text-center py-4">
-                      No calculations yet. Generate calculations from the Calculations tab.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Evidence by Source */}
-              {dashData?.evidenceBySource && Object.keys(dashData.evidenceBySource).length > 0 && (
-                <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-5">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Database size={18} className="text-radiant-gold" />
-                    Evidence by Source
-                  </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                    {Object.entries(dashData.evidenceBySource).map(([source, count]) => (
-                      <div key={source} className="p-3 bg-silicon-slate/70/50 rounded-lg text-center">
-                        <div className="text-xl font-bold text-radiant-gold">{count}</div>
-                        <div className="text-xs text-platinum-white/80 capitalize">{source.replace(/_/g, ' ')}</div>
-                      </div>
-                    ))}
+                        </button>
+                      ))}
+                      {(!dashData?.topPainPoints || dashData.topPainPoints.length === 0) && (
+                        <p className="text-platinum-white/60 text-center py-4">
+                          No pain points yet. Run Internal Extraction to populate.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              )}
+
+                {/* Right column */}
+                <div className="space-y-6">
+                  {/* Top Calculations — clickable */}
+                  <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-5">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <DollarSign size={18} className="text-green-400" />
+                        Top Value Calculations
+                      </h3>
+                      <button
+                        onClick={() => setActiveTab('calculations')}
+                        className="text-xs text-radiant-gold hover:underline flex items-center gap-1"
+                      >
+                        View all <ArrowRight size={12} />
+                      </button>
+                    </div>
+                    <div className="space-y-2">
+                      {(dashData?.topCalculations || []).map(calc => {
+                        const Icon = METHOD_ICONS[calc.calculation_method] || DollarSign
+                        const ppName = (calc.pain_point_categories as any)?.display_name
+                        return (
+                          <button
+                            key={calc.id}
+                            onClick={() => {
+                              if (ppName) setFocusCalculationPainPointId(ppName)
+                              setActiveTab('calculations')
+                            }}
+                            className="w-full flex items-center justify-between p-3 bg-silicon-slate/30 rounded-lg cursor-pointer hover:bg-silicon-slate/60 transition-colors group focus-visible:ring-2 focus-visible:ring-radiant-gold/50 focus-visible:outline-none text-left"
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <div className="w-8 h-8 rounded bg-green-600/20 flex items-center justify-center flex-shrink-0">
+                                <Icon size={16} className="text-green-400" />
+                              </div>
+                              <div className="min-w-0">
+                                <span className="font-medium block truncate">{ppName}</span>
+                                <div className="text-xs text-platinum-white/70">
+                                  {calc.industry} &middot; {calc.company_size_range} emp
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3 flex-shrink-0 ml-3">
+                              <div className="text-right">
+                                <span className="text-green-400 font-semibold">
+                                  {formatCurrency(calc.annual_value)}/yr
+                                </span>
+                                <div className="flex items-center gap-1 justify-end mt-0.5">
+                                  <span className={`text-xs px-1.5 py-0.5 rounded ${CONFIDENCE_COLORS[calc.confidence_level] || ''}`}>
+                                    {calc.confidence_level}
+                                  </span>
+                                  <span className="text-xs text-platinum-white/50">
+                                    {calc.evidence_count} ev.
+                                  </span>
+                                </div>
+                              </div>
+                              <ArrowRight size={14} className="text-platinum-white/20 group-hover:text-platinum-white/60 transition-colors" />
+                            </div>
+                          </button>
+                        )
+                      })}
+                      {(!dashData?.topCalculations || dashData.topCalculations.length === 0) && (
+                        <p className="text-platinum-white/60 text-center py-4">
+                          No calculations yet. Generate from the Calculations tab.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {/* Pain Points Tab */}
           {activeTab === 'pain-points' && (
-            <PainPointsTab pageRefreshNonce={pageRefreshNonce} />
+            <PainPointsTab pageRefreshNonce={pageRefreshNonce} focusId={focusPainPointId} onFocusConsumed={() => setFocusPainPointId(null)} />
           )}
 
           {/* Market Intel Tab */}
@@ -602,34 +551,28 @@ export default function ValueEvidencePage() {
 // Sub-Components
 // ============================================================================
 
-function StatCard({ label, value, icon: Icon, color, subtitle }: {
-  label: string
-  value: number
-  icon: typeof DollarSign
-  color: string
-  subtitle?: string
-}) {
-  return (
-    <div className="bg-silicon-slate/50 border border-silicon-slate rounded-xl p-4">
-      <div className="flex items-center justify-between mb-2">
-        <Icon size={18} className={color} />
-        <span className="text-2xl font-bold">{value.toLocaleString()}</span>
-      </div>
-      <div className="text-sm text-platinum-white/80">{label}</div>
-      {subtitle && <div className="text-xs text-amber-400 mt-0.5">{subtitle}</div>}
-    </div>
-  )
-}
-
-function WorkflowRunCard({
+function UnifiedWorkflowCard({
   label,
+  description,
+  icon: Icon,
+  iconBgClass,
+  iconColorClass,
   run,
   platformStats,
+  triggering,
+  onTrigger,
+  disabled,
 }: {
   label: string
+  description: string
+  icon: typeof DollarSign
+  iconBgClass: string
+  iconColorClass: string
   run?: { triggered_at: string; completed_at?: string; status: string; stages?: Record<string, string>; items_inserted?: number; error_message?: string } | null
   platformStats?: Record<string, { count: number; lastScraped: string | null }>
-  color: 'blue' | 'purple'
+  triggering: boolean
+  onTrigger: () => void
+  disabled: boolean
 }) {
   const lastTriggered = run?.triggered_at ? new Date(run.triggered_at).toLocaleString() : null
   const platformEntries = platformStats
@@ -637,28 +580,74 @@ function WorkflowRunCard({
     : []
   const totalItems = platformEntries.reduce((sum, [, s]) => sum + s.count, 0)
 
+  const statusDot = run?.status === 'completed'
+    ? 'bg-green-400'
+    : run?.status === 'running' || run?.status === 'pending'
+    ? 'bg-amber-400 animate-pulse'
+    : run?.status === 'error'
+    ? 'bg-red-400'
+    : 'bg-platinum-white/30'
+
   return (
-    <div className="p-5 bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl">
-      <h3 className="font-semibold mb-3 flex items-center gap-2">
-        <span className="text-radiant-gold">{label}</span>
-      </h3>
-      <div className="space-y-2 text-sm">
+    <motion.div
+      whileHover={{ scale: 1.01 }}
+      className="p-5 bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl"
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`w-10 h-10 rounded-lg ${iconBgClass} flex items-center justify-center`}>
+            <Icon size={20} className={iconColorClass} />
+          </div>
+          <div>
+            <h3 className="font-semibold">{label}</h3>
+            <p className="text-xs text-platinum-white/70">{description}</p>
+          </div>
+        </div>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={onTrigger}
+          disabled={disabled}
+          className={`p-2.5 bg-radiant-gold/30 border border-radiant-gold/50 rounded-lg hover:bg-radiant-gold/50 disabled:opacity-50`}
+        >
+          {triggering ? (
+            <RefreshCw size={18} className={`animate-spin ${iconColorClass}`} />
+          ) : (
+            <Play size={18} className={iconColorClass} />
+          )}
+        </motion.button>
+      </div>
+
+      <div className="mt-3 pt-3 border-t border-silicon-slate/50 text-sm space-y-1.5">
         {lastTriggered ? (
-          <div className="text-platinum-white/80">
-            Last triggered: <span className="text-platinum-white">{lastTriggered}</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-platinum-white/70">
+              <Clock size={13} />
+              <span>{lastTriggered}</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${statusDot}`} />
+              <span className="text-xs text-platinum-white/60 capitalize">{run?.status}</span>
+            </div>
           </div>
         ) : (
-          <p className="text-platinum-white/60 text-xs">Not yet triggered. Use the play button above.</p>
+          <p className="text-platinum-white/50 text-xs">Not yet triggered — press the play button to start.</p>
+        )}
+
+        {(run?.items_inserted ?? 0) > 0 && (
+          <div className="text-platinum-white/70 text-xs">
+            Items inserted: <span className="text-green-400 font-medium">{run!.items_inserted!.toLocaleString()}</span>
+          </div>
         )}
 
         {totalItems > 0 && (
-          <div className="text-platinum-white/80">
+          <div className="text-platinum-white/70 text-xs">
             Total scraped: <span className="text-green-400 font-medium">{totalItems.toLocaleString()} items</span>
           </div>
         )}
 
         {platformEntries.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-2">
+          <div className="flex flex-wrap gap-1.5 mt-1">
             {platformEntries.map(([platform, stats]) => (
               <span
                 key={platform}
@@ -683,13 +672,13 @@ function WorkflowRunCard({
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }
 
 const PAGE_SIZE = 50
 
-function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
+function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRefreshNonce: number; focusId?: string | null; onFocusConsumed?: () => void }) {
   const [painPoints, setPainPoints] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -724,6 +713,16 @@ function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
     }
     fetch_pp()
   }, [pageRefreshNonce])
+
+  useEffect(() => {
+    if (focusId && !loading && painPoints.length > 0) {
+      setExpandedId(focusId)
+      onFocusConsumed?.()
+      setTimeout(() => {
+        document.getElementById(`pp-${focusId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 100)
+    }
+  }, [focusId, loading, painPoints.length, onFocusConsumed])
 
   const allIndustryTags = React.useMemo(() => {
     const tags = new Set<string>()
@@ -893,6 +892,7 @@ function PainPointsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
           return (
             <motion.div
               key={pp.id}
+              id={`pp-${pp.id}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-hidden"
