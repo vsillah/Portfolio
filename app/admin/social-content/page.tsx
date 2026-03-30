@@ -21,6 +21,8 @@ import {
   Play,
   Zap,
   AlertCircle,
+  ThumbsUp,
+  ThumbsDown,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -63,6 +65,15 @@ interface MeetingRecord {
   queued_count: number
 }
 
+interface ExtractionRun {
+  id: string
+  triggered_at: string
+  completed_at: string | null
+  status: string
+  items_inserted: number | null
+  error_message: string | null
+}
+
 function SocialContentQueuePage() {
   const [items, setItems] = useState<SocialContentItem[]>([])
   const [stats, setStats] = useState<Stats>({ draft: 0, approved: 0, scheduled: 0, published: 0, rejected: 0, total: 0 })
@@ -71,6 +82,8 @@ function SocialContentQueuePage() {
   const [statusFilter, setStatusFilter] = useState<ContentStatus | 'all'>('all')
   const [platformFilter, setPlatformFilter] = useState<SocialPlatform | 'all'>('all')
   const [search, setSearch] = useState('')
+  const [lastExtractionRun, setLastExtractionRun] = useState<ExtractionRun | null>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   // Extraction trigger state
   const [meetings, setMeetings] = useState<MeetingRecord[]>([])
@@ -101,6 +114,7 @@ function SocialContentQueuePage() {
         setItems(data.items)
         setStats(data.stats)
         setPagination(data.pagination)
+        setLastExtractionRun(data.lastExtractionRun ?? null)
       }
     } catch (err) {
       console.error('Failed to fetch social content:', err)
@@ -166,6 +180,52 @@ function SocialContentQueuePage() {
     }
   }
 
+  const handleQuickApprove = async (e: React.MouseEvent, itemId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setActionLoading(itemId)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/social-content/${itemId}/approve`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        fetchItems(pagination.page)
+      }
+    } catch (err) {
+      console.error('Failed to approve:', err)
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleQuickReject = async (e: React.MouseEvent, itemId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setActionLoading(itemId)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch(`/api/admin/social-content/${itemId}`, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: 'rejected' }),
+      })
+      if (res.ok) {
+        fetchItems(pagination.page)
+      }
+    } catch (err) {
+      console.error('Failed to reject:', err)
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
   const platformIcon = (platform: string) => {
     if (platform === 'linkedin') return <Linkedin className="w-4 h-4 text-blue-400" />
     return <Share2 className="w-4 h-4 text-gray-400" />
@@ -180,10 +240,35 @@ function SocialContentQueuePage() {
         <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-amber-600 to-orange-600 flex items-center justify-center">
           <Share2 className="w-6 h-6 text-white" />
         </div>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold">Social Content Queue</h1>
           <p className="text-gray-400 text-sm">AI-generated posts from meeting transcripts — review, edit, and publish</p>
         </div>
+        {lastExtractionRun && (
+          <div className="text-right text-xs text-gray-500 flex-shrink-0">
+            <div>
+              Last extraction:{' '}
+              <span className="text-gray-300">
+                {new Date(lastExtractionRun.triggered_at).toLocaleString()}
+              </span>
+            </div>
+            <div className="flex items-center justify-end gap-1.5 mt-0.5">
+              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                lastExtractionRun.status === 'success'
+                  ? 'bg-green-500/20 text-green-400'
+                  : lastExtractionRun.status === 'failed'
+                    ? 'bg-red-500/20 text-red-400'
+                    : 'bg-amber-500/20 text-amber-400'
+              }`}>
+                {lastExtractionRun.status === 'running' && <Loader2 className="w-2.5 h-2.5 animate-spin" />}
+                {lastExtractionRun.status}
+              </span>
+              {lastExtractionRun.items_inserted != null && lastExtractionRun.items_inserted > 0 && (
+                <span className="text-gray-400">{lastExtractionRun.items_inserted} posts</span>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Extraction Trigger */}
@@ -390,8 +475,34 @@ function SocialContentQueuePage() {
                       </div>
                     </div>
 
-                    {/* Quick action */}
-                    <Eye className="w-4 h-4 text-gray-600 flex-shrink-0 mt-1" />
+                    {/* Quick actions */}
+                    <div className="flex items-center gap-1.5 flex-shrink-0 mt-1" onClick={(e) => e.stopPropagation()}>
+                      {(item.status === 'draft' || item.status === 'rejected') && (
+                        <>
+                          <button
+                            onClick={(e) => handleQuickApprove(e, item.id)}
+                            disabled={actionLoading === item.id}
+                            title="Approve"
+                            className="p-1.5 rounded-lg bg-green-900/30 hover:bg-green-900/60 text-green-400 border border-green-800/50 transition-colors disabled:opacity-50"
+                          >
+                            {actionLoading === item.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <ThumbsUp className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                          <button
+                            onClick={(e) => handleQuickReject(e, item.id)}
+                            disabled={actionLoading === item.id}
+                            title="Reject"
+                            className="p-1.5 rounded-lg bg-red-900/30 hover:bg-red-900/60 text-red-400 border border-red-800/50 transition-colors disabled:opacity-50"
+                          >
+                            <ThumbsDown className="w-3.5 h-3.5" />
+                          </button>
+                        </>
+                      )}
+                      <Eye className="w-4 h-4 text-gray-600" />
+                    </div>
                   </div>
                 </Link>
               </motion.div>

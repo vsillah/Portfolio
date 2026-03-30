@@ -40,15 +40,39 @@ export async function POST(request: NextRequest) {
 
     const prompts = await getSocialContentPrompts()
 
+    // Record extraction run (mirrors value_evidence_workflow_runs pattern)
+    const { data: run } = await supabaseAdmin
+      .from('social_content_extraction_runs')
+      .insert({
+        triggered_at: new Date().toISOString(),
+        status: 'running',
+        meeting_record_id: meeting_record_id ?? null,
+      })
+      .select('id')
+      .single()
+
     const result = await triggerSocialContentExtraction({
       meetingRecordId: meeting_record_id,
       prompts,
     })
 
+    // Update run status based on trigger result
+    if (run?.id) {
+      await supabaseAdmin
+        .from('social_content_extraction_runs')
+        .update({
+          status: result.triggered ? 'running' : 'failed',
+          error_message: result.triggered ? null : (result.message ?? null),
+          ...(result.triggered ? {} : { completed_at: new Date().toISOString() }),
+        })
+        .eq('id', run.id)
+    }
+
     return NextResponse.json({
       success: result.triggered,
       message: result.message,
       meeting_record_id: meeting_record_id ?? null,
+      run_id: run?.id ?? null,
     })
   } catch (error) {
     console.error('Error in POST /api/admin/social-content/trigger:', error)

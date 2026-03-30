@@ -84,9 +84,18 @@ export async function GET(request: NextRequest) {
       stats.total++
     }
 
+    // Fetch latest extraction run (mirrors value_evidence dashboard pattern)
+    const { data: lastRun } = await supabaseAdmin
+      .from('social_content_extraction_runs')
+      .select('id, triggered_at, completed_at, status, items_inserted, error_message')
+      .order('triggered_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+
     return NextResponse.json({
       items: enrichedItems,
       stats,
+      lastExtractionRun: lastRun ?? null,
       pagination: {
         page,
         limit,
