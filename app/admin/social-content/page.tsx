@@ -8,8 +8,6 @@ import {
   FileText,
   CheckCircle2,
   Clock,
-  Send,
-  XCircle,
   Loader2,
   ChevronLeft,
   ChevronRight,
@@ -21,11 +19,14 @@ import {
   Play,
   Zap,
   AlertCircle,
+  Info,
   ThumbsUp,
   ThumbsDown,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
+import { useExtractionStatus } from '@/lib/hooks/useExtractionStatus'
 import { getCurrentSession } from '@/lib/auth'
 import {
   STATUS_CONFIG,
@@ -65,15 +66,6 @@ interface MeetingRecord {
   queued_count: number
 }
 
-interface ExtractionRun {
-  id: string
-  triggered_at: string
-  completed_at: string | null
-  status: string
-  items_inserted: number | null
-  error_message: string | null
-}
-
 function SocialContentQueuePage() {
   const [items, setItems] = useState<SocialContentItem[]>([])
   const [stats, setStats] = useState<Stats>({ draft: 0, approved: 0, scheduled: 0, published: 0, rejected: 0, total: 0 })
@@ -82,7 +74,6 @@ function SocialContentQueuePage() {
   const [statusFilter, setStatusFilter] = useState<ContentStatus | 'all'>('all')
   const [platformFilter, setPlatformFilter] = useState<SocialPlatform | 'all'>('all')
   const [search, setSearch] = useState('')
-  const [lastExtractionRun, setLastExtractionRun] = useState<ExtractionRun | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
 
   // Extraction trigger state
@@ -114,7 +105,6 @@ function SocialContentQueuePage() {
         setItems(data.items)
         setStats(data.stats)
         setPagination(data.pagination)
-        setLastExtractionRun(data.lastExtractionRun ?? null)
       }
     } catch (err) {
       console.error('Failed to fetch social content:', err)
@@ -126,6 +116,8 @@ function SocialContentQueuePage() {
   useEffect(() => {
     fetchItems()
   }, [fetchItems])
+
+  const extractionStatus = useExtractionStatus(() => fetchItems())
 
   const fetchMeetings = useCallback(async () => {
     try {
@@ -171,7 +163,7 @@ function SocialContentQueuePage() {
         message: data.message ?? (res.ok ? 'Extraction triggered' : 'Failed to trigger extraction'),
       })
       if (data.success) {
-        setTimeout(() => fetchItems(), 5000)
+        extractionStatus.onTriggerStarted(data.run_id)
       }
     } catch {
       setTriggerResult({ success: false, message: 'Network error — could not reach the server.' })
@@ -244,31 +236,18 @@ function SocialContentQueuePage() {
           <h1 className="text-2xl font-bold">Social Content Queue</h1>
           <p className="text-gray-400 text-sm">AI-generated posts from meeting transcripts — review, edit, and publish</p>
         </div>
-        {lastExtractionRun && (
-          <div className="text-right text-xs text-gray-500 flex-shrink-0">
-            <div>
-              Last extraction:{' '}
-              <span className="text-gray-300">
-                {new Date(lastExtractionRun.triggered_at).toLocaleString()}
-              </span>
-            </div>
-            <div className="flex items-center justify-end gap-1.5 mt-0.5">
-              <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                lastExtractionRun.status === 'success'
-                  ? 'bg-green-500/20 text-green-400'
-                  : lastExtractionRun.status === 'failed'
-                    ? 'bg-red-500/20 text-red-400'
-                    : 'bg-amber-500/20 text-amber-400'
-              }`}>
-                {lastExtractionRun.status === 'running' && <Loader2 className="w-2.5 h-2.5 animate-spin" />}
-                {lastExtractionRun.status}
-              </span>
-              {lastExtractionRun.items_inserted != null && lastExtractionRun.items_inserted > 0 && (
-                <span className="text-gray-400">{lastExtractionRun.items_inserted} posts</span>
-              )}
-            </div>
-          </div>
-        )}
+        <ExtractionStatusChip
+          state={extractionStatus.state}
+          currentRun={extractionStatus.currentRun}
+          recentRuns={extractionStatus.recentRuns}
+          elapsedMs={extractionStatus.elapsedMs}
+          isDrawerOpen={extractionStatus.isDrawerOpen}
+          isHistoryOpen={extractionStatus.isHistoryOpen}
+          toggleDrawer={extractionStatus.toggleDrawer}
+          toggleHistory={extractionStatus.toggleHistory}
+          markRunFailed={extractionStatus.markRunFailed}
+          onRetry={handleTriggerExtraction}
+        />
       </div>
 
       {/* Extraction Trigger */}
@@ -288,10 +267,15 @@ function SocialContentQueuePage() {
             exit={{ opacity: 0, height: 0 }}
             className="mt-3 bg-gray-900 border border-gray-800 rounded-xl p-5"
           >
-            <h3 className="text-sm font-semibold text-gray-200 mb-3">Trigger Content Extraction (WF-SOC-001)</h3>
-            <p className="text-xs text-gray-500 mb-4">
-              Runs the n8n workflow that extracts social content from meeting transcripts. Leave the meeting selector empty to process all recent meetings.
-            </p>
+            <div className="flex items-center gap-2 mb-3">
+              <h3 className="text-sm font-semibold text-gray-200">Trigger Content Extraction (WF-SOC-001)</h3>
+              <span
+                className="text-gray-600 hover:text-gray-400 transition-colors cursor-help"
+                title="Runs WF-SOC-001 to extract social content from meeting transcripts. Leave meeting empty to process all recent."
+              >
+                <Info className="w-3.5 h-3.5" />
+              </span>
+            </div>
 
             <div className="flex flex-wrap items-end gap-3">
               <div className="flex-1 min-w-[220px]">

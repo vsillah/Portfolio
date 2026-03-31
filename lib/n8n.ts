@@ -1427,6 +1427,7 @@ const N8N_SOC002_WEBHOOK_URL =
  */
 export async function triggerSocialContentExtraction(options?: {
   meetingRecordId?: string
+  runId?: string
   prompts?: {
     topicExtraction: string
     copywriting: string
@@ -1448,6 +1449,9 @@ export async function triggerSocialContentExtraction(options?: {
       triggered_at: new Date().toISOString(),
       workflow: 'WF-SOC-001',
       action: 'extract_social_content',
+    }
+    if (options?.runId) {
+      body.run_id = options.runId
     }
     if (options?.meetingRecordId) {
       body.meeting_record_id = options.meetingRecordId

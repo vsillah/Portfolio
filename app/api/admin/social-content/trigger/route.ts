@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
 
     const result = await triggerSocialContentExtraction({
       meetingRecordId: meeting_record_id,
+      runId: run?.id,
       prompts,
     })
 
