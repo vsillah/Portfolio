@@ -13,6 +13,7 @@ import {
   RotateCcw,
   X,
   History,
+  Play,
 } from 'lucide-react'
 import type { ExtractionRun, ExtractionState } from '@/lib/hooks/useExtractionStatus'
 
@@ -42,6 +43,7 @@ function timeAgo(date: string): string {
 }
 
 interface StatusChipProps {
+  label?: string
   state: ExtractionState
   currentRun: ExtractionRun | null
   recentRuns: ExtractionRun[]
@@ -50,7 +52,7 @@ interface StatusChipProps {
   isHistoryOpen: boolean
   toggleDrawer: () => void
   toggleHistory: () => void
-  markRunFailed: (runId: string) => void
+  markRunFailed: (runId: string, reason?: string) => void
   onRetry?: () => void
 }
 
@@ -79,16 +81,16 @@ function chipLabel(state: ExtractionState, run: ExtractionRun | null, elapsedMs:
 
   switch (state) {
     case 'running':
-      return `Extracting… ${formatElapsed(elapsedMs)}`
+      return `Running… ${formatElapsed(elapsedMs)}`
     case 'stale':
-      return `Running ${formatElapsed(elapsedMs)} — may be stuck`
+      return `${formatElapsed(elapsedMs)} — may be stuck`
     case 'failed':
-      return 'Extraction failed'
+      return 'Failed'
     case 'success': {
       const recent = (Date.now() - new Date(run.completed_at || run.triggered_at).getTime()) < 10000
       if (recent) {
         const count = run.items_inserted ?? 0
-        return count > 0 ? `${count} item${count !== 1 ? 's' : ''} extracted` : 'No new content found'
+        return count > 0 ? `${count} item${count !== 1 ? 's' : ''} extracted` : 'No new content'
       }
       const count = run.items_inserted ?? 0
       const label = count > 0 ? `${count} items` : 'Success'
@@ -135,6 +137,7 @@ function RunRow({ run }: { run: ExtractionRun }) {
 }
 
 export function ExtractionStatusChip({
+  label,
   state,
   currentRun,
   recentRuns,
@@ -177,10 +180,13 @@ export function ExtractionStatusChip({
         onClick={toggleDrawer}
         className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/80 border border-gray-700/60 hover:border-gray-600 transition-colors text-xs cursor-pointer"
         aria-expanded={isDrawerOpen}
-        aria-label={`Extraction status: ${chipLabel(state, currentRun, elapsedMs)}`}
+        aria-label={`${label ? label + ' ' : ''}Status: ${chipLabel(state, currentRun, elapsedMs)}`}
       >
         <StatusDot state={state} />
-        <span className="text-gray-300">{chipLabel(state, currentRun, elapsedMs)}</span>
+        <span className="text-gray-300">
+          {label && <span className="text-gray-500 mr-1">{label}</span>}
+          {chipLabel(state, currentRun, elapsedMs)}
+        </span>
         {isDrawerOpen ? (
           <ChevronUp className="w-3 h-3 text-gray-500" />
         ) : (
@@ -197,7 +203,7 @@ export function ExtractionStatusChip({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-[360px] bg-gray-800/95 backdrop-blur-sm border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden"
+            className="absolute left-0 top-full mt-2 w-[360px] bg-gray-800/95 backdrop-blur-sm border border-gray-700 rounded-lg shadow-xl z-50 overflow-hidden"
           >
             {/* Current run detail */}
             {currentRun && (
@@ -208,7 +214,7 @@ export function ExtractionStatusChip({
                     <div className="flex items-center gap-2 mb-2">
                       <Loader2 className="w-3.5 h-3.5 text-amber-400 animate-spin" />
                       <span className="text-sm font-medium text-gray-200">
-                        {state === 'stale' ? 'May be stuck' : 'Extracting…'}
+                        {state === 'stale' ? 'May be stuck' : 'Running…'}
                       </span>
                       <span className="text-xs text-gray-500 ml-auto">{formatElapsed(elapsedMs)}</span>
                     </div>
@@ -241,8 +247,8 @@ export function ExtractionStatusChip({
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                       <span className="text-sm font-medium text-gray-200">
                         {(currentRun.items_inserted ?? 0) > 0
-                          ? `${currentRun.items_inserted} item${currentRun.items_inserted !== 1 ? 's' : ''} extracted`
-                          : 'No new content found'}
+                          ? `${currentRun.items_inserted} item${currentRun.items_inserted !== 1 ? 's' : ''} created`
+                          : 'No new content'}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-xs text-gray-500">
@@ -253,6 +259,16 @@ export function ExtractionStatusChip({
                         <Clock className="w-3 h-3" />
                         {formatDuration(currentRun.triggered_at, currentRun.completed_at)}
                       </span>
+                      {onRetry && (
+                        <button
+                          onClick={onRetry}
+                          className="ml-auto inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors"
+                          title="Run again"
+                        >
+                          <Play className="w-3 h-3" />
+                          Run
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -262,7 +278,7 @@ export function ExtractionStatusChip({
                   <div>
                     <div className="flex items-center gap-2 mb-2">
                       <XCircle className="w-3.5 h-3.5 text-red-400" />
-                      <span className="text-sm font-medium text-gray-200">Extraction failed</span>
+                      <span className="text-sm font-medium text-gray-200">Failed</span>
                       <button
                         onClick={toggleDrawer}
                         className="ml-auto p-0.5 rounded hover:bg-gray-700 transition-colors"
@@ -303,6 +319,16 @@ export function ExtractionStatusChip({
                     </span>
                     {currentRun.items_inserted != null && (
                       <span className="text-xs text-gray-500">· {currentRun.items_inserted} items</span>
+                    )}
+                    {onRetry && (
+                      <button
+                        onClick={onRetry}
+                        className="ml-auto inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors"
+                        title="Run this workflow"
+                      >
+                        <Play className="w-3 h-3" />
+                        Run
+                      </button>
                     )}
                   </div>
                 )}

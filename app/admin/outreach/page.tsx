@@ -1357,6 +1357,20 @@ function OutreachContent() {
             </div>
           )}
           <div className="flex items-center gap-3">
+            {activeTab === 'leads' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowAddLeadModal(true)
+                  setAddLeadError(null)
+                  setAddLeadSuccessId(null)
+                }}
+                className="flex items-center gap-1.5 px-3 py-2 btn-gold text-imperial-navy rounded-lg text-sm font-medium transition-colors"
+              >
+                <Plus size={14} />
+                Add lead
+              </button>
+            )}
             <Link href="/admin/outreach/dashboard">
               <button className="flex items-center gap-2 px-4 py-2 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors">
                 <BarChart3 size={16} />
@@ -1451,30 +1465,25 @@ function OutreachContent() {
         )}
 
         {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4 mb-6">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-platinum-white/60" />
-            <input
-              type="text"
-              placeholder="Search by name, email, or company..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
-            />
-          </div>
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <Filter size={14} className="text-gray-500" />
+          <select
+            value={channelFilter}
+            onChange={(e) => setChannelFilter(e.target.value)}
+            className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+          >
+            <option value="all">All Channels</option>
+            <option value="email">Email Only</option>
+            <option value="linkedin">LinkedIn Only</option>
+          </select>
 
-          <div className="flex items-center gap-2">
-            <Filter size={16} className="text-platinum-white/60" />
-            <select
-              value={channelFilter}
-              onChange={(e) => setChannelFilter(e.target.value)}
-              className="bg-silicon-slate/50 border border-silicon-slate rounded-lg px-3 py-2 text-white focus:outline-none focus:border-radiant-gold"
-            >
-              <option value="all">All Channels</option>
-              <option value="email">Email Only</option>
-              <option value="linkedin">LinkedIn Only</option>
-            </select>
-          </div>
+          <input
+            type="text"
+            placeholder="Search by name, email, or company..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
+          />
 
           {/* Contact Filter Badge */}
           {contactFilter && filteredContactName && (
@@ -1869,63 +1878,33 @@ function OutreachContent() {
         {activeTab === 'leads' && (
           <>
             {/* Filters */}
-            <div className="flex flex-wrap items-center gap-4 mb-6">
-              {/* Temperature Filter */}
-              <div className="flex items-center gap-2">
-                {[
-                  { key: 'all' as const, label: 'All Leads', icon: Users },
-                  { key: 'warm' as const, label: 'Warm', icon: Flame },
-                  { key: 'cold' as const, label: 'Cold', icon: Snowflake },
-                ].map(({ key, label, icon: Icon }) => (
-                  <button
-                    key={key}
-                    onClick={() => setLeadsTempFilter(key)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border transition-all ${
-                      leadsTempFilter === key
-                        ? 'bg-silicon-slate border-blue-500 text-white'
-                        : 'bg-silicon-slate/50 border-silicon-slate text-platinum-white/80 hover:bg-silicon-slate'
-                    }`}
-                  >
-                    <Icon size={14} />
-                    {label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Search */}
-              <div className="relative flex-1 min-w-[200px]">
-                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-platinum-white/60" />
-                <input
-                  type="text"
-                  placeholder="Search by name, email, or company..."
-                  value={leadsSearch}
-                  onChange={(e) => setLeadsSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
-                />
-              </div>
-
-              {/* Status Filter */}
-              <div className="flex items-center gap-2">
-                <Filter size={16} className="text-platinum-white/60" />
-                <select
-                  value={leadsStatusFilter}
-                  onChange={(e) => setLeadsStatusFilter(e.target.value)}
-                  className="bg-silicon-slate/50 border border-silicon-slate rounded-lg px-3 py-2 text-white focus:outline-none focus:border-radiant-gold"
-                >
-                  <option value="all">All Status</option>
-                  <option value="new">New</option>
-                  <option value="contacted">Contacted</option>
-                  <option value="replied">Replied</option>
-                  <option value="booked">Booked</option>
-                  <option value="opted_out">Opted Out</option>
-                </select>
-              </div>
-
-              {/* Source Filter */}
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <Filter size={14} className="text-gray-500" />
+              <select
+                value={leadsTempFilter}
+                onChange={(e) => setLeadsTempFilter(e.target.value as 'all' | 'warm' | 'cold')}
+                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+              >
+                <option value="all">All Leads</option>
+                <option value="warm">Warm</option>
+                <option value="cold">Cold</option>
+              </select>
+              <select
+                value={leadsStatusFilter}
+                onChange={(e) => setLeadsStatusFilter(e.target.value)}
+                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+              >
+                <option value="all">All Status</option>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="replied">Replied</option>
+                <option value="booked">Booked</option>
+                <option value="opted_out">Opted Out</option>
+              </select>
               <select
                 value={leadsSourceFilter}
                 onChange={(e) => setLeadsSourceFilter(e.target.value)}
-                className="bg-silicon-slate/50 border border-silicon-slate rounded-lg px-3 py-2 text-white focus:outline-none focus:border-radiant-gold"
+                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
               >
                 <option value="all">All Sources</option>
                 <option value="warm_facebook">Facebook</option>
@@ -1933,12 +1912,10 @@ function OutreachContent() {
                 <option value="warm_linkedin">LinkedIn</option>
                 <option value="cold_apollo">Apollo</option>
               </select>
-
-              {/* Visibility: Active | Do not contact | Removed | All */}
               <select
                 value={leadsVisibilityFilter}
                 onChange={(e) => setLeadsVisibilityFilter(e.target.value as 'active' | 'do_not_contact' | 'removed' | 'all')}
-                className="bg-silicon-slate/50 border border-silicon-slate rounded-lg px-3 py-2 text-white focus:outline-none focus:border-radiant-gold"
+                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
                 title="Show leads by contact status"
               >
                 <option value="active">Active only</option>
@@ -1946,20 +1923,13 @@ function OutreachContent() {
                 <option value="removed">Removed</option>
                 <option value="all">All</option>
               </select>
-
-              {/* Add lead (manual entry) */}
-              <button
-                type="button"
-                onClick={() => {
-                  setShowAddLeadModal(true)
-                  setAddLeadError(null)
-                  setAddLeadSuccessId(null)
-                }}
-                className="flex items-center gap-2 px-4 py-2 btn-gold text-imperial-navy rounded-lg transition-colors font-medium"
-              >
-                <Plus size={16} />
-                Add lead
-              </button>
+              <input
+                type="text"
+                placeholder="Search by name, email, or company..."
+                value={leadsSearch}
+                onChange={(e) => setLeadsSearch(e.target.value)}
+                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
+              />
             </div>
 
             {/* Add lead modal */}
@@ -4235,26 +4205,17 @@ function OutreachContent() {
         {/* Escalations Tab Content */}
         {activeTab === 'escalations' && (
           <>
-            <div className="flex flex-wrap items-center gap-4 mb-6">
-              <div className="flex items-center gap-2">
-                {[
-                  { key: 'all' as const, label: 'All' },
-                  { key: 'linked' as const, label: 'Linked to lead' },
-                  { key: 'unlinked' as const, label: 'Not linked' },
-                ].map(({ key, label }) => (
-                  <button
-                    key={key}
-                    onClick={() => setEscalationsLinkedFilter(key)}
-                    className={`px-3 py-2 rounded-lg border transition-all ${
-                      escalationsLinkedFilter === key
-                        ? 'bg-silicon-slate border-radiant-gold text-foreground'
-                        : 'bg-silicon-slate/50 border-silicon-slate text-platinum-white/80 hover:bg-silicon-slate'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <Filter size={14} className="text-gray-500" />
+              <select
+                value={escalationsLinkedFilter}
+                onChange={(e) => setEscalationsLinkedFilter(e.target.value as 'all' | 'linked' | 'unlinked')}
+                className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
+              >
+                <option value="all">All Escalations</option>
+                <option value="linked">Linked to lead</option>
+                <option value="unlinked">Not linked</option>
+              </select>
             </div>
             {escalationsLoading ? (
               <div className="flex items-center justify-center py-12 text-platinum-white/80">

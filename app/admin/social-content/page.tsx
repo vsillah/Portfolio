@@ -22,6 +22,7 @@ import {
   Info,
   ThumbsUp,
   ThumbsDown,
+  Square,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -236,29 +237,31 @@ function SocialContentQueuePage() {
           <h1 className="text-2xl font-bold">Social Content Queue</h1>
           <p className="text-gray-400 text-sm">AI-generated posts from meeting transcripts — review, edit, and publish</p>
         </div>
-        <ExtractionStatusChip
-          state={extractionStatus.state}
-          currentRun={extractionStatus.currentRun}
-          recentRuns={extractionStatus.recentRuns}
-          elapsedMs={extractionStatus.elapsedMs}
-          isDrawerOpen={extractionStatus.isDrawerOpen}
-          isHistoryOpen={extractionStatus.isHistoryOpen}
-          toggleDrawer={extractionStatus.toggleDrawer}
-          toggleHistory={extractionStatus.toggleHistory}
-          markRunFailed={extractionStatus.markRunFailed}
-          onRetry={handleTriggerExtraction}
-        />
       </div>
 
       {/* Extraction Trigger */}
       <div className="mb-6">
-        <button
-          onClick={() => setShowTriggerPanel((p) => !p)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all"
-        >
-          <Zap className="w-4 h-4" />
-          Run Extraction
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowTriggerPanel((p) => !p)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg text-sm font-medium hover:from-amber-500 hover:to-orange-500 transition-all"
+          >
+            <Zap className="w-4 h-4" />
+            Run Extraction
+          </button>
+          <ExtractionStatusChip
+            state={extractionStatus.state}
+            currentRun={extractionStatus.currentRun}
+            recentRuns={extractionStatus.recentRuns}
+            elapsedMs={extractionStatus.elapsedMs}
+            isDrawerOpen={extractionStatus.isDrawerOpen}
+            isHistoryOpen={extractionStatus.isHistoryOpen}
+            toggleDrawer={extractionStatus.toggleDrawer}
+            toggleHistory={extractionStatus.toggleHistory}
+            markRunFailed={extractionStatus.markRunFailed}
+            onRetry={handleTriggerExtraction}
+          />
+        </div>
 
         {showTriggerPanel && (
           <motion.div
@@ -301,18 +304,32 @@ function SocialContentQueuePage() {
                   })}
                 </select>
               </div>
-              <button
-                onClick={handleTriggerExtraction}
-                disabled={triggerLoading}
-                className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {triggerLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Play className="w-4 h-4" />
-                )}
-                {triggerLoading ? 'Running...' : 'Start Extraction'}
-              </button>
+              {extractionStatus.state === 'running' || extractionStatus.state === 'stale' ? (
+                <button
+                  onClick={() => {
+                    if (extractionStatus.currentRun) {
+                      extractionStatus.markRunFailed(extractionStatus.currentRun.id, 'Cancelled by user')
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 px-5 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-500 transition-colors"
+                >
+                  <Square className="w-3.5 h-3.5" />
+                  Cancel Extraction
+                </button>
+              ) : (
+                <button
+                  onClick={handleTriggerExtraction}
+                  disabled={triggerLoading}
+                  className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  {triggerLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Play className="w-4 h-4" />
+                  )}
+                  {triggerLoading ? 'Triggering...' : 'Start Extraction'}
+                </button>
+              )}
             </div>
 
             {triggerResult && (

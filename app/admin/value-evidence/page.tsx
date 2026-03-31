@@ -5,11 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   DollarSign,
   TrendingUp,
-  Database,
   FileText,
   BarChart3,
   RefreshCw,
-  Play,
   CheckCircle2,
   AlertCircle,
   Search,
@@ -29,6 +27,8 @@ import {
   Trash2,
   Save,
   X,
+  Square,
+  Loader2,
 } from 'lucide-react'
 import Link from 'next/link'
 import ReactMarkdown from 'react-markdown'
@@ -36,6 +36,8 @@ import remarkGfm from 'remark-gfm'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import Pagination from '@/components/admin/Pagination'
+import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
+import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus'
 import { getCurrentSession } from '@/lib/auth'
 import { getIndustryDisplayName, INDUSTRY_SLUGS } from '@/lib/constants/industry'
 
@@ -77,10 +79,6 @@ interface DashboardData {
   evidenceBySource: Record<string, number>
   industryBreakdown: Record<string, { count: number; totalValue: number }>
   marketIntelByPlatform?: Record<string, { count: number; lastScraped: string | null }>
-  workflowRuns?: {
-    vep001: { workflow_id: string; triggered_at: string; completed_at?: string; status: string; stages?: Record<string, string>; items_inserted?: number; error_message?: string } | null
-    vep002: { workflow_id: string; triggered_at: string; completed_at?: string; status: string; stages?: Record<string, string>; items_inserted?: number; error_message?: string } | null
-  }
 }
 
 type TabName = 'dashboard' | 'pain-points' | 'market-intel' | 'benchmarks' | 'calculations' | 'reports'
@@ -158,10 +156,9 @@ export default function ValueEvidencePage() {
   const [activeTab, setActiveTab] = useState<TabName>('dashboard')
   const [dashData, setDashData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [triggering, setTriggering] = useState<string | null>(null)
-  const [triggerResult, setTriggerResult] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [focusPainPointId, setFocusPainPointId] = useState<string | null>(null)
   const [focusCalculationPainPointId, setFocusCalculationPainPointId] = useState<string | null>(null)
+  const [triggerAllLoading, setTriggerAllLoading] = useState(false)
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true)
@@ -196,13 +193,26 @@ export default function ValueEvidencePage() {
     fetchDashboard()
   }, [fetchDashboard])
 
-  const handleTrigger = async (workflow: 'internal_extraction' | 'social_listening') => {
-    setTriggering(workflow)
-    setTriggerResult(null)
+  const vep001Status = useWorkflowStatus(
+    { apiBase: '/api/admin/value-evidence/workflow-status', workflowId: 'vep001' },
+    () => fetchDashboard(),
+  )
+  const vep002Status = useWorkflowStatus(
+    { apiBase: '/api/admin/value-evidence/workflow-status', workflowId: 'vep002' },
+    () => fetchDashboard(),
+  )
+
+  const eitherRunning =
+    vep001Status.state === 'running' || vep001Status.state === 'stale' ||
+    vep002Status.state === 'running' || vep002Status.state === 'stale'
+
+  const triggerWorkflow = async (
+    workflow: 'internal_extraction' | 'social_listening',
+    statusHook: ReturnType<typeof useWorkflowStatus>,
+  ) => {
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) return
-
       const res = await fetch('/api/admin/value-evidence/trigger', {
         method: 'POST',
         headers: {
@@ -211,17 +221,30 @@ export default function ValueEvidencePage() {
         },
         body: JSON.stringify({ workflow }),
       })
-
       const data = await res.json()
       if (data.triggered) {
-        setTriggerResult({ type: 'success', message: data.message })
-      } else {
-        setTriggerResult({ type: 'error', message: data.message })
+        statusHook.onTriggerStarted(data.run_id)
       }
-    } catch (error: any) {
-      setTriggerResult({ type: 'error', message: error.message })
-    } finally {
-      setTriggering(null)
+    } catch {
+      // Silent — chip will show stale/idle
+    }
+  }
+
+  const handleTriggerAll = async () => {
+    setTriggerAllLoading(true)
+    await Promise.allSettled([
+      triggerWorkflow('internal_extraction', vep001Status),
+      triggerWorkflow('social_listening', vep002Status),
+    ])
+    setTriggerAllLoading(false)
+  }
+
+  const handleCancelAll = () => {
+    if (vep001Status.currentRun && (vep001Status.state === 'running' || vep001Status.state === 'stale')) {
+      vep001Status.markRunFailed(vep001Status.currentRun.id, 'Cancelled by user')
+    }
+    if (vep002Status.currentRun && (vep002Status.state === 'running' || vep002Status.state === 'stale')) {
+      vep002Status.markRunFailed(vep002Status.currentRun.id, 'Cancelled by user')
     }
   }
 
@@ -330,62 +353,54 @@ export default function ValueEvidencePage() {
           )}
           {activeTab !== 'dashboard' && <div className="mb-6" />}
 
-          {/* Alert for trigger results */}
-          <AnimatePresence>
-            {triggerResult && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className={`mb-6 p-4 rounded-lg border flex items-center gap-3 ${
-                  triggerResult.type === 'success'
-                    ? 'bg-green-900/30 border-green-500/50 text-green-300'
-                    : 'bg-red-900/30 border-red-500/50 text-red-300'
-                }`}
-              >
-                {triggerResult.type === 'success' ? (
-                  <CheckCircle2 size={18} />
-                ) : (
-                  <AlertCircle size={18} />
-                )}
-                <span>{triggerResult.message}</span>
-                <button
-                  onClick={() => setTriggerResult(null)}
-                  className="ml-auto text-platinum-white/80 hover:text-foreground"
-                >
-                  &times;
-                </button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
           {/* Dashboard Tab */}
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
-              {/* Workflow Triggers — primary actions, top of page */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <UnifiedWorkflowCard
-                  label="Internal Extraction"
-                  description="Extract pain points from diagnostics, quick wins, reports"
-                  icon={Database}
-                  iconBgClass="bg-blue-600/30"
-                  iconColorClass="text-radiant-gold"
-                  run={dashData?.workflowRuns?.vep001}
-                  triggering={triggering === 'internal_extraction'}
-                  onTrigger={() => handleTrigger('internal_extraction')}
-                  disabled={triggering !== null}
+              {/* Pipeline Trigger Bar */}
+              <div className="flex items-center gap-3 flex-wrap">
+                {eitherRunning ? (
+                  <button
+                    onClick={handleCancelAll}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-500 transition-colors"
+                  >
+                    <Square className="w-4 h-4" />
+                    Cancel Pipeline
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleTriggerAll}
+                    disabled={triggerAllLoading}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg text-sm font-medium hover:from-amber-500 hover:to-orange-500 disabled:opacity-50 transition-all"
+                  >
+                    {triggerAllLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                    Run Full Pipeline
+                  </button>
+                )}
+                <ExtractionStatusChip
+                  label="Internal"
+                  state={vep001Status.state}
+                  currentRun={vep001Status.currentRun}
+                  recentRuns={vep001Status.recentRuns}
+                  elapsedMs={vep001Status.elapsedMs}
+                  isDrawerOpen={vep001Status.isDrawerOpen}
+                  isHistoryOpen={vep001Status.isHistoryOpen}
+                  toggleDrawer={vep001Status.toggleDrawer}
+                  toggleHistory={vep001Status.toggleHistory}
+                  markRunFailed={vep001Status.markRunFailed}
+                  onRetry={() => triggerWorkflow('internal_extraction', vep001Status)}
                 />
-                <UnifiedWorkflowCard
-                  label="Social Listening"
-                  description="Scrape LinkedIn, Reddit, G2, Capterra for pain points"
-                  icon={Globe}
-                  iconBgClass="bg-purple-600/30"
-                  iconColorClass="text-purple-400"
-                  run={dashData?.workflowRuns?.vep002}
-                  platformStats={dashData?.marketIntelByPlatform}
-                  triggering={triggering === 'social_listening'}
-                  onTrigger={() => handleTrigger('social_listening')}
-                  disabled={triggering !== null}
+                <ExtractionStatusChip
+                  label="Social"
+                  state={vep002Status.state}
+                  currentRun={vep002Status.currentRun}
+                  recentRuns={vep002Status.recentRuns}
+                  elapsedMs={vep002Status.elapsedMs}
+                  isDrawerOpen={vep002Status.isDrawerOpen}
+                  isHistoryOpen={vep002Status.isHistoryOpen}
+                  toggleDrawer={vep002Status.toggleDrawer}
+                  toggleHistory={vep002Status.toggleHistory}
+                  markRunFailed={vep002Status.markRunFailed}
+                  onRetry={() => triggerWorkflow('social_listening', vep002Status)}
                 />
               </div>
 
@@ -551,130 +566,6 @@ export default function ValueEvidencePage() {
 // Sub-Components
 // ============================================================================
 
-function UnifiedWorkflowCard({
-  label,
-  description,
-  icon: Icon,
-  iconBgClass,
-  iconColorClass,
-  run,
-  platformStats,
-  triggering,
-  onTrigger,
-  disabled,
-}: {
-  label: string
-  description: string
-  icon: typeof DollarSign
-  iconBgClass: string
-  iconColorClass: string
-  run?: { triggered_at: string; completed_at?: string; status: string; stages?: Record<string, string>; items_inserted?: number; error_message?: string } | null
-  platformStats?: Record<string, { count: number; lastScraped: string | null }>
-  triggering: boolean
-  onTrigger: () => void
-  disabled: boolean
-}) {
-  const lastTriggered = run?.triggered_at ? new Date(run.triggered_at).toLocaleString() : null
-  const platformEntries = platformStats
-    ? Object.entries(platformStats).filter(([, s]) => s.count > 0)
-    : []
-  const totalItems = platformEntries.reduce((sum, [, s]) => sum + s.count, 0)
-
-  const statusDot = run?.status === 'completed'
-    ? 'bg-green-400'
-    : run?.status === 'running' || run?.status === 'pending'
-    ? 'bg-amber-400 animate-pulse'
-    : run?.status === 'error'
-    ? 'bg-red-400'
-    : 'bg-platinum-white/30'
-
-  return (
-    <motion.div
-      whileHover={{ scale: 1.01 }}
-      className="p-5 bg-silicon-slate/50 border border-radiant-gold/30 rounded-xl"
-    >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className={`w-10 h-10 rounded-lg ${iconBgClass} flex items-center justify-center`}>
-            <Icon size={20} className={iconColorClass} />
-          </div>
-          <div>
-            <h3 className="font-semibold">{label}</h3>
-            <p className="text-xs text-platinum-white/70">{description}</p>
-          </div>
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={onTrigger}
-          disabled={disabled}
-          className={`p-2.5 bg-radiant-gold/30 border border-radiant-gold/50 rounded-lg hover:bg-radiant-gold/50 disabled:opacity-50`}
-        >
-          {triggering ? (
-            <RefreshCw size={18} className={`animate-spin ${iconColorClass}`} />
-          ) : (
-            <Play size={18} className={iconColorClass} />
-          )}
-        </motion.button>
-      </div>
-
-      <div className="mt-3 pt-3 border-t border-silicon-slate/50 text-sm space-y-1.5">
-        {lastTriggered ? (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-platinum-white/70">
-              <Clock size={13} />
-              <span>{lastTriggered}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className={`w-2 h-2 rounded-full ${statusDot}`} />
-              <span className="text-xs text-platinum-white/60 capitalize">{run?.status}</span>
-            </div>
-          </div>
-        ) : (
-          <p className="text-platinum-white/50 text-xs">Not yet triggered — press the play button to start.</p>
-        )}
-
-        {(run?.items_inserted ?? 0) > 0 && (
-          <div className="text-platinum-white/70 text-xs">
-            Items inserted: <span className="text-green-400 font-medium">{run!.items_inserted!.toLocaleString()}</span>
-          </div>
-        )}
-
-        {totalItems > 0 && (
-          <div className="text-platinum-white/70 text-xs">
-            Total scraped: <span className="text-green-400 font-medium">{totalItems.toLocaleString()} items</span>
-          </div>
-        )}
-
-        {platformEntries.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mt-1">
-            {platformEntries.map(([platform, stats]) => (
-              <span
-                key={platform}
-                className="text-[10px] px-2 py-0.5 rounded bg-green-900/40 text-green-400"
-                title={`Last scraped: ${stats.lastScraped ? new Date(stats.lastScraped).toLocaleString() : 'unknown'}`}
-              >
-                {platform.replace(/_/g, ' ')} ({stats.count})
-              </span>
-            ))}
-            {platformStats && Object.entries(platformStats)
-              .filter(([, s]) => s.count === 0)
-              .slice(0, 4)
-              .map(([platform]) => (
-                <span
-                  key={platform}
-                  className="text-[10px] px-2 py-0.5 rounded bg-silicon-slate/80 text-platinum-white/40"
-                >
-                  {platform.replace(/_/g, ' ')}
-                </span>
-              ))
-            }
-          </div>
-        )}
-      </div>
-    </motion.div>
-  )
-}
 
 const PAGE_SIZE = 50
 

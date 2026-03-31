@@ -93,7 +93,7 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const body = await request.json().catch(() => ({}))
-    const { run_id } = body as { run_id?: string }
+    const { run_id, reason } = body as { run_id?: string; reason?: string }
 
     if (!run_id) {
       return NextResponse.json({ error: 'run_id is required' }, { status: 400 })
@@ -118,7 +118,7 @@ export async function PATCH(request: NextRequest) {
       .update({
         status: 'failed',
         completed_at: new Date().toISOString(),
-        error_message: 'Manually marked as failed (stale run)',
+        error_message: reason || 'Manually marked as failed (stale run)',
       })
       .eq('id', run_id)
 
