@@ -68,9 +68,18 @@ export async function POST(request: NextRequest) {
     }
 
     if (!run) {
+      const { data: created } = await supabaseAdmin
+        .from('value_evidence_workflow_runs')
+        .insert({ workflow_id: wf, status: 'running' })
+        .select('id')
+        .single()
+      run = created
+    }
+
+    if (!run) {
       return NextResponse.json(
-        { error: 'No matching run found', ok: false },
-        { status: 404 }
+        { error: 'Unable to resolve or create run record', ok: false },
+        { status: 500 }
       )
     }
 
