@@ -49,9 +49,19 @@ export async function POST(request: NextRequest) {
     }
 
     if (!run) {
+      // Cron-triggered runs don't have a pre-created row — create one now
+      const { data: created } = await supabaseAdmin
+        .from('social_content_extraction_runs')
+        .insert({ status: 'running' })
+        .select('id')
+        .single()
+      run = created
+    }
+
+    if (!run) {
       return NextResponse.json(
-        { error: 'No matching run found', ok: false },
-        { status: 404 }
+        { error: 'Unable to resolve or create run record', ok: false },
+        { status: 500 }
       )
     }
 
