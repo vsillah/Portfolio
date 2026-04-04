@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { saveDiagnosticAudit } from '@/lib/diagnostic'
+import { tryVerifyAuth } from '@/lib/auth-server'
 import { fetchTechStackByDomain, domainForLookup } from '@/lib/tech-stack-lookup'
 import { getIndustryGicsCode, INDUSTRIES } from '@/lib/constants/industry'
 
@@ -65,6 +66,9 @@ export async function POST(request: NextRequest) {
 
     const sessionId = generateAuditSessionId()
 
+    const authUser = await tryVerifyAuth(request)
+    const userId = authUser?.user?.id
+
     const { error: sessionError } = await supabaseAdmin
       .from('chat_sessions')
       .insert({
@@ -90,6 +94,7 @@ export async function POST(request: NextRequest) {
       contactEmail: contactEmail || undefined,
       industrySlug: industrySlug || undefined,
       industryGicsCode: industrySlug ? getIndustryGicsCode(industrySlug) : undefined,
+      ...(userId ? { userId } : {}),
     })
 
     if (result.error) {

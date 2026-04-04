@@ -49,6 +49,8 @@ export interface DiagnosticAuditRecord {
   /** Phase 2: visual analysis fields */
   website_screenshot_path?: string | null
   website_annotations?: Array<Record<string, unknown>> | null
+  /** Set when audit is started or updated from a logged-in session */
+  user_id?: string | null
 }
 
 /**
@@ -81,6 +83,8 @@ export async function saveDiagnosticAudit(
     enrichedTechStack?: Record<string, unknown>
     valueEstimate?: Record<string, unknown>
     reportTier?: ReportTier
+    /** Supabase Auth user id when session is present (standalone / chat) */
+    userId?: string
   }
 ): Promise<{ id: string; error?: Error }> {
   try {
@@ -185,6 +189,10 @@ export async function saveDiagnosticAudit(
     // Lead dashboard: questions per category (e.g. from n8n or chat flow)
     if (data.questionsByCategory && typeof data.questionsByCategory === 'object') {
       updateData.questions_by_category = data.questionsByCategory
+    }
+
+    if (data.userId) {
+      updateData.user_id = data.userId
     }
 
     let auditId: string

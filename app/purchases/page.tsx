@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ShoppingBag, Loader, HelpCircle, Package, ExternalLink, FileText, Download } from 'lucide-react'
+import { ShoppingBag, Loader, HelpCircle, Package, ExternalLink, FileText, Download, ClipboardList } from 'lucide-react'
 import Link from 'next/link'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
@@ -13,6 +13,7 @@ import Breadcrumbs from '@/components/Breadcrumbs'
 import DownloadManager from '@/components/DownloadManager'
 import SocialShare from '@/components/SocialShare'
 import ReferralProgram from '@/components/ReferralProgram'
+import { AuditEmailPdfButton } from '@/components/audit/AuditEmailPdfButton'
 // generateInvoicePDFBlob is dynamically imported on click to avoid bundling @react-pdf/renderer (~400KB) on page load
 
 const FULFILLMENT_LABELS: Record<string, string> = {
@@ -84,6 +85,15 @@ interface Order {
   }>
 }
 
+/** Completed diagnostic audit for My library (free tool; not a Stripe order) */
+interface UserAuditSummary {
+  id: string
+  completedAt: string | null
+  businessName: string | null
+  reportTier: string | null
+  reportPath: string
+}
+
 function PurchasesContent() {
   const { user } = useAuth()
   const router = useRouter()
@@ -94,6 +104,7 @@ function PurchasesContent() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [loading, setLoading] = useState(true)
   const [pdfLoading, setPdfLoading] = useState(false)
+  const [userAudit, setUserAudit] = useState<UserAuditSummary | null>(null)
 
   const fetchOrders = useCallback(async () => {
     if (!user) {
@@ -103,16 +114,38 @@ function PurchasesContent() {
     try {
       const session = await getCurrentSession()
       if (!session) return
-      const response = await fetch('/api/orders', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (response.ok) {
-        const data = await response.json()
+      const [ordersResponse, auditResponse] = await Promise.all([
+        fetch('/api/orders', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }),
+        fetch('/api/user/audit', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        }),
+      ])
+      if (ordersResponse.ok) {
+        const data = await ordersResponse.json()
         setOrders(data.orders || [])
         if (orderIdParam) {
           const order = data.orders?.find((o: Order) => o.id === parseInt(orderIdParam!))
           if (order) setSelectedOrder(order)
         }
+      }
+      if (auditResponse.ok) {
+        const auditData = await auditResponse.json()
+        const a = auditData.audit
+        if (a?.id && a?.reportPath) {
+          setUserAudit({
+            id: String(a.id),
+            completedAt: a.completedAt ?? null,
+            businessName: a.businessName ?? null,
+            reportTier: a.reportTier ?? null,
+            reportPath: a.reportPath,
+          })
+        } else {
+          setUserAudit(null)
+        }
+      } else {
+        setUserAudit(null)
       }
     } catch (error) {
       console.error('Failed to fetch orders:', error)
@@ -177,9 +210,9 @@ function PurchasesContent() {
       <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
         <Navigation />
         <div className="max-w-4xl mx-auto text-center">
-          <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'My Purchases' }]} />
-          <h1 className="text-4xl font-bold mb-4">My Purchases</h1>
-          <p className="text-platinum-white/80 mb-6">Please sign in to view your purchases</p>
+          <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'My library' }]} />
+          <h1 className="text-4xl font-bold mb-4">My library</h1>
+          <p className="text-platinum-white/80 mb-6">Please sign in to view your library</p>
           <button
             onClick={() => router.push('/auth/login')}
             className="px-6 py-3 bg-gradient-to-r btn-gold font-semibold rounded-lg"
@@ -195,7 +228,7 @@ function PurchasesContent() {
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center pt-24 pb-12 px-4">
         <Navigation />
-        <div className="text-platinum-white/80">Loading purchases...</div>
+        <div className="text-platinum-white/80">Loading your library...</div>
       </div>
     )
   }
@@ -205,7 +238,7 @@ function PurchasesContent() {
       <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
         <Navigation />
         <div className="max-w-4xl mx-auto">
-          <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'My Purchases', href: '/purchases' }, { label: `Order #${selectedOrder.id}` }]} />
+          <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'My library', href: '/purchases' }, { label: `Order #${selectedOrder.id}` }]} />
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -420,22 +453,77 @@ function PurchasesContent() {
     <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <Navigation />
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'My Purchases' }]} />
+        <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'My library' }]} />
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="flex items-center justify-between mb-8">
-            <h1 className="text-4xl font-bold">My Purchases</h1>
-            <Link href="/help" className="text-platinum-white/80 hover:text-foreground transition-colors" aria-label="Help">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-4xl font-bold">My library</h1>
+              <p className="text-platinum-white/70 text-sm mt-2 max-w-xl">
+                Orders, downloads, and your free AI &amp; automation audit report (when you&apos;ve completed the audit with this account or the same email).
+              </p>
+            </div>
+            <Link href="/help" className="text-platinum-white/80 hover:text-foreground transition-colors shrink-0" aria-label="Help">
               <HelpCircle size={20} />
             </Link>
           </div>
 
+          {userAudit && (
+            <section
+              id="audit"
+              className="mb-8 scroll-mt-28 rounded-xl border border-radiant-gold/30 bg-silicon-slate/80 p-6"
+              aria-labelledby="audit-heading"
+            >
+              <div className="flex items-start gap-4">
+                <div className="rounded-lg bg-radiant-gold/15 p-3 border border-radiant-gold/30">
+                  <ClipboardList className="text-radiant-gold" size={28} aria-hidden />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-platinum-white/60 mb-1">Free diagnostic</p>
+                  <h2 id="audit-heading" className="text-xl font-bold text-foreground mb-1">
+                    {userAudit.businessName ? `${userAudit.businessName} — AI &amp; automation audit` : 'Your AI &amp; automation audit'}
+                  </h2>
+                  {userAudit.completedAt && (
+                    <p className="text-sm text-platinum-white/70 mb-3">
+                      Completed {new Date(userAudit.completedAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                    </p>
+                  )}
+                  {userAudit.reportTier && userAudit.reportTier !== 'bronze' && (
+                    <p className="text-sm text-platinum-white/80 mb-3">
+                      Report tier:{' '}
+                      <span className="text-radiant-gold/90 font-medium">
+                        {userAudit.reportTier === 'platinum'
+                          ? 'Strategy package'
+                          : userAudit.reportTier === 'gold'
+                            ? 'Full analysis'
+                            : 'Smart report'}
+                      </span>
+                    </p>
+                  )}
+                  <div className="flex flex-wrap items-start gap-3">
+                    <Link
+                      href={userAudit.reportPath}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 transition-opacity"
+                    >
+                      View full report
+                    </Link>
+                    <AuditEmailPdfButton auditId={userAudit.id} tone="light" />
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
           {orders.length === 0 ? (
             <div className="text-center py-12">
               <ShoppingBag className="mx-auto text-platinum-white/70 mb-4" size={64} />
-              <p className="text-platinum-white/80 mb-6">You haven&apos;t made any purchases yet.</p>
+              <p className="text-platinum-white/80 mb-6">
+                {userAudit
+                  ? 'You don&apos;t have any orders yet. Your audit report is above whenever you need it.'
+                  : 'You haven&apos;t made any purchases yet.'}
+              </p>
               <button
                 onClick={() => router.push('/store')}
                 className="px-6 py-3 bg-gradient-to-r btn-gold font-semibold rounded-lg"

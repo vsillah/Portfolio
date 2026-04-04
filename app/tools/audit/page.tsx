@@ -2,6 +2,8 @@
 
 import { useCallback, useState } from 'react'
 import Link from 'next/link'
+import { useAuth } from '@/components/AuthProvider'
+import { getCurrentSession } from '@/lib/auth'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   AUDIT_CATEGORIES,
@@ -465,7 +467,17 @@ function FieldInput({
   )
 }
 
+async function getJsonAuthHeaders(): Promise<HeadersInit> {
+  const session = await getCurrentSession()
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (session?.access_token) {
+    headers.Authorization = `Bearer ${session.access_token}`
+  }
+  return headers
+}
+
 export default function AuditToolPage() {
+  const { user } = useAuth()
   const [step, setStep] = useState<Step>('intro')
   const [auditState, setAuditState] = useState<AuditState | null>(null)
   const [categoryIndex, setCategoryIndex] = useState(0)
@@ -530,9 +542,10 @@ export default function AuditToolPage() {
         setSubmitting(false)
         return
       }
+      const headers = await getJsonAuthHeaders()
       const res = await fetch('/api/tools/audit/update', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           auditId: auditState.auditId,
           category: category.id,
@@ -1133,7 +1146,7 @@ export default function AuditToolPage() {
                   Your audit has been saved. You can close this page or start another audit.
                 </p>
               )}
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={() => {
@@ -1150,6 +1163,14 @@ export default function AuditToolPage() {
                 >
                   Start a new audit
                 </button>
+                {user && (
+                  <Link
+                    href="/purchases#audit"
+                    className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-platinum-white hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
+                  >
+                    Open My library
+                  </Link>
+                )}
                 <Link
                   href="/"
                   className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-platinum-white hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
@@ -1157,6 +1178,15 @@ export default function AuditToolPage() {
                   Back to home
                 </Link>
               </div>
+              {user && (
+                <p className="text-platinum-white/60 text-sm">
+                  Your report is saved to{' '}
+                  <Link href="/purchases#audit" className="text-radiant-gold/90 hover:underline">
+                    My library
+                  </Link>{' '}
+                  while you&apos;re signed in (same email as your audit helps if you complete it as a guest).
+                </p>
+              )}
             </motion.div>
           )}
         </AnimatePresence>

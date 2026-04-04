@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
+import { useAuth } from '@/components/AuthProvider'
+import { AuditEmailPdfButton, AuditEmailPdfSignInCta } from '@/components/audit/AuditEmailPdfButton'
 import {
   AUDIT_CATEGORIES,
   formatPayloadLine,
@@ -54,6 +56,7 @@ function ScoreBand({ score, label }: { score: number; label: string }) {
 export default function AuditReportPage() {
   const params = useParams()
   const auditId = params.auditId as string
+  const { user } = useAuth()
   const [report, setReport] = useState<AuditReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -207,8 +210,18 @@ export default function AuditReportPage() {
             </div>
           )}
 
+          {/* Email PDF (signed-in) */}
+          <div className="rounded-lg border border-platinum-white/15 bg-black/15 p-4 mt-6">
+            <p className="text-sm font-medium text-platinum-white/90 mb-3">Printable PDF</p>
+            {user ? (
+              <AuditEmailPdfButton auditId={String(report.id)} tone="dark" />
+            ) : (
+              <AuditEmailPdfSignInCta auditId={auditId} />
+            )}
+          </div>
+
           {/* Actions */}
-          <div className="flex gap-3 mt-6">
+          <div className="flex flex-wrap gap-3 mt-6">
             <Link
               href="/tools/audit"
               className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90"

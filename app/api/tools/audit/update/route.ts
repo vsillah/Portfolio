@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDiagnosticAudit, saveDiagnosticAudit } from '@/lib/diagnostic'
+import { tryVerifyAuth } from '@/lib/auth-server'
 import { AUDIT_CATEGORY_ORDER, categoryFormToPayload } from '@/lib/audit-questions'
 import { computeReportTier } from '@/lib/audit-report-tier'
 import { triggerDiagnosticCompletionWebhook } from '@/lib/n8n'
@@ -84,6 +85,9 @@ function buildSummary(payload: Record<string, Record<string, unknown>>): string 
  */
 export async function PUT(request: NextRequest) {
   try {
+    const authUser = await tryVerifyAuth(request)
+    const authUserId = authUser?.user?.id
+
     const body = await request.json()
     const { auditId, category, values } = body as {
       auditId?: string
@@ -162,6 +166,7 @@ export async function PUT(request: NextRequest) {
       diagnosticAuditId: auditId,
       status: allCategoriesPresent ? 'completed' : 'in_progress',
       diagnosticData,
+      ...(authUserId ? { userId: authUserId } : {}),
     }
 
     // On completion: compute report tier and create/link contact if email was provided

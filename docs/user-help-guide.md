@@ -12,7 +12,7 @@ Welcome! This guide covers everything you need to know to navigate and use the s
 4. [Services](#services)
 5. [Pricing & Packages](#pricing--packages)
 6. [Shopping Cart & Checkout](#shopping-cart--checkout)
-7. [Your Purchases](#your-purchases)
+7. [My library](#my-library)
 8. [Proposals](#proposals)
 9. [Onboarding](#onboarding)
 10. [Client Portal](#client-portal)
@@ -31,7 +31,7 @@ The site is a portfolio and storefront where you can explore projects, browse pr
 
 - **Menu**: Click the hamburger menu icon (three lines) in the upper-right corner of the home page to open the full navigation menu. From there you can jump to any section or page.
 - **Help**: Click the **?** icon in the upper-right corner on any page to return to this guide.
-- **User menu**: If you are logged in, click your avatar/name in the upper-right to access your account options (Lead Magnets, My Purchases, Sign Out).
+- **User menu**: If you are logged in, click your avatar/name in the upper-right to access your account options (Resources, My library, Sign Out).
 
 ---
 
@@ -223,13 +223,20 @@ The order summary shows:
 
 ### Payment
 
-Payment is processed securely through Stripe. You will be asked to enter your card details on a secure payment form. After successful payment, you will be redirected to your purchases page.
+Payment is processed securely through Stripe. You will be asked to enter your card details on a secure payment form. After successful payment, you will be redirected to your library page (`/purchases`).
 
 ---
 
-## Your Purchases
+## My library
 
-The Purchases page (`/purchases`) shows your order history and lets you access your digital products.
+The **My library** page (`/purchases`) is your signed-in hub for **orders**, **digital downloads** from those orders, and your **free AI & automation audit** report when you have completed the [standalone audit tool](/tools/audit) while signed in or using the **same email** as your account.
+
+### Your AI & automation audit
+
+- After you complete the audit, a **Your AI & automation audit** card appears at the top of My library with a link to your **full report** (same content as the on-page results).
+- **Email PDF to me**: When signed in, use **Email PDF to me** on the report page or on My library to receive a **printable PDF** of your audit by email (same address as your account).
+- **Signed in** while taking the audit: your report is tied to your account directly.
+- **Guest completion**: use the **same email** on the audit as your login email so My library can match your report.
 
 ### Viewing Orders
 
@@ -239,7 +246,7 @@ The Purchases page (`/purchases`) shows your order history and lets you access y
 
 ### Order status and tracking
 
-- You can check the status of your orders anytime on the **My Purchases** page (`/purchases`). Open an order to see payment status, shipping status, and tracking (when available).
+- You can check the status of your orders anytime on **My library** (`/purchases`). Open an order to see payment status, shipping status, and tracking (when available).
 - When signed in, you can also ask the site chatbot **"What's the status of my order?"** or use the **Check my order status** suggestion; the assistant will use your recent order and shipping information to respond.
 
 ### Downloading Digital Products
@@ -403,7 +410,7 @@ Your response is saved with your email so we can follow up with relevant resourc
 When logged in, click your avatar to open the user menu:
 
 - **Lead Magnets** -- Access free downloadable resources
-- **My Purchases** -- View your order history and downloads
+- **My library** -- View your order history, downloads, and your audit report (when available)
 - **Admin Dashboard** -- (visible only to administrators)
 - **Sign Out** -- Log out of your account
 
@@ -418,7 +425,7 @@ Open the user menu and click **Sign Out**. You will be redirected to the home pa
 ### I can't find my purchase / download
 
 - Make sure you are logged in with the same email you used at checkout.
-- Go to **My Purchases** from the user menu.
+- Go to **My library** from the user menu.
 - If you checked out as a guest, use the direct order link from your confirmation email.
 
 ### My payment failed
@@ -441,7 +448,7 @@ Open the user menu and click **Sign Out**. You will be redirected to the home pa
 ### My merchandise order hasn't arrived
 
 - Print-on-demand items typically ship within 2-7 business days after ordering.
-- Check **My Purchases** and open your order to see shipping status and a **Track package** link when it’s available. You can also ask the chatbot **"What's the status of my order?"** when signed in.
+- Check **My library** and open your order to see shipping status and a **Track package** link when it’s available. You can also ask the chatbot **"What's the status of my order?"** when signed in.
 - Check your email for shipping confirmation and tracking information.
 - If it has been more than 14 business days, contact support.
 
