@@ -209,7 +209,7 @@ export function VoiceChat({
 
   if (!isConfigured) {
     return (
-      <div className="flex items-center gap-2 text-platinum-white/50 text-sm">
+      <div className="flex items-center gap-2 text-muted-foreground/90 text-sm">
         <AlertCircle size={16} />
         <span>Voice chat not configured</span>
       </div>
@@ -244,7 +244,7 @@ export function VoiceChat({
             </div>
 
             {/* Status Text */}
-            <div className="text-center text-xs text-platinum-white/70">
+            <div className="text-center text-xs text-muted-foreground">
               {state.isSpeaking ? (
                 <span className="flex items-center justify-center gap-1">
                   <Volume2 size={12} className="text-radiant-gold animate-pulse" />
@@ -265,7 +265,7 @@ export function VoiceChat({
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="mt-2 text-sm text-platinum-white/50 italic text-center"
+                className="mt-2 text-sm text-muted-foreground/90 italic text-center"
               >
                 &quot;{partialTranscript}&quot;...
               </motion.div>
@@ -309,7 +309,7 @@ export function VoiceChat({
       </motion.button>
 
       {/* Call Button Label */}
-      <span className="text-xs text-platinum-white/70">
+      <span className="text-xs text-muted-foreground">
         {isInitializing 
           ? 'Initializing...' 
           : state.isConnected 

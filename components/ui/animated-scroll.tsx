@@ -18,9 +18,9 @@ const pages = [
       heading: 'Vambah Sillah',
       description: (
         <div className="space-y-6">
-            <div className="text-xl md:text-2xl font-light text-platinum-white">Director of Product Strategy at a Fortune 500 Company, AI Automations specialist, Author, Hip Hop Artist, and Co-Founder of AmaduTown Advisory Solutions.</div>
+            <div className="text-xl md:text-2xl font-light text-foreground">Director of Product Strategy at a Fortune 500 Company, AI Automations specialist, Author, Hip Hop Artist, and Co-Founder of AmaduTown Advisory Solutions.</div>
             <hr className="border-silicon-slate w-24 mx-auto" />
-            <div className="flex flex-col items-center gap-3 text-sm md:text-base text-platinum-white/80">
+            <div className="flex flex-col items-center gap-3 text-sm md:text-base text-muted-foreground">
                 <div className="flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
                     <span>22 Vassar Street, Medford, MA 02155</span>
@@ -34,7 +34,7 @@ const pages = [
                     <span>617-967-7448</span>
                 </div>
             </div>
-            <div className="pt-8 animate-bounce text-platinum-white/70 text-xs uppercase tracking-widest">
+            <div className="pt-8 animate-bounce text-muted-foreground text-xs uppercase tracking-widest">
                 Scroll to Explore
             </div>
         </div>
@@ -50,7 +50,7 @@ const pages = [
     leftContent: {
       heading: 'Overview',
       description: (
-        <div className="max-w-md mx-auto text-left space-y-4 text-platinum-white leading-relaxed text-sm md:text-base">
+        <div className="max-w-md mx-auto text-left space-y-4 text-foreground leading-relaxed text-sm md:text-base">
             <p>IT Product Manager with a proven track record of applying agile methodology to continuously evolve products to delight customers.</p>
             <ul className="list-disc pl-5 space-y-2">
                 <li>Skilled facilitator with a passion for inspiring teams to deliver innovative solutions.</li>
@@ -78,9 +78,9 @@ const pages = [
             <div className="mb-6">
                 <h3 className="text-xl font-bold text-white">Fidelity Investments, Fidelity Institutional</h3>
                 <p className="text-radiant-gold font-semibold">Director of Product Management</p>
-                <p className="text-platinum-white/70 text-sm mb-4">Boston, MA | Jan 2024 – Present</p>
+                <p className="text-muted-foreground text-sm mb-4">Boston, MA | Jan 2024 – Present</p>
             </div>
-            <ul className="list-disc pl-5 space-y-3 text-platinum-white text-sm md:text-base">
+            <ul className="list-disc pl-5 space-y-3 text-foreground text-sm md:text-base">
                 <li>Conducted market analysis and developed business case frameworks to assess the viability of new offerings.</li>
                 <li>Established cooperative partnerships with Product Area Leaders and consulted with subject matter experts across Finance, Market Research, and Strategy.</li>
                 <li>Synthesized &quot;voice of the client&quot; inputs and developed client segmentation frameworks to inform adoption and delivery strategies.</li>
@@ -104,7 +104,7 @@ const pages = [
                   <h3 className="text-xl font-bold text-white">Fidelity Investments, Personal Investing</h3>
                   <p className="text-radiant-gold font-semibold">Merrimack, NH | August 2016 – April 2018</p>
               </div>
-              <ul className="list-disc pl-5 space-y-3 text-platinum-white text-sm md:text-base">
+              <ul className="list-disc pl-5 space-y-3 text-foreground text-sm md:text-base">
                   <li>Leveraged customer insights to develop an event-driven notification platform to digitize the “awareness” stage of the customer journey.</li>
                   <li>Utilized SiteCatalyst, ClickTale, and OpinionLab to identify unmet customer need, driving backlog prioritization and maximizing value.</li>
                   <li>Designed and facilitated an organization-wide workshop to identify and build consensus for customer-driven inputs to influence backlog prioritization.</li>
@@ -129,7 +129,7 @@ const pages = [
                   <h3 className="text-xl font-bold text-white">Fidelity Investments, Personal Investing</h3>
                   <p className="text-radiant-gold font-semibold">Boston, MA | June 2015 – August 2016</p>
               </div>
-              <ul className="list-disc pl-5 space-y-3 text-platinum-white text-sm md:text-base">
+              <ul className="list-disc pl-5 space-y-3 text-foreground text-sm md:text-base">
                   <li>Digitized product offerings within existing digital ecosystem (ABLE accounts, TEM plans), creating $102M in inflows.</li>
                   <li>Developed “BA in a Box” to assist Ship It Day Teams, streamlining release planning.</li>
                   <li>Implemented process to reduce acceptance test window of new enhancements from 3 days to 1 hour.</li>
@@ -151,16 +151,16 @@ const pages = [
           <div className="text-left max-w-lg mx-auto space-y-8">
               <div>
                   <h3 className="text-lg font-bold text-white">Senior Business Analyst</h3>
-                  <p className="text-platinum-white/70 text-xs mb-2">Fidelity Investments, Personal Investing | Dec 2014 – June 2015</p>
-                  <ul className="list-disc pl-5 text-platinum-white text-sm">
+                  <p className="text-muted-foreground text-xs mb-2">Fidelity Investments, Personal Investing | Dec 2014 – June 2015</p>
+                  <ul className="list-disc pl-5 text-foreground text-sm">
                       <li>Consolidated customer metrics to provide holistic feedback along the customer journey.</li>
                       <li>Winner of the 2015 Excellence Award for outstanding teamwork.</li>
                   </ul>
               </div>
               <div>
                   <h3 className="text-lg font-bold text-white">Business Analyst</h3>
-                  <p className="text-platinum-white/70 text-xs mb-2">Fidelity Investments, Asset Management | Aug 2012 – Dec 2014</p>
-                  <ul className="list-disc pl-5 text-platinum-white text-sm">
+                  <p className="text-muted-foreground text-xs mb-2">Fidelity Investments, Asset Management | Aug 2012 – Dec 2014</p>
+                  <ul className="list-disc pl-5 text-foreground text-sm">
                       <li>Led an offshore team to deliver a digital experience for distributing research analyst reports.</li>
                       <li>Documented objectives, use cases, and data specifications.</li>
                   </ul>
@@ -187,31 +187,31 @@ const pages = [
                         <Briefcase size={16} />
                         <h4 className="font-bold text-sm uppercase">Technical</h4>
                     </div>
-                    <p className="text-xs text-platinum-white">SQL, Python, Visio, Adobe SiteCatalyst, Splunk, Generative AI Tools</p>
+                    <p className="text-xs text-foreground">SQL, Python, Visio, Adobe SiteCatalyst, Splunk, Generative AI Tools</p>
                 </div>
                 <div className="bg-silicon-slate/50 p-4 rounded-lg border border-silicon-slate">
                     <div className="flex items-center gap-2 mb-2 text-radiant-gold">
                         <Award size={16} />
                         <h4 className="font-bold text-sm uppercase">Leadership</h4>
                     </div>
-                    <p className="text-xs text-platinum-white">Strategic Planning, Facilitation, People management, Change Management</p>
+                    <p className="text-xs text-foreground">Strategic Planning, Facilitation, People management, Change Management</p>
                 </div>
                 <div className="bg-silicon-slate/50 p-4 rounded-lg border border-silicon-slate">
                     <div className="flex items-center gap-2 mb-2 text-radiant-gold">
                         <BookOpen size={16} />
                         <h4 className="font-bold text-sm uppercase">Education</h4>
                     </div>
-                     <p className="text-xs text-platinum-white"><strong>BS Business Administration</strong><br/>Boston University, 2008</p>
+                     <p className="text-xs text-foreground"><strong>BS Business Administration</strong><br/>Boston University, 2008</p>
                 </div>
                 <div className="bg-silicon-slate/50 p-4 rounded-lg border border-silicon-slate">
                     <div className="flex items-center gap-2 mb-2 text-radiant-gold">
                         <Award size={16} />
                         <h4 className="font-bold text-sm uppercase">Certifications</h4>
                     </div>
-                    <p className="text-xs text-platinum-white">Certified Scrum Master (2014)<br/>Certified Product Owner (2014)</p>
+                    <p className="text-xs text-foreground">Certified Scrum Master (2014)<br/>Certified Product Owner (2014)</p>
                 </div>
             </div>
-            <div className="text-xs text-platinum-white/80 italic text-center pt-4">
+            <div className="text-xs text-muted-foreground italic text-center pt-4">
                 Personal: Spanish (conversational), chess, mountain biking, obstacle course racing
             </div>
         </div>
@@ -244,8 +244,8 @@ const timelineData = [
       content: (
         <div>
           <h4 className="text-radiant-gold font-bold text-lg">Director of Product Management</h4>
-          <p className="text-platinum-white/70 text-sm mb-4">Fidelity Investments | Jan 2024 - Present</p>
-          <div className="mb-6 text-platinum-white text-sm space-y-2">
+          <p className="text-muted-foreground text-sm mb-4">Fidelity Investments | Jan 2024 - Present</p>
+          <div className="mb-6 text-foreground text-sm space-y-2">
             <p>Leading strategic initiatives and product evolution.</p>
             <ul className="list-disc pl-4 space-y-2">
                 <li>Conducted market analysis and developed business case frameworks to assess viability of new offerings.</li>
@@ -270,8 +270,8 @@ const timelineData = [
       content: (
         <div>
           <h4 className="text-radiant-gold font-bold text-lg">Product Manager</h4>
-          <p className="text-platinum-white/70 text-sm mb-4">Fidelity Investments | Apr 2018 - Jan 2022</p>
-          <div className="mb-6 text-platinum-white text-sm space-y-2">
+          <p className="text-muted-foreground text-sm mb-4">Fidelity Investments | Apr 2018 - Jan 2022</p>
+          <div className="mb-6 text-foreground text-sm space-y-2">
             <ul className="list-disc pl-4 space-y-2">
                 <li>Led delivery of a reusable error handling platform, addressing 10% of raised defects.</li>
                 <li>Simplified complex client configurations with new data flow diagrams.</li>
@@ -290,8 +290,8 @@ const timelineData = [
       content: (
         <div>
           <h4 className="text-radiant-gold font-bold text-lg">Product Owner</h4>
-          <p className="text-platinum-white/70 text-sm mb-4">Fidelity Investments | Aug 2016 - Apr 2018</p>
-          <div className="mb-6 text-platinum-white text-sm space-y-2">
+          <p className="text-muted-foreground text-sm mb-4">Fidelity Investments | Aug 2016 - Apr 2018</p>
+          <div className="mb-6 text-foreground text-sm space-y-2">
             <ul className="list-disc pl-4 space-y-2">
                 <li>Developed event-driven notification platform to digitize customer awareness.</li>
                 <li>Partnered with Salesforce Marketing Cloud for on-demand notifications.</li>
@@ -307,8 +307,8 @@ const timelineData = [
         content: (
           <div>
             <h4 className="text-radiant-gold font-bold text-lg">Business Analyst Team Lead</h4>
-            <p className="text-platinum-white/70 text-sm mb-4">Fidelity Investments | Jun 2015 - Aug 2016</p>
-            <div className="mb-6 text-platinum-white text-sm space-y-2">
+            <p className="text-muted-foreground text-sm mb-4">Fidelity Investments | Jun 2015 - Aug 2016</p>
+            <div className="mb-6 text-foreground text-sm space-y-2">
               <ul className="list-disc pl-4 space-y-2">
                   <li>Managed offshore team to integrate 401k and retail plans, driving $102M in inflows.</li>
                   <li>Reduced acceptance test window from 3 days to 1 hour.</li>
@@ -323,8 +323,8 @@ const timelineData = [
         content: (
           <div>
             <h4 className="text-radiant-gold font-bold text-lg">Senior Business Analyst</h4>
-            <p className="text-platinum-white/70 text-sm mb-4">Fidelity Investments | Dec 2014 - Jun 2015</p>
-            <div className="mb-6 text-platinum-white text-sm space-y-2">
+            <p className="text-muted-foreground text-sm mb-4">Fidelity Investments | Dec 2014 - Jun 2015</p>
+            <div className="mb-6 text-foreground text-sm space-y-2">
               <ul className="list-disc pl-4 space-y-2">
                   <li>Winner of 2015 Excellence Award for digitizing research report distribution.</li>
                   <li>Created complex logical data models and metadata business rules.</li>
@@ -338,8 +338,8 @@ const timelineData = [
         content: (
           <div>
             <h4 className="text-radiant-gold font-bold text-lg">Business Analyst</h4>
-            <p className="text-platinum-white/70 text-sm mb-4">Fidelity Investments | Jul 2012 - Dec 2014</p>
-            <div className="mb-6 text-platinum-white text-sm space-y-2">
+            <p className="text-muted-foreground text-sm mb-4">Fidelity Investments | Jul 2012 - Dec 2014</p>
+            <div className="mb-6 text-foreground text-sm space-y-2">
               <ul className="list-disc pl-4 space-y-2">
                   <li>Led offshore team for digital research report distribution.</li>
                   <li>Evaluated existing data designs for capability and performance.</li>
@@ -353,8 +353,8 @@ const timelineData = [
         content: (
           <div>
             <h4 className="text-radiant-gold font-bold text-lg">Team Leader</h4>
-            <p className="text-platinum-white/70 text-sm mb-4">Fidelity Investments | Jul 2011 - Jul 2012</p>
-            <div className="mb-6 text-platinum-white text-sm space-y-2">
+            <p className="text-muted-foreground text-sm mb-4">Fidelity Investments | Jul 2011 - Jul 2012</p>
+            <div className="mb-6 text-foreground text-sm space-y-2">
               <ul className="list-disc pl-4 space-y-2">
                   <li>Led 8-member admin team supporting technology group.</li>
                   <li>Built streamlined end-to-end travel approval process in Sharepoint.</li>
@@ -625,7 +625,7 @@ export default function ScrollAdventure() {
                         className="w-full h-full overflow-y-auto scroll-smooth relative"
                     >
                          <Timeline data={timelineData} scrollContainerRef={fullPageScrollRef} />
-                         <div className="h-20 w-full flex items-center justify-center text-platinum-white/60 text-sm">
+                         <div className="h-20 w-full flex items-center justify-center text-muted-foreground text-sm">
                              Scroll for more
                          </div>
                     </div>
@@ -647,7 +647,7 @@ export default function ScrollAdventure() {
                        className="w-full h-full overflow-y-auto scroll-smooth relative"
                    >
                         <HeroParallax products={productsData} scrollContainerRef={fullPageScrollRef} />
-                        <div className="h-20 w-full flex items-center justify-center text-platinum-white/60 text-sm">
+                        <div className="h-20 w-full flex items-center justify-center text-muted-foreground text-sm">
                              End of Portfolio
                         </div>
                    </div>
@@ -750,7 +750,7 @@ export default function ScrollAdventure() {
       
       {/* Global UI hints */}
       <div className="fixed bottom-8 right-8 z-40 hidden md:block">
-        <div className="text-platinum-white/70 text-xs flex flex-col items-center gap-1 opacity-50">
+        <div className="text-muted-foreground text-xs flex flex-col items-center gap-1 opacity-50">
              <ChevronUp size={16} />
              <span>SCROLL</span>
              <ChevronDown size={16} />

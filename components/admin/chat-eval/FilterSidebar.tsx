@@ -74,10 +74,10 @@ export function FilterSidebar({
 
       {/* Required Filters - Channel */}
       <div>
-        <h3 className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-2">
+        <h3 className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-2">
           Required Filters
         </h3>
-        <p className="text-xs text-platinum-white/40 mb-3">
+        <p className="text-xs text-muted-foreground/80 mb-3">
           Select a required filter to load Runs. Chatbot = website chat; Text = SMS (reserved).
         </p>
         <div className="space-y-2">
@@ -95,8 +95,8 @@ export function FilterSidebar({
                   w-full flex items-center justify-between gap-3 py-2.5 px-4 rounded-lg
                   border transition-all text-sm
                   ${isSelected 
-                    ? 'bg-silicon-slate border-radiant-gold/50 text-platinum-white' 
-                    : 'bg-silicon-slate/20 border-radiant-gold/10 text-platinum-white/70 hover:border-radiant-gold/30'
+                    ? 'bg-silicon-slate border-radiant-gold/50 text-foreground' 
+                    : 'bg-silicon-slate/20 border-radiant-gold/10 text-muted-foreground hover:border-radiant-gold/30'
                   }
                 `}
               >
@@ -105,7 +105,7 @@ export function FilterSidebar({
                   {filter.label}
                 </span>
                 {getChannelCount(filter.id) != null && (
-                  <span className="text-platinum-white/50 tabular-nums">{getChannelCount(filter.id)}</span>
+                  <span className="text-muted-foreground/90 tabular-nums">{getChannelCount(filter.id)}</span>
                 )}
               </motion.button>
             )
@@ -115,7 +115,7 @@ export function FilterSidebar({
 
       {/* Status Filters */}
       <div>
-        <h3 className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-3">
+        <h3 className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-3">
           Filters
         </h3>
         <div className="space-y-2">
@@ -131,13 +131,13 @@ export function FilterSidebar({
                 className={`
                   w-full flex items-center justify-between py-2.5 px-4 rounded-lg border transition-all text-sm text-left
                   ${isSelected 
-                    ? 'bg-silicon-slate border-radiant-gold/50 text-platinum-white' 
-                    : 'bg-silicon-slate/20 border-radiant-gold/10 text-platinum-white/70 hover:border-radiant-gold/30'
+                    ? 'bg-silicon-slate border-radiant-gold/50 text-foreground' 
+                    : 'bg-silicon-slate/20 border-radiant-gold/10 text-muted-foreground hover:border-radiant-gold/30'
                   }
                 `}
               >
                 {filter.label}
-                {count != null && <span className="text-platinum-white/50 tabular-nums">{count}</span>}
+                {count != null && <span className="text-muted-foreground/90 tabular-nums">{count}</span>}
               </motion.button>
             )
           })}

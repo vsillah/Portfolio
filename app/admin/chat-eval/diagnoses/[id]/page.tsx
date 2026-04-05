@@ -231,7 +231,7 @@ function DiagnosisDetailContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-imperial-navy text-platinum-white p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground p-8 flex items-center justify-center">
         <Loader2 size={32} className="animate-spin text-red-400" />
       </div>
     )
@@ -239,7 +239,7 @@ function DiagnosisDetailContent() {
 
   if (!diagnosis) {
     return (
-      <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+      <div className="min-h-screen bg-background text-foreground p-8">
         <div className="max-w-4xl mx-auto text-center py-12">
           <h1 className="text-2xl font-heading mb-4">Diagnosis Not Found</h1>
           <button
@@ -254,7 +254,7 @@ function DiagnosisDetailContent() {
   }
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-5xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -269,7 +269,7 @@ function DiagnosisDetailContent() {
             <Bug size={32} className="text-red-400" />
             <h1 className="text-3xl font-heading tracking-wider">Error Diagnosis</h1>
           </div>
-          <p className="text-platinum-white/60">
+          <p className="text-muted-foreground">
             Review root cause analysis and apply recommended fixes
           </p>
         </div>
@@ -292,13 +292,13 @@ function DiagnosisDetailContent() {
             <AlertTriangle size={20} className="text-red-400" />
             Root Cause
           </h2>
-          <p className="text-platinum-white/80 leading-relaxed">
+          <p className="text-muted-foreground leading-relaxed">
             {diagnosis.root_cause}
           </p>
-          <div className="mt-4 flex items-center gap-4 text-sm text-platinum-white/50">
-            <span>Error Type: <span className="text-platinum-white">{diagnosis.error_type}</span></span>
+          <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground/90">
+            <span>Error Type: <span className="text-foreground">{diagnosis.error_type}</span></span>
             <span>•</span>
-            <span>Confidence: <span className="text-platinum-white">{Math.round(diagnosis.confidence_score * 100)}%</span></span>
+            <span>Confidence: <span className="text-foreground">{Math.round(diagnosis.confidence_score * 100)}%</span></span>
             <span>•</span>
             <span>Model: {diagnosis.model_used}</span>
           </div>
@@ -313,7 +313,7 @@ function DiagnosisDetailContent() {
             {(diagnosis.diagnosis_details.prompt_issues?.length ?? 0) > 0 && (
               <div className="mb-3">
                 <h4 className="text-sm font-medium text-cyan-400 mb-1">Prompt Issues:</h4>
-                <ul className="list-disc list-inside text-sm text-platinum-white/70 space-y-1">
+                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                   {diagnosis.diagnosis_details.prompt_issues?.map((issue, i) => (
                     <li key={i}>{issue}</li>
                   ))}
@@ -323,7 +323,7 @@ function DiagnosisDetailContent() {
             {(diagnosis.diagnosis_details.code_issues?.length ?? 0) > 0 && (
               <div className="mb-3">
                 <h4 className="text-sm font-medium text-orange-400 mb-1">Code Issues:</h4>
-                <ul className="list-disc list-inside text-sm text-platinum-white/70 space-y-1">
+                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                   {diagnosis.diagnosis_details.code_issues?.map((issue, i) => (
                     <li key={i}>{issue}</li>
                   ))}
@@ -333,7 +333,7 @@ function DiagnosisDetailContent() {
             {(diagnosis.diagnosis_details.context_clues?.length ?? 0) > 0 && (
               <div>
                 <h4 className="text-sm font-medium text-purple-400 mb-1">Context Clues:</h4>
-                <ul className="list-disc list-inside text-sm text-platinum-white/70 space-y-1">
+                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                   {diagnosis.diagnosis_details.context_clues?.map((clue, i) => (
                     <li key={i}>{clue}</li>
                   ))}
@@ -354,14 +354,14 @@ function DiagnosisDetailContent() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setSelectedRecommendations(new Set(diagnosis.recommendations?.map((r: Recommendation) => r.id) || []))}
-                  className="text-sm text-platinum-white/60 hover:text-platinum-white"
+                  className="text-sm text-muted-foreground hover:text-foreground"
                 >
                   Select All
                 </button>
-                <span className="text-platinum-white/40">|</span>
+                <span className="text-muted-foreground/80">|</span>
                 <button
                   onClick={() => setSelectedRecommendations(new Set())}
-                  className="text-sm text-platinum-white/60 hover:text-platinum-white"
+                  className="text-sm text-muted-foreground hover:text-foreground"
                 >
                   Clear
                 </button>
@@ -411,8 +411,8 @@ function DiagnosisDetailContent() {
 
                     {/* Target */}
                     <div className="mb-3 text-sm">
-                      <span className="text-platinum-white/50">Target: </span>
-                      <span className="text-platinum-white font-mono">{rec.changes.target}</span>
+                      <span className="text-muted-foreground/90">Target: </span>
+                      <span className="text-foreground font-mono">{rec.changes.target}</span>
                     </div>
 
                     {/* Diff view */}
@@ -424,18 +424,18 @@ function DiagnosisDetailContent() {
                         {showDiff[rec.id || `rec_${index}`] ? 'Hide' : 'Show'} Changes
                       </button>
                       {showDiff[rec.id || `rec_${index}`] && (
-                        <div className="mt-2 p-3 bg-imperial-navy rounded border border-radiant-gold/20">
+                        <div className="mt-2 p-3 bg-background rounded border border-radiant-gold/20">
                           {rec.changes.old_value && (
                             <div className="mb-2">
                               <div className="text-xs text-red-400 mb-1">Old Value:</div>
-                              <pre className="text-xs text-platinum-white/70 bg-red-500/10 p-2 rounded overflow-x-auto">
+                              <pre className="text-xs text-muted-foreground bg-red-500/10 p-2 rounded overflow-x-auto">
                                 {rec.changes.old_value}
                               </pre>
                             </div>
                           )}
                           <div>
                             <div className="text-xs text-emerald-400 mb-1">New Value:</div>
-                            <pre className="text-xs text-platinum-white/70 bg-emerald-500/10 p-2 rounded overflow-x-auto">
+                            <pre className="text-xs text-muted-foreground bg-emerald-500/10 p-2 rounded overflow-x-auto">
                               {rec.changes.new_value}
                             </pre>
                           </div>
@@ -454,8 +454,8 @@ function DiagnosisDetailContent() {
                     {/* Manual instructions */}
                     {rec.application_instructions && (
                       <div className="mt-3 p-3 bg-silicon-slate/30 rounded border border-radiant-gold/10">
-                        <div className="text-xs text-platinum-white/50 mb-1">Manual Instructions:</div>
-                        <div className="text-sm text-platinum-white/80 whitespace-pre-wrap">
+                        <div className="text-xs text-muted-foreground/90 mb-1">Manual Instructions:</div>
+                        <div className="text-sm text-muted-foreground whitespace-pre-wrap">
                           {rec.application_instructions}
                         </div>
                       </div>
@@ -504,19 +504,19 @@ function DiagnosisDetailContent() {
         {diagnosis.status === 'applied' && diagnosis.applied_changes && (
           <div className="mt-8 p-5 bg-purple-500/10 border border-purple-500/30 rounded-xl">
             <h3 className="text-md font-semibold text-purple-400 mb-2">Applied Changes</h3>
-            <p className="text-sm text-platinum-white/70">
+            <p className="text-sm text-muted-foreground">
               Application method: {diagnosis.application_method || 'unknown'}
             </p>
             {diagnosis.application_instructions && (
               <div className="mt-3">
-                <div className="text-xs text-platinum-white/50 mb-1">Manual Steps:</div>
-                <div className="text-sm text-platinum-white/80 whitespace-pre-wrap">
+                <div className="text-xs text-muted-foreground/90 mb-1">Manual Steps:</div>
+                <div className="text-sm text-muted-foreground whitespace-pre-wrap">
                   {diagnosis.application_instructions}
                 </div>
               </div>
             )}
             <div className="mt-4 pt-4 border-t border-purple-500/20">
-              <p className="text-sm text-platinum-white/80 mb-2">
+              <p className="text-sm text-muted-foreground mb-2">
                 Prompt changes are saved to the same prompts used by the chatbot and admin. View or edit them here:
               </p>
               <div className="flex flex-wrap gap-2">
@@ -534,7 +534,7 @@ function DiagnosisDetailContent() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => router.push(`/admin/prompts/${key}`)}
-                    className="px-4 py-2 bg-silicon-slate/50 border border-platinum-white/20 rounded-lg text-sm text-platinum-white/90 hover:bg-silicon-slate/70 transition-colors"
+                    className="px-4 py-2 bg-silicon-slate/50 border border-foreground/20 rounded-lg text-sm text-foreground/90 hover:bg-silicon-slate/70 transition-colors"
                   >
                     View {getPromptDisplayName(key)} prompt
                   </motion.button>
@@ -548,7 +548,7 @@ function DiagnosisDetailContent() {
         <div className="mt-8">
           <button
             onClick={() => router.push('/admin/chat-eval/diagnoses')}
-            className="text-platinum-white/60 hover:text-platinum-white transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             ← Back to All Diagnoses
           </button>

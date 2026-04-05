@@ -76,7 +76,7 @@ export default function SignupForm() {
       >
         <div className="p-8 bg-green-500/20 border border-green-500/50 rounded-lg">
           <h2 className="text-2xl font-bold text-foreground mb-2">Check your email!</h2>
-          <p className="text-platinum-white">
+          <p className="text-foreground">
             We&apos;ve sent you a confirmation link. Please check your inbox to verify your account.
           </p>
         </div>
@@ -94,7 +94,7 @@ export default function SignupForm() {
       >
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">Create Account</h2>
-          <p className="text-platinum-white/80">Sign up to access exclusive content</p>
+          <p className="text-muted-foreground">Sign up to access exclusive content</p>
         </div>
 
         {error && (
@@ -109,11 +109,11 @@ export default function SignupForm() {
 
         <div className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-platinum-white mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="email"
                 type="email"
@@ -127,11 +127,11 @@ export default function SignupForm() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-platinum-white mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="password"
                 type="password"
@@ -146,11 +146,11 @@ export default function SignupForm() {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-platinum-white mb-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground mb-2">
               Confirm Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="confirmPassword"
                 type="password"
@@ -187,7 +187,7 @@ export default function SignupForm() {
             <div className="w-full border-t border-silicon-slate"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-silicon-slate text-platinum-white/80">Or continue with</span>
+            <span className="px-2 bg-silicon-slate text-muted-foreground">Or continue with</span>
           </div>
         </div>
 
@@ -234,7 +234,7 @@ export default function SignupForm() {
           </motion.button>
         </div>
 
-        <p className="text-center text-sm text-platinum-white/80">
+        <p className="text-center text-sm text-muted-foreground">
           Already have an account?{' '}
           <a href={redirectTo ? `/auth/login?redirect=${encodeURIComponent(redirectTo)}` : '/auth/login'} className="text-radiant-gold hover:text-gold-light transition-colors">
             Sign in

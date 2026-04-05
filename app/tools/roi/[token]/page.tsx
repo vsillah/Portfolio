@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import SiteThemeCorner from '@/components/SiteThemeCorner'
 
 type ValidateResult = { allowed: true; contactName?: string }
 type CalculateResult = {
@@ -87,14 +88,19 @@ export default function ROICalculatorPage() {
 
   if (status === 'loading') {
     return (
+      <>
+        <SiteThemeCorner />
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
         <p className="text-gray-400">Checking link…</p>
       </div>
+      </>
     )
   }
 
   if (status === 'invalid') {
     return (
+      <>
+        <SiteThemeCorner />
       <div className="min-h-screen bg-black text-white flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <h1 className="text-xl font-semibold text-white mb-2">Link invalid or expired</h1>
@@ -109,12 +115,15 @@ export default function ROICalculatorPage() {
           </Link>
         </div>
       </div>
+      </>
     )
   }
 
   const offerNum = typeof offerPrice === 'number' ? offerPrice : Number(offerPrice) || 0
 
   return (
+    <>
+      <SiteThemeCorner />
     <div className="min-h-screen bg-black text-white pt-12 pb-16 px-4">
       <div className="max-w-xl mx-auto">
         <h1 className="text-2xl font-bold mb-1">ROI Calculator</h1>
@@ -215,5 +224,6 @@ export default function ROICalculatorPage() {
         </div>
       </div>
     </div>
+    </>
   )
 }

@@ -73,11 +73,11 @@ export function DiagnosticContextPanel({ auditId, visible, onSaved }: Diagnostic
           >
             <div className="flex items-center gap-2">
               <Sparkles size={14} className="text-radiant-gold" />
-              <span className="text-xs font-medium text-platinum-white/90">
+              <span className="text-xs font-medium text-foreground/90">
                 {saved ? 'Context saved — your report will be upgraded' : 'Upgrade your report'}
               </span>
             </div>
-            {expanded ? <ChevronUp size={14} className="text-platinum-white/50" /> : <ChevronDown size={14} className="text-platinum-white/50" />}
+            {expanded ? <ChevronUp size={14} className="text-muted-foreground/90" /> : <ChevronDown size={14} className="text-muted-foreground/90" />}
           </button>
 
           {expanded && !saved && (
@@ -86,38 +86,38 @@ export function DiagnosticContextPanel({ auditId, visible, onSaved }: Diagnostic
               animate={{ opacity: 1 }}
               className="px-3 pb-3 space-y-2"
             >
-              <p className="text-xs text-platinum-white/60">
+              <p className="text-xs text-muted-foreground">
                 Add your business details to get a richer, more personalized report.
               </p>
 
               <div className="flex items-center gap-2">
-                <Globe size={12} className="text-platinum-white/40 shrink-0" />
+                <Globe size={12} className="text-muted-foreground/80 shrink-0" />
                 <input
                   type="url"
                   value={websiteUrl}
                   onChange={(e) => setWebsiteUrl(e.target.value)}
                   placeholder="Website URL"
-                  className="flex-1 px-2 py-1 text-xs rounded bg-black/40 border border-platinum-white/20 text-platinum-white placeholder:text-platinum-white/40 focus:border-radiant-gold/50 focus:outline-none"
+                  className="flex-1 px-2 py-1 text-xs rounded bg-black/40 border border-foreground/20 text-foreground placeholder:text-muted-foreground/80 focus:border-radiant-gold/50 focus:outline-none"
                 />
               </div>
 
               <div className="flex items-center gap-2">
-                <Mail size={12} className="text-platinum-white/40 shrink-0" />
+                <Mail size={12} className="text-muted-foreground/80 shrink-0" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email"
-                  className="flex-1 px-2 py-1 text-xs rounded bg-black/40 border border-platinum-white/20 text-platinum-white placeholder:text-platinum-white/40 focus:border-radiant-gold/50 focus:outline-none"
+                  className="flex-1 px-2 py-1 text-xs rounded bg-black/40 border border-foreground/20 text-foreground placeholder:text-muted-foreground/80 focus:border-radiant-gold/50 focus:outline-none"
                 />
               </div>
 
               <div className="flex items-center gap-2">
-                <Building2 size={12} className="text-platinum-white/40 shrink-0" />
+                <Building2 size={12} className="text-muted-foreground/80 shrink-0" />
                 <select
                   value={industry}
                   onChange={(e) => setIndustry(e.target.value)}
-                  className="flex-1 px-2 py-1 text-xs rounded bg-black/40 border border-platinum-white/20 text-platinum-white focus:border-radiant-gold/50 focus:outline-none"
+                  className="flex-1 px-2 py-1 text-xs rounded bg-black/40 border border-foreground/20 text-foreground focus:border-radiant-gold/50 focus:outline-none"
                 >
                   <option value="">Industry…</option>
                   {INDUSTRY_OPTIONS.map((opt) => (
@@ -130,7 +130,7 @@ export function DiagnosticContextPanel({ auditId, visible, onSaved }: Diagnostic
                 <button
                   type="button"
                   onClick={() => setDismissed(true)}
-                  className="text-xs text-platinum-white/40 hover:text-platinum-white/60"
+                  className="text-xs text-muted-foreground/80 hover:text-muted-foreground"
                 >
                   Skip
                 </button>

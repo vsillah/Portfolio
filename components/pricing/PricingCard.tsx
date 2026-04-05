@@ -188,7 +188,7 @@ export function PricingCard({ tier, onSelect, calculationContext, campaign }: Pr
           onClick={() => onSelect(tier.id)}
           className={`w-full rounded-full py-3.5 text-center text-sm font-heading font-bold uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] ${
             tier.featured
-              ? 'bg-imperial-navy text-white hover:bg-imperial-navy/90 shadow-lg hover:shadow-xl'
+              ? 'bg-background text-white hover:bg-background/90 shadow-lg hover:shadow-xl'
               : 'bg-white text-imperial-navy border-2 border-imperial-navy hover:bg-gray-50 dark:bg-transparent dark:text-white dark:border-white dark:hover:bg-white/10'
           }`}
         >
@@ -199,7 +199,7 @@ export function PricingCard({ tier, onSelect, calculationContext, campaign }: Pr
           href={tier.ctaHref}
           className={`block w-full rounded-full py-3.5 text-center text-sm font-heading font-bold uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-[0.98] ${
             tier.featured
-              ? 'bg-imperial-navy text-white hover:bg-imperial-navy/90 shadow-lg hover:shadow-xl'
+              ? 'bg-background text-white hover:bg-background/90 shadow-lg hover:shadow-xl'
               : 'bg-white text-imperial-navy border-2 border-imperial-navy hover:bg-gray-50 dark:bg-transparent dark:text-white dark:border-white dark:hover:bg-white/10'
           }`}
         >

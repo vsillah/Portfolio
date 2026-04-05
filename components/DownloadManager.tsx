@@ -112,7 +112,7 @@ export default function DownloadManager({ orderId, orderItems }: DownloadManager
 
   if (!hasFileDownloads && !hasTemplateDeliverables) {
     return (
-      <div className="text-center py-8 text-platinum-white/80">
+      <div className="text-center py-8 text-muted-foreground">
         <p>No downloadable files or template access for this order.</p>
       </div>
     )
@@ -149,7 +149,7 @@ export default function DownloadManager({ orderId, orderItems }: DownloadManager
                     <File className="text-radiant-gold flex-shrink-0" size={24} />
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-foreground truncate">{item.products.title}</h4>
-                      <p className="text-sm text-platinum-white/80 capitalize">{item.products.type}</p>
+                      <p className="text-sm text-muted-foreground capitalize">{item.products.type}</p>
                     </div>
                   </div>
                   <button

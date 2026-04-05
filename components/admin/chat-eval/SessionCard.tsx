@@ -101,7 +101,7 @@ export function SessionCard({ session, isSelected, selectionMode, onSelect, onCl
             {isSelected ? (
               <CheckSquare size={20} className="text-radiant-gold" />
             ) : (
-              <Square size={20} className="text-platinum-white/40 hover:text-platinum-white/60" />
+              <Square size={20} className="text-muted-foreground/80 hover:text-muted-foreground" />
             )}
           </div>
         )}
@@ -118,7 +118,7 @@ export function SessionCard({ session, isSelected, selectionMode, onSelect, onCl
             </div>
             
             {/* Session ID (truncated) */}
-            <span className="font-mono text-sm text-platinum-white truncate">
+            <span className="font-mono text-sm text-foreground truncate">
               {session.session_id.substring(0, 20)}...
             </span>
             
@@ -133,7 +133,7 @@ export function SessionCard({ session, isSelected, selectionMode, onSelect, onCl
           
           {/* Visitor info */}
           {(session.visitor_name || session.visitor_email) && (
-            <div className="text-xs text-platinum-white/60 mb-2">
+            <div className="text-xs text-muted-foreground mb-2">
               {session.visitor_name && <span>{session.visitor_name}</span>}
               {session.visitor_name && session.visitor_email && <span> • </span>}
               {session.visitor_email && <span>{session.visitor_email}</span>}
@@ -141,14 +141,14 @@ export function SessionCard({ session, isSelected, selectionMode, onSelect, onCl
           )}
           
           {/* Timestamps and stats */}
-          <div className="flex items-center gap-3 text-xs text-platinum-white/50 flex-wrap">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground/90 flex-wrap">
             <span>Created: {formatDate(session.created_at)}</span>
             <span>•</span>
             <span>{session.message_count} messages</span>
             {session.prompt_version != null && (
               <>
                 <span>•</span>
-                <span className="px-2 py-0.5 rounded bg-platinum-white/10 text-platinum-white/70 border border-platinum-white/20 font-medium">
+                <span className="px-2 py-0.5 rounded bg-muted/60 text-muted-foreground border border-foreground/20 font-medium">
                   v{session.prompt_version}
                 </span>
               </>
@@ -201,19 +201,19 @@ export function SessionCard({ session, isSelected, selectionMode, onSelect, onCl
               <X size={14} className="text-white" />
             </div>
           ) : (
-            <div className="w-6 h-6 rounded-full border-2 border-platinum-white/20" />
+            <div className="w-6 h-6 rounded-full border-2 border-foreground/20" />
           )}
           {onDelete && (
             <button
               type="button"
               onClick={handleDeleteClick}
-              className="p-1.5 rounded-lg text-platinum-white/50 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              className="p-1.5 rounded-lg text-muted-foreground/90 hover:text-red-400 hover:bg-red-500/10 transition-colors"
               title="Delete session"
             >
               <Trash2 size={16} />
             </button>
           )}
-          <ChevronRight size={16} className="text-platinum-white/40" />
+          <ChevronRight size={16} className="text-muted-foreground/80" />
         </div>
       </div>
     </motion.div>

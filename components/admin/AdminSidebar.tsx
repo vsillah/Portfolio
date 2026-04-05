@@ -102,7 +102,7 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
 function NavItemIcon({ href }: { href: string }) {
   const Icon = NAV_ITEM_ICONS[href]
   if (!Icon) return null
-  return <Icon size={ITEM_ICON_SIZE} className="shrink-0 text-platinum-white/70" />
+  return <Icon size={ITEM_ICON_SIZE} className="shrink-0 text-muted-foreground" />
 }
 
 export default function AdminSidebar() {
@@ -137,7 +137,7 @@ export default function AdminSidebar() {
           className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
             pathname === ADMIN_NAV.dashboard.href
               ? 'bg-radiant-gold/20 text-radiant-gold border-l-2 border-radiant-gold -ml-0.5 pl-3.5'
-              : 'text-platinum-white/90 hover:bg-silicon-slate hover:text-foreground'
+              : 'text-foreground/90 hover:bg-silicon-slate hover:text-foreground'
           }`}
           aria-current={pathname === ADMIN_NAV.dashboard.href ? 'page' : undefined}
         >
@@ -147,7 +147,7 @@ export default function AdminSidebar() {
 
         {ADMIN_NAV.categories.map((cat) => (
           <div key={cat.label} className="flex flex-col gap-0.5">
-            <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-platinum-white/60">
+            <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               {cat.label}
             </div>
             {cat.children && cat.expandableItemHref ? (
@@ -166,7 +166,7 @@ export default function AdminSidebar() {
                             <button
                               type="button"
                               onClick={() => setExpanded((o: boolean) => !o)}
-                              className="flex w-full items-center gap-2 rounded-lg pl-5 pr-3 py-2 text-sm font-medium transition-colors text-left text-platinum-white/90 hover:bg-silicon-slate hover:text-foreground"
+                              className="flex w-full items-center gap-2 rounded-lg pl-5 pr-3 py-2 text-sm font-medium transition-colors text-left text-foreground/90 hover:bg-silicon-slate hover:text-foreground"
                               aria-expanded={expanded}
                               aria-controls={childrenId}
                             >
@@ -193,7 +193,7 @@ export default function AdminSidebar() {
                                       className={`flex items-center gap-2 ml-5 pl-6 rounded-lg pr-3 py-2 text-sm transition-colors ${
                                         childActive
                                           ? 'bg-radiant-gold/20 text-radiant-gold border-l-2 border-radiant-gold -ml-0.5 pl-5'
-                                          : 'text-platinum-white/80 hover:bg-silicon-slate hover:text-foreground'
+                                          : 'text-muted-foreground hover:bg-silicon-slate hover:text-foreground'
                                       }`}
                                       aria-current={childActive ? 'page' : undefined}
                                     >
@@ -210,7 +210,7 @@ export default function AdminSidebar() {
                             className={`flex items-center gap-2 rounded-lg pl-5 pr-3 py-2 text-sm font-medium transition-colors ${
                               active
                                 ? 'bg-radiant-gold/20 text-radiant-gold border-l-2 border-radiant-gold -ml-0.5 pl-5'
-                                : 'text-platinum-white/90 hover:bg-silicon-slate hover:text-foreground'
+                                : 'text-foreground/90 hover:bg-silicon-slate hover:text-foreground'
                             }`}
                             aria-current={active ? 'page' : undefined}
                           >
@@ -233,7 +233,7 @@ export default function AdminSidebar() {
                     className={`flex items-center gap-2 rounded-lg pl-5 pr-3 py-2 text-sm font-medium transition-colors ${
                       active
                         ? 'bg-radiant-gold/20 text-radiant-gold border-l-2 border-radiant-gold -ml-0.5 pl-5'
-                        : 'text-platinum-white/90 hover:bg-silicon-slate hover:text-foreground'
+                        : 'text-foreground/90 hover:bg-silicon-slate hover:text-foreground'
                     }`}
                     aria-current={active ? 'page' : undefined}
                   >

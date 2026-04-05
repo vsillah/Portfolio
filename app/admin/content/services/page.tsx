@@ -474,7 +474,7 @@ export default function ServicesManagementPage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">Services Management</h1>
-              <p className="text-platinum-white/70">Manage trainings, speaking engagements, consulting, and more</p>
+              <p className="text-muted-foreground">Manage trainings, speaking engagements, consulting, and more</p>
             </div>
             <motion.button
               onClick={() => { resetForm(); setShowAddModal(true) }}
@@ -507,7 +507,7 @@ export default function ServicesManagementPage() {
                   </h2>
                   <button
                     onClick={handleCloseModal}
-                    className="p-2 rounded-lg text-platinum-white/80 hover:text-foreground hover:bg-silicon-slate transition-colors"
+                    className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-silicon-slate transition-colors"
                     aria-label="Close"
                   >
                     <X size={20} />
@@ -573,7 +573,7 @@ export default function ServicesManagementPage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">Duration (hours)</label>
                     <div className="relative">
-                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/60" size={20} />
+                      <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
                       <input
                         type="number"
                         step="0.5"
@@ -602,7 +602,7 @@ export default function ServicesManagementPage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">Price (leave empty if quote-based)</label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/60" size={20} />
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
                       <input
                         type="number"
                         step="0.01"
@@ -618,7 +618,7 @@ export default function ServicesManagementPage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">Unit cost</label>
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/60" size={20} />
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
                       <input
                         type="number"
                         step="0.01"
@@ -662,7 +662,7 @@ export default function ServicesManagementPage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">Min Participants</label>
                     <div className="relative">
-                      <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/60" size={20} />
+                      <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
                       <input
                         type="number"
                         min="1"
@@ -675,7 +675,7 @@ export default function ServicesManagementPage() {
                   <div>
                     <label className="block text-sm font-medium mb-2">Max Participants (leave empty for unlimited)</label>
                     <div className="relative">
-                      <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/60" size={20} />
+                      <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
                       <input
                         type="number"
                         min="1"
@@ -754,7 +754,7 @@ export default function ServicesManagementPage() {
                     className="w-full px-4 py-2 input-brand"
                     placeholder="https://..."
                   />
-                  <p className="text-xs text-platinum-white/60 mt-1">Used when showing the video as a lead magnet or in bundles.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Used when showing the video as a lead magnet or in bundles.</p>
                 </div>
 
                 {/* Presentation URL (Gamma) */}
@@ -767,7 +767,7 @@ export default function ServicesManagementPage() {
                     className="w-full px-4 py-2 input-brand"
                     placeholder="https://gamma.app/embed/..."
                   />
-                  <p className="text-xs text-platinum-white/60 mt-1">Embed a Gamma presentation as a lead magnet. Show on Resources with &quot;View presentation&quot;.</p>
+                  <p className="text-xs text-muted-foreground mt-1">Embed a Gamma presentation as a lead magnet. Show on Resources with &quot;View presentation&quot;.</p>
                 </div>
 
                 {/* Offer video or presentation as lead magnet */}
@@ -857,10 +857,10 @@ export default function ServicesManagementPage() {
 
           {loading ? (
             <div className="text-center py-12">
-              <div className="text-platinum-white/70">Loading services...</div>
+              <div className="text-muted-foreground">Loading services...</div>
             </div>
           ) : services.length === 0 ? (
-            <div className="text-center py-12 text-platinum-white/70">
+            <div className="text-center py-12 text-muted-foreground">
               <p className="mb-4">No services found. Add your first one!</p>
               <motion.button
                 onClick={() => { resetForm(); setShowAddModal(true) }}
@@ -889,7 +889,7 @@ export default function ServicesManagementPage() {
                           Active
                         </span>
                       ) : (
-                        <span className="px-2 py-1 text-xs bg-silicon-slate/80 text-platinum-white/60 rounded border border-silicon-slate">
+                        <span className="px-2 py-1 text-xs bg-silicon-slate/80 text-muted-foreground rounded border border-silicon-slate">
                           Inactive
                         </span>
                       )}
@@ -900,9 +900,9 @@ export default function ServicesManagementPage() {
                       )}
                     </div>
                     {service.description && (
-                      <p className="text-platinum-white/70 text-sm mb-2 line-clamp-2">{service.description}</p>
+                      <p className="text-muted-foreground text-sm mb-2 line-clamp-2">{service.description}</p>
                     )}
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-platinum-white/60">
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                       <span className="px-2 py-1 bg-silicon-slate/60 rounded text-xs">
                         {getTypeLabel(service.service_type)}
                       </span>
@@ -925,13 +925,13 @@ export default function ServicesManagementPage() {
                       {!service.is_quote_based && service.price != null && service.price > 0 && (
                         <>
                           <span>•</span>
-                          <span className="text-platinum-white/60 text-xs">
+                          <span className="text-muted-foreground text-xs">
                             Cost: {service.unit_cost != null ? formatCurrency(service.unit_cost) : '—'}
                           </span>
                           {service.unit_cost != null && (
                             <>
                               <span>•</span>
-                              <span className="text-platinum-white/60 text-xs">
+                              <span className="text-muted-foreground text-xs">
                                 Margin: {formatMarginPercent(service.price, service.unit_cost)} ({formatMarginDollar(service.price, service.unit_cost)})
                               </span>
                             </>
@@ -963,35 +963,35 @@ export default function ServicesManagementPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleMoveOrder(service, 'up')}
-                      className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors"
+                      className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors"
                       title="Move up"
                     >
                       <ArrowUp size={18} />
                     </button>
                     <button
                       onClick={() => handleMoveOrder(service, 'down')}
-                      className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors"
+                      className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors"
                       title="Move down"
                     >
                       <ArrowDown size={18} />
                     </button>
                     <button
                       onClick={() => handleToggleFeatured(service)}
-                      className={`p-2 rounded-lg transition-colors ${service.is_featured ? 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50' : 'bg-silicon-slate/50 border border-silicon-slate text-platinum-white/80 hover:text-radiant-gold'}`}
+                      className={`p-2 rounded-lg transition-colors ${service.is_featured ? 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50' : 'bg-silicon-slate/50 border border-silicon-slate text-muted-foreground hover:text-radiant-gold'}`}
                       title={service.is_featured ? 'Remove Featured' : 'Mark as Featured'}
                     >
                       <Star size={18} />
                     </button>
                     <button
                       onClick={() => handleToggleActive(service)}
-                      className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors"
+                      className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors"
                       title={service.is_active ? 'Deactivate' : 'Activate'}
                     >
                       {service.is_active ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                     <button
                       onClick={() => handleEdit(service)}
-                      className="p-2 bg-silicon-slate/50 hover:bg-radiant-gold/20 border border-silicon-slate hover:border-radiant-gold/50 rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors"
+                      className="p-2 bg-silicon-slate/50 hover:bg-radiant-gold/20 border border-silicon-slate hover:border-radiant-gold/50 rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors"
                       title="Edit"
                     >
                       <Edit size={18} />

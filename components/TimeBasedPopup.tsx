@@ -97,7 +97,7 @@ export default function TimeBasedPopup({
             <div className="bg-silicon-slate border-2 border-radiant-gold rounded-2xl p-8 max-w-md w-full relative">
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 text-platinum-white/80 hover:text-foreground transition-colors"
+                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X size={24} />
               </button>
@@ -107,14 +107,14 @@ export default function TimeBasedPopup({
                   <Clock className="text-radiant-gold" size={32} />
                 </div>
                 <h2 className="text-2xl font-bold mb-2">Limited Time Offer!</h2>
-                <p className="text-platinum-white/80">
+                <p className="text-muted-foreground">
                   Get {discountAmount}% off when you complete your purchase in the next few minutes
                 </p>
               </div>
 
               <div className="bg-radiant-gold/20 border border-radiant-gold/50 rounded-lg p-4 mb-6 text-center">
                 <p className="text-3xl font-bold text-radiant-gold">{discountAmount}% OFF</p>
-                <p className="text-sm text-platinum-white/80 mt-1">Your entire order</p>
+                <p className="text-sm text-muted-foreground mt-1">Your entire order</p>
               </div>
 
               <div className="space-y-3">

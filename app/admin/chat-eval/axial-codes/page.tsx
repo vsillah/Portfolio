@@ -176,7 +176,7 @@ function AxialCodesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-5xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -190,7 +190,7 @@ function AxialCodesContent() {
             <Sparkles size={32} className="text-purple-400" />
             <h1 className="text-4xl font-heading tracking-wider">Axial Codes</h1>
           </div>
-          <p className="text-platinum-white/60">
+          <p className="text-muted-foreground">
             Review and approve generated axial codes to create new issue categories
           </p>
         </div>
@@ -209,7 +209,7 @@ function AxialCodesContent() {
               className={`px-4 py-2 rounded-lg text-sm transition-all
                 ${filter === value
                   ? 'bg-radiant-gold/20 border border-radiant-gold/50 text-radiant-gold'
-                  : 'bg-silicon-slate/30 border border-radiant-gold/10 text-platinum-white/70 hover:border-radiant-gold/30'
+                  : 'bg-silicon-slate/30 border border-radiant-gold/10 text-muted-foreground hover:border-radiant-gold/30'
                 }`}
             >
               {label}
@@ -219,17 +219,17 @@ function AxialCodesContent() {
 
         {/* Promote open code directly — no axial generation needed */}
         <div className="mb-8 p-4 bg-silicon-slate/20 border border-purple-500/20 rounded-xl">
-          <h3 className="text-sm font-heading text-platinum-white/80 uppercase tracking-wider mb-2">
+          <h3 className="text-sm font-heading text-muted-foreground uppercase tracking-wider mb-2">
             Promote an open code to issue category
           </h3>
-          <p className="text-xs text-platinum-white/50 mb-3">
+          <p className="text-xs text-muted-foreground/90 mb-3">
             Have an open code (e.g. &quot;Referencing AI tools&quot;) you want in the Issue Category dropdown? Promote it here — no axial code generation needed.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <select
               value={selectedOpenCode}
               onChange={(e) => setSelectedOpenCode(e.target.value)}
-              className="px-3 py-2 bg-silicon-slate/50 border border-radiant-gold/10 rounded-lg text-sm text-platinum-white focus:outline-none focus:border-radiant-gold/30 min-w-[200px]"
+              className="px-3 py-2 bg-silicon-slate/50 border border-radiant-gold/10 rounded-lg text-sm text-foreground focus:outline-none focus:border-radiant-gold/30 min-w-[200px]"
             >
               <option value="">Select an open code...</option>
               {openCodes.map((oc) => (
@@ -249,7 +249,7 @@ function AxialCodesContent() {
           {promoteError && <p className="text-red-400 text-sm mt-2">{promoteError}</p>}
           {promoteSuccess && <p className="text-emerald-400 text-sm mt-2">{promoteSuccess}</p>}
           {openCodes.length === 0 && (
-            <p className="text-xs text-platinum-white/40 mt-2">
+            <p className="text-xs text-muted-foreground/80 mt-2">
               No open codes yet. Annotate a session with a Bad rating and enter an &quot;Open Code&quot; to create one.
             </p>
           )}
@@ -258,14 +258,14 @@ function AxialCodesContent() {
         {/* Generations list */}
         <div className="space-y-4">
           {loading ? (
-            <div className="text-center py-12 text-platinum-white/50">
+            <div className="text-center py-12 text-muted-foreground/90">
               Loading generations...
             </div>
           ) : generations.length === 0 ? (
             <div className="text-center py-12">
-              <Sparkles size={48} className="text-platinum-white/20 mx-auto mb-4" />
+              <Sparkles size={48} className="text-muted-foreground/60 mx-auto mb-4" />
               <h3 className="text-xl font-heading mb-2">No Generations Yet</h3>
-              <p className="text-platinum-white/50 mb-4">
+              <p className="text-muted-foreground/90 mb-4">
                 Select sessions with open codes and generate axial codes to get started.
               </p>
               <motion.button
@@ -295,7 +295,7 @@ function AxialCodesContent() {
                         {getStatusIcon(gen.status)}
                         {gen.status.charAt(0).toUpperCase() + gen.status.slice(1)}
                       </span>
-                      <span className="text-sm text-platinum-white/50">
+                      <span className="text-sm text-muted-foreground/90">
                         {formatDate(gen.created_at)}
                       </span>
                     </div>
@@ -304,17 +304,17 @@ function AxialCodesContent() {
                     <div className="flex items-center gap-6 text-sm">
                       <div className="flex items-center gap-2">
                         <Hash size={14} className="text-purple-400" />
-                        <span className="text-platinum-white">
+                        <span className="text-foreground">
                           {gen.axial_code_count} axial codes
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
                         <FileText size={14} className="text-cyan-400" />
-                        <span className="text-platinum-white/70">
+                        <span className="text-muted-foreground">
                           from {gen.source_open_code_count} open codes
                         </span>
                       </div>
-                      <div className="text-platinum-white/50">
+                      <div className="text-muted-foreground/90">
                         {gen.source_session_count} sessions
                       </div>
                     </div>
@@ -322,7 +322,7 @@ function AxialCodesContent() {
                     {/* Review progress */}
                     <div className="mt-4">
                       <div className="flex items-center gap-4 text-xs">
-                        <span className="text-platinum-white/50">Review Progress:</span>
+                        <span className="text-muted-foreground/90">Review Progress:</span>
                         <span className="flex items-center gap-1 text-yellow-400">
                           <Clock size={12} />
                           {gen.review_stats.pending} pending
@@ -354,8 +354,8 @@ function AxialCodesContent() {
                   </div>
 
                   <div className="flex items-center gap-2 ml-4">
-                    <span className="text-xs text-platinum-white/40">{gen.model_used}</span>
-                    <ChevronRight size={20} className="text-platinum-white/40" />
+                    <span className="text-xs text-muted-foreground/80">{gen.model_used}</span>
+                    <ChevronRight size={20} className="text-muted-foreground/80" />
                   </div>
                 </div>
               </motion.div>

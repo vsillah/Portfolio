@@ -106,7 +106,7 @@ export default function PrototypesManagementPage() {
       case 'QA': return 'bg-sky-500/20 text-sky-400 border-sky-500/50'
       case 'Pilot': return 'bg-radiant-gold/20 text-radiant-gold border-radiant-gold/50'
       case 'Production': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/50'
-      default: return 'bg-silicon-slate/80 text-platinum-white/60 border-silicon-slate'
+      default: return 'bg-silicon-slate/80 text-muted-foreground border-silicon-slate'
     }
   }
 
@@ -273,7 +273,7 @@ export default function PrototypesManagementPage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">Prototypes Management</h1>
-              <p className="text-platinum-white/70">Manage app prototype demos</p>
+              <p className="text-muted-foreground">Manage app prototype demos</p>
             </div>
             <motion.button
               onClick={() => { resetForm(); setShowAddModal(true) }}
@@ -303,7 +303,7 @@ export default function PrototypesManagementPage() {
                   <h2 className="text-xl font-semibold">Add New Prototype</h2>
                   <button
                     onClick={handleCloseAddModal}
-                    className="p-2 rounded-lg text-platinum-white/80 hover:text-foreground hover:bg-silicon-slate transition-colors"
+                    className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-silicon-slate transition-colors"
                     aria-label="Close"
                   >
                     <X size={20} />
@@ -640,12 +640,12 @@ export default function PrototypesManagementPage() {
           {loading ? (
             <div className="text-center py-12">
               <Loader2 className="animate-spin mx-auto mb-2 text-radiant-gold" size={24} />
-              <div className="text-platinum-white/70">Loading prototypes...</div>
+              <div className="text-muted-foreground">Loading prototypes...</div>
             </div>
           ) : (
             <div className="space-y-4">
               {prototypes.length === 0 ? (
-                <div className="text-center py-12 text-platinum-white/70">
+                <div className="text-center py-12 text-muted-foreground">
                   <div className="w-16 h-16 mx-auto mb-4 bg-silicon-slate/80 rounded-full flex items-center justify-center">
                     <Sparkles size={32} className="text-radiant-gold/60" />
                   </div>
@@ -682,7 +682,7 @@ export default function PrototypesManagementPage() {
                         </div>
                       ) : (
                         <div className="w-20 h-14 rounded-lg bg-silicon-slate/80 flex items-center justify-center flex-shrink-0">
-                          <ImageIcon size={20} className="text-platinum-white/50" />
+                          <ImageIcon size={20} className="text-muted-foreground/90" />
                         </div>
                       )}
 
@@ -692,17 +692,17 @@ export default function PrototypesManagementPage() {
                           <span className={`px-2 py-1 rounded text-xs font-semibold border ${getStageColor(prototype.production_stage)}`}>
                             {prototype.production_stage}
                           </span>
-                          <span className="px-2 py-1 rounded text-xs bg-silicon-slate/60 text-platinum-white/80 flex items-center gap-1">
+                          <span className="px-2 py-1 rounded text-xs bg-silicon-slate/60 text-muted-foreground flex items-center gap-1">
                             {prototype.channel === 'Mobile' ? <Smartphone size={12} /> : <Globe size={12} />}
                             {prototype.channel}
                           </span>
-                          <span className="px-2 py-1 rounded text-xs bg-silicon-slate/60 text-platinum-white/80 flex items-center gap-1">
+                          <span className="px-2 py-1 rounded text-xs bg-silicon-slate/60 text-muted-foreground flex items-center gap-1">
                             {prototype.product_type === 'Utility' ? <Wrench size={12} /> : <Sparkles size={12} />}
                             {prototype.product_type}
                           </span>
                         </div>
-                        <p className="text-platinum-white/70 text-sm mb-2 line-clamp-1">{prototype.description}</p>
-                        <p className="text-xs text-platinum-white/50">
+                        <p className="text-muted-foreground text-sm mb-2 line-clamp-1">{prototype.description}</p>
+                        <p className="text-xs text-muted-foreground/90">
                           Created: {new Date(prototype.created_at).toLocaleDateString()}
                         </p>
                       </div>
@@ -710,22 +710,22 @@ export default function PrototypesManagementPage() {
 
                     <div className="flex items-center gap-2 ml-4">
                       <Link href={`/admin/content/prototypes/${prototype.id}`}>
-                        <button className="p-2 bg-silicon-slate/50 hover:bg-radiant-gold/20 border border-silicon-slate hover:border-radiant-gold/50 rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors" title="Edit">
+                        <button className="p-2 bg-silicon-slate/50 hover:bg-radiant-gold/20 border border-silicon-slate hover:border-radiant-gold/50 rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors" title="Edit">
                           <Edit size={18} />
                         </button>
                       </Link>
                       <Link href={`/admin/content/prototypes/${prototype.id}/history`}>
-                        <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors" title="History">
+                        <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors" title="History">
                           <History size={18} />
                         </button>
                       </Link>
                       <Link href={`/admin/content/prototypes/${prototype.id}/demos`}>
-                        <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors" title="Demos">
+                        <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors" title="Demos">
                           <Film size={18} />
                         </button>
                       </Link>
                       <Link href={`/admin/content/prototypes/${prototype.id}/analytics`}>
-                        <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-platinum-white/80 hover:text-radiant-gold transition-colors" title="Analytics">
+                        <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors" title="Analytics">
                           <BarChart3 size={18} />
                         </button>
                       </Link>

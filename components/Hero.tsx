@@ -97,13 +97,13 @@ function MissionCard({
         delay: reduceMotion ? 0 : index * 0.1,
       }}
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-imperial-navy flex items-center justify-center">
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-background flex items-center justify-center">
         <Icon className="w-14 h-14 sm:w-16 sm:h-16 text-radiant-gold/30" aria-hidden />
         <span className="sr-only">{alt}</span>
       </div>
-      <div className="p-4 sm:p-5 bg-imperial-navy/50 backdrop-blur-sm border-t border-radiant-gold/10">
+      <div className="p-4 sm:p-5 bg-background/50 backdrop-blur-sm border-t border-radiant-gold/10">
         <p className="text-[10px] font-heading uppercase tracking-[0.2em] text-radiant-gold mb-1.5">{label}</p>
-        <p className="font-body text-sm sm:text-base text-platinum-white/90 leading-snug">{line}</p>
+        <p className="font-body text-sm sm:text-base text-foreground/90 leading-snug">{line}</p>
       </div>
     </motion.div>
   )
@@ -142,7 +142,7 @@ export default function Hero() {
     <section
       ref={containerRef}
       id="home"
-      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-imperial-navy pt-20"
+      className="min-h-screen flex items-center justify-center relative overflow-hidden bg-background pt-20"
     >
       {/* Dynamic Circuit Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -227,7 +227,7 @@ export default function Hero() {
         >
           <div className="pill-badge bg-silicon-slate/30 border-radiant-gold/30">
             <Sparkles className="w-3.5 h-3.4 text-radiant-gold" />
-            <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-heading text-platinum-white/80">
+            <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-heading text-muted-foreground">
               AmaduTown Advisory Solutions
             </span>
           </div>
@@ -239,7 +239,7 @@ export default function Hero() {
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-            className="font-premium text-5xl sm:text-7xl lg:text-8xl text-platinum-white leading-[1.1] tracking-tight"
+            className="font-premium text-5xl sm:text-7xl lg:text-8xl text-foreground leading-[1.1] tracking-tight"
           >
             Digital Excellence <br className="hidden sm:block" />
             <span className="italic text-radiant-gold">for Community Impact</span>
@@ -251,7 +251,7 @@ export default function Hero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="font-body text-base sm:text-lg text-platinum-white/60 mb-8 max-w-2xl mx-auto leading-relaxed"
+          className="font-body text-base sm:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed"
         >
           Empowering minority-owned businesses and nonprofits with data-driven strategy, 
           AI automation, and full-spectrum digital support.
@@ -295,7 +295,7 @@ export default function Hero() {
               className="btn-gold group flex items-center gap-3 px-8 py-4 rounded-full text-sm font-heading tracking-widest"
             >
               <span>GET STARTED</span>
-              <div className="bg-imperial-navy rounded-full p-1 group-hover:translate-x-1 transition-transform">
+              <div className="bg-background rounded-full p-1 group-hover:translate-x-1 transition-transform">
                 <ArrowRight className="w-3 h-3 text-radiant-gold" />
               </div>
             </a>
@@ -303,14 +303,14 @@ export default function Hero() {
           
           <Link
             href="/pricing"
-            className="text-platinum-white/80 hover:text-platinum-white text-xs font-heading tracking-widest transition-colors border-b border-platinum-white/20 pb-1"
+            className="text-muted-foreground hover:text-foreground/95 text-xs font-heading tracking-widest transition-colors border-b border-foreground/20 pb-1"
           >
             VIEW PRICING
           </Link>
           
           <a
             href="#projects"
-            className="text-platinum-white/80 hover:text-platinum-white text-xs font-heading tracking-widest transition-colors border-b border-platinum-white/20 pb-1"
+            className="text-muted-foreground hover:text-foreground/95 text-xs font-heading tracking-widest transition-colors border-b border-foreground/20 pb-1"
           >
             EXPLORE WORK
           </a>
@@ -324,8 +324,8 @@ export default function Hero() {
               <Brain className="w-4 h-4 text-radiant-gold" />
             </div>
             <div className="text-left">
-              <p className="text-[10px] text-platinum-white/40 uppercase tracking-tighter">Focus</p>
-              <p className="text-xs font-semibold text-platinum-white whitespace-nowrap">AI Strategy</p>
+              <p className="text-[10px] text-muted-foreground/70 uppercase tracking-tighter">Focus</p>
+              <p className="text-xs font-semibold text-foreground whitespace-nowrap">AI Strategy</p>
             </div>
           </FloatingCard>
 
@@ -334,8 +334,8 @@ export default function Hero() {
               <Rocket className="w-4 h-4 text-radiant-gold" />
             </div>
             <div className="text-left">
-              <p className="text-[10px] text-platinum-white/40 uppercase tracking-tighter">Method</p>
-              <p className="text-xs font-semibold text-platinum-white whitespace-nowrap">Agile Growth</p>
+              <p className="text-[10px] text-muted-foreground/70 uppercase tracking-tighter">Method</p>
+              <p className="text-xs font-semibold text-foreground whitespace-nowrap">Agile Growth</p>
             </div>
           </FloatingCard>
 
@@ -344,8 +344,8 @@ export default function Hero() {
               <Music className="w-4 h-4 text-radiant-gold" />
             </div>
             <div className="text-left">
-              <p className="text-[10px] text-platinum-white/40 uppercase tracking-tighter">Creative</p>
-              <p className="text-xs font-semibold text-platinum-white whitespace-nowrap">Mad Hadda</p>
+              <p className="text-[10px] text-muted-foreground/70 uppercase tracking-tighter">Creative</p>
+              <p className="text-xs font-semibold text-foreground whitespace-nowrap">Mad Hadda</p>
             </div>
           </FloatingCard>
 
@@ -390,7 +390,7 @@ export default function Hero() {
                   background: 'conic-gradient(from 0deg, transparent 0%, transparent 70%, rgba(212,175,55,0.8) 75%, rgba(245,208,96,1) 80%, rgba(212,175,55,0.8) 85%, transparent 90%, transparent 100%)',
                 }}
               />
-              <div className="absolute inset-[2px] rounded-3xl bg-imperial-navy" />
+              <div className="absolute inset-[2px] rounded-3xl bg-background" />
             </div>
             
             <div className="absolute -inset-[2px] rounded-3xl overflow-hidden -z-5">
@@ -400,7 +400,7 @@ export default function Hero() {
                   background: 'conic-gradient(from 180deg, transparent 0%, transparent 80%, rgba(139,105,20,0.6) 85%, rgba(212,175,55,0.8) 88%, rgba(139,105,20,0.6) 91%, transparent 95%, transparent 100%)',
                 }}
               />
-              <div className="absolute inset-[2px] rounded-3xl bg-imperial-navy" />
+              <div className="absolute inset-[2px] rounded-3xl bg-background" />
             </div>
 
             {/* Wallpaper Container */}
@@ -469,11 +469,11 @@ export default function Hero() {
       </motion.div>
 
       {/* Decorative Bottom Fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-imperial-navy to-transparent pointer-events-none z-20" />
+      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background to-transparent pointer-events-none z-20" />
       
       {/* Scroll Hint — CSS bounce */}
       <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 opacity-30 hero-scroll-hint">
-        <ArrowDown className="w-5 h-5 text-platinum-white" />
+        <ArrowDown className="w-5 h-5 text-foreground" />
       </div>
     </section>
   )

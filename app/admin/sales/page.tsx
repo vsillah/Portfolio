@@ -76,7 +76,7 @@ const OUTCOME_ICONS: Record<SessionOutcome, React.ReactNode> = {
   downsold: <CheckCircle className="w-4 h-4 text-radiant-gold" />,
   deferred: <Pause className="w-4 h-4 text-yellow-500" />,
   lost: <XCircle className="w-4 h-4 text-red-500" />,
-  in_progress: <Clock className="w-4 h-4 text-platinum-white/60" />,
+  in_progress: <Clock className="w-4 h-4 text-muted-foreground" />,
 };
 
 const OUTCOME_LABELS: Record<SessionOutcome, string> = {
@@ -316,7 +316,7 @@ export default function SalesDashboardPage() {
   };
 
   const getScoreColor = (score: number | null) => {
-    if (!score) return 'text-platinum-white/80';
+    if (!score) return 'text-muted-foreground';
     if (score >= 7) return 'text-green-600';
     if (score >= 4) return 'text-yellow-600';
     return 'text-red-600';
@@ -339,7 +339,7 @@ export default function SalesDashboardPage() {
               <TrendingUp className="w-7 h-7 text-emerald-500" />
               Sales Dashboard
             </h1>
-            <p className="text-platinum-white/80 mt-1">
+            <p className="text-muted-foreground mt-1">
               Manage leads from diagnostic audits and conversations; track steps and progress
             </p>
           </div>
@@ -388,32 +388,32 @@ export default function SalesDashboardPage() {
         {stats && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
             <div className="bg-silicon-slate/50 rounded-lg border border-silicon-slate p-4">
-              <div className="text-sm text-platinum-white/80">Total Leads</div>
+              <div className="text-sm text-muted-foreground">Total Leads</div>
               <div className="text-2xl font-bold text-foreground">{stats.total_leads}</div>
             </div>
             <div className="bg-radiant-gold/20 rounded-lg border border-radiant-gold/50 p-4">
-              <div className="text-sm text-platinum-white/80 flex items-center gap-1">
+              <div className="text-sm text-muted-foreground flex items-center gap-1">
                 <Clock className="w-4 h-4 text-radiant-gold" />
                 Pending
               </div>
               <div className="text-2xl font-bold text-radiant-gold">{stats.pending_follow_up}</div>
             </div>
             <div className="bg-emerald-500/20 rounded-lg border border-emerald-500/50 p-4">
-              <div className="text-sm text-platinum-white/80 flex items-center gap-1">
+              <div className="text-sm text-muted-foreground flex items-center gap-1">
                 <CheckCircle className="w-4 h-4 text-emerald-400" />
                 Converted
               </div>
               <div className="text-2xl font-bold text-emerald-400">{stats.converted}</div>
             </div>
             <div className="bg-red-500/20 rounded-lg border border-red-500/50 p-4">
-              <div className="text-sm text-platinum-white/80 flex items-center gap-1">
+              <div className="text-sm text-muted-foreground flex items-center gap-1">
                 <AlertCircle className="w-4 h-4 text-red-500" />
                 High Urgency
               </div>
               <div className="text-2xl font-bold text-red-400">{stats.high_urgency}</div>
             </div>
             <div className="bg-amber-500/20 rounded-lg border border-amber-500/50 p-4">
-              <div className="text-sm text-platinum-white/80 flex items-center gap-1">
+              <div className="text-sm text-muted-foreground flex items-center gap-1">
                 <Star className="w-4 h-4 text-amber-400" />
                 High Opportunity
               </div>
@@ -427,19 +427,19 @@ export default function SalesDashboardPage() {
           <div className="flex flex-col md:flex-row gap-4">
             {/* Search */}
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-2.5 w-5 h-5 text-platinum-white/60" />
+              <Search className="absolute left-3 top-2.5 w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search by name, email, or company..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-silicon-slate border border-silicon-slate rounded-lg text-foreground placeholder-platinum-white/60"
+                className="w-full pl-10 pr-4 py-2 bg-silicon-slate border border-silicon-slate rounded-lg text-foreground placeholder-muted-foreground/60"
               />
             </div>
 
             {/* Min urgency */}
             <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-platinum-white/60" />
+              <Filter className="w-5 h-5 text-muted-foreground" />
               <select
                 value={minUrgency}
                 onChange={(e) => setMinUrgency(parseInt(e.target.value))}
@@ -475,14 +475,14 @@ export default function SalesDashboardPage() {
         {/* Leads list */}
         {isLoading ? (
           <div className="text-center py-12">
-            <RefreshCw className="w-8 h-8 text-platinum-white/60 animate-spin mx-auto mb-3" />
-            <p className="text-platinum-white/80">Loading leads...</p>
+            <RefreshCw className="w-8 h-8 text-muted-foreground animate-spin mx-auto mb-3" />
+            <p className="text-muted-foreground">Loading leads...</p>
           </div>
         ) : filteredLeads.length === 0 ? (
           <div className="text-center py-12 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
-            <Users className="w-12 h-12 text-platinum-white/60 mx-auto mb-3" />
+            <Users className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
             <h3 className="text-lg font-medium text-foreground mb-1">No leads found</h3>
-            <p className="text-platinum-white/80">
+            <p className="text-muted-foreground">
               {searchQuery || minUrgency > 0
                 ? 'Try adjusting your filters'
                 : 'Complete diagnostic audits or start conversations from Outreach to see leads here'}
@@ -493,13 +493,13 @@ export default function SalesDashboardPage() {
             <table className="w-full">
               <thead className="bg-silicon-slate border-b border-silicon-slate">
                 <tr>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Contact</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Steps completed</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Scores</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Stage</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Status</th>
-                  <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Date</th>
-                  <th className="text-right px-4 py-3 text-sm font-medium text-platinum-white/80">Action</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Contact</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Steps completed</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Scores</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Stage</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Status</th>
+                  <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Date</th>
+                  <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-800">
@@ -524,15 +524,15 @@ export default function SalesDashboardPage() {
                               );
                             })()}
                           </div>
-                          <div className="text-sm text-platinum-white/80">{lead.email}</div>
+                          <div className="text-sm text-muted-foreground">{lead.email}</div>
                           {lead.company && (
-                            <div className="text-sm text-platinum-white/60">{lead.company}</div>
+                            <div className="text-sm text-muted-foreground">{lead.company}</div>
                           )}
                         </div>
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex flex-col gap-1 text-sm">
-                          <span className={lead.has_diagnostic_audit ? 'text-emerald-400' : 'text-platinum-white/50'}>
+                          <span className={lead.has_diagnostic_audit ? 'text-emerald-400' : 'text-muted-foreground/90'}>
                             {lead.has_diagnostic_audit ? (
                               <span className="inline-flex items-center gap-1">
                                 <FileText className="w-4 h-4" />
@@ -542,7 +542,7 @@ export default function SalesDashboardPage() {
                               '— Diagnostic audit'
                             )}
                           </span>
-                          <span className={lead.has_conversation ? 'text-emerald-400' : 'text-platinum-white/50'}>
+                          <span className={lead.has_conversation ? 'text-emerald-400' : 'text-muted-foreground/90'}>
                             {lead.has_conversation ? (
                               <span className="inline-flex items-center gap-1">
                                 <Phone className="w-4 h-4" />
@@ -558,34 +558,34 @@ export default function SalesDashboardPage() {
                         {lead.audit ? (
                           <div className="flex items-center gap-4">
                             <div>
-                              <div className="text-xs text-platinum-white/60">Urgency</div>
+                              <div className="text-xs text-muted-foreground">Urgency</div>
                               <div className={`font-bold ${getScoreColor(lead.audit.urgency_score)}`}>
                                 {lead.audit.urgency_score ?? '-'}/10
                               </div>
                             </div>
                             <div>
-                              <div className="text-xs text-platinum-white/60">Opportunity</div>
+                              <div className="text-xs text-muted-foreground">Opportunity</div>
                               <div className={`font-bold ${getScoreColor(lead.audit.opportunity_score)}`}>
                                 {lead.audit.opportunity_score ?? '-'}/10
                               </div>
                             </div>
                           </div>
                         ) : (
-                          <span className="text-platinum-white/50 text-sm">—</span>
+                          <span className="text-muted-foreground/90 text-sm">—</span>
                         )}
                       </td>
                       <td className="px-4 py-4">
                         {lead.session ? (
                           <FunnelStageBadge stage={lead.session.funnel_stage as FunnelStage} size="sm" />
                         ) : (
-                          <span className="text-platinum-white/60 text-sm">Not started</span>
+                          <span className="text-muted-foreground text-sm">Not started</span>
                         )}
                       </td>
                       <td className="px-4 py-4">
                         {lead.session ? (
                           <div className="flex items-center gap-2">
                             {OUTCOME_ICONS[lead.session.outcome as SessionOutcome]}
-                            <span className="text-sm text-platinum-white">
+                            <span className="text-sm text-foreground">
                               {OUTCOME_LABELS[lead.session.outcome as SessionOutcome]}
                             </span>
                           </div>
@@ -595,10 +595,10 @@ export default function SalesDashboardPage() {
                             Needs Follow-up
                           </span>
                         ) : (
-                          <span className="text-platinum-white/60 text-sm">—</span>
+                          <span className="text-muted-foreground text-sm">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-4 text-sm text-platinum-white/80">
+                      <td className="px-4 py-4 text-sm text-muted-foreground">
                         {primaryDate ? formatDate(primaryDate) : '—'}
                         {lead.session?.next_follow_up && (
                           <div className="text-xs text-blue-400 mt-1 flex items-center gap-1">
@@ -686,17 +686,17 @@ export default function SalesDashboardPage() {
             <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <Phone className="w-5 h-5 text-purple-500" />
               Active Conversations
-              <span className="text-sm font-normal text-platinum-white/80">({filteredConversationSessions.length})</span>
+              <span className="text-sm font-normal text-muted-foreground">({filteredConversationSessions.length})</span>
             </h2>
             <div className="bg-silicon-slate/50 rounded-lg border border-silicon-slate overflow-hidden">
               <table className="w-full">
                 <thead className="bg-silicon-slate border-b border-silicon-slate">
                   <tr>
-                    <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Contact</th>
-                    <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Stage</th>
-                    <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Status</th>
-                    <th className="text-left px-4 py-3 text-sm font-medium text-platinum-white/80">Date</th>
-                    <th className="text-right px-4 py-3 text-sm font-medium text-platinum-white/80">Action</th>
+                    <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Contact</th>
+                    <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Stage</th>
+                    <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Status</th>
+                    <th className="text-left px-4 py-3 text-sm font-medium text-muted-foreground">Date</th>
+                    <th className="text-right px-4 py-3 text-sm font-medium text-muted-foreground">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800">
@@ -704,8 +704,8 @@ export default function SalesDashboardPage() {
                     <tr key={s.id} className="hover:bg-silicon-slate/50">
                       <td className="px-4 py-4">
                         <div className="font-medium text-foreground">{s.client_name || 'Unknown'}</div>
-                        <div className="text-sm text-platinum-white/80">{s.client_email}</div>
-                        {s.client_company && <div className="text-sm text-platinum-white/60">{s.client_company}</div>}
+                        <div className="text-sm text-muted-foreground">{s.client_email}</div>
+                        {s.client_company && <div className="text-sm text-muted-foreground">{s.client_company}</div>}
                       </td>
                       <td className="px-4 py-4">
                         <FunnelStageBadge stage={s.funnel_stage} size="sm" />
@@ -713,10 +713,10 @@ export default function SalesDashboardPage() {
                       <td className="px-4 py-4">
                         <div className="flex items-center gap-2">
                           {OUTCOME_ICONS[s.outcome]}
-                          <span className="text-sm text-platinum-white">{OUTCOME_LABELS[s.outcome]}</span>
+                          <span className="text-sm text-foreground">{OUTCOME_LABELS[s.outcome]}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-platinum-white/80">
+                      <td className="px-4 py-4 text-sm text-muted-foreground">
                         {formatDate(s.created_at)}
                         {s.next_follow_up && (
                           <div className="text-xs text-blue-400 mt-1 flex items-center gap-1">

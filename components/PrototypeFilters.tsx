@@ -34,7 +34,7 @@ export default function PrototypeFilters({
 
   const FilterGroup = ({ label, items, active, onChange }: any) => (
     <div className="space-y-3">
-      <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-platinum-white/30">{label}</p>
+      <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-muted-foreground/70">{label}</p>
       <div className="flex flex-wrap gap-2">
         {items.map((item: string) => (
           <button
@@ -43,7 +43,7 @@ export default function PrototypeFilters({
             className={`px-4 py-1.5 rounded-full text-[10px] font-heading tracking-wider uppercase transition-all duration-300 border ${
               active === item
                 ? 'bg-radiant-gold text-imperial-navy border-radiant-gold shadow-lg shadow-radiant-gold/20'
-                : 'bg-transparent text-platinum-white/60 border-platinum-white/10 hover:border-platinum-white/30'
+                : 'bg-transparent text-muted-foreground border-foreground/10 hover:border-foreground/30'
             }`}
           >
             {item}
@@ -62,12 +62,12 @@ export default function PrototypeFilters({
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
           <Filter className="text-radiant-gold w-3 h-3" />
-          <h3 className="text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/80">Refine Selection</h3>
+          <h3 className="text-[10px] font-heading tracking-[0.3em] uppercase text-muted-foreground">Refine Selection</h3>
         </div>
         {hasActiveFilters && (
           <button
             onClick={clearAllFilters}
-            className="flex items-center gap-2 text-[10px] font-heading tracking-widest uppercase text-platinum-white/40 hover:text-radiant-gold transition-colors"
+            className="flex items-center gap-2 text-[10px] font-heading tracking-widest uppercase text-muted-foreground/80 hover:text-radiant-gold transition-colors"
           >
             <X size={12} />
             <span>Reset</span>

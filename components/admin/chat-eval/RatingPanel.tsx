@@ -89,7 +89,7 @@ export function RatingPanel({
     <div className="bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl p-4 space-y-4">
       {/* Rating Buttons */}
       <div>
-        <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-2 block">
+        <label className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-2 block">
           Rate Conversation
         </label>
         <div className="flex gap-2">
@@ -131,7 +131,7 @@ export function RatingPanel({
 
       {/* Notes */}
       <div>
-        <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-2 block">
+        <label className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-2 block">
           Notes
         </label>
         <textarea
@@ -139,14 +139,14 @@ export function RatingPanel({
           onChange={(e) => setNotes(e.target.value)}
           placeholder="Add your notes here..."
           className="w-full h-24 p-3 bg-silicon-slate/30 border border-radiant-gold/10 rounded-lg
-            text-sm text-platinum-white placeholder-platinum-white/30
+            text-sm text-foreground placeholder-muted-foreground/50
             focus:outline-none focus:border-radiant-gold/30 resize-none"
         />
       </div>
 
       {/* Tags */}
       <div>
-        <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-2 block">
+        <label className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-2 block">
           Add Tags
         </label>
         <div className="flex gap-2 mb-2">
@@ -157,7 +157,7 @@ export function RatingPanel({
             onKeyDown={(e) => e.key === 'Enter' && handleAddTag()}
             placeholder="Type and press Enter"
             className="flex-1 px-3 py-2 bg-silicon-slate/30 border border-radiant-gold/10 rounded-lg
-              text-sm text-platinum-white placeholder-platinum-white/30
+              text-sm text-foreground placeholder-muted-foreground/50
               focus:outline-none focus:border-radiant-gold/30"
           />
         </div>
@@ -180,14 +180,14 @@ export function RatingPanel({
       {/* Category (shown when rating is 'bad') — options come from promoted axial codes (Chat Eval → Axial Codes → promote). */}
       {rating === 'bad' && (
         <div>
-          <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-2 block">
+          <label className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-2 block">
             Issue Category
           </label>
           <select
             value={categoryId || ''}
             onChange={(e) => setCategoryId(e.target.value || null)}
             className="w-full px-3 py-2 bg-silicon-slate/30 border border-radiant-gold/10 rounded-lg
-              text-sm text-platinum-white focus:outline-none focus:border-radiant-gold/30"
+              text-sm text-foreground focus:outline-none focus:border-radiant-gold/30"
           >
             <option value="">Select a category...</option>
             {categories.map(cat => (
@@ -195,7 +195,7 @@ export function RatingPanel({
             ))}
           </select>
           {categories.length === 0 && (
-            <p className="text-xs text-platinum-white/40 mt-1">
+            <p className="text-xs text-muted-foreground/80 mt-1">
               No verified categories yet. Promote codes from Chat Eval → Axial Codes, or use Open Code below.
             </p>
           )}
@@ -205,7 +205,7 @@ export function RatingPanel({
       {/* Open Code (shown when rating is 'bad') */}
       {rating === 'bad' && (
         <div>
-          <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-2 block">
+          <label className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-2 block">
             Open Code
           </label>
           <input
@@ -214,10 +214,10 @@ export function RatingPanel({
             onChange={(e) => setOpenCode(e.target.value)}
             placeholder="Enter custom issue code..."
             className="w-full px-3 py-2 bg-silicon-slate/30 border border-radiant-gold/10 rounded-lg
-              text-sm text-platinum-white placeholder-platinum-white/30
+              text-sm text-foreground placeholder-muted-foreground/50
               focus:outline-none focus:border-radiant-gold/30"
           />
-          <p className="text-xs text-platinum-white/40 mt-1">
+          <p className="text-xs text-muted-foreground/80 mt-1">
             Use for issues that don&apos;t fit existing categories
           </p>
         </div>
@@ -261,8 +261,8 @@ export function RatingPanel({
               flex-1 flex items-center justify-center gap-1 py-2 px-3 rounded-lg
               border border-radiant-gold/20 text-sm
               ${canNavigatePrev 
-                ? 'text-platinum-white hover:bg-radiant-gold/10' 
-                : 'text-platinum-white/30 cursor-not-allowed'
+                ? 'text-foreground hover:bg-radiant-gold/10' 
+                : 'text-muted-foreground/70 cursor-not-allowed'
               }
             `}
           >
@@ -279,8 +279,8 @@ export function RatingPanel({
               flex-1 flex items-center justify-center gap-1 py-2 px-3 rounded-lg
               border border-radiant-gold/20 text-sm
               ${canNavigateNext 
-                ? 'text-platinum-white hover:bg-radiant-gold/10' 
-                : 'text-platinum-white/30 cursor-not-allowed'
+                ? 'text-foreground hover:bg-radiant-gold/10' 
+                : 'text-muted-foreground/70 cursor-not-allowed'
               }
             `}
           >

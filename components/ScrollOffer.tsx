@@ -90,7 +90,7 @@ export default function ScrollOffer({
                 </p>
                 <button
                   onClick={handleApplyDiscount}
-                  className="px-4 py-2 bg-imperial-navy/90 text-radiant-gold font-semibold rounded-lg hover:bg-imperial-navy transition-colors text-sm border border-imperial-navy"
+                  className="px-4 py-2 bg-background/90 text-radiant-gold font-semibold rounded-lg hover:bg-background transition-colors text-sm border border-imperial-navy"
                 >
                   Claim Discount
                 </button>

@@ -39,15 +39,15 @@ export function CalendlyEmbed({ url, prefill, onEventScheduled, onClose }: Calen
       </div>
 
       <div className="flex flex-col w-full min-w-0 items-start">
-        <span className="text-[10px] font-heading tracking-wider text-platinum-white/40 uppercase mb-1 px-1">
+        <span className="text-[10px] font-heading tracking-wider text-muted-foreground/80 uppercase mb-1 px-1">
           Schedule a Meeting
         </span>
 
-        <div className="w-full rounded-2xl rounded-tl-sm bg-silicon-slate/30 border border-platinum-white/10 overflow-hidden relative">
+        <div className="w-full rounded-2xl rounded-tl-sm bg-silicon-slate/30 border border-foreground/10 overflow-hidden relative">
           {onClose && (
             <button
               onClick={onClose}
-              className="absolute top-2 right-2 z-10 p-1 rounded-full bg-imperial-navy/80 hover:bg-imperial-navy text-platinum-white/60 hover:text-platinum-white transition-colors"
+              className="absolute top-2 right-2 z-10 p-1 rounded-full bg-background/80 hover:bg-background text-muted-foreground hover:text-foreground transition-colors"
             >
               <X size={14} />
             </button>

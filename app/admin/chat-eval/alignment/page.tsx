@@ -87,14 +87,14 @@ function AlignmentDashboardContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-imperial-navy flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-radiant-gold" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -108,7 +108,7 @@ function AlignmentDashboardContent() {
             <Bot size={32} className="text-radiant-gold" />
             <h1 className="text-4xl font-heading tracking-wider">Human-LLM Alignment</h1>
           </div>
-          <p className="text-platinum-white/60">
+          <p className="text-muted-foreground">
             Compare LLM judge evaluations with human annotations
           </p>
         </div>
@@ -122,7 +122,7 @@ function AlignmentDashboardContent() {
               className={`px-4 py-2 rounded-lg text-sm ${
                 days === d
                   ? 'bg-radiant-gold text-imperial-navy'
-                  : 'bg-silicon-slate/30 text-platinum-white/70 hover:bg-silicon-slate/50'
+                  : 'bg-silicon-slate/30 text-muted-foreground hover:bg-silicon-slate/50'
               }`}
             >
               {d} Days
@@ -226,7 +226,7 @@ function AlignmentDashboardContent() {
                       <div key={model} className="flex items-center justify-between p-3 bg-silicon-slate/30 rounded-lg">
                         <span className="text-sm font-mono">{model}</span>
                         <div className="flex items-center gap-3">
-                          <span className="text-xs text-platinum-white/50">
+                          <span className="text-xs text-muted-foreground/90">
                             {stats.aligned}/{stats.total}
                           </span>
                           <span className={`
@@ -242,7 +242,7 @@ function AlignmentDashboardContent() {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-platinum-white/50 text-sm">No model data available</p>
+                  <p className="text-muted-foreground/90 text-sm">No model data available</p>
                 )}
               </div>
             </div>
@@ -289,7 +289,7 @@ function AlignmentDashboardContent() {
                       className="p-3 bg-silicon-slate/30 rounded-lg cursor-pointer hover:bg-silicon-slate/40 transition-colors"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-mono text-sm text-platinum-white/70">
+                        <span className="font-mono text-sm text-muted-foreground">
                           {d.session_id.substring(0, 20)}...
                         </span>
                         <div className="flex items-center gap-4 text-sm">
@@ -299,7 +299,7 @@ function AlignmentDashboardContent() {
                           <span className={d.llm_rating === 'good' ? 'text-emerald-400' : 'text-red-400'}>
                             LLM: {d.llm_rating}
                           </span>
-                          <span className="text-platinum-white/50">
+                          <span className="text-muted-foreground/90">
                             {Math.round(d.confidence * 100)}% conf
                           </span>
                         </div>
@@ -308,12 +308,12 @@ function AlignmentDashboardContent() {
                   ))}
                 </div>
               ) : (
-                <p className="text-platinum-white/50 text-sm">No disagreements found</p>
+                <p className="text-muted-foreground/90 text-sm">No disagreements found</p>
               )}
             </div>
           </>
         ) : (
-          <div className="text-center py-8 text-platinum-white/50">
+          <div className="text-center py-8 text-muted-foreground/90">
             No alignment data available. Run LLM judge evaluations and add human annotations to see comparisons.
           </div>
         )}
@@ -344,7 +344,7 @@ function StatCard({
     <div className={`p-6 rounded-xl border ${colorClasses[color]}`}>
       <div className="flex items-center gap-3 mb-2">
         {icon}
-        <span className="text-sm text-platinum-white/60">{label}</span>
+        <span className="text-sm text-muted-foreground">{label}</span>
       </div>
       <div className="text-3xl font-bold">{value}</div>
     </div>

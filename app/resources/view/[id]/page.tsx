@@ -70,7 +70,7 @@ export default function ResourceViewPage() {
   return (
     <ProtectedRoute>
       <Navigation />
-      <div className="min-h-screen bg-imperial-navy text-platinum-white pt-24 pb-12 px-4">
+      <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
         <div className="max-w-4xl mx-auto">
           <Breadcrumbs
             items={[
@@ -82,7 +82,7 @@ export default function ResourceViewPage() {
           <div className="mb-6">
             <Link
               href="/resources"
-              className="inline-flex items-center gap-2 text-platinum-white/80 hover:text-platinum-white transition-colors"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft size={18} />
               Back to Resources
@@ -90,7 +90,7 @@ export default function ResourceViewPage() {
           </div>
 
           {loading ? (
-            <div className="text-center py-12 text-platinum-white/60">Loading...</div>
+            <div className="text-center py-12 text-muted-foreground">Loading...</div>
           ) : error ? (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -98,7 +98,7 @@ export default function ResourceViewPage() {
               className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-6 flex flex-col items-center gap-4"
             >
               <AlertCircle className="text-amber-400" size={40} />
-              <p className="text-platinum-white">{error}</p>
+              <p className="text-foreground">{error}</p>
               <Link
                 href="/resources"
                 className="inline-flex items-center gap-2 px-4 py-2 bg-radiant-gold/20 text-radiant-gold rounded-lg hover:bg-radiant-gold/30 transition-colors"
@@ -113,9 +113,9 @@ export default function ResourceViewPage() {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-4"
             >
-              <h1 className="text-2xl font-bold text-platinum-white">{leadMagnet.title}</h1>
+              <h1 className="text-2xl font-bold text-foreground">{leadMagnet.title}</h1>
               {leadMagnet.description && (
-                <p className="text-platinum-white/80 text-sm">{leadMagnet.description}</p>
+                <p className="text-muted-foreground text-sm">{leadMagnet.description}</p>
               )}
               <div className="w-full max-w-[700px] mx-auto aspect-video min-h-[450px] rounded-xl overflow-hidden border border-gray-700 bg-black">
                 <iframe
@@ -132,8 +132,8 @@ export default function ResourceViewPage() {
               animate={{ opacity: 1, y: 0 }}
               className="rounded-xl border border-gray-700 bg-gray-900/50 p-6 space-y-4"
             >
-              <h1 className="text-xl font-bold text-platinum-white">{leadMagnet?.title ?? 'Resource'}</h1>
-              <p className="text-platinum-white/70">This resource has no embedded presentation.</p>
+              <h1 className="text-xl font-bold text-foreground">{leadMagnet?.title ?? 'Resource'}</h1>
+              <p className="text-muted-foreground">This resource has no embedded presentation.</p>
               <div className="flex flex-wrap gap-3">
                 {leadMagnet?.video_url && (
                   <a

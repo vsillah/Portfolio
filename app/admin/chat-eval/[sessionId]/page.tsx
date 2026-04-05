@@ -260,7 +260,7 @@ function SessionDetailContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-imperial-navy flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-radiant-gold" />
       </div>
     )
@@ -268,8 +268,8 @@ function SessionDetailContent() {
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-imperial-navy flex items-center justify-center">
-        <div className="text-platinum-white">Session not found</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-foreground">Session not found</div>
       </div>
     )
   }
@@ -280,7 +280,7 @@ function SessionDetailContent() {
   const ChannelIcon = channelIcon
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -293,7 +293,7 @@ function SessionDetailContent() {
           <motion.button
             whileHover={{ x: -4 }}
             onClick={() => router.back()}
-            className="flex items-center gap-2 text-platinum-white/60 hover:text-platinum-white mb-4"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4"
           >
             <ArrowLeft size={16} />
             Back to sessions
@@ -307,7 +307,7 @@ function SessionDetailContent() {
               <h1 className="text-2xl font-heading tracking-wider">
                 {session.visitor_name || 'Anonymous'} Session
               </h1>
-              <p className="text-sm text-platinum-white/60 font-mono">
+              <p className="text-sm text-muted-foreground font-mono">
                 {session.session_id}
               </p>
             </div>
@@ -330,7 +330,7 @@ function SessionDetailContent() {
                 onClick={() => setShowMetadata(!showMetadata)}
                 className="flex items-center justify-between w-full"
               >
-                <h3 className="font-heading text-sm uppercase tracking-wider text-platinum-white/70">
+                <h3 className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
                   AI Settings & Metadata
                 </h3>
                 {showMetadata ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -344,30 +344,30 @@ function SessionDetailContent() {
                 >
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <span className="text-platinum-white/50">Messages:</span>
-                      <span className="ml-2 text-platinum-white">{session.metrics.message_count}</span>
+                      <span className="text-muted-foreground/90">Messages:</span>
+                      <span className="ml-2 text-foreground">{session.metrics.message_count}</span>
                     </div>
                     <div>
-                      <span className="text-platinum-white/50">Tool Calls:</span>
-                      <span className="ml-2 text-platinum-white">{session.metrics.tool_call_count}</span>
+                      <span className="text-muted-foreground/90">Tool Calls:</span>
+                      <span className="ml-2 text-foreground">{session.metrics.tool_call_count}</span>
                     </div>
                     <div>
-                      <span className="text-platinum-white/50">Avg Latency:</span>
-                      <span className="ml-2 text-platinum-white">
+                      <span className="text-muted-foreground/90">Avg Latency:</span>
+                      <span className="ml-2 text-foreground">
                         {session.metrics.avg_latency_ms ? `${session.metrics.avg_latency_ms}ms` : 'N/A'}
                       </span>
                     </div>
                     <div>
-                      <span className="text-platinum-white/50">Created:</span>
-                      <span className="ml-2 text-platinum-white">
+                      <span className="text-muted-foreground/90">Created:</span>
+                      <span className="ml-2 text-foreground">
                         {new Date(session.created_at).toLocaleString()}
                       </span>
                     </div>
                   </div>
                   {session.visitor_email && (
                     <div>
-                      <span className="text-platinum-white/50">Email:</span>
-                      <span className="ml-2 text-platinum-white">{session.visitor_email}</span>
+                      <span className="text-muted-foreground/90">Email:</span>
+                      <span className="ml-2 text-foreground">{session.visitor_email}</span>
                     </div>
                   )}
                 </motion.div>
@@ -381,7 +381,7 @@ function SessionDetailContent() {
 
             {/* Conversation thread */}
             <div className="p-4 bg-silicon-slate/10 border border-radiant-gold/10 rounded-xl">
-              <h3 className="font-heading text-sm uppercase tracking-wider text-platinum-white/70 mb-4">
+              <h3 className="font-heading text-sm uppercase tracking-wider text-muted-foreground mb-4">
                 Conversation
               </h3>
               <MessageThread messages={session.messages} showMetadata={true} />
@@ -413,14 +413,14 @@ function SessionDetailContent() {
               
               {/* Provider Selection */}
               <div>
-                <label className="text-xs text-platinum-white/50 mb-1 block">Provider</label>
+                <label className="text-xs text-muted-foreground/90 mb-1 block">Provider</label>
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleProviderChange('anthropic')}
                     className={`flex-1 py-2 px-3 rounded-lg text-sm transition-all ${
                       selectedProvider === 'anthropic'
                         ? 'bg-purple-500/30 border border-purple-500/50 text-purple-300'
-                        : 'bg-silicon-slate/30 border border-transparent text-platinum-white/60 hover:border-purple-500/30'
+                        : 'bg-silicon-slate/30 border border-transparent text-muted-foreground hover:border-purple-500/30'
                     }`}
                   >
                     Claude
@@ -430,7 +430,7 @@ function SessionDetailContent() {
                     className={`flex-1 py-2 px-3 rounded-lg text-sm transition-all ${
                       selectedProvider === 'openai'
                         ? 'bg-emerald-500/30 border border-emerald-500/50 text-emerald-300'
-                        : 'bg-silicon-slate/30 border border-transparent text-platinum-white/60 hover:border-emerald-500/30'
+                        : 'bg-silicon-slate/30 border border-transparent text-muted-foreground hover:border-emerald-500/30'
                     }`}
                   >
                     OpenAI
@@ -440,12 +440,12 @@ function SessionDetailContent() {
 
               {/* Model Selection */}
               <div>
-                <label className="text-xs text-platinum-white/50 mb-1 block">Model</label>
+                <label className="text-xs text-muted-foreground/90 mb-1 block">Model</label>
                 <select
                   value={selectedModel}
                   onChange={(e) => setSelectedModel(e.target.value)}
                   className="w-full px-3 py-2 bg-silicon-slate/30 border border-radiant-gold/10 rounded-lg
-                    text-sm text-platinum-white focus:outline-none focus:border-purple-500/30"
+                    text-sm text-foreground focus:outline-none focus:border-purple-500/30"
                 >
                   {availableModels?.[selectedProvider]?.map((model) => (
                     <option key={model.id} value={model.id}>
@@ -454,7 +454,7 @@ function SessionDetailContent() {
                   ))}
                 </select>
                 {availableModels?.[selectedProvider]?.find(m => m.id === selectedModel) && (
-                  <p className="text-xs text-platinum-white/40 mt-1">
+                  <p className="text-xs text-muted-foreground/80 mt-1">
                     {availableModels[selectedProvider].find(m => m.id === selectedModel)?.description}
                   </p>
                 )}
@@ -482,14 +482,14 @@ function SessionDetailContent() {
                 {isRunningLLMJudge ? 'Evaluating...' : 'Run Evaluation'}
               </motion.button>
               
-              <p className="text-xs text-platinum-white/40 text-center mb-4">
+              <p className="text-xs text-muted-foreground/80 text-center mb-4">
                 A/B test different models to compare with human ratings
               </p>
 
               {/* LLM Judge Evaluations Display */}
               {session.llm_evaluations.length > 0 && (
                 <div className="pt-2 border-t border-purple-500/20">
-                  <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-3 block">
+                  <label className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-3 block">
                     LLM Judge Evaluations
                   </label>
                   <div className="space-y-3">
@@ -509,7 +509,7 @@ function SessionDetailContent() {
                           }`}>
                             {eval_.rating}
                           </span>
-                          <div className="flex items-center gap-1.5 text-xs text-platinum-white/50">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground/90">
                             <span>{eval_.model_used}</span>
                             <span>•</span>
                             <span>Confidence: {Math.round(eval_.confidence_score * 100)}%</span>
@@ -526,16 +526,16 @@ function SessionDetailContent() {
 
                         {/* Reasoning/Notes */}
                         <div className="mb-2">
-                          <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-1 block">
+                          <label className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-1 block">
                             Notes
                           </label>
-                          <p className="text-xs text-platinum-white/70 leading-relaxed">{eval_.reasoning}</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed">{eval_.reasoning}</p>
                         </div>
 
                         {/* Categories */}
                         {eval_.identified_categories && eval_.identified_categories.length > 0 && (
                           <div className="mt-2 pt-2 border-t border-radiant-gold/10">
-                            <label className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-1 block">
+                            <label className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-1 block">
                               Categories
                             </label>
                             <div className="flex flex-wrap gap-1">

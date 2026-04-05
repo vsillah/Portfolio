@@ -17,6 +17,7 @@ import ExitIntentPopup from '@/components/ExitIntentPopup'
 import ScrollOffer from '@/components/ScrollOffer'
 import TimeBasedPopup from '@/components/TimeBasedPopup'
 import { getCurrentSession } from '@/lib/auth'
+import ThemeToggle from '@/components/ThemeToggle'
 
 interface Product {
   id: number
@@ -615,7 +616,7 @@ export default function CheckoutPage() {
   if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-platinum-white/80">Loading checkout...</div>
+        <div className="text-muted-foreground">Loading checkout...</div>
       </div>
     )
   }
@@ -628,7 +629,7 @@ export default function CheckoutPage() {
           <div className="flex items-center justify-between mb-8">
             <button
               onClick={() => router.push('/store')}
-              className="flex items-center gap-2 text-platinum-white/80 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors"
             >
               <ArrowLeft size={20} />
               Back to Store
@@ -643,7 +644,7 @@ export default function CheckoutPage() {
               <Lock className="text-radiant-gold flex-shrink-0" size={28} />
               <h2 className="text-2xl font-bold">Sign in to checkout</h2>
             </div>
-            <p className="text-platinum-white/80 mb-6">
+            <p className="text-muted-foreground mb-6">
               We require an account so we can deliver your order and follow up with you. Sign in or create an account to continue.
             </p>
             <div className="flex flex-wrap gap-3">
@@ -682,17 +683,20 @@ export default function CheckoutPage() {
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={() => router.push('/store')}
-              className="flex items-center gap-2 text-platinum-white/80 hover:text-white transition-colors"
+              className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors"
             >
               <ArrowLeft size={20} />
               Back to Store
             </button>
-            <Link href="/help" className="text-platinum-white/80 hover:text-white transition-colors" aria-label="Help">
-              <HelpCircle size={20} />
-            </Link>
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Help">
+                <HelpCircle size={20} />
+              </Link>
+            </div>
           </div>
           <h1 className="text-4xl font-bold mb-2">Checkout</h1>
-          <p className="text-platinum-white/80">Review your order and complete your purchase</p>
+          <p className="text-muted-foreground">Review your order and complete your purchase</p>
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -713,12 +717,12 @@ export default function CheckoutPage() {
                 {hasMerchandise && (
                   <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
                     <h2 className="text-xl font-bold mb-4">Shipping address</h2>
-                    <p className="text-platinum-white/80 text-sm mb-4">
+                    <p className="text-muted-foreground text-sm mb-4">
                       Required for physical products. We’ll deliver your order to this address.
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-platinum-white/90 mb-1">Street address</label>
+                        <label className="block text-sm font-medium text-foreground/90 mb-1">Street address</label>
                         <AddressAutocomplete
                           value={shippingAddress.address1}
                           onChange={(v) => setShippingAddress((a) => ({ ...a, address1: v }))}
@@ -736,7 +740,7 @@ export default function CheckoutPage() {
                             setAddressValidateResult(null)
                           }}
                           placeholder="Start typing your address…"
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-muted-foreground/90"
                           countryRestriction={['US', 'CA', 'GB'].includes(shippingAddress.country_code) ? shippingAddress.country_code : undefined}
                         />
                       </div>
@@ -746,44 +750,44 @@ export default function CheckoutPage() {
                           value={shippingAddress.address2}
                           onChange={(e) => setShippingAddress((a) => ({ ...a, address2: e.target.value }))}
                           placeholder="Address line 2 (optional)"
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-muted-foreground/90"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/90 mb-1">City</label>
+                        <label className="block text-sm font-medium text-foreground/90 mb-1">City</label>
                         <input
                           type="text"
                           value={shippingAddress.city}
                           onChange={(e) => setShippingAddress((a) => ({ ...a, city: e.target.value }))}
                           placeholder="City"
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-muted-foreground/90"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/90 mb-1">State / Province</label>
+                        <label className="block text-sm font-medium text-foreground/90 mb-1">State / Province</label>
                         <input
                           type="text"
                           value={shippingAddress.state_code}
                           onChange={(e) => setShippingAddress((a) => ({ ...a, state_code: e.target.value }))}
                           placeholder="e.g. CA"
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-muted-foreground/90"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/90 mb-1">ZIP / Postal code</label>
+                        <label className="block text-sm font-medium text-foreground/90 mb-1">ZIP / Postal code</label>
                         <input
                           type="text"
                           value={shippingAddress.zip}
                           onChange={(e) => setShippingAddress((a) => ({ ...a, zip: e.target.value }))}
                           placeholder="ZIP code"
-                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-platinum-white/50"
+                          className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground placeholder:text-muted-foreground/90"
                         />
                         {shippingAddress.country_code === 'US' && (
-                          <p className="text-xs text-platinum-white/50 mt-1">City & state suggested when you enter a 5-digit ZIP.</p>
+                          <p className="text-xs text-muted-foreground/90 mt-1">City & state suggested when you enter a 5-digit ZIP.</p>
                         )}
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/90 mb-1">Country</label>
+                        <label className="block text-sm font-medium text-foreground/90 mb-1">Country</label>
                         <select
                           value={shippingAddress.country_code}
                           onChange={(e) => {
@@ -805,12 +809,12 @@ export default function CheckoutPage() {
                           type="button"
                           onClick={handleValidateAddress}
                           disabled={addressValidateLoading || !isShippingAddressComplete()}
-                          className="text-sm px-3 py-1.5 rounded-lg border border-silicon-slate text-platinum-white/90 hover:bg-silicon-slate/50 disabled:opacity-50 disabled:pointer-events-none"
+                          className="text-sm px-3 py-1.5 rounded-lg border border-silicon-slate text-foreground/90 hover:bg-silicon-slate/50 disabled:opacity-50 disabled:pointer-events-none"
                         >
                           {addressValidateLoading ? 'Validating…' : 'Validate with USPS'}
                         </button>
                         {addressSuggestLoading && (
-                          <span className="text-xs text-platinum-white/60">Suggesting city & state…</span>
+                          <span className="text-xs text-muted-foreground">Suggesting city & state…</span>
                         )}
                       </div>
                     )}
@@ -818,8 +822,8 @@ export default function CheckoutPage() {
                       <div className={`mt-3 p-3 rounded-lg border ${addressValidateResult.valid ? 'border-green-500/50 bg-green-500/10' : 'border-amber-500/50 bg-amber-500/10'}`}>
                         {addressValidateResult.valid ? (
                           <div>
-                            <p className="text-sm text-platinum-white/90 mb-2">USPS standardized address:</p>
-                            <p className="text-sm text-platinum-white/80 font-mono mb-2">
+                            <p className="text-sm text-foreground/90 mb-2">USPS standardized address:</p>
+                            <p className="text-sm text-muted-foreground font-mono mb-2">
                               {addressValidateResult.standardized.address1}
                               {addressValidateResult.standardized.address2 ? `, ${addressValidateResult.standardized.address2}` : ''}
                               <br />
@@ -839,10 +843,10 @@ export default function CheckoutPage() {
                       </div>
                     )}
                     {shippingLoading && (
-                      <p className="text-sm text-platinum-white/70 mt-2">Calculating shipping…</p>
+                      <p className="text-sm text-muted-foreground mt-2">Calculating shipping…</p>
                     )}
                     {!shippingLoading && hasMerchandise && isShippingAddressComplete() && shippingCost > 0 && (
-                      <p className="text-sm text-platinum-white/80 mt-2">Shipping: ${shippingCost.toFixed(2)}</p>
+                      <p className="text-sm text-muted-foreground mt-2">Shipping: ${shippingCost.toFixed(2)}</p>
                     )}
                   </div>
                 )}

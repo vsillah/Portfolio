@@ -57,7 +57,7 @@ export default function LoginForm() {
       >
         <div>
           <h2 className="text-3xl font-bold text-foreground mb-2">Welcome Back</h2>
-          <p className="text-platinum-white/80">Sign in to access exclusive content</p>
+          <p className="text-muted-foreground">Sign in to access exclusive content</p>
         </div>
 
         {error && (
@@ -68,11 +68,11 @@ export default function LoginForm() {
 
         <div className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-platinum-white mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
               Email
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="email"
                 type="email"
@@ -86,11 +86,11 @@ export default function LoginForm() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-platinum-white mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
               Password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="password"
                 type="password"
@@ -124,7 +124,7 @@ export default function LoginForm() {
             <div className="w-full border-t border-silicon-slate"></div>
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="px-2 bg-silicon-slate text-platinum-white/80">Or continue with</span>
+            <span className="px-2 bg-silicon-slate text-muted-foreground">Or continue with</span>
           </div>
         </div>
 
@@ -167,14 +167,14 @@ export default function LoginForm() {
           </button>
         </div>
 
-        <p className="text-center text-sm text-platinum-white/80">
+        <p className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?{' '}
           <a href={redirectTo ? `/auth/signup?redirect=${encodeURIComponent(redirectTo)}` : '/auth/signup'} className="text-radiant-gold hover:text-gold-light transition-colors">
             Sign up
           </a>
         </p>
 
-        <p className="text-center text-sm text-platinum-white/80">
+        <p className="text-center text-sm text-muted-foreground">
           <a href="/auth/forgot-password" className="text-radiant-gold hover:text-gold-light transition-colors">
             Forgot password?
           </a>

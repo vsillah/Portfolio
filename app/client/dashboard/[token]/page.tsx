@@ -21,6 +21,7 @@ import TimeTrackingSection from '@/components/client-dashboard/TimeTrackingSecti
 import MeetingHistory from '@/components/client-dashboard/MeetingHistory'
 import type { DashboardData, LeadDashboardData, DashboardTask } from '@/lib/client-dashboard'
 import type { AccelerationRecommendation } from '@/lib/acceleration-engine'
+import SiteThemeCorner from '@/components/SiteThemeCorner'
 
 export type DashboardStage = 'lead' | 'client'
 
@@ -101,18 +102,23 @@ export default function ClientDashboardPage() {
   // Loading state
   if (loading) {
     return (
+      <>
+        <SiteThemeCorner />
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="w-8 h-8 animate-spin text-blue-500 mx-auto mb-4" />
           <p className="text-gray-400 text-sm">Loading your dashboard...</p>
         </div>
       </div>
+      </>
     )
   }
 
   // Error state
   if (error || !dashboard) {
     return (
+      <>
+        <SiteThemeCorner />
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center max-w-md px-4">
           <h1 className="text-2xl font-bold text-white mb-2">Dashboard Not Found</h1>
@@ -121,6 +127,7 @@ export default function ClientDashboardPage() {
           </p>
         </div>
       </div>
+      </>
     )
   }
 
@@ -129,6 +136,8 @@ export default function ClientDashboardPage() {
     const leadData = dashboard as LeadDashboardData
     const { project, assessment, scores, gapAnalysis, confidence, strengthenQuestions, engagementSteps, industryBenchmarksMessage } = leadData
     return (
+      <>
+        <SiteThemeCorner />
       <div className="min-h-screen bg-gray-950">
         <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
@@ -178,6 +187,7 @@ export default function ClientDashboardPage() {
           </p>
         </footer>
       </div>
+      </>
     )
   }
 
@@ -205,6 +215,8 @@ export default function ClientDashboardPage() {
   const activeTasks = tasks.filter((t: DashboardTask) => t.status !== 'complete').length
 
   return (
+    <>
+      <SiteThemeCorner />
     <div className="min-h-screen bg-gray-950">
       {/* Header */}
       <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur-sm sticky top-0 z-10">
@@ -319,5 +331,6 @@ export default function ClientDashboardPage() {
         </p>
       </footer>
     </div>
+    </>
   )
 }

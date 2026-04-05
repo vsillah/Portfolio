@@ -9,6 +9,7 @@ import { ValueComparison } from '@/components/pricing/ValueComparison';
 import { GuaranteeBadge } from '@/components/pricing/GuaranteeBadge';
 import { formatCurrency } from '@/lib/pricing-model';
 import type { PricingTier } from '@/lib/pricing-model';
+import SiteThemeCorner from '@/components/SiteThemeCorner';
 
 interface CustomPricingData {
   session: { id: string; funnelStage: string };
@@ -73,17 +74,22 @@ function CustomPricingContent() {
 
   if (loading) {
     return (
+      <>
+        <SiteThemeCorner />
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
           <p className="mt-4 text-gray-500 dark:text-gray-400">Building your personalized pricing...</p>
         </div>
       </div>
+      </>
     );
   }
 
   if (error || !data) {
     return (
+      <>
+        <SiteThemeCorner />
       <div className="flex min-h-screen items-center justify-center px-4">
         <div className="max-w-md text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Session Not Found</h1>
@@ -106,12 +112,15 @@ function CustomPricingContent() {
           </div>
         </div>
       </div>
+      </>
     );
   }
 
   const { client, diagnostic, painPoints, totalAnnualWaste, recommendedTier, allTiers } = data;
 
   return (
+    <>
+      <SiteThemeCorner />
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Header */}
       <section className="bg-gradient-to-b from-blue-600 to-blue-800 px-4 py-16 text-white">
@@ -231,15 +240,19 @@ function CustomPricingContent() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
 export default function CustomPricingPage() {
   return (
     <Suspense fallback={
+      <>
+        <SiteThemeCorner />
       <div className="flex min-h-screen items-center justify-center">
         <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-blue-600 border-t-transparent" />
       </div>
+      </>
     }>
       <CustomPricingContent />
     </Suspense>

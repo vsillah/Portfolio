@@ -106,7 +106,7 @@ const METHOD_ICONS: Record<string, typeof Clock> = {
 const CONFIDENCE_COLORS: Record<string, string> = {
   high: 'text-green-400 bg-green-500/20',
   medium: 'text-yellow-400 bg-yellow-500/20',
-  low: 'text-platinum-white/80 bg-silicon-slate/50',
+  low: 'text-muted-foreground bg-silicon-slate/50',
 }
 
 /**
@@ -123,18 +123,18 @@ function stripDuplicateCostSection(md: string): string {
 const reportMarkdownComponents: Record<string, React.ComponentType<{ children?: React.ReactNode; [key: string]: unknown }>> = {
   h1: ({ children, ...props }) => <h1 className="text-xl font-bold text-foreground mb-3 mt-4" {...props}>{children}</h1>,
   h2: ({ children, ...props }) => <h2 className="text-lg font-semibold text-foreground mb-2 mt-4 border-b border-silicon-slate/50 pb-1" {...props}>{children}</h2>,
-  h3: ({ children, ...props }) => <h3 className="text-base font-semibold text-platinum-white mb-1 mt-3" {...props}>{children}</h3>,
-  p: ({ children, ...props }) => <p className="text-sm text-platinum-white mb-2 leading-relaxed" {...props}>{children}</p>,
+  h3: ({ children, ...props }) => <h3 className="text-base font-semibold text-foreground mb-1 mt-3" {...props}>{children}</h3>,
+  p: ({ children, ...props }) => <p className="text-sm text-foreground mb-2 leading-relaxed" {...props}>{children}</p>,
   strong: ({ children, ...props }) => <strong className="text-foreground font-semibold" {...props}>{children}</strong>,
-  em: ({ children, ...props }) => <em className="text-platinum-white/80" {...props}>{children}</em>,
-  ul: ({ children, ...props }) => <ul className="list-disc list-inside text-sm text-platinum-white mb-2 space-y-0.5" {...props}>{children}</ul>,
-  ol: ({ children, ...props }) => <ol className="list-decimal list-inside text-sm text-platinum-white mb-2 space-y-0.5" {...props}>{children}</ol>,
+  em: ({ children, ...props }) => <em className="text-muted-foreground" {...props}>{children}</em>,
+  ul: ({ children, ...props }) => <ul className="list-disc list-inside text-sm text-foreground mb-2 space-y-0.5" {...props}>{children}</ul>,
+  ol: ({ children, ...props }) => <ol className="list-decimal list-inside text-sm text-foreground mb-2 space-y-0.5" {...props}>{children}</ol>,
   table: ({ children, ...props }) => <div className="overflow-x-auto my-3"><table className="min-w-full text-sm" {...props}>{children}</table></div>,
   thead: ({ children, ...props }) => <thead className="border-b border-silicon-slate" {...props}>{children}</thead>,
-  th: ({ children, ...props }) => <th className="px-3 py-1.5 text-left text-platinum-white/80 font-medium text-xs" {...props}>{children}</th>,
-  td: ({ children, ...props }) => <td className="px-3 py-1.5 text-platinum-white border-t border-silicon-slate/50" {...props}>{children}</td>,
+  th: ({ children, ...props }) => <th className="px-3 py-1.5 text-left text-muted-foreground font-medium text-xs" {...props}>{children}</th>,
+  td: ({ children, ...props }) => <td className="px-3 py-1.5 text-foreground border-t border-silicon-slate/50" {...props}>{children}</td>,
   hr: () => <hr className="border-silicon-slate my-4" />,
-  blockquote: ({ children, ...props }) => <blockquote className="border-l-2 border-emerald-500/40 pl-3 my-2 text-platinum-white/80 italic text-sm" {...props}>{children}</blockquote>,
+  blockquote: ({ children, ...props }) => <blockquote className="border-l-2 border-emerald-500/40 pl-3 my-2 text-muted-foreground italic text-sm" {...props}>{children}</blockquote>,
 }
 
 function normalizeStatementForTab(vs: Record<string, unknown>) {
@@ -276,7 +276,7 @@ export default function ValueEvidencePage() {
               <h1 className="text-3xl font-bold gradient-text">
                 Value Evidence Pipeline
               </h1>
-              <p className="text-platinum-white/80 mt-1">
+              <p className="text-muted-foreground mt-1">
                 Pain point tracking, monetary calculations, and value reporting
               </p>
             </div>
@@ -305,7 +305,7 @@ export default function ValueEvidencePage() {
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${
                     isActive
                       ? 'bg-green-600/30 text-green-300 border border-green-500/50'
-                      : 'text-platinum-white/80 hover:text-foreground hover:bg-silicon-slate/50'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-silicon-slate/50'
                   }`}
                 >
                   <Icon size={16} />
@@ -314,7 +314,7 @@ export default function ValueEvidencePage() {
                     <span className={`ml-0.5 text-[11px] font-semibold px-1.5 py-0.5 rounded-full tabular-nums ${
                       isActive
                         ? (tab.accentClass || 'bg-green-500/30 text-green-300')
-                        : 'bg-silicon-slate/80 text-platinum-white/60'
+                        : 'bg-silicon-slate/80 text-muted-foreground'
                     }`}>
                       {tab.count.toLocaleString()}
                     </span>
@@ -326,10 +326,10 @@ export default function ValueEvidencePage() {
 
           {/* Secondary metrics bar */}
           {activeTab === 'dashboard' && dashData && (
-            <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-platinum-white/60 mb-6 px-1">
-              <span>Evidence: <span className="text-platinum-white/90 font-medium">{dashData.overview.totalEvidence.toLocaleString()}</span>
+            <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground mb-6 px-1">
+              <span>Evidence: <span className="text-foreground/90 font-medium">{dashData.overview.totalEvidence.toLocaleString()}</span>
                 {dashData.evidenceBySource && Object.keys(dashData.evidenceBySource).length > 0 && (
-                  <span className="text-platinum-white/50 ml-1">
+                  <span className="text-muted-foreground/90 ml-1">
                     ({Object.entries(dashData.evidenceBySource).map(([src, cnt], i) => (
                       <span key={src}>
                         {i > 0 && ', '}
@@ -340,9 +340,9 @@ export default function ValueEvidencePage() {
                 )}
               </span>
               <span className="text-silicon-slate">·</span>
-              <span>Industries: <span className="text-platinum-white/90 font-medium">{Object.keys(dashData.industryBreakdown || {}).filter(k => k !== '_default').length}</span></span>
+              <span>Industries: <span className="text-foreground/90 font-medium">{Object.keys(dashData.industryBreakdown || {}).filter(k => k !== '_default').length}</span></span>
               <span className="text-silicon-slate">·</span>
-              <span>Content Mapped: <span className="text-platinum-white/90 font-medium">{dashData.overview.totalContentMappings}</span></span>
+              <span>Content Mapped: <span className="text-foreground/90 font-medium">{dashData.overview.totalContentMappings}</span></span>
               {(dashData.overview.unprocessedMarketIntel || 0) > 0 && (
                 <>
                   <span className="text-silicon-slate">·</span>
@@ -435,7 +435,7 @@ export default function ValueEvidencePage() {
                               {pp.industry_tags.slice(0, 3).map(tag => (
                                 <span
                                   key={tag}
-                                  className="text-xs px-2 py-0.5 bg-silicon-slate/80 rounded-full text-platinum-white/70"
+                                  className="text-xs px-2 py-0.5 bg-silicon-slate/80 rounded-full text-muted-foreground"
                                 >
                                   {tag}
                                 </span>
@@ -444,19 +444,19 @@ export default function ValueEvidencePage() {
                           </div>
                           <div className="flex items-center gap-3 flex-shrink-0 ml-3">
                             <div className="text-right">
-                              <span className={`text-sm ${pp.evidence_count > 0 ? 'text-green-400 font-medium' : 'text-platinum-white/50'}`}>{pp.evidence_count} evidence</span>
+                              <span className={`text-sm ${pp.evidence_count > 0 ? 'text-green-400 font-medium' : 'text-muted-foreground/90'}`}>{pp.evidence_count} evidence</span>
                               {pp.avg_monetary_impact && (
                                 <div className="text-green-400 text-sm font-medium">
                                   {formatCurrency(pp.avg_monetary_impact)}/yr
                                 </div>
                               )}
                             </div>
-                            <ArrowRight size={14} className="text-platinum-white/20 group-hover:text-platinum-white/60 transition-colors" />
+                            <ArrowRight size={14} className="text-muted-foreground/60 group-hover:text-muted-foreground transition-colors" />
                           </div>
                         </button>
                       ))}
                       {(!dashData?.topPainPoints || dashData.topPainPoints.length === 0) && (
-                        <p className="text-platinum-white/60 text-center py-4">
+                        <p className="text-muted-foreground text-center py-4">
                           No pain points yet. Run Internal Extraction to populate.
                         </p>
                       )}
@@ -499,7 +499,7 @@ export default function ValueEvidencePage() {
                               </div>
                               <div className="min-w-0">
                                 <span className="font-medium block truncate">{ppName}</span>
-                                <div className="text-xs text-platinum-white/70">
+                                <div className="text-xs text-muted-foreground">
                                   {calc.industry} &middot; {calc.company_size_range} emp
                                 </div>
                               </div>
@@ -513,18 +513,18 @@ export default function ValueEvidencePage() {
                                   <span className={`text-xs px-1.5 py-0.5 rounded ${CONFIDENCE_COLORS[calc.confidence_level] || ''}`}>
                                     {calc.confidence_level}
                                   </span>
-                                  <span className="text-xs text-platinum-white/50">
+                                  <span className="text-xs text-muted-foreground/90">
                                     {calc.evidence_count} ev.
                                   </span>
                                 </div>
                               </div>
-                              <ArrowRight size={14} className="text-platinum-white/20 group-hover:text-platinum-white/60 transition-colors" />
+                              <ArrowRight size={14} className="text-muted-foreground/60 group-hover:text-muted-foreground transition-colors" />
                             </div>
                           </button>
                         )
                       })}
                       {(!dashData?.topCalculations || dashData.topCalculations.length === 0) && (
-                        <p className="text-platinum-white/60 text-center py-4">
+                        <p className="text-muted-foreground text-center py-4">
                           No calculations yet. Generate from the Calculations tab.
                         </p>
                       )}
@@ -720,7 +720,7 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <RefreshCw size={24} className="animate-spin text-platinum-white/80" />
+        <RefreshCw size={24} className="animate-spin text-muted-foreground" />
       </div>
     )
   }
@@ -734,13 +734,13 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
       {/* Sort / Filter / Search toolbar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-platinum-white/40" />
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/80" />
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search pain points…"
-            className="w-full pl-9 pr-3 py-2 bg-silicon-slate/60 border border-silicon-slate rounded-lg text-sm text-foreground placeholder:text-platinum-white/40 focus:outline-none focus:border-radiant-gold/50"
+            className="w-full pl-9 pr-3 py-2 bg-silicon-slate/60 border border-silicon-slate rounded-lg text-sm text-foreground placeholder:text-muted-foreground/80 focus:outline-none focus:border-radiant-gold/50"
           />
         </div>
 
@@ -796,16 +796,16 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
                   <div>
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold text-foreground">{pp.display_name}</h3>
-                      {isExpanded ? <ChevronUp size={16} className="text-platinum-white/60" /> : <ChevronDown size={16} className="text-platinum-white/60" />}
+                      {isExpanded ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
                     </div>
                     {pp.description && (
-                      <p className="text-sm text-platinum-white/80 mt-1">{pp.description}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{pp.description}</p>
                     )}
                     <div className="flex flex-wrap gap-2 mt-2">
                       {pp.industry_tags?.slice(0, 5).map((tag: string) => (
                         <span
                           key={tag}
-                          className="text-xs px-2 py-0.5 bg-silicon-slate/80 rounded-full text-platinum-white/80"
+                          className="text-xs px-2 py-0.5 bg-silicon-slate/80 rounded-full text-muted-foreground"
                         >
                           {tag}
                         </span>
@@ -825,10 +825,10 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
                     )}
                   </div>
                   <div className="text-right space-y-1 ml-4 flex-shrink-0">
-                    <div className="text-sm text-platinum-white/80">
-                      <span className={`font-medium ${pp.evidence_count > 0 ? 'text-radiant-gold' : 'text-platinum-white/50'}`}>{pp.evidence_count}</span> evidence
+                    <div className="text-sm text-muted-foreground">
+                      <span className={`font-medium ${pp.evidence_count > 0 ? 'text-radiant-gold' : 'text-muted-foreground/90'}`}>{pp.evidence_count}</span> evidence
                     </div>
-                    <div className="text-sm text-platinum-white/80">
+                    <div className="text-sm text-muted-foreground">
                       <span className="font-medium text-green-400">{pp.calculation_count}</span> calculations
                       {pp.confidence_breakdown && pp.calculation_count > 0 && (
                         <div className="flex items-center gap-1.5 mt-0.5">
@@ -864,20 +864,20 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
                   >
                     <div className="p-4 space-y-5">
                       {evidenceLoading === pp.id && (
-                        <div className="flex items-center gap-2 py-3 text-sm text-platinum-white/60">
+                        <div className="flex items-center gap-2 py-3 text-sm text-muted-foreground">
                           <RefreshCw size={14} className="animate-spin" /> Loading…
                         </div>
                       )}
 
                       {/* Evidence section */}
                       <div className="space-y-3">
-                        <h4 className="text-sm font-medium text-platinum-white/80">Evidence ({pp.evidence_count})</h4>
+                        <h4 className="text-sm font-medium text-muted-foreground">Evidence ({pp.evidence_count})</h4>
                         {evidence && evidence.length === 0 && (
-                          <p className="text-sm text-platinum-white/50 py-2">No evidence collected yet for this pain point.</p>
+                          <p className="text-sm text-muted-foreground/90 py-2">No evidence collected yet for this pain point.</p>
                         )}
                         {evidence && evidence.map((ev: any) => (
                           <div key={ev.id} className="p-3 bg-silicon-slate/70 rounded-lg space-y-1.5">
-                            <div className="flex items-center gap-2 text-xs text-platinum-white/60">
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <span className="px-1.5 py-0.5 bg-purple-600/20 rounded text-purple-300 capitalize">
                                 {ev.source_type?.replace(/_/g, ' ')}
                               </span>
@@ -901,9 +901,9 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
                               &ldquo;{ev.source_excerpt}&rdquo;
                             </p>
                             {ev.monetary_context && (
-                              <p className="text-xs text-platinum-white/50 italic">Cost context: {ev.monetary_context}</p>
+                              <p className="text-xs text-muted-foreground/90 italic">Cost context: {ev.monetary_context}</p>
                             )}
-                            <div className="text-xs text-platinum-white/40">
+                            <div className="text-xs text-muted-foreground/80">
                               {ev.extracted_by && <span>Extracted by: {ev.extracted_by}</span>}
                               {ev.created_at && <span className="ml-3">{new Date(ev.created_at).toLocaleDateString()}</span>}
                             </div>
@@ -915,13 +915,13 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
                       {calcsMap[pp.id] !== undefined && (
                         <div className="space-y-3 border-t border-silicon-slate pt-4">
                           <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-medium text-platinum-white/80 flex items-center gap-1.5">
+                            <h4 className="text-sm font-medium text-muted-foreground flex items-center gap-1.5">
                               <DollarSign size={14} className="text-green-400" />
                               Calculations ({calcsMap[pp.id].length})
                             </h4>
                           </div>
                           {calcsMap[pp.id].length === 0 && (
-                            <p className="text-sm text-platinum-white/50 py-2">No calculations generated for this pain point yet.</p>
+                            <p className="text-sm text-muted-foreground/90 py-2">No calculations generated for this pain point yet.</p>
                           )}
                           {calcsMap[pp.id].slice(0, 5).map((calc: any) => (
                             <div key={calc.id} className="p-3 bg-green-950/30 border border-green-900/40 rounded-lg space-y-1">
@@ -930,8 +930,8 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
                                   <span className="px-1.5 py-0.5 bg-green-600/20 rounded text-green-300 font-medium">
                                     {formatCurrency(calc.annual_value)}/yr
                                   </span>
-                                  <span className="text-platinum-white/60">{calc.industry?.replace(/_/g, ' ')}</span>
-                                  <span className="text-platinum-white/40">{calc.company_size_range} employees</span>
+                                  <span className="text-muted-foreground">{calc.industry?.replace(/_/g, ' ')}</span>
+                                  <span className="text-muted-foreground/80">{calc.company_size_range} employees</span>
                                 </div>
                                 <span className={`text-[10px] px-1.5 py-0.5 rounded ${
                                   calc.confidence_level === 'high' ? 'bg-green-600/20 text-green-300' :
@@ -941,10 +941,10 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
                                   {calc.confidence_level}
                                 </span>
                               </div>
-                              <p className="text-xs text-platinum-white/60 font-mono">
+                              <p className="text-xs text-muted-foreground font-mono">
                                 {calc.formula_expression}
                               </p>
-                              <div className="flex items-center gap-2 text-[10px] text-platinum-white/40">
+                              <div className="flex items-center gap-2 text-[10px] text-muted-foreground/80">
                                 <span>{calc.calculation_method?.replace(/_/g, ' ')}</span>
                                 {calc.evidence_count > 0 && (
                                   <span className="text-radiant-gold">{calc.evidence_count} evidence</span>
@@ -956,7 +956,7 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
                             </div>
                           ))}
                           {calcsMap[pp.id].length > 5 && (
-                            <p className="text-xs text-platinum-white/50">Showing top 5 of {calcsMap[pp.id].length} calculations</p>
+                            <p className="text-xs text-muted-foreground/90">Showing top 5 of {calcsMap[pp.id].length} calculations</p>
                           )}
                         </div>
                       )}
@@ -977,14 +977,14 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
         />
 
         {filteredAndSorted.length === 0 && painPoints.length > 0 && (
-          <div className="text-center py-12 text-platinum-white/60">
+          <div className="text-center py-12 text-muted-foreground">
             <Search size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg">No matching pain points</p>
             <p className="text-sm mt-1">Try adjusting your search or filters.</p>
           </div>
         )}
         {painPoints.length === 0 && (
-          <div className="text-center py-12 text-platinum-white/60">
+          <div className="text-center py-12 text-muted-foreground">
             <Target size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg">No pain points yet</p>
             <p className="text-sm mt-1">Run the Internal Extraction or Social Listening workflows to populate pain point data.</p>
@@ -1061,7 +1061,7 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <RefreshCw size={24} className="animate-spin text-platinum-white/80" />
+        <RefreshCw size={24} className="animate-spin text-muted-foreground" />
       </div>
     )
   }
@@ -1122,7 +1122,7 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
                   <span className="text-xs px-2 py-0.5 bg-cyan-900/50 text-cyan-300 rounded capitalize">
                     {item.source_platform?.replace(/_/g, ' ')}
                   </span>
-                  <span className="text-xs px-2 py-0.5 bg-silicon-slate/80/50 text-platinum-white/80 rounded capitalize">
+                  <span className="text-xs px-2 py-0.5 bg-silicon-slate/80/50 text-muted-foreground rounded capitalize">
                     {item.content_type}
                   </span>
                   {item.is_processed ? (
@@ -1136,10 +1136,10 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
                     </span>
                   )}
                   {item.relevance_score != null && (
-                    <span className="text-xs text-platinum-white/60">Relevance: {item.relevance_score}/10</span>
+                    <span className="text-xs text-muted-foreground">Relevance: {item.relevance_score}/10</span>
                   )}
                 </div>
-                <p className="text-sm text-platinum-white line-clamp-3">{item.content_text}</p>
+                <p className="text-sm text-foreground line-clamp-3">{item.content_text}</p>
                 {item.source_url && (
                   <a
                     href={item.source_url}
@@ -1151,7 +1151,7 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
                   </a>
                 )}
               </div>
-              <div className="text-xs text-platinum-white/60 flex-shrink-0">
+              <div className="text-xs text-muted-foreground flex-shrink-0">
                 {new Date(item.scraped_at || item.created_at).toLocaleDateString()}
               </div>
             </div>
@@ -1168,14 +1168,14 @@ function MarketIntelTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
         />
 
         {items.length === 0 && !loading && (
-          <div className="text-center py-12 text-platinum-white/60">
+          <div className="text-center py-12 text-muted-foreground">
             <Globe size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg">No market intelligence yet</p>
             <p className="text-sm mt-1 max-w-md mx-auto">
               Refresh only reloads data already stored in the database; it does not run scraping. Run the Social Listening workflow from the Dashboard tab. It scrapes Reddit, Google Maps, G2, Capterra and POSTs to <code className="text-xs bg-silicon-slate px-1 rounded">/api/admin/value-evidence/ingest-market</code>.
             </p>
-            <div className="mt-6 text-left max-w-lg mx-auto p-4 bg-silicon-slate/70/50 rounded-lg border border-silicon-slate text-xs text-platinum-white/80 space-y-2">
-              <p className="font-medium text-platinum-white">If data still doesn&apos;t appear after running:</p>
+            <div className="mt-6 text-left max-w-lg mx-auto p-4 bg-silicon-slate/70/50 rounded-lg border border-silicon-slate text-xs text-muted-foreground space-y-2">
+              <p className="font-medium text-foreground">If data still doesn&apos;t appear after running:</p>
               <ul className="list-disc list-inside space-y-1">
                 <li>Ensure <code>N8N_VEP002_WEBHOOK_URL</code> and <code>N8N_INGEST_SECRET</code> are set in <code>.env.local</code></li>
                 <li>In n8n, the workflow must POST to <code>YourBaseURL/api/admin/value-evidence/ingest-market</code> with header <code>Authorization: Bearer N8N_INGEST_SECRET</code></li>
@@ -1261,12 +1261,12 @@ function BenchmarkCard({ b, onUpdate, onDelete }: {
   if (editing) {
     return (
       <div className="p-3 bg-silicon-slate/70 rounded-lg border border-blue-500/40 space-y-2">
-        <div className="text-xs text-platinum-white/80 uppercase tracking-wide">
+        <div className="text-xs text-muted-foreground uppercase tracking-wide">
           {b.benchmark_type?.replace(/_/g, ' ')}
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[10px] text-platinum-white/50">Value</label>
+            <label className="text-[10px] text-muted-foreground/90">Value</label>
             <input
               type="number"
               step="any"
@@ -1276,7 +1276,7 @@ function BenchmarkCard({ b, onUpdate, onDelete }: {
             />
           </div>
           <div>
-            <label className="text-[10px] text-platinum-white/50">Year</label>
+            <label className="text-[10px] text-muted-foreground/90">Year</label>
             <input
               type="number"
               value={editYear}
@@ -1286,7 +1286,7 @@ function BenchmarkCard({ b, onUpdate, onDelete }: {
           </div>
         </div>
         <div>
-          <label className="text-[10px] text-platinum-white/50">Source</label>
+          <label className="text-[10px] text-muted-foreground/90">Source</label>
           <input
             type="text"
             value={editSource}
@@ -1295,7 +1295,7 @@ function BenchmarkCard({ b, onUpdate, onDelete }: {
           />
         </div>
         <div>
-          <label className="text-[10px] text-platinum-white/50">Notes</label>
+          <label className="text-[10px] text-muted-foreground/90">Notes</label>
           <input
             type="text"
             value={editNotes}
@@ -1312,7 +1312,7 @@ function BenchmarkCard({ b, onUpdate, onDelete }: {
           >
             {saving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
           </button>
-          <button onClick={handleCancel} className="p-1 text-platinum-white/60 hover:text-platinum-white" title="Cancel">
+          <button onClick={handleCancel} className="p-1 text-muted-foreground hover:text-foreground" title="Cancel">
             <X size={14} />
           </button>
         </div>
@@ -1322,7 +1322,7 @@ function BenchmarkCard({ b, onUpdate, onDelete }: {
 
   return (
     <div className="p-3 bg-silicon-slate/70 rounded-lg border border-silicon-slate/50 group relative">
-      <div className="text-xs text-platinum-white/80 uppercase tracking-wide">
+      <div className="text-xs text-muted-foreground uppercase tracking-wide">
         {b.benchmark_type?.replace(/_/g, ' ')}
       </div>
       <div className="text-lg font-semibold text-teal-400 mt-0.5">
@@ -1330,17 +1330,17 @@ function BenchmarkCard({ b, onUpdate, onDelete }: {
           ? `${(parseFloat(b.value) * 100).toFixed(1)}%`
           : formatCurrency(parseFloat(b.value))}
       </div>
-      <div className="text-xs text-platinum-white/60 mt-1">
+      <div className="text-xs text-muted-foreground mt-1">
         {b.company_size_range} emp · {b.source} ({b.year})
       </div>
       {b.notes && (
-        <div className="text-xs text-platinum-white/60 mt-1 truncate" title={b.notes}>{b.notes}</div>
+        <div className="text-xs text-muted-foreground mt-1 truncate" title={b.notes}>{b.notes}</div>
       )}
       <div className="absolute top-2 right-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button onClick={() => setEditing(true)} className="p-1 text-platinum-white/40 hover:text-blue-400 transition-colors" title="Edit">
+        <button onClick={() => setEditing(true)} className="p-1 text-muted-foreground/80 hover:text-blue-400 transition-colors" title="Edit">
           <Pencil size={12} />
         </button>
-        <button onClick={() => onDelete(b.id)} className="p-1 text-platinum-white/40 hover:text-red-400 transition-colors" title="Delete">
+        <button onClick={() => onDelete(b.id)} className="p-1 text-muted-foreground/80 hover:text-red-400 transition-colors" title="Delete">
           <Trash2 size={12} />
         </button>
       </div>
@@ -1399,7 +1399,7 @@ function AddBenchmarkForm({ onCreated, onCancel }: { onCreated: () => void; onCa
       <h3 className="text-sm font-semibold text-teal-300">Add Benchmark</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div>
-          <label className="text-[10px] text-platinum-white/50 uppercase">Industry</label>
+          <label className="text-[10px] text-muted-foreground/90 uppercase">Industry</label>
           <select value={form.industry} onChange={e => setForm(f => ({ ...f, industry: e.target.value }))} className={inputCls} required>
             <option value="">Select…</option>
             {INDUSTRY_SLUGS.map(s => (
@@ -1408,36 +1408,36 @@ function AddBenchmarkForm({ onCreated, onCancel }: { onCreated: () => void; onCa
           </select>
         </div>
         <div>
-          <label className="text-[10px] text-platinum-white/50 uppercase">Size Range</label>
+          <label className="text-[10px] text-muted-foreground/90 uppercase">Size Range</label>
           <select value={form.company_size_range} onChange={e => setForm(f => ({ ...f, company_size_range: e.target.value }))} className={inputCls}>
             {SIZE_RANGES.map(s => <option key={s} value={s}>{s} emp</option>)}
           </select>
         </div>
         <div>
-          <label className="text-[10px] text-platinum-white/50 uppercase">Benchmark Type</label>
+          <label className="text-[10px] text-muted-foreground/90 uppercase">Benchmark Type</label>
           <select value={form.benchmark_type} onChange={e => setForm(f => ({ ...f, benchmark_type: e.target.value }))} className={inputCls}>
             {BENCHMARK_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
           </select>
         </div>
         <div>
-          <label className="text-[10px] text-platinum-white/50 uppercase">Value</label>
+          <label className="text-[10px] text-muted-foreground/90 uppercase">Value</label>
           <input type="number" step="any" value={form.value} onChange={e => setForm(f => ({ ...f, value: e.target.value }))} className={inputCls} required placeholder="e.g. 45.00" />
         </div>
         <div>
-          <label className="text-[10px] text-platinum-white/50 uppercase">Source</label>
+          <label className="text-[10px] text-muted-foreground/90 uppercase">Source</label>
           <input type="text" value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))} className={inputCls} required />
         </div>
         <div>
-          <label className="text-[10px] text-platinum-white/50 uppercase">Year</label>
+          <label className="text-[10px] text-muted-foreground/90 uppercase">Year</label>
           <input type="number" value={form.year} onChange={e => setForm(f => ({ ...f, year: e.target.value }))} className={inputCls} required />
         </div>
       </div>
       <div>
-        <label className="text-[10px] text-platinum-white/50 uppercase">Notes (optional)</label>
+        <label className="text-[10px] text-muted-foreground/90 uppercase">Notes (optional)</label>
         <input type="text" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className={inputCls} placeholder="Optional context" />
       </div>
       <div className="flex items-center gap-2 justify-end">
-        <button type="button" onClick={onCancel} className="px-3 py-1.5 text-sm text-platinum-white/60 hover:text-platinum-white">
+        <button type="button" onClick={onCancel} className="px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">
           Cancel
         </button>
         <button
@@ -1509,7 +1509,7 @@ function BenchmarksTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <RefreshCw size={24} className="animate-spin text-platinum-white/80" />
+        <RefreshCw size={24} className="animate-spin text-muted-foreground" />
       </div>
     )
   }
@@ -1568,7 +1568,7 @@ function BenchmarksTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
         })}
 
         {benchmarks.length === 0 && (
-          <div className="text-center py-12 text-platinum-white/60">
+          <div className="text-center py-12 text-muted-foreground">
             <BookOpen size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg">No benchmarks yet</p>
             <p className="text-sm mt-1">Click &quot;Add Benchmark&quot; above or seed data via scripts.</p>
@@ -1682,12 +1682,12 @@ function CalculationCard({ calc, onUpdate, onDelete }: {
                 <span className="font-medium text-foreground">
                   {(calc.pain_point_categories as any)?.display_name || 'Unknown'}
                 </span>
-                {expanded ? <ChevronUp size={14} className="text-platinum-white/60" /> : <ChevronDown size={14} className="text-platinum-white/60" />}
+                {expanded ? <ChevronUp size={14} className="text-muted-foreground" /> : <ChevronDown size={14} className="text-muted-foreground" />}
               </div>
-              <div className="text-sm text-platinum-white/80">
+              <div className="text-sm text-muted-foreground">
                 {getIndustryDisplayName(calc.industry)} · {calc.company_size_range} emp
               </div>
-              <div className="text-xs text-platinum-white/60 mt-1 font-mono" title={calc.formula_expression}>
+              <div className="text-xs text-muted-foreground mt-1 font-mono" title={calc.formula_expression}>
                 {calc.formula_expression?.slice(0, 80)}{calc.formula_expression?.length > 80 ? '…' : ''}
               </div>
             </div>
@@ -1696,7 +1696,7 @@ function CalculationCard({ calc, onUpdate, onDelete }: {
             {editing ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-platinum-white/60">$/yr</span>
+                  <span className="text-xs text-muted-foreground">$/yr</span>
                   <input
                     type="number"
                     value={editValue}
@@ -1722,7 +1722,7 @@ function CalculationCard({ calc, onUpdate, onDelete }: {
                   >
                     {saving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />}
                   </button>
-                  <button onClick={handleCancel} className="p-1 text-platinum-white/60 hover:text-platinum-white" title="Cancel">
+                  <button onClick={handleCancel} className="p-1 text-muted-foreground hover:text-foreground" title="Cancel">
                     <X size={14} />
                   </button>
                 </div>
@@ -1736,7 +1736,7 @@ function CalculationCard({ calc, onUpdate, onDelete }: {
                   <span className={`text-xs px-1.5 py-0.5 rounded ${CONFIDENCE_COLORS[calc.confidence_level] || ''}`}>
                     {calc.confidence_level}
                   </span>
-                  <span className={`text-xs ${calc.evidence_count > 0 ? 'text-radiant-gold' : 'text-platinum-white/60'}`}>
+                  <span className={`text-xs ${calc.evidence_count > 0 ? 'text-radiant-gold' : 'text-muted-foreground'}`}>
                     {calc.evidence_count} evidence
                   </span>
                 </div>
@@ -1744,10 +1744,10 @@ function CalculationCard({ calc, onUpdate, onDelete }: {
                   <div className="text-[10px] text-purple-300 mt-0.5 text-right">evidence-adjusted</div>
                 )}
                 <div className="flex items-center gap-1 justify-end mt-1.5">
-                  <button onClick={() => setEditing(true)} className="p-1 text-platinum-white/40 hover:text-blue-400 transition-colors" title="Edit">
+                  <button onClick={() => setEditing(true)} className="p-1 text-muted-foreground/80 hover:text-blue-400 transition-colors" title="Edit">
                     <Pencil size={13} />
                   </button>
-                  <button onClick={() => onDelete(calc.id)} className="p-1 text-platinum-white/40 hover:text-red-400 transition-colors" title="Delete">
+                  <button onClick={() => onDelete(calc.id)} className="p-1 text-muted-foreground/80 hover:text-red-400 transition-colors" title="Delete">
                     <Trash2 size={13} />
                   </button>
                 </div>
@@ -1769,7 +1769,7 @@ function CalculationCard({ calc, onUpdate, onDelete }: {
             <div className="p-4 space-y-4">
               {calc.formula_expression && (
                 <div>
-                  <h4 className="text-xs font-medium text-platinum-white/60 uppercase tracking-wider mb-1.5">Formula</h4>
+                  <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Formula</h4>
                   <p className="text-sm font-mono text-foreground bg-silicon-slate/70 rounded-lg p-3 break-all">
                     {calc.formula_expression}
                   </p>
@@ -1778,11 +1778,11 @@ function CalculationCard({ calc, onUpdate, onDelete }: {
 
               {inputEntries.length > 0 && (
                 <div>
-                  <h4 className="text-xs font-medium text-platinum-white/60 uppercase tracking-wider mb-1.5">Inputs</h4>
+                  <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Inputs</h4>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {inputEntries.map(([key, val]) => (
                       <div key={key} className="p-2 bg-silicon-slate/70 rounded-lg">
-                        <div className="text-xs text-platinum-white/50 capitalize">{key.replace(/_/g, ' ')}</div>
+                        <div className="text-xs text-muted-foreground/90 capitalize">{key.replace(/_/g, ' ')}</div>
                         <div className="text-sm text-foreground font-medium">
                           {typeof val === 'number' ? val.toLocaleString() : String(val)}
                         </div>
@@ -1792,35 +1792,35 @@ function CalculationCard({ calc, onUpdate, onDelete }: {
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-4 text-xs text-platinum-white/50">
-                <span>Method: <span className="text-platinum-white/80 capitalize">{calc.calculation_method?.replace(/_/g, ' ')}</span></span>
-                <span>Generated by: <span className="text-platinum-white/80">{calc.generated_by || 'unknown'}</span></span>
+              <div className="flex flex-wrap gap-4 text-xs text-muted-foreground/90">
+                <span>Method: <span className="text-muted-foreground capitalize">{calc.calculation_method?.replace(/_/g, ' ')}</span></span>
+                <span>Generated by: <span className="text-muted-foreground">{calc.generated_by || 'unknown'}</span></span>
                 {calc.benchmark_ids?.length > 0 && (
-                  <span>Benchmarks used: <span className="text-platinum-white/80">{calc.benchmark_ids.length}</span></span>
+                  <span>Benchmarks used: <span className="text-muted-foreground">{calc.benchmark_ids.length}</span></span>
                 )}
                 {calc.created_at && (
-                  <span>Created: <span className="text-platinum-white/80">{new Date(calc.created_at).toLocaleDateString()}</span></span>
+                  <span>Created: <span className="text-muted-foreground">{new Date(calc.created_at).toLocaleDateString()}</span></span>
                 )}
               </div>
 
               {/* Evidence section */}
               {calc.evidence_count > 0 && (
                 <div className="border-t border-silicon-slate pt-3 space-y-2">
-                  <h4 className="text-xs font-medium text-platinum-white/60 uppercase tracking-wider flex items-center gap-1.5">
+                  <h4 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                     <BookOpen size={12} />
                     Supporting Evidence ({calc.evidence_count})
                   </h4>
                   {evidenceLoading && (
-                    <div className="flex items-center gap-2 py-2 text-xs text-platinum-white/50">
+                    <div className="flex items-center gap-2 py-2 text-xs text-muted-foreground/90">
                       <RefreshCw size={12} className="animate-spin" /> Loading evidence…
                     </div>
                   )}
                   {evidence && evidence.length === 0 && (
-                    <p className="text-xs text-platinum-white/40 py-1">No evidence items found.</p>
+                    <p className="text-xs text-muted-foreground/80 py-1">No evidence items found.</p>
                   )}
                   {evidence && evidence.map((ev: any) => (
                     <div key={ev.id} className="p-2.5 bg-silicon-slate/70 rounded-lg space-y-1">
-                      <div className="flex items-center gap-2 text-[10px] text-platinum-white/50">
+                      <div className="flex items-center gap-2 text-[10px] text-muted-foreground/90">
                         <span className="px-1.5 py-0.5 bg-purple-600/20 rounded text-purple-300 capitalize">
                           {ev.source_type?.replace(/_/g, ' ')}
                         </span>
@@ -1844,9 +1844,9 @@ function CalculationCard({ calc, onUpdate, onDelete }: {
                         &ldquo;{ev.source_excerpt}&rdquo;
                       </p>
                       {ev.monetary_context && (
-                        <p className="text-[10px] text-platinum-white/40 italic">Cost context: {ev.monetary_context}</p>
+                        <p className="text-[10px] text-muted-foreground/80 italic">Cost context: {ev.monetary_context}</p>
                       )}
-                      <div className="text-[10px] text-platinum-white/30">
+                      <div className="text-[10px] text-muted-foreground/70">
                         {ev.extracted_by && <span>Extracted by: {ev.extracted_by}</span>}
                         {ev.created_at && <span className="ml-2">{new Date(ev.created_at).toLocaleDateString()}</span>}
                       </div>
@@ -1856,7 +1856,7 @@ function CalculationCard({ calc, onUpdate, onDelete }: {
               )}
               {calc.evidence_count === 0 && (
                 <div className="border-t border-silicon-slate pt-3">
-                  <p className="text-xs text-platinum-white/40">No evidence linked to this calculation yet. Run the Social Listening workflow or click Recalculate to link existing evidence.</p>
+                  <p className="text-xs text-muted-foreground/80">No evidence linked to this calculation yet. Run the Social Listening workflow or click Recalculate to link existing evidence.</p>
                 </div>
               )}
             </div>
@@ -2018,7 +2018,7 @@ function CalculationsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <RefreshCw size={24} className="animate-spin text-platinum-white/80" />
+        <RefreshCw size={24} className="animate-spin text-muted-foreground" />
       </div>
     )
   }
@@ -2100,7 +2100,7 @@ function CalculationsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
         />
 
         {calculations.length === 0 && (
-          <div className="text-center py-12 text-platinum-white/60">
+          <div className="text-center py-12 text-muted-foreground">
             <DollarSign size={48} className="mx-auto mb-4 opacity-50" />
             <p className="text-lg">No calculations yet</p>
             <p className="text-sm mt-1">Select an industry and pain point, then click Generate to create value calculations from benchmarks.</p>
@@ -2258,7 +2258,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <RefreshCw size={24} className="animate-spin text-platinum-white/80" />
+        <RefreshCw size={24} className="animate-spin text-muted-foreground" />
       </div>
     )
   }
@@ -2360,7 +2360,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
             <div className="flex items-center gap-2 flex-shrink-0">
               <Link
                 href={`/admin/value-evidence/reports/${generateToast.reportId}`}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-silicon-slate/80 border border-silicon-slate rounded-lg text-sm text-platinum-white hover:bg-silicon-slate transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-silicon-slate/80 border border-silicon-slate rounded-lg text-sm text-foreground hover:bg-silicon-slate transition-colors"
               >
                 <ExternalLink size={14} />
                 View Report
@@ -2394,7 +2394,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
               }`}
             >
               <div className="font-medium">{r.title}</div>
-              <div className="text-sm text-platinum-white/80 mt-1">
+              <div className="text-sm text-muted-foreground mt-1">
                 {r.industry?.replace(/_/g, ' ')} · {r.company_size_range}
               </div>
               <div className="flex items-center gap-2 mt-2">
@@ -2403,7 +2403,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
                 </span>
                 <span className="text-xs px-1.5 py-0.5 bg-silicon-slate/80 rounded">{r.report_type}</span>
               </div>
-              <div className="text-xs text-platinum-white/60 mt-1">
+              <div className="text-xs text-muted-foreground mt-1">
                 {new Date(r.created_at).toLocaleString()}
               </div>
             </motion.div>
@@ -2418,7 +2418,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
           />
 
           {reports.length === 0 && (
-            <div className="text-center py-12 text-platinum-white/60">
+            <div className="text-center py-12 text-muted-foreground">
               <FileText size={48} className="mx-auto mb-4 opacity-50" />
               <p className="text-lg">No reports yet</p>
               <p className="text-sm mt-1">Generate reports from the Outreach queue or sales walkthrough when viewing a lead.</p>
@@ -2434,7 +2434,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
                 <div>
                   <h3 className="text-lg font-semibold text-foreground">{selectedReport.title}</h3>
                   {reportDetail.contact && (
-                    <div className="text-sm text-platinum-white/80 mt-1">
+                    <div className="text-sm text-muted-foreground mt-1">
                       {reportDetail.contact.name} · {reportDetail.contact.company} · {reportDetail.contact.industry}
                     </div>
                   )}
@@ -2490,7 +2490,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
                                 {i + 1}. {s.painPoint}
                               </div>
                               {s.formulaReadable && (
-                                <div className="text-xs text-platinum-white/60 mt-0.5 truncate" title={s.formulaReadable}>
+                                <div className="text-xs text-muted-foreground mt-0.5 truncate" title={s.formulaReadable}>
                                   {s.formulaReadable}
                                 </div>
                               )}
@@ -2501,7 +2501,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
                               {formatCurrency(s.annualValue)}/yr
                             </div>
                             {s.confidence && (
-                              <span className={`text-xs px-1.5 py-0.5 rounded ${CONFIDENCE_COLORS[s.confidence] || 'text-platinum-white/80 bg-silicon-slate/50'}`}>
+                              <span className={`text-xs px-1.5 py-0.5 rounded ${CONFIDENCE_COLORS[s.confidence] || 'text-muted-foreground bg-silicon-slate/50'}`}>
                                 {s.confidence}
                               </span>
                             )}

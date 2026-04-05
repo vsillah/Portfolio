@@ -97,7 +97,7 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
         <h3 className="text-xl font-bold">Referral Program</h3>
       </div>
 
-      <p className="text-platinum-white/80 mb-6 text-sm">
+      <p className="text-muted-foreground mb-6 text-sm">
         Share your referral code with friends and earn discounts when they make a purchase!
       </p>
 
@@ -105,7 +105,7 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
         <div className="space-y-4">
           {/* Referral Code */}
           <div className="bg-silicon-slate/80 border border-silicon-slate rounded-lg p-4">
-            <label className="block text-sm font-medium text-platinum-white/80 mb-2">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Your Referral Code
             </label>
             <div className="flex items-center gap-2">
@@ -136,7 +136,7 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
 
           {/* Referral URL */}
           <div className="bg-silicon-slate/80 border border-silicon-slate rounded-lg p-4">
-            <label className="block text-sm font-medium text-platinum-white/80 mb-2">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Referral Link
             </label>
             <div className="flex items-center gap-2">
@@ -164,14 +164,14 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
             <div className="bg-silicon-slate/80 border border-silicon-slate rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Users className="text-radiant-gold" size={20} />
-                <span className="text-sm text-platinum-white/80">Referrals</span>
+                <span className="text-sm text-muted-foreground">Referrals</span>
               </div>
               <p className="text-2xl font-bold text-white">{referrals.length}</p>
             </div>
             <div className="bg-silicon-slate/80 border border-silicon-slate rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Gift className="text-green-400" size={20} />
-                <span className="text-sm text-platinum-white/80">Discount Earned</span>
+                <span className="text-sm text-muted-foreground">Discount Earned</span>
               </div>
               <p className="text-2xl font-bold text-white">{formatCurrency(totalDiscountEarned)}</p>
             </div>
@@ -180,7 +180,7 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
           {/* Recent Referrals */}
           {referrals.length > 0 && (
             <div>
-              <h4 className="text-sm font-semibold text-platinum-white/80 mb-2">Recent Referrals</h4>
+              <h4 className="text-sm font-semibold text-muted-foreground mb-2">Recent Referrals</h4>
               <div className="space-y-2">
                 {referrals.slice(0, 5).map((referral) => (
                   <div
@@ -200,7 +200,7 @@ export default function ReferralProgram({ userId }: ReferralProgramProps) {
           )}
         </div>
       ) : (
-        <div className="text-center py-8 text-platinum-white/80">
+        <div className="text-center py-8 text-muted-foreground">
           {loading ? 'Loading...' : 'No referral code available'}
         </div>
       )}

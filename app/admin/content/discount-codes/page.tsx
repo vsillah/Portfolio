@@ -207,7 +207,7 @@ export default function DiscountCodesManagementPage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">Discount Codes</h1>
-              <p className="text-platinum-white/80">Manage discount codes and promotions</p>
+              <p className="text-muted-foreground">Manage discount codes and promotions</p>
             </div>
             {!showAddForm && (
               <motion.button
@@ -294,7 +294,7 @@ export default function DiscountCodesManagementPage() {
                     className="w-full px-4 py-2 input-brand font-mono text-sm"
                     placeholder="uuid-1, uuid-2"
                   />
-                  <p className="text-xs text-platinum-white/70 mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Enter user UUIDs to restrict this code to specific users
                   </p>
                 </div>
@@ -365,10 +365,10 @@ export default function DiscountCodesManagementPage() {
 
           {loading ? (
             <div className="text-center py-12">
-              <div className="text-platinum-white/80">Loading discount codes...</div>
+              <div className="text-muted-foreground">Loading discount codes...</div>
             </div>
           ) : codes.length === 0 ? (
-            <div className="text-center py-12 text-platinum-white/70">
+            <div className="text-center py-12 text-muted-foreground">
               <p className="mb-4">No discount codes found. Create your first one!</p>
             </div>
           ) : (
@@ -390,7 +390,7 @@ export default function DiscountCodesManagementPage() {
                             Active
                           </span>
                         ) : (
-                          <span className="px-2 py-1 text-xs bg-silicon-slate/80 text-platinum-white/80 rounded border border-silicon-slate">
+                          <span className="px-2 py-1 text-xs bg-silicon-slate/80 text-muted-foreground rounded border border-silicon-slate">
                             Inactive
                           </span>
                         )}
@@ -407,7 +407,7 @@ export default function DiscountCodesManagementPage() {
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                         <div>
-                          <p className="text-platinum-white/80 mb-1">Discount</p>
+                          <p className="text-muted-foreground mb-1">Discount</p>
                           <p className="text-white font-semibold">
                             {code.discount_type === 'percentage'
                               ? `${code.discount_value}%`
@@ -415,19 +415,19 @@ export default function DiscountCodesManagementPage() {
                           </p>
                         </div>
                         <div>
-                          <p className="text-platinum-white/80 mb-1">Usage</p>
+                          <p className="text-muted-foreground mb-1">Usage</p>
                           <p className="text-white font-semibold">
                             {code.used_count} / {code.max_uses || '∞'}
                           </p>
                         </div>
                         <div>
-                          <p className="text-platinum-white/80 mb-1">Valid From</p>
+                          <p className="text-muted-foreground mb-1">Valid From</p>
                           <p className="text-white">
                             {new Date(code.valid_from).toLocaleDateString()}
                           </p>
                         </div>
                         <div>
-                          <p className="text-platinum-white/80 mb-1">Valid Until</p>
+                          <p className="text-muted-foreground mb-1">Valid Until</p>
                           <p className="text-white">
                             {code.valid_until
                               ? new Date(code.valid_until).toLocaleDateString()
@@ -436,7 +436,7 @@ export default function DiscountCodesManagementPage() {
                         </div>
                       </div>
                       {code.applicable_product_ids && code.applicable_product_ids.length > 0 && (
-                        <p className="text-sm text-platinum-white/80 mt-2">
+                        <p className="text-sm text-muted-foreground mt-2">
                           Applies to products: {code.applicable_product_ids.join(', ')}
                         </p>
                       )}

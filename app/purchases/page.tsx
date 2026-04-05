@@ -212,7 +212,7 @@ function PurchasesContent() {
         <div className="max-w-4xl mx-auto text-center">
           <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'My library' }]} />
           <h1 className="text-4xl font-bold mb-4">My library</h1>
-          <p className="text-platinum-white/80 mb-6">Please sign in to view your library</p>
+          <p className="text-muted-foreground mb-6">Please sign in to view your library</p>
           <button
             onClick={() => router.push('/auth/login')}
             className="px-6 py-3 bg-gradient-to-r btn-gold font-semibold rounded-lg"
@@ -228,7 +228,7 @@ function PurchasesContent() {
     return (
       <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center pt-24 pb-12 px-4">
         <Navigation />
-        <div className="text-platinum-white/80">Loading your library...</div>
+        <div className="text-muted-foreground">Loading your library...</div>
       </div>
     )
   }
@@ -248,7 +248,7 @@ function PurchasesContent() {
                 setSelectedOrder(null)
                 router.push('/purchases')
               }}
-              className="text-platinum-white/80 hover:text-foreground mb-6 transition-colors"
+              className="text-muted-foreground hover:text-foreground mb-6 transition-colors"
             >
               ← Back to All Purchases
             </button>
@@ -264,11 +264,11 @@ function PurchasesContent() {
                   {selectedOrder.status}
                 </span>
               </div>
-              <p className="text-platinum-white/80 mb-4">
+              <p className="text-muted-foreground mb-4">
                 Placed on {new Date(selectedOrder.created_at).toLocaleDateString()}
               </p>
               <div className="flex items-center gap-4 text-lg">
-                <span className="text-platinum-white/80">Total:</span>
+                <span className="text-muted-foreground">Total:</span>
                 <span className="text-2xl font-bold text-foreground">
                   {formatCurrency(selectedOrder.final_amount)}
                 </span>
@@ -277,9 +277,9 @@ function PurchasesContent() {
                 <div className="mt-4 pt-4 border-t border-silicon-slate/50">
                   <div className="flex items-center gap-2 mb-2">
                     <Package size={18} className="text-radiant-gold" />
-                    <span className="text-sm font-heading uppercase tracking-wider text-platinum-white/80">Shipping</span>
+                    <span className="text-sm font-heading uppercase tracking-wider text-muted-foreground">Shipping</span>
                   </div>
-                  <p className="text-sm text-platinum-white/90">
+                  <p className="text-sm text-foreground/90">
                     Status: {FULFILLMENT_LABELS[selectedOrder.fulfillment_status || ''] || selectedOrder.fulfillment_status || 'Pending'}
                   </p>
                   {(selectedOrder.tracking_url || selectedOrder.tracking_number) && (
@@ -295,7 +295,7 @@ function PurchasesContent() {
                           <ExternalLink size={14} />
                         </a>
                       ) : (
-                        <span className="text-sm text-platinum-white/80">
+                        <span className="text-sm text-muted-foreground">
                           Tracking: {selectedOrder.tracking_number}
                         </span>
                       )}
@@ -328,30 +328,30 @@ function PurchasesContent() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
-                  <p className="text-sm text-platinum-white/70 uppercase tracking-wider mb-1">Invoice number</p>
+                  <p className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Invoice number</p>
                   <p className="font-semibold">Order #{selectedOrder.id}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-platinum-white/70 uppercase tracking-wider mb-1">Date</p>
+                  <p className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Date</p>
                   <p className="font-semibold">{new Date(selectedOrder.created_at).toLocaleDateString(undefined, { dateStyle: 'long' })}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-platinum-white/70 uppercase tracking-wider mb-1">Vendor</p>
+                  <p className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Vendor</p>
                   <p className="font-semibold">{VENDOR_NAME}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-platinum-white/70 uppercase tracking-wider mb-1">Ship to</p>
-                  <pre className="font-sans text-sm text-platinum-white/90 whitespace-pre-wrap">{formatShippingAddress(selectedOrder.shipping_address)}</pre>
+                  <p className="text-sm text-muted-foreground uppercase tracking-wider mb-1">Ship to</p>
+                  <pre className="font-sans text-sm text-foreground/90 whitespace-pre-wrap">{formatShippingAddress(selectedOrder.shipping_address)}</pre>
                 </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-silicon-slate/50">
-                      <th className="py-2 pr-4 text-sm font-semibold text-platinum-white/80">Item</th>
-                      <th className="py-2 px-4 text-sm font-semibold text-platinum-white/80 text-right">Qty</th>
-                      <th className="py-2 px-4 text-sm font-semibold text-platinum-white/80 text-right">Unit price</th>
-                      <th className="py-2 pl-4 text-sm font-semibold text-platinum-white/80 text-right">Total</th>
+                      <th className="py-2 pr-4 text-sm font-semibold text-muted-foreground">Item</th>
+                      <th className="py-2 px-4 text-sm font-semibold text-muted-foreground text-right">Qty</th>
+                      <th className="py-2 px-4 text-sm font-semibold text-muted-foreground text-right">Unit price</th>
+                      <th className="py-2 pl-4 text-sm font-semibold text-muted-foreground text-right">Total</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -372,24 +372,24 @@ function PurchasesContent() {
               </div>
               <div className="mt-6 pt-4 border-t border-silicon-slate/50 space-y-1 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-platinum-white/80">Subtotal</span>
+                  <span className="text-muted-foreground">Subtotal</span>
                   <span>{formatCurrency(selectedOrder.total_amount ?? 0)}</span>
                 </div>
                 {(selectedOrder.discount_amount ?? 0) > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-platinum-white/80">Discount</span>
+                    <span className="text-muted-foreground">Discount</span>
                     <span>-{formatCurrency(selectedOrder.discount_amount ?? 0)}</span>
                   </div>
                 )}
                 {(selectedOrder.shipping_cost ?? 0) > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-platinum-white/80">Shipping</span>
+                    <span className="text-muted-foreground">Shipping</span>
                     <span>{formatCurrency(selectedOrder.shipping_cost ?? 0)}</span>
                   </div>
                 )}
                 {(selectedOrder.tax ?? 0) > 0 && (
                   <div className="flex justify-between">
-                    <span className="text-platinum-white/80">Tax</span>
+                    <span className="text-muted-foreground">Tax</span>
                     <span>{formatCurrency(selectedOrder.tax ?? 0)}</span>
                   </div>
                 )}
@@ -400,7 +400,7 @@ function PurchasesContent() {
               </div>
               <div className="mt-4 pt-4 border-t border-silicon-slate/50 flex flex-wrap gap-4">
                 <div>
-                  <span className="text-sm text-platinum-white/70 mr-2">Order status:</span>
+                  <span className="text-sm text-muted-foreground mr-2">Order status:</span>
                   <span className={`px-2 py-0.5 rounded text-sm font-medium ${
                     selectedOrder.status === 'completed'
                       ? 'bg-green-600/20 text-green-400'
@@ -410,7 +410,7 @@ function PurchasesContent() {
                   </span>
                 </div>
                 <div>
-                  <span className="text-sm text-platinum-white/70 mr-2">Fulfillment:</span>
+                  <span className="text-sm text-muted-foreground mr-2">Fulfillment:</span>
                   <span className="text-sm font-medium">
                     {FULFILLMENT_LABELS[selectedOrder.fulfillment_status || ''] || selectedOrder.fulfillment_status || 'Pending'}
                   </span>
@@ -461,11 +461,11 @@ function PurchasesContent() {
           <div className="flex items-center justify-between mb-4">
             <div>
               <h1 className="text-4xl font-bold">My library</h1>
-              <p className="text-platinum-white/70 text-sm mt-2 max-w-xl">
+              <p className="text-muted-foreground text-sm mt-2 max-w-xl">
                 Orders, downloads, and your free AI &amp; automation audit report (when you&apos;ve completed the audit with this account or the same email).
               </p>
             </div>
-            <Link href="/help" className="text-platinum-white/80 hover:text-foreground transition-colors shrink-0" aria-label="Help">
+            <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors shrink-0" aria-label="Help">
               <HelpCircle size={20} />
             </Link>
           </div>
@@ -481,17 +481,17 @@ function PurchasesContent() {
                   <ClipboardList className="text-radiant-gold" size={28} aria-hidden />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-platinum-white/60 mb-1">Free diagnostic</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Free diagnostic</p>
                   <h2 id="audit-heading" className="text-xl font-bold text-foreground mb-1">
                     {userAudit.businessName ? `${userAudit.businessName} — AI &amp; automation audit` : 'Your AI &amp; automation audit'}
                   </h2>
                   {userAudit.completedAt && (
-                    <p className="text-sm text-platinum-white/70 mb-3">
+                    <p className="text-sm text-muted-foreground mb-3">
                       Completed {new Date(userAudit.completedAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                     </p>
                   )}
                   {userAudit.reportTier && userAudit.reportTier !== 'bronze' && (
-                    <p className="text-sm text-platinum-white/80 mb-3">
+                    <p className="text-sm text-muted-foreground mb-3">
                       Report tier:{' '}
                       <span className="text-radiant-gold/90 font-medium">
                         {userAudit.reportTier === 'platinum'
@@ -518,8 +518,8 @@ function PurchasesContent() {
 
           {orders.length === 0 ? (
             <div className="text-center py-12">
-              <ShoppingBag className="mx-auto text-platinum-white/70 mb-4" size={64} />
-              <p className="text-platinum-white/80 mb-6">
+              <ShoppingBag className="mx-auto text-muted-foreground mb-4" size={64} />
+              <p className="text-muted-foreground mb-6">
                 {userAudit
                   ? 'You don&apos;t have any orders yet. Your audit report is above whenever you need it.'
                   : 'You haven&apos;t made any purchases yet.'}
@@ -547,10 +547,10 @@ function PurchasesContent() {
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="text-xl font-bold mb-2">Order #{order.id}</h3>
-                      <p className="text-platinum-white/80 text-sm mb-2">
+                      <p className="text-muted-foreground text-sm mb-2">
                         {new Date(order.created_at).toLocaleDateString()}
                       </p>
-                      <p className="text-platinum-white/80 text-sm">
+                      <p className="text-muted-foreground text-sm">
                         {order.order_items.length} item{order.order_items.length !== 1 ? 's' : ''}
                       </p>
                     </div>
@@ -584,7 +584,7 @@ export default function PurchasesPage() {
         <Navigation />
         <div className="text-center">
           <Loader className="animate-spin mx-auto mb-4" size={48} />
-          <div className="text-platinum-white/80">Loading...</div>
+          <div className="text-muted-foreground">Loading...</div>
         </div>
       </div>
     }>

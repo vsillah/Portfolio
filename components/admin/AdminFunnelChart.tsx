@@ -45,7 +45,7 @@ export default function AdminFunnelChart({
         role="img"
         aria-label={`${ariaLabel}: No data`}
       >
-        <span className="text-sm text-platinum-white/50">No data</span>
+        <span className="text-sm text-muted-foreground/90">No data</span>
       </div>
     )
   }
@@ -59,7 +59,7 @@ export default function AdminFunnelChart({
       className="w-full"
     >
       {title && (
-        <p className="text-xs font-medium text-platinum-white/80 mb-1.5">{title}</p>
+        <p className="text-xs font-medium text-muted-foreground mb-1.5">{title}</p>
       )}
       <div className="flex flex-row items-end justify-center gap-3 sm:gap-4" style={{ height: barAreaHeight + 28 }}>
         {stages.map((stage, i) => (
@@ -78,7 +78,7 @@ export default function AdminFunnelChart({
             >
               <span className="text-xs font-semibold tabular-nums">{stage.value}</span>
             </div>
-            <span className="text-xs font-medium text-platinum-white/80 truncate w-full text-center">{stage.name}</span>
+            <span className="text-xs font-medium text-muted-foreground truncate w-full text-center">{stage.name}</span>
           </div>
         ))}
       </div>

@@ -37,14 +37,15 @@ export default function LeadMagnetCard({ leadMagnet, onDownload }: LeadMagnetCar
     (isToolLink && (leadMagnet.type === 'document' || leadMagnet.type === 'ebook'))
 
   const getFileIcon = () => {
-    if (isInteractive) return <ExternalLink className="text-amber-400" size={24} />
+    if (isInteractive)
+      return <ExternalLink className="text-amber-600 dark:text-amber-400" size={24} />
     switch (leadMagnet.file_type?.toLowerCase()) {
       case 'pdf':
-        return <FileText className="text-red-400" size={24} />
+        return <FileText className="text-red-600 dark:text-red-400" size={24} />
       case 'video':
-        return <Video className="text-blue-400" size={24} />
+        return <Video className="text-blue-600 dark:text-blue-400" size={24} />
       default:
-        return <File className="text-gray-400" size={24} />
+        return <File className="text-muted-foreground" size={24} />
     }
   }
 
@@ -68,18 +69,18 @@ export default function LeadMagnetCard({ leadMagnet, onDownload }: LeadMagnetCar
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 bg-gray-900 border border-gray-800 rounded-xl hover:border-purple-500/50 transition-all"
+      className="p-6 bg-card text-card-foreground border border-border rounded-xl hover:border-violet-500/40 dark:hover:border-purple-500/50 transition-all"
     >
       <div className="flex items-start gap-4">
         <div className="flex-shrink-0">
           {getFileIcon()}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="text-xl font-bold text-white mb-2">{leadMagnet.title}</h3>
+          <h3 className="text-xl font-bold text-foreground mb-2">{leadMagnet.title}</h3>
           {leadMagnet.description && (
-            <p className="text-gray-400 text-sm mb-4">{leadMagnet.description}</p>
+            <p className="text-muted-foreground text-sm mb-4">{leadMagnet.description}</p>
           )}
-          <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-4">
             {!isInteractive && (
               <>
                 <span>{formatFileSize(leadMagnet.file_size)}</span>

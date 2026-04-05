@@ -7,24 +7,60 @@
    ======================================== */
 
 :root {
-  /* Brand Colors */
+  /* Brand Colors (fixed) */
   --imperial-navy: #121E31;
   --radiant-gold: #D4AF37;
   --silicon-slate: #2C3E50;
   --platinum-white: #EAECEE;
   --bronze: #8B6914;
   --gold-light: #F5D060;
-  
-  /* Semantic Colors */
-  --background: var(--imperial-navy);
-  --foreground: var(--platinum-white);
-  
+
+  /* Light theme — semantic */
+  --background: #f4f6fa;
+  --foreground: #121e31;
+  --muted: #e8ecf2;
+  --muted-foreground: #475569;
+  --border: rgba(18, 30, 49, 0.12);
+  --card: #ffffff;
+  --card-foreground: #121e31;
+  --popover: #ffffff;
+  --popover-foreground: #121e31;
+  --accent: #b8860b;
+  --accent-foreground: #121e31;
+
+  --glass-surface: rgba(255, 255, 255, 0.78);
+  --glass-border-strong: rgba(212, 175, 55, 0.32);
+  --glass-shadow: 0 8px 32px 0 rgba(18, 30, 49, 0.08);
+
   /* Gold Glow */
-  --gold-glow: rgba(212, 175, 55, 0.3);
-  --gold-glow-intense: rgba(212, 175, 55, 0.5);
-  
+  --gold-glow: rgba(212, 175, 55, 0.35);
+  --gold-glow-intense: rgba(212, 175, 55, 0.55);
+
   /* Mask/Noise */
   --noise-url: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Dark theme — html.dark (next-themes) or .dark wrapper (e.g. admin) */
+html.dark,
+.dark {
+  --background: var(--imperial-navy);
+  --foreground: var(--platinum-white);
+  --muted: rgba(234, 236, 238, 0.08);
+  --muted-foreground: rgba(234, 236, 238, 0.72);
+  --border: rgba(212, 175, 55, 0.22);
+  --card: rgba(18, 30, 49, 0.55);
+  --card-foreground: var(--platinum-white);
+  --popover: #1a2838;
+  --popover-foreground: var(--platinum-white);
+  --accent: var(--radiant-gold);
+  --accent-foreground: var(--imperial-navy);
+
+  --glass-surface: rgba(18, 30, 49, 0.56);
+  --glass-border-strong: rgba(212, 175, 55, 0.22);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+  --gold-glow: rgba(212, 175, 55, 0.3);
+  --gold-glow-intense: rgba(212, 175, 55, 0.5);
 }
 
 * {
@@ -45,9 +81,13 @@ body::after {
   width: 100%;
   height: 100%;
   pointer-events: none;
-  opacity: 0.03;
+  opacity: 0.035;
   z-index: 9999;
   background-image: var(--noise-url);
+}
+
+html.dark body::after {
+  opacity: 0.03;
 }
 
 html {
@@ -98,6 +138,19 @@ body {
   animation: aurora-drift 25s ease-in-out infinite alternate-reverse;
 }
 
+html:not(.dark) .aurora {
+  mix-blend-mode: multiply;
+  opacity: 0.1;
+}
+
+html:not(.dark) .aurora-1 {
+  opacity: 0.12;
+}
+
+html:not(.dark) .aurora-2 {
+  opacity: 0.1;
+}
+
 @keyframes aurora-drift {
   0% { transform: translate(0, 0) scale(1); }
   100% { transform: translate(10%, 10%) scale(1.2); }
@@ -139,13 +192,13 @@ body {
 
 /* Slightly more opaque than classic glass (0.4) so type stays legible; still reads as frosted, not solid */
 .glass-card {
-  background: rgba(18, 30, 49, 0.56);
+  background: var(--glass-surface);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(212, 175, 55, 0.22);
+  border: 1px solid var(--glass-border-strong);
   border-radius: 12px;
   padding: 1rem;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  box-shadow: var(--glass-shadow);
 }
 
 /* ========================================
@@ -157,12 +210,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--imperial-navy);
+  background: var(--muted);
 }
 
 ::-webkit-scrollbar-thumb {
   background: var(--silicon-slate);
   border-radius: 5px;
+}
+
+html.dark ::-webkit-scrollbar-track {
+  background: var(--imperial-navy);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -217,7 +274,7 @@ body {
 /* Ghost/Outline Button */
 .btn-ghost {
   background: transparent;
-  color: var(--platinum-white);
+  color: var(--foreground);
   font-weight: 500;
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
@@ -227,7 +284,7 @@ body {
 }
 
 .btn-ghost:hover {
-  background: rgba(212, 175, 55, 0.1);
+  background: rgba(212, 175, 55, 0.12);
   border-color: var(--gold-light);
 }
 
@@ -236,10 +293,15 @@ body {
    ======================================== */
 
 .card-brand {
-  background: var(--silicon-slate);
-  border: 1px solid rgba(212, 175, 55, 0.1);
+  background: var(--muted);
+  border: 1px solid var(--border);
   border-radius: 0.75rem;
   transition: all 0.3s ease-out;
+}
+
+html.dark .card-brand {
+  background: var(--silicon-slate);
+  border: 1px solid rgba(212, 175, 55, 0.1);
 }
 
 .card-brand:hover {
@@ -466,10 +528,15 @@ a, button {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: var(--silicon-slate);
-  border: 1px solid rgba(212, 175, 55, 0.3);
+  background: var(--muted);
+  border: 1px solid rgba(212, 175, 55, 0.28);
   border-radius: 9999px;
   font-size: 0.875rem;
+  color: var(--foreground);
+}
+
+html.dark .pill-badge {
+  background: var(--silicon-slate);
   color: var(--platinum-white);
 }
 
@@ -478,12 +545,18 @@ a, button {
    ======================================== */
 
 .input-brand {
-  background: var(--imperial-navy);
-  border: 1px solid var(--silicon-slate);
+  background: var(--card);
+  border: 1px solid var(--border);
   border-radius: 0.5rem;
   padding: 0.75rem 1rem;
-  color: var(--platinum-white);
+  color: var(--foreground);
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+html.dark .input-brand {
+  background: var(--imperial-navy);
+  border-color: var(--silicon-slate);
+  color: var(--platinum-white);
 }
 
 .input-brand:focus {
@@ -493,7 +566,8 @@ a, button {
 }
 
 .input-brand::placeholder {
-  color: rgba(234, 236, 238, 0.5);
+  color: var(--muted-foreground);
+  opacity: 0.85;
 }
 
 /* ========================================
@@ -501,19 +575,30 @@ a, button {
    ======================================== */
 
 .pac-container {
-  background: var(--silicon-slate) !important;
-  border: 1px solid rgba(212, 175, 55, 0.25) !important;
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
   border-radius: 0.5rem !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 8px 24px rgba(18, 30, 49, 0.12) !important;
   margin-top: 2px !important;
   font-family: inherit !important;
 }
 
+html.dark .pac-container {
+  background: var(--silicon-slate) !important;
+  border: 1px solid rgba(212, 175, 55, 0.25) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
 .pac-item {
-  color: var(--platinum-white) !important;
-  border-top: 1px solid rgba(44, 62, 80, 0.8) !important;
+  color: var(--foreground) !important;
+  border-top: 1px solid var(--border) !important;
   padding: 0.6rem 0.75rem !important;
   cursor: pointer !important;
+}
+
+html.dark .pac-item {
+  color: var(--platinum-white) !important;
+  border-top: 1px solid rgba(44, 62, 80, 0.8) !important;
 }
 
 .pac-item:first-child {
@@ -526,10 +611,18 @@ a, button {
 }
 
 .pac-item-query {
+  color: var(--foreground) !important;
+}
+
+html.dark .pac-item-query {
   color: var(--platinum-white) !important;
 }
 
 .pac-icon {
+  filter: opacity(0.75);
+}
+
+html.dark .pac-icon {
   filter: invert(1) opacity(0.7);
 }
 
@@ -539,6 +632,10 @@ a, button {
 }
 
 .pac-logo::after {
+  filter: opacity(0.5);
+}
+
+html.dark .pac-logo::after {
   filter: invert(1) opacity(0.5);
 }
 

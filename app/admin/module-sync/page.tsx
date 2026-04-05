@@ -338,7 +338,7 @@ export default function ModuleSyncPage() {
 
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">Module Sync</h1>
-            <p className="text-platinum-white/80">
+            <p className="text-muted-foreground">
               Set each module’s spun-off GitHub repo below, then run a diff to compare portfolio code
               with the repo and keep them in sync.
             </p>
@@ -356,13 +356,13 @@ export default function ModuleSyncPage() {
               <h2 className="text-lg font-semibold">Modules</h2>
               <div className="flex items-center gap-2">
                 <div className="relative">
-                  <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-platinum-white/50" />
+                  <Search size={16} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground/90" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search by name or path…"
-                    className="pl-8 pr-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-foreground placeholder:text-platinum-white/40 focus:border-cyan-500/50 focus:outline-none text-sm w-56"
+                    className="pl-8 pr-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-foreground placeholder:text-muted-foreground/80 focus:border-cyan-500/50 focus:outline-none text-sm w-56"
                   />
                 </div>
                 <button
@@ -378,12 +378,12 @@ export default function ModuleSyncPage() {
             </div>
 
             {loadingModules ? (
-              <div className="p-8 text-center text-platinum-white/60">Loading modules…</div>
+              <div className="p-8 text-center text-muted-foreground">Loading modules…</div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-white/10 text-left text-sm text-platinum-white/80">
+                    <tr className="border-b border-white/10 text-left text-sm text-muted-foreground">
                       <th className="p-3 font-medium">Name</th>
                       <th className="p-3 font-medium">Portfolio path</th>
                       <th className="p-3 font-medium">Spun-off repo (GitHub URL)</th>
@@ -413,7 +413,7 @@ export default function ModuleSyncPage() {
                               m.name
                             )}
                           </td>
-                          <td className="p-3 text-sm text-platinum-white/80 font-mono">
+                          <td className="p-3 text-sm text-muted-foreground font-mono">
                             {m.portfolioPath}
                           </td>
                           <td className="p-3">
@@ -426,7 +426,7 @@ export default function ModuleSyncPage() {
                                   setUrlDrafts((prev) => ({ ...prev, [m.id]: e.target.value }))
                                 }}
                                 placeholder={m.suggestedSpunOffRepoUrl ?? 'https://github.com/owner/repo'}
-                                className="flex-1 min-w-[200px] px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-foreground placeholder:text-platinum-white/40 focus:border-cyan-500/50 focus:outline-none text-sm font-mono"
+                                className="flex-1 min-w-[200px] px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-foreground placeholder:text-muted-foreground/80 focus:border-cyan-500/50 focus:outline-none text-sm font-mono"
                               />
                               <button
                                 type="button"
@@ -487,7 +487,7 @@ export default function ModuleSyncPage() {
                                     type="button"
                                     onClick={() => setRemoveConfirmId(m.id)}
                                     title="Removes from list only; does not delete the GitHub repo."
-                                    className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/10 hover:bg-red-500/20 text-platinum-white/80 hover:text-red-300 text-sm"
+                                    className="flex items-center gap-1 px-2 py-1.5 rounded-lg bg-white/10 hover:bg-red-500/20 text-muted-foreground hover:text-red-300 text-sm"
                                   >
                                     <Trash2 size={14} />
                                     Remove
@@ -539,15 +539,15 @@ export default function ModuleSyncPage() {
                     value={candidateSearch}
                     onChange={(e) => setCandidateSearch(e.target.value)}
                     placeholder="Filter candidates…"
-                    className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-foreground placeholder:text-platinum-white/40 text-sm w-64 focus:border-cyan-500/50 focus:outline-none"
+                    className="px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 text-foreground placeholder:text-muted-foreground/80 text-sm w-64 focus:border-cyan-500/50 focus:outline-none"
                   />
                 </div>
                 <ul className="divide-y divide-white/5 max-h-48 overflow-y-auto">
                   {filteredCandidates.map((c) => (
                     <li key={c.path} className="p-3 flex items-center justify-between gap-2">
-                      <span className="font-mono text-sm text-platinum-white/90">{c.path}</span>
+                      <span className="font-mono text-sm text-foreground/90">{c.path}</span>
                       {c.reason && (
-                        <span className="text-xs text-platinum-white/50 truncate max-w-[200px]">{c.reason}</span>
+                        <span className="text-xs text-muted-foreground/90 truncate max-w-[200px]">{c.reason}</span>
                       )}
                       <button
                         type="button"
@@ -563,7 +563,7 @@ export default function ModuleSyncPage() {
               </>
             )}
             {!scanLoading && candidates.length === 0 && !scanError && (
-              <div className="p-6 text-center text-platinum-white/60 text-sm">
+              <div className="p-6 text-center text-muted-foreground text-sm">
                 Click Scan to discover portfolio paths that look like spin-off candidates.
               </div>
             )}
@@ -573,7 +573,7 @@ export default function ModuleSyncPage() {
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60" onClick={() => !createLoading && setCreateModal(null)}>
               <div className="rounded-xl border border-white/10 bg-background p-6 max-w-md w-full shadow-xl" onClick={(e) => e.stopPropagation()}>
                 <h3 className="text-lg font-semibold mb-4">Create repo & add module</h3>
-                <p className="text-sm text-platinum-white/80 mb-2 font-mono">{createModal.path}</p>
+                <p className="text-sm text-muted-foreground mb-2 font-mono">{createModal.path}</p>
                 <div className="space-y-3">
                   <label className="block text-sm font-medium">Repo name</label>
                   <input
@@ -625,7 +625,7 @@ export default function ModuleSyncPage() {
                 <h2 className="text-lg font-semibold">
                   Diff: {diffResult.moduleName}
                   {diffResult.repoBranch && (
-                    <span className="text-sm font-normal text-platinum-white/70 ml-2">
+                    <span className="text-sm font-normal text-muted-foreground ml-2">
                       vs. {diffResult.repoUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')} (
                       {diffResult.repoBranch})
                     </span>
@@ -734,7 +734,7 @@ export default function ModuleSyncPage() {
                       modified
                     </span>
                     <span>
-                      <strong className="text-platinum-white/60">
+                      <strong className="text-muted-foreground">
                         {diffResult.summary.unchanged}
                       </strong>{' '}
                       unchanged
@@ -753,7 +753,7 @@ export default function ModuleSyncPage() {
                         />
                       ))}
                     {diffResult.files.every((f) => f.status === 'unchanged') && (
-                      <div className="p-6 text-center text-platinum-white/70">
+                      <div className="p-6 text-center text-muted-foreground">
                         No differences — portfolio and repo are in sync.
                       </div>
                     )}
@@ -792,9 +792,9 @@ function DiffFileRow({
         className="w-full flex items-center gap-2 text-left hover:bg-white/5 rounded-lg p-2 -m-2"
       >
         {expanded ? (
-          <ChevronUp size={18} className="text-platinum-white/60" />
+          <ChevronUp size={18} className="text-muted-foreground" />
         ) : (
-          <ChevronDown size={18} className="text-platinum-white/60" />
+          <ChevronDown size={18} className="text-muted-foreground" />
         )}
         <span className="font-mono text-sm">{file.path}</span>
         <span className={`text-sm font-medium ${statusColor}`}>({file.status})</span>
@@ -809,7 +809,7 @@ function DiffFileRow({
                   ? 'text-green-400'
                   : line.startsWith('-') && !line.startsWith('---')
                     ? 'text-red-400'
-                    : 'text-platinum-white/80'
+                    : 'text-muted-foreground'
               }
             >
               {line}

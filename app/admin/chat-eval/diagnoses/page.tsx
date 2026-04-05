@@ -199,7 +199,7 @@ function DiagnosesContent() {
   }
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-6xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -213,7 +213,7 @@ function DiagnosesContent() {
             <Bug size={32} className="text-red-400" />
             <h1 className="text-4xl font-heading tracking-wider">Error Diagnoses</h1>
           </div>
-          <p className="text-platinum-white/60">
+          <p className="text-muted-foreground">
             AI-powered root cause analysis and fix recommendations for confirmed errors
           </p>
         </div>
@@ -233,7 +233,7 @@ function DiagnosesContent() {
               className={`px-4 py-2 rounded-lg text-sm transition-all
                 ${filterStatus === value
                   ? 'bg-radiant-gold/20 border border-radiant-gold/50 text-radiant-gold'
-                  : 'bg-silicon-slate/30 border border-radiant-gold/10 text-platinum-white/70 hover:border-radiant-gold/30'
+                  : 'bg-silicon-slate/30 border border-radiant-gold/10 text-muted-foreground hover:border-radiant-gold/30'
                 }`}
             >
               {label}
@@ -243,7 +243,7 @@ function DiagnosesContent() {
 
         {/* Error type filter */}
         <div className="flex items-center gap-2 mb-6">
-          <span className="text-sm text-platinum-white/50">Error Type:</span>
+          <span className="text-sm text-muted-foreground/90">Error Type:</span>
           {[
             { value: null, label: 'All' },
             { value: 'prompt', label: 'Prompt' },
@@ -256,7 +256,7 @@ function DiagnosesContent() {
               className={`px-3 py-1 rounded text-xs transition-all
                 ${filterErrorType === value
                   ? 'bg-purple-600 text-white'
-                  : 'bg-silicon-slate/30 text-platinum-white/70 hover:bg-silicon-slate/50'
+                  : 'bg-silicon-slate/30 text-muted-foreground hover:bg-silicon-slate/50'
                 }`}
             >
               {label}
@@ -267,15 +267,15 @@ function DiagnosesContent() {
         {/* Diagnoses list */}
         <div className="space-y-4">
           {loading ? (
-            <div className="text-center py-12 text-platinum-white/50">
+            <div className="text-center py-12 text-muted-foreground/90">
               <Loader2 size={32} className="animate-spin mx-auto mb-4" />
               Loading diagnoses...
             </div>
           ) : diagnoses.length === 0 ? (
             <div className="text-center py-12">
-              <Bug size={48} className="text-platinum-white/20 mx-auto mb-4" />
+              <Bug size={48} className="text-muted-foreground/60 mx-auto mb-4" />
               <h3 className="text-xl font-heading mb-2">No Diagnoses Yet</h3>
-              <p className="text-platinum-white/50 mb-4">
+              <p className="text-muted-foreground/90 mb-4">
                 Select sessions with errors and run diagnosis to get started.
               </p>
               <motion.button
@@ -305,24 +305,24 @@ function DiagnosesContent() {
                         {getStatusIcon(diag.status)}
                         {diag.status.charAt(0).toUpperCase() + diag.status.slice(1)}
                       </span>
-                      <span className="flex items-center gap-1 text-platinum-white/50 text-sm">
+                      <span className="flex items-center gap-1 text-muted-foreground/90 text-sm">
                         {getErrorTypeIcon(diag.error_type)}
                         {diag.error_type}
                       </span>
-                      <span className="text-sm text-platinum-white/50">
+                      <span className="text-sm text-muted-foreground/90">
                         {formatDate(diag.diagnosed_at)}
                       </span>
                     </div>
 
                     {/* Root cause */}
-                    <h3 className="text-lg font-semibold text-platinum-white mb-2">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
                       {diag.root_cause.substring(0, 150)}
                       {diag.root_cause.length > 150 ? '...' : ''}
                     </h3>
 
                     {/* Session info */}
                     {diag.session && (
-                      <div className="flex items-center gap-4 text-sm text-platinum-white/60 mb-2">
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
                         <span>Session: {diag.session.session_id.substring(0, 20)}...</span>
                         {diag.session.visitor_name && (
                           <span>• {diag.session.visitor_name}</span>
@@ -348,7 +348,7 @@ function DiagnosesContent() {
                     )}
 
                     {/* Stats */}
-                    <div className="flex items-center gap-4 text-xs text-platinum-white/50">
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground/90">
                       <span className="flex items-center gap-1">
                         <Sparkles size={12} />
                         {diag.recommendations_count} recommendations
@@ -385,7 +385,7 @@ function DiagnosesContent() {
                         </button>
                       </div>
                     )}
-                    <ChevronRight size={20} className="text-platinum-white/40" />
+                    <ChevronRight size={20} className="text-muted-foreground/80" />
                   </div>
                 </div>
               </motion.div>

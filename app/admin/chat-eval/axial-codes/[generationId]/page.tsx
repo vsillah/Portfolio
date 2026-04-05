@@ -185,7 +185,7 @@ function GenerationDetailContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-imperial-navy text-platinum-white p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background text-foreground p-8 flex items-center justify-center">
         <Loader2 size={32} className="animate-spin text-purple-400" />
       </div>
     )
@@ -193,7 +193,7 @@ function GenerationDetailContent() {
 
   if (!generation) {
     return (
-      <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+      <div className="min-h-screen bg-background text-foreground p-8">
         <div className="max-w-4xl mx-auto text-center py-12">
           <h1 className="text-2xl font-heading mb-4">Generation Not Found</h1>
           <button
@@ -208,7 +208,7 @@ function GenerationDetailContent() {
   }
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-4xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -223,7 +223,7 @@ function GenerationDetailContent() {
             <Sparkles size={32} className="text-purple-400" />
             <h1 className="text-3xl font-heading tracking-wider">Review Axial Codes</h1>
           </div>
-          <p className="text-platinum-white/60">
+          <p className="text-muted-foreground">
             Review, modify, and approve generated axial codes to create new issue categories
           </p>
         </div>
@@ -233,8 +233,8 @@ function GenerationDetailContent() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-6">
               <div>
-                <span className="text-2xl font-bold text-platinum-white">{reviewStats.total}</span>
-                <span className="text-sm text-platinum-white/50 ml-2">total</span>
+                <span className="text-2xl font-bold text-foreground">{reviewStats.total}</span>
+                <span className="text-sm text-muted-foreground/90 ml-2">total</span>
               </div>
               <div className="flex items-center gap-4 text-sm">
                 <span className="flex items-center gap-1 text-yellow-400">
@@ -251,7 +251,7 @@ function GenerationDetailContent() {
                 </span>
               </div>
             </div>
-            <div className="text-xs text-platinum-white/40">
+            <div className="text-xs text-muted-foreground/80">
               Model: {generation.model_used}
             </div>
           </div>
@@ -272,7 +272,7 @@ function GenerationDetailContent() {
         </div>
 
         {/* Source info */}
-        <div className="mb-6 flex items-center gap-4 text-sm text-platinum-white/60">
+        <div className="mb-6 flex items-center gap-4 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <FileText size={14} />
             {generation.source_open_codes.length} source open codes
@@ -297,24 +297,24 @@ function GenerationDetailContent() {
                 /* Edit mode */
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-xs text-platinum-white/50 mb-1">Category Name</label>
+                    <label className="block text-xs text-muted-foreground/90 mb-1">Category Name</label>
                     <input
                       type="text"
                       value={editCode}
                       onChange={(e) => setEditCode(e.target.value)}
                       className="w-full px-3 py-2 bg-silicon-slate/50 border border-radiant-gold/20 rounded-lg
-                        text-platinum-white focus:border-radiant-gold/50 focus:outline-none"
+                        text-foreground focus:border-radiant-gold/50 focus:outline-none"
                       placeholder="Enter category name..."
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-platinum-white/50 mb-1">Description</label>
+                    <label className="block text-xs text-muted-foreground/90 mb-1">Description</label>
                     <textarea
                       value={editDescription}
                       onChange={(e) => setEditDescription(e.target.value)}
                       rows={2}
                       className="w-full px-3 py-2 bg-silicon-slate/50 border border-radiant-gold/20 rounded-lg
-                        text-platinum-white focus:border-radiant-gold/50 focus:outline-none resize-none"
+                        text-foreground focus:border-radiant-gold/50 focus:outline-none resize-none"
                       placeholder="Enter description..."
                     />
                   </div>
@@ -342,12 +342,12 @@ function GenerationDetailContent() {
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
                       {/* Category name */}
-                      <h3 className="text-lg font-semibold text-platinum-white mb-1">
+                      <h3 className="text-lg font-semibold text-foreground mb-1">
                         {review.final_code || review.original_code}
                       </h3>
                       
                       {/* Description */}
-                      <p className="text-sm text-platinum-white/70">
+                      <p className="text-sm text-muted-foreground">
                         {review.final_description || review.original_description || 'No description'}
                       </p>
                     </div>
@@ -374,7 +374,7 @@ function GenerationDetailContent() {
 
                   {/* Source open codes */}
                   <div className="mb-4">
-                    <span className="text-xs text-platinum-white/40 block mb-2">Source Open Codes:</span>
+                    <span className="text-xs text-muted-foreground/80 block mb-2">Source Open Codes:</span>
                     <div className="flex flex-wrap gap-2">
                       {review.mapped_open_codes.map((code, i) => (
                         <span 
@@ -388,13 +388,13 @@ function GenerationDetailContent() {
                   </div>
 
                   {/* Sessions count */}
-                  <div className="text-xs text-platinum-white/40 mb-4">
+                  <div className="text-xs text-muted-foreground/80 mb-4">
                     Mapped to {review.mapped_session_ids.length} sessions
                   </div>
 
                   {/* Actions */}
                   {review.status === 'pending' && (
-                    <div className="flex items-center gap-2 pt-3 border-t border-platinum-white/10">
+                    <div className="flex items-center gap-2 pt-3 border-t border-foreground/10">
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -434,7 +434,7 @@ function GenerationDetailContent() {
 
                   {/* Promote to category button */}
                   {(review.status === 'approved' || review.status === 'modified') && !review.category_id && (
-                    <div className="pt-3 border-t border-platinum-white/10">
+                    <div className="pt-3 border-t border-foreground/10">
                       <motion.button
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -455,7 +455,7 @@ function GenerationDetailContent() {
 
                   {/* Already promoted indicator */}
                   {review.category && (
-                    <div className="pt-3 border-t border-platinum-white/10">
+                    <div className="pt-3 border-t border-foreground/10">
                       <span className="flex items-center gap-2 text-sm text-emerald-400">
                         <Tag size={14} />
                         Added as category: 
@@ -483,7 +483,7 @@ function GenerationDetailContent() {
         <div className="mt-8">
           <button
             onClick={() => router.push('/admin/chat-eval/axial-codes')}
-            className="text-platinum-white/60 hover:text-platinum-white transition-colors"
+            className="text-muted-foreground hover:text-foreground transition-colors"
           >
             ← Back to All Generations
           </button>

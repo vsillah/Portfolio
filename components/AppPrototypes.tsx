@@ -104,7 +104,7 @@ export default function AppPrototypes() {
   }
 
   return (
-    <section id="prototypes" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
+    <section id="prototypes" className="py-32 px-6 sm:px-10 lg:px-12 bg-background relative overflow-hidden">
       {/* Aurora */}
       <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-bronze/5 blur-[120px] rounded-full pointer-events-none" />
 
@@ -123,15 +123,15 @@ export default function AppPrototypes() {
               Beta
             </span>
           </div>
-          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+          <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-6">
             <span className="italic text-radiant-gold">Prototypes</span>
           </h2>
-          <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto mb-10">
+          <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto mb-10">
             Experimental applications and innovative prototypes in various stages of development.
           </p>
           <Link 
             href="/store?type=app"
-            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
+            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-muted-foreground hover:text-radiant-gold transition-colors pb-2 border-b border-foreground/10"
           >
             <span>Explore Apps Store</span>
             <ArrowRight size={14} />
@@ -161,7 +161,7 @@ export default function AppPrototypes() {
           <>
             {/* Results Count */}
             <div className="mb-10 flex items-center justify-between">
-              <p className="text-[10px] font-heading tracking-widest text-platinum-white/30 uppercase">
+              <p className="text-[10px] font-heading tracking-widest text-muted-foreground/70 uppercase">
                 {filteredPrototypes.length} Prototypes Found
               </p>
             </div>
@@ -183,7 +183,7 @@ export default function AppPrototypes() {
             ) : (
               <div className="text-center py-32 glass-card border-radiant-gold/10">
                 <Filter className="mx-auto mb-6 text-radiant-gold/20" size={48} />
-                <p className="font-body text-platinum-white/40">No prototypes match your current refinements.</p>
+                <p className="font-body text-muted-foreground/80">No prototypes match your current refinements.</p>
               </div>
             )}
           </>

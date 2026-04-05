@@ -23,7 +23,7 @@ function CheckoutForm({ clientSecret, orderId, onSuccess, onError }: StripeCheck
   // Do not mount PaymentElement until Stripe context is ready; otherwise "Could not retrieve elements store" occurs.
   if (!stripe || !elements) {
     return (
-      <div className="flex flex-col items-center justify-center py-8 text-platinum-white/80">
+      <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
         <Loader className="animate-spin mb-3 text-radiant-gold" size={32} />
         <span>Loading payment form...</span>
       </div>

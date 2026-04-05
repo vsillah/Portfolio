@@ -27,7 +27,7 @@ export default function WorkPage() {
       <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 pt-24 pb-4">
         <Link
           href="/#about"
-          className="inline-flex items-center gap-2 text-platinum-white/70 hover:text-radiant-gold text-sm font-medium transition-colors"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-radiant-gold text-sm font-medium transition-colors"
         >
           <ArrowLeft size={16} />
           Back to about

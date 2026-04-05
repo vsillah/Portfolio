@@ -46,7 +46,7 @@ export default function ContactForm({ onSubmit, initialData }: ContactFormProps)
           Full Name *
         </label>
         <div className="relative">
-          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+          <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
           <input
             type="text"
             value={formData.name}
@@ -67,7 +67,7 @@ export default function ContactForm({ onSubmit, initialData }: ContactFormProps)
           Email Address *
         </label>
         <div className="relative">
-          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
           <input
             type="email"
             value={formData.email}

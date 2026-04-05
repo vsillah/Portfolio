@@ -70,7 +70,7 @@ export default function PrototypeCard({ prototype, user, index, onEnrollmentSucc
       case 'QA': return 'text-blue-400 border-blue-500/30 bg-blue-500/5'
       case 'Pilot': return 'text-radiant-gold border-radiant-gold/30 bg-radiant-gold/5'
       case 'Production': return 'text-green-400 border-green-500/30 bg-green-500/5'
-      default: return 'text-platinum-white/40 border-platinum-white/10'
+      default: return 'text-muted-foreground/80 border-foreground/10'
     }
   }
 
@@ -122,10 +122,10 @@ export default function PrototypeCard({ prototype, user, index, onEnrollmentSucc
 
       <div className="p-8 flex flex-col flex-grow relative z-10">
         <div className="flex items-start justify-between mb-4">
-          <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors">
+          <h3 className="font-premium text-2xl text-foreground group-hover:text-radiant-gold transition-colors">
             {prototype.title}
           </h3>
-          <div className="flex gap-3 text-platinum-white/30">
+          <div className="flex gap-3 text-muted-foreground/70">
             <ChannelIcon size={16} />
             <TypeIcon size={16} />
           </div>
@@ -134,7 +134,7 @@ export default function PrototypeCard({ prototype, user, index, onEnrollmentSucc
         <ExpandableText
           text={prototype.description}
           maxHeight={60}
-          className="font-body text-platinum-white/50 text-sm leading-relaxed mb-6"
+          className="font-body text-muted-foreground/90 text-sm leading-relaxed mb-6"
           expandButtonColor="text-radiant-gold hover:text-gold-light"
         />
 
@@ -176,14 +176,14 @@ export default function PrototypeCard({ prototype, user, index, onEnrollmentSucc
                 href={prototype.app_repo_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 py-2 border border-platinum-white/10 rounded-full text-[10px] font-heading tracking-widest uppercase text-platinum-white/60 hover:text-platinum-white hover:border-platinum-white/20 transition-all"
+                className="flex items-center justify-center gap-2 py-2 border border-foreground/10 rounded-full text-[10px] font-heading tracking-widest uppercase text-muted-foreground hover:text-foreground hover:border-foreground/20 transition-all"
               >
                 Repo
               </a>
             )}
             <button
               onClick={() => setShowFeedback(!showFeedback)}
-              className="flex items-center justify-center gap-2 py-2 border border-platinum-white/10 rounded-full text-[10px] font-heading tracking-widest uppercase text-platinum-white/60 hover:text-platinum-white hover:border-platinum-white/20 transition-all"
+              className="flex items-center justify-center gap-2 py-2 border border-foreground/10 rounded-full text-[10px] font-heading tracking-widest uppercase text-muted-foreground hover:text-foreground hover:border-foreground/20 transition-all"
             >
               {showFeedback ? 'Hide' : 'Feedback'}
             </button>

@@ -265,7 +265,7 @@ function PricingPageContent() {
       {/* --- Redesigned Hero Section --- */}
       <section 
         ref={containerRef}
-        className="relative overflow-hidden bg-imperial-navy pt-32 pb-24 lg:pt-40 lg:pb-32"
+        className="relative overflow-hidden bg-background pt-32 pb-24 lg:pt-40 lg:pb-32"
       >
         {/* Breadcrumbs */}
         <div className="relative z-20 mx-auto max-w-5xl px-6 mb-8">
@@ -328,7 +328,7 @@ function PricingPageContent() {
           >
             <div className="inline-flex items-center gap-2 rounded-full border border-radiant-gold/30 bg-silicon-slate/30 px-4 py-1.5 backdrop-blur-sm">
               <Sparkles className="w-3.5 h-3.5 text-radiant-gold" />
-              <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-heading text-platinum-white/90">
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.2em] font-heading text-foreground/90">
                 Transparent Pricing
               </span>
             </div>
@@ -338,7 +338,7 @@ function PricingPageContent() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="font-premium text-5xl sm:text-6xl lg:text-7xl text-platinum-white leading-[1.1] tracking-tight mb-6"
+            className="font-premium text-5xl sm:text-6xl lg:text-7xl text-foreground leading-[1.1] tracking-tight mb-6"
           >
             AI Solutions That <br className="hidden sm:block" />
             <span className="italic text-radiant-gold">Pay for Themselves</span>
@@ -348,7 +348,7 @@ function PricingPageContent() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="mx-auto max-w-2xl text-lg sm:text-xl text-platinum-white/70 leading-relaxed font-light mb-10"
+            className="mx-auto max-w-2xl text-lg sm:text-xl text-muted-foreground leading-relaxed font-light mb-10"
           >
             Transparent pricing backed by outcome guarantees. Every package includes deployed AI tools, not just strategy decks.
           </motion.p>
@@ -357,18 +357,18 @@ function PricingPageContent() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.6 }}
-            className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-sm font-heading tracking-wide text-platinum-white/80"
+            className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-sm font-heading tracking-wide text-muted-foreground"
           >
             <span className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-radiant-gold" />
               Outcome Guarantees
             </span>
-            <span className="hidden sm:inline text-platinum-white/20">|</span>
+            <span className="hidden sm:inline text-muted-foreground/60">|</span>
             <span className="flex items-center gap-2">
               <Zap className="w-4 h-4 text-radiant-gold" />
               Deployed AI Tools
             </span>
-            <span className="hidden sm:inline text-platinum-white/20">|</span>
+            <span className="hidden sm:inline text-muted-foreground/60">|</span>
             <span className="flex items-center gap-2">
               <BarChart className="w-4 h-4 text-radiant-gold" />
               Transparent ROI
@@ -388,8 +388,8 @@ function PricingPageContent() {
               onClick={() => handleSegmentChange('smb')}
               className={`rounded-lg px-6 py-2.5 text-sm font-heading tracking-wide transition-all duration-300 ${
                 segment === 'smb'
-                  ? 'bg-imperial-navy text-radiant-gold shadow-md'
-                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-platinum-white'
+                  ? 'bg-background text-radiant-gold shadow-md'
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-foreground'
               }`}
             >
               Small Business (1-50)
@@ -398,8 +398,8 @@ function PricingPageContent() {
               onClick={() => handleSegmentChange('midmarket')}
               className={`rounded-lg px-6 py-2.5 text-sm font-heading tracking-wide transition-all duration-300 ${
                 segment === 'midmarket'
-                  ? 'bg-imperial-navy text-radiant-gold shadow-md'
-                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-platinum-white'
+                  ? 'bg-background text-radiant-gold shadow-md'
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-foreground'
               }`}
             >
               Mid-Market (50-500)
@@ -409,7 +409,7 @@ function PricingPageContent() {
               className={`rounded-lg px-6 py-2.5 text-sm font-heading tracking-wide transition-all duration-300 flex items-center gap-1.5 ${
                 segment === 'nonprofit'
                   ? 'bg-emerald-700 text-white shadow-md'
-                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-platinum-white'
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-foreground'
               }`}
             >
               <Heart className="w-3.5 h-3.5" />
@@ -569,7 +569,7 @@ function PricingPageContent() {
             </div>
             
             <div className="relative">
-              <div className="absolute -inset-4 bg-gradient-to-r from-radiant-gold/20 to-imperial-navy/20 rounded-2xl blur-xl opacity-50" />
+              <div className="absolute -inset-4 bg-gradient-to-r from-radiant-gold/20 to-background/20 rounded-2xl blur-xl opacity-50" />
               <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
                 <ROICalculator onContextChange={handlePricingContextChange} />
               </div>
@@ -641,7 +641,7 @@ function PricingPageContent() {
       </section>
 
       {/* Bottom CTA - Redesigned */}
-      <section className="relative overflow-hidden bg-imperial-navy px-4 py-24 text-center">
+      <section className="relative overflow-hidden bg-background px-4 py-24 text-center">
         {/* Background Accents */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_rgba(212,175,55,0.15)_0%,_transparent_70%)]" />
@@ -650,10 +650,10 @@ function PricingPageContent() {
         </div>
 
         <div className="relative z-10 mx-auto max-w-4xl">
-          <h2 className="font-premium text-4xl sm:text-5xl text-platinum-white mb-6">
+          <h2 className="font-premium text-4xl sm:text-5xl text-foreground mb-6">
             Ready to See What AI Can Do for You?
           </h2>
-          <p className="text-xl text-platinum-white/70 mb-10 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto">
             Schedule a free AI audit and get personalized pricing based on your specific situation.
           </p>
           
@@ -668,7 +668,7 @@ function PricingPageContent() {
             
             <Link
               href="/services"
-              className="inline-flex items-center gap-2 rounded-full border border-platinum-white/20 px-8 py-4 text-sm font-heading font-bold uppercase tracking-widest text-platinum-white transition-all hover:bg-platinum-white/10 hover:border-platinum-white/40"
+              className="inline-flex items-center gap-2 rounded-full border border-foreground/20 px-8 py-4 text-sm font-heading font-bold uppercase tracking-widest text-foreground transition-all hover:bg-muted/80 hover:border-foreground/40"
             >
               Browse Individual Services
             </Link>
@@ -682,7 +682,7 @@ function PricingPageContent() {
 function PricingPageFallback() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 font-body">
-      <div className="h-16 bg-imperial-navy" />
+      <div className="h-16 bg-background" />
       <div className="mx-auto max-w-7xl px-4 py-16">
         <div className="grid gap-8 md:grid-cols-3">
           {[1, 2, 3].map((i) => (

@@ -73,7 +73,7 @@ export default function LeadDashboardsPage() {
             <LayoutDashboard className="w-8 h-8 text-radiant-gold" />
             <div>
               <h1 className="text-xl font-bold gradient-text">Lead dashboards</h1>
-              <p className="text-sm text-platinum-white/80">
+              <p className="text-sm text-muted-foreground">
                 Share these links with leads after they complete the diagnostic. Same link works after they convert to clients.
               </p>
             </div>
@@ -92,7 +92,7 @@ export default function LeadDashboardsPage() {
           )}
 
           {!loading && !error && list.length === 0 && (
-            <div className="rounded-xl border border-silicon-slate bg-silicon-slate/50 p-8 text-center text-platinum-white/80">
+            <div className="rounded-xl border border-silicon-slate bg-silicon-slate/50 p-8 text-center text-muted-foreground">
               No lead dashboards yet. Create one from a completed diagnostic (Sales → open audit → Share lead dashboard).
             </div>
           )}
@@ -102,22 +102,22 @@ export default function LeadDashboardsPage() {
               <table className="w-full text-left">
                 <thead className="bg-silicon-slate border-b border-silicon-slate">
                   <tr>
-                    <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase tracking-wider">Client email</th>
-                    <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase tracking-wider">Diagnostic ID</th>
-                    <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase tracking-wider">Created</th>
-                    <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase tracking-wider">Last accessed</th>
-                    <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase tracking-wider w-48">Actions</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client email</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Diagnostic ID</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Last accessed</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-48">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-silicon-slate">
                   {list.map((row) => (
                     <tr key={row.id} className="bg-silicon-slate/30 hover:bg-silicon-slate/50">
-                      <td className="px-4 py-3 text-sm text-platinum-white">{row.client_email}</td>
-                      <td className="px-4 py-3 text-sm text-platinum-white/60 font-mono">{row.diagnostic_audit_id}</td>
-                      <td className="px-4 py-3 text-sm text-platinum-white/60">
+                      <td className="px-4 py-3 text-sm text-foreground">{row.client_email}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground font-mono">{row.diagnostic_audit_id}</td>
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
                         {row.created_at ? new Date(row.created_at).toLocaleDateString() : '—'}
                       </td>
-                      <td className="px-4 py-3 text-sm text-platinum-white/60">
+                      <td className="px-4 py-3 text-sm text-muted-foreground">
                         {row.last_accessed_at ? new Date(row.last_accessed_at).toLocaleString() : '—'}
                       </td>
                       <td className="px-4 py-3">

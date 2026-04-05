@@ -138,7 +138,7 @@ export default function ProductDetailPage() {
       <div className="min-h-screen bg-background text-foreground">
         <Navigation />
         <div className="pt-24 pb-12 px-4 flex items-center justify-center">
-          <div className="text-platinum-white/80">Loading product...</div>
+          <div className="text-muted-foreground">Loading product...</div>
         </div>
       </div>
     )
@@ -150,7 +150,7 @@ export default function ProductDetailPage() {
         <Navigation />
         <div className="pt-24 pb-12 px-4">
           <div className="max-w-7xl mx-auto text-center">
-            <p className="text-platinum-white/80 mb-4">Product not found</p>
+            <p className="text-muted-foreground mb-4">Product not found</p>
             <Link
               href="/store"
               className="inline-flex items-center gap-2 text-radiant-gold hover:text-gold-light"
@@ -207,7 +207,7 @@ export default function ProductDetailPage() {
           <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <Link
               href="/store"
-              className="inline-flex items-center gap-2 text-platinum-white/80 hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft size={20} />
               Back to Store
@@ -215,7 +215,7 @@ export default function ProductDetailPage() {
             <div className="flex items-center gap-3">
               <Link
                 href="/help"
-                className="text-platinum-white/80 hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground transition-colors"
                 aria-label="Help"
               >
                 <HelpCircle size={20} />
@@ -265,13 +265,13 @@ export default function ProductDetailPage() {
                   <Package className="text-radiant-gold/40" size={80} />
                 </div>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <span className="px-3 py-1 bg-silicon-slate/80 rounded-full text-xs font-heading tracking-wider text-radiant-gold uppercase">
                   {PRODUCT_TYPE_LABELS[product.type as keyof typeof PRODUCT_TYPE_LABELS] || product.type}
                 </span>
                 {product.category && (
-                  <span className="ml-2 px-3 py-1 bg-silicon-slate rounded-full text-xs text-platinum-white">
+                  <span className="ml-2 px-3 py-1 bg-silicon-slate rounded-full text-xs text-foreground">
                     {CATEGORY_LABELS[product.category] || product.category}
                   </span>
                 )}
@@ -295,8 +295,8 @@ export default function ProductDetailPage() {
             <div className="p-8 md:p-10">
               {/* Meta row */}
               {product.category && (
-                <div className="flex flex-wrap gap-4 mb-6 text-platinum-white/80">
-                  <span className="px-3 py-1 bg-silicon-slate text-platinum-white rounded-full text-sm">
+                <div className="flex flex-wrap gap-4 mb-6 text-muted-foreground">
+                  <span className="px-3 py-1 bg-silicon-slate text-foreground rounded-full text-sm">
                     {CATEGORY_LABELS[product.category] || product.category}
                   </span>
                 </div>
@@ -304,7 +304,7 @@ export default function ProductDetailPage() {
 
               {/* Description */}
               {product.description && (
-                <p className="text-platinum-white text-lg leading-relaxed mb-8">
+                <p className="text-foreground text-lg leading-relaxed mb-8">
                   {product.description}
                 </p>
               )}
@@ -312,13 +312,13 @@ export default function ProductDetailPage() {
               {/* What's included / Deliverables */}
               {deliverablesList.length > 0 && (
                 <div className="mb-8">
-                  <h3 className="text-sm font-heading uppercase tracking-wider text-platinum-white/80 mb-3 flex items-center gap-2">
+                  <h3 className="text-sm font-heading uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-2">
                     <Package size={16} />
                     What&apos;s Included
                   </h3>
                   <ul className="space-y-2">
                     {deliverablesList.map((d) => (
-                      <li key={d} className="flex items-center gap-2 text-platinum-white">
+                      <li key={d} className="flex items-center gap-2 text-foreground">
                         <Check className="text-radiant-gold flex-shrink-0" size={18} />
                         {d}
                       </li>
@@ -330,18 +330,18 @@ export default function ProductDetailPage() {
               {/* Template: not included (DIY disclaimer) */}
               {product.type === 'template' && (
                 <div className="mb-8 p-4 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
-                  <h3 className="text-sm font-heading uppercase tracking-wider text-platinum-white/80 mb-3">
+                  <h3 className="text-sm font-heading uppercase tracking-wider text-muted-foreground mb-3">
                     Not Included
                   </h3>
-                  <p className="text-platinum-white/80 text-sm mb-2">
+                  <p className="text-muted-foreground text-sm mb-2">
                     Templates are self-serve. Installation is completely DIY.
                   </p>
-                  <ul className="space-y-1 text-sm text-platinum-white/80 list-disc list-inside">
+                  <ul className="space-y-1 text-sm text-muted-foreground list-disc list-inside">
                     <li>Warranties and guarantees are not included</li>
                     <li>Consulting services are not included</li>
                     <li>Customer support is not included</li>
                   </ul>
-                  <p className="text-platinum-white text-sm mt-4">
+                  <p className="text-foreground text-sm mt-4">
                     Our{' '}
                     <Link
                       href="/pricing?segment=smb"
@@ -357,7 +357,7 @@ export default function ProductDetailPage() {
               {/* Template: install instructions link */}
               {product.type === 'template' && product.instructions_file_path && (
                 <div className="mb-8 p-4 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
-                  <p className="text-sm text-platinum-white/80 mb-2">
+                  <p className="text-sm text-muted-foreground mb-2">
                     Install instructions are available after purchase.
                   </p>
                 </div>
@@ -378,10 +378,10 @@ export default function ProductDetailPage() {
               {/* Available in packages (same component for products and templates; data from /api/products/[id]/bundles) */}
               {bundles.length > 0 && (
                 <div className="mb-8 p-6 bg-silicon-slate/50 rounded-xl border border-silicon-slate">
-                  <h3 className="text-sm font-heading uppercase tracking-wider text-platinum-white/80 mb-3">
+                  <h3 className="text-sm font-heading uppercase tracking-wider text-muted-foreground mb-3">
                     Available in Packages
                   </h3>
-                  <p className="text-platinum-white text-sm mb-4">
+                  <p className="text-foreground text-sm mb-4">
                     {product.type === 'template'
                       ? 'This template is included in the following pricing tiers:'
                       : 'This product is included in the following pricing tiers:'}
@@ -419,7 +419,7 @@ export default function ProductDetailPage() {
                 <div className="mb-8 p-4 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
                   <div className="flex items-start gap-3">
                     <Info className="text-radiant-gold flex-shrink-0 mt-0.5" size={20} />
-                    <div className="text-sm text-platinum-white/80">
+                    <div className="text-sm text-muted-foreground">
                       <p className="mb-2">
                         Print-on-demand. Fulfilled by Printful; typically ships within 2–7 business days.
                       </p>
@@ -436,10 +436,10 @@ export default function ProductDetailPage() {
                     Size Chart
                   </summary>
                   <div className="px-4 pb-4 pt-2">
-                    <p className="text-sm text-platinum-white/80 mb-2">
+                    <p className="text-sm text-muted-foreground mb-2">
                       Please refer to the product description for detailed sizing information.
                     </p>
-                    <p className="text-xs text-platinum-white/70">
+                    <p className="text-xs text-muted-foreground">
                       Sizes may vary by product.
                     </p>
                   </div>

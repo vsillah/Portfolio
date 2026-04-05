@@ -34,14 +34,14 @@ export default function About() {
                   sizes="400px"
                   onError={(e) => { e.currentTarget.src = '/V Profile_Replicate.jpg' }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent opacity-40" />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40" />
               </div>
               
               <div
                 className="absolute -bottom-6 -right-6 glass-card px-6 py-4 border-radiant-gold/20 shadow-2xl hero-float"
               >
                 <p className="text-[10px] font-heading tracking-[0.2em] text-radiant-gold uppercase mb-1">Experience</p>
-                <p className="text-xl font-premium text-platinum-white">15+ Years</p>
+                <p className="text-xl font-premium text-foreground">15+ Years</p>
               </div>
             </div>
           </div>
@@ -57,18 +57,18 @@ export default function About() {
                   Story
                 </span>
               </div>
-              <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-8">
+              <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-8">
                 <span className="italic text-radiant-gold">About</span>
               </h2>
               
               <div className="space-y-6">
-                <p className="font-body text-platinum-white/70 text-lg leading-relaxed">
+                <p className="font-body text-muted-foreground text-lg leading-relaxed">
                   I&apos;m an IT Product Manager with a proven track record of applying agile methodology to continuously evolve products to delight customers. Skilled facilitator with a passion for inspiring teams to deliver innovative solutions.
                 </p>
-                <p className="font-body text-platinum-white/70 text-lg leading-relaxed">
+                <p className="font-body text-muted-foreground text-lg leading-relaxed">
                   My entrepreneurial mindset drives a bias for customer-focused innovation, transforming complex data into actionable insights that lead to market leadership.
                 </p>
-                <p className="font-body text-platinum-white/60 text-base pt-2">
+                <p className="font-body text-muted-foreground text-base pt-2">
                   <Link href="/work" className="text-radiant-gold hover:text-gold-light underline underline-offset-2 transition-colors">View my previous work</Link>
                   {' · '}
                   <Link href="/personal" className="text-radiant-gold hover:text-gold-light underline underline-offset-2 transition-colors">Music & videos</Link>
@@ -78,11 +78,11 @@ export default function About() {
               <div className="mt-12 grid grid-cols-2 gap-8 border-t border-radiant-gold/10 pt-10">
                 <div>
                   <p className="text-[10px] font-heading tracking-widest text-radiant-gold uppercase mb-2">Education</p>
-                  <p className="text-sm font-body text-platinum-white/60">BS Business Administration, Boston University (2008)</p>
+                  <p className="text-sm font-body text-muted-foreground">BS Business Administration, Boston University (2008)</p>
                 </div>
                 <div>
                   <p className="text-[10px] font-heading tracking-widest text-radiant-gold uppercase mb-2">Creative</p>
-                  <p className="text-sm font-body text-platinum-white/60">Mad Hadda - &quot;Into the Rabbit Hole&quot; (2025)</p>
+                  <p className="text-sm font-body text-muted-foreground">Mad Hadda - &quot;Into the Rabbit Hole&quot; (2025)</p>
                 </div>
               </div>
             </div>

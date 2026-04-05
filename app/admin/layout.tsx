@@ -64,7 +64,7 @@ export default function AdminLayout({
   }, [drawerOpen])
 
   return (
-    <div className="min-h-screen bg-background text-foreground flex">
+    <div className="dark min-h-screen bg-background text-foreground flex">
       {/* Desktop sidebar */}
       <aside className="hidden lg:flex shrink-0 sticky top-0 h-screen">
         <AdminSidebar />
@@ -91,11 +91,11 @@ export default function AdminLayout({
         hidden={!drawerOpen}
       >
         <div className="flex items-center justify-between p-3 border-b border-silicon-slate">
-          <span className="text-sm font-medium text-platinum-white/80">Menu</span>
+          <span className="text-sm font-medium text-muted-foreground">Menu</span>
           <button
             type="button"
             onClick={closeDrawer}
-            className="p-2 rounded-lg text-platinum-white/80 hover:bg-silicon-slate hover:text-foreground focus:outline-none focus:ring-2 focus:ring-radiant-gold"
+            className="p-2 rounded-lg text-muted-foreground hover:bg-silicon-slate hover:text-foreground focus:outline-none focus:ring-2 focus:ring-radiant-gold"
             aria-label="Close menu"
           >
             <X size={20} />
@@ -112,7 +112,7 @@ export default function AdminLayout({
             ref={hamburgerRef}
             type="button"
             onClick={() => setDrawerOpen(true)}
-            className="lg:hidden p-2 rounded-lg text-platinum-white/80 hover:bg-silicon-slate hover:text-foreground focus:outline-none focus:ring-2 focus:ring-radiant-gold"
+            className="lg:hidden p-2 rounded-lg text-muted-foreground hover:bg-silicon-slate hover:text-foreground focus:outline-none focus:ring-2 focus:ring-radiant-gold"
             aria-label="Open admin menu"
           >
             <Menu size={22} />
@@ -120,7 +120,7 @@ export default function AdminLayout({
           <div className="flex-1 lg:flex-initial" />
           <Link
             href="/admin/help"
-            className="flex items-center gap-2 text-sm text-platinum-white/80 transition-colors hover:text-foreground"
+            className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <HelpCircle size={18} />
             Help

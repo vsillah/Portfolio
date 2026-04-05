@@ -28,6 +28,7 @@ import {
   ClipboardList,
 } from 'lucide-react';
 import InstallmentOption from '@/components/checkout/InstallmentOption';
+import SiteThemeCorner from '@/components/SiteThemeCorner';
 
 interface LineItem {
   content_type: string;
@@ -127,10 +128,13 @@ export default function ProposalByCodePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
-            <p className="text-gray-400">Loading proposal...</p>
+        <div className="relative">
+          <SiteThemeCorner />
+          <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
+              <p className="text-gray-400">Loading proposal...</p>
+            </div>
           </div>
         </div>
       }
@@ -349,10 +353,13 @@ function ProposalByCodeContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
-          <p className="text-gray-400">Loading proposal...</p>
+      <div className="relative">
+        <SiteThemeCorner />
+        <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
+            <p className="text-gray-400">Loading proposal...</p>
+          </div>
         </div>
       </div>
     );
@@ -360,11 +367,14 @@ function ProposalByCodeContent() {
 
   if (error && !proposal) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h1 className="text-xl font-semibold text-white mb-2">Proposal Not Found</h1>
-          <p className="text-gray-400">{error}</p>
+      <div className="relative">
+        <SiteThemeCorner />
+        <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+          <div className="text-center max-w-md">
+            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+            <h1 className="text-xl font-semibold text-white mb-2">Proposal Not Found</h1>
+            <p className="text-gray-400">{error}</p>
+          </div>
         </div>
       </div>
     );
@@ -421,6 +431,8 @@ function ProposalByCodeContent() {
   const statusDisplay = getStatusDisplay();
 
   return (
+    <div className="relative">
+      <SiteThemeCorner />
     <div className="min-h-screen bg-gray-950 text-white">
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Status Banner */}
@@ -895,6 +907,7 @@ function ProposalByCodeContent() {
           <p className="mt-2">Created on {formatDate(proposal.created_at)}</p>
         </div>
       </div>
+    </div>
     </div>
   );
 }

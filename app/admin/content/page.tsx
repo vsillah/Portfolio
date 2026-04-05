@@ -98,7 +98,7 @@ export default function ContentManagementPage() {
           
           <div className="mb-8">
             <h1 className="text-4xl font-bold mb-2">Content Management</h1>
-            <p className="text-platinum-white/80">Manage your portfolio content</p>
+            <p className="text-muted-foreground">Manage your portfolio content</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -115,7 +115,7 @@ export default function ContentManagementPage() {
                     {type.icon}
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-2">{type.name}</h3>
-                  <p className="text-platinum-white/80 text-sm">{type.description}</p>
+                  <p className="text-muted-foreground text-sm">{type.description}</p>
                 </motion.div>
               </Link>
             ))}

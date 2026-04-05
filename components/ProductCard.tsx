@@ -67,7 +67,7 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <ImageIcon className="text-platinum-white/60" size={48} />
+            <ImageIcon className="text-muted-foreground" size={48} />
           </div>
         )}
         {product.is_featured && (
@@ -90,7 +90,7 @@ export default function ProductCard({ product, onAddToCart, campaignBadge }: Pro
       <div className="p-4">
         <h3 className="text-xl font-bold text-white mb-2 line-clamp-2">{product.title}</h3>
         {product.description && (
-          <p className="text-platinum-white/80 text-sm mb-4 line-clamp-3">{product.description}</p>
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{product.description}</p>
         )}
 
         {/* Price and Add to Cart */}

@@ -20,7 +20,7 @@ const TYPE_LABELS: Record<string, string> = {
 
 const SECTION_BG = 'py-32 px-6 sm:px-10 lg:px-12 relative overflow-hidden'
 const PRODUCTS_BG = 'bg-silicon-slate/10'
-const MERCHANDISE_BG = 'bg-imperial-navy/20'
+const MERCHANDISE_BG = 'bg-background/20'
 
 function ProductCard({
   product,
@@ -49,12 +49,12 @@ function ProductCard({
             sizes="(max-width: 768px) 100vw, 320px"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-imperial-navy">
+          <div className="w-full h-full flex items-center justify-center bg-background">
             <ShoppingBag className="text-radiant-gold/20" size={48} />
           </div>
         )}
         <div className="absolute top-6 left-6 flex flex-col gap-2">
-          <span className="px-3 py-1 bg-imperial-navy/80 backdrop-blur-md border border-radiant-gold/20 rounded-full text-[10px] font-heading tracking-widest text-radiant-gold uppercase">
+          <span className="px-3 py-1 bg-background/80 backdrop-blur-md border border-radiant-gold/20 rounded-full text-[10px] font-heading tracking-widest text-radiant-gold uppercase">
             {TYPE_LABELS[product.type] || product.type}
           </span>
           {product.is_featured && (
@@ -63,16 +63,16 @@ function ProductCard({
             </span>
           )}
         </div>
-        <div className="absolute bottom-6 right-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-sm font-heading tracking-tighter">
+        <div className="absolute bottom-6 right-6 px-4 py-2 bg-background/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-sm font-heading tracking-tighter">
           {formatPriceOrFree(product.price ?? 0)}
         </div>
       </div>
       <div className="p-8">
-        <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors mb-3">
+        <h3 className="font-premium text-2xl text-foreground group-hover:text-radiant-gold transition-colors mb-3">
           {product.title}
         </h3>
         {product.description && (
-          <p className="font-body text-platinum-white/50 text-sm line-clamp-2 mb-8">
+          <p className="font-body text-muted-foreground/90 text-sm line-clamp-2 mb-8">
             {product.description}
           </p>
         )}
@@ -177,10 +177,10 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
                 Products
               </span>
             </div>
-            <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+            <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-6">
               <span className="italic text-radiant-gold">Products</span>
             </h2>
-            <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
+            <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto">
               Ebooks, templates, calculators, and digital products to elevate your workflow.
             </p>
           </div>
@@ -201,14 +201,14 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
             <div className="text-center mt-20 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link
                 href="/store"
-                className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
+                className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-muted-foreground hover:text-radiant-gold transition-colors pb-2 border-b border-foreground/10"
               >
                 <span>Browse all products</span>
                 <ArrowRight size={14} />
               </Link>
               <Link
                 href="/pricing"
-                className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
+                className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-muted-foreground hover:text-radiant-gold transition-colors pb-2 border-b border-foreground/10"
               >
                 <span>See Pricing &amp; Packages</span>
                 <ArrowRight size={14} />
@@ -223,16 +223,16 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
       <section id="merchandise" className={`${SECTION_BG} ${MERCHANDISE_BG}`}>
         <div className="max-w-7xl mx-auto relative z-10">
           <div className="text-center mb-20 animate-fade-in-up">
-            <div className="pill-badge bg-imperial-navy/50 border-radiant-gold/20 mb-6 mx-auto">
+            <div className="pill-badge bg-background/50 border-radiant-gold/20 mb-6 mx-auto">
               <Package className="w-3 h-3 text-radiant-gold" />
               <span className="text-[10px] uppercase tracking-[0.2em] font-heading text-radiant-gold">
                 Merchandise
               </span>
             </div>
-            <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+            <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-6">
               <span className="italic text-radiant-gold">Merchandise</span>
             </h2>
-            <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
+            <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto">
               Premium apparel and physical goods—wear the brand.
             </p>
           </div>
@@ -253,7 +253,7 @@ export default function Store({ section = 'all' }: { section?: StoreSection }) {
             <div className="text-center mt-20">
               <Link
                 href="/store"
-                className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
+                className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-muted-foreground hover:text-radiant-gold transition-colors pb-2 border-b border-foreground/10"
               >
                 <span>Browse merchandise</span>
                 <ArrowRight size={14} />

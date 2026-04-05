@@ -9,6 +9,7 @@ import { analytics } from '@/lib/analytics'
 import { useAuth } from '@/components/AuthProvider'
 import { signOut } from '@/lib/auth'
 import { useRouter, usePathname } from 'next/navigation'
+import { ThemePreferenceList } from '@/components/ThemeToggle'
 
 const navItems = [
   { name: 'Home', href: '#home' },
@@ -54,6 +55,15 @@ export default function Navigation() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  useEffect(() => {
+    if (!isMenuOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsMenuOpen(false)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isMenuOpen])
+
   const handleSignOut = async () => {
     await signOut()
     setIsUserMenuOpen(false)
@@ -65,11 +75,13 @@ export default function Navigation() {
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 animate-fade-in-up ${
         isScrolled
-          ? 'py-3 bg-imperial-navy/90 backdrop-blur-xl border-b border-radiant-gold/10'
-          : 'py-4 bg-transparent'
+          ? 'py-3 bg-background/90 backdrop-blur-xl border-b border-border'
+          : isMenuOpen
+            ? 'py-4 bg-card dark:bg-[#121E31]'
+            : 'py-4 bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
+      <div className="relative z-[55] max-w-7xl mx-auto px-6 sm:px-10 lg:px-12">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <a
@@ -103,7 +115,7 @@ export default function Navigation() {
                     {user.email?.charAt(0).toUpperCase() || 'U'}
                   </div>
                   {/* Name/Email - hidden on mobile */}
-                  <span className="hidden sm:block text-platinum-white/80 text-sm font-medium max-w-[100px] truncate">
+                  <span className="hidden sm:block text-muted-foreground text-sm font-medium max-w-[100px] truncate">
                     {user.email?.split('@')[0]}
                   </span>
                   {/* Admin badge */}
@@ -123,8 +135,8 @@ export default function Navigation() {
                       className="absolute right-0 mt-3 w-64 glass-card border border-radiant-gold/20 rounded-xl overflow-hidden shadow-2xl z-[60]"
                     >
                       {/* User info header */}
-                      <div className="px-4 py-4 border-b border-radiant-gold/10 bg-imperial-navy/55 backdrop-blur-sm">
-                        <p className="text-platinum-white font-medium text-sm truncate">{user.email}</p>
+                      <div className="px-4 py-4 border-b border-border bg-card/80 backdrop-blur-sm">
+                        <p className="text-foreground font-medium text-sm truncate">{user.email}</p>
                         {isAdmin && (
                           <span className="inline-flex items-center gap-1 mt-1 text-xs text-radiant-gold">
                             <Shield size={12} />
@@ -134,11 +146,11 @@ export default function Navigation() {
                       </div>
 
                       {/* Menu items */}
-                      <div className="p-2 bg-imperial-navy/35 backdrop-blur-sm">
+                      <div className="p-2 bg-card/60 backdrop-blur-sm">
                         <a
                           href="/resources"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2.5 text-sm text-platinum-white/80 hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
                         >
                           <Download size={16} />
                           Resources
@@ -147,7 +159,7 @@ export default function Navigation() {
                         <a
                           href="/purchases"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-3 px-3 py-2.5 text-sm text-platinum-white/80 hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
+                          className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
                         >
                           <User size={16} />
                           My library
@@ -157,14 +169,21 @@ export default function Navigation() {
                           <a
                             href="/admin"
                             onClick={() => setIsUserMenuOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2.5 text-sm text-platinum-white/80 hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
+                            className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
                           >
                             <Shield size={16} />
                             Admin Dashboard
                           </a>
                         )}
 
-                        <div className="my-2 border-t border-radiant-gold/10" />
+                        <div className="my-2 border-t border-border" />
+
+                        <ThemePreferenceList
+                          onSelect={() => setIsUserMenuOpen(false)}
+                          className="px-0 pb-1"
+                        />
+
+                        <div className="my-2 border-t border-border" />
 
                         <button
                           onClick={handleSignOut}
@@ -194,7 +213,7 @@ export default function Navigation() {
                 setIsMenuOpen(!isMenuOpen)
                 if (!isMenuOpen) setIsUserMenuOpen(false)
               }}
-              className="flex items-center justify-center w-11 h-11 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 text-platinum-white hover:text-radiant-gold transition-all duration-300 hover:scale-105 active:scale-95"
+              className="flex items-center justify-center w-11 h-11 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 text-foreground hover:text-radiant-gold transition-all duration-300 hover:scale-105 active:scale-95"
               aria-label="Toggle menu"
             >
               <AnimatePresence mode="wait">
@@ -225,7 +244,7 @@ export default function Navigation() {
             {/* Help Link — last icon on the menu */}
             <Link
               href="/help"
-              className="flex items-center justify-center w-11 h-11 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 text-platinum-white hover:text-radiant-gold transition-all duration-300"
+              className="flex items-center justify-center w-11 h-11 rounded-full glass-card border border-radiant-gold/30 hover:border-radiant-gold/60 text-foreground hover:text-radiant-gold transition-all duration-300"
               aria-label="Help"
             >
               <HelpCircle size={18} />
@@ -234,17 +253,23 @@ export default function Navigation() {
         </div>
       </div>
 
-      {/* Full Navigation Dropdown */}
+      {/* Full Navigation Dropdown — solid panel above backdrop; avoid height:auto animation (layout glitches) */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
-            className="absolute top-full left-0 right-0 bg-imperial-navy/95 backdrop-blur-xl border-b border-radiant-gold/10 overflow-hidden z-[40]"
+            key="nav-panel"
+            initial={{ y: -8 }}
+            animate={{ y: 0 }}
+            exit={{ y: -8 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            id="site-nav-mobile-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
+            className="absolute top-full left-0 right-0 z-[50] max-h-[min(70vh,calc(100dvh-5rem))] overscroll-contain isolate"
           >
-            <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-8">
+            <div className="h-full max-h-[inherit] overflow-y-auto border-b border-border bg-card dark:bg-[#121E31] shadow-xl shadow-black/10 ring-1 ring-black/[0.06] dark:ring-white/10 dark:shadow-black/40">
+              <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-12 py-8">
               {/* Navigation Links Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
                 {navItems.map((item, index) => {
@@ -258,7 +283,7 @@ export default function Navigation() {
                     analytics.navClick(href)
                     setIsMenuOpen(false)
                   }
-                  const linkClassName = "group relative block px-4 py-3 rounded-xl text-platinum-white/70 hover:text-radiant-gold hover:bg-radiant-gold/5 transition-all duration-300"
+                  const linkClassName = "group relative block px-4 py-3 rounded-xl text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/5 transition-all duration-300"
                   const linkContent = (
                     <>
                       <span className="text-sm font-medium tracking-wide">{item.name}</span>
@@ -294,12 +319,22 @@ export default function Navigation() {
                 })}
               </div>
 
+              {/* Appearance (guests — signed-in users use the account menu) */}
+              {!user && (
+                <div className="mt-6 pt-6 border-t border-border">
+                  <ThemePreferenceList
+                    onSelect={() => setIsMenuOpen(false)}
+                    className="px-0"
+                  />
+                </div>
+              )}
+
               {/* CTA Section */}
               <div 
-                className="mt-8 pt-6 border-t border-radiant-gold/10 flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in"
+                className="mt-8 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 animate-fade-in"
                 style={{ animationDelay: '0.3s' }}
               >
-                <p className="text-platinum-white/50 text-sm">
+                <p className="text-muted-foreground text-sm">
                   Ready to collaborate?
                 </p>
                 <a
@@ -309,6 +344,7 @@ export default function Navigation() {
                 >
                   Get in Touch
                 </a>
+              </div>
               </div>
             </div>
           </motion.div>

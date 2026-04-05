@@ -157,7 +157,7 @@ function AdminDashboardContent() {
         <Breadcrumbs items={[{ label: 'Admin Dashboard' }]} />
         <div className="mb-6">
           <h1 className="text-3xl font-bold mb-1">Admin Dashboard</h1>
-          <p className="text-platinum-white/80 text-sm">Snapshot by category — use the sidebar or links below for details.</p>
+          <p className="text-muted-foreground text-sm">Snapshot by category — use the sidebar or links below for details.</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -176,21 +176,21 @@ function AdminDashboardContent() {
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Leads</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Leads</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.outreach.funnel?.total ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Contacted</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Contacted</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.outreach.funnel?.contacted ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Replied</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Replied</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.outreach.funnel?.replied ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Queue</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Queue</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.outreach.queueStats?.sent ?? 0}</p>
-                    <p className="text-xs text-platinum-white/50 mt-0.5">{pipeline.outreach.queueStats?.replied ?? 0} replied</p>
+                    <p className="text-xs text-muted-foreground/90 mt-0.5">{pipeline.outreach.queueStats?.replied ?? 0} replied</p>
                   </div>
                 </div>
                 <div className="mb-3">
@@ -231,13 +231,13 @@ function AdminDashboardContent() {
                   {(pipeline.outreach.recentActivity ?? []).slice(0, 5).map((a, i) => (
                     <li key={i} className="flex justify-between gap-2">
                       <span className="truncate">{a.contact_submissions?.name ?? a.subject ?? a.channel ?? '—'}</span>
-                      <span className="text-platinum-white/60 shrink-0">{a.status}</span>
+                      <span className="text-muted-foreground shrink-0">{a.status}</span>
                     </li>
                   ))}
                 </ul>
               </>
             ) : (
-              <p className="text-sm text-platinum-white/60">Loading…</p>
+              <p className="text-sm text-muted-foreground">Loading…</p>
             )}
           </CategoryCard>
 
@@ -256,15 +256,15 @@ function AdminDashboardContent() {
               <>
                 <div className="grid grid-cols-3 gap-3 mb-3">
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Reports</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Reports</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.valueEvidence?.overview?.totalReports ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Evidence</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Evidence</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.valueEvidence?.overview?.totalEvidence ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Calculations</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Calculations</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{pipeline.valueEvidence?.overview?.totalCalculations ?? 0}</p>
                   </div>
                 </div>
@@ -284,13 +284,13 @@ function AdminDashboardContent() {
                   {(pipeline.reports ?? []).slice(0, 5).map((r, i) => (
                     <li key={i} className="flex justify-between gap-2">
                       <span className="truncate">{r.title ?? r.industry ?? '—'}</span>
-                      {r.total_annual_value != null && <span className="text-platinum-white/60 shrink-0">${(r.total_annual_value / 1000).toFixed(0)}k</span>}
+                      {r.total_annual_value != null && <span className="text-muted-foreground shrink-0">${(r.total_annual_value / 1000).toFixed(0)}k</span>}
                     </li>
                   ))}
                 </ul>
               </>
             ) : (
-              <p className="text-sm text-platinum-white/60">Loading…</p>
+              <p className="text-sm text-muted-foreground">Loading…</p>
             )}
           </CategoryCard>
 
@@ -310,19 +310,19 @@ function AdminDashboardContent() {
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Audits</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Audits</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{sales.stats?.total_audits ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Pending</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Pending</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{sales.stats?.pending_follow_up ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Converted</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Converted</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{sales.stats?.converted ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">High urgency</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">High urgency</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{sales.stats?.high_urgency ?? 0}</p>
                   </div>
                 </div>
@@ -343,13 +343,13 @@ function AdminDashboardContent() {
                   {(sales.campaigns ?? []).slice(0, 5).map((c) => (
                     <li key={c.id} className="flex justify-between gap-2">
                       <span className="truncate">{c.name ?? c.id}</span>
-                      <span className="text-platinum-white/60 shrink-0">{c.enrollment_count ?? 0} enrollments</span>
+                      <span className="text-muted-foreground shrink-0">{c.enrollment_count ?? 0} enrollments</span>
                     </li>
                   ))}
                 </ul>
               </>
             ) : (
-              <p className="text-sm text-platinum-white/60">Loading…</p>
+              <p className="text-sm text-muted-foreground">Loading…</p>
             )}
           </CategoryCard>
 
@@ -372,21 +372,21 @@ function AdminDashboardContent() {
               <>
                 <div className="grid grid-cols-3 gap-3 mb-3">
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Projects</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Projects</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{postSale.projects?.length ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Pending tasks</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Pending tasks</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{Array.isArray(postSale.tasks) ? postSale.tasks.filter((t) => t.status === 'pending' || t.status === 'in_progress').length : 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Guarantees</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Guarantees</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{postSale.guarantees?.length ?? 0}</p>
                   </div>
                 </div>
                 <div className="space-y-2 mb-3">
-                  <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60">Recent projects</p>
-                  <ul className="space-y-1 text-sm text-platinum-white/80">
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Recent projects</p>
+                  <ul className="space-y-1 text-sm text-muted-foreground">
                     {(postSale.projects ?? []).slice(0, 5).map((p, i) => (
                       <li key={i} className="truncate">{p.client_name ?? p.project_status ?? '—'}</li>
                     ))}
@@ -406,7 +406,7 @@ function AdminDashboardContent() {
                 </div>
               </>
             ) : (
-              <p className="text-sm text-platinum-white/60">Loading…</p>
+              <p className="text-sm text-muted-foreground">Loading…</p>
             )}
           </CategoryCard>
 
@@ -430,15 +430,15 @@ function AdminDashboardContent() {
               <>
                 <div className="grid grid-cols-3 gap-3 mb-3">
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Sessions (7d)</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Sessions (7d)</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{quality.chatStats?.overview?.total_sessions ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Evaluated</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Evaluated</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{quality.chatStats?.overview?.evaluated_sessions ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Good rate</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Good rate</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{quality.chatStats?.overview?.success_rate ?? 0}%</p>
                   </div>
                 </div>
@@ -466,12 +466,12 @@ function AdminDashboardContent() {
                 </div>
                 <ul className="space-y-1.5 text-sm">
                   {(quality.chatSessions ?? []).slice(0, 5).map((s, i) => (
-                    <li key={i} className="truncate text-platinum-white/80">{s?.visitor_email ?? s?.session_id ?? '—'}</li>
+                    <li key={i} className="truncate text-muted-foreground">{s?.visitor_email ?? s?.session_id ?? '—'}</li>
                   ))}
                 </ul>
               </>
             ) : (
-              <p className="text-sm text-platinum-white/60">Loading…</p>
+              <p className="text-sm text-muted-foreground">Loading…</p>
             )}
           </CategoryCard>
 
@@ -494,22 +494,22 @@ function AdminDashboardContent() {
               <>
                 <div className="grid grid-cols-3 gap-4 mb-3">
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Users</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Users</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{config.users ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Prompts</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Prompts</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{config.prompts ?? 0}</p>
                   </div>
                   <div className="rounded-lg bg-silicon-slate/40 border border-silicon-slate/60 p-3 text-center">
-                    <p className="text-xs font-medium uppercase tracking-wider text-platinum-white/60 mb-0.5">Content</p>
+                    <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-0.5">Content</p>
                     <p className="text-2xl font-bold tabular-nums text-radiant-gold">{config.contentItems ?? 0}</p>
                   </div>
                 </div>
-                <p className="text-xs text-platinum-white/50">Products + services. Use the links below or the sidebar for Content Hub, User Management, and System Prompts.</p>
+                <p className="text-xs text-muted-foreground/90">Products + services. Use the links below or the sidebar for Content Hub, User Management, and System Prompts.</p>
               </>
             ) : (
-              <p className="text-sm text-platinum-white/60">Loading…</p>
+              <p className="text-sm text-muted-foreground">Loading…</p>
             )}
           </CategoryCard>
         </div>
@@ -521,7 +521,7 @@ function AdminDashboardContent() {
 function FeedError({ onRetry }: { onRetry: () => void }) {
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-sm text-platinum-white/70">Unable to load.</p>
+      <p className="text-sm text-muted-foreground">Unable to load.</p>
       <button
         type="button"
         onClick={onRetry}
@@ -574,7 +574,7 @@ function CategoryCard({
           <Link
             key={s.href}
             href={s.href}
-            className="text-sm text-platinum-white/70 hover:text-foreground transition-colors"
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             {s.label}
           </Link>

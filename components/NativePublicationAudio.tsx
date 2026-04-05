@@ -19,7 +19,7 @@ export default function NativePublicationAudio({
       className="rounded-xl border border-radiant-gold/10 bg-silicon-slate/30 p-3"
       aria-label={`Listen to ${publicationTitle}`}
     >
-      <div className="text-[10px] font-heading tracking-widest text-platinum-white/60 uppercase mb-2">
+      <div className="text-[10px] font-heading tracking-widest text-muted-foreground uppercase mb-2">
         Listen
       </div>
       <audio

@@ -119,14 +119,14 @@ function QueuesOverviewContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-imperial-navy flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-radiant-gold" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -137,7 +137,7 @@ function QueuesOverviewContent() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-heading tracking-wider mb-2">Annotation Queues</h1>
-          <p className="text-platinum-white/60">View and manage conversations by channel type</p>
+          <p className="text-muted-foreground">View and manage conversations by channel type</p>
         </div>
 
         {/* Main content */}
@@ -173,12 +173,12 @@ function QueuesOverviewContent() {
                       </div>
                       <div>
                         <h3 className="font-heading text-lg">{queue.name}</h3>
-                        <p className="text-sm text-platinum-white/50">
+                        <p className="text-sm text-muted-foreground/90">
                           {queue.count} sessions
                         </p>
                       </div>
                     </div>
-                    <ChevronRight size={20} className="text-platinum-white/40" />
+                    <ChevronRight size={20} className="text-muted-foreground/80" />
                   </div>
                 </motion.div>
               )
@@ -195,7 +195,7 @@ function QueuesOverviewContent() {
                 value={selectedQueue}
                 onChange={(e) => setSelectedQueue(e.target.value)}
                 className="w-full px-3 py-2 mb-4 bg-silicon-slate/30 border border-radiant-gold/10 
-                  rounded-lg text-platinum-white focus:outline-none focus:border-radiant-gold/30"
+                  rounded-lg text-foreground focus:outline-none focus:border-radiant-gold/30"
               >
                 <option value="all">All</option>
                 <option value="text">Text Messages</option>
@@ -219,7 +219,7 @@ function QueuesOverviewContent() {
               {/* Error categorization results */}
               {stats?.categories && stats.categories.length > 0 && (
                 <div className="mt-6">
-                  <h4 className="text-sm text-platinum-white/60 mb-3">
+                  <h4 className="text-sm text-muted-foreground mb-3">
                     Results from Error Categorization
                   </h4>
                   <div className="space-y-2">

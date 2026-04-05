@@ -162,12 +162,12 @@ function EvidenceCard({ evidence }: { evidence: { id: string; display_name: stri
     <li className="p-3 rounded-lg bg-silicon-slate/50 border border-silicon-slate text-sm">
       <div className="flex items-center justify-between">
         <span className="font-medium text-white">{evidence.display_name ?? 'Unknown'}</span>
-        <span className="text-xs text-platinum-white/60 ml-2 shrink-0">
+        <span className="text-xs text-muted-foreground ml-2 shrink-0">
           {(evidence.confidence_score * 100).toFixed(0)}%
           {evidence.monetary_indicator != null && ` · $${Number(evidence.monetary_indicator).toLocaleString()}`}
         </span>
       </div>
-      <p className={`text-platinum-white/80 mt-1 ${isLong && !expanded ? 'line-clamp-2' : ''}`}>
+      <p className={`text-muted-foreground mt-1 ${isLong && !expanded ? 'line-clamp-2' : ''}`}>
         {evidence.source_excerpt}
       </p>
       {isLong && (
@@ -1294,7 +1294,7 @@ function OutreachContent() {
   }
 
   const getScoreBadgeColor = (score: number | null) => {
-    if (!score) return 'bg-silicon-slate text-platinum-white'
+    if (!score) return 'bg-silicon-slate text-foreground'
     if (score >= 70) return 'bg-green-900/50 text-green-400 border border-green-700'
     if (score >= 40) return 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
     return 'bg-red-900/50 text-red-400 border border-red-700'
@@ -1304,13 +1304,13 @@ function OutreachContent() {
     const colors: Record<string, string> = {
       draft: 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50',
       approved: 'bg-green-900/50 text-green-400 border border-green-700',
-      sent: 'bg-silicon-slate text-platinum-white border border-silicon-slate',
+      sent: 'bg-silicon-slate text-foreground border border-silicon-slate',
       replied: 'bg-emerald-900/50 text-emerald-400 border border-emerald-700',
       bounced: 'bg-red-900/50 text-red-400 border border-red-700',
-      cancelled: 'bg-silicon-slate/70 text-platinum-white/80 border border-silicon-slate',
+      cancelled: 'bg-silicon-slate/70 text-muted-foreground border border-silicon-slate',
       rejected: 'bg-red-900/50 text-red-400 border border-red-700',
     }
-    return colors[status] || 'bg-silicon-slate/70 text-platinum-white/80'
+    return colors[status] || 'bg-silicon-slate/70 text-muted-foreground'
   }
 
   return (
@@ -1329,7 +1329,7 @@ function OutreachContent() {
             <h1 className="text-3xl font-bold gradient-text">
               Lead Pipeline
             </h1>
-            <p className="text-platinum-white/80 mt-1">
+            <p className="text-muted-foreground mt-1">
               {activeTab === 'queue'
                 ? 'Review and approve AI-generated outreach messages before sending'
                 : activeTab === 'escalations'
@@ -1338,10 +1338,10 @@ function OutreachContent() {
             </p>
           </div>
           {lastVepRun && (
-            <div className="text-right text-xs text-platinum-white/50 flex-shrink-0 mr-4">
+            <div className="text-right text-xs text-muted-foreground/90 flex-shrink-0 mr-4">
               <div>
                 Last VEP extraction:{' '}
-                <span className="text-platinum-white/80">
+                <span className="text-muted-foreground">
                   {new Date(lastVepRun.triggered_at).toLocaleString()}
                 </span>
               </div>
@@ -1394,7 +1394,7 @@ function OutreachContent() {
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
               activeTab === 'queue'
                 ? 'border-radiant-gold text-foreground'
-                : 'border-transparent text-platinum-white/80 hover:text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             <MessageSquare size={18} />
@@ -1410,7 +1410,7 @@ function OutreachContent() {
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
               activeTab === 'leads'
                 ? 'border-radiant-gold text-foreground'
-                : 'border-transparent text-platinum-white/80 hover:text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             <Users size={18} />
@@ -1426,7 +1426,7 @@ function OutreachContent() {
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
               activeTab === 'escalations'
                 ? 'border-radiant-gold text-foreground'
-                : 'border-transparent text-platinum-white/80 hover:text-foreground'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
             }`}
           >
             <AlertTriangle size={18} />
@@ -1458,7 +1458,7 @@ function OutreachContent() {
                   }`}
                 >
                   <div className="text-2xl font-bold">{value}</div>
-                  <div className="text-xs text-platinum-white/80 capitalize">{key}</div>
+                  <div className="text-xs text-muted-foreground capitalize">{key}</div>
                 </button>
               ))}
           </div>
@@ -1510,7 +1510,7 @@ function OutreachContent() {
           {/* Bulk Actions */}
           {selectedIds.size > 0 && statusFilter === 'draft' && (
             <div className="flex items-center gap-2 ml-auto">
-              <span className="text-sm text-platinum-white/80">
+              <span className="text-sm text-muted-foreground">
                 {selectedIds.size} selected
               </span>
               <button
@@ -1542,22 +1542,22 @@ function OutreachContent() {
               onChange={toggleSelectAll}
               className="w-4 h-4 rounded border-gray-600 bg-gray-800"
             />
-            <span className="text-sm text-platinum-white/80">Select all</span>
+            <span className="text-sm text-muted-foreground">Select all</span>
           </div>
         )}
 
         {/* Items List */}
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <RefreshCw size={24} className="animate-spin text-platinum-white/60" />
+            <RefreshCw size={24} className="animate-spin text-muted-foreground" />
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-20">
-            <MessageSquare size={48} className="mx-auto text-platinum-white/60 mb-4" />
-            <h3 className="text-xl font-medium text-platinum-white/80">
+            <MessageSquare size={48} className="mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-xl font-medium text-muted-foreground">
               No {statusFilter} messages
             </h3>
-            <p className="text-platinum-white/60 mt-2">
+            <p className="text-muted-foreground mt-2">
               {statusFilter === 'draft'
                 ? 'New drafts will appear here when leads are processed'
                 : `No messages with status "${statusFilter}"`}
@@ -1614,11 +1614,11 @@ function OutreachContent() {
                         <span className={`px-2 py-0.5 rounded text-xs ${getStatusBadge(item.status)}`}>
                           {item.status}
                         </span>
-                        <span className="text-xs text-platinum-white/60">
+                        <span className="text-xs text-muted-foreground">
                           Step {item.sequence_step}
                         </span>
                       </div>
-                      <div className="flex items-center gap-3 mt-1 text-sm text-platinum-white/80">
+                      <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                         {item.contact_submissions?.job_title && (
                           <span className="flex items-center gap-1">
                             <User size={12} />
@@ -1639,8 +1639,8 @@ function OutreachContent() {
                         )}
                       </div>
                       {item.channel === 'email' && item.subject && (
-                        <p className="mt-2 text-sm text-platinum-white">
-                          <span className="text-platinum-white/60">Subject:</span>{' '}
+                        <p className="mt-2 text-sm text-foreground">
+                          <span className="text-muted-foreground">Subject:</span>{' '}
                           {item.subject}
                         </p>
                       )}
@@ -1659,7 +1659,7 @@ function OutreachContent() {
                         <>
                           <button
                             onClick={() => startEditing(item)}
-                            className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-platinum-white/80 hover:text-white"
+                            className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground hover:text-white"
                             title="Edit"
                           >
                             <Edit3 size={16} />
@@ -1696,7 +1696,7 @@ function OutreachContent() {
                         onClick={() =>
                           setExpandedId(expandedId === item.id ? null : item.id)
                         }
-                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-platinum-white/80"
+                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground"
                       >
                         {expandedId === item.id ? (
                           <ChevronUp size={16} />
@@ -1719,7 +1719,7 @@ function OutreachContent() {
                         <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
                           {/* Message Preview */}
                           <div>
-                            <h4 className="text-sm font-medium text-platinum-white/80 mb-2 flex items-center gap-1">
+                            <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1">
                               <Eye size={14} />
                               Message Preview
                             </h4>
@@ -1759,7 +1759,7 @@ function OutreachContent() {
                                 </div>
                               </div>
                             ) : (
-                              <div className="bg-imperial-navy/60 rounded-lg p-4 text-sm whitespace-pre-wrap text-platinum-white max-h-64 overflow-y-auto">
+                              <div className="bg-background/60 rounded-lg p-4 text-sm whitespace-pre-wrap text-foreground max-h-64 overflow-y-auto">
                                 {item.body}
                               </div>
                             )}
@@ -1780,32 +1780,32 @@ function OutreachContent() {
 
                           {/* Lead Research Brief */}
                           <div>
-                            <h4 className="text-sm font-medium text-platinum-white/80 mb-2 flex items-center gap-1">
+                            <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1">
                               <Star size={14} />
                               Lead Research Brief
                             </h4>
                             <div className="space-y-3">
                               <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div className="bg-imperial-navy/60 rounded-lg p-3">
-                                  <div className="text-platinum-white/60 text-xs">Lead Score</div>
+                                <div className="bg-background/60 rounded-lg p-3">
+                                  <div className="text-muted-foreground text-xs">Lead Score</div>
                                   <div className="text-lg font-bold">
                                     {item.contact_submissions?.lead_score || 'N/A'}
                                   </div>
                                 </div>
-                                <div className="bg-imperial-navy/60 rounded-lg p-3">
-                                  <div className="text-platinum-white/60 text-xs">AI Readiness</div>
+                                <div className="bg-background/60 rounded-lg p-3">
+                                  <div className="text-muted-foreground text-xs">AI Readiness</div>
                                   <div className="text-lg font-bold">
                                     {item.contact_submissions?.ai_readiness_score || 'N/A'}/10
                                   </div>
                                 </div>
-                                <div className="bg-imperial-navy/60 rounded-lg p-3">
-                                  <div className="text-platinum-white/60 text-xs">Competitive Pressure</div>
+                                <div className="bg-background/60 rounded-lg p-3">
+                                  <div className="text-muted-foreground text-xs">Competitive Pressure</div>
                                   <div className="text-lg font-bold">
                                     {item.contact_submissions?.competitive_pressure_score || 'N/A'}/10
                                   </div>
                                 </div>
-                                <div className="bg-imperial-navy/60 rounded-lg p-3">
-                                  <div className="text-platinum-white/60 text-xs">Source</div>
+                                <div className="bg-background/60 rounded-lg p-3">
+                                  <div className="text-muted-foreground text-xs">Source</div>
                                   <div className="text-sm font-medium">
                                     {item.contact_submissions?.lead_source || 'N/A'}
                                   </div>
@@ -1813,9 +1813,9 @@ function OutreachContent() {
                               </div>
 
                               {item.contact_submissions?.quick_wins && (
-                                <div className="bg-imperial-navy/60 rounded-lg p-3">
-                                  <div className="text-platinum-white/60 text-xs mb-1">Quick Wins</div>
-                                  <div className="text-sm text-platinum-white whitespace-pre-wrap max-h-24 overflow-y-auto">
+                                <div className="bg-background/60 rounded-lg p-3">
+                                  <div className="text-muted-foreground text-xs mb-1">Quick Wins</div>
+                                  <div className="text-sm text-foreground whitespace-pre-wrap max-h-24 overflow-y-auto">
                                     {item.contact_submissions.quick_wins}
                                   </div>
                                 </div>
@@ -1846,7 +1846,7 @@ function OutreachContent() {
                             </div>
 
                             {/* Metadata */}
-                            <div className="mt-4 text-xs text-platinum-white/60 space-y-1">
+                            <div className="mt-4 text-xs text-muted-foreground space-y-1">
                               <div className="flex items-center gap-1">
                                 <Clock size={12} />
                                 Created: {new Date(item.created_at).toLocaleString()}
@@ -1954,95 +1954,95 @@ function OutreachContent() {
                       <button
                         type="button"
                         onClick={() => !addLeadLoading && setShowAddLeadModal(false)}
-                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white/80"
+                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-muted-foreground"
                       >
                         <X size={18} />
                       </button>
                     </div>
                     <form id="add-lead-form" onSubmit={handleAddLeadSubmit} className="flex-1 overflow-y-auto px-6 space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Name *</label>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">Name *</label>
                         <input
                           type="text"
                           value={addLeadName}
                           onChange={(e) => setAddLeadName(e.target.value)}
                           required
-                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="Full name"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Email</label>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">Email</label>
                         <input
                           type="email"
                           value={addLeadEmail}
                           onChange={(e) => setAddLeadEmail(e.target.value)}
-                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="email@company.com"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company</label>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">Company</label>
                         <input
                           type="text"
                           value={addLeadCompany}
                           onChange={(e) => setAddLeadCompany(e.target.value)}
-                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="Company name"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company website</label>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">Company website</label>
                         <input
                           type="text"
                           value={addLeadCompanyWebsite}
                           onChange={(e) => setAddLeadCompanyWebsite(e.target.value)}
-                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="company.com or https://..."
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">LinkedIn URL</label>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">LinkedIn URL</label>
                         <input
                           type="url"
                           value={addLeadLinkedInUrl}
                           onChange={(e) => setAddLeadLinkedInUrl(e.target.value)}
-                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="https://linkedin.com/in/..."
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Job title</label>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">Job title</label>
                         <input
                           type="text"
                           value={addLeadJobTitle}
                           onChange={(e) => setAddLeadJobTitle(e.target.value)}
-                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="Job title"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Industry</label>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">Industry</label>
                         <input
                           type="text"
                           value={addLeadIndustry}
                           onChange={(e) => setAddLeadIndustry(e.target.value)}
-                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="e.g. Technology, Healthcare"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Phone</label>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">Phone</label>
                         <input
                           type="tel"
                           value={addLeadPhone}
                           onChange={(e) => setAddLeadPhone(e.target.value)}
-                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                           placeholder="+1 234 567 8900"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">How did you get this lead?</label>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">How did you get this lead?</label>
                         <select
                           value={addLeadInputType}
                           onChange={(e) => {
@@ -2073,21 +2073,21 @@ function OutreachContent() {
                             <button
                               type="button"
                               onClick={() => setAddLeadMeetingTab('readai')}
-                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'readai' ? 'bg-cyan-700/60 text-cyan-100' : 'bg-silicon-slate/30 text-platinum-white/50 hover:text-platinum-white/80'}`}
+                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'readai' ? 'bg-cyan-700/60 text-cyan-100' : 'bg-silicon-slate/30 text-muted-foreground/90 hover:text-muted-foreground'}`}
                             >
                               <CalendarCheck size={12} /> Read.ai
                             </button>
                             <button
                               type="button"
                               onClick={() => setAddLeadMeetingTab('select')}
-                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'select' ? 'bg-purple-700/60 text-purple-100' : 'bg-silicon-slate/30 text-platinum-white/50 hover:text-platinum-white/80'}`}
+                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'select' ? 'bg-purple-700/60 text-purple-100' : 'bg-silicon-slate/30 text-muted-foreground/90 hover:text-muted-foreground'}`}
                             >
                               <Search size={12} /> Existing
                             </button>
                             <button
                               type="button"
                               onClick={() => setAddLeadMeetingTab('paste')}
-                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'paste' ? 'bg-purple-700/60 text-purple-100' : 'bg-silicon-slate/30 text-platinum-white/50 hover:text-platinum-white/80'}`}
+                              className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'paste' ? 'bg-purple-700/60 text-purple-100' : 'bg-silicon-slate/30 text-muted-foreground/90 hover:text-muted-foreground'}`}
                             >
                               <FileText size={12} /> Paste
                             </button>
@@ -2101,7 +2101,7 @@ function OutreachContent() {
                                   value={addLeadReadAiEmail}
                                   onChange={(e) => setAddLeadReadAiEmail(e.target.value)}
                                   onKeyDown={(e) => e.key === 'Enter' && handleAddLeadReadAiSearch()}
-                                  className="flex-1 px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-cyan-500 text-sm"
+                                  className="flex-1 px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-cyan-500 text-sm"
                                   placeholder="Search by attendee email..."
                                 />
                                 <button
@@ -2116,18 +2116,18 @@ function OutreachContent() {
                               </div>
 
                               {addLeadReadAiLoading && (
-                                <div className="flex items-center gap-2 text-sm text-platinum-white/60 py-2">
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
                                   <Loader2 size={14} className="animate-spin" />
                                   Searching Read.ai meetings...
                                 </div>
                               )}
 
                               {addLeadReadAiSearched && !addLeadReadAiLoading && addLeadReadAiMeetings.length === 0 && (
-                                <p className="text-sm text-platinum-white/50 py-1">No meetings found with this email in the last 30 days.</p>
+                                <p className="text-sm text-muted-foreground/90 py-1">No meetings found with this email in the last 30 days.</p>
                               )}
 
                               {addLeadReadAiSearched && !addLeadReadAiLoading && getReadAiCacheAge(addLeadReadAiEmail) && (
-                                <div className="flex items-center gap-2 text-[10px] text-platinum-white/40">
+                                <div className="flex items-center gap-2 text-[10px] text-muted-foreground/80">
                                   <span>Fetched {getReadAiCacheAge(addLeadReadAiEmail)}</span>
                                   <button
                                     type="button"
@@ -2149,7 +2149,7 @@ function OutreachContent() {
                                     <div className="flex items-center justify-between gap-2">
                                       <div className="min-w-0">
                                         <div className="text-sm font-medium text-white truncate">{m.title}</div>
-                                        <div className="text-xs text-platinum-white/50">
+                                        <div className="text-xs text-muted-foreground/90">
                                           {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                           {m.platform && <span className="ml-1 capitalize">· {m.platform}</span>}
                                         </div>
@@ -2165,9 +2165,9 @@ function OutreachContent() {
                                       </button>
                                     </div>
                                     {m.summary && (
-                                      <p className="text-xs text-platinum-white/60 line-clamp-2">{m.summary}</p>
+                                      <p className="text-xs text-muted-foreground line-clamp-2">{m.summary}</p>
                                     )}
-                                    <div className="text-xs text-platinum-white/40">
+                                    <div className="text-xs text-muted-foreground/80">
                                       {m.participants.map((p) => p.name).filter(Boolean).join(', ')}
                                     </div>
                                   </div>
@@ -2181,7 +2181,7 @@ function OutreachContent() {
                               <div>
                                 <label className="block text-sm font-medium text-purple-300 mb-1">Select meeting</label>
                                 {addLeadMeetingsLoading ? (
-                                  <div className="flex items-center gap-2 text-sm text-platinum-white/60 py-2">
+                                  <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
                                     <Loader2 size={14} className="animate-spin" /> Loading meetings...
                                   </div>
                                 ) : (
@@ -2230,7 +2230,7 @@ function OutreachContent() {
                                   type="text"
                                   value={addLeadPasteTitle}
                                   onChange={(e) => setAddLeadPasteTitle(e.target.value)}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-purple-500"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-purple-500"
                                   placeholder="e.g. Coffee chat with Jane at FinTech Summit"
                                 />
                               </div>
@@ -2241,7 +2241,7 @@ function OutreachContent() {
                                     type="text"
                                     value={addLeadPasteAttendeeName}
                                     onChange={(e) => setAddLeadPasteAttendeeName(e.target.value)}
-                                    className="w-full px-3 py-1.5 text-sm bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-purple-500"
+                                    className="w-full px-3 py-1.5 text-sm bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-purple-500"
                                     placeholder="Jane Doe"
                                   />
                                 </div>
@@ -2251,7 +2251,7 @@ function OutreachContent() {
                                     type="email"
                                     value={addLeadPasteAttendeeEmail}
                                     onChange={(e) => setAddLeadPasteAttendeeEmail(e.target.value)}
-                                    className="w-full px-3 py-1.5 text-sm bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-purple-500"
+                                    className="w-full px-3 py-1.5 text-sm bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-purple-500"
                                     placeholder="jane@example.com"
                                   />
                                 </div>
@@ -2262,11 +2262,11 @@ function OutreachContent() {
                                   value={addLeadPasteText}
                                   onChange={(e) => setAddLeadPasteText(e.target.value)}
                                   rows={6}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-purple-500 resize-y text-sm"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-purple-500 resize-y text-sm"
                                   placeholder="Paste your meeting transcript here..."
                                 />
                                 {addLeadPasteText.trim() && (
-                                  <p className="text-xs text-platinum-white/40 mt-1">{addLeadPasteText.trim().length.toLocaleString()} characters</p>
+                                  <p className="text-xs text-muted-foreground/80 mt-1">{addLeadPasteText.trim().length.toLocaleString()} characters</p>
                                 )}
                               </div>
                               <button
@@ -2300,12 +2300,12 @@ function OutreachContent() {
                         </div>
                       )}
                       <div>
-                        <label className="block text-sm font-medium text-platinum-white/80 mb-1">Message / notes</label>
+                        <label className="block text-sm font-medium text-muted-foreground mb-1">Message / notes</label>
                         <textarea
                           value={addLeadMessage}
                           onChange={(e) => setAddLeadMessage(e.target.value)}
                           rows={3}
-                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
+                          className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold resize-y"
                           placeholder="Optional notes"
                         />
                       </div>
@@ -2353,7 +2353,7 @@ function OutreachContent() {
                               }`}>
                                 {item.field === 'pain_points' ? 'Pain point' : 'Quick win'}
                               </span>
-                              <p className="flex-1 text-sm text-platinum-white/80 line-clamp-2">{item.content}</p>
+                              <p className="flex-1 text-sm text-muted-foreground line-clamp-2">{item.content}</p>
                               <div className="flex items-center gap-1 shrink-0">
                                 <button
                                   type="button"
@@ -2389,7 +2389,7 @@ function OutreachContent() {
                         <button
                           type="button"
                           onClick={() => setShowVepSection((v) => !v)}
-                          className="w-full flex items-center justify-between px-3 py-2 bg-silicon-slate/50 hover:bg-silicon-slate text-left text-sm font-medium text-platinum-white/80"
+                          className="w-full flex items-center justify-between px-3 py-2 bg-silicon-slate/50 hover:bg-silicon-slate text-left text-sm font-medium text-muted-foreground"
                         >
                           Value Evidence (optional)
                           {showVepSection ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
@@ -2397,7 +2397,7 @@ function OutreachContent() {
                         {showVepSection && (
                           <div className="p-3 space-y-3 border-t border-silicon-slate">
                             <div>
-                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company size</label>
+                              <label className="block text-sm font-medium text-muted-foreground mb-1">Company size</label>
                               <select
                                 value={addLeadEmployeeCount}
                                 onChange={(e) => setAddLeadEmployeeCount(e.target.value)}
@@ -2413,22 +2413,22 @@ function OutreachContent() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Quick wins</label>
+                              <label className="block text-sm font-medium text-muted-foreground mb-1">Quick wins</label>
                               <textarea
                                 value={addLeadQuickWins}
                                 onChange={(e) => setAddLeadQuickWins(e.target.value)}
                                 rows={2}
-                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold resize-y"
                                 placeholder="Quick-win AI opportunities with 90-day ROI potential"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Known pain points</label>
+                              <label className="block text-sm font-medium text-muted-foreground mb-1">Known pain points</label>
                               <textarea
                                 value={addLeadPainPoints}
                                 onChange={(e) => setAddLeadPainPoints(e.target.value)}
                                 rows={2}
-                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold resize-y"
                                 placeholder="Known challenges, bottlenecks, or pain points for this lead"
                               />
                             </div>
@@ -2526,7 +2526,7 @@ function OutreachContent() {
                       <button
                         type="button"
                         onClick={() => !pushLoading && !unifiedModalSaveLoading && setShowEnrichModal(false)}
-                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white/80"
+                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-muted-foreground"
                       >
                         <X size={18} />
                       </button>
@@ -2548,94 +2548,94 @@ function OutreachContent() {
                           {/* Lead details section */}
                           <div className="space-y-3 mb-4">
                             <div>
-                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Name *</label>
+                              <label className="block text-sm font-medium text-muted-foreground mb-1">Name *</label>
                               <input
                                 type="text"
                                 value={enrichModalForm[l.id]?.name ?? l.name ?? ''}
                                 onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], name: e.target.value } }))}
                                 required
-                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                                 placeholder="Full name"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Email</label>
+                              <label className="block text-sm font-medium text-muted-foreground mb-1">Email</label>
                               <input
                                 type="email"
                                 value={enrichModalForm[l.id]?.email ?? l.email ?? ''}
                                 onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], email: e.target.value } }))}
-                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                                 placeholder="email@company.com"
                               />
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Company</label>
                                 <input
                                   type="text"
                                   value={enrichModalForm[l.id]?.company ?? l.company ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], company: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="Company name"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company website</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Company website</label>
                                 <input
                                   type="text"
                                   value={enrichModalForm[l.id]?.company_domain ?? l.company_domain ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], company_domain: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="company.com or https://..."
                                 />
                               </div>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">LinkedIn URL</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">LinkedIn URL</label>
                                 <input
                                   type="url"
                                   value={enrichModalForm[l.id]?.linkedin_url ?? l.linkedin_url ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], linkedin_url: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="https://linkedin.com/in/..."
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Job title</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Job title</label>
                                 <input
                                   type="text"
                                   value={enrichModalForm[l.id]?.job_title ?? l.job_title ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], job_title: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="Job title"
                                 />
                               </div>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Industry</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Industry</label>
                                 <input
                                   type="text"
                                   value={enrichModalForm[l.id]?.industry ?? l.industry ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], industry: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="e.g. Technology, Healthcare"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Phone</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Phone</label>
                                 <input
                                   type="tel"
                                   value={enrichModalForm[l.id]?.phone_number ?? l.phone_number ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], phone_number: e.target.value } }))}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold"
                                   placeholder="+1 234 567 8900"
                                 />
                               </div>
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">How did you get this lead?</label>
+                              <label className="block text-sm font-medium text-muted-foreground mb-1">How did you get this lead?</label>
                               <select
                                 value={enrichModalForm[l.id]?.input_type ?? inputTypeFromLeadSource(l.lead_source)}
                                 onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], input_type: e.target.value } }))}
@@ -2649,42 +2649,42 @@ function OutreachContent() {
                               </select>
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-platinum-white/80 mb-1">Message / notes</label>
+                              <label className="block text-sm font-medium text-muted-foreground mb-1">Message / notes</label>
                               <textarea
                                 value={enrichModalForm[l.id]?.message ?? l.message ?? ''}
                                 onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], message: e.target.value } }))}
                                 rows={2}
-                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
+                                className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold resize-y"
                                 placeholder="Optional notes"
                               />
                             </div>
                           </div>
                           {/* Value Evidence section */}
                           <div className="pt-3 border-t border-silicon-slate space-y-3">
-                            <h4 className="text-sm font-medium text-platinum-white/80">Value Evidence</h4>
+                            <h4 className="text-sm font-medium text-muted-foreground">Value Evidence</h4>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <div>
-                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Pain points</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Pain points</label>
                                 <textarea
                                   value={enrichModalForm[l.id]?.rep_pain_points ?? l.rep_pain_points ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], rep_pain_points: e.target.value } }))}
                                   rows={2}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold resize-y"
                                   placeholder="Known pain points"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Quick wins</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Quick wins</label>
                                 <textarea
                                   value={enrichModalForm[l.id]?.quick_wins ?? l.quick_wins ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], quick_wins: e.target.value } }))}
                                   rows={2}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-platinum-white/60 focus:outline-none focus:border-radiant-gold resize-y"
+                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold resize-y"
                                   placeholder="Quick wins"
                                 />
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-platinum-white/80 mb-1">Company size</label>
+                                <label className="block text-sm font-medium text-muted-foreground mb-1">Company size</label>
                                 <select
                                   value={enrichModalForm[l.id]?.employee_count ?? l.employee_count ?? ''}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], employee_count: e.target.value } }))}
@@ -2712,7 +2712,7 @@ function OutreachContent() {
                                   className="flex items-center gap-2 flex-1 text-left"
                                 >
                                   <CalendarCheck size={16} className="text-cyan-400" />
-                                  <h4 className="text-sm font-medium text-platinum-white/80 flex-1">
+                                  <h4 className="text-sm font-medium text-muted-foreground flex-1">
                                     Meeting Context
                                     {(meetingsByLead[l.id]?.length ?? 0) > 0 && (
                                       <span className="ml-2 text-xs text-cyan-400">
@@ -2721,17 +2721,17 @@ function OutreachContent() {
                                     )}
                                   </h4>
                                   {meetingsLoading[l.id] ? (
-                                    <Loader2 size={14} className="animate-spin text-platinum-white/60" />
+                                    <Loader2 size={14} className="animate-spin text-muted-foreground" />
                                   ) : (
                                     <ChevronRight
                                       size={14}
-                                      className={`text-platinum-white/60 transition-transform ${meetingSectionExpanded[l.id] ? 'rotate-90' : ''}`}
+                                      className={`text-muted-foreground transition-transform ${meetingSectionExpanded[l.id] ? 'rotate-90' : ''}`}
                                     />
                                   )}
                                 </button>
                                 {l.email && getReadAiCacheAge(l.email) && !meetingsLoading[l.id] && (
                                   <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] text-platinum-white/40">{getReadAiCacheAge(l.email)}</span>
+                                    <span className="text-[10px] text-muted-foreground/80">{getReadAiCacheAge(l.email)}</span>
                                     <button
                                       type="button"
                                       title="Refresh from Read.ai"
@@ -2743,7 +2743,7 @@ function OutreachContent() {
                                           fetchMeetingsForLead(l.id, l.email, session.access_token, true)
                                         }
                                       }}
-                                      className="p-1 rounded hover:bg-silicon-slate/60 text-platinum-white/40 hover:text-cyan-400 transition-colors"
+                                      className="p-1 rounded hover:bg-silicon-slate/60 text-muted-foreground/80 hover:text-cyan-400 transition-colors"
                                     >
                                       <RefreshCw size={12} />
                                     </button>
@@ -2754,14 +2754,14 @@ function OutreachContent() {
                               {meetingSectionExpanded[l.id] && (
                                 <div className="mt-2 space-y-2">
                                   {meetingsLoading[l.id] && (
-                                    <div className="flex items-center gap-2 text-sm text-platinum-white/60 py-2">
+                                    <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
                                       <Loader2 size={14} className="animate-spin" />
                                       Searching Read.ai for meetings with {l.email}...
                                     </div>
                                   )}
 
                                   {!meetingsLoading[l.id] && (meetingsByLead[l.id]?.length ?? 0) === 0 && (
-                                    <p className="text-sm text-platinum-white/50 py-1">
+                                    <p className="text-sm text-muted-foreground/90 py-1">
                                       No meetings found with this contact in the last 30 days.
                                     </p>
                                   )}
@@ -2787,16 +2787,16 @@ function OutreachContent() {
                                         <div className="flex-1 min-w-0">
                                           <div className="flex items-center gap-2">
                                             <span className="text-sm font-medium text-white truncate">{m.title}</span>
-                                            <span className="text-xs text-platinum-white/50 shrink-0">
+                                            <span className="text-xs text-muted-foreground/90 shrink-0">
                                               {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </span>
                                           </div>
-                                          <div className="text-xs text-platinum-white/50 mt-0.5">
+                                          <div className="text-xs text-muted-foreground/90 mt-0.5">
                                             {m.participants.map((p) => p.name).filter(Boolean).join(', ')}
                                             {m.platform && <span className="ml-1 capitalize">· {m.platform}</span>}
                                           </div>
                                           {m.summary && (
-                                            <p className="text-xs text-platinum-white/60 mt-1 line-clamp-2">{m.summary}</p>
+                                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{m.summary}</p>
                                           )}
                                         </div>
                                       </label>
@@ -2862,7 +2862,7 @@ function OutreachContent() {
                                         }`}>
                                           {item.type === 'pain_points' ? 'Pain point' : 'Quick win'}
                                         </span>
-                                        <span className="text-xs text-platinum-white/50">
+                                        <span className="text-xs text-muted-foreground/90">
                                           {item.meetingTitle} ({item.meetingDate})
                                         </span>
                                       </div>
@@ -2885,7 +2885,7 @@ function OutreachContent() {
                                         </button>
                                       </div>
                                     </div>
-                                    <p className="text-sm text-platinum-white/80 line-clamp-3 whitespace-pre-wrap">
+                                    <p className="text-sm text-muted-foreground line-clamp-3 whitespace-pre-wrap">
                                       {item.content}
                                     </p>
                                   </div>
@@ -2925,7 +2925,7 @@ function OutreachContent() {
                             onChange={(e) => setUnifiedModalReRunEnrichment(e.target.checked)}
                             className="rounded border-silicon-slate bg-silicon-slate/50 text-radiant-gold focus:ring-radiant-gold"
                           />
-                          <label htmlFor="unified-rerun-enrichment" className="text-sm text-platinum-white/80">
+                          <label htmlFor="unified-rerun-enrichment" className="text-sm text-muted-foreground">
                             Re-run enrichment (send updated data to lead qualification workflow)
                           </label>
                         </div>
@@ -2955,7 +2955,7 @@ function OutreachContent() {
                         return (
                           <>
                             {showClassifyPrimary && enrichModalVepPushCompleted && !allLeadsAlreadyHaveEvidence ? (
-                              <p className="text-xs text-platinum-white/60 text-right">
+                              <p className="text-xs text-muted-foreground text-right">
                                 Push started. Next, classify pain points and quick wins to store structured evidence.
                               </p>
                             ) : null}
@@ -3154,7 +3154,7 @@ function OutreachContent() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex justify-end bg-imperial-navy/60"
+                  className="fixed inset-0 z-50 flex justify-end bg-background/60"
                   onClick={() => setEvidenceDrawerContactId(null)}
                 >
                   <motion.div
@@ -3169,7 +3169,7 @@ function OutreachContent() {
                       <button
                         type="button"
                         onClick={() => setEvidenceDrawerContactId(null)}
-                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white/80"
+                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-muted-foreground"
                       >
                         <X size={18} />
                       </button>
@@ -3177,14 +3177,14 @@ function OutreachContent() {
                     <div className="flex-1 overflow-y-auto p-4 space-y-4">
                       {evidenceDrawerLoading ? (
                         <div className="flex justify-center py-8">
-                          <RefreshCw size={24} className="animate-spin text-platinum-white/60" />
+                          <RefreshCw size={24} className="animate-spin text-muted-foreground" />
                         </div>
                       ) : evidenceDrawerData ? (
                         <>
                           <div>
-                            <h4 className="text-sm font-medium text-platinum-white/80 mb-2">Pain point evidence</h4>
+                            <h4 className="text-sm font-medium text-muted-foreground mb-2">Pain point evidence</h4>
                             {evidenceDrawerData.evidence.length === 0 ? (
-                              <p className="text-sm text-platinum-white/60">No evidence yet.</p>
+                              <p className="text-sm text-muted-foreground">No evidence yet.</p>
                             ) : (
                               <ul className="space-y-2">
                                 {evidenceDrawerData.evidence.map((e) => (
@@ -3194,9 +3194,9 @@ function OutreachContent() {
                             )}
                           </div>
                           <div>
-                            <h4 className="text-sm font-medium text-platinum-white/80 mb-2">Value reports</h4>
+                            <h4 className="text-sm font-medium text-muted-foreground mb-2">Value reports</h4>
                             {evidenceDrawerData.reports.length === 0 ? (
-                              <p className="text-sm text-platinum-white/60">No reports yet.</p>
+                              <p className="text-sm text-muted-foreground">No reports yet.</p>
                             ) : (
                               <ul className="space-y-2">
                                 {evidenceDrawerData.reports.map((r) => (
@@ -3207,7 +3207,7 @@ function OutreachContent() {
                                       onClick={() => setEvidenceDrawerContactId(null)}
                                     >
                                       <span className="text-white">{r.title ?? 'Report'}</span>
-                                      <span className="text-platinum-white/80 ml-2">
+                                      <span className="text-muted-foreground ml-2">
                                         {r.total_annual_value != null ? `$${r.total_annual_value}` : ''} · {new Date(r.created_at).toLocaleDateString()}
                                       </span>
                                     </Link>
@@ -3303,7 +3303,7 @@ function OutreachContent() {
                           )}
                         </>
                       ) : (
-                        <p className="text-sm text-platinum-white/60">Could not load evidence.</p>
+                        <p className="text-sm text-muted-foreground">Could not load evidence.</p>
                       )}
                     </div>
                   </motion.div>
@@ -3318,7 +3318,7 @@ function OutreachContent() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex items-center justify-center bg-imperial-navy/70 p-4"
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4"
                   onClick={() => setTechStackResult(null)}
                 >
                   <motion.div
@@ -3336,7 +3336,7 @@ function OutreachContent() {
                       <button
                         type="button"
                         onClick={() => setTechStackResult(null)}
-                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white/80"
+                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-muted-foreground"
                       >
                         <X size={18} />
                       </button>
@@ -3350,16 +3350,16 @@ function OutreachContent() {
                             <>
                               {techStackResult.byTag && Object.keys(techStackResult.byTag).length > 0 && (
                                 <div>
-                                  <h4 className="text-xs font-medium text-platinum-white/60 uppercase mb-2">By category</h4>
+                                  <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">By category</h4>
                                   <div className="flex flex-wrap gap-2">
                                     {Object.entries(techStackResult.byTag).map(([tag, names]) => (
                                       <div key={tag} className="rounded-lg bg-silicon-slate/50 border border-silicon-slate p-2 min-w-[140px]">
-                                        <div className="text-xs text-platinum-white/60 mb-1">{tag}</div>
-                                        <ul className="text-sm text-platinum-white space-y-0.5">
+                                        <div className="text-xs text-muted-foreground mb-1">{tag}</div>
+                                        <ul className="text-sm text-foreground space-y-0.5">
                                           {names.slice(0, 8).map((n) => (
                                             <li key={n}>{n}</li>
                                           ))}
-                                          {names.length > 8 && <li className="text-platinum-white/60">+{names.length - 8} more</li>}
+                                          {names.length > 8 && <li className="text-muted-foreground">+{names.length - 8} more</li>}
                                         </ul>
                                       </div>
                                     ))}
@@ -3367,14 +3367,14 @@ function OutreachContent() {
                                 </div>
                               )}
                               <div>
-                                <h4 className="text-xs font-medium text-platinum-white/60 uppercase mb-2">
+                                <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">
                                   All technologies ({techStackResult.technologies.length})
                                 </h4>
                                 <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
                                   {techStackResult.technologies.map((t) => (
                                     <span
                                       key={t.name}
-                                      className="px-2 py-1 rounded bg-silicon-slate/50 border border-silicon-slate text-sm text-platinum-white"
+                                      className="px-2 py-1 rounded bg-silicon-slate/50 border border-silicon-slate text-sm text-foreground"
                                     >
                                       {t.name}
                                     </span>
@@ -3383,12 +3383,12 @@ function OutreachContent() {
                               </div>
                             </>
                           ) : (
-                            <p className="text-sm text-platinum-white/60">No technologies detected for this domain.</p>
+                            <p className="text-sm text-muted-foreground">No technologies detected for this domain.</p>
                           )}
                         </>
                       )}
                       {techStackResult.creditsRemaining != null && (
-                        <p className="text-xs text-platinum-white/50">API credits remaining: {techStackResult.creditsRemaining}</p>
+                        <p className="text-xs text-muted-foreground/90">API credits remaining: {techStackResult.creditsRemaining}</p>
                       )}
                     </div>
                   </motion.div>
@@ -3421,15 +3421,15 @@ function OutreachContent() {
             {/* Leads List */}
             {leadsLoading ? (
               <div className="flex items-center justify-center py-20">
-                <RefreshCw size={24} className="animate-spin text-platinum-white/60" />
+                <RefreshCw size={24} className="animate-spin text-muted-foreground" />
               </div>
             ) : leads.length === 0 ? (
               <div className="text-center py-20">
-                <Users size={48} className="mx-auto text-platinum-white/60 mb-4" />
-                <h3 className="text-xl font-medium text-platinum-white/80">
+                <Users size={48} className="mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-xl font-medium text-muted-foreground">
                   No leads found
                 </h3>
-                <p className="text-platinum-white/60 mt-2">
+                <p className="text-muted-foreground mt-2">
                   Try adjusting your filters or trigger lead scraping from the dashboard
                 </p>
               </div>
@@ -3437,7 +3437,7 @@ function OutreachContent() {
               <>
                 {selectedLeadIds.size > 0 && (
                   <div className="sticky top-0 z-10 mb-4 p-3 bg-background/95 border border-silicon-slate rounded-xl flex items-center justify-between gap-4">
-                    <span className="text-sm text-platinum-white">
+                    <span className="text-sm text-foreground">
                       {selectedLeadIds.size} lead(s) selected
                     </span>
                     <div className="flex items-center gap-2">
@@ -3452,7 +3452,7 @@ function OutreachContent() {
                       <button
                         type="button"
                         onClick={() => setSelectedLeadIds(new Set())}
-                        className="text-sm text-platinum-white/80 hover:text-white"
+                        className="text-sm text-muted-foreground hover:text-white"
                       >
                         Clear selection
                       </button>
@@ -3460,7 +3460,7 @@ function OutreachContent() {
                   </div>
                 )}
                 <div className="flex items-center gap-2 mb-3">
-                  <label className="flex items-center gap-2 text-sm text-platinum-white/80 cursor-pointer">
+                  <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
                     <input
                       type="checkbox"
                       checked={leads.length > 0 && leads.every((l) => selectedLeadIds.has(l.id))}
@@ -3541,7 +3541,7 @@ function OutreachContent() {
                                   Score: {lead.lead_score}
                                 </span>
                               )}
-                              <span className="px-2 py-0.5 bg-gray-800 text-platinum-white rounded text-xs">
+                              <span className="px-2 py-0.5 bg-gray-800 text-foreground rounded text-xs">
                                 {lead.lead_source
                                   ?.replace(/^(warm|cold)_/i, '') // Remove warm_ or cold_ prefix
                                   .replace(/_/g, ' ') // Replace all underscores with spaces
@@ -3555,7 +3555,7 @@ function OutreachContent() {
                                 <span className="px-2 py-0.5 bg-red-900/50 text-red-300 rounded text-xs">Removed</span>
                               )}
                             </div>
-                            <div className="flex items-center gap-3 mt-1 text-sm text-platinum-white/80">
+                            <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                               {lead.job_title && (
                                 <span className="flex items-center gap-1">
                                   <User size={12} />
@@ -3570,7 +3570,7 @@ function OutreachContent() {
                               )}
                               <Link
                                 href={`/admin/outreach?tab=queue&contact=${lead.id}`}
-                                className="inline-flex items-center gap-1 text-platinum-white/80 hover:text-blue-300 transition-colors underline decoration-dotted decoration-blue-400/50 underline-offset-2 hover:decoration-blue-300"
+                                className="inline-flex items-center gap-1 text-muted-foreground hover:text-blue-300 transition-colors underline decoration-dotted decoration-blue-400/50 underline-offset-2 hover:decoration-blue-300"
                                 title={`Open message queue (${lead.messages_count} messages, ${lead.messages_sent} sent)`}
                                 aria-label={`Open message queue for ${lead.name}`}
                               >
@@ -3669,7 +3669,7 @@ function OutreachContent() {
                                         ? 'bg-red-900/35 text-red-200 border-red-700/60 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
                                         : isVepStalePending
                                           ? 'bg-amber-900/35 text-amber-200 border-amber-700/60 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
-                                          : 'bg-gray-700/90 text-platinum-white/85 border-gray-600 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
+                                          : 'bg-gray-700/90 text-foreground/85 border-gray-600 enabled:hover:bg-purple-600/85 enabled:hover:text-white enabled:hover:border-purple-400'
                                     } disabled:opacity-55 disabled:cursor-not-allowed`}
                                   >
                                     <span>{chipLabel}</span>
@@ -3721,7 +3721,7 @@ function OutreachContent() {
                                   }
                                 }}
                                 disabled={pushLoading}
-                                className="px-3 py-2 bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                                className="px-3 py-2 bg-silicon-slate/50 hover:bg-silicon-slate text-foreground rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
                               >
                                 <RefreshCw size={14} />
                                 Refresh evidence
@@ -3800,19 +3800,19 @@ function OutreachContent() {
                                 onClick={() =>
                                   setLeadRowMenuOpenId(leadRowMenuOpenId === lead.id ? null : lead.id)
                                 }
-                                className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-platinum-white/90 transition-colors flex items-center justify-center"
+                                className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-foreground/90 transition-colors flex items-center justify-center"
                               >
                                 <MoreHorizontal size={18} />
                               </button>
                               {leadRowMenuOpenId === lead.id && (
                                 <div
                                   role="menu"
-                                  className="absolute right-0 top-full mt-1 z-50 min-w-[13rem] py-1 rounded-lg border border-silicon-slate bg-imperial-navy shadow-xl"
+                                  className="absolute right-0 top-full mt-1 z-50 min-w-[13rem] py-1 rounded-lg border border-silicon-slate bg-background shadow-xl"
                                 >
                                   <button
                                     type="button"
                                     role="menuitem"
-                                    className="w-full text-left px-3 py-2 text-sm text-platinum-white hover:bg-silicon-slate/60 flex items-center gap-2"
+                                    className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-silicon-slate/60 flex items-center gap-2"
                                     onClick={() => {
                                       setLeadRowMenuOpenId(null)
                                       void openReviewEnrichModal([lead.id])
@@ -3896,7 +3896,7 @@ function OutreachContent() {
                               onClick={() =>
                                 setExpandedLeadId(expandedLeadId === lead.id ? null : lead.id)
                               }
-                              className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-platinum-white/80"
+                              className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground"
                             >
                               {expandedLeadId === lead.id ? (
                                 <ChevronUp size={16} />
@@ -3919,11 +3919,11 @@ function OutreachContent() {
                               <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 {/* Contact Info */}
                                 <div>
-                                  <h4 className="text-sm font-medium text-platinum-white/80 mb-3">Contact Information</h4>
+                                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Contact Information</h4>
                                   <div className="space-y-2 text-sm">
                                     {lead.email && (
                                       <div className="flex items-center gap-2">
-                                        <Mail size={14} className="text-platinum-white/60" />
+                                        <Mail size={14} className="text-muted-foreground" />
                                         <a href={`mailto:${lead.email}`} className="text-blue-400 hover:text-blue-300">
                                           {lead.email}
                                         </a>
@@ -3931,7 +3931,7 @@ function OutreachContent() {
                                     )}
                                     {lead.linkedin_url && (
                                       <div className="flex items-center gap-2">
-                                        <Linkedin size={14} className="text-platinum-white/60" />
+                                        <Linkedin size={14} className="text-muted-foreground" />
                                         <a
                                           href={lead.linkedin_url}
                                           target="_blank"
@@ -3945,33 +3945,33 @@ function OutreachContent() {
                                     )}
                                     {lead.company && (
                                       <div className="flex items-center gap-2">
-                                        <Building2 size={14} className="text-platinum-white/60" />
-                                        <span className="text-platinum-white">{lead.company}</span>
+                                        <Building2 size={14} className="text-muted-foreground" />
+                                        <span className="text-foreground">{lead.company}</span>
                                       </div>
                                     )}
                                     {lead.job_title && (
                                       <div className="flex items-center gap-2">
-                                        <User size={14} className="text-platinum-white/60" />
-                                        <span className="text-platinum-white">{lead.job_title}</span>
+                                        <User size={14} className="text-muted-foreground" />
+                                        <span className="text-foreground">{lead.job_title}</span>
                                       </div>
                                     )}
                                     {lead.phone_number && (
                                       <div className="flex items-center gap-2">
-                                        <Phone size={14} className="text-platinum-white/60" />
-                                        <a href={`tel:${lead.phone_number}`} className="text-platinum-white hover:text-white">
+                                        <Phone size={14} className="text-muted-foreground" />
+                                        <a href={`tel:${lead.phone_number}`} className="text-foreground hover:text-white">
                                           {lead.phone_number}
                                         </a>
                                       </div>
                                     )}
                                     {lead.industry && (
                                       <div className="flex items-center gap-2">
-                                        <Briefcase size={14} className="text-platinum-white/60" />
-                                        <span className="text-platinum-white">{lead.industry}</span>
+                                        <Briefcase size={14} className="text-muted-foreground" />
+                                        <span className="text-foreground">{lead.industry}</span>
                                       </div>
                                     )}
                                     {lead.company_domain && (
                                       <div className="flex flex-wrap items-center gap-2">
-                                        <Globe size={14} className="text-platinum-white/60" />
+                                        <Globe size={14} className="text-muted-foreground" />
                                         <a
                                           href={lead.company_domain.startsWith('http') ? lead.company_domain : `https://${lead.company_domain}`}
                                           target="_blank"
@@ -4035,7 +4035,7 @@ function OutreachContent() {
                                             }
                                           }}
                                           disabled={techStackLoading || !!(lead as { website_tech_stack?: { domain?: string } }).website_tech_stack?.domain}
-                                          className="flex items-center gap-1.5 px-2 py-1 rounded bg-silicon-slate/60 hover:bg-silicon-slate text-xs text-platinum-white/90 border border-silicon-slate disabled:opacity-60"
+                                          className="flex items-center gap-1.5 px-2 py-1 rounded bg-silicon-slate/60 hover:bg-silicon-slate text-xs text-foreground/90 border border-silicon-slate disabled:opacity-60"
                                         >
                                           {techStackLoading ? (
                                             <Loader2 size={12} className="animate-spin" />
@@ -4051,36 +4051,36 @@ function OutreachContent() {
 
                                 {/* Scores & Status */}
                                 <div>
-                                  <h4 className="text-sm font-medium text-platinum-white/80 mb-3">Lead Intelligence</h4>
+                                  <h4 className="text-sm font-medium text-muted-foreground mb-3">Lead Intelligence</h4>
                                   <div className="grid grid-cols-2 gap-2">
                                     {lead.lead_score !== null && (
-                                      <div className="bg-imperial-navy/60 rounded-lg p-3">
-                                        <div className="text-platinum-white/60 text-xs">Lead Score</div>
+                                      <div className="bg-background/60 rounded-lg p-3">
+                                        <div className="text-muted-foreground text-xs">Lead Score</div>
                                         <div className="text-lg font-bold">{lead.lead_score}</div>
                                       </div>
                                     )}
                                     {lead.ai_readiness_score !== null && (
-                                      <div className="bg-imperial-navy/60 rounded-lg p-3">
-                                        <div className="text-platinum-white/60 text-xs">AI Readiness</div>
+                                      <div className="bg-background/60 rounded-lg p-3">
+                                        <div className="text-muted-foreground text-xs">AI Readiness</div>
                                         <div className="text-lg font-bold">{lead.ai_readiness_score}/10</div>
                                       </div>
                                     )}
                                     {lead.competitive_pressure_score !== null && (
-                                      <div className="bg-imperial-navy/60 rounded-lg p-3">
-                                        <div className="text-platinum-white/60 text-xs">Competitive Pressure</div>
+                                      <div className="bg-background/60 rounded-lg p-3">
+                                        <div className="text-muted-foreground text-xs">Competitive Pressure</div>
                                         <div className="text-lg font-bold">{lead.competitive_pressure_score}/10</div>
                                       </div>
                                     )}
-                                    <div className="bg-imperial-navy/60 rounded-lg p-3">
-                                      <div className="text-platinum-white/60 text-xs">Status</div>
+                                    <div className="bg-background/60 rounded-lg p-3">
+                                      <div className="text-muted-foreground text-xs">Status</div>
                                       <div className="text-sm font-medium capitalize">{lead.outreach_status.replace('_', ' ')}</div>
                                     </div>
                                   </div>
 
                                   {lead.quick_wins && (
-                                    <div className="mt-3 bg-imperial-navy/60 rounded-lg p-3">
-                                      <div className="text-platinum-white/60 text-xs mb-1">Quick Wins</div>
-                                      <div className="text-sm text-platinum-white whitespace-pre-wrap max-h-24 overflow-y-auto">
+                                    <div className="mt-3 bg-background/60 rounded-lg p-3">
+                                      <div className="text-muted-foreground text-xs mb-1">Quick Wins</div>
+                                      <div className="text-sm text-foreground whitespace-pre-wrap max-h-24 overflow-y-auto">
                                         {lead.quick_wins}
                                       </div>
                                     </div>
@@ -4094,7 +4094,7 @@ function OutreachContent() {
                                       >
                                         <CheckCircle size={14} />
                                         View Sales Conversation
-                                        {lead.session_count > 1 && <span className="text-xs text-platinum-white/60">({lead.session_count} sessions)</span>}
+                                        {lead.session_count > 1 && <span className="text-xs text-muted-foreground">({lead.session_count} sessions)</span>}
                                       </Link>
                                     </div>
                                   ) : (
@@ -4134,17 +4134,17 @@ function OutreachContent() {
 
                                   {/* Chat escalations for this contact */}
                                   <div className="mt-4 pt-4 border-t border-silicon-slate">
-                                    <h4 className="text-sm font-medium text-platinum-white/80 mb-2 flex items-center gap-2">
+                                    <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-2">
                                       <AlertTriangle size={14} />
                                       Chat escalations for this contact
                                     </h4>
                                     {leadEscalationsLoading ? (
-                                      <div className="flex items-center gap-2 text-sm text-platinum-white/60">
+                                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                         <RefreshCw size={14} className="animate-spin" />
                                         Loading…
                                       </div>
                                     ) : leadEscalations.length === 0 ? (
-                                      <p className="text-sm text-platinum-white/60">None</p>
+                                      <p className="text-sm text-muted-foreground">None</p>
                                     ) : (
                                       <ul className="space-y-1">
                                         {leadEscalations.map((e) => (
@@ -4173,7 +4173,7 @@ function OutreachContent() {
                 {/* Pagination */}
                 {leadsTotal > leadsPerPage && (
                   <div className="mt-6 flex items-center justify-between">
-                    <div className="text-sm text-platinum-white/80">
+                    <div className="text-sm text-muted-foreground">
                       Showing {(leadsPage - 1) * leadsPerPage + 1} to {Math.min(leadsPage * leadsPerPage, leadsTotal)} of {leadsTotal} leads
                     </div>
                     <div className="flex items-center gap-2">
@@ -4184,7 +4184,7 @@ function OutreachContent() {
                       >
                         Previous
                       </button>
-                      <span className="text-sm text-platinum-white/80">
+                      <span className="text-sm text-muted-foreground">
                         Page {leadsPage} of {Math.ceil(leadsTotal / leadsPerPage)}
                       </span>
                       <button
@@ -4218,11 +4218,11 @@ function OutreachContent() {
               </select>
             </div>
             {escalationsLoading ? (
-              <div className="flex items-center justify-center py-12 text-platinum-white/80">
+              <div className="flex items-center justify-center py-12 text-muted-foreground">
                 <RefreshCw size={24} className="animate-spin" />
               </div>
             ) : escalations.length === 0 ? (
-              <div className="py-12 text-center text-platinum-white/80 rounded-lg border border-silicon-slate bg-silicon-slate/30">
+              <div className="py-12 text-center text-muted-foreground rounded-lg border border-silicon-slate bg-silicon-slate/30">
                 No chat escalations yet. Escalations appear when a visitor requests a human or the bot cannot adequately respond.
               </div>
             ) : (
@@ -4230,18 +4230,18 @@ function OutreachContent() {
                 <table className="w-full text-left">
                   <thead className="bg-silicon-slate/50 border-b border-silicon-slate">
                     <tr>
-                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase">Date</th>
-                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase">Source</th>
-                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase">Contact</th>
-                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase">Linked lead</th>
-                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase">Reason</th>
-                      <th className="px-4 py-3 text-xs font-medium text-platinum-white/80 uppercase"></th>
+                      <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Date</th>
+                      <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Source</th>
+                      <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Contact</th>
+                      <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Linked lead</th>
+                      <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase">Reason</th>
+                      <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase"></th>
                     </tr>
                   </thead>
                   <tbody>
                     {escalations.map((e) => (
                       <tr key={e.id} className="border-b border-silicon-slate/50 hover:bg-silicon-slate/30">
-                        <td className="px-4 py-3 text-sm text-platinum-white/80">
+                        <td className="px-4 py-3 text-sm text-muted-foreground">
                           {new Date(e.escalated_at).toLocaleString()}
                         </td>
                         <td className="px-4 py-3 text-sm capitalize">{e.source}</td>
@@ -4254,10 +4254,10 @@ function OutreachContent() {
                               {e.contact_submissions.name || e.contact_submissions.email || 'Lead'}
                             </Link>
                           ) : (
-                            <span className="text-platinum-white/60">Not linked</span>
+                            <span className="text-muted-foreground">Not linked</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm text-platinum-white/80">{e.reason ?? '—'}</td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{e.reason ?? '—'}</td>
                         <td className="px-4 py-3">
                           <Link
                             href={`/admin/outreach/escalations/${e.id}`}
@@ -4274,7 +4274,7 @@ function OutreachContent() {
             )}
             {escalationsTotal > escalationsPerPage && (
               <div className="mt-6 flex items-center justify-between">
-                <div className="text-sm text-platinum-white/80">
+                <div className="text-sm text-muted-foreground">
                   Showing {(escalationsPage - 1) * escalationsPerPage + 1} to {Math.min(escalationsPage * escalationsPerPage, escalationsTotal)} of {escalationsTotal}
                 </div>
                 <div className="flex items-center gap-2">
@@ -4285,7 +4285,7 @@ function OutreachContent() {
                   >
                     Previous
                   </button>
-                  <span className="text-sm text-platinum-white/80">
+                  <span className="text-sm text-muted-foreground">
                     Page {escalationsPage} of {Math.ceil(escalationsTotal / escalationsPerPage)}
                   </span>
                   <button

@@ -14,6 +14,7 @@ import {
   type AuditField,
 } from '@/lib/audit-questions'
 import { getIndustryOptions } from '@/lib/constants/industry'
+import SiteThemeCorner from '@/components/SiteThemeCorner'
 
 type Step = 'intro' | 'context' | 'form' | 'results'
 
@@ -142,11 +143,11 @@ function ScoreSpectrumBar({ score, scoreType }: { score: number; scoreType: 'urg
   const label = `${scoreType === 'urgency' ? 'Urgency' : 'Opportunity'} score ${score} out of 10, ${style.label} range`
   return (
     <div className="mt-2" role="img" aria-label={label}>
-      <div className="flex items-center justify-between text-xs text-platinum-white/50 mb-0.5">
+      <div className="flex items-center justify-between text-xs text-muted-foreground/90 mb-0.5">
         <span>0</span>
         <span>10</span>
       </div>
-      <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-platinum-white/10">
+      <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-muted/50">
         {/* Segment background */}
         <div className="absolute inset-0 flex">
           <div className="w-[30%] bg-red-500/20" />
@@ -346,7 +347,7 @@ function FieldInput({
       <select
         value={v ? 'yes' : 'no'}
         onChange={(e) => onChange(e.target.value === 'yes')}
-        className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+        className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
         aria-label={field.label}
       >
         <option value="no">No</option>
@@ -363,7 +364,7 @@ function FieldInput({
         <select
           value={selected}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+          className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
           aria-label={field.label}
         >
           <option value="">Select…</option>
@@ -375,13 +376,13 @@ function FieldInput({
         </select>
         {showOtherInput && (
           <div className="rounded-lg border border-radiant-gold/30 bg-black/20 p-3">
-            <label className="block text-platinum-white/80 text-sm mb-1">Please specify</label>
+            <label className="block text-muted-foreground text-sm mb-1">Please specify</label>
             <input
               type="text"
               value={valueOther ?? ''}
               onChange={(e) => onOtherChange(e.target.value)}
               placeholder="Please specify"
-              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground placeholder:text-muted-foreground/90 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none text-sm"
               aria-label={`Specify other ${field.label.toLowerCase()}`}
             />
           </div>
@@ -402,9 +403,9 @@ function FieldInput({
     }
     return (
       <div className="space-y-2 rounded-lg border border-radiant-gold/40 bg-black/20 p-3">
-        <p className="text-platinum-white/60 text-xs">Select all that apply</p>
+        <p className="text-muted-foreground text-xs">Select all that apply</p>
         {field.options.map((opt) => (
-          <label key={opt.value} className="flex items-center gap-2 cursor-pointer text-platinum-white/90">
+          <label key={opt.value} className="flex items-center gap-2 cursor-pointer text-foreground/90">
             <input
               type="checkbox"
               checked={selected.includes(opt.value)}
@@ -416,13 +417,13 @@ function FieldInput({
         ))}
         {hasOther && otherSelected && onOtherChange && (
           <div className="mt-3 pt-3 border-t border-radiant-gold/30">
-            <label className="block text-platinum-white/80 text-sm mb-1">Please specify</label>
+            <label className="block text-muted-foreground text-sm mb-1">Please specify</label>
             <input
               type="text"
               value={valueOther ?? ''}
               onChange={(e) => onOtherChange(e.target.value)}
               placeholder="Please specify"
-              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none text-sm"
+              className="w-full px-3 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground placeholder:text-muted-foreground/90 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none text-sm"
               aria-label={`Specify other ${field.label.toLowerCase()}`}
             />
           </div>
@@ -437,7 +438,7 @@ function FieldInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={field.placeholder}
         rows={3}
-        className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none resize-y"
+        className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground placeholder:text-muted-foreground/90 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none resize-y"
         aria-label={field.label}
       />
     )
@@ -450,7 +451,7 @@ function FieldInput({
         onChange={(e) => onChange(e.target.value.split('\n').map((s) => s.trim()).filter(Boolean))}
         placeholder={field.placeholder}
         rows={4}
-        className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none resize-y"
+        className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground placeholder:text-muted-foreground/90 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none resize-y"
         aria-label={field.label}
       />
     )
@@ -461,7 +462,7 @@ function FieldInput({
       value={typeof value === 'string' ? value : ''}
       onChange={(e) => onChange(e.target.value)}
       placeholder={field.placeholder}
-      className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+      className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground placeholder:text-muted-foreground/90 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
       aria-label={field.label}
     />
   )
@@ -581,7 +582,9 @@ export default function AuditToolPage() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white pt-12 pb-12 px-4">
+    <>
+      <SiteThemeCorner />
+    <div className="min-h-screen bg-background text-foreground pt-12 pb-12 px-4">
       <div className="max-w-2xl mx-auto">
         <AnimatePresence mode="wait">
           {step === 'intro' && (
@@ -593,11 +596,11 @@ export default function AuditToolPage() {
               className="space-y-6"
             >
               <h1 className="text-3xl font-bold text-radiant-gold">AI & Automation Audit</h1>
-              <p className="text-platinum-white/80">
+              <p className="text-muted-foreground">
                 This short assessment uses the same structure as our chat-based diagnostic. Answer one section at a time;
                 your answers are saved and you can use the results to prioritize next steps or share with your team.
               </p>
-              <p className="text-platinum-white/60 text-sm">
+              <p className="text-muted-foreground text-sm">
                 There are 6 sections: Business challenges, Tech stack, Automation needs, AI readiness, Budget & timeline,
                 and Decision making.
               </p>
@@ -609,7 +612,7 @@ export default function AuditToolPage() {
               >
                 Get started
               </button>
-              <p className="text-platinum-white/50 text-sm">
+              <p className="text-muted-foreground/90 text-sm">
                 <Link href="/" className="text-radiant-gold/80 hover:underline">Back to home</Link>
               </p>
             </motion.div>
@@ -624,14 +627,14 @@ export default function AuditToolPage() {
               className="space-y-6"
             >
               <h1 className="text-3xl font-bold text-radiant-gold">Tell us about your business</h1>
-              <p className="text-platinum-white/80">
+              <p className="text-muted-foreground">
                 The more context you provide, the more personalized your report will be.
                 All fields are optional &mdash; you can skip ahead and come back later.
               </p>
 
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="ctx-name" className="block text-sm font-medium text-platinum-white/80 mb-1">
+                  <label htmlFor="ctx-name" className="block text-sm font-medium text-muted-foreground mb-1">
                     Business name
                   </label>
                   <input
@@ -640,12 +643,12 @@ export default function AuditToolPage() {
                     value={contextForm.businessName}
                     onChange={(e) => setContextForm((p) => ({ ...p, businessName: e.target.value }))}
                     placeholder="Acme Corp"
-                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground placeholder:text-muted-foreground/90 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="ctx-url" className="block text-sm font-medium text-platinum-white/80 mb-1">
+                  <label htmlFor="ctx-url" className="block text-sm font-medium text-muted-foreground mb-1">
                     Website URL
                   </label>
                   <input
@@ -654,15 +657,15 @@ export default function AuditToolPage() {
                     value={contextForm.websiteUrl}
                     onChange={(e) => setContextForm((p) => ({ ...p, websiteUrl: e.target.value }))}
                     placeholder="https://example.com"
-                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground placeholder:text-muted-foreground/90 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
                   />
-                  <p className="text-platinum-white/50 text-xs mt-1">
+                  <p className="text-muted-foreground/90 text-xs mt-1">
                     We&apos;ll analyze your site to detect your tech stack and tailor recommendations.
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor="ctx-email" className="block text-sm font-medium text-platinum-white/80 mb-1">
+                  <label htmlFor="ctx-email" className="block text-sm font-medium text-muted-foreground mb-1">
                     Email
                   </label>
                   <input
@@ -671,22 +674,22 @@ export default function AuditToolPage() {
                     value={contextForm.email}
                     onChange={(e) => setContextForm((p) => ({ ...p, email: e.target.value }))}
                     placeholder="you@example.com"
-                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground placeholder:text-muted-foreground/90 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
                   />
-                  <p className="text-platinum-white/50 text-xs mt-1">
+                  <p className="text-muted-foreground/90 text-xs mt-1">
                     Required for your personalized strategy report. We won&apos;t spam you.
                   </p>
                 </div>
 
                 <div>
-                  <label htmlFor="ctx-industry" className="block text-sm font-medium text-platinum-white/80 mb-1">
+                  <label htmlFor="ctx-industry" className="block text-sm font-medium text-muted-foreground mb-1">
                     Industry
                   </label>
                   <select
                     id="ctx-industry"
                     value={contextForm.industry}
                     onChange={(e) => setContextForm((p) => ({ ...p, industry: e.target.value }))}
-                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+                    className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
                   >
                     <option value="">Select your industry…</option>
                     {INDUSTRY_OPTIONS.map((opt) => (
@@ -701,7 +704,7 @@ export default function AuditToolPage() {
               {/* Tier preview hint */}
               {(contextForm.email || contextForm.websiteUrl || contextForm.industry) && (
                 <div className="rounded-lg border border-radiant-gold/20 bg-radiant-gold/5 p-3">
-                  <p className="text-sm text-platinum-white/80">
+                  <p className="text-sm text-muted-foreground">
                     {contextForm.email && contextForm.websiteUrl && contextForm.industry
                       ? '✨ Full Analysis — you\'ll get a personalized report with tech stack analysis, industry benchmarks, and a strategy deck.'
                       : contextForm.email
@@ -716,7 +719,7 @@ export default function AuditToolPage() {
                 <button
                   type="button"
                   onClick={() => setStep('intro')}
-                  className="px-4 py-2 rounded-lg border border-radiant-gold/40 text-platinum-white hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
+                  className="px-4 py-2 rounded-lg border border-radiant-gold/40 text-foreground hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
                 >
                   Back
                 </button>
@@ -729,7 +732,7 @@ export default function AuditToolPage() {
                   {submitting ? 'Starting…' : 'Begin audit'}
                 </button>
               </div>
-              <p className="text-platinum-white/50 text-xs">
+              <p className="text-muted-foreground/90 text-xs">
                 All fields are optional. You can skip ahead and still get a basic report.
               </p>
             </motion.div>
@@ -745,7 +748,7 @@ export default function AuditToolPage() {
             >
               {/* Visual stepper */}
               <div className="rounded-xl border border-radiant-gold/30 bg-black/20 p-4" role="progressbar" aria-valuenow={categoryIndex + 1} aria-valuemin={1} aria-valuemax={6} aria-label="Audit progress">
-                <p className="text-platinum-white/70 text-sm mb-3">Your progress</p>
+                <p className="text-muted-foreground text-sm mb-3">Your progress</p>
                 <div className="flex items-center justify-between gap-1">
                   {STEP_LABELS.map((label, i) => {
                     const stepNum = i + 1
@@ -758,19 +761,19 @@ export default function AuditToolPage() {
                             flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold
                             ${completed ? 'bg-radiant-gold text-imperial-navy' : ''}
                             ${current ? 'ring-2 ring-radiant-gold ring-offset-2 ring-offset-imperial-navy bg-radiant-gold/20 text-radiant-gold' : ''}
-                            ${!completed && !current ? 'bg-platinum-white/10 text-platinum-white/50' : ''}
+                            ${!completed && !current ? 'bg-muted/50 text-muted-foreground/90' : ''}
                           `}
                         >
                           {completed ? '✓' : stepNum}
                         </div>
-                        <span className={`mt-1 text-xs ${current ? 'text-radiant-gold font-medium' : completed ? 'text-platinum-white/80' : 'text-platinum-white/50'}`}>
+                        <span className={`mt-1 text-xs ${current ? 'text-radiant-gold font-medium' : completed ? 'text-muted-foreground' : 'text-muted-foreground/90'}`}>
                           {label}
                         </span>
                       </div>
                     )
                   })}
                 </div>
-                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-platinum-white/10">
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-muted/50">
                   <motion.div
                     className="h-full bg-radiant-gold"
                     initial={false}
@@ -781,15 +784,15 @@ export default function AuditToolPage() {
               </div>
               <div className="flex items-center justify-between">
                 <h1 className="text-2xl font-bold text-radiant-gold">{category.title}</h1>
-                <span className="text-platinum-white/60 text-sm">
+                <span className="text-muted-foreground text-sm">
                   Step {categoryIndex + 1} of {AUDIT_CATEGORIES.length}
                 </span>
               </div>
-              <p className="text-platinum-white/80">{category.description}</p>
+              <p className="text-muted-foreground">{category.description}</p>
               <div className="space-y-4">
                 {category.fields.map((f) => (
                   <div key={f.key}>
-                    <label className="block text-sm font-medium text-platinum-white/80 mb-1">
+                    <label className="block text-sm font-medium text-muted-foreground mb-1">
                       {f.label}
                     </label>
                     <FieldInput
@@ -813,7 +816,7 @@ export default function AuditToolPage() {
                       setFormValues(submittedByCategory[prevCat.id] ?? getInitialValues(prevCat))
                       setError('')
                     }}
-                    className="px-4 py-2 rounded-lg border border-radiant-gold/40 text-platinum-white hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
+                    className="px-4 py-2 rounded-lg border border-radiant-gold/40 text-foreground hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
                   >
                     Back
                   </button>
@@ -864,20 +867,20 @@ export default function AuditToolPage() {
                     const captured = getCategoryCaptureStatus(results)
                     return (
                       <div className="rounded-xl border border-radiant-gold/30 bg-black/20 p-4" aria-label="Inputs captured">
-                        <p className="text-platinum-white/70 text-sm mb-3">What we captured</p>
+                        <p className="text-muted-foreground text-sm mb-3">What we captured</p>
                         <div className="flex items-center justify-between gap-1">
                           {STEP_LABELS.map((label, i) => (
                             <div key={i} className="flex flex-1 flex-col items-center">
                               <div
                                 className={`
                                   flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold
-                                  ${captured[i] ? 'bg-radiant-gold text-imperial-navy' : 'bg-platinum-white/10 text-platinum-white/50'}
+                                  ${captured[i] ? 'bg-radiant-gold text-imperial-navy' : 'bg-muted/50 text-muted-foreground/90'}
                                 `}
                                 aria-hidden
                               >
                                 {captured[i] ? '✓' : i + 1}
                               </div>
-                              <span className={`mt-1 text-xs ${captured[i] ? 'text-platinum-white/80' : 'text-platinum-white/50'}`}>
+                              <span className={`mt-1 text-xs ${captured[i] ? 'text-muted-foreground' : 'text-muted-foreground/90'}`}>
                                 {label}
                               </span>
                             </div>
@@ -897,8 +900,8 @@ export default function AuditToolPage() {
                           const definition = getScoreDefinition(band, 'urgency')
                           const tips = getUrgencyImprovements(results.urgencyScore!)
                           return (
-                            <div className="rounded-lg border border-platinum-white/20 bg-black/20 p-4">
-                              <p className="text-platinum-white/80 text-sm">Urgency score</p>
+                            <div className="rounded-lg border border-foreground/20 bg-black/20 p-4">
+                              <p className="text-muted-foreground text-sm">Urgency score</p>
                               <div className="flex flex-wrap items-center gap-2 mt-1">
                                 <span className="text-2xl font-bold">{results.urgencyScore}/10</span>
                                 <span className="text-sm font-medium opacity-90">({style.label})</span>
@@ -922,8 +925,8 @@ export default function AuditToolPage() {
                           const definition = getScoreDefinition(band, 'opportunity')
                           const tips = getOpportunityImprovements(results.opportunityScore!)
                           return (
-                            <div className="rounded-lg border border-platinum-white/20 bg-black/20 p-4">
-                              <p className="text-platinum-white/80 text-sm">Opportunity score</p>
+                            <div className="rounded-lg border border-foreground/20 bg-black/20 p-4">
+                              <p className="text-muted-foreground text-sm">Opportunity score</p>
                               <div className="flex flex-wrap items-center gap-2 mt-1">
                                 <span className="text-2xl font-bold">{results.opportunityScore}/10</span>
                                 <span className="text-sm font-medium opacity-90">({style.label})</span>
@@ -944,24 +947,24 @@ export default function AuditToolPage() {
                       </div>
 
                       {/* 2. Expandable "What your scores mean" drawer */}
-                      <div className="rounded-lg border border-platinum-white/20 bg-black/20 overflow-hidden">
+                      <div className="rounded-lg border border-foreground/20 bg-black/20 overflow-hidden">
                         <button
                           type="button"
                           onClick={() => setScoreDefinitionsOpen((o) => !o)}
-                          className="w-full px-4 py-3 flex items-center justify-between text-left text-platinum-white/90 hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30 rounded-lg"
+                          className="w-full px-4 py-3 flex items-center justify-between text-left text-foreground/90 hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30 rounded-lg"
                           aria-expanded={scoreDefinitionsOpen}
                         >
-                          <span className="font-semibold text-platinum-white">What your scores mean</span>
-                          <span className="text-platinum-white/60 text-sm" aria-hidden>
+                          <span className="font-semibold text-foreground">What your scores mean</span>
+                          <span className="text-muted-foreground text-sm" aria-hidden>
                             {scoreDefinitionsOpen ? '▼' : '▶'}
                           </span>
                         </button>
                         {scoreDefinitionsOpen && (
-                          <div className="px-4 pb-4 pt-0 border-t border-platinum-white/10">
-                            <ul className="list-disc list-inside space-y-1.5 text-platinum-white/90 text-sm mt-3">
-                              <li><strong className="text-platinum-white">Urgency (0–10)</strong> — How soon it makes sense to act, based on your timeline, decision process, and pain level.</li>
-                              <li><strong className="text-platinum-white">Opportunity (0–10)</strong> — How much impact you could get from acting now, based on budget, priorities, and readiness.</li>
-                              <li><strong className="text-platinum-white">Your results</strong> — These scores are based only on the answers you gave in this audit.</li>
+                          <div className="px-4 pb-4 pt-0 border-t border-foreground/10">
+                            <ul className="list-disc list-inside space-y-1.5 text-foreground/90 text-sm mt-3">
+                              <li><strong className="text-foreground">Urgency (0–10)</strong> — How soon it makes sense to act, based on your timeline, decision process, and pain level.</li>
+                              <li><strong className="text-foreground">Opportunity (0–10)</strong> — How much impact you could get from acting now, based on budget, priorities, and readiness.</li>
+                              <li><strong className="text-foreground">Your results</strong> — These scores are based only on the answers you gave in this audit.</li>
                             </ul>
                           </div>
                         )}
@@ -972,11 +975,11 @@ export default function AuditToolPage() {
                   {/* 3. Estimated opportunity value */}
                   {getEstimatedOpportunityValue(results.budgetTimeline, results.opportunityScore) && (
                     <div className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-4">
-                      <p className="text-platinum-white/70 text-sm">Estimated opportunity value</p>
+                      <p className="text-muted-foreground text-sm">Estimated opportunity value</p>
                       <p className="text-xl font-bold text-radiant-gold">
                         {getEstimatedOpportunityValue(results.budgetTimeline, results.opportunityScore)}
                       </p>
-                      <p className="text-platinum-white/60 text-xs mt-1">
+                      <p className="text-muted-foreground text-xs mt-1">
                         Based on your budget and readiness; actual value depends on implementation and scope.
                       </p>
                     </div>
@@ -989,14 +992,14 @@ export default function AuditToolPage() {
                     if (!hasDrivers) return null
                     const allLines = [...new Set([...drivers.urgency, ...drivers.opportunity])]
                     return (
-                      <div className="rounded-lg border border-platinum-white/20 bg-black/20 p-4">
-                        <h2 className="text-platinum-white font-semibold mb-2">Based on your answers</h2>
-                        <ul className="list-disc list-inside space-y-1 text-platinum-white/90 text-sm">
+                      <div className="rounded-lg border border-foreground/20 bg-black/20 p-4">
+                        <h2 className="text-foreground font-semibold mb-2">Based on your answers</h2>
+                        <ul className="list-disc list-inside space-y-1 text-foreground/90 text-sm">
                           {allLines.slice(0, 5).map((line, i) => (
                             <li key={i}>{line}</li>
                           ))}
                         </ul>
-                        <p className="text-platinum-white/80 text-sm mt-2">
+                        <p className="text-muted-foreground text-sm mt-2">
                           {results.urgencyScore != null && results.opportunityScore != null
                             ? `Together, these support your Urgency score of ${results.urgencyScore} and Opportunity score of ${results.opportunityScore}.`
                             : results.urgencyScore != null
@@ -1014,13 +1017,13 @@ export default function AuditToolPage() {
                     const areas = getImprovementAreas(results)
                     return (
                       <div>
-                        <h2 className="text-lg font-semibold text-platinum-white mb-2">Recommended next steps</h2>
+                        <h2 className="text-lg font-semibold text-foreground mb-2">Recommended next steps</h2>
                         {areas.length > 0 ? (
                           <ul className="space-y-3 list-none p-0 m-0">
                             {areas.map((a) => (
                               <li key={a.id} className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-4">
-                                <p className="font-medium text-platinum-white">Improve: {a.label}</p>
-                                <p className="text-sm text-platinum-white/80 mt-0.5">{a.reason}</p>
+                                <p className="font-medium text-foreground">Improve: {a.label}</p>
+                                <p className="text-sm text-muted-foreground mt-0.5">{a.reason}</p>
                                 <Link
                                   href={a.nextStepUrl}
                                   className="inline-block mt-2 text-sm font-medium text-radiant-gold hover:underline focus:outline-none focus:ring-2 focus:ring-radiant-gold/50"
@@ -1031,18 +1034,18 @@ export default function AuditToolPage() {
                             ))}
                           </ul>
                         ) : (
-                          <ul className="space-y-3 text-platinum-white/90">
+                          <ul className="space-y-3 text-foreground/90">
                             <li>
                               <Link href="/resources" className="text-radiant-gold font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-radiant-gold/50">
                                 Browse Resources →
                               </Link>
-                              <span className="text-platinum-white/70"> — Templates, playbooks, and guides.</span>
+                              <span className="text-muted-foreground"> — Templates, playbooks, and guides.</span>
                             </li>
                             <li>
                               <Link href="/" className="text-radiant-gold font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-radiant-gold/50">
                                 Start a conversation in chat →
                               </Link>
-                              <span className="text-platinum-white/70"> — Go deeper and get a tailored plan.</span>
+                              <span className="text-muted-foreground"> — Go deeper and get a tailored plan.</span>
                             </li>
                           </ul>
                         )}
@@ -1053,28 +1056,28 @@ export default function AuditToolPage() {
                   {/* Tech stack comparison (Gold tier — when BuiltWith data available) */}
                   {results.enrichedTechStack?.technologies && results.enrichedTechStack.technologies.length > 0 && (
                     <div className="rounded-lg border border-radiant-gold/30 bg-black/20 p-4">
-                      <h2 className="text-lg font-semibold text-platinum-white mb-2">Tech Stack Analysis</h2>
-                      <p className="text-platinum-white/70 text-sm mb-3">
+                      <h2 className="text-lg font-semibold text-foreground mb-2">Tech Stack Analysis</h2>
+                      <p className="text-muted-foreground text-sm mb-3">
                         We detected the following technologies on <span className="text-radiant-gold">{results.enrichedTechStack.domain || results.websiteUrl}</span>:
                       </p>
                       {results.enrichedTechStack.byTag && Object.keys(results.enrichedTechStack.byTag).length > 0 ? (
                         <div className="grid grid-cols-2 gap-2">
                           {Object.entries(results.enrichedTechStack.byTag).slice(0, 8).map(([tag, tools]) => (
-                            <div key={tag} className="rounded-md bg-platinum-white/5 p-2">
+                            <div key={tag} className="rounded-md bg-muted/40 p-2">
                               <p className="text-xs font-medium text-radiant-gold/80">{tag}</p>
-                              <p className="text-sm text-platinum-white/90">{(tools as string[]).join(', ')}</p>
+                              <p className="text-sm text-foreground/90">{(tools as string[]).join(', ')}</p>
                             </div>
                           ))}
                         </div>
                       ) : (
                         <div className="flex flex-wrap gap-2">
                           {results.enrichedTechStack.technologies.slice(0, 12).map((tech) => (
-                            <span key={tech.name} className="inline-block rounded-full bg-platinum-white/10 px-3 py-1 text-xs text-platinum-white/80">
+                            <span key={tech.name} className="inline-block rounded-full bg-muted/50 px-3 py-1 text-xs text-muted-foreground">
                               {tech.name}
                             </span>
                           ))}
                           {results.enrichedTechStack.technologies.length > 12 && (
-                            <span className="inline-block rounded-full bg-platinum-white/5 px-3 py-1 text-xs text-platinum-white/50">
+                            <span className="inline-block rounded-full bg-muted/40 px-3 py-1 text-xs text-muted-foreground/90">
                               +{results.enrichedTechStack.technologies.length - 12} more
                             </span>
                           )}
@@ -1083,9 +1086,9 @@ export default function AuditToolPage() {
 
                       {/* Cross-reference with self-reported stack */}
                       {typeof results.techStack?.crm === 'string' && results.techStack.crm && (
-                        <div className="mt-3 pt-3 border-t border-platinum-white/10">
-                          <p className="text-xs text-platinum-white/60">
-                            You reported using <span className="text-platinum-white/80">{results.techStack.crm}</span> as your CRM
+                        <div className="mt-3 pt-3 border-t border-foreground/10">
+                          <p className="text-xs text-muted-foreground">
+                            You reported using <span className="text-muted-foreground">{results.techStack.crm}</span> as your CRM
                             {typeof results.techStack.marketing === 'string' && results.techStack.marketing ? ` and ${results.techStack.marketing} for marketing` : ''}.
                             {results.enrichedTechStack?.byTag?.['Analytics'] ? ' We also detected analytics tools on your site.' : ''}
                           </p>
@@ -1096,12 +1099,12 @@ export default function AuditToolPage() {
 
                   {/* Locked section prompts for upgradeable tiers */}
                   {(!results.enrichedTechStack?.technologies || results.enrichedTechStack.technologies.length === 0) && !results.websiteUrl && (
-                    <div className="rounded-lg border border-dashed border-platinum-white/20 bg-black/10 p-4">
+                    <div className="rounded-lg border border-dashed border-foreground/20 bg-black/10 p-4">
                       <div className="flex items-start gap-3">
                         <span className="text-2xl opacity-60">🔒</span>
                         <div>
-                          <p className="text-sm font-medium text-platinum-white/80">Tech Stack Analysis</p>
-                          <p className="text-xs text-platinum-white/60 mt-0.5">
+                          <p className="text-sm font-medium text-muted-foreground">Tech Stack Analysis</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
                             Add your website URL to unlock a comparison of your detected tech stack vs. what you reported.
                           </p>
                         </div>
@@ -1110,12 +1113,12 @@ export default function AuditToolPage() {
                   )}
 
                   {!results.websiteUrl && (
-                    <div className="rounded-lg border border-dashed border-platinum-white/20 bg-black/10 p-4">
+                    <div className="rounded-lg border border-dashed border-foreground/20 bg-black/10 p-4">
                       <div className="flex items-start gap-3">
                         <span className="text-2xl opacity-60">🔒</span>
                         <div>
-                          <p className="text-sm font-medium text-platinum-white/80">Website Visual Analysis</p>
-                          <p className="text-xs text-platinum-white/60 mt-0.5">
+                          <p className="text-sm font-medium text-muted-foreground">Website Visual Analysis</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
                             Add your website URL and industry to unlock an annotated analysis of your site with specific improvement recommendations.
                           </p>
                         </div>
@@ -1124,12 +1127,12 @@ export default function AuditToolPage() {
                   )}
 
                   {(!results.contactEmail || !results.websiteUrl || !results.industrySlug) && (
-                    <div className="rounded-lg border border-dashed border-platinum-white/20 bg-black/10 p-4">
+                    <div className="rounded-lg border border-dashed border-foreground/20 bg-black/10 p-4">
                       <div className="flex items-start gap-3">
                         <span className="text-2xl opacity-60">🔒</span>
                         <div>
-                          <p className="text-sm font-medium text-platinum-white/80">Personalized Strategy Deck</p>
-                          <p className="text-xs text-platinum-white/60 mt-0.5">
+                          <p className="text-sm font-medium text-muted-foreground">Personalized Strategy Deck</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
                             Complete your audit with email, website URL, and industry to unlock a downloadable strategy deck tailored to your business.
                           </p>
                         </div>
@@ -1137,12 +1140,12 @@ export default function AuditToolPage() {
                     </div>
                   )}
 
-                  <p className="text-platinum-white/60 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     Your responses have been saved. You can start a new audit anytime or head to Resources to find tools that match your goals.
                   </p>
                 </>
               ) : (
-                <p className="text-platinum-white/80">
+                <p className="text-muted-foreground">
                   Your audit has been saved. You can close this page or start another audit.
                 </p>
               )}
@@ -1166,20 +1169,20 @@ export default function AuditToolPage() {
                 {user && (
                   <Link
                     href="/purchases#audit"
-                    className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-platinum-white hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
+                    className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-foreground hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
                   >
                     Open My library
                   </Link>
                 )}
                 <Link
                   href="/"
-                  className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-platinum-white hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
+                  className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-foreground hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
                 >
                   Back to home
                 </Link>
               </div>
               {user && (
-                <p className="text-platinum-white/60 text-sm">
+                <p className="text-muted-foreground text-sm">
                   Your report is saved to{' '}
                   <Link href="/purchases#audit" className="text-radiant-gold/90 hover:underline">
                     My library
@@ -1192,5 +1195,6 @@ export default function AuditToolPage() {
         </AnimatePresence>
       </div>
     </div>
+    </>
   )
 }

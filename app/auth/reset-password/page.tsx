@@ -6,6 +6,7 @@ import { Lock } from 'lucide-react'
 import { updatePassword } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import SiteThemeCorner from '@/components/SiteThemeCorner'
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState('')
@@ -54,19 +55,24 @@ export default function ResetPasswordPage() {
 
   if (!ready) {
     return (
+      <>
+        <SiteThemeCorner />
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-12">
         <div className="w-full max-w-md bg-silicon-slate border border-silicon-slate rounded-xl p-8 text-center">
-          <p className="text-platinum-white/80 mb-4">Checking your reset link…</p>
-          <p className="text-platinum-white/60 text-sm">
+          <p className="text-muted-foreground mb-4">Checking your reset link…</p>
+          <p className="text-muted-foreground text-sm">
             If this page doesn’t update, the link may be invalid or expired.{' '}
             <Link href="/auth/forgot-password" className="text-radiant-gold hover:text-gold-light">Request a new one</Link>.
           </p>
         </div>
       </div>
+      </>
     )
   }
 
   return (
+    <>
+      <SiteThemeCorner />
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <motion.form
@@ -77,7 +83,7 @@ export default function ResetPasswordPage() {
         >
           <div>
             <h2 className="text-3xl font-bold text-foreground mb-2">Set new password</h2>
-            <p className="text-platinum-white/80">Choose a password you’ll use to sign in with email.</p>
+            <p className="text-muted-foreground">Choose a password you’ll use to sign in with email.</p>
           </div>
 
           {error && (
@@ -87,11 +93,11 @@ export default function ResetPasswordPage() {
           )}
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-platinum-white mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
               New password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="password"
                 type="password"
@@ -106,11 +112,11 @@ export default function ResetPasswordPage() {
           </div>
 
           <div>
-            <label htmlFor="confirm" className="block text-sm font-medium text-platinum-white mb-2">
+            <label htmlFor="confirm" className="block text-sm font-medium text-foreground mb-2">
               Confirm password
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 id="confirm"
                 type="password"
@@ -134,7 +140,7 @@ export default function ResetPasswordPage() {
             {loading ? 'Saving…' : 'Set password'}
           </motion.button>
 
-          <p className="text-center text-sm text-platinum-white/80">
+          <p className="text-center text-sm text-muted-foreground">
             <Link href="/auth/login" className="text-radiant-gold hover:text-gold-light transition-colors">
               Back to sign in
             </Link>
@@ -142,5 +148,6 @@ export default function ResetPasswordPage() {
         </motion.form>
       </div>
     </div>
+    </>
   )
 }

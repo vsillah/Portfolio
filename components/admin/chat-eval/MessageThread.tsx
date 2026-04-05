@@ -89,7 +89,7 @@ function MessageBubble({
       ? 'bg-orange-500/20 text-orange-400'
       : isToolCall
         ? 'bg-purple-500/20 text-purple-400'
-        : 'bg-silicon-slate/50 text-platinum-white'
+        : 'bg-silicon-slate/50 text-foreground'
 
   return (
     <motion.div
@@ -103,10 +103,10 @@ function MessageBubble({
         <div className={`w-6 h-6 rounded-full flex items-center justify-center ${iconBg}`}>
           <Icon size={12} />
         </div>
-        <span className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider">
+        <span className="text-xs font-heading text-muted-foreground uppercase tracking-wider">
           {isUser ? 'Human' : isSupport ? 'Support' : isToolCall ? 'Tool Call' : 'Assistant'}
         </span>
-        <span className="text-xs text-platinum-white/40">
+        <span className="text-xs text-muted-foreground/80">
           {formatTime(message.timestamp)}
         </span>
       </div>
@@ -116,17 +116,17 @@ function MessageBubble({
         {isToolCall && message.metadata?.toolCall ? (
           <ToolCallContent toolCall={message.metadata.toolCall} />
         ) : (
-          <p className="text-sm text-platinum-white whitespace-pre-wrap">
+          <p className="text-sm text-foreground whitespace-pre-wrap">
             {message.content}
           </p>
         )}
         
         {/* Metadata toggle */}
         {showMetadata && message.metadata && !isToolCall && (
-          <div className="mt-3 pt-3 border-t border-platinum-white/10">
+          <div className="mt-3 pt-3 border-t border-foreground/10">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className="flex items-center gap-1 text-xs text-platinum-white/50 hover:text-platinum-white/70 transition-colors"
+              className="flex items-center gap-1 text-xs text-muted-foreground/90 hover:text-muted-foreground transition-colors"
             >
               {isExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
               Metadata
@@ -136,13 +136,13 @@ function MessageBubble({
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="mt-2 space-y-1 text-xs text-platinum-white/50"
+                className="mt-2 space-y-1 text-xs text-muted-foreground/90"
               >
                 {message.metadata.source && (
-                  <div>Source: <span className="text-platinum-white/70">{message.metadata.source}</span></div>
+                  <div>Source: <span className="text-muted-foreground">{message.metadata.source}</span></div>
                 )}
                 {message.metadata.latency_ms && (
-                  <div>Latency: <span className="text-platinum-white/70">{message.metadata.latency_ms}ms</span></div>
+                  <div>Latency: <span className="text-muted-foreground">{message.metadata.latency_ms}ms</span></div>
                 )}
                 {message.metadata.escalated && (
                   <div className="text-orange-400">Escalated to human</div>
@@ -174,13 +174,13 @@ function ToolCallContent({ toolCall }: { toolCall: ToolCall | undefined }) {
           </span>
         </div>
         {toolCall.latency_ms && (
-          <span className="text-xs text-platinum-white/50">{toolCall.latency_ms}ms</span>
+          <span className="text-xs text-muted-foreground/90">{toolCall.latency_ms}ms</span>
         )}
       </div>
       
       <button
         onClick={() => setShowDetails(!showDetails)}
-        className="flex items-center gap-1 text-xs text-platinum-white/50 hover:text-platinum-white/70"
+        className="flex items-center gap-1 text-xs text-muted-foreground/90 hover:text-muted-foreground"
       >
         {showDetails ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
         {showDetails ? 'Hide' : 'Show'} details
@@ -193,15 +193,15 @@ function ToolCallContent({ toolCall }: { toolCall: ToolCall | undefined }) {
           className="space-y-2"
         >
           <div>
-            <div className="text-xs text-platinum-white/50 mb-1">Arguments:</div>
-            <pre className="p-2 bg-black/30 rounded text-xs text-platinum-white/70 overflow-x-auto">
+            <div className="text-xs text-muted-foreground/90 mb-1">Arguments:</div>
+            <pre className="p-2 bg-black/30 rounded text-xs text-muted-foreground overflow-x-auto">
               {JSON.stringify(toolCall.arguments, null, 2)}
             </pre>
           </div>
           {toolCall.response && (
             <div>
-              <div className="text-xs text-platinum-white/50 mb-1">Response:</div>
-              <pre className="p-2 bg-black/30 rounded text-xs text-platinum-white/70 overflow-x-auto max-h-40">
+              <div className="text-xs text-muted-foreground/90 mb-1">Response:</div>
+              <pre className="p-2 bg-black/30 rounded text-xs text-muted-foreground overflow-x-auto max-h-40">
                 {JSON.stringify(toolCall.response, null, 2)}
               </pre>
             </div>

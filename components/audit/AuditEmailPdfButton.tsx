@@ -9,14 +9,14 @@ type Tone = 'dark' | 'light'
 
 const buttonStyles: Record<Tone, string> = {
   dark:
-    'inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-radiant-gold/50 text-platinum-white hover:bg-radiant-gold/10 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium',
+    'inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-radiant-gold/50 text-foreground hover:bg-radiant-gold/10 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium',
   light:
-    'inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-radiant-gold/40 bg-imperial-navy/30 text-foreground hover:bg-radiant-gold/15 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium',
+    'inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-radiant-gold/40 bg-background/30 text-foreground hover:bg-radiant-gold/15 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium',
 }
 
 const msgStyles: Record<Tone, string> = {
-  dark: 'text-sm text-platinum-white/70',
-  light: 'text-sm text-platinum-white/80',
+  dark: 'text-sm text-muted-foreground',
+  light: 'text-sm text-muted-foreground',
 }
 
 /**
@@ -95,7 +95,7 @@ export function AuditEmailPdfSignInCta({
   className?: string
 }) {
   return (
-    <p className={`text-sm text-platinum-white/60 ${className}`}>
+    <p className={`text-sm text-muted-foreground ${className}`}>
       <Link
         href={`/auth/login?redirect=${encodeURIComponent(`/tools/audit/report/${auditId}`)}`}
         className="text-radiant-gold/90 hover:underline"

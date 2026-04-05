@@ -85,8 +85,8 @@ export function FixRecommendation({
 
           {/* Target */}
           <div className="mb-3 text-sm">
-            <span className="text-platinum-white/50">Target: </span>
-            <span className="text-platinum-white font-mono">{recommendation.changes.target}</span>
+            <span className="text-muted-foreground/90">Target: </span>
+            <span className="text-foreground font-mono">{recommendation.changes.target}</span>
           </div>
 
           {/* Diff view */}
@@ -99,18 +99,18 @@ export function FixRecommendation({
               {showDiff ? 'Hide' : 'Show'} Changes
             </button>
             {showDiff && (
-              <div className="mt-2 p-3 bg-imperial-navy rounded border border-radiant-gold/20">
+              <div className="mt-2 p-3 bg-background rounded border border-radiant-gold/20">
                 {recommendation.changes.old_value && (
                   <div className="mb-2">
                     <div className="text-xs text-red-400 mb-1">Old Value:</div>
-                    <pre className="text-xs text-platinum-white/70 bg-red-500/10 p-2 rounded overflow-x-auto">
+                    <pre className="text-xs text-muted-foreground bg-red-500/10 p-2 rounded overflow-x-auto">
                       {recommendation.changes.old_value}
                     </pre>
                   </div>
                 )}
                 <div>
                   <div className="text-xs text-emerald-400 mb-1">New Value:</div>
-                  <pre className="text-xs text-platinum-white/70 bg-emerald-500/10 p-2 rounded overflow-x-auto">
+                  <pre className="text-xs text-muted-foreground bg-emerald-500/10 p-2 rounded overflow-x-auto">
                     {recommendation.changes.new_value}
                   </pre>
                 </div>
@@ -129,11 +129,11 @@ export function FixRecommendation({
           {/* Manual instructions */}
           {recommendation.application_instructions && (
             <div className="mt-3 p-3 bg-silicon-slate/30 rounded border border-radiant-gold/10">
-              <div className="flex items-center gap-1 text-xs text-platinum-white/50 mb-1">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground/90 mb-1">
                 <AlertTriangle size={12} />
                 Manual Instructions:
               </div>
-              <div className="text-sm text-platinum-white/80 whitespace-pre-wrap">
+              <div className="text-sm text-muted-foreground whitespace-pre-wrap">
                 {recommendation.application_instructions}
               </div>
             </div>

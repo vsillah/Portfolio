@@ -59,7 +59,7 @@ export default function DiscountCodeForm({
                   Code {appliedCode} applied
                 </p>
                 {discountAmount !== undefined && discountAmount > 0 && (
-                  <p className="text-xs text-platinum-white/80">
+                  <p className="text-xs text-muted-foreground">
                     Discount: {formatCurrency(discountAmount)}
                   </p>
                 )}
@@ -67,14 +67,14 @@ export default function DiscountCodeForm({
             </div>
             <button
               onClick={onRemove}
-              className="p-1 text-platinum-white/80 hover:text-foreground transition-colors"
+              className="p-1 text-muted-foreground hover:text-foreground transition-colors"
               title="Remove discount code"
             >
               <X size={18} />
             </button>
           </div>
         </div>
-        <p className="text-xs text-platinum-white/80 italic">
+        <p className="text-xs text-muted-foreground italic">
           Only one discount code can be applied per order
         </p>
       </motion.div>
@@ -88,7 +88,7 @@ export default function DiscountCodeForm({
       </label>
       <div className="flex gap-2">
         <div className="relative flex-1">
-          <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+          <Tag className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
           <input
             type="text"
             value={code}

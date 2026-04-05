@@ -126,7 +126,7 @@ function PromptsContent() {
   }
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-6xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -137,7 +137,7 @@ function PromptsContent() {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-heading tracking-wider mb-2">System Prompts</h1>
-            <p className="text-platinum-white/60">
+            <p className="text-muted-foreground">
               Configure prompts for chatbot, voice agent, evaluation criteria, and communications (e.g. client email draft replies)
             </p>
           </div>
@@ -163,7 +163,7 @@ function PromptsContent() {
 
         {/* Loading state */}
         {loading && (
-          <div className="text-center py-12 text-platinum-white/50">
+          <div className="text-center py-12 text-muted-foreground/90">
             Loading prompts...
           </div>
         )}
@@ -199,7 +199,7 @@ function PromptsContent() {
                         Inactive
                       </span>
                     )}
-                    <span className="text-xs text-platinum-white/40">v{prompt.version}</span>
+                    <span className="text-xs text-muted-foreground/80">v{prompt.version}</span>
                   </div>
 
                   {/* Icon and title */}
@@ -208,18 +208,18 @@ function PromptsContent() {
                       <Icon size={24} className="text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-heading text-xl text-platinum-white mb-1">
+                      <h3 className="font-heading text-xl text-foreground mb-1">
                         {getPromptDisplayName(prompt.key)}
                       </h3>
-                      <p className="text-sm text-platinum-white/50 truncate">
+                      <p className="text-sm text-muted-foreground/90 truncate">
                         {prompt.description || `Key: ${prompt.key}`}
                       </p>
                     </div>
                   </div>
 
                   {/* Prompt preview */}
-                  <div className="mb-4 p-3 bg-imperial-navy/50 rounded-lg">
-                    <p className="text-sm text-platinum-white/70 line-clamp-3">
+                  <div className="mb-4 p-3 bg-background/50 rounded-lg">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
                       {prompt.prompt}
                     </p>
                   </div>
@@ -279,7 +279,7 @@ function PromptsContent() {
                   </div>
 
                   {/* Updated timestamp */}
-                  <div className="mt-3 text-xs text-platinum-white/40">
+                  <div className="mt-3 text-xs text-muted-foreground/80">
                     Last updated: {new Date(prompt.updated_at).toLocaleDateString()}
                   </div>
                 </motion.div>
@@ -293,37 +293,37 @@ function PromptsContent() {
           <h3 className="font-heading text-lg text-radiant-gold mb-3">
             How System Prompts Work
           </h3>
-            <div className="grid md:grid-cols-2 gap-4 text-sm text-platinum-white/70">
+            <div className="grid md:grid-cols-2 gap-4 text-sm text-muted-foreground">
             <div>
-              <p className="font-semibold text-platinum-white mb-1">Chatbot Prompt</p>
+              <p className="font-semibold text-foreground mb-1">Chatbot Prompt</p>
               <p>Controls how the AI responds to visitors on the portfolio website.</p>
             </div>
             <div>
-              <p className="font-semibold text-platinum-white mb-1">Voice Agent Prompt</p>
+              <p className="font-semibold text-foreground mb-1">Voice Agent Prompt</p>
               <p>Configures the VAPI voice assistant behavior and tone.</p>
             </div>
             <div>
-              <p className="font-semibold text-platinum-white mb-1">Evaluation Criteria</p>
+              <p className="font-semibold text-foreground mb-1">Evaluation Criteria</p>
               <p>Used by the LLM judge to evaluate chat quality in Chat Eval.</p>
             </div>
             <div>
-              <p className="font-semibold text-platinum-white mb-1">Diagnostic Prompt</p>
+              <p className="font-semibold text-foreground mb-1">Diagnostic Prompt</p>
               <p>Guides the diagnostic/audit conversation flow.</p>
             </div>
             <div>
-              <p className="font-semibold text-platinum-white mb-1">Client Email Draft Reply</p>
+              <p className="font-semibold text-foreground mb-1">Client Email Draft Reply</p>
               <p>Used when generating draft email replies to inbound client emails (Gmail workflow and in-app drafts).</p>
             </div>
             <div>
-              <p className="font-semibold text-platinum-white mb-1">Social — Topic Extraction</p>
+              <p className="font-semibold text-foreground mb-1">Social — Topic Extraction</p>
               <p>Extracts social-media-worthy topics from meeting transcripts using Hormozi frameworks.</p>
             </div>
             <div>
-              <p className="font-semibold text-platinum-white mb-1">Social — Copywriting</p>
+              <p className="font-semibold text-foreground mb-1">Social — Copywriting</p>
               <p>Generates LinkedIn post text with hook, story, framework lesson, and CTA.</p>
             </div>
             <div>
-              <p className="font-semibold text-platinum-white mb-1">Social — Image Generation</p>
+              <p className="font-semibold text-foreground mb-1">Social — Image Generation</p>
               <p>Template for branded framework diagram images (navy/gold palette, 1:1 ratio).</p>
             </div>
           </div>

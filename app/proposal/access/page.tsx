@@ -3,6 +3,7 @@
 import { useState, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { KeyRound, Loader2, AlertCircle } from 'lucide-react';
+import SiteThemeCorner from '@/components/SiteThemeCorner';
 
 function ProposalAccessContent() {
   const router = useRouter();
@@ -47,6 +48,8 @@ function ProposalAccessContent() {
   };
 
   return (
+    <>
+      <SiteThemeCorner />
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="bg-gray-900 rounded-2xl border border-gray-800 p-8 shadow-xl">
@@ -101,6 +104,7 @@ function ProposalAccessContent() {
         </div>
       </div>
     </div>
+    </>
   );
 }
 
@@ -108,9 +112,12 @@ export default function ProposalAccessPage() {
   return (
     <Suspense
       fallback={
+        <>
+          <SiteThemeCorner />
         <div className="min-h-screen bg-gray-950 flex items-center justify-center">
           <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
         </div>
+        </>
       }
     >
       <ProposalAccessContent />

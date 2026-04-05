@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import { ArrowLeft, CheckCircle, Loader } from 'lucide-react'
 import StripeCheckout from '@/components/checkout/StripeCheckout'
 import { getCurrentSession } from '@/lib/auth'
+import SiteThemeCorner from '@/components/SiteThemeCorner'
 
 function PaymentContent() {
   const router = useRouter()
@@ -67,50 +68,61 @@ function PaymentContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-center">
-          <Loader className="animate-spin mx-auto mb-4 text-radiant-gold" size={48} />
-          <div className="text-platinum-white/80">Initializing payment...</div>
+      <>
+        <SiteThemeCorner />
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+          <div className="text-center">
+            <Loader className="animate-spin mx-auto mb-4 text-radiant-gold" size={48} />
+            <div className="text-muted-foreground">Initializing payment...</div>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
   if (error && !clientSecret) {
     return (
-      <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-red-600/20 border border-red-600/50 rounded-xl p-6 text-center">
-            <p className="text-red-400 mb-4">{error}</p>
-            <button
-              onClick={() => router.push('/checkout')}
-              className="px-6 py-2 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors"
-            >
-              Back to Checkout
-            </button>
+      <>
+        <SiteThemeCorner />
+        <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="bg-red-600/20 border border-red-600/50 rounded-xl p-6 text-center">
+              <p className="text-red-400 mb-4">{error}</p>
+              <button
+                onClick={() => router.push('/checkout')}
+                className="px-6 py-2 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors"
+              >
+                Back to Checkout
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     )
   }
 
   if (paymentSuccess) {
     return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="text-center"
-        >
-          <CheckCircle className="mx-auto mb-4 text-radiant-gold" size={64} />
-          <h2 className="text-3xl font-bold mb-2">Payment Successful!</h2>
-          <p className="text-platinum-white/80">Redirecting to your purchases...</p>
-        </motion.div>
-      </div>
+      <>
+        <SiteThemeCorner />
+        <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center"
+          >
+            <CheckCircle className="mx-auto mb-4 text-radiant-gold" size={64} />
+            <h2 className="text-3xl font-bold mb-2">Payment Successful!</h2>
+            <p className="text-muted-foreground">Redirecting to your purchases...</p>
+          </motion.div>
+        </div>
+      </>
     )
   }
 
   return (
+    <>
+      <SiteThemeCorner />
     <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <div className="max-w-2xl mx-auto">
         <motion.div
@@ -119,14 +131,14 @@ function PaymentContent() {
         >
           <button
             onClick={() => router.push('/checkout')}
-            className="flex items-center gap-2 text-platinum-white/80 hover:text-foreground mb-6 transition-colors"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft size={20} />
             Back to Checkout
           </button>
 
           <h1 className="text-4xl font-bold mb-2">Complete Payment</h1>
-          <p className="text-platinum-white/80 mb-8">Enter your payment details to complete your purchase</p>
+          <p className="text-muted-foreground mb-8">Enter your payment details to complete your purchase</p>
 
           <div className="bg-silicon-slate border border-silicon-slate rounded-xl p-6">
             {clientSecret && orderId && (() => {
@@ -160,24 +172,28 @@ function PaymentContent() {
             )}
           </div>
 
-          <div className="mt-6 text-center text-sm text-platinum-white/60">
+          <div className="mt-6 text-center text-sm text-muted-foreground">
             <p>Your payment is secured by Stripe</p>
           </div>
         </motion.div>
       </div>
     </div>
+    </>
   )
 }
 
 export default function PaymentPage() {
   return (
     <Suspense fallback={
+      <>
+        <SiteThemeCorner />
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
         <div className="text-center">
           <Loader className="animate-spin mx-auto mb-4 text-radiant-gold" size={48} />
-          <div className="text-platinum-white/80">Loading...</div>
+          <div className="text-muted-foreground">Loading...</div>
         </div>
       </div>
+      </>
     }>
       <PaymentContent />
     </Suspense>

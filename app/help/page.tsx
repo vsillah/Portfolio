@@ -18,7 +18,7 @@ export default async function HelpPage() {
   }
 
   return (
-    <main className="min-h-screen bg-imperial-navy relative overflow-hidden">
+    <main className="min-h-screen bg-background relative overflow-hidden">
       <Navigation />
       {/* Background effects */}
       <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-radiant-gold/5 blur-[150px] rounded-full pointer-events-none" />
@@ -28,7 +28,7 @@ export default async function HelpPage() {
         <div className="max-w-4xl mx-auto">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 text-platinum-white/50 hover:text-radiant-gold transition-colors text-sm font-heading uppercase tracking-widest mb-8"
+            className="inline-flex items-center gap-2 text-muted-foreground/90 hover:text-radiant-gold transition-colors text-sm font-heading uppercase tracking-widest mb-8"
           >
             <ArrowLeft size={14} />
             <span>Home</span>

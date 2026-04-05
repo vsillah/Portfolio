@@ -40,7 +40,7 @@ export default function AdminPieChart({
         role="img"
         aria-label={`${ariaLabel}: No data`}
       >
-        <span className="text-sm text-platinum-white/50">No data</span>
+        <span className="text-sm text-muted-foreground/90">No data</span>
       </div>
     )
   }
@@ -52,7 +52,7 @@ export default function AdminPieChart({
       className="w-full"
     >
       {title && (
-        <p className="text-xs font-medium text-platinum-white/80 mb-1.5">{title}</p>
+        <p className="text-xs font-medium text-muted-foreground mb-1.5">{title}</p>
       )}
       <div style={{ height }} className="w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -87,7 +87,7 @@ export default function AdminPieChart({
             <Legend
               wrapperStyle={{ fontSize: 11 }}
               formatter={(value, entry) => (
-                <span className="text-platinum-white/90" style={{ color: entry?.color }}>
+                <span className="text-foreground/90" style={{ color: entry?.color }}>
                   {value}
                 </span>
               )}

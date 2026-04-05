@@ -122,7 +122,7 @@ export default function StoreSettingsPage() {
       <ProtectedRoute requireAdmin>
         <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
           <div className="max-w-2xl mx-auto flex items-center justify-center">
-            <Loader className="animate-spin text-platinum-white/80" size={32} />
+            <Loader className="animate-spin text-muted-foreground" size={32} />
           </div>
         </div>
       </ProtectedRoute>
@@ -149,7 +149,7 @@ export default function StoreSettingsPage() {
               <Settings className="text-radiant-gold" size={28} />
               <h1 className="text-3xl font-bold">Store Settings</h1>
             </div>
-            <p className="text-platinum-white/80">
+            <p className="text-muted-foreground">
               Configure store-wide behaviour such as the social share reward shown to customers after purchase.
             </p>
           </motion.div>
@@ -160,12 +160,12 @@ export default function StoreSettingsPage() {
                 <Share2 className="text-purple-400" size={22} />
                 <h2 className="text-xl font-bold">Social share reward</h2>
               </div>
-              <p className="text-platinum-white/80 text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 The discount amount or percentage shown in the post-purchase share message (e.g. &quot;Get yours today with this link and save $5&quot;). Customers see this when they share their purchase on social media.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-platinum-white/90 mb-2">Type</label>
+                  <label className="block text-sm font-medium text-foreground/90 mb-2">Type</label>
                   <select
                     value={socialShareDiscount.type}
                     onChange={(e) =>
@@ -181,7 +181,7 @@ export default function StoreSettingsPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-platinum-white/90 mb-2">
+                  <label className="block text-sm font-medium text-foreground/90 mb-2">
                     {socialShareDiscount.type === 'fixed' ? 'Amount ($)' : 'Percentage (%)'}
                   </label>
                   <input
@@ -199,7 +199,7 @@ export default function StoreSettingsPage() {
                   />
                 </div>
               </div>
-              <p className="text-platinum-white/60 text-xs mt-2">
+              <p className="text-muted-foreground text-xs mt-2">
                 Preview: &quot;...save {socialShareDiscount.type === 'fixed' ? `$${socialShareDiscount.value}` : `${socialShareDiscount.value}%`}.&quot;
               </p>
             </div>
@@ -210,11 +210,11 @@ export default function StoreSettingsPage() {
                 <CreditCard className="text-blue-400" size={22} />
                 <h2 className="text-xl font-bold">Installment payments</h2>
               </div>
-              <p className="text-platinum-white/80 text-sm mb-4">
+              <p className="text-muted-foreground text-sm mb-4">
                 When customers choose to pay in installments, a fee is added to the total. This covers the cost of extended payment terms and card-on-file billing.
               </p>
               <div className="max-w-xs">
-                <label className="block text-sm font-medium text-platinum-white/90 mb-2">
+                <label className="block text-sm font-medium text-foreground/90 mb-2">
                   Installment fee (%)
                 </label>
                 <input
@@ -226,7 +226,7 @@ export default function StoreSettingsPage() {
                   onChange={(e) => setInstallmentFeePercent(Math.max(0, parseFloat(e.target.value) || 0))}
                   className="w-full px-4 py-2 rounded-lg bg-background border border-silicon-slate text-foreground"
                 />
-                <p className="text-platinum-white/60 text-xs mt-2">
+                <p className="text-muted-foreground text-xs mt-2">
                   Example: A $1,000 proposal with a {installmentFeePercent}% fee would cost ${(1000 * (1 + installmentFeePercent / 100)).toFixed(0)} when paid in installments.
                 </p>
               </div>

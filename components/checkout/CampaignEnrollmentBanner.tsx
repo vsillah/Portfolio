@@ -32,7 +32,7 @@ export default function CampaignEnrollmentBanner({ campaign }: CampaignEnrollmen
           <h3 className="text-sm font-bold text-amber-300 mb-1">
             {CAMPAIGN_TYPE_LABELS[primary.campaign_type] || primary.name}
           </h3>
-          <p className="text-xs text-platinum-white/70 mb-2">
+          <p className="text-xs text-muted-foreground mb-2">
             Purchase an eligible program and get automatically enrolled in our{' '}
             <strong className="text-amber-400">{primary.name}</strong> campaign.
             Meet the criteria and earn back your investment.

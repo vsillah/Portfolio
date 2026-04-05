@@ -166,7 +166,7 @@ export default function OutcomeGroupsPage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">Outcome Groups</h1>
-              <p className="text-platinum-white/80">
+              <p className="text-muted-foreground">
                 Group products, services, training, and lead magnets by the outcome they help users achieve (e.g. pricing chart).
               </p>
             </div>
@@ -262,9 +262,9 @@ export default function OutcomeGroupsPage() {
           )}
 
           {loading ? (
-            <p className="text-platinum-white/70">Loading outcome groups...</p>
+            <p className="text-muted-foreground">Loading outcome groups...</p>
           ) : groups.length === 0 ? (
-            <div className="p-8 rounded-xl border border-dashed border-gray-600 text-center text-platinum-white/70">
+            <div className="p-8 rounded-xl border border-dashed border-gray-600 text-center text-muted-foreground">
               <Target className="w-12 h-12 mx-auto mb-4 opacity-50" />
               <p>No outcome groups yet. Click &quot;Add group&quot; or refresh to seed defaults.</p>
             </div>

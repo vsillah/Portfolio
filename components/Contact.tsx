@@ -125,7 +125,7 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
+    <section id="contact" className="py-32 px-6 sm:px-10 lg:px-12 bg-background relative overflow-hidden">
       {/* Aurora */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-radiant-gold/5 blur-[150px] rounded-full pointer-events-none" />
 
@@ -137,10 +137,10 @@ export default function Contact() {
               Inquiry
             </span>
           </div>
-          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+          <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-6">
             <span className="italic text-radiant-gold">Contact</span>
           </h2>
-          <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto leading-relaxed">
             Whether you have a specific inquiry or just want to explore possibilities, 
             I&apos;m here to bridge the gap between your vision and reality.
           </p>
@@ -173,10 +173,10 @@ export default function Contact() {
             <div>
               <h3 className="text-[10px] font-heading tracking-[0.2em] text-radiant-gold uppercase mb-6">Contact Info</h3>
               <div className="space-y-4">
-                <a href="mailto:vsillah@gmail.com" className="block font-premium text-2xl text-platinum-white hover:text-radiant-gold transition-colors">
+                <a href="mailto:vsillah@gmail.com" className="block font-premium text-2xl text-foreground hover:text-radiant-gold transition-colors">
                   vsillah@gmail.com
                 </a>
-                <p className="font-body text-platinum-white/50 text-lg">
+                <p className="font-body text-muted-foreground/90 text-lg">
                   617-967-7448 <br />
                   Medford, MA
                 </p>
@@ -192,7 +192,7 @@ export default function Contact() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-3 bg-silicon-slate/30 border border-radiant-gold/10 rounded-full text-platinum-white/60 hover:text-radiant-gold hover:border-radiant-gold/40 transition-all"
+                    className="p-3 bg-silicon-slate/30 border border-radiant-gold/10 rounded-full text-muted-foreground hover:text-radiant-gold hover:border-radiant-gold/40 transition-all"
                   >
                     <social.icon size={18} />
                   </a>
@@ -213,7 +213,7 @@ export default function Contact() {
                 className={`flex items-center gap-2 px-5 py-3 rounded-full text-[10px] font-heading tracking-[0.15em] uppercase transition-all duration-300 ${
                   activeTab === 'chat'
                     ? 'bg-gradient-to-r from-radiant-gold to-bronze text-imperial-navy'
-                    : 'bg-silicon-slate/30 border border-radiant-gold/20 text-platinum-white/70 hover:border-radiant-gold/40 hover:text-platinum-white'
+                    : 'bg-silicon-slate/30 border border-radiant-gold/20 text-muted-foreground hover:border-radiant-gold/40 hover:text-foreground'
                 }`}
               >
                 <MessageCircle size={14} />
@@ -224,7 +224,7 @@ export default function Contact() {
                 className={`flex items-center gap-2 px-5 py-3 rounded-full text-[10px] font-heading tracking-[0.15em] uppercase transition-all duration-300 ${
                   activeTab === 'form'
                     ? 'bg-gradient-to-r from-radiant-gold to-bronze text-imperial-navy'
-                    : 'bg-silicon-slate/30 border border-radiant-gold/20 text-platinum-white/70 hover:border-radiant-gold/40 hover:text-platinum-white'
+                    : 'bg-silicon-slate/30 border border-radiant-gold/20 text-muted-foreground hover:border-radiant-gold/40 hover:text-foreground'
                 }`}
               >
                 <FileText size={14} />
@@ -272,24 +272,24 @@ export default function Contact() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Name</label>
+                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Name</label>
                       <input
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         required
-                        className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
+                        className="w-full bg-transparent border-b border-foreground/10 py-2 font-body text-foreground focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-muted-foreground/40"
                         placeholder="Your full name"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Email</label>
+                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Email</label>
                       <input
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         required
-                        className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
+                        className="w-full bg-transparent border-b border-foreground/10 py-2 font-body text-foreground focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-muted-foreground/40"
                         placeholder="your@email.com"
                       />
                     </div>
@@ -297,17 +297,17 @@ export default function Contact() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Company / Organization</label>
+                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Company / Organization</label>
                       <input
                         type="text"
                         value={formData.company}
                         onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                        className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
+                        className="w-full bg-transparent border-b border-foreground/10 py-2 font-body text-foreground focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-muted-foreground/40"
                         placeholder="Your company (optional)"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Company Domain</label>
+                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Company Domain</label>
                       <input
                         type="text"
                         value={formData.companyDomain}
@@ -317,7 +317,7 @@ export default function Contact() {
                             setFormData({ ...formData, companyDomain: normalizeUrl(e.target.value) })
                           }
                         }}
-                        className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
+                        className="w-full bg-transparent border-b border-foreground/10 py-2 font-body text-foreground focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-muted-foreground/40"
                         placeholder="company.com (optional)"
                       />
                     </div>
@@ -325,7 +325,7 @@ export default function Contact() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">LinkedIn Profile URL</label>
+                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">LinkedIn Profile URL</label>
                       <input
                         type="url"
                         value={formData.linkedinUrl}
@@ -335,16 +335,16 @@ export default function Contact() {
                             setFormData({ ...formData, linkedinUrl: normalizeUrl(e.target.value) })
                           }
                         }}
-                        className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5"
+                        className="w-full bg-transparent border-b border-foreground/10 py-2 font-body text-foreground focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-muted-foreground/40"
                         placeholder="https://linkedin.com/in/your-profile (optional)"
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Annual Revenue</label>
+                      <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Annual Revenue</label>
                       <select
                         value={formData.annualRevenue}
                         onChange={(e) => setFormData({ ...formData, annualRevenue: e.target.value })}
-                        className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors [&>option]:bg-imperial-navy [&>option]:text-platinum-white"
+                        className="w-full bg-transparent border-b border-foreground/10 py-2 font-body text-foreground focus:outline-none focus:border-radiant-gold transition-colors [&>option]:bg-background [&>option]:text-foreground"
                       >
                         {revenueRanges.map((range) => (
                           <option key={range.value} value={range.value}>
@@ -356,7 +356,7 @@ export default function Contact() {
                   </div>
 
                   <div className="space-y-3">
-                    <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Areas of Interest</label>
+                    <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Areas of Interest</label>
                     <div className="flex flex-wrap gap-2">
                       {interestOptions.map((option) => (
                         <button
@@ -371,7 +371,7 @@ export default function Contact() {
                           className={`px-3 py-1.5 rounded-full text-[10px] font-heading tracking-wider uppercase transition-all duration-200 ${
                             formData.interestAreas.includes(option.value)
                               ? 'bg-radiant-gold/20 border border-radiant-gold/50 text-radiant-gold'
-                              : 'bg-silicon-slate/20 border border-platinum-white/10 text-platinum-white/50 hover:border-platinum-white/30'
+                              : 'bg-silicon-slate/20 border border-foreground/10 text-muted-foreground/90 hover:border-foreground/30'
                           }`}
                         >
                           {option.label}
@@ -387,7 +387,7 @@ export default function Contact() {
                       className={`w-5 h-5 rounded border transition-all duration-200 flex items-center justify-center ${
                         formData.isDecisionMaker
                           ? 'bg-radiant-gold border-radiant-gold'
-                          : 'bg-transparent border-platinum-white/20 hover:border-platinum-white/40'
+                          : 'bg-transparent border-foreground/20 hover:border-foreground/40'
                       }`}
                     >
                       {formData.isDecisionMaker && (
@@ -398,20 +398,20 @@ export default function Contact() {
                     </button>
                     <label 
                       onClick={() => setFormData({ ...formData, isDecisionMaker: !formData.isDecisionMaker })}
-                      className="text-[10px] font-heading tracking-widest text-platinum-white/60 uppercase cursor-pointer"
+                      className="text-[10px] font-heading tracking-widest text-muted-foreground uppercase cursor-pointer"
                     >
                       I am a decision maker / budget holder
                     </label>
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">Message</label>
+                    <label className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">Message</label>
                     <textarea
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       required
                       rows={4}
-                      className="w-full bg-transparent border-b border-platinum-white/10 py-2 font-body text-platinum-white focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-platinum-white/5 resize-none"
+                      className="w-full bg-transparent border-b border-foreground/10 py-2 font-body text-foreground focus:outline-none focus:border-radiant-gold transition-colors placeholder:text-muted-foreground/40 resize-none"
                       placeholder="What are you envisioning?"
                     />
                   </div>
@@ -432,14 +432,14 @@ export default function Contact() {
 
         {/* Footer */}
         <div className="mt-32 pt-12 border-t border-radiant-gold/5 flex flex-col md:flex-row items-center justify-between gap-6 opacity-40">
-          <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-platinum-white">
+          <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-foreground">
             © {new Date().getFullYear()} Vambah Sillah
           </p>
           <div className="flex gap-8">
-            <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-platinum-white">
+            <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-foreground">
               Based in Medford, MA
             </p>
-            <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-platinum-white">
+            <p className="text-[10px] font-heading tracking-[0.2em] uppercase text-foreground">
               Built with Passion
             </p>
           </div>

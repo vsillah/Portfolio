@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { User, LogOut, Download, Shield } from 'lucide-react'
+import { ThemePreferenceList } from '@/components/ThemeToggle'
 import { useAuth } from '@/components/AuthProvider'
 import { signOut } from '@/lib/auth'
 import { useRouter } from 'next/navigation'
@@ -45,7 +46,7 @@ export default function UserMenu() {
           {user.email?.charAt(0).toUpperCase() || 'U'}
         </div>
         {/* Name/Email - hidden on mobile */}
-        <span className="hidden md:block text-platinum-white/80 text-sm font-medium max-w-[120px] truncate">
+        <span className="hidden md:block text-muted-foreground text-sm font-medium max-w-[120px] truncate">
           {user.email?.split('@')[0]}
         </span>
         {/* Admin badge */}
@@ -64,8 +65,8 @@ export default function UserMenu() {
             className="absolute right-0 mt-3 w-64 glass-card border border-radiant-gold/20 rounded-xl overflow-hidden shadow-2xl z-50"
           >
             {/* User info header */}
-            <div className="px-4 py-4 border-b border-radiant-gold/10 bg-imperial-navy/55 backdrop-blur-sm">
-              <p className="text-platinum-white font-medium text-sm truncate">{user.email}</p>
+            <div className="px-4 py-4 border-b border-radiant-gold/10 bg-background/55 backdrop-blur-sm">
+              <p className="text-foreground font-medium text-sm truncate">{user.email}</p>
               {isAdmin && (
                 <span className="inline-flex items-center gap-1 mt-1 text-xs text-radiant-gold">
                   <Shield size={12} />
@@ -75,11 +76,11 @@ export default function UserMenu() {
             </div>
 
             {/* Menu items */}
-            <div className="p-2 bg-imperial-navy/35 backdrop-blur-sm">
+            <div className="p-2 bg-background/35 backdrop-blur-sm">
               <a
                 href="/resources"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 text-sm text-platinum-white/80 hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
               >
                 <Download size={16} />
                 Resources
@@ -88,7 +89,7 @@ export default function UserMenu() {
               <a
                 href="/purchases"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center gap-3 px-3 py-2.5 text-sm text-platinum-white/80 hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
+                className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
               >
                 <User size={16} />
                 My Purchases
@@ -98,14 +99,21 @@ export default function UserMenu() {
                 <a
                   href="/admin"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-platinum-white/80 hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
+                  className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-radiant-gold hover:bg-radiant-gold/10 rounded-lg transition-all duration-200"
                 >
                   <Shield size={16} />
                   Admin Dashboard
                 </a>
               )}
 
-              <div className="my-2 border-t border-radiant-gold/10" />
+              <div className="my-2 border-t border-border" />
+
+              <ThemePreferenceList
+                onSelect={() => setIsOpen(false)}
+                className="px-0 pb-1"
+              />
+
+              <div className="my-2 border-t border-border" />
 
               <button
                 onClick={handleSignOut}

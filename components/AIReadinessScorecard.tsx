@@ -117,13 +117,13 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
             exit={{ opacity: 0 }}
             className="space-y-4"
           >
-            <p className="text-platinum-white/80">
+            <p className="text-muted-foreground">
               Answer a few questions to get your AI Readiness score and personalized recommendations.
             </p>
             <button
               type="button"
               onClick={handleStart}
-              className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-imperial-navy transition"
+              className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-background transition"
               aria-label="Start assessment"
             >
               Start assessment
@@ -139,10 +139,10 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
             exit={{ opacity: 0, x: -10 }}
             className="space-y-6"
           >
-            <p className="text-platinum-white/60 text-sm" aria-live="polite">
+            <p className="text-muted-foreground text-sm" aria-live="polite">
               Question {currentQuestionIndex + 1} of {totalQuestions}
             </p>
-            <div role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} className="h-1.5 rounded-full bg-black/30 overflow-hidden">
+            <div role="progressbar" aria-valuenow={progress} aria-valuemin={0} aria-valuemax={100} className="h-1.5 rounded-full bg-muted overflow-hidden">
               <motion.div
                 className="h-full bg-radiant-gold"
                 initial={{ width: 0 }}
@@ -150,14 +150,14 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
                 transition={{ duration: 0.2 }}
               />
             </div>
-            <h3 className="text-lg font-semibold text-platinum-white">{currentQuestion.question}</h3>
+            <h3 className="text-lg font-semibold text-foreground">{currentQuestion.question}</h3>
             <ul className="space-y-2" role="list">
               {currentQuestion.options.map((opt) => (
                 <li key={opt.value}>
                   <button
                     type="button"
                     onClick={() => handleAnswer(currentQuestion.id, opt.points)}
-                    className="w-full text-left px-4 py-3 rounded-lg border border-radiant-gold/40 bg-black/20 text-platinum-white hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-transparent transition min-h-[44px]"
+                    className="w-full text-left px-4 py-3 rounded-lg border border-radiant-gold/40 bg-muted/60 text-foreground hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-background transition min-h-[44px]"
                   >
                     {opt.label}
                   </button>
@@ -168,7 +168,7 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
               <button
                 type="button"
                 onClick={handleBack}
-                className="text-platinum-white/70 hover:text-platinum-white text-sm focus:outline-none focus:underline"
+                className="text-muted-foreground hover:text-foreground text-sm focus:outline-none focus:underline"
               >
                 Back
               </button>
@@ -184,11 +184,11 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
             exit={{ opacity: 0 }}
             className="space-y-4"
           >
-            <p className="text-platinum-white/80">Your AI Readiness score</p>
+            <p className="text-muted-foreground">Your AI Readiness score</p>
             <p className="text-3xl font-bold text-radiant-gold" aria-live="polite">
               {scoreOutOf10}/10
             </p>
-            <p className="text-platinum-white/70 text-sm">{resultCopy.summary}</p>
+            <p className="text-muted-foreground text-sm">{resultCopy.summary}</p>
             <button
               type="button"
               onClick={() => setStep('email_gate')}
@@ -208,14 +208,14 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
             onSubmit={handleEmailSubmit}
             className="space-y-4"
           >
-            <p className="text-platinum-white/80">Enter your email to unlock your full recommendations.</p>
+            <p className="text-muted-foreground">Enter your email to unlock your full recommendations.</p>
             {submitError && (
-              <p className="text-red-400 text-sm" role="alert">
+              <p className="text-red-600 dark:text-red-400 text-sm" role="alert">
                 {submitError}
               </p>
             )}
             <div>
-              <label htmlFor="scorecard-name" className="block text-sm text-platinum-white/80 mb-1">
+              <label htmlFor="scorecard-name" className="block text-sm text-muted-foreground mb-1">
                 Name (optional)
               </label>
               <input
@@ -223,14 +223,14 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+                className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-foreground placeholder:text-muted-foreground/90 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
                 placeholder="Your name"
                 autoComplete="name"
               />
             </div>
             <div>
-              <label htmlFor="scorecard-email" className="block text-sm text-platinum-white/80 mb-1">
-                Email <span className="text-red-400">*</span>
+              <label htmlFor="scorecard-email" className="block text-sm text-muted-foreground mb-1">
+                Email <span className="text-red-600 dark:text-red-400">*</span>
               </label>
               <input
                 id="scorecard-email"
@@ -238,14 +238,14 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white placeholder:text-platinum-white/50 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+                className="w-full px-4 py-2 rounded-lg bg-background border border-border text-foreground placeholder:text-muted-foreground/90 focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
                 placeholder="you@company.com"
                 autoComplete="email"
               />
             </div>
             <button
               type="submit"
-              className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-imperial-navy transition"
+              className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-background transition"
             >
               Unlock my results
             </button>
@@ -258,7 +258,7 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-platinum-white/80"
+            className="text-muted-foreground"
           >
             Saving your results…
           </motion.div>
@@ -274,7 +274,7 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
           >
             {/* Personalized score card */}
             <div className="rounded-lg border border-radiant-gold/40 bg-radiant-gold/10 p-4">
-              <p className="text-platinum-white/80 text-sm mb-1">
+              <p className="text-muted-foreground text-sm mb-1">
                 {name.trim()
                   ? `${name.trim()}, here’s your AI Readiness Score`
                   : 'Your AI Readiness Score'}
@@ -283,14 +283,14 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
                 {scoreOutOf10}/10
               </p>
             </div>
-            <p className="text-platinum-white/80">
+            <p className="text-muted-foreground">
               {name.trim()
                 ? `We’ve saved your results, ${name.trim()}. Here’s your full breakdown.`
                 : 'We’ve saved your results. Here’s your full breakdown.'}
             </p>
             <h3 className="text-lg font-semibold text-radiant-gold">{resultCopy.title}</h3>
-            <p className="text-platinum-white/80">{resultCopy.summary}</p>
-            <ul className="list-disc list-inside space-y-2 text-platinum-white/80">
+            <p className="text-muted-foreground">{resultCopy.summary}</p>
+            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
               {resultCopy.bullets.map((bullet, i) => (
                 <li key={i}>{bullet}</li>
               ))}
@@ -305,7 +305,7 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
               const recommendations = getRecommendations(answers, resources)
               if (recommendations.length === 0) {
                 return (
-                  <p className="text-platinum-white/60 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     Check the templates and playbooks below for next steps.
                   </p>
                 )
@@ -313,18 +313,18 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
               return (
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold text-radiant-gold">Recommended for you</h3>
-                  <p className="text-platinum-white/80 text-sm">
+                  <p className="text-muted-foreground text-sm">
                     Based on your answers, these templates and playbooks can help you most.
                   </p>
                   <ul className="space-y-4" role="list">
                     {recommendations.map((rec) => (
                       <li
                         key={rec.resource.id}
-                        className="rounded-lg border border-radiant-gold/30 bg-black/20 p-4 space-y-2"
+                        className="rounded-lg border border-radiant-gold/30 bg-muted/50 p-4 space-y-2"
                       >
-                        <p className="font-semibold text-platinum-white">{rec.resource.title}</p>
-                        <p className="text-platinum-white/90 text-sm">{rec.outcome}</p>
-                        <div className="text-platinum-white/70 text-sm">
+                        <p className="font-semibold text-foreground">{rec.resource.title}</p>
+                        <p className="text-foreground/90 text-sm">{rec.outcome}</p>
+                        <div className="text-muted-foreground text-sm">
                           <span className="font-medium">Based on your answers:</span>
                           <ul className="mt-1 list-disc list-inside space-y-0.5">
                             {rec.triggeredBy.map((t, i) => (
@@ -355,7 +355,7 @@ export default function AIReadinessScorecard({ leadMagnets = [] }: AIReadinessSc
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-red-400"
+              className="text-red-600 dark:text-red-400"
             role="alert"
           >
             <p>Something went wrong. Please try again or use the contact form.</p>

@@ -115,7 +115,7 @@ export default function PricingMethodologyPage() {
       <Navigation />
 
       {/* Header */}
-      <section className="bg-imperial-navy pt-32 pb-16 lg:pt-40 lg:pb-20">
+      <section className="bg-background pt-32 pb-16 lg:pt-40 lg:pb-20">
         <div className="relative z-10 mx-auto max-w-4xl px-6">
           <Breadcrumbs
             items={[
@@ -124,10 +124,10 @@ export default function PricingMethodologyPage() {
             ]}
           />
 
-          <h1 className="mt-8 font-premium text-4xl sm:text-5xl text-platinum-white leading-tight tracking-tight">
+          <h1 className="mt-8 font-premium text-4xl sm:text-5xl text-foreground leading-tight tracking-tight">
             Pricing Methodology
           </h1>
-          <p className="mt-4 text-lg text-platinum-white/70 max-w-2xl">
+          <p className="mt-4 text-lg text-muted-foreground max-w-2xl">
             Full transparency into how we calculate retail values, ROI estimates, and price
             anchors. Every number on our pricing page is formula-derived from verifiable data sources.
           </p>
@@ -238,7 +238,7 @@ export default function PricingMethodologyPage() {
                 className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900"
               >
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-imperial-navy/10 dark:bg-radiant-gold/10">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-background/10 dark:bg-radiant-gold/10">
                     <method.icon className="h-4 w-4 text-imperial-navy dark:text-radiant-gold" />
                   </div>
                   <h3 className="font-heading text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white">
@@ -398,7 +398,7 @@ export default function PricingMethodologyPage() {
 function SectionHeader({ icon: Icon, title }: { icon: React.ComponentType<{ className?: string }>; title: string }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-imperial-navy/10 dark:bg-radiant-gold/10">
+      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-background/10 dark:bg-radiant-gold/10">
         <Icon className="h-5 w-5 text-imperial-navy dark:text-radiant-gold" />
       </div>
       <h2 className="font-premium text-2xl text-gray-900 dark:text-white">{title}</h2>

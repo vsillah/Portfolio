@@ -9,6 +9,7 @@ import { useAuth } from '@/components/AuthProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { addToCart, addServiceToCart, getCartCount } from '@/lib/cart'
 import Link from 'next/link'
+import ThemeToggle from '@/components/ThemeToggle'
 import type { Product, Service } from '@/lib/types/store'
 
 type ItemCategory = 'all' | 'products' | 'services'
@@ -43,7 +44,7 @@ function StoreLoading() {
     <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="text-center py-12">
-          <div className="text-platinum-white/80">Loading store...</div>
+          <div className="text-muted-foreground">Loading store...</div>
         </div>
       </div>
     </div>
@@ -253,7 +254,7 @@ function StoreContent() {
           {/* Back to Home Link */}
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-platinum-white/80 hover:text-foreground mb-4 transition-colors"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground mb-4 transition-colors"
           >
             <ArrowLeft size={20} />
             Back to Home
@@ -262,10 +263,11 @@ function StoreContent() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-4xl font-bold mb-2">Store</h1>
-              <p className="text-platinum-white/80">Browse our collection of products, merchandise, and services</p>
+              <p className="text-muted-foreground">Browse our collection of products, merchandise, and services</p>
             </div>
             <div className="flex items-center gap-3">
-              <Link href="/help" className="text-platinum-white/80 hover:text-foreground transition-colors" aria-label="Help">
+              <ThemeToggle />
+              <Link href="/help" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Help">
                 <HelpCircle size={20} />
               </Link>
             {cartCount > 0 && (
@@ -316,7 +318,7 @@ function StoreContent() {
                 className={`px-4 py-2 rounded-lg border text-sm font-medium transition-colors ${
                   itemCategory === cat.value
                     ? 'bg-radiant-gold border-radiant-gold text-imperial-navy'
-                    : 'bg-silicon-slate border-silicon-slate text-platinum-white/80 hover:border-radiant-gold/50 hover:text-foreground'
+                    : 'bg-silicon-slate border-silicon-slate text-muted-foreground hover:border-radiant-gold/50 hover:text-foreground'
                 }`}
               >
                 {cat.label}
@@ -327,7 +329,7 @@ function StoreContent() {
           {/* Search and Filters */}
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
               <input
                 type="text"
                 placeholder="Search store..."
@@ -365,7 +367,7 @@ function StoreContent() {
                 className={`px-4 py-2 rounded-lg border transition-colors ${
                   showFeaturedOnly
                     ? 'bg-radiant-gold border-radiant-gold text-imperial-navy'
-                    : 'bg-silicon-slate border-silicon-slate text-platinum-white/80 hover:border-radiant-gold/50'
+                    : 'bg-silicon-slate border-silicon-slate text-muted-foreground hover:border-radiant-gold/50'
                 }`}
               >
                 <Filter size={18} className="inline mr-2" />
@@ -378,11 +380,11 @@ function StoreContent() {
         {/* Store Items */}
         {loading ? (
           <div className="text-center py-12">
-            <div className="text-platinum-white/80">Loading store...</div>
+            <div className="text-muted-foreground">Loading store...</div>
           </div>
         ) : totalItems === 0 ? (
           <div className="text-center py-12">
-            <p className="text-platinum-white/80 mb-4">No items found.</p>
+            <p className="text-muted-foreground mb-4">No items found.</p>
             {searchQuery || selectedType !== 'all' || showFeaturedOnly || itemCategory !== 'all' ? (
               <button
                 onClick={() => {
@@ -403,7 +405,7 @@ function StoreContent() {
             {filteredProducts.length > 0 && (
               <div>
                 {itemCategory === 'all' && (
-                  <h2 className="text-2xl font-bold mb-6 text-platinum-white">Products</h2>
+                  <h2 className="text-2xl font-bold mb-6 text-foreground">Products</h2>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredProducts.map((product) => (
@@ -421,7 +423,7 @@ function StoreContent() {
             {filteredServices.length > 0 && (
               <div>
                 {itemCategory === 'all' && (
-                  <h2 className="text-2xl font-bold mb-6 text-platinum-white">Services</h2>
+                  <h2 className="text-2xl font-bold mb-6 text-foreground">Services</h2>
                 )}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredServices.map((service) => (

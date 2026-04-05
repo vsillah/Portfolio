@@ -247,7 +247,7 @@ export default function ProductEditPage() {
     return (
       <ProtectedRoute requireAdmin>
         <div className="min-h-screen bg-background text-foreground p-8 flex items-center justify-center">
-          <div className="text-platinum-white/80">Loading product...</div>
+          <div className="text-muted-foreground">Loading product...</div>
         </div>
       </ProtectedRoute>
     )
@@ -270,7 +270,7 @@ export default function ProductEditPage() {
           <div className="mb-6">
             <Link
               href="/admin/content/products"
-              className="inline-flex items-center gap-2 text-platinum-white/80 hover:text-foreground transition-colors"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft size={20} />
               Back to Products
@@ -321,7 +321,7 @@ export default function ProductEditPage() {
                 <div>
                   <label className="block text-sm font-medium mb-2">Price (leave empty for free)</label>
                   <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
                     <input
                       type="number"
                       step="0.01"
@@ -360,7 +360,7 @@ export default function ProductEditPage() {
                           <File size={20} className="text-radiant-gold" />
                           <div>
                             <p className="text-sm text-foreground">{uploadedInstructionsFile.file_name}</p>
-                            <p className="text-xs text-platinum-white/80">
+                            <p className="text-xs text-muted-foreground">
                               {(uploadedInstructionsFile.file_size / 1024).toFixed(2)} KB
                             </p>
                           </div>
@@ -376,8 +376,8 @@ export default function ProductEditPage() {
                     ) : (
                       <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-silicon-slate border-dashed rounded-lg cursor-pointer bg-silicon-slate/80 hover:border-radiant-gold/50 transition-colors">
                         <div className="flex flex-col items-center justify-center py-3">
-                          <Upload className="w-6 h-6 mb-1 text-platinum-white/80" />
-                          <p className="text-xs text-platinum-white/80">Upload install guide (PDF, etc.)</p>
+                          <Upload className="w-6 h-6 mb-1 text-muted-foreground" />
+                          <p className="text-xs text-muted-foreground">Upload install guide (PDF, etc.)</p>
                         </div>
                         <input
                           type="file"
@@ -388,7 +388,7 @@ export default function ProductEditPage() {
                         />
                       </label>
                     )}
-                    {uploadingInstructions && <p className="mt-2 text-sm text-platinum-white/80">Uploading...</p>}
+                    {uploadingInstructions && <p className="mt-2 text-sm text-muted-foreground">Uploading...</p>}
                   </div>
                 </>
               )}
@@ -400,7 +400,7 @@ export default function ProductEditPage() {
                       <File size={20} className="text-radiant-gold" />
                       <div>
                         <p className="text-sm text-foreground">{uploadedFile.file_name}</p>
-                        <p className="text-xs text-platinum-white/80">
+                        <p className="text-xs text-muted-foreground">
                           {(uploadedFile.file_size / 1024).toFixed(2)} KB • {uploadedFile.file_type}
                         </p>
                       </div>
@@ -416,11 +416,11 @@ export default function ProductEditPage() {
                 ) : (
                   <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-silicon-slate border-dashed rounded-lg cursor-pointer bg-silicon-slate/80 hover:border-radiant-gold/50 transition-colors">
                     <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-8 h-8 mb-2 text-platinum-white/80" />
-                      <p className="mb-2 text-sm text-platinum-white/80">
+                      <Upload className="w-8 h-8 mb-2 text-muted-foreground" />
+                      <p className="mb-2 text-sm text-muted-foreground">
                         <span className="font-semibold">Click to upload</span> or drag and drop
                       </p>
-                      <p className="text-xs text-platinum-white/70">PDF, DOC, MP3, ZIP, etc. (MAX. 50MB)</p>
+                      <p className="text-xs text-muted-foreground">PDF, DOC, MP3, ZIP, etc. (MAX. 50MB)</p>
                     </div>
                     <input
                       type="file"
@@ -431,7 +431,7 @@ export default function ProductEditPage() {
                     />
                   </label>
                 )}
-                {uploadingFile && <p className="mt-2 text-sm text-platinum-white/80">Uploading file...</p>}
+                {uploadingFile && <p className="mt-2 text-sm text-muted-foreground">Uploading file...</p>}
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div>

@@ -44,9 +44,9 @@ export default function AdminBarChart({
         aria-label={`${ariaLabel}: ${emptyLabel}`}
       >
         {title && (
-          <p className="text-xs font-medium text-platinum-white/80 mb-1.5">{title}</p>
+          <p className="text-xs font-medium text-muted-foreground mb-1.5">{title}</p>
         )}
-        <span className="text-sm text-platinum-white/50">{emptyLabel}</span>
+        <span className="text-sm text-muted-foreground/90">{emptyLabel}</span>
       </div>
     )
   }
@@ -58,7 +58,7 @@ export default function AdminBarChart({
       className="w-full"
     >
       {title && (
-        <p className="text-xs font-medium text-platinum-white/80 mb-1.5">{title}</p>
+        <p className="text-xs font-medium text-muted-foreground mb-1.5">{title}</p>
       )}
       <div style={{ height }} className="w-full">
         <ResponsiveContainer width="100%" height="100%">

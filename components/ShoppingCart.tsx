@@ -201,7 +201,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-imperial-navy/60 z-40"
+            className="fixed inset-0 bg-background/60 z-40"
           />
 
           {/* Cart Sidebar */}
@@ -235,12 +235,12 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
             <div className="flex-1 overflow-y-auto p-6">
               {loading ? (
                 <div className="text-center py-12">
-                  <div className="text-platinum-white/80">Loading cart...</div>
+                  <div className="text-muted-foreground">Loading cart...</div>
                 </div>
               ) : cartItems.length === 0 ? (
                 <div className="text-center py-12">
-                  <CartIcon className="mx-auto text-platinum-white/60 mb-4" size={48} />
-                  <p className="text-platinum-white/80 mb-4">Your cart is empty</p>
+                  <CartIcon className="mx-auto text-muted-foreground mb-4" size={48} />
+                  <p className="text-muted-foreground mb-4">Your cart is empty</p>
                   <button
                     onClick={onClose}
                     className="px-4 py-2 bg-silicon-slate border border-silicon-slate rounded-lg btn-ghost transition-colors"
@@ -275,7 +275,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                   sizes="80px"
                                 />
                               ) : (
-                                <div className="text-platinum-white/60 text-xs text-center p-2">
+                                <div className="text-muted-foreground text-xs text-center p-2">
                                   {product.type}
                                 </div>
                               )}
@@ -286,7 +286,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               <h3 className="font-semibold text-white mb-1 line-clamp-2">
                                 {product.title}
                               </h3>
-                              <p className="text-sm text-platinum-white/80 mb-2">
+                              <p className="text-sm text-muted-foreground mb-2">
                                 {product.price !== null ? formatCurrency(product.price) : 'Free'}
                               </p>
 
@@ -317,7 +317,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               </div>
 
                               {/* Subtotal */}
-                              <p className="text-sm text-platinum-white mt-2">
+                              <p className="text-sm text-foreground mt-2">
                                 Subtotal: {product.price !== null
                                   ? formatCurrency(product.price * item.quantity)
                                   : 'Free'}
@@ -352,7 +352,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                                   sizes="80px"
                                 />
                               ) : (
-                                <div className="text-platinum-white/60 text-xs text-center p-2">
+                                <div className="text-muted-foreground text-xs text-center p-2">
                                   {service.service_type}
                                 </div>
                               )}
@@ -370,13 +370,13 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               </div>
                               
                               {service.duration_description && (
-                                <p className="text-xs text-platinum-white/70 mb-1 flex items-center gap-1">
+                                <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                                   <Clock size={12} />
                                   {service.duration_description}
                                 </p>
                               )}
                               
-                              <p className="text-sm text-platinum-white/80 mb-2">
+                              <p className="text-sm text-muted-foreground mb-2">
                                 {service.is_quote_based 
                                   ? 'Contact for Pricing'
                                   : service.price !== null 
@@ -411,7 +411,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                               </div>
 
                               {/* Subtotal */}
-                              <p className="text-sm text-platinum-white mt-2">
+                              <p className="text-sm text-foreground mt-2">
                                 Subtotal: {service.is_quote_based
                                   ? 'Quote Required'
                                   : service.price !== null
@@ -441,7 +441,7 @@ export default function ShoppingCart({ isOpen, onClose, onCheckout }: ShoppingCa
                   </div>
                 )}
                 <div className="flex items-center justify-between text-lg">
-                  <span className="text-platinum-white/80">Total:</span>
+                  <span className="text-muted-foreground">Total:</span>
                   <span className="text-2xl font-bold text-white">
                     {hasQuoteBasedItems 
                       ? `${formatCurrency(calculateTotal())}+`

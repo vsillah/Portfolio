@@ -115,7 +115,7 @@ export default function MermaidDiagram({ code }: MermaidDiagramProps) {
         {svgHtml && (
           <button
             onClick={openFullscreen}
-            className="absolute top-3 right-3 rounded-md bg-[#1e3a5f] border border-[#c9a84c]/40 px-2.5 py-1.5 text-xs text-platinum-white/80 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[#2a4d7a] hover:text-white"
+            className="absolute top-3 right-3 rounded-md bg-[#1e3a5f] border border-[#c9a84c]/40 px-2.5 py-1.5 text-xs text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-[#2a4d7a] hover:text-white"
             title="View fullscreen"
           >
             <span className="mr-1">⛶</span> Expand
@@ -130,9 +130,9 @@ export default function MermaidDiagram({ code }: MermaidDiagramProps) {
         >
           <button
             onClick={closeFullscreen}
-            className="fixed top-4 right-4 z-[60] rounded-md bg-[#1e3a5f] border border-[#c9a84c]/40 px-3 py-1.5 text-sm text-platinum-white hover:bg-[#2a4d7a] transition-colors"
+            className="fixed top-4 right-4 z-[60] rounded-md bg-[#1e3a5f] border border-[#c9a84c]/40 px-3 py-1.5 text-sm text-foreground hover:bg-[#2a4d7a] transition-colors"
           >
-            ✕ Close <span className="ml-1 text-platinum-white/50 text-xs">Esc</span>
+            ✕ Close <span className="ml-1 text-muted-foreground/90 text-xs">Esc</span>
           </button>
           <div
             className="min-h-full min-w-full flex items-center justify-center p-8"

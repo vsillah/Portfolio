@@ -1294,12 +1294,12 @@ export default function VideoGenerationPage() {
   const cardCls = 'bg-silicon-slate/50 rounded-xl border border-silicon-slate p-6'
   const btnPrimary = 'flex items-center gap-2 px-4 py-2 bg-radiant-gold/20 text-radiant-gold font-medium rounded-lg hover:bg-radiant-gold/30 disabled:opacity-50 disabled:cursor-not-allowed'
   const btnSmall = 'flex items-center gap-1 text-xs px-2 py-1 rounded disabled:opacity-50'
-  const inputCls = 'w-full bg-imperial-navy border border-silicon-slate rounded-lg px-3 py-2 text-platinum-white placeholder-gray-500 focus:ring-2 focus:ring-radiant-gold/50'
+  const inputCls = 'w-full bg-background border border-silicon-slate rounded-lg px-3 py-2 text-foreground placeholder-gray-500 focus:ring-2 focus:ring-radiant-gold/50'
   const selectCls = inputCls + ' disabled:opacity-60'
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-imperial-navy text-platinum-white p-6">
+      <div className="min-h-screen bg-background text-foreground p-6">
         <Breadcrumbs
           items={[
             { label: 'Admin', href: '/admin' },
@@ -1315,7 +1315,7 @@ export default function VideoGenerationPage() {
           </h1>
 
           {/* ═══════════ STICKY PHASE NAV ═══════════ */}
-          <div className="sticky top-0 z-10 bg-imperial-navy/95 backdrop-blur-sm border-b border-silicon-slate -mx-6 px-6 py-2 mb-6">
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-silicon-slate -mx-6 px-6 py-2 mb-6">
             <div className="max-w-6xl mx-auto flex items-center gap-1">
               {([
                 { id: 'plan' as const, ref: planRef, label: 'Plan', count: `${driveItems.length > 0 ? driveItems.length + ' Drive · ' : ''}${drafts.length > 0 ? '' : '0 drafts'}${drafts.length > 0 ? '' : ''}`.trim() || undefined },
@@ -1328,7 +1328,7 @@ export default function VideoGenerationPage() {
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     activeSection === id
                       ? 'bg-radiant-gold/15 text-radiant-gold'
-                      : 'text-gray-400 hover:text-platinum-white hover:bg-silicon-slate/30'
+                      : 'text-gray-400 hover:text-foreground hover:bg-silicon-slate/30'
                   }`}
                 >
                   <span className="flex items-center justify-center w-5 h-5 rounded-full bg-radiant-gold/20 text-radiant-gold text-[10px] font-bold">{i + 1}</span>
@@ -1341,7 +1341,7 @@ export default function VideoGenerationPage() {
 
           {/* ═══════════ PHASE 1: PLAN ═══════════ */}
           <div ref={planRef} className="mb-10 scroll-mt-16">
-            <h2 className="text-lg font-semibold text-platinum-white mb-4 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-radiant-gold/20 text-radiant-gold text-xs font-bold">1</span>
               Plan
             </h2>
@@ -1355,7 +1355,7 @@ export default function VideoGenerationPage() {
                   <button
                     onClick={() => setPlanTab('meetings')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border-b-2 transition-colors -mb-px ${
-                      planTab === 'meetings' ? 'border-radiant-gold text-radiant-gold' : 'border-transparent text-gray-400 hover:text-platinum-white'
+                      planTab === 'meetings' ? 'border-radiant-gold text-radiant-gold' : 'border-transparent text-gray-400 hover:text-foreground'
                     }`}
                   >
                     <Zap className="w-3.5 h-3.5" /> From Meetings
@@ -1363,7 +1363,7 @@ export default function VideoGenerationPage() {
                   <button
                     onClick={() => setPlanTab('input')}
                     className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border-b-2 transition-colors -mb-px ${
-                      planTab === 'input' ? 'border-radiant-gold text-radiant-gold' : 'border-transparent text-gray-400 hover:text-platinum-white'
+                      planTab === 'input' ? 'border-radiant-gold text-radiant-gold' : 'border-transparent text-gray-400 hover:text-foreground'
                     }`}
                   >
                     <PenLine className="w-3.5 h-3.5" /> From Input
@@ -1379,10 +1379,10 @@ export default function VideoGenerationPage() {
                       <div>
                         <label className="block text-[10px] text-gray-500 mb-0.5">Client context</label>
                         {selectedContact && !manualEmailMode ? (
-                          <div className="flex items-center gap-2 px-2 py-1.5 bg-imperial-navy border border-radiant-gold/30 rounded-lg">
+                          <div className="flex items-center gap-2 px-2 py-1.5 bg-background border border-radiant-gold/30 rounded-lg">
                             <User className="w-3.5 h-3.5 text-radiant-gold shrink-0" />
                             <div className="flex-1 min-w-0">
-                              <span className="text-xs text-platinum-white truncate">{selectedContact.name || selectedContact.email}</span>
+                              <span className="text-xs text-foreground truncate">{selectedContact.name || selectedContact.email}</span>
                               {selectedContact.company && <span className="text-[10px] text-gray-500 ml-1">· {selectedContact.company}</span>}
                             </div>
                             <button onClick={clearContactSelection} className="shrink-0 text-gray-400 hover:text-rose-400 p-0.5"><X className="w-3 h-3" /></button>
@@ -1390,7 +1390,7 @@ export default function VideoGenerationPage() {
                         ) : manualEmailMode ? (
                           <div className="flex items-center gap-1">
                             <input type="email" value={manualEmail} onChange={e => setManualEmail(e.target.value)} placeholder="client@example.com" className={inputCls + ' text-xs flex-1'} autoFocus />
-                            <button onClick={clearContactSelection} className="text-[10px] text-gray-400 hover:text-platinum-white shrink-0">Cancel</button>
+                            <button onClick={clearContactSelection} className="text-[10px] text-gray-400 hover:text-foreground shrink-0">Cancel</button>
                           </div>
                         ) : (
                           <div ref={contactDropdownRef} className="relative">
@@ -1399,14 +1399,14 @@ export default function VideoGenerationPage() {
                               <input type="text" value={contactSearch} onChange={e => { setContactSearch(e.target.value); setContactDropdownOpen(true) }} onFocus={() => setContactDropdownOpen(true)} placeholder="Search client..." className={inputCls + ' text-xs pl-7'} />
                             </div>
                             {contactDropdownOpen && (
-                              <div className="absolute top-full left-0 right-0 mt-1 z-20 max-h-48 overflow-y-auto bg-imperial-navy border border-silicon-slate rounded-lg shadow-xl">
+                              <div className="absolute top-full left-0 right-0 mt-1 z-20 max-h-48 overflow-y-auto bg-background border border-silicon-slate rounded-lg shadow-xl">
                                 {contacts.length === 0 && contactSearch ? (
                                   <div className="px-3 py-2 text-[10px] text-gray-500">No matches.</div>
                                 ) : contacts.map(c => (
                                   <button key={c.email} onClick={() => { setSelectedContact(c); setContactDropdownOpen(false); setContactSearch('') }} className="w-full text-left px-2.5 py-1.5 hover:bg-silicon-slate/50 flex items-center gap-2 border-b border-silicon-slate/30 last:border-0">
                                     <User className="w-3 h-3 text-gray-500 shrink-0" />
                                     <div className="flex-1 min-w-0">
-                                      <div className="text-[11px] text-platinum-white truncate">{c.name || c.email}{c.company && <span className="text-gray-400 ml-1">· {c.company}</span>}</div>
+                                      <div className="text-[11px] text-foreground truncate">{c.name || c.email}{c.company && <span className="text-gray-400 ml-1">· {c.company}</span>}</div>
                                     </div>
                                     <span className={`shrink-0 text-[9px] px-1 py-0.5 rounded font-medium ${c.source === 'client' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'}`}>{c.source === 'client' ? 'Client' : 'Lead'}</span>
                                   </button>
@@ -1435,7 +1435,7 @@ export default function VideoGenerationPage() {
                       <span className="text-[10px] text-gray-500">to</span>
                       <input type="date" value={meetingDateTo} onChange={e => setMeetingDateTo(e.target.value)} className={inputCls + ' text-xs w-32'} />
                       {(meetingDateFrom || meetingDateTo) && (
-                        <button onClick={() => { setMeetingDateFrom(''); setMeetingDateTo('') }} className="text-[10px] text-gray-400 hover:text-platinum-white">Clear</button>
+                        <button onClick={() => { setMeetingDateFrom(''); setMeetingDateTo('') }} className="text-[10px] text-gray-400 hover:text-foreground">Clear</button>
                       )}
                     </div>
 
@@ -1449,13 +1449,13 @@ export default function VideoGenerationPage() {
                         {/* Selection bar */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <button onClick={() => { setMeetingSelectionMode(v => !v); if (meetingSelectionMode) deselectAllMeetings() }} className={`text-[10px] px-2 py-1 rounded border ${meetingSelectionMode ? 'border-radiant-gold/40 text-radiant-gold bg-radiant-gold/10' : 'border-silicon-slate text-gray-400 hover:text-platinum-white'}`}>
+                            <button onClick={() => { setMeetingSelectionMode(v => !v); if (meetingSelectionMode) deselectAllMeetings() }} className={`text-[10px] px-2 py-1 rounded border ${meetingSelectionMode ? 'border-radiant-gold/40 text-radiant-gold bg-radiant-gold/10' : 'border-silicon-slate text-gray-400 hover:text-foreground'}`}>
                               {meetingSelectionMode ? 'Cancel' : 'Select'}
                             </button>
                             {meetingSelectionMode && (
                               <>
                                 <button onClick={selectAllMeetings} className="text-[10px] text-radiant-gold hover:text-gold-light">All</button>
-                                <button onClick={deselectAllMeetings} className="text-[10px] text-gray-400 hover:text-platinum-white">None</button>
+                                <button onClick={deselectAllMeetings} className="text-[10px] text-gray-400 hover:text-foreground">None</button>
                                 {selectedMeetingIds.size > 0 && <span className="text-[10px] text-gray-400">{selectedMeetingIds.size} selected</span>}
                               </>
                             )}
@@ -1496,10 +1496,10 @@ export default function VideoGenerationPage() {
                           <div className="flex items-center justify-between pt-1">
                             <span className="text-[10px] text-gray-500">Page {meetingsPage} of {totalMeetingPages}</span>
                             <div className="flex items-center gap-2">
-                              <button onClick={() => setMeetingsPage(p => Math.max(1, p - 1))} disabled={meetingsPage === 1} className="flex items-center gap-1 px-2 py-1 rounded text-[10px] bg-imperial-navy border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
+                              <button onClick={() => setMeetingsPage(p => Math.max(1, p - 1))} disabled={meetingsPage === 1} className="flex items-center gap-1 px-2 py-1 rounded text-[10px] bg-background border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
                                 <ChevronLeft className="w-3 h-3" /> Prev
                               </button>
-                              <button onClick={() => setMeetingsPage(p => Math.min(totalMeetingPages, p + 1))} disabled={meetingsPage === totalMeetingPages} className="flex items-center gap-1 px-2 py-1 rounded text-[10px] bg-imperial-navy border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
+                              <button onClick={() => setMeetingsPage(p => Math.min(totalMeetingPages, p + 1))} disabled={meetingsPage === totalMeetingPages} className="flex items-center gap-1 px-2 py-1 rounded text-[10px] bg-background border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
                                 Next <ChevronRight className="w-3 h-3" />
                               </button>
                             </div>
@@ -1511,7 +1511,7 @@ export default function VideoGenerationPage() {
                     {/* Generate controls */}
                     <div className="flex items-center gap-2 pt-1 border-t border-silicon-slate/50">
                       <label className="text-xs text-gray-400">Drafts</label>
-                      <select value={scratchLimit} onChange={e => setScratchLimit(Number(e.target.value))} className="bg-imperial-navy border border-silicon-slate rounded-lg px-2 py-1 text-platinum-white text-xs">
+                      <select value={scratchLimit} onChange={e => setScratchLimit(Number(e.target.value))} className="bg-background border border-silicon-slate rounded-lg px-2 py-1 text-foreground text-xs">
                         {[1, 2, 3, 5, 7, 10].map(n => <option key={n} value={n}>{n}</option>)}
                       </select>
                       <button onClick={runFromScratch} disabled={scratchRunning || directionRunning} className={btnPrimary + ' flex-1 justify-center text-xs'}>
@@ -1543,7 +1543,7 @@ export default function VideoGenerationPage() {
                       <textarea value={directionText} onChange={e => setDirectionText(e.target.value)} placeholder="Paste a script, describe a topic, or drop rough notes..." rows={4} maxLength={5000} className={inputCls + ' text-sm'} />
                       <div className="flex items-center justify-between mt-1">
                         <span className="text-[10px] text-gray-500">{directionText.length.toLocaleString()} / 5,000</span>
-                        <button type="button" onClick={() => setShowDirectionDetails(v => !v)} className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-platinum-white">
+                        <button type="button" onClick={() => setShowDirectionDetails(v => !v)} className="flex items-center gap-1 text-[10px] text-gray-400 hover:text-foreground">
                           {showDirectionDetails ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                           {showDirectionDetails ? 'Hide details' : 'Add details'}
                         </button>
@@ -1571,12 +1571,12 @@ export default function VideoGenerationPage() {
                     {formattedPrompt && (
                       <div>
                         <label className="block text-[10px] text-gray-400 mb-1">Formatted prompt (editable)</label>
-                        <textarea value={formattedPrompt} onChange={e => setFormattedPrompt(e.target.value)} rows={3} className="w-full bg-imperial-navy border border-purple-500/30 rounded-lg px-3 py-2 text-platinum-white text-xs focus:ring-2 focus:ring-purple-500/50" />
+                        <textarea value={formattedPrompt} onChange={e => setFormattedPrompt(e.target.value)} rows={3} className="w-full bg-background border border-purple-500/30 rounded-lg px-3 py-2 text-foreground text-xs focus:ring-2 focus:ring-purple-500/50" />
                       </div>
                     )}
                     <div className="flex items-center gap-2">
                       <label className="text-xs text-gray-400">Drafts</label>
-                      <select value={directionLimit} onChange={e => setDirectionLimit(Number(e.target.value))} className="bg-imperial-navy border border-silicon-slate rounded-lg px-2 py-1 text-platinum-white text-xs">
+                      <select value={directionLimit} onChange={e => setDirectionLimit(Number(e.target.value))} className="bg-background border border-silicon-slate rounded-lg px-2 py-1 text-foreground text-xs">
                         {[1, 2, 3, 5].map(n => <option key={n} value={n}>{n}</option>)}
                       </select>
                     </div>
@@ -1602,7 +1602,7 @@ export default function VideoGenerationPage() {
 
               {/* From Drive sidebar */}
               <div className={cardCls}>
-                <h3 className="text-sm font-semibold text-platinum-white mb-1 flex items-center gap-1.5">
+                <h3 className="text-sm font-semibold text-foreground mb-1 flex items-center gap-1.5">
                   <FolderSync className="w-4 h-4 text-radiant-gold" />
                   From Drive
                 </h3>
@@ -1636,9 +1636,9 @@ export default function VideoGenerationPage() {
                 ) : (
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {driveItems.map(item => (
-                      <div key={item.id} className="p-2 bg-imperial-navy/50 rounded-lg border border-silicon-slate">
+                      <div key={item.id} className="p-2 bg-background/50 rounded-lg border border-silicon-slate">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs text-platinum-white truncate flex-1">{item.drive_file_name}</span>
+                          <span className="text-xs text-foreground truncate flex-1">{item.drive_file_name}</span>
                           <button onClick={() => addToDrafts(item.id)} disabled={!!addingToDrafts} className={btnSmall + ' bg-radiant-gold/20 text-radiant-gold hover:bg-radiant-gold/30'}>
                             {addingToDrafts === item.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Play className="w-3 h-3" />}
                             Add to Drafts
@@ -1664,7 +1664,7 @@ export default function VideoGenerationPage() {
             >
               <div className="flex items-center gap-3">
                 <Camera className="w-5 h-5 text-radiant-gold" />
-                <span className="text-sm font-semibold text-platinum-white">B-roll Library</span>
+                <span className="text-sm font-semibold text-foreground">B-roll Library</span>
                 <span className="text-[10px] text-gray-400">
                   {brollSummary.total} asset{brollSummary.total !== 1 ? 's' : ''}
                   {brollSummary.stale > 0 && <span className="text-amber-400 ml-1">· {brollSummary.stale} stale</span>}
@@ -1720,7 +1720,7 @@ export default function VideoGenerationPage() {
                           const freshness = brollStaleness(asset.captured_at)
                           const borderColor = freshness === 'old' ? 'border-red-500/50' : freshness === 'stale' ? 'border-amber-500/50' : 'border-silicon-slate'
                           return (
-                            <div key={asset.id} className={`bg-imperial-navy/50 rounded-lg border ${borderColor} p-3`}>
+                            <div key={asset.id} className={`bg-background/50 rounded-lg border ${borderColor} p-3`}>
                               <div className="aspect-video bg-silicon-slate/30 rounded mb-2 flex items-center justify-center">
                                 {asset.screenshot_path ? (
                                   <ImageIcon className="w-6 h-6 text-gray-500" />
@@ -1728,7 +1728,7 @@ export default function VideoGenerationPage() {
                                   <Camera className="w-6 h-6 text-gray-600" />
                                 )}
                               </div>
-                              <div className="text-xs text-platinum-white font-medium truncate">{asset.route_description ?? asset.route}</div>
+                              <div className="text-xs text-foreground font-medium truncate">{asset.route_description ?? asset.route}</div>
                               <div className="text-[10px] text-gray-500 mt-0.5">{asset.route}</div>
                               <div className="flex items-center justify-between mt-1">
                                 <span className={`text-[10px] ${freshness === 'old' ? 'text-red-400' : freshness === 'stale' ? 'text-amber-400' : 'text-emerald-400'}`}>
@@ -1752,7 +1752,7 @@ export default function VideoGenerationPage() {
 
           {/* ═══════════ PHASE 2: DECIDE ═══════════ */}
           <div ref={decideRef} className="mb-10 scroll-mt-16">
-            <h2 className="text-lg font-semibold text-platinum-white mb-4 flex items-center gap-2">
+            <h2 className="text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-radiant-gold/20 text-radiant-gold text-xs font-bold">2</span>
               Decide
               <span className="text-xs text-gray-400 font-normal ml-1">{filteredDrafts.length} draft{filteredDrafts.length !== 1 ? 's' : ''}</span>
@@ -1763,7 +1763,7 @@ export default function VideoGenerationPage() {
               <div className="flex items-center gap-1">
                 <Filter className="w-3.5 h-3.5 text-gray-400 mr-1" />
                 {(['all', 'llm_generated', 'drive_script', 'manual'] as SourceFilter[]).map(f => (
-                  <button key={f} onClick={() => setSourceFilter(f)} className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${sourceFilter === f ? 'bg-radiant-gold/20 text-radiant-gold' : 'text-gray-400 hover:text-platinum-white'}`}>
+                  <button key={f} onClick={() => setSourceFilter(f)} className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${sourceFilter === f ? 'bg-radiant-gold/20 text-radiant-gold' : 'text-gray-400 hover:text-foreground'}`}>
                     {f === 'all' ? 'All' : f === 'llm_generated' ? 'Meetings' : f === 'drive_script' ? 'Drive' : 'Input'}
                     {f !== 'all' && <span className="ml-1 text-gray-500">({drafts.filter(d => d.source === f).length})</span>}
                   </button>
@@ -1772,7 +1772,7 @@ export default function VideoGenerationPage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => selectionMode ? exitSelectionMode() : setSelectionMode(true)}
-                  className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${selectionMode ? 'bg-radiant-gold/20 text-radiant-gold' : 'text-gray-400 hover:text-platinum-white'}`}
+                  className={`text-xs px-2.5 py-1 rounded-md font-medium transition-colors ${selectionMode ? 'bg-radiant-gold/20 text-radiant-gold' : 'text-gray-400 hover:text-foreground'}`}
                 >
                   <CheckSquare className="w-3.5 h-3.5 inline mr-1" />
                   {selectionMode ? 'Exit Select' : 'Select'}
@@ -1786,7 +1786,7 @@ export default function VideoGenerationPage() {
             {/* Selection bar (visible only in selection mode) */}
             {selectionMode && (
               <div className="flex items-center gap-3 mb-3 p-2.5 bg-radiant-gold/5 border border-radiant-gold/20 rounded-lg">
-                <span className="text-xs text-platinum-white font-medium">{selectedCount} selected</span>
+                <span className="text-xs text-foreground font-medium">{selectedCount} selected</span>
                 <button onClick={selectedCount === filteredDrafts.length ? deselectAll : selectAll} className="text-xs text-radiant-gold hover:text-gold-light">
                   {selectedCount === filteredDrafts.length ? 'Deselect All' : 'Select All'}
                 </button>
@@ -1810,7 +1810,7 @@ export default function VideoGenerationPage() {
               </div>
             )}
 
-            {batchMessage && <p className="text-sm text-platinum-white/80 mb-2">{batchMessage}</p>}
+            {batchMessage && <p className="text-sm text-muted-foreground mb-2">{batchMessage}</p>}
             {batchProgress && (
               <div className="mb-3">
                 <ProgressPanel title="Batch Operation" steps={batchProgress} onCancel={() => setBatchProgress(null)} />
@@ -1851,7 +1851,7 @@ export default function VideoGenerationPage() {
                               {isSelected ? <CheckSquare className="w-4 h-4 text-radiant-gold" /> : <Square className="w-4 h-4" />}
                             </button>
                           )}
-                          <span className="text-sm font-medium text-platinum-white truncate min-w-0 flex-1">{draft.title}</span>
+                          <span className="text-sm font-medium text-foreground truncate min-w-0 flex-1">{draft.title}</span>
                           <span className={`shrink-0 text-[10px] px-1.5 py-0.5 rounded font-medium ${badge.cls}`}>{badge.label}</span>
                           <span className={`shrink-0 text-[10px] font-mono ${overLimit ? 'text-red-400' : 'text-gray-500'}`}>
                             {draft.script_text.length.toLocaleString()}c
@@ -1887,13 +1887,13 @@ export default function VideoGenerationPage() {
                                       <span className="text-xs text-gray-400">Script</span>
                                       <span className="text-[10px] font-mono text-gray-500">{draft.script_text.length.toLocaleString()} chars</span>
                                     </div>
-                                    <pre className="text-xs text-platinum-white bg-imperial-navy rounded p-2 max-h-32 overflow-auto whitespace-pre-wrap">
+                                    <pre className="text-xs text-foreground bg-background rounded p-2 max-h-32 overflow-auto whitespace-pre-wrap">
                                       {draft.script_text.slice(0, 800)}{draft.script_text.length > 800 ? '...' : ''}
                                     </pre>
                                   </div>
                                   <div>
                                     <div className="text-xs text-gray-400 mb-1">Storyboard</div>
-                                    <div className="text-xs text-gray-400 bg-imperial-navy rounded p-2 max-h-32 overflow-auto">
+                                    <div className="text-xs text-gray-400 bg-background rounded p-2 max-h-32 overflow-auto">
                                       {draft.storyboard_json?.scenes?.map((s, i) => (
                                         <div key={i} className="mb-1">
                                           {s.sceneNumber ?? i + 1}. {s.description ?? '—'}
@@ -1913,7 +1913,7 @@ export default function VideoGenerationPage() {
                                         <button
                                           onClick={() => setDraftOutputTab(prev => ({ ...prev, [draft.id]: 'heygen' }))}
                                           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border-b-2 transition-colors -mb-px ${
-                                            activeTab === 'heygen' ? 'border-radiant-gold text-radiant-gold' : 'border-transparent text-gray-400 hover:text-platinum-white'
+                                            activeTab === 'heygen' ? 'border-radiant-gold text-radiant-gold' : 'border-transparent text-gray-400 hover:text-foreground'
                                           }`}
                                         >
                                           <Video className="w-3 h-3" /> Video
@@ -1922,7 +1922,7 @@ export default function VideoGenerationPage() {
                                         <button
                                           onClick={() => setDraftOutputTab(prev => ({ ...prev, [draft.id]: 'gamma' }))}
                                           className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border-b-2 transition-colors -mb-px ${
-                                            activeTab === 'gamma' ? 'border-amber-400 text-amber-400' : 'border-transparent text-gray-400 hover:text-platinum-white'
+                                            activeTab === 'gamma' ? 'border-amber-400 text-amber-400' : 'border-transparent text-gray-400 hover:text-foreground'
                                           }`}
                                         >
                                           <FileText className="w-3 h-3" /> Presentation
@@ -1959,12 +1959,12 @@ export default function VideoGenerationPage() {
                                                 <Plus className="w-2.5 h-2.5" /> Add B-roll
                                               </button>
                                               {brollDropdownDraft === draft.id && (
-                                                <div className="absolute top-full left-0 mt-1 z-20 w-56 max-h-48 overflow-y-auto bg-imperial-navy border border-silicon-slate rounded-lg shadow-xl p-1">
+                                                <div className="absolute top-full left-0 mt-1 z-20 w-56 max-h-48 overflow-y-auto bg-background border border-silicon-slate rounded-lg shadow-xl p-1">
                                                   {brollAssets.length === 0 ? (
                                                     <div className="text-[10px] text-gray-500 p-2">No B-roll assets. Capture some first.</div>
                                                   ) : (
                                                     brollAssets.filter(a => !draftBrollIds.includes(a.id)).map(asset => (
-                                                      <button key={asset.id} onClick={() => addBrollToDraft(draft.id, asset.id)} className="w-full text-left px-2 py-1.5 text-[10px] text-platinum-white hover:bg-silicon-slate/50 rounded flex items-center gap-2">
+                                                      <button key={asset.id} onClick={() => addBrollToDraft(draft.id, asset.id)} className="w-full text-left px-2 py-1.5 text-[10px] text-foreground hover:bg-silicon-slate/50 rounded flex items-center gap-2">
                                                         <ImageIcon className="w-3 h-3 text-gray-500 shrink-0" />
                                                         <span className="truncate">{asset.route_description ?? asset.route}</span>
                                                       </button>
@@ -1978,17 +1978,17 @@ export default function VideoGenerationPage() {
                                             </div>
                                           </div>
                                           <details className="group">
-                                            <summary className="flex items-center gap-2 cursor-pointer text-[10px] text-gray-400 hover:text-platinum-white select-none">
+                                            <summary className="flex items-center gap-2 cursor-pointer text-[10px] text-gray-400 hover:text-foreground select-none">
                                               <Settings className="w-3 h-3" />
                                               <span>{VIDEO_CHANNEL_CONFIGS[channel]?.label ?? channel} · {aspectRatio} · {useTemplate ? 'Template' : 'Custom avatar'}</span>
                                               <ChevronDown className="w-3 h-3 group-open:rotate-180 transition-transform" />
                                             </summary>
-                                            <div className="mt-2 p-3 bg-imperial-navy/50 rounded-lg border border-silicon-slate flex flex-wrap items-start gap-4">
+                                            <div className="mt-2 p-3 bg-background/50 rounded-lg border border-silicon-slate flex flex-wrap items-start gap-4">
                                               <div>
                                                 <label className="block text-[10px] text-gray-400 mb-1">Presenter</label>
-                                                <div className="inline-flex rounded-lg border border-silicon-slate bg-imperial-navy/50 p-0.5">
-                                                  <button type="button" onClick={() => setUseTemplate(false)} className={`rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors ${!useTemplate ? 'bg-radiant-gold/20 text-radiant-gold' : 'text-gray-400 hover:text-platinum-white'}`}>Custom avatar</button>
-                                                  <button type="button" onClick={() => setUseTemplate(true)} className={`rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors ${useTemplate ? 'bg-radiant-gold/20 text-radiant-gold' : 'text-gray-400 hover:text-platinum-white'}`}>Template</button>
+                                                <div className="inline-flex rounded-lg border border-silicon-slate bg-background/50 p-0.5">
+                                                  <button type="button" onClick={() => setUseTemplate(false)} className={`rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors ${!useTemplate ? 'bg-radiant-gold/20 text-radiant-gold' : 'text-gray-400 hover:text-foreground'}`}>Custom avatar</button>
+                                                  <button type="button" onClick={() => setUseTemplate(true)} className={`rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors ${useTemplate ? 'bg-radiant-gold/20 text-radiant-gold' : 'text-gray-400 hover:text-foreground'}`}>Template</button>
                                                 </div>
                                               </div>
                                               {useTemplate ? (
@@ -2076,11 +2076,11 @@ export default function VideoGenerationPage() {
                       Showing {(safeDraftsPage - 1) * DRAFTS_PER_PAGE + 1}–{Math.min(safeDraftsPage * DRAFTS_PER_PAGE, filteredDrafts.length)} of {filteredDrafts.length}
                     </span>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => changeDraftsPage(safeDraftsPage - 1)} disabled={safeDraftsPage === 1} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm bg-imperial-navy border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
+                      <button onClick={() => changeDraftsPage(safeDraftsPage - 1)} disabled={safeDraftsPage === 1} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm bg-background border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
                         <ChevronLeft className="w-4 h-4" /> Prev
                       </button>
                       <span className="text-sm text-gray-400 px-2">Page {safeDraftsPage} of {totalDraftPages}</span>
-                      <button onClick={() => changeDraftsPage(safeDraftsPage + 1)} disabled={safeDraftsPage === totalDraftPages} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm bg-imperial-navy border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
+                      <button onClick={() => changeDraftsPage(safeDraftsPage + 1)} disabled={safeDraftsPage === totalDraftPages} className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-sm bg-background border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
                         Next <ChevronRight className="w-4 h-4" />
                       </button>
                     </div>
@@ -2093,7 +2093,7 @@ export default function VideoGenerationPage() {
           {/* ═══════════ PHASE 3: REVIEW ═══════════ */}
           <div ref={reviewRef} className="mb-10 scroll-mt-16">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-platinum-white flex items-center gap-2">
+              <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
                 <span className="flex items-center justify-center w-6 h-6 rounded-full bg-radiant-gold/20 text-radiant-gold text-xs font-bold">3</span>
                 Review
                 <span className="text-xs text-gray-400 font-normal ml-1">
@@ -2116,7 +2116,7 @@ export default function VideoGenerationPage() {
                     className={`px-2.5 py-1 rounded-full text-[10px] font-medium transition-colors ${
                       jobStatusFilter === s
                         ? 'bg-radiant-gold/15 text-radiant-gold border border-radiant-gold/30'
-                        : 'text-gray-400 hover:text-platinum-white border border-transparent hover:border-silicon-slate'
+                        : 'text-gray-400 hover:text-foreground border border-transparent hover:border-silicon-slate'
                     }`}
                   >
                     {s === 'all' ? 'All' : s === 'pending' ? 'Processing' : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -2130,7 +2130,7 @@ export default function VideoGenerationPage() {
               </div>
               <button
                 onClick={() => { if (jobSelectionMode) exitJobSelectionMode(); else setJobSelectionMode(true) }}
-                className={`text-[10px] px-2 py-1 rounded border ${jobSelectionMode ? 'border-radiant-gold/40 text-radiant-gold bg-radiant-gold/10' : 'border-silicon-slate text-gray-400 hover:text-platinum-white'}`}
+                className={`text-[10px] px-2 py-1 rounded border ${jobSelectionMode ? 'border-radiant-gold/40 text-radiant-gold bg-radiant-gold/10' : 'border-silicon-slate text-gray-400 hover:text-foreground'}`}
               >
                 {jobSelectionMode ? 'Cancel' : 'Select'}
               </button>
@@ -2141,7 +2141,7 @@ export default function VideoGenerationPage() {
               <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-silicon-slate/50 rounded-lg border border-silicon-slate">
                 <span className="text-xs text-gray-400">{selectedJobIds.size} selected</span>
                 <button onClick={selectAllJobs} className="text-[10px] text-radiant-gold hover:text-gold-light">All</button>
-                <button onClick={deselectAllJobs} className="text-[10px] text-gray-400 hover:text-platinum-white">None</button>
+                <button onClick={deselectAllJobs} className="text-[10px] text-gray-400 hover:text-foreground">None</button>
                 <div className="flex-1" />
                 {selectedRefreshableJobIds.length > 0 && (
                   <button onClick={batchRefreshJobs} disabled={batchRefreshing} className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-blue-500/15 text-blue-400 hover:bg-blue-500/25 disabled:opacity-50">
@@ -2169,7 +2169,7 @@ export default function VideoGenerationPage() {
                 <Video className="w-8 h-8 text-gray-500 mx-auto mb-2" />
                 <p className="text-gray-400 text-sm">
                   No generated videos yet.
-                  {drafts.length > 0 && <> You have <strong className="text-platinum-white">{drafts.length} pending draft{drafts.length !== 1 ? 's' : ''}</strong> ready to generate.</>}
+                  {drafts.length > 0 && <> You have <strong className="text-foreground">{drafts.length} pending draft{drafts.length !== 1 ? 's' : ''}</strong> ready to generate.</>}
                   {drafts.length === 0 && <> Use the Plan section to create drafts first.</>}
                 </p>
               </div>
@@ -2189,7 +2189,7 @@ export default function VideoGenerationPage() {
                       )}
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-sm font-medium text-platinum-white truncate max-w-[280px]">{job.script_text?.slice(0, 60) ?? '(no script)'}...</span>
+                          <span className="text-sm font-medium text-foreground truncate max-w-[280px]">{job.script_text?.slice(0, 60) ?? '(no script)'}...</span>
                           <span className="text-[10px] text-gray-500">{job.channel} · {job.aspect_ratio}</span>
                           {job.broll_asset_ids && job.broll_asset_ids.length > 0 && (
                             <span className="text-[9px] px-1 py-0.5 bg-blue-500/20 text-blue-400 rounded font-medium">{job.broll_asset_ids.length} B-roll</span>
@@ -2231,11 +2231,11 @@ export default function VideoGenerationPage() {
                   Showing {(jobsPage - 1) * JOBS_PER_PAGE + 1}–{Math.min(jobsPage * JOBS_PER_PAGE, jobsTotal)} of {jobsTotal}
                 </span>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => changeJobsPage(jobsPage - 1)} disabled={jobsPage === 1} className="flex items-center gap-1 px-2 py-1 rounded text-[10px] bg-imperial-navy border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
+                  <button onClick={() => changeJobsPage(jobsPage - 1)} disabled={jobsPage === 1} className="flex items-center gap-1 px-2 py-1 rounded text-[10px] bg-background border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
                     <ChevronLeft className="w-3 h-3" /> Prev
                   </button>
                   <span className="text-[10px] text-gray-400">Page {jobsPage} / {totalJobPages}</span>
-                  <button onClick={() => changeJobsPage(jobsPage + 1)} disabled={jobsPage === totalJobPages} className="flex items-center gap-1 px-2 py-1 rounded text-[10px] bg-imperial-navy border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
+                  <button onClick={() => changeJobsPage(jobsPage + 1)} disabled={jobsPage === totalJobPages} className="flex items-center gap-1 px-2 py-1 rounded text-[10px] bg-background border border-silicon-slate text-gray-300 hover:border-radiant-gold/30 disabled:opacity-40 disabled:cursor-not-allowed">
                     Next <ChevronRight className="w-3 h-3" />
                   </button>
                 </div>

@@ -329,7 +329,7 @@ function ChatEvalContent() {
   }
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-7xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -341,7 +341,7 @@ function ChatEvalContent() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-heading tracking-wider mb-2">LLM Grader</h1>
-              <p className="text-platinum-white/60">Evaluate and annotate chat conversations</p>
+              <p className="text-muted-foreground">Evaluate and annotate chat conversations</p>
             </div>
             
             {/* Stats badges */}
@@ -358,7 +358,7 @@ function ChatEvalContent() {
                 <div className="px-4 py-2 bg-silicon-slate/30 border border-radiant-gold/20 rounded-lg">
                   <div className="flex items-center gap-2">
                     <MessageCircle size={16} className="text-radiant-gold" />
-                    <span className="text-sm text-platinum-white">
+                    <span className="text-sm text-foreground">
                       Total Runs: {stats.total_sessions}
                     </span>
                   </div>
@@ -383,7 +383,7 @@ function ChatEvalContent() {
                   className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-all
                     ${selectionMode 
                       ? 'bg-radiant-gold/20 border border-radiant-gold/50 text-radiant-gold' 
-                      : 'bg-silicon-slate/30 border border-radiant-gold/10 text-platinum-white/70 hover:border-radiant-gold/30'
+                      : 'bg-silicon-slate/30 border border-radiant-gold/10 text-muted-foreground hover:border-radiant-gold/30'
                     }`}
                 >
                   <CheckSquare size={16} />
@@ -394,7 +394,7 @@ function ChatEvalContent() {
                 {selectionMode && (
                   <button
                     onClick={handleSelectAll}
-                    className="text-sm text-platinum-white/70 hover:text-platinum-white"
+                    className="text-sm text-muted-foreground hover:text-foreground"
                   >
                     {selectedSessions.size === sessions.length ? 'Deselect All' : 'Select All'}
                   </button>
@@ -402,7 +402,7 @@ function ChatEvalContent() {
               </div>
               
               {/* Pagination info */}
-              <span className="text-sm text-platinum-white/50">
+              <span className="text-sm text-muted-foreground/90">
                 Page {page} of {totalPages}
               </span>
             </div>
@@ -424,14 +424,14 @@ function ChatEvalContent() {
                         <span className="text-sm font-bold text-radiant-gold">{selectedSessions.size}</span>
                       </div>
                       <div className="text-sm">
-                        <div className="text-platinum-white">sessions selected</div>
-                        <div className="text-platinum-white/50">
+                        <div className="text-foreground">sessions selected</div>
+                        <div className="text-muted-foreground/90">
                           {selectedWithOpenCodes.length} with open codes
                         </div>
                       </div>
                     </div>
 
-                    <div className="w-px h-8 bg-platinum-white/20" />
+                    <div className="w-px h-8 bg-foreground/20" />
 
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -472,9 +472,9 @@ function ChatEvalContent() {
                       whileTap={{ scale: 0.98 }}
                       onClick={handleDeleteSelected}
                       disabled={isDeleting}
-                      className="flex items-center gap-2 px-4 py-2 bg-platinum-white/10 hover:bg-red-600/80 
+                      className="flex items-center gap-2 px-4 py-2 bg-red-950/30 hover:bg-red-600/80 
                         disabled:opacity-50 disabled:cursor-not-allowed
-                        border border-platinum-white/20 rounded-lg text-platinum-white font-medium transition-colors text-sm"
+                        border border-red-500/30 rounded-lg text-foreground font-medium transition-colors text-sm"
                     >
                       {isDeleting ? (
                         <Loader2 size={18} className="animate-spin" />
@@ -496,10 +496,10 @@ function ChatEvalContent() {
 
                     <button
                       onClick={clearSelection}
-                      className="ml-auto p-2 hover:bg-platinum-white/10 rounded-lg transition-colors"
+                      className="ml-auto p-2 hover:bg-muted/80 rounded-lg transition-colors"
                       aria-label="Clear selection"
                     >
-                      <X size={18} className="text-platinum-white/60" />
+                      <X size={18} className="text-muted-foreground" />
                     </button>
                   </div>
                 </motion.div>
@@ -509,11 +509,11 @@ function ChatEvalContent() {
             {/* Sessions */}
             <div className="space-y-3">
               {loading ? (
-                <div className="text-center py-8 text-platinum-white/50">
+                <div className="text-center py-8 text-muted-foreground/90">
                   Loading sessions...
                 </div>
               ) : sessions.length === 0 ? (
-                <div className="text-center py-8 text-platinum-white/50">
+                <div className="text-center py-8 text-muted-foreground/90">
                   No sessions found. Try adjusting your filters.
                 </div>
               ) : (
@@ -544,7 +544,7 @@ function ChatEvalContent() {
                 >
                   Previous
                 </motion.button>
-                <span className="px-4 py-2 text-sm text-platinum-white/50">
+                <span className="px-4 py-2 text-sm text-muted-foreground/90">
                   {page} / {totalPages}
                 </span>
                 <motion.button

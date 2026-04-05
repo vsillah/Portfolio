@@ -207,7 +207,7 @@ export default function EbookLandingPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-imperial-navy">
+      <main className="min-h-screen bg-background">
         <Navigation />
         <div className="flex items-center justify-center min-h-screen">
           <div className="h-10 w-48 bg-silicon-slate/20 rounded-full animate-pulse" />
@@ -218,10 +218,10 @@ export default function EbookLandingPage() {
 
   if (error === 'not_found' || !leadMagnet) {
     return (
-      <main className="min-h-screen bg-imperial-navy">
+      <main className="min-h-screen bg-background">
         <Navigation />
         <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
-          <h1 className="font-premium text-3xl text-platinum-white">Ebook not found</h1>
+          <h1 className="font-premium text-3xl text-foreground">Ebook not found</h1>
           <Link href="/" className="text-radiant-gold hover:underline text-sm font-heading uppercase tracking-widest">
             Back to Home
           </Link>
@@ -233,18 +233,18 @@ export default function EbookLandingPage() {
   const lp = leadMagnet.landing_page_data
   if (!lp) {
     return (
-      <main className="min-h-screen bg-imperial-navy">
+      <main className="min-h-screen bg-background">
         <Navigation />
         <div className="flex flex-col items-center justify-center min-h-screen gap-6 px-6">
-          <h1 className="font-premium text-3xl text-platinum-white">{leadMagnet.title}</h1>
-          <p className="text-platinum-white/60">Landing page content is being prepared.</p>
+          <h1 className="font-premium text-3xl text-foreground">{leadMagnet.title}</h1>
+          <p className="text-muted-foreground">Landing page content is being prepared.</p>
         </div>
       </main>
     )
   }
 
   return (
-    <main className="min-h-screen bg-imperial-navy relative overflow-hidden">
+    <main className="min-h-screen bg-background relative overflow-hidden">
       <Navigation />
 
       {/* Background effects */}
@@ -262,7 +262,7 @@ export default function EbookLandingPage() {
           >
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-platinum-white/50 hover:text-radiant-gold transition-colors text-sm font-heading uppercase tracking-widest"
+              className="inline-flex items-center gap-2 text-muted-foreground/90 hover:text-radiant-gold transition-colors text-sm font-heading uppercase tracking-widest"
             >
               <ArrowLeft size={14} />
               <span>Home</span>
@@ -304,13 +304,13 @@ export default function EbookLandingPage() {
                 </span>
               </div>
 
-              <h1 className="font-premium text-4xl sm:text-5xl lg:text-6xl text-platinum-white leading-[1.1] mb-4">
+              <h1 className="font-premium text-4xl sm:text-5xl lg:text-6xl text-foreground leading-[1.1] mb-4">
                 <span className="italic text-radiant-gold">{lp.headline}</span>
               </h1>
-              <p className="font-heading text-lg sm:text-xl text-platinum-white/70 tracking-wide mb-8">
+              <p className="font-heading text-lg sm:text-xl text-muted-foreground tracking-wide mb-8">
                 {lp.subheadline}
               </p>
-              <p className="font-body text-platinum-white/50 text-base leading-relaxed mb-10">
+              <p className="font-body text-muted-foreground/90 text-base leading-relaxed mb-10">
                 {lp.hook}
               </p>
 
@@ -324,13 +324,13 @@ export default function EbookLandingPage() {
               </button>
 
               {!isAuthenticated && (
-                <p className="text-platinum-white/40 text-xs font-body mt-4">
+                <p className="text-muted-foreground/80 text-xs font-body mt-4">
                   Free download — create an account to get your copy.
                 </p>
               )}
 
               {leadMagnet.download_count > 0 && (
-                <p className="text-platinum-white/30 text-xs font-body mt-3">
+                <p className="text-muted-foreground/70 text-xs font-body mt-3">
                   {leadMagnet.download_count.toLocaleString()} downloads
                 </p>
               )}
@@ -343,13 +343,13 @@ export default function EbookLandingPage() {
 
               {leadMagnet.audiobook_lead_magnet && (
                 <div className="mt-10 pt-8 border-t border-radiant-gold/10">
-                  <p className="text-platinum-white/60 font-body text-sm mb-3">
+                  <p className="text-muted-foreground font-body text-sm mb-3">
                     Also available: download the audiobook for offline listening.
                   </p>
                   <button
                     onClick={handleAudiobookDownload}
                     disabled={downloadingAudiobook}
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-3 py-3 px-8 border border-radiant-gold/30 text-platinum-white rounded-full text-sm font-heading tracking-widest uppercase font-bold hover:bg-radiant-gold/10 transition-all disabled:opacity-60"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-3 py-3 px-8 border border-radiant-gold/30 text-foreground rounded-full text-sm font-heading tracking-widest uppercase font-bold hover:bg-radiant-gold/10 transition-all disabled:opacity-60"
                   >
                     <Download size={16} />
                     <span>{downloadingAudiobook ? 'Preparing...' : 'Download Audiobook'}</span>
@@ -377,7 +377,7 @@ export default function EbookLandingPage() {
                 Inside the Book
               </span>
             </div>
-            <h2 className="font-premium text-3xl sm:text-4xl text-platinum-white">
+            <h2 className="font-premium text-3xl sm:text-4xl text-foreground">
               What You&apos;ll <span className="italic text-radiant-gold">Learn</span>
             </h2>
           </motion.div>
@@ -393,7 +393,7 @@ export default function EbookLandingPage() {
                 className="flex items-start gap-4 p-6 bg-silicon-slate/20 backdrop-blur-md rounded-xl border border-radiant-gold/5 hover:border-radiant-gold/15 transition-all"
               >
                 <CheckCircle className="w-6 h-6 text-radiant-gold flex-shrink-0 mt-0.5" />
-                <p className="font-body text-platinum-white/80 text-base leading-relaxed">
+                <p className="font-body text-muted-foreground text-base leading-relaxed">
                   {benefit}
                 </p>
               </motion.div>
@@ -417,15 +417,15 @@ export default function EbookLandingPage() {
                 <User className="w-7 h-7 text-radiant-gold" />
               </div>
               <div>
-                <h3 className="font-premium text-2xl text-platinum-white">
+                <h3 className="font-premium text-2xl text-foreground">
                   {lp.author}
                 </h3>
-                <p className="text-[10px] font-heading tracking-widest text-platinum-white/40 uppercase">
+                <p className="text-[10px] font-heading tracking-widest text-muted-foreground/80 uppercase">
                   Author
                 </p>
               </div>
             </div>
-            <p className="font-body text-platinum-white/60 text-base leading-relaxed">
+            <p className="font-body text-muted-foreground text-base leading-relaxed">
               {lp.authorBio}
             </p>
           </motion.div>
@@ -441,10 +441,10 @@ export default function EbookLandingPage() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="font-premium text-3xl sm:text-4xl text-platinum-white mb-6">
+            <h2 className="font-premium text-3xl sm:text-4xl text-foreground mb-6">
               Ready to <span className="italic text-radiant-gold">Accelerate</span>?
             </h2>
-            <p className="font-body text-platinum-white/50 text-lg mb-10 max-w-xl mx-auto">
+            <p className="font-body text-muted-foreground/90 text-lg mb-10 max-w-xl mx-auto">
               Get your free copy and start building smarter products with AI today.
             </p>
             <button
@@ -457,7 +457,7 @@ export default function EbookLandingPage() {
             </button>
 
             {leadMagnet.download_count > 0 && (
-              <p className="text-platinum-white/30 text-xs font-body mt-4">
+              <p className="text-muted-foreground/70 text-xs font-body mt-4">
                 Join {leadMagnet.download_count.toLocaleString()}+ readers
               </p>
             )}
@@ -477,10 +477,10 @@ export default function EbookLandingPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <p className="font-body text-platinum-white/60 text-lg mb-2">
+              <p className="font-body text-muted-foreground text-lg mb-2">
                 Your download has started.
               </p>
-              <h2 className="font-premium text-2xl sm:text-3xl text-platinum-white mb-8">
+              <h2 className="font-premium text-2xl sm:text-3xl text-foreground mb-8">
                 What&apos;s next?
               </h2>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
@@ -495,22 +495,22 @@ export default function EbookLandingPage() {
                 </a>
                 <div className="flex flex-col items-center gap-2">
                   {userEmail && (
-                    <p className="text-platinum-white/50 text-sm font-body">
-                      We&apos;ll notify you at <strong className="text-platinum-white/70">{userEmail}</strong>
+                    <p className="text-muted-foreground/90 text-sm font-body">
+                      We&apos;ll notify you at <strong className="text-muted-foreground">{userEmail}</strong>
                     </p>
                   )}
                   {workshopNotifyStatus === 'idle' && (
                     <button
                       type="button"
                       onClick={handleWorkshopNotify}
-                      className="inline-flex items-center justify-center gap-2 py-3 px-6 bg-silicon-slate/40 border border-radiant-gold/30 text-platinum-white rounded-full text-sm font-heading tracking-widest uppercase font-bold hover:bg-silicon-slate/60 transition-all"
+                      className="inline-flex items-center justify-center gap-2 py-3 px-6 bg-silicon-slate/40 border border-radiant-gold/30 text-foreground rounded-full text-sm font-heading tracking-widest uppercase font-bold hover:bg-silicon-slate/60 transition-all"
                     >
                       <MailCheck size={16} />
                       <span>Notify me when the Accelerated Workshop opens</span>
                     </button>
                   )}
                   {workshopNotifyStatus === 'loading' && (
-                    <span className="text-platinum-white/60 text-sm">Saving...</span>
+                    <span className="text-muted-foreground text-sm">Saving...</span>
                   )}
                   {workshopNotifyStatus === 'success' && (
                     <p className="text-radiant-gold text-sm font-body inline-flex items-center gap-2">

@@ -40,7 +40,7 @@ export function VoiceSessionMeta({ voiceData }: VoiceSessionMetaProps) {
       {/* Recording Player */}
       {voiceData.recording_url && (
         <div>
-          <h4 className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider mb-2">
+          <h4 className="text-xs font-heading text-muted-foreground uppercase tracking-wider mb-2">
             Call Recording
           </h4>
           <AudioPlayer 
@@ -52,7 +52,7 @@ export function VoiceSessionMeta({ voiceData }: VoiceSessionMetaProps) {
 
       {/* Call Details */}
       <div className="p-4 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl space-y-3">
-        <h4 className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider">
+        <h4 className="text-xs font-heading text-muted-foreground uppercase tracking-wider">
           Call Details
         </h4>
         
@@ -64,8 +64,8 @@ export function VoiceSessionMeta({ voiceData }: VoiceSessionMetaProps) {
                 <Clock size={14} className="text-purple-400" />
               </div>
               <div>
-                <div className="text-xs text-platinum-white/50">Duration</div>
-                <div className="text-sm text-platinum-white font-mono">
+                <div className="text-xs text-muted-foreground/90">Duration</div>
+                <div className="text-sm text-foreground font-mono">
                   {formatDuration(voiceData.duration_seconds)}
                 </div>
               </div>
@@ -79,8 +79,8 @@ export function VoiceSessionMeta({ voiceData }: VoiceSessionMetaProps) {
                 <Phone size={14} className="text-orange-400" />
               </div>
               <div>
-                <div className="text-xs text-platinum-white/50">End Reason</div>
-                <div className="text-sm text-platinum-white capitalize">
+                <div className="text-xs text-muted-foreground/90">End Reason</div>
+                <div className="text-sm text-foreground capitalize">
                   {voiceData.ended_reason.replace(/-/g, ' ')}
                 </div>
               </div>
@@ -94,8 +94,8 @@ export function VoiceSessionMeta({ voiceData }: VoiceSessionMetaProps) {
                 <Clock size={14} className="text-emerald-400" />
               </div>
               <div>
-                <div className="text-xs text-platinum-white/50">Started</div>
-                <div className="text-xs text-platinum-white">
+                <div className="text-xs text-muted-foreground/90">Started</div>
+                <div className="text-xs text-foreground">
                   {formatDateTime(voiceData.started_at)}
                 </div>
               </div>
@@ -109,8 +109,8 @@ export function VoiceSessionMeta({ voiceData }: VoiceSessionMetaProps) {
                 <Clock size={14} className="text-red-400" />
               </div>
               <div>
-                <div className="text-xs text-platinum-white/50">Ended</div>
-                <div className="text-xs text-platinum-white">
+                <div className="text-xs text-muted-foreground/90">Ended</div>
+                <div className="text-xs text-foreground">
                   {formatDateTime(voiceData.ended_at)}
                 </div>
               </div>
@@ -120,9 +120,9 @@ export function VoiceSessionMeta({ voiceData }: VoiceSessionMetaProps) {
         
         {/* VAPI Call ID */}
         {voiceData.vapi_call_id && (
-          <div className="pt-2 border-t border-platinum-white/10">
-            <div className="text-xs text-platinum-white/50 mb-1">VAPI Call ID</div>
-            <div className="text-xs text-platinum-white/70 font-mono truncate">
+          <div className="pt-2 border-t border-foreground/10">
+            <div className="text-xs text-muted-foreground/90 mb-1">VAPI Call ID</div>
+            <div className="text-xs text-muted-foreground font-mono truncate">
               {voiceData.vapi_call_id}
             </div>
           </div>
@@ -134,11 +134,11 @@ export function VoiceSessionMeta({ voiceData }: VoiceSessionMetaProps) {
         <div className="p-4 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl">
           <div className="flex items-center gap-2 mb-2">
             <FileText size={14} className="text-radiant-gold" />
-            <h4 className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider">
+            <h4 className="text-xs font-heading text-muted-foreground uppercase tracking-wider">
               AI Summary
             </h4>
           </div>
-          <p className="text-sm text-platinum-white/80 leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             {voiceData.summary}
           </p>
         </div>
@@ -149,15 +149,15 @@ export function VoiceSessionMeta({ voiceData }: VoiceSessionMetaProps) {
         <details className="group">
           <summary className="flex items-center gap-2 p-4 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl cursor-pointer hover:bg-silicon-slate/30 transition-colors">
             <FileText size={14} className="text-blue-400" />
-            <span className="text-xs font-heading text-platinum-white/60 uppercase tracking-wider">
+            <span className="text-xs font-heading text-muted-foreground uppercase tracking-wider">
               Full Transcript
             </span>
-            <span className="ml-auto text-xs text-platinum-white/40 group-open:hidden">
+            <span className="ml-auto text-xs text-muted-foreground/80 group-open:hidden">
               Click to expand
             </span>
           </summary>
           <div className="mt-2 p-4 bg-silicon-slate/10 border border-radiant-gold/5 rounded-xl">
-            <p className="text-sm text-platinum-white/70 whitespace-pre-wrap leading-relaxed">
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
               {voiceData.full_transcript}
             </p>
           </div>

@@ -105,24 +105,24 @@ export function DiagnosisCard({ diagnosis, onClick }: DiagnosisCardProps) {
               {getStatusIcon(diagnosis.status)}
               {diagnosis.status.charAt(0).toUpperCase() + diagnosis.status.slice(1)}
             </span>
-            <span className="flex items-center gap-1 text-platinum-white/50 text-sm">
+            <span className="flex items-center gap-1 text-muted-foreground/90 text-sm">
               {getErrorTypeIcon(diagnosis.error_type)}
               {diagnosis.error_type}
             </span>
-            <span className="text-sm text-platinum-white/50">
+            <span className="text-sm text-muted-foreground/90">
               {formatDate(diagnosis.diagnosed_at)}
             </span>
           </div>
 
           {/* Root cause */}
-          <h3 className="text-lg font-semibold text-platinum-white mb-2">
+          <h3 className="text-lg font-semibold text-foreground mb-2">
             {diagnosis.root_cause.substring(0, 150)}
             {diagnosis.root_cause.length > 150 ? '...' : ''}
           </h3>
 
           {/* Session info */}
           {diagnosis.session && (
-            <div className="flex items-center gap-4 text-sm text-platinum-white/60 mb-2">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground mb-2">
               <span>Session: {diagnosis.session.session_id.substring(0, 20)}...</span>
               {diagnosis.session.visitor_name && (
                 <span>• {diagnosis.session.visitor_name}</span>
@@ -148,7 +148,7 @@ export function DiagnosisCard({ diagnosis, onClick }: DiagnosisCardProps) {
           )}
 
           {/* Stats */}
-          <div className="flex items-center gap-4 text-xs text-platinum-white/50">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground/90">
             <span className="flex items-center gap-1">
               <Sparkles size={12} />
               {diagnosis.recommendations_count} recommendations

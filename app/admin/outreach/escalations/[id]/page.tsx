@@ -130,7 +130,7 @@ function EscalationDetailContent() {
     return (
       <div className="min-h-screen bg-background p-6">
         <div className="flex items-center justify-center py-12">
-          <RefreshCw size={32} className="animate-spin text-platinum-white/80" />
+          <RefreshCw size={32} className="animate-spin text-muted-foreground" />
         </div>
       </div>
     )
@@ -140,7 +140,7 @@ function EscalationDetailContent() {
     return (
       <div className="min-h-screen bg-background p-6">
         <div className="max-w-4xl mx-auto">
-          <p className="text-platinum-white/80">Escalation not found.</p>
+          <p className="text-muted-foreground">Escalation not found.</p>
           <Link href="/admin/outreach?tab=escalations" className="mt-4 inline-flex items-center gap-2 text-radiant-gold hover:text-amber-400">
             <ArrowLeft size={16} /> Back to Escalations
           </Link>
@@ -166,7 +166,7 @@ function EscalationDetailContent() {
         <div className="mt-6 flex items-center justify-between">
           <Link
             href="/admin/outreach?tab=escalations"
-            className="inline-flex items-center gap-2 text-platinum-white/80 hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft size={18} />
             Back to Escalations
@@ -180,34 +180,34 @@ function EscalationDetailContent() {
               Chat escalation
             </h1>
             <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div className="flex items-center gap-2 text-platinum-white/80">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <User size={14} />
                 <span>{escalation.visitor_name || '—'}</span>
               </div>
-              <div className="flex items-center gap-2 text-platinum-white/80">
+              <div className="flex items-center gap-2 text-muted-foreground">
                 <Mail size={14} />
                 <span>{escalation.visitor_email || '—'}</span>
               </div>
               <div>
-                <span className="text-platinum-white/60">Source:</span>{' '}
+                <span className="text-muted-foreground">Source:</span>{' '}
                 <span className="capitalize">{escalation.source}</span>
               </div>
               <div>
-                <span className="text-platinum-white/60">Reason:</span>{' '}
+                <span className="text-muted-foreground">Reason:</span>{' '}
                 <span>{escalation.reason ?? '—'}</span>
               </div>
               <div>
-                <span className="text-platinum-white/60">Date:</span>{' '}
+                <span className="text-muted-foreground">Date:</span>{' '}
                 {new Date(escalation.escalated_at).toLocaleString()}
               </div>
               <div>
-                <span className="text-platinum-white/60">Session:</span>{' '}
+                <span className="text-muted-foreground">Session:</span>{' '}
                 <Link href={`/admin/chat-eval/${escalation.session_id}`} className="text-purple-400 hover:text-purple-300 text-xs">
                   {escalation.session_id}
                 </Link>
               </div>
               {escalation.slack_sent_at && (
-                <div className="text-platinum-white/60 text-xs">
+                <div className="text-muted-foreground text-xs">
                   Slack notified {new Date(escalation.slack_sent_at).toLocaleString()}
                 </div>
               )}
@@ -215,7 +215,7 @@ function EscalationDetailContent() {
           </div>
 
           <div className="p-4 rounded-lg border border-silicon-slate bg-silicon-slate/30">
-            <h2 className="text-sm font-medium text-platinum-white/80 uppercase tracking-wide mb-2">Link to lead</h2>
+            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">Link to lead</h2>
             <div className="flex flex-wrap items-center gap-3">
               <select
                 value={linkSelect}
@@ -250,11 +250,11 @@ function EscalationDetailContent() {
           </div>
 
           <div className="p-4 rounded-lg border border-silicon-slate bg-silicon-slate/30">
-            <h2 className="text-sm font-medium text-platinum-white/80 uppercase tracking-wide mb-2 flex items-center gap-2">
+            <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2 flex items-center gap-2">
               <MessageSquare size={14} />
               Transcript
             </h2>
-            <pre className="text-sm text-platinum-white/90 whitespace-pre-wrap font-sans max-h-[400px] overflow-y-auto p-3 rounded bg-imperial-navy/50 border border-silicon-slate">
+            <pre className="text-sm text-foreground/90 whitespace-pre-wrap font-sans max-h-[400px] overflow-y-auto p-3 rounded bg-background/50 border border-silicon-slate">
               {escalation.transcript || '(No transcript)'}
             </pre>
           </div>

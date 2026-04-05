@@ -4,6 +4,7 @@ import { useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { getStoredAuthNextPath } from '@/lib/auth'
+import SiteThemeCorner from '@/components/SiteThemeCorner'
 
 function AuthCallbackContent() {
   const searchParams = useSearchParams()
@@ -87,18 +88,24 @@ function AuthCallbackContent() {
   }, [searchParams])
 
   return (
+    <>
+      <SiteThemeCorner />
     <div className="min-h-screen bg-black flex items-center justify-center">
       <div className="text-white">Completing authentication...</div>
     </div>
+    </>
   )
 }
 
 export default function AuthCallback() {
   return (
     <Suspense fallback={
+      <>
+        <SiteThemeCorner />
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-white">Loading...</div>
       </div>
+      </>
     }>
       <AuthCallbackContent />
     </Suspense>

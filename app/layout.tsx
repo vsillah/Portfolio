@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Orbitron, Inter, Cormorant_Garamond } from 'next/font/google'
 import './globals.css'
 import { AuthProvider } from '@/components/AuthProvider'
+import { ThemeProvider } from '@/components/ThemeProvider'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import FlowingMesh from '@/components/ui/FlowingMesh'
 import DevBanner from '@/components/DevBanner'
@@ -38,16 +39,22 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${orbitron.variable} ${inter.variable} ${cormorant.variable} relative`}>
-      <body className="font-body selection:bg-radiant-gold/30 selection:text-white relative">
-        {/* Subtle gold flowy background effect (site-wide) */}
-        <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden>
-          <FlowingMesh className="fixed inset-0" opacity={0.7} />
+    <html
+      lang="en"
+      className={`${orbitron.variable} ${inter.variable} ${cormorant.variable} relative`}
+      suppressHydrationWarning
+    >
+      <body className="font-body selection:bg-radiant-gold/30 selection:text-imperial-navy dark:selection:text-white relative">
+        {/* Subtle gold flowy background — softer on light, current strength on dark */}
+        <div className="fixed inset-0 z-0 pointer-events-none opacity-50 dark:opacity-100" aria-hidden>
+          <FlowingMesh className="fixed inset-0" opacity={1} />
         </div>
         <DevBanner />
-        <div className="relative z-10">
-          <AuthProvider>{children}</AuthProvider>
-        </div>
+        <ThemeProvider>
+          <div className="relative z-10">
+            <AuthProvider>{children}</AuthProvider>
+          </div>
+        </ThemeProvider>
         <SpeedInsights />
       </body>
     </html>

@@ -63,7 +63,7 @@ export function ChatInput({
           disabled={disabled || isLoading}
           placeholder={placeholder}
           rows={1}
-          className="flex-1 bg-transparent text-platinum-white text-sm font-body placeholder:text-platinum-white/30 focus:outline-none resize-none min-h-[40px] max-h-[120px] py-2 px-2 disabled:opacity-50"
+          className="flex-1 bg-transparent text-foreground text-sm font-body placeholder:text-muted-foreground/70 focus:outline-none resize-none min-h-[40px] max-h-[120px] py-2 px-2 disabled:opacity-50"
         />
         <motion.button
           type="submit"
@@ -73,7 +73,7 @@ export function ChatInput({
           className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
             message.trim() && !disabled && !isLoading
               ? 'bg-gradient-to-br from-radiant-gold to-bronze text-imperial-navy hover:shadow-lg hover:shadow-radiant-gold/20'
-              : 'bg-silicon-slate/30 text-platinum-white/30 cursor-not-allowed'
+              : 'bg-silicon-slate/30 text-muted-foreground/70 cursor-not-allowed'
           }`}
         >
           {isLoading ? (
@@ -90,12 +90,12 @@ export function ChatInput({
         </p>
       )}
       {!isDiagnosticMode && (
-        <p className="text-[10px] text-platinum-white/30 mt-2 text-center">
+        <p className="text-[10px] text-muted-foreground/70 mt-2 text-center">
           Press Enter to send, Shift+Enter for new line
         </p>
       )}
       {isDiagnosticMode && !currentCategory && (
-        <p className="text-[10px] text-platinum-white/30 mt-2 text-center">
+        <p className="text-[10px] text-muted-foreground/70 mt-2 text-center">
           Starting diagnostic assessment...
         </p>
       )}

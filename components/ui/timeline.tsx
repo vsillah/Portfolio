@@ -50,7 +50,7 @@ export const Timeline = ({
         <h2 className="text-lg md:text-4xl mb-4 text-white max-w-4xl font-bold">
           Professional Journey
         </h2>
-        <p className="text-platinum-white/80 text-sm md:text-base max-w-2xl">
+        <p className="text-muted-foreground text-sm md:text-base max-w-2xl">
           A timeline of my career at Fidelity Investments, leading product innovation and driving customer value.
         </p>
       </div>
@@ -78,13 +78,13 @@ export const Timeline = ({
                   }}
                 />
               </div>
-              <h3 className="hidden md:block text-xl md:pl-20 md:text-5xl font-bold text-platinum-white/50">
+              <h3 className="hidden md:block text-xl md:pl-20 md:text-5xl font-bold text-muted-foreground/90">
                 {item.title}
               </h3>
             </div>
 
             <div className="relative pl-20 pr-4 md:pl-4 w-full">
-              <h3 className="md:hidden block text-2xl mb-4 text-left font-bold text-platinum-white/70">
+              <h3 className="md:hidden block text-2xl mb-4 text-left font-bold text-muted-foreground">
                 {item.title}
               </h3>
               {item.content}{" "}

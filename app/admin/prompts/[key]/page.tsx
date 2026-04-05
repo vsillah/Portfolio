@@ -172,15 +172,15 @@ function EditPromptContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-imperial-navy text-platinum-white p-8 flex items-center justify-center">
-        <p className="text-platinum-white/50">Loading prompt...</p>
+      <div className="min-h-screen bg-background text-foreground p-8 flex items-center justify-center">
+        <p className="text-muted-foreground/90">Loading prompt...</p>
       </div>
     )
   }
 
   if (!prompt) {
     return (
-      <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+      <div className="min-h-screen bg-background text-foreground p-8">
         <div className="max-w-4xl mx-auto">
           <Breadcrumbs items={[
             { label: 'Admin Dashboard', href: '/admin' },
@@ -196,7 +196,7 @@ function EditPromptContent() {
   }
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-4xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -210,7 +210,7 @@ function EditPromptContent() {
             <h1 className="text-3xl font-heading tracking-wider mb-2">
               Edit: {prompt.name}
             </h1>
-            <p className="text-platinum-white/60">
+            <p className="text-muted-foreground">
               Key: <code className="bg-silicon-slate/40 px-2 py-0.5 rounded">{prompt.key}</code>
               <span className="mx-2">•</span>
               Version: {prompt.version}
@@ -258,7 +258,7 @@ function EditPromptContent() {
         <div className="space-y-6">
           {/* Name */}
           <div>
-            <label className="block text-sm font-medium text-platinum-white/70 mb-2">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Display Name
             </label>
             <input
@@ -266,14 +266,14 @@ function EditPromptContent() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-3 bg-silicon-slate/20 border border-radiant-gold/20 rounded-lg
-                text-platinum-white placeholder-platinum-white/30 focus:outline-none focus:border-radiant-gold/50"
+                text-foreground placeholder-muted-foreground/50 focus:outline-none focus:border-radiant-gold/50"
               placeholder="Enter display name..."
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-sm font-medium text-platinum-white/70 mb-2">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Description
             </label>
             <input
@@ -281,14 +281,14 @@ function EditPromptContent() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className="w-full px-4 py-3 bg-silicon-slate/20 border border-radiant-gold/20 rounded-lg
-                text-platinum-white placeholder-platinum-white/30 focus:outline-none focus:border-radiant-gold/50"
+                text-foreground placeholder-muted-foreground/50 focus:outline-none focus:border-radiant-gold/50"
               placeholder="Brief description of this prompt's purpose..."
             />
           </div>
 
           {/* Prompt */}
           <div>
-            <label className="block text-sm font-medium text-platinum-white/70 mb-2">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               System Prompt
             </label>
             <textarea
@@ -296,11 +296,11 @@ function EditPromptContent() {
               onChange={(e) => setPromptText(e.target.value)}
               rows={20}
               className="w-full px-4 py-3 bg-silicon-slate/20 border border-radiant-gold/20 rounded-lg
-                text-platinum-white placeholder-platinum-white/30 focus:outline-none focus:border-radiant-gold/50
+                text-foreground placeholder-muted-foreground/50 focus:outline-none focus:border-radiant-gold/50
                 font-mono text-sm resize-y"
               placeholder="Enter the system prompt..."
             />
-            <p className="mt-2 text-xs text-platinum-white/40">
+            <p className="mt-2 text-xs text-muted-foreground/80">
               {promptText.length} characters • Supports Markdown formatting
             </p>
           </div>
@@ -308,7 +308,7 @@ function EditPromptContent() {
           {/* Configuration */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium text-platinum-white/70">
+              <label className="text-sm font-medium text-muted-foreground">
                 Configuration
               </label>
               <button
@@ -326,7 +326,7 @@ function EditPromptContent() {
                 onChange={(e) => setConfigJson(e.target.value)}
                 rows={8}
                 className="w-full px-4 py-3 bg-silicon-slate/20 border border-radiant-gold/20 rounded-lg
-                  text-platinum-white placeholder-platinum-white/30 focus:outline-none focus:border-radiant-gold/50
+                  text-foreground placeholder-muted-foreground/50 focus:outline-none focus:border-radiant-gold/50
                   font-mono text-sm"
                 placeholder='{"temperature": 0.7, "maxTokens": 1024}'
               />
@@ -334,7 +334,7 @@ function EditPromptContent() {
               <div className="space-y-3 p-4 bg-silicon-slate/20 border border-radiant-gold/20 rounded-lg">
                 {/* Temperature */}
                 <div className="flex items-center gap-4">
-                  <label className="w-32 text-sm text-platinum-white/70">Temperature</label>
+                  <label className="w-32 text-sm text-muted-foreground">Temperature</label>
                   <input
                     type="number"
                     min="0"
@@ -342,15 +342,15 @@ function EditPromptContent() {
                     step="0.1"
                     value={(config.temperature as number) || 0.7}
                     onChange={(e) => setConfig({ ...config, temperature: parseFloat(e.target.value) })}
-                    className="w-24 px-3 py-2 bg-imperial-navy/50 border border-radiant-gold/20 rounded
-                      text-platinum-white focus:outline-none focus:border-radiant-gold/50"
+                    className="w-24 px-3 py-2 bg-background/50 border border-radiant-gold/20 rounded
+                      text-foreground focus:outline-none focus:border-radiant-gold/50"
                   />
-                  <span className="text-xs text-platinum-white/40">0 = deterministic, 2 = creative</span>
+                  <span className="text-xs text-muted-foreground/80">0 = deterministic, 2 = creative</span>
                 </div>
 
                 {/* Max Tokens */}
                 <div className="flex items-center gap-4">
-                  <label className="w-32 text-sm text-platinum-white/70">Max Tokens</label>
+                  <label className="w-32 text-sm text-muted-foreground">Max Tokens</label>
                   <input
                     type="number"
                     min="128"
@@ -358,21 +358,21 @@ function EditPromptContent() {
                     step="128"
                     value={(config.maxTokens as number) || 1024}
                     onChange={(e) => setConfig({ ...config, maxTokens: parseInt(e.target.value) })}
-                    className="w-24 px-3 py-2 bg-imperial-navy/50 border border-radiant-gold/20 rounded
-                      text-platinum-white focus:outline-none focus:border-radiant-gold/50"
+                    className="w-24 px-3 py-2 bg-background/50 border border-radiant-gold/20 rounded
+                      text-foreground focus:outline-none focus:border-radiant-gold/50"
                   />
-                  <span className="text-xs text-platinum-white/40">Maximum response length</span>
+                  <span className="text-xs text-muted-foreground/80">Maximum response length</span>
                 </div>
 
                 {/* Model (for LLM judge) */}
                 {prompt.key === 'llm_judge' && (
                   <div className="flex items-center gap-4">
-                    <label className="w-32 text-sm text-platinum-white/70">Model</label>
+                    <label className="w-32 text-sm text-muted-foreground">Model</label>
                     <select
                       value={(config.model as string) || 'claude-sonnet-4-20250514'}
                       onChange={(e) => setConfig({ ...config, model: e.target.value })}
-                      className="w-64 px-3 py-2 bg-imperial-navy/50 border border-radiant-gold/20 rounded
-                        text-platinum-white focus:outline-none focus:border-radiant-gold/50"
+                      className="w-64 px-3 py-2 bg-background/50 border border-radiant-gold/20 rounded
+                        text-foreground focus:outline-none focus:border-radiant-gold/50"
                     >
                       <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
                       <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
@@ -418,7 +418,7 @@ function EditPromptContent() {
         {/* Recent history */}
         {history.length > 0 && (
           <div className="mt-12">
-            <h3 className="text-lg font-heading text-platinum-white mb-4">Recent Changes</h3>
+            <h3 className="text-lg font-heading text-foreground mb-4">Recent Changes</h3>
             <div className="space-y-2">
               {history.slice(0, 3).map((h) => (
                 <div
@@ -426,8 +426,8 @@ function EditPromptContent() {
                   className="p-3 bg-silicon-slate/10 border border-radiant-gold/10 rounded-lg
                     flex items-center justify-between text-sm"
                 >
-                  <span className="text-platinum-white/70">Version {h.version}</span>
-                  <span className="text-platinum-white/40">
+                  <span className="text-muted-foreground">Version {h.version}</span>
+                  <span className="text-muted-foreground/80">
                     {new Date(h.changed_at).toLocaleString()}
                   </span>
                 </div>

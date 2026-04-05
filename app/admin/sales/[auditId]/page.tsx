@@ -1275,17 +1275,17 @@ export default function ClientWalkthroughPage() {
                         const w = wt as { domain: string; byTag?: Record<string, string[]>; technologies?: Array<{ name: string }> }
                         return (
                           <div className="mt-3 pt-3 border-t border-silicon-slate/50">
-                            <div className="text-xs text-platinum-white/60 mb-2">Website technologies (BuiltWith) — {w.domain}</div>
+                            <div className="text-xs text-muted-foreground mb-2">Website technologies (BuiltWith) — {w.domain}</div>
                             {w.byTag && Object.keys(w.byTag).length > 0 ? (
                               <div className="flex flex-wrap gap-2">
                                 {Object.entries(w.byTag).map(([tag, names]) => (
                                   <div key={tag} className="rounded bg-silicon-slate/50 border border-silicon-slate p-2 min-w-[120px]">
-                                    <div className="text-xs text-platinum-white/60">{tag}</div>
-                                    <div className="text-sm text-platinum-white flex flex-wrap gap-1 mt-0.5">
+                                    <div className="text-xs text-muted-foreground">{tag}</div>
+                                    <div className="text-sm text-foreground flex flex-wrap gap-1 mt-0.5">
                                       {names.slice(0, 5).map((n) => (
-                                        <span key={n} className="px-1.5 py-0.5 rounded bg-imperial-navy/60 text-xs">{n}</span>
+                                        <span key={n} className="px-1.5 py-0.5 rounded bg-background/60 text-xs">{n}</span>
                                       ))}
-                                      {names.length > 5 && <span className="text-xs text-platinum-white/60">+{names.length - 5}</span>}
+                                      {names.length > 5 && <span className="text-xs text-muted-foreground">+{names.length - 5}</span>}
                                     </div>
                                   </div>
                                 ))}
@@ -1293,10 +1293,10 @@ export default function ClientWalkthroughPage() {
                             ) : w.technologies?.length ? (
                               <div className="flex flex-wrap gap-1">
                                 {w.technologies.slice(0, 20).map((t) => (
-                                  <span key={t.name} className="px-2 py-0.5 rounded bg-silicon-slate/50 border border-silicon-slate text-xs text-platinum-white">{t.name}</span>
+                                  <span key={t.name} className="px-2 py-0.5 rounded bg-silicon-slate/50 border border-silicon-slate text-xs text-foreground">{t.name}</span>
                                 ))}
                                 {w.technologies.length > 20 && (
-                                  <span className="text-xs text-platinum-white/60">+{w.technologies.length - 20} more</span>
+                                  <span className="text-xs text-muted-foreground">+{w.technologies.length - 20} more</span>
                                 )}
                               </div>
                             ) : null}

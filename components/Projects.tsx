@@ -65,7 +65,7 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
       {/* Project Content */}
       <div className="p-8 flex flex-col flex-grow relative z-10">
         <div className="flex items-start justify-between mb-4">
-          <h3 className="font-premium text-2xl font-medium text-platinum-white group-hover:text-radiant-gold transition-colors">
+          <h3 className="font-premium text-2xl font-medium text-foreground group-hover:text-radiant-gold transition-colors">
             {project.title}
           </h3>
           <Code2 className="text-radiant-gold/40 flex-shrink-0" size={20} />
@@ -76,7 +76,7 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
           <ExpandableText
             text={project.description}
             maxHeight={80}
-            className="font-body text-platinum-white/50 text-sm leading-relaxed mb-6"
+            className="font-body text-muted-foreground/90 text-sm leading-relaxed mb-6"
             expandButtonColor="text-radiant-gold hover:text-gold-light"
           />
         )}
@@ -86,7 +86,7 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
           {project.technologies && project.technologies.map((tech) => (
             <span
               key={tech}
-              className="px-3 py-1 text-[10px] font-heading tracking-wider bg-imperial-navy/50 text-radiant-gold/60 rounded-full border border-radiant-gold/10"
+              className="px-3 py-1 text-[10px] font-heading tracking-wider bg-background/50 text-radiant-gold/60 rounded-full border border-radiant-gold/10"
             >
               {tech}
             </span>
@@ -103,7 +103,7 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
               href={project.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] font-heading tracking-widest text-platinum-white/40 hover:text-radiant-gold transition-colors flex items-center gap-2"
+              className="text-[10px] font-heading tracking-widest text-muted-foreground/80 hover:text-radiant-gold transition-colors flex items-center gap-2"
             >
               DETAILS
             </a>
@@ -113,7 +113,7 @@ const ProjectCard = ({ project, index }: { project: Project, index: number }) =>
               href={project.live}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[10px] font-heading tracking-widest text-platinum-white/40 hover:text-radiant-gold transition-colors flex items-center gap-2"
+              className="text-[10px] font-heading tracking-widest text-muted-foreground/80 hover:text-radiant-gold transition-colors flex items-center gap-2"
             >
               LEARN MORE
             </a>
@@ -150,7 +150,7 @@ export default function Projects() {
   }
 
   return (
-    <section id="projects" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
+    <section id="projects" className="py-32 px-6 sm:px-10 lg:px-12 bg-background relative overflow-hidden">
       {/* Subtle Aurora */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-radiant-gold/5 blur-[120px] rounded-full" />
 
@@ -167,10 +167,10 @@ export default function Projects() {
               Portfolio
             </span>
           </div>
-          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+          <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-6">
             <span className="italic text-radiant-gold">Projects</span>
           </h2>
-          <p className="font-body text-platinum-white/50 text-lg leading-relaxed max-w-2xl mx-auto">
+          <p className="font-body text-muted-foreground/90 text-lg leading-relaxed max-w-2xl mx-auto">
             A curated selection of strategic initiatives and digital products built for the modern era.
           </p>
         </motion.div>

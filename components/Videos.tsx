@@ -101,7 +101,7 @@ export default function Videos() {
 
   if (loading) {
     return (
-      <section id="videos" className="py-32 bg-imperial-navy">
+      <section id="videos" className="py-32 bg-background">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <div className="h-10 w-48 bg-silicon-slate/20 mx-auto rounded-full animate-pulse" />
         </div>
@@ -110,7 +110,7 @@ export default function Videos() {
   }
 
   return (
-    <section id="videos" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
+    <section id="videos" className="py-32 px-6 sm:px-10 lg:px-12 bg-background relative overflow-hidden">
       {/* Aurora */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-radiant-gold/5 blur-[120px] rounded-full" />
 
@@ -128,10 +128,10 @@ export default function Videos() {
               Visuals
             </span>
           </div>
-          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+          <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-6">
             <span className="italic text-radiant-gold">Videos</span>
           </h2>
-          <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
+          <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto">
             Behind-the-scenes insights, lyric breakdowns, and strategic visual content.
           </p>
         </motion.div>
@@ -159,7 +159,7 @@ export default function Videos() {
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                     sizes="(max-width: 768px) 100vw, 400px"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-imperial-navy via-transparent to-transparent opacity-60" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-60" />
                   
                   {/* Play Button */}
                   <motion.button
@@ -173,7 +173,7 @@ export default function Videos() {
                     </motion.div>
                   </motion.button>
 
-                  <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1 bg-imperial-navy/80 backdrop-blur-md border border-radiant-gold/20 rounded-full text-[10px] font-heading tracking-widest text-radiant-gold uppercase">
+                  <div className="absolute top-6 right-6 flex items-center gap-2 px-3 py-1 bg-background/80 backdrop-blur-md border border-radiant-gold/20 rounded-full text-[10px] font-heading tracking-widest text-radiant-gold uppercase">
                     <Youtube size={12} />
                     <span>Watch</span>
                   </div>
@@ -181,7 +181,7 @@ export default function Videos() {
 
                 {/* Video Info */}
                 <div className="p-8 flex flex-col flex-grow">
-                  <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors mb-4">
+                  <h3 className="font-premium text-2xl text-foreground group-hover:text-radiant-gold transition-colors mb-4">
                     {video.title}
                   </h3>
                   
@@ -189,7 +189,7 @@ export default function Videos() {
                     <ExpandableText
                       text={video.description}
                       maxHeight={80}
-                      className="font-body text-platinum-white/50 text-sm leading-relaxed"
+                      className="font-body text-muted-foreground/90 text-sm leading-relaxed"
                       expandButtonColor="text-radiant-gold hover:text-gold-light"
                     />
                   )}
@@ -205,7 +205,7 @@ export default function Videos() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-imperial-navy/95 backdrop-blur-xl p-6"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-background/95 backdrop-blur-xl p-6"
             onClick={closeVideo}
           >
             <motion.div
@@ -223,7 +223,7 @@ export default function Videos() {
               />
               <button
                 onClick={closeVideo}
-                className="absolute -top-12 right-0 text-platinum-white/60 hover:text-radiant-gold flex items-center gap-2 text-[10px] font-heading tracking-widest uppercase transition-colors"
+                className="absolute -top-12 right-0 text-muted-foreground hover:text-radiant-gold flex items-center gap-2 text-[10px] font-heading tracking-widest uppercase transition-colors"
               >
                 <span>Close</span>
                 <X size={16} />

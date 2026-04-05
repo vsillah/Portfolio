@@ -141,27 +141,27 @@ const markdownComponents = {
     </h2>
   ),
   h2: ({ children }: { children?: React.ReactNode }) => (
-    <h3 className="mb-2 mt-8 text-lg font-semibold text-platinum-white">
+    <h3 className="mb-2 mt-8 text-lg font-semibold text-foreground">
       {children}
     </h3>
   ),
   h3: ({ children }: { children?: React.ReactNode }) => (
-    <h4 className="mb-2 mt-6 text-base font-semibold text-platinum-white">
+    <h4 className="mb-2 mt-6 text-base font-semibold text-foreground">
       {children}
     </h4>
   ),
   p: ({ children }: { children?: React.ReactNode }) => (
-    <p className="mb-4 text-platinum-white leading-relaxed">
+    <p className="mb-4 text-foreground leading-relaxed">
       {children}
     </p>
   ),
   ul: ({ children }: { children?: React.ReactNode }) => (
-    <ul className="mb-4 ml-6 list-disc space-y-2 text-platinum-white">
+    <ul className="mb-4 ml-6 list-disc space-y-2 text-foreground">
       {children}
     </ul>
   ),
   ol: ({ children }: { children?: React.ReactNode }) => (
-    <ol className="mb-4 ml-6 list-decimal space-y-2 text-platinum-white">
+    <ol className="mb-4 ml-6 list-decimal space-y-2 text-foreground">
       {children}
     </ol>
   ),
@@ -169,7 +169,7 @@ const markdownComponents = {
     <li className="leading-relaxed">{children}</li>
   ),
   blockquote: ({ children }: { children?: React.ReactNode }) => (
-    <blockquote className="border-l-4 border-emerald-500/60 pl-4 italic text-platinum-white/80 my-4">
+    <blockquote className="border-l-4 border-emerald-500/60 pl-4 italic text-muted-foreground my-4">
       {children}
     </blockquote>
   ),
@@ -188,7 +188,7 @@ const markdownComponents = {
   ),
   table: ({ children }: { children?: React.ReactNode }) => (
     <div className="my-6 overflow-x-auto rounded-lg border border-silicon-slate">
-      <table className="w-full border-collapse text-sm text-platinum-white">
+      <table className="w-full border-collapse text-sm text-foreground">
         {children}
       </table>
     </div>
@@ -266,7 +266,7 @@ export default function ValueReportPage() {
         <div className="max-w-4xl mx-auto">
           <Link
             href="/admin/value-evidence"
-            className="inline-flex items-center gap-2 text-platinum-white/80 hover:text-foreground mb-6 transition-colors"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft size={18} />
             Back to Value Evidence
@@ -274,8 +274,8 @@ export default function ValueReportPage() {
 
           {loading && (
             <div className="flex flex-col items-center justify-center py-20">
-              <RefreshCw size={32} className="animate-spin text-platinum-white/60 mb-4" />
-              <p className="text-platinum-white/80">Loading report…</p>
+              <RefreshCw size={32} className="animate-spin text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Loading report…</p>
             </div>
           )}
 
@@ -285,7 +285,7 @@ export default function ValueReportPage() {
               <p className="text-red-300 text-lg mb-2">{error}</p>
               <Link
                 href="/admin/value-evidence"
-                className="text-platinum-white/80 hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground"
               >
                 Return to Value Evidence
               </Link>
@@ -312,17 +312,17 @@ export default function ValueReportPage() {
                   <h2 className="text-2xl font-semibold text-foreground mb-4">
                     {report.title}
                   </h2>
-                  <div className="flex flex-wrap gap-4 text-sm text-platinum-white/80">
+                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                     {(report.industry || report.company_size_range) && (
                       <span className="flex items-center gap-1.5">
-                        <Building2 size={16} className="text-platinum-white/60" />
+                        <Building2 size={16} className="text-muted-foreground" />
                         {[report.industry?.replace(/_/g, ' '), report.company_size_range]
                           .filter(Boolean)
                           .join(' · ')}
                       </span>
                     )}
                     <span className="flex items-center gap-1.5">
-                      <Calendar size={16} className="text-platinum-white/60" />
+                      <Calendar size={16} className="text-muted-foreground" />
                       {new Date(report.created_at).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
@@ -330,23 +330,23 @@ export default function ValueReportPage() {
                       })}
                     </span>
                     {report.report_type && (
-                      <span className="px-2 py-0.5 bg-gray-700/80 rounded text-platinum-white">
+                      <span className="px-2 py-0.5 bg-gray-700/80 rounded text-foreground">
                         {report.report_type.replace(/_/g, ' ')}
                       </span>
                     )}
                   </div>
                   {contact && (
                     <div className="mt-4 p-3 bg-silicon-slate/40 rounded-lg border border-silicon-slate/50">
-                      <p className="text-xs text-platinum-white/60 uppercase tracking-wider mb-1">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">
                         Prepared for
                       </p>
-                      <p className="text-platinum-white font-medium">
+                      <p className="text-foreground font-medium">
                         {contact.name}
                         {contact.company && (
-                          <span className="text-platinum-white/80 font-normal"> · {contact.company}</span>
+                          <span className="text-muted-foreground font-normal"> · {contact.company}</span>
                         )}
                         {contact.industry && (
-                          <span className="text-platinum-white/60 text-sm"> · {contact.industry}</span>
+                          <span className="text-muted-foreground text-sm"> · {contact.industry}</span>
                         )}
                       </p>
                     </div>
@@ -370,13 +370,13 @@ export default function ValueReportPage() {
                       <TrendingUp className="w-6 h-6 text-red-400" />
                     </div>
                     <div>
-                      <p className="text-xs text-platinum-white/60 uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
                         Cost of Inaction
                       </p>
                       <p className="text-2xl font-bold text-foreground">
                         {formatCurrency(parseFloat(String(report.total_annual_value)))}
                       </p>
-                      <p className="text-xs text-platinum-white/80">per year</p>
+                      <p className="text-xs text-muted-foreground">per year</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 p-4 bg-silicon-slate/50 rounded-xl border border-silicon-slate/50">
@@ -384,13 +384,13 @@ export default function ValueReportPage() {
                       <Zap className="w-6 h-6 text-amber-400" />
                     </div>
                     <div>
-                      <p className="text-xs text-platinum-white/60 uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
                         Monthly Impact
                       </p>
                       <p className="text-2xl font-bold text-foreground">
                         {formatCurrency(parseFloat(String(report.total_annual_value)) / 12)}
                       </p>
-                      <p className="text-xs text-platinum-white/80">per month</p>
+                      <p className="text-xs text-muted-foreground">per month</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 p-4 bg-silicon-slate/50 rounded-xl border border-silicon-slate/50">
@@ -398,13 +398,13 @@ export default function ValueReportPage() {
                       <Target className="w-6 h-6 text-emerald-400" />
                     </div>
                     <div>
-                      <p className="text-xs text-platinum-white/60 uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider">
                         Opportunity Areas
                       </p>
                       <p className="text-2xl font-bold text-foreground">
                         {(report.value_statements as ValueStatement[])?.length ?? 0}
                       </p>
-                      <p className="text-xs text-platinum-white/80">identified</p>
+                      <p className="text-xs text-muted-foreground">identified</p>
                     </div>
                   </div>
                 </div>
@@ -441,7 +441,7 @@ export default function ValueReportPage() {
                       The Cost of Doing Nothing
                     </h3>
                   </div>
-                  <p className="text-platinum-white/80 text-sm mb-8 max-w-2xl">
+                  <p className="text-muted-foreground text-sm mb-8 max-w-2xl">
                     The following opportunity areas represent estimated annual financial impact if left unaddressed. Each is supported by industry benchmarks and evidence.
                   </p>
                   <div className="space-y-8">
@@ -467,25 +467,25 @@ export default function ValueReportPage() {
                                   <span className="text-xl font-bold text-emerald-400">
                                     {formatCurrency(s.annualValue)}
                                   </span>
-                                  <span className="text-sm text-platinum-white/60">estimated annual impact</span>
+                                  <span className="text-sm text-muted-foreground">estimated annual impact</span>
                                 </div>
                               </div>
-                              <ul className="space-y-2 text-sm text-platinum-white">
+                              <ul className="space-y-2 text-sm text-foreground">
                                 {s.formulaReadable && (
                                   <li>
-                                    <span className="text-platinum-white/60 font-medium">Calculation: </span>
+                                    <span className="text-muted-foreground font-medium">Calculation: </span>
                                     {s.formulaReadable}
                                   </li>
                                 )}
                                 {s.evidenceSummary && (
                                   <li>
-                                    <span className="text-platinum-white/60 font-medium">Basis: </span>
+                                    <span className="text-muted-foreground font-medium">Basis: </span>
                                     {s.evidenceSummary}
                                   </li>
                                 )}
                                 {s.confidence && (
                                   <li>
-                                    <span className="text-platinum-white/60 font-medium">Confidence: </span>
+                                    <span className="text-muted-foreground font-medium">Confidence: </span>
                                     <span className="capitalize">{s.confidence}</span>
                                   </li>
                                 )}
@@ -513,23 +513,23 @@ export default function ValueReportPage() {
                   </h3>
                 </div>
                 <div className="space-y-6">
-                  <p className="text-platinum-white text-sm leading-relaxed max-w-3xl">
+                  <p className="text-foreground text-sm leading-relaxed max-w-3xl">
                     The estimated values in this report are derived using industry benchmarks, pain point evidence, and standardized calculation methods. We apply a four-tier resolution when matching benchmarks: exact industry + company size, then same industry any size, then default benchmarks for the company size, and finally general fallbacks. This ensures estimates are as relevant as possible to your business context.
                   </p>
                   {benchmarks.length > 0 ? (
                     <>
-                      <h4 className="text-sm font-semibold text-platinum-white uppercase tracking-wider">
+                      <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider">
                         Benchmarks Used in This Report
                       </h4>
                       <div className="overflow-x-auto rounded-lg border border-silicon-slate">
                         <table className="w-full text-sm">
                           <thead>
                             <tr className="border-b border-silicon-slate bg-silicon-slate/80">
-                              <th className="px-4 py-3 text-left font-medium text-platinum-white">Source</th>
-                              <th className="px-4 py-3 text-left font-medium text-platinum-white">Type</th>
-                              <th className="px-4 py-3 text-left font-medium text-platinum-white">Industry · Size</th>
-                              <th className="px-4 py-3 text-right font-medium text-platinum-white">Value</th>
-                              <th className="px-4 py-3 text-left font-medium text-platinum-white">Year</th>
+                              <th className="px-4 py-3 text-left font-medium text-foreground">Source</th>
+                              <th className="px-4 py-3 text-left font-medium text-foreground">Type</th>
+                              <th className="px-4 py-3 text-left font-medium text-foreground">Industry · Size</th>
+                              <th className="px-4 py-3 text-right font-medium text-foreground">Value</th>
+                              <th className="px-4 py-3 text-left font-medium text-foreground">Year</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -547,25 +547,25 @@ export default function ValueReportPage() {
                                       <ExternalLink size={12} />
                                     </a>
                                   ) : (
-                                    <span className="text-platinum-white">{b.source}</span>
+                                    <span className="text-foreground">{b.source}</span>
                                   )}
                                 </td>
-                                <td className="px-4 py-3 text-platinum-white">
+                                <td className="px-4 py-3 text-foreground">
                                   {formatBenchmarkType(b.benchmark_type)}
                                 </td>
-                                <td className="px-4 py-3 text-platinum-white/80">
+                                <td className="px-4 py-3 text-muted-foreground">
                                   {b.industry.replace(/_/g, ' ')} · {b.company_size_range}
                                 </td>
                                 <td className="px-4 py-3 text-right font-medium text-emerald-400">
                                   {formatBenchmarkValue(b)}
                                 </td>
-                                <td className="px-4 py-3 text-platinum-white/60">{b.year}</td>
+                                <td className="px-4 py-3 text-muted-foreground">{b.year}</td>
                               </tr>
                             ))}
                           </tbody>
                         </table>
                       </div>
-                      <p className="text-xs text-platinum-white/60">
+                      <p className="text-xs text-muted-foreground">
                         Benchmarks are sourced from BLS, Glassdoor, IBISWorld, and industry reports. Where a source URL is available, it is linked above. For more on our methodology, see our{' '}
                         <Link href="/pricing/methodology" className="text-emerald-400 hover:text-emerald-300">
                           pricing methodology
@@ -574,7 +574,7 @@ export default function ValueReportPage() {
                       </p>
                     </>
                   ) : (
-                    <p className="text-platinum-white/60 text-sm">
+                    <p className="text-muted-foreground text-sm">
                       Benchmark references for this report are not available. Values were derived from industry standards and evidence-based analysis. See our{' '}
                       <Link href="/pricing/methodology" className="text-emerald-400 hover:text-emerald-300">
                         pricing methodology
@@ -587,7 +587,7 @@ export default function ValueReportPage() {
 
               {/* Footer */}
               <footer className="px-8 py-6 border-t border-silicon-slate/80 bg-gray-900/40">
-                <p className="text-xs text-platinum-white/60 text-center">
+                <p className="text-xs text-muted-foreground text-center">
                   This report was prepared by Amadutown Advisory Solutions and is intended for the confidential use of the recipient. All estimates are based on industry benchmarks and available evidence at the time of analysis.
                 </p>
               </footer>

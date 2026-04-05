@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Mail } from 'lucide-react'
 import { resetPassword } from '@/lib/auth'
 import Link from 'next/link'
+import SiteThemeCorner from '@/components/SiteThemeCorner'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -32,6 +33,8 @@ export default function ForgotPasswordPage() {
   }
 
   return (
+    <>
+      <SiteThemeCorner />
     <div className="min-h-screen bg-background text-foreground flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md">
         <motion.form
@@ -42,7 +45,7 @@ export default function ForgotPasswordPage() {
         >
           <div>
             <h2 className="text-3xl font-bold text-foreground mb-2">Reset password</h2>
-            <p className="text-platinum-white/80">Enter your account email and we&apos;ll send a link to set a new password.</p>
+            <p className="text-muted-foreground">Enter your account email and we&apos;ll send a link to set a new password.</p>
           </div>
 
           {error && (
@@ -58,11 +61,11 @@ export default function ForgotPasswordPage() {
           ) : (
             <>
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-platinum-white mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                   Email
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-platinum-white/80" size={20} />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={20} />
                   <input
                     id="email"
                     type="email"
@@ -87,7 +90,7 @@ export default function ForgotPasswordPage() {
             </>
           )}
 
-          <p className="text-center text-sm text-platinum-white/80">
+          <p className="text-center text-sm text-muted-foreground">
             <Link href="/auth/login" className="text-radiant-gold hover:text-gold-light transition-colors">
               Back to sign in
             </Link>
@@ -95,5 +98,6 @@ export default function ForgotPasswordPage() {
         </motion.form>
       </div>
     </div>
+    </>
   )
 }

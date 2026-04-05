@@ -34,7 +34,7 @@ export default function DocViewer({ content, topAnchorId }: DocViewerProps) {
           )
         },
         h1: ({ children }) => (
-          <h1 className="font-premium mb-4 mt-8 border-b border-radiant-gold/20 pb-2 text-3xl font-bold text-platinum-white first:mt-0">
+          <h1 className="font-premium mb-4 mt-8 border-b border-radiant-gold/20 pb-2 text-3xl font-bold text-foreground first:mt-0">
             {children}
           </h1>
         ),
@@ -49,27 +49,27 @@ export default function DocViewer({ content, topAnchorId }: DocViewerProps) {
                   <BackToTopLink anchorId={topAnchorId!} />
                 </div>
               )}
-              <h2 id={id} className="font-premium mb-3 mt-8 text-xl font-bold text-platinum-white">
+              <h2 id={id} className="font-premium mb-3 mt-8 text-xl font-bold text-foreground">
                 {children}
               </h2>
             </div>
           )
         },
         h3: ({ children }) => (
-          <h3 className="font-premium mb-2 mt-4 text-lg font-semibold text-platinum-white/90">
+          <h3 className="font-premium mb-2 mt-4 text-lg font-semibold text-foreground/90">
             {children}
           </h3>
         ),
         p: ({ children }) => (
-          <p className="mb-3 text-platinum-white/70 leading-relaxed font-body">{children}</p>
+          <p className="mb-3 text-muted-foreground leading-relaxed font-body">{children}</p>
         ),
         ul: ({ children }) => (
-          <ul className="mb-4 ml-6 list-disc space-y-1 text-platinum-white/70 font-body">
+          <ul className="mb-4 ml-6 list-disc space-y-1 text-muted-foreground font-body">
             {children}
           </ul>
         ),
         ol: ({ children }) => (
-          <ol className="mb-4 ml-6 list-decimal space-y-1 text-platinum-white/70 font-body">
+          <ol className="mb-4 ml-6 list-decimal space-y-1 text-muted-foreground font-body">
             {children}
           </ol>
         ),
@@ -85,13 +85,13 @@ export default function DocViewer({ content, topAnchorId }: DocViewerProps) {
         ),
         table: ({ children }) => (
           <div className="my-6 overflow-x-auto rounded-xl border border-radiant-gold/10">
-            <table className="w-full border-collapse text-sm text-platinum-white/80 font-body">
+            <table className="w-full border-collapse text-sm text-muted-foreground font-body">
               {children}
             </table>
           </div>
         ),
         th: ({ children }) => (
-          <th className="border border-radiant-gold/10 bg-silicon-slate/30 px-4 py-2 text-left font-heading font-semibold text-platinum-white text-[10px] uppercase tracking-widest">
+          <th className="border border-radiant-gold/10 bg-silicon-slate/30 px-4 py-2 text-left font-heading font-semibold text-foreground text-[10px] uppercase tracking-widest">
             {children}
           </th>
         ),
@@ -99,12 +99,12 @@ export default function DocViewer({ content, topAnchorId }: DocViewerProps) {
           <td className="border border-radiant-gold/10 px-4 py-2">{children}</td>
         ),
         blockquote: ({ children }) => (
-          <blockquote className="border-l-4 border-radiant-gold/40 pl-4 italic text-platinum-white/60 font-body">
+          <blockquote className="border-l-4 border-radiant-gold/40 pl-4 italic text-muted-foreground font-body">
             {children}
           </blockquote>
         ),
         pre: ({ children }) => (
-          <pre className="mb-4 overflow-x-auto rounded-xl bg-silicon-slate/30 border border-radiant-gold/10 p-4 text-sm text-platinum-white/80 font-body">
+          <pre className="mb-4 overflow-x-auto rounded-xl bg-silicon-slate/30 border border-radiant-gold/10 p-4 text-sm text-muted-foreground font-body">
             {children}
           </pre>
         ),

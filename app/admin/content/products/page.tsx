@@ -168,7 +168,7 @@ export default function ProductsManagementPage() {
           <div className="mb-8 flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">Products Management</h1>
-              <p className="text-platinum-white/80">Manage lead magnets and products</p>
+              <p className="text-muted-foreground">Manage lead magnets and products</p>
             </div>
             <Link href="/admin/content/products/new">
               <motion.span
@@ -184,10 +184,10 @@ export default function ProductsManagementPage() {
 
           {loading ? (
             <div className="text-center py-12">
-              <div className="text-platinum-white/80">Loading products...</div>
+              <div className="text-muted-foreground">Loading products...</div>
             </div>
           ) : products.length === 0 ? (
-            <div className="text-center py-12 text-platinum-white/70">
+            <div className="text-center py-12 text-muted-foreground">
               <p className="mb-4">No products found. Add your first one!</p>
               <Link href="/admin/content/products/new">
                 <motion.span
@@ -217,7 +217,7 @@ export default function ProductsManagementPage() {
                           Active
                         </span>
                       ) : (
-                        <span className="px-2 py-1 text-xs bg-silicon-slate/80 text-platinum-white/80 rounded border border-silicon-slate">
+                        <span className="px-2 py-1 text-xs bg-silicon-slate/80 text-muted-foreground rounded border border-silicon-slate">
                           Inactive
                         </span>
                       )}
@@ -228,9 +228,9 @@ export default function ProductsManagementPage() {
                       )}
                     </div>
                     {product.description && (
-                      <p className="text-platinum-white/80 text-sm mb-2 line-clamp-2">{product.description}</p>
+                      <p className="text-muted-foreground text-sm mb-2 line-clamp-2">{product.description}</p>
                     )}
-                    <div className="flex flex-wrap items-center gap-2 text-sm text-platinum-white/70">
+                    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                       <span className="px-2 py-1 bg-silicon-slate rounded text-xs">
                         {getTypeLabel(product.type)}
                       </span>

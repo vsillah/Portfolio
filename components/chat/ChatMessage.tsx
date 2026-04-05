@@ -69,10 +69,10 @@ const markdownComponents = {
     <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>
   ),
   strong: ({ children }: { children?: React.ReactNode }) => (
-    <strong className="font-semibold text-platinum-white">{children}</strong>
+    <strong className="font-semibold text-foreground">{children}</strong>
   ),
   code: ({ children }: { children?: React.ReactNode }) => (
-    <code className="bg-imperial-navy/50 px-1 py-0.5 rounded text-xs text-radiant-gold/80">{children}</code>
+    <code className="bg-background/50 px-1 py-0.5 rounded text-xs text-radiant-gold/80">{children}</code>
   ),
 }
 
@@ -115,7 +115,7 @@ export function ChatMessage({ role, content, timestamp, isTyping, isVoice }: Cha
       {/* Message Bubble */}
       <div className={`flex flex-col max-w-[80%] ${isUser ? 'items-end' : 'items-start'}`}>
         {/* Role Label */}
-        <span className="text-[10px] font-heading tracking-wider text-platinum-white/40 uppercase mb-1 px-1">
+        <span className="text-[10px] font-heading tracking-wider text-muted-foreground/80 uppercase mb-1 px-1">
           {getRoleLabel()}
         </span>
 
@@ -123,10 +123,10 @@ export function ChatMessage({ role, content, timestamp, isTyping, isVoice }: Cha
         <div
           className={`px-4 py-3 rounded-2xl ${
             isUser
-              ? 'bg-gradient-to-br from-radiant-gold/20 to-bronze/20 border border-radiant-gold/30 text-platinum-white'
+              ? 'bg-gradient-to-br from-radiant-gold/20 to-bronze/20 border border-radiant-gold/30 text-foreground'
               : isSupport
-              ? 'bg-emerald-500/10 border border-emerald-500/30 text-platinum-white'
-              : 'bg-silicon-slate/30 border border-platinum-white/10 text-platinum-white/90'
+              ? 'bg-emerald-500/10 border border-emerald-500/30 text-foreground'
+              : 'bg-silicon-slate/30 border border-foreground/10 text-foreground/90'
           } ${isUser ? 'rounded-tr-sm' : 'rounded-tl-sm'}`}
         >
           {isTyping ? (
@@ -164,7 +164,7 @@ export function ChatMessage({ role, content, timestamp, isTyping, isVoice }: Cha
             {isVoice && (
               <Mic size={10} className="text-radiant-gold/50" />
             )}
-            <span className="text-[10px] text-platinum-white/30">
+            <span className="text-[10px] text-muted-foreground/70">
               {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>

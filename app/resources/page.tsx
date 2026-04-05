@@ -110,7 +110,7 @@ export default function ResourcesPage() {
   return (
     <ProtectedRoute>
       <Navigation />
-      <div className="min-h-screen bg-imperial-navy text-platinum-white pt-24 pb-12 px-4">
+      <div className="min-h-screen bg-background text-foreground pt-24 pb-12 px-4">
         <div className="max-w-4xl mx-auto">
           <Breadcrumbs items={[{ label: 'Store', href: '/store' }, { label: 'Resources' }]} />
           <motion.div
@@ -118,11 +118,11 @@ export default function ResourcesPage() {
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h1 className="text-4xl font-bold mb-2 text-platinum-white">Resources</h1>
-            <p className="text-platinum-white/80">
+            <h1 className="text-4xl font-bold mb-2 text-foreground">Resources</h1>
+            <p className="text-muted-foreground">
               Assess your AI readiness and get templates that help you close more deals.
             </p>
-            <p className="text-platinum-white/60 text-sm mt-2">
+            <p className="text-muted-foreground text-sm mt-2">
               Prefer a form? Take the{' '}
               <Link href="/tools/audit" className="text-radiant-gold hover:underline">
                 standalone AI &amp; Automation Audit
@@ -132,13 +132,13 @@ export default function ResourcesPage() {
           </motion.div>
 
           <div className="mb-8">
-            <label className="block text-sm font-medium text-platinum-white/80 mb-2">
+            <label className="block text-sm font-medium text-muted-foreground mb-2">
               Filter by stage
             </label>
             <select
               value={funnelFilter}
               onChange={(e) => setFunnelFilter(e.target.value)}
-              className="w-full max-w-xs px-4 py-2 rounded-lg bg-black/40 border border-radiant-gold/40 text-platinum-white focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
+              className="w-full max-w-xs px-4 py-2 rounded-lg bg-background border border-border text-foreground focus:border-radiant-gold focus:ring-2 focus:ring-radiant-gold/30 focus:outline-none"
               aria-label="Filter resources by funnel stage"
             >
               <option value="all">All</option>
@@ -151,19 +151,19 @@ export default function ResourcesPage() {
           </div>
 
           {loading ? (
-            <div className="text-center py-12 text-platinum-white/60">Loading resources...</div>
+            <div className="text-center py-12 text-muted-foreground">Loading resources...</div>
           ) : error ? (
-            <div className="text-center py-12 text-red-400">{error}</div>
+            <div className="text-center py-12 text-red-600 dark:text-red-400">{error}</div>
           ) : (
             <>
               <AIReadinessScorecard leadMagnets={downloadItems} />
 
               <section aria-labelledby="templates-heading">
-                <h2 id="templates-heading" className="text-xl font-semibold text-platinum-white mb-4">
+                <h2 id="templates-heading" className="text-xl font-semibold text-foreground mb-4">
                   Templates & playbooks
                 </h2>
                 {downloadItems.length === 0 ? (
-                  <div className="text-center py-8 text-platinum-white/60">
+                  <div className="text-center py-8 text-muted-foreground">
                     No resources in this stage yet.
                   </div>
                 ) : (

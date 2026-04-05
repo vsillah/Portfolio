@@ -48,7 +48,7 @@ export function ImageUrlInput({
     ? 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50'
     : 'bg-purple-500/20 text-purple-400 border border-purple-500/50'
   const btnInactive = isBrand
-    ? 'bg-silicon-slate/50 text-platinum-white/80 border border-silicon-slate/80 hover:border-silicon-slate'
+    ? 'bg-silicon-slate/50 text-muted-foreground border border-silicon-slate/80 hover:border-silicon-slate'
     : 'bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-600'
   const inputWrapper = isBrand
     ? 'border-silicon-slate/80 focus-within:border-radiant-gold/50 focus-within:ring-1 focus-within:ring-radiant-gold/30'
@@ -57,7 +57,7 @@ export function ImageUrlInput({
   const inputClass = isBrand
     ? 'flex-1 px-4 py-2 input-brand border-0 focus:ring-0'
     : 'flex-1 px-4 py-2 bg-gray-800 border-0 focus:ring-0 text-white placeholder-gray-500 focus:outline-none'
-  const helperClass = isBrand ? 'text-platinum-white/60' : 'text-gray-500'
+  const helperClass = isBrand ? 'text-muted-foreground' : 'text-gray-500'
 
   const displayValue =
     source === 'local'
@@ -101,7 +101,7 @@ export function ImageUrlInput({
       >
         <span
           className={`pl-4 py-2 min-w-[4rem] border-r ${prefixBg} ${
-            isBrand ? 'text-platinum-white/80' : 'text-gray-400'
+            isBrand ? 'text-muted-foreground' : 'text-gray-400'
           }`}
         >
           {source === 'local' ? '/' : 'https://'}

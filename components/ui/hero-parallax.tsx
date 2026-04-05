@@ -110,7 +110,7 @@ export const Header = () => {
       <h1 className="text-2xl md:text-7xl font-bold text-white">
         Product <br /> Portfolio
       </h1>
-      <p className="max-w-2xl text-base md:text-xl mt-8 text-platinum-white">
+      <p className="max-w-2xl text-base md:text-xl mt-8 text-foreground">
         A showcase of strategic initiatives, platforms, and digital experiences managed from concept to execution. 
         Delivering value through agile methodology and customer-focused innovation.
       </p>

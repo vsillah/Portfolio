@@ -63,9 +63,9 @@ const SUBSECTION_ACCENTS: Record<string, { border: string; badge: string; icon: 
   },
   warranty: {
     border: 'border-silicon-slate/30',
-    badge: 'border-platinum-white/30 text-platinum-white/80',
+    badge: 'border-foreground/30 text-muted-foreground',
     icon: 'text-silicon-slate/40',
-    hover: 'hover:border-silicon-slate/40 group-hover:text-platinum-white/80',
+    hover: 'hover:border-silicon-slate/40 group-hover:text-muted-foreground',
   },
 }
 
@@ -136,7 +136,7 @@ export default function Services() {
     if (items.length === 0) return null
     return (
       <div className="mb-16 last:mb-0">
-        <h3 className="text-lg font-heading uppercase tracking-wider text-platinum-white/70 mb-6">{title}</h3>
+        <h3 className="text-lg font-heading uppercase tracking-wider text-muted-foreground mb-6">{title}</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
           {items.map((service, index) => (
             <div
@@ -155,14 +155,14 @@ export default function Services() {
                     sizes="(max-width: 768px) 100vw, 320px"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-imperial-navy">
+                  <div className="w-full h-full flex items-center justify-center bg-background">
                     <span className={accent.icon}>
                       {TYPE_ICONS[service.service_type] || <Briefcase size={48} />}
                     </span>
                   </div>
                 )}
                 <div className="absolute top-6 left-6 flex flex-col gap-2">
-                  <span className={`px-3 py-1 bg-imperial-navy/80 backdrop-blur-md rounded-full text-[10px] font-heading tracking-widest uppercase ${accent.badge}`}>
+                  <span className={`px-3 py-1 bg-background/80 backdrop-blur-md rounded-full text-[10px] font-heading tracking-widest uppercase ${accent.badge}`}>
                     {TYPE_LABELS[service.service_type] || service.service_type}
                   </span>
                   {service.is_featured && (
@@ -171,7 +171,7 @@ export default function Services() {
                     </span>
                   )}
                 </div>
-                <div className="absolute bottom-6 right-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-sm font-heading tracking-tighter">
+                <div className="absolute bottom-6 right-6 px-4 py-2 bg-background/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-sm font-heading tracking-tighter">
                   {service.is_quote_based
                     ? 'Quote'
                     : service.price !== null
@@ -181,23 +181,23 @@ export default function Services() {
               </div>
               <div className="p-8">
                 <div className="flex flex-wrap gap-2 mb-2">
-                  <span className="text-[10px] font-heading text-platinum-white/60 uppercase tracking-wider">
+                  <span className="text-[10px] font-heading text-muted-foreground uppercase tracking-wider">
                     {DELIVERY_LABELS[service.delivery_method] || service.delivery_method}
                   </span>
                   {service.duration_description && (
                     <>
-                      <span className="text-platinum-white/30">·</span>
-                      <span className="text-[10px] font-body text-platinum-white/50">
+                      <span className="text-muted-foreground/70">·</span>
+                      <span className="text-[10px] font-body text-muted-foreground/90">
                         {service.duration_description}
                       </span>
                     </>
                   )}
                 </div>
-                <h3 className={`font-premium text-2xl text-platinum-white transition-colors mb-3 ${accent.hover}`}>
+                <h3 className={`font-premium text-2xl text-foreground transition-colors mb-3 ${accent.hover}`}>
                   {service.title}
                 </h3>
                 {service.description && (
-                  <p className="font-body text-platinum-white/50 text-sm line-clamp-2 mb-6">
+                  <p className="font-body text-muted-foreground/90 text-sm line-clamp-2 mb-6">
                     {service.description}
                   </p>
                 )}
@@ -256,10 +256,10 @@ export default function Services() {
               Services
             </span>
           </div>
-          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+          <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-6">
             <span className="italic text-radiant-gold">Services</span>
           </h2>
-          <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto">
+          <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto">
             Trainings, speaking engagements, consulting, and more—delivered in-person or virtually.
           </p>
         </div>
@@ -273,14 +273,14 @@ export default function Services() {
         <div className="text-center mt-20 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
             href="/services"
-            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
+            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-muted-foreground hover:text-radiant-gold transition-colors pb-2 border-b border-foreground/10"
           >
             <span>View All Services</span>
             <ArrowRight size={14} />
           </Link>
           <Link
             href="/pricing"
-            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
+            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-muted-foreground hover:text-radiant-gold transition-colors pb-2 border-b border-foreground/10"
           >
             <span>See Pricing &amp; Packages</span>
             <ArrowRight size={14} />

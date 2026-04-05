@@ -139,14 +139,14 @@ function PromptHistoryContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-imperial-navy text-platinum-white p-8 flex items-center justify-center">
-        <p className="text-platinum-white/50">Loading history...</p>
+      <div className="min-h-screen bg-background text-foreground p-8 flex items-center justify-center">
+        <p className="text-muted-foreground/90">Loading history...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white p-8">
+    <div className="min-h-screen bg-background text-foreground p-8">
       <div className="max-w-4xl mx-auto">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
@@ -160,7 +160,7 @@ function PromptHistoryContent() {
           <h1 className="text-3xl font-heading tracking-wider mb-2">
             Version History
           </h1>
-          <p className="text-platinum-white/60">
+          <p className="text-muted-foreground">
             {prompt ? getPromptDisplayName(prompt.key) : getPromptDisplayName(promptKey)} • Current version: {prompt?.version ?? '—'}
           </p>
         </div>
@@ -190,7 +190,7 @@ function PromptHistoryContent() {
 
         {/* History list */}
         {history.length === 0 ? (
-          <div className="text-center py-12 text-platinum-white/50 bg-silicon-slate/10 rounded-xl border border-radiant-gold/10">
+          <div className="text-center py-12 text-muted-foreground/90 bg-silicon-slate/10 rounded-xl border border-radiant-gold/10">
             <Clock size={48} className="mx-auto mb-4 opacity-50" />
             <p>No version history yet</p>
             <p className="text-sm mt-2">History is created when you edit the prompt</p>
@@ -214,11 +214,11 @@ function PromptHistoryContent() {
                     <span className="px-3 py-1 bg-radiant-gold/20 text-radiant-gold rounded-full text-sm font-mono">
                       v{h.version}
                     </span>
-                    <span className="text-platinum-white/60 text-sm">
+                    <span className="text-muted-foreground text-sm">
                       {new Date(h.changed_at).toLocaleString()}
                     </span>
                     {h.change_reason && (
-                      <span className="text-platinum-white/40 text-sm">
+                      <span className="text-muted-foreground/80 text-sm">
                         • {h.change_reason}
                       </span>
                     )}
@@ -254,9 +254,9 @@ function PromptHistoryContent() {
                       Rollback
                     </motion.button>
                     {expandedVersion === h.version ? (
-                      <ChevronUp size={20} className="text-platinum-white/50" />
+                      <ChevronUp size={20} className="text-muted-foreground/90" />
                     ) : (
-                      <ChevronDown size={20} className="text-platinum-white/50" />
+                      <ChevronDown size={20} className="text-muted-foreground/90" />
                     )}
                   </div>
                 </div>
@@ -271,10 +271,10 @@ function PromptHistoryContent() {
                   >
                     {/* Prompt content */}
                     <div className="p-4">
-                      <h4 className="text-sm font-medium text-platinum-white/70 mb-2">
+                      <h4 className="text-sm font-medium text-muted-foreground mb-2">
                         Prompt Content
                       </h4>
-                      <pre className="p-4 bg-imperial-navy/50 rounded-lg text-sm text-platinum-white/80 
+                      <pre className="p-4 bg-background/50 rounded-lg text-sm text-muted-foreground 
                         whitespace-pre-wrap font-mono max-h-96 overflow-y-auto">
                         {h.prompt}
                       </pre>
@@ -283,10 +283,10 @@ function PromptHistoryContent() {
                     {/* Config */}
                     {h.config && Object.keys(h.config).length > 0 && (
                       <div className="p-4 border-t border-radiant-gold/10">
-                        <h4 className="text-sm font-medium text-platinum-white/70 mb-2">
+                        <h4 className="text-sm font-medium text-muted-foreground mb-2">
                           Configuration
                         </h4>
-                        <pre className="p-4 bg-imperial-navy/50 rounded-lg text-sm text-platinum-white/80 
+                        <pre className="p-4 bg-background/50 rounded-lg text-sm text-muted-foreground 
                           font-mono">
                           {JSON.stringify(h.config, null, 2)}
                         </pre>

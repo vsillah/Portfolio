@@ -210,7 +210,7 @@ function AnnotationQueueContent() {
   const unannotatedCount = sessions.filter(s => !s.evaluation?.rating).length
 
   return (
-    <div className="min-h-screen bg-imperial-navy text-platinum-white">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="flex h-screen">
         {/* Left panel: Session list */}
         <div className="w-80 flex-shrink-0 border-r border-radiant-gold/10 flex flex-col">
@@ -237,7 +237,7 @@ function AnnotationQueueContent() {
                 mt-2 px-3 py-1.5 rounded-lg text-sm border transition-colors
                 ${showUnannotated 
                   ? 'bg-radiant-gold/10 border-radiant-gold/30 text-radiant-gold' 
-                  : 'bg-silicon-slate/20 border-radiant-gold/10 text-platinum-white/70'
+                  : 'bg-silicon-slate/20 border-radiant-gold/10 text-muted-foreground'
                 }
               `}
             >
@@ -252,7 +252,7 @@ function AnnotationQueueContent() {
                 <Loader2 className="w-6 h-6 animate-spin text-radiant-gold" />
               </div>
             ) : sessions.length === 0 ? (
-              <div className="text-center py-8 text-platinum-white/50 text-sm">
+              <div className="text-center py-8 text-muted-foreground/90 text-sm">
                 No sessions to annotate
               </div>
             ) : (
@@ -271,7 +271,7 @@ function AnnotationQueueContent() {
                   `}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs text-platinum-white/70 truncate">
+                    <span className="font-mono text-xs text-muted-foreground truncate">
                       {session.session_id.substring(0, 20)}...
                     </span>
                     {session.evaluation?.rating === 'good' && (
@@ -281,7 +281,7 @@ function AnnotationQueueContent() {
                       <span className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center text-white text-xs">✕</span>
                     )}
                   </div>
-                  <div className="text-xs text-platinum-white/50 mt-1">
+                  <div className="text-xs text-muted-foreground/90 mt-1">
                     {new Date(session.created_at).toLocaleDateString()}
                   </div>
                 </motion.div>
@@ -304,13 +304,13 @@ function AnnotationQueueContent() {
                   onClick={() => setShowMetadata(!showMetadata)}
                   className="flex items-center justify-between w-full"
                 >
-                  <span className="font-heading text-sm uppercase tracking-wider text-platinum-white/70">
+                  <span className="font-heading text-sm uppercase tracking-wider text-muted-foreground">
                     AI Settings & Metadata
                   </span>
                   {showMetadata ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                 </button>
                 {showMetadata && (
-                  <div className="mt-3 pt-3 border-t border-radiant-gold/10 text-sm text-platinum-white/60">
+                  <div className="mt-3 pt-3 border-t border-radiant-gold/10 text-sm text-muted-foreground">
                     Session ID: {currentSession.session_id}
                   </div>
                 )}
@@ -327,7 +327,7 @@ function AnnotationQueueContent() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-platinum-white/50">
+            <div className="flex items-center justify-center h-full text-muted-foreground/90">
               Select a session to view
             </div>
           )}

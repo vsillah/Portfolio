@@ -276,7 +276,7 @@ function DashboardContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <RefreshCw size={32} className="animate-spin text-platinum-white/60" />
+        <RefreshCw size={32} className="animate-spin text-muted-foreground" />
       </div>
     )
   }
@@ -416,7 +416,7 @@ function DashboardContent() {
                     Friends, group members, post engagement
                   </p>
                   <div className="mb-3">
-                    <label className="text-xs text-platinum-white/60">Max Leads</label>
+                    <label className="text-xs text-muted-foreground">Max Leads</label>
                     <input
                       type="number"
                       value={maxLeads.facebook}
@@ -427,7 +427,7 @@ function DashboardContent() {
                     />
                   </div>
                   {triggerHistory.filter(h => h.source === 'facebook')[0] && (
-                    <div className="text-xs text-platinum-white/60 mb-3">
+                    <div className="text-xs text-muted-foreground mb-3">
                       Last run: {new Date(triggerHistory.filter(h => h.source === 'facebook')[0].triggered_at).toLocaleString()}
                     </div>
                   )}
@@ -455,7 +455,7 @@ function DashboardContent() {
                     Contacts with business information
                   </p>
                   <div className="mb-3">
-                    <label className="text-xs text-platinum-white/60">Max Contacts</label>
+                    <label className="text-xs text-muted-foreground">Max Contacts</label>
                     <input
                       type="number"
                       value={maxLeads.google_contacts}
@@ -466,7 +466,7 @@ function DashboardContent() {
                     />
                   </div>
                   {triggerHistory.filter(h => h.source === 'google_contacts')[0] && (
-                    <div className="text-xs text-platinum-white/60 mb-3">
+                    <div className="text-xs text-muted-foreground mb-3">
                       Last run: {new Date(triggerHistory.filter(h => h.source === 'google_contacts')[0].triggered_at).toLocaleString()}
                     </div>
                   )}
@@ -494,7 +494,7 @@ function DashboardContent() {
                     Connections and post engagement
                   </p>
                   <div className="mb-3">
-                    <label className="text-xs text-platinum-white/60">Max Leads</label>
+                    <label className="text-xs text-muted-foreground">Max Leads</label>
                     <input
                       type="number"
                       value={maxLeads.linkedin}
@@ -505,7 +505,7 @@ function DashboardContent() {
                     />
                   </div>
                   {triggerHistory.filter(h => h.source === 'linkedin')[0] && (
-                    <div className="text-xs text-platinum-white/60 mb-3">
+                    <div className="text-xs text-muted-foreground mb-3">
                       Last run: {new Date(triggerHistory.filter(h => h.source === 'linkedin')[0].triggered_at).toLocaleString()}
                     </div>
                   )}
@@ -558,19 +558,19 @@ function DashboardContent() {
               </div>
             <div className="grid grid-cols-4 gap-3 text-xs">
               <div>
-                <div className="text-platinum-white/60">Enriched</div>
+                <div className="text-muted-foreground">Enriched</div>
                 <div className="font-medium text-orange-200">{data.warmFunnel.enriched}</div>
               </div>
               <div>
-                <div className="text-platinum-white/60">Contacted</div>
+                <div className="text-muted-foreground">Contacted</div>
                 <div className="font-medium text-orange-200">{data.warmFunnel.contacted}</div>
               </div>
               <div>
-                <div className="text-platinum-white/60">Reply Rate</div>
+                <div className="text-muted-foreground">Reply Rate</div>
                 <div className="font-medium text-green-400">{data.warmFunnel.reply_rate}%</div>
               </div>
               <div>
-                <div className="text-platinum-white/60">Booked</div>
+                <div className="text-muted-foreground">Booked</div>
                 <div className="font-medium text-emerald-400">{data.warmFunnel.booked}</div>
               </div>
             </div>
@@ -592,19 +592,19 @@ function DashboardContent() {
               </div>
             <div className="grid grid-cols-4 gap-3 text-xs">
               <div>
-                <div className="text-platinum-white/60">Enriched</div>
+                <div className="text-muted-foreground">Enriched</div>
                 <div className="font-medium text-blue-200">{data.coldFunnel.enriched}</div>
               </div>
               <div>
-                <div className="text-platinum-white/60">Contacted</div>
+                <div className="text-muted-foreground">Contacted</div>
                 <div className="font-medium text-blue-200">{data.coldFunnel.contacted}</div>
               </div>
               <div>
-                <div className="text-platinum-white/60">Reply Rate</div>
+                <div className="text-muted-foreground">Reply Rate</div>
                 <div className="font-medium text-green-400">{data.coldFunnel.reply_rate}%</div>
               </div>
               <div>
-                <div className="text-platinum-white/60">Booked</div>
+                <div className="text-muted-foreground">Booked</div>
                 <div className="font-medium text-emerald-400">{data.coldFunnel.booked}</div>
               </div>
             </div>
@@ -652,14 +652,14 @@ function DashboardContent() {
                       <div className="text-2xl font-bold">{step.value}</div>
                       <div className="text-xs text-gray-400 mt-1">{step.label}</div>
                       {index > 0 && step.value > 0 && funnelSteps[index - 1].value > 0 && (
-                        <div className="text-xs text-platinum-white/60 mt-1">
+                        <div className="text-xs text-muted-foreground mt-1">
                           {Math.round((step.value / funnelSteps[index - 1].value) * 100)}%
                         </div>
                       )}
                     </motion.div>
                   </Link>
                   {index < funnelSteps.length - 1 && (
-                    <ArrowRight size={16} className="text-platinum-white/60 mx-1 flex-shrink-0" />
+                    <ArrowRight size={16} className="text-muted-foreground mx-1 flex-shrink-0" />
                   )}
                 </div>
               )
@@ -760,7 +760,7 @@ function DashboardContent() {
                 )
               })}
               {Object.keys(data.stepStats).length === 0 && (
-                <p className="text-platinum-white/60 text-sm">No sequence data yet</p>
+                <p className="text-muted-foreground text-sm">No sequence data yet</p>
               )}
             </div>
           </div>
@@ -797,23 +797,23 @@ function DashboardContent() {
                         </div>
                       <div className="grid grid-cols-5 gap-2 text-xs">
                         <div>
-                          <div className="text-platinum-white/60">Enriched</div>
+                          <div className="text-muted-foreground">Enriched</div>
                           <div className="font-medium">{stats.enriched}</div>
                         </div>
                         <div>
-                          <div className="text-platinum-white/60">Contacted</div>
+                          <div className="text-muted-foreground">Contacted</div>
                           <div className="font-medium">{stats.contacted}</div>
                         </div>
                         <div>
-                          <div className="text-platinum-white/60">Replied</div>
+                          <div className="text-muted-foreground">Replied</div>
                           <div className="font-medium text-green-400">{stats.replied}</div>
                         </div>
                         <div>
-                          <div className="text-platinum-white/60">Booked</div>
+                          <div className="text-muted-foreground">Booked</div>
                           <div className="font-medium text-emerald-400">{stats.booked}</div>
                         </div>
                         <div>
-                          <div className="text-platinum-white/60">Opted Out</div>
+                          <div className="text-muted-foreground">Opted Out</div>
                           <div className="font-medium text-red-400">{stats.opted_out}</div>
                         </div>
                       </div>
@@ -823,7 +823,7 @@ function DashboardContent() {
                 })}
               </div>
             ) : (
-              <p className="text-platinum-white/60 text-sm">
+              <p className="text-muted-foreground text-sm">
                 {tempFilter === 'warm'
                   ? 'No warm leads sourced yet'
                   : tempFilter === 'cold'
@@ -882,7 +882,7 @@ function DashboardContent() {
                 })}
               </div>
             ) : (
-              <p className="text-platinum-white/60 text-sm">No lead sources configured yet</p>
+              <p className="text-muted-foreground text-sm">No lead sources configured yet</p>
             )}
           </div>
         </div>
@@ -908,7 +908,7 @@ function DashboardContent() {
                         <span className="font-medium text-sm">
                           {activity.contact_submissions?.name || 'Unknown'}
                         </span>
-                        <span className="text-platinum-white/60 text-sm mx-2">
+                        <span className="text-muted-foreground text-sm mx-2">
                           {activity.contact_submissions?.company || ''}
                         </span>
                       </div>
@@ -921,10 +921,10 @@ function DashboardContent() {
                     }`}>
                       {activity.status}
                     </span>
-                    <span className="text-platinum-white/60">
+                    <span className="text-muted-foreground">
                       Step {activity.sequence_step}
                     </span>
-                    <span className="text-platinum-white/60">
+                    <span className="text-muted-foreground">
                       {activity.sent_at
                         ? new Date(activity.sent_at).toLocaleDateString()
                         : ''}
@@ -935,7 +935,7 @@ function DashboardContent() {
               ))}
             </div>
           ) : (
-            <p className="text-platinum-white/60 text-sm">No outreach activity yet</p>
+            <p className="text-muted-foreground text-sm">No outreach activity yet</p>
           )}
         </div>
       </div>

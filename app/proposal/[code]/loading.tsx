@@ -1,9 +1,9 @@
 export default function ProposalLoading() {
   return (
-    <div className="min-h-screen bg-imperial-navy flex items-center justify-center">
+    <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="w-12 h-12 border-2 border-radiant-gold/30 border-t-radiant-gold rounded-full animate-spin" />
-        <p className="text-platinum-white/50 text-sm font-heading tracking-widest uppercase">
+        <p className="text-muted-foreground/90 text-sm font-heading tracking-widest uppercase">
           Loading Proposal
         </p>
       </div>

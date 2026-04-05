@@ -206,7 +206,7 @@ export default function Publications() {
 
   if (loading) {
     return (
-      <section id="publications" className="py-32 bg-imperial-navy">
+      <section id="publications" className="py-32 bg-background">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <div className="h-10 w-48 bg-silicon-slate/20 mx-auto rounded-full animate-pulse" />
         </div>
@@ -215,7 +215,7 @@ export default function Publications() {
   }
 
   return (
-    <section id="publications" className="py-32 px-6 sm:px-10 lg:px-12 bg-imperial-navy relative overflow-hidden">
+    <section id="publications" className="py-32 px-6 sm:px-10 lg:px-12 bg-background relative overflow-hidden">
       {/* Subtle Aurora */}
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-bronze/5 blur-[120px] rounded-full" />
 
@@ -228,15 +228,15 @@ export default function Publications() {
               Library
             </span>
           </div>
-          <h2 className="font-premium text-4xl md:text-6xl text-platinum-white mb-6">
+          <h2 className="font-premium text-4xl md:text-6xl text-foreground mb-6">
             <span className="italic text-radiant-gold">Publications</span>
           </h2>
-          <p className="font-body text-platinum-white/50 text-lg max-w-2xl mx-auto mb-10">
+          <p className="font-body text-muted-foreground/90 text-lg max-w-2xl mx-auto mb-10">
             Thought leadership and strategic guides for the digital frontier.
           </p>
           <Link 
             href="/store?type=ebook"
-            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-platinum-white/60 hover:text-radiant-gold transition-colors pb-2 border-b border-platinum-white/10"
+            className="inline-flex items-center gap-4 text-[10px] font-heading tracking-[0.3em] uppercase text-muted-foreground hover:text-radiant-gold transition-colors pb-2 border-b border-foreground/10"
           >
             <span>Browse Library Store</span>
             <ArrowRight size={14} />
@@ -268,13 +268,13 @@ export default function Publications() {
                 
                 {/* Badge */}
                 {publication.linked_lead_magnet ? (
-                  <span className="absolute top-6 left-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold">
+                  <span className="absolute top-6 left-6 px-4 py-2 bg-background/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold">
                     Free
                   </span>
                 ) : publication.linked_product ? (
                   <Link
                     href={`/store/${publication.linked_product.id}`}
-                    className="absolute top-6 left-6 px-4 py-2 bg-imperial-navy/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold"
+                    className="absolute top-6 left-6 px-4 py-2 bg-background/90 backdrop-blur-md border border-radiant-gold/20 rounded-full text-radiant-gold text-xs font-heading tracking-widest uppercase font-bold"
                   >
                     {formatPriceOrFree(publication.linked_product.price ?? 0)}
                   </Link>
@@ -285,11 +285,11 @@ export default function Publications() {
               <div className="p-8 flex flex-col flex-grow relative z-10">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h3 className="font-premium text-2xl text-platinum-white group-hover:text-radiant-gold transition-colors">
+                    <h3 className="font-premium text-2xl text-foreground group-hover:text-radiant-gold transition-colors">
                       {publication.title}
                     </h3>
                     {(publication.author || publication.publisher) && (
-                      <p className="text-[10px] font-heading tracking-widest text-platinum-white/40 mt-2 uppercase">
+                      <p className="text-[10px] font-heading tracking-widest text-muted-foreground/80 mt-2 uppercase">
                         {publication.author}
                         {publication.author && publication.publisher && ' • '}
                         {publication.publisher}
@@ -303,7 +303,7 @@ export default function Publications() {
                   <ExpandableText
                     text={publication.description}
                     maxHeight={80}
-                    className="font-body text-platinum-white/50 text-sm leading-relaxed mb-8"
+                    className="font-body text-muted-foreground/90 text-sm leading-relaxed mb-8"
                     expandButtonColor="text-radiant-gold hover:text-gold-light"
                   />
                 )}
@@ -333,7 +333,7 @@ export default function Publications() {
                       {publication.linked_lead_magnet.slug && (
                         <Link
                           href={`/ebook/${publication.linked_lead_magnet.slug}`}
-                          className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-platinum-white/80 transition-all group/link"
+                          className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-muted-foreground transition-all group/link"
                         >
                           <span>Learn More</span>
                           <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
@@ -405,7 +405,7 @@ export default function Publications() {
                       href={publication.publication_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-platinum-white/80 transition-all group/link"
+                      className="w-full flex items-center justify-center gap-3 py-3 border border-radiant-gold/20 hover:bg-radiant-gold/5 rounded-full text-[10px] font-heading tracking-widest uppercase text-muted-foreground transition-all group/link"
                     >
                       <span>View on Amazon</span>
                       <ExternalLink size={14} className="group-hover/link:translate-x-1 transition-transform" />
@@ -422,10 +422,10 @@ export default function Publications() {
             ref={postDownloadRef}
             className="mt-16 pt-16 border-t border-radiant-gold/10 text-center max-w-2xl mx-auto animate-fade-in-up"
           >
-            <p className="font-body text-platinum-white/60 text-lg mb-2">
+            <p className="font-body text-muted-foreground text-lg mb-2">
               Your download has started.
             </p>
-            <h3 className="font-premium text-xl sm:text-2xl text-platinum-white mb-6">
+            <h3 className="font-premium text-xl sm:text-2xl text-foreground mb-6">
               What&apos;s next?
             </h3>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center flex-wrap">
@@ -440,22 +440,22 @@ export default function Publications() {
               </a>
               <div className="flex flex-col items-center gap-2">
                 {userEmail && (
-                  <p className="text-platinum-white/50 text-xs font-body">
-                    We&apos;ll notify you at <strong className="text-platinum-white/70">{userEmail}</strong>
+                  <p className="text-muted-foreground/90 text-xs font-body">
+                    We&apos;ll notify you at <strong className="text-muted-foreground">{userEmail}</strong>
                   </p>
                 )}
                 {workshopNotifyStatus === 'idle' && (
                   <button
                     type="button"
                     onClick={handleWorkshopNotify}
-                    className="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-silicon-slate/40 border border-radiant-gold/30 text-platinum-white rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:bg-silicon-slate/60 transition-all"
+                    className="inline-flex items-center justify-center gap-2 py-2.5 px-5 bg-silicon-slate/40 border border-radiant-gold/30 text-foreground rounded-full text-[10px] font-heading tracking-widest uppercase font-bold hover:bg-silicon-slate/60 transition-all"
                   >
                     <MailCheck size={14} />
                     <span>Notify me when the Accelerated Workshop opens</span>
                   </button>
                 )}
                 {workshopNotifyStatus === 'loading' && (
-                  <span className="text-platinum-white/60 text-xs">Saving...</span>
+                  <span className="text-muted-foreground text-xs">Saving...</span>
                 )}
                 {workshopNotifyStatus === 'success' && (
                   <p className="text-radiant-gold text-xs font-body inline-flex items-center gap-2">

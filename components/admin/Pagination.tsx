@@ -34,7 +34,7 @@ export default function Pagination({
 
   return (
     <div className="flex items-center justify-between pt-2">
-      <span className="text-xs text-platinum-white/50">
+      <span className="text-xs text-muted-foreground/90">
         {rangeStart}–{rangeEnd} of {total}
       </span>
       <div className="flex items-center gap-1">
@@ -47,7 +47,7 @@ export default function Pagination({
         </button>
         {pageNumbers.map((p, idx) =>
           p === 'ellipsis' ? (
-            <span key={`e-${idx}`} className="px-1 text-xs text-platinum-white/30">…</span>
+            <span key={`e-${idx}`} className="px-1 text-xs text-muted-foreground/70">…</span>
           ) : (
             <button
               key={p}

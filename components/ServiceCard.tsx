@@ -99,14 +99,14 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
         {/* Service Details */}
         <div className="flex flex-wrap gap-2 mb-3">
           {/* Delivery Method */}
-          <span className="px-2 py-1 bg-silicon-slate text-platinum-white text-xs rounded flex items-center gap-1">
+          <span className="px-2 py-1 bg-silicon-slate text-foreground text-xs rounded flex items-center gap-1">
             {delivery.icon}
             {delivery.label}
           </span>
           
           {/* Duration */}
           {service.duration_description && (
-            <span className="px-2 py-1 bg-silicon-slate text-platinum-white text-xs rounded flex items-center gap-1">
+            <span className="px-2 py-1 bg-silicon-slate text-foreground text-xs rounded flex items-center gap-1">
               <Clock size={12} />
               {service.duration_description}
             </span>
@@ -114,7 +114,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
           
           {/* Participants */}
           {service.max_participants && (
-            <span className="px-2 py-1 bg-silicon-slate text-platinum-white text-xs rounded flex items-center gap-1">
+            <span className="px-2 py-1 bg-silicon-slate text-foreground text-xs rounded flex items-center gap-1">
               <Users size={12} />
               {service.min_participants}-{service.max_participants}
             </span>
@@ -122,7 +122,7 @@ export default function ServiceCard({ service, onAddToCart, onRequestQuote, view
         </div>
 
         {service.description && (
-          <p className="text-platinum-white/80 text-sm mb-4 line-clamp-3">{service.description}</p>
+          <p className="text-muted-foreground text-sm mb-4 line-clamp-3">{service.description}</p>
         )}
 
         {/* View details link */}

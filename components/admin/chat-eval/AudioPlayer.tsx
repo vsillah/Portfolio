@@ -122,7 +122,7 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
       <audio ref={audioRef} src={src} preload="metadata" />
       
       {title && (
-        <div className="text-sm text-platinum-white mb-3 truncate">
+        <div className="text-sm text-foreground mb-3 truncate">
           {title}
         </div>
       )}
@@ -147,7 +147,7 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
             background: `linear-gradient(to right, #D4AF37 0%, #D4AF37 ${(currentTime / duration) * 100}%, #2C3E50 ${(currentTime / duration) * 100}%, #2C3E50 100%)`,
           }}
         />
-        <div className="flex justify-between text-xs text-platinum-white/50 mt-1">
+        <div className="flex justify-between text-xs text-muted-foreground/90 mt-1">
           <span>{formatTime(currentTime)}</span>
           <span>{isLoading ? '--:--' : formatTime(duration)}</span>
         </div>
@@ -175,7 +175,7 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
             whileTap={{ scale: 0.9 }}
             onClick={handleRestart}
             className="w-8 h-8 rounded-full bg-silicon-slate/50 flex items-center justify-center
-              text-platinum-white/70 hover:text-platinum-white transition-colors"
+              text-muted-foreground hover:text-foreground transition-colors"
           >
             <RotateCcw size={14} />
           </motion.button>
@@ -186,7 +186,7 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
             whileTap={{ scale: 0.9 }}
             onClick={toggleMute}
             className="w-8 h-8 rounded-full bg-silicon-slate/50 flex items-center justify-center
-              text-platinum-white/70 hover:text-platinum-white transition-colors"
+              text-muted-foreground hover:text-foreground transition-colors"
           >
             {isMuted ? <VolumeX size={14} /> : <Volume2 size={14} />}
           </motion.button>
@@ -198,8 +198,8 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handlePlaybackRateChange}
-            className="px-2 py-1 rounded bg-silicon-slate/50 text-xs text-platinum-white/70
-              hover:text-platinum-white transition-colors font-mono"
+            className="px-2 py-1 rounded bg-silicon-slate/50 text-xs text-muted-foreground
+              hover:text-foreground transition-colors font-mono"
           >
             {playbackRate}x
           </motion.button>
@@ -211,7 +211,7 @@ export function AudioPlayer({ src, title }: AudioPlayerProps) {
             href={src}
             download
             className="w-8 h-8 rounded-full bg-silicon-slate/50 flex items-center justify-center
-              text-platinum-white/70 hover:text-platinum-white transition-colors"
+              text-muted-foreground hover:text-foreground transition-colors"
           >
             <Download size={14} />
           </motion.a>

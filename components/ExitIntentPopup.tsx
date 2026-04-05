@@ -97,7 +97,7 @@ export default function ExitIntentPopup({
             <div className="bg-silicon-slate border-2 border-radiant-gold rounded-2xl p-8 max-w-md w-full relative">
               <button
                 onClick={handleClose}
-                className="absolute top-4 right-4 text-platinum-white/80 hover:text-foreground transition-colors"
+                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors"
               >
                 <X size={24} />
               </button>
@@ -107,14 +107,14 @@ export default function ExitIntentPopup({
                   <Tag className="text-radiant-gold" size={32} />
                 </div>
                 <h2 className="text-3xl font-bold mb-2">Wait! Don&apos;t Go Yet!</h2>
-                <p className="text-platinum-white/80">
+                <p className="text-muted-foreground">
                   Get {discountAmount}% off your order when you checkout now!
                 </p>
               </div>
 
               {discountCode && (
                 <div className="bg-radiant-gold/20 border border-radiant-gold/50 rounded-lg p-4 mb-6 text-center">
-                  <p className="text-sm text-platinum-white/80 mb-1">Use code:</p>
+                  <p className="text-sm text-muted-foreground mb-1">Use code:</p>
                   <p className="text-2xl font-bold text-radiant-gold">{discountCode}</p>
                 </div>
               )}

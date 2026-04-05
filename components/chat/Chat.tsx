@@ -566,7 +566,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
             onClick={() => setIsExpanded(true)}
-            className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-silicon-slate/30 border border-radiant-gold/20 rounded-xl text-platinum-white hover:bg-silicon-slate/40 hover:border-radiant-gold/40 transition-all duration-300"
+            className="w-full flex items-center justify-center gap-3 py-4 px-6 bg-silicon-slate/30 border border-radiant-gold/20 rounded-xl text-foreground hover:bg-silicon-slate/40 hover:border-radiant-gold/40 transition-all duration-300"
           >
             <MessageCircle size={20} className="text-radiant-gold" />
             <span className="font-heading text-sm tracking-wider uppercase">Chat with AI Assistant</span>
@@ -584,13 +584,13 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
             <div className="flex items-center justify-between px-4 py-3 border-b border-radiant-gold/10 bg-silicon-slate/20">
               <div className="flex items-center gap-2">
                 <div className={`w-2 h-2 rounded-full ${isVoiceCallActive ? 'bg-radiant-gold' : isDiagnosticMode ? 'bg-radiant-gold' : 'bg-emerald-500'} animate-pulse`} />
-                <span className="text-sm font-heading tracking-wider text-platinum-white">
+                <span className="text-sm font-heading tracking-wider text-foreground">
                   {isDiagnosticMode ? 'AI Assessment' : isVoiceCallActive ? 'Voice Active' : 'AI Assistant'}
                 </span>
                 {isDiagnosticMode && (
                   <>
                     <ClipboardCheck size={14} className="text-radiant-gold" />
-                    <span className="text-xs text-platinum-white/50">
+                    <span className="text-xs text-muted-foreground/90">
                       {diagnosticProgress?.completedCategories?.length || 0}/6
                     </span>
                   </>
@@ -607,7 +607,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                       className={`p-1.5 rounded-md transition-all duration-200 ${
                         chatMode === 'text' 
                           ? 'bg-radiant-gold/20 text-radiant-gold' 
-                          : 'text-platinum-white/50 hover:text-platinum-white'
+                          : 'text-muted-foreground/90 hover:text-foreground'
                       }`}
                       title="Text chat"
                     >
@@ -620,7 +620,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                       className={`p-1.5 rounded-md transition-all duration-200 ${
                         chatMode === 'voice' 
                           ? 'bg-radiant-gold/20 text-radiant-gold' 
-                          : 'text-platinum-white/50 hover:text-platinum-white'
+                          : 'text-muted-foreground/90 hover:text-foreground'
                       }`}
                       title="Voice chat"
                     >
@@ -643,7 +643,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                   onClick={clearChat}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="p-2 text-platinum-white/50 hover:text-red-400 transition-colors"
+                  className="p-2 text-muted-foreground/90 hover:text-red-400 transition-colors"
                   title="Clear chat"
                 >
                   <Trash2 size={16} />
@@ -652,7 +652,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                   onClick={() => setIsExpanded(false)}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  className="p-2 text-platinum-white/50 hover:text-platinum-white transition-colors"
+                  className="p-2 text-muted-foreground/90 hover:text-foreground transition-colors"
                   title="Minimize chat"
                 >
                   <X size={16} />
@@ -675,11 +675,11 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                       Diagnostic in Progress
                     </span>
                   </div>
-                  <div className="text-xs text-platinum-white/70">
+                  <div className="text-xs text-muted-foreground">
                     Current: {currentCategory.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   </div>
                   {diagnosticProgress && diagnosticProgress.completedCategories && diagnosticProgress.completedCategories.length > 0 && (
-                    <div className="text-xs text-platinum-white/50 mt-1">
+                    <div className="text-xs text-muted-foreground/90 mt-1">
                       Completed: {diagnosticProgress.completedCategories.length} of 6 categories
                     </div>
                   )}
@@ -722,14 +722,14 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                     <div className="flex justify-between items-start gap-2">
                       <div className="flex-1">
                         <p className="text-sm font-medium text-radiant-gold">AI Readiness Assessment Started</p>
-                        <p className="text-xs text-platinum-white/70 mt-1">
+                        <p className="text-xs text-muted-foreground mt-1">
                           I&apos;ll ask questions across 6 categories to understand your needs. 
                           Click &quot;Exit Assessment&quot; in the header anytime to return to regular chat.
                         </p>
                       </div>
                       <button 
                         onClick={() => setShowDiagnosticBanner(false)}
-                        className="text-platinum-white/50 hover:text-platinum-white transition-colors flex-shrink-0"
+                        className="text-muted-foreground/90 hover:text-foreground transition-colors flex-shrink-0"
                       >
                         <X size={14} />
                       </button>
@@ -749,7 +749,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                   >
                     <div className="flex justify-between items-start gap-2">
                       <div className="flex-1">
-                        <p className="text-xs text-platinum-white/70">
+                        <p className="text-xs text-muted-foreground">
                           Sign in for personalized help based on your projects and purchases.
                         </p>
                         <button
@@ -762,7 +762,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                       </div>
                       <button
                         onClick={() => setShowLoginBanner(false)}
-                        className="text-platinum-white/50 hover:text-platinum-white transition-colors flex-shrink-0"
+                        className="text-muted-foreground/90 hover:text-foreground transition-colors flex-shrink-0"
                       >
                         <X size={14} />
                       </button>
@@ -806,7 +806,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                   >
                     <div className="flex items-center gap-2 mb-3">
                       <Sparkles size={14} className="text-radiant-gold" />
-                      <span className="text-xs font-heading text-platinum-white/70 uppercase tracking-wider">
+                      <span className="text-xs font-heading text-muted-foreground uppercase tracking-wider">
                         Things you can ask me
                       </span>
                     </div>
@@ -825,10 +825,10 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                               <Icon size={16} className="text-radiant-gold" />
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="text-sm font-heading text-platinum-white group-hover:text-radiant-gold transition-colors">
+                              <div className="text-sm font-heading text-foreground group-hover:text-radiant-gold transition-colors">
                                 {action.label}
                               </div>
-                              <div className="text-xs text-platinum-white/50 mt-0.5">
+                              <div className="text-xs text-muted-foreground/90 mt-0.5">
                                 {action.description}
                               </div>
                             </div>

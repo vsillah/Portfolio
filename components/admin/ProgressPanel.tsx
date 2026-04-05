@@ -116,9 +116,9 @@ export default function ProgressPanel({ title, steps, variant = 'card', error, o
   }
 
   return (
-    <div className="bg-imperial-navy/80 border border-silicon-slate rounded-xl p-4 mt-3">
+    <div className="bg-background/80 border border-silicon-slate rounded-xl p-4 mt-3">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-medium text-platinum-white">{title}</span>
+        <span className="text-xs font-medium text-foreground">{title}</span>
         {onCancel && (!isFinished || hasError) && (
           <button onClick={onCancel} className="text-gray-400 hover:text-red-400 transition-colors" title={hasError ? 'Dismiss' : 'Cancel'}>
             <X className="w-3.5 h-3.5" />
