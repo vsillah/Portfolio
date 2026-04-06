@@ -96,30 +96,27 @@ export async function POST(request: NextRequest) {
 
     const shippingAddress = order.shipping_address as any
 
-    // Build Printful items
-    const printfulItems = []
-    for (const item of merchandiseItems) {
-      if (!item.printful_variant_id) {
-        // Fetch variant to get Printful variant ID
-        const { data: variant } = await supabaseAdmin
+    // Fetch sync_variant_ids from product_variants (includes print files)
+    const pvIds = merchandiseItems.map((i: OrderItemRow) => i.product_variant_id).filter(Boolean)
+    const { data: pvRows } = pvIds.length > 0
+      ? await supabaseAdmin
           .from('product_variants')
-          .select('printful_variant_id, product_id')
-          .eq('id', item.product_variant_id)
-          .single()
+          .select('id, printful_variant_id, printful_sync_variant_id')
+          .in('id', pvIds)
+      : { data: [] }
+    type PVRow = { id: number; printful_variant_id: number; printful_sync_variant_id: number | null }
+    const pvMap = new Map<number, PVRow>()
+    for (const r of (pvRows || []) as PVRow[]) {
+      pvMap.set(r.id, r)
+    }
 
-        if (!variant) {
-          continue
-        }
-
-        printfulItems.push({
-          variant_id: variant.printful_variant_id,
-          quantity: item.quantity,
-        })
-      } else {
-        printfulItems.push({
-          variant_id: item.printful_variant_id,
-          quantity: item.quantity,
-        })
+    const printfulItems: Array<{ sync_variant_id?: number; variant_id?: number; quantity: number }> = []
+    for (const item of merchandiseItems) {
+      const pv = pvMap.get(item.product_variant_id)
+      if (pv?.printful_sync_variant_id) {
+        printfulItems.push({ sync_variant_id: pv.printful_sync_variant_id, quantity: item.quantity })
+      } else if (item.printful_variant_id || pv?.printful_variant_id) {
+        printfulItems.push({ variant_id: item.printful_variant_id || pv?.printful_variant_id, quantity: item.quantity })
       }
     }
 

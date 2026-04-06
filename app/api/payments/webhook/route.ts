@@ -714,13 +714,29 @@ export async function POST(request: NextRequest) {
               if (!orderItems || orderItems.length === 0) {
                 console.warn(`[Printful] Order ${order.id} skipped: no merchandise order items (product_variant_id)`)
               } else {
-                // Build Printful items (variant_id must be number for Printful API)
+                // Look up Printful sync_variant_ids (includes print files) from product_variants
+                const pvIds = orderItems.map((item: OrderItemRow) => item.product_variant_id).filter(Boolean)
+                const { data: pvRows } = pvIds.length > 0
+                  ? await supabaseAdmin
+                      .from('product_variants')
+                      .select('id, printful_variant_id, printful_sync_variant_id')
+                      .in('id', pvIds)
+                  : { data: [] }
+                type PVRow = { id: number; printful_variant_id: number; printful_sync_variant_id: number | null }
+                const pvMap = new Map<number, PVRow>()
+                for (const r of (pvRows || []) as PVRow[]) {
+                  pvMap.set(r.id, r)
+                }
+
                 const printfulItems = orderItems
                   .filter((item: OrderItemRow) => item.printful_variant_id != null)
-                  .map((item: OrderItemRow) => ({
-                    variant_id: Number(item.printful_variant_id),
-                    quantity: item.quantity,
-                  }))
+                  .map((item: OrderItemRow) => {
+                    const pv = item.product_variant_id != null ? pvMap.get(item.product_variant_id) : undefined
+                    if (pv?.printful_sync_variant_id) {
+                      return { sync_variant_id: Number(pv.printful_sync_variant_id), quantity: item.quantity }
+                    }
+                    return { variant_id: Number(item.printful_variant_id), quantity: item.quantity }
+                  })
 
                 if (printfulItems.length === 0) {
                   console.warn(`[Printful] Order ${order.id} skipped: merchandise items have no printful_variant_id (sync products from Printful and ensure variants are linked)`)

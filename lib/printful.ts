@@ -390,7 +390,8 @@ class PrintfulClient {
       zip: string
     },
     items: Array<{
-      variant_id: number
+      variant_id?: number
+      sync_variant_id?: number
       quantity: number
       name?: string
       retail_price?: string
