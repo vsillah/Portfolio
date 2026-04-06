@@ -690,11 +690,14 @@ export async function POST(request: NextRequest) {
             )
           }
 
-          // If order has merchandise items, submit to Printful (skip in Stripe test mode to avoid creating real Printful orders)
+          // Submit merchandise to Printful — skip in non-production environments
+          const appEnv = process.env.NEXT_PUBLIC_APP_ENV
+          const skipPrintful = appEnv ? appEnv !== 'production' : !event.livemode
+
           if (!order) {
             // order already handled above
-          } else if (event.livemode === false) {
-            console.log(`[Printful] Stripe test mode (livemode=false): skipping Printful submission so no real order is created. Order ${order.id} would have been submitted.`)
+          } else if (skipPrintful) {
+            console.log(`[Printful] Non-production environment (APP_ENV=${appEnv}): skipping Printful submission. Order ${order.id} would have been submitted.`)
           } else if (!order.shipping_address) {
             console.warn(`[Printful] Order ${order.id} skipped: no shipping_address (required for fulfillment)`)
           } else if (order.printful_order_id) {
