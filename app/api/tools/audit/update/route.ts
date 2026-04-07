@@ -4,11 +4,15 @@ import { tryVerifyAuth } from '@/lib/auth-server'
 import { AUDIT_CATEGORY_ORDER, categoryFormToPayload } from '@/lib/audit-questions'
 import { computeReportTier } from '@/lib/audit-report-tier'
 import { triggerDiagnosticCompletionWebhook } from '@/lib/n8n'
-import { supabaseAdmin } from '@/lib/supabase'
+import { findOrCreateContactByEmail } from '@/lib/find-or-create-contact'
+import { getAuthUserPrimaryEmail } from '@/lib/auth-user-email'
+import { getClientIpFromRequest, isIpRateLimited } from '@/lib/simple-ip-rate-limit'
 import type { DiagnosticCategory } from '@/lib/n8n'
 import type { DiagnosticAuditRecord } from '@/lib/diagnostic'
 
 export const dynamic = 'force-dynamic'
+
+const RATE_LIMIT_BUCKET = 'audit_tool_update'
 
 /**
  * Compute simple urgency (0-10) and opportunity (0-10) from audit data for display.
@@ -85,6 +89,14 @@ function buildSummary(payload: Record<string, Record<string, unknown>>): string 
  */
 export async function PUT(request: NextRequest) {
   try {
+    const ip = getClientIpFromRequest(request)
+    if (isIpRateLimited(RATE_LIMIT_BUCKET, ip)) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please try again later.' },
+        { status: 429 }
+      )
+    }
+
     const authUser = await tryVerifyAuth(request)
     const authUserId = authUser?.user?.id
 
@@ -169,8 +181,43 @@ export async function PUT(request: NextRequest) {
       ...(authUserId ? { userId: authUserId } : {}),
     }
 
-    // On completion: compute report tier and create/link contact if email was provided
+    // On completion: require contact linkage, compute tier
     if (allCategoriesPresent) {
+      // Standalone audits must have a linked contact before completion (DB CHECK enforces this too).
+      // Email may come from step 0 or from the signed-in user's account.
+      let contactEmail =
+        existing.contact_email?.trim().toLowerCase() ||
+        (authUserId ? await getAuthUserPrimaryEmail(authUserId) : null)
+
+      if (!existing.contact_submission_id && !contactEmail) {
+        return NextResponse.json(
+          { error: 'Email is required to complete the audit. Please provide your email in the first step or sign in.' },
+          { status: 400 }
+        )
+      }
+
+      if (contactEmail && !existing.contact_email) {
+        saveData.contactEmail = contactEmail
+      }
+
+      // Resolve or create contact (find-by-email first to avoid duplicates)
+      if (!existing.contact_submission_id) {
+        const contactId = await findOrCreateContactByEmail(contactEmail!, {
+          name: existing.business_name ?? undefined,
+          company: existing.business_name ?? null,
+          companyDomain: existing.website_url ?? null,
+          message: 'Lead captured via standalone audit tool.',
+          leadSource: 'website_form',
+        })
+        if (!contactId) {
+          return NextResponse.json(
+            { error: 'Could not link your audit to a contact record. Please try again.' },
+            { status: 500 }
+          )
+        }
+        saveData.contactSubmissionId = contactId
+      }
+
       const auditForTier = {
         ...existing,
         ...existingData,
@@ -180,18 +227,6 @@ export async function PUT(request: NextRequest) {
 
       const tierResult = computeReportTier(auditForTier)
       saveData.reportTier = tierResult.tier
-
-      // Create or link contact_submissions row if email was captured at Step 0
-      if (existing.contact_email && !existing.contact_submission_id) {
-        const contactId = await findOrCreateContact(
-          existing.contact_email,
-          existing.business_name ?? undefined,
-          existing.website_url ?? undefined
-        )
-        if (contactId) {
-          saveData.contactSubmissionId = contactId
-        }
-      }
     }
 
     const result = await saveDiagnosticAudit(existing.session_id, saveData)
@@ -205,13 +240,18 @@ export async function PUT(request: NextRequest) {
 
     // Fire-and-forget: notify sales pipeline on completion
     if (allCategoriesPresent) {
+      const completionEmail =
+        (typeof saveData.contactEmail === 'string' && saveData.contactEmail.trim().toLowerCase()) ||
+        existing.contact_email?.trim().toLowerCase() ||
+        (authUserId ? (await getAuthUserPrimaryEmail(authUserId)) ?? undefined : undefined)
       triggerDiagnosticCompletionWebhook(
         result.id,
         diagnosticData as any,
         {
-          email: existing.contact_email ?? undefined,
+          email: completionEmail,
           name: existing.business_name ?? undefined,
-        }
+        },
+        'standalone_audit'
       ).catch(() => {})
     }
 
@@ -226,60 +266,5 @@ export async function PUT(request: NextRequest) {
       { error: 'Something went wrong' },
       { status: 500 }
     )
-  }
-}
-
-/**
- * Find existing contact by email or create a new one for lead capture.
- * Returns the contact_submissions.id or null on failure.
- */
-async function findOrCreateContact(
-  email: string,
-  businessName?: string,
-  websiteUrl?: string
-): Promise<number | null> {
-  try {
-    const normalizedEmail = email.trim().toLowerCase()
-
-    const { data: existing } = await supabaseAdmin
-      .from('contact_submissions')
-      .select('id')
-      .eq('email', normalizedEmail)
-      .limit(1)
-      .single()
-
-    if (existing) return existing.id
-
-    const { data: created, error } = await supabaseAdmin
-      .from('contact_submissions')
-      .insert({
-        name: businessName || normalizedEmail.split('@')[0],
-        email: normalizedEmail,
-        company: businessName || null,
-        company_domain: websiteUrl || null,
-        message: 'Lead captured via standalone audit tool.',
-        lead_source: 'audit_tool',
-      })
-      .select('id')
-      .single()
-
-    if (error) {
-      if (error.code === '23505') {
-        const { data: raced } = await supabaseAdmin
-          .from('contact_submissions')
-          .select('id')
-          .eq('email', normalizedEmail)
-          .limit(1)
-          .single()
-        return raced?.id ?? null
-      }
-      console.error('Failed to create contact from audit:', error)
-      return null
-    }
-
-    return created?.id ?? null
-  } catch (err) {
-    console.error('findOrCreateContact error:', err)
-    return null
   }
 }

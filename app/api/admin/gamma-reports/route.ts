@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { buildGammaReportInput, type GammaReportParams } from '@/lib/gamma-report-builder'
-import { generateGamma, waitForGeneration } from '@/lib/gamma-client'
+import { insertGammaReportRow, runGammaGeneration } from '@/lib/gamma-generation'
 
 export const dynamic = 'force-dynamic'
 
@@ -87,88 +87,43 @@ export async function POST(request: NextRequest) {
   try {
     const { inputText, options, title } = await buildGammaReportInput(body)
 
-    const { data: row, error: insertError } = await supabaseAdmin
-      .from('gamma_reports')
-      .insert({
-        report_type: body.reportType,
-        title,
-        contact_submission_id: body.contactSubmissionId || null,
-        diagnostic_audit_id: body.diagnosticAuditId || null,
-        value_report_id: body.valueReportId || null,
-        proposal_id: body.proposalId || null,
-        input_text: inputText,
-        external_inputs: {
-          ...(body.externalInputs || {}),
-          ...(body.externalInputSources ? { _sources: body.externalInputSources } : {}),
-        },
-        gamma_options: options,
-        status: 'generating',
-        created_by: auth.user.id,
-      })
-      .select('id')
-      .single()
+    const row = await insertGammaReportRow({
+      reportType: body.reportType,
+      title,
+      contactSubmissionId: body.contactSubmissionId || null,
+      diagnosticAuditId: body.diagnosticAuditId || null,
+      valueReportId: body.valueReportId || null,
+      proposalId: body.proposalId || null,
+      inputText,
+      externalInputs: {
+        ...(body.externalInputs || {}),
+        ...(body.externalInputSources ? { _sources: body.externalInputSources } : {}),
+      },
+      gammaOptions: options,
+      createdBy: auth.user.id,
+    })
 
-    if (insertError || !row) {
-      console.error('Failed to insert gamma report row:', insertError)
-      return NextResponse.json({ error: 'Failed to create report record' }, { status: 500 })
+    if (!row) {
+      return NextResponse.json({ error: 'A report is already being generated for this input' }, { status: 409 })
     }
 
     const reportId = row.id
+    const result = await runGammaGeneration(reportId, inputText, options)
 
-    let gammaResult
-    try {
-      const { generationId } = await generateGamma(inputText, options)
-
-      await supabaseAdmin
-        .from('gamma_reports')
-        .update({ gamma_generation_id: generationId })
-        .eq('id', reportId)
-
-      gammaResult = await waitForGeneration(generationId)
-    } catch (gammaError: unknown) {
-      const errMsg = gammaError instanceof Error ? gammaError.message : 'Unknown Gamma API error'
-      await supabaseAdmin
-        .from('gamma_reports')
-        .update({ status: 'failed', error_message: errMsg })
-        .eq('id', reportId)
-
+    if (result.status === 'failed') {
       return NextResponse.json(
-        { error: 'Gamma generation failed', details: errMsg, reportId },
+        { error: 'Gamma generation failed', details: result.errorMessage, reportId },
         { status: 502 }
       )
     }
-
-    if (gammaResult.status === 'failed') {
-      await supabaseAdmin
-        .from('gamma_reports')
-        .update({
-          status: 'failed',
-          error_message: gammaResult.error?.message || 'Generation failed',
-        })
-        .eq('id', reportId)
-
-      return NextResponse.json(
-        { error: 'Gamma generation failed', details: gammaResult.error?.message, reportId },
-        { status: 502 }
-      )
-    }
-
-    await supabaseAdmin
-      .from('gamma_reports')
-      .update({
-        status: 'completed',
-        gamma_url: gammaResult.gammaUrl,
-        gamma_generation_id: gammaResult.generationId,
-      })
-      .eq('id', reportId)
 
     return NextResponse.json({
       reportId,
       title,
-      gammaUrl: gammaResult.gammaUrl,
-      generationId: gammaResult.generationId,
+      gammaUrl: result.gammaUrl,
+      generationId: result.generationId,
       status: 'completed',
-      credits: gammaResult.credits,
+      credits: result.credits,
     })
   } catch (err: unknown) {
     const errMsg = err instanceof Error ? err.message : 'Unknown error'

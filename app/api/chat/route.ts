@@ -3,6 +3,9 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { sendToN8n, sendDiagnosticToN8n, generateSessionId, triggerDiagnosticCompletionWebhook, triggerLeadQualificationWebhook, type ChatMessage } from '@/lib/n8n'
 import type { DiagnosticProgress, DiagnosticCategory } from '@/lib/n8n'
 import { saveDiagnosticAudit, getDiagnosticAuditBySession, linkDiagnosticToContact } from '@/lib/diagnostic'
+import { findOrCreateContactByEmail } from '@/lib/find-or-create-contact'
+import { getAuthUserPrimaryEmail } from '@/lib/auth-user-email'
+import { getClientIpFromRequest, isIpRateLimited } from '@/lib/simple-ip-rate-limit'
 import { isValidCalendlyUrl } from '@/lib/utils'
 import { fetchConversationContext } from '@/lib/chat-context'
 import { createChatEscalation, formatTranscriptFromHistory } from '@/lib/chat-escalation'
@@ -228,35 +231,45 @@ export async function POST(request: NextRequest) {
         })
       }
 
-      // Handle diagnostic completion (only if not a fallback response)
+      // Handle diagnostic completion (only if not a fallback response).
+      // Soft gate: audit is already saved completed above; Gamma runs only after contact_submission_id exists
+      // (saveDiagnosticAudit enqueue skipped without contact; linkDiagnosticToContact enqueues after link).
       if (diagnosticComplete && diagnosticAuditId && diagnosticResponse.diagnosticData && !diagnosticResponse.metadata?.fallback) {
-        if (visitorEmail) {
-          const { data: contactSubmissions } = await supabaseAdmin
-            .from('contact_submissions')
-            .select('id')
-            .eq('email', visitorEmail.toLowerCase())
-            .order('created_at', { ascending: false })
-            .limit(1)
+        const emailForContact =
+          (typeof visitorEmail === 'string' && visitorEmail.trim().toLowerCase()) ||
+          (userId ? await getAuthUserPrimaryEmail(userId) : null)
 
-          if (contactSubmissions && contactSubmissions.length > 0) {
-            await linkDiagnosticToContact(diagnosticAuditId, contactSubmissions[0].id)
+        const ip = getClientIpFromRequest(request)
+        const sideEffectsBlocked = isIpRateLimited('chat_diagnostic_complete', ip)
+        if (sideEffectsBlocked) {
+          console.warn('[chat] chat_diagnostic_complete rate limited', { ip: ip.slice(0, 12), diagnosticAuditId })
+        }
+
+        if (emailForContact && !sideEffectsBlocked) {
+          const contactId = await findOrCreateContactByEmail(emailForContact, {
+            name: visitorName?.trim() || undefined,
+            message: `Diagnostic completed via chat. ${diagnosticResponse.diagnosticData.diagnostic_summary || ''}`.slice(0, 2000),
+            leadSource: 'website_form',
+          })
+          if (contactId) {
+            await linkDiagnosticToContact(diagnosticAuditId, contactId)
 
             triggerLeadQualificationWebhook({
-              name: visitorName || 'Unknown',
-              email: visitorEmail,
+              name: visitorName || emailForContact.split('@')[0] || 'Unknown',
+              email: emailForContact,
               message: `Diagnostic completed. ${diagnosticResponse.diagnosticData.diagnostic_summary || 'See diagnostic audit for details.'}`,
-              submissionId: contactSubmissions[0].id.toString(),
+              submissionId: contactId.toString(),
               submittedAt: new Date().toISOString(),
               source: 'chat_diagnostic',
-            }).catch(err => console.error('Lead qualification webhook failed:', err))
+            }).catch((err) => console.error('Lead qualification webhook failed:', err))
           }
         }
 
         triggerDiagnosticCompletionWebhook(
           diagnosticAuditId,
           diagnosticResponse.diagnosticData as any,
-          { email: visitorEmail, name: visitorName }
-        ).catch(err => console.error('Diagnostic completion webhook failed:', err))
+          { email: emailForContact ?? undefined, name: visitorName }
+        ).catch((err) => console.error('Diagnostic completion webhook failed:', err))
       }
 
       n8nResponse = {

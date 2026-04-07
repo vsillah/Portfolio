@@ -18,7 +18,12 @@ export async function POST(request: NextRequest) {
     const file = formData.get('file') as File
     const productId = formData.get('productId') as string | null
     const purposeRaw = formData.get('purpose') as string | null
-    const purpose = purposeRaw === 'instructions' ? 'instructions' : 'product'
+    const purpose: 'instructions' | 'product' | 'card_image' =
+      purposeRaw === 'instructions'
+        ? 'instructions'
+        : purposeRaw === 'card_image'
+          ? 'card_image'
+          : 'product'
 
     if (!file) {
       return NextResponse.json(
@@ -27,12 +32,22 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate unique file path; instructions go in instructions/ subfolder
+    // Generate unique file path; instructions go in instructions/ subfolder;
+    // card_image = store listing / ProductCard image (separate from downloadable product file)
     const fileExt = file.name.split('.').pop()
     const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
-    const filePath = purpose === 'instructions'
-      ? (productId ? `product-${productId}/instructions/${fileName}` : `uploads/instructions/${fileName}`)
-      : (productId ? `product-${productId}/${fileName}` : `uploads/${fileName}`)
+    let filePath: string
+    if (purpose === 'instructions') {
+      filePath = productId
+        ? `product-${productId}/instructions/${fileName}`
+        : `uploads/instructions/${fileName}`
+    } else if (purpose === 'card_image') {
+      filePath = productId
+        ? `product-${productId}/card-${fileName}`
+        : `uploads/cards/${fileName}`
+    } else {
+      filePath = productId ? `product-${productId}/${fileName}` : `uploads/${fileName}`
+    }
 
     // Upload file to Supabase Storage (products bucket)
     const { data, error } = await supabaseAdmin.storage
@@ -44,9 +59,12 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error
 
+    const { data: pub } = supabaseAdmin.storage.from('products').getPublicUrl(filePath)
+
     return NextResponse.json({
       success: true,
       file_path: filePath,
+      public_url: pub.publicUrl,
       file_type: file.type,
       file_size: file.size,
     })
