@@ -1,19 +1,19 @@
 # create-issue
 
-Capture a bug, feature, or improvement as an issue and save it locally.
+Capture a bug, feature, or improvement as a GitHub issue.
 
 ## Your Goal
 
-Create a complete issue and **write it to a local markdown file** (not GitHub):
+Create a complete GitHub issue on the workspace's repository:
 
 - Clear title
 - TL;DR of what this is about
 - Current state vs expected outcome
 - Relevant files that need touching
 - Risk/notes if applicable
-- Proper type/priority/effort labels
+- Proper labels (type: bug/enhancement/improvement, priority if applicable)
 
-**Output:** Save the issue to `docs/issues/{slug}.md` where `{slug}` is a kebab-case version of the title (e.g. `add-autosuggest-for-local-files.md`). Do not create GitHub issues.
+**Output:** Create the issue on GitHub using `gh issue create` (via Shell tool). Do not create local markdown files in `docs/issues/`.
 
 ## How to Get There
 
@@ -32,19 +32,48 @@ Keep questions brief. One message with 2–3 targeted questions beats multiple b
 
 **Skip what's obvious** — If it's a straightforward bug, don't search. If type/priority is clear, don't ask.
 
-**Write the file** — Use the existing format in `docs/issues/` (see `add-autosuggest-for-local-image-files.md` as reference). Include:
+**Create the GitHub issue:**
 
-- `# Title` (h1)
+1. Resolve repo: `git remote get-url origin` to get owner/repo.
+2. Write the body to a temp file to avoid shell quoting issues:
+   ```bash
+   cat > /tmp/gh-issue-body.md <<'ENDOFBODY'
+   ## TL;DR
+   ...
+   ## Current state
+   ...
+   ## Expected outcome
+   ...
+   ## Relevant files
+   ...
+   ## Risks / notes
+   ...
+   ENDOFBODY
+   ```
+3. Create the issue:
+   ```bash
+   gh issue create --repo owner/repo \
+     --title "Issue title" \
+     --label "enhancement" \
+     --body-file /tmp/gh-issue-body.md
+   ```
+4. Return the issue URL to the user.
+
+## Issue Body Format
+
+Use this structure in the body:
+
 - `## TL;DR`
 - `## Current state` / `## Expected outcome`
 - `## Relevant files`
+- `## Implementation approach` (optional, for features)
 - `## Risks / notes` (optional)
-- `## Labels` with type, priority, effort
 
 ## Behavior Rules
 
 - Be conversational — ask what makes sense, not a checklist
-- Default priority: normal, effort: medium (ask only if unclear)
+- Default label: `enhancement` for features, `bug` for bugs, `improvement` for improvements
 - Max 3 files in context — most relevant only
 - Bullet points over paragraphs
-- **Always create the file** — don't just output the content; write it to `docs/issues/{slug}.md`
+- **Always create on GitHub** — do not write to `docs/issues/` or any local file
+- Return the GitHub issue URL when done

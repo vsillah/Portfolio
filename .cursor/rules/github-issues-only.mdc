@@ -1,0 +1,42 @@
+# GitHub Issues — Single Source of Truth
+
+All project issues (bugs, features, improvements) must be tracked in the **GitHub repository** (`vsillah/Portfolio`), not as local markdown files.
+
+## Required behavior
+
+1. **Creating issues:** Use `gh issue create` (via Shell tool) to create issues on GitHub. Do **not** write issue files to `docs/issues/` or any local directory.
+2. **Listing issues:** Use the GitHub MCP (`list_issues`) or `gh issue list` to fetch open issues. Do not scan local directories for issue files.
+3. **Referencing issues:** Use GitHub issue numbers (e.g. `#34`) when referencing issues in commits, comments, or conversation.
+
+## Labels
+
+Use these GitHub labels for categorization:
+
+- `bug` — Something is broken
+- `enhancement` — New feature or capability
+- `improvement` — Better behavior for existing functionality
+
+## Shell quoting
+
+When creating issues via `gh issue create`, write the body to a temp file first to avoid heredoc/quoting issues:
+
+```bash
+cat > /tmp/gh-issue-body.md <<'ENDOFBODY'
+Issue body here...
+ENDOFBODY
+
+gh issue create --repo vsillah/Portfolio \
+  --title "Issue title" \
+  --label "enhancement" \
+  --body-file /tmp/gh-issue-body.md
+```
+
+## What not to do
+
+- Do **not** create files in `docs/issues/`.
+- Do **not** store issue descriptions only in Memory or conversation — always persist to GitHub.
+- Do **not** use the GitHub MCP `create_issue` tool (current token lacks write permissions) — use `gh` CLI instead.
+
+## Note on GitHub MCP permissions
+
+The GitHub MCP token (`user-github`) currently has **read-only** access for issue creation. Always use the `gh` CLI for write operations (create, update, close). The MCP can still be used for listing/reading issues.
