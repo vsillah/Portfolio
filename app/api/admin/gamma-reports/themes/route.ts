@@ -11,9 +11,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
   }
 
+  const defaultThemeId = process.env.GAMMA_DEFAULT_THEME_ID || null
   const apiKey = process.env.GAMMA_API_KEY
+
+  // Degrade gracefully: UI only needs an empty list + optional default theme id (avoids console 500 noise).
   if (!apiKey) {
-    return NextResponse.json({ error: 'GAMMA_API_KEY not configured' }, { status: 500 })
+    console.warn('[gamma-themes] GAMMA_API_KEY not set — themes list skipped')
+    return NextResponse.json({ themes: [], defaultThemeId })
   }
 
   try {
@@ -23,19 +27,21 @@ export async function GET(request: NextRequest) {
 
     if (!res.ok) {
       const errBody = await res.json().catch(() => ({}))
-      return NextResponse.json(
-        { error: (errBody as Record<string, string>).message || `Gamma API ${res.status}` },
-        { status: res.status }
-      )
+      const msg =
+        (errBody as Record<string, unknown>).message != null
+          ? String((errBody as Record<string, unknown>).message)
+          : `Gamma API ${res.status}`
+      console.error('[gamma-themes] Gamma /themes request failed:', msg)
+      return NextResponse.json({ themes: [], defaultThemeId, warning: msg })
     }
 
     const body = await res.json()
     const themes = Array.isArray(body) ? body : (body.data ?? [])
-    const defaultThemeId = process.env.GAMMA_DEFAULT_THEME_ID || null
 
     return NextResponse.json({ themes, defaultThemeId })
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: msg }, { status: 500 })
+    console.error('[gamma-themes] Themes fetch error:', msg)
+    return NextResponse.json({ themes: [], defaultThemeId, warning: msg })
   }
 }

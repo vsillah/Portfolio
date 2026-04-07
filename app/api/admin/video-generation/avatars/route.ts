@@ -13,18 +13,14 @@ export async function GET(request: NextRequest) {
 
     const result = await listAvatars()
     if (result.error) {
-      return NextResponse.json(
-        { avatars: [], error: result.error },
-        { status: 500 }
-      )
+      console.warn('[video-generation/avatars] HeyGen list failed:', result.error)
+      // 200 so optional companion-video UI does not spam the browser console as a hard failure
+      return NextResponse.json({ avatars: [], error: result.error })
     }
     return NextResponse.json({ avatars: result.avatars })
   } catch (error) {
     console.error('[Video generation] Avatars fetch error:', error)
     const message = error instanceof Error ? error.message : String(error)
-    return NextResponse.json(
-      { avatars: [], error: message },
-      { status: 500 }
-    )
+    return NextResponse.json({ avatars: [], error: message })
   }
 }
