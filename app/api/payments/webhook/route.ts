@@ -10,6 +10,7 @@ import { recordCostEvent } from '@/lib/cost-calculator'
 import { parsePrintfulPrice } from '@/lib/printful'
 import { notifyOrderConfirmation, type OrderConfirmationItem } from '@/lib/notifications'
 import { generateInvoicePDFBuffer, type InvoicePDFData } from '@/lib/invoice-pdf'
+import { buildPrintfulSubmissionItems, shouldSkipPrintfulSubmission } from '@/lib/printful-fulfillment'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,13 +40,6 @@ async function logStripeFee(paymentIntentId: string, orderId: number): Promise<v
   } catch (err) {
     console.error('[Stripe] Failed to log fee for payment', paymentIntentId, err)
   }
-}
-
-// Type for order item from query
-type OrderItemRow = {
-  product_variant_id: number | null
-  printful_variant_id: string | null
-  quantity: number
 }
 
 // ============================================================================
@@ -692,7 +686,7 @@ export async function POST(request: NextRequest) {
 
           // Submit merchandise to Printful — skip in non-production environments
           const appEnv = process.env.NEXT_PUBLIC_APP_ENV
-          const skipPrintful = appEnv ? appEnv !== 'production' : !event.livemode
+          const skipPrintful = shouldSkipPrintfulSubmission(appEnv, event.livemode)
 
           if (!order) {
             // order already handled above
@@ -722,21 +716,7 @@ export async function POST(request: NextRequest) {
                       .select('id, printful_variant_id, printful_sync_variant_id')
                       .in('id', pvIds)
                   : { data: [] }
-                type PVRow = { id: number; printful_variant_id: number; printful_sync_variant_id: number | null }
-                const pvMap = new Map<number, PVRow>()
-                for (const r of (pvRows || []) as PVRow[]) {
-                  pvMap.set(r.id, r)
-                }
-
-                const printfulItems = orderItems
-                  .filter((item: OrderItemRow) => item.printful_variant_id != null)
-                  .map((item: OrderItemRow) => {
-                    const pv = item.product_variant_id != null ? pvMap.get(item.product_variant_id) : undefined
-                    if (pv?.printful_sync_variant_id) {
-                      return { sync_variant_id: Number(pv.printful_sync_variant_id), quantity: item.quantity }
-                    }
-                    return { variant_id: Number(item.printful_variant_id), quantity: item.quantity }
-                  })
+                const printfulItems = buildPrintfulSubmissionItems(orderItems || [], (pvRows || []) as Array<{ id: number; printful_sync_variant_id: number | null }>)
 
                 if (printfulItems.length === 0) {
                   console.warn(`[Printful] Order ${order.id} skipped: merchandise items have no printful_variant_id (sync products from Printful and ensure variants are linked)`)
