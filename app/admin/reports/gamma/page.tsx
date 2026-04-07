@@ -103,7 +103,9 @@ function GammaReportsContent() {
   const [contactId, setContactId] = useState<string>(searchParams.get('contactId') || '');
   const [contactSearch, setContactSearch] = useState('');
   const [auditId, setAuditId] = useState<string>(searchParams.get('auditId') || '');
-  const [audits, setAudits] = useState<{ id: number; created_at: string; status: string }[]>([]);
+  const [audits, setAudits] = useState<
+    { id: string; created_at: string; status: string; audit_type?: string | null }[]
+  >([]);
   const [valueReportId, setValueReportId] = useState<string>(searchParams.get('valueReportId') || '');
   const [valueReports, setValueReports] = useState<{ id: string; title: string }[]>([]);
 
@@ -220,12 +222,13 @@ function GammaReportsContent() {
     }
     async function load() {
       const token = await getToken();
-      const res = await fetch(`/api/chat/diagnostic?contactId=${contactId}`, {
+      const qs = new URLSearchParams({ contact_submission_id: contactId });
+      const res = await fetch(`/api/admin/diagnostic-audits/by-contact?${qs}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
-        const auditList = Array.isArray(data) ? data : data.audits || [];
+        const auditList = Array.isArray(data.audits) ? data.audits : [];
         setAudits(auditList);
         if (auditList.length === 1) setAuditId(String(auditList[0].id));
       }
@@ -328,7 +331,8 @@ function GammaReportsContent() {
       };
 
       if (contactId) body.contactSubmissionId = parseInt(contactId, 10);
-      if (auditId) body.diagnosticAuditId = parseInt(auditId, 10);
+      // diagnostic_audits.id is UUID — do not parseInt
+      if (auditId) body.diagnosticAuditId = auditId;
       if (valueReportId) body.valueReportId = valueReportId;
       if (selectedTheme) body.theme = selectedTheme;
 
@@ -501,7 +505,8 @@ function GammaReportsContent() {
                 <option value="">— No audit selected —</option>
                 {audits.map((a) => (
                   <option key={a.id} value={a.id}>
-                    Audit #{a.id} — {a.status} — {new Date(a.created_at).toLocaleDateString()}
+                    {a.audit_type ? `${a.audit_type} · ` : ''}
+                    {a.id.slice(0, 8)}… — {a.status} — {new Date(a.created_at).toLocaleDateString()}
                   </option>
                 ))}
               </select>

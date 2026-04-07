@@ -27,10 +27,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'contactId must be a number' }, { status: 400 })
   }
 
-  const auditIdNum = auditId ? parseInt(auditId, 10) : null
-  if (auditId && isNaN(auditIdNum!)) {
-    return NextResponse.json({ error: 'auditId must be a number' }, { status: 400 })
-  }
+  const auditIdParam = auditId?.trim() || null
 
   try {
     const [contactResult, auditResult, painPointResult, marketIntelResult] = await Promise.all([
@@ -40,21 +37,22 @@ export async function GET(request: NextRequest) {
         .eq('id', contactIdNum)
         .single(),
 
-      auditIdNum
+      auditIdParam
         ? supabaseAdmin
             .from('diagnostic_audits')
             .select(
               'id, diagnostic_summary, key_insights, recommended_actions, business_challenges, tech_stack, automation_needs, ai_readiness, budget_timeline, decision_making, urgency_score, opportunity_score'
             )
-            .eq('id', auditIdNum)
+            .eq('id', auditIdParam)
             .single()
         : Promise.resolve({ data: null, error: null }),
 
-      auditIdNum
+      auditIdParam
         ? supabaseAdmin
             .from('pain_point_evidence')
             .select('id, source_excerpt, source_type, pain_point_category_id')
             .eq('source_type', 'diagnostic_audit')
+            .eq('source_id', auditIdParam)
             .limit(20)
         : Promise.resolve({ data: [], error: null }),
 
