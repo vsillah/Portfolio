@@ -254,13 +254,15 @@ Visitor completes the **AI Readiness Scorecard** on the Resources page (`/resour
 
 Visitor uses the site chat. If they enter diagnostic/audit mode, the app creates or updates **chat_sessions** and **diagnostic_audits**. Messages in diagnostic mode are sent to n8n via the diagnostic webhook; n8n returns the next question or completion with diagnostic data. When the diagnostic **completes** (n8n returns isComplete + diagnosticData):
 
-1. If the visitor provided **email**, the app looks up **contact_submissions** by that email; if found, it **links the diagnostic to that contact** (`diagnostic_audits.contact_submission_id`).
-2. It calls **triggerLeadQualificationWebhook** with source `chat_diagnostic` and diagnostic summary.
+1. The app resolves an email from the **visitor email** (if provided) or from the **signed-in user’s account** (Supabase Auth). If an email is available, it **finds or creates** a **contact_submissions** row (normalized email, deduplicated) and **links** the audit (`diagnostic_audits.contact_submission_id`).
+2. If a contact was linked, it calls **triggerLeadQualificationWebhook** with source `chat_diagnostic` and diagnostic summary.
 3. It calls **triggerDiagnosticCompletionWebhook** (N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL) with diagnosticAuditId, diagnosticData, and contact info for sales follow-up.
+
+**Audit summary (Gamma) deck:** The **Next.js app** auto-generates an `audit_summary` row in **gamma_reports** (and calls the Gamma API) when an audit is **completed** and has a **contact_submission_id**—including after link-on-completion in chat. **Do not** add a duplicate Gamma-generation step in n8n on diagnostic completion; the diagnostic-completion webhook is for sales/ops notifications and enrichment only, not for creating `gamma_reports`.
 
 **Where admin sees inbound:** Inbound contacts appear in **Lead Pipeline → All Leads**. Completed **diagnostic_audits** are visible from the **Sales Dashboard**; admin can open a **sales session** tied to a diagnostic (`/admin/sales/[auditId]`) and run the walkthrough (scripts, bundle, proposal). So: **Visitor → contact form and/or chat/diagnostic → contact_submissions + diagnostic_audits → lead webhook + diagnostic completion webhook → admin sees leads and audits → sales session from audit → proposal**.
 
-**Note:** Contact form is the primary way visitors become leads in the DB. Chat/diagnostic enriches and links to that lead; if a visitor only chats and never submits the form, they must be identified by email and a contact_submissions row must exist (e.g. from a prior form submit or manual add) for the link and lead webhook to run.
+**Note:** Chat/diagnostic can create a lead via find-or-create when email is known (visitor or signed-in). If there is no email, the audit can still complete; no contact link runs until email exists (soft gate for Gamma and lead webhooks that require a contact).
 
 ### Chat escalations (request human / inadequate response)
 
@@ -268,7 +270,7 @@ When the chatbot cannot adequately respond or the user asks to be contacted by a
 
 ### Standalone audit tool (same diagnostic data, different entry)
 
-Visitors can complete the **AI & Automation Audit** form at **/tools/audit** without using chat. The app creates a **chat_sessions** row and a **diagnostic_audits** row (`audit_type = 'standalone'`) and saves the same six categories (business challenges, tech stack, automation needs, AI readiness, budget & timeline, decision making). When all six sections are submitted, the audit is marked **completed** and **urgency_score** and **opportunity_score** are computed. These audits appear on the **Sales Dashboard** alongside chat and in-person diagnostics; admin can open any of them to start a sales session (`/admin/sales/[auditId]`). Standalone audits do **not** capture email on the form today, so `contact_submission_id` is null unless we add optional email capture and linking. For a full map of **how audit and other client inputs tie into sales and where they are used in the codebase**, see **[audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md)**.
+Visitors can complete the **AI & Automation Audit** form at **/tools/audit** without using chat. The app creates a **diagnostic_audits** row (`audit_type = 'standalone'`) and saves the same six categories (business challenges, tech stack, automation needs, AI readiness, budget & timeline, decision making). When all six sections are submitted, the audit is marked **completed** only after a **contact_submissions** link exists: email from the first step **or** the signed-in user’s account email is used to find-or-create the contact (DB enforces `contact_submission_id` for completed standalone audits). **urgency_score** and **opportunity_score** are computed on completion. The app may auto-create an **audit_summary** Gamma deck tied to that contact. These audits appear on the **Sales Dashboard** alongside chat and in-person diagnostics; admin can open any of them to start a sales session (`/admin/sales/[auditId]`). For a full map of **how audit and other client inputs tie into sales and where they are used in the codebase**, see **[audit-inputs-and-client-data.md](./audit-inputs-and-client-data.md)**.
 
 [Back to top](#table-of-contents)
 
@@ -505,12 +507,13 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 | Workflow / system | Trigger | Purpose | Inputs (summary) | Outputs / where results show |
 |-------------------|---------|---------|------------------|------------------------------|
 | WF-WRM-001/002/003 | Admin Trigger or n8n schedule | Scrape Facebook / Google Contacts / LinkedIn | source, max_leads, etc. | POST to `/api/admin/outreach/ingest` → contact_submissions |
-| N8N_LEAD_WEBHOOK_URL | Add lead, Edit lead (re-run), contact form, diagnostic completion | Lead qualification / enrichment | LeadQualificationRequest | Enrichment/scoring; contact_submissions updated by n8n when configured |
+| N8N_LEAD_WEBHOOK_URL | Add lead, Edit lead (re-run), contact form | Lead qualification / enrichment | LeadQualificationRequest | Enrichment/scoring; contact_submissions updated by n8n when configured |
 | WF-CLG-002 | n8n (after enrichment) | Generate outreach message | contact_id, score_tier, lead_score, etc. | Writes draft to outreach_queue (status: draft) |
 | WF-CLG-003 | Admin "Send Now" | Send email or LinkedIn | outreach item + contact, sequence_step | Sends message; updates outreach_queue + contact outreach_status |
 | WF-VEP-001 | Admin Trigger on Value Evidence | Internal evidence extraction | (none from UI) | POST to `/api/admin/value-evidence/ingest` |
 | WF-VEP-002 | Admin Trigger on Value Evidence | Social listening | (none from UI) | POST to ingest-market then ingest |
-| N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL | Diagnostic completion in chat | Sales notification | diagnosticAuditId, diagnosticData, contactInfo | Used by n8n for sales follow-up |
+| WF-DIAG-COMP / N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL | Diagnostic completion (chat or standalone audit) | Sales Slack notification (no Gamma) | diagnosticAuditId, diagnosticData, contactInfo, completedAt, source (`chat_diagnostic` or `standalone_audit`) | Slack post; responds `{ ok: true }` to app. Set env to production webhook; if unset, completion falls back to lead intake webhook |
+| WF-GAMMA-CLEANUP | n8n schedule (every 15 min) | Mark stuck `gamma_reports` (`generating` >10 min) as failed | Calls `POST /api/cron/gamma-stuck-cleanup` with Bearer `N8N_INGEST_SECRET` | DB update; optional Slack if any rows updated |
 | N8N_ONBOARDING_WEBHOOK | After admin Approve & Send (approve-onboarding) | Send onboarding email with plan link + PDF + client portal link | onboarding_plan_id, client info, milestones_summary, pdf_url, **dashboard_url** | Email to client |
 | VAPI Webhook Handler | VAPI voice call events | Route voice transcripts to n8n, handle function calls | VAPI event payload (transcript, function-call, etc.) | AI response for VAPI to speak; chat_sessions + chat_messages updated |
 | Milestone progress update | Admin "Mark Complete" on project milestone | Send progress update to client via email/Slack | milestone_index, attachments, note, sender_name | Email or Slack message to client; progress_updates log |

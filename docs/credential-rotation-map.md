@@ -17,6 +17,7 @@ Use this doc when rotating credentials to avoid missing a plug-in point. Each cr
 | | `app/api/admin/value-evidence/ingest-market/route.ts` | Raw market data (VEP-002) |
 | | `app/api/admin/cost-events/ingest/route.ts` | Cost event ingest |
 | Cron / n8n triggers | `app/api/cron/drive-sync/route.ts` | Drive sync cron |
+| | `app/api/cron/gamma-stuck-cleanup/route.ts` | WF-GAMMA-CLEANUP: stuck `gamma_reports` cleanup |
 | | `app/api/video-context/route.ts` | Video personalization (admin or n8n) |
 | | `app/api/meetings/[id]/promote-tasks/route.ts` | WF-MCH meeting complete |
 | | `app/api/client-email-context/route.ts` | Email context for n8n |

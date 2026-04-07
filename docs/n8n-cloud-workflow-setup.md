@@ -13,6 +13,8 @@ Brief setup and validation notes as we migrate/validate workflows on n8n Cloud (
 | Lead Research and Qualifying Agent | ✅ | Route by Score fixed (gte/lt); seed script for test row 99999; mock payload email aligned |
 | RAG Chatbot for AmaduTown using Google Gemini | ✅ | See below |
 | ReversR Beta Tester Intake form | ✅ | Value mappings + credential; trigger script injects current timestamp |
+| WF-DIAG-COMP: Diagnostic Completion | ✅ | Webhook `diagnostic-completion` → Slack → Respond `{ ok: true }`; ID `jpSUzUCkbwCrkTSy` |
+| WF-GAMMA-CLEANUP: Stuck Gamma Reports | ✅ | Schedule 15m → `POST /api/cron/gamma-stuck-cleanup` (Bearer `N8N_INGEST_SECRET`); ID `V5cNpHrAgSqd05NC`; set `PORTFOLIO_URL` + `N8N_INGEST_SECRET` in n8n Variables |
 
 ## Chat / RAG (split workflows)
 
@@ -22,9 +24,9 @@ The former monolithic RAG Chatbot was split into logical chunks. The app calls n
 |---------|---------|---------------|----------|
 | **N8N_WEBHOOK_URL** | Main chat (site chat + health check) | `POST` JSON: `{ action: 'sendMessage', sessionId, chatInput, history?, ... }` | Chat uses smart fallback; health check fails |
 | **N8N_DIAGNOSTIC_WEBHOOK_URL** | Diagnostic / audit chat | Same as above + `diagnosticMode: true`, `diagnosticAuditId`, `currentCategory`, `progress` | Falls back to `N8N_WEBHOOK_URL` |
-| **N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL** | When user completes diagnostic (notify sales) | `POST` JSON: `{ diagnosticAuditId, diagnosticData, contactInfo, completedAt, source: 'chat_diagnostic' }` | Falls back to `N8N_LEAD_WEBHOOK_URL` |
+| **N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL** | When user completes diagnostic (notify sales) | `POST` JSON: `{ diagnosticAuditId, diagnosticData, contactInfo, completedAt, source }` — `source` is `chat_diagnostic` or `standalone_audit` | Falls back to `N8N_LEAD_WEBHOOK_URL` (avoid: use WF-DIAG-COMP) |
 
-**Setup:** In n8n Cloud, identify the workflow (or router) that receives the chat webhook. Copy its **Production** webhook URL into `N8N_WEBHOOK_URL`. If you have a separate diagnostic workflow, set `N8N_DIAGNOSTIC_WEBHOOK_URL` to its URL. If diagnostic completion goes to a different workflow (e.g. lead intake), set `N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL` accordingly.
+**Setup:** In n8n Cloud, identify the workflow (or router) that receives the chat webhook. Copy its **Production** webhook URL into `N8N_WEBHOOK_URL`. If you have a separate diagnostic workflow, set `N8N_DIAGNOSTIC_WEBHOOK_URL` to its URL. Set **`N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL`** to **WF-DIAG-COMP** production URL: `https://amadutown.app.n8n.cloud/webhook/diagnostic-completion` (test: `.../webhook-test/diagnostic-completion` when listening in the editor).
 
 **RAG / prompt API:** Any chunk that needs the site prompt should call `GET {{ $env.PORTFOLIO_URL || 'https://amadutown.com' }}/api/prompts/chatbot` (returns `{ prompt: { prompt, config } }` from `system_prompts` table). Set `PORTFOLIO_URL` in n8n Cloud Variables if using a different origin.
 
@@ -52,6 +54,7 @@ Run trigger scripts in this order. Each phase depends on the previous one being 
 | 1.2 | WF-TSK: Task Slack Sync | `./scripts/trigger-task-slack-sync-webhook.sh` | ✅ |
 | 1.3 | WF-CLG-003: Send and Follow-Up | `./scripts/trigger-clg-003-send-webhook.sh` | ✅ |
 | 1.4 | WF-MCH: Meeting Complete Handler | `./scripts/trigger-meeting-complete-webhook.sh` | ✅ |
+| 1.5 | WF-DIAG-COMP: Diagnostic Completion | `./scripts/trigger-diagnostic-completion-webhook.sh` | ✅ |
 
 ### Phase 2 — Calendly router + onboarding / value evidence
 

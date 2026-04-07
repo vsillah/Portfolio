@@ -354,6 +354,7 @@ The **Client Portal** (`/client/dashboard/[token]`) is your engagement hub. You 
 | **Meeting History** | Past meetings with summaries, key decisions, action items, and optional recording links. |
 | **Next Meeting** | Your next scheduled meeting when one is set. |
 | **Assessment & Value** | Your diagnostic assessment (if applicable) and value report. |
+| **Your Reports** | Summary presentations and value reports when available. If a deck is still generating, you may see a short “being prepared” note; use **View Deck** when the link appears. |
 
 You do not need to log in to use the portal — the link itself is your access. Keep it private; share it only with people who should see the project.
 
