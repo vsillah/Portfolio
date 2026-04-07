@@ -104,7 +104,7 @@ function GammaReportsContent() {
   const [contactSearch, setContactSearch] = useState('');
   const [auditId, setAuditId] = useState<string>(searchParams.get('auditId') || '');
   const [audits, setAudits] = useState<
-    { id: string; created_at: string; status: string; audit_type?: string | null }[]
+    { id: string | number; created_at: string; status: string; audit_type?: string | null }[]
   >([]);
   const [valueReportId, setValueReportId] = useState<string>(searchParams.get('valueReportId') || '');
   const [valueReports, setValueReports] = useState<{ id: string; title: string }[]>([]);
@@ -503,12 +503,16 @@ function GammaReportsContent() {
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white focus:border-emerald-500 focus:outline-none"
               >
                 <option value="">— No audit selected —</option>
-                {audits.map((a) => (
-                  <option key={a.id} value={a.id}>
+                {audits.map((a) => {
+                  const idStr = String(a.id);
+                  const idShort = idStr.length > 8 ? `${idStr.slice(0, 8)}…` : idStr;
+                  return (
+                  <option key={idStr} value={idStr}>
                     {a.audit_type ? `${a.audit_type} · ` : ''}
-                    {a.id.slice(0, 8)}… — {a.status} — {new Date(a.created_at).toLocaleDateString()}
+                    {idShort} — {a.status} — {new Date(a.created_at).toLocaleDateString()}
                   </option>
-                ))}
+                  );
+                })}
               </select>
             </div>
           )}
