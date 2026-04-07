@@ -1,0 +1,20 @@
+{
+  "diagnosticAuditId": "999999999",
+  "diagnosticData": {
+    "business_challenges": { "pain": "Manual follow-up" },
+    "tech_stack": { "crm": "Spreadsheets" },
+    "automation_needs": { "priority": "high" },
+    "ai_readiness": { "score": 6 },
+    "budget_timeline": { "range": "$10k–$25k" },
+    "decision_making": { "authority": "Owner" },
+    "diagnostic_summary": "Mock completion from scripts/trigger-diagnostic-completion-webhook.sh — safe to ignore.",
+    "urgency_score": 7,
+    "opportunity_score": 8
+  },
+  "contactInfo": {
+    "email": "diagnostic-test@example.com",
+    "name": "Diagnostic Test Lead"
+  },
+  "completedAt": "2026-04-06T12:00:00.000Z",
+  "source": "chat_diagnostic"
+}

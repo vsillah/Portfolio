@@ -8,6 +8,9 @@
  *   - Schema + migrations have already been applied (via SQL Editor or psql)
  *
  * This script runs the existing seed scripts in the correct order.
+ * Optional follow-up for store marketing images: run
+ *   npx tsx scripts/capture-product-store-images.ts
+ * (non-merchandise products; requires dev server and admin auth for some routes).
  * It does NOT apply schema migrations — use apply-migrations-to-dev.ts for that.
  *
  * Safety: refuses to run against the production project.
