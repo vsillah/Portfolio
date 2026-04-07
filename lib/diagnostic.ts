@@ -229,6 +229,16 @@ export async function saveDiagnosticAudit(
       auditId = created.id
     }
 
+    // Auto-generate audit_summary Gamma on completion (single enqueue owner)
+    if (data.status === 'completed') {
+      const hasContact = !!(data.contactSubmissionId || updateData.contact_submission_id)
+      if (hasContact) {
+        import('./auto-audit-summary-gamma')
+          .then((m) => m.enqueueAuditSummaryGamma(String(auditId)))
+          .catch(() => {})
+      }
+    }
+
     return { id: auditId }
   } catch (error) {
     console.error('Error saving diagnostic audit:', error)
@@ -424,6 +434,20 @@ export async function linkDiagnosticToContact(
 
     if (error) {
       throw error
+    }
+
+    // Chat (and other paths) may complete the audit before contact exists; linking adds contact_submission_id.
+    // Enqueue audit_summary Gamma here so we do not rely on the completion save alone (which had no contact yet).
+    const { data: linked } = await supabaseAdmin
+      .from('diagnostic_audits')
+      .select('status')
+      .eq('id', auditId)
+      .single()
+
+    if (linked?.status === 'completed') {
+      import('./auto-audit-summary-gamma')
+        .then((m) => m.enqueueAuditSummaryGamma(String(auditId)))
+        .catch(() => {})
     }
 
     return { success: true }

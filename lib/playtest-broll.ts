@@ -19,6 +19,8 @@ export interface RouteConfig {
   route: string
   filename: string
   description?: string
+  /** When set, overrides default full-page rules for this route */
+  fullPage?: boolean
 }
 
 export interface BrollProgressEvent {
@@ -203,7 +205,7 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
 
   const total = config.routes.length
   for (let i = 0; i < config.routes.length; i++) {
-    const { route, filename, description } = config.routes[i]
+    const { route, filename, description, fullPage: fullPageOverride } = config.routes[i]
     const videoDir = config.recordVideos ? path.join(outputDir, `_video-${filename}`) : undefined
     if (videoDir && !fs.existsSync(videoDir)) fs.mkdirSync(videoDir, { recursive: true })
 
@@ -236,7 +238,11 @@ export async function captureBroll(config: PlaytestConfig): Promise<CaptureResul
       config.onProgress?.({ route, filename, step: 'screenshot', index: i, total })
 
       const screenshotPath = path.join(outputDir, `${filename}.png`)
-      await page.screenshot({ path: screenshotPath, fullPage: route === '/' || route === '/#about' })
+      const fullPage =
+        fullPageOverride !== undefined
+          ? fullPageOverride
+          : route === '/' || route === '/#about'
+      await page.screenshot({ path: screenshotPath, fullPage })
       screenshots.push(screenshotPath)
 
       if (config.recordVideos) {

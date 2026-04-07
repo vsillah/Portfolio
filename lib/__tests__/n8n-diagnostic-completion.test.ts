@@ -53,6 +53,28 @@ describe('triggerDiagnosticCompletionWebhook', () => {
     expect(body.completedAt).toBeDefined()
   })
 
+  it('sends custom completion source when provided', async () => {
+    const { triggerDiagnosticCompletionWebhook } = await import('../n8n')
+
+    await triggerDiagnosticCompletionWebhook(
+      'audit-sa-1',
+      {
+        business_challenges: {},
+        tech_stack: {},
+        automation_needs: {},
+        ai_readiness: {},
+        budget_timeline: {},
+        decision_making: {},
+      },
+      { email: 'a@b.com' },
+      'standalone_audit'
+    )
+
+    const [, init] = mockFetch.mock.calls[0]
+    const body = JSON.parse(init.body)
+    expect(body.source).toBe('standalone_audit')
+  })
+
   it('skips when N8N_DISABLE_OUTBOUND=true', async () => {
     process.env.N8N_DISABLE_OUTBOUND = 'true'
     const { triggerDiagnosticCompletionWebhook } = await import('../n8n')

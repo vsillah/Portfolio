@@ -60,7 +60,8 @@ export async function triggerLeadQualificationWebhook(
 export async function triggerDiagnosticCompletionWebhook(
   diagnosticAuditId: string,
   diagnosticData: Record<string, unknown>,
-  contactInfo?: { email?: string; name?: string; company?: string }
+  contactInfo?: { email?: string; name?: string; company?: string },
+  completionSource: string = 'chat_diagnostic'
 ): Promise<void> {
   const completionWebhookUrl = process.env.N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL || N8N_LEAD_WEBHOOK_URL
   
@@ -75,7 +76,7 @@ export async function triggerDiagnosticCompletionWebhook(
       diagnosticData,
       contactInfo,
       completedAt: new Date().toISOString(),
-      source: 'lead_diagnostic',
+      source: completionSource,
     }
 
     const response = await fetch(completionWebhookUrl, {

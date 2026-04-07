@@ -155,7 +155,8 @@ export interface ClientGammaReport {
   id: string
   title: string
   report_type: string
-  gamma_url: string
+  gamma_url: string | null
+  status: 'pending' | 'generating' | 'completed' | 'failed'
   created_at: string
 }
 
@@ -587,10 +588,9 @@ export async function getDashboardByToken(
     project.contact_submission_id
       ? supabaseAdmin
           .from('gamma_reports')
-          .select('id, title, report_type, gamma_url, created_at')
+          .select('id, title, report_type, gamma_url, status, created_at')
           .eq('contact_submission_id', project.contact_submission_id)
-          .eq('status', 'completed')
-          .not('gamma_url', 'is', null)
+          .in('status', ['generating', 'completed', 'failed'])
           .order('created_at', { ascending: false })
       : Promise.resolve({ data: null, error: null }),
   ])

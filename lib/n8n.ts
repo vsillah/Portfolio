@@ -951,12 +951,14 @@ export async function sendDiagnosticToN8n(request: DiagnosticAuditRequest): Prom
 
 /**
  * Trigger diagnostic completion webhook for sales enablement
- * This is called when a diagnostic audit is completed
+ * This is called when a diagnostic audit is completed.
+ * @param completionSource — `chat_diagnostic` (default) or `standalone_audit` for WF-DIAG-COMP / Slack copy
  */
 export async function triggerDiagnosticCompletionWebhook(
   diagnosticAuditId: string,
   diagnosticData: DiagnosticAuditData,
-  contactInfo?: { email?: string; name?: string; company?: string }
+  contactInfo?: { email?: string; name?: string; company?: string },
+  completionSource: string = 'chat_diagnostic'
 ): Promise<void> {
   const completionWebhookUrl = process.env.N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL || N8N_LEAD_WEBHOOK_URL
 
@@ -981,7 +983,7 @@ export async function triggerDiagnosticCompletionWebhook(
       diagnosticData,
       contactInfo,
       completedAt: new Date().toISOString(),
-      source: 'chat_diagnostic',
+      source: completionSource,
     }
 
     const response = await fetch(completionWebhookUrl, {

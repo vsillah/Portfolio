@@ -40,7 +40,7 @@ export type ExternalInputSourceMode = 'provided' | 'none'
 export interface GammaReportParams {
   reportType: GammaReportType
   contactSubmissionId?: number
-  diagnosticAuditId?: number
+  diagnosticAuditId?: number | string
   valueReportId?: string
   proposalId?: string
   serviceIds?: string[]
