@@ -209,6 +209,20 @@ function GammaReportsContent() {
     fetchHeyGenConfig();
   }, [session, fetchHeyGenConfig]);
 
+  const resolveHeyGenName = useCallback(async (assetType: 'avatar' | 'voice', assetId: string): Promise<{ name: string | null; error: string | null }> => {
+    const token = await getToken();
+    if (!token) return { name: null, error: 'Not authenticated' };
+    try {
+      const res = await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'resolve_name', assetType, assetId }),
+      });
+      const data = await res.json().catch(() => ({}));
+      return { name: data.name ?? null, error: data.error ?? null };
+    } catch { return { name: null, error: 'Network error' }; }
+  }, [getToken]);
+
   const toggleFavoriteAvatar = useCallback(async (assetId: string, fav: boolean) => {
     const token = await getToken();
     if (!token) return;
@@ -739,6 +753,7 @@ function GammaReportsContent() {
                   onToggleFavorite={(id, fav) => toggleFavoriteAvatar(id, fav)}
                   onAddManual={async (id, name) => { await addManualAvatar(id, name) }}
                   onSetDefault={(id) => setDefaultAvatar(id)}
+                  onResolveName={(id) => resolveHeyGenName('avatar', id)}
                 />
               ) : (
                 <p className="text-xs text-gray-500">

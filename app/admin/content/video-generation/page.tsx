@@ -498,6 +498,20 @@ export default function VideoGenerationPage() {
     } catch { /* ignore */ }
   }, [getToken, fetchHeyGenConfig])
 
+  const resolveHeyGenName = useCallback(async (assetType: 'avatar' | 'voice', assetId: string): Promise<{ name: string | null; error: string | null }> => {
+    const token = await getToken()
+    if (!token) return { name: null, error: 'Not authenticated' }
+    try {
+      const res = await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'resolve_name', assetType, assetId }),
+      })
+      const data = await res.json().catch(() => ({}))
+      return { name: data.name ?? null, error: data.error ?? null }
+    } catch { return { name: null, error: 'Network error' } }
+  }, [getToken])
+
   useEffect(() => { fetchHeyGenConfig() }, [fetchHeyGenConfig])
 
   useEffect(() => {
@@ -1445,6 +1459,7 @@ export default function VideoGenerationPage() {
                   onToggleFavorite={(id, fav) => toggleFavoriteAsset('avatar', id, fav)}
                   onAddManual={async (id, name) => { await addManualAsset('avatar', id, name) }}
                   onSetDefault={(id) => setHeyGenDefault('avatar', id)}
+                  onResolveName={(id) => resolveHeyGenName('avatar', id)}
                 />
               )}
 

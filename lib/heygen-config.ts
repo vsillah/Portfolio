@@ -114,15 +114,27 @@ export async function getHeyGenDefaults(): Promise<HeyGenDefaults> {
 export async function getHeyGenConfigByType(assetType: 'avatar' | 'voice'): Promise<HeyGenConfigRow[]> {
   if (!supabaseAdmin) return []
 
-  const { data } = await supabaseAdmin
-    .from('heygen_config')
-    .select('id, asset_type, asset_id, asset_name, is_default, is_favorite, metadata, synced_at')
-    .eq('asset_type', assetType)
-    .order('is_favorite', { ascending: false })
-    .order('is_default', { ascending: false })
-    .order('asset_name', { ascending: true })
+  const PAGE_SIZE = 1000
+  let all: HeyGenConfigRow[] = []
+  let from = 0
 
-  return (data ?? []) as HeyGenConfigRow[]
+  while (true) {
+    const { data } = await supabaseAdmin
+      .from('heygen_config')
+      .select('id, asset_type, asset_id, asset_name, is_default, is_favorite, metadata, synced_at')
+      .eq('asset_type', assetType)
+      .order('is_favorite', { ascending: false })
+      .order('is_default', { ascending: false })
+      .order('asset_name', { ascending: true })
+      .range(from, from + PAGE_SIZE - 1)
+
+    const rows = (data ?? []) as HeyGenConfigRow[]
+    all = all.concat(rows)
+    if (rows.length < PAGE_SIZE) break
+    from += PAGE_SIZE
+  }
+
+  return all
 }
 
 /**

@@ -10,6 +10,7 @@ import {
   addManualAsset,
   syncFromHeyGen,
 } from '@/lib/heygen-config'
+import { resolveAssetName } from '@/lib/heygen'
 
 export const dynamic = 'force-dynamic'
 
@@ -117,6 +118,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: result.error }, { status: 500 })
     }
     return NextResponse.json({ message: `Favorite ${favorite ? 'added' : 'removed'}` })
+  }
+
+  if (action === 'resolve_name') {
+    const assetType = body.assetType as 'avatar' | 'voice'
+    const assetId = body.assetId as string
+
+    if (!assetType || !['avatar', 'voice'].includes(assetType)) {
+      return NextResponse.json({ error: 'assetType must be avatar or voice' }, { status: 400 })
+    }
+    if (!assetId?.trim()) {
+      return NextResponse.json({ error: 'assetId is required' }, { status: 400 })
+    }
+
+    const resolved = await resolveAssetName(assetType, assetId.trim())
+    return NextResponse.json({ name: resolved.name, error: resolved.error })
   }
 
   if (action === 'add_manual') {

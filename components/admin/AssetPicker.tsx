@@ -19,6 +19,7 @@ export default function AssetPicker({
   onToggleFavorite,
   onAddManual,
   onSetDefault,
+  onResolveName,
 }: {
   label: string
   items: AssetPickerItem[]
@@ -27,6 +28,8 @@ export default function AssetPicker({
   onToggleFavorite: (id: string, fav: boolean) => void
   onAddManual?: (id: string, name: string) => Promise<void>
   onSetDefault?: (id: string) => void
+  /** Resolve a display name from the upstream API given an asset ID. */
+  onResolveName?: (id: string) => Promise<{ name: string | null; error: string | null }>
 }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -35,6 +38,7 @@ export default function AssetPicker({
   const [addId, setAddId] = useState('')
   const [addName, setAddName] = useState('')
   const [adding, setAdding] = useState(false)
+  const [addError, setAddError] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -55,16 +59,32 @@ export default function AssetPicker({
   const systemDefault = items.find(i => i.is_default)
   const favItems = items.filter(i => i.is_favorite)
   const pool = showAll ? items : favItems
+  const q = search.toLowerCase()
   const filtered = search
-    ? pool.filter(i => i.asset_name.toLowerCase().includes(search.toLowerCase()))
+    ? items.filter(i => i.asset_name.toLowerCase().includes(q) || i.asset_id.toLowerCase().includes(q))
     : pool
 
   async function handleAdd() {
     if (!onAddManual || !addId.trim()) return
     setAdding(true)
-    await onAddManual(addId.trim(), addName.trim() || addId.trim())
+    setAddError(null)
+
+    let resolvedName = addName.trim()
+    if (!resolvedName && onResolveName) {
+      const resolved = await onResolveName(addId.trim())
+      if (resolved.name) {
+        resolvedName = resolved.name
+      } else if (resolved.error) {
+        setAddError(resolved.error)
+        setAdding(false)
+        return
+      }
+    }
+
+    await onAddManual(addId.trim(), resolvedName || addId.trim())
     setAddId('')
     setAddName('')
+    setAddError(null)
     setAddMode(false)
     setAdding(false)
   }
@@ -177,7 +197,7 @@ export default function AssetPicker({
                 {onAddManual && (
                   <button
                     type="button"
-                    onClick={() => setAddMode(true)}
+                    onClick={() => { setAddId(search); setAddName(''); setAddMode(true) }}
                     className="text-[9px] text-gray-500 hover:text-radiant-gold transition-colors flex items-center gap-1"
                   >
                     <Plus className="w-2.5 h-2.5" /> Add by ID
@@ -189,23 +209,31 @@ export default function AssetPicker({
             <div className="p-3 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-gray-400 font-medium">Add {label.toLowerCase()} by ID</span>
-                <button type="button" onClick={() => setAddMode(false)} className="text-gray-500 hover:text-foreground">
+                <button type="button" onClick={() => { setAddMode(false); setAddError(null) }} className="text-gray-500 hover:text-foreground">
                   <X className="w-3 h-3" />
                 </button>
               </div>
               <input
                 value={addId}
-                onChange={e => setAddId(e.target.value)}
+                onChange={e => { setAddId(e.target.value); setAddError(null) }}
                 placeholder={`${label} ID`}
                 autoFocus
                 className="w-full px-2 py-1.5 rounded text-xs bg-background/50 border border-silicon-slate text-foreground focus:border-radiant-gold/50 focus:outline-none"
               />
-              <input
-                value={addName}
-                onChange={e => setAddName(e.target.value)}
-                placeholder="Name (optional)"
-                className="w-full px-2 py-1.5 rounded text-xs bg-background/50 border border-silicon-slate text-foreground focus:border-radiant-gold/50 focus:outline-none"
-              />
+              {!onResolveName && (
+                <input
+                  value={addName}
+                  onChange={e => setAddName(e.target.value)}
+                  placeholder="Name (optional)"
+                  className="w-full px-2 py-1.5 rounded text-xs bg-background/50 border border-silicon-slate text-foreground focus:border-radiant-gold/50 focus:outline-none"
+                />
+              )}
+              {onResolveName && (
+                <p className="text-[9px] text-gray-500">Name will be resolved automatically from HeyGen.</p>
+              )}
+              {addError && (
+                <p className="text-[9px] text-red-400/90">{addError}</p>
+              )}
               <button
                 type="button"
                 onClick={handleAdd}
@@ -213,7 +241,7 @@ export default function AssetPicker({
                 className="w-full px-3 py-1.5 rounded-lg text-xs bg-radiant-gold/15 text-radiant-gold font-medium hover:bg-radiant-gold/25 disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
                 {adding ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
-                {adding ? 'Adding…' : `Add ${label.toLowerCase()}`}
+                {adding ? 'Resolving & adding…' : `Add ${label.toLowerCase()}`}
               </button>
             </div>
           )}

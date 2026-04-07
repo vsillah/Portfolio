@@ -162,6 +162,26 @@ export async function listVoices(): Promise<ListVoicesResult> {
   return { voices, error: null }
 }
 
+/**
+ * Resolve the display name for a HeyGen asset by ID.
+ * Fetches the full avatar or voice list and finds the matching entry.
+ */
+export async function resolveAssetName(
+  assetType: 'avatar' | 'voice',
+  assetId: string
+): Promise<{ name: string | null; error: string | null }> {
+  if (assetType === 'avatar') {
+    const { avatars, error } = await listAvatars()
+    if (error) return { name: null, error }
+    const match = avatars.find(a => a.id === assetId)
+    return { name: match?.name ?? null, error: match ? null : `Avatar "${assetId}" not found in HeyGen account` }
+  }
+  const { voices, error } = await listVoices()
+  if (error) return { name: null, error }
+  const match = voices.find(v => v.id === assetId)
+  return { name: match?.name ?? null, error: match ? null : `Voice "${assetId}" not found in HeyGen account` }
+}
+
 /** Map aspect ratio to HeyGen dimension (width x height) */
 function aspectRatioToDimension(ratio: VideoAspectRatio): { width: number; height: number } {
   return ratio === '9:16' ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 }
