@@ -137,39 +137,54 @@ export default function ReportsSection({ valueReports, gammaReports }: ReportsSe
         })}
 
         {/* Gamma Decks */}
-        {gammaReports.map((gamma) => (
-          <div
-            key={gamma.id}
-            className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 border border-gray-700/50"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="p-2 rounded-lg bg-purple-500/10">
-                <Presentation className="w-4 h-4 text-purple-400" />
+        {gammaReports.map((gamma) => {
+          const isReady = gamma.status === 'completed' && gamma.gamma_url
+          const isGenerating = gamma.status === 'generating' || (gamma.status === 'completed' && !gamma.gamma_url)
+          const isFailed = gamma.status === 'failed'
+          return (
+            <div
+              key={gamma.id}
+              className="flex items-center justify-between p-3 rounded-lg bg-gray-800/50 border border-gray-700/50 gap-3"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2 rounded-lg bg-purple-500/10">
+                  <Presentation className="w-4 h-4 text-purple-400" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-gray-200 truncate">
+                    {gamma.title || 'Presentation Deck'}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    {REPORT_TYPE_LABELS[gamma.report_type] || 'Presentation'}
+                    {' \u00B7 '}
+                    {formatDate(gamma.created_at)}
+                  </p>
+                  {isGenerating && (
+                    <p className="text-xs text-amber-400/90 mt-1">
+                      Your deck is being prepared. Check back shortly.
+                    </p>
+                  )}
+                  {isFailed && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      We couldn&apos;t finish this deck automatically. Your consultant can share an updated link.
+                    </p>
+                  )}
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-gray-200 truncate">
-                  {gamma.title || 'Presentation Deck'}
-                </p>
-                <p className="text-xs text-gray-500">
-                  {REPORT_TYPE_LABELS[gamma.report_type] || 'Presentation'}
-                  {' \u00B7 '}
-                  {formatDate(gamma.created_at)}
-                </p>
-              </div>
+              {isReady ? (
+                <a
+                  href={gamma.gamma_url!}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 rounded-lg transition-colors shrink-0"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  View Deck
+                </a>
+              ) : null}
             </div>
-            {gamma.gamma_url && (
-              <a
-                href={gamma.gamma_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-300 bg-purple-500/10 hover:bg-purple-500/20 rounded-lg transition-colors shrink-0"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-                View Deck
-              </a>
-            )}
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

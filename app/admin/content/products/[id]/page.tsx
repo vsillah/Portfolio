@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Upload, File, X, DollarSign } from 'lucide-react'
+import { ArrowLeft, Upload, File, X, DollarSign, Image as ImageIcon } from 'lucide-react'
 import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
@@ -73,6 +73,7 @@ export default function ProductEditPage() {
     file_size: number
     file_name: string
   } | null>(null)
+  const [uploadingCardImage, setUploadingCardImage] = useState(false)
   useEffect(() => {
     if (isNew) return
     const session = getCurrentSession()
@@ -207,6 +208,47 @@ export default function ProductEditPage() {
     }
   }
 
+  const handleCardImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+    if (!file.type.startsWith('image/')) {
+      alert('Please choose an image file (PNG, JPG, WebP, GIF, etc.).')
+      return
+    }
+    setUploadingCardImage(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const fd = new FormData()
+      fd.append('file', file)
+      fd.append('purpose', 'card_image')
+      if (!isNew) fd.append('productId', id)
+      const response = await fetch('/api/products/upload', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: fd,
+      })
+      if (response.ok) {
+        const data = await response.json()
+        const url = data.public_url as string | undefined
+        if (url) {
+          setFormData((prev) => ({ ...prev, image_url: url }))
+        } else {
+          alert('Upload succeeded but no public URL was returned.')
+        }
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Failed to upload image')
+      }
+    } catch (err) {
+      console.error('Error uploading card image:', err)
+      alert('Failed to upload image')
+    } finally {
+      setUploadingCardImage(false)
+    }
+  }
+
   const handleInstructionsUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -334,12 +376,43 @@ export default function ProductEditPage() {
                   </div>
                 </div>
               </div>
-              <ImageUrlInput
-                value={formData.image_url}
-                onChange={(image_url) => setFormData({ ...formData, image_url })}
-                label="Image"
-                variant="brand"
-              />
+              <div>
+                <ImageUrlInput
+                  value={formData.image_url}
+                  onChange={(image_url) => setFormData({ ...formData, image_url })}
+                  label="Store card image"
+                  variant="brand"
+                />
+                <label className="flex flex-col items-center justify-center w-full h-28 mt-3 border-2 border-silicon-slate border-dashed rounded-lg cursor-pointer bg-silicon-slate/80 hover:border-radiant-gold/50 transition-colors">
+                  <div className="flex flex-col items-center justify-center py-3">
+                    <ImageIcon className="w-7 h-7 mb-1 text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">
+                      <span className="font-semibold text-foreground">Click to upload</span> store image
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">PNG, JPG, WebP, GIF (fills Image URL above)</p>
+                  </div>
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={handleCardImageUpload}
+                    disabled={uploadingCardImage}
+                    accept="image/png,image/jpeg,image/webp,image/gif,image/avif,image/svg+xml"
+                  />
+                </label>
+                {uploadingCardImage && (
+                  <p className="mt-2 text-sm text-muted-foreground">Uploading image…</p>
+                )}
+                {formData.image_url?.startsWith('http') && !uploadingCardImage && (
+                  <div className="mt-3 rounded-lg border border-silicon-slate overflow-hidden bg-silicon-slate/40 max-w-xs">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={formData.image_url}
+                      alt="Store card preview"
+                      className="w-full h-40 object-cover"
+                    />
+                  </div>
+                )}
+              </div>
               {formData.type === 'template' && (
                 <>
                   <div>
@@ -490,7 +563,7 @@ export default function ProductEditPage() {
                 </motion.button>
                 <Link
                   href="/admin/content/products"
-                  className="px-6 py-2 btn-ghost font-semibold rounded-lg inline-flex items-center inline-flex items-center"
+                  className="px-6 py-2 btn-ghost font-semibold rounded-lg inline-flex items-center"
                 >
                   Cancel
                 </Link>
