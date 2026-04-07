@@ -229,14 +229,13 @@ export async function saveDiagnosticAudit(
       auditId = created.id
     }
 
-    // Auto-generate audit_summary Gamma on completion (single enqueue owner)
+    // Auto-generate audit_summary Gamma on completion (single enqueue owner).
+    // Always enqueue: contact may already be on the row from a prior save; this payload often omits contactSubmissionId on the final step.
+    // Worker loads the audit from DB and skips if contact_submission_id is still null.
     if (data.status === 'completed') {
-      const hasContact = !!(data.contactSubmissionId || updateData.contact_submission_id)
-      if (hasContact) {
-        import('./auto-audit-summary-gamma')
-          .then((m) => m.enqueueAuditSummaryGamma(String(auditId)))
-          .catch(() => {})
-      }
+      import('./auto-audit-summary-gamma')
+        .then((m) => m.enqueueAuditSummaryGamma(String(auditId)))
+        .catch(() => {})
     }
 
     return { id: auditId }
