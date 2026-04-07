@@ -10,7 +10,11 @@ import { recordCostEvent } from '@/lib/cost-calculator'
 import { parsePrintfulPrice } from '@/lib/printful'
 import { notifyOrderConfirmation, type OrderConfirmationItem } from '@/lib/notifications'
 import { generateInvoicePDFBuffer, type InvoicePDFData } from '@/lib/invoice-pdf'
-import { buildPrintfulSubmissionItems, shouldSkipPrintfulSubmission } from '@/lib/printful-fulfillment'
+import {
+  buildPrintfulSubmissionItems,
+  shouldSkipPrintfulSubmission,
+  type PrintfulOrderItemRow,
+} from '@/lib/printful-fulfillment'
 
 export const dynamic = 'force-dynamic'
 
@@ -709,7 +713,9 @@ export async function POST(request: NextRequest) {
                 console.warn(`[Printful] Order ${order.id} skipped: no merchandise order items (product_variant_id)`)
               } else {
                 // Look up Printful sync_variant_ids (includes print files) from product_variants
-                const pvIds = orderItems.map((item: OrderItemRow) => item.product_variant_id).filter(Boolean)
+                const pvIds = orderItems
+                  .map((item: PrintfulOrderItemRow) => item.product_variant_id)
+                  .filter(Boolean)
                 const { data: pvRows } = pvIds.length > 0
                   ? await supabaseAdmin
                       .from('product_variants')
