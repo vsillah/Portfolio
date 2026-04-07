@@ -111,6 +111,7 @@ export async function POST(request: NextRequest) {
     const result = await runGammaGeneration(reportId, inputText, options)
 
     if (result.status === 'failed') {
+      console.error('[gamma-reports] Generation failed', { reportId, errorMessage: result.errorMessage })
       return NextResponse.json(
         { error: 'Gamma generation failed', details: result.errorMessage, reportId },
         { status: 502 }

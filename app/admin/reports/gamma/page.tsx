@@ -348,7 +348,14 @@ function GammaReportsContent() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || data.details || 'Generation failed');
+        // Prefer API `details` (e.g. Gamma error message); generic `error` alone hides it (502 uses both).
+        const detail =
+          typeof data.details === 'string' && data.details.trim()
+            ? data.details.trim()
+            : typeof data.error === 'string'
+              ? data.error
+              : 'Generation failed';
+        setError(detail);
         return;
       }
 

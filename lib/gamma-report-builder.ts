@@ -220,6 +220,22 @@ function formatAuditSection(data: Record<string, unknown> | null, fallback: stri
     .join('\n')
 }
 
+/** Slide counts aligned with Admin → Gamma report type cards (passed to Gamma API as numCards). */
+function numCardsForGammaReportType(reportType: GammaReportType): number {
+  switch (reportType) {
+    case 'value_quantification':
+      return 16
+    case 'implementation_strategy':
+      return 19
+    case 'audit_summary':
+      return 10
+    case 'prospect_overview':
+      return 8
+    default:
+      return 19
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main entry point
 // ---------------------------------------------------------------------------
@@ -250,7 +266,7 @@ export async function buildGammaReportInput(
   }
 
   const orgName = context.contact?.company || 'the organization'
-  const numCards = params.reportType === 'value_quantification' ? 16 : 19
+  const numCards = numCardsForGammaReportType(params.reportType)
 
   const options: GammaGenerateOptions = {
     textMode: 'generate',
@@ -432,7 +448,7 @@ function buildGammaReportInputFromContext(
   }
 
   const orgName = ctx.contact?.company || 'the organization'
-  const numCards = params.reportType === 'value_quantification' ? 16 : 19
+  const numCards = numCardsForGammaReportType(params.reportType)
 
   const options: GammaGenerateOptions = {
     textMode: 'generate',
