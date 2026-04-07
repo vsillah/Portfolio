@@ -54,6 +54,8 @@ interface StatusChipProps {
   toggleHistory: () => void
   markRunFailed: (runId: string, reason?: string) => void
   onRetry?: () => void
+  /** Optional action pinned to the bottom of the chip drawer (e.g. Force resync). */
+  drawerFooterAction?: { label: string; onClick: () => void; disabled?: boolean }
 }
 
 const DOT_COLORS: Record<ExtractionState, string> = {
@@ -148,6 +150,7 @@ export function ExtractionStatusChip({
   toggleHistory,
   markRunFailed,
   onRetry,
+  drawerFooterAction,
 }: StatusChipProps) {
   const chipRef = useRef<HTMLDivElement>(null)
   const drawerRef = useRef<HTMLDivElement>(null)
@@ -226,17 +229,18 @@ export function ExtractionStatusChip({
                       <div className={`h-full rounded-full ${state === 'stale' ? 'bg-orange-500/60' : 'bg-amber-500/60'} animate-pulse`} style={{ width: '60%' }} />
                     </div>
                     {state === 'stale' && (
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="text-xs text-orange-400/80">Running longer than expected</span>
-                        <button
-                          onClick={() => markRunFailed(currentRun.id)}
-                          className="text-xs px-2.5 py-1 rounded bg-orange-600/20 text-orange-400 border border-orange-600/30 hover:bg-orange-600/30 transition-colors"
-                          title="Mark this run as failed so a new extraction can be started"
-                        >
-                          Mark failed
-                        </button>
-                      </div>
+                      <p className="mt-2 text-xs text-orange-400/80">Running longer than expected</p>
                     )}
+                    <div className="mt-3 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => markRunFailed(currentRun.id, 'Cancelled by user')}
+                        className="text-xs px-2.5 py-1 rounded bg-red-600/20 text-red-400 border border-red-600/30 hover:bg-red-600/30 transition-colors"
+                        title="Stop this run"
+                      >
+                        Cancel
+                      </button>
+                    </div>
                   </div>
                 )}
 
@@ -336,7 +340,22 @@ export function ExtractionStatusChip({
             )}
 
             {!currentRun && (
-              <div className="p-4 text-xs text-gray-500">No extraction runs yet.</div>
+              <div className="p-4">
+                <p className="text-xs text-gray-500 mb-3">
+                  No runs yet. Use Run to start the first sync.
+                </p>
+                {onRetry && (
+                  <button
+                    type="button"
+                    onClick={onRetry}
+                    className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors font-medium"
+                    title="Start a run"
+                  >
+                    <Play className="w-3.5 h-3.5" />
+                    Run
+                  </button>
+                )}
+              </div>
             )}
 
             {/* Recent runs */}
@@ -356,6 +375,19 @@ export function ExtractionStatusChip({
                 {completedRuns.map(run => (
                   <RunRow key={run.id} run={run} />
                 ))}
+              </div>
+            )}
+
+            {drawerFooterAction && (
+              <div className="border-t border-gray-700/60 px-4 py-2.5 bg-gray-900/40">
+                <button
+                  type="button"
+                  onClick={drawerFooterAction.onClick}
+                  disabled={drawerFooterAction.disabled}
+                  className="text-xs text-amber-400/90 hover:text-amber-300 underline underline-offset-2 disabled:opacity-40 disabled:pointer-events-none"
+                >
+                  {drawerFooterAction.label}
+                </button>
               </div>
             )}
           </motion.div>

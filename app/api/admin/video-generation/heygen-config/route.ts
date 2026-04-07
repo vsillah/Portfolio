@@ -11,6 +11,7 @@ import {
   syncFromHeyGen,
 } from '@/lib/heygen-config'
 import { resolveAssetName } from '@/lib/heygen'
+import { startVideoGenRun, completeVideoGenRun } from '@/lib/video-generation-workflow-runs'
 
 export const dynamic = 'force-dynamic'
 
@@ -67,20 +68,39 @@ export async function POST(request: NextRequest) {
   const action = body.action as string
 
   if (action === 'sync') {
-    const result = await syncFromHeyGen()
-    if (result.error) {
-      console.warn('[heygen-config] Sync completed with errors:', result.error)
+    const run = await startVideoGenRun('vgen_heygen')
+    try {
+      const result = await syncFromHeyGen()
+      if (result.error) {
+        console.warn('[heygen-config] Sync completed with errors:', result.error)
+      }
+      await recordHeyGenSyncResult(result)
+      const items = result.avatarsSynced + result.voicesSynced
+      if (run) {
+        await completeVideoGenRun(run.id, {
+          success: result.error === null,
+          itemsInserted: items,
+          errorMessage: result.error,
+        })
+      }
+      return NextResponse.json({
+        message: 'Sync complete',
+        avatarsSynced: result.avatarsSynced,
+        voicesSynced: result.voicesSynced,
+        error: result.error,
+        success: result.error === null,
+        hadNewResults: items > 0,
+        syncedAt: new Date().toISOString(),
+        run_id: run?.id ?? null,
+      })
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      if (run) {
+        await completeVideoGenRun(run.id, { success: false, errorMessage: msg })
+      }
+      console.error('[heygen-config] Sync error:', err)
+      return NextResponse.json({ error: msg }, { status: 500 })
     }
-    await recordHeyGenSyncResult(result)
-    return NextResponse.json({
-      message: 'Sync complete',
-      avatarsSynced: result.avatarsSynced,
-      voicesSynced: result.voicesSynced,
-      error: result.error,
-      success: result.error === null,
-      hadNewResults: result.avatarsSynced + result.voicesSynced > 0,
-      syncedAt: new Date().toISOString(),
-    })
   }
 
   if (action === 'set_default') {

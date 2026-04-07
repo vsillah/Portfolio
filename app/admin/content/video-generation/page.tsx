@@ -12,7 +12,8 @@ import { AnimatePresence, motion } from 'framer-motion'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import AssetPicker from '@/components/admin/AssetPicker'
-import HeyGenSyncLastRunSummary, { type HeyGenLastSyncPayload } from '@/components/admin/HeyGenSyncLastRunSummary'
+import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
+import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus'
 import ProgressPanel, { type ProgressStep } from '@/components/admin/ProgressPanel'
 import { readSSEStream } from '@/lib/sse-reader'
 import { getCurrentSession } from '@/lib/auth'
@@ -157,9 +158,7 @@ export default function VideoGenerationPage() {
   const [configVoices, setConfigVoices] = useState<ConfigAsset[]>([])
   const [configDefaults, setConfigDefaults] = useState<{ avatarId: string | null; voiceId: string | null }>({ avatarId: null, voiceId: null })
   const [configLoading, setConfigLoading] = useState(false)
-  const [configSyncing, setConfigSyncing] = useState(false)
-  const [configMessage, setConfigMessage] = useState<string | null>(null)
-  const [heygenLastSync, setHeygenLastSync] = useState<HeyGenLastSyncPayload | null>(null)
+  const [triggerAllLoading, setTriggerAllLoading] = useState(false)
   const [templates, setTemplates] = useState<TemplateOption[]>([])
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [brandVoices, setBrandVoices] = useState<BrandVoiceOption[]>([])
@@ -195,8 +194,6 @@ export default function VideoGenerationPage() {
   /* --- Plan: From Drive --- */
   const [driveItems, setDriveItems] = useState<DriveQueueItem[]>([])
   const [driveLoading, setDriveLoading] = useState(true)
-  const [syncingDrive, setSyncingDrive] = useState(false)
-  const [driveSyncMessage, setDriveSyncMessage] = useState<string | null>(null)
   const [addingToDrafts, setAddingToDrafts] = useState<string | null>(null)
 
   /* --- B-roll Library --- */
@@ -235,7 +232,6 @@ export default function VideoGenerationPage() {
   const [brollProgressError, setBrollProgressError] = useState<string | null>(null)
   const brollAbortRef = useRef<AbortController | null>(null)
 
-  const [driveProgress, setDriveProgress] = useState<ProgressStep[] | null>(null)
   const [addToDraftsProgress, setAddToDraftsProgress] = useState<{ itemId: string; steps: ProgressStep[] } | null>(null)
 
   const [heygenProgress, setHeygenProgress] = useState<{ draftId: string; steps: ProgressStep[] } | null>(null)
@@ -245,7 +241,6 @@ export default function VideoGenerationPage() {
   /* --- Last-run timestamps --- */
   const [lastRunScratch, setLastRunScratch] = useState<Date | null>(null)
   const [lastRunDirection, setLastRunDirection] = useState<Date | null>(null)
-  const [lastRunDriveSync, setLastRunDriveSync] = useState<Date | null>(null)
   const [lastRunBroll, setLastRunBroll] = useState<Date | null>(null)
 
   /* --- Layout: sticky nav, plan tabs, broll collapse, decide pagination --- */
@@ -435,29 +430,95 @@ export default function VideoGenerationPage() {
         setConfigAvatars(data.avatars ?? [])
         setConfigVoices(data.voices ?? [])
         setConfigDefaults(data.defaults ?? { avatarId: null, voiceId: null })
-        setHeygenLastSync(data.lastSync ?? null)
       }
     } catch { /* ignore */ }
     finally { setConfigLoading(false) }
   }, [getToken])
 
-  const syncHeyGenConfig = useCallback(async () => {
-    const token = await getToken()
-    if (!token) return
-    setConfigSyncing(true)
-    setConfigMessage(null)
+  const heygenWorkflow = useWorkflowStatus(
+    { apiBase: '/api/admin/video-generation/workflow-status', workflowId: 'vgen_heygen' },
+    () => { void fetchHeyGenConfig() },
+  )
+  const driveWorkflow = useWorkflowStatus(
+    { apiBase: '/api/admin/video-generation/workflow-status', workflowId: 'vgen_drive' },
+    () => { void fetchDriveItems() },
+  )
+
+  const eitherRunning =
+    heygenWorkflow.state === 'running' || heygenWorkflow.state === 'stale' ||
+    driveWorkflow.state === 'running' || driveWorkflow.state === 'stale'
+
+  const triggerHeyGenSync = async () => {
+    heygenWorkflow.onTriggerStarted()
     try {
-      const res = await fetch('/api/admin/video-generation/heygen-config', {
+      const token = await getToken()
+      if (!token) {
+        heygenWorkflow.refetch()
+        return
+      }
+      await fetch('/api/admin/video-generation/heygen-config', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'sync' }),
       })
-      await res.json().catch(() => ({}))
-      setConfigMessage(null)
       await fetchHeyGenConfig()
-    } catch { setConfigMessage('Sync failed — check network or try again.') }
-    finally { setConfigSyncing(false) }
-  }, [getToken, fetchHeyGenConfig])
+    } catch {
+      await fetchHeyGenConfig()
+    } finally {
+      heygenWorkflow.refetch()
+    }
+  }
+
+  const handleSyncAll = async () => {
+    setTriggerAllLoading(true)
+    heygenWorkflow.onTriggerStarted()
+    driveWorkflow.onTriggerStarted()
+    try {
+      const token = await getToken()
+      if (!token) {
+        heygenWorkflow.refetch()
+        driveWorkflow.refetch()
+        return
+      }
+      const [heyOutcome, driveOutcome] = await Promise.allSettled([
+        (async () => {
+          const res = await fetch('/api/admin/video-generation/heygen-config', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'sync' }),
+          })
+          return { res }
+        })(),
+        (async () => {
+          const res = await fetch('/api/admin/video-generation/sync-drive', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ force: false }),
+          })
+          return { res }
+        })(),
+      ])
+      if (heyOutcome.status === 'fulfilled' && heyOutcome.value.res.ok) {
+        await fetchHeyGenConfig()
+      }
+      if (driveOutcome.status === 'fulfilled' && driveOutcome.value.res.ok) {
+        await fetchDriveItems()
+      }
+    } finally {
+      heygenWorkflow.refetch()
+      driveWorkflow.refetch()
+      setTriggerAllLoading(false)
+    }
+  }
+
+  const handleCancelAll = () => {
+    if (heygenWorkflow.currentRun && (heygenWorkflow.state === 'running' || heygenWorkflow.state === 'stale')) {
+      heygenWorkflow.markRunFailed(heygenWorkflow.currentRun.id, 'Cancelled by user')
+    }
+    if (driveWorkflow.currentRun && (driveWorkflow.state === 'running' || driveWorkflow.state === 'stale')) {
+      driveWorkflow.markRunFailed(driveWorkflow.currentRun.id, 'Cancelled by user')
+    }
+  }
 
   const setHeyGenDefault = useCallback(async (assetType: 'avatar' | 'voice', assetId: string) => {
     const token = await getToken()
@@ -806,48 +867,23 @@ export default function VideoGenerationPage() {
   /* ───────────── Plan: From Drive ───────────── */
 
   const syncDrive = async (force = false) => {
-    setSyncingDrive(true)
-    setDriveSyncMessage(null)
-    const steps: ProgressStep[] = [
-      { id: 'connecting', label: 'Connecting', status: 'active' },
-      { id: 'scanning', label: 'Scanning', status: 'pending' },
-      { id: 'importing', label: 'Importing', status: 'pending' },
-    ]
-    setDriveProgress(steps.map(s => ({ ...s })))
-    const t1 = setTimeout(() => setDriveProgress(prev => prev ? prev.map((s, i) => i === 0 ? { ...s, status: 'done' as const } : i === 1 ? { ...s, status: 'active' as const } : s) : null), 1200)
+    driveWorkflow.onTriggerStarted()
     try {
       const token = await getToken()
-      if (!token) return
-      const res = await fetch('/api/admin/video-generation/sync-drive', {
+      if (!token) {
+        driveWorkflow.refetch()
+        return
+      }
+      await fetch('/api/admin/video-generation/sync-drive', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ force }),
       })
-      const data = await res.json().catch(() => ({}))
-      clearTimeout(t1)
-      if (res.ok) {
-        const queued = data.queued ?? 0
-        if (queued === 0) {
-          setDriveProgress(prev => prev ? prev.map((s, i) =>
-            i < 2 ? { ...s, status: 'done' as const } : { ...s, status: 'done' as const, detail: data.message || 'No new files found' }
-          ) : null)
-          setDriveSyncMessage(data.message || 'No new files found in Drive folder.')
-        } else {
-          setDriveProgress(prev => prev ? prev.map(s => ({ ...s, status: 'done' as const })) : null)
-          setDriveSyncMessage(`Imported ${queued} file${queued > 1 ? 's' : ''} from Drive.`)
-        }
-        fetchDriveItems()
-      } else {
-        setDriveProgress(prev => prev ? prev.map(s => s.status === 'active' || s.status === 'pending' ? { ...s, status: 'error' as const } : s) : null)
-        setDriveSyncMessage(null)
-      }
+      await fetchDriveItems()
     } catch {
-      clearTimeout(t1)
-      setDriveProgress(prev => prev ? prev.map(s => s.status === 'active' || s.status === 'pending' ? { ...s, status: 'error' as const } : s) : null)
-      setDriveSyncMessage(null)
+      /* chip + refetch reflect failure */
     } finally {
-      setSyncingDrive(false)
-      setLastRunDriveSync(new Date())
+      driveWorkflow.refetch()
     }
   }
 
@@ -1418,6 +1454,61 @@ export default function VideoGenerationPage() {
             Video Generation
           </h1>
 
+          {/* Pipeline sync controls (same toolbar pattern as Value Evidence: full run + pills only) */}
+          <div className="flex items-center gap-3 flex-wrap mb-6">
+            {eitherRunning ? (
+              <button
+                type="button"
+                onClick={handleCancelAll}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-500 transition-colors"
+              >
+                <Square className="w-4 h-4" />
+                Cancel Pipeline
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSyncAll}
+                disabled={triggerAllLoading}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg text-sm font-medium hover:from-amber-500 hover:to-orange-500 disabled:opacity-50 transition-all"
+              >
+                {triggerAllLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                Run Full Pipeline
+              </button>
+            )}
+            <ExtractionStatusChip
+              label="HeyGen"
+              state={heygenWorkflow.state}
+              currentRun={heygenWorkflow.currentRun}
+              recentRuns={heygenWorkflow.recentRuns}
+              elapsedMs={heygenWorkflow.elapsedMs}
+              isDrawerOpen={heygenWorkflow.isDrawerOpen}
+              isHistoryOpen={heygenWorkflow.isHistoryOpen}
+              toggleDrawer={heygenWorkflow.toggleDrawer}
+              toggleHistory={heygenWorkflow.toggleHistory}
+              markRunFailed={heygenWorkflow.markRunFailed}
+              onRetry={triggerHeyGenSync}
+            />
+            <ExtractionStatusChip
+              label="Drive"
+              state={driveWorkflow.state}
+              currentRun={driveWorkflow.currentRun}
+              recentRuns={driveWorkflow.recentRuns}
+              elapsedMs={driveWorkflow.elapsedMs}
+              isDrawerOpen={driveWorkflow.isDrawerOpen}
+              isHistoryOpen={driveWorkflow.isHistoryOpen}
+              toggleDrawer={driveWorkflow.toggleDrawer}
+              toggleHistory={driveWorkflow.toggleHistory}
+              markRunFailed={driveWorkflow.markRunFailed}
+              onRetry={() => syncDrive(false)}
+              drawerFooterAction={{
+                label: 'Force resync all (re-scan entire folder)',
+                onClick: () => { void syncDrive(true) },
+                disabled: driveWorkflow.state === 'running' || driveWorkflow.state === 'stale',
+              }}
+            />
+          </div>
+
           {/* ═══════════ HEYGEN CONFIG ═══════════ */}
           <details className="group mb-4 rounded-lg border border-silicon-slate bg-background/60">
             <summary className="flex items-center gap-2 cursor-pointer px-4 py-2.5 text-xs text-gray-400 hover:text-foreground select-none">
@@ -1433,21 +1524,11 @@ export default function VideoGenerationPage() {
                   · Voice: {configVoices.find(v => v.asset_id === configDefaults.voiceId)?.asset_name ?? 'Unknown'}
                 </span>
               )}
-              {!configDefaults.avatarId && !configDefaults.voiceId && <span className="text-[10px] text-amber-400/70 ml-1">No defaults set — sync and select below</span>}
+              {!configDefaults.avatarId && !configDefaults.voiceId && <span className="text-[10px] text-amber-400/70 ml-1">No defaults set — open the HeyGen pill above and run sync, then pick below</span>}
               <ChevronDown className="w-3 h-3 ml-auto group-open:rotate-180 transition-transform" />
             </summary>
             <div className="px-4 pb-4 pt-2 space-y-3">
-              {/* Toolbar: Sync */}
-              <div className="flex items-center gap-3 flex-wrap">
-                <button onClick={syncHeyGenConfig} disabled={configSyncing} className="flex items-center gap-1.5 px-3 py-1.5 bg-radiant-gold/15 text-radiant-gold text-xs font-medium rounded-lg hover:bg-radiant-gold/25 disabled:opacity-50">
-                  {configSyncing ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
-                  Sync from HeyGen
-                </button>
-                {configMessage && <span className="text-[10px] text-red-400/90">{configMessage}</span>}
-                {configLoading && <Loader2 className="w-3 h-3 animate-spin text-gray-500" />}
-              </div>
-
-              <HeyGenSyncLastRunSummary lastSync={heygenLastSync} className="border-silicon-slate/50 bg-background/30" />
+              {configLoading && <Loader2 className="w-3 h-3 animate-spin text-gray-500" />}
 
               {/* Avatar picker (includes inline Add by ID) */}
               {configAvatars.length > 0 && (
@@ -1476,7 +1557,7 @@ export default function VideoGenerationPage() {
               )}
 
               {configAvatars.length === 0 && configVoices.length === 0 && !configLoading && (
-                <p className="text-[10px] text-gray-500">No avatars or voices synced yet. Click &ldquo;Sync from HeyGen&rdquo; to populate.</p>
+                <p className="text-[10px] text-gray-500">No avatars or voices yet. Open the <span className="text-amber-400/90">HeyGen</span> status pill above and tap Run.</p>
               )}
             </div>
           </details>
@@ -1769,37 +1850,14 @@ export default function VideoGenerationPage() {
 
               {/* From Drive sidebar */}
               <div className={cardCls}>
-                <h3 className="text-sm font-semibold text-foreground mb-1 flex items-center gap-1.5">
+                <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-1.5">
                   <FolderSync className="w-4 h-4 text-radiant-gold" />
                   From Drive
                 </h3>
-                <p className="text-xs text-gray-400 mb-4">Pull scripts from Google Drive and add to drafts queue.</p>
-                <div className="flex items-center gap-2 mb-3">
-                  <button onClick={() => syncDrive(false)} disabled={syncingDrive} className={btnPrimary + ' text-xs'}>
-                    {syncingDrive ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-                    Sync Drive
-                  </button>
-                  <button onClick={() => syncDrive(true)} disabled={syncingDrive} className="text-[10px] text-gray-400 hover:text-radiant-gold transition-colors underline underline-offset-2">
-                    Force resync all
-                  </button>
-                  {lastRunDriveSync && !syncingDrive && (
-                    <span className="flex items-center gap-1 text-[10px] text-gray-500">
-                      <Clock className="w-3 h-3" /> {lastRunLabel(lastRunDriveSync)}
-                    </span>
-                  )}
-                </div>
-                {driveProgress && (
-                  <ProgressPanel title="Syncing Drive" steps={driveProgress} onCancel={() => setDriveProgress(null)} />
-                )}
-                {driveSyncMessage && (
-                  <div className="text-xs text-amber-400/90 bg-amber-400/10 border border-amber-400/20 rounded-lg px-3 py-2 mb-3">
-                    {driveSyncMessage}
-                  </div>
-                )}
                 {driveLoading ? (
                   <div className="text-xs text-gray-400">Loading...</div>
                 ) : driveItems.length === 0 ? (
-                  <p className="text-xs text-gray-500">No pending Drive files. Hit Sync to check.</p>
+                  <p className="text-xs text-gray-500">No pending Drive files. Open the Drive pill above and run sync to check for scripts.</p>
                 ) : (
                   <div className="space-y-2 max-h-48 overflow-y-auto">
                     {driveItems.map(item => (

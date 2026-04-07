@@ -1,0 +1,38 @@
+---
+description: Use both Supabase MCPs (dev user-supabase + prod user-supabase-prod) for migrations and DDL unless scoped
+alwaysApply: true
+---
+
+# Supabase — Dual MCP (Non-Prod + Production)
+
+## How to recognize the servers
+
+| Cursor MCP `server` id   | Typical display name | Environment      |
+|--------------------------|----------------------|------------------|
+| `user-supabase`          | `supabase`           | **Non-production** (dev / default project) |
+| `user-supabase-prod`     | `supabase-prod`      | **Production**   |
+
+Inspect tool descriptors under `mcps/user-supabase/` vs `mcps/user-supabase-prod/` if names differ in your IDE.
+
+## Default behavior when both are connected
+
+For **migrations** (`apply_migration`), **DDL** (`execute_sql`), or **session work that must match every deployed DB**:
+
+1. **Apply the same change on both MCPs** in one session unless the user clearly scoped to one environment (e.g. “dev only”, “never touch prod”).
+2. **Order:** **`user-supabase` first**, then **`user-supabase-prod`** — validate on non-prod before prod.
+3. **Parity:** The SQL must match the `migrations/*.sql` file written on disk (see migration rollout checklist).
+4. **Report:** Say explicitly what ran where, e.g. *Migration applied on dev (`user-supabase`) and prod (`user-supabase-prod`).*
+
+## When not to use both
+
+- Only one MCP is configured or the other fails auth — apply where possible; note the gap in handoff.
+- User forbids production changes — dev/staging MCP only.
+- Exploratory **read-only** checks may use one project if the user specified which DB.
+
+## Invoking tools
+
+Use `call_mcp_tool` with `server: "user-supabase"` or `server: "user-supabase-prod"` and the same `toolName` / arguments (e.g. `apply_migration`, `execute_sql`). **Do not assume** a single call updates every environment.
+
+## Safety
+
+For **destructive** or **irreversible** prod operations, confirm intent if the user did not already state production scope.

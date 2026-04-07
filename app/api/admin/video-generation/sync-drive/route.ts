@@ -7,28 +7,44 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { listChangedScripts, fetchScriptChange } from '@/lib/google-drive'
+import { startVideoGenRun, completeVideoGenRun } from '@/lib/video-generation-workflow-runs'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  const folderId = process.env.GOOGLE_DRIVE_SCRIPTS_FOLDER_ID
+  if (!folderId) {
+    return NextResponse.json(
+      { error: 'GOOGLE_DRIVE_SCRIPTS_FOLDER_ID is not configured' },
+      { status: 500 },
+    )
+  }
+
+  const body = await request.json().catch(() => ({}))
+  const force = (body as { force?: boolean }).force === true
+
+  const run = await startVideoGenRun('vgen_drive')
+
+  const finish = async (
+    success: boolean,
+    itemsInserted: number,
+    errorMessage: string | null,
+    json: Record<string, unknown>,
+    status: number,
+  ) => {
+    if (run) {
+      await completeVideoGenRun(run.id, { success, itemsInserted, errorMessage })
+    }
+    return NextResponse.json({ ...json, run_id: run?.id ?? null }, { status })
+  }
+
   try {
-    const auth = await verifyAdmin(request)
-    if (isAuthError(auth)) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status })
-    }
-
-    const folderId = process.env.GOOGLE_DRIVE_SCRIPTS_FOLDER_ID
-    if (!folderId) {
-      return NextResponse.json(
-        { error: 'GOOGLE_DRIVE_SCRIPTS_FOLDER_ID is not configured' },
-        { status: 500 }
-      )
-    }
-
-    const body = await request.json().catch(() => ({}))
-    const force = (body as { force?: boolean }).force === true
-
-    const { data: syncState } = await supabaseAdmin
+    const { data: syncState } = await supabaseAdmin!
       .from('drive_sync_state')
       .select('last_modified')
       .eq('folder_id', folderId)
@@ -46,19 +62,19 @@ export async function POST(request: NextRequest) {
     console.log('[sync-drive] Found', files.length, 'script files (recursive):', files.map(f => f.name))
 
     if (files.length === 0) {
-      await supabaseAdmin.from('drive_sync_state').upsert(
+      await supabaseAdmin!.from('drive_sync_state').upsert(
         {
           folder_id: folderId,
           last_modified: new Date().toISOString(),
           last_sync_at: new Date().toISOString(),
         },
-        { onConflict: 'folder_id' }
+        { onConflict: 'folder_id' },
       )
-      return NextResponse.json({
+      return finish(true, 0, null, {
         ok: true,
         queued: 0,
         message: 'No script files found. Supported: Google Docs, .txt, .md',
-      })
+      }, 200)
     }
 
     let maxModified = modifiedAfter
@@ -89,32 +105,32 @@ export async function POST(request: NextRequest) {
     }
 
     if (queueItems.length > 0) {
-      const { error: insertErr } = await supabaseAdmin
+      const { error: insertErr } = await supabaseAdmin!
         .from('drive_video_queue')
         .insert(queueItems.map(q => ({ ...q, status: 'pending' })))
       if (insertErr) {
         console.error('[sync-drive] Insert error:', insertErr)
-        return NextResponse.json({ error: 'Failed to insert queue items' }, { status: 500 })
+        return finish(false, 0, insertErr.message, { error: 'Failed to insert queue items' }, 500)
       }
     }
 
-    await supabaseAdmin.from('drive_sync_state').upsert(
+    await supabaseAdmin!.from('drive_sync_state').upsert(
       {
         folder_id: folderId,
         last_modified: maxModified,
         last_sync_at: new Date().toISOString(),
       },
-      { onConflict: 'folder_id' }
+      { onConflict: 'folder_id' },
     )
 
-    return NextResponse.json({
+    return finish(true, queueItems.length, null, {
       ok: true,
       queued: queueItems.length,
       files: queueItems.map(q => q.drive_file_name),
-    })
+    }, 200)
   } catch (error) {
     console.error('[sync-drive] Error:', error)
     const message = error instanceof Error ? error.message : String(error)
-    return NextResponse.json({ error: message }, { status: 500 })
+    return finish(false, 0, message, { error: message }, 500)
   }
 }
