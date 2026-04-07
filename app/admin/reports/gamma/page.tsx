@@ -23,10 +23,12 @@ import {
   Video,
   Info,
   Palette,
-  User,
+  Settings,
 } from 'lucide-react';
 import Link from 'next/link';
 import ExternalInputCard, { type ReportContextPreview } from '@/components/admin/ExternalInputCard';
+import AssetPicker, { type AssetPickerItem } from '@/components/admin/AssetPicker';
+import HeyGenSyncLastRunSummary, { type HeyGenLastSyncPayload } from '@/components/admin/HeyGenSyncLastRunSummary';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -130,10 +132,15 @@ function GammaReportsContent() {
   const [companionJobId, setCompanionJobId] = useState<string | null>(null);
   const [companionReportId, setCompanionReportId] = useState<string | null>(null);
 
-  // Avatar
-  const [avatars, setAvatars] = useState<{ id: string; name: string }[]>([]);
-  const [avatarsLoading, setAvatarsLoading] = useState(true);
-  const [selectedAvatarId, setSelectedAvatarId] = useState('');
+  // Avatar & Voice (from heygen-config DB)
+  const [configAvatars, setConfigAvatars] = useState<AssetPickerItem[]>([]);
+  const [configVoices, setConfigVoices] = useState<AssetPickerItem[]>([]);
+  const [configLoading, setConfigLoading] = useState(true);
+  const [configSyncing, setConfigSyncing] = useState(false);
+  const [configMessage, setConfigMessage] = useState<string | null>(null);
+  const [heygenLastSync, setHeygenLastSync] = useState<HeyGenLastSyncPayload | null>(null);
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(null);
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string | null>(null);
 
   // Theme
   const [themes, setThemes] = useState<{ id: string; name: string }[]>([]);
@@ -145,30 +152,127 @@ function GammaReportsContent() {
   const [reports, setReports] = useState<GammaReport[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
 
+  const [externalExpandAllKey, setExternalExpandAllKey] = useState(0);
+  const [externalCollapseAllKey, setExternalCollapseAllKey] = useState(0);
+
   const getToken = useCallback(async () => {
     const s = session || (await getCurrentSession());
     return s?.access_token || '';
   }, [session]);
 
-  // Fetch avatars
+  // Fetch avatars & voices from heygen-config (DB-managed)
+  const fetchHeyGenConfig = useCallback(async () => {
+    const token = await getToken();
+    if (!token) return;
+    setConfigLoading(true);
+    try {
+      const res = await fetch('/api/admin/video-generation/heygen-config', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.avatars)) setConfigAvatars(data.avatars);
+        if (Array.isArray(data.voices)) setConfigVoices(data.voices);
+        const defAvatar = data.defaults?.avatarId as string | null | undefined;
+        const defVoice = data.defaults?.voiceId as string | null | undefined;
+        setSelectedAvatarId((prev) => prev ?? defAvatar ?? null);
+        setSelectedVoiceId((prev) => prev ?? defVoice ?? null);
+        setHeygenLastSync(data.lastSync ?? null);
+      }
+    } catch { /* non-critical */ }
+    setConfigLoading(false);
+  }, [getToken]);
+
+  const syncHeyGenConfig = useCallback(async () => {
+    const token = await getToken();
+    if (!token) return;
+    setConfigSyncing(true);
+    setConfigMessage(null);
+    try {
+      const res = await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync' }),
+      });
+      await res.json().catch(() => ({}));
+      setConfigMessage(null);
+      await fetchHeyGenConfig();
+    } catch {
+      setConfigMessage('Sync failed — check network or try again.');
+    } finally {
+      setConfigSyncing(false);
+    }
+  }, [getToken, fetchHeyGenConfig]);
+
   useEffect(() => {
     if (!session) return;
-    async function load() {
-      const token = await getToken();
-      if (!token) return;
-      try {
-        const res = await fetch('/api/admin/video-generation/avatars', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data.avatars)) setAvatars(data.avatars);
-        }
-      } catch { /* non-critical */ }
-      setAvatarsLoading(false);
-    }
-    load();
-  }, [session, getToken]);
+    fetchHeyGenConfig();
+  }, [session, fetchHeyGenConfig]);
+
+  const toggleFavoriteAvatar = useCallback(async (assetId: string, fav: boolean) => {
+    const token = await getToken();
+    if (!token) return;
+    try {
+      await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_favorite', assetType: 'avatar', assetId, favorite: fav }),
+      });
+      setConfigAvatars(prev => prev.map(a => a.asset_id === assetId ? { ...a, is_favorite: fav } : a));
+    } catch { /* non-critical */ }
+  }, [getToken]);
+
+  const addManualAvatar = useCallback(async (id: string, name: string) => {
+    const token = await getToken();
+    if (!token) return;
+    try {
+      await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_manual', assetType: 'avatar', assetId: id, assetName: name }),
+      });
+      await fetchHeyGenConfig();
+    } catch { /* non-critical */ }
+  }, [getToken, fetchHeyGenConfig]);
+
+  const setDefaultAvatar = useCallback(async (assetId: string) => {
+    const token = await getToken();
+    if (!token) return;
+    try {
+      await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'set_default', assetType: 'avatar', assetId }),
+      });
+      setConfigAvatars(prev => prev.map(a => ({ ...a, is_default: a.asset_id === assetId })));
+    } catch { /* non-critical */ }
+  }, [getToken]);
+
+  const toggleFavoriteVoice = useCallback(async (assetId: string, fav: boolean) => {
+    const token = await getToken();
+    if (!token) return;
+    try {
+      await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_favorite', assetType: 'voice', assetId, favorite: fav }),
+      });
+      setConfigVoices(prev => prev.map(v => v.asset_id === assetId ? { ...v, is_favorite: fav } : v));
+    } catch { /* non-critical */ }
+  }, [getToken]);
+
+  const setDefaultVoice = useCallback(async (assetId: string) => {
+    const token = await getToken();
+    if (!token) return;
+    try {
+      await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'set_default', assetType: 'voice', assetId }),
+      });
+      setConfigVoices(prev => prev.map(v => ({ ...v, is_default: v.asset_id === assetId })));
+    } catch { /* non-critical */ }
+  }, [getToken]);
 
   // Fetch themes
   useEffect(() => {
@@ -399,7 +503,8 @@ function GammaReportsContent() {
         },
         body: JSON.stringify({
           gammaReportId: reportId,
-          avatarId: selectedAvatarId || undefined,
+          avatarId: selectedAvatarId ?? undefined,
+          voiceId: selectedVoiceId ?? undefined,
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -544,66 +649,6 @@ function GammaReportsContent() {
           )}
         </div>
 
-        {/* External Inputs — smart cards */}
-        <div className="space-y-3">
-          <div>
-            <h2 className="text-lg font-semibold text-white">External Inputs</h2>
-            <p className="text-sm text-gray-400 mt-1">
-              Include database data and/or upload files to enrich the report. Both sources can be used together.
-            </p>
-          </div>
-
-          <ExternalInputCard
-            title="Audit Findings"
-            slot="thirdPartyFindings"
-            previewData={previewData}
-            loading={loadingPreview}
-            onChange={setAssembledFindings}
-            getToken={getToken}
-          />
-
-          <ExternalInputCard
-            title="Competitor / Platform Info"
-            slot="competitorPlatform"
-            previewData={previewData}
-            loading={loadingPreview}
-            onChange={setAssembledCompetitor}
-            getToken={getToken}
-          />
-
-          <ExternalInputCard
-            title="Site / Tech Data"
-            slot="siteCrawlData"
-            previewData={previewData}
-            loading={loadingPreview}
-            onChange={setAssembledSiteData}
-            getToken={getToken}
-          />
-
-          {/* Custom Instructions — kept as textarea */}
-          <div className="bg-gray-900 rounded-lg border border-gray-800 p-5">
-            <label className="block text-sm font-semibold text-white mb-2">
-              Custom Instructions
-            </label>
-            <textarea
-              value={customInstructions}
-              onChange={(e) => setCustomInstructions(e.target.value)}
-              placeholder="Additional context, focus areas, or specific requests for the presentation..."
-              rows={2}
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none resize-y"
-            />
-          </div>
-        </div>
-
-        {/* Data Completeness Indicator */}
-        <DataCompletenessPanel
-          hasContact={!!contactId}
-          hasAudit={!!auditId}
-          hasValueReport={!!valueReportId}
-          serviceCount={0}
-          reportType={reportType}
-        />
-
         {/* Theme Selector */}
         <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
@@ -635,34 +680,175 @@ function GammaReportsContent() {
           )}
         </div>
 
-        {/* Avatar Selector */}
-        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <User className="w-4 h-4 text-gray-400" />
-            <span className="text-sm font-medium text-gray-300">Avatar</span>
-            {!selectedAvatarId && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/50 text-emerald-400 border border-emerald-800">default</span>
+        {/* HeyGen Configuration — same title as Video Generation */}
+        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4 space-y-3">
+          <div className="flex flex-wrap items-center gap-2 gap-y-1">
+            <Settings className="w-4 h-4 text-gray-400 shrink-0" />
+            <span className="text-sm font-medium text-gray-300">HeyGen Configuration</span>
+            {!configLoading && (
+              <span className="text-[10px] text-gray-400">
+                {selectedAvatarId && (
+                  <>
+                    Avatar:{' '}
+                    <span className="text-gray-300">
+                      {configAvatars.find((a) => a.asset_id === selectedAvatarId)?.asset_name ?? 'Unknown'}
+                    </span>
+                  </>
+                )}
+                {selectedAvatarId && selectedVoiceId && ' · '}
+                {selectedVoiceId && (
+                  <>
+                    Voice:{' '}
+                    <span className="text-gray-300">
+                      {configVoices.find((v) => v.asset_id === selectedVoiceId)?.asset_name ?? 'Unknown'}
+                    </span>
+                  </>
+                )}
+                {!selectedAvatarId && !selectedVoiceId && (
+                  <span className="text-amber-400/80">No selection — defaults from Video Generation will apply</span>
+                )}
+              </span>
             )}
           </div>
-          {avatarsLoading ? (
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading avatars...
-            </div>
-          ) : avatars.length === 0 ? (
-            <p className="text-xs text-gray-500">No avatars found. Videos will use env default.</p>
-          ) : (
-            <select
-              value={selectedAvatarId}
-              onChange={(e) => setSelectedAvatarId(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500"
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={() => syncHeyGenConfig()}
+              disabled={configSyncing || configLoading}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              <option value="">Default (env)</option>
-              {avatars.map((a) => (
-                <option key={a.id} value={a.id}>{a.name}</option>
-              ))}
-            </select>
+              {configSyncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
+              Sync from HeyGen
+            </button>
+            {configMessage && <span className="text-[10px] text-red-400/90">{configMessage}</span>}
+            {configLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-500" />}
+          </div>
+          <HeyGenSyncLastRunSummary lastSync={heygenLastSync} className="border-gray-700/80 bg-gray-900/40" />
+          {configLoading ? (
+            <div className="flex items-center gap-2 text-xs text-gray-500">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading HeyGen config...
+            </div>
+          ) : (
+            <>
+              {configAvatars.length > 0 ? (
+                <AssetPicker
+                  label="Avatar"
+                  items={configAvatars}
+                  selectedId={selectedAvatarId}
+                  onSelect={(id) => setSelectedAvatarId(id)}
+                  onToggleFavorite={(id, fav) => toggleFavoriteAvatar(id, fav)}
+                  onAddManual={async (id, name) => { await addManualAvatar(id, name) }}
+                  onSetDefault={(id) => setDefaultAvatar(id)}
+                />
+              ) : (
+                <p className="text-xs text-gray-500">
+                  No avatars in the database yet. Use <strong className="text-gray-400">Sync from HeyGen</strong> above to pull avatars from your HeyGen account.
+                </p>
+              )}
+              {configVoices.length > 0 ? (
+                <AssetPicker
+                  label="Voice"
+                  items={configVoices}
+                  selectedId={selectedVoiceId}
+                  onSelect={(id) => setSelectedVoiceId(id)}
+                  onToggleFavorite={(id, fav) => toggleFavoriteVoice(id, fav)}
+                  onSetDefault={(id) => setDefaultVoice(id)}
+                />
+              ) : (
+                <p className="text-xs text-gray-500">
+                  No voices in the database yet. Use <strong className="text-gray-400">Sync from HeyGen</strong> above to pull voices from your HeyGen account.
+                </p>
+              )}
+            </>
           )}
         </div>
+
+        {/* External Inputs — smart cards (collapsed by default); sits above custom instructions + Data Sources */}
+        <div className="space-y-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-lg font-semibold text-white">External Inputs</h2>
+              <p className="text-sm text-gray-400 mt-1">
+                Include database data and/or upload files to enrich the report. Expand a section to select sources.
+              </p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setExternalExpandAllKey((k) => k + 1)}
+                className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+              >
+                Expand all
+              </button>
+              <button
+                type="button"
+                onClick={() => setExternalCollapseAllKey((k) => k + 1)}
+                className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white transition-colors"
+              >
+                Collapse all
+              </button>
+            </div>
+          </div>
+
+          <ExternalInputCard
+            title="Audit Findings"
+            slot="thirdPartyFindings"
+            previewData={previewData}
+            loading={loadingPreview}
+            onChange={setAssembledFindings}
+            getToken={getToken}
+            expandAllSignal={externalExpandAllKey}
+            collapseAllSignal={externalCollapseAllKey}
+          />
+
+          <ExternalInputCard
+            title="Competitor / Platform Info"
+            slot="competitorPlatform"
+            previewData={previewData}
+            loading={loadingPreview}
+            onChange={setAssembledCompetitor}
+            getToken={getToken}
+            expandAllSignal={externalExpandAllKey}
+            collapseAllSignal={externalCollapseAllKey}
+          />
+
+          <ExternalInputCard
+            title="Site / Tech Data"
+            slot="siteCrawlData"
+            previewData={previewData}
+            loading={loadingPreview}
+            onChange={setAssembledSiteData}
+            getToken={getToken}
+            expandAllSignal={externalExpandAllKey}
+            collapseAllSignal={externalCollapseAllKey}
+          />
+        </div>
+
+        {/* Custom instructions — directly above Data Sources */}
+        <div className="bg-gray-900 rounded-lg border border-gray-800 p-5">
+          <label className="block text-sm font-semibold text-white mb-2">
+            Custom Instructions
+          </label>
+          <p className="text-xs text-gray-500 mb-2">
+            Optional notes for this run (tone, slide focus, exclusions). External Inputs above supply structured data from the database or files.
+          </p>
+          <textarea
+            value={customInstructions}
+            onChange={(e) => setCustomInstructions(e.target.value)}
+            placeholder="Additional context, focus areas, or specific requests for the presentation..."
+            rows={3}
+            className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none resize-y"
+          />
+        </div>
+
+        {/* Data Completeness / Data Sources */}
+        <DataCompletenessPanel
+          hasContact={!!contactId}
+          hasAudit={!!auditId}
+          hasValueReport={!!valueReportId}
+          serviceCount={0}
+          reportType={reportType}
+        />
 
         {/* Generate Button */}
         <div className="flex items-center gap-4">

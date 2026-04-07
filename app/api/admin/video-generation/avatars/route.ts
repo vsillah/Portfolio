@@ -14,7 +14,6 @@ export async function GET(request: NextRequest) {
     const result = await listAvatars()
     if (result.error) {
       console.warn('[video-generation/avatars] HeyGen list failed:', result.error)
-      // 200 so optional companion-video UI does not spam the browser console as a hard failure
       return NextResponse.json({ avatars: [], error: result.error })
     }
     return NextResponse.json({ avatars: result.avatars })

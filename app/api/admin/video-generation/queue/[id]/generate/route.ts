@@ -32,8 +32,8 @@ export async function POST(
     const aspectRatio = (body.aspectRatio as VideoAspectRatio) ?? channelToAspectRatio(channel)
     const templateId = (body.templateId as string)?.trim() || process.env.HEYGEN_TEMPLATE_ID
     const brandVoiceId = (body.brandVoiceId as string)?.trim() || process.env.HEYGEN_BRAND_VOICE_ID
-    const avatarId = (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
-    const voiceId = (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
+    let avatarId = (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
+    let voiceId = (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
     const includeBroll = body.includeBroll !== false
     const brollRoutes = (body.brollRoutes as 'all' | 'script') ?? 'all'
 
@@ -59,11 +59,15 @@ export async function POST(
     }
 
     if (!templateId && (!avatarId || !voiceId)) {
+      const { getHeyGenDefaults } = await import('@/lib/heygen-config')
+      const defaults = await getHeyGenDefaults()
+      if (!avatarId && defaults.avatarId) avatarId = defaults.avatarId
+      if (!voiceId && defaults.voiceId) voiceId = defaults.voiceId
+    }
+
+    if (!templateId && (!avatarId || !voiceId)) {
       return NextResponse.json(
-        {
-          error:
-            'Use template (HEYGEN_TEMPLATE_ID or templateId) or provide avatarId and voiceId (or set HEYGEN_AVATAR_ID, HEYGEN_VOICE_ID)',
-        },
+        { error: 'Use template or provide avatarId and voiceId. Set defaults via Admin → Video Generation → Settings.' },
         { status: 400 }
       )
     }

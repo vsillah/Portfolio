@@ -11,6 +11,8 @@ import {
 import { AnimatePresence, motion } from 'framer-motion'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import AssetPicker from '@/components/admin/AssetPicker'
+import HeyGenSyncLastRunSummary, { type HeyGenLastSyncPayload } from '@/components/admin/HeyGenSyncLastRunSummary'
 import ProgressPanel, { type ProgressStep } from '@/components/admin/ProgressPanel'
 import { readSSEStream } from '@/lib/sse-reader'
 import { getCurrentSession } from '@/lib/auth'
@@ -148,6 +150,16 @@ export default function VideoGenerationPage() {
   const [avatars, setAvatars] = useState<AvatarOption[]>([])
   const [avatarsLoading, setAvatarsLoading] = useState(true)
   const [selectedAvatarId, setSelectedAvatarId] = useState('')
+
+  /* --- HeyGen Config (DB-managed defaults) --- */
+  interface ConfigAsset { id: string; asset_type: string; asset_id: string; asset_name: string; is_default: boolean; is_favorite: boolean; metadata: Record<string, unknown> }
+  const [configAvatars, setConfigAvatars] = useState<ConfigAsset[]>([])
+  const [configVoices, setConfigVoices] = useState<ConfigAsset[]>([])
+  const [configDefaults, setConfigDefaults] = useState<{ avatarId: string | null; voiceId: string | null }>({ avatarId: null, voiceId: null })
+  const [configLoading, setConfigLoading] = useState(false)
+  const [configSyncing, setConfigSyncing] = useState(false)
+  const [configMessage, setConfigMessage] = useState<string | null>(null)
+  const [heygenLastSync, setHeygenLastSync] = useState<HeyGenLastSyncPayload | null>(null)
   const [templates, setTemplates] = useState<TemplateOption[]>([])
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [brandVoices, setBrandVoices] = useState<BrandVoiceOption[]>([])
@@ -409,6 +421,84 @@ export default function VideoGenerationPage() {
     const interval = setInterval(fetchJobs, 30000)
     return () => clearInterval(interval)
   }, [jobs, fetchJobs])
+
+  const fetchHeyGenConfig = useCallback(async () => {
+    const token = await getToken()
+    if (!token) return
+    setConfigLoading(true)
+    try {
+      const res = await fetch('/api/admin/video-generation/heygen-config', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok) {
+        setConfigAvatars(data.avatars ?? [])
+        setConfigVoices(data.voices ?? [])
+        setConfigDefaults(data.defaults ?? { avatarId: null, voiceId: null })
+        setHeygenLastSync(data.lastSync ?? null)
+      }
+    } catch { /* ignore */ }
+    finally { setConfigLoading(false) }
+  }, [getToken])
+
+  const syncHeyGenConfig = useCallback(async () => {
+    const token = await getToken()
+    if (!token) return
+    setConfigSyncing(true)
+    setConfigMessage(null)
+    try {
+      const res = await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync' }),
+      })
+      await res.json().catch(() => ({}))
+      setConfigMessage(null)
+      await fetchHeyGenConfig()
+    } catch { setConfigMessage('Sync failed — check network or try again.') }
+    finally { setConfigSyncing(false) }
+  }, [getToken, fetchHeyGenConfig])
+
+  const setHeyGenDefault = useCallback(async (assetType: 'avatar' | 'voice', assetId: string) => {
+    const token = await getToken()
+    if (!token) return
+    try {
+      await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'set_default', assetType, assetId }),
+      })
+      await fetchHeyGenConfig()
+    } catch { /* ignore */ }
+  }, [getToken, fetchHeyGenConfig])
+
+  const toggleFavoriteAsset = useCallback(async (assetType: 'avatar' | 'voice', assetId: string, favorite: boolean) => {
+    const token = await getToken()
+    if (!token) return
+    try {
+      await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'toggle_favorite', assetType, assetId, favorite }),
+      })
+      await fetchHeyGenConfig()
+    } catch { /* ignore */ }
+  }, [getToken, fetchHeyGenConfig])
+
+  const addManualAsset = useCallback(async (assetType: 'avatar' | 'voice', assetId: string, assetName: string) => {
+    const token = await getToken()
+    if (!token) return
+    try {
+      await fetch('/api/admin/video-generation/heygen-config', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'add_manual', assetType, assetId, assetName }),
+      })
+      await fetchHeyGenConfig()
+    } catch { /* ignore */ }
+  }, [getToken, fetchHeyGenConfig])
+
+  useEffect(() => { fetchHeyGenConfig() }, [fetchHeyGenConfig])
 
   useEffect(() => {
     const load = async () => {
@@ -1313,6 +1403,68 @@ export default function VideoGenerationPage() {
             <Video className="w-7 h-7" />
             Video Generation
           </h1>
+
+          {/* ═══════════ HEYGEN CONFIG ═══════════ */}
+          <details className="group mb-4 rounded-lg border border-silicon-slate bg-background/60">
+            <summary className="flex items-center gap-2 cursor-pointer px-4 py-2.5 text-xs text-gray-400 hover:text-foreground select-none">
+              <Settings className="w-3.5 h-3.5" />
+              <span className="font-medium">HeyGen Configuration</span>
+              {configDefaults.avatarId && (
+                <span className="text-[10px] text-gray-300 ml-1">
+                  Avatar: {configAvatars.find(a => a.asset_id === configDefaults.avatarId)?.asset_name ?? 'Unknown'}
+                </span>
+              )}
+              {configDefaults.voiceId && (
+                <span className="text-[10px] text-gray-300 ml-1">
+                  · Voice: {configVoices.find(v => v.asset_id === configDefaults.voiceId)?.asset_name ?? 'Unknown'}
+                </span>
+              )}
+              {!configDefaults.avatarId && !configDefaults.voiceId && <span className="text-[10px] text-amber-400/70 ml-1">No defaults set — sync and select below</span>}
+              <ChevronDown className="w-3 h-3 ml-auto group-open:rotate-180 transition-transform" />
+            </summary>
+            <div className="px-4 pb-4 pt-2 space-y-3">
+              {/* Toolbar: Sync */}
+              <div className="flex items-center gap-3 flex-wrap">
+                <button onClick={syncHeyGenConfig} disabled={configSyncing} className="flex items-center gap-1.5 px-3 py-1.5 bg-radiant-gold/15 text-radiant-gold text-xs font-medium rounded-lg hover:bg-radiant-gold/25 disabled:opacity-50">
+                  {configSyncing ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                  Sync from HeyGen
+                </button>
+                {configMessage && <span className="text-[10px] text-red-400/90">{configMessage}</span>}
+                {configLoading && <Loader2 className="w-3 h-3 animate-spin text-gray-500" />}
+              </div>
+
+              <HeyGenSyncLastRunSummary lastSync={heygenLastSync} className="border-silicon-slate/50 bg-background/30" />
+
+              {/* Avatar picker (includes inline Add by ID) */}
+              {configAvatars.length > 0 && (
+                <AssetPicker
+                  label="Avatar"
+                  items={configAvatars}
+                  selectedId={configDefaults.avatarId}
+                  onSelect={(id) => setHeyGenDefault('avatar', id)}
+                  onToggleFavorite={(id, fav) => toggleFavoriteAsset('avatar', id, fav)}
+                  onAddManual={async (id, name) => { await addManualAsset('avatar', id, name) }}
+                  onSetDefault={(id) => setHeyGenDefault('avatar', id)}
+                />
+              )}
+
+              {/* Voice picker */}
+              {configVoices.length > 0 && (
+                <AssetPicker
+                  label="Voice"
+                  items={configVoices}
+                  selectedId={configDefaults.voiceId}
+                  onSelect={(id) => setHeyGenDefault('voice', id)}
+                  onToggleFavorite={(id, fav) => toggleFavoriteAsset('voice', id, fav)}
+                  onSetDefault={(id) => setHeyGenDefault('voice', id)}
+                />
+              )}
+
+              {configAvatars.length === 0 && configVoices.length === 0 && !configLoading && (
+                <p className="text-[10px] text-gray-500">No avatars or voices synced yet. Click &ldquo;Sync from HeyGen&rdquo; to populate.</p>
+              )}
+            </div>
+          </details>
 
           {/* ═══════════ STICKY PHASE NAV ═══════════ */}
           <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-silicon-slate -mx-6 px-6 py-2 mb-6">

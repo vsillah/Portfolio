@@ -95,12 +95,18 @@ export async function POST(request: NextRequest) {
 
     const templateId = (body.templateId as string)?.trim() || process.env.HEYGEN_TEMPLATE_ID
     const brandVoiceId = (body.brandVoiceId as string)?.trim() || process.env.HEYGEN_BRAND_VOICE_ID
-    const avatarId = (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
-    const voiceId = (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
+    let avatarId = (body.avatarId as string)?.trim() || process.env.HEYGEN_AVATAR_ID
+    let voiceId = (body.voiceId as string)?.trim() || process.env.HEYGEN_VOICE_ID
+    if (!templateId && (!avatarId || !voiceId)) {
+      const { getHeyGenDefaults } = await import('@/lib/heygen-config')
+      const defaults = await getHeyGenDefaults()
+      if (!avatarId && defaults.avatarId) avatarId = defaults.avatarId
+      if (!voiceId && defaults.voiceId) voiceId = defaults.voiceId
+    }
     if (!templateId && (!avatarId || !voiceId)) {
       return NextResponse.json(
-        { error: 'HeyGen template or avatar and voice must be configured.' },
-        { status: 500 }
+        { error: 'HeyGen template or avatar and voice must be configured. Set defaults via Admin → Video Generation → Settings.' },
+        { status: 400 }
       )
     }
 

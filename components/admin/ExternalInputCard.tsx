@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useMemo } from 'react'
+import { useState, useRef, useCallback, useMemo, useEffect } from 'react'
 import {
   Database,
   Upload,
@@ -61,6 +61,10 @@ interface ExternalInputCardProps {
   loading?: boolean
   onChange: (assembledText: string | undefined) => void
   getToken: () => Promise<string>
+  /** Increment to expand this card (e.g. parent "Expand all"). */
+  expandAllSignal?: number
+  /** Increment to collapse this card (e.g. parent "Collapse all"). */
+  collapseAllSignal?: number
 }
 
 type CheckableKey = string
@@ -228,14 +232,32 @@ export default function ExternalInputCard({
   loading,
   onChange,
   getToken,
+  expandAllSignal = 0,
+  collapseAllSignal = 0,
 }: ExternalInputCardProps) {
-  const [expanded, setExpanded] = useState(true)
+  const [expanded, setExpanded] = useState(false)
   const [checked, setChecked] = useState<Record<CheckableKey, boolean>>({})
   const [hasInitialized, setHasInitialized] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const lastExpandSignal = useRef(0)
+  const lastCollapseSignal = useRef(0)
+
+  useEffect(() => {
+    if (expandAllSignal > lastExpandSignal.current) {
+      lastExpandSignal.current = expandAllSignal
+      setExpanded(true)
+    }
+  }, [expandAllSignal])
+
+  useEffect(() => {
+    if (collapseAllSignal > lastCollapseSignal.current) {
+      lastCollapseSignal.current = collapseAllSignal
+      setExpanded(false)
+    }
+  }, [collapseAllSignal])
 
   const fragments = useMemo(
     () => (previewData ? getFragmentsForSlot(slot, previewData) : []),
@@ -349,14 +371,7 @@ export default function ExternalInputCard({
   const checkedCount = Object.values(checked).filter(Boolean).length
   const hasDbData = fragments.length > 0
   const hasFiles = uploadedFiles.length > 0
-  const sourceBadge =
-    hasDbData && checkedCount > 0 && hasFiles
-      ? 'DB + File'
-      : hasDbData && checkedCount > 0
-        ? 'DB'
-        : hasFiles
-          ? 'File'
-          : null
+  const hasIncludedContent = checkedCount > 0 || hasFiles
 
   return (
     <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
@@ -366,14 +381,29 @@ export default function ExternalInputCard({
         onClick={() => setExpanded((p) => !p)}
         className="w-full flex items-center justify-between px-5 py-3 hover:bg-gray-800/50 transition-colors"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
           <span className="text-sm font-semibold text-white">{title}</span>
-          {sourceBadge && (
-            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-              {sourceBadge}
+          {loading && <Loader2 className="w-3.5 h-3.5 text-gray-400 animate-spin" />}
+          {!loading && !hasIncludedContent && (
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-800 text-gray-500 border border-gray-700">
+              Nothing included
             </span>
           )}
-          {loading && <Loader2 className="w-3.5 h-3.5 text-gray-400 animate-spin" />}
+          {!loading && hasDbData && checkedCount > 0 && (
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
+              DB {checkedCount}/{fragments.length}
+            </span>
+          )}
+          {!loading && hasDbData && checkedCount === 0 && (
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-800 text-gray-500 border border-gray-700">
+              DB 0/{fragments.length}
+            </span>
+          )}
+          {!loading && hasFiles && (
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-teal-500/15 text-teal-300 border border-teal-500/20">
+              {uploadedFiles.length} file{uploadedFiles.length !== 1 ? 's' : ''}
+            </span>
+          )}
         </div>
         {expanded ? (
           <ChevronUp className="w-4 h-4 text-gray-500" />

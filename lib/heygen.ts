@@ -102,6 +102,66 @@ export async function listAvatars(): Promise<ListAvatarsResult> {
   return { avatars, error: null }
 }
 
+export interface VoiceOption {
+  id: string
+  name: string
+  language: string
+  gender: string
+}
+
+export interface ListVoicesResult {
+  voices: VoiceOption[]
+  error: string | null
+}
+
+/**
+ * List available voices from HeyGen API (v2).
+ */
+export async function listVoices(): Promise<ListVoicesResult> {
+  const apiKey = process.env.HEYGEN_API_KEY
+  if (!apiKey) {
+    return { voices: [], error: 'HEYGEN_API_KEY is not configured' }
+  }
+
+  const res = await fetch(`${HEYGEN_API_BASE}/v2/voices`, {
+    method: 'GET',
+    headers: { 'x-api-key': apiKey },
+  })
+
+  let json: {
+    error?: string | { code?: string; message?: string } | null
+    data?: { voices?: Array<{ voice_id?: string; name?: string; language?: string; gender?: string }> }
+  } = {}
+  try {
+    json = (await res.json()) as typeof json
+  } catch {
+    return { voices: [], error: `HeyGen API returned invalid JSON (HTTP ${res.status})` }
+  }
+
+  const extractError = (): string => {
+    const e = json.error
+    if (typeof e === 'string') return e
+    if (e && typeof e === 'object' && e.message) return e.message
+    return `HTTP ${res.status}`
+  }
+
+  if (!res.ok) {
+    return { voices: [], error: extractError() }
+  }
+  if (json.error) {
+    return { voices: [], error: extractError() }
+  }
+
+  const voices = (json.data?.voices ?? []).map(v => ({
+    id: v.voice_id ?? '',
+    name: v.name ?? v.voice_id ?? 'Unknown',
+    language: v.language ?? '',
+    gender: v.gender ?? '',
+  })).filter(v => v.id)
+
+  return { voices, error: null }
+}
+
 /** Map aspect ratio to HeyGen dimension (width x height) */
 function aspectRatioToDimension(ratio: VideoAspectRatio): { width: number; height: number } {
   return ratio === '9:16' ? { width: 1080, height: 1920 } : { width: 1920, height: 1080 }
@@ -477,12 +537,22 @@ export async function createVideo(params: CreateVideoParams): Promise<CreateAvat
     })
   }
 
-  const avatarId = params.avatarId ?? process.env.HEYGEN_AVATAR_ID
-  const voiceId = params.voiceId ?? process.env.HEYGEN_VOICE_ID
+  let avatarId = params.avatarId ?? process.env.HEYGEN_AVATAR_ID
+  let voiceId = params.voiceId ?? process.env.HEYGEN_VOICE_ID
+
+  if (!avatarId || !voiceId) {
+    try {
+      const { getHeyGenDefaults } = await import('./heygen-config')
+      const defaults = await getHeyGenDefaults()
+      if (!avatarId && defaults.avatarId) avatarId = defaults.avatarId
+      if (!voiceId && defaults.voiceId) voiceId = defaults.voiceId
+    } catch { /* DB not available; rely on env vars */ }
+  }
+
   if (!avatarId || !voiceId) {
     return {
       videoId: null,
-      error: 'avatarId and voiceId are required when not using template (or set HEYGEN_AVATAR_ID, HEYGEN_VOICE_ID)',
+      error: 'avatarId and voiceId are required when not using template. Set defaults via Admin → Video Generation → Settings, or set HEYGEN_AVATAR_ID / HEYGEN_VOICE_ID env vars.',
     }
   }
 
