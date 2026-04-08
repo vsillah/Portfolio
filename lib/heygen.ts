@@ -33,6 +33,7 @@ export interface VideoStatusResult {
   videoId: string | null
   status: string | null
   videoUrl: string | null
+  videoShareUrl: string | null
   thumbnailUrl: string | null
   duration?: number | null
   error: string | null
@@ -597,7 +598,7 @@ export async function createVideo(params: CreateVideoParams): Promise<CreateAvat
 export async function getVideoStatus(videoId: string): Promise<VideoStatusResult> {
   const apiKey = process.env.HEYGEN_API_KEY
   if (!apiKey) {
-    return { videoId, status: null, videoUrl: null, thumbnailUrl: null, error: 'HEYGEN_API_KEY is not configured' }
+    return { videoId, status: null, videoUrl: null, videoShareUrl: null, thumbnailUrl: null, error: 'HEYGEN_API_KEY is not configured' }
   }
 
   const res = await fetch(`${HEYGEN_API_BASE}/v1/video_status.get?video_id=${encodeURIComponent(videoId)}`, {
@@ -611,6 +612,7 @@ export async function getVideoStatus(videoId: string): Promise<VideoStatusResult
       video_id?: string
       status?: string
       video_url?: string
+      video_url_caption?: string
       thumbnail_url?: string
       duration?: number
       error_details?: unknown
@@ -622,6 +624,7 @@ export async function getVideoStatus(videoId: string): Promise<VideoStatusResult
       videoId,
       status: null,
       videoUrl: null,
+      videoShareUrl: null,
       thumbnailUrl: null,
       error: json.error ?? `HTTP ${res.status}`,
     }
@@ -631,6 +634,7 @@ export async function getVideoStatus(videoId: string): Promise<VideoStatusResult
       videoId,
       status: null,
       videoUrl: null,
+      videoShareUrl: null,
       thumbnailUrl: null,
       error: json.error,
       errorDetails: json.data?.error_details,
@@ -642,6 +646,7 @@ export async function getVideoStatus(videoId: string): Promise<VideoStatusResult
     videoId: data?.video_id ?? videoId,
     status: data?.status ?? null,
     videoUrl: data?.video_url ?? null,
+    videoShareUrl: null,
     thumbnailUrl: data?.thumbnail_url ?? null,
     duration: data?.duration ?? null,
     error: null,

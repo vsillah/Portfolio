@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
-import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, Upload, File, X, Video as VideoIcon } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, Upload, File, X, Video as VideoIcon, Play, RefreshCw, Loader2, ExternalLink } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
 import { getCurrentSession } from '@/lib/auth'
@@ -20,6 +20,7 @@ interface Video {
   file_path: string | null
   file_type: string | null
   file_size: number | null
+  video_generation_job_id: string | null
   created_at: string
   updated_at: string
 }
@@ -45,6 +46,8 @@ export default function VideosManagementPage() {
     file_size: number
     file_name: string
   } | null>(null)
+  const [previewVideo, setPreviewVideo] = useState<Video | null>(null)
+  const [refreshingUrl, setRefreshingUrl] = useState(false)
 
   useEffect(() => {
     fetchVideos()
@@ -265,6 +268,31 @@ export default function VideosManagementPage() {
 
   const handleRemoveFile = () => {
     setUploadedFile(null)
+  }
+
+  const isHeyGenUrl = (url: string | null) => url?.includes('heygen.ai') ?? false
+
+  const refreshVideoUrl = async (video: Video) => {
+    if (!video.video_generation_job_id) return
+    setRefreshingUrl(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch('/api/admin/videos/refresh-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ videoId: video.id }),
+      })
+      const data = await res.json()
+      if (data.videoUrl) {
+        setPreviewVideo(prev => prev && prev.id === video.id ? { ...prev, video_url: data.videoUrl } : prev)
+        fetchVideos()
+      }
+    } catch { /* ignore */ }
+    finally { setRefreshingUrl(false) }
   }
 
   const handleEdit = (video: Video) => {
@@ -541,9 +569,9 @@ export default function VideosManagementPage() {
                       )}
                       {video.video_url && (
                         <>
-                          <a href={video.video_url} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300">
-                            Watch Video
-                          </a>
+                          <button onClick={() => setPreviewVideo(video)} className="text-blue-400 hover:text-blue-300 flex items-center gap-1">
+                            <Play size={14} /> Watch Video
+                          </button>
                           <span>•</span>
                         </>
                       )}
@@ -602,6 +630,88 @@ export default function VideosManagementPage() {
           )}
         </div>
       </div>
+
+      {/* ── Video Preview Modal ── */}
+      <AnimatePresence>
+        {previewVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            onClick={() => setPreviewVideo(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-3xl mx-4 rounded-xl overflow-hidden border border-gray-800 bg-gray-900 shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-medium text-white truncate">{previewVideo.title}</h3>
+                  {previewVideo.description && (
+                    <p className="text-[10px] text-gray-500 mt-0.5 truncate">{previewVideo.description}</p>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 shrink-0 ml-3">
+                  {previewVideo.video_generation_job_id && isHeyGenUrl(previewVideo.video_url) && (
+                    <button
+                      onClick={() => refreshVideoUrl(previewVideo)}
+                      disabled={refreshingUrl}
+                      className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 disabled:opacity-50"
+                      title="Refresh video URL (HeyGen URLs expire after 7 days)"
+                    >
+                      {refreshingUrl ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+                      Refresh URL
+                    </button>
+                  )}
+                  {previewVideo.video_url && (
+                    <a
+                      href={previewVideo.video_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                    >
+                      <ExternalLink size={12} /> Open URL
+                    </a>
+                  )}
+                  <button onClick={() => setPreviewVideo(null)} className="p-1 rounded hover:bg-gray-800 text-gray-400 hover:text-white">
+                    <X size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="bg-black flex items-center justify-center">
+                {previewVideo.video_url ? (
+                  <video
+                    key={previewVideo.video_url}
+                    src={previewVideo.video_url}
+                    controls
+                    autoPlay
+                    className="w-full max-h-[70vh]"
+                    onError={(e) => {
+                      const target = e.currentTarget
+                      if (!target.dataset.retried && previewVideo.video_generation_job_id) {
+                        target.dataset.retried = '1'
+                        refreshVideoUrl(previewVideo)
+                      }
+                    }}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <div className="flex flex-col items-center gap-3 py-16 text-gray-500">
+                    <VideoIcon size={40} />
+                    <p className="text-sm">No video URL available</p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </ProtectedRoute>
   )
 }

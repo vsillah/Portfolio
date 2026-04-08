@@ -105,6 +105,7 @@ export async function POST(request: NextRequest) {
     }
     if (eventData?.url) update.video_url = eventData.url
     if (eventData?.thumbnail_url) update.thumbnail_url = eventData.thumbnail_url
+    if (eventData?.video_share_page_url) update.video_share_url = eventData.video_share_page_url
     if (!isSuccess && eventData?.error_message) update.error_message = eventData.error_message
 
     const { error: updateErr } = await supabaseAdmin

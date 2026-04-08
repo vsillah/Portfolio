@@ -28,7 +28,8 @@ import {
 import Link from 'next/link';
 import ExternalInputCard, { type ReportContextPreview } from '@/components/admin/ExternalInputCard';
 import AssetPicker, { type AssetPickerItem } from '@/components/admin/AssetPicker';
-import HeyGenSyncLastRunSummary, { type HeyGenLastSyncPayload } from '@/components/admin/HeyGenSyncLastRunSummary';
+import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip';
+import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -136,9 +137,7 @@ function GammaReportsContent() {
   const [configAvatars, setConfigAvatars] = useState<AssetPickerItem[]>([]);
   const [configVoices, setConfigVoices] = useState<AssetPickerItem[]>([]);
   const [configLoading, setConfigLoading] = useState(true);
-  const [configSyncing, setConfigSyncing] = useState(false);
   const [configMessage, setConfigMessage] = useState<string | null>(null);
-  const [heygenLastSync, setHeygenLastSync] = useState<HeyGenLastSyncPayload | null>(null);
   const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(null);
   const [selectedVoiceId, setSelectedVoiceId] = useState<string | null>(null);
 
@@ -177,32 +176,37 @@ function GammaReportsContent() {
         const defVoice = data.defaults?.voiceId as string | null | undefined;
         setSelectedAvatarId((prev) => prev ?? defAvatar ?? null);
         setSelectedVoiceId((prev) => prev ?? defVoice ?? null);
-        setHeygenLastSync(data.lastSync ?? null);
       }
     } catch { /* non-critical */ }
     setConfigLoading(false);
   }, [getToken]);
 
-  const syncHeyGenConfig = useCallback(async () => {
-    const token = await getToken();
-    if (!token) return;
-    setConfigSyncing(true);
+  const heygenWorkflow = useWorkflowStatus(
+    { apiBase: '/api/admin/video-generation/workflow-status', workflowId: 'vgen_heygen' },
+    () => { void fetchHeyGenConfig() },
+  );
+
+  const triggerHeyGenSync = async () => {
+    heygenWorkflow.onTriggerStarted();
     setConfigMessage(null);
     try {
-      const res = await fetch('/api/admin/video-generation/heygen-config', {
+      const token = await getToken();
+      if (!token) {
+        heygenWorkflow.refetch();
+        return;
+      }
+      await fetch('/api/admin/video-generation/heygen-config', {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'sync' }),
       });
-      await res.json().catch(() => ({}));
-      setConfigMessage(null);
       await fetchHeyGenConfig();
     } catch {
       setConfigMessage('Sync failed — check network or try again.');
     } finally {
-      setConfigSyncing(false);
+      heygenWorkflow.refetch();
     }
-  }, [getToken, fetchHeyGenConfig]);
+  };
 
   useEffect(() => {
     if (!session) return;
@@ -725,19 +729,22 @@ function GammaReportsContent() {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={() => syncHeyGenConfig()}
-              disabled={configSyncing || configLoading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {configSyncing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCw className="w-3.5 h-3.5" />}
-              Sync from HeyGen
-            </button>
+            <ExtractionStatusChip
+              label="HeyGen"
+              state={heygenWorkflow.state}
+              currentRun={heygenWorkflow.currentRun}
+              recentRuns={heygenWorkflow.recentRuns}
+              elapsedMs={heygenWorkflow.elapsedMs}
+              isDrawerOpen={heygenWorkflow.isDrawerOpen}
+              isHistoryOpen={heygenWorkflow.isHistoryOpen}
+              toggleDrawer={heygenWorkflow.toggleDrawer}
+              toggleHistory={heygenWorkflow.toggleHistory}
+              markRunFailed={heygenWorkflow.markRunFailed}
+              onRetry={triggerHeyGenSync}
+            />
             {configMessage && <span className="text-[10px] text-red-400/90">{configMessage}</span>}
             {configLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-500" />}
           </div>
-          <HeyGenSyncLastRunSummary lastSync={heygenLastSync} className="border-gray-700/80 bg-gray-900/40" />
           {configLoading ? (
             <div className="flex items-center gap-2 text-xs text-gray-500">
               <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading HeyGen config...
@@ -757,7 +764,7 @@ function GammaReportsContent() {
                 />
               ) : (
                 <p className="text-xs text-gray-500">
-                  No avatars in the database yet. Use <strong className="text-gray-400">Sync from HeyGen</strong> above to pull avatars from your HeyGen account.
+                  No avatars in the database yet. Use the <strong className="text-gray-400">HeyGen</strong> status chip above to sync avatars from your HeyGen account.
                 </p>
               )}
               {configVoices.length > 0 ? (
@@ -771,7 +778,7 @@ function GammaReportsContent() {
                 />
               ) : (
                 <p className="text-xs text-gray-500">
-                  No voices in the database yet. Use <strong className="text-gray-400">Sync from HeyGen</strong> above to pull voices from your HeyGen account.
+                  No voices in the database yet. Use the <strong className="text-gray-400">HeyGen</strong> status chip above to sync voices from your HeyGen account.
                 </p>
               )}
             </>

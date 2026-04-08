@@ -63,6 +63,7 @@ interface VideoJob {
   heygen_status: string | null
   error_message: string | null
   video_url: string | null
+  video_share_url: string | null
   video_record_id: number | null
   broll_asset_ids: string[] | null
   created_at: string
@@ -1136,11 +1137,32 @@ export default function VideoGenerationPage() {
 
   /* ───────────── Review: Job actions ───────────── */
 
+  const [previewJob, setPreviewJob] = useState<VideoJob | null>(null)
+  const [refreshingUrl, setRefreshingUrl] = useState<string | null>(null)
+
   const refreshJobStatus = async (jobId: string) => {
     const token = await getToken()
     if (!token) return
     try { await fetch(`/api/admin/video-generation/status?jobId=${jobId}`, { headers: { Authorization: `Bearer ${token}` } }); fetchJobs() }
     catch { /* ignore */ }
+  }
+
+  const refreshVideoUrl = async (job: VideoJob) => {
+    if (!job.heygen_video_id) return
+    setRefreshingUrl(job.id)
+    const token = await getToken()
+    if (!token) { setRefreshingUrl(null); return }
+    try {
+      const res = await fetch(`/api/admin/video-generation/status?jobId=${job.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      const data = await res.json()
+      if (data.videoUrl) {
+        setPreviewJob(prev => prev && prev.id === job.id ? { ...prev, video_url: data.videoUrl } : prev)
+      }
+      fetchJobs()
+    } catch { /* ignore */ }
+    finally { setRefreshingUrl(null) }
   }
 
   /* ───────────── Derived data ───────────── */
@@ -2434,9 +2456,9 @@ export default function VideoGenerationPage() {
                         <>
                           <span className="flex items-center gap-1 text-[10px] text-emerald-400"><CheckCircle className="w-3 h-3" /> Done</span>
                           {job.video_url && (
-                            <a href={job.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-[10px] text-radiant-gold hover:text-gold-light">
-                              <ExternalLink className="w-3 h-3" /> View
-                            </a>
+                            <button onClick={() => setPreviewJob(job)} className="flex items-center gap-1 text-[10px] text-radiant-gold hover:text-gold-light">
+                              <Play className="w-3 h-3" /> View
+                            </button>
                           )}
                         </>
                       )}
@@ -2470,6 +2492,101 @@ export default function VideoGenerationPage() {
 
         </div>
       </div>
+
+      {/* ── Video Preview Modal ── */}
+      <AnimatePresence>
+        {previewJob && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+            onClick={() => setPreviewJob(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-3xl mx-4 rounded-xl overflow-hidden border border-silicon-slate bg-background shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b border-silicon-slate">
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-medium text-foreground truncate">
+                    {previewJob.script_text?.slice(0, 80) ?? 'Video preview'}
+                  </h3>
+                  <p className="text-[10px] text-gray-500 mt-0.5">{previewJob.channel} · {previewJob.aspect_ratio}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0 ml-3">
+                  <button
+                    onClick={() => refreshVideoUrl(previewJob)}
+                    disabled={refreshingUrl === previewJob.id}
+                    className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-radiant-gold/10 text-radiant-gold hover:bg-radiant-gold/20 disabled:opacity-50"
+                    title="Refresh video URL (HeyGen URLs expire after 7 days)"
+                  >
+                    {refreshingUrl === previewJob.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <RefreshCw className="w-3 h-3" />}
+                    Refresh URL
+                  </button>
+                  {previewJob.video_share_url && (
+                    <a
+                      href={previewJob.video_share_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-blue-500/10 text-blue-400 hover:bg-blue-500/20"
+                    >
+                      <ExternalLink className="w-3 h-3" /> Share Page
+                    </a>
+                  )}
+                  {previewJob.video_url && (
+                    <a
+                      href={previewJob.video_url}
+                      download
+                      className="flex items-center gap-1 text-[10px] px-2 py-1 rounded bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                    >
+                      <ExternalLink className="w-3 h-3" /> Download
+                    </a>
+                  )}
+                  <button onClick={() => setPreviewJob(null)} className="p-1 rounded hover:bg-silicon-slate text-gray-400 hover:text-white">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <div className="bg-black flex items-center justify-center">
+                {previewJob.video_url ? (
+                  <video
+                    key={previewJob.video_url}
+                    src={previewJob.video_url}
+                    controls
+                    autoPlay
+                    className="w-full max-h-[70vh]"
+                    onError={(e) => {
+                      const target = e.currentTarget
+                      if (!target.dataset.retried) {
+                        target.dataset.retried = '1'
+                        refreshVideoUrl(previewJob)
+                      }
+                    }}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                ) : (
+                  <div className="flex flex-col items-center gap-3 py-16 text-gray-500">
+                    <Video className="w-10 h-10" />
+                    <p className="text-sm">No video URL available</p>
+                    <button
+                      onClick={() => refreshVideoUrl(previewJob)}
+                      className="flex items-center gap-1 text-xs text-radiant-gold hover:text-gold-light"
+                    >
+                      <RefreshCw className="w-3 h-3" /> Try refreshing from HeyGen
+                    </button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </ProtectedRoute>
   )
 }

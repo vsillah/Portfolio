@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
 
     const { data: job, error: jobErr } = await supabaseAdmin
       .from('video_generation_jobs')
-      .select('id, heygen_video_id, heygen_status, video_url, video_record_id, script_text, channel, aspect_ratio')
+      .select('id, heygen_video_id, heygen_status, video_url, video_share_url, video_record_id, script_text, channel, aspect_ratio')
       .eq('id', jobId)
       .single()
 
@@ -93,6 +93,7 @@ export async function GET(request: NextRequest) {
       heygenVideoId: heygenId,
       status: newStatus,
       videoUrl: newVideoUrl,
+      videoShareUrl: job.video_share_url,
       videoRecordId,
       thumbnailUrl: statusResult.thumbnailUrl,
       duration: statusResult.duration,
