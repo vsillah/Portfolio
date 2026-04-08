@@ -38,6 +38,7 @@ import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import Pagination from '@/components/admin/Pagination'
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
 import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus'
+import { useDevTunnel } from '@/lib/hooks/useDevTunnel'
 import { getCurrentSession } from '@/lib/auth'
 import { getIndustryDisplayName, INDUSTRY_SLUGS } from '@/lib/constants/industry'
 
@@ -159,6 +160,7 @@ export default function ValueEvidencePage() {
   const [focusPainPointId, setFocusPainPointId] = useState<string | null>(null)
   const [focusCalculationPainPointId, setFocusCalculationPainPointId] = useState<string | null>(null)
   const [triggerAllLoading, setTriggerAllLoading] = useState(false)
+  const tunnel = useDevTunnel()
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true)
@@ -211,6 +213,13 @@ export default function ValueEvidencePage() {
     statusHook: ReturnType<typeof useWorkflowStatus>,
   ) => {
     try {
+      if (tunnel.isDev) {
+        const tunnelOk = await tunnel.ensureTunnel()
+        if (!tunnelOk) {
+          console.warn('[VEP] Tunnel not available — triggering anyway, but callback may not reach dev')
+        }
+      }
+
       const session = await getCurrentSession()
       if (!session?.access_token) return
       const res = await fetch('/api/admin/value-evidence/trigger', {
@@ -402,6 +411,28 @@ export default function ValueEvidencePage() {
                   markRunFailed={vep002Status.markRunFailed}
                   onRetry={() => triggerWorkflow('social_listening', vep002Status)}
                 />
+                {tunnel.isDev && (
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                      tunnel.status === 'connected'
+                        ? 'bg-green-500/20 text-green-400'
+                        : tunnel.status === 'connecting' || tunnel.status === 'checking'
+                          ? 'bg-yellow-500/20 text-yellow-400'
+                          : 'bg-red-500/20 text-red-400'
+                    }`}
+                    title={tunnel.message || `Tunnel: ${tunnel.status}`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      tunnel.status === 'connected' ? 'bg-green-400' :
+                      tunnel.status === 'connecting' || tunnel.status === 'checking' ? 'bg-yellow-400 animate-pulse' :
+                      'bg-red-400'
+                    }`} />
+                    {tunnel.status === 'connected' ? 'Tunnel' :
+                     tunnel.status === 'connecting' ? 'Connecting...' :
+                     tunnel.status === 'checking' ? 'Checking...' :
+                     'Tunnel Off'}
+                  </span>
+                )}
               </div>
 
               {/* 2-column layout for lists */}
