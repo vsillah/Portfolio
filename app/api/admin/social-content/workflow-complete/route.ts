@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       error_message?: string
     }
 
+
     const status = completionStatus === 'failed' ? 'failed' : 'success'
 
     let run: { id: string } | null = null

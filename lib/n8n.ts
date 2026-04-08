@@ -1453,6 +1453,7 @@ export async function triggerSocialContentExtraction(options?: {
       triggered_at: new Date().toISOString(),
       workflow: 'WF-SOC-001',
       action: 'extract_social_content',
+      callbackBaseUrl: process.env.N8N_CALLBACK_BASE_URL || process.env.PORTFOLIO_BASE_URL || 'https://amadutown.com',
     }
     if (options?.runId) {
       body.run_id = options.runId
