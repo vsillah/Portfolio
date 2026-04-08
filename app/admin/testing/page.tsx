@@ -133,6 +133,10 @@ const SCENARIOS: ScenarioMeta[] = [
   { id: 'seed_onboarding_project', name: 'Seed: Onboarding Project', tags: ['seed', 'populate-demo'], journeyStage: 'client' },
   { id: 'seed_kickoff_project', name: 'Seed: Kickoff Project', tags: ['seed', 'populate-demo'], journeyStage: 'client' },
   { id: 'seed_discovery_sql_compat', name: 'Seed: Discovery (test-discovery@)', tags: ['seed', 'populate-demo'], journeyStage: 'lead' },
+  // Chatbot question bank scenarios
+  { id: 'chatbot_question_bank_stratified', name: 'Chatbot Questions (Stratified)', tags: ['chat', 'chatbot-questions'], journeyStage: 'prospect' },
+  { id: 'chatbot_question_bank_boundary', name: 'Chatbot Questions (Boundary)', tags: ['chat', 'chatbot-questions'], journeyStage: 'prospect' },
+  { id: 'chatbot_question_bank_diagnostic', name: 'Chatbot Questions (Diagnostic)', tags: ['chat', 'chatbot-questions'], journeyStage: 'prospect' },
 ]
 
 const SCENARIO_PRESETS = [
@@ -140,6 +144,7 @@ const SCENARIO_PRESETS = [
   { id: 'journey', label: 'Client Journey' },
   { id: 'critical', label: 'Critical' },
   { id: 'smoke', label: 'Smoke' },
+  { id: 'chatbot_questions', label: 'Chatbot Questions' },
   { id: 'synthetic', label: 'Synthetic Pipeline' },
   { id: 'credential_smoke', label: 'Credential Smoke' },
   { id: 'populate_demo', label: 'Populate Demo Data' },
@@ -365,6 +370,13 @@ export default function TestingDashboard() {
         break
       case 'credential_smoke':
         setSelectedScenarios(['credential_rotation_smoke'])
+        break
+      case 'chatbot_questions':
+        setSelectedScenarios([
+          'chatbot_question_bank_stratified',
+          'chatbot_question_bank_boundary',
+          'chatbot_question_bank_diagnostic',
+        ])
         break
       case 'populate_demo':
         setSelectedScenarios([
@@ -963,6 +975,7 @@ export default function TestingDashboard() {
                 </div>
                 <p className="text-gray-400 text-xs mt-1">
                   Client Journey runs scenarios across Prospect → Lead → Client. Populate Demo Data creates leads via E2E (no SQL).
+                  {' '}<a href="/admin/testing/chatbot-questions" className="text-amber-400 hover:text-amber-300 underline">Manage chatbot test questions →</a>
                 </p>
               </div>
 

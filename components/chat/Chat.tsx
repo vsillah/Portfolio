@@ -342,7 +342,6 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       const requestPayload = {
         message: content,
         sessionId,
-        userId: authUser?.id || undefined,
         visitorEmail: effectiveEmail,
         visitorName: effectiveName,
         diagnosticMode: isDiagnosticMode || shouldStartDiagnostic,
@@ -351,9 +350,16 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       }
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), 60_000)
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (authUser) {
+        const { data: { session: authSession } } = await supabase.auth.getSession()
+        if (authSession?.access_token) {
+          headers['Authorization'] = `Bearer ${authSession.access_token}`
+        }
+      }
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(requestPayload),
         signal: controller.signal,
       })
@@ -476,7 +482,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
       sendingRef.current = false
       setIsLoading(false)
     }
-  }, [sessionId, isLoading, effectiveEmail, effectiveName, authUser?.id, isDiagnosticMode, diagnosticAuditId, diagnosticProgress])
+  }, [sessionId, isLoading, effectiveEmail, effectiveName, authUser, isDiagnosticMode, diagnosticAuditId, diagnosticProgress])
 
   // Retry a failed message
   const retryMessage = useCallback((messageId: string) => {

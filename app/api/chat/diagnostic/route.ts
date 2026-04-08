@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ZodError } from 'zod'
 import { getDiagnosticAuditBySession, getDiagnosticAudit } from '@/lib/diagnostic'
+import { diagnosticGetSchema, zodErrorResponse } from '@/lib/chat-validation'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,15 +12,11 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const sessionId = searchParams.get('sessionId')
-    const auditId = searchParams.get('auditId')
-
-    if (!sessionId && !auditId) {
-      return NextResponse.json(
-        { error: 'sessionId or auditId is required' },
-        { status: 400 }
-      )
-    }
+    const params = diagnosticGetSchema.parse({
+      sessionId: searchParams.get('sessionId') || undefined,
+      auditId: searchParams.get('auditId') || undefined,
+    })
+    const { sessionId, auditId } = params
 
     let audit
 
@@ -88,6 +86,10 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
+    if (error instanceof ZodError) {
+      const { error: msg, detail, status } = zodErrorResponse(error)
+      return NextResponse.json({ error: msg, detail }, { status })
+    }
     console.error('Diagnostic API GET error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch diagnostic audit' },
@@ -103,14 +105,8 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
-    const { auditId, status, diagnosticData, currentCategory, progress } = body
-
-    if (!auditId) {
-      return NextResponse.json(
-        { error: 'auditId is required' },
-        { status: 400 }
-      )
-    }
+    const { diagnosticPutSchema } = await import('@/lib/chat-validation')
+    const { auditId, status, diagnosticData, currentCategory, progress } = diagnosticPutSchema.parse(body)
 
     // Import here to avoid circular dependencies
     const { saveDiagnosticAudit } = await import('@/lib/diagnostic')
@@ -146,6 +142,10 @@ export async function PUT(request: NextRequest) {
       auditId: result.id,
     })
   } catch (error) {
+    if (error instanceof ZodError) {
+      const { error: msg, detail, status } = zodErrorResponse(error)
+      return NextResponse.json({ error: msg, detail }, { status })
+    }
     console.error('Diagnostic API PUT error:', error)
     return NextResponse.json(
       { error: 'Failed to update diagnostic audit' },

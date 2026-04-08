@@ -15,6 +15,13 @@ import {
   MOCK_MEETING_COMPLETE_PAYLOAD,
   MOCK_DISCOVERY_SESSION_PAYLOAD,
 } from './mock-payloads'
+import {
+  getStratifiedSample,
+  getRandomQuestionSample,
+  getDiagnosticTriggerQuestions,
+  getBoundaryQuestions,
+  CHATBOT_TEST_QUESTIONS,
+} from './chatbot-questions'
 
 // ============================================================================
 // Scenario Definitions
@@ -989,6 +996,77 @@ export const POPULATE_DEMO_SCENARIOS: TestScenario[] = [
 ]
 
 // ============================================================================
+// Chatbot Question Bank Scenario
+// ============================================================================
+
+/**
+ * Build a scenario that sends a batch of chatbot questions through the chat API.
+ * Each question becomes a chat step with optional keyword validation.
+ *
+ * @param mode - 'stratified' picks N per category, 'random' picks N total,
+ *               'diagnostic' picks only diagnostic triggers, 'boundary' picks edge cases,
+ *               'all' sends every question
+ * @param count - how many questions (ignored for 'all', 'diagnostic', 'boundary')
+ */
+export function buildChatbotQuestionBankScenario(
+  mode: 'stratified' | 'random' | 'diagnostic' | 'boundary' | 'all' = 'stratified',
+  count = 2
+): TestScenario {
+  const questions =
+    mode === 'all' ? CHATBOT_TEST_QUESTIONS :
+    mode === 'diagnostic' ? getDiagnosticTriggerQuestions() :
+    mode === 'boundary' ? getBoundaryQuestions() :
+    mode === 'stratified' ? getStratifiedSample(count) :
+    getRandomQuestionSample(count)
+
+  const chatSteps: ScenarioStep[] = questions.map(q => ({
+    type: 'chat' as const,
+    intent: q.category,
+    message: q.question,
+    expectedResponseContains: q.expectedKeywords,
+    maxTurns: 1,
+  }))
+
+  return {
+    id: `chatbot_question_bank_${mode}`,
+    name: `Chatbot Question Bank (${mode})`,
+    description: `Send ${questions.length} end-user questions through the chat and validate responses. Mode: ${mode}.`,
+    journeyStage: 'prospect',
+    steps: [
+      { type: 'navigate', path: '/', waitForSelector: '[data-section="hero"]' },
+      { type: 'browse', section: 'contact', duration: 1000, interactions: ['scroll'] },
+      { type: 'chat', intent: 'greeting', message: 'Hi there!' },
+      { type: 'delay', duration: 1000 },
+      ...chatSteps,
+      { type: 'screenshot', name: `chatbot-questions-${mode}-complete` },
+    ],
+    variability: {
+      skipProbability: {},
+      delayRange: [500, 1500],
+      responseVariation: false,
+    },
+    expectedOutcomes: {
+      mustComplete: ['chat'],
+      mustNotError: ['navigate', 'chat'],
+      dataValidation: [
+        { table: 'chat_messages', field: 'id', condition: 'exists' },
+      ],
+    },
+    estimatedDuration: questions.length * 5000 + 10000,
+    tags: ['chat', 'chatbot-questions', `chatbot-${mode}`],
+  }
+}
+
+/** Pre-built: 2 questions per category (stratified) */
+export const chatbotQuestionBankStratifiedScenario = buildChatbotQuestionBankScenario('stratified', 2)
+
+/** Pre-built: boundary / edge-case questions only */
+export const chatbotQuestionBankBoundaryScenario = buildChatbotQuestionBankScenario('boundary')
+
+/** Pre-built: diagnostic trigger questions only */
+export const chatbotQuestionBankDiagnosticScenario = buildChatbotQuestionBankScenario('diagnostic')
+
+// ============================================================================
 // Scenario Collections
 // ============================================================================
 
@@ -1007,6 +1085,9 @@ export const ALL_SCENARIOS: TestScenario[] = [
   meetingPipelineScenario,
   discoveryToProposalScenario,
   credentialRotationSmokeScenario,
+  chatbotQuestionBankStratifiedScenario,
+  chatbotQuestionBankBoundaryScenario,
+  chatbotQuestionBankDiagnosticScenario,
 ]
 
 export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
@@ -1024,6 +1105,9 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   meeting_pipeline_synthetic: meetingPipelineScenario,
   discovery_to_proposal_synthetic: discoveryToProposalScenario,
   credential_rotation_smoke: credentialRotationSmokeScenario,
+  chatbot_question_bank_stratified: chatbotQuestionBankStratifiedScenario,
+  chatbot_question_bank_boundary: chatbotQuestionBankBoundaryScenario,
+  chatbot_question_bank_diagnostic: chatbotQuestionBankDiagnosticScenario,
   // Populate demo scenarios
   seed_warm_leads: seedWarmLeadsScenario,
   seed_cold_lead: seedColdLeadScenario,
@@ -1060,7 +1144,10 @@ export const SMOKE_TEST_SCENARIOS: TestScenario[] = [
 export const CHAT_SCENARIOS: TestScenario[] = [
   chatToDiagnosticScenario,
   fullFunnelScenario,
-  supportEscalationScenario
+  supportEscalationScenario,
+  chatbotQuestionBankStratifiedScenario,
+  chatbotQuestionBankBoundaryScenario,
+  chatbotQuestionBankDiagnosticScenario,
 ]
 
 /**

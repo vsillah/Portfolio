@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ZodError, z } from 'zod'
 import { fetchConversationContext } from '@/lib/chat-context'
+import { sessionIdParamSchema, zodErrorResponse } from '@/lib/chat-validation'
 
 export const dynamic = 'force-dynamic'
+
+const contextParamsSchema = sessionIdParamSchema.extend({
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+})
 
 /**
  * Chat Context API
@@ -12,24 +18,18 @@ export const dynamic = 'force-dynamic'
  * GET /api/chat/context
  * 
  * Query params:
- * - sessionId (required): The chat session ID
- * - limit (optional): Max messages to return (default: 20)
+ * - sessionId (required): The chat session ID (UUID)
+ * - limit (optional): Max messages to return (default: 20, max: 100)
  */
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const sessionId = searchParams.get('sessionId')
-    const limit = parseInt(searchParams.get('limit') || '20', 10)
+    const params = contextParamsSchema.parse({
+      sessionId: searchParams.get('sessionId') || undefined,
+      limit: searchParams.get('limit') || undefined,
+    })
 
-    if (!sessionId) {
-      return NextResponse.json(
-        { error: 'Session ID is required' },
-        { status: 400 }
-      )
-    }
-
-    // Fetch conversation context using the utility function
-    const context = await fetchConversationContext(sessionId, limit)
+    const context = await fetchConversationContext(params.sessionId, params.limit)
 
     if (!context) {
       return NextResponse.json(
@@ -40,6 +40,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(context)
   } catch (error) {
+    if (error instanceof ZodError) {
+      const { error: msg, detail, status } = zodErrorResponse(error)
+      return NextResponse.json({ error: msg, detail }, { status })
+    }
     console.error('Context API error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch conversation context' },

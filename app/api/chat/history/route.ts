@@ -1,19 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ZodError } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase'
+import { sessionIdParamSchema, zodErrorResponse } from '@/lib/chat-validation'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const sessionId = searchParams.get('sessionId')
-
-    if (!sessionId) {
-      return NextResponse.json(
-        { error: 'Session ID is required' },
-        { status: 400 }
-      )
-    }
+    const { sessionId } = sessionIdParamSchema.parse({
+      sessionId: searchParams.get('sessionId') || undefined,
+    })
 
     // Get session info
     const { data: session, error: sessionError } = await supabaseAdmin
@@ -56,6 +53,10 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
+    if (error instanceof ZodError) {
+      const { error: msg, detail, status } = zodErrorResponse(error)
+      return NextResponse.json({ error: msg, detail }, { status })
+    }
     console.error('Chat history API error:', error)
     return NextResponse.json(
       { error: 'Failed to fetch chat history' },
@@ -64,18 +65,12 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Optional: Clear chat history
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const sessionId = searchParams.get('sessionId')
-
-    if (!sessionId) {
-      return NextResponse.json(
-        { error: 'Session ID is required' },
-        { status: 400 }
-      )
-    }
+    const { sessionId } = sessionIdParamSchema.parse({
+      sessionId: searchParams.get('sessionId') || undefined,
+    })
 
     // Delete messages first (due to foreign key)
     await supabaseAdmin
@@ -91,6 +86,10 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
+    if (error instanceof ZodError) {
+      const { error: msg, detail, status } = zodErrorResponse(error)
+      return NextResponse.json({ error: msg, detail }, { status })
+    }
     console.error('Error clearing chat history:', error)
     return NextResponse.json(
       { error: 'Failed to clear chat history' },

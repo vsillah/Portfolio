@@ -1,28 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ZodError } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase'
 import { notifyMeetingBooked, notifyChatTranscript } from '@/lib/notifications'
+import { sendEmailSchema, zodErrorResponse } from '@/lib/chat-validation'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { to, templateType, data, sessionId } = body
-
-    if (!to || !templateType) {
-      return NextResponse.json(
-        { error: 'Missing required fields: to, templateType' },
-        { status: 400 }
-      )
-    }
-
-    // Require sessionId — prevents unauthenticated email relay
-    if (!sessionId) {
-      return NextResponse.json(
-        { error: 'Session ID is required' },
-        { status: 400 }
-      )
-    }
+    const parsed = sendEmailSchema.parse(body)
+    const { to, templateType, sessionId } = parsed
+    const data = parsed.data as Record<string, string | undefined> | undefined
 
     const { data: session } = await supabaseAdmin
       .from('chat_sessions')
@@ -98,6 +87,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (error) {
+    if (error instanceof ZodError) {
+      const { error: msg, detail, status } = zodErrorResponse(error)
+      return NextResponse.json({ error: msg, detail }, { status })
+    }
     console.error('Send email API error:', error)
     return NextResponse.json(
       { error: 'Failed to send email. Please try again.' },

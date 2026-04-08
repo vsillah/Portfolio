@@ -14,8 +14,11 @@ const TRANSCRIPT_PREVIEW_LEN = 200
  *
  * Query params:
  *   - unlinked_only: if "true", only meetings with no contact_submission_id and no client_project_id
+ *   - attributed_only: if "true", only meetings that have contact_submission_id or client_project_id
  *   - contact_submission_id: filter to meetings for this lead (used by "View source transcripts" from diagnostic)
  *   - q: search text (matches meeting_type, transcript snippet)
+ *   - date_from: filter meetings on or after this date (YYYY-MM-DD)
+ *   - date_to: filter meetings on or before this date (YYYY-MM-DD)
  *   - limit: max results (default 50, max 100)
  *   - offset: pagination offset
  */
@@ -27,13 +30,26 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = new URL(request.url)
   const unlinkedOnly = searchParams.get('unlinked_only') === 'true'
+  const attributedOnly = searchParams.get('attributed_only') === 'true'
   const contactIdParam = searchParams.get('contact_submission_id')
   const contactSubmissionId = contactIdParam ? Number(contactIdParam) : undefined
   const q = (searchParams.get('q') || '').trim()
+  const dateFrom = searchParams.get('date_from') || ''
+  const dateTo = searchParams.get('date_to') || ''
   const limit = Math.min(Number(searchParams.get('limit') || 50), 100)
   const offset = Number(searchParams.get('offset') || 0) || 0
 
   try {
+    const statsPromise = Promise.all([
+      supabaseAdmin.from('meeting_records').select('id', { count: 'exact', head: true }),
+      supabaseAdmin.from('meeting_records').select('id', { count: 'exact', head: true })
+        .is('contact_submission_id', null).is('client_project_id', null),
+    ]).then(([allRes, unlinkedRes]) => ({
+      total: allRes.count ?? 0,
+      not_attributed: unlinkedRes.count ?? 0,
+      attributed: (allRes.count ?? 0) - (unlinkedRes.count ?? 0),
+    })).catch(() => ({ total: 0, not_attributed: 0, attributed: 0 }))
+
     let query = supabaseAdmin
       .from('meeting_records')
       .select(
@@ -47,12 +63,20 @@ export async function GET(request: NextRequest) {
       query = query.eq('contact_submission_id', contactSubmissionId)
     } else if (unlinkedOnly) {
       query = query.is('contact_submission_id', null).is('client_project_id', null)
+    } else if (attributedOnly) {
+      query = query.or('contact_submission_id.not.is.null,client_project_id.not.is.null')
     }
     if (q) {
       query = query.or(`meeting_type.ilike.%${q}%,transcript.ilike.%${q}%`)
     }
+    if (dateFrom) {
+      query = query.gte('meeting_date', dateFrom)
+    }
+    if (dateTo) {
+      query = query.lte('meeting_date', dateTo)
+    }
 
-    const { data: meetings, error, count } = await query
+    const [{ data: meetings, error, count }, stats] = await Promise.all([query, statsPromise])
 
     if (error) {
       console.error('[admin/meetings] Error:', error)
@@ -61,7 +85,7 @@ export async function GET(request: NextRequest) {
 
     const list = meetings || []
     if (list.length === 0) {
-      return NextResponse.json({ meetings: [], total: count ?? 0 })
+      return NextResponse.json({ meetings: [], total: count ?? 0, stats: stats ?? null })
     }
 
     type Row = (typeof list)[number]
@@ -109,7 +133,7 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ meetings: meetingsOut, total: count ?? 0 })
+    return NextResponse.json({ meetings: meetingsOut, total: count ?? 0, stats: stats ?? null })
   } catch (err) {
     console.error('[admin/meetings] Error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

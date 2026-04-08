@@ -1,8 +1,8 @@
 'use client'
 
-import { Fragment, useEffect, useState, useCallback } from 'react'
+import { Fragment, useEffect, useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import {
   Video,
   Loader2,
@@ -13,10 +13,18 @@ import {
   Building,
   FileText,
   Sparkles,
+  Search,
+  CheckSquare,
+  Square,
+  MinusSquare,
+  X,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import { adminCreateUrl } from '@/lib/admin-create-context'
+
+const CREATE_LEAD_SENTINEL = '__create_lead__'
 
 interface MeetingRow {
   id: string
@@ -47,6 +55,14 @@ interface ProjectOption {
   client_name: string | null
 }
 
+interface MeetingStats {
+  total: number
+  not_attributed: number
+  attributed: number
+}
+
+type AttributionFilter = 'all' | 'not_attributed' | 'attributed'
+
 export default function AdminMeetingsPage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -57,25 +73,53 @@ export default function AdminMeetingsPage() {
 
 function MeetingsContent() {
   const searchParams = useSearchParams()
+  const router = useRouter()
   const contactIdFromUrl = searchParams.get('contact_submission_id')
 
   const [meetings, setMeetings] = useState<MeetingRow[]>([])
   const [total, setTotal] = useState(0)
+  const [stats, setStats] = useState<MeetingStats>({ total: 0, not_attributed: 0, attributed: 0 })
   const [loading, setLoading] = useState(true)
-  const [unlinkedOnly, setUnlinkedOnly] = useState(!contactIdFromUrl)
+  const [attributionFilter, setAttributionFilter] = useState<AttributionFilter>(
+    contactIdFromUrl ? 'all' : 'not_attributed'
+  )
   const [search, setSearch] = useState('')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+
+  // Lead / project options (shared across bulk and row actions)
   const [leadOptions, setLeadOptions] = useState<LeadOption[]>([])
-  const [assigningId, setAssigningId] = useState<string | null>(null)
-  const [assignValue, setAssignValue] = useState('')
-  const [assigningInProgress, setAssigningInProgress] = useState(false)
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [buildAuditMode, setBuildAuditMode] = useState<'lead' | 'project'>('lead')
-  const [buildAuditLeadId, setBuildAuditLeadId] = useState('')
-  const [buildAuditProjectId, setBuildAuditProjectId] = useState('')
   const [projectOptions, setProjectOptions] = useState<ProjectOption[]>([])
+  const [optionsLoaded, setOptionsLoaded] = useState(false)
+
+  // Per-row action state ('attribute' or 'audit' inline form on a single row)
+  const [rowActionId, setRowActionId] = useState<string | null>(null)
+  const [rowActionType, setRowActionType] = useState<'attribute' | 'audit'>('attribute')
+  const [attributeMode, setAttributeMode] = useState<'lead' | 'project'>('lead')
+  const [attributeValue, setAttributeValue] = useState('')
+  const [attributingInProgress, setAttributingInProgress] = useState(false)
+  const [rowAuditMode, setRowAuditMode] = useState<'lead' | 'project'>('lead')
+  const [rowAuditValue, setRowAuditValue] = useState('')
+
+  // Bulk action state (only shown when 2+ selected)
+  const [bulkAction, setBulkAction] = useState<'attribute' | 'audit' | null>(null)
+  const [bulkMode, setBulkMode] = useState<'lead' | 'project'>('lead')
+  const [bulkValue, setBulkValue] = useState('')
+  const [bulkInProgress, setBulkInProgress] = useState(false)
+  const [bulkAuditMode, setBulkAuditMode] = useState<'lead' | 'project'>('lead')
+  const [bulkAuditValue, setBulkAuditValue] = useState('')
+
+  // Build audit state
   const [buildAuditInProgress, setBuildAuditInProgress] = useState(false)
   const [buildAuditError, setBuildAuditError] = useState<string | null>(null)
   const [buildAuditSuccess, setBuildAuditSuccess] = useState<{ auditId: string; meetingsUsed: number } | null>(null)
+
+  // Transcript expand
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const getHeaders = useCallback(async () => {
     const session = await getCurrentSession()
@@ -86,9 +130,16 @@ function MeetingsContent() {
     setLoading(true)
     try {
       const params = new URLSearchParams()
-      if (contactIdFromUrl) params.set('contact_submission_id', contactIdFromUrl)
-      else if (unlinkedOnly) params.set('unlinked_only', 'true')
+      if (contactIdFromUrl) {
+        params.set('contact_submission_id', contactIdFromUrl)
+      } else if (attributionFilter === 'not_attributed') {
+        params.set('unlinked_only', 'true')
+      } else if (attributionFilter === 'attributed') {
+        params.set('attributed_only', 'true')
+      }
       if (search.trim()) params.set('q', search.trim())
+      if (dateFrom) params.set('date_from', dateFrom)
+      if (dateTo) params.set('date_to', dateTo)
       params.set('limit', '50')
       const headers = await getHeaders()
       const res = await fetch(`/api/admin/meetings?${params}`, { headers })
@@ -96,80 +147,156 @@ function MeetingsContent() {
         const data = await res.json()
         setMeetings(data.meetings ?? [])
         setTotal(data.total ?? 0)
+        if (data.stats) setStats(data.stats)
       }
     } catch (err) {
       console.error('Failed to fetch meetings:', err)
     } finally {
       setLoading(false)
     }
-  }, [getHeaders, contactIdFromUrl, unlinkedOnly, search])
+  }, [getHeaders, contactIdFromUrl, attributionFilter, search, dateFrom, dateTo])
 
-  const fetchLeadOptions = useCallback(async () => {
+  const fetchOptions = useCallback(async () => {
+    if (optionsLoaded) return
     try {
       const headers = await getHeaders()
-      const res = await fetch('/api/admin/contact-submissions?limit=200', { headers })
-      if (res.ok) {
-        const data = await res.json()
-        setLeadOptions((data.submissions || []).map((s: { id: number; name: string; email: string | null }) => ({
-          id: s.id,
-          name: s.name,
-          email: s.email,
-        })))
+      const [leadsRes, projectsRes] = await Promise.all([
+        fetch('/api/admin/contact-submissions?limit=200', { headers }),
+        fetch('/api/admin/client-projects?limit=200', { headers }),
+      ])
+      if (leadsRes.ok) {
+        const data = await leadsRes.json()
+        setLeadOptions(
+          (data.submissions || []).map((s: { id: number; name: string; email: string | null }) => ({
+            id: s.id,
+            name: s.name,
+            email: s.email,
+          }))
+        )
       }
+      if (projectsRes.ok) {
+        const data = await projectsRes.json()
+        setProjectOptions(
+          (data.projects || []).map(
+            (p: { id: string; project_name: string | null; client_name: string | null }) => ({
+              id: p.id,
+              project_name: p.project_name ?? null,
+              client_name: p.client_name ?? null,
+            })
+          )
+        )
+      }
+      setOptionsLoaded(true)
     } catch {
-      setLeadOptions([])
+      /* options will be empty */
     }
-  }, [getHeaders])
+  }, [getHeaders, optionsLoaded])
 
-  const fetchProjectOptions = useCallback(async () => {
+  useEffect(() => {
+    fetchMeetings()
+  }, [fetchMeetings])
+
+  useEffect(() => {
+    fetchOptions()
+  }, [fetchOptions])
+
+  // Debounced search
+  const handleSearchChange = (value: string) => {
+    setSearch(value)
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current)
+    searchTimerRef.current = setTimeout(() => {
+      fetchMeetings()
+    }, 400)
+  }
+
+  const navigateToCreateLead = () => {
+    router.push(adminCreateUrl('leads', { returnTo: '/admin/meetings' }))
+  }
+
+  // Selection helpers
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedIds.size === meetings.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(meetings.map((m) => m.id)))
+    }
+  }
+
+  const clearSelection = () => {
+    setSelectedIds(new Set())
+    setBulkAction(null)
+    setBulkMode('lead')
+    setBulkValue('')
+    setBulkAuditValue('')
+  }
+
+  const openRowAction = (meetingId: string, type: 'attribute' | 'audit') => {
+    setRowActionId(meetingId)
+    setRowActionType(type)
+    setAttributeMode('lead')
+    setAttributeValue('')
+    setRowAuditMode('lead')
+    setRowAuditValue('')
+  }
+
+  const handleRowAttribute = async () => {
+    if (!rowActionId || !attributeValue) return
+    setAttributingInProgress(true)
     try {
       const headers = await getHeaders()
-      const res = await fetch('/api/admin/client-projects?limit=200', { headers })
-      if (res.ok) {
-        const data = await res.json()
-        setProjectOptions((data.projects || []).map((p: { id: string; project_name: string | null; client_name: string | null }) => ({
-          id: p.id,
-          project_name: p.project_name ?? null,
-          client_name: p.client_name ?? null,
-        })))
+      if (attributeMode === 'lead') {
+        const csId = attributeValue === 'null' ? null : Number(attributeValue)
+        const res = await fetch(`/api/meetings/${rowActionId}/assign-lead`, {
+          method: 'PATCH',
+          headers,
+          body: JSON.stringify({ contact_submission_id: csId }),
+        })
+        if (!res.ok) return
+      } else {
+        const res = await fetch(`/api/admin/meetings/bulk-assign`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', ...headers },
+          body: JSON.stringify({
+            meeting_ids: [rowActionId],
+            client_project_id: attributeValue,
+          }),
+        })
+        if (!res.ok) return
       }
-    } catch {
-      setProjectOptions([])
+      setRowActionId(null)
+      setAttributeValue('')
+      await fetchMeetings()
+    } catch (err) {
+      console.error('Failed to attribute meeting:', err)
+    } finally {
+      setAttributingInProgress(false)
     }
-  }, [getHeaders])
+  }
 
-  useEffect(() => {
-    if (buildAuditMode === 'lead' && leadOptions.length === 0) {
-      fetchLeadOptions()
-    }
-  }, [buildAuditMode, leadOptions.length, fetchLeadOptions])
-
-  useEffect(() => {
-    if (buildAuditMode === 'project' && projectOptions.length === 0) {
-      fetchProjectOptions()
-    }
-  }, [buildAuditMode, projectOptions.length, fetchProjectOptions])
-
-  const handleBuildAuditFromMeetings = async () => {
+  const handleRowAudit = async () => {
+    if (!rowActionId || !rowAuditValue) return
     setBuildAuditError(null)
     setBuildAuditSuccess(null)
-    const contactId = buildAuditMode === 'lead' ? buildAuditLeadId.trim() : null
-    const projectId = buildAuditMode === 'project' ? buildAuditProjectId.trim() : null
-    if ((buildAuditMode === 'lead' && !contactId) || (buildAuditMode === 'project' && !projectId)) {
-      setBuildAuditError('Select a lead or project.')
-      return
-    }
     setBuildAuditInProgress(true)
     try {
       const headers = await getHeaders()
+      const body: Record<string, unknown> =
+        rowAuditMode === 'lead'
+          ? { contact_submission_id: Number(rowAuditValue) }
+          : { client_project_id: rowAuditValue }
       const res = await fetch('/api/admin/audit-from-meetings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...headers },
-        body: JSON.stringify(
-          buildAuditMode === 'lead'
-            ? { contact_submission_id: Number(contactId) }
-            : { client_project_id: projectId }
-        ),
+        body: JSON.stringify(body),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -177,8 +304,7 @@ function MeetingsContent() {
         return
       }
       setBuildAuditSuccess({ auditId: data.auditId, meetingsUsed: data.meetingsUsed ?? 0 })
-      setBuildAuditLeadId('')
-      setBuildAuditProjectId('')
+      setRowActionId(null)
     } catch {
       setBuildAuditError('Something went wrong. Please try again.')
     } finally {
@@ -186,42 +312,78 @@ function MeetingsContent() {
     }
   }
 
-  useEffect(() => {
-    fetchMeetings()
-  }, [fetchMeetings])
-
-  const handleAssignLead = async () => {
-    if (!assigningId || !assignValue) return
-    setAssigningInProgress(true)
+  // Bulk attribute
+  const handleBulkAttribute = async () => {
+    if (selectedIds.size === 0 || !bulkValue) return
+    setBulkInProgress(true)
     try {
       const headers = await getHeaders()
-      const csId = assignValue === 'null' ? null : Number(assignValue)
-      const res = await fetch(`/api/meetings/${assigningId}/assign-lead`, {
+      const body: Record<string, unknown> = { meeting_ids: Array.from(selectedIds) }
+      if (bulkMode === 'lead') {
+        body.contact_submission_id = Number(bulkValue)
+      } else {
+        body.client_project_id = bulkValue
+      }
+      const res = await fetch('/api/admin/meetings/bulk-assign', {
         method: 'PATCH',
-        headers,
-        body: JSON.stringify({ contact_submission_id: csId }),
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify(body),
       })
       if (res.ok) {
-        setAssigningId(null)
-        setAssignValue('')
+        clearSelection()
         await fetchMeetings()
-      } else {
-        const data = await res.json()
-        alert(data.error || 'Failed to assign lead')
       }
     } catch (err) {
-      console.error('Failed to assign lead:', err)
-      alert('Something went wrong. Please try again.')
+      console.error('Bulk attribute failed:', err)
     } finally {
-      setAssigningInProgress(false)
+      setBulkInProgress(false)
     }
   }
 
-  const openAssign = (meetingId: string) => {
-    setAssigningId(meetingId)
-    setAssignValue('')
-    fetchLeadOptions()
+  // Build audit from selected meetings
+  const handleBuildAuditFromSelected = async () => {
+    setBuildAuditError(null)
+    setBuildAuditSuccess(null)
+    const targetId = bulkAuditValue.trim()
+    if (!targetId) {
+      setBuildAuditError('Select a lead or project.')
+      return
+    }
+    setBuildAuditInProgress(true)
+    try {
+      const headers = await getHeaders()
+      const body: Record<string, unknown> =
+        bulkAuditMode === 'lead'
+          ? { contact_submission_id: Number(targetId) }
+          : { client_project_id: targetId }
+      const res = await fetch('/api/admin/audit-from-meetings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...headers },
+        body: JSON.stringify(body),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        setBuildAuditError(data.error || 'Could not build audit. Please try again.')
+        return
+      }
+      setBuildAuditSuccess({ auditId: data.auditId, meetingsUsed: data.meetingsUsed ?? 0 })
+      clearSelection()
+    } catch {
+      setBuildAuditError('Something went wrong. Please try again.')
+    } finally {
+      setBuildAuditInProgress(false)
+    }
   }
+
+  const selectedCount = selectedIds.size
+  const allSelected = meetings.length > 0 && selectedIds.size === meetings.length
+  const someSelected = selectedIds.size > 0 && selectedIds.size < meetings.length
+
+  const statPills: { key: AttributionFilter; label: string; count: number; color: string; activeRing: string }[] = [
+    { key: 'all', label: 'All', count: stats.total, color: 'text-gray-300', activeRing: 'ring-gray-500' },
+    { key: 'not_attributed', label: 'Not attributed', count: stats.not_attributed, color: 'text-amber-400', activeRing: 'ring-amber-500' },
+    { key: 'attributed', label: 'Attributed', count: stats.attributed, color: 'text-violet-400', activeRing: 'ring-violet-500' },
+  ]
 
   return (
     <div id="admin-main" className="min-h-screen bg-gray-950 text-gray-100">
@@ -233,28 +395,31 @@ function MeetingsContent() {
       />
 
       <div className="max-w-6xl mx-auto px-4 py-8">
+        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-semibold flex items-center gap-2">
               <Video className="w-7 h-7 text-violet-400" />
               Meeting records
             </h1>
-            <p className="text-gray-400 text-sm mt-1">
-              Attribute transcripts to a lead so they show up in the sales conversation. Link a meeting to a contact using <strong>Assign lead</strong>.
+            <p className="text-gray-400 text-sm mt-1 max-w-xl">
+              Review transcripts from sales calls and discovery sessions. Attribute each meeting to
+              a lead or project, then use them to build diagnostic audits.
             </p>
           </div>
           <button
             onClick={() => fetchMeetings()}
             disabled={loading}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 text-gray-300 border border-gray-700 hover:border-gray-600 disabled:opacity-50"
+            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-800 text-gray-300 border border-gray-700 hover:border-gray-600 disabled:opacity-50 shrink-0"
           >
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             Refresh
           </button>
         </div>
 
+        {/* Contact-specific banner */}
         {contactIdFromUrl && (
-          <div className="mb-3 px-3 py-2 rounded-lg bg-violet-900/30 border border-violet-700/50 text-sm text-violet-200 flex items-center gap-2">
+          <div className="mb-4 px-3 py-2 rounded-lg bg-violet-900/30 border border-violet-700/50 text-sm text-violet-200 flex items-center gap-2">
             Showing meetings for lead (ID: {contactIdFromUrl}).{' '}
             <Link href="/admin/meetings" className="text-violet-400 hover:underline">
               Show all
@@ -262,119 +427,211 @@ function MeetingsContent() {
           </div>
         )}
 
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3 mb-4">
-          <label className="flex items-center gap-2 text-sm text-gray-400">
-            <input
-              type="checkbox"
-              checked={unlinkedOnly}
-              onChange={(e) => setUnlinkedOnly(e.target.checked)}
-              className="rounded border-gray-600 bg-gray-800 text-violet-500"
-            />
-            Unlinked only
-          </label>
-          <input
-            type="text"
-            placeholder="Search type or transcript…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && fetchMeetings()}
-            className="px-3 py-1.5 rounded-lg bg-gray-800 border border-gray-700 text-sm text-gray-200 placeholder-gray-500 w-64"
-          />
-          <button
-            onClick={() => fetchMeetings()}
-            className="px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm"
-          >
-            Search
-          </button>
-        </div>
-
-        {/* Build audit from meetings */}
-        <div className="rounded-xl border border-emerald-800/50 bg-emerald-950/20 p-4 mb-6">
-          <h2 className="text-sm font-semibold text-emerald-200 flex items-center gap-2 mb-3">
-            <Sparkles size={16} />
-            Build audit from meetings
-          </h2>
-          <p className="text-xs text-gray-400 mb-3">
-            Use meeting transcripts to populate a diagnostic audit for a lead or client project. Select the lead or project, then run. The new audit will appear in Sales and lead views.
-          </p>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="flex items-center gap-2">
-              <label className="text-xs text-gray-500">For:</label>
-              <select
-                value={buildAuditMode}
-                onChange={(e) => {
-                  setBuildAuditMode(e.target.value as 'lead' | 'project')
-                  setBuildAuditError(null)
-                  setBuildAuditSuccess(null)
+        {/* Stats pills */}
+        {!contactIdFromUrl && (
+          <div className="flex flex-wrap gap-3 mb-5">
+            {statPills.map((pill) => (
+              <button
+                key={pill.key}
+                onClick={() => {
+                  setAttributionFilter(pill.key)
+                  setSelectedIds(new Set())
                 }}
-                className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2"
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
+                  attributionFilter === pill.key
+                    ? `bg-gray-800 border-gray-600 ring-1 ${pill.activeRing}`
+                    : 'bg-gray-900/50 border-gray-800 hover:border-gray-700'
+                }`}
               >
-                <option value="lead">Lead (contact)</option>
-                <option value="project">Client project</option>
-              </select>
-            </div>
-            {buildAuditMode === 'lead' ? (
-              <select
-                value={buildAuditLeadId}
-                onChange={(e) => setBuildAuditLeadId(e.target.value)}
-                className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2 min-w-[200px]"
-              >
-                <option value="">Select lead…</option>
-                {leadOptions.map((l) => (
-                  <option key={l.id} value={String(l.id)}>
-                    {l.name} {l.email ? `(${l.email})` : ''}
-                  </option>
-                ))}
-              </select>
-            ) : (
-              <select
-                value={buildAuditProjectId}
-                onChange={(e) => setBuildAuditProjectId(e.target.value)}
-                className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2 min-w-[200px]"
-              >
-                <option value="">Select project…</option>
-                {projectOptions.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.client_name || p.project_name || p.id}
-                  </option>
-                ))}
-              </select>
-            )}
-            <button
-              onClick={handleBuildAuditFromMeetings}
-              disabled={buildAuditInProgress || (buildAuditMode === 'lead' ? !buildAuditLeadId : !buildAuditProjectId)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium"
-            >
-              {buildAuditInProgress ? (
-                <>
-                  <Loader2 size={14} className="animate-spin" />
-                  Building…
-                </>
-              ) : (
-                <>
-                  <Sparkles size={14} />
-                  Build audit from meetings
-                </>
-              )}
-            </button>
+                <span className={pill.color}>{pill.count}</span>
+                <span className="text-gray-400">{pill.label}</span>
+              </button>
+            ))}
           </div>
-          {buildAuditError && (
-            <p className="mt-2 text-sm text-red-400" role="alert">
-              {buildAuditError}
-            </p>
-          )}
-          {buildAuditSuccess && (
-            <p className="mt-2 text-sm text-emerald-300">
-              Audit created from {buildAuditSuccess.meetingsUsed} meeting(s). View in{' '}
-              <Link href="/admin/sales" className="text-emerald-400 hover:underline">
-                Sales
-              </Link>{' '}
-              or under the lead’s conversation.
-            </p>
-          )}
+        )}
+
+        {/* Filter panel */}
+        <div className="bg-gray-900/50 rounded-lg border border-gray-800 p-3 mb-5">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative flex-1 min-w-[220px]">
+              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search by name, transcript, or type..."
+                value={search}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && fetchMeetings()}
+                className="w-full pl-10 pr-3 py-2 rounded-lg bg-gray-800 border border-gray-700 text-sm text-gray-200 placeholder-gray-500 focus:border-gray-600 focus:outline-none"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <Calendar size={14} className="text-gray-500 shrink-0" />
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={(e) => setDateFrom(e.target.value)}
+                className="px-2 py-2 rounded-lg bg-gray-800 border border-gray-700 text-sm text-gray-200 focus:border-gray-600 focus:outline-none [color-scheme:dark]"
+                title="From date"
+              />
+              <span className="text-gray-600 text-xs">to</span>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={(e) => setDateTo(e.target.value)}
+                className="px-2 py-2 rounded-lg bg-gray-800 border border-gray-700 text-sm text-gray-200 focus:border-gray-600 focus:outline-none [color-scheme:dark]"
+                title="To date"
+              />
+              {(dateFrom || dateTo) && (
+                <button
+                  onClick={() => { setDateFrom(''); setDateTo('') }}
+                  className="text-gray-500 hover:text-gray-300"
+                  title="Clear dates"
+                >
+                  <X size={14} />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
+        {/* Bulk action bar — only when 2+ selected */}
+        {selectedCount >= 2 && (
+          <div className="rounded-lg border border-violet-700/40 bg-violet-950/20 p-4 mb-5">
+            <div className="flex flex-wrap items-center gap-3 mb-3">
+              <span className="text-sm text-violet-200 font-medium">
+                {selectedCount} meetings selected
+              </span>
+              <button
+                onClick={clearSelection}
+                className="text-xs text-gray-500 hover:text-gray-300 flex items-center gap-1"
+              >
+                <X size={12} />
+                Clear
+              </button>
+              <div className="flex items-center gap-2 ml-auto">
+                <button
+                  onClick={() => setBulkAction(bulkAction === 'attribute' ? null : 'attribute')}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
+                    bulkAction === 'attribute'
+                      ? 'bg-violet-600 text-white border-violet-500'
+                      : 'bg-gray-800 text-gray-300 border-gray-700 hover:border-gray-600'
+                  }`}
+                >
+                  <User size={14} />
+                  Attribute
+                </button>
+                <button
+                  onClick={() => setBulkAction(bulkAction === 'audit' ? null : 'audit')}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border transition-all ${
+                    bulkAction === 'audit'
+                      ? 'bg-emerald-600 text-white border-emerald-500'
+                      : 'bg-gray-800 text-gray-300 border-gray-700 hover:border-gray-600'
+                  }`}
+                >
+                  <Sparkles size={14} />
+                  Build audit
+                </button>
+              </div>
+            </div>
+
+            {/* Attribute form */}
+            {bulkAction === 'attribute' && (
+              <div className="flex flex-wrap items-end gap-3 pt-2 border-t border-gray-800">
+                <div className="flex items-center gap-2">
+                  <select
+                    value={bulkMode}
+                    onChange={(e) => { setBulkMode(e.target.value as 'lead' | 'project'); setBulkValue('') }}
+                    className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2"
+                  >
+                    <option value="lead">To lead</option>
+                    <option value="project">To project</option>
+                  </select>
+                  <select
+                    value={bulkValue}
+                    onChange={(e) => {
+                      if (e.target.value === CREATE_LEAD_SENTINEL) { navigateToCreateLead(); return }
+                      setBulkValue(e.target.value)
+                    }}
+                    className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2 min-w-[200px]"
+                  >
+                    <option value="">{bulkMode === 'lead' ? 'Select lead...' : 'Select project...'}</option>
+                    {bulkMode === 'lead' && <option value={CREATE_LEAD_SENTINEL}>+ Create new lead...</option>}
+                    {bulkMode === 'lead'
+                      ? leadOptions.map((l) => (
+                          <option key={l.id} value={String(l.id)}>{l.name} {l.email ? `(${l.email})` : ''}</option>
+                        ))
+                      : projectOptions.map((p) => (
+                          <option key={p.id} value={p.id}>{p.client_name || p.project_name || p.id}</option>
+                        ))}
+                  </select>
+                  <button
+                    onClick={handleBulkAttribute}
+                    disabled={bulkInProgress || !bulkValue}
+                    className="px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-medium flex items-center gap-1.5"
+                  >
+                    {bulkInProgress ? <Loader2 size={14} className="animate-spin" /> : null}
+                    Apply
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Build audit form */}
+            {bulkAction === 'audit' && (
+              <div className="flex flex-wrap items-end gap-3 pt-2 border-t border-gray-800">
+                <div className="flex items-center gap-2">
+                  <select
+                    value={bulkAuditMode}
+                    onChange={(e) => { setBulkAuditMode(e.target.value as 'lead' | 'project'); setBulkAuditValue('') }}
+                    className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2"
+                  >
+                    <option value="lead">For lead</option>
+                    <option value="project">For project</option>
+                  </select>
+                  <select
+                    value={bulkAuditValue}
+                    onChange={(e) => {
+                      if (e.target.value === CREATE_LEAD_SENTINEL) { navigateToCreateLead(); return }
+                      setBulkAuditValue(e.target.value)
+                    }}
+                    className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2 min-w-[200px]"
+                  >
+                    <option value="">{bulkAuditMode === 'lead' ? 'Select lead...' : 'Select project...'}</option>
+                    {bulkAuditMode === 'lead' && <option value={CREATE_LEAD_SENTINEL}>+ Create new lead...</option>}
+                    {bulkAuditMode === 'lead'
+                      ? leadOptions.map((l) => (
+                          <option key={l.id} value={String(l.id)}>{l.name} {l.email ? `(${l.email})` : ''}</option>
+                        ))
+                      : projectOptions.map((p) => (
+                          <option key={p.id} value={p.id}>{p.client_name || p.project_name || p.id}</option>
+                        ))}
+                  </select>
+                  <button
+                    onClick={handleBuildAuditFromSelected}
+                    disabled={buildAuditInProgress || !bulkAuditValue}
+                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium flex items-center gap-1.5"
+                  >
+                    {buildAuditInProgress ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
+                    Build audit
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {buildAuditError && (
+              <p className="mt-3 text-sm text-red-400" role="alert">{buildAuditError}</p>
+            )}
+            {buildAuditSuccess && (
+              <p className="mt-3 text-sm text-emerald-300">
+                Audit created from {buildAuditSuccess.meetingsUsed} meeting(s). View in{' '}
+                <Link href="/admin/sales" className="text-emerald-400 hover:underline">Sales</Link>{' '}
+                or under the lead&apos;s conversation.
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Table */}
         {loading ? (
           <div className="flex items-center justify-center py-16">
             <Loader2 className="w-8 h-8 animate-spin text-violet-400" />
@@ -384,13 +641,18 @@ function MeetingsContent() {
             <Video className="w-12 h-12 mx-auto mb-3 opacity-40" />
             <p className="font-medium">No meetings found</p>
             <p className="text-sm mt-1">
-              {unlinkedOnly
-                ? 'No unlinked meeting records. Clear "Unlinked only" to see all.'
-                : 'Meeting records appear here when created by your ingest (e.g. Calendly, n8n).'}
+              {attributionFilter === 'not_attributed'
+                ? 'All meetings have been attributed.'
+                : 'Meeting records appear here automatically from your connected calendar.'}
             </p>
-            <p className="text-xs mt-3 text-gray-600">
-              After linking a meeting to a lead (e.g. Neil Rhein), it will show in that lead’s sales conversation under &quot;Previous meetings & tasks&quot;.
-            </p>
+            {attributionFilter !== 'all' && (
+              <button
+                onClick={() => setAttributionFilter('all')}
+                className="mt-3 text-sm text-violet-400 hover:text-violet-300"
+              >
+                Show all meetings
+              </button>
+            )}
           </div>
         ) : (
           <div className="border border-gray-800 rounded-xl overflow-hidden">
@@ -398,130 +660,297 @@ function MeetingsContent() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-900/80 text-gray-400 text-left">
+                    <th className="px-3 py-3 w-10">
+                      <button onClick={toggleSelectAll} className="text-gray-500 hover:text-gray-300">
+                        {allSelected ? (
+                          <CheckSquare size={16} />
+                        ) : someSelected ? (
+                          <MinusSquare size={16} />
+                        ) : (
+                          <Square size={16} />
+                        )}
+                      </button>
+                    </th>
                     <th className="px-4 py-3 font-medium">Date / Type</th>
-                    <th className="px-4 py-3 font-medium">Transcript</th>
+                    <th className="px-4 py-3 font-medium">Summary / Transcript</th>
                     <th className="px-4 py-3 font-medium">Attributed to</th>
-                    <th className="px-4 py-3 font-medium w-40">Actions</th>
+                    <th className="px-4 py-3 font-medium w-44">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800">
-                  {meetings.map((m) => (
-                    <Fragment key={m.id}>
-                      <tr className="hover:bg-gray-900/30">
-                        <td className="px-4 py-3 align-top">
-                          <div className="flex items-center gap-2 text-gray-300">
-                            <Calendar size={14} className="text-gray-500 shrink-0" />
-                            {m.meeting_date
-                              ? new Date(m.meeting_date).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric',
-                                })
-                              : '—'}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-0.5 capitalize">
-                            {(m.meeting_type ?? 'meeting').replace(/_/g, ' ')}
-                            {m.duration_minutes != null && m.duration_minutes > 0 && ` · ${m.duration_minutes} min`}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 align-top max-w-md">
-                          {m.summary && (
-                            <p className="text-gray-400 text-xs mb-1 line-clamp-2">{m.summary}</p>
-                          )}
-                          {m.transcript_preview ? (
+                  {meetings.map((m) => {
+                    const isSelected = selectedIds.has(m.id)
+                    const isAttributed = m.contact_submission_id != null || m.client_project_id != null
+                    return (
+                      <Fragment key={m.id}>
+                        <tr className={`hover:bg-gray-900/30 ${isSelected ? 'bg-violet-950/10' : ''}`}>
+                          {/* Checkbox */}
+                          <td className="px-3 py-3 align-top">
                             <button
-                              type="button"
-                              onClick={() => setExpandedId(expandedId === m.id ? null : m.id)}
-                              className="text-left text-gray-500 text-xs block hover:text-gray-400"
+                              onClick={() => toggleSelect(m.id)}
+                              className="text-gray-500 hover:text-gray-300"
                             >
-                              {expandedId === m.id ? m.transcript_preview : m.transcript_preview}
-                              {m.transcript_length > 200 && (
-                                <span className="text-violet-400 ml-1">
-                                  {expandedId === m.id ? ' (collapse)' : '… (expand)'}
-                                </span>
+                              {isSelected ? (
+                                <CheckSquare size={16} className="text-violet-400" />
+                              ) : (
+                                <Square size={16} />
                               )}
                             </button>
-                          ) : (
-                            <span className="text-gray-600 text-xs">No transcript</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 align-top">
-                          {m.contact_submission_id ? (
-                            <div className="flex items-center gap-1.5 text-violet-400">
-                              <Link2 size={12} />
-                              <span>{m.lead_name ?? 'Lead'}</span>
-                              {m.lead_email && (
-                                <span className="text-gray-500 text-xs">({m.lead_email})</span>
-                              )}
+                          </td>
+
+                          {/* Date / Type */}
+                          <td className="px-4 py-3 align-top">
+                            <div className="flex items-center gap-2 text-gray-300">
+                              <Calendar size={14} className="text-gray-500 shrink-0" />
+                              {m.meeting_date
+                                ? new Date(m.meeting_date).toLocaleDateString('en-US', {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                  })
+                                : '—'}
                             </div>
-                          ) : m.client_project_id ? (
-                            <div className="flex items-center gap-1.5 text-gray-400">
-                              <Building size={12} />
-                              {m.client_name || m.project_name || 'Project'}
-                            </div>
-                          ) : (
-                            <span className="text-amber-500/80 text-xs">Not attributed</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 align-top">
-                          {assigningId === m.id ? (
-                            <div className="flex flex-col gap-2">
-                              <select
-                                value={assignValue}
-                                onChange={(e) => setAssignValue(e.target.value)}
-                                className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-xs py-1.5 px-2 w-full"
-                                autoFocus
-                              >
-                                <option value="">Select lead…</option>
-                                <option value="null">— Clear lead —</option>
-                                {leadOptions.map((l) => (
-                                  <option key={l.id} value={String(l.id)}>
-                                    {l.name} {l.email ? `(${l.email})` : ''}
-                                  </option>
-                                ))}
-                              </select>
-                              <div className="flex gap-1">
-                                <button
-                                  onClick={handleAssignLead}
-                                  disabled={!assignValue || assigningInProgress}
-                                  className="flex-1 py-1 rounded text-xs bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white"
-                                >
-                                  {assigningInProgress ? '…' : 'Save'}
-                                </button>
-                                <button
-                                  onClick={() => { setAssigningId(null); setAssignValue(''); }}
-                                  className="py-1 px-2 rounded text-xs bg-gray-700 text-gray-300 hover:bg-gray-600"
-                                >
-                                  Cancel
-                                </button>
-                              </div>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => openAssign(m.id)}
-                              className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20"
-                            >
-                              <User size={12} />
-                              Assign lead
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                      {expandedId === m.id && m.transcript_preview && (
-                        <tr>
-                          <td colSpan={4} className="px-4 py-2 bg-gray-900/50">
-                            <div className="flex items-start gap-2">
-                              <FileText size={14} className="text-gray-500 shrink-0 mt-0.5" />
-                              <pre className="text-xs text-gray-500 whitespace-pre-wrap font-sans max-h-48 overflow-y-auto">
-                                {m.transcript_preview}
-                                {m.transcript_length > 200 && ` … (${m.transcript_length} chars total)`}
-                              </pre>
+                            <div className="text-xs text-gray-500 mt-0.5 capitalize">
+                              {(m.meeting_type ?? 'meeting').replace(/_/g, ' ')}
+                              {m.duration_minutes != null &&
+                                m.duration_minutes > 0 &&
+                                ` · ${m.duration_minutes} min`}
                             </div>
                           </td>
+
+                          {/* Summary / Transcript */}
+                          <td className="px-4 py-3 align-top max-w-md">
+                            {m.summary && (
+                              <p className="text-gray-400 text-xs mb-1 line-clamp-2">{m.summary}</p>
+                            )}
+                            {m.transcript_preview ? (
+                              <button
+                                type="button"
+                                onClick={() => setExpandedId(expandedId === m.id ? null : m.id)}
+                                className="text-left text-gray-500 text-xs block hover:text-gray-400"
+                              >
+                                {m.transcript_preview}
+                                {m.transcript_length > 200 && (
+                                  <span className="text-violet-400 ml-1">
+                                    {expandedId === m.id ? ' (collapse)' : '... (expand)'}
+                                  </span>
+                                )}
+                              </button>
+                            ) : (
+                              <span className="text-gray-600 text-xs">No transcript</span>
+                            )}
+                          </td>
+
+                          {/* Attributed to */}
+                          <td className="px-4 py-3 align-top">
+                            {m.contact_submission_id ? (
+                              <div className="flex items-center gap-1.5 text-violet-400">
+                                <Link2 size={12} />
+                                <span>{m.lead_name ?? 'Lead'}</span>
+                                {m.lead_email && (
+                                  <span className="text-gray-500 text-xs">({m.lead_email})</span>
+                                )}
+                              </div>
+                            ) : m.client_project_id ? (
+                              <div className="flex items-center gap-1.5 text-gray-400">
+                                <Building size={12} />
+                                {m.client_name || m.project_name || 'Project'}
+                              </div>
+                            ) : (
+                              <span className="text-gray-600 text-xs">—</span>
+                            )}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-4 py-3 align-top">
+                            {rowActionId === m.id && rowActionType === 'attribute' ? (
+                              <div className="flex flex-col gap-2">
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() => setAttributeMode('lead')}
+                                    className={`px-2 py-0.5 rounded text-xs ${
+                                      attributeMode === 'lead'
+                                        ? 'bg-violet-600 text-white'
+                                        : 'bg-gray-800 text-gray-400'
+                                    }`}
+                                  >
+                                    Lead
+                                  </button>
+                                  <button
+                                    onClick={() => setAttributeMode('project')}
+                                    className={`px-2 py-0.5 rounded text-xs ${
+                                      attributeMode === 'project'
+                                        ? 'bg-violet-600 text-white'
+                                        : 'bg-gray-800 text-gray-400'
+                                    }`}
+                                  >
+                                    Project
+                                  </button>
+                                </div>
+                                <select
+                                  value={attributeValue}
+                                  onChange={(e) => {
+                                    if (e.target.value === CREATE_LEAD_SENTINEL) {
+                                      navigateToCreateLead()
+                                      return
+                                    }
+                                    setAttributeValue(e.target.value)
+                                  }}
+                                  className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-xs py-1.5 px-2 w-full"
+                                  autoFocus
+                                >
+                                  <option value="">
+                                    {attributeMode === 'lead' ? 'Select lead...' : 'Select project...'}
+                                  </option>
+                                  {attributeMode === 'lead' && (
+                                    <>
+                                      <option value={CREATE_LEAD_SENTINEL}>+ Create new lead...</option>
+                                      <option value="null">— Clear attribution —</option>
+                                    </>
+                                  )}
+                                  {attributeMode === 'lead'
+                                    ? leadOptions.map((l) => (
+                                        <option key={l.id} value={String(l.id)}>
+                                          {l.name} {l.email ? `(${l.email})` : ''}
+                                        </option>
+                                      ))
+                                    : projectOptions.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                          {p.client_name || p.project_name || p.id}
+                                        </option>
+                                      ))}
+                                </select>
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={handleRowAttribute}
+                                    disabled={!attributeValue || attributingInProgress}
+                                    className="flex-1 py-1 rounded text-xs bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white"
+                                  >
+                                    {attributingInProgress ? '...' : 'Save'}
+                                  </button>
+                                  <button
+                                    onClick={() => { setRowActionId(null); setAttributeValue('') }}
+                                    className="py-1 px-2 rounded text-xs bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                              </div>
+                            ) : rowActionId === m.id && rowActionType === 'audit' ? (
+                              <div className="flex flex-col gap-2">
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={() => setRowAuditMode('lead')}
+                                    className={`px-2 py-0.5 rounded text-xs ${
+                                      rowAuditMode === 'lead'
+                                        ? 'bg-emerald-600 text-white'
+                                        : 'bg-gray-800 text-gray-400'
+                                    }`}
+                                  >
+                                    Lead
+                                  </button>
+                                  <button
+                                    onClick={() => setRowAuditMode('project')}
+                                    className={`px-2 py-0.5 rounded text-xs ${
+                                      rowAuditMode === 'project'
+                                        ? 'bg-emerald-600 text-white'
+                                        : 'bg-gray-800 text-gray-400'
+                                    }`}
+                                  >
+                                    Project
+                                  </button>
+                                </div>
+                                <select
+                                  value={rowAuditValue}
+                                  onChange={(e) => {
+                                    if (e.target.value === CREATE_LEAD_SENTINEL) {
+                                      navigateToCreateLead()
+                                      return
+                                    }
+                                    setRowAuditValue(e.target.value)
+                                  }}
+                                  className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-xs py-1.5 px-2 w-full"
+                                  autoFocus
+                                >
+                                  <option value="">
+                                    {rowAuditMode === 'lead' ? 'Select lead...' : 'Select project...'}
+                                  </option>
+                                  {rowAuditMode === 'lead' && (
+                                    <option value={CREATE_LEAD_SENTINEL}>+ Create new lead...</option>
+                                  )}
+                                  {rowAuditMode === 'lead'
+                                    ? leadOptions.map((l) => (
+                                        <option key={l.id} value={String(l.id)}>
+                                          {l.name} {l.email ? `(${l.email})` : ''}
+                                        </option>
+                                      ))
+                                    : projectOptions.map((p) => (
+                                        <option key={p.id} value={p.id}>
+                                          {p.client_name || p.project_name || p.id}
+                                        </option>
+                                      ))}
+                                </select>
+                                <div className="flex gap-1">
+                                  <button
+                                    onClick={handleRowAudit}
+                                    disabled={!rowAuditValue || buildAuditInProgress}
+                                    className="flex-1 py-1 rounded text-xs bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white"
+                                  >
+                                    {buildAuditInProgress ? '...' : 'Build'}
+                                  </button>
+                                  <button
+                                    onClick={() => { setRowActionId(null); setRowAuditValue('') }}
+                                    className="py-1 px-2 rounded text-xs bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                  >
+                                    Cancel
+                                  </button>
+                                </div>
+                                {buildAuditError && rowActionId === m.id && (
+                                  <p className="text-xs text-red-400">{buildAuditError}</p>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-1.5">
+                                <button
+                                  onClick={() => openRowAction(m.id, 'attribute')}
+                                  className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs border ${
+                                    isAttributed
+                                      ? 'bg-gray-800/50 text-gray-400 border-gray-700 hover:bg-gray-800'
+                                      : 'bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20'
+                                  }`}
+                                >
+                                  <User size={12} />
+                                  Attribute
+                                </button>
+                                <button
+                                  onClick={() => openRowAction(m.id, 'audit')}
+                                  className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                                  title="Build audit from this meeting's lead"
+                                >
+                                  <Sparkles size={12} />
+                                  Audit
+                                </button>
+                              </div>
+                            )}
+                          </td>
                         </tr>
-                      )}
-                    </Fragment>
-                  ))}
+                        {expandedId === m.id && m.transcript_preview && (
+                          <tr>
+                            <td colSpan={5} className="px-4 py-2 bg-gray-900/50">
+                              <div className="flex items-start gap-2 ml-10">
+                                <FileText size={14} className="text-gray-500 shrink-0 mt-0.5" />
+                                <pre className="text-xs text-gray-500 whitespace-pre-wrap font-sans max-h-48 overflow-y-auto">
+                                  {m.transcript_preview}
+                                  {m.transcript_length > 200 &&
+                                    ` ... (${m.transcript_length} chars total)`}
+                                </pre>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -533,16 +962,29 @@ function MeetingsContent() {
           </div>
         )}
 
+        {buildAuditSuccess && selectedCount < 2 && (
+          <div className="mt-4 px-3 py-2 rounded-lg bg-emerald-900/30 border border-emerald-700/50 text-sm text-emerald-200 flex items-center justify-between">
+            <span>
+              Audit created from {buildAuditSuccess.meetingsUsed} meeting(s). View in{' '}
+              <Link href="/admin/sales" className="text-emerald-400 hover:underline">Sales</Link>{' '}
+              or under the lead&apos;s conversation.
+            </span>
+            <button onClick={() => setBuildAuditSuccess(null)} className="text-gray-500 hover:text-gray-300 ml-3">
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
         <p className="mt-4 text-xs text-gray-500">
-          Linked meetings appear in the contact’s sales conversation (
+          Once attributed, meetings appear in the contact&apos;s sales conversation (
           <Link href="/admin/sales" className="text-violet-400 hover:text-violet-300">
             Sales Dashboard
           </Link>
-          ) under &quot;Previous meetings & tasks&quot;. You can also assign from{' '}
+          ) under &quot;Previous meetings & tasks.&quot; You can also manage action items in{' '}
           <Link href="/admin/meeting-tasks" className="text-violet-400 hover:text-violet-300">
             Meeting Tasks
-          </Link>{' '}
-          when a meeting has action items.
+          </Link>
+          .
         </p>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { ZodError } from 'zod'
 import { supabaseAdmin } from '@/lib/supabase'
 import { sendToN8n, sendDiagnosticToN8n, generateSessionId, triggerDiagnosticCompletionWebhook, triggerLeadQualificationWebhook, type ChatMessage } from '@/lib/n8n'
 import type { DiagnosticProgress, DiagnosticCategory } from '@/lib/n8n'
@@ -11,6 +12,7 @@ import { fetchConversationContext } from '@/lib/chat-context'
 import { createChatEscalation, formatTranscriptFromHistory } from '@/lib/chat-escalation'
 import { fetchClientContext, formatClientContextForAI } from '@/lib/chat-client-context'
 import { getSystemPrompt } from '@/lib/system-prompts'
+import { chatMessageSchema, zodErrorResponse } from '@/lib/chat-validation'
 
 export const dynamic = 'force-dynamic'
 /** Allow up to 60s so n8n diagnostic call can complete and response reaches the client */
@@ -36,28 +38,45 @@ function detectDiagnosticIntent(message: string): boolean {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const {
-      message,
-      sessionId: providedSessionId,
-      userId,
-      visitorEmail,
-      visitorName,
-      diagnosticMode: providedDiagnosticMode,
-      diagnosticAuditId: providedDiagnosticAuditId,
-      diagnosticProgress: providedDiagnosticProgress
-    } = body
-
-
-    // Validate message
-    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    // ── Rate limit (per-IP, 20 req/min) ──
+    const ip = getClientIpFromRequest(request)
+    if (isIpRateLimited('chat_message', ip)) {
+      console.warn('[chat] chat_message rate limited', { ip: ip.slice(0, 12) })
       return NextResponse.json(
-        { error: 'Message is required' },
-        { status: 400 }
+        { error: "You're sending messages too quickly. Please wait a moment.", retriable: true },
+        { status: 429 }
       )
     }
 
-    // Use provided session ID or generate a new one
+    // ── Parse & validate body (Zod) ──
+    const body = await request.json()
+    const parsed = chatMessageSchema.parse(body)
+
+    const visitorEmail = parsed.visitorEmail || undefined
+    const visitorName = parsed.visitorName || undefined
+    const providedSessionId = parsed.sessionId
+    const providedDiagnosticMode = parsed.diagnosticMode
+    const providedDiagnosticAuditId = parsed.diagnosticAuditId
+    const providedDiagnosticProgress = parsed.diagnosticProgress
+    const message = parsed.message
+
+    // ── Derive userId from Authorization header (never trust client body) ──
+    let userId: string | undefined
+    const authHeader = request.headers.get('authorization')
+    if (authHeader?.startsWith('Bearer ')) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js')
+        const anonClient = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        )
+        const { data: { user } } = await anonClient.auth.getUser(authHeader.replace('Bearer ', ''))
+        if (user) userId = user.id
+      } catch {
+        // Non-fatal: proceed as anonymous visitor
+      }
+    }
+
     const sessionId = providedSessionId || generateSessionId()
 
     // Detect diagnostic intent if not already in diagnostic mode
@@ -385,6 +404,10 @@ export async function POST(request: NextRequest) {
       diagnosticComplete: diagnosticComplete,
     })
   } catch (error) {
+    if (error instanceof ZodError) {
+      const { error: msg, detail, status } = zodErrorResponse(error)
+      return NextResponse.json({ error: msg, detail }, { status })
+    }
     console.error('Chat API error:', error)
     return NextResponse.json(
       {

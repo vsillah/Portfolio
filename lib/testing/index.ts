@@ -131,6 +131,12 @@ export {
   quickBrowseScenario,
   standaloneAuditToolScenario,
 
+  // Chatbot question bank scenarios
+  chatbotQuestionBankStratifiedScenario,
+  chatbotQuestionBankBoundaryScenario,
+  chatbotQuestionBankDiagnosticScenario,
+  buildChatbotQuestionBankScenario,
+
   // Collections
   ALL_SCENARIOS,
   SCENARIOS_BY_ID,
@@ -149,6 +155,27 @@ export {
   estimateTotalDuration,
   createCompositeScenario
 } from './scenarios'
+
+// Chatbot Test Questions
+export {
+  CHATBOT_TEST_QUESTIONS,
+  QUESTION_CATEGORIES,
+  CATEGORY_MAP,
+  TOTAL_QUESTION_COUNT,
+  getQuestionsByCategory,
+  getQuestionsByTag,
+  getDiagnosticTriggerQuestions,
+  getBoundaryQuestions,
+  getRandomQuestionSample,
+  getStratifiedSample,
+  getCategoryStats,
+} from './chatbot-questions'
+
+export type {
+  ChatbotTestQuestion,
+  QuestionCategory,
+  QuestionCategoryMeta,
+} from './chatbot-questions'
 
 // Chat Agent
 export {

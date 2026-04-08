@@ -602,6 +602,13 @@ function OutreachContent() {
     }
   }, [activeTab, fetchData, fetchLeads, fetchEscalations])
 
+  // Auto-open add-lead modal when navigated with ?open=add (e.g. from Meetings page)
+  useEffect(() => {
+    if (searchParams?.get('open') === 'add' && activeTab === 'leads') {
+      setShowAddLeadModal(true)
+    }
+  }, [searchParams, activeTab])
+
   // Fetch escalations for the expanded lead (for "Chat escalations for this contact")
   useEffect(() => {
     if (activeTab !== 'leads' || !expandedLeadId) {

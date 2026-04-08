@@ -16,7 +16,12 @@ export const ADMIN_CREATE_PARAMS = {
   RETURN_TO: 'returnTo',
 } as const
 
-export type AdminCreateResource = 'lead-magnets'
+export type AdminCreateResource = 'lead-magnets' | 'leads'
+
+const RESOURCE_PATHS: Record<AdminCreateResource, string> = {
+  'lead-magnets': '/admin/content/lead-magnets',
+  'leads': '/admin/outreach',
+}
 
 /**
  * Build URL to create a new resource with optional type and return path.
@@ -26,10 +31,11 @@ export function adminCreateUrl(
   resource: AdminCreateResource,
   options?: { type?: string; returnTo?: string }
 ): string {
-  const path = '/admin/content/lead-magnets'
+  const path = RESOURCE_PATHS[resource]
   const params = new URLSearchParams()
   params.set(ADMIN_CREATE_PARAMS.OPEN, ADMIN_CREATE_PARAMS.OPEN_ADD)
   if (options?.type) params.set(ADMIN_CREATE_PARAMS.TYPE, options.type)
   if (options?.returnTo) params.set(ADMIN_CREATE_PARAMS.RETURN_TO, options.returnTo)
+  if (resource === 'leads') params.set('tab', 'leads')
   return `${path}?${params.toString()}`
 }

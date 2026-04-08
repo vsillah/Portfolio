@@ -1,12 +1,23 @@
 /**
  * In-memory sliding-window rate limiter per IP + bucket (serverless: per-instance).
- * Aligns with scorecard submit: 5 requests / 15 minutes per bucket key.
+ *
+ * Default: 5 requests / 15 minutes (legacy scorecard behaviour).
+ * Per-bucket overrides allow tighter limits for high-cost paths (e.g. chat_message).
  */
 
 import type { NextRequest } from 'next/server'
 
-const WINDOW_MS = 15 * 60 * 1000
-const MAX_HITS = 5
+const DEFAULT_WINDOW_MS = 15 * 60 * 1000
+const DEFAULT_MAX_HITS = 5
+
+interface BucketConfig {
+  windowMs: number
+  maxHits: number
+}
+
+const BUCKET_OVERRIDES: Record<string, BucketConfig> = {
+  chat_message: { windowMs: 60 * 1000, maxHits: 20 },
+}
 
 const buckets = new Map<string, Map<string, number[]>>()
 
@@ -26,10 +37,14 @@ function setList(bucket: string, ip: string, list: number[]): void {
 
 /** @returns true if this request should be blocked (429). */
 export function isIpRateLimited(bucket: string, ip: string): boolean {
+  const cfg = BUCKET_OVERRIDES[bucket]
+  const windowMs = cfg?.windowMs ?? DEFAULT_WINDOW_MS
+  const maxHits = cfg?.maxHits ?? DEFAULT_MAX_HITS
+
   const now = Date.now()
-  const cut = now - WINDOW_MS
+  const cut = now - windowMs
   let list = getList(bucket, ip).filter((t) => t > cut)
-  if (list.length >= MAX_HITS) {
+  if (list.length >= maxHits) {
     setList(bucket, ip, list)
     return true
   }
