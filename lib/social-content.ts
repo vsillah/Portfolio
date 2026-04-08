@@ -408,8 +408,9 @@ export function extractMeetingTitle(
   rawNotes: string | null | undefined,
   structuredNotes?: Record<string, unknown> | null
 ): string | null {
-  if (structuredNotes?.title && typeof structuredNotes.title === 'string') {
-    return structuredNotes.title.trim()
+  const notes = safeParseJsonbField(structuredNotes)
+  if (notes?.title && typeof notes.title === 'string') {
+    return notes.title.trim()
   }
 
   if (!rawNotes) return null
@@ -430,6 +431,88 @@ export function extractMeetingSourceUrl(rawNotes: string | null | undefined): st
 
   const urlMatch = rawNotes.match(/<(https?:\/\/[^|>]+)/)
   if (urlMatch) return urlMatch[1].replace(/&amp;/g, '&')
+
+  return null
+}
+
+/**
+ * Safely parse a possibly double-encoded JSON value from Supabase jsonb.
+ * jsonb columns sometimes store a JSON string (e.g. '"{...}"') instead of a plain object.
+ */
+export function safeParseJsonbField(val: unknown): Record<string, unknown> | null {
+  if (val && typeof val === 'object' && !Array.isArray(val)) return val as Record<string, unknown>
+  if (typeof val === 'string') {
+    try {
+      let parsed = JSON.parse(val)
+      if (typeof parsed === 'string') parsed = JSON.parse(parsed)
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) return parsed
+    } catch { /* ignore */ }
+  }
+  return null
+}
+
+/**
+ * Extract participant names from meeting_data (handles double-encoded JSON).
+ * Returns names excluding "Vambah Sillah" (the owner) for brevity.
+ */
+export function extractParticipants(
+  meetingData: unknown,
+  attendees?: unknown
+): string[] {
+  const names: string[] = []
+
+  const data = safeParseJsonbField(meetingData)
+  if (data?.decision_makers && Array.isArray(data.decision_makers)) {
+    for (const name of data.decision_makers) {
+      if (typeof name === 'string') names.push(name)
+    }
+  }
+
+  if (names.length === 0) {
+    const att = safeParseJsonbField(attendees)
+    if (Array.isArray(att)) {
+      for (const a of att) {
+        const n = typeof a === 'string' ? a : (a as Record<string, unknown>)?.name
+        if (typeof n === 'string') names.push(n)
+      }
+    } else if (typeof attendees === 'string') {
+      try {
+        let parsed = JSON.parse(attendees)
+        if (typeof parsed === 'string') parsed = JSON.parse(parsed)
+        if (Array.isArray(parsed)) {
+          for (const a of parsed) {
+            const n = typeof a === 'string' ? a : a?.name
+            if (typeof n === 'string') names.push(n)
+          }
+        }
+      } catch { /* ignore */ }
+    }
+  }
+
+  return names.filter(n => !n.toLowerCase().includes('vambah'))
+}
+
+/**
+ * Extract a short summary from raw_notes or structured_notes.
+ * Handles double-encoded JSON in structured_notes and "Summary: ..." prefix in raw_notes.
+ */
+export function extractMeetingSummary(
+  rawNotes: string | null | undefined,
+  structuredNotes: unknown
+): string | null {
+  const notes = safeParseJsonbField(structuredNotes)
+  if (notes?.summary && typeof notes.summary === 'string') {
+    const s = notes.summary.trim()
+    if (s.length > 10) return s.length > 150 ? s.slice(0, 147) + '...' : s
+  }
+
+  if (rawNotes) {
+    const summaryMatch = rawNotes.match(/^Summary:\s*(.+)/i)
+    if (summaryMatch) {
+      const s = summaryMatch[1].trim()
+      return s.length > 150 ? s.slice(0, 147) + '...' : s
+    }
+  }
 
   return null
 }

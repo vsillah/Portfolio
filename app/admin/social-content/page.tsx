@@ -65,6 +65,7 @@ interface MeetingRecord {
   created_at: string
   duration_minutes: number | null
   meeting_title: string | null
+  participants: string[]
   source_url: string | null
   snippet: string | null
   queued_count: number
@@ -377,7 +378,8 @@ function SocialContentQueuePage() {
                   {meetings.map((m) => {
                     const isSelected = selectedMeeting === m.id
                     const date = m.meeting_date ? new Date(m.meeting_date) : null
-                    const title = m.meeting_title || m.meeting_type.replace(/_/g, ' ')
+                    const title = m.meeting_title || 'Untitled meeting'
+                    const showTypePill = m.meeting_type && m.meeting_title && m.meeting_title !== m.meeting_type.replace(/_/g, ' ')
                     return (
                       <button
                         key={m.id}
@@ -396,7 +398,7 @@ function SocialContentQueuePage() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="text-sm text-gray-200 font-medium truncate">{title}</span>
-                            {m.meeting_type && (
+                            {showTypePill && (
                               <span className="text-[10px] px-1.5 py-0.5 bg-purple-500/20 text-purple-400 rounded font-medium">
                                 {m.meeting_type.replace(/_/g, ' ')}
                               </span>
@@ -406,12 +408,17 @@ function SocialContentQueuePage() {
                                 {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </span>
                             )}
-                            {m.duration_minutes && (
+                            {!!m.duration_minutes && m.duration_minutes > 0 && (
                               <span className="text-xs text-gray-500">{m.duration_minutes}m</span>
                             )}
                           </div>
+                          {m.participants?.length > 0 && (
+                            <div className="text-xs text-amber-400/70 mt-0.5 truncate">
+                              with {m.participants.join(', ')}
+                            </div>
+                          )}
                           {m.snippet && (
-                            <div className="text-xs text-gray-500 mt-0.5 truncate">{m.snippet}</div>
+                            <div className="text-xs text-gray-500 mt-0.5 line-clamp-2">{m.snippet}</div>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
@@ -494,10 +501,10 @@ function SocialContentQueuePage() {
               {selectedMeeting && (() => {
                 const m = meetings.find((mt) => mt.id === selectedMeeting)
                 if (!m) return null
-                const title = m.meeting_title || m.meeting_type.replace(/_/g, ' ')
+                const selTitle = m.meeting_title || 'Untitled meeting'
                 return (
                   <span className="text-xs text-amber-500 truncate max-w-[300px]">
-                    Selected: {title}
+                    Selected: {selTitle}
                   </span>
                 )
               })()}

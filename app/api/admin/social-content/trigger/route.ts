@@ -3,7 +3,7 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { triggerSocialContentExtraction } from '@/lib/n8n'
 import { getSocialContentPrompts } from '@/lib/system-prompts'
 import { supabaseAdmin } from '@/lib/supabase'
-import { extractMeetingTitle, extractMeetingSourceUrl } from '@/lib/social-content'
+import { extractMeetingTitle, extractMeetingSourceUrl, extractParticipants, extractMeetingSummary } from '@/lib/social-content'
 
 export const dynamic = 'force-dynamic'
 
@@ -103,26 +103,22 @@ export async function GET(request: NextRequest) {
     const dateFrom = searchParams.get('from') || ''
     const dateTo = searchParams.get('to') || ''
 
-    let query = supabaseAdmin
-      .from('meeting_records')
-      .select('id, meeting_type, meeting_date, created_at, transcript, structured_notes, duration_minutes, raw_notes', { count: 'exact' })
-      .order('meeting_date', { ascending: false })
-
-    if (dateFrom) query = query.gte('meeting_date', dateFrom)
-    if (dateTo) query = query.lte('meeting_date', `${dateTo}T23:59:59`)
-
-    if (q) {
-      query = query.or(`raw_notes.ilike.%${q}%,meeting_type.ilike.%${q}%`)
-    }
-
-    query = query.range(offset, offset + limit - 1)
-
-    const { data: meetings, error, count } = await query
+    const { data: rpcRows, error } = await supabaseAdmin
+      .rpc('search_meeting_records', {
+        search_term: q || null,
+        date_from: dateFrom || null,
+        date_to: dateTo ? `${dateTo}T23:59:59` : null,
+        result_limit: limit,
+        result_offset: offset,
+      })
 
     if (error) {
       console.error('Error fetching meeting records:', error)
       return NextResponse.json({ error: 'Failed to fetch meeting records' }, { status: 500 })
     }
+
+    const meetings = rpcRows ?? []
+    const count = meetings.length > 0 ? (meetings[0] as { total_count: number }).total_count : 0
 
     const meetingIds = (meetings ?? []).map((m: { id: string }) => m.id)
     const { data: queuedItems } = meetingIds.length > 0
@@ -143,12 +139,13 @@ export async function GET(request: NextRequest) {
       id: string; meeting_type: string; meeting_date: string; created_at: string;
       transcript: string | null; structured_notes: Record<string, unknown> | null;
       duration_minutes: number | null; raw_notes: string | null;
+      meeting_data: unknown; attendees: unknown;
     }) => {
       const notes = m.structured_notes
-      const meetingTitle = extractMeetingTitle(m.raw_notes, notes)
+      let meetingTitle = extractMeetingTitle(m.raw_notes, notes)
+      const participants = extractParticipants(m.meeting_data, m.attendees)
 
-      const summary = notes?.summary as string | undefined
-      let snippet = summary || ''
+      let snippet = extractMeetingSummary(m.raw_notes, notes)
       if (!snippet && m.transcript) {
         const cleaned = (m.transcript as string)
           .replace(/<[^>]+>/g, '')
@@ -159,6 +156,19 @@ export async function GET(request: NextRequest) {
         snippet = cleaned.slice(0, 120)
       }
 
+      if (!meetingTitle && snippet) {
+        const topicPhrase = snippet
+          .replace(/^The meeting (focused on|reviewed|discussed|opened with|covered)\s*/i, '')
+          .replace(/,.*$/, '')
+          .trim()
+        const shortTopic = topicPhrase.split(/\s+/).slice(0, 7).join(' ')
+        if (participants.length > 0) {
+          meetingTitle = `${participants[0]} — ${shortTopic}`
+        } else {
+          meetingTitle = shortTopic.charAt(0).toUpperCase() + shortTopic.slice(1)
+        }
+      }
+
       return {
         id: m.id,
         meeting_type: m.meeting_type,
@@ -166,6 +176,7 @@ export async function GET(request: NextRequest) {
         created_at: m.created_at,
         duration_minutes: m.duration_minutes,
         meeting_title: meetingTitle,
+        participants,
         source_url: extractMeetingSourceUrl(m.raw_notes),
         snippet: snippet || null,
         queued_count: queuedCounts.get(m.id) || 0,
