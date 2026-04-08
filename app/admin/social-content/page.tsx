@@ -23,6 +23,9 @@ import {
   ThumbsUp,
   ThumbsDown,
   Square,
+  Search,
+  Calendar,
+  CheckSquare,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -65,7 +68,10 @@ interface MeetingRecord {
   source_url: string | null
   snippet: string | null
   queued_count: number
+  has_transcript: boolean
 }
+
+const MEETINGS_PER_PAGE = 5
 
 function SocialContentQueuePage() {
   const [items, setItems] = useState<SocialContentItem[]>([])
@@ -79,6 +85,12 @@ function SocialContentQueuePage() {
 
   // Extraction trigger state
   const [meetings, setMeetings] = useState<MeetingRecord[]>([])
+  const [meetingsTotal, setMeetingsTotal] = useState(0)
+  const [meetingsLoading, setMeetingsLoading] = useState(false)
+  const [meetingSearch, setMeetingSearch] = useState('')
+  const [meetingDateFrom, setMeetingDateFrom] = useState('')
+  const [meetingDateTo, setMeetingDateTo] = useState('')
+  const [meetingsPage, setMeetingsPage] = useState(1)
   const [selectedMeeting, setSelectedMeeting] = useState<string>('')
   const [triggerLoading, setTriggerLoading] = useState(false)
   const [triggerResult, setTriggerResult] = useState<{ success: boolean; message: string } | null>(null)
@@ -120,27 +132,43 @@ function SocialContentQueuePage() {
 
   const extractionStatus = useExtractionStatus(() => fetchItems())
 
-  const fetchMeetings = useCallback(async () => {
+  const fetchMeetings = useCallback(async (pageOverride?: number) => {
+    setMeetingsLoading(true)
     try {
       const session = await getCurrentSession()
       if (!session) return
-      const res = await fetch('/api/admin/social-content/trigger?limit=20', {
+      const page = pageOverride ?? meetingsPage
+      const offset = (page - 1) * MEETINGS_PER_PAGE
+      const params = new URLSearchParams({ limit: String(MEETINGS_PER_PAGE), offset: String(offset) })
+      if (meetingSearch) params.set('q', meetingSearch)
+      if (meetingDateFrom) params.set('from', meetingDateFrom)
+      if (meetingDateTo) params.set('to', meetingDateTo)
+      const res = await fetch(`/api/admin/social-content/trigger?${params}`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
       })
       if (res.ok) {
         const data = await res.json()
         setMeetings(data.meetings ?? [])
+        setMeetingsTotal(data.total ?? 0)
       }
     } catch (err) {
       console.error('Failed to fetch meetings:', err)
+    } finally {
+      setMeetingsLoading(false)
     }
-  }, [])
+  }, [meetingSearch, meetingDateFrom, meetingDateTo, meetingsPage])
 
   useEffect(() => {
-    if (showTriggerPanel && meetings.length === 0) {
-      fetchMeetings()
-    }
-  }, [showTriggerPanel, meetings.length, fetchMeetings])
+    if (showTriggerPanel) fetchMeetings()
+  }, [showTriggerPanel, fetchMeetings])
+
+  // Debounced meeting search — reset to page 1 on filter change
+  useEffect(() => {
+    if (!showTriggerPanel) return
+    const timer = setTimeout(() => { setMeetingsPage(1); fetchMeetings(1) }, 350)
+    return () => clearTimeout(timer)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meetingSearch, meetingDateFrom, meetingDateTo])
 
   const handleTriggerExtraction = async () => {
     setTriggerLoading(true)
@@ -268,42 +296,170 @@ function SocialContentQueuePage() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="mt-3 bg-gray-900 border border-gray-800 rounded-xl p-5"
+            className="mt-3 bg-gray-900 border border-gray-800 rounded-xl p-5 space-y-4"
           >
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-gray-200">Trigger Content Extraction (WF-SOC-001)</h3>
               <span
                 className="text-gray-600 hover:text-gray-400 transition-colors cursor-help"
-                title="Runs WF-SOC-001 to extract social content from meeting transcripts. Leave meeting empty to process all recent."
+                title="Runs WF-SOC-001 to extract social content from meeting transcripts. Select a specific meeting or extract from all recent."
               >
                 <Info className="w-3.5 h-3.5" />
               </span>
             </div>
 
+            {/* Search & Date Filters */}
             <div className="flex flex-wrap items-end gap-3">
-              <div className="flex-1 min-w-[220px]">
-                <label className="block text-xs text-gray-400 mb-1">Meeting (optional)</label>
-                <select
-                  value={selectedMeeting}
-                  onChange={(e) => setSelectedMeeting(e.target.value)}
-                  className="w-full bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-2 text-sm"
-                >
-                  <option value="">All recent meetings</option>
+              <div className="flex-1 min-w-[200px]">
+                <label className="block text-xs text-gray-500 mb-1">Search meetings</label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+                  <input
+                    type="text"
+                    value={meetingSearch}
+                    onChange={(e) => setMeetingSearch(e.target.value)}
+                    placeholder="Type, transcript, topic..."
+                    className="w-full bg-gray-800 text-gray-300 border border-gray-700 rounded-lg pl-8 pr-3 py-2 text-sm focus:outline-none focus:border-amber-600 transition-colors"
+                  />
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Calendar className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+                <input
+                  type="date"
+                  value={meetingDateFrom}
+                  onChange={(e) => setMeetingDateFrom(e.target.value)}
+                  className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-2 py-2 text-sm w-32 focus:outline-none focus:border-amber-600"
+                />
+                <span className="text-xs text-gray-500">to</span>
+                <input
+                  type="date"
+                  value={meetingDateTo}
+                  onChange={(e) => setMeetingDateTo(e.target.value)}
+                  className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-2 py-2 text-sm w-32 focus:outline-none focus:border-amber-600"
+                />
+                {(meetingDateFrom || meetingDateTo) && (
+                  <button onClick={() => { setMeetingDateFrom(''); setMeetingDateTo('') }} className="text-xs text-gray-400 hover:text-white">Clear</button>
+                )}
+              </div>
+            </div>
+
+            {/* Meeting List */}
+            {meetingsLoading ? (
+              <div className="flex items-center gap-2 text-sm text-gray-400 py-6 justify-center">
+                <Loader2 className="w-4 h-4 animate-spin" /> Loading meetings...
+              </div>
+            ) : meetings.length === 0 ? (
+              <div className="text-center py-6 text-sm text-gray-500">
+                No meetings found.{(meetingSearch || meetingDateFrom) && ' Try adjusting your filters.'}
+              </div>
+            ) : (
+              <>
+                {/* Selection header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {selectedMeeting ? (
+                      <button
+                        onClick={() => setSelectedMeeting('')}
+                        className="text-xs px-2 py-1 rounded border border-amber-600/40 text-amber-500 bg-amber-600/10"
+                      >
+                        Clear selection
+                      </button>
+                    ) : (
+                      <span className="text-xs text-gray-500">Click a meeting to select it, or extract all recent</span>
+                    )}
+                  </div>
+                  <span className="text-xs text-gray-500">{meetingsTotal} meeting{meetingsTotal !== 1 ? 's' : ''}</span>
+                </div>
+
+                {/* Meeting rows */}
+                <div className="space-y-1.5">
                   {meetings.map((m) => {
-                    const date = new Date(m.meeting_date)
-                    const dateStr = date.toLocaleDateString()
-                    const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    const isSelected = selectedMeeting === m.id
+                    const date = m.meeting_date ? new Date(m.meeting_date) : null
                     const title = m.meeting_title || m.meeting_type.replace(/_/g, ' ')
-                    const duration = m.duration_minutes ? ` · ${m.duration_minutes}m` : ''
-                    const processed = m.queued_count > 0 ? ` (${m.queued_count} post${m.queued_count > 1 ? 's' : ''})` : ''
                     return (
-                      <option key={m.id} value={m.id}>
-                        {title} — {dateStr} {timeStr}{duration}{processed}
-                      </option>
+                      <button
+                        key={m.id}
+                        onClick={() => setSelectedMeeting(isSelected ? '' : m.id)}
+                        className={`w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-lg border transition-colors ${
+                          isSelected
+                            ? 'border-amber-600/40 bg-amber-600/5'
+                            : 'border-gray-800 bg-gray-800/50 hover:bg-gray-800'
+                        }`}
+                      >
+                        {isSelected ? (
+                          <CheckSquare className="w-4 h-4 text-amber-500 shrink-0" />
+                        ) : (
+                          <Square className="w-4 h-4 text-gray-600 shrink-0" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm text-gray-200 font-medium truncate">{title}</span>
+                            {m.meeting_type && (
+                              <span className="text-[10px] px-1.5 py-0.5 bg-purple-500/20 text-purple-400 rounded font-medium">
+                                {m.meeting_type.replace(/_/g, ' ')}
+                              </span>
+                            )}
+                            {date && (
+                              <span className="text-xs text-gray-500">
+                                {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </span>
+                            )}
+                            {m.duration_minutes && (
+                              <span className="text-xs text-gray-500">{m.duration_minutes}m</span>
+                            )}
+                          </div>
+                          {m.snippet && (
+                            <div className="text-xs text-gray-500 mt-0.5 truncate">{m.snippet}</div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          {m.has_transcript && (
+                            <span className="text-[9px] px-1 py-0.5 bg-emerald-500/15 text-emerald-400 rounded">Transcript</span>
+                          )}
+                          {m.queued_count > 0 && (
+                            <span className="text-[9px] px-1 py-0.5 bg-blue-500/15 text-blue-400 rounded">
+                              {m.queued_count} post{m.queued_count > 1 ? 's' : ''}
+                            </span>
+                          )}
+                        </div>
+                      </button>
                     )
                   })}
-                </select>
-              </div>
+                </div>
+
+                {/* Pagination */}
+                {(() => {
+                  const totalPages = Math.max(1, Math.ceil(meetingsTotal / MEETINGS_PER_PAGE))
+                  if (totalPages <= 1) return null
+                  return (
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-xs text-gray-500">Page {meetingsPage} of {totalPages}</span>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setMeetingsPage((p) => Math.max(1, p - 1))}
+                          disabled={meetingsPage === 1}
+                          className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-800 border border-gray-700 text-gray-300 hover:border-amber-600/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <ChevronLeft className="w-3 h-3" /> Prev
+                        </button>
+                        <button
+                          onClick={() => setMeetingsPage((p) => Math.min(totalPages, p + 1))}
+                          disabled={meetingsPage === totalPages}
+                          className="flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-800 border border-gray-700 text-gray-300 hover:border-amber-600/30 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          Next <ChevronRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })()}
+              </>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex items-center gap-3 pt-2 border-t border-gray-800">
               {extractionStatus.state === 'running' || extractionStatus.state === 'stale' ? (
                 <button
                   onClick={() => {
@@ -327,13 +483,28 @@ function SocialContentQueuePage() {
                   ) : (
                     <Play className="w-4 h-4" />
                   )}
-                  {triggerLoading ? 'Triggering...' : 'Start Extraction'}
+                  {triggerLoading
+                    ? 'Triggering...'
+                    : selectedMeeting
+                      ? 'Extract from Selected Meeting'
+                      : 'Extract All Recent Meetings'
+                  }
                 </button>
               )}
+              {selectedMeeting && (() => {
+                const m = meetings.find((mt) => mt.id === selectedMeeting)
+                if (!m) return null
+                const title = m.meeting_title || m.meeting_type.replace(/_/g, ' ')
+                return (
+                  <span className="text-xs text-amber-500 truncate max-w-[300px]">
+                    Selected: {title}
+                  </span>
+                )
+              })()}
             </div>
 
             {triggerResult && (
-              <div className={`mt-3 flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
+              <div className={`flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
                 triggerResult.success
                   ? 'bg-green-500/10 text-green-400 border border-green-500/30'
                   : 'bg-red-500/10 text-red-400 border border-red-500/30'

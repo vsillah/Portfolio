@@ -86,7 +86,8 @@ export async function POST(request: NextRequest) {
 
 /**
  * GET /api/admin/social-content/trigger
- * Returns recent meeting records that can be used for extraction.
+ * Returns meeting records for the extraction meeting picker.
+ * Supports search (q), date range (from/to), and pagination (limit/offset).
  */
 export async function GET(request: NextRequest) {
   try {
@@ -96,13 +97,27 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url)
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 50)
+    const limit = Math.min(parseInt(searchParams.get('limit') || '10'), 50)
+    const offset = Math.max(parseInt(searchParams.get('offset') || '0'), 0)
+    const q = searchParams.get('q')?.trim() || ''
+    const dateFrom = searchParams.get('from') || ''
+    const dateTo = searchParams.get('to') || ''
 
-    const { data: meetings, error } = await supabaseAdmin
+    let query = supabaseAdmin
       .from('meeting_records')
-      .select('id, meeting_type, meeting_date, created_at, transcript, structured_notes, duration_minutes, raw_notes')
+      .select('id, meeting_type, meeting_date, created_at, transcript, structured_notes, duration_minutes, raw_notes', { count: 'exact' })
       .order('meeting_date', { ascending: false })
-      .limit(limit)
+
+    if (dateFrom) query = query.gte('meeting_date', dateFrom)
+    if (dateTo) query = query.lte('meeting_date', `${dateTo}T23:59:59`)
+
+    if (q) {
+      query = query.or(`raw_notes.ilike.%${q}%,meeting_type.ilike.%${q}%`)
+    }
+
+    query = query.range(offset, offset + limit - 1)
+
+    const { data: meetings, error, count } = await query
 
     if (error) {
       console.error('Error fetching meeting records:', error)
@@ -141,7 +156,7 @@ export async function GET(request: NextRequest) {
           .replace(/https?:\/\/\S+/g, '')
           .replace(/\s+/g, ' ')
           .trim()
-        snippet = cleaned.slice(0, 80)
+        snippet = cleaned.slice(0, 120)
       }
 
       return {
@@ -154,11 +169,13 @@ export async function GET(request: NextRequest) {
         source_url: extractMeetingSourceUrl(m.raw_notes),
         snippet: snippet || null,
         queued_count: queuedCounts.get(m.id) || 0,
+        has_transcript: !!(m.transcript),
       }
     })
 
     return NextResponse.json({
       meetings: enrichedMeetings,
+      total: count ?? enrichedMeetings.length,
     })
   } catch (error) {
     console.error('Error in GET /api/admin/social-content/trigger:', error)
