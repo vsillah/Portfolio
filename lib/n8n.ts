@@ -1321,6 +1321,7 @@ export async function triggerValueEvidenceExtraction(
       triggered_at: new Date().toISOString(),
       workflow: 'WF-VEP-001',
       action: 'extract_internal_evidence',
+      callbackBaseUrl: process.env.N8N_CALLBACK_BASE_URL || process.env.PORTFOLIO_BASE_URL || 'https://amadutown.com',
     }
     if (options?.contactSubmissionIds?.length) {
       body.contact_submission_ids = options.contactSubmissionIds
@@ -1386,6 +1387,7 @@ export async function triggerSocialListening(options?: SocialListeningOptions): 
       triggered_at: new Date().toISOString(),
       workflow: 'WF-VEP-002',
       action: 'social_listening_scrape',
+      callbackBaseUrl: process.env.N8N_CALLBACK_BASE_URL || process.env.PORTFOLIO_BASE_URL || 'https://amadutown.com',
     }
     if (options?.runId) {
       body.run_id = options.runId

@@ -51,7 +51,6 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       console.warn('value_evidence_workflow_runs insert failed (table may not exist):', insertError.message)
-      // Continue - run tracking is optional
     }
 
     let result: { triggered: boolean; message: string }
