@@ -14,7 +14,7 @@ Brief setup and validation notes as we migrate/validate workflows on n8n Cloud (
 | RAG Chatbot for AmaduTown using Google Gemini | ✅ | See below |
 | ReversR Beta Tester Intake form | ✅ | Value mappings + credential; trigger script injects current timestamp |
 | WF-DIAG-COMP: Diagnostic Completion | ✅ | Webhook `diagnostic-completion` → Slack → Respond `{ ok: true }`; ID `jpSUzUCkbwCrkTSy` |
-| WF-GAMMA-CLEANUP: Stuck Gamma Reports | ✅ | Schedule 15m → `POST /api/cron/gamma-stuck-cleanup` (Bearer `N8N_INGEST_SECRET`); ID `V5cNpHrAgSqd05NC`; set `PORTFOLIO_URL` + `N8N_INGEST_SECRET` in n8n Variables |
+| WF-GAMMA-CLEANUP: Stuck Gamma Reports | ✅ | Schedule hourly → `POST /api/cron/gamma-stuck-cleanup` (Bearer `N8N_INGEST_SECRET`); ID `V5cNpHrAgSqd05NC`; set `PORTFOLIO_URL` + `N8N_INGEST_SECRET` in n8n Variables |
 
 ## Chat / RAG (split workflows)
 

@@ -31,6 +31,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -83,6 +84,19 @@ interface DashboardData {
 }
 
 type TabName = 'dashboard' | 'pain-points' | 'market-intel' | 'benchmarks' | 'calculations' | 'reports'
+
+const VALID_TAB_QUERY_VALUES: TabName[] = [
+  'dashboard',
+  'pain-points',
+  'market-intel',
+  'benchmarks',
+  'calculations',
+  'reports',
+]
+
+function isTabName(v: string): v is TabName {
+  return (VALID_TAB_QUERY_VALUES as string[]).includes(v)
+}
 
 // ============================================================================
 // Helpers
@@ -154,13 +168,31 @@ function normalizeStatementForTab(vs: Record<string, unknown>) {
 // ============================================================================
 
 export default function ValueEvidencePage() {
+  const searchParams = useSearchParams()
   const [activeTab, setActiveTab] = useState<TabName>('dashboard')
   const [dashData, setDashData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [focusPainPointId, setFocusPainPointId] = useState<string | null>(null)
   const [focusCalculationPainPointId, setFocusCalculationPainPointId] = useState<string | null>(null)
   const [triggerAllLoading, setTriggerAllLoading] = useState(false)
+  const [socialMaxResults, setSocialMaxResults] = useState(10)
   const tunnel = useDevTunnel()
+
+  useEffect(() => {
+    const t = searchParams.get('tab')
+    if (t && isTabName(t)) setActiveTab(t)
+  }, [searchParams])
+
+  /** Deep-link from Lead Pipeline: ?tab=dashboard&highlight=vep001 (or pipeline | internal) */
+  useEffect(() => {
+    const h = searchParams.get('highlight')
+    if (!h || !['vep001', 'pipeline', 'internal'].includes(h)) return
+    if (activeTab !== 'dashboard') return
+    const t = window.setTimeout(() => {
+      document.getElementById('vep-dashboard-pipeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 150)
+    return () => clearTimeout(t)
+  }, [searchParams, activeTab])
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true)
@@ -211,6 +243,7 @@ export default function ValueEvidencePage() {
   const triggerWorkflow = async (
     workflow: 'internal_extraction' | 'social_listening',
     statusHook: ReturnType<typeof useWorkflowStatus>,
+    maxResults?: number,
   ) => {
     try {
       if (tunnel.isDev) {
@@ -222,13 +255,17 @@ export default function ValueEvidencePage() {
 
       const session = await getCurrentSession()
       if (!session?.access_token) return
+      const body: Record<string, unknown> = { workflow }
+      if (workflow === 'social_listening' && maxResults) {
+        body.maxResults = maxResults
+      }
       const res = await fetch('/api/admin/value-evidence/trigger', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ workflow }),
+        body: JSON.stringify(body),
       })
       const data = await res.json()
       if (data.triggered) {
@@ -243,7 +280,7 @@ export default function ValueEvidencePage() {
     setTriggerAllLoading(true)
     await Promise.allSettled([
       triggerWorkflow('internal_extraction', vep001Status),
-      triggerWorkflow('social_listening', vep002Status),
+      triggerWorkflow('social_listening', vep002Status, socialMaxResults),
     ])
     setTriggerAllLoading(false)
   }
@@ -366,7 +403,10 @@ export default function ValueEvidencePage() {
           {activeTab === 'dashboard' && (
             <div className="space-y-6">
               {/* Pipeline Trigger Bar */}
-              <div className="flex items-center gap-3 flex-wrap">
+              <div
+                id="vep-dashboard-pipeline"
+                className="flex items-center gap-3 flex-wrap scroll-mt-24"
+              >
                 {eitherRunning ? (
                   <button
                     onClick={handleCancelAll}
@@ -409,7 +449,11 @@ export default function ValueEvidencePage() {
                   toggleDrawer={vep002Status.toggleDrawer}
                   toggleHistory={vep002Status.toggleHistory}
                   markRunFailed={vep002Status.markRunFailed}
-                  onRetry={() => triggerWorkflow('social_listening', vep002Status)}
+                  onRetry={(maxResults) => triggerWorkflow('social_listening', vep002Status, maxResults)}
+                  scopeSelector={{
+                    selected: socialMaxResults,
+                    onChange: setSocialMaxResults,
+                  }}
                 />
                 {tunnel.isDev && (
                   <span

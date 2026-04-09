@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronDown,
@@ -16,6 +16,112 @@ import {
   Play,
 } from 'lucide-react'
 import type { ExtractionRun, ExtractionState } from '@/lib/hooks/useExtractionStatus'
+
+// ============================================================================
+// Pipeline stage definitions — time-based estimation when n8n doesn't report
+// ============================================================================
+
+interface PipelineStage {
+  key: string
+  label: string
+  /** Cumulative seconds into the run when this stage typically starts */
+  startsAt: number
+}
+
+const VEP001_STAGES: PipelineStage[] = [
+  { key: 'fetch', label: 'Fetching internal data', startsAt: 0 },
+  { key: 'classify', label: 'AI classification', startsAt: 10 },
+  { key: 'ingest', label: 'Ingesting evidence', startsAt: 30 },
+  { key: 'complete', label: 'Finalizing', startsAt: 50 },
+]
+const VEP001_TYPICAL_DURATION_S = 60
+
+// VEP-002 scrapes 5 platforms via Apify — runs typically take 7–38 minutes
+const VEP002_STAGES: PipelineStage[] = [
+  { key: 'scrape', label: 'Scraping platforms', startsAt: 0 },
+  { key: 'extract', label: 'Extracting results', startsAt: 600 },
+  { key: 'ingest_market', label: 'Ingesting market intel', startsAt: 720 },
+  { key: 'classify', label: 'AI classification', startsAt: 780 },
+  { key: 'pain_points', label: 'Creating pain points', startsAt: 900 },
+  { key: 'complete', label: 'Finalizing', startsAt: 1020 },
+]
+const VEP002_TYPICAL_DURATION_S = 1200
+
+const DEFAULT_STAGES: PipelineStage[] = [
+  { key: 'processing', label: 'Processing', startsAt: 0 },
+]
+const DEFAULT_TYPICAL_DURATION_S = 120
+
+const VEP002_DURATION_BY_SCOPE: Record<number, number> = {
+  5: 180,
+  10: 540,
+  20: 1200,
+}
+
+function getStagesForWorkflow(workflowId?: string, maxResults?: number): { stages: PipelineStage[]; typicalDurationS: number } {
+  if (workflowId === 'vep001') return { stages: VEP001_STAGES, typicalDurationS: VEP001_TYPICAL_DURATION_S }
+  if (workflowId === 'vep002') {
+    const duration = (maxResults && VEP002_DURATION_BY_SCOPE[maxResults]) || VEP002_TYPICAL_DURATION_S
+    const scale = duration / VEP002_TYPICAL_DURATION_S
+    const scaledStages = VEP002_STAGES.map(s => ({ ...s, startsAt: Math.round(s.startsAt * scale) }))
+    return { stages: scaledStages, typicalDurationS: duration }
+  }
+  return { stages: DEFAULT_STAGES, typicalDurationS: DEFAULT_TYPICAL_DURATION_S }
+}
+
+/**
+ * Given elapsed time and stage definitions, determine the current stage
+ * and an overall progress percentage (0–100, capped at 95 until complete).
+ */
+function estimateProgress(
+  elapsedMs: number,
+  stagesDef: PipelineStage[],
+  typicalDurationS: number,
+  reportedStages: Record<string, string> | null,
+): { currentStageLabel: string; progressPct: number } {
+  const stageKeys = new Set(stagesDef.map(s => s.key))
+  const pipelineStages = reportedStages
+    ? Object.fromEntries(Object.entries(reportedStages).filter(([k]) => stageKeys.has(k)))
+    : null
+  const hasReported = pipelineStages && Object.keys(pipelineStages).length > 0
+
+  if (hasReported) {
+    const completedCount = Object.values(pipelineStages!).filter(s => s === 'complete').length
+    const lastReportedKey = Object.keys(pipelineStages!).pop()
+    const lastReportedStatus = lastReportedKey ? pipelineStages![lastReportedKey] : null
+    const stageIdx = stagesDef.findIndex(s => s.key === lastReportedKey)
+    const pct = stageIdx >= 0
+      ? Math.min(95, Math.round(((stageIdx + (lastReportedStatus === 'complete' ? 1 : 0.5)) / stagesDef.length) * 100))
+      : Math.min(95, Math.round((completedCount / stagesDef.length) * 100))
+    const label = stageIdx >= 0
+      ? (lastReportedStatus === 'complete' && stageIdx + 1 < stagesDef.length
+        ? stagesDef[stageIdx + 1].label
+        : stagesDef[stageIdx].label)
+      : stagesDef[0].label
+    return { currentStageLabel: label, progressPct: Math.max(pct, 2) }
+  }
+
+  const elapsedS = elapsedMs / 1000
+  let currentLabel = stagesDef[0].label
+  for (let i = stagesDef.length - 1; i >= 0; i--) {
+    if (elapsedS >= stagesDef[i].startsAt) {
+      currentLabel = stagesDef[i].label
+      break
+    }
+  }
+
+  // Asymptotic curve: approaches 90% at typicalDuration, never exceeds 95.
+  // Formula: 90 * (1 - e^(-2 * t/T))  — fast early, slows down naturally.
+  const ratio = elapsedS / typicalDurationS
+  const rawPct = 90 * (1 - Math.exp(-2 * ratio))
+  const progressPct = Math.max(2, Math.min(95, Math.round(rawPct)))
+
+  return { currentStageLabel: currentLabel, progressPct }
+}
+
+// ============================================================================
+// Helpers
+// ============================================================================
 
 function formatElapsed(ms: number): string {
   const totalSec = Math.floor(ms / 1000)
@@ -42,6 +148,22 @@ function timeAgo(date: string): string {
   return `${d}d ago`
 }
 
+// ============================================================================
+// Sub-components
+// ============================================================================
+
+export interface ScanScopeOption {
+  value: number
+  label: string
+  hint: string
+}
+
+export const SCAN_SCOPE_OPTIONS: ScanScopeOption[] = [
+  { value: 5, label: 'Quick Scan', hint: '~2-4 min' },
+  { value: 10, label: 'Standard Scan', hint: '~7-12 min' },
+  { value: 20, label: 'Deep Scan', hint: '~15-30 min' },
+]
+
 interface StatusChipProps {
   label?: string
   state: ExtractionState
@@ -53,9 +175,13 @@ interface StatusChipProps {
   toggleDrawer: () => void
   toggleHistory: () => void
   markRunFailed: (runId: string, reason?: string) => void
-  onRetry?: () => void
-  /** Optional action pinned to the bottom of the chip drawer (e.g. Force resync). */
+  onRetry?: (maxResults?: number) => void
   drawerFooterAction?: { label: string; onClick: () => void; disabled?: boolean }
+  /** When provided, shows a scope dropdown before the Run action (Social pipeline only) */
+  scopeSelector?: {
+    selected: number
+    onChange: (maxResults: number) => void
+  }
 }
 
 const DOT_COLORS: Record<ExtractionState, string> = {
@@ -78,12 +204,19 @@ function StatusDot({ state }: { state: ExtractionState }) {
   )
 }
 
-function chipLabel(state: ExtractionState, run: ExtractionRun | null, elapsedMs: number): string {
+function chipLabel(
+  state: ExtractionState,
+  run: ExtractionRun | null,
+  elapsedMs: number,
+  stageLabel?: string,
+): string {
   if (!run) return 'No runs yet'
 
   switch (state) {
     case 'running':
-      return `Running… ${formatElapsed(elapsedMs)}`
+      return stageLabel
+        ? `${stageLabel} · ${formatElapsed(elapsedMs)}`
+        : `Running… ${formatElapsed(elapsedMs)}`
     case 'stale':
       return `${formatElapsed(elapsedMs)} — may be stuck`
     case 'failed':
@@ -138,6 +271,60 @@ function RunRow({ run }: { run: ExtractionRun }) {
   )
 }
 
+// ============================================================================
+// Progress bar component
+// ============================================================================
+
+function ScopeDropdown({ selected, onChange }: { selected: number; onChange: (v: number) => void }) {
+  return (
+    <select
+      value={selected}
+      onChange={e => onChange(Number(e.target.value))}
+      className="text-xs bg-gray-900/80 text-gray-300 border border-gray-700/60 rounded px-2 py-1 focus:outline-none focus:border-amber-500/50 cursor-pointer"
+    >
+      {SCAN_SCOPE_OPTIONS.map(opt => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label} ({opt.hint})
+        </option>
+      ))}
+    </select>
+  )
+}
+
+function PipelineProgressBar({
+  progressPct,
+  stageLabel,
+  stale,
+}: {
+  progressPct: number
+  stageLabel: string
+  stale: boolean
+}) {
+  const barColor = stale ? 'bg-orange-500' : 'bg-amber-500'
+  const trackColor = stale ? 'bg-orange-500/10' : 'bg-amber-500/10'
+
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between text-[11px]">
+        <span className="text-gray-400">{stageLabel}</span>
+        <span className="text-gray-500 tabular-nums">{progressPct}%</span>
+      </div>
+      <div className={`h-1.5 w-full rounded-full ${trackColor} overflow-hidden`}>
+        <motion.div
+          className={`h-full rounded-full ${barColor}`}
+          initial={{ width: 0 }}
+          animate={{ width: `${progressPct}%` }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        />
+      </div>
+    </div>
+  )
+}
+
+// ============================================================================
+// Main component
+// ============================================================================
+
 export function ExtractionStatusChip({
   label,
   state,
@@ -151,9 +338,26 @@ export function ExtractionStatusChip({
   markRunFailed,
   onRetry,
   drawerFooterAction,
+  scopeSelector,
 }: StatusChipProps) {
   const chipRef = useRef<HTMLDivElement>(null)
   const drawerRef = useRef<HTMLDivElement>(null)
+
+  const runMaxResults = (currentRun?.stages as Record<string, unknown> | null)?.scope
+    ? ((currentRun!.stages as Record<string, unknown>).scope as { maxResults?: number })?.maxResults
+    : undefined
+
+  const { stages: stagesDef, typicalDurationS } = useMemo(
+    () => getStagesForWorkflow(currentRun?.workflow_id, runMaxResults),
+    [currentRun?.workflow_id, runMaxResults],
+  )
+
+  const { currentStageLabel, progressPct } = useMemo(
+    () => (state === 'running' || state === 'stale')
+      ? estimateProgress(elapsedMs, stagesDef, typicalDurationS, currentRun?.stages ?? null)
+      : { currentStageLabel: '', progressPct: 0 },
+    [state, elapsedMs, stagesDef, typicalDurationS, currentRun?.stages],
+  )
 
   useEffect(() => {
     if (!isDrawerOpen) return
@@ -176,6 +380,8 @@ export function ExtractionStatusChip({
 
   const completedRuns = recentRuns.filter(r => r.status !== 'running').slice(0, 3)
 
+  const runningStageLabel = (state === 'running' || state === 'stale') ? currentStageLabel : undefined
+
   return (
     <div className="relative" ref={chipRef}>
       {/* Chip */}
@@ -183,12 +389,12 @@ export function ExtractionStatusChip({
         onClick={toggleDrawer}
         className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/80 border border-gray-700/60 hover:border-gray-600 transition-colors text-xs cursor-pointer"
         aria-expanded={isDrawerOpen}
-        aria-label={`${label ? label + ' ' : ''}Status: ${chipLabel(state, currentRun, elapsedMs)}`}
+        aria-label={`${label ? label + ' ' : ''}Status: ${chipLabel(state, currentRun, elapsedMs, runningStageLabel)}`}
       >
         <StatusDot state={state} />
         <span className="text-gray-300">
           {label && <span className="text-gray-500 mr-1">{label}</span>}
-          {chipLabel(state, currentRun, elapsedMs)}
+          {chipLabel(state, currentRun, elapsedMs, runningStageLabel)}
         </span>
         {isDrawerOpen ? (
           <ChevronUp className="w-3 h-3 text-gray-500" />
@@ -214,22 +420,23 @@ export function ExtractionStatusChip({
                 {/* Running */}
                 {(state === 'running' || state === 'stale') && (
                   <div>
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-3">
                       <Loader2 className="w-3.5 h-3.5 text-amber-400 animate-spin" />
                       <span className="text-sm font-medium text-gray-200">
-                        {state === 'stale' ? 'May be stuck' : 'Running…'}
+                        {state === 'stale' ? 'May be stuck' : currentStageLabel}
                       </span>
-                      <span className="text-xs text-gray-500 ml-auto">{formatElapsed(elapsedMs)}</span>
+                      <span className="text-xs text-gray-500 ml-auto tabular-nums">{formatElapsed(elapsedMs)}</span>
                     </div>
                     {currentRun.meeting_title && (
-                      <div className="text-xs text-gray-400 mb-2 truncate">{currentRun.meeting_title}</div>
+                      <div className="text-xs text-gray-400 mb-3 truncate">{currentRun.meeting_title}</div>
                     )}
-                    {/* Shimmer bar */}
-                    <div className="h-1 w-full rounded-full bg-gray-700 overflow-hidden">
-                      <div className={`h-full rounded-full ${state === 'stale' ? 'bg-orange-500/60' : 'bg-amber-500/60'} animate-pulse`} style={{ width: '60%' }} />
-                    </div>
+                    <PipelineProgressBar
+                      progressPct={progressPct}
+                      stageLabel={currentStageLabel}
+                      stale={state === 'stale'}
+                    />
                     {state === 'stale' && (
-                      <p className="mt-2 text-xs text-orange-400/80">Running longer than expected</p>
+                      <p className="mt-2 text-xs text-orange-400/80">Running longer than expected — the workflow may have stalled</p>
                     )}
                     <div className="mt-3 flex justify-end">
                       <button
@@ -264,14 +471,19 @@ export function ExtractionStatusChip({
                         {formatDuration(currentRun.triggered_at, currentRun.completed_at)}
                       </span>
                       {onRetry && (
-                        <button
-                          onClick={onRetry}
-                          className="ml-auto inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors"
-                          title="Run again"
-                        >
-                          <Play className="w-3 h-3" />
-                          Run
-                        </button>
+                        <div className="ml-auto flex items-center gap-2">
+                          {scopeSelector && (
+                            <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
+                          )}
+                          <button
+                            onClick={() => onRetry(scopeSelector?.selected)}
+                            className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors"
+                            title="Run again"
+                          >
+                            <Play className="w-3 h-3" />
+                            Run
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -301,14 +513,19 @@ export function ExtractionStatusChip({
                         <span className="text-xs text-gray-500 truncate flex-1">{currentRun.meeting_title}</span>
                       )}
                       {onRetry && (
-                        <button
-                          onClick={onRetry}
-                          className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600/30 transition-colors"
-                          title="Re-run the extraction"
-                        >
-                          <RotateCcw className="w-3 h-3" />
-                          Retry
-                        </button>
+                        <div className="flex items-center gap-2 ml-auto">
+                          {scopeSelector && (
+                            <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
+                          )}
+                          <button
+                            onClick={() => onRetry(scopeSelector?.selected)}
+                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600/30 transition-colors"
+                            title="Re-run the extraction"
+                          >
+                            <RotateCcw className="w-3 h-3" />
+                            Retry
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -316,23 +533,30 @@ export function ExtractionStatusChip({
 
                 {/* Idle — show last run summary */}
                 {state === 'idle' && (
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-gray-500" />
-                    <span className="text-sm text-gray-400">
-                      Last run {timeAgo(currentRun.completed_at || currentRun.triggered_at)}
-                    </span>
-                    {currentRun.items_inserted != null && (
-                      <span className="text-xs text-gray-500">· {currentRun.items_inserted} items</span>
-                    )}
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-gray-500" />
+                      <span className="text-sm text-gray-400">
+                        Last run {timeAgo(currentRun.completed_at || currentRun.triggered_at)}
+                      </span>
+                      {currentRun.items_inserted != null && (
+                        <span className="text-xs text-gray-500">· {currentRun.items_inserted} items</span>
+                      )}
+                    </div>
                     {onRetry && (
-                      <button
-                        onClick={onRetry}
-                        className="ml-auto inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors"
-                        title="Run this workflow"
-                      >
-                        <Play className="w-3 h-3" />
-                        Run
-                      </button>
+                      <div className="flex items-center gap-2 mt-2 justify-end">
+                        {scopeSelector && (
+                          <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
+                        )}
+                        <button
+                          onClick={() => onRetry(scopeSelector?.selected)}
+                          className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors"
+                          title="Run this workflow"
+                        >
+                          <Play className="w-3 h-3" />
+                          Run
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -345,15 +569,20 @@ export function ExtractionStatusChip({
                   No runs yet. Use Run to start the first sync.
                 </p>
                 {onRetry && (
-                  <button
-                    type="button"
-                    onClick={onRetry}
-                    className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors font-medium"
-                    title="Start a run"
-                  >
-                    <Play className="w-3.5 h-3.5" />
-                    Run
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {scopeSelector && (
+                      <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => onRetry(scopeSelector?.selected)}
+                      className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors font-medium"
+                      title="Start a run"
+                    >
+                      <Play className="w-3.5 h-3.5" />
+                      Run
+                    </button>
+                  </div>
                 )}
               </div>
             )}
@@ -401,6 +630,10 @@ export function ExtractionStatusChip({
     </div>
   )
 }
+
+// ============================================================================
+// Run History Slide-Over
+// ============================================================================
 
 function RunHistorySlideOver({
   runs,

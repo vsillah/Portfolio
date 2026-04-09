@@ -1275,7 +1275,7 @@ export async function triggerWarmLeadScrape(params: {
 const N8N_VEP001_WEBHOOK_URL = process.env.N8N_VEP001_WEBHOOK_URL
   || n8nWebhookUrl('vep-001-extract')
 const N8N_VEP002_WEBHOOK_URL = process.env.N8N_VEP002_WEBHOOK_URL
-  || n8nWebhookUrl('vep-002-social')
+  || n8nWebhookUrl('vep-002-social-prod')
 
 /**
  * Options for value evidence extraction (selected leads and rep-supplied enrichments).
@@ -1333,7 +1333,7 @@ export async function triggerValueEvidenceExtraction(
       body.run_id = options.runId
     }
 
-    const response = await fetch(N8N_VEP001_WEBHOOK_URL, {
+    const response = await fetchWithTimeout(N8N_VEP001_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1364,6 +1364,8 @@ export async function triggerValueEvidenceExtraction(
 export interface SocialListeningOptions {
   /** Run ID for progress/complete callbacks; n8n can echo this back to update run status. */
   runId?: string
+  /** Max results per platform (default 20 in n8n). Quick=5, Standard=10, Deep=20. */
+  maxResults?: number
 }
 
 export async function triggerSocialListening(options?: SocialListeningOptions): Promise<{ triggered: boolean; message: string }> {
@@ -1392,7 +1394,10 @@ export async function triggerSocialListening(options?: SocialListeningOptions): 
     if (options?.runId) {
       body.run_id = options.runId
     }
-    const response = await fetch(N8N_VEP002_WEBHOOK_URL, {
+    if (options?.maxResults) {
+      body.maxResults = options.maxResults
+    }
+    const response = await fetchWithTimeout(N8N_VEP002_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

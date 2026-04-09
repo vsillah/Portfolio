@@ -1126,6 +1126,17 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
 }
 
 /**
+ * True when the E2E scenario includes an in-browser diagnostic flow (`type: 'diagnostic'`).
+ * Admin UI uses this for the “prompts” edit shortcut. IDs are the `id` field on each scenario
+ * in this file and in `SCENARIOS` on the testing dashboard page.
+ */
+export function scenarioIncludesDiagnosticStep(scenarioId: string): boolean {
+  const scenario = SCENARIOS_BY_ID[scenarioId]
+  if (!scenario?.steps?.length) return false
+  return scenario.steps.some((step: ScenarioStep) => step.type === 'diagnostic')
+}
+
+/**
  * Critical path scenarios that should always pass
  */
 export const CRITICAL_SCENARIOS: TestScenario[] = [

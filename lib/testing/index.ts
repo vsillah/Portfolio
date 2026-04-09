@@ -154,7 +154,8 @@ export {
   getScenariosByJourneyStage,
   getRandomScenario,
   estimateTotalDuration,
-  createCompositeScenario
+  createCompositeScenario,
+  scenarioIncludesDiagnosticStep
 } from './scenarios'
 
 // Chatbot Test Questions

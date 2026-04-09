@@ -5,9 +5,11 @@ import { getCurrentSession } from '@/lib/auth'
 
 export interface ExtractionRun {
   id: string
+  workflow_id?: string
   triggered_at: string
   completed_at: string | null
   status: 'running' | 'success' | 'failed'
+  stages: Record<string, string> | null
   items_inserted: number | null
   error_message: string | null
   meeting_record_id: string | null
@@ -161,9 +163,11 @@ export function useWorkflowStatus(
   const onTriggerStarted = useCallback((runId?: string) => {
     const optimisticRun: ExtractionRun = {
       id: runId || 'optimistic',
+      workflow_id: config.workflowId ?? undefined,
       triggered_at: new Date().toISOString(),
       completed_at: null,
       status: 'running',
+      stages: {},
       items_inserted: null,
       error_message: null,
       meeting_record_id: null,
@@ -173,7 +177,7 @@ export function useWorkflowStatus(
     setCurrentRun(optimisticRun)
     setState('running')
     setElapsedMs(0)
-  }, [])
+  }, [config.workflowId])
 
   const markRunFailed = useCallback(async (runId: string, reason?: string) => {
     try {

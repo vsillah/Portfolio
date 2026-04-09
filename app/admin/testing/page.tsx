@@ -6,7 +6,7 @@
  * Manage E2E test runs, view results, and handle error remediation.
  */
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { 
   Play, 
   Square, 
@@ -32,12 +32,15 @@ import {
   RotateCcw,
   X,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Loader2,
+  AlertTriangle
 } from 'lucide-react'
+import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import type { JourneyStage, TestStatus } from '@/lib/testing/types'
-import { effectiveTestRunStatus } from '@/lib/testing'
+import { effectiveTestRunStatus, scenarioIncludesDiagnosticStep } from '@/lib/testing'
 import { ALL_JOURNEY_SCRIPTS, JOURNEY_STAGES, getScriptsByStage, JOURNEY_SCRIPTS_BY_ID } from '@/lib/testing/journey-scripts'
 import type { JourneyScript } from '@/lib/testing/journey-scripts'
 
@@ -58,6 +61,22 @@ interface LiveClientActivity {
   status: 'running' | 'completing' | 'error'
   lastAction?: string
 }
+
+type TestCleanupModalMode = 'flag_only' | 'all'
+
+type TestCleanupPreview =
+  | {
+      mode: 'flag_only'
+      total: number
+      counts: Record<string, number>
+      tablesScanned: number
+    }
+  | {
+      mode: 'all'
+      total: number
+      flagPhase: { counts: Record<string, number>; total: number; tablesScanned: number }
+      emailPhase: { lines: Array<{ key: string; label: string; count: number }>; total: number }
+    }
 
 interface TestRun {
   id: string
@@ -207,10 +226,6 @@ function primaryStageForScenario(scenarioId: string): JourneyStage {
   return Array.isArray(s.journeyStage) ? s.journeyStage[0] : s.journeyStage
 }
 
-function scenarioHasChatbotTag(id: string): boolean {
-  return SCENARIOS.some(s => s.id === id && s.tags.includes('chatbot-questions'))
-}
-
 /** Rebuild POST /api/testing/run payload from orchestrator config stored on test_runs.config */
 function parseStoredRunConfig(config: unknown): {
   scenarioIds: string[]
@@ -251,6 +266,96 @@ function parseStoredRunConfig(config: unknown): {
   return { scenarioIds, personaIds, maxConcurrentClients, runDurationMs, cleanupAfter }
 }
 
+function formatDurationMs(ms: number): string {
+  const s = Math.max(0, Math.floor(ms / 1000))
+  const m = Math.floor(s / 60)
+  const rs = s % 60
+  return `${m}:${rs.toString().padStart(2, '0')}`
+}
+
+/** Compact relative time for status pills (e.g. "5m ago", "2d ago"). */
+function formatRelativeTimeShort(iso: string): string {
+  const t = new Date(iso).getTime()
+  if (Number.isNaN(t)) return '—'
+  const diff = Math.max(0, Date.now() - t)
+  const s = Math.floor(diff / 1000)
+  if (s < 45) return 'just now'
+  const m = Math.floor(s / 60)
+  if (m < 60) return `${m}m ago`
+  const h = Math.floor(m / 60)
+  if (h < 24) return `${h}h ago`
+  const d = Math.floor(h / 24)
+  if (d < 14) return `${d}d ago`
+  const mo = Math.floor(d / 30)
+  if (mo < 12) return `${mo}mo ago`
+  const y = Math.floor(d / 365)
+  return `${y}y ago`
+}
+
+function humanizeTableName(table: string): string {
+  return table
+    .split('_')
+    .map(w => (w.length ? w[0].toUpperCase() + w.slice(1) : w))
+    .join(' ')
+}
+
+function getLastSuccessfulTestRun(runs: TestRun[]): TestRun | undefined {
+  const ok = runs.filter(r => effectiveTestRunStatus(r) === 'completed')
+  if (ok.length === 0) return undefined
+  return ok.reduce((best, r) => {
+    const tr = new Date(r.completed_at ?? r.started_at).getTime()
+    const tb = new Date(best.completed_at ?? best.started_at).getTime()
+    return tr > tb ? r : best
+  })
+}
+
+function runDisplayLabel(run: TestRun): string {
+  const parsed = parseStoredRunConfig(run.config)
+  if (parsed && parsed.scenarioIds.length > 0) {
+    const first = SCENARIOS.find(s => s.id === parsed.scenarioIds[0])
+    const n = parsed.scenarioIds.length
+    if (n === 1) return first?.name ?? parsed.scenarioIds[0]
+    return `${first?.name ?? 'Bundle'} +${n - 1} more`
+  }
+  const c = run.config as Record<string, unknown>
+  if (typeof c.scenarioPreset === 'string') {
+    const p = SCENARIO_PRESETS.find(x => x.id === c.scenarioPreset)
+    return p?.label ?? c.scenarioPreset
+  }
+  return run.run_id.length > 22 ? `${run.run_id.slice(0, 20)}…` : run.run_id
+}
+
+function collectLiveActivitiesForRun(run: TestRun | undefined): LiveClientActivity[] {
+  if (!run?.liveStats?.liveActivity?.length) return []
+  return run.liveStats.liveActivity
+}
+
+function computeE2eProgressPercent(opts: {
+  run?: TestRun
+  liveActivities: LiveClientActivity[]
+  elapsedMs: number
+  runDurationMs: number
+  /** When set, run has ended (bar shows full width; caller styles color). */
+  terminal?: boolean
+}): number {
+  if (opts.terminal) return 100
+  const { run, liveActivities, elapsedMs, runDurationMs } = opts
+  if (liveActivities.length > 0) {
+    let sum = 0
+    for (const a of liveActivities) {
+      sum += a.totalSteps > 0 ? Math.min(1, (a.currentStepIndex + 1) / a.totalSteps) : 0
+    }
+    return Math.min(96, Math.round((sum / liveActivities.length) * 100))
+  }
+  if (run && run.clients_spawned > 0) {
+    const done = run.clients_completed + run.clients_failed
+    return Math.min(96, Math.round((done / run.clients_spawned) * 100))
+  }
+  const dur = runDurationMs > 0 ? runDurationMs : 60_000
+  const t = Math.min(0.9, elapsedMs / dur)
+  return Math.max(3, Math.round(t * 100))
+}
+
 const PRESET_OPTGROUPS: { label: string; ids: (typeof SCENARIO_PRESETS)[number]['id'][] }[] = [
   { label: 'Core', ids: ['all', 'journey', 'critical', 'smoke', 'credential_smoke'] },
   { label: 'Chatbot', ids: ['chatbot_questions', 'chatbot_questions_all'] },
@@ -287,6 +392,329 @@ const adminSelectClass =
   'w-full max-w-xl rounded-lg px-3 py-2 text-sm bg-imperial-navy/80 border border-radiant-gold/25 text-platinum-white focus:outline-none focus:ring-2 focus:ring-radiant-gold/50'
 const adminLabelClass = 'block text-sm font-medium text-platinum-white/80 mb-1.5'
 
+const CHATBOT_QUESTIONS_HREF = '/admin/testing/chatbot-questions'
+/** Chat → diagnostic E2E touches system prompts for chat and diagnostic flows. */
+const CHAT_DIAGNOSTIC_ADMIN_HREF = '/admin/prompts'
+
+function scenarioEditLink(s: ScenarioMeta): { href: string; title: string } | null {
+  if (s.tags.includes('chatbot-questions')) {
+    return { href: CHATBOT_QUESTIONS_HREF, title: 'Edit chatbot question bank' }
+  }
+  if (scenarioIncludesDiagnosticStep(s.id)) {
+    return {
+      href: CHAT_DIAGNOSTIC_ADMIN_HREF,
+      title: 'System prompts — chat and diagnostic flows',
+    }
+  }
+  return null
+}
+
+function presetEditLink(presetId: string): { href: string; title: string } | null {
+  if (presetId === 'chatbot_questions' || presetId === 'chatbot_questions_all') {
+    return { href: CHATBOT_QUESTIONS_HREF, title: 'Edit chatbot question bank' }
+  }
+  return null
+}
+
+function E2eListboxEditLink({
+  href,
+  title,
+  onNavigate,
+}: {
+  href: string
+  title: string
+  onNavigate: () => void
+}) {
+  return (
+    <Link
+      href={href}
+      title={title}
+      aria-label={title}
+      onClick={() => onNavigate()}
+      className="flex shrink-0 items-center self-stretch border-l border-radiant-gold/15 px-3 py-2 text-xs font-medium text-radiant-gold hover:bg-radiant-gold/10 hover:text-gold-light focus:outline-none focus:ring-2 focus:ring-inset focus:ring-radiant-gold/50"
+    >
+      Edit
+    </Link>
+  )
+}
+
+function E2ePresetBundleListbox({
+  id,
+  labelText,
+  value,
+  onChange,
+}: {
+  id: string
+  labelText: string
+  value: string
+  onChange: (presetId: string) => void
+}) {
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const triggerId = `${id}-trigger`
+
+  useEffect(() => {
+    if (!open) return
+    const down = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', down)
+    return () => document.removeEventListener('mousedown', down)
+  }, [open])
+
+  const presetLabel =
+    SCENARIO_PRESETS.find(p => p.id === value)?.label ?? SCENARIO_PRESETS[0]?.label ?? 'Preset'
+
+  const pick = (presetId: string) => {
+    onChange(presetId)
+    setOpen(false)
+  }
+
+  return (
+    <div ref={wrapRef} className="relative max-w-xl">
+      <label htmlFor={triggerId} className={adminLabelClass}>
+        {labelText}
+      </label>
+      <button
+        id={triggerId}
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={`${id}-listbox`}
+        onClick={() => setOpen(o => !o)}
+        onKeyDown={e => {
+          if (e.key === 'Escape') setOpen(false)
+        }}
+        className={`${adminSelectClass} flex w-full items-center justify-between gap-2 text-left`}
+      >
+        <span className="truncate">{presetLabel}</span>
+        <ChevronDown
+          className={`w-4 h-4 shrink-0 opacity-70 transition-transform ${open ? 'rotate-180' : ''}`}
+          aria-hidden
+        />
+      </button>
+      {open && (
+        <div
+          id={`${id}-listbox`}
+          role="listbox"
+          aria-label={labelText}
+          className="absolute left-0 right-0 top-full z-40 mt-1 max-h-72 overflow-y-auto rounded-lg border border-radiant-gold/25 bg-imperial-navy/95 py-1 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-sm"
+        >
+          {PRESET_OPTGROUPS.map(g => {
+            const presets = SCENARIO_PRESETS.filter(p => (g.ids as readonly string[]).includes(p.id))
+            if (presets.length === 0) return null
+            return (
+              <div key={g.label}>
+                <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-platinum-white/45">
+                  {g.label}
+                </div>
+                {presets.map(p => {
+                  const edit = presetEditLink(p.id)
+                  return (
+                    <div
+                      key={p.id}
+                      className={`flex w-full items-stretch border-b border-radiant-gold/10 last:border-b-0 ${
+                        value === p.id ? 'bg-radiant-gold/12' : ''
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={value === p.id}
+                        onClick={() => pick(p.id)}
+                        className="min-w-0 flex-1 px-3 py-2 text-left text-sm text-platinum-white/90 hover:bg-radiant-gold/10"
+                      >
+                        {value === p.id ? '✓ ' : ''}
+                        {p.label}
+                      </button>
+                      {edit ? (
+                        <E2eListboxEditLink
+                          href={edit.href}
+                          title={edit.title}
+                          onNavigate={() => setOpen(false)}
+                        />
+                      ) : null}
+                    </div>
+                  )
+                })}
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function E2eCustomScenarioListbox({
+  id,
+  labelText,
+  value,
+  onChange,
+  disabled,
+  customStage,
+}: {
+  id: string
+  labelText: string
+  customStage: JourneyStage | ''
+  value: string
+  onChange: (next: string) => void
+  disabled: boolean
+}) {
+  const [open, setOpen] = useState(false)
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const triggerId = `${id}-trigger`
+
+  useEffect(() => {
+    setOpen(false)
+  }, [customStage])
+
+  useEffect(() => {
+    if (!open) return
+    const down = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', down)
+    return () => document.removeEventListener('mousedown', down)
+  }, [open])
+
+  const list = customStage ? scenariosForStage(customStage) : []
+  const chatbot = list.filter(s => s.tags.includes('chatbot-questions'))
+  const rest = list.filter(s => !s.tags.includes('chatbot-questions'))
+
+  const displayLabel =
+    value === '__all__'
+      ? 'All scenarios in this stage'
+      : (list.find(s => s.id === value)?.name ?? 'All scenarios in this stage')
+
+  const pick = (v: string) => {
+    onChange(v)
+    setOpen(false)
+  }
+
+  return (
+    <div ref={wrapRef} className="relative max-w-xl">
+      <label htmlFor={triggerId} className={adminLabelClass}>
+        {labelText}
+      </label>
+      <button
+        id={triggerId}
+        type="button"
+        disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-controls={`${id}-listbox`}
+        onClick={() => !disabled && setOpen(o => !o)}
+        onKeyDown={e => {
+          if (e.key === 'Escape') setOpen(false)
+        }}
+        className={`${adminSelectClass} flex w-full items-center justify-between gap-2 text-left disabled:opacity-45 disabled:cursor-not-allowed`}
+      >
+        <span className="truncate">{displayLabel}</span>
+        <ChevronDown
+          className={`w-4 h-4 shrink-0 opacity-70 transition-transform ${open ? 'rotate-180' : ''}`}
+          aria-hidden
+        />
+      </button>
+      {open && !disabled && (
+        <div
+          id={`${id}-listbox`}
+          role="listbox"
+          aria-label={labelText}
+          className="absolute left-0 right-0 top-full z-40 mt-1 max-h-64 overflow-y-auto rounded-lg border border-radiant-gold/25 bg-imperial-navy/95 py-1 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-sm"
+        >
+          <button
+            type="button"
+            role="option"
+            aria-selected={value === '__all__'}
+            onClick={() => pick('__all__')}
+            className={`flex w-full px-3 py-2 text-left text-sm hover:bg-radiant-gold/10 ${
+              value === '__all__'
+                ? 'bg-radiant-gold/15 text-platinum-white'
+                : 'text-platinum-white/90'
+            }`}
+          >
+            {value === '__all__' ? '✓ ' : ''}
+            All scenarios in this stage
+          </button>
+          {chatbot.length > 0 && (
+            <>
+              <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-platinum-white/45">
+                Chatbot
+              </div>
+              {chatbot.map(s => {
+                const edit = scenarioEditLink(s)
+                return (
+                  <div
+                    key={s.id}
+                    className={`flex w-full items-stretch border-b border-radiant-gold/10 last:border-b-0 ${
+                      value === s.id ? 'bg-radiant-gold/12' : ''
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={value === s.id}
+                      onClick={() => pick(s.id)}
+                      className="min-w-0 flex-1 px-3 py-2 text-left text-sm text-platinum-white/90 hover:bg-radiant-gold/10"
+                    >
+                      {value === s.id ? '✓ ' : ''}
+                      {s.name}
+                    </button>
+                    {edit ? (
+                      <E2eListboxEditLink
+                        href={edit.href}
+                        title={edit.title}
+                        onNavigate={() => setOpen(false)}
+                      />
+                    ) : null}
+                  </div>
+                )
+              })}
+            </>
+          )}
+          {rest.length > 0 && (
+            <>
+              <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-platinum-white/45">
+                {chatbot.length > 0 ? 'Other' : 'Scenarios'}
+              </div>
+              {rest.map(s => {
+                const edit = scenarioEditLink(s)
+                return (
+                  <div
+                    key={s.id}
+                    className={`flex w-full items-stretch border-b border-radiant-gold/10 last:border-b-0 ${
+                      value === s.id ? 'bg-radiant-gold/12' : ''
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={value === s.id}
+                      onClick={() => pick(s.id)}
+                      className="min-w-0 flex-1 px-3 py-2 text-left text-sm text-platinum-white/90 hover:bg-radiant-gold/10"
+                    >
+                      {value === s.id ? '✓ ' : ''}
+                      {s.name}
+                    </button>
+                    {edit ? (
+                      <E2eListboxEditLink
+                        href={edit.href}
+                        title={edit.title}
+                        onNavigate={() => setOpen(false)}
+                      />
+                    ) : null}
+                  </div>
+                )
+              })}
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function TestingDashboard() {
   // State
   const [testRuns, setTestRuns] = useState<TestRun[]>([])
@@ -320,11 +748,30 @@ export default function TestingDashboard() {
   const [cursorPrompt, setCursorPrompt] = useState<string | null>(null)
   const [remediationLoading, setRemediationLoading] = useState(false)
   const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null)
+  /** Local run control: track started run until DB shows terminal, then brief "finished" for the popover. */
+  const [e2eUi, setE2eUi] = useState<
+    | null
+    | { kind: 'active'; runId: string; startedAtMs: number }
+    | { kind: 'finished'; runId: string; success: boolean; finishedAtMs: number }
+  >(null)
+  const [e2ePopoverOpen, setE2ePopoverOpen] = useState(false)
+  const [e2eTick, setE2eTick] = useState(0)
+  const e2ePopoverRef = useRef<HTMLDivElement>(null)
+  const e2eTerminalHandledRef = useRef<string | null>(null)
   const [stripeCheckoutLoading, setStripeCheckoutLoading] = useState(false)
   const [lastCheckoutUrl, setLastCheckoutUrl] = useState<string | null>(null)
   const [triggeringScripts, setTriggeringScripts] = useState<Record<string, boolean>>({})
   const [scriptLastRun, setScriptLastRun] = useState<Record<string, { at: string; success: boolean }>>({})
   const [cleanupLoading, setCleanupLoading] = useState(false)
+  const [testCleanupModalMode, setTestCleanupModalMode] = useState<TestCleanupModalMode | null>(null)
+  const [testCleanupPreviewLoading, setTestCleanupPreviewLoading] = useState(false)
+  const [testCleanupPreviewError, setTestCleanupPreviewError] = useState<string | null>(null)
+  const [testCleanupPreview, setTestCleanupPreview] = useState<TestCleanupPreview | null>(null)
+  const [testCleanupAcknowledged, setTestCleanupAcknowledged] = useState(false)
+  const testCleanupCancelRef = useRef<HTMLButtonElement>(null)
+  const purgeFlagTriggerRef = useRef<HTMLButtonElement>(null)
+  const cleanupFullTriggerRef = useRef<HTMLButtonElement>(null)
+  const testCleanupReturnFocusRef = useRef<HTMLButtonElement | null>(null)
 
   // Session state for completed scripts (persisted in sessionStorage)
   const SESSION_KEY = 'journey_test_session'
@@ -359,6 +806,11 @@ export default function TestingDashboard() {
     if (!script.prereqScriptId) return true
     return completedScripts.has(script.prereqScriptId)
   }, [completedScripts])
+
+  const showToast = useCallback((type: 'success' | 'error' | 'info', text: string) => {
+    setToastMessage({ type, text })
+    setTimeout(() => setToastMessage(null), 4000)
+  }, [])
 
   // Fetch data
   const fetchData = useCallback(async () => {
@@ -415,16 +867,19 @@ export default function TestingDashboard() {
   
   useEffect(() => {
     fetchData()
-    
-    // Poll for updates when there are active runs (2s for live activity)
+  }, [fetchData])
+
+  // Poll while server reports in-memory orchestrators or we are waiting for a started run to finish.
+  useEffect(() => {
+    const needsPoll =
+      activeRuns.length > 0 ||
+      (e2eUi?.kind === 'active')
+    if (!needsPoll) return
     const interval = setInterval(() => {
-      if (activeRuns.length > 0) {
-        fetchData()
-      }
+      void fetchData()
     }, 2000)
-    
     return () => clearInterval(interval)
-  }, [fetchData, activeRuns.length])
+  }, [fetchData, activeRuns.length, e2eUi?.kind])
   
   // Re-fetch errors when the modal is open and data refreshes (e.g. after remediation)
   useEffect(() => {
@@ -500,13 +955,363 @@ export default function TestingDashboard() {
     [testRuns]
   )
 
-  const selectionIncludesChatbot = useMemo(() => {
-    if (runMode === 'preset') {
-      return selectedPresetId === 'chatbot_questions' || selectedPresetId === 'chatbot_questions_all'
+  const lastSuccessfulRun = useMemo(() => getLastSuccessfulTestRun(testRuns), [testRuns])
+  const lastSuccessClientCount = lastSuccessfulRun?.clients_completed ?? 0
+  const lastSuccessAtLabel = lastSuccessfulRun
+    ? formatRelativeTimeShort(lastSuccessfulRun.completed_at ?? lastSuccessfulRun.started_at)
+    : null
+
+  const e2ePrimaryRunId = useMemo(() => {
+    if (e2eUi?.kind === 'active' || e2eUi?.kind === 'finished') return e2eUi.runId
+    if (activeRuns.length > 0) return activeRuns[0]
+    return null
+  }, [e2eUi, activeRuns])
+
+  const e2ePrimaryRun = useMemo(
+    () => (e2ePrimaryRunId ? testRuns.find(r => r.run_id === e2ePrimaryRunId) : undefined),
+    [testRuns, e2ePrimaryRunId]
+  )
+
+  const e2eLiveActivities = useMemo(
+    () => collectLiveActivitiesForRun(e2ePrimaryRun),
+    [e2ePrimaryRun]
+  )
+
+  const e2eRunDurationMs = useMemo(() => {
+    const parsed = e2ePrimaryRun ? parseStoredRunConfig(e2ePrimaryRun.config) : null
+    return parsed?.runDurationMs ?? runDuration * 1000
+  }, [e2ePrimaryRun, runDuration])
+
+  const e2eElapsedLabel = useMemo(() => {
+    void e2eTick
+    if (e2eUi?.kind === 'finished' && e2ePrimaryRun) {
+      const end = e2ePrimaryRun.completed_at
+        ? new Date(e2ePrimaryRun.completed_at).getTime()
+        : e2eUi.finishedAtMs
+      const sec = Math.max(0, Math.floor((end - new Date(e2ePrimaryRun.started_at).getTime()) / 1000))
+      return `${sec}s`
     }
-    return selectedScenarios.some(id => scenarioHasChatbotTag(id))
-  }, [runMode, selectedPresetId, selectedScenarios])
-  
+    if (e2eUi?.kind === 'active') {
+      const sec = Math.max(0, Math.floor((Date.now() - e2eUi.startedAtMs) / 1000))
+      return `${sec}s`
+    }
+    if (e2ePrimaryRun) {
+      const sec = Math.max(0, Math.floor((Date.now() - new Date(e2ePrimaryRun.started_at).getTime()) / 1000))
+      return `${sec}s`
+    }
+    return '0s'
+  }, [e2eUi, e2ePrimaryRun, e2eTick])
+
+  const e2eProgressPercent = useMemo(() => {
+    void e2eTick
+    const terminal =
+      e2eUi?.kind === 'finished' ||
+      (e2ePrimaryRun != null &&
+        e2ePrimaryRun.status !== 'running' &&
+        e2ePrimaryRun.status !== 'pending')
+    const elapsedMs =
+      e2eUi?.kind === 'active'
+        ? Date.now() - e2eUi.startedAtMs
+        : e2ePrimaryRun
+          ? Date.now() - new Date(e2ePrimaryRun.started_at).getTime()
+          : 0
+    return computeE2eProgressPercent({
+      run: e2ePrimaryRun,
+      liveActivities: e2eLiveActivities,
+      elapsedMs,
+      runDurationMs: e2eRunDurationMs,
+      terminal: !!terminal,
+    })
+  }, [e2eUi, e2ePrimaryRun, e2eLiveActivities, e2eRunDurationMs, e2eTick])
+
+  /** One in-flight suite at a time from this UI (matches single orchestrator focus). */
+  const e2eBlocksNewStart = useMemo(
+    () =>
+      activeRuns.length > 0 ||
+      e2eUi?.kind === 'active' ||
+      (e2ePrimaryRun != null &&
+        (e2ePrimaryRun.status === 'running' || e2ePrimaryRun.status === 'pending')),
+    [activeRuns.length, e2eUi?.kind, e2ePrimaryRun]
+  )
+
+  const e2eCanCancelPrimary = useMemo(
+    () =>
+      e2ePrimaryRunId != null &&
+      activeRuns.includes(e2ePrimaryRunId) &&
+      e2eUi?.kind !== 'finished',
+    [e2ePrimaryRunId, activeRuns, e2eUi?.kind]
+  )
+
+  const e2eShowInlineProgress =
+    e2eBlocksNewStart || e2eUi?.kind === 'finished'
+
+  /** One line for the progress card — never duplicate the primary button label. */
+  const e2eProgressCaption = useMemo(() => {
+    if (e2eUi?.kind === 'finished') {
+      return e2eUi.success ? 'Completed successfully' : 'Finished with issues'
+    }
+    if (!e2eBlocksNewStart) return 'Status'
+    if (e2eCanCancelPrimary) {
+      if (e2eLiveActivities.length > 0) {
+        const n = e2eLiveActivities.length
+        return `${n} simulated client${n === 1 ? '' : 's'} active`
+      }
+      const spawned = e2ePrimaryRun?.clients_spawned ?? 0
+      if (spawned > 0) {
+        const done = (e2ePrimaryRun?.clients_completed ?? 0) + (e2ePrimaryRun?.clients_failed ?? 0)
+        return `${done}/${spawned} clients finished`
+      }
+      return 'Spawning clients…'
+    }
+    return 'Connecting to test runner…'
+  }, [
+    e2eUi,
+    e2eBlocksNewStart,
+    e2eCanCancelPrimary,
+    e2eLiveActivities.length,
+    e2ePrimaryRun?.clients_spawned,
+    e2ePrimaryRun?.clients_completed,
+    e2ePrimaryRun?.clients_failed,
+  ])
+
+  useEffect(() => {
+    if (e2eUi?.kind !== 'active') return
+    const tr = testRuns.find(r => r.run_id === e2eUi.runId)
+    if (!tr) return
+    if (tr.status === 'running' || tr.status === 'pending') return
+    if (e2eTerminalHandledRef.current === tr.run_id) return
+    e2eTerminalHandledRef.current = tr.run_id
+    const success = effectiveTestRunStatus(tr) === 'completed'
+    showToast(
+      success ? 'success' : 'error',
+      success ? 'E2E run completed successfully' : 'E2E run finished with failures or incomplete clients'
+    )
+    setE2eUi({ kind: 'finished', runId: tr.run_id, success, finishedAtMs: Date.now() })
+  }, [e2eUi, testRuns, showToast])
+
+  useEffect(() => {
+    if (e2eUi?.kind !== 'finished') return
+    const t = setTimeout(() => setE2eUi(null), 6000)
+    return () => clearTimeout(t)
+  }, [e2eUi])
+
+  useEffect(() => {
+    const tickNeeded =
+      e2eUi?.kind === 'active' ||
+      activeRuns.length > 0 ||
+      (e2ePrimaryRun != null &&
+        (e2ePrimaryRun.status === 'running' || e2ePrimaryRun.status === 'pending'))
+    if (!tickNeeded) return
+    const id = setInterval(() => setE2eTick(n => n + 1), 1000)
+    return () => clearInterval(id)
+  }, [e2eUi?.kind, activeRuns.length, e2ePrimaryRun?.status, e2ePrimaryRun?.run_id])
+
+  useEffect(() => {
+    if (!e2ePopoverOpen) return
+    const onDown = (e: MouseEvent) => {
+      if (e2ePopoverRef.current && !e2ePopoverRef.current.contains(e.target as Node)) {
+        setE2ePopoverOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', onDown)
+    return () => document.removeEventListener('mousedown', onDown)
+  }, [e2ePopoverOpen])
+
+  useEffect(() => {
+    if (!testCleanupModalMode) return
+    setTestCleanupAcknowledged(false)
+    setTestCleanupPreview(null)
+    setTestCleanupPreviewError(null)
+    let cancelled = false
+    ;(async () => {
+      setTestCleanupPreviewLoading(true)
+      try {
+        const session = await getCurrentSession()
+        const headers: Record<string, string> = {}
+        if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+        const res = await fetch(
+          `/api/admin/testing/cleanup-seeds?mode=${testCleanupModalMode}`,
+          { headers }
+        )
+        const data = (await res.json()) as Record<string, unknown>
+        if (cancelled) return
+        if (!res.ok || data.success !== true) {
+          setTestCleanupPreviewError(
+            typeof data.error === 'string' ? data.error : 'Could not load purge preview.'
+          )
+          return
+        }
+        if (data.mode === 'flag_only') {
+          setTestCleanupPreview({
+            mode: 'flag_only',
+            total: typeof data.total === 'number' ? data.total : 0,
+            counts: (data.counts as Record<string, number>) ?? {},
+            tablesScanned: typeof data.tablesScanned === 'number' ? data.tablesScanned : 0,
+          })
+        } else if (data.mode === 'all') {
+          const fp = data.flagPhase as
+            | { counts: Record<string, number>; total: number; tablesScanned: number }
+            | undefined
+          const ep = data.emailPhase as
+            | { lines: Array<{ key: string; label: string; count: number }>; total: number }
+            | undefined
+          if (fp && ep) {
+            setTestCleanupPreview({
+              mode: 'all',
+              total: typeof data.total === 'number' ? data.total : 0,
+              flagPhase: fp,
+              emailPhase: ep,
+            })
+          } else {
+            setTestCleanupPreviewError('Unexpected preview response.')
+          }
+        } else {
+          setTestCleanupPreviewError('Unexpected preview response.')
+        }
+      } catch {
+        if (!cancelled) setTestCleanupPreviewError('Could not load purge preview.')
+      } finally {
+        if (!cancelled) setTestCleanupPreviewLoading(false)
+      }
+    })()
+    let rafId = 0
+    rafId = requestAnimationFrame(() => testCleanupCancelRef.current?.focus())
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setTestCleanupModalMode(null)
+        requestAnimationFrame(() => testCleanupReturnFocusRef.current?.focus())
+      }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(rafId)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [testCleanupModalMode])
+
+  const e2eShowLiveInActivityPopover =
+    e2eShowInlineProgress && e2eUi?.kind !== 'finished'
+
+  const e2eActivityPopover =
+    e2ePopoverOpen ? (
+      <div
+        className="absolute left-0 top-full z-50 mt-1.5 w-[min(20rem,calc(100vw-2rem))] min-w-[16rem] rounded-xl border border-radiant-gold/25 bg-imperial-navy/95 p-3 shadow-[0_12px_40px_rgba(0,0,0,0.45)] backdrop-blur-sm"
+        role="dialog"
+        aria-label="E2E run activity"
+      >
+        {e2eShowLiveInActivityPopover && (
+          <div className="mb-3 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div className="flex min-w-0 items-center gap-2 text-xs">
+                {e2eCanCancelPrimary ? (
+                  <Users className="h-4 w-4 shrink-0 text-radiant-gold/75" aria-hidden />
+                ) : (
+                  <Loader2
+                    className="h-4 w-4 shrink-0 animate-spin text-radiant-gold/80"
+                    aria-hidden
+                  />
+                )}
+                <span className="font-medium text-platinum-white/90">{e2eProgressCaption}</span>
+              </div>
+              <span className="shrink-0 text-xs tabular-nums text-platinum-white/50">
+                {e2eElapsedLabel}
+              </span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full border border-radiant-gold/15 bg-imperial-navy/80">
+              <div
+                className="h-full bg-gradient-to-r from-bronze to-radiant-gold transition-[width] duration-500 ease-out"
+                style={{ width: `${e2eProgressPercent}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        <div
+          className={
+            e2eShowLiveInActivityPopover
+              ? 'border-t border-radiant-gold/15 pt-3'
+              : ''
+          }
+        >
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-platinum-white/45">
+              Recent
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setE2ePopoverOpen(false)
+                document
+                  .getElementById('e2e-recent-runs-full')
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }}
+              className="inline-flex items-center gap-1 text-[11px] font-medium text-radiant-gold/90 hover:text-gold-light focus:outline-none focus:ring-2 focus:ring-radiant-gold/50 rounded"
+            >
+              <Clock className="w-3 h-3" aria-hidden />
+              View all
+            </button>
+          </div>
+          {testRuns.length === 0 ? (
+            <p className="text-xs text-platinum-white/45">No runs yet</p>
+          ) : (
+            <ul className="max-h-56 space-y-2 overflow-y-auto pr-1">
+              {testRuns.slice(0, 3).map(r => {
+                const out = effectiveTestRunStatus(r)
+                const dot =
+                  out === 'completed'
+                    ? 'bg-emerald-400'
+                    : out === 'failed'
+                      ? 'bg-red-400'
+                      : r.status === 'running' || r.status === 'pending'
+                        ? 'bg-radiant-gold animate-pulse'
+                        : 'bg-platinum-white/40'
+                const done = r.clients_completed + r.clients_failed
+                const itemsLabel =
+                  r.clients_spawned > 0 ? `${done}/${r.clients_spawned} clients` : '0 clients'
+                let dur = '—'
+                if (r.completed_at) {
+                  dur = formatDurationMs(
+                    new Date(r.completed_at).getTime() - new Date(r.started_at).getTime()
+                  )
+                } else if (r.status === 'running' || r.status === 'pending') {
+                  dur = formatDurationMs(Date.now() - new Date(r.started_at).getTime())
+                }
+                const startedShort = new Date(r.started_at).toLocaleString(undefined, {
+                  month: 'numeric',
+                  day: 'numeric',
+                  hour: 'numeric',
+                  minute: '2-digit',
+                })
+                return (
+                  <li
+                    key={r.run_id}
+                    className="flex items-start gap-2 rounded-lg border border-radiant-gold/10 bg-silicon-slate/20 px-2 py-1.5"
+                  >
+                    <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${dot}`} aria-hidden />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <span className="truncate text-xs font-medium text-platinum-white/90">
+                          {runDisplayLabel(r)}
+                        </span>
+                        <span className="shrink-0 text-[10px] tabular-nums text-platinum-white/45">
+                          {dur}
+                        </span>
+                      </div>
+                      <div className="mt-0.5 flex items-center justify-between gap-2 text-[10px] text-platinum-white/50">
+                        <span>{startedShort}</span>
+                        <span className="tabular-nums">{itemsLabel}</span>
+                      </div>
+                    </div>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+      </div>
+    ) : null
+
   // Start a test run (preset, explicit scenario ids, or selectedScenarios from custom builder)
   const startTestRun = async (
     preset?: string,
@@ -558,8 +1363,14 @@ export default function TestingDashboard() {
       const data = await res.json()
       
       if (data.success) {
+        const rid = typeof data.runId === 'string' ? data.runId : ''
+        if (rid) {
+          e2eTerminalHandledRef.current = null
+          setE2eUi({ kind: 'active', runId: rid, startedAtMs: Date.now() })
+          setE2ePopoverOpen(true)
+        }
         showToast('success', `Test run started: ${data.runId}`)
-        fetchData()
+        void fetchData()
       } else {
         showToast('error', data.error || 'Failed to start test')
       }
@@ -689,11 +1500,17 @@ export default function TestingDashboard() {
       const data = await res.json()
       
       if (data.success) {
-        alert('Test run stopped')
-        fetchData()
+        showToast('info', 'Test run stop requested')
+        setE2eUi(cur =>
+          cur?.kind === 'active' && cur.runId === runId ? null : cur
+        )
+        void fetchData()
+      } else {
+        showToast('error', 'Could not stop this run (it may have already finished)')
       }
     } catch (error) {
       console.error('Failed to stop test:', error)
+      showToast('error', 'Failed to stop test run')
     }
   }
   
@@ -719,12 +1536,6 @@ export default function TestingDashboard() {
     }
   }
   
-  // Show toast notification
-  const showToast = (type: 'success' | 'error' | 'info', text: string) => {
-    setToastMessage({ type, text })
-    setTimeout(() => setToastMessage(null), 4000)
-  }
-
   // Get remediation status for an error (checks both error's own field and remediation requests)
   const getErrorRemediationInfo = (error: TestError): { 
     status: string
@@ -951,34 +1762,6 @@ export default function TestingDashboard() {
     }
   }
   
-  // Clean up seed test data
-  const cleanupSeedData = async () => {
-    setCleanupLoading(true)
-    showToast('info', 'Cleaning up test data...')
-    try {
-      const session = await getCurrentSession()
-      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-      if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
-
-      const res = await fetch('/api/admin/testing/cleanup-seeds', {
-        method: 'POST',
-        headers,
-      })
-      const data = await res.json()
-      if (data.success) {
-        showToast('success', `Cleaned up ${data.totalDeleted} test row(s).`)
-        markScriptCompleted('cleanup_test_data')
-        resetSession()
-      } else {
-        showToast('error', data.error || 'Cleanup failed')
-      }
-    } catch {
-      showToast('error', 'Failed to clean up test data')
-    } finally {
-      setCleanupLoading(false)
-    }
-  }
-
   // Mark remediation errors as fixed or won't fix
   const markRemediationComplete = async (remediationId: string, status: 'fixed' | 'wont_fix') => {
     try {
@@ -1011,13 +1794,18 @@ export default function TestingDashboard() {
   }
   
   // Live Activity Panel component
-  const LiveActivityPanel = ({ 
-    testRuns, 
-    activeRuns 
-  }: { 
+  const LiveActivityPanel = ({
+    testRuns,
+    activeRuns,
+    embedded = false,
+  }: {
     testRuns: TestRun[]
-    activeRuns: string[] 
+    activeRuns: string[]
+    embedded?: boolean
   }) => {
+    const shell = embedded
+      ? 'rounded-lg border border-radiant-gold/15 bg-silicon-slate/20 p-4'
+      : 'glass-card p-6 mb-8 border border-radiant-gold/20'
     // Collect all live activity from active runs
     const liveActivities: LiveClientActivity[] = []
     
@@ -1028,16 +1816,21 @@ export default function TestingDashboard() {
       }
     }
     
+    const HeadingTag = embedded ? 'h3' : 'h2'
+    const headingClass = embedded
+      ? 'text-base font-semibold font-heading text-platinum-white'
+      : 'text-xl font-semibold font-heading text-platinum-white'
+
     if (liveActivities.length === 0) {
       return (
         <section
-          className="glass-card p-6 mb-8 border border-radiant-gold/20"
+          className={shell}
           aria-live="polite"
           aria-label="Live test activity"
         >
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-3">
             <div className="w-3 h-3 rounded-full bg-radiant-gold animate-pulse shadow-[0_0_12px_rgba(212,175,55,0.5)]" />
-            <h2 className="text-xl font-semibold font-heading text-platinum-white">Live activity</h2>
+            <HeadingTag className={headingClass}>Live activity</HeadingTag>
             <span className="text-platinum-white/60 text-sm">
               ({activeRuns.length} active run{activeRuns.length !== 1 ? 's' : ''})
             </span>
@@ -1049,13 +1842,13 @@ export default function TestingDashboard() {
     
     return (
       <section
-        className="glass-card p-6 mb-8 border border-radiant-gold/20"
+        className={shell}
         aria-live="polite"
         aria-label="Live test activity"
       >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-3 h-3 rounded-full bg-radiant-gold animate-pulse shadow-[0_0_12px_rgba(212,175,55,0.5)]" />
-          <h2 className="text-xl font-semibold font-heading text-platinum-white">Live activity</h2>
+          <HeadingTag className={headingClass}>Live activity</HeadingTag>
           <span className="text-platinum-white/60 text-sm">
             ({liveActivities.length} client{liveActivities.length !== 1 ? 's' : ''} running)
           </span>
@@ -1168,14 +1961,16 @@ export default function TestingDashboard() {
               Run simulated clients, watch progress, review history
             </p>
           </div>
-          <button
-            type="button"
-            onClick={fetchData}
-            className="p-2.5 rounded-lg border border-radiant-gold/25 text-platinum-white/80 hover:bg-radiant-gold/10 hover:text-platinum-white focus:outline-none focus:ring-2 focus:ring-radiant-gold/50 transition-colors"
-            aria-label="Refresh data"
-          >
-            <RefreshCw className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => void fetchData()}
+              className="p-2.5 rounded-lg border border-radiant-gold/25 text-platinum-white/80 hover:bg-radiant-gold/10 hover:text-platinum-white focus:outline-none focus:ring-2 focus:ring-radiant-gold/50 transition-colors"
+              aria-label="Refresh data"
+            >
+              <RefreshCw className="w-5 h-5" />
+            </button>
+          </div>
         </div>
         
         {/* Start run */}
@@ -1203,36 +1998,17 @@ export default function TestingDashboard() {
             </div>
 
             {runMode === 'preset' && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
                 <div>
-                  <label htmlFor="e2e-preset" className={adminLabelClass}>Preset</label>
-                  <select
+                  <E2ePresetBundleListbox
                     id="e2e-preset"
+                    labelText="Preset"
                     value={selectedPresetId}
-                    onChange={e => {
-                      setSelectedPresetId(e.target.value)
+                    onChange={presetId => {
+                      setSelectedPresetId(presetId)
                       setPresetStageFilter('')
                     }}
-                    className={adminSelectClass}
-                  >
-                    {PRESET_OPTGROUPS.map(g => (
-                      <optgroup key={g.label} label={g.label}>
-                        {SCENARIO_PRESETS.filter(p => (g.ids as readonly string[]).includes(p.id)).map(p => (
-                          <option key={p.id} value={p.id}>{p.label}</option>
-                        ))}
-                      </optgroup>
-                    ))}
-                  </select>
-                  {selectionIncludesChatbot && (
-                    <p className="text-xs mt-1.5">
-                      <a
-                        href="/admin/testing/chatbot-questions"
-                        className="text-radiant-gold hover:text-gold-light underline-offset-2 hover:underline focus:outline-none focus:ring-2 focus:ring-radiant-gold/50 rounded"
-                      >
-                        Edit chatbot question bank
-                      </a>
-                    </p>
-                  )}
+                  />
                 </div>
                 <div>
                   <label htmlFor="e2e-preset-stage" className={adminLabelClass}>
@@ -1276,51 +2052,14 @@ export default function TestingDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="e2e-custom-scenario" className={adminLabelClass}>Scenario</label>
-                  <select
+                  <E2eCustomScenarioListbox
                     id="e2e-custom-scenario"
+                    labelText="Scenario"
                     value={customScenarioChoice}
-                    onChange={e => setCustomScenarioChoice(e.target.value)}
+                    onChange={setCustomScenarioChoice}
                     disabled={!customStage}
-                    className={`${adminSelectClass} disabled:opacity-45`}
-                  >
-                    <option value="__all__">All scenarios in this stage</option>
-                    {customStage
-                      ? (() => {
-                          const list = scenariosForStage(customStage)
-                          const chatbot = list.filter(s => s.tags.includes('chatbot-questions'))
-                          const rest = list.filter(s => !s.tags.includes('chatbot-questions'))
-                          return (
-                            <>
-                              {chatbot.length > 0 && (
-                                <optgroup label="Chatbot">
-                                  {chatbot.map(s => (
-                                    <option key={s.id} value={s.id}>{s.name}</option>
-                                  ))}
-                                </optgroup>
-                              )}
-                              {rest.length > 0 && (
-                                <optgroup label={chatbot.length > 0 ? 'Other' : 'Scenarios'}>
-                                  {rest.map(s => (
-                                    <option key={s.id} value={s.id}>{s.name}</option>
-                                  ))}
-                                </optgroup>
-                              )}
-                            </>
-                          )
-                        })()
-                      : null}
-                  </select>
-                  {selectionIncludesChatbot && (
-                    <p className="text-xs mt-1.5">
-                      <a
-                        href="/admin/testing/chatbot-questions"
-                        className="text-radiant-gold hover:text-gold-light underline-offset-2 hover:underline focus:outline-none focus:ring-2 focus:ring-radiant-gold/50 rounded"
-                      >
-                        Edit chatbot question bank
-                      </a>
-                    </p>
-                  )}
+                    customStage={customStage}
+                  />
                 </div>
               </div>
             )}
@@ -1402,60 +2141,170 @@ export default function TestingDashboard() {
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => handleStartRun()}
-                className="btn-gold inline-flex items-center gap-2 px-6 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-imperial-navy"
-              >
-                <Play className="w-5 h-5" />
-                Start run
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  if (!confirm('Purge ALL rows with is_test_data=true across all tables? This cannot be undone.')) return
-                  setCleanupLoading(true)
-                  showToast('info', 'Purging flagged test data...')
-                  try {
-                    const session = await getCurrentSession()
-                    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-                    if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
-                    const res = await fetch('/api/admin/testing/cleanup-seeds', {
-                      method: 'POST',
-                      headers,
-                      body: JSON.stringify({ mode: 'flag_only' }),
-                    })
-                    const data = await res.json()
-                    if (data.success) {
-                      showToast('success', `Purged ${data.totalDeleted} flagged test row(s).`)
-                    } else {
-                      showToast('error', data.error || 'Purge failed')
-                    }
-                  } catch {
-                    showToast('error', 'Failed to purge test data')
-                  } finally {
-                    setCleanupLoading(false)
-                  }
-                }}
-                disabled={cleanupLoading}
-                className="inline-flex items-center gap-2 border border-red-400/50 text-red-200 hover:bg-red-500/15 disabled:opacity-50 px-4 py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-red-400/50"
-                title="Delete all rows where is_test_data = true"
-              >
-                <Trash2 className="w-4 h-4" />
-                {cleanupLoading ? 'Purging…' : 'Purge test data'}
-              </button>
+            <div className="flex flex-col gap-3 pt-2 border-t border-radiant-gold/15">
+              {e2eShowInlineProgress ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  {e2eBlocksNewStart && (
+                    <div className="flex shrink-0 items-center">
+                      {e2eCanCancelPrimary && e2ePrimaryRunId ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            void stopTestRun(e2ePrimaryRunId)
+                          }}
+                          className="inline-flex items-center gap-2 border border-red-500/45 bg-red-500/15 px-6 py-3 rounded-lg text-sm font-medium text-red-100 hover:bg-red-500/25 focus:outline-none focus:ring-2 focus:ring-red-400/50 focus:ring-offset-2 focus:ring-offset-imperial-navy"
+                        >
+                          <Square className="w-5 h-5 shrink-0" aria-hidden />
+                          Cancel run
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled
+                          className="inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium border border-radiant-gold/15 bg-imperial-navy/50 text-platinum-white/45 cursor-not-allowed"
+                          title="Cancel appears once the test runner is connected."
+                        >
+                          <Loader2 className="w-5 h-5 shrink-0 animate-spin text-radiant-gold/50" aria-hidden />
+                          Starting…
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <div className="relative max-w-full min-w-0" ref={e2ePopoverRef}>
+                    <button
+                      type="button"
+                      onClick={() => setE2ePopoverOpen(v => !v)}
+                      className="inline-flex max-w-full items-center gap-2 rounded-full border border-radiant-gold/35 bg-imperial-navy/55 px-3.5 py-2 text-left text-xs text-platinum-white/90 shadow-sm transition-colors hover:border-radiant-gold/50 hover:bg-imperial-navy/75 focus:outline-none focus:ring-2 focus:ring-radiant-gold/50"
+                      aria-live="polite"
+                      aria-expanded={e2ePopoverOpen}
+                      aria-haspopup="dialog"
+                      aria-label="Run status and recent runs"
+                    >
+                      {e2eUi?.kind === 'finished' ? (
+                        e2eUi.success ? (
+                          <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-400" aria-hidden />
+                        ) : (
+                          <XCircle className="h-3.5 w-3.5 shrink-0 text-red-400" aria-hidden />
+                        )
+                      ) : e2eCanCancelPrimary ? (
+                        <span
+                          className="h-2 w-2 shrink-0 rounded-full bg-radiant-gold shadow-[0_0_8px_rgba(245,194,66,0.45)]"
+                          aria-hidden
+                        />
+                      ) : (
+                        <Loader2
+                          className="h-3.5 w-3.5 shrink-0 animate-spin text-radiant-gold/85"
+                          aria-hidden
+                        />
+                      )}
+                      <span className="min-w-0 truncate font-medium">{e2eProgressCaption}</span>
+                      <span className="shrink-0 tabular-nums text-platinum-white/50">
+                        {e2eElapsedLabel}
+                      </span>
+                      {e2ePopoverOpen ? (
+                        <ChevronUp className="h-3.5 w-3.5 shrink-0 text-platinum-white/55" aria-hidden />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-platinum-white/55" aria-hidden />
+                      )}
+                    </button>
+                    {e2eActivityPopover}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => void handleStartRun()}
+                    className="btn-gold inline-flex shrink-0 items-center gap-2 px-6 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-imperial-navy"
+                  >
+                    <Play className="w-5 h-5" aria-hidden />
+                    Start run
+                  </button>
+                  <div className="relative max-w-full min-w-0" ref={e2ePopoverRef}>
+                    <button
+                      type="button"
+                      onClick={() => setE2ePopoverOpen(v => !v)}
+                      className="inline-flex max-w-full items-center gap-2 rounded-full border border-radiant-gold/35 bg-imperial-navy/55 px-3.5 py-2 text-left text-xs text-platinum-white/90 shadow-sm transition-colors hover:border-radiant-gold/50 hover:bg-imperial-navy/75 focus:outline-none focus:ring-2 focus:ring-radiant-gold/50"
+                      aria-expanded={e2ePopoverOpen}
+                      aria-haspopup="dialog"
+                      aria-label="Last successful run and recent history"
+                    >
+                      {lastSuccessfulRun ? (
+                        <>
+                          <CheckCircle className="h-3.5 w-3.5 shrink-0 text-emerald-400" aria-hidden />
+                          <span className="font-medium">
+                            {lastSuccessClientCount} successful{' '}
+                            {lastSuccessClientCount === 1 ? 'client' : 'clients'}
+                          </span>
+                          <span className="text-platinum-white/40" aria-hidden>
+                            ·
+                          </span>
+                          <span className="shrink-0 text-platinum-white/60">{lastSuccessAtLabel}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Clock className="h-3.5 w-3.5 shrink-0 text-radiant-gold/70" aria-hidden />
+                          <span className="font-medium text-platinum-white/70">No completed runs yet</span>
+                        </>
+                      )}
+                      {e2ePopoverOpen ? (
+                        <ChevronUp className="h-3.5 w-3.5 shrink-0 text-platinum-white/55" aria-hidden />
+                      ) : (
+                        <ChevronDown className="h-3.5 w-3.5 shrink-0 text-platinum-white/55" aria-hidden />
+                      )}
+                    </button>
+                    {e2eActivityPopover}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {activeRuns.length > 0 && (
+              <div className="pt-4 border-t border-radiant-gold/10 -mx-2 px-2 sm:-mx-0 sm:px-0">
+                <LiveActivityPanel embedded testRuns={testRuns} activeRuns={activeRuns} />
+              </div>
+            )}
+
+            <div className="rounded-xl border border-red-500/20 bg-red-950/10 px-4 py-5 sm:px-5">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                <div className="flex gap-3 min-w-0">
+                  <AlertTriangle
+                    className="w-5 h-5 shrink-0 text-red-400/90 mt-0.5"
+                    aria-hidden
+                  />
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold text-platinum-white/90">
+                      Maintenance <span className="text-red-300/80 font-normal">(destructive)</span>
+                    </h3>
+                    <p className="text-xs text-platinum-white/55 mt-1 leading-relaxed max-w-prose">
+                      Remove flagged test rows only — separate from starting a run. Use the preview in the
+                      confirmation dialog to see how many rows would be deleted.
+                    </p>
+                  </div>
+                </div>
+                <button
+                  ref={purgeFlagTriggerRef}
+                  type="button"
+                  onClick={() => {
+                    testCleanupReturnFocusRef.current = purgeFlagTriggerRef.current
+                    setTestCleanupModalMode('flag_only')
+                  }}
+                  disabled={cleanupLoading}
+                  className="shrink-0 inline-flex items-center justify-center gap-2 rounded-lg border border-red-400/40 bg-imperial-navy/60 text-red-100 hover:bg-red-950/40 hover:border-red-400/55 disabled:opacity-50 px-4 py-2.5 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-red-400/50 self-start sm:self-center"
+                >
+                  <Trash2 className="w-4 h-4" aria-hidden />
+                  Purge test data…
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* Live activity — above history (spec order) */}
-        {activeRuns.length > 0 && (
-          <LiveActivityPanel testRuns={testRuns} activeRuns={activeRuns} />
-        )}
-
         {/* Test Runs */}
-        <section className="glass-card p-6 mb-8 border border-radiant-gold/20">
+        <section
+          id="e2e-recent-runs-full"
+          className="glass-card p-6 mb-8 border border-radiant-gold/20 scroll-mt-24"
+        >
           <div className="flex flex-wrap items-baseline justify-between gap-3 mb-4">
             <h2 className="text-xl font-semibold font-heading text-platinum-white">Recent runs</h2>
             {testRuns.length > 0 && (
@@ -1829,17 +2678,22 @@ export default function TestingDashboard() {
                                 {/* Cleanup action */}
                                 {isCleanup && (
                                   <button
-                                    onClick={cleanupSeedData}
+                                    ref={cleanupFullTriggerRef}
+                                    type="button"
+                                    onClick={() => {
+                                      testCleanupReturnFocusRef.current = cleanupFullTriggerRef.current
+                                      setTestCleanupModalMode('all')
+                                    }}
                                     disabled={cleanupLoading || !prereqOk || isDone}
                                     className="flex items-center gap-1.5 border border-red-400/45 text-red-100 hover:bg-red-500/15 disabled:opacity-45 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg text-xs font-medium focus:outline-none focus:ring-2 focus:ring-red-400/40"
-                                    title={!prereqOk ? 'Complete prerequisite first' : isDone ? 'Already cleaned up' : 'Delete test seed data'}
+                                    title={!prereqOk ? 'Complete prerequisite first' : isDone ? 'Already cleaned up' : 'Review and delete test seed data'}
                                   >
                                     {cleanupLoading ? (
                                       <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                                     ) : (
                                       <Trash2 className="w-3.5 h-3.5" />
                                     )}
-                                    {cleanupLoading ? 'Cleaning...' : isDone ? 'Cleaned' : 'Clean Up Test Data'}
+                                    {cleanupLoading ? 'Cleaning...' : isDone ? 'Cleaned' : 'Clean Up Test Data…'}
                                   </button>
                                 )}
                                 {/* Seed SQL action */}
@@ -1890,6 +2744,253 @@ export default function TestingDashboard() {
             </div>
           )}
         </section>
+
+        {testCleanupModalMode && (
+          <div
+            className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-[60]"
+            onClick={() => {
+              setTestCleanupModalMode(null)
+              requestAnimationFrame(() => testCleanupReturnFocusRef.current?.focus())
+            }}
+            role="presentation"
+          >
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="test-cleanup-modal-title"
+              className="bg-imperial-navy border border-red-500/35 rounded-2xl w-full max-w-lg max-h-[min(90vh,720px)] flex flex-col shadow-[0_0_40px_rgba(0,0,0,0.45)]"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="p-5 border-b border-red-500/20 shrink-0">
+                <h2
+                  id="test-cleanup-modal-title"
+                  className="text-lg font-semibold font-heading text-platinum-white flex items-center gap-2"
+                >
+                  <AlertTriangle className="w-5 h-5 text-red-400 shrink-0" aria-hidden />
+                  {testCleanupModalMode === 'all'
+                    ? 'Full test data cleanup?'
+                    : 'Purge all flagged test data?'}
+                </h2>
+                {testCleanupModalMode === 'all' ? (
+                  <p className="text-sm text-platinum-white/65 mt-2 leading-relaxed">
+                    Runs the <strong className="font-medium text-platinum-white/80">full</strong> cleanup:
+                    all rows with{' '}
+                    <span className="font-mono text-xs text-platinum-white/80">is_test_data = true</span>{' '}
+                    plus known demo contacts, linked diagnostic audits, chat sessions, proposals, and client
+                    projects used by seed journeys. Production data without those patterns is not targeted.
+                  </p>
+                ) : (
+                  <p className="text-sm text-platinum-white/65 mt-2 leading-relaxed">
+                    Permanently deletes every row where{' '}
+                    <span className="font-mono text-xs text-platinum-white/80">is_test_data = true</span> in
+                    the scanned tables. Rows without that flag are not affected.
+                  </p>
+                )}
+              </div>
+              <div className="p-5 space-y-4 overflow-y-auto flex-1 min-h-0">
+                {testCleanupPreviewLoading ? (
+                  <div className="flex items-center gap-2 text-sm text-platinum-white/60" aria-live="polite">
+                    <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden />
+                    Calculating row counts…
+                  </div>
+                ) : testCleanupPreviewError ? (
+                  <p className="text-sm text-red-200">{testCleanupPreviewError}</p>
+                ) : testCleanupPreview?.mode === 'flag_only' ? (
+                  <>
+                    <div
+                      className="rounded-lg border border-radiant-gold/20 bg-silicon-slate/20 p-4"
+                      aria-live="polite"
+                    >
+                      <p className="text-2xl font-semibold tabular-nums text-platinum-white">
+                        {testCleanupPreview.total}
+                      </p>
+                      <p className="text-xs text-platinum-white/55 mt-1">
+                        row{testCleanupPreview.total === 1 ? '' : 's'} would be deleted ·{' '}
+                        {testCleanupPreview.tablesScanned} tables scanned (flagged test data only)
+                      </p>
+                    </div>
+                    {testCleanupPreview.total > 0 &&
+                      Object.values(testCleanupPreview.counts).some(n => n > 0) && (
+                        <ul className="max-h-32 overflow-y-auto text-xs text-platinum-white/70 space-y-1 border border-radiant-gold/10 rounded-lg p-2 bg-imperial-navy/40">
+                          {Object.entries(testCleanupPreview.counts)
+                            .filter(([, n]) => n > 0)
+                            .sort((a, b) => b[1] - a[1])
+                            .map(([table, n]) => (
+                              <li key={table} className="flex justify-between gap-2 tabular-nums">
+                                <span>{humanizeTableName(table)}</span>
+                                <span className="text-platinum-white/50">{n}</span>
+                              </li>
+                            ))}
+                        </ul>
+                      )}
+                    {testCleanupPreview.total === 0 && (
+                      <p className="text-sm text-platinum-white/60">Nothing to purge right now.</p>
+                    )}
+                    <p className="text-xs text-red-200/90">This cannot be undone.</p>
+                    {testCleanupPreview.total > 0 && (
+                      <label className="flex items-start gap-2 cursor-pointer text-sm text-platinum-white/85">
+                        <input
+                          type="checkbox"
+                          checked={testCleanupAcknowledged}
+                          onChange={e => setTestCleanupAcknowledged(e.target.checked)}
+                          className="mt-1 h-4 w-4 rounded border-red-400/50 text-red-600 focus:ring-red-400/50"
+                        />
+                        <span>
+                          I understand this will permanently delete {testCleanupPreview.total} flagged test row
+                          {testCleanupPreview.total === 1 ? '' : 's'}.
+                        </span>
+                      </label>
+                    )}
+                  </>
+                ) : testCleanupPreview?.mode === 'all' ? (
+                  <>
+                    <div
+                      className="rounded-lg border border-radiant-gold/20 bg-silicon-slate/20 p-4"
+                      aria-live="polite"
+                    >
+                      <p className="text-2xl font-semibold tabular-nums text-platinum-white">
+                        {testCleanupPreview.total}
+                      </p>
+                      <p className="text-xs text-platinum-white/55 mt-1">
+                        row{testCleanupPreview.total === 1 ? '' : 's'} would be removed in total (
+                        {testCleanupPreview.flagPhase.total} flagged · {testCleanupPreview.emailPhase.total}{' '}
+                        email/demo related)
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-platinum-white/50">
+                        1 · Flagged test rows
+                      </h3>
+                      <p className="text-xs text-platinum-white/55">
+                        Rows where <span className="font-mono text-platinum-white/70">is_test_data = true</span>{' '}
+                        ({testCleanupPreview.flagPhase.tablesScanned} tables)
+                      </p>
+                      {Object.values(testCleanupPreview.flagPhase.counts).some(n => n > 0) ? (
+                        <ul className="max-h-28 overflow-y-auto text-xs text-platinum-white/70 space-y-1 border border-radiant-gold/10 rounded-lg p-2 bg-imperial-navy/40">
+                          {Object.entries(testCleanupPreview.flagPhase.counts)
+                            .filter(([, n]) => n > 0)
+                            .sort((a, b) => b[1] - a[1])
+                            .map(([table, n]) => (
+                              <li key={table} className="flex justify-between gap-2 tabular-nums">
+                                <span>{humanizeTableName(table)}</span>
+                                <span className="text-platinum-white/50">{n}</span>
+                              </li>
+                            ))}
+                        </ul>
+                      ) : (
+                        <p className="text-xs text-platinum-white/45">No flagged rows in preview.</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-[11px] font-semibold uppercase tracking-wider text-platinum-white/50">
+                        2 · Known test emails &amp; demo records
+                      </h3>
+                      <ul className="max-h-36 overflow-y-auto text-xs text-platinum-white/70 space-y-1 border border-radiant-gold/10 rounded-lg p-2 bg-imperial-navy/40">
+                        {testCleanupPreview.emailPhase.lines.map(line => (
+                          <li key={line.key} className="flex justify-between gap-2 tabular-nums">
+                            <span className="min-w-0 pr-2">{line.label}</span>
+                            <span className="text-platinum-white/50 shrink-0">{line.count}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    {testCleanupPreview.total === 0 && (
+                      <p className="text-sm text-platinum-white/60">Nothing to clean up right now.</p>
+                    )}
+                    <p className="text-xs text-red-200/90">This cannot be undone.</p>
+                    {testCleanupPreview.total > 0 && (
+                      <label className="flex items-start gap-2 cursor-pointer text-sm text-platinum-white/85">
+                        <input
+                          type="checkbox"
+                          checked={testCleanupAcknowledged}
+                          onChange={e => setTestCleanupAcknowledged(e.target.checked)}
+                          className="mt-1 h-4 w-4 rounded border-red-400/50 text-red-600 focus:ring-red-400/50"
+                        />
+                        <span>
+                          I understand this will permanently delete {testCleanupPreview.total} row
+                          {testCleanupPreview.total === 1 ? '' : 's'} (flagged data plus seed contacts and
+                          related records).
+                        </span>
+                      </label>
+                    )}
+                  </>
+                ) : null}
+              </div>
+              <div className="p-5 border-t border-radiant-gold/15 flex flex-wrap gap-2 justify-end shrink-0">
+                <button
+                  ref={testCleanupCancelRef}
+                  type="button"
+                  onClick={() => {
+                    setTestCleanupModalMode(null)
+                    requestAnimationFrame(() => testCleanupReturnFocusRef.current?.focus())
+                  }}
+                  className="px-4 py-2 rounded-lg border border-radiant-gold/25 text-platinum-white/90 hover:bg-silicon-slate/40 focus:outline-none focus:ring-2 focus:ring-radiant-gold/50"
+                >
+                  Cancel
+                </button>
+                {testCleanupPreview &&
+                  testCleanupPreview.total > 0 &&
+                  !testCleanupPreviewError &&
+                  !testCleanupPreviewLoading &&
+                  testCleanupModalMode && (
+                    <button
+                      type="button"
+                      disabled={cleanupLoading || !testCleanupAcknowledged}
+                      onClick={async () => {
+                        const mode = testCleanupModalMode
+                        setCleanupLoading(true)
+                        showToast(
+                          'info',
+                          mode === 'all' ? 'Running full test data cleanup…' : 'Purging flagged test data…'
+                        )
+                        try {
+                          const session = await getCurrentSession()
+                          const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+                          if (session?.access_token) {
+                            headers['Authorization'] = `Bearer ${session.access_token}`
+                          }
+                          const res = await fetch('/api/admin/testing/cleanup-seeds', {
+                            method: 'POST',
+                            headers,
+                            body: JSON.stringify({
+                              mode: mode === 'all' ? 'all' : 'flag_only',
+                            }),
+                          })
+                          const data = await res.json()
+                          if (data.success) {
+                            showToast(
+                              'success',
+                              mode === 'all'
+                                ? `Full cleanup removed ${data.totalDeleted} row(s).`
+                                : `Removed ${data.totalDeleted} flagged test row(s).`
+                            )
+                            if (mode === 'all') {
+                              markScriptCompleted('cleanup_test_data')
+                              resetSession()
+                            }
+                            setTestCleanupModalMode(null)
+                            void fetchData()
+                            requestAnimationFrame(() => testCleanupReturnFocusRef.current?.focus())
+                          } else {
+                            showToast('error', data.error || 'Cleanup failed')
+                          }
+                        } catch {
+                          showToast('error', 'Failed to clean up test data')
+                        } finally {
+                          setCleanupLoading(false)
+                        }
+                      }}
+                      className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-red-400/60"
+                    >
+                      {cleanupLoading
+                        ? 'Working…'
+                        : `Delete ${testCleanupPreview.total} row${testCleanupPreview.total === 1 ? '' : 's'}`}
+                    </button>
+                  )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {runDetailRunId && (
           <div

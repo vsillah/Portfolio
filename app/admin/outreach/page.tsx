@@ -3443,11 +3443,11 @@ function OutreachContent() {
             ) : (
               <>
                 {selectedLeadIds.size > 0 && (
-                  <div className="sticky top-0 z-10 mb-4 p-3 bg-background/95 border border-silicon-slate rounded-xl flex items-center justify-between gap-4">
+                  <div className="sticky top-0 z-10 mb-4 p-3 bg-background/95 border border-silicon-slate rounded-xl flex flex-wrap items-center justify-between gap-3">
                     <span className="text-sm text-foreground">
                       {selectedLeadIds.size} lead(s) selected
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <button
                         type="button"
                         onClick={() => openReviewEnrichModal([...selectedLeadIds])}
@@ -3456,6 +3456,13 @@ function OutreachContent() {
                       >
                         {pushLoading ? 'Loading...' : 'Push to Value Evidence'}
                       </button>
+                      <Link
+                        href="/admin/value-evidence?tab=dashboard&highlight=vep001"
+                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-colors"
+                      >
+                        <ExternalLink size={14} aria-hidden />
+                        Open Value Evidence
+                      </Link>
                       <button
                         type="button"
                         onClick={() => setSelectedLeadIds(new Set())}
@@ -3464,6 +3471,20 @@ function OutreachContent() {
                         Clear selection
                       </button>
                     </div>
+                  </div>
+                )}
+                {selectedLeadIds.size === 0 && (
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-silicon-slate bg-silicon-slate/25 px-3 py-2.5 text-sm text-muted-foreground">
+                    <span className="min-w-0">
+                      Workflow progress, cancel, and run history: use the Value Evidence dashboard (not this list).
+                    </span>
+                    <Link
+                      href="/admin/value-evidence?tab=dashboard&highlight=vep001"
+                      className="inline-flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-colors"
+                    >
+                      <ExternalLink size={14} aria-hidden />
+                      Open Value Evidence
+                    </Link>
                   </div>
                 )}
                 <div className="flex items-center gap-2 mb-3">

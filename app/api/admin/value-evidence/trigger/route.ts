@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}))
-  const { workflow } = body
+  const { workflow, maxResults } = body
 
   if (!workflow || !['internal_extraction', 'social_listening'].includes(workflow)) {
     return NextResponse.json(
@@ -37,6 +37,10 @@ export async function POST(request: NextRequest) {
   const workflowId = WORKFLOW_MAP[workflow as keyof typeof WORKFLOW_MAP]
 
   try {
+    const validMaxResults = typeof maxResults === 'number' && [5, 10, 20].includes(maxResults)
+      ? maxResults
+      : undefined
+
     // Create run record for progress/last-run display
     const { data: run, error: insertError } = await supabaseAdmin
       .from('value_evidence_workflow_runs')
@@ -44,7 +48,7 @@ export async function POST(request: NextRequest) {
         workflow_id: workflowId,
         triggered_at: new Date().toISOString(),
         status: 'running',
-        stages: {},
+        stages: validMaxResults ? { scope: { maxResults: validMaxResults } } : {},
       })
       .select('id')
       .single()
@@ -58,10 +62,10 @@ export async function POST(request: NextRequest) {
     if (workflow === 'internal_extraction') {
       result = await triggerValueEvidenceExtraction({ runId: run?.id })
     } else {
-      result = await triggerSocialListening({ runId: run?.id })
+      result = await triggerSocialListening({ runId: run?.id, maxResults: validMaxResults })
     }
 
-    return NextResponse.json(result)
+    return NextResponse.json({ ...result, run_id: run?.id })
   } catch (error: any) {
     console.error('Trigger error:', error)
     return NextResponse.json(
