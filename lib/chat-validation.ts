@@ -4,6 +4,16 @@ const MAX_MESSAGE_LENGTH = 4000
 const MAX_NAME_LENGTH = 200
 const MAX_EMAIL_LENGTH = 320
 
+/**
+ * Client-generated chat session IDs (see lib/chat-utils `generateSessionId`, E2E test-client)
+ * are not UUIDs. DB stores `session_id` as TEXT.
+ */
+export const chatSessionIdSchema = z
+  .string()
+  .min(8, 'Session ID too short')
+  .max(200, 'Session ID too long')
+  .regex(/^[a-zA-Z0-9_-]+$/, 'Invalid session ID format')
+
 const diagnosticCategoryValues = [
   'business_challenges',
   'tech_stack',
@@ -30,7 +40,7 @@ export const chatMessageSchema = z.object({
     .min(1, 'Message is required')
     .max(MAX_MESSAGE_LENGTH, `Message must be ${MAX_MESSAGE_LENGTH} characters or fewer`)
     .transform((s) => s.trim()),
-  sessionId: z.string().uuid().optional(),
+  sessionId: chatSessionIdSchema.optional(),
   userId: z.string().uuid().optional(),
   visitorEmail: z.string().email().max(MAX_EMAIL_LENGTH).optional().or(z.literal('')),
   visitorName: z.string().max(MAX_NAME_LENGTH).optional().or(z.literal('')),
@@ -45,7 +55,7 @@ export type ChatMessageInput = z.infer<typeof chatMessageSchema>
  * Schema for GET query params on /api/chat/history and /api/chat/context.
  */
 export const sessionIdParamSchema = z.object({
-  sessionId: z.string().uuid('Invalid session ID format'),
+  sessionId: chatSessionIdSchema,
 })
 
 /**
@@ -53,7 +63,7 @@ export const sessionIdParamSchema = z.object({
  */
 export const diagnosticGetSchema = z
   .object({
-    sessionId: z.string().uuid().optional(),
+    sessionId: chatSessionIdSchema.optional(),
     auditId: z.string().uuid().optional(),
   })
   .refine((d) => d.sessionId || d.auditId, {
@@ -78,7 +88,7 @@ export const sendEmailSchema = z.object({
   to: z.string().email().max(MAX_EMAIL_LENGTH),
   templateType: z.string().min(1),
   data: z.record(z.string(), z.unknown()).optional(),
-  sessionId: z.string().uuid('Session ID is required'),
+  sessionId: chatSessionIdSchema,
 })
 
 /**

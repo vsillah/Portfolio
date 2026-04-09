@@ -111,6 +111,14 @@ export class SimulatedClient {
     // Initialize Supabase client
     this.supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY)
   }
+
+  /** Headers so /api/chat can skip rate limits (see app/api/chat/route.ts). */
+  private e2eJsonHeaders(): Record<string, string> {
+    return {
+      'Content-Type': 'application/json',
+      'User-Agent': `E2E-Test-Client/${this.clientId}`,
+    }
+  }
   
   /**
    * Get live activity state for this client
@@ -401,7 +409,7 @@ export class SimulatedClient {
     // Send message to chat API
     const chatResponse = await fetch(`${BASE_URL}/api/chat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.e2eJsonHeaders(),
       body: JSON.stringify({
         message,
         sessionId: this.sessionId,
@@ -418,9 +426,16 @@ export class SimulatedClient {
     const chatData = await chatResponse.json()
     this.createdResources.chatSessionId = this.sessionId
     
-    // Validate expected response if specified
-    if (step.expectedResponseContains) {
-      const responseText = chatData.response?.toLowerCase() || ''
+    // Validate expected response if specified (normalize object-shaped responses)
+    if (step.expectedResponseContains?.length) {
+      const raw = chatData.response as unknown
+      let responseText = ''
+      if (typeof raw === 'string') {
+        responseText = raw.toLowerCase()
+      } else if (raw && typeof raw === 'object') {
+        const o = raw as Record<string, unknown>
+        responseText = String(o.response || o.text || o.message || JSON.stringify(raw)).toLowerCase()
+      }
       for (const expected of step.expectedResponseContains) {
         if (!responseText.includes(expected.toLowerCase())) {
           throw new Error(`Expected response to contain "${expected}"`)
@@ -439,7 +454,7 @@ export class SimulatedClient {
     // Trigger diagnostic mode
     const triggerResponse = await fetch(`${BASE_URL}/api/chat`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.e2eJsonHeaders(),
       body: JSON.stringify({
         message: "I'd like to perform an AI audit of my business",
         sessionId: this.sessionId,
@@ -484,7 +499,7 @@ export class SimulatedClient {
         // Send to API
         await fetch(`${BASE_URL}/api/chat`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: this.e2eJsonHeaders(),
           body: JSON.stringify({
             message: response.message,
             sessionId: this.sessionId,

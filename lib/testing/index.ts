@@ -135,6 +135,7 @@ export {
   chatbotQuestionBankStratifiedScenario,
   chatbotQuestionBankBoundaryScenario,
   chatbotQuestionBankDiagnosticScenario,
+  chatbotQuestionBankAllScenario,
   buildChatbotQuestionBankScenario,
 
   // Collections
@@ -196,6 +197,12 @@ export {
   createOrchestrator,
   runSingleScenario
 } from './orchestrator'
+
+// Run outcome (status vs client counters)
+export {
+  effectiveTestRunStatus,
+  type TestRunOutcomeInput
+} from './effective-run-status'
 
 // Remediation
 export {

@@ -1066,6 +1066,9 @@ export const chatbotQuestionBankBoundaryScenario = buildChatbotQuestionBankScena
 /** Pre-built: diagnostic trigger questions only */
 export const chatbotQuestionBankDiagnosticScenario = buildChatbotQuestionBankScenario('diagnostic')
 
+/** Pre-built: every question in CHATBOT_TEST_QUESTIONS (~200) — long run */
+export const chatbotQuestionBankAllScenario = buildChatbotQuestionBankScenario('all')
+
 // ============================================================================
 // Scenario Collections
 // ============================================================================
@@ -1088,6 +1091,7 @@ export const ALL_SCENARIOS: TestScenario[] = [
   chatbotQuestionBankStratifiedScenario,
   chatbotQuestionBankBoundaryScenario,
   chatbotQuestionBankDiagnosticScenario,
+  chatbotQuestionBankAllScenario,
 ]
 
 export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
@@ -1108,6 +1112,7 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   chatbot_question_bank_stratified: chatbotQuestionBankStratifiedScenario,
   chatbot_question_bank_boundary: chatbotQuestionBankBoundaryScenario,
   chatbot_question_bank_diagnostic: chatbotQuestionBankDiagnosticScenario,
+  chatbot_question_bank_all: chatbotQuestionBankAllScenario,
   // Populate demo scenarios
   seed_warm_leads: seedWarmLeadsScenario,
   seed_cold_lead: seedColdLeadScenario,
@@ -1148,6 +1153,7 @@ export const CHAT_SCENARIOS: TestScenario[] = [
   chatbotQuestionBankStratifiedScenario,
   chatbotQuestionBankBoundaryScenario,
   chatbotQuestionBankDiagnosticScenario,
+  chatbotQuestionBankAllScenario,
 ]
 
 /**

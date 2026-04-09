@@ -49,6 +49,9 @@ export class TestOrchestrator {
   private clientsSpawned = 0
   private clientsCompleted = 0
   private clientsFailed = 0
+
+  /** Await these in stop() so duration expiry does not finalize before clients finish */
+  private clientExecutionPromises: Promise<void>[] = []
   
   private isRunning = false
   private spawnInterval: NodeJS.Timeout | null = null
@@ -111,17 +114,28 @@ export class TestOrchestrator {
       this.spawnInterval = null
     }
     
-    // Wait for active clients to complete
-    console.log(`[Orchestrator] Waiting for ${this.activeClients.size} active clients to complete...`)
-    
-    const waitPromises = Array.from(this.activeClients.values()).map(async (client) => {
-      // Clients are already running, just wait for them
-      // In a real implementation, we'd track their promises
-    })
-    
-    await Promise.all(waitPromises)
-    
-    this.status = this.clientsFailed > 0 ? 'failed' : 'completed'
+    // Wait until every spawned client has finished (pass or fail)
+    console.log(`[Orchestrator] Waiting for ${this.clientExecutionPromises.length} client execution(s) to finish...`)
+    await Promise.all(this.clientExecutionPromises)
+
+    const accounted = this.clientsCompleted + this.clientsFailed
+    if (accounted < this.clientsSpawned) {
+      const missing = this.clientsSpawned - accounted
+      console.warn(`[Orchestrator] ${missing} spawned client(s) did not report pass/fail; counting as failed`)
+      this.clientsFailed += missing
+    }
+
+    // "completed" only when every spawned client succeeded (not merely "finished")
+    if (this.clientsSpawned === 0) {
+      this.status = 'completed'
+    } else if (
+      this.clientsFailed === 0 &&
+      this.clientsCompleted === this.clientsSpawned
+    ) {
+      this.status = 'completed'
+    } else {
+      this.status = 'failed'
+    }
     this.completedAt = new Date().toISOString()
     
     // Build final result
@@ -280,8 +294,8 @@ export class TestOrchestrator {
     // Record to database
     await this.recordClientSession(clientId, persona, scenario)
     
-    // Execute scenario asynchronously
-    this.executeClient(client, clientId)
+    // Execute scenario asynchronously (track promise so stop() can await completion)
+    this.clientExecutionPromises.push(this.executeClient(client, clientId))
   }
   
   /**

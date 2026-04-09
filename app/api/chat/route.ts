@@ -36,11 +36,16 @@ function detectDiagnosticIntent(message: string): boolean {
   return DIAGNOSTIC_TRIGGERS.some(trigger => lowerMessage.includes(trigger))
 }
 
+function isE2ETestClientRequest(request: NextRequest): boolean {
+  const ua = request.headers.get('user-agent') || ''
+  return ua.includes('E2E-Test-Client/')
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // ── Rate limit (per-IP, 20 req/min) ──
+    // ── Rate limit (per-IP, 20 req/min) — skip for server-side E2E simulator ──
     const ip = getClientIpFromRequest(request)
-    if (isIpRateLimited('chat_message', ip)) {
+    if (!isE2ETestClientRequest(request) && isIpRateLimited('chat_message', ip)) {
       console.warn('[chat] chat_message rate limited', { ip: ip.slice(0, 12) })
       return NextResponse.json(
         { error: "You're sending messages too quickly. Please wait a moment.", retriable: true },

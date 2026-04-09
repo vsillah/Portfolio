@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic';
 
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { effectiveTestRunStatus } from '@/lib/testing/effective-run-status'
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -99,9 +100,18 @@ export async function GET(request: NextRequest) {
       ? new Date(testRun.completed_at).getTime() - new Date(testRun.started_at).getTime()
       : Date.now() - new Date(testRun.started_at).getTime()
     
+    // displayStatus: failed unless every spawned client succeeded (pending/running/cancelled unchanged).
+    const displayStatus = effectiveTestRunStatus({
+      status: testRun.status,
+      clients_spawned: testRun.clients_spawned,
+      clients_completed: testRun.clients_completed,
+      clients_failed: testRun.clients_failed,
+    })
+
     return NextResponse.json({
       runId: testRun.run_id,
       status: testRun.status,
+      displayStatus,
       startedAt: testRun.started_at,
       completedAt: testRun.completed_at,
       duration,

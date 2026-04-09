@@ -16,6 +16,7 @@ import {
   BarChart3,
 } from 'lucide-react'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import { getCurrentSession } from '@/lib/auth'
 import type { QuestionCategory } from '@/lib/testing/chatbot-questions'
 
 interface TestQuestion {
@@ -66,15 +67,23 @@ export default function ChatbotQuestionsPage() {
   const [newDiagnostic, setNewDiagnostic] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
+  const getAuthHeaders = useCallback(async (): Promise<Record<string, string>> => {
+    const session = await getCurrentSession()
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`
+    return headers
+  }, [])
+
   const fetchQuestions = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
+      const headers = await getAuthHeaders()
       const params = new URLSearchParams()
       if (selectedCategory) params.set('category', selectedCategory)
       if (selectedTag) params.set('tag', selectedTag)
       if (selectedSource) params.set('source', selectedSource)
-      const res = await fetch(`/api/admin/testing/chatbot-questions?${params}`, { credentials: 'include' })
+      const res = await fetch(`/api/admin/testing/chatbot-questions?${params}`, { headers })
       if (!res.ok) throw new Error('Failed to load questions')
       const data = await res.json()
       setQuestions(data.questions || [])
@@ -85,7 +94,7 @@ export default function ChatbotQuestionsPage() {
     } finally {
       setLoading(false)
     }
-  }, [selectedCategory, selectedTag, selectedSource])
+  }, [selectedCategory, selectedTag, selectedSource, getAuthHeaders])
 
   useEffect(() => { fetchQuestions() }, [fetchQuestions])
 
@@ -94,10 +103,10 @@ export default function ChatbotQuestionsPage() {
     if (!newQuestion.trim()) return
     setSubmitting(true)
     try {
+      const headers = await getAuthHeaders()
       const res = await fetch('/api/admin/testing/chatbot-questions', {
         method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           question: newQuestion,
           category: newCategory,
@@ -128,9 +137,10 @@ export default function ChatbotQuestionsPage() {
   const handleDeleteQuestion = async (id: string) => {
     if (!confirm('Delete this custom question?')) return
     try {
+      const headers = await getAuthHeaders()
       const res = await fetch(`/api/admin/testing/chatbot-questions/${id}`, {
         method: 'DELETE',
-        credentials: 'include',
+        headers,
       })
       if (!res.ok) throw new Error('Failed to delete')
       fetchQuestions()
