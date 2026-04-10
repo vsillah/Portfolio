@@ -39,3 +39,7 @@ When a schema change is applied via an MCP tool (e.g. `supabase apply_migration`
 - If the MCP tool was used to apply the migration, state explicitly in the handoff: "Migration applied via MCP tool. File written to `migrations/YYYY_MM_DD_*.sql` for traceability."
 
 A schema change with no migration file on disk is **untracked schema drift** and will cause environment divergence on rebuild or team onboarding.
+
+## Documentation mirrors (human + agents)
+
+The same MCP-first rollout story lives in **`CLAUDE.md`** (Database / migrations), **`docs/database-setup-order.md`**, **`docs/value-evidence-pipeline-setup.md`** (Step 1: Database), and **`prefer-mcp-when-available.mdc`**.

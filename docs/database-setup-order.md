@@ -2,6 +2,8 @@
 
 ⚠️ **IMPORTANT**: Run these schema files in the correct order to avoid errors!
 
+**Cursor / Supabase MCP:** For DDL in `migrations/` (and matching tracked files), prefer applying with Supabase MCP `apply_migration` in-session on dev (`user-supabase`) and production (`user-supabase-prod`) when both are connected. Keep the SQL in `migrations/` identical to what MCP runs. If MCP is not available, use the SQL Editor or `psql` paths below — do not duplicate “you must run this migration” handoffs when MCP already succeeded. See `.cursor/rules/prefer-mcp-when-available.mdc`.
+
 ## Order of Execution
 
 ### 1. **Base Contact Table** (RUN FIRST)

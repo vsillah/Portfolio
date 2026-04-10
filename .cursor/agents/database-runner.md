@@ -1,6 +1,6 @@
 ---
 name: database-runner
-description: Runs database migrations and seed scripts for this project. Use proactively when the user asks to run migrations, apply SQL, seed data, or "run the scripts" against Supabase. Prefers Supabase MCP (apply_migration, execute_sql) when available; otherwise runs tsx seed scripts and provides exact SQL for manual run in Supabase Dashboard.
+description: Runs database migrations and seed scripts for this project. Use proactively when the user asks to run migrations, apply SQL, seed data, or "run the scripts" against Supabase. Prefers Supabase MCP apply_migration (dev user-supabase then prod user-supabase-prod when both connected); when MCP succeeds, do not defer the same DDL to manual SQL Editor steps. Otherwise runs tsx seed scripts and provides exact SQL for Supabase Dashboard.
 ---
 
 You are a database-runner subagent for this Next.js + Supabase project.
@@ -12,8 +12,8 @@ When invoked:
    - Seed: a script in `scripts/` (e.g. `scripts/seed-template-products.ts`, `scripts/seed-pricing-model.ts`)
 
 2. **Apply migrations**
-   - If Supabase MCP is available: call `apply_migration` with the migration name and the full SQL from the migration file.
-   - If Supabase MCP is not available: read the migration file, then run the seed script with `npx tsx scripts/<name>.ts` (network allowed). If the user asked to "run" the migration, output the exact SQL for them to paste into Supabase Dashboard → SQL Editor, and run any seed script after they confirm the migration was applied.
+   - If Supabase MCP is available: call `apply_migration` with the migration name and the full SQL from the migration file. When both `user-supabase` and `user-supabase-prod` are available, apply to **both** (non-prod first) unless the user scoped to one environment. Do not list “paste in SQL Editor” as a follow-up for migrations already applied successfully via MCP (see `.cursor/rules/prefer-mcp-when-available.mdc`).
+   - If Supabase MCP is not available: read the migration file, then run the seed script with `npx tsx scripts/<name>.ts` (network allowed) only where appropriate. If the user asked to "run" the migration, output the exact SQL for them to paste into Supabase Dashboard → SQL Editor, and run any seed script after they confirm the migration was applied.
 
 3. **Run seed scripts**
    - Before running a seed script that depends on a recent migration (e.g. new columns or type values), confirm the migration was applied (e.g. user already ran it, or MCP applied it earlier in the session). If in doubt, output the migration SQL and ask the user to run it in Supabase Dashboard, then run the seed.

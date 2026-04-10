@@ -102,6 +102,8 @@ Admin card color palette: Chat/Communication = amber→orange, Analytics = purpl
 
 - Migration files live in `migrations/` with the naming convention `YYYY_MM_DD_description.sql`.
 - Every schema change applied via MCP or any tool **must** have a corresponding file on disk.
+- **Apply DDL via Supabase MCP when possible:** In Cursor, use the Supabase MCP `apply_migration` tool with the same SQL as the file in `migrations/`. When both dev and prod MCPs are connected (`user-supabase`, then `user-supabase-prod`), apply incremental migrations to **both** unless the user scoped to one environment. See `.cursor/rules/prefer-mcp-when-available.mdc` and `.cursor/rules/supabase-dual-mcp-dev-prod.mdc`. Do not tell the user to “run `supabase db push`” or paste SQL in the Dashboard for migrations already applied successfully via MCP.
+- **Fallback (no MCP):** `supabase db push`, `psql -f`, or Supabase Dashboard → SQL Editor — same SQL as `migrations/*.sql`, in documented order where dependencies exist.
 - Before writing INSERT/UPSERT code for an existing table, inspect the schema to identify NOT NULL columns without defaults.
 - For tables with `display_order` / `sort_order`: assign sequential values on INSERT (fetch current max + 1), never rely on a default of 0. Use index-based reassignment for reordering, not value swaps.
 - When enum-like values change (`service_type`, `status`, `content_type`, etc.), update all layers: DB CHECK constraint, API validation, frontend union types, and seed/test data in the same change.

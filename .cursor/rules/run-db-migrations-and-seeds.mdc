@@ -1,8 +1,13 @@
+---
+description: Run migrations/seeds with Supabase MCP first; avoid redundant manual handoffs when MCP succeeds
+alwaysApply: false
+---
+
 # Run DB migrations and seeds
 
 When the user asks to run migrations, apply SQL, or seed the database:
 
-1. **Check Supabase MCP:** If tools `apply_migration` or `execute_sql` (or equivalent) are available in the session, use them to apply the migration and, if needed, run seed logic (e.g. via execute_sql for idempotent inserts). Prefer MCP over local scripts when available.
+1. **Check Supabase MCP:** If tools `apply_migration` or `execute_sql` (or equivalent) are available in the session, use them to apply the migration and, if needed, run seed logic (e.g. via execute_sql for idempotent inserts). Prefer MCP over local scripts when available. When both `user-supabase` and `user-supabase-prod` are in scope, apply DDL to **both** (non-prod first) per **`supabase-dual-mcp-dev-prod.mdc`**. If MCP applied the migration successfully, **do not** add Dashboard/SQL Editor steps as user follow-up — see **`prefer-mcp-when-available.mdc`**.
 
 2. **If Supabase MCP is not available:**
    - For **migrations:** Do not run DDL locally. Output the exact SQL from the relevant file in `migrations/` and tell the user to run it in Supabase Dashboard → SQL Editor. Optionally suggest delegating to the **database-runner** subagent for future runs.

@@ -17,8 +17,8 @@ Security Advisor may report:
 
 ```bash
 # Apply via your normal migration process, e.g.:
-# Supabase SQL Editor: run migrations/2026_03_11_function_search_path.sql
-# Or: supabase db push
+# Preferred (Cursor): Supabase MCP apply_migration with migrations/2026_03_11_function_search_path.sql (dev then prod MCPs when both in scope).
+# Otherwise: Supabase SQL Editor, or: supabase db push
 ```
 
 **Migration file:** `migrations/2026_03_11_function_search_path.sql`

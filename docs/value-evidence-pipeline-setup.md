@@ -2,7 +2,7 @@
 
 This guide walks you through finalizing the n8n workflows **WF-VEP-001** (Internal Evidence Extraction) and **WF-VEP-002** (Social Listening) so they run end-to-end with your portfolio app.
 
-**How this guide works:** Each step says exactly *where* things happen (terminal, Supabase Dashboard, n8n, `.env`) and *what* you’re doing (e.g. “run SQL in Supabase” means copy the migration SQL and run it in Supabase’s SQL Editor—the terminal only prints the SQL, it doesn’t run it). If a step has more than one place (e.g. “run in terminal, then paste in Supabase”), that’s spelled out.
+**How this guide works:** Each step says exactly *where* things happen (terminal, Supabase Dashboard, n8n, `.env`) and *what* you’re doing. **Agents (Cursor):** For migration SQL, prefer **Supabase MCP** `apply_migration` with the file contents from `migrations/` on dev then prod when both MCPs are connected — see `.cursor/rules/prefer-mcp-when-available.mdc`. **Humans / no MCP:** “run SQL in Supabase” means copy the migration SQL and run it in Supabase’s SQL Editor (or use `supabase db push` / `psql` if that’s your workflow). The helper script only **prints** SQL; it does not execute it against the database.
 
 ---
 
@@ -17,7 +17,10 @@ This guide walks you through finalizing the n8n workflows **WF-VEP-001** (Intern
 
 ## Step 1: Database
 
-Migrations are **SQL that you run in Supabase**, not in your terminal. The terminal script only **shows** you the SQL; it does not run it against the database. You will always need to run the SQL yourself in the Supabase SQL Editor.
+Migrations are **SQL applied to Supabase** (via MCP, SQL Editor, or CLI) — not executed by the local Next.js app. The terminal helper only **prints** SQL unless you paste it elsewhere.
+
+- **Preferred (Cursor + Supabase MCP):** Apply each migration file with MCP `apply_migration` (dev `user-supabase`, then prod `user-supabase-prod` per project rules). No separate “run this in Dashboard” step if MCP succeeded.
+- **Otherwise:** Open each file under `migrations/`, copy the SQL, and run it in **Supabase Dashboard → SQL Editor** (or use `supabase db push` if your project uses the Supabase CLI against that database).
 
 ### 1.1 Value Evidence Pipeline migration
 
