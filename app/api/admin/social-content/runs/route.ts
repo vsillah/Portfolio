@@ -5,7 +5,7 @@ import { extractMeetingTitle } from '@/lib/social-content'
 
 export const dynamic = 'force-dynamic'
 
-const STALE_THRESHOLD_MS = 15 * 60 * 1000
+const STALE_THRESHOLD_MS = 8 * 60 * 1000
 
 /**
  * GET /api/admin/social-content/runs
@@ -66,6 +66,8 @@ export async function GET(request: NextRequest) {
 
       return {
         ...run,
+        /** All rows in this table are WF-SOC-001 — drives UI stage / progress model */
+        workflow_id: 'soc001' as const,
         meeting_title: run.meeting_record_id
           ? (meetingTitleMap.get(run.meeting_record_id) || null)
           : null,
@@ -73,7 +75,9 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    return NextResponse.json({ runs: enriched })
+    const runningCount = enriched.filter((r: { status: string }) => r.status === 'running').length
+
+    return NextResponse.json({ runs: enriched, running_count: runningCount })
   } catch (err) {
     console.error('Error in GET /api/admin/social-content/runs:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

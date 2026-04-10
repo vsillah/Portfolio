@@ -30,7 +30,7 @@ interface PipelineStage {
 
 const VEP001_STAGES: PipelineStage[] = [
   { key: 'fetch', label: 'Fetching internal data', startsAt: 0 },
-  { key: 'classify', label: 'AI classification', startsAt: 10 },
+  { key: 'classify', label: 'Classifying with AI', startsAt: 10 },
   { key: 'ingest', label: 'Ingesting evidence', startsAt: 30 },
   { key: 'complete', label: 'Finalizing', startsAt: 50 },
 ]
@@ -58,8 +58,40 @@ const VEP002_DURATION_BY_SCOPE: Record<number, number> = {
   20: 1200,
 }
 
+/** WF-SOC-001 — single-meeting extraction (~5 min per meeting after split) */
+const SOC001_STAGES: PipelineStage[] = [
+  { key: 'fetch', label: 'Fetching meeting & transcript', startsAt: 0 },
+  { key: 'topics', label: 'Extracting topics & framework', startsAt: 15 },
+  { key: 'copy', label: 'Generating post copy', startsAt: 45 },
+  { key: 'visual', label: 'Creating images & carousel', startsAt: 90 },
+  { key: 'voice', label: 'Voiceover & assets', startsAt: 160 },
+  { key: 'persist', label: 'Saving drafts to queue', startsAt: 240 },
+]
+const SOC001_TYPICAL_DURATION_S = 300
+
+/** HeyGen catalog sync — API pull + DB upsert (usually well under a minute) */
+const VGEN_HEYGEN_STAGES: PipelineStage[] = [
+  { key: 'connect', label: 'Connecting to HeyGen', startsAt: 0 },
+  { key: 'avatars', label: 'Syncing avatars', startsAt: 8 },
+  { key: 'voices', label: 'Syncing voices', startsAt: 18 },
+  { key: 'persist', label: 'Saving to catalog', startsAt: 28 },
+]
+const VGEN_HEYGEN_TYPICAL_DURATION_S = 42
+
+/** Google Drive script index sync */
+const VGEN_DRIVE_STAGES: PipelineStage[] = [
+  { key: 'connect', label: 'Connecting to Drive', startsAt: 0 },
+  { key: 'list', label: 'Listing script files', startsAt: 15 },
+  { key: 'process', label: 'Parsing & updating', startsAt: 35 },
+  { key: 'persist', label: 'Saving index', startsAt: 60 },
+]
+const VGEN_DRIVE_TYPICAL_DURATION_S = 85
+
 function getStagesForWorkflow(workflowId?: string, maxResults?: number): { stages: PipelineStage[]; typicalDurationS: number } {
   if (workflowId === 'vep001') return { stages: VEP001_STAGES, typicalDurationS: VEP001_TYPICAL_DURATION_S }
+  if (workflowId === 'soc001') return { stages: SOC001_STAGES, typicalDurationS: SOC001_TYPICAL_DURATION_S }
+  if (workflowId === 'vgen_heygen') return { stages: VGEN_HEYGEN_STAGES, typicalDurationS: VGEN_HEYGEN_TYPICAL_DURATION_S }
+  if (workflowId === 'vgen_drive') return { stages: VGEN_DRIVE_STAGES, typicalDurationS: VGEN_DRIVE_TYPICAL_DURATION_S }
   if (workflowId === 'vep002') {
     const duration = (maxResults && VEP002_DURATION_BY_SCOPE[maxResults]) || VEP002_TYPICAL_DURATION_S
     const scale = duration / VEP002_TYPICAL_DURATION_S
@@ -103,18 +135,37 @@ function estimateProgress(
 
   const elapsedS = elapsedMs / 1000
   let currentLabel = stagesDef[0].label
+  let stageIdx = 0
   for (let i = stagesDef.length - 1; i >= 0; i--) {
     if (elapsedS >= stagesDef[i].startsAt) {
       currentLabel = stagesDef[i].label
+      stageIdx = i
       break
     }
   }
 
-  // Asymptotic curve: approaches 90% at typicalDuration, never exceeds 95.
-  // Formula: 90 * (1 - e^(-2 * t/T))  — fast early, slows down naturally.
-  const ratio = elapsedS / typicalDurationS
-  const rawPct = 90 * (1 - Math.exp(-2 * ratio))
-  const progressPct = Math.max(2, Math.min(95, Math.round(rawPct)))
+  const useStageSegmentedBar = stagesDef.length > 1
+
+  let progressPct: number
+  if (useStageSegmentedBar) {
+    // Stage-weighted bar: fill tracks the active segment so label and % stay aligned
+    const nextStart =
+      stageIdx + 1 < stagesDef.length
+        ? stagesDef[stageIdx + 1].startsAt
+        : typicalDurationS
+    const segStart = stagesDef[stageIdx].startsAt
+    const segLen = Math.max(8, nextStart - segStart)
+    const t = Math.min(1, Math.max(0, (elapsedS - segStart) / segLen))
+    const eased = 1 - Math.exp(-2.8 * t)
+    const base = (stageIdx / stagesDef.length) * 88
+    const span = (1 / stagesDef.length) * 88
+    progressPct = Math.round(Math.min(94, Math.max(3, base + eased * span * 0.92)))
+  } else {
+    // Asymptotic curve: approaches 90% at typicalDuration, never exceeds 95.
+    const ratio = elapsedS / typicalDurationS
+    const rawPct = 90 * (1 - Math.exp(-2 * ratio))
+    progressPct = Math.max(2, Math.min(95, Math.round(rawPct)))
+  }
 
   return { currentStageLabel: currentLabel, progressPct }
 }
@@ -169,6 +220,8 @@ interface StatusChipProps {
   state: ExtractionState
   currentRun: ExtractionRun | null
   recentRuns: ExtractionRun[]
+  /** Total running runs across all meetings (for multi-meeting batch display) */
+  runningCount?: number
   elapsedMs: number
   isDrawerOpen: boolean
   isHistoryOpen: boolean
@@ -176,6 +229,8 @@ interface StatusChipProps {
   toggleHistory: () => void
   markRunFailed: (runId: string, reason?: string) => void
   onRetry?: (maxResults?: number) => void
+  /** Callback to retry only the failed runs from recent history */
+  onRetryFailed?: () => void
   drawerFooterAction?: { label: string; onClick: () => void; disabled?: boolean }
   /** When provided, shows a scope dropdown before the Run action (Social pipeline only) */
   scopeSelector?: {
@@ -209,14 +264,17 @@ function chipLabel(
   run: ExtractionRun | null,
   elapsedMs: number,
   stageLabel?: string,
+  runningCount?: number,
 ): string {
   if (!run) return 'No runs yet'
+
+  const runCountTag = (runningCount ?? 0) > 1 ? ` (${runningCount} meetings)` : ''
 
   switch (state) {
     case 'running':
       return stageLabel
-        ? `${stageLabel} · ${formatElapsed(elapsedMs)}`
-        : `Running… ${formatElapsed(elapsedMs)}`
+        ? `${stageLabel}${runCountTag} · ${formatElapsed(elapsedMs)}`
+        : `Running${runCountTag}… ${formatElapsed(elapsedMs)}`
     case 'stale':
       return `${formatElapsed(elapsedMs)} — may be stuck`
     case 'failed':
@@ -295,26 +353,38 @@ function PipelineProgressBar({
   progressPct,
   stageLabel,
   stale,
+  /** When true, only the numeric row + bar (use when stage is shown elsewhere). */
+  barOnly = false,
 }: {
   progressPct: number
   stageLabel: string
   stale: boolean
+  barOnly?: boolean
 }) {
-  const barColor = stale ? 'bg-orange-500' : 'bg-amber-500'
-  const trackColor = stale ? 'bg-orange-500/10' : 'bg-amber-500/10'
+  const trackColor = stale ? 'bg-orange-950/80 ring-1 ring-orange-500/20' : 'bg-gray-950/80 ring-1 ring-amber-500/15'
 
   return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between text-[11px]">
-        <span className="text-gray-400">{stageLabel}</span>
-        <span className="text-gray-500 tabular-nums">{progressPct}%</span>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2 text-[11px]">
+        {barOnly ? (
+          <span className="text-gray-500">Progress</span>
+        ) : (
+          <span className="text-gray-300 font-medium truncate" title={stageLabel}>
+            {stageLabel}
+          </span>
+        )}
+        <span className="text-gray-500 tabular-nums shrink-0">{progressPct}%</span>
       </div>
-      <div className={`h-1.5 w-full rounded-full ${trackColor} overflow-hidden`}>
+      <div className={`relative h-2 w-full rounded-full ${trackColor} overflow-hidden`}>
         <motion.div
-          className={`h-full rounded-full ${barColor}`}
+          className={`h-full rounded-full ${
+            stale
+              ? 'bg-gradient-to-r from-orange-600 to-orange-400'
+              : 'bg-gradient-to-r from-amber-600 via-orange-500 to-amber-400'
+          } shadow-[0_0_12px_rgba(245,158,11,0.25)]`}
           initial={{ width: 0 }}
           animate={{ width: `${progressPct}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
+          transition={{ type: 'spring', stiffness: 120, damping: 22 }}
         />
       </div>
     </div>
@@ -330,6 +400,7 @@ export function ExtractionStatusChip({
   state,
   currentRun,
   recentRuns,
+  runningCount,
   elapsedMs,
   isDrawerOpen,
   isHistoryOpen,
@@ -337,6 +408,7 @@ export function ExtractionStatusChip({
   toggleHistory,
   markRunFailed,
   onRetry,
+  onRetryFailed,
   drawerFooterAction,
   scopeSelector,
 }: StatusChipProps) {
@@ -382,6 +454,8 @@ export function ExtractionStatusChip({
 
   const runningStageLabel = (state === 'running' || state === 'stale') ? currentStageLabel : undefined
 
+  const recentFailed = recentRuns.filter(r => r.status === 'failed')
+
   return (
     <div className="relative" ref={chipRef}>
       {/* Chip */}
@@ -389,12 +463,12 @@ export function ExtractionStatusChip({
         onClick={toggleDrawer}
         className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/80 border border-gray-700/60 hover:border-gray-600 transition-colors text-xs cursor-pointer"
         aria-expanded={isDrawerOpen}
-        aria-label={`${label ? label + ' ' : ''}Status: ${chipLabel(state, currentRun, elapsedMs, runningStageLabel)}`}
+        aria-label={`${label ? label + ' ' : ''}Status: ${chipLabel(state, currentRun, elapsedMs, runningStageLabel, runningCount)}`}
       >
         <StatusDot state={state} />
         <span className="text-gray-300">
           {label && <span className="text-gray-500 mr-1">{label}</span>}
-          {chipLabel(state, currentRun, elapsedMs, runningStageLabel)}
+          {chipLabel(state, currentRun, elapsedMs, runningStageLabel, runningCount)}
         </span>
         {isDrawerOpen ? (
           <ChevronUp className="w-3 h-3 text-gray-500" />
@@ -420,13 +494,28 @@ export function ExtractionStatusChip({
                 {/* Running */}
                 {(state === 'running' || state === 'stale') && (
                   <div>
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-1">
                       <Loader2 className="w-3.5 h-3.5 text-amber-400 animate-spin" />
                       <span className="text-sm font-medium text-gray-200">
-                        {state === 'stale' ? 'May be stuck' : currentStageLabel}
+                        {state === 'stale' ? 'May be stuck' : 'Processing'}
+                        {(runningCount ?? 0) > 1 && (
+                          <span className="text-gray-400 font-normal ml-1">
+                            ({runningCount} meetings)
+                          </span>
+                        )}
                       </span>
                       <span className="text-xs text-gray-500 ml-auto tabular-nums">{formatElapsed(elapsedMs)}</span>
                     </div>
+                    {state === 'running' && (
+                      <p className="text-xs text-amber-400/90 mb-2 pl-6 -mt-0.5" aria-live="polite">
+                        {currentStageLabel}
+                      </p>
+                    )}
+                    {state === 'stale' && (
+                      <p className="text-xs text-orange-400/80 mb-2 pl-6 -mt-0.5">
+                        Last step: {currentStageLabel}
+                      </p>
+                    )}
                     {currentRun.meeting_title && (
                       <div className="text-xs text-gray-400 mb-3 truncate">{currentRun.meeting_title}</div>
                     )}
@@ -434,6 +523,7 @@ export function ExtractionStatusChip({
                       progressPct={progressPct}
                       stageLabel={currentStageLabel}
                       stale={state === 'stale'}
+                      barOnly
                     />
                     {state === 'stale' && (
                       <p className="mt-2 text-xs text-orange-400/80">Running longer than expected — the workflow may have stalled</p>
@@ -512,21 +602,33 @@ export function ExtractionStatusChip({
                       {currentRun.meeting_title && (
                         <span className="text-xs text-gray-500 truncate flex-1">{currentRun.meeting_title}</span>
                       )}
-                      {onRetry && (
-                        <div className="flex items-center gap-2 ml-auto">
-                          {scopeSelector && (
-                            <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
-                          )}
+                      <div className="flex items-center gap-2 ml-auto">
+                        {onRetryFailed && recentFailed.length > 0 && (
                           <button
-                            onClick={() => onRetry(scopeSelector?.selected)}
-                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600/30 transition-colors"
-                            title="Re-run the extraction"
+                            onClick={onRetryFailed}
+                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-orange-600/20 text-orange-400 border border-orange-600/30 hover:bg-orange-600/30 transition-colors"
+                            title={`Retry ${recentFailed.length} failed meeting(s)`}
                           >
                             <RotateCcw className="w-3 h-3" />
-                            Retry
+                            Retry Failed ({recentFailed.length})
                           </button>
-                        </div>
-                      )}
+                        )}
+                        {onRetry && (
+                          <>
+                            {scopeSelector && (
+                              <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
+                            )}
+                            <button
+                              onClick={() => onRetry(scopeSelector?.selected)}
+                              className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600/30 transition-colors"
+                              title="Re-run the extraction"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              Retry
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 )}

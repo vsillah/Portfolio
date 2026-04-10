@@ -1096,15 +1096,14 @@ export default function TestingDashboard() {
   }, [e2eUi])
 
   useEffect(() => {
+    const primaryNeedsTick =
+      e2ePrimaryRun?.status === 'running' || e2ePrimaryRun?.status === 'pending'
     const tickNeeded =
-      e2eUi?.kind === 'active' ||
-      activeRuns.length > 0 ||
-      (e2ePrimaryRun != null &&
-        (e2ePrimaryRun.status === 'running' || e2ePrimaryRun.status === 'pending'))
+      e2eUi?.kind === 'active' || activeRuns.length > 0 || primaryNeedsTick
     if (!tickNeeded) return
     const id = setInterval(() => setE2eTick(n => n + 1), 1000)
     return () => clearInterval(id)
-  }, [e2eUi?.kind, activeRuns.length, e2ePrimaryRun?.status, e2ePrimaryRun?.run_id])
+  }, [e2eUi?.kind, activeRuns.length, e2ePrimaryRun])
 
   useEffect(() => {
     if (!e2ePopoverOpen) return

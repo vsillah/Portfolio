@@ -10,7 +10,8 @@ import { useWorkflowStatus } from './useWorkflowStatus'
  */
 export function useExtractionStatus(onQueueRefresh?: () => void) {
   return useWorkflowStatus(
-    { apiBase: '/api/admin/social-content/runs' },
+    /** workflowId enables WF-SOC-001 stage model + optimistic run metadata */
+    { apiBase: '/api/admin/social-content/runs', workflowId: 'soc001' },
     onQueueRefresh,
   )
 }

@@ -92,7 +92,7 @@ function SocialContentQueuePage() {
   const [meetingDateFrom, setMeetingDateFrom] = useState('')
   const [meetingDateTo, setMeetingDateTo] = useState('')
   const [meetingsPage, setMeetingsPage] = useState(1)
-  const [selectedMeeting, setSelectedMeeting] = useState<string>('')
+  const [selectedMeetings, setSelectedMeetings] = useState<Set<string>>(new Set())
   const [triggerLoading, setTriggerLoading] = useState(false)
   const [triggerResult, setTriggerResult] = useState<{ success: boolean; message: string } | null>(null)
   const [showTriggerPanel, setShowTriggerPanel] = useState(false)
@@ -171,14 +171,15 @@ function SocialContentQueuePage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingSearch, meetingDateFrom, meetingDateTo])
 
-  const handleTriggerExtraction = async () => {
+  const handleTriggerExtraction = async (meetingIds?: string[]) => {
     setTriggerLoading(true)
     setTriggerResult(null)
     try {
       const session = await getCurrentSession()
       if (!session) return
-      const body: Record<string, string> = {}
-      if (selectedMeeting) body.meeting_record_id = selectedMeeting
+      const ids = meetingIds ?? (selectedMeetings.size > 0 ? [...selectedMeetings] : undefined)
+      const body: Record<string, unknown> = {}
+      if (ids && ids.length > 0) body.meeting_record_ids = ids
       const res = await fetch('/api/admin/social-content/trigger', {
         method: 'POST',
         headers: {
@@ -193,13 +194,21 @@ function SocialContentQueuePage() {
         message: data.message ?? (res.ok ? 'Extraction triggered' : 'Failed to trigger extraction'),
       })
       if (data.success) {
-        extractionStatus.onTriggerStarted(data.run_id)
+        extractionStatus.onTriggerStarted(data.runs?.[0]?.run_id)
       }
     } catch {
       setTriggerResult({ success: false, message: 'Network error — could not reach the server.' })
     } finally {
       setTriggerLoading(false)
     }
+  }
+
+  const handleRetryFailed = async () => {
+    const failedMeetingIds = extractionStatus.recentRuns
+      .filter(r => r.status === 'failed' && r.meeting_record_id)
+      .map(r => r.meeting_record_id!)
+    if (failedMeetingIds.length === 0) return
+    await handleTriggerExtraction(failedMeetingIds)
   }
 
   const handleQuickApprove = async (e: React.MouseEvent, itemId: string) => {
@@ -282,13 +291,15 @@ function SocialContentQueuePage() {
             state={extractionStatus.state}
             currentRun={extractionStatus.currentRun}
             recentRuns={extractionStatus.recentRuns}
+            runningCount={extractionStatus.runningCount}
             elapsedMs={extractionStatus.elapsedMs}
             isDrawerOpen={extractionStatus.isDrawerOpen}
             isHistoryOpen={extractionStatus.isHistoryOpen}
             toggleDrawer={extractionStatus.toggleDrawer}
             toggleHistory={extractionStatus.toggleHistory}
             markRunFailed={extractionStatus.markRunFailed}
-            onRetry={handleTriggerExtraction}
+            onRetry={() => handleTriggerExtraction()}
+            onRetryFailed={handleRetryFailed}
           />
         </div>
 
@@ -359,15 +370,29 @@ function SocialContentQueuePage() {
                 {/* Selection header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    {selectedMeeting ? (
-                      <button
-                        onClick={() => setSelectedMeeting('')}
-                        className="text-xs px-2 py-1 rounded border border-amber-600/40 text-amber-500 bg-amber-600/10"
-                      >
-                        Clear selection
-                      </button>
+                    {selectedMeetings.size > 0 ? (
+                      <>
+                        <span className="text-xs text-amber-500">{selectedMeetings.size} selected</span>
+                        <button
+                          onClick={() => {
+                            const allIds = new Set(meetings.map(m => m.id))
+                            setSelectedMeetings(prev =>
+                              prev.size === allIds.size ? new Set() : allIds
+                            )
+                          }}
+                          className="text-xs px-2 py-1 rounded border border-gray-700 text-gray-400 hover:text-white"
+                        >
+                          {selectedMeetings.size === meetings.length ? 'Deselect all' : 'Select all'}
+                        </button>
+                        <button
+                          onClick={() => setSelectedMeetings(new Set())}
+                          className="text-xs px-2 py-1 rounded border border-amber-600/40 text-amber-500 bg-amber-600/10"
+                        >
+                          Clear
+                        </button>
+                      </>
                     ) : (
-                      <span className="text-xs text-gray-500">Click a meeting to select it, or extract all recent</span>
+                      <span className="text-xs text-gray-500">Select meetings to extract, or extract all recent</span>
                     )}
                   </div>
                   <span className="text-xs text-gray-500">{meetingsTotal} meeting{meetingsTotal !== 1 ? 's' : ''}</span>
@@ -376,14 +401,19 @@ function SocialContentQueuePage() {
                 {/* Meeting rows */}
                 <div className="space-y-1.5">
                   {meetings.map((m) => {
-                    const isSelected = selectedMeeting === m.id
+                    const isSelected = selectedMeetings.has(m.id)
                     const date = m.meeting_date ? new Date(m.meeting_date) : null
                     const title = m.meeting_title || 'Untitled meeting'
                     const showTypePill = m.meeting_type && m.meeting_title && m.meeting_title !== m.meeting_type.replace(/_/g, ' ')
                     return (
                       <button
                         key={m.id}
-                        onClick={() => setSelectedMeeting(isSelected ? '' : m.id)}
+                        onClick={() => setSelectedMeetings(prev => {
+                          const next = new Set(prev)
+                          if (next.has(m.id)) next.delete(m.id)
+                          else next.add(m.id)
+                          return next
+                        })}
                         className={`w-full text-left flex items-center gap-2.5 px-3 py-2.5 rounded-lg border transition-colors ${
                           isSelected
                             ? 'border-amber-600/40 bg-amber-600/5'
@@ -470,18 +500,19 @@ function SocialContentQueuePage() {
               {extractionStatus.state === 'running' || extractionStatus.state === 'stale' ? (
                 <button
                   onClick={() => {
-                    if (extractionStatus.currentRun) {
-                      extractionStatus.markRunFailed(extractionStatus.currentRun.id, 'Cancelled by user')
+                    const runningRuns = extractionStatus.recentRuns.filter(r => r.status === 'running')
+                    for (const run of runningRuns) {
+                      extractionStatus.markRunFailed(run.id, 'Cancelled by user')
                     }
                   }}
                   className="inline-flex items-center gap-2 px-5 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-500 transition-colors"
                 >
                   <Square className="w-3.5 h-3.5" />
-                  Cancel Extraction
+                  Cancel{(extractionStatus.runningCount ?? 0) > 1 ? ` All (${extractionStatus.runningCount})` : ' Extraction'}
                 </button>
               ) : (
                 <button
-                  onClick={handleTriggerExtraction}
+                  onClick={() => handleTriggerExtraction()}
                   disabled={triggerLoading}
                   className="inline-flex items-center gap-2 px-5 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
@@ -492,19 +523,19 @@ function SocialContentQueuePage() {
                   )}
                   {triggerLoading
                     ? 'Triggering...'
-                    : selectedMeeting
-                      ? 'Extract from Selected Meeting'
+                    : selectedMeetings.size > 0
+                      ? `Extract ${selectedMeetings.size} Meeting${selectedMeetings.size > 1 ? 's' : ''}`
                       : 'Extract All Recent Meetings'
                   }
                 </button>
               )}
-              {selectedMeeting && (() => {
-                const m = meetings.find((mt) => mt.id === selectedMeeting)
-                if (!m) return null
-                const selTitle = m.meeting_title || 'Untitled meeting'
+              {selectedMeetings.size > 0 && selectedMeetings.size <= 3 && (() => {
+                const titles = [...selectedMeetings]
+                  .map(id => meetings.find(mt => mt.id === id)?.meeting_title || 'Untitled')
+                  .join(', ')
                 return (
                   <span className="text-xs text-amber-500 truncate max-w-[300px]">
-                    Selected: {selTitle}
+                    {titles}
                   </span>
                 )
               })()}

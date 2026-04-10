@@ -7,11 +7,46 @@ import { extractMeetingTitle, extractMeetingSourceUrl, extractParticipants, extr
 
 export const dynamic = 'force-dynamic'
 
+const MAX_MEETINGS_PER_TRIGGER = 10
+const WEBHOOK_DELAY_MS = 500
+
+/**
+ * Resolve unprocessed meetings server-side (same logic as WF-SOC-001's
+ * "Fetch Unprocessed Meetings" node): last 7 days, up to cap, minus
+ * meetings already in social_content_queue.
+ */
+async function resolveUnprocessedMeetings(cap: number): Promise<string[]> {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
+  const { data: queued } = await supabaseAdmin
+    .from('social_content_queue')
+    .select('meeting_record_id')
+    .not('meeting_record_id', 'is', null)
+  const queuedIds = new Set((queued ?? []).map((r: { meeting_record_id: string | null }) => r.meeting_record_id).filter(Boolean))
+
+  const { data: meetings } = await supabaseAdmin
+    .from('meeting_records')
+    .select('id')
+    .gte('created_at', sevenDaysAgo)
+    .order('created_at', { ascending: false })
+    .limit(cap + queuedIds.size)
+
+  return (meetings ?? [])
+    .map((m: { id: string }) => m.id)
+    .filter((id: string) => !queuedIds.has(id))
+    .slice(0, cap)
+}
+
 /**
  * POST /api/admin/social-content/trigger
- * Manually trigger the social content extraction workflow (WF-SOC-001).
- * Fetches the latest admin-editable prompts from system_prompts and sends
- * them to n8n so the workflow uses the configured versions.
+ *
+ * Per-meeting extraction: creates one run row per meeting and fires
+ * n8n webhooks sequentially with a 500ms delay.
+ *
+ * Body variants:
+ *   { meeting_record_ids: string[] }  — extract specific meetings (max 10)
+ *   { meeting_record_id: string }     — single meeting (backward compat)
+ *   {}                                — extract all recent unprocessed
  */
 export async function POST(request: NextRequest) {
   try {
@@ -21,59 +56,152 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}))
-    const { meeting_record_id } = body as { meeting_record_id?: string }
+    const {
+      meeting_record_ids: rawIds,
+      meeting_record_id: singleId,
+    } = body as { meeting_record_ids?: string[]; meeting_record_id?: string }
 
-    if (meeting_record_id) {
-      const { data: meeting, error: meetingError } = await supabaseAdmin
-        .from('meeting_records')
-        .select('id')
-        .eq('id', meeting_record_id)
-        .maybeSingle()
+    // Normalize to array
+    let meetingIds: string[]
+    if (Array.isArray(rawIds) && rawIds.length > 0) {
+      meetingIds = rawIds.slice(0, MAX_MEETINGS_PER_TRIGGER)
+    } else if (singleId) {
+      meetingIds = [singleId]
+    } else {
+      meetingIds = await resolveUnprocessedMeetings(MAX_MEETINGS_PER_TRIGGER)
+    }
 
-      if (meetingError || !meeting) {
-        return NextResponse.json(
-          { error: 'Meeting record not found' },
-          { status: 404 }
-        )
-      }
+    if (meetingIds.length === 0) {
+      return NextResponse.json({
+        success: true,
+        message: 'No unprocessed meetings found.',
+        runs: [],
+      })
+    }
+
+    // Validate all meeting IDs exist
+    const { data: validMeetings, error: validErr } = await supabaseAdmin
+      .from('meeting_records')
+      .select('id')
+      .in('id', meetingIds)
+    if (validErr) {
+      return NextResponse.json({ error: 'Failed to validate meetings' }, { status: 500 })
+    }
+    const validIds = new Set((validMeetings ?? []).map((m: { id: string }) => m.id))
+    meetingIds = meetingIds.filter(id => validIds.has(id))
+
+    if (meetingIds.length === 0) {
+      return NextResponse.json({ error: 'No valid meeting records found' }, { status: 404 })
+    }
+
+    // Idempotency: skip meetings that already have a running extraction
+    const { data: activeRuns } = await supabaseAdmin
+      .from('social_content_extraction_runs')
+      .select('id, meeting_record_id')
+      .eq('status', 'running')
+      .in('meeting_record_id', meetingIds)
+    const alreadyRunning = new Map<string, string>()
+    for (const r of activeRuns ?? []) {
+      if (r.meeting_record_id) alreadyRunning.set(r.meeting_record_id, r.id)
     }
 
     const prompts = await getSocialContentPrompts()
+    const now = new Date().toISOString()
 
-    // Record extraction run (mirrors value_evidence_workflow_runs pattern)
-    const { data: run } = await supabaseAdmin
-      .from('social_content_extraction_runs')
-      .insert({
-        triggered_at: new Date().toISOString(),
-        status: 'running',
-        meeting_record_id: meeting_record_id ?? null,
-      })
-      .select('id')
-      .single()
+    // Insert all run rows before firing any webhooks (claim meetings)
+    const runsToCreate = meetingIds.filter(id => !alreadyRunning.has(id))
 
-    const result = await triggerSocialContentExtraction({
-      meetingRecordId: meeting_record_id,
-      runId: run?.id,
-      prompts,
-    })
+    type RunInfo = { run_id: string; meeting_record_id: string; status: 'running' | 'skipped_existing' | 'failed' }
+    const runs: RunInfo[] = []
 
-    // Update run status based on trigger result
-    if (run?.id) {
-      await supabaseAdmin
-        .from('social_content_extraction_runs')
-        .update({
-          status: result.triggered ? 'running' : 'failed',
-          error_message: result.triggered ? null : (result.message ?? null),
-          ...(result.triggered ? {} : { completed_at: new Date().toISOString() }),
-        })
-        .eq('id', run.id)
+    // Add already-running runs as "skipped"
+    for (const id of meetingIds) {
+      if (alreadyRunning.has(id)) {
+        runs.push({ run_id: alreadyRunning.get(id)!, meeting_record_id: id, status: 'skipped_existing' })
+      }
     }
 
+    // Batch-insert new run rows
+    if (runsToCreate.length > 0) {
+      const { data: inserted, error: insertErr } = await supabaseAdmin
+        .from('social_content_extraction_runs')
+        .insert(runsToCreate.map(id => ({
+          triggered_at: now,
+          status: 'running' as const,
+          meeting_record_id: id,
+        })))
+        .select('id, meeting_record_id')
+
+      if (insertErr || !inserted) {
+        console.error('Failed to insert run rows:', insertErr)
+        return NextResponse.json({ error: 'Failed to create run records' }, { status: 500 })
+      }
+
+      for (const row of inserted) {
+        runs.push({ run_id: row.id, meeting_record_id: row.meeting_record_id!, status: 'running' })
+      }
+    }
+
+    // Fire webhooks sequentially with delay (CTO rec: avoids thundering-herd)
+    const newRuns = runs.filter(r => r.status === 'running')
+    let triggeredCount = 0
+    let lastError: string | null = null
+
+    for (let i = 0; i < newRuns.length; i++) {
+      const run = newRuns[i]
+      if (i > 0) {
+        await new Promise(resolve => setTimeout(resolve, WEBHOOK_DELAY_MS))
+      }
+
+      const result = await triggerSocialContentExtraction({
+        meetingRecordId: run.meeting_record_id,
+        runId: run.run_id,
+        prompts,
+      })
+
+      if (result.triggered) {
+        triggeredCount++
+      } else {
+        lastError = result.message
+        await supabaseAdmin
+          .from('social_content_extraction_runs')
+          .update({
+            status: 'failed',
+            completed_at: new Date().toISOString(),
+            error_message: result.message ?? 'Webhook trigger failed',
+          })
+          .eq('id', run.run_id)
+        run.status = 'failed'
+
+        // Short-circuit on n8n errors (e.g. 502) to avoid hammering a down service
+        if (result.message?.includes('502') || result.message?.includes('503')) {
+          for (let j = i + 1; j < newRuns.length; j++) {
+            await supabaseAdmin
+              .from('social_content_extraction_runs')
+              .update({
+                status: 'failed',
+                completed_at: new Date().toISOString(),
+                error_message: 'Skipped — n8n unavailable',
+              })
+              .eq('id', newRuns[j].run_id)
+            newRuns[j].status = 'failed'
+          }
+          break
+        }
+      }
+    }
+
+    const skippedCount = runs.filter(r => r.status === 'skipped_existing').length
+
     return NextResponse.json({
-      success: result.triggered,
-      message: result.message,
-      meeting_record_id: meeting_record_id ?? null,
-      run_id: run?.id ?? null,
+      success: triggeredCount > 0,
+      message: triggeredCount > 0
+        ? `${triggeredCount} extraction(s) triggered${skippedCount > 0 ? `, ${skippedCount} already running` : ''}`
+        : lastError ?? 'No extractions triggered',
+      runs: runs.map(r => ({ run_id: r.run_id, meeting_record_id: r.meeting_record_id, status: r.status })),
+      triggered: triggeredCount,
+      skipped: skippedCount,
+      failed: runs.filter(r => r.status === 'failed').length,
     })
   } catch (error) {
     console.error('Error in POST /api/admin/social-content/trigger:', error)

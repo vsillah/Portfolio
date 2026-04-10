@@ -53,6 +53,8 @@ export function useWorkflowStatus(
     return qs ? `${config.apiBase}?${qs}` : config.apiBase
   }, [config.apiBase, config.workflowId])
 
+  const [runningCount, setRunningCount] = useState(0)
+
   const fetchRuns = useCallback(async (activeOnly = false) => {
     try {
       const session = await getCurrentSession()
@@ -71,6 +73,7 @@ export function useWorkflowStatus(
       const runs: ExtractionRun[] = data.runs || []
 
       setRecentRuns(runs)
+      setRunningCount(data.running_count ?? runs.filter(r => r.status === 'running').length)
 
       const latest = runs[0] || null
       setCurrentRun(latest)
@@ -203,6 +206,7 @@ export function useWorkflowStatus(
     state,
     currentRun,
     recentRuns,
+    runningCount,
     elapsedMs,
     isDrawerOpen,
     isHistoryOpen,
