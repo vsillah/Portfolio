@@ -16,6 +16,7 @@ const TRANSCRIPT_PREVIEW_LEN = 200
  *   - unlinked_only: if "true", only meetings with no contact_submission_id and no client_project_id
  *   - attributed_only: if "true", only meetings that have contact_submission_id or client_project_id
  *   - contact_submission_id: filter to meetings for this lead (used by "View source transcripts" from diagnostic)
+ *   - match_email: case-insensitive email — meetings linked to a lead with that email, plus unlinked rows whose transcript or raw_notes contains the email (Add Lead / Read.ai merge). Mutually exclusive with contact_submission_id, unlinked_only, attributed_only, and q.
  *   - q: search text (matches meeting_type, transcript snippet)
  *   - date_from: filter meetings on or after this date (YYYY-MM-DD)
  *   - date_to: filter meetings on or before this date (YYYY-MM-DD)
@@ -33,6 +34,7 @@ export async function GET(request: NextRequest) {
   const attributedOnly = searchParams.get('attributed_only') === 'true'
   const contactIdParam = searchParams.get('contact_submission_id')
   const contactSubmissionId = contactIdParam ? Number(contactIdParam) : undefined
+  const matchEmail = (searchParams.get('match_email') || '').trim()
   const q = (searchParams.get('q') || '').trim()
   const dateFrom = searchParams.get('date_from') || ''
   const dateTo = searchParams.get('date_to') || ''
@@ -40,6 +42,147 @@ export async function GET(request: NextRequest) {
   const offset = Number(searchParams.get('offset') || 0) || 0
 
   try {
+    const listSelect =
+      'id, meeting_type, meeting_date, duration_minutes, contact_submission_id, client_project_id, transcript, structured_notes, created_at'
+
+    // Email-based merge for Add Lead Read.ai tab: attributed + unlinked text match
+    if (
+      matchEmail.length > 0 &&
+      contactIdParam === null &&
+      !unlinkedOnly &&
+      !attributedOnly &&
+      !q
+    ) {
+      const likePattern = `%${matchEmail.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_')}%`
+
+      const { data: contacts, error: contactsErr } = await supabaseAdmin
+        .from('contact_submissions')
+        .select('id')
+        .ilike('email', matchEmail)
+
+      if (contactsErr) {
+        console.error('[admin/meetings] match_email contacts:', contactsErr)
+        return NextResponse.json({ error: 'Failed to resolve contacts by email' }, { status: 500 })
+      }
+
+      const contactIds = [...new Set((contacts || []).map((c: { id: number }) => c.id))]
+
+      const byId = new Map<
+        string,
+        {
+          id: string
+          meeting_type: string
+          meeting_date: string
+          duration_minutes: number | null
+          contact_submission_id: number | null
+          client_project_id: string | null
+          transcript: string | null
+          structured_notes: unknown
+          created_at: string
+        }
+      >()
+
+      if (contactIds.length > 0) {
+        const { data: linked, error: linkedErr } = await supabaseAdmin
+          .from('meeting_records')
+          .select(listSelect)
+          .in('contact_submission_id', contactIds)
+          .order('meeting_date', { ascending: false })
+          .limit(100)
+
+        if (linkedErr) {
+          console.error('[admin/meetings] match_email linked:', linkedErr)
+          return NextResponse.json({ error: 'Failed to fetch linked meetings' }, { status: 500 })
+        }
+        for (const row of linked || []) byId.set(row.id, row)
+      }
+
+      const remaining = Math.max(0, 100 - byId.size)
+      if (remaining > 0) {
+        const unlinkedBase = () =>
+          supabaseAdmin
+            .from('meeting_records')
+            .select(listSelect)
+            .is('contact_submission_id', null)
+            .is('client_project_id', null)
+            .order('meeting_date', { ascending: false })
+            .limit(remaining)
+
+        const [tRes, rRes] = await Promise.all([
+          unlinkedBase().ilike('transcript', likePattern),
+          unlinkedBase().ilike('raw_notes', likePattern),
+        ])
+
+        if (tRes.error) {
+          console.error('[admin/meetings] match_email unlinked transcript:', tRes.error)
+          return NextResponse.json({ error: 'Failed to fetch unlinked meetings' }, { status: 500 })
+        }
+        if (rRes.error) {
+          console.error('[admin/meetings] match_email unlinked raw_notes:', rRes.error)
+          return NextResponse.json({ error: 'Failed to fetch unlinked meetings' }, { status: 500 })
+        }
+        for (const row of [...(tRes.data || []), ...(rRes.data || [])]) {
+          if (!byId.has(row.id)) byId.set(row.id, row)
+        }
+      }
+
+      const merged = [...byId.values()].sort(
+        (a, b) => new Date(b.meeting_date).getTime() - new Date(a.meeting_date).getTime()
+      )
+      const paged = merged.slice(offset, offset + limit)
+      if (paged.length === 0) {
+        return NextResponse.json({ meetings: [], total: merged.length, stats: null })
+      }
+
+      type Row = (typeof paged)[number]
+      const cIds = [...new Set(paged.map((m: Row) => m.contact_submission_id).filter(Boolean))] as number[]
+      const pIds = [...new Set(paged.map((m: Row) => m.client_project_id).filter(Boolean))] as string[]
+
+      const [contactsRes, projectsRes] = await Promise.all([
+        cIds.length > 0
+          ? supabaseAdmin.from('contact_submissions').select('id, name, email').in('id', cIds)
+          : Promise.resolve({ data: [] }),
+        pIds.length > 0
+          ? supabaseAdmin.from('client_projects').select('id, project_name, client_name').in('id', pIds)
+          : Promise.resolve({ data: [] }),
+      ])
+
+      const contactMap = new Map<number, { name: string | null; email: string | null }>()
+      for (const c of contactsRes.data || []) {
+        contactMap.set(c.id, { name: c.name ?? null, email: c.email ?? null })
+      }
+      const projectMap = new Map<string, { project_name: string | null; client_name: string | null }>()
+      for (const p of projectsRes.data || []) {
+        projectMap.set(p.id, { project_name: p.project_name ?? null, client_name: p.client_name ?? null })
+      }
+
+      const meetingsOut = paged.map((m: Row) => {
+        const transcript = m.transcript ?? ''
+        const summary = (m.structured_notes as { summary?: string } | null)?.summary ?? null
+        const lead = m.contact_submission_id ? contactMap.get(m.contact_submission_id) : null
+        const project = m.client_project_id ? projectMap.get(m.client_project_id) : null
+        return {
+          id: m.id,
+          meeting_type: m.meeting_type,
+          meeting_date: m.meeting_date,
+          duration_minutes: m.duration_minutes,
+          contact_submission_id: m.contact_submission_id,
+          client_project_id: m.client_project_id,
+          transcript_preview:
+            transcript.length > TRANSCRIPT_PREVIEW_LEN ? transcript.slice(0, TRANSCRIPT_PREVIEW_LEN) + '…' : transcript || null,
+          transcript_length: transcript.length,
+          summary,
+          lead_name: lead?.name ?? null,
+          lead_email: lead?.email ?? null,
+          project_name: project?.project_name ?? null,
+          client_name: project?.client_name ?? null,
+          created_at: m.created_at,
+        }
+      })
+
+      return NextResponse.json({ meetings: meetingsOut, total: merged.length, stats: null })
+    }
+
     const statsPromise = Promise.all([
       supabaseAdmin.from('meeting_records').select('id', { count: 'exact', head: true }),
       supabaseAdmin.from('meeting_records').select('id', { count: 'exact', head: true })
@@ -52,10 +195,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabaseAdmin
       .from('meeting_records')
-      .select(
-        'id, meeting_type, meeting_date, duration_minutes, contact_submission_id, client_project_id, transcript, structured_notes, created_at',
-        { count: 'exact' }
-      )
+      .select(`${listSelect}`, { count: 'exact' })
       .order('meeting_date', { ascending: false })
       .range(offset, offset + limit - 1)
 

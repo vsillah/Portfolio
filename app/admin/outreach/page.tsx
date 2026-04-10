@@ -45,6 +45,13 @@ import {
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import {
+  type AdminMeetingContextItem,
+  mapDbMeetingRowsToContextItems,
+  mergeDbFirstWithReadAi,
+  isMeetingRecordContextId,
+  meetingRecordUuidFromContextId,
+} from '@/lib/admin-meeting-context-items'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -290,12 +297,7 @@ function OutreachContent() {
   const [addLeadOutreachToast, setAddLeadOutreachToast] = useState(false)
   const [addLeadMeetingTab, setAddLeadMeetingTab] = useState<'select' | 'paste' | 'readai'>('select')
   const [addLeadReadAiEmail, setAddLeadReadAiEmail] = useState('')
-  const [addLeadReadAiMeetings, setAddLeadReadAiMeetings] = useState<Array<{
-    id: string; title: string; start_time_ms: number; end_time_ms: number | null
-    participants: Array<{ name: string; email: string | null }>
-    platform: string; report_url: string; summary: string | null
-    action_items: Array<{ text: string; assignee?: string }> | null
-  }>>([])
+  const [addLeadReadAiMeetings, setAddLeadReadAiMeetings] = useState<AdminMeetingContextItem[]>([])
   const [addLeadReadAiLoading, setAddLeadReadAiLoading] = useState(false)
   const [addLeadReadAiSearched, setAddLeadReadAiSearched] = useState(false)
   const [addLeadPasteText, setAddLeadPasteText] = useState('')
@@ -398,16 +400,10 @@ function OutreachContent() {
   /** After a successful Push from this modal, show Classify instead of Push (also when preflight shows all leads already have evidence). */
   const [enrichModalVepPushCompleted, setEnrichModalVepPushCompleted] = useState(false)
 
-  // Read.ai meeting context — shared cache + modal state
-  type ReadAiMeetingItem = {
-    id: string; title: string; start_time_ms: number; end_time_ms: number | null
-    participants: Array<{ name: string; email: string | null }>
-    platform: string; report_url: string; summary: string | null
-    action_items: Array<{ text: string; assignee?: string }> | null
-  }
-  const readAiCacheRef = useRef<Record<string, { meetings: ReadAiMeetingItem[]; fetchedAt: number }>>({})
+  // Read.ai + meeting_records — shared cache (Read.ai slice only) + merged modal state
+  const readAiCacheRef = useRef<Record<string, { meetings: AdminMeetingContextItem[]; fetchedAt: number }>>({})
 
-  const [meetingsByLead, setMeetingsByLead] = useState<Record<number, ReadAiMeetingItem[]>>({})
+  const [meetingsByLead, setMeetingsByLead] = useState<Record<number, AdminMeetingContextItem[]>>({})
   const [meetingsLoading, setMeetingsLoading] = useState<Record<number, boolean>>({})
   const [selectedMeetingIds, setSelectedMeetingIds] = useState<Record<number, Set<string>>>({})
   const [meetingImportLoading, setMeetingImportLoading] = useState(false)
@@ -726,11 +722,9 @@ function OutreachContent() {
       setEnrichClassifyLoading({})
       setShowEnrichModal(true)
 
-      // Fetch Read.ai meetings for each lead with an email (async, non-blocking)
+      // Meeting context: attributed meeting_records + Read.ai (when email present)
       for (const lead of leads) {
-        if (lead.email) {
-          fetchMeetingsForLead(lead.id, lead.email, session.access_token)
-        }
+        fetchMeetingsForLead(lead.id, lead.email ?? null, session.access_token)
       }
     } catch (e) {
       console.error(e)
@@ -740,37 +734,59 @@ function OutreachContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const fetchMeetingsForLead = useCallback(async (leadId: number, email: string, accessToken: string, forceRefresh?: boolean) => {
-    const cacheKey = email.toLowerCase().trim()
-
-    if (!forceRefresh) {
-      const cached = readAiCacheRef.current[cacheKey]
-      if (cached && Date.now() - cached.fetchedAt < READAI_CACHE_TTL_MS) {
-        setMeetingsByLead((prev) => ({ ...prev, [leadId]: cached.meetings }))
-        if (cached.meetings.length > 0) {
-          setMeetingSectionExpanded((prev) => ({ ...prev, [leadId]: true }))
-        }
-        return
-      }
-    }
+  const fetchMeetingsForLead = useCallback(async (leadId: number, email: string | null, accessToken: string, forceRefresh?: boolean) => {
+    const cacheKey = (email ?? '').toLowerCase().trim()
+    const canReadAi = cacheKey.length > 0
 
     setMeetingsLoading((prev) => ({ ...prev, [leadId]: true }))
     try {
-      const res = await fetch(`/api/admin/read-ai/meetings?email=${encodeURIComponent(email)}`, {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      })
-      if (res.ok) {
-        const data = await res.json()
-        const meetings = data.meetings || []
-        readAiCacheRef.current[cacheKey] = { meetings, fetchedAt: Date.now() }
-        setReadAiCacheTick((t) => t + 1)
-        setMeetingsByLead((prev) => ({ ...prev, [leadId]: meetings }))
-        if (meetings.length > 0) {
-          setMeetingSectionExpanded((prev) => ({ ...prev, [leadId]: true }))
-        }
+      const needReadAiFetch =
+        canReadAi &&
+        (forceRefresh ||
+          !readAiCacheRef.current[cacheKey] ||
+          Date.now() - readAiCacheRef.current[cacheKey].fetchedAt >= READAI_CACHE_TTL_MS)
+
+      const dbPromise = fetch(
+        `/api/admin/meetings?contact_submission_id=${leadId}&limit=50`,
+        { headers: { Authorization: `Bearer ${accessToken}` } }
+      ).then(async (r) => (r.ok ? r.json() : { meetings: [] }))
+
+      const readAiPromise = needReadAiFetch
+        ? fetch(`/api/admin/read-ai/meetings?email=${encodeURIComponent(email!)}`, {
+            headers: { Authorization: `Bearer ${accessToken}` },
+          }).then(async (r) => {
+            if (!r.ok) {
+              console.warn(`[read-ai/meetings] ${r.status} for lead ${leadId}`)
+              return { meetings: [] as AdminMeetingContextItem[] }
+            }
+            const data = await r.json()
+            const meetings: AdminMeetingContextItem[] = data.meetings || []
+            readAiCacheRef.current[cacheKey] = { meetings, fetchedAt: Date.now() }
+            setReadAiCacheTick((t) => t + 1)
+            return { meetings }
+          })
+        : Promise.resolve({
+            meetings: (canReadAi ? readAiCacheRef.current[cacheKey]?.meetings : undefined) ?? ([] as AdminMeetingContextItem[]),
+          })
+
+      const [dbData, readAiData] = await Promise.all([dbPromise, readAiPromise])
+
+      const dbRows = (dbData.meetings || []) as Array<{
+        id: string
+        meeting_type: string
+        meeting_date: string
+        summary: string | null
+      }>
+
+      const dbMapped = mapDbMeetingRowsToContextItems(dbRows)
+      const merged = mergeDbFirstWithReadAi(dbMapped, readAiData.meetings)
+
+      setMeetingsByLead((prev) => ({ ...prev, [leadId]: merged }))
+      if (merged.length > 0) {
+        setMeetingSectionExpanded((prev) => ({ ...prev, [leadId]: true }))
       }
     } catch (err) {
-      console.error(`[read-ai] Failed to fetch meetings for lead ${leadId}:`, err)
+      console.error(`[meetings-context] Failed for lead ${leadId}:`, err)
     } finally {
       setMeetingsLoading((prev) => ({ ...prev, [leadId]: false }))
     }
@@ -798,9 +814,13 @@ function OutreachContent() {
       const pending: PendingMeetingImport[] = []
 
       for (const meetingId of selected) {
-        const res = await fetch(`/api/admin/read-ai/meetings/${meetingId}`, {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        })
+        const res = isMeetingRecordContextId(meetingId)
+          ? await fetch(`/api/admin/meetings/${encodeURIComponent(meetingRecordUuidFromContextId(meetingId))}`, {
+              headers: { Authorization: `Bearer ${session.access_token}` },
+            })
+          : await fetch(`/api/admin/read-ai/meetings/${encodeURIComponent(meetingId)}`, {
+              headers: { Authorization: `Bearer ${session.access_token}` },
+            })
         if (!res.ok) continue
         const { meeting } = await res.json()
 
@@ -1182,31 +1202,50 @@ function OutreachContent() {
     const email = addLeadReadAiEmail.trim()
     if (!email) return
 
-    if (!forceRefresh) {
-      const cacheKey = email.toLowerCase()
-      const cached = readAiCacheRef.current[cacheKey]
-      if (cached && Date.now() - cached.fetchedAt < READAI_CACHE_TTL_MS) {
-        setAddLeadReadAiMeetings(cached.meetings)
-        setAddLeadReadAiSearched(true)
-        return
-      }
-    }
+    const cacheKey = email.toLowerCase()
+    const needReadAiFetch =
+      forceRefresh ||
+      !readAiCacheRef.current[cacheKey] ||
+      Date.now() - readAiCacheRef.current[cacheKey].fetchedAt >= READAI_CACHE_TTL_MS
 
     const session = await getCurrentSession()
     if (!session) return
     setAddLeadReadAiLoading(true)
     setAddLeadReadAiSearched(false)
     try {
-      const res = await fetch(`/api/admin/read-ai/meetings?email=${encodeURIComponent(email)}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (res.ok) {
-        const data = await res.json()
-        const meetings = data.meetings || []
-        readAiCacheRef.current[email.toLowerCase()] = { meetings, fetchedAt: Date.now() }
-        setReadAiCacheTick((t) => t + 1)
-        setAddLeadReadAiMeetings(meetings)
-      }
+      const dbPromise = fetch(
+        `/api/admin/meetings?match_email=${encodeURIComponent(email)}&limit=50`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } }
+      ).then((r) => (r.ok ? r.json() : { meetings: [] }))
+
+      const readAiPromise = needReadAiFetch
+        ? fetch(`/api/admin/read-ai/meetings?email=${encodeURIComponent(email)}`, {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          }).then(async (r) => {
+            if (!r.ok) {
+              console.warn(`[read-ai/meetings] Add Lead search ${r.status}`)
+              return { meetings: [] as AdminMeetingContextItem[] }
+            }
+            const data = await r.json()
+            const meetings: AdminMeetingContextItem[] = data.meetings || []
+            readAiCacheRef.current[cacheKey] = { meetings, fetchedAt: Date.now() }
+            setReadAiCacheTick((t) => t + 1)
+            return { meetings }
+          })
+        : Promise.resolve({
+            meetings: readAiCacheRef.current[cacheKey]?.meetings ?? ([] as AdminMeetingContextItem[]),
+          })
+
+      const [dbData, readAiData] = await Promise.all([dbPromise, readAiPromise])
+
+      const dbRows = (dbData.meetings || []) as Array<{
+        id: string
+        meeting_type: string
+        meeting_date: string
+        summary: string | null
+      }>
+      const dbMapped = mapDbMeetingRowsToContextItems(dbRows)
+      setAddLeadReadAiMeetings(mergeDbFirstWithReadAi(dbMapped, readAiData.meetings))
     } catch (err) {
       console.error('[read-ai] Add Lead search failed:', err)
     } finally {
@@ -1220,49 +1259,72 @@ function OutreachContent() {
     if (!session) return
     setAddLeadExtractLoading(true)
     try {
-      const res = await fetch(`/api/admin/read-ai/meetings/${meetingId}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
+      const res = isMeetingRecordContextId(meetingId)
+        ? await fetch(`/api/admin/meetings/${encodeURIComponent(meetingRecordUuidFromContextId(meetingId))}`, {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          })
+        : await fetch(`/api/admin/read-ai/meetings/${encodeURIComponent(meetingId)}`, {
+            headers: { Authorization: `Bearer ${session.access_token}` },
+          })
       if (!res.ok) return
       const { meeting } = await res.json()
 
-      // Ingest the transcript into meeting_records so it follows the existing pipeline
-      const ingestRes = await fetch('/api/admin/meetings/ingest', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-        body: JSON.stringify({
-          transcript: meeting.transcript?.text || meeting.summary || '',
-          title: meeting.title,
-          attendee_email: addLeadReadAiEmail.trim() || undefined,
-          meeting_type: 'external',
-        }),
-      })
-      if (ingestRes.ok) {
-        const { meeting: saved } = await ingestRes.json()
-        setAddLeadMeetingId(saved.id)
-        setAddLeadMeetings((prev) => [
-          { id: saved.id, meeting_type: 'external', meeting_date: saved.meeting_date },
-          ...prev,
-        ])
+      if (isMeetingRecordContextId(meetingId)) {
+        const rawId = meetingRecordUuidFromContextId(meetingId)
+        setAddLeadMeetingId(rawId)
+        setAddLeadMeetings((prev) => {
+          if (prev.some((x) => x.id === rawId)) return prev
+          return [
+            {
+              id: rawId,
+              meeting_type: 'record',
+              meeting_date: new Date(meeting.start_time_ms).toISOString(),
+            },
+            ...prev,
+          ]
+        })
+      } else {
+        // Ingest Read.ai transcript into meeting_records so it follows the existing pipeline
+        const ingestRes = await fetch('/api/admin/meetings/ingest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+          body: JSON.stringify({
+            transcript: meeting.transcript?.text || meeting.summary || '',
+            title: meeting.title,
+            attendee_email: addLeadReadAiEmail.trim() || undefined,
+            meeting_type: 'external',
+          }),
+        })
+        if (ingestRes.ok) {
+          const { meeting: saved } = await ingestRes.json()
+          setAddLeadMeetingId(saved.id)
+          setAddLeadMeetings((prev) => [
+            { id: saved.id, meeting_type: 'external', meeting_date: saved.meeting_date },
+            ...prev,
+          ])
+        }
       }
 
-      // Populate form fields from meeting data
       if (meeting.summary) {
         setAddLeadPainPoints((prev) => [prev, `--- From meeting: ${meeting.title} ---\n${meeting.summary}`].filter(Boolean).join('\n\n'))
       }
       if (meeting.action_items?.length) {
         const items = meeting.action_items.filter((ai: { text: string }) => ai.text).map((ai: { text: string }) => `• ${ai.text}`).join('\n')
-        if (!items) return
-        setAddLeadQuickWins((prev) => [prev, `--- From meeting: ${meeting.title} ---\n${items}`].filter(Boolean).join('\n\n'))
+        if (items) {
+          setAddLeadQuickWins((prev) => [prev, `--- From meeting: ${meeting.title} ---\n${items}`].filter(Boolean).join('\n\n'))
+        }
       }
 
-      // Auto-fill name/email from participant if fields are empty
-      const attendee = meeting.participants?.find((p: { email: string | null }) =>
-        p.email?.toLowerCase() === addLeadReadAiEmail.trim().toLowerCase()
-      )
-      if (attendee) {
-        if (!addLeadName.trim() && attendee.name) setAddLeadName(attendee.name)
-        if (!addLeadEmail.trim() && attendee.email) setAddLeadEmail(attendee.email)
+      if (!isMeetingRecordContextId(meetingId)) {
+        const attendee = meeting.participants?.find((p: { email: string | null }) =>
+          p.email?.toLowerCase() === addLeadReadAiEmail.trim().toLowerCase()
+        )
+        if (attendee) {
+          if (!addLeadName.trim() && attendee.name) setAddLeadName(attendee.name)
+          if (!addLeadEmail.trim() && attendee.email) setAddLeadEmail(attendee.email)
+        }
+      } else if (addLeadReadAiEmail.trim()) {
+        if (!addLeadEmail.trim()) setAddLeadEmail(addLeadReadAiEmail.trim())
       }
 
       setAddLeadMeetingTab('select')
@@ -2115,7 +2177,7 @@ function OutreachContent() {
                               onClick={() => setAddLeadMeetingTab('readai')}
                               className={`flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${addLeadMeetingTab === 'readai' ? 'bg-cyan-700/60 text-cyan-100' : 'bg-silicon-slate/30 text-muted-foreground/90 hover:text-muted-foreground'}`}
                             >
-                              <CalendarCheck size={12} /> Read.ai
+                              <CalendarCheck size={12} /> Meetings
                             </button>
                             <button
                               type="button"
@@ -2158,12 +2220,14 @@ function OutreachContent() {
                               {addLeadReadAiLoading && (
                                 <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
                                   <Loader2 size={14} className="animate-spin" />
-                                  Searching Read.ai meetings...
+                                  Loading meeting records and Read.ai matches…
                                 </div>
                               )}
 
                               {addLeadReadAiSearched && !addLeadReadAiLoading && addLeadReadAiMeetings.length === 0 && (
-                                <p className="text-sm text-muted-foreground/90 py-1">No meetings found with this email in the last 30 days.</p>
+                                <p className="text-sm text-muted-foreground/90 py-1">
+                                  No meeting records matched this email, and nothing was found in Read.ai in the last 30 days.
+                                </p>
                               )}
 
                               {addLeadReadAiSearched && !addLeadReadAiLoading && getReadAiCacheAge(addLeadReadAiEmail) && (
@@ -2191,7 +2255,11 @@ function OutreachContent() {
                                         <div className="text-sm font-medium text-white truncate">{m.title}</div>
                                         <div className="text-xs text-muted-foreground/90">
                                           {date.toLocaleDateString()} {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                          {m.platform && <span className="ml-1 capitalize">· {m.platform}</span>}
+                                          {m.platform && (
+                                            <span className="ml-1 capitalize">
+                                              · {m.platform === 'record' ? 'Record' : m.platform}
+                                            </span>
+                                          )}
                                         </div>
                                       </div>
                                       <button
@@ -2742,9 +2810,8 @@ function OutreachContent() {
                             </div>
                           </div>
 
-                          {/* Meeting Context section (Read.ai) */}
-                          {l.email && (
-                            <div className="pt-3 border-t border-silicon-slate">
+                          {/* Meeting Context: attributed meeting_records + Read.ai (when email present) */}
+                          <div className="pt-3 border-t border-silicon-slate">
                               <div className="flex items-center gap-2">
                                 <button
                                   type="button"
@@ -2769,18 +2836,20 @@ function OutreachContent() {
                                     />
                                   )}
                                 </button>
-                                {l.email && getReadAiCacheAge(l.email) && !meetingsLoading[l.id] && (
+                                {!meetingsLoading[l.id] && (
                                   <div className="flex items-center gap-1.5">
-                                    <span className="text-[10px] text-muted-foreground/80">{getReadAiCacheAge(l.email)}</span>
+                                    {l.email && getReadAiCacheAge(l.email) && (
+                                      <span className="text-[10px] text-muted-foreground/80">{getReadAiCacheAge(l.email)}</span>
+                                    )}
                                     <button
                                       type="button"
-                                      title="Refresh from Read.ai"
+                                      title={l.email ? 'Refresh linked meetings and Read.ai' : 'Refresh linked meetings'}
                                       onClick={async (e) => {
                                         e.stopPropagation()
                                         const session = await getCurrentSession()
-                                        if (session && l.email) {
-                                          bustReadAiCache(l.email)
-                                          fetchMeetingsForLead(l.id, l.email, session.access_token, true)
+                                        if (session) {
+                                          if (l.email) bustReadAiCache(l.email)
+                                          fetchMeetingsForLead(l.id, l.email ?? null, session.access_token, true)
                                         }
                                       }}
                                       className="p-1 rounded hover:bg-silicon-slate/60 text-muted-foreground/80 hover:text-cyan-400 transition-colors"
@@ -2796,13 +2865,17 @@ function OutreachContent() {
                                   {meetingsLoading[l.id] && (
                                     <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
                                       <Loader2 size={14} className="animate-spin" />
-                                      Searching Read.ai for meetings with {l.email}...
+                                      {l.email
+                                        ? `Loading linked meetings and Read.ai matches for ${l.email}…`
+                                        : 'Loading linked meetings…'}
                                     </div>
                                   )}
 
                                   {!meetingsLoading[l.id] && (meetingsByLead[l.id]?.length ?? 0) === 0 && (
                                     <p className="text-sm text-muted-foreground/90 py-1">
-                                      No meetings found with this contact in the last 30 days.
+                                      {l.email
+                                        ? `No meetings are linked to this lead in Meeting records, and nothing turned up in Read.ai for ${l.email} in the last 30 days.`
+                                        : 'No meetings are linked to this lead in Meeting records.'}
                                     </p>
                                   )}
 
@@ -2833,7 +2906,11 @@ function OutreachContent() {
                                           </div>
                                           <div className="text-xs text-muted-foreground/90 mt-0.5">
                                             {m.participants.map((p) => p.name).filter(Boolean).join(', ')}
-                                            {m.platform && <span className="ml-1 capitalize">· {m.platform}</span>}
+                                            {m.platform && (
+                                              <span className="ml-1 capitalize">
+                                                · {m.platform === 'record' ? 'Record' : m.platform}
+                                              </span>
+                                            )}
                                           </div>
                                           {m.summary && (
                                             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{m.summary}</p>
@@ -2860,7 +2937,6 @@ function OutreachContent() {
                                 </div>
                               )}
                             </div>
-                          )}
 
                           {/* Review Meeting Notes — pending approval */}
                           {(pendingMeetingImports[l.id]?.length ?? 0) > 0 && (

@@ -1,0 +1,30 @@
+---
+description: Invoke the lead-ux-designer subagent for UX-facing changes when there is no established pattern or spec
+alwaysApply: true
+---
+
+# Lead UX Designer — When to Invoke
+
+For **UX-related** work, invoke the **lead-ux-designer** subagent (via the **Task** tool, `subagent_type: lead-ux-designer`) when **there is no clearly defined method** already in place—e.g. no matching pattern in the app, no ticket/design spec, or you are inventing new copy, states, or flows.
+
+## Invoke (proactively)
+
+- **New or changed user-facing flows** (steps, empty/loading/error states, modals, wizards).
+- **Substantial copy** (empty states, tooltips, confirmations, admin labels) where tone, clarity, or consistency with the rest of the product matters.
+- **New UI patterns** or deviations from how similar surfaces behave elsewhere.
+- **Accessibility or layout** choices that affect how users perceive or complete a task (not just a one-line class tweak).
+
+**Prompt should include:** route(s) or feature name, current copy or structure, constraints (e.g. dark admin theme, character limits), and what decision you need (e.g. “review empty states + tab labels”).
+
+## Skip (main agent only)
+
+- **Mechanical** application of an **existing** documented or in-code pattern (same component, same copy formula as sibling pages).
+- **Purely technical** changes with **no** user-visible behavior or copy (types, API, refactors).
+- **User supplied exact** copy or a **linked spec** that already defines behavior; only invoke if you still need a consistency or a11y pass.
+- **Trivial** fixes (typos, obvious bug copy like a missing period) unless they sit in a sensitive flow (auth, payment, legal).
+
+## After the subagent returns
+
+Integrate feedback into the implementation (or explain why not). Do not treat the subagent as optional decoration when the change matched **Invoke** above—the goal is **consistent** use of UX review when the method is not already defined.
+
+**Agent definition:** `.cursor/agents/lead-ux-designer.md`
