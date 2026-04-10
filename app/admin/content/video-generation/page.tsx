@@ -1500,6 +1500,7 @@ export default function VideoGenerationPage() {
             )}
             <ExtractionStatusChip
               label="HeyGen"
+              pipelinePhase={{ current: 1, total: 2 }}
               state={heygenWorkflow.state}
               currentRun={heygenWorkflow.currentRun}
               recentRuns={heygenWorkflow.recentRuns}
@@ -1513,6 +1514,7 @@ export default function VideoGenerationPage() {
             />
             <ExtractionStatusChip
               label="Drive"
+              pipelinePhase={{ current: 2, total: 2 }}
               state={driveWorkflow.state}
               currentRun={driveWorkflow.currentRun}
               recentRuns={driveWorkflow.recentRuns}

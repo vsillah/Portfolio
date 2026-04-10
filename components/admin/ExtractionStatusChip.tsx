@@ -36,15 +36,22 @@ const VEP001_STAGES: PipelineStage[] = [
 ]
 const VEP001_TYPICAL_DURATION_S = 60
 
-// VEP-002 scrapes 5 platforms via Apify — runs typically take 7–38 minutes
-const VEP002_STAGES: PipelineStage[] = [
-  { key: 'scrape', label: 'Scraping platforms', startsAt: 0 },
+// VEP-002 per-source scrape stages + post-processing
+const VEP002_SCRAPE_STAGES: PipelineStage[] = [
+  { key: 'scrape_reddit', label: 'Scraping Reddit', startsAt: 0 },
+  { key: 'scrape_google_maps', label: 'Scraping Google Maps', startsAt: 120 },
+  { key: 'scrape_linkedin', label: 'Scraping LinkedIn', startsAt: 240 },
+  { key: 'scrape_g2', label: 'Scraping G2', startsAt: 360 },
+  { key: 'scrape_capterra', label: 'Scraping Capterra', startsAt: 480 },
+]
+const VEP002_POST_STAGES: PipelineStage[] = [
   { key: 'extract', label: 'Extracting results', startsAt: 600 },
   { key: 'ingest_market', label: 'Ingesting market intel', startsAt: 720 },
   { key: 'classify', label: 'AI classification', startsAt: 780 },
   { key: 'pain_points', label: 'Creating pain points', startsAt: 900 },
   { key: 'complete', label: 'Finalizing', startsAt: 1020 },
 ]
+const VEP002_ALL_STAGES: PipelineStage[] = [...VEP002_SCRAPE_STAGES, ...VEP002_POST_STAGES]
 const VEP002_TYPICAL_DURATION_S = 1200
 
 const DEFAULT_STAGES: PipelineStage[] = [
@@ -87,16 +94,31 @@ const VGEN_DRIVE_STAGES: PipelineStage[] = [
 ]
 const VGEN_DRIVE_TYPICAL_DURATION_S = 85
 
-function getStagesForWorkflow(workflowId?: string, maxResults?: number): { stages: PipelineStage[]; typicalDurationS: number } {
+function getStagesForWorkflow(
+  workflowId?: string,
+  maxResults?: number,
+  selectedSources?: string[],
+): { stages: PipelineStage[]; typicalDurationS: number } {
   if (workflowId === 'vep001') return { stages: VEP001_STAGES, typicalDurationS: VEP001_TYPICAL_DURATION_S }
   if (workflowId === 'soc001') return { stages: SOC001_STAGES, typicalDurationS: SOC001_TYPICAL_DURATION_S }
   if (workflowId === 'vgen_heygen') return { stages: VGEN_HEYGEN_STAGES, typicalDurationS: VGEN_HEYGEN_TYPICAL_DURATION_S }
   if (workflowId === 'vgen_drive') return { stages: VGEN_DRIVE_STAGES, typicalDurationS: VGEN_DRIVE_TYPICAL_DURATION_S }
   if (workflowId === 'vep002') {
     const duration = (maxResults && VEP002_DURATION_BY_SCOPE[maxResults]) || VEP002_TYPICAL_DURATION_S
-    const scale = duration / VEP002_TYPICAL_DURATION_S
-    const scaledStages = VEP002_STAGES.map(s => ({ ...s, startsAt: Math.round(s.startsAt * scale) }))
-    return { stages: scaledStages, typicalDurationS: duration }
+
+    const activeScrapeStages = selectedSources && selectedSources.length > 0
+      ? VEP002_SCRAPE_STAGES.filter(s => selectedSources.includes(s.key.replace('scrape_', '')))
+      : VEP002_SCRAPE_STAGES
+
+    const allStages = [...activeScrapeStages, ...VEP002_POST_STAGES]
+
+    const totalSlots = allStages.length
+    const rescaled = allStages.map((s, i) => ({
+      ...s,
+      startsAt: Math.round((i / totalSlots) * duration),
+    }))
+
+    return { stages: rescaled, typicalDurationS: duration }
   }
   return { stages: DEFAULT_STAGES, typicalDurationS: DEFAULT_TYPICAL_DURATION_S }
 }
@@ -110,7 +132,9 @@ function estimateProgress(
   stagesDef: PipelineStage[],
   typicalDurationS: number,
   reportedStages: Record<string, string> | null,
-): { currentStageLabel: string; progressPct: number } {
+  workflowId?: string,
+): { currentStageLabel: string; progressPct: number; stepIndex: number; stepTotal: number; indeterminate: boolean } {
+  const stepTotal = stagesDef.length
   const stageKeys = new Set(stagesDef.map(s => s.key))
   const pipelineStages = reportedStages
     ? Object.fromEntries(Object.entries(reportedStages).filter(([k]) => stageKeys.has(k)))
@@ -130,9 +154,21 @@ function estimateProgress(
         ? stagesDef[stageIdx + 1].label
         : stagesDef[stageIdx].label)
       : stagesDef[0].label
-    return { currentStageLabel: label, progressPct: Math.max(pct, 2) }
+    const stepIdx0 =
+      stageIdx >= 0
+        ? (lastReportedStatus === 'complete' && stageIdx + 1 < stagesDef.length ? stageIdx + 1 : stageIdx)
+        : 0
+    return {
+      currentStageLabel: label,
+      progressPct: Math.max(pct, 2),
+      stepIndex: stepIdx0 + 1,
+      stepTotal,
+      indeterminate: false,
+    }
   }
 
+  // VEP002 without reported stages: show indeterminate bar during scrape phase
+  const isVep002NoReports = workflowId === 'vep002' && !hasReported
   const elapsedS = elapsedMs / 1000
   let currentLabel = stagesDef[0].label
   let stageIdx = 0
@@ -167,7 +203,13 @@ function estimateProgress(
     progressPct = Math.max(2, Math.min(95, Math.round(rawPct)))
   }
 
-  return { currentStageLabel: currentLabel, progressPct }
+  return {
+    currentStageLabel: currentLabel,
+    progressPct,
+    stepIndex: stageIdx + 1,
+    stepTotal,
+    indeterminate: isVep002NoReports,
+  }
 }
 
 // ============================================================================
@@ -215,6 +257,25 @@ export const SCAN_SCOPE_OPTIONS: ScanScopeOption[] = [
   { value: 20, label: 'Deep Scan', hint: '~15-30 min' },
 ]
 
+// ============================================================================
+// Social source definitions — selectable per run
+// ============================================================================
+
+export interface SocialSource {
+  id: string
+  label: string
+}
+
+export const SOCIAL_SOURCES: SocialSource[] = [
+  { id: 'reddit', label: 'Reddit' },
+  { id: 'google_maps', label: 'Google Maps' },
+  { id: 'linkedin', label: 'LinkedIn' },
+  { id: 'g2', label: 'G2' },
+  { id: 'capterra', label: 'Capterra' },
+]
+
+export const ALL_SOURCE_IDS = SOCIAL_SOURCES.map(s => s.id)
+
 interface StatusChipProps {
   label?: string
   state: ExtractionState
@@ -237,6 +298,16 @@ interface StatusChipProps {
     selected: number
     onChange: (maxResults: number) => void
   }
+  /** When provided, shows a source checklist before the Run action (Social pipeline only) */
+  sourceSelector?: {
+    selected: string[]
+    onChange: (sources: string[]) => void
+  }
+  /**
+   * High-level pipeline position (e.g. Value Evidence: Internal=1, Social=2, Tunnel=3 in dev).
+   * Shown on the chip and in the detail drawer so users can separate this from in-workflow steps.
+   */
+  pipelinePhase?: { current: number; total: number }
 }
 
 const DOT_COLORS: Record<ExtractionState, string> = {
@@ -349,16 +420,48 @@ function ScopeDropdown({ selected, onChange }: { selected: number; onChange: (v:
   )
 }
 
+function SourceChecklist({ selected, onChange }: { selected: string[]; onChange: (s: string[]) => void }) {
+  const toggle = (id: string) => {
+    const next = selected.includes(id)
+      ? selected.filter(s => s !== id)
+      : [...selected, id]
+    if (next.length > 0) onChange(next)
+  }
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {SOCIAL_SOURCES.map(src => {
+        const checked = selected.includes(src.id)
+        return (
+          <button
+            key={src.id}
+            type="button"
+            onClick={() => toggle(src.id)}
+            className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
+              checked
+                ? 'bg-amber-600/20 text-amber-300 border-amber-600/40'
+                : 'bg-gray-900/60 text-gray-500 border-gray-700/50 hover:text-gray-300'
+            }`}
+          >
+            {src.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 function PipelineProgressBar({
   progressPct,
   stageLabel,
   stale,
+  indeterminate = false,
   /** When true, only the numeric row + bar (use when stage is shown elsewhere). */
   barOnly = false,
 }: {
   progressPct: number
   stageLabel: string
   stale: boolean
+  indeterminate?: boolean
   barOnly?: boolean
 }) {
   const trackColor = stale ? 'bg-orange-950/80 ring-1 ring-orange-500/20' : 'bg-gray-950/80 ring-1 ring-amber-500/15'
@@ -367,25 +470,37 @@ function PipelineProgressBar({
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2 text-[11px]">
         {barOnly ? (
-          <span className="text-gray-500">Progress</span>
+          <span className="text-gray-500">Estimated progress (this step)</span>
         ) : (
           <span className="text-gray-300 font-medium truncate" title={stageLabel}>
             {stageLabel}
           </span>
         )}
-        <span className="text-gray-500 tabular-nums shrink-0">{progressPct}%</span>
+        {indeterminate ? (
+          <span className="text-gray-600 tabular-nums shrink-0">…</span>
+        ) : (
+          <span className="text-gray-500 tabular-nums shrink-0">{progressPct}%</span>
+        )}
       </div>
       <div className={`relative h-2 w-full rounded-full ${trackColor} overflow-hidden`}>
-        <motion.div
-          className={`h-full rounded-full ${
-            stale
-              ? 'bg-gradient-to-r from-orange-600 to-orange-400'
-              : 'bg-gradient-to-r from-amber-600 via-orange-500 to-amber-400'
-          } shadow-[0_0_12px_rgba(245,158,11,0.25)]`}
-          initial={{ width: 0 }}
-          animate={{ width: `${progressPct}%` }}
-          transition={{ type: 'spring', stiffness: 120, damping: 22 }}
-        />
+        {indeterminate ? (
+          <motion.div
+            className="h-full w-1/3 rounded-full bg-gradient-to-r from-amber-600 via-orange-500 to-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.25)]"
+            animate={{ x: ['-100%', '400%'] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        ) : (
+          <motion.div
+            className={`h-full rounded-full ${
+              stale
+                ? 'bg-gradient-to-r from-orange-600 to-orange-400'
+                : 'bg-gradient-to-r from-amber-600 via-orange-500 to-amber-400'
+            } shadow-[0_0_12px_rgba(245,158,11,0.25)]`}
+            initial={{ width: 0 }}
+            animate={{ width: `${progressPct}%` }}
+            transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+          />
+        )}
       </div>
     </div>
   )
@@ -411,24 +526,27 @@ export function ExtractionStatusChip({
   onRetryFailed,
   drawerFooterAction,
   scopeSelector,
+  sourceSelector,
+  pipelinePhase,
 }: StatusChipProps) {
   const chipRef = useRef<HTMLDivElement>(null)
   const drawerRef = useRef<HTMLDivElement>(null)
 
-  const runMaxResults = (currentRun?.stages as Record<string, unknown> | null)?.scope
-    ? ((currentRun!.stages as Record<string, unknown>).scope as { maxResults?: number })?.maxResults
-    : undefined
+  const runScope = (currentRun?.stages as Record<string, unknown> | null)?.scope as
+    { maxResults?: number; sources?: string[] } | undefined
+  const runMaxResults = runScope?.maxResults
+  const runSources = runScope?.sources
 
   const { stages: stagesDef, typicalDurationS } = useMemo(
-    () => getStagesForWorkflow(currentRun?.workflow_id, runMaxResults),
-    [currentRun?.workflow_id, runMaxResults],
+    () => getStagesForWorkflow(currentRun?.workflow_id, runMaxResults, runSources),
+    [currentRun?.workflow_id, runMaxResults, runSources],
   )
 
-  const { currentStageLabel, progressPct } = useMemo(
+  const { currentStageLabel, progressPct, stepIndex, stepTotal, indeterminate } = useMemo(
     () => (state === 'running' || state === 'stale')
-      ? estimateProgress(elapsedMs, stagesDef, typicalDurationS, currentRun?.stages ?? null)
-      : { currentStageLabel: '', progressPct: 0 },
-    [state, elapsedMs, stagesDef, typicalDurationS, currentRun?.stages],
+      ? estimateProgress(elapsedMs, stagesDef, typicalDurationS, currentRun?.stages ?? null, currentRun?.workflow_id)
+      : { currentStageLabel: '', progressPct: 0, stepIndex: 0, stepTotal: 0, indeterminate: false },
+    [state, elapsedMs, stagesDef, typicalDurationS, currentRun?.stages, currentRun?.workflow_id],
   )
 
   useEffect(() => {
@@ -463,11 +581,29 @@ export function ExtractionStatusChip({
         onClick={toggleDrawer}
         className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-800/80 border border-gray-700/60 hover:border-gray-600 transition-colors text-xs cursor-pointer"
         aria-expanded={isDrawerOpen}
-        aria-label={`${label ? label + ' ' : ''}Status: ${chipLabel(state, currentRun, elapsedMs, runningStageLabel, runningCount)}`}
+        aria-label={[
+          label ? `${label} ` : '',
+          pipelinePhase ? `Phase ${pipelinePhase.current} of ${pipelinePhase.total}. ` : '',
+          'Status: ',
+          chipLabel(state, currentRun, elapsedMs, runningStageLabel, runningCount),
+          (state === 'running' || state === 'stale') && stepTotal > 0
+            ? `. Step ${stepIndex} of ${stepTotal}: ${currentStageLabel}`
+            : '',
+        ].join('')}
+        title={
+          pipelinePhase
+            ? `Phase ${pipelinePhase.current} of ${pipelinePhase.total}${label ? ` · ${label}` : ''}`
+            : undefined
+        }
       >
         <StatusDot state={state} />
         <span className="text-gray-300">
           {label && <span className="text-gray-500 mr-1">{label}</span>}
+          {pipelinePhase && (
+            <span className="text-gray-600 mr-1.5 tabular-nums">
+              {pipelinePhase.current}/{pipelinePhase.total}
+            </span>
+          )}
           {chipLabel(state, currentRun, elapsedMs, runningStageLabel, runningCount)}
         </span>
         {isDrawerOpen ? (
@@ -506,23 +642,67 @@ export function ExtractionStatusChip({
                       </span>
                       <span className="text-xs text-gray-500 ml-auto tabular-nums">{formatElapsed(elapsedMs)}</span>
                     </div>
+                    {pipelinePhase && (
+                      <p className="text-xs text-gray-500 mb-1 pl-6">
+                        Phase {pipelinePhase.current} of {pipelinePhase.total}
+                        {label ? ` · ${label}` : ''}
+                      </p>
+                    )}
                     {state === 'running' && (
                       <p className="text-xs text-amber-400/90 mb-2 pl-6 -mt-0.5" aria-live="polite">
-                        {currentStageLabel}
+                        Step {stepIndex} of {stepTotal}: {currentStageLabel}
                       </p>
                     )}
                     {state === 'stale' && (
                       <p className="text-xs text-orange-400/80 mb-2 pl-6 -mt-0.5">
-                        Last step: {currentStageLabel}
+                        Last step{stepTotal > 0 ? ` (${stepIndex} of ${stepTotal})` : ''}: {currentStageLabel}
                       </p>
                     )}
                     {currentRun.meeting_title && (
                       <div className="text-xs text-gray-400 mb-3 truncate">{currentRun.meeting_title}</div>
                     )}
+                    {/* Per-source mini checklist for VEP002 */}
+                    {currentRun.workflow_id === 'vep002' && (
+                      <div className="mb-2 pl-6 space-y-0.5">
+                        {VEP002_SCRAPE_STAGES
+                          .filter(s => !runSources || runSources.length === 0 || runSources.includes(s.key.replace('scrape_', '')))
+                          .map(s => {
+                            const reported = (currentRun.stages as Record<string, string> | null)?.[s.key]
+                            const skipped = reported === 'skipped'
+                            const complete = reported === 'complete'
+                            const errored = reported === 'error'
+                            const running = reported === 'running'
+                            return (
+                              <div key={s.key} className="flex items-center gap-1.5 text-[11px]">
+                                {complete ? (
+                                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                                ) : errored ? (
+                                  <XCircle className="w-3 h-3 text-red-400" />
+                                ) : skipped ? (
+                                  <span className="w-3 h-3 text-gray-600 text-center leading-3">–</span>
+                                ) : running ? (
+                                  <Loader2 className="w-3 h-3 text-amber-400 animate-spin" />
+                                ) : (
+                                  <span className="w-3 h-3 rounded-full border border-gray-600" />
+                                )}
+                                <span className={skipped ? 'text-gray-600 line-through' : complete ? 'text-gray-400' : 'text-gray-300'}>
+                                  {s.label.replace('Scraping ', '')}
+                                </span>
+                              </div>
+                            )
+                          })}
+                        {(currentRun.items_inserted ?? 0) > 0 && (
+                          <p className="text-[11px] text-amber-400/70 mt-1 tabular-nums">
+                            {currentRun.items_inserted} items so far
+                          </p>
+                        )}
+                      </div>
+                    )}
                     <PipelineProgressBar
                       progressPct={progressPct}
                       stageLabel={currentStageLabel}
                       stale={state === 'stale'}
+                      indeterminate={indeterminate}
                       barOnly
                     />
                     {state === 'stale' && (
@@ -545,13 +725,22 @@ export function ExtractionStatusChip({
                 {state === 'success' && (
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      {(currentRun.items_inserted ?? 0) > 0 ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                      ) : (
+                        <AlertTriangle className="w-3.5 h-3.5 text-yellow-400" />
+                      )}
                       <span className="text-sm font-medium text-gray-200">
                         {(currentRun.items_inserted ?? 0) > 0
                           ? `${currentRun.items_inserted} item${currentRun.items_inserted !== 1 ? 's' : ''} created`
-                          : 'No new content'}
+                          : 'No evidence found'}
                       </span>
                     </div>
+                    {(currentRun.items_inserted ?? 0) === 0 && (
+                      <div className="text-xs text-yellow-400/80 bg-yellow-500/10 border border-yellow-500/20 rounded px-2.5 py-1.5 mb-2">
+                        No data returned. Check: do the search terms match the lead&apos;s industry? Did the selected sources return results?
+                      </div>
+                    )}
                     <div className="flex items-center gap-3 text-xs text-gray-500">
                       {currentRun.meeting_title && (
                         <span className="truncate">{currentRun.meeting_title}</span>
@@ -560,8 +749,13 @@ export function ExtractionStatusChip({
                         <Clock className="w-3 h-3" />
                         {formatDuration(currentRun.triggered_at, currentRun.completed_at)}
                       </span>
-                      {onRetry && (
-                        <div className="ml-auto flex items-center gap-2">
+                    </div>
+                    {onRetry && (
+                      <div className="mt-2 space-y-2">
+                        {sourceSelector && (
+                          <SourceChecklist selected={sourceSelector.selected} onChange={sourceSelector.onChange} />
+                        )}
+                        <div className="flex items-center gap-2 justify-end">
                           {scopeSelector && (
                             <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
                           )}
@@ -574,8 +768,8 @@ export function ExtractionStatusChip({
                             Run
                           </button>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -598,23 +792,28 @@ export function ExtractionStatusChip({
                         {currentRun.error_message}
                       </div>
                     )}
-                    <div className="flex items-center gap-2">
-                      {currentRun.meeting_title && (
-                        <span className="text-xs text-gray-500 truncate flex-1">{currentRun.meeting_title}</span>
-                      )}
-                      <div className="flex items-center gap-2 ml-auto">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        {currentRun.meeting_title && (
+                          <span className="text-xs text-gray-500 truncate flex-1">{currentRun.meeting_title}</span>
+                        )}
                         {onRetryFailed && recentFailed.length > 0 && (
                           <button
                             onClick={onRetryFailed}
-                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-orange-600/20 text-orange-400 border border-orange-600/30 hover:bg-orange-600/30 transition-colors"
+                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-orange-600/20 text-orange-400 border border-orange-600/30 hover:bg-orange-600/30 transition-colors ml-auto"
                             title={`Retry ${recentFailed.length} failed meeting(s)`}
                           >
                             <RotateCcw className="w-3 h-3" />
                             Retry Failed ({recentFailed.length})
                           </button>
                         )}
-                        {onRetry && (
-                          <>
+                      </div>
+                      {onRetry && (
+                        <>
+                          {sourceSelector && (
+                            <SourceChecklist selected={sourceSelector.selected} onChange={sourceSelector.onChange} />
+                          )}
+                          <div className="flex items-center gap-2 justify-end">
                             {scopeSelector && (
                               <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
                             )}
@@ -626,9 +825,9 @@ export function ExtractionStatusChip({
                               <RotateCcw className="w-3 h-3" />
                               Retry
                             </button>
-                          </>
-                        )}
-                      </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
@@ -646,18 +845,23 @@ export function ExtractionStatusChip({
                       )}
                     </div>
                     {onRetry && (
-                      <div className="flex items-center gap-2 mt-2 justify-end">
-                        {scopeSelector && (
-                          <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
+                      <div className="mt-2 space-y-2">
+                        {sourceSelector && (
+                          <SourceChecklist selected={sourceSelector.selected} onChange={sourceSelector.onChange} />
                         )}
-                        <button
-                          onClick={() => onRetry(scopeSelector?.selected)}
-                          className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors"
-                          title="Run this workflow"
-                        >
-                          <Play className="w-3 h-3" />
-                          Run
-                        </button>
+                        <div className="flex items-center gap-2 justify-end">
+                          {scopeSelector && (
+                            <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
+                          )}
+                          <button
+                            onClick={() => onRetry(scopeSelector?.selected)}
+                            className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors"
+                            title="Run this workflow"
+                          >
+                            <Play className="w-3 h-3" />
+                            Run
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>
@@ -671,19 +875,24 @@ export function ExtractionStatusChip({
                   No runs yet. Use Run to start the first sync.
                 </p>
                 {onRetry && (
-                  <div className="flex items-center gap-2">
-                    {scopeSelector && (
-                      <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
+                  <div className="space-y-2">
+                    {sourceSelector && (
+                      <SourceChecklist selected={sourceSelector.selected} onChange={sourceSelector.onChange} />
                     )}
-                    <button
-                      type="button"
-                      onClick={() => onRetry(scopeSelector?.selected)}
-                      className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors font-medium"
-                      title="Start a run"
-                    >
-                      <Play className="w-3.5 h-3.5" />
-                      Run
-                    </button>
+                    <div className="flex items-center gap-2">
+                      {scopeSelector && (
+                        <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => onRetry(scopeSelector?.selected)}
+                        className="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-amber-600/20 text-amber-400 border border-amber-600/30 hover:bg-amber-600/30 transition-colors font-medium"
+                        title="Start a run"
+                      >
+                        <Play className="w-3.5 h-3.5" />
+                        Run
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

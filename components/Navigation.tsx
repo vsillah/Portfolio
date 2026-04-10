@@ -89,12 +89,12 @@ export default function Navigation() {
             className="flex items-center transition-transform duration-150 hover:scale-105"
           >
             <Image
-              src="/logo.png"
+              src="/logo_hd.png"
               alt="AmaduTown"
-              width={120}
-              height={60}
+              width={44}
+              height={44}
               priority
-              className="object-contain h-[60px] w-auto"
+              className="object-contain h-11 w-auto"
             />
           </a>
 

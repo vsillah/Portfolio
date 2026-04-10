@@ -351,6 +351,39 @@ function OutreachContent() {
   } | null>(null)
   const [evidenceDrawerLoading, setEvidenceDrawerLoading] = useState(false)
 
+  // Social Intel modal state
+  const [socialIntelLeadId, setSocialIntelLeadId] = useState<number | null>(null)
+  const [socialIntelSources, setSocialIntelSources] = useState<string[]>(['reddit', 'google_maps', 'linkedin', 'g2', 'capterra'])
+  const [socialIntelScope, setSocialIntelScope] = useState(5)
+  const [socialIntelLoading, setSocialIntelLoading] = useState(false)
+
+  const triggerSocialIntelForLead = async (contactId: number) => {
+    setSocialIntelLoading(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+      const res = await fetch('/api/admin/value-evidence/trigger', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          workflow: 'social_listening_lead',
+          contact_submission_id: contactId,
+          sources: socialIntelSources,
+          maxResults: socialIntelScope,
+        }),
+      })
+      if (res.ok) {
+        setSocialIntelLeadId(null)
+        startVepPolling()
+      }
+    } finally {
+      setSocialIntelLoading(false)
+    }
+  }
+
   // VEP extraction polling: track IDs being extracted
   const vepPollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [vepPollingActive, setVepPollingActive] = useState(false)
@@ -3318,6 +3351,83 @@ function OutreachContent() {
               )}
             </AnimatePresence>
 
+            {/* Social Intel modal */}
+            <AnimatePresence>
+              {socialIntelLeadId != null && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4"
+                  onClick={() => setSocialIntelLeadId(null)}
+                >
+                  <motion.div
+                    initial={{ scale: 0.95, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.95, opacity: 0 }}
+                    onClick={(e) => e.stopPropagation()}
+                    className="w-full max-w-sm bg-background border border-silicon-slate rounded-xl shadow-xl p-5"
+                  >
+                    <h3 className="text-lg font-semibold text-white mb-3">Social Intel</h3>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Select sources and scope for social listening on this lead.
+                    </p>
+                    <div className="flex flex-wrap gap-1.5 mb-3">
+                      {['reddit', 'google_maps', 'linkedin', 'g2', 'capterra'].map((src) => {
+                        const checked = socialIntelSources.includes(src)
+                        const label = src === 'google_maps' ? 'Google Maps' : src.charAt(0).toUpperCase() + src.slice(1)
+                        return (
+                          <button
+                            key={src}
+                            type="button"
+                            onClick={() => {
+                              const next = checked
+                                ? socialIntelSources.filter(s => s !== src)
+                                : [...socialIntelSources, src]
+                              if (next.length > 0) setSocialIntelSources(next)
+                            }}
+                            className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
+                              checked
+                                ? 'bg-cyan-600/20 text-cyan-300 border-cyan-600/40'
+                                : 'bg-gray-900/60 text-gray-500 border-gray-700/50 hover:text-gray-300'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                    <select
+                      value={socialIntelScope}
+                      onChange={(e) => setSocialIntelScope(Number(e.target.value))}
+                      className="w-full text-xs bg-gray-900/80 text-gray-300 border border-gray-700/60 rounded px-2 py-1.5 mb-4 focus:outline-none focus:border-cyan-500/50"
+                    >
+                      <option value={5}>Quick Scan (~2-4 min)</option>
+                      <option value={10}>Standard Scan (~7-12 min)</option>
+                      <option value={20}>Deep Scan (~15-30 min)</option>
+                    </select>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSocialIntelLeadId(null)}
+                        className="px-3 py-1.5 text-xs text-gray-400 hover:text-white transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        disabled={socialIntelLoading || socialIntelSources.length === 0}
+                        onClick={() => triggerSocialIntelForLead(socialIntelLeadId)}
+                        className="px-3 py-1.5 text-xs font-medium bg-cyan-600/20 text-cyan-300 border border-cyan-600/40 rounded hover:bg-cyan-600/30 transition-colors disabled:opacity-40"
+                      >
+                        {socialIntelLoading ? 'Starting...' : 'Run Social Intel'}
+                      </button>
+                    </div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Tech stack lookup modal (BuiltWith) */}
             <AnimatePresence>
               {techStackResult != null && (
@@ -3755,6 +3865,15 @@ function OutreachContent() {
                                 Refresh evidence
                               </button>
                             )}
+                            <button
+                              type="button"
+                              onClick={() => setSocialIntelLeadId(lead.id)}
+                              title="Run social intel for this lead"
+                              className="px-3 py-2 bg-cyan-900/50 hover:bg-cyan-800/50 text-cyan-300 border border-cyan-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
+                            >
+                              <Globe size={14} />
+                              Social Intel
+                            </button>
                             {lead.last_vep_status === 'pending' && lead.evidence_count === 0 && (
                               <button
                                 type="button"

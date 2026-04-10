@@ -180,7 +180,7 @@ function PurchasesContent() {
     try {
       const { generateInvoicePDFBlob } = await import('@/lib/invoice-pdf')
       const logoUrl =
-        typeof window !== 'undefined' ? `${window.location.origin}/logo.png` : undefined
+        typeof window !== 'undefined' ? `${window.location.origin}/logo_hd.png` : undefined
       const blob = await generateInvoicePDFBlob(selectedOrder, { logoUrl })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')

@@ -25,21 +25,37 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.json().catch(() => ({}))
-  const { workflow, maxResults } = body
+  const { workflow, maxResults, sources, contact_submission_id } = body
 
-  if (!workflow || !['internal_extraction', 'social_listening'].includes(workflow)) {
+  const validWorkflows = ['internal_extraction', 'social_listening', 'social_listening_lead']
+  if (!workflow || !validWorkflows.includes(workflow)) {
     return NextResponse.json(
-      { error: 'workflow must be "internal_extraction" or "social_listening"' },
+      { error: `workflow must be one of: ${validWorkflows.join(', ')}` },
       { status: 400 }
     )
   }
 
-  const workflowId = WORKFLOW_MAP[workflow as keyof typeof WORKFLOW_MAP]
+  const VALID_SOURCES = ['reddit', 'google_maps', 'linkedin', 'g2', 'capterra']
+  const validSources: string[] | undefined =
+    Array.isArray(sources) && sources.every((s: unknown) => typeof s === 'string' && VALID_SOURCES.includes(s as string))
+      ? sources as string[]
+      : undefined
+
+  const isSingleLead = workflow === 'social_listening_lead'
+  const workflowId = isSingleLead ? 'vep002' : WORKFLOW_MAP[workflow as keyof typeof WORKFLOW_MAP]
 
   try {
     const validMaxResults = typeof maxResults === 'number' && [5, 10, 20].includes(maxResults)
       ? maxResults
-      : undefined
+      : isSingleLead ? 5 : undefined
+
+    const scope: Record<string, unknown> = {}
+    if (validMaxResults) scope.maxResults = validMaxResults
+    if (validSources) scope.sources = validSources
+    if (isSingleLead) {
+      scope.mode = 'single_lead'
+      if (contact_submission_id) scope.contact_submission_id = contact_submission_id
+    }
 
     // Create run record for progress/last-run display
     const { data: run, error: insertError } = await supabaseAdmin
@@ -48,7 +64,7 @@ export async function POST(request: NextRequest) {
         workflow_id: workflowId,
         triggered_at: new Date().toISOString(),
         status: 'running',
-        stages: validMaxResults ? { scope: { maxResults: validMaxResults } } : {},
+        stages: Object.keys(scope).length > 0 ? { scope } : {},
       })
       .select('id')
       .single()
@@ -58,11 +74,35 @@ export async function POST(request: NextRequest) {
     }
 
     let result: { triggered: boolean; message: string }
+    let leadContext: Record<string, unknown> | undefined
+
+    if (isSingleLead && contact_submission_id) {
+      const { data: lead } = await supabaseAdmin
+        .from('contact_submissions')
+        .select('company_name, industry, company_domain, rep_pain_points_freetext')
+        .eq('id', contact_submission_id)
+        .single()
+
+      if (lead) {
+        leadContext = {
+          company: lead.company_name,
+          industry: lead.industry,
+          companyDomain: lead.company_domain,
+          painPoints: lead.rep_pain_points_freetext,
+        }
+      }
+    }
 
     if (workflow === 'internal_extraction') {
       result = await triggerValueEvidenceExtraction({ runId: run?.id })
     } else {
-      result = await triggerSocialListening({ runId: run?.id, maxResults: validMaxResults })
+      result = await triggerSocialListening({
+        runId: run?.id,
+        maxResults: validMaxResults,
+        sources: validSources,
+        contactSubmissionId: isSingleLead ? contact_submission_id : undefined,
+        leadContext,
+      })
     }
 
     return NextResponse.json({ ...result, run_id: run?.id })

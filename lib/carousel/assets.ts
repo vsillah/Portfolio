@@ -6,7 +6,7 @@ let photoBase64Cache: string | null = null
 
 export function getLogoBase64(): string {
   if (logoBase64Cache) return logoBase64Cache
-  const buf = readFileSync(join(process.cwd(), 'public', 'logo.png'))
+  const buf = readFileSync(join(process.cwd(), 'public', 'logo_hd.png'))
   logoBase64Cache = buf.toString('base64')
   return logoBase64Cache
 }

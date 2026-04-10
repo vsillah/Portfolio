@@ -1366,6 +1366,12 @@ export interface SocialListeningOptions {
   runId?: string
   /** Max results per platform (default 20 in n8n). Quick=5, Standard=10, Deep=20. */
   maxResults?: number
+  /** Subset of sources to scrape; omit or pass all 5 for full run. */
+  sources?: string[]
+  /** For single-lead mode: the contact_submission_id this run is scoped to. */
+  contactSubmissionId?: number
+  /** Lead context for single-lead mode: company name, industry, domain, pain points. */
+  leadContext?: Record<string, unknown>
 }
 
 export async function triggerSocialListening(options?: SocialListeningOptions): Promise<{ triggered: boolean; message: string }> {
@@ -1396,6 +1402,15 @@ export async function triggerSocialListening(options?: SocialListeningOptions): 
     }
     if (options?.maxResults) {
       body.maxResults = options.maxResults
+    }
+    if (options?.sources && options.sources.length > 0) {
+      body.sources = options.sources
+    }
+    if (options?.contactSubmissionId) {
+      body.contact_submission_id = options.contactSubmissionId
+    }
+    if (options?.leadContext) {
+      Object.assign(body, options.leadContext)
     }
     const response = await fetchWithTimeout(N8N_VEP002_WEBHOOK_URL, {
       method: 'POST',

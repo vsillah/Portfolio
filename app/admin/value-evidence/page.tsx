@@ -176,6 +176,7 @@ export default function ValueEvidencePage() {
   const [focusCalculationPainPointId, setFocusCalculationPainPointId] = useState<string | null>(null)
   const [triggerAllLoading, setTriggerAllLoading] = useState(false)
   const [socialMaxResults, setSocialMaxResults] = useState(10)
+  const [socialSources, setSocialSources] = useState<string[]>(['reddit', 'google_maps', 'linkedin', 'g2', 'capterra'])
   const tunnel = useDevTunnel()
 
   useEffect(() => {
@@ -240,10 +241,14 @@ export default function ValueEvidencePage() {
     vep001Status.state === 'running' || vep001Status.state === 'stale' ||
     vep002Status.state === 'running' || vep002Status.state === 'stale'
 
+  /** Internal → Social → (dev) Cloudflare tunnel readiness — not the same as admin nav tabs. */
+  const pipelinePhaseTotal = tunnel.isDev ? 3 : 2
+
   const triggerWorkflow = async (
     workflow: 'internal_extraction' | 'social_listening',
     statusHook: ReturnType<typeof useWorkflowStatus>,
     maxResults?: number,
+    sources?: string[],
   ) => {
     try {
       if (tunnel.isDev) {
@@ -258,6 +263,9 @@ export default function ValueEvidencePage() {
       const body: Record<string, unknown> = { workflow }
       if (workflow === 'social_listening' && maxResults) {
         body.maxResults = maxResults
+      }
+      if (workflow === 'social_listening' && sources && sources.length > 0) {
+        body.sources = sources
       }
       const res = await fetch('/api/admin/value-evidence/trigger', {
         method: 'POST',
@@ -280,7 +288,7 @@ export default function ValueEvidencePage() {
     setTriggerAllLoading(true)
     await Promise.allSettled([
       triggerWorkflow('internal_extraction', vep001Status),
-      triggerWorkflow('social_listening', vep002Status, socialMaxResults),
+      triggerWorkflow('social_listening', vep002Status, socialMaxResults, socialSources),
     ])
     setTriggerAllLoading(false)
   }
@@ -427,6 +435,7 @@ export default function ValueEvidencePage() {
                 )}
                 <ExtractionStatusChip
                   label="Internal"
+                  pipelinePhase={{ current: 1, total: pipelinePhaseTotal }}
                   state={vep001Status.state}
                   currentRun={vep001Status.currentRun}
                   recentRuns={vep001Status.recentRuns}
@@ -440,6 +449,7 @@ export default function ValueEvidencePage() {
                 />
                 <ExtractionStatusChip
                   label="Social"
+                  pipelinePhase={{ current: 2, total: pipelinePhaseTotal }}
                   state={vep002Status.state}
                   currentRun={vep002Status.currentRun}
                   recentRuns={vep002Status.recentRuns}
@@ -449,10 +459,14 @@ export default function ValueEvidencePage() {
                   toggleDrawer={vep002Status.toggleDrawer}
                   toggleHistory={vep002Status.toggleHistory}
                   markRunFailed={vep002Status.markRunFailed}
-                  onRetry={(maxResults) => triggerWorkflow('social_listening', vep002Status, maxResults)}
+                  onRetry={(maxResults) => triggerWorkflow('social_listening', vep002Status, maxResults, socialSources)}
                   scopeSelector={{
                     selected: socialMaxResults,
                     onChange: setSocialMaxResults,
+                  }}
+                  sourceSelector={{
+                    selected: socialSources,
+                    onChange: setSocialSources,
                   }}
                 />
                 {tunnel.isDev && (
@@ -464,8 +478,12 @@ export default function ValueEvidencePage() {
                           ? 'bg-yellow-500/20 text-yellow-400'
                           : 'bg-red-500/20 text-red-400'
                     }`}
-                    title={tunnel.message || `Tunnel: ${tunnel.status}`}
+                    title={
+                      tunnel.message ||
+                      `Phase 3 of ${pipelinePhaseTotal} · Dev tunnel (${tunnel.status})`
+                    }
                   >
+                    <span className="text-gray-600 tabular-nums">{pipelinePhaseTotal}/{pipelinePhaseTotal}</span>
                     <span className={`w-1.5 h-1.5 rounded-full ${
                       tunnel.status === 'connected' ? 'bg-green-400' :
                       tunnel.status === 'connecting' || tunnel.status === 'checking' ? 'bg-yellow-400 animate-pulse' :

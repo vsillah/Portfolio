@@ -24,6 +24,8 @@ import {
   Info,
   Palette,
   Settings,
+  Square,
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import ExternalInputCard, { type ReportContextPreview } from '@/components/admin/ExternalInputCard';
@@ -140,6 +142,7 @@ function GammaReportsContent() {
   const [configMessage, setConfigMessage] = useState<string | null>(null);
   const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(null);
   const [selectedVoiceId, setSelectedVoiceId] = useState<string | null>(null);
+  const [triggerAllLoading, setTriggerAllLoading] = useState(false);
 
   // Theme
   const [themes, setThemes] = useState<{ id: string; name: string }[]>([]);
@@ -186,6 +189,15 @@ function GammaReportsContent() {
     () => { void fetchHeyGenConfig() },
   );
 
+  const driveWorkflow = useWorkflowStatus({
+    apiBase: '/api/admin/video-generation/workflow-status',
+    workflowId: 'vgen_drive',
+  });
+
+  const eitherRunning =
+    heygenWorkflow.state === 'running' || heygenWorkflow.state === 'stale' ||
+    driveWorkflow.state === 'running' || driveWorkflow.state === 'stale';
+
   const triggerHeyGenSync = async () => {
     heygenWorkflow.onTriggerStarted();
     setConfigMessage(null);
@@ -205,6 +217,71 @@ function GammaReportsContent() {
       setConfigMessage('Sync failed — check network or try again.');
     } finally {
       heygenWorkflow.refetch();
+    }
+  };
+
+  const syncDrive = async (force = false) => {
+    driveWorkflow.onTriggerStarted();
+    try {
+      const token = await getToken();
+      if (!token) {
+        driveWorkflow.refetch();
+        return;
+      }
+      await fetch('/api/admin/video-generation/sync-drive', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ force }),
+      });
+    } catch {
+      /* chip + refetch reflect failure */
+    } finally {
+      driveWorkflow.refetch();
+    }
+  };
+
+  const handleSyncAll = async () => {
+    setTriggerAllLoading(true);
+    heygenWorkflow.onTriggerStarted();
+    driveWorkflow.onTriggerStarted();
+    try {
+      const token = await getToken();
+      if (!token) {
+        heygenWorkflow.refetch();
+        driveWorkflow.refetch();
+        return;
+      }
+      const [heyOutcome] = await Promise.allSettled([
+        (async () => {
+          const res = await fetch('/api/admin/video-generation/heygen-config', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'sync' }),
+          });
+          return { res };
+        })(),
+        fetch('/api/admin/video-generation/sync-drive', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ force: false }),
+        }).then((res) => ({ res })),
+      ]);
+      if (heyOutcome.status === 'fulfilled' && heyOutcome.value.res.ok) {
+        await fetchHeyGenConfig();
+      }
+    } finally {
+      heygenWorkflow.refetch();
+      driveWorkflow.refetch();
+      setTriggerAllLoading(false);
+    }
+  };
+
+  const handleCancelAll = () => {
+    if (heygenWorkflow.currentRun && (heygenWorkflow.state === 'running' || heygenWorkflow.state === 'stale')) {
+      heygenWorkflow.markRunFailed(heygenWorkflow.currentRun.id, 'Cancelled by user');
+    }
+    if (driveWorkflow.currentRun && (driveWorkflow.state === 'running' || driveWorkflow.state === 'stale')) {
+      driveWorkflow.markRunFailed(driveWorkflow.currentRun.id, 'Cancelled by user');
     }
   };
 
@@ -729,8 +806,29 @@ function GammaReportsContent() {
             )}
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            {eitherRunning ? (
+              <button
+                type="button"
+                onClick={handleCancelAll}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-500 transition-colors"
+              >
+                <Square className="w-4 h-4" />
+                Cancel Pipeline
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => { void handleSyncAll(); }}
+                disabled={triggerAllLoading}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg text-sm font-medium hover:from-amber-500 hover:to-orange-500 disabled:opacity-50 transition-all"
+              >
+                {triggerAllLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
+                Run Full Pipeline
+              </button>
+            )}
             <ExtractionStatusChip
               label="HeyGen"
+              pipelinePhase={{ current: 1, total: 2 }}
               state={heygenWorkflow.state}
               currentRun={heygenWorkflow.currentRun}
               recentRuns={heygenWorkflow.recentRuns}
@@ -741,6 +839,25 @@ function GammaReportsContent() {
               toggleHistory={heygenWorkflow.toggleHistory}
               markRunFailed={heygenWorkflow.markRunFailed}
               onRetry={triggerHeyGenSync}
+            />
+            <ExtractionStatusChip
+              label="Drive"
+              pipelinePhase={{ current: 2, total: 2 }}
+              state={driveWorkflow.state}
+              currentRun={driveWorkflow.currentRun}
+              recentRuns={driveWorkflow.recentRuns}
+              elapsedMs={driveWorkflow.elapsedMs}
+              isDrawerOpen={driveWorkflow.isDrawerOpen}
+              isHistoryOpen={driveWorkflow.isHistoryOpen}
+              toggleDrawer={driveWorkflow.toggleDrawer}
+              toggleHistory={driveWorkflow.toggleHistory}
+              markRunFailed={driveWorkflow.markRunFailed}
+              onRetry={() => { void syncDrive(false); }}
+              drawerFooterAction={{
+                label: 'Force resync all (re-scan entire folder)',
+                onClick: () => { void syncDrive(true); },
+                disabled: driveWorkflow.state === 'running' || driveWorkflow.state === 'stale',
+              }}
             />
             {configMessage && <span className="text-[10px] text-red-400/90">{configMessage}</span>}
             {configLoading && <Loader2 className="w-3.5 h-3.5 animate-spin text-gray-500" />}
@@ -764,7 +881,7 @@ function GammaReportsContent() {
                 />
               ) : (
                 <p className="text-xs text-gray-500">
-                  No avatars in the database yet. Use the <strong className="text-gray-400">HeyGen</strong> status chip above to sync avatars from your HeyGen account.
+                  No avatars in the database yet. Use the <strong className="text-gray-400">HeyGen</strong> status chip above (or <strong className="text-gray-400">Run Full Pipeline</strong>) to sync from your HeyGen account.
                 </p>
               )}
               {configVoices.length > 0 ? (
@@ -778,7 +895,7 @@ function GammaReportsContent() {
                 />
               ) : (
                 <p className="text-xs text-gray-500">
-                  No voices in the database yet. Use the <strong className="text-gray-400">HeyGen</strong> status chip above to sync voices from your HeyGen account.
+                  No voices in the database yet. Use the <strong className="text-gray-400">HeyGen</strong> chip above (or <strong className="text-gray-400">Run Full Pipeline</strong>) to sync voices from your HeyGen account.
                 </p>
               )}
             </>

@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const items: MarketIntelligenceItem[] = body.items || []
+    const contactSubmissionId: number | undefined = body.contact_submission_id
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
           if (relevanceScore < 0 || relevanceScore > 10) relevanceScore = null
         }
 
-        const row = {
+        const row: Record<string, unknown> = {
           source_platform: item.source_platform,
           source_url: item.source_url || null,
           source_author: item.source_author || null,
@@ -91,6 +92,9 @@ export async function POST(request: NextRequest) {
           sentiment_score: item.sentiment_score ?? null,
           relevance_score: relevanceScore,
           is_processed: false,
+        }
+        if (contactSubmissionId) {
+          row.contact_submission_id = contactSubmissionId
         }
 
         if (item.source_url) {

@@ -473,7 +473,7 @@ export async function POST(request: NextRequest) {
 
                 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amadutown.com'
                 const purchasesUrl = `${siteUrl}/purchases?orderId=${order.id}`
-                const logoUrl = `${siteUrl}/logo.png`
+                const logoUrl = `${siteUrl}/logo_hd.png`
 
                 let invoicePdfBuffer: Buffer | undefined
                 try {
@@ -619,7 +619,7 @@ export async function POST(request: NextRequest) {
 
                 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://amadutown.com'
                 const purchasesUrl = `${siteUrl}/purchases?orderId=${order.id}`
-                const logoUrl = `${siteUrl}/logo.png`
+                const logoUrl = `${siteUrl}/logo_hd.png`
 
                 let invoicePdfBuffer: Buffer | undefined
                 try {

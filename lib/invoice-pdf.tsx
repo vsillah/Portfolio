@@ -303,7 +303,7 @@ function formatShipTo(addr: InvoicePDFShippingAddress | null | undefined): strin
 // ============================================================================
 
 export interface InvoicePDFOptions {
-  /** Absolute URL for the logo image (e.g. origin + /logo.png). Omit to hide logo. */
+  /** Absolute URL for the logo image (e.g. origin + /logo_hd.png). Omit to hide logo. */
   logoUrl?: string
 }
 
@@ -439,7 +439,7 @@ const InvoiceDocument: React.FC<{
 
 /**
  * Generate invoice PDF as a Blob for download (client-side).
- * Pass options.logoUrl (e.g. origin + '/logo.png') to include the AT logo in the header.
+ * Pass options.logoUrl (e.g. origin + '/logo_hd.png') to include the AT logo in the header.
  */
 export async function generateInvoicePDFBlob(
   data: InvoicePDFData,

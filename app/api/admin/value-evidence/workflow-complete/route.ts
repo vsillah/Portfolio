@@ -106,6 +106,41 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    // Slack notification (non-blocking)
+    const slackUrl = process.env.SLACK_VEP_NOTIFICATION_WEBHOOK_URL
+    if (slackUrl) {
+      const wfLabel = wf === 'vep001' ? 'Internal Evidence' : 'Social Listening'
+      const emoji = status === 'success' ? ':white_check_mark:' : ':x:'
+      const itemsText = items_inserted != null ? `${items_inserted} items` : 'N/A'
+      const slackMsg = {
+        text: `${emoji} VEP *${wfLabel}* ${status}. Items: ${itemsText}.${error_message ? ` Error: ${error_message}` : ''}\n<${process.env.PORTFOLIO_BASE_URL || 'https://amadutown.com'}/admin/value-evidence?tab=dashboard|Open Dashboard>`,
+      }
+      fetch(slackUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(slackMsg),
+      }).catch(e => console.error('Slack VEP notification failed:', e))
+    }
+
+    // In-app notification (non-blocking)
+    const wfLabel = wf === 'vep001' ? 'Internal Evidence' : 'Social Listening'
+    supabaseAdmin
+      .from('admin_notifications')
+      .insert({
+        type: 'vep_complete',
+        payload: {
+          run_id: run.id,
+          workflow_id: wf,
+          workflow_label: wfLabel,
+          status,
+          items_inserted: items_inserted ?? 0,
+          error_message: error_message ?? null,
+        },
+      })
+      .then(({ error: notifErr }: { error: { message: string } | null }) => {
+        if (notifErr) console.warn('admin_notifications insert failed (table may not exist):', notifErr.message)
+      })
+
     return NextResponse.json({ ok: true, run_id: run.id })
   } catch (err) {
     console.error('workflow-complete error:', err)

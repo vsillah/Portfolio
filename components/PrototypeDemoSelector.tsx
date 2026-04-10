@@ -176,7 +176,7 @@ export default function PrototypeDemoSelector({
         ) : selectedDemo.demo_type === 'image' ? (
           <div className="aspect-video rounded-lg overflow-hidden bg-black border border-gray-800">
             <Image
-              src={toAbsoluteImageUrl(selectedDemo.demo_url) || '/logo.png'}
+              src={toAbsoluteImageUrl(selectedDemo.demo_url) || '/logo_hd.png'}
               alt={selectedDemo.title}
               fill
               className="object-contain"
