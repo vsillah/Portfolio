@@ -13,7 +13,7 @@ At the end of any significant implementation, include a section titled **"Your f
 
 ### Examples of follow-up steps
 
-- **Database migrations**: "Run the migration" — e.g. `supabase db push`, or execute `migrations/YYYY_MM_DD_*.sql` in the Supabase SQL Editor. The migration file was **created** but **not applied** unless the agent explicitly ran a Supabase MCP tool or migration command.
+- **Database migrations**: "Run the migration" — e.g. `supabase db push`, or execute `migrations/YYYY_MM_DD_*.sql` in the Supabase SQL Editor — **only if** the agent did **not** apply the same SQL successfully via Supabase MCP (`apply_migration` / `execute_sql`). If MCP applied it on the target project(s), say **no migration follow-up** and reference **`prefer-mcp-when-available.mdc`**.
 - **Environment variables**: "Add `FOO=bar` to `.env.local`" or "Create a Supabase credential for X"
 - **Deploy / build**: "Run `npm run build` and deploy" or "Push to production"
 - **Third-party setup**: "Configure the webhook in Stripe Dashboard" or "Create an n8n workflow"
@@ -23,7 +23,7 @@ At the end of any significant implementation, include a section titled **"Your f
 
 - **"Implemented"** or **"Created"** = the agent wrote files or code. The user does not need to write anything.
 - **"Applied"** or **"Executed"** = the agent ran a command or tool and the change is live. The user does not need to run it.
-- If the agent only created a migration file, say: "Migration file created. **You must run it** (e.g. `supabase db push` or SQL Editor) before the schema changes take effect."
+- If the agent only created a migration file **and** MCP was unavailable or failed, say: "Migration file created. **You must run it** (e.g. `supabase db push` or SQL Editor) before the schema changes take effect." If the agent applied the migration via MCP successfully, do **not** use this wording.
 
 ### Template
 

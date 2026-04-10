@@ -1,0 +1,25 @@
+---
+description: Prefer MCP tools in-session; do not defer to manual follow-up when MCP can complete the work
+alwaysApply: true
+---
+
+# Prefer MCP Over Manual Follow-Up
+
+When the workspace has **enabled MCP servers** that can perform an operation the user would otherwise do by hand, **use those tools in the same session** instead of ending with “you run this later.”
+
+## What to do
+
+1. **Discover** — Before writing handoff steps like “run migration in SQL Editor” or “apply in Dashboard,” check whether an MCP tool exists for that action (e.g. Supabase `apply_migration` / `execute_sql`, Stripe/Vercel/GitHub tools when relevant).
+2. **Execute** — Call the MCP tool when it is appropriate and permitted (respect **`supabase-dual-mcp-dev-prod.mdc`**: non-prod `user-supabase` first, then `user-supabase-prod` unless the user scoped to one environment).
+3. **Handoff** — If the MCP call **succeeded**, **do not** list that action under **Your follow-up steps**. Say explicitly what ran (e.g. “Migrations applied via Supabase MCP on dev and prod.”).
+4. **Fallback only** — Manual follow-up steps are appropriate when: MCP is disconnected or errors; the user forbids prod or out-of-band DBs; the operation is outside MCP (e.g. physical OAuth dashboard clicks with no API); or the user asked for manual execution only.
+
+## Supabase schema changes
+
+- **Default:** Apply migrations via MCP per **`supabase-migrations-apply-via-mcp.mdc`**; keep `migrations/*.sql` on disk in sync with what was applied.
+- **Never** add “run `supabase db push`” / “execute this SQL in the Editor” to follow-up when the same migration was already applied successfully via MCP.
+
+## Relation to other rules
+
+- **`post-implementation-handoff.mdc`** — Still include **Your follow-up steps**; it may be “None required — completed via MCP” for DB/migration work.
+- **`migration-rollout-checklist.mdc`** — Applying via MCP counts as execution verification when MCP returns success and matches the committed migration file.
