@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { shouldUseMatchEmailBranch, toEmailLikePattern } from '@/lib/admin-meetings-query'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,14 +47,8 @@ export async function GET(request: NextRequest) {
       'id, meeting_type, meeting_date, duration_minutes, contact_submission_id, client_project_id, transcript, structured_notes, created_at'
 
     // Email-based merge for Add Lead Read.ai tab: attributed + unlinked text match
-    if (
-      matchEmail.length > 0 &&
-      contactIdParam === null &&
-      !unlinkedOnly &&
-      !attributedOnly &&
-      !q
-    ) {
-      const likePattern = `%${matchEmail.replace(/\\/g, '\\\\').replace(/%/g, '\\%').replace(/_/g, '\\_')}%`
+    if (shouldUseMatchEmailBranch({ matchEmail, contactIdParam, unlinkedOnly, attributedOnly, q })) {
+      const likePattern = toEmailLikePattern(matchEmail)
 
       const { data: contacts, error: contactsErr } = await supabaseAdmin
         .from('contact_submissions')
