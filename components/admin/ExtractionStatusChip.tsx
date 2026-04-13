@@ -141,29 +141,41 @@ function estimateProgress(
     : null
   const hasReported = pipelineStages && Object.keys(pipelineStages).length > 0
 
-  if (hasReported) {
-    const completedCount = Object.values(pipelineStages!).filter(s => s === 'complete').length
-    const lastReportedKey = Object.keys(pipelineStages!).pop()
-    const lastReportedStatus = lastReportedKey ? pipelineStages![lastReportedKey] : null
-    const stageIdx = stagesDef.findIndex(s => s.key === lastReportedKey)
-    const pct = stageIdx >= 0
-      ? Math.min(95, Math.round(((stageIdx + (lastReportedStatus === 'complete' ? 1 : 0.5)) / stagesDef.length) * 100))
-      : Math.min(95, Math.round((completedCount / stagesDef.length) * 100))
-    const label = stageIdx >= 0
-      ? (lastReportedStatus === 'complete' && stageIdx + 1 < stagesDef.length
-        ? stagesDef[stageIdx + 1].label
-        : stagesDef[stageIdx].label)
-      : stagesDef[0].label
-    const stepIdx0 =
-      stageIdx >= 0
-        ? (lastReportedStatus === 'complete' && stageIdx + 1 < stagesDef.length ? stageIdx + 1 : stageIdx)
-        : 0
-    return {
-      currentStageLabel: label,
-      progressPct: Math.max(pct, 2),
-      stepIndex: stepIdx0 + 1,
-      stepTotal,
-      indeterminate: false,
+  if (hasReported && pipelineStages) {
+    // Walk pipeline order (not Object.keys order) so the bar matches completed scrape steps.
+    let anchor = -1
+    for (let i = stagesDef.length - 1; i >= 0; i--) {
+      const s = pipelineStages[stagesDef[i].key]
+      if (s != null && s !== '') {
+        anchor = i
+        break
+      }
+    }
+    if (anchor >= 0) {
+      let completedBefore = 0
+      for (let i = 0; i < anchor; i++) {
+        const s = pipelineStages[stagesDef[i].key]
+        if (s === 'complete' || s === 'skipped') completedBefore++
+      }
+      const cur = stagesDef[anchor]
+      const curStatus = pipelineStages[cur.key]!
+      const atComplete = curStatus === 'complete' || curStatus === 'skipped'
+      const atRunning = curStatus === 'running' || curStatus === 'error'
+      const frac = atComplete ? 1 : atRunning ? 0.5 : 0.35
+      const pct = Math.min(95, Math.round(((completedBefore + frac) / stagesDef.length) * 100))
+      let label = cur.label
+      let stepIdx0 = anchor
+      if (atComplete && anchor + 1 < stagesDef.length) {
+        label = stagesDef[anchor + 1].label
+        stepIdx0 = anchor + 1
+      }
+      return {
+        currentStageLabel: label,
+        progressPct: Math.max(pct, 2),
+        stepIndex: stepIdx0 + 1,
+        stepTotal,
+        indeterminate: false,
+      }
     }
   }
 
@@ -661,42 +673,11 @@ export function ExtractionStatusChip({
                     {currentRun.meeting_title && (
                       <div className="text-xs text-gray-400 mb-3 truncate">{currentRun.meeting_title}</div>
                     )}
-                    {/* Per-source mini checklist for VEP002 */}
-                    {currentRun.workflow_id === 'vep002' && (
-                      <div className="mb-2 pl-6 space-y-0.5">
-                        {VEP002_SCRAPE_STAGES
-                          .filter(s => !runSources || runSources.length === 0 || runSources.includes(s.key.replace('scrape_', '')))
-                          .map(s => {
-                            const reported = (currentRun.stages as Record<string, string> | null)?.[s.key]
-                            const skipped = reported === 'skipped'
-                            const complete = reported === 'complete'
-                            const errored = reported === 'error'
-                            const running = reported === 'running'
-                            return (
-                              <div key={s.key} className="flex items-center gap-1.5 text-[11px]">
-                                {complete ? (
-                                  <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                                ) : errored ? (
-                                  <XCircle className="w-3 h-3 text-red-400" />
-                                ) : skipped ? (
-                                  <span className="w-3 h-3 text-gray-600 text-center leading-3">–</span>
-                                ) : running ? (
-                                  <Loader2 className="w-3 h-3 text-amber-400 animate-spin" />
-                                ) : (
-                                  <span className="w-3 h-3 rounded-full border border-gray-600" />
-                                )}
-                                <span className={skipped ? 'text-gray-600 line-through' : complete ? 'text-gray-400' : 'text-gray-300'}>
-                                  {s.label.replace('Scraping ', '')}
-                                </span>
-                              </div>
-                            )
-                          })}
-                        {(currentRun.items_inserted ?? 0) > 0 && (
-                          <p className="text-[11px] text-amber-400/70 mt-1 tabular-nums">
-                            {currentRun.items_inserted} items so far
-                          </p>
-                        )}
-                      </div>
+                    {/* VEP002: progress is shown only via step line + bar (no per-source checklist — avoids misleading empty circles). */}
+                    {currentRun.workflow_id === 'vep002' && (currentRun.items_inserted ?? 0) > 0 && (
+                      <p className="text-[11px] text-amber-400/70 mb-2 pl-6 tabular-nums">
+                        {currentRun.items_inserted} items so far
+                      </p>
                     )}
                     <PipelineProgressBar
                       progressPct={progressPct}

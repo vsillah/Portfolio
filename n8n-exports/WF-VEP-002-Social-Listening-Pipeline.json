@@ -33,7 +33,7 @@
       ],
       "type": "n8n-nodes-base.stickyNote",
       "parameters": {
-        "content": "## WF-VEP-002: Social Listening Pipeline\n\nFlow: Webhook \u2192 Scrape 5 platforms (Reddit, Google Maps, LinkedIn, G2, Capterra) \u2192 Extract \u2192 Merge All \u2192 Filter \u2192 POST Market Intel + AI Classify (batched) \u2192 POST Pain Points\n\nPlatforms: Reddit (keyword search), Google Maps (place reviews), LinkedIn (post search), G2 (product reviews), Capterra (product reviews)\n\nEnvironment vars: PORTFOLIO_BASE_URL, N8N_INGEST_SECRET",
+        "content": "## WF-VEP-002: Social Listening Pipeline\n\nFlow: Webhook \u2192 Scrape 5 platforms (Reddit, Google Maps, LinkedIn, G2, Capterra) \u2192 Extract \u2192 Merge All \u2192 Filter \u2192 POST Market Intel + AI Classify (batched) \u2192 POST Pain Points\n\nPlatforms: Reddit (keyword search), Google Maps (place reviews), LinkedIn (post search), G2 (product reviews), Capterra (product reviews)\n\nEnvironment vars: AMADUTOWN_PUBLIC_BASE_URL, N8N_INGEST_SECRET",
         "height": 200,
         "width": 440
       }
@@ -48,7 +48,7 @@
       ],
       "type": "n8n-nodes-base.stickyNote",
       "parameters": {
-        "content": "## Required Setup\n1. Apify credentials\n2. Anthropic credentials (HTTP Header Auth)\n3. Env vars: PORTFOLIO_BASE_URL, N8N_INGEST_SECRET",
+        "content": "## Required Setup\n1. Apify credentials\n2. Anthropic credentials (HTTP Header Auth)\n3. Env vars: AMADUTOWN_PUBLIC_BASE_URL, N8N_INGEST_SECRET",
         "height": 160,
         "width": 432
       }
@@ -106,6 +106,66 @@
               "name": "capterraProductUrls",
               "type": "string",
               "value": "={{ JSON.stringify($json.body && $json.body.capterraProductUrls ? $json.body.capterraProductUrls : ['https://www.capterra.com/p/140827/HubSpot/', 'https://www.capterra.com/p/233073/monday-com/', 'https://www.capterra.com/p/140127/Mailchimp/', 'https://www.capterra.com/p/205656/Bloomerang/', 'https://www.capterra.com/p/16666/QuickBooks/']) }}"
+            },
+            {
+              "id": "enable_reddit",
+              "name": "enable_reddit",
+              "type": "boolean",
+              "value": "={{ !$json.body?.sources || $json.body.sources.includes('reddit') }}"
+            },
+            {
+              "id": "enable_google_maps",
+              "name": "enable_google_maps",
+              "type": "boolean",
+              "value": "={{ !$json.body?.sources || $json.body.sources.includes('google_maps') }}"
+            },
+            {
+              "id": "enable_linkedin",
+              "name": "enable_linkedin",
+              "type": "boolean",
+              "value": "={{ !$json.body?.sources || $json.body.sources.includes('linkedin') }}"
+            },
+            {
+              "id": "enable_g2",
+              "name": "enable_g2",
+              "type": "boolean",
+              "value": "={{ !$json.body?.sources || $json.body.sources.includes('g2') }}"
+            },
+            {
+              "id": "enable_capterra",
+              "name": "enable_capterra",
+              "type": "boolean",
+              "value": "={{ !$json.body?.sources || $json.body.sources.includes('capterra') }}"
+            },
+            {
+              "id": "run_id",
+              "name": "run_id",
+              "type": "string",
+              "value": "={{ $json.body?.run_id || '' }}"
+            },
+            {
+              "id": "callbackBaseUrl",
+              "name": "callbackBaseUrl",
+              "type": "string",
+              "value": "={{ $json.body?.callbackBaseUrl || 'https://amadutown.com' }}"
+            },
+            {
+              "id": "contact_submission_id",
+              "name": "contact_submission_id",
+              "type": "string",
+              "value": "={{ $json.body?.contact_submission_id || '' }}"
+            },
+            {
+              "id": "baseUrl",
+              "name": "baseUrl",
+              "type": "string",
+              "value": "={{ $json.body?.callbackBaseUrl || 'https://amadutown.com' }}"
+            },
+            {
+              "id": "ingestSecret",
+              "name": "ingestSecret",
+              "type": "string",
+              "value": "={{ $vars.N8N_INGEST_SECRET }}"
             }
           ]
         },
@@ -226,7 +286,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "parameters": {
         "method": "POST",
-        "url": "={{ $vars.PORTFOLIO_BASE_URL }}/api/admin/value-evidence/ingest-market",
+        "url": "={{ $vars.AMADUTOWN_PUBLIC_BASE_URL }}/api/admin/value-evidence/ingest-market",
         "specifyBody": "json",
         "sendBody": true,
         "sendHeaders": true,
@@ -356,7 +416,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "parameters": {
         "method": "POST",
-        "url": "={{ $vars.PORTFOLIO_BASE_URL }}/api/admin/value-evidence/ingest",
+        "url": "={{ $vars.AMADUTOWN_PUBLIC_BASE_URL }}/api/admin/value-evidence/ingest",
         "specifyBody": "json",
         "sendBody": true,
         "sendHeaders": true,
@@ -819,7 +879,7 @@
         ],
         "type": "n8n-nodes-base.stickyNote",
         "parameters": {
-          "content": "## WF-VEP-002: Social Listening Pipeline\n\nFlow: Webhook \u2192 Scrape 5 platforms (Reddit, Google Maps, LinkedIn, G2, Capterra) \u2192 Extract \u2192 Merge All \u2192 Filter \u2192 POST Market Intel + AI Classify (batched) \u2192 POST Pain Points\n\nPlatforms: Reddit (keyword search), Google Maps (place reviews), LinkedIn (post search), G2 (product reviews), Capterra (product reviews)\n\nEnvironment vars: PORTFOLIO_BASE_URL, N8N_INGEST_SECRET",
+          "content": "## WF-VEP-002: Social Listening Pipeline\n\nFlow: Webhook \u2192 Scrape 5 platforms (Reddit, Google Maps, LinkedIn, G2, Capterra) \u2192 Extract \u2192 Merge All \u2192 Filter \u2192 POST Market Intel + AI Classify (batched) \u2192 POST Pain Points\n\nPlatforms: Reddit (keyword search), Google Maps (place reviews), LinkedIn (post search), G2 (product reviews), Capterra (product reviews)\n\nEnvironment vars: AMADUTOWN_PUBLIC_BASE_URL, N8N_INGEST_SECRET",
           "height": 200,
           "width": 440
         }
@@ -834,7 +894,7 @@
         ],
         "type": "n8n-nodes-base.stickyNote",
         "parameters": {
-          "content": "## Required Setup\n1. Apify credentials\n2. Anthropic credentials (HTTP Header Auth)\n3. Env vars: PORTFOLIO_BASE_URL, N8N_INGEST_SECRET",
+          "content": "## Required Setup\n1. Apify credentials\n2. Anthropic credentials (HTTP Header Auth)\n3. Env vars: AMADUTOWN_PUBLIC_BASE_URL, N8N_INGEST_SECRET",
           "height": 160,
           "width": 432
         }
@@ -1012,7 +1072,7 @@
         "type": "n8n-nodes-base.httpRequest",
         "parameters": {
           "method": "POST",
-          "url": "={{ $vars.PORTFOLIO_BASE_URL }}/api/admin/value-evidence/ingest-market",
+          "url": "={{ $vars.AMADUTOWN_PUBLIC_BASE_URL }}/api/admin/value-evidence/ingest-market",
           "specifyBody": "json",
           "sendBody": true,
           "sendHeaders": true,
@@ -1142,7 +1202,7 @@
         "type": "n8n-nodes-base.httpRequest",
         "parameters": {
           "method": "POST",
-          "url": "={{ $vars.PORTFOLIO_BASE_URL }}/api/admin/value-evidence/ingest",
+          "url": "={{ $vars.AMADUTOWN_PUBLIC_BASE_URL }}/api/admin/value-evidence/ingest",
           "specifyBody": "json",
           "sendBody": true,
           "sendHeaders": true,

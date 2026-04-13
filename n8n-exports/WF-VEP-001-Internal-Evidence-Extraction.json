@@ -198,7 +198,7 @@
       ],
       "type": "n8n-nodes-base.stickyNote",
       "parameters": {
-        "content": "## Required Setup\n\n1. **Supabase credentials**: Connect your Supabase API credentials to both Supabase nodes\n2. **Anthropic**: On **AI Pain Point Classifier**, select your **Anthropic account** credential (Settings -> Credentials -> Anthropic API)\n3. **Environment variables**:\n   - `PORTFOLIO_BASE_URL`: Your app base URL\n   - `N8N_INGEST_SECRET`: Secret key for the ingest endpoint auth",
+        "content": "## Required Setup\n\n1. **Supabase credentials**: Connect your Supabase API credentials to both Supabase nodes\n2. **Anthropic**: On **AI Pain Point Classifier**, select your **Anthropic account** credential (Settings -> Credentials -> Anthropic API)\n3. **Environment variables**:\n   - `AMADUTOWN_PUBLIC_BASE_URL`: Your app base URL\n   - `N8N_INGEST_SECRET`: Secret key for the ingest endpoint auth",
         "height": 300,
         "width": 380
       }
