@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabaseAdmin
       .from('value_evidence_workflow_runs')
-      .select('id, workflow_id, triggered_at, completed_at, status, stages, items_inserted, error_message')
+      .select('id, workflow_id, triggered_at, completed_at, status, stages, items_inserted, error_message, scope_type, scope_id, scope_label')
       .order('triggered_at', { ascending: false })
       .limit(limit)
 
@@ -46,15 +46,33 @@ export async function GET(request: NextRequest) {
     }
 
     const now = Date.now()
+    const staleRunIds: string[] = []
     const enriched = (runs || []).map((run: {
       id: string; workflow_id: string; triggered_at: string; completed_at: string | null;
       status: string; stages: Record<string, string> | null;
       items_inserted: number | null; error_message: string | null;
-    }) => ({
-      ...run,
-      stale: run.status === 'running' &&
-        (now - new Date(run.triggered_at).getTime()) > STALE_THRESHOLD_MS,
-    }))
+      scope_type: string | null; scope_id: string | null; scope_label: string | null;
+    }) => {
+      const isStale = run.status === 'running' &&
+        (now - new Date(run.triggered_at).getTime()) > STALE_THRESHOLD_MS
+      if (isStale) staleRunIds.push(run.id)
+      return { ...run, stale: isStale }
+    })
+
+    // Auto-resolve stale runs so the UI doesn't hang forever
+    if (staleRunIds.length > 0) {
+      supabaseAdmin
+        .from('value_evidence_workflow_runs')
+        .update({
+          status: 'failed',
+          completed_at: new Date().toISOString(),
+          error_message: 'Auto-resolved: workflow exceeded maximum expected duration',
+        })
+        .in('id', staleRunIds)
+        .then(({ error: updateErr }: { error: { message: string } | null }) => {
+          if (updateErr) console.warn('Auto-resolve stale runs failed:', updateErr.message)
+        })
+    }
 
     return NextResponse.json({ runs: enriched })
   } catch (err) {

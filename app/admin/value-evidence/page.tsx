@@ -37,7 +37,7 @@ import remarkGfm from 'remark-gfm'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import Pagination from '@/components/admin/Pagination'
-import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip'
+import { ExtractionStatusChip, type ScopeType } from '@/components/admin/ExtractionStatusChip'
 import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus'
 import { useDevTunnel } from '@/lib/hooks/useDevTunnel'
 import { getCurrentSession } from '@/lib/auth'
@@ -177,6 +177,9 @@ export default function ValueEvidencePage() {
   const [triggerAllLoading, setTriggerAllLoading] = useState(false)
   const [socialMaxResults, setSocialMaxResults] = useState(10)
   const [socialSources, setSocialSources] = useState<string[]>(['reddit', 'google_maps', 'linkedin', 'g2', 'capterra'])
+  const [scopeType, setScopeType] = useState<ScopeType | null>(null)
+  const [scopeId, setScopeId] = useState<string | null>(null)
+  const [scopeLabel, setScopeLabel] = useState<string | null>(null)
   const tunnel = useDevTunnel()
 
   useEffect(() => {
@@ -244,6 +247,12 @@ export default function ValueEvidencePage() {
   /** Internal → Social → (dev) Cloudflare tunnel readiness — not the same as admin nav tabs. */
   const pipelinePhaseTotal = tunnel.isDev ? 3 : 2
 
+  const handleScopeChange = useCallback((type: ScopeType | null, id: string | null, label: string | null) => {
+    setScopeType(type)
+    setScopeId(id)
+    setScopeLabel(label)
+  }, [])
+
   const triggerWorkflow = async (
     workflow: 'internal_extraction' | 'social_listening',
     statusHook: ReturnType<typeof useWorkflowStatus>,
@@ -266,6 +275,14 @@ export default function ValueEvidencePage() {
       }
       if (workflow === 'social_listening' && sources && sources.length > 0) {
         body.sources = sources
+      }
+      if (scopeType && scopeId) {
+        body.scope_type = scopeType
+        body.scope_id = scopeId
+        const phases: string[] = []
+        if (workflow === 'internal_extraction') phases.push('internal')
+        if (workflow === 'social_listening') phases.push('social')
+        body.phases = phases
       }
       const res = await fetch('/api/admin/value-evidence/trigger', {
         method: 'POST',
@@ -446,6 +463,12 @@ export default function ValueEvidencePage() {
                   toggleHistory={vep001Status.toggleHistory}
                   markRunFailed={vep001Status.markRunFailed}
                   onRetry={() => triggerWorkflow('internal_extraction', vep001Status)}
+                  scopeEntitySelector={{
+                    scopeType,
+                    scopeId,
+                    scopeLabel,
+                    onScopeChange: handleScopeChange,
+                  }}
                 />
                 <ExtractionStatusChip
                   label="Social"
@@ -467,6 +490,12 @@ export default function ValueEvidencePage() {
                   sourceSelector={{
                     selected: socialSources,
                     onChange: setSocialSources,
+                  }}
+                  scopeEntitySelector={{
+                    scopeType,
+                    scopeId,
+                    scopeLabel,
+                    onScopeChange: handleScopeChange,
                   }}
                 />
                 {tunnel.isDev && (

@@ -41,6 +41,11 @@ import {
   CalendarCheck,
   ChevronRight,
   MoreHorizontal,
+  Crosshair,
+  Sparkles,
+  Inbox,
+  Save,
+  Unplug,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -52,6 +57,7 @@ import {
   isMeetingRecordContextId,
   meetingRecordUuidFromContextId,
 } from '@/lib/admin-meeting-context-items'
+import { buildGmailComposeUrl } from '@/lib/gmail-compose'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -358,24 +364,77 @@ function OutreachContent() {
   const [socialIntelSources, setSocialIntelSources] = useState<string[]>(['reddit', 'google_maps', 'linkedin', 'g2', 'capterra'])
   const [socialIntelScope, setSocialIntelScope] = useState(5)
   const [socialIntelLoading, setSocialIntelLoading] = useState(false)
+  // Scope picker for targeted runs within Social Intel modal
+  const [siScopeType, setSiScopeType] = useState<'meeting' | 'assessment' | null>(null)
+  const [siScopeId, setSiScopeId] = useState<string | null>(null)
+  const [siScopeLabel, setSiScopeLabel] = useState<string | null>(null)
+  const [siScopeEntities, setSiScopeEntities] = useState<{ id: string | number; label: string; subtitle: string | null }[]>([])
+  const [siScopeSearching, setSiScopeSearching] = useState(false)
+  const [siScopeQuery, setSiScopeQuery] = useState('')
+  const [siScopeDropdownOpen, setSiScopeDropdownOpen] = useState(false)
+
+  const fetchSiScopeEntities = useCallback(async (type: 'meeting' | 'assessment', leadId: number, q?: string) => {
+    setSiScopeSearching(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+      const params = new URLSearchParams({ type, contact_submission_id: String(leadId) })
+      if (q) params.set('q', q)
+      const res = await fetch(`/api/admin/value-evidence/scope-entities?${params}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setSiScopeEntities(data.entities || [])
+      }
+    } catch {
+      // silent
+    } finally {
+      setSiScopeSearching(false)
+    }
+  }, [])
+
+  // Reset scope state when the modal opens with a new lead
+  useEffect(() => {
+    if (socialIntelLeadId != null) {
+      setSiScopeType(null)
+      setSiScopeId(null)
+      setSiScopeLabel(null)
+      setSiScopeEntities([])
+      setSiScopeQuery('')
+    }
+  }, [socialIntelLeadId])
+
+  // Fetch entities when scope type changes
+  useEffect(() => {
+    if (siScopeType && socialIntelLeadId != null) {
+      fetchSiScopeEntities(siScopeType, socialIntelLeadId, siScopeQuery || undefined)
+    }
+  }, [siScopeType, socialIntelLeadId, fetchSiScopeEntities, siScopeQuery])
 
   const triggerSocialIntelForLead = async (contactId: number) => {
     setSocialIntelLoading(true)
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) return
+      const triggerBody: Record<string, unknown> = {
+        workflow: 'social_listening_lead',
+        contact_submission_id: contactId,
+        sources: socialIntelSources,
+        maxResults: socialIntelScope,
+      }
+      if (siScopeType && siScopeId) {
+        triggerBody.scope_type = siScopeType
+        triggerBody.scope_id = siScopeId
+        triggerBody.phases = ['social']
+      }
       const res = await fetch('/api/admin/value-evidence/trigger', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          workflow: 'social_listening_lead',
-          contact_submission_id: contactId,
-          sources: socialIntelSources,
-          maxResults: socialIntelScope,
-        }),
+        body: JSON.stringify(triggerBody),
       })
       if (res.ok) {
         setSocialIntelLeadId(null)
@@ -422,7 +481,17 @@ function OutreachContent() {
 
   // Generate outreach state
   const [generateOutreachLoading, setGenerateOutreachLoading] = useState<number | null>(null)
+  const [generateInAppLoading, setGenerateInAppLoading] = useState<number | null>(null)
   const [generateOutreachToast, setGenerateOutreachToast] = useState<string | null>(null)
+  const [emailDraftInboxLoadingId, setEmailDraftInboxLoadingId] = useState<string | null>(null)
+  const [gmailUserDraftLoadingId, setGmailUserDraftLoadingId] = useState<string | null>(null)
+  const [gmailUserOAuthStatus, setGmailUserOAuthStatus] = useState<{
+    connected: boolean
+    googleEmail: string | null
+    configured: boolean
+  } | null>(null)
+  const [gmailOAuthConnectLoading, setGmailOAuthConnectLoading] = useState(false)
+  const [gmailOAuthDisconnectLoading, setGmailOAuthDisconnectLoading] = useState(false)
 
   // Pain point classification in enrich modal
   type ClassifiedPainPoint = {
@@ -500,6 +569,39 @@ function OutreachContent() {
       setLoading(false)
     }
   }, [statusFilter, channelFilter, search, contactFilter])
+
+  const fetchGmailUserOAuthStatus = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        setGmailUserOAuthStatus(null)
+        return
+      }
+      const r = await fetch('/api/admin/oauth/google-gmail/status', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = (await r.json().catch(() => ({}))) as {
+        connected?: boolean
+        googleEmail?: string | null
+        configured?: boolean
+      }
+      if (r.ok && typeof data.connected === 'boolean') {
+        setGmailUserOAuthStatus({
+          connected: data.connected,
+          googleEmail: data.googleEmail ?? null,
+          configured: Boolean(data.configured),
+        })
+      } else {
+        setGmailUserOAuthStatus({
+          connected: false,
+          googleEmail: null,
+          configured: false,
+        })
+      }
+    } catch {
+      setGmailUserOAuthStatus(null)
+    }
+  }, [])
 
   const fetchLeads = useCallback(async () => {
     setLeadsLoading(true)
@@ -624,12 +726,13 @@ function OutreachContent() {
   useEffect(() => {
     if (activeTab === 'queue') {
       fetchData()
+      void fetchGmailUserOAuthStatus()
     } else if (activeTab === 'leads') {
       fetchLeads()
     } else if (activeTab === 'escalations') {
       fetchEscalations()
     }
-  }, [activeTab, fetchData, fetchLeads, fetchEscalations])
+  }, [activeTab, fetchData, fetchLeads, fetchEscalations, fetchGmailUserOAuthStatus])
 
   // Auto-open add-lead modal when navigated with ?open=add (e.g. from Meetings page)
   useEffect(() => {
@@ -637,6 +740,39 @@ function OutreachContent() {
       setShowAddLeadModal(true)
     }
   }, [searchParams, activeTab])
+
+  // Gmail OAuth return (callback redirects here with query flags)
+  useEffect(() => {
+    const gc = searchParams?.get('gmail_connected')
+    const ge = searchParams?.get('gmail_oauth_error')
+    if (gc !== '1' && ge == null) return
+
+    if (gc === '1') {
+      setGenerateOutreachToast(
+        'Gmail connected. You can save email drafts to your Gmail (Drafts folder).'
+      )
+      setTimeout(() => setGenerateOutreachToast(null), 7000)
+    } else if (ge) {
+      const messages: Record<string, string> = {
+        '1': 'Gmail connection did not finish. Please try Connect my Gmail again.',
+        state: 'That sign-in link expired. Connect my Gmail again.',
+        config: 'Gmail connection is not set up on the server.',
+        refresh:
+          'Google did not return a refresh token. In Google Account → Security → Third-party access, remove this app and connect again.',
+        email: 'Could not read your Google account email. Try reconnecting.',
+        save: 'Could not save your Gmail connection. Please try again.',
+      }
+      setGenerateOutreachToast(messages[ge] ?? messages['1'])
+      setTimeout(() => setGenerateOutreachToast(null), 10000)
+    }
+
+    void fetchGmailUserOAuthStatus()
+    const params = new URLSearchParams(searchParams?.toString() ?? '')
+    params.delete('gmail_connected')
+    params.delete('gmail_oauth_error')
+    const qs = params.toString()
+    router.replace(qs ? `/admin/outreach?${qs}` : '/admin/outreach')
+  }, [searchParams, router, fetchGmailUserOAuthStatus])
 
   // Fetch escalations for the expanded lead (for "Chat escalations for this contact")
   useEffect(() => {
@@ -1049,6 +1185,193 @@ function OutreachContent() {
     setEditingId(item.id)
     setEditSubject(item.subject || '')
     setEditBody(item.body)
+  }
+
+  const openDraftInGmail = useCallback(
+    (item: OutreachItem) => {
+      const email = item.contact_submissions?.email?.trim()
+      if (!email?.includes('@')) {
+        setGenerateOutreachToast('This lead has no valid email address.')
+        setTimeout(() => setGenerateOutreachToast(null), 6000)
+        return
+      }
+      const subject = editingId === item.id ? editSubject : item.subject ?? ''
+      const body = editingId === item.id ? editBody : item.body
+      const { url, omitBodyFromUrl } = buildGmailComposeUrl(email, subject, body)
+      const openTab = () => {
+        window.open(url, '_blank', 'noopener,noreferrer')
+      }
+      if (omitBodyFromUrl) {
+        void navigator.clipboard.writeText(body).then(() => {
+          openTab()
+          setGenerateOutreachToast(
+            'Gmail opened. Message body was copied — paste it into the compose window (body was too long for the link).'
+          )
+          setTimeout(() => setGenerateOutreachToast(null), 8000)
+        }).catch(() => {
+          openTab()
+          setGenerateOutreachToast(
+            'Gmail opened with recipient and subject only. Copy the message body from the preview below.'
+          )
+          setTimeout(() => setGenerateOutreachToast(null), 10000)
+        })
+      } else {
+        openTab()
+      }
+    },
+    [editingId, editSubject, editBody]
+  )
+
+  const emailDraftCopyToInbox = async (item: OutreachItem) => {
+    const subject = editingId === item.id ? editSubject : item.subject ?? ''
+    const body = editingId === item.id ? editBody : item.body
+    setEmailDraftInboxLoadingId(item.id)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        setGenerateOutreachToast('Please sign in to continue.')
+        setTimeout(() => setGenerateOutreachToast(null), 6000)
+        return
+      }
+      const res = await fetch(
+        `/api/admin/outreach/${item.id}/email-draft-to-inbox`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            subject,
+            body,
+          }),
+        }
+      )
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string
+        message?: string
+      }
+      if (res.ok) {
+        setGenerateOutreachToast(
+          data.message ?? 'A copy was sent to your account email.'
+        )
+        setTimeout(() => setGenerateOutreachToast(null), 6000)
+      } else {
+        setGenerateOutreachToast(
+          data.error ?? 'We could not send that copy. Please try again.'
+        )
+        setTimeout(() => setGenerateOutreachToast(null), 8000)
+      }
+    } catch {
+      setGenerateOutreachToast(
+        'We could not send that copy. Please try again.'
+      )
+      setTimeout(() => setGenerateOutreachToast(null), 8000)
+    } finally {
+      setEmailDraftInboxLoadingId(null)
+    }
+  }
+
+  const saveGmailUserDraft = async (item: OutreachItem) => {
+    const subject = editingId === item.id ? editSubject : item.subject ?? ''
+    const body = editingId === item.id ? editBody : item.body
+    setGmailUserDraftLoadingId(item.id)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        setGenerateOutreachToast('Please sign in to continue.')
+        setTimeout(() => setGenerateOutreachToast(null), 6000)
+        return
+      }
+      const res = await fetch(
+        `/api/admin/outreach/${item.id}/gmail-user-draft`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ subject, body }),
+        }
+      )
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string
+        message?: string
+        openGmailUrl?: string
+      }
+      if (res.ok) {
+        setGenerateOutreachToast(
+          data.message ?? 'Draft saved in your Gmail.'
+        )
+        setTimeout(() => setGenerateOutreachToast(null), 7000)
+        if (data.openGmailUrl) {
+          window.open(data.openGmailUrl, '_blank', 'noopener,noreferrer')
+        }
+      } else {
+        setGenerateOutreachToast(
+          data.error ?? 'Could not save a Gmail draft. Please try again.'
+        )
+        setTimeout(() => setGenerateOutreachToast(null), 9000)
+      }
+    } catch {
+      setGenerateOutreachToast(
+        'Could not save a Gmail draft. Please try again.'
+      )
+      setTimeout(() => setGenerateOutreachToast(null), 9000)
+    } finally {
+      setGmailUserDraftLoadingId(null)
+    }
+  }
+
+  const startGmailUserOAuthConnect = async () => {
+    setGmailOAuthConnectLoading(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) {
+        setGenerateOutreachToast('Please sign in to continue.')
+        setTimeout(() => setGenerateOutreachToast(null), 6000)
+        return
+      }
+      const res = await fetch('/api/admin/oauth/google-gmail/start', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const data = (await res.json().catch(() => ({}))) as {
+        url?: string
+        error?: string
+      }
+      if (res.ok && data.url) {
+        window.location.href = data.url
+        return
+      }
+      setGenerateOutreachToast(
+        data.error ?? 'Could not start Gmail sign-in. Please try again.'
+      )
+      setTimeout(() => setGenerateOutreachToast(null), 8000)
+    } finally {
+      setGmailOAuthConnectLoading(false)
+    }
+  }
+
+  const disconnectGmailUserOAuth = async () => {
+    setGmailOAuthDisconnectLoading(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const res = await fetch('/api/admin/oauth/google-gmail/disconnect', {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      await fetchGmailUserOAuthStatus()
+      if (res.ok) {
+        setGenerateOutreachToast('Gmail disconnected from this admin account.')
+        setTimeout(() => setGenerateOutreachToast(null), 6000)
+      } else {
+        setGenerateOutreachToast('Could not disconnect. Please try again.')
+        setTimeout(() => setGenerateOutreachToast(null), 6000)
+      }
+    } finally {
+      setGmailOAuthDisconnectLoading(false)
+    }
   }
 
   const resetAddLeadForm = () => {
@@ -1587,6 +1910,70 @@ function OutreachContent() {
             className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
           />
 
+          <button
+            type="button"
+            onClick={() =>
+              window.open(
+                'https://mail.google.com/mail/',
+                '_blank',
+                'noopener,noreferrer'
+              )
+            }
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-silicon-slate/80 text-muted-foreground hover:text-sky-300 hover:border-sky-500/40 transition-colors shrink-0"
+            title="Opens Gmail in a new tab. Use this if “Open in Gmail” asks you to sign in to Google first."
+          >
+            <Mail size={14} />
+            Gmail sign-in
+          </button>
+
+          <div className="flex flex-wrap items-center gap-2 shrink-0 max-w-full border-l border-silicon-slate/60 pl-3 ml-1">
+            {gmailUserOAuthStatus === null ? (
+              <span className="text-xs text-muted-foreground">My Gmail…</span>
+            ) : !gmailUserOAuthStatus.configured ? (
+              <span
+                className="text-xs text-muted-foreground"
+                title="An administrator must enable Google sign-in for Gmail drafts on the server"
+              >
+                My Gmail drafts: unavailable
+              </span>
+            ) : gmailUserOAuthStatus.connected ? (
+              <>
+                <span className="text-xs text-emerald-400/90 truncate max-w-[220px]">
+                  My Gmail: {gmailUserOAuthStatus.googleEmail}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void disconnectGmailUserOAuth()}
+                  disabled={gmailOAuthDisconnectLoading}
+                  className="flex items-center gap-1 px-2 py-1 text-xs rounded border border-silicon-slate text-muted-foreground hover:text-rose-300 disabled:opacity-50"
+                  title="Remove saved Gmail access for your admin login"
+                >
+                  {gmailOAuthDisconnectLoading ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <Unplug size={12} />
+                  )}
+                  Disconnect
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void startGmailUserOAuthConnect()}
+                disabled={gmailOAuthConnectLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-emerald-600/50 text-emerald-300 hover:bg-emerald-950/40 disabled:opacity-50"
+                title="Sign in with Google so the app can create drafts in your Gmail"
+              >
+                {gmailOAuthConnectLoading ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Mail size={14} />
+                )}
+                Connect my Gmail
+              </button>
+            )}
+          </div>
+
           {/* Contact Filter Badge */}
           {contactFilter && filteredContactName && (
             <div className="flex items-center gap-2 px-3 py-2 bg-silicon-slate border border-radiant-gold/50 rounded-lg">
@@ -1757,6 +2144,73 @@ function OutreachContent() {
                       >
                         <User size={16} />
                       </Link>
+                      {item.channel === 'email' &&
+                        (item.status === 'draft' || item.status === 'approved') && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => openDraftInGmail(item)}
+                              disabled={
+                                actionLoading ||
+                                !item.contact_submissions?.email?.trim()?.includes('@')
+                              }
+                              className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground hover:text-sky-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted-foreground"
+                              aria-label="Open draft in Gmail compose"
+                              title={
+                                item.contact_submissions?.email?.trim()?.includes('@')
+                                  ? 'Open Gmail compose with this draft pre-filled'
+                                  : 'Lead has no email — add one on the contact profile'
+                              }
+                            >
+                              <ExternalLink size={16} />
+                            </button>
+                            {gmailUserOAuthStatus?.connected && (
+                              <button
+                                type="button"
+                                onClick={() => void saveGmailUserDraft(item)}
+                                disabled={
+                                  actionLoading ||
+                                  gmailUserDraftLoadingId === item.id ||
+                                  !item.contact_submissions?.email
+                                    ?.trim()
+                                    ?.includes('@')
+                                }
+                                className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground hover:text-violet-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                                aria-label="Save draft to my Gmail"
+                                title={
+                                  item.contact_submissions?.email?.trim()?.includes('@')
+                                    ? 'Create a draft in your Gmail (OAuth) — opens Drafts in a new tab'
+                                    : 'Lead has no email — add one on the contact profile'
+                                }
+                              >
+                                {gmailUserDraftLoadingId === item.id ? (
+                                  <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                  <Save size={16} />
+                                )}
+                              </button>
+                            )}
+                          </>
+                        )}
+                      {(item.status === 'draft' || item.status === 'approved') && (
+                        <button
+                          type="button"
+                          onClick={() => void emailDraftCopyToInbox(item)}
+                          disabled={
+                            actionLoading ||
+                            emailDraftInboxLoadingId === item.id
+                          }
+                          className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground hover:text-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                          aria-label="Email a copy of this draft to my inbox"
+                          title="Email a copy to the address on your admin profile (uses the site’s configured mail sender)"
+                        >
+                          {emailDraftInboxLoadingId === item.id ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Inbox size={16} />
+                          )}
+                        </button>
+                      )}
                       {item.status === 'draft' && (
                         <>
                           <button
@@ -3476,12 +3930,124 @@ function OutreachContent() {
                     <select
                       value={socialIntelScope}
                       onChange={(e) => setSocialIntelScope(Number(e.target.value))}
-                      className="w-full text-xs bg-gray-900/80 text-gray-300 border border-gray-700/60 rounded px-2 py-1.5 mb-4 focus:outline-none focus:border-cyan-500/50"
+                      className="w-full text-xs bg-gray-900/80 text-gray-300 border border-gray-700/60 rounded px-2 py-1.5 mb-3 focus:outline-none focus:border-cyan-500/50"
                     >
                       <option value={5}>Quick Scan (~2-4 min)</option>
                       <option value={10}>Standard Scan (~7-12 min)</option>
                       <option value={20}>Deep Scan (~15-30 min)</option>
                     </select>
+
+                    {/* Scope picker — optionally target a meeting or assessment for this lead */}
+                    <div className="mb-4 space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (siScopeType) {
+                            setSiScopeType(null)
+                            setSiScopeId(null)
+                            setSiScopeLabel(null)
+                          } else {
+                            setSiScopeType('meeting')
+                          }
+                        }}
+                        className="text-[11px] text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1.5"
+                      >
+                        <Crosshair className="w-3 h-3" />
+                        {siScopeType && siScopeLabel
+                          ? <span className="text-emerald-400">Targeted: {siScopeLabel.substring(0, 40)}{siScopeLabel.length > 40 ? '...' : ''}</span>
+                          : 'Scope: Full lead context'
+                        }
+                      </button>
+                      {siScopeType && (
+                        <>
+                          <div className="flex gap-1.5">
+                            {(['meeting', 'assessment'] as const).map(st => (
+                              <button
+                                key={st}
+                                type="button"
+                                onClick={() => {
+                                  setSiScopeType(st)
+                                  setSiScopeId(null)
+                                  setSiScopeLabel(null)
+                                  setSiScopeQuery('')
+                                }}
+                                className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
+                                  siScopeType === st
+                                    ? 'bg-emerald-600/20 text-emerald-300 border-emerald-600/40'
+                                    : 'bg-gray-900/60 text-gray-500 border-gray-700/50 hover:text-gray-300'
+                                }`}
+                              >
+                                {st === 'meeting' ? 'Meeting' : 'Assessment'}
+                              </button>
+                            ))}
+                          </div>
+                          {siScopeId && siScopeLabel ? (
+                            <div className="flex items-center gap-1.5 text-[11px] bg-emerald-600/10 text-emerald-300 border border-emerald-600/30 rounded px-2 py-1.5">
+                              <Crosshair className="w-3 h-3 flex-shrink-0" />
+                              <span className="truncate flex-1">{siScopeLabel}</span>
+                              <button
+                                type="button"
+                                onClick={() => { setSiScopeId(null); setSiScopeLabel(null) }}
+                                className="p-0.5 rounded hover:bg-emerald-600/20 transition-colors"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="relative">
+                              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" />
+                              <input
+                                type="text"
+                                value={siScopeQuery}
+                                onChange={e => { setSiScopeQuery(e.target.value); setSiScopeDropdownOpen(true) }}
+                                onFocus={() => setSiScopeDropdownOpen(true)}
+                                placeholder={`Search ${siScopeType}s for this lead...`}
+                                className="w-full text-[11px] bg-gray-900/80 text-gray-300 border border-gray-700/60 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-emerald-500/50 placeholder:text-gray-600"
+                              />
+                              {siScopeSearching && (
+                                <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 animate-spin" />
+                              )}
+                              <AnimatePresence>
+                                {siScopeDropdownOpen && !siScopeId && (
+                                  <motion.div
+                                    initial={{ opacity: 0, y: -4 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -4 }}
+                                    transition={{ duration: 0.1 }}
+                                    className="absolute left-0 right-0 top-full mt-1 max-h-[140px] overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50"
+                                  >
+                                    {siScopeEntities.length === 0 && !siScopeSearching && (
+                                      <div className="px-3 py-2 text-[11px] text-gray-500">
+                                        No {siScopeType}s found for this lead
+                                      </div>
+                                    )}
+                                    {siScopeEntities.map(entity => (
+                                      <button
+                                        key={entity.id}
+                                        type="button"
+                                        onClick={() => {
+                                          setSiScopeId(String(entity.id))
+                                          setSiScopeLabel(entity.label)
+                                          setSiScopeDropdownOpen(false)
+                                          setSiScopeQuery('')
+                                        }}
+                                        className="w-full text-left px-3 py-1.5 hover:bg-gray-800 transition-colors border-b border-gray-800/50 last:border-0"
+                                      >
+                                        <div className="text-[11px] text-gray-300 truncate">{entity.label}</div>
+                                        {entity.subtitle && (
+                                          <div className="text-[10px] text-gray-500 truncate">{entity.subtitle}</div>
+                                        )}
+                                      </button>
+                                    ))}
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+
                     <div className="flex justify-end gap-2">
                       <button
                         type="button"
@@ -3978,41 +4544,97 @@ function OutreachContent() {
                               </button>
                             )}
                             {!lead.do_not_contact && !lead.removed_at && (
-                              <button
-                                type="button"
-                                onClick={async () => {
-                                  const session = await getCurrentSession()
-                                  if (!session) return
-                                  setGenerateOutreachLoading(lead.id)
-                                  try {
-                                    const res = await fetch(`/api/admin/outreach/leads/${lead.id}/generate`, {
-                                      method: 'POST',
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                        Authorization: `Bearer ${session.access_token}`,
-                                      },
-                                    })
-                                    const data = await res.json()
-                                    if (res.ok && data.triggered) {
-                                      setGenerateOutreachToast(`Email generation started for ${lead.name}`)
-                                      setTimeout(() => setGenerateOutreachToast(null), 4000)
+                              <>
+                                <button
+                                  type="button"
+                                  title="Trigger n8n workflow (WF-CLG-002)"
+                                  onClick={async () => {
+                                    const session = await getCurrentSession()
+                                    if (!session) return
+                                    setGenerateOutreachLoading(lead.id)
+                                    try {
+                                      const res = await fetch(`/api/admin/outreach/leads/${lead.id}/generate`, {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          Authorization: `Bearer ${session.access_token}`,
+                                        },
+                                      })
+                                      const data = await res.json()
+                                      if (res.ok && data.triggered) {
+                                        setGenerateOutreachToast(`Email generation started for ${lead.name}`)
+                                        setTimeout(() => setGenerateOutreachToast(null), 4000)
+                                      }
+                                    } catch (err) {
+                                      console.error('Generate outreach failed:', err)
+                                    } finally {
+                                      setGenerateOutreachLoading(null)
                                     }
-                                  } catch (err) {
-                                    console.error('Generate outreach failed:', err)
-                                  } finally {
-                                    setGenerateOutreachLoading(null)
-                                  }
-                                }}
-                                disabled={generateOutreachLoading === lead.id}
-                                className="px-3 py-2 bg-emerald-900/30 hover:bg-emerald-800/50 text-emerald-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
-                              >
-                                {generateOutreachLoading === lead.id ? (
-                                  <Loader2 size={14} className="animate-spin" />
-                                ) : (
-                                  <Mail size={14} />
-                                )}
-                                Generate Email
-                              </button>
+                                  }}
+                                  disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
+                                  className="px-3 py-2 bg-emerald-900/30 hover:bg-emerald-800/50 text-emerald-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
+                                >
+                                  {generateOutreachLoading === lead.id ? (
+                                    <Loader2 size={14} className="animate-spin" />
+                                  ) : (
+                                    <Mail size={14} />
+                                  )}
+                                  Generate Email
+                                </button>
+                                <button
+                                  type="button"
+                                  title="Create draft in the app (OpenAI + Message Queue). No n8n."
+                                  onClick={async () => {
+                                    const session = await getCurrentSession()
+                                    if (!session) return
+                                    setGenerateInAppLoading(lead.id)
+                                    try {
+                                      const res = await fetch(
+                                        `/api/admin/outreach/leads/${lead.id}/generate-in-app`,
+                                        {
+                                          method: 'POST',
+                                          headers: {
+                                            'Content-Type': 'application/json',
+                                            Authorization: `Bearer ${session.access_token}`,
+                                          },
+                                          body: JSON.stringify({}),
+                                        }
+                                      )
+                                      const data = await res.json().catch(() => ({}))
+                                      if (res.ok && data.outcome === 'created') {
+                                        setGenerateOutreachToast(
+                                          `Draft saved for ${lead.name} — open Message Queue to review`
+                                        )
+                                        setTimeout(() => setGenerateOutreachToast(null), 6000)
+                                        await fetchData()
+                                      } else if (res.status === 409 && data.error) {
+                                        setGenerateOutreachToast(data.error)
+                                        setTimeout(() => setGenerateOutreachToast(null), 8000)
+                                      } else if (data.error) {
+                                        setGenerateOutreachToast(data.error)
+                                        setTimeout(() => setGenerateOutreachToast(null), 6000)
+                                      }
+                                    } catch (err) {
+                                      console.error('In-app generate failed:', err)
+                                      setGenerateOutreachToast(
+                                        'We could not create that draft. Please try again.'
+                                      )
+                                      setTimeout(() => setGenerateOutreachToast(null), 6000)
+                                    } finally {
+                                      setGenerateInAppLoading(null)
+                                    }
+                                  }}
+                                  disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
+                                  className="px-3 py-2 bg-violet-900/30 hover:bg-violet-800/50 text-violet-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
+                                >
+                                  {generateInAppLoading === lead.id ? (
+                                    <Loader2 size={14} className="animate-spin" />
+                                  ) : (
+                                    <Sparkles size={14} />
+                                  )}
+                                  Draft in app
+                                </button>
+                              </>
                             )}
                             <div className="relative shrink-0" id={`lead-actions-wrap-${lead.id}`}>
                               <button

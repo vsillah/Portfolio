@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect, useMemo } from 'react'
+import { useRef, useEffect, useMemo, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ChevronDown,
@@ -14,7 +14,10 @@ import {
   X,
   History,
   Play,
+  Crosshair,
+  Search,
 } from 'lucide-react'
+import { getCurrentSession } from '@/lib/auth'
 import type { ExtractionRun, ExtractionState } from '@/lib/hooks/useExtractionStatus'
 
 // ============================================================================
@@ -179,8 +182,7 @@ function estimateProgress(
     }
   }
 
-  // VEP002 without reported stages: show indeterminate bar during scrape phase
-  const isVep002NoReports = workflowId === 'vep002' && !hasReported
+  // Time-based fallback when n8n doesn't report individual stage progress
   const elapsedS = elapsedMs / 1000
   let currentLabel = stagesDef[0].label
   let stageIdx = 0
@@ -196,7 +198,6 @@ function estimateProgress(
 
   let progressPct: number
   if (useStageSegmentedBar) {
-    // Stage-weighted bar: fill tracks the active segment so label and % stay aligned
     const nextStart =
       stageIdx + 1 < stagesDef.length
         ? stagesDef[stageIdx + 1].startsAt
@@ -209,7 +210,6 @@ function estimateProgress(
     const span = (1 / stagesDef.length) * 88
     progressPct = Math.round(Math.min(94, Math.max(3, base + eased * span * 0.92)))
   } else {
-    // Asymptotic curve: approaches 90% at typicalDuration, never exceeds 95.
     const ratio = elapsedS / typicalDurationS
     const rawPct = 90 * (1 - Math.exp(-2 * ratio))
     progressPct = Math.max(2, Math.min(95, Math.round(rawPct)))
@@ -220,7 +220,7 @@ function estimateProgress(
     progressPct,
     stepIndex: stageIdx + 1,
     stepTotal,
-    indeterminate: isVep002NoReports,
+    indeterminate: false,
   }
 }
 
@@ -320,6 +320,8 @@ interface StatusChipProps {
    * Shown on the chip and in the detail drawer so users can separate this from in-workflow steps.
    */
   pipelinePhase?: { current: number; total: number }
+  /** When provided, shows a scope picker for targeted runs */
+  scopeEntitySelector?: ScopeEntitySelectorConfig
 }
 
 const DOT_COLORS: Record<ExtractionState, string> = {
@@ -392,6 +394,8 @@ function RunRow({ run }: { run: ExtractionRun }) {
       ? 'bg-red-400'
       : 'bg-amber-400'
 
+  const runLabel = run.scope_label || run.meeting_title || 'All data'
+
   return (
     <div className="flex items-center gap-2.5 py-1.5 text-xs">
       <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${dotColor}`} />
@@ -399,8 +403,13 @@ function RunRow({ run }: { run: ExtractionRun }) {
         {new Date(run.triggered_at).toLocaleDateString([], { month: 'numeric', day: 'numeric' })}{' '}
         {new Date(run.triggered_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
       </span>
-      <span className="text-gray-300 truncate flex-1 min-w-0">
-        {run.meeting_title || 'All meetings'}
+      <span className="text-gray-300 truncate flex-1 min-w-0 flex items-center gap-1">
+        {run.scope_type && (
+          <span className="text-[9px] uppercase tracking-wider text-emerald-400/70 bg-emerald-500/10 px-1 py-0.5 rounded flex-shrink-0">
+            Targeted
+          </span>
+        )}
+        {runLabel}
       </span>
       <span className="text-gray-500 flex-shrink-0">
         {run.items_inserted != null ? `${run.items_inserted} items` : '—'}
@@ -461,6 +470,232 @@ function SourceChecklist({ selected, onChange }: { selected: string[]; onChange:
     </div>
   )
 }
+
+// ============================================================================
+// Scope picker — targeted run entity selection
+// ============================================================================
+
+export type ScopeType = 'meeting' | 'assessment' | 'lead'
+
+export interface ScopeEntity {
+  id: string | number
+  label: string
+  subtitle: string | null
+}
+
+export interface ScopeEntitySelectorConfig {
+  scopeType: ScopeType | null
+  scopeId: string | null
+  scopeLabel: string | null
+  onScopeChange: (type: ScopeType | null, id: string | null, label: string | null) => void
+}
+
+const SCOPE_TYPES: { id: ScopeType; label: string }[] = [
+  { id: 'meeting', label: 'Meeting' },
+  { id: 'assessment', label: 'Assessment' },
+  { id: 'lead', label: 'Lead' },
+]
+
+function ScopeTypePicker({
+  selected,
+  onChange,
+}: {
+  selected: ScopeType | null
+  onChange: (t: ScopeType | null) => void
+}) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {SCOPE_TYPES.map(st => {
+        const active = selected === st.id
+        return (
+          <button
+            key={st.id}
+            type="button"
+            onClick={() => onChange(active ? null : st.id)}
+            className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
+              active
+                ? 'bg-emerald-600/20 text-emerald-300 border-emerald-600/40'
+                : 'bg-gray-900/60 text-gray-500 border-gray-700/50 hover:text-gray-300'
+            }`}
+          >
+            {st.label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function ScopeEntitySearch({
+  scopeType,
+  selectedId,
+  onSelect,
+}: {
+  scopeType: ScopeType
+  selectedId: string | null
+  onSelect: (id: string | null, label: string | null) => void
+}) {
+  const [query, setQuery] = useState('')
+  const [entities, setEntities] = useState<ScopeEntity[]>([])
+  const [loading, setLoading] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const fetchEntities = useCallback(async (q: string) => {
+    setLoading(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session) return
+      const params = new URLSearchParams({ type: scopeType })
+      if (q) params.set('q', q)
+      const res = await fetch(`/api/admin/value-evidence/scope-entities?${params}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setEntities(data.entities || [])
+      }
+    } catch {
+      // Silent
+    } finally {
+      setLoading(false)
+    }
+  }, [scopeType])
+
+  useEffect(() => {
+    fetchEntities('')
+  }, [fetchEntities])
+
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => fetchEntities(query), 300)
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  }, [query, fetchEntities])
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const selectedEntity = entities.find(e => String(e.id) === selectedId)
+
+  return (
+    <div className="relative" ref={containerRef}>
+      {selectedId && selectedEntity ? (
+        <div className="flex items-center gap-1.5 text-[11px] bg-emerald-600/10 text-emerald-300 border border-emerald-600/30 rounded px-2 py-1.5">
+          <Crosshair className="w-3 h-3 flex-shrink-0" />
+          <span className="truncate flex-1">{selectedEntity.label}</span>
+          <button
+            type="button"
+            onClick={() => onSelect(null, null)}
+            className="p-0.5 rounded hover:bg-emerald-600/20 transition-colors"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      ) : (
+        <div className="relative">
+          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" />
+          <input
+            type="text"
+            value={query}
+            onChange={e => { setQuery(e.target.value); setIsOpen(true) }}
+            onFocus={() => setIsOpen(true)}
+            placeholder={`Search ${scopeType}s...`}
+            className="w-full text-[11px] bg-gray-900/80 text-gray-300 border border-gray-700/60 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-emerald-500/50 placeholder:text-gray-600"
+          />
+          {loading && (
+            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 animate-spin" />
+          )}
+        </div>
+      )}
+
+      <AnimatePresence>
+        {isOpen && !selectedId && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.1 }}
+            className="absolute left-0 right-0 top-full mt-1 max-h-[160px] overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50"
+          >
+            {entities.length === 0 && !loading && (
+              <div className="px-3 py-2 text-[11px] text-gray-500">No {scopeType}s found</div>
+            )}
+            {entities.map(entity => (
+              <button
+                key={entity.id}
+                type="button"
+                onClick={() => {
+                  onSelect(String(entity.id), entity.label)
+                  setIsOpen(false)
+                  setQuery('')
+                }}
+                className="w-full text-left px-3 py-1.5 hover:bg-gray-800 transition-colors border-b border-gray-800/50 last:border-0"
+              >
+                <div className="text-[11px] text-gray-300 truncate">{entity.label}</div>
+                {entity.subtitle && (
+                  <div className="text-[10px] text-gray-500 truncate">{entity.subtitle}</div>
+                )}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
+
+function ScopePicker({
+  config,
+}: {
+  config: ScopeEntitySelectorConfig
+}) {
+  const [expanded, setExpanded] = useState(config.scopeType !== null)
+
+  return (
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="text-[11px] text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1.5"
+      >
+        <Crosshair className="w-3 h-3" />
+        {config.scopeType && config.scopeLabel
+          ? <span className="text-emerald-400">Targeted: {config.scopeLabel.substring(0, 40)}{config.scopeLabel.length > 40 ? '...' : ''}</span>
+          : 'Scope: All data (full sweep)'
+        }
+      </button>
+      {expanded && (
+        <div className="space-y-2">
+          <ScopeTypePicker
+            selected={config.scopeType}
+            onChange={type => {
+              config.onScopeChange(type, null, null)
+            }}
+          />
+          {config.scopeType && (
+            <ScopeEntitySearch
+              scopeType={config.scopeType}
+              selectedId={config.scopeId}
+              onSelect={(id, label) => config.onScopeChange(config.scopeType, id, label)}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// ============================================================================
+// Progress bar component
+// ============================================================================
 
 function PipelineProgressBar({
   progressPct,
@@ -540,6 +775,7 @@ export function ExtractionStatusChip({
   scopeSelector,
   sourceSelector,
   pipelinePhase,
+  scopeEntitySelector,
 }: StatusChipProps) {
   const chipRef = useRef<HTMLDivElement>(null)
   const drawerRef = useRef<HTMLDivElement>(null)
@@ -584,7 +820,10 @@ export function ExtractionStatusChip({
 
   const runningStageLabel = (state === 'running' || state === 'stale') ? currentStageLabel : undefined
 
-  const recentFailed = recentRuns.filter(r => r.status === 'failed')
+  /** Failed runs that can be retried via onRetryFailed (must match parent handlers that key off meeting_record_id). */
+  const recentFailedRetryable = recentRuns.filter(
+    r => r.status === 'failed' && r.meeting_record_id,
+  )
 
   return (
     <div className="relative" ref={chipRef}>
@@ -670,7 +909,13 @@ export function ExtractionStatusChip({
                         Last step{stepTotal > 0 ? ` (${stepIndex} of ${stepTotal})` : ''}: {currentStageLabel}
                       </p>
                     )}
-                    {currentRun.meeting_title && (
+                    {currentRun.scope_label && (
+                      <div className="text-[11px] text-emerald-400/80 mb-2 pl-6 flex items-center gap-1">
+                        <Crosshair className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate">{currentRun.scope_label}</span>
+                      </div>
+                    )}
+                    {!currentRun.scope_label && currentRun.meeting_title && (
                       <div className="text-xs text-gray-400 mb-3 truncate">{currentRun.meeting_title}</div>
                     )}
                     {/* VEP002: progress is shown only via step line + bar (no per-source checklist — avoids misleading empty circles). */}
@@ -733,6 +978,9 @@ export function ExtractionStatusChip({
                     </div>
                     {onRetry && (
                       <div className="mt-2 space-y-2">
+                        {scopeEntitySelector && (
+                          <ScopePicker config={scopeEntitySelector} />
+                        )}
                         {sourceSelector && (
                           <SourceChecklist selected={sourceSelector.selected} onChange={sourceSelector.onChange} />
                         )}
@@ -774,23 +1022,16 @@ export function ExtractionStatusChip({
                       </div>
                     )}
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        {currentRun.meeting_title && (
+                      {currentRun.meeting_title && (
+                        <div className="flex items-center gap-2">
                           <span className="text-xs text-gray-500 truncate flex-1">{currentRun.meeting_title}</span>
-                        )}
-                        {onRetryFailed && recentFailed.length > 0 && (
-                          <button
-                            onClick={onRetryFailed}
-                            className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-orange-600/20 text-orange-400 border border-orange-600/30 hover:bg-orange-600/30 transition-colors ml-auto"
-                            title={`Retry ${recentFailed.length} failed meeting(s)`}
-                          >
-                            <RotateCcw className="w-3 h-3" />
-                            Retry Failed ({recentFailed.length})
-                          </button>
-                        )}
-                      </div>
-                      {onRetry && (
+                        </div>
+                      )}
+                      {(onRetry || (onRetryFailed && recentFailedRetryable.length > 0)) && (
                         <>
+                          {scopeEntitySelector && (
+                            <ScopePicker config={scopeEntitySelector} />
+                          )}
                           {sourceSelector && (
                             <SourceChecklist selected={sourceSelector.selected} onChange={sourceSelector.onChange} />
                           )}
@@ -798,14 +1039,27 @@ export function ExtractionStatusChip({
                             {scopeSelector && (
                               <ScopeDropdown selected={scopeSelector.selected} onChange={scopeSelector.onChange} />
                             )}
-                            <button
-                              onClick={() => onRetry(scopeSelector?.selected)}
-                              className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600/30 transition-colors"
-                              title="Re-run the extraction"
-                            >
-                              <RotateCcw className="w-3 h-3" />
-                              Retry
-                            </button>
+                            {onRetryFailed && recentFailedRetryable.length > 0 ? (
+                              <button
+                                type="button"
+                                onClick={onRetryFailed}
+                                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-orange-600/20 text-orange-400 border border-orange-600/30 hover:bg-orange-600/30 transition-colors"
+                                title={`Retry ${recentFailedRetryable.length} failed meeting(s)`}
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                                Retry Failed ({recentFailedRetryable.length})
+                              </button>
+                            ) : onRetry ? (
+                              <button
+                                type="button"
+                                onClick={() => onRetry(scopeSelector?.selected)}
+                                className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1 rounded bg-blue-600/20 text-blue-400 border border-blue-600/30 hover:bg-blue-600/30 transition-colors"
+                                title="Re-run the extraction"
+                              >
+                                <RotateCcw className="w-3 h-3" />
+                                Retry
+                              </button>
+                            ) : null}
                           </div>
                         </>
                       )}
@@ -827,6 +1081,9 @@ export function ExtractionStatusChip({
                     </div>
                     {onRetry && (
                       <div className="mt-2 space-y-2">
+                        {scopeEntitySelector && (
+                          <ScopePicker config={scopeEntitySelector} />
+                        )}
                         {sourceSelector && (
                           <SourceChecklist selected={sourceSelector.selected} onChange={sourceSelector.onChange} />
                         )}
@@ -857,6 +1114,9 @@ export function ExtractionStatusChip({
                 </p>
                 {onRetry && (
                   <div className="space-y-2">
+                    {scopeEntitySelector && (
+                      <ScopePicker config={scopeEntitySelector} />
+                    )}
                     {sourceSelector && (
                       <SourceChecklist selected={sourceSelector.selected} onChange={sourceSelector.onChange} />
                     )}
@@ -1027,10 +1287,17 @@ function RunHistoryCard({ run }: { run: ExtractionRun }) {
         {new Date(run.triggered_at).toLocaleString([], {
           month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
         })}
-        {run.meeting_title && (
+        {run.scope_label ? (
+          <span className="ml-2 text-emerald-400/70">· {run.scope_label}</span>
+        ) : run.meeting_title ? (
           <span className="ml-2 text-gray-400">· {run.meeting_title}</span>
-        )}
+        ) : null}
       </div>
+      {run.scope_type && (
+        <span className="inline-block mt-1 text-[9px] uppercase tracking-wider text-emerald-400/70 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+          Targeted · {run.scope_type}
+        </span>
+      )}
       {run.error_message && (
         <div className="mt-1.5 text-xs text-red-400/70 line-clamp-2">
           {run.error_message}

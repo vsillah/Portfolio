@@ -7,10 +7,9 @@ import {
   Video,
   Loader2,
   RefreshCw,
-  Link2,
   Calendar,
   User,
-  Building,
+  Folder,
   FileText,
   Sparkles,
   Search,
@@ -19,6 +18,8 @@ import {
   MinusSquare,
   X,
   Plus,
+  Pencil,
+  Unlink,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -105,10 +106,13 @@ function MeetingsContent() {
   const [attributingInProgress, setAttributingInProgress] = useState(false)
   const [rowAuditMode, setRowAuditMode] = useState<'lead' | 'project'>('lead')
   const [rowAuditValue, setRowAuditValue] = useState('')
+  /** When false, row audit uses attributed lead/project only (no Lead/Project/search UI). */
+  const [rowAuditPickerOpen, setRowAuditPickerOpen] = useState(false)
   const [leadSearchQuery, setLeadSearchQuery] = useState('')
   const [projectSearchQuery, setProjectSearchQuery] = useState('')
   const [comboboxHighlightIdx, setComboboxHighlightIdx] = useState(-1)
   const comboboxInputRef = useRef<HTMLInputElement>(null)
+  const rowAuditInputRef = useRef<HTMLInputElement>(null)
 
   // Bulk action state (only shown when 2+ selected)
   const [bulkAction, setBulkAction] = useState<'attribute' | 'audit' | null>(null)
@@ -244,16 +248,41 @@ function MeetingsContent() {
     setBulkAuditValue('')
   }
 
-  const openRowAction = (meetingId: string, type: 'attribute' | 'audit') => {
+  const openRowAction = (
+    meetingId: string,
+    type: 'attribute' | 'audit',
+    opts?: { attributeSeedMode?: 'lead' | 'project' },
+  ) => {
     setRowActionId(meetingId)
     setRowActionType(type)
-    setAttributeMode('lead')
+    setAttributeMode(opts?.attributeSeedMode ?? 'lead')
     setAttributeValue('')
-    setRowAuditMode('lead')
-    setRowAuditValue('')
     setLeadSearchQuery('')
     setProjectSearchQuery('')
     setComboboxHighlightIdx(-1)
+
+    if (type === 'audit') {
+      const row = meetings.find((x) => x.id === meetingId)
+      const hasLead = row?.contact_submission_id != null
+      const hasProject = !!row?.client_project_id
+      if (hasLead) {
+        setRowAuditMode('lead')
+        setRowAuditValue(String(row!.contact_submission_id))
+        setRowAuditPickerOpen(false)
+      } else if (hasProject) {
+        setRowAuditMode('project')
+        setRowAuditValue(row!.client_project_id as string)
+        setRowAuditPickerOpen(false)
+      } else {
+        setRowAuditMode('lead')
+        setRowAuditValue('')
+        setRowAuditPickerOpen(true)
+      }
+    } else {
+      setRowAuditMode('lead')
+      setRowAuditValue('')
+      setRowAuditPickerOpen(false)
+    }
   }
 
   const handleClearAttribution = async (meetingId: string) => {
@@ -346,12 +375,32 @@ function MeetingsContent() {
       }
       setBuildAuditSuccess({ auditId: data.auditId, meetingsUsed: data.meetingsUsed ?? 0 })
       setRowActionId(null)
+      setRowAuditPickerOpen(false)
+      setRowAuditValue('')
     } catch {
       setBuildAuditError('Something went wrong. Please try again.')
     } finally {
       setBuildAuditInProgress(false)
     }
   }
+
+  const dismissRowAttributeForm = useCallback(() => {
+    setRowActionId(null)
+    setAttributeValue('')
+    setLeadSearchQuery('')
+    setProjectSearchQuery('')
+    setComboboxHighlightIdx(-1)
+  }, [])
+
+  const dismissRowAuditForm = useCallback(() => {
+    setRowActionId(null)
+    setRowAuditValue('')
+    setRowAuditPickerOpen(false)
+    setLeadSearchQuery('')
+    setProjectSearchQuery('')
+    setComboboxHighlightIdx(-1)
+    setBuildAuditError(null)
+  }, [])
 
   // Bulk attribute
   const handleBulkAttribute = async () => {
@@ -715,7 +764,7 @@ function MeetingsContent() {
                     <th className="px-4 py-3 font-medium">Date / Type</th>
                     <th className="px-4 py-3 font-medium">Summary / Transcript</th>
                     <th className="px-4 py-3 font-medium">Attributed to</th>
-                    <th className="px-4 py-3 font-medium w-44">Actions</th>
+                    <th className="px-4 py-3 font-medium min-w-[168px]">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-800">
@@ -782,20 +831,39 @@ function MeetingsContent() {
                             )}
                           </td>
 
-                          {/* Attributed to */}
-                          <td className="px-4 py-3 align-top">
+                          {/* Attributed to — single source of truth for identity (Actions stay verb-only) */}
+                          <td className="px-4 py-3 align-top max-w-[260px]">
                             {m.contact_submission_id ? (
-                              <div className="flex items-center gap-1.5 text-violet-400">
-                                <Link2 size={12} />
-                                <span>{m.lead_name ?? 'Lead'}</span>
-                                {m.lead_email && (
-                                  <span className="text-gray-500 text-xs">({m.lead_email})</span>
-                                )}
+                              <div
+                                className="min-w-0"
+                                title={[m.lead_name, m.lead_email].filter(Boolean).join(' · ') || undefined}
+                              >
+                                <div className="flex items-start gap-1.5 text-violet-400 min-w-0">
+                                  <User size={12} className="shrink-0 mt-0.5" aria-hidden />
+                                  <span className="truncate font-medium">{m.lead_name ?? 'Lead'}</span>
+                                </div>
+                                {m.lead_email ? (
+                                  <p className="text-gray-500 text-xs truncate mt-0.5 pl-[18px]">{m.lead_email}</p>
+                                ) : null}
                               </div>
                             ) : m.client_project_id ? (
-                              <div className="flex items-center gap-1.5 text-gray-400">
-                                <Building size={12} />
-                                {m.client_name || m.project_name || 'Project'}
+                              <div
+                                className="min-w-0"
+                                title={[m.client_name, m.project_name].filter(Boolean).join(' · ') || undefined}
+                              >
+                                <div className="flex items-start gap-1.5 text-gray-400 min-w-0">
+                                  <Folder size={12} className="shrink-0 mt-0.5 text-amber-500/80" aria-hidden />
+                                  <span className="truncate font-medium">
+                                    {m.client_name || m.project_name || 'Project'}
+                                  </span>
+                                </div>
+                                {m.client_name &&
+                                m.project_name &&
+                                m.project_name !== m.client_name ? (
+                                  <p className="text-gray-500 text-xs truncate mt-0.5 pl-[18px]">
+                                    {m.project_name}
+                                  </p>
+                                ) : null}
                               </div>
                             ) : (
                               <span className="text-gray-600 text-xs">—</span>
@@ -805,10 +873,31 @@ function MeetingsContent() {
                           {/* Actions */}
                           <td className="px-4 py-3 align-top">
                             {rowActionId === m.id && rowActionType === 'attribute' ? (
-                              <div className="flex flex-col gap-2">
+                              <div className="flex flex-col gap-2 min-w-[220px]">
+                                <div className="flex items-center justify-between gap-2 pb-2 border-b border-gray-700/80">
+                                  <p className="text-xs font-semibold text-violet-200 min-w-0 pr-1">
+                                    Change attribution
+                                  </p>
+                                  <button
+                                    type="button"
+                                    onClick={dismissRowAttributeForm}
+                                    className="shrink-0 p-1 rounded-md text-gray-500 hover:text-gray-200 hover:bg-gray-700"
+                                    aria-label="Close without saving changes"
+                                    title="Close"
+                                  >
+                                    <X size={14} aria-hidden />
+                                  </button>
+                                </div>
                                 <div className="flex gap-1">
                                   <button
-                                    onClick={() => { setAttributeMode('lead'); setLeadSearchQuery(''); setProjectSearchQuery(''); setComboboxHighlightIdx(-1) }}
+                                    type="button"
+                                    onClick={() => {
+                                      setAttributeMode('lead')
+                                      setAttributeValue('')
+                                      setLeadSearchQuery('')
+                                      setProjectSearchQuery('')
+                                      setComboboxHighlightIdx(-1)
+                                    }}
                                     className={`px-2 py-0.5 rounded text-xs ${
                                       attributeMode === 'lead'
                                         ? 'bg-violet-600 text-white'
@@ -818,7 +907,14 @@ function MeetingsContent() {
                                     Lead
                                   </button>
                                   <button
-                                    onClick={() => { setAttributeMode('project'); setLeadSearchQuery(''); setProjectSearchQuery(''); setComboboxHighlightIdx(-1) }}
+                                    type="button"
+                                    onClick={() => {
+                                      setAttributeMode('project')
+                                      setAttributeValue('')
+                                      setLeadSearchQuery('')
+                                      setProjectSearchQuery('')
+                                      setComboboxHighlightIdx(-1)
+                                    }}
                                     className={`px-2 py-0.5 rounded text-xs ${
                                       attributeMode === 'project'
                                         ? 'bg-violet-600 text-white'
@@ -828,94 +924,184 @@ function MeetingsContent() {
                                     Project
                                   </button>
                                 </div>
-                                <div className="relative">
-                                  <div className="flex items-center gap-1 rounded bg-gray-800 border border-gray-700 px-2 py-1">
-                                    <Search size={12} className="text-gray-500 shrink-0" />
-                                    <input
-                                      ref={comboboxInputRef}
-                                      type="text"
-                                      value={attributeMode === 'lead' ? leadSearchQuery : projectSearchQuery}
-                                      onChange={(e) => {
-                                        if (attributeMode === 'lead') setLeadSearchQuery(e.target.value)
-                                        else setProjectSearchQuery(e.target.value)
-                                        setComboboxHighlightIdx(-1)
-                                      }}
-                                      onKeyDown={(e) => {
-                                        const items = attributeMode === 'lead' ? filteredLeadOptions : filteredProjectOptions
-                                        if (e.key === 'ArrowDown') {
-                                          e.preventDefault()
-                                          setComboboxHighlightIdx((prev) => Math.min(prev + 1, items.length - 1))
-                                        } else if (e.key === 'ArrowUp') {
-                                          e.preventDefault()
-                                          setComboboxHighlightIdx((prev) => Math.max(prev - 1, -1))
-                                        } else if (e.key === 'Enter' && comboboxHighlightIdx >= 0) {
-                                          e.preventDefault()
-                                          if (attributeMode === 'lead') {
-                                            const lead = filteredLeadOptions[comboboxHighlightIdx]
-                                            if (lead) setAttributeValue(String(lead.id))
-                                          } else {
-                                            const proj = filteredProjectOptions[comboboxHighlightIdx]
-                                            if (proj) setAttributeValue(proj.id)
-                                          }
-                                        } else if (e.key === 'Escape') {
-                                          setRowActionId(null); setAttributeValue('')
-                                        }
-                                      }}
-                                      placeholder={attributeMode === 'lead' ? 'Search leads...' : 'Search projects...'}
-                                      className="bg-transparent text-xs text-gray-200 placeholder-gray-500 outline-none w-full"
-                                      autoFocus
-                                    />
-                                  </div>
-                                  <div className="absolute z-20 mt-1 w-full rounded bg-gray-800 border border-gray-700 shadow-lg flex flex-col max-h-56">
-                                    <ul className="overflow-y-auto flex-1 py-1">
-                                      {(attributeMode === 'lead' ? filteredLeadOptions : filteredProjectOptions).length === 0 ? (
-                                        <li className="px-2 py-2 text-xs text-gray-500">
-                                          No {attributeMode === 'lead' ? 'leads' : 'projects'} match &ldquo;{attributeMode === 'lead' ? leadSearchQuery : projectSearchQuery}&rdquo;
-                                        </li>
-                                      ) : attributeMode === 'lead' ? (
-                                        filteredLeadOptions.map((l, idx) => (
-                                          <li
-                                            key={l.id}
-                                            onClick={() => setAttributeValue(String(l.id))}
-                                            onMouseEnter={() => setComboboxHighlightIdx(idx)}
-                                            className={`px-2 py-1.5 text-xs text-gray-200 cursor-pointer ${comboboxHighlightIdx === idx ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
-                                          >
-                                            {l.name}
-                                            {l.email && <span className="text-gray-500 ml-1">({l.email})</span>}
-                                          </li>
-                                        ))
+                                {attributeValue ? (
+                                  <div className="rounded-lg bg-gray-800 border border-gray-700 px-2.5 py-2 flex items-start gap-2">
+                                    <div className="min-w-0 flex-1">
+                                      {attributeMode === 'lead' ? (
+                                        <>
+                                          <div className="flex items-center gap-1 text-xs text-violet-300">
+                                            <User size={12} className="shrink-0" />
+                                            <span className="font-medium truncate">
+                                              {leadOptions.find((l) => String(l.id) === attributeValue)?.name ?? attributeValue}
+                                            </span>
+                                          </div>
+                                          {leadOptions.find((l) => String(l.id) === attributeValue)?.email && (
+                                            <p className="text-[11px] text-gray-500 truncate mt-0.5 pl-4">
+                                              {leadOptions.find((l) => String(l.id) === attributeValue)?.email}
+                                            </p>
+                                          )}
+                                        </>
                                       ) : (
-                                        filteredProjectOptions.map((p, idx) => (
-                                          <li
-                                            key={p.id}
-                                            onClick={() => setAttributeValue(p.id)}
-                                            onMouseEnter={() => setComboboxHighlightIdx(idx)}
-                                            className={`px-2 py-1.5 text-xs text-gray-200 cursor-pointer ${comboboxHighlightIdx === idx ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
-                                          >
-                                            {p.client_name || p.project_name || p.id}
-                                          </li>
-                                        ))
+                                        <div className="flex items-center gap-1 text-xs text-gray-200">
+                                          <Folder size={12} className="shrink-0 text-amber-500/70" />
+                                          <span className="font-medium truncate">
+                                            {projectOptions.find((p) => p.id === attributeValue)?.client_name ||
+                                              projectOptions.find((p) => p.id === attributeValue)?.project_name ||
+                                              attributeValue}
+                                          </span>
+                                        </div>
                                       )}
-                                    </ul>
-                                    {attributeMode === 'lead' && (
-                                      <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
-                                        <button
-                                          type="button"
-                                          onClick={() => navigateToCreateLead()}
-                                          className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
-                                        >
-                                          <Plus size={12} /> Create new lead...
-                                        </button>
-                                      </div>
-                                    )}
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setAttributeValue('')
+                                        setLeadSearchQuery('')
+                                        setProjectSearchQuery('')
+                                        setComboboxHighlightIdx(-1)
+                                        setTimeout(() => comboboxInputRef.current?.focus(), 0)
+                                      }}
+                                      className="text-xs text-violet-400 hover:text-violet-300 shrink-0"
+                                    >
+                                      Change
+                                    </button>
                                   </div>
-                                </div>
-                                {attributeValue && (
-                                  <div className="text-xs text-violet-300 flex items-center gap-1">
-                                    <User size={10} />
-                                    Selected: {attributeMode === 'lead'
-                                      ? leadOptions.find(l => String(l.id) === attributeValue)?.name || attributeValue
-                                      : projectOptions.find(p => p.id === attributeValue)?.client_name || attributeValue}
+                                ) : (
+                                  <div className="relative">
+                                    <div className="flex items-center gap-1 rounded bg-gray-800 border border-gray-700 px-2 py-1">
+                                      <Search size={12} className="text-gray-500 shrink-0" />
+                                      <input
+                                        ref={comboboxInputRef}
+                                        type="text"
+                                        value={attributeMode === 'lead' ? leadSearchQuery : projectSearchQuery}
+                                        onChange={(e) => {
+                                          if (attributeMode === 'lead') setLeadSearchQuery(e.target.value)
+                                          else setProjectSearchQuery(e.target.value)
+                                          setComboboxHighlightIdx(-1)
+                                        }}
+                                        onKeyDown={(e) => {
+                                          const items = attributeMode === 'lead' ? filteredLeadOptions : filteredProjectOptions
+                                          if (e.key === 'ArrowDown') {
+                                            e.preventDefault()
+                                            setComboboxHighlightIdx((prev) => Math.min(prev + 1, items.length - 1))
+                                          } else if (e.key === 'ArrowUp') {
+                                            e.preventDefault()
+                                            setComboboxHighlightIdx((prev) => Math.max(prev - 1, -1))
+                                          } else if (e.key === 'Enter' && comboboxHighlightIdx >= 0) {
+                                            e.preventDefault()
+                                            if (attributeMode === 'lead') {
+                                              const lead = filteredLeadOptions[comboboxHighlightIdx]
+                                              if (lead) setAttributeValue(String(lead.id))
+                                            } else {
+                                              const proj = filteredProjectOptions[comboboxHighlightIdx]
+                                              if (proj) setAttributeValue(proj.id)
+                                            }
+                                          } else if (e.key === 'Escape') {
+                                            dismissRowAttributeForm()
+                                          }
+                                        }}
+                                        placeholder={attributeMode === 'lead' ? 'Search leads...' : 'Search projects...'}
+                                        className="bg-transparent text-xs text-gray-200 placeholder-gray-500 outline-none w-full"
+                                        autoFocus
+                                      />
+                                    </div>
+                                    <div className="absolute z-20 mt-1 w-full rounded bg-gray-800 border border-gray-700 shadow-lg flex flex-col max-h-56">
+                                      <ul className="overflow-y-auto flex-1 py-1">
+                                        {(attributeMode === 'lead' ? filteredLeadOptions : filteredProjectOptions).length === 0 ? (
+                                          <li className="px-2 py-2 text-xs text-gray-500">
+                                            No {attributeMode === 'lead' ? 'leads' : 'projects'} match &ldquo;{attributeMode === 'lead' ? leadSearchQuery : projectSearchQuery}&rdquo;
+                                          </li>
+                                        ) : attributeMode === 'lead' ? (
+                                          filteredLeadOptions.map((l, idx) => {
+                                            const isCurrentAttributed =
+                                              m.contact_submission_id != null && l.id === m.contact_submission_id
+                                            const isKbHighlight = comboboxHighlightIdx === idx
+                                            return (
+                                              <li
+                                                key={l.id}
+                                                onClick={() => setAttributeValue(String(l.id))}
+                                                onMouseEnter={() => setComboboxHighlightIdx(idx)}
+                                                className={`px-2 py-1.5 text-xs text-gray-200 cursor-pointer border-l-2 flex items-center justify-between gap-2 ${
+                                                  isCurrentAttributed
+                                                    ? 'border-violet-500 bg-violet-950/45'
+                                                    : 'border-transparent'
+                                                } ${
+                                                  isKbHighlight
+                                                    ? isCurrentAttributed
+                                                      ? 'bg-violet-900/55'
+                                                      : 'bg-gray-700'
+                                                    : ''
+                                                } ${
+                                                  !isKbHighlight && !isCurrentAttributed ? 'hover:bg-gray-700' : ''
+                                                } ${
+                                                  !isKbHighlight && isCurrentAttributed ? 'hover:bg-violet-900/50' : ''
+                                                }`}
+                                              >
+                                                <span className="min-w-0">
+                                                  <span className="font-medium">{l.name}</span>
+                                                  {l.email && (
+                                                    <span className="text-gray-500 ml-1">({l.email})</span>
+                                                  )}
+                                                </span>
+                                                {isCurrentAttributed ? (
+                                                  <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-violet-400">
+                                                    Current
+                                                  </span>
+                                                ) : null}
+                                              </li>
+                                            )
+                                          })
+                                        ) : (
+                                          filteredProjectOptions.map((p, idx) => {
+                                            const isCurrentAttributed =
+                                              m.client_project_id != null && p.id === m.client_project_id
+                                            const isKbHighlight = comboboxHighlightIdx === idx
+                                            return (
+                                              <li
+                                                key={p.id}
+                                                onClick={() => setAttributeValue(p.id)}
+                                                onMouseEnter={() => setComboboxHighlightIdx(idx)}
+                                                className={`px-2 py-1.5 text-xs text-gray-200 cursor-pointer border-l-2 flex items-center justify-between gap-2 ${
+                                                  isCurrentAttributed
+                                                    ? 'border-amber-500/80 bg-amber-950/25'
+                                                    : 'border-transparent'
+                                                } ${
+                                                  isKbHighlight
+                                                    ? isCurrentAttributed
+                                                      ? 'bg-amber-950/40'
+                                                      : 'bg-gray-700'
+                                                    : ''
+                                                } ${
+                                                  !isKbHighlight && !isCurrentAttributed ? 'hover:bg-gray-700' : ''
+                                                } ${
+                                                  !isKbHighlight && isCurrentAttributed ? 'hover:bg-amber-950/35' : ''
+                                                }`}
+                                              >
+                                                <span className="min-w-0 truncate">
+                                                  {p.client_name || p.project_name || p.id}
+                                                </span>
+                                                {isCurrentAttributed ? (
+                                                  <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-amber-400/90">
+                                                    Current
+                                                  </span>
+                                                ) : null}
+                                              </li>
+                                            )
+                                          })
+                                        )}
+                                      </ul>
+                                      {attributeMode === 'lead' && (
+                                        <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
+                                          <button
+                                            type="button"
+                                            onClick={() => navigateToCreateLead()}
+                                            className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
+                                          >
+                                            <Plus size={12} /> Create new lead...
+                                          </button>
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
                                 )}
                                 <div className="flex gap-1">
@@ -927,7 +1113,8 @@ function MeetingsContent() {
                                     {attributingInProgress ? '...' : 'Save'}
                                   </button>
                                   <button
-                                    onClick={() => { setRowActionId(null); setAttributeValue(''); setLeadSearchQuery(''); setProjectSearchQuery('') }}
+                                    type="button"
+                                    onClick={dismissRowAttributeForm}
                                     className="py-1 px-2 rounded text-xs bg-gray-700 text-gray-300 hover:bg-gray-600"
                                   >
                                     Cancel
@@ -935,120 +1122,261 @@ function MeetingsContent() {
                                 </div>
                               </div>
                             ) : rowActionId === m.id && rowActionType === 'audit' ? (
-                              <div className="flex flex-col gap-2">
-                                <div className="flex gap-1">
+                              <div className="flex flex-col gap-2 min-w-[220px]">
+                                <div className="flex items-center justify-between gap-2 pb-2 border-b border-gray-700/80">
+                                  <p className="text-xs font-semibold text-emerald-200 min-w-0 pr-1">
+                                    Build diagnostic audit
+                                  </p>
                                   <button
-                                    onClick={() => setRowAuditMode('lead')}
-                                    className={`px-2 py-0.5 rounded text-xs ${
-                                      rowAuditMode === 'lead'
-                                        ? 'bg-emerald-600 text-white'
-                                        : 'bg-gray-800 text-gray-400'
-                                    }`}
+                                    type="button"
+                                    onClick={dismissRowAuditForm}
+                                    className="shrink-0 p-1 rounded-md text-gray-500 hover:text-gray-200 hover:bg-gray-700"
+                                    aria-label="Close without building audit"
+                                    title="Close"
                                   >
-                                    Lead
-                                  </button>
-                                  <button
-                                    onClick={() => setRowAuditMode('project')}
-                                    className={`px-2 py-0.5 rounded text-xs ${
-                                      rowAuditMode === 'project'
-                                        ? 'bg-emerald-600 text-white'
-                                        : 'bg-gray-800 text-gray-400'
-                                    }`}
-                                  >
-                                    Project
+                                    <X size={14} aria-hidden />
                                   </button>
                                 </div>
-                                <div className="relative">
-                                  <div className="flex items-center gap-1 rounded bg-gray-800 border border-gray-700 px-2 py-1">
-                                    <Search size={12} className="text-gray-500 shrink-0" />
-                                    <input
-                                      type="text"
-                                      value={rowAuditMode === 'lead' ? leadSearchQuery : projectSearchQuery}
-                                      onChange={(e) => {
-                                        if (rowAuditMode === 'lead') setLeadSearchQuery(e.target.value)
-                                        else setProjectSearchQuery(e.target.value)
-                                        setComboboxHighlightIdx(-1)
-                                      }}
-                                      onKeyDown={(e) => {
-                                        const items = rowAuditMode === 'lead' ? filteredLeadOptions : filteredProjectOptions
-                                        if (e.key === 'ArrowDown') {
-                                          e.preventDefault()
-                                          setComboboxHighlightIdx((prev) => Math.min(prev + 1, items.length - 1))
-                                        } else if (e.key === 'ArrowUp') {
-                                          e.preventDefault()
-                                          setComboboxHighlightIdx((prev) => Math.max(prev - 1, -1))
-                                        } else if (e.key === 'Enter' && comboboxHighlightIdx >= 0) {
-                                          e.preventDefault()
-                                          if (rowAuditMode === 'lead') {
-                                            const lead = filteredLeadOptions[comboboxHighlightIdx]
-                                            if (lead) setRowAuditValue(String(lead.id))
-                                          } else {
-                                            const proj = filteredProjectOptions[comboboxHighlightIdx]
-                                            if (proj) setRowAuditValue(proj.id)
-                                          }
-                                        } else if (e.key === 'Escape') {
-                                          setRowActionId(null); setRowAuditValue('')
-                                        }
-                                      }}
-                                      placeholder={rowAuditMode === 'lead' ? 'Search leads...' : 'Search projects...'}
-                                      className="bg-transparent text-xs text-gray-200 placeholder-gray-500 outline-none w-full"
-                                      autoFocus
-                                    />
-                                  </div>
-                                  <div className="absolute z-20 mt-1 w-full rounded bg-gray-800 border border-gray-700 shadow-lg flex flex-col max-h-56">
-                                    <ul className="overflow-y-auto flex-1 py-1">
-                                      {(rowAuditMode === 'lead' ? filteredLeadOptions : filteredProjectOptions).length === 0 ? (
-                                        <li className="px-2 py-2 text-xs text-gray-500">
-                                          No {rowAuditMode === 'lead' ? 'leads' : 'projects'} match &ldquo;{rowAuditMode === 'lead' ? leadSearchQuery : projectSearchQuery}&rdquo;
-                                        </li>
-                                      ) : rowAuditMode === 'lead' ? (
-                                        filteredLeadOptions.map((l, idx) => (
-                                          <li
-                                            key={l.id}
-                                            onClick={() => setRowAuditValue(String(l.id))}
-                                            onMouseEnter={() => setComboboxHighlightIdx(idx)}
-                                            className={`px-2 py-1.5 text-xs text-gray-200 cursor-pointer ${comboboxHighlightIdx === idx ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
-                                          >
-                                            {l.name}
-                                            {l.email && <span className="text-gray-500 ml-1">({l.email})</span>}
-                                          </li>
-                                        ))
+
+                                {!rowAuditPickerOpen && rowAuditValue ? (
+                                  <>
+                                    <div className="rounded-lg bg-gray-800 border border-gray-700 px-2.5 py-2">
+                                      {rowAuditMode === 'lead' ? (
+                                        <>
+                                          <div className="flex items-center gap-1 text-xs text-emerald-300">
+                                            <User size={12} className="shrink-0" aria-hidden />
+                                            <span className="font-medium truncate">
+                                              {leadOptions.find((l) => String(l.id) === rowAuditValue)?.name ??
+                                                m.lead_name ??
+                                                rowAuditValue}
+                                            </span>
+                                          </div>
+                                          {(leadOptions.find((l) => String(l.id) === rowAuditValue)?.email ||
+                                            m.lead_email) && (
+                                            <p className="text-[11px] text-gray-500 truncate mt-0.5 pl-4">
+                                              {leadOptions.find((l) => String(l.id) === rowAuditValue)?.email ??
+                                                m.lead_email}
+                                            </p>
+                                          )}
+                                        </>
                                       ) : (
-                                        filteredProjectOptions.map((p, idx) => (
-                                          <li
-                                            key={p.id}
-                                            onClick={() => setRowAuditValue(p.id)}
-                                            onMouseEnter={() => setComboboxHighlightIdx(idx)}
-                                            className={`px-2 py-1.5 text-xs text-gray-200 cursor-pointer ${comboboxHighlightIdx === idx ? 'bg-gray-700' : 'hover:bg-gray-700'}`}
-                                          >
-                                            {p.client_name || p.project_name || p.id}
-                                          </li>
-                                        ))
+                                        <div className="flex items-center gap-1 text-xs text-gray-200">
+                                          <Folder size={12} className="shrink-0 text-amber-500/70" aria-hidden />
+                                          <span className="font-medium truncate">
+                                            {projectOptions.find((p) => p.id === rowAuditValue)?.client_name ||
+                                              projectOptions.find((p) => p.id === rowAuditValue)?.project_name ||
+                                              m.client_name ||
+                                              m.project_name ||
+                                              rowAuditValue}
+                                          </span>
+                                        </div>
                                       )}
-                                    </ul>
-                                    {rowAuditMode === 'lead' && (
-                                      <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setRowAuditPickerOpen(true)
+                                        setRowAuditValue('')
+                                        setLeadSearchQuery('')
+                                        setProjectSearchQuery('')
+                                        setComboboxHighlightIdx(-1)
+                                        setTimeout(() => rowAuditInputRef.current?.focus(), 0)
+                                      }}
+                                      className="text-left text-[10px] text-gray-500 hover:text-emerald-400 transition-colors"
+                                      aria-label="Pick a different lead or project for this audit"
+                                    >
+                                      Change target
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <div className="flex gap-1">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setRowAuditMode('lead')
+                                          setRowAuditValue('')
+                                          setLeadSearchQuery('')
+                                          setProjectSearchQuery('')
+                                          setComboboxHighlightIdx(-1)
+                                        }}
+                                        className={`px-2 py-0.5 rounded text-xs ${
+                                          rowAuditMode === 'lead'
+                                            ? 'bg-emerald-600 text-white'
+                                            : 'bg-gray-800 text-gray-400'
+                                        }`}
+                                      >
+                                        Lead
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setRowAuditMode('project')
+                                          setRowAuditValue('')
+                                          setLeadSearchQuery('')
+                                          setProjectSearchQuery('')
+                                          setComboboxHighlightIdx(-1)
+                                        }}
+                                        className={`px-2 py-0.5 rounded text-xs ${
+                                          rowAuditMode === 'project'
+                                            ? 'bg-emerald-600 text-white'
+                                            : 'bg-gray-800 text-gray-400'
+                                        }`}
+                                      >
+                                        Project
+                                      </button>
+                                    </div>
+                                    {rowAuditValue ? (
+                                      <div className="rounded-lg bg-gray-800 border border-gray-700 px-2.5 py-2 flex items-start gap-2">
+                                        <div className="min-w-0 flex-1">
+                                          {rowAuditMode === 'lead' ? (
+                                            <>
+                                              <div className="flex items-center gap-1 text-xs text-emerald-300">
+                                                <User size={12} className="shrink-0" />
+                                                <span className="font-medium truncate">
+                                                  {leadOptions.find((l) => String(l.id) === rowAuditValue)?.name ??
+                                                    rowAuditValue}
+                                                </span>
+                                              </div>
+                                              {leadOptions.find((l) => String(l.id) === rowAuditValue)?.email && (
+                                                <p className="text-[11px] text-gray-500 truncate mt-0.5 pl-4">
+                                                  {leadOptions.find((l) => String(l.id) === rowAuditValue)?.email}
+                                                </p>
+                                              )}
+                                            </>
+                                          ) : (
+                                            <div className="flex items-center gap-1 text-xs text-gray-200">
+                                              <Folder size={12} className="shrink-0 text-amber-500/70" />
+                                              <span className="font-medium truncate">
+                                                {projectOptions.find((p) => p.id === rowAuditValue)?.client_name ||
+                                                  projectOptions.find((p) => p.id === rowAuditValue)?.project_name ||
+                                                  rowAuditValue}
+                                              </span>
+                                            </div>
+                                          )}
+                                        </div>
                                         <button
                                           type="button"
-                                          onClick={() => navigateToCreateLead()}
-                                          className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
+                                          onClick={() => {
+                                            setRowAuditValue('')
+                                            setLeadSearchQuery('')
+                                            setProjectSearchQuery('')
+                                            setComboboxHighlightIdx(-1)
+                                            setTimeout(() => rowAuditInputRef.current?.focus(), 0)
+                                          }}
+                                          className="text-xs text-emerald-400 hover:text-emerald-300 shrink-0"
                                         >
-                                          <Plus size={12} /> Create new lead...
+                                          Change
                                         </button>
                                       </div>
+                                    ) : (
+                                      <div className="relative">
+                                        <div className="flex items-center gap-1 rounded bg-gray-800 border border-gray-700 px-2 py-1">
+                                          <Search size={12} className="text-gray-500 shrink-0" />
+                                          <input
+                                            ref={rowAuditInputRef}
+                                            type="text"
+                                            value={rowAuditMode === 'lead' ? leadSearchQuery : projectSearchQuery}
+                                            onChange={(e) => {
+                                              if (rowAuditMode === 'lead') setLeadSearchQuery(e.target.value)
+                                              else setProjectSearchQuery(e.target.value)
+                                              setComboboxHighlightIdx(-1)
+                                            }}
+                                            onKeyDown={(e) => {
+                                              const items =
+                                                rowAuditMode === 'lead'
+                                                  ? filteredLeadOptions
+                                                  : filteredProjectOptions
+                                              if (e.key === 'ArrowDown') {
+                                                e.preventDefault()
+                                                setComboboxHighlightIdx((prev) =>
+                                                  Math.min(prev + 1, items.length - 1),
+                                                )
+                                              } else if (e.key === 'ArrowUp') {
+                                                e.preventDefault()
+                                                setComboboxHighlightIdx((prev) => Math.max(prev - 1, -1))
+                                              } else if (e.key === 'Enter' && comboboxHighlightIdx >= 0) {
+                                                e.preventDefault()
+                                                if (rowAuditMode === 'lead') {
+                                                  const lead = filteredLeadOptions[comboboxHighlightIdx]
+                                                  if (lead) setRowAuditValue(String(lead.id))
+                                                } else {
+                                                  const proj = filteredProjectOptions[comboboxHighlightIdx]
+                                                  if (proj) setRowAuditValue(proj.id)
+                                                }
+                                              } else if (e.key === 'Escape') {
+                                                dismissRowAuditForm()
+                                              }
+                                            }}
+                                            placeholder={
+                                              rowAuditMode === 'lead' ? 'Search leads...' : 'Search projects...'
+                                            }
+                                            className="bg-transparent text-xs text-gray-200 placeholder-gray-500 outline-none w-full"
+                                            autoFocus
+                                          />
+                                        </div>
+                                        <div className="absolute z-20 mt-1 w-full rounded bg-gray-800 border border-gray-700 shadow-lg flex flex-col max-h-56">
+                                          <ul className="overflow-y-auto flex-1 py-1">
+                                            {(rowAuditMode === 'lead'
+                                              ? filteredLeadOptions
+                                              : filteredProjectOptions
+                                            ).length === 0 ? (
+                                              <li className="px-2 py-2 text-xs text-gray-500">
+                                                No {rowAuditMode === 'lead' ? 'leads' : 'projects'} match &ldquo;
+                                                {rowAuditMode === 'lead' ? leadSearchQuery : projectSearchQuery}
+                                                &rdquo;
+                                              </li>
+                                            ) : rowAuditMode === 'lead' ? (
+                                              filteredLeadOptions.map((l, idx) => (
+                                                <li
+                                                  key={l.id}
+                                                  onClick={() => setRowAuditValue(String(l.id))}
+                                                  onMouseEnter={() => setComboboxHighlightIdx(idx)}
+                                                  className={`px-2 py-1.5 text-xs text-gray-200 cursor-pointer ${
+                                                    comboboxHighlightIdx === idx ? 'bg-gray-700' : 'hover:bg-gray-700'
+                                                  }`}
+                                                >
+                                                  {l.name}
+                                                  {l.email && (
+                                                    <span className="text-gray-500 ml-1">({l.email})</span>
+                                                  )}
+                                                </li>
+                                              ))
+                                            ) : (
+                                              filteredProjectOptions.map((p, idx) => (
+                                                <li
+                                                  key={p.id}
+                                                  onClick={() => setRowAuditValue(p.id)}
+                                                  onMouseEnter={() => setComboboxHighlightIdx(idx)}
+                                                  className={`px-2 py-1.5 text-xs text-gray-200 cursor-pointer ${
+                                                    comboboxHighlightIdx === idx ? 'bg-gray-700' : 'hover:bg-gray-700'
+                                                  }`}
+                                                >
+                                                  {p.client_name || p.project_name || p.id}
+                                                </li>
+                                              ))
+                                            )}
+                                          </ul>
+                                          {rowAuditMode === 'lead' && (
+                                            <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
+                                              <button
+                                                type="button"
+                                                onClick={() => navigateToCreateLead()}
+                                                className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
+                                              >
+                                                <Plus size={12} /> Create new lead...
+                                              </button>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
                                     )}
-                                  </div>
-                                </div>
-                                {rowAuditValue && (
-                                  <div className="text-xs text-emerald-300 flex items-center gap-1">
-                                    <User size={10} />
-                                    Selected: {rowAuditMode === 'lead'
-                                      ? leadOptions.find(l => String(l.id) === rowAuditValue)?.name || rowAuditValue
-                                      : projectOptions.find(p => p.id === rowAuditValue)?.client_name || rowAuditValue}
-                                  </div>
+                                  </>
                                 )}
+
                                 <div className="flex gap-1">
                                   <button
+                                    type="button"
                                     onClick={handleRowAudit}
                                     disabled={!rowAuditValue || buildAuditInProgress}
                                     className="flex-1 py-1 rounded text-xs bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white"
@@ -1056,7 +1384,8 @@ function MeetingsContent() {
                                     {buildAuditInProgress ? '...' : 'Build'}
                                   </button>
                                   <button
-                                    onClick={() => { setRowActionId(null); setRowAuditValue('') }}
+                                    type="button"
+                                    onClick={dismissRowAuditForm}
                                     className="py-1 px-2 rounded text-xs bg-gray-700 text-gray-300 hover:bg-gray-600"
                                   >
                                     Cancel
@@ -1067,44 +1396,67 @@ function MeetingsContent() {
                                 )}
                               </div>
                             ) : (
-                              <div className="flex items-center gap-1.5">
+                              <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
                                 {isAttributed ? (
-                                  <div className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-gray-800/50 border border-gray-700 max-w-[180px]">
+                                  <>
                                     <button
-                                      onClick={() => openRowAction(m.id, 'attribute')}
-                                      className="flex items-center gap-1 text-gray-300 hover:text-gray-100 truncate"
-                                      title={`Attributed to ${m.lead_name || m.client_name || 'project'}. Click to change.`}
+                                      type="button"
+                                      onClick={() => openRowAction(m.id, 'audit')}
+                                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                                      title="Build audit from this meeting"
+                                      aria-label="Build audit from this meeting"
                                     >
-                                      <User size={12} className="shrink-0" />
-                                      <span className="truncate">{m.lead_name || m.client_name || 'Attributed'}</span>
+                                      <Sparkles size={12} aria-hidden />
+                                      Audit
                                     </button>
                                     <button
+                                      type="button"
+                                      onClick={() =>
+                                        openRowAction(m.id, 'attribute', {
+                                          attributeSeedMode: m.contact_submission_id ? 'lead' : 'project',
+                                        })
+                                      }
+                                      className="inline-flex items-center justify-center p-1.5 rounded-md border border-gray-600 bg-gray-800/80 text-gray-300 hover:bg-gray-700 hover:text-white"
+                                      title="Change attribution"
+                                      aria-label="Change attribution"
+                                    >
+                                      <Pencil size={14} aria-hidden />
+                                    </button>
+                                    <button
+                                      type="button"
                                       onClick={() => handleClearAttribution(m.id)}
                                       disabled={attributingInProgress}
-                                      className="text-gray-500 hover:text-red-400 shrink-0 ml-1 p-0.5"
-                                      aria-label={`Clear attribution for meeting on ${m.meeting_date}`}
-                                      title="Clear attribution"
+                                      className="inline-flex items-center justify-center p-1.5 rounded-md border border-gray-600 bg-gray-800/80 text-gray-400 hover:bg-red-950/50 hover:text-red-400 hover:border-red-900/50 disabled:opacity-50"
+                                      title="Remove attribution"
+                                      aria-label={`Remove attribution for this meeting${m.meeting_date ? ` (${new Date(m.meeting_date).toLocaleDateString()})` : ''}`}
                                     >
-                                      <X size={12} />
+                                      <Unlink size={14} aria-hidden />
                                     </button>
-                                  </div>
+                                  </>
                                 ) : (
-                                  <button
-                                    onClick={() => openRowAction(m.id, 'attribute')}
-                                    className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs border bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20"
-                                  >
-                                    <User size={12} />
-                                    Attribute
-                                  </button>
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => openRowAction(m.id, 'attribute')}
+                                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs border bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20"
+                                      title="Link to lead or project"
+                                      aria-label="Link meeting to lead or project"
+                                    >
+                                      <User size={12} aria-hidden />
+                                      Attribute
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => openRowAction(m.id, 'audit')}
+                                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                                      title="Build audit — choose which lead or project to attach it to"
+                                      aria-label="Build audit — choose lead or project"
+                                    >
+                                      <Sparkles size={12} aria-hidden />
+                                      Audit
+                                    </button>
+                                  </>
                                 )}
-                                <button
-                                  onClick={() => openRowAction(m.id, 'audit')}
-                                  className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
-                                  title="Build audit from this meeting's lead"
-                                >
-                                  <Sparkles size={12} />
-                                  Audit
-                                </button>
                               </div>
                             )}
                           </td>

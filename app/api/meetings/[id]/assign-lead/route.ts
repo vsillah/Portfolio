@@ -38,6 +38,12 @@ export async function PATCH(
 
     const updates: Record<string, unknown> = { contact_submission_id }
 
+    // Full clear: project-only rows have client_project_id set but no lead — nulling only
+    // contact_submission_id would leave the project link. Clear both for "unlink meeting".
+    if (contact_submission_id === null) {
+      updates.client_project_id = null
+    }
+
     // If linking to a lead, check if that lead already has a client_project
     if (contact_submission_id !== null) {
       const { data: project } = await supabaseAdmin

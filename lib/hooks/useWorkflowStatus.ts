@@ -15,6 +15,9 @@ export interface ExtractionRun {
   meeting_record_id: string | null
   meeting_title: string | null
   stale: boolean
+  scope_type: string | null
+  scope_id: string | null
+  scope_label: string | null
 }
 
 export type ExtractionState = 'idle' | 'running' | 'success' | 'failed' | 'stale'
@@ -176,6 +179,9 @@ export function useWorkflowStatus(
       meeting_record_id: null,
       meeting_title: null,
       stale: false,
+      scope_type: null,
+      scope_id: null,
+      scope_label: null,
     }
     setCurrentRun(optimisticRun)
     setState('running')

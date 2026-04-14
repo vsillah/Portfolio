@@ -175,7 +175,7 @@ flowchart TB
 - **Inbound:** Contact form, AI Readiness Scorecard (Resources page), chat, and voice (VAPI) create or link to contacts and diagnostics; diagnostic completion triggers lead webhook and diagnostic-completion webhook.
 - **Entry / Ingest:** Manual add uses Leads API; trigger starts scrapers that POST to ingest API; both write to `contact_submissions`.
 - **Enrichment:** Lead webhook runs per lead (from add, edit re-run, contact form, or diagnostic completion); n8n can update scores/quick_wins on the contact.
-- **Outreach gen:** WF-CLG-002 writes drafts to `outreach_queue`; not triggered by the app (n8n runs it after enrichment or on schedule).
+- **Outreach gen:** WF-CLG-002 writes drafts to `outreach_queue` (n8n, often after enrichment or on schedule). The app can also trigger CLG-002 via **Generate Email** on a lead, or create drafts **in-app** (OpenAI + `outreach_queue` insert) via **Draft in app** — see §3 and Message Queue actions.
 - **Human review / Send:** Admin approves or edits in Message Queue; "Send Now" calls WF-CLG-003 to send email or LinkedIn and update status.
 - **Sales path:** Admin configures products, bundles, and scripts; runs sales session from a completed audit **or starts a conversation directly from a lead** (no audit required). Outreach is automatically paused when a conversation starts. Admin selects bundle and line items; generates proposal; client gets link and pays.
 - **Upsell path engine:** Admin configures decoy-to-premium upgrade pairings with two-touch prescription scripts (point-of-sale and point-of-pain). These feed into proposals (optional add-ons), onboarding plans (upgrade milestone), AI recommendations, progress updates (signal matching), pricing page (comparison context), and follow-up scheduling.
@@ -204,6 +204,10 @@ flowchart TB
 
 - **Approve / Reject / Edit:** PATCH `/api/admin/outreach` — updates `outreach_queue` status and optionally subject/body.
 - **Send Now:** POST `/api/admin/outreach/[id]/send` — loads item and contact, POSTs to `N8N_CLG003_WEBHOOK_URL` with outreach_id, contact_submission_id, channel, subject, body, sequence_step, contact. n8n sends the message and updates `outreach_queue` (e.g. sent_at, status) and `contact_submissions.outreach_status`.
+- **Open in Gmail (email only):** On draft or approved **email** rows, the external-link action opens **Gmail web compose** in a new tab with **To** (lead email), **Subject**, and **Body** pre-filled. If the body is too long for a URL, the app opens compose with To + Subject only and **copies the body to the clipboard** so you can paste it. No server call; you send from your own Gmail session. Requires the lead to have an email on the contact. If Google asks you to sign in first, use **Gmail sign-in** in the queue filters row (opens `mail.google.com` in a new tab).
+- **Email copy to inbox (draft + approved, all channels):** POST `/api/admin/outreach/[id]/email-draft-to-inbox` — admin-only. Sends a copy of the queue item (lead context + subject + body) to the **Supabase account email** of the signed-in admin. Uses the same **Gmail SMTP** stack as other site mail (`GMAIL_USER` + `GMAIL_APP_PASSWORD`). Optional JSON body `{ subject?, body? }` uses those strings when present so unsaved edits in the editor are reflected in the copy. Returns **503** if SMTP is not configured; **400** if the admin user has no email on file. Logs `contact_communications` with `admin_inbox_copy` metadata.
+- **My Gmail (OAuth, per admin):** **Connect my Gmail** starts Google OAuth (`GET /api/admin/oauth/google-gmail/start` returns `{ url }`; callback `GET /api/admin/oauth/google-gmail/callback`). Stores an **encrypted refresh token** in **`admin_gmail_user_credentials`** (one row per `auth.users` id). Scopes: **gmail.compose** + **userinfo.email**. Env: **`GOOGLE_GMAIL_OAUTH_CLIENT_ID`**, **`GOOGLE_GMAIL_OAUTH_CLIENT_SECRET`**, **`GOOGLE_GMAIL_OAUTH_REDIRECT_URI`** (must match Google Cloud Console exactly), **`GMAIL_USER_OAUTH_SECRET`** (min 24 chars — encrypts tokens and signs OAuth `state`). **Disconnect** → `DELETE /api/admin/oauth/google-gmail/disconnect`. **Save to my Gmail** (draft icon on **email** rows when connected): `POST /api/admin/outreach/[id]/gmail-user-draft` — creates a **draft in that admin’s Gmail** (To = lead email) via Gmail API; optional `{ subject?, body? }` for unsaved editor text. **400** if not connected or lead has no email; **503** if OAuth env not configured.
+- **Draft in app (All Leads):** POST `/api/admin/outreach/leads/[id]/generate-in-app` — admin-only. Uses OpenAI with the same DB template **`email_cold_outreach`** (Saraev tokens: `{{research_brief}}`, `{{social_proof}}`, `{{sender_name}}`) as the primary n8n path, builds the research brief from `contact_submissions` + latest completed diagnostic + latest value report (shared with delivery-email context), and optionally appends **Recent meeting context** from the latest `meeting_record` for that lead (or an optional capped `meeting_summary` in the body). Inserts `outreach_queue` with `status: draft`, `channel: email`, `generation_prompt_summary: in_app:email_cold_outreach`. Requires **`OPENAI_API_KEY`**. If a draft already exists for the same lead + sequence step + email channel, returns **409** unless `force: true`. Disable without deploy: set **`ENABLE_IN_APP_OUTREACH_GEN=false`**. **Parity note:** WF-CLG-002 may add different enrichment steps; wording can differ between n8n and in-app even when both use `email_cold_outreach`.
 
 ### Proposal
 
@@ -233,11 +237,11 @@ flowchart TB
 1. **Trigger** — Admin clicks Trigger (or n8n runs on schedule). App calls warm-lead webhooks (WF-WRM-001/002/003).
 2. **Scraping** — n8n scrapes Facebook / Google Contacts / LinkedIn and POSTs to `/api/admin/outreach/ingest` with `N8N_INGEST_SECRET`. App deduplicates and inserts into `contact_submissions`.
 3. **Enrichment** — For each new or re-enriched lead, the app (or n8n) calls `N8N_LEAD_WEBHOOK_URL`. The workflow does company lookup, scoring, etc., and may update `contact_submissions`.
-4. **Outreach generation** — WF-CLG-002 (invoked by n8n, not the app) generates personalized drafts and writes to `outreach_queue` (status: draft).
-5. **Human review** — Admin opens `/admin/outreach` (Message Queue tab), approves/rejects/edits drafts.
+4. **Outreach generation** — (a) **n8n:** Admin clicks **Generate Email** on a lead (or n8n runs after enrichment) → `N8N_CLG002_WEBHOOK_URL` (WF-CLG-002) generates drafts into `outreach_queue`. (b) **In-app:** Admin clicks **Draft in app** → `POST .../generate-in-app` runs OpenAI and inserts `outreach_queue` directly (no CLG-002). Use n8n when the full automation chain is desired; use in-app when n8n is down or you want an immediate draft from current DB context.
+5. **Human review** — Admin opens `/admin/outreach` (Message Queue tab), approves/rejects/edits drafts. For **email** drafts or approved items, admin can **Open in Gmail** to pre-fill Gmail compose (or paste body if the link was too long).
 6. **Send** — Admin clicks "Send Now" on an approved item. App POSTs to WF-CLG-003 with the message and contact; n8n sends email or LinkedIn and updates queue and contact status.
 
-**Key env vars (names only):** `N8N_LEAD_WEBHOOK_URL`, `N8N_CLG002_WEBHOOK_URL`, `N8N_CLG003_WEBHOOK_URL`, `N8N_WRM001_WEBHOOK_URL`, `N8N_WRM002_WEBHOOK_URL`, `N8N_WRM003_WEBHOOK_URL`, `N8N_INGEST_SECRET`.
+**Key env vars (names only):** `N8N_LEAD_WEBHOOK_URL`, `N8N_CLG002_WEBHOOK_URL`, `N8N_CLG003_WEBHOOK_URL`, `N8N_WRM001_WEBHOOK_URL`, `N8N_WRM002_WEBHOOK_URL`, `N8N_WRM003_WEBHOOK_URL`, `N8N_INGEST_SECRET`, `OPENAI_API_KEY` (in-app drafts), `ENABLE_IN_APP_OUTREACH_GEN` (optional; set `false` to disable in-app generation).
 
 [Back to top](#table-of-contents)
 
@@ -511,7 +515,10 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 |-------------------|---------|---------|------------------|------------------------------|
 | WF-WRM-001/002/003 | Admin Trigger or n8n schedule | Scrape Facebook / Google Contacts / LinkedIn | source, max_leads, etc. | POST to `/api/admin/outreach/ingest` → contact_submissions |
 | N8N_LEAD_WEBHOOK_URL | Add lead, Edit lead (re-run), contact form | Lead qualification / enrichment | LeadQualificationRequest | Enrichment/scoring; contact_submissions updated by n8n when configured |
-| WF-CLG-002 | n8n (after enrichment) | Generate outreach message | contact_id, score_tier, lead_score, etc. | Writes draft to outreach_queue (status: draft) |
+| WF-CLG-002 | n8n (after enrichment or admin **Generate Email**) | Generate outreach message | contact_id, score_tier, lead_score, meeting_summary, etc. | Writes draft to outreach_queue (status: draft) |
+| In-app draft | Admin **Draft in app** on All Leads | `POST /api/admin/outreach/leads/[id]/generate-in-app` | OpenAI + `email_cold_outreach` prompt; tiered research brief + optional meeting context | Inserts outreach_queue (draft, email); no n8n |
+| Message Queue inbox copy | Admin **Inbox** on draft/approved row | `POST /api/admin/outreach/[id]/email-draft-to-inbox` | Admin JWT; optional `{ subject, body }` for unsaved editor text | Email to admin’s Supabase email; `contact_communications` log |
+| My Gmail OAuth + draft | **Connect my Gmail** then **Save** on email row | Google OAuth + `POST /api/admin/outreach/[id]/gmail-user-draft` | Encrypted refresh token per admin; Gmail API `drafts.create` | Draft in admin’s Gmail; `contact_communications` metadata |
 | WF-CLG-003 | Admin "Send Now" | Send email or LinkedIn | outreach item + contact, sequence_step | Sends message; updates outreach_queue + contact outreach_status |
 | WF-VEP-001 | Admin Trigger on Value Evidence | Internal evidence extraction | (none from UI) | POST to `/api/admin/value-evidence/ingest` |
 | WF-VEP-002 | Admin Trigger on Value Evidence | Social listening | (none from UI) | POST to ingest-market then ingest |
@@ -529,7 +536,7 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 | WF-SOC-001 | Cron (Mon–Fri 9 AM ET) or manual webhook | Extract social topics from meeting transcripts, generate LinkedIn posts with images + voiceovers | meeting_records (last 7 days) | Drafts in social_content_queue; Slack notification |
 | WF-SOC-002 | Admin approve action (webhook) | Publish approved social content to LinkedIn | social_content_queue row + social_content_config | LinkedIn post published; status updated; Slack confirmation |
 
-**Note:** Outreach generation (WF-CLG-002) is not triggered by the app; n8n invokes it (e.g. after enrichment or on schedule). The app only displays the resulting drafts in the Message Queue.
+**Note:** WF-CLG-002 is normally driven by n8n after enrichment (or on schedule). The app can also **fire** CLG-002 from All Leads (**Generate Email**) or **insert drafts without n8n** (**Draft in app** / `generate-in-app`). The Message Queue lists drafts from either path.
 
 [Back to top](#table-of-contents)
 
@@ -541,7 +548,7 @@ This implements the **point-of-pain** touch of the two-touch prescription model:
 |------|--------------|-------------------|
 | Trigger | Click Trigger (source selection) | — |
 | Add/Edit lead | Enter lead details; optionally Re-run enrichment | — |
-| Message Queue | Approve / Reject / Edit draft | — |
+| Message Queue | Approve / Reject / Edit draft; **Open in Gmail**; **Save to my Gmail** (OAuth); **Connect / Disconnect my Gmail**; **Email copy to inbox**; **Gmail sign-in** (browser tab) | — |
 | Send | Click "Send Now" on approved item | Email or LinkedIn message |
 | Sales session | Run walkthrough, select bundle and line items | — |
 | Proposal | Generate proposal, share link | Proposal link → view PDF, accept, pay |
