@@ -461,7 +461,10 @@ export function InPersonDiagnosticPanel({
                                 disabled={
                                   techStackFetchLoading ||
                                   hasWebsiteTechStack ||
-                                  !!((diagnosticData.tech_stack as Record<string, unknown>)?.website_technologies as { domain?: string } | undefined)?.domain
+                                  (() => {
+                                    const wt = (diagnosticData.tech_stack as Record<string, unknown>)?.website_technologies as { domain?: string; technologies?: unknown[] } | undefined
+                                    return !!(wt?.domain && Array.isArray(wt.technologies) && wt.technologies.length > 0)
+                                  })()
                                 }
                                 onClick={async () => {
                                   const session = await getCurrentSession();

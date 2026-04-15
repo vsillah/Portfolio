@@ -266,7 +266,7 @@ export default function ConversationPage() {
             industry: lead.industry ?? null,
             employee_count: lead.employee_count ?? null,
             company_domain: lead.company_domain ?? null,
-            has_website_tech_stack: !!(websiteTech && typeof websiteTech === 'object' && websiteTech.domain),
+            has_website_tech_stack: !!(websiteTech && typeof websiteTech === 'object' && websiteTech.domain && Array.isArray(websiteTech.technologies) && websiteTech.technologies.length > 0),
           };
         }
       }

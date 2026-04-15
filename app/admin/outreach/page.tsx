@@ -4889,7 +4889,10 @@ function OutreachContent() {
                                               setTechStackLoading(false)
                                             }
                                           }}
-                                          disabled={techStackLoading || !!(lead as { website_tech_stack?: { domain?: string } }).website_tech_stack?.domain}
+                                          disabled={techStackLoading || (() => {
+                                            const ts = (lead as { website_tech_stack?: { domain?: string; technologies?: unknown[] } }).website_tech_stack
+                                            return !!(ts?.domain && Array.isArray(ts.technologies) && ts.technologies.length > 0)
+                                          })()}
                                           className="flex items-center gap-1.5 px-2 py-1 rounded bg-silicon-slate/60 hover:bg-silicon-slate text-xs text-foreground/90 border border-silicon-slate disabled:opacity-60"
                                         >
                                           {techStackLoading ? (
