@@ -145,6 +145,7 @@ interface Lead {
   has_extractable_text: boolean
   do_not_contact?: boolean
   removed_at?: string | null
+  website_tech_stack?: { domain?: string; technologies?: unknown[]; byTag?: Record<string, string[]> } | null
 }
 
 interface LeadsResponse {
@@ -4872,72 +4873,94 @@ function OutreachContent() {
                                           {lead.company_domain}
                                           <ExternalLink size={12} />
                                         </a>
-                                        <button
-                                          type="button"
-                                          onClick={async (e) => {
-                                            e.stopPropagation()
-                                            const session = await getCurrentSession()
-                                            if (!session?.access_token) return
-                                            setTechStackResult(null)
-                                            setTechStackLoading(true)
-                                            try {
-                                              const res = await fetch(
-                                                `/api/admin/tech-stack-lookup?domain=${encodeURIComponent(lead.company_domain ?? '')}`,
-                                                { headers: { Authorization: `Bearer ${session.access_token}` } }
-                                              )
-                                              const data = await res.json()
-                                              if (!res.ok) {
+                                        {lead.website_tech_stack?.technologies?.length ? (
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation()
+                                              setTechStackResult({
+                                                domain: lead.website_tech_stack!.domain ?? lead.company_domain ?? '',
+                                                technologies: lead.website_tech_stack!.technologies as Array<{ name: string; tag?: string; categories?: string[] }>,
+                                                byTag: lead.website_tech_stack!.byTag,
+                                              })
+                                            }}
+                                            className="flex items-center gap-1.5 px-2 py-1 rounded text-xs border bg-emerald-500/15 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/25"
+                                          >
+                                            <CheckCircle size={12} />
+                                            Tech stack loaded ({lead.website_tech_stack.technologies.length})
+                                          </button>
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            disabled={techStackLoading}
+                                            onClick={async (e) => {
+                                              e.stopPropagation()
+                                              const session = await getCurrentSession()
+                                              if (!session?.access_token) return
+                                              setTechStackResult(null)
+                                              setTechStackLoading(true)
+                                              try {
+                                                const res = await fetch(
+                                                  `/api/admin/tech-stack-lookup?domain=${encodeURIComponent(lead.company_domain ?? '')}`,
+                                                  { headers: { Authorization: `Bearer ${session.access_token}` } }
+                                                )
+                                                const data = await res.json()
+                                                if (!res.ok) {
+                                                  setTechStackResult({
+                                                    domain: lead.company_domain ?? '',
+                                                    error: data.error ?? 'Lookup failed',
+                                                    creditsRemaining: data.creditsRemaining,
+                                                  })
+                                                  return
+                                                }
                                                 setTechStackResult({
-                                                  domain: lead.company_domain ?? '',
-                                                  error: data.error ?? 'Lookup failed',
+                                                  domain: data.domain,
+                                                  technologies: data.technologies,
+                                                  byTag: data.byTag,
                                                   creditsRemaining: data.creditsRemaining,
                                                 })
-                                                return
-                                              }
-                                              setTechStackResult({
-                                                domain: data.domain,
-                                                technologies: data.technologies,
-                                                byTag: data.byTag,
-                                                creditsRemaining: data.creditsRemaining,
-                                              })
-                                              // Save to contact and propagate to all their diagnostic audits
-                                              await fetch(`/api/admin/outreach/leads/${lead.id}`, {
-                                                method: 'PATCH',
-                                                headers: {
-                                                  'Content-Type': 'application/json',
-                                                  Authorization: `Bearer ${session.access_token}`,
-                                                },
-                                                body: JSON.stringify({
-                                                  website_tech_stack: {
-                                                    domain: data.domain,
-                                                    technologies: data.technologies,
-                                                    byTag: data.byTag,
+                                                const savedPayload = {
+                                                  domain: data.domain,
+                                                  technologies: data.technologies,
+                                                  byTag: data.byTag,
+                                                }
+                                                await fetch(`/api/admin/outreach/leads/${lead.id}`, {
+                                                  method: 'PATCH',
+                                                  headers: {
+                                                    'Content-Type': 'application/json',
+                                                    Authorization: `Bearer ${session.access_token}`,
                                                   },
-                                                  website_tech_stack_fetched_at: new Date().toISOString(),
-                                                }),
-                                              })
-                                            } catch {
-                                              setTechStackResult({
-                                                domain: lead.company_domain ?? '',
-                                                error: 'Request failed. Check BUILTWITH_API_KEY if configured.',
-                                              })
-                                            } finally {
-                                              setTechStackLoading(false)
-                                            }
-                                          }}
-                                          disabled={techStackLoading || (() => {
-                                            const ts = (lead as { website_tech_stack?: { domain?: string; technologies?: unknown[] } }).website_tech_stack
-                                            return !!(ts?.domain && Array.isArray(ts.technologies) && ts.technologies.length > 0)
-                                          })()}
-                                          className="flex items-center gap-1.5 px-2 py-1 rounded bg-silicon-slate/60 hover:bg-silicon-slate text-xs text-foreground/90 border border-silicon-slate disabled:opacity-60"
-                                        >
-                                          {techStackLoading ? (
-                                            <Loader2 size={12} className="animate-spin" />
-                                          ) : (
-                                            <Cpu size={12} />
-                                          )}
-                                          {techStackLoading ? 'Loading…' : 'Fetch tech stack'}
-                                        </button>
+                                                  body: JSON.stringify({
+                                                    website_tech_stack: savedPayload,
+                                                    website_tech_stack_fetched_at: new Date().toISOString(),
+                                                  }),
+                                                })
+                                                setLeads((prev) =>
+                                                  prev.map((l) =>
+                                                    l.id === lead.id
+                                                      ? { ...l, website_tech_stack: savedPayload } as typeof l
+                                                      : l
+                                                  )
+                                                )
+                                              } catch {
+                                                setTechStackResult({
+                                                  domain: lead.company_domain ?? '',
+                                                  error: 'Request failed. Check BUILTWITH_API_KEY if configured.',
+                                                })
+                                              } finally {
+                                                setTechStackLoading(false)
+                                              }
+                                            }}
+                                            className="flex items-center gap-1.5 px-2 py-1 rounded text-xs border bg-silicon-slate/60 hover:bg-silicon-slate text-foreground/90 border-silicon-slate disabled:opacity-60 disabled:cursor-not-allowed"
+                                          >
+                                            {techStackLoading ? (
+                                              <Loader2 size={12} className="animate-spin" />
+                                            ) : (
+                                              <Cpu size={12} />
+                                            )}
+                                            {techStackLoading ? 'Loading…' : 'Fetch tech stack'}
+                                          </button>
+                                        )}
                                       </div>
                                     )}
                                   </div>

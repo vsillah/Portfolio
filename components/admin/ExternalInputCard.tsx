@@ -92,19 +92,29 @@ function formatCategoryData(data: unknown): string {
     .join('\n')
 }
 
+function techName(item: unknown): string {
+  if (typeof item === 'string') return item
+  if (item && typeof item === 'object') {
+    const obj = item as Record<string, unknown>
+    return String(obj.name ?? obj.Name ?? '')
+  }
+  return String(item)
+}
+
 function formatTechStack(data: unknown): string {
   if (!data || typeof data !== 'object') return ''
   const ts = data as Record<string, unknown>
   const parts: string[] = []
   if (ts.domain) parts.push(`Domain: ${ts.domain}`)
   if (ts.technologies && Array.isArray(ts.technologies)) {
-    parts.push(`Technologies: ${(ts.technologies as string[]).join(', ')}`)
+    const names = ts.technologies.map(techName).filter(Boolean)
+    if (names.length) parts.push(`Technologies (${names.length}): ${names.join(', ')}`)
   }
   if (ts.byTag && typeof ts.byTag === 'object') {
     const tags = Object.entries(ts.byTag as Record<string, unknown>)
     for (const [tag, values] of tags) {
       const label = tag.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-      parts.push(`${label}: ${Array.isArray(values) ? values.join(', ') : String(values)}`)
+      parts.push(`${label}: ${Array.isArray(values) ? values.map(techName).filter(Boolean).join(', ') : String(values)}`)
     }
   }
   return parts.join('\n')
@@ -193,9 +203,31 @@ function getSiteDataFragments(preview: ReportContextPreview) {
     fragments.push({ key: 'domain', label: 'Company Domain', text: preview.companyDomain })
   }
   if (preview.techStack) {
-    const tsText = formatTechStack(preview.techStack)
-    if (tsText) {
-      fragments.push({ key: 'tech_stack_site', label: 'Website Tech Stack', text: tsText })
+    const ts = preview.techStack as Record<string, unknown>
+    if (ts.technologies && Array.isArray(ts.technologies)) {
+      const names = ts.technologies.map(techName).filter(Boolean)
+      if (names.length) {
+        fragments.push({
+          key: 'tech_stack_all',
+          label: `All Technologies (${names.length})`,
+          text: names.join(', '),
+        })
+      }
+    }
+    if (ts.byTag && typeof ts.byTag === 'object') {
+      for (const [tag, values] of Object.entries(ts.byTag as Record<string, unknown>)) {
+        const label = tag.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+        const names = Array.isArray(values) ? values.map(techName).filter(Boolean) : []
+        if (names.length) {
+          fragments.push({ key: `tag_${tag}`, label: `${label} (${names.length})`, text: names.join(', ') })
+        }
+      }
+    }
+    if (fragments.length <= 1) {
+      const tsText = formatTechStack(ts)
+      if (tsText) {
+        fragments.push({ key: 'tech_stack_site', label: 'Website Tech Stack', text: tsText })
+      }
     }
   }
 
