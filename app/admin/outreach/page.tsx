@@ -41,7 +41,6 @@ import {
   CalendarCheck,
   ChevronRight,
   MoreHorizontal,
-  Crosshair,
   Sparkles,
   Inbox,
   Save,
@@ -61,6 +60,9 @@ import {
 import { buildGmailComposeUrl } from '@/lib/gmail-compose'
 import { formatQuickWinsForDisplay, quickWinsToEditableString } from '@/lib/quick-wins-display'
 import { buildLinkWithReturn } from '@/lib/admin-return-context'
+import TechStackModal from '@/components/admin/outreach/TechStackModal'
+import SocialIntelModal from '@/components/admin/outreach/SocialIntelModal'
+import EvidenceDrawer from '@/components/admin/outreach/EvidenceDrawer'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -172,33 +174,6 @@ interface ChatEscalationRow {
   contact_submissions: { name: string | null; email: string | null } | null
 }
 
-function EvidenceCard({ evidence }: { evidence: { id: string; display_name: string | null; source_excerpt: string; confidence_score: number; monetary_indicator?: number | null } }) {
-  const [expanded, setExpanded] = useState(false)
-  const isLong = evidence.source_excerpt.length > 100
-  return (
-    <li className="p-3 rounded-lg bg-silicon-slate/50 border border-silicon-slate text-sm">
-      <div className="flex items-center justify-between">
-        <span className="font-medium text-white">{evidence.display_name ?? 'Unknown'}</span>
-        <span className="text-xs text-muted-foreground ml-2 shrink-0">
-          {(evidence.confidence_score * 100).toFixed(0)}%
-          {evidence.monetary_indicator != null && ` · $${Number(evidence.monetary_indicator).toLocaleString()}`}
-        </span>
-      </div>
-      <p className={`text-muted-foreground mt-1 ${isLong && !expanded ? 'line-clamp-2' : ''}`}>
-        {evidence.source_excerpt}
-      </p>
-      {isLong && (
-        <button
-          type="button"
-          onClick={() => setExpanded(!expanded)}
-          className="text-xs text-purple-400 hover:text-purple-300 mt-1"
-        >
-          {expanded ? 'Show less' : 'Show more'}
-        </button>
-      )}
-    </li>
-  )
-}
 
 const READAI_CACHE_TTL_MS = 5 * 60 * 1000
 
@@ -389,68 +364,20 @@ function OutreachContent() {
   const [socialIntelSources, setSocialIntelSources] = useState<string[]>(['reddit', 'google_maps', 'linkedin', 'g2', 'capterra'])
   const [socialIntelScope, setSocialIntelScope] = useState(5)
   const [socialIntelLoading, setSocialIntelLoading] = useState(false)
-  // Scope picker for targeted runs within Social Intel modal
-  const [siScopeType, setSiScopeType] = useState<'meeting' | 'assessment' | null>(null)
-  const [siScopeId, setSiScopeId] = useState<string | null>(null)
-  const [siScopeLabel, setSiScopeLabel] = useState<string | null>(null)
-  const [siScopeEntities, setSiScopeEntities] = useState<{ id: string | number; label: string; subtitle: string | null }[]>([])
-  const [siScopeSearching, setSiScopeSearching] = useState(false)
-  const [siScopeQuery, setSiScopeQuery] = useState('')
-  const [siScopeDropdownOpen, setSiScopeDropdownOpen] = useState(false)
-
-  const fetchSiScopeEntities = useCallback(async (type: 'meeting' | 'assessment', leadId: number, q?: string) => {
-    setSiScopeSearching(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session?.access_token) return
-      const params = new URLSearchParams({ type, contact_submission_id: String(leadId) })
-      if (q) params.set('q', q)
-      const res = await fetch(`/api/admin/value-evidence/scope-entities?${params}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (res.ok) {
-        const data = await res.json()
-        setSiScopeEntities(data.entities || [])
-      }
-    } catch {
-      // silent
-    } finally {
-      setSiScopeSearching(false)
-    }
-  }, [])
-
-  // Reset scope state when the modal opens with a new lead
-  useEffect(() => {
-    if (socialIntelLeadId != null) {
-      setSiScopeType(null)
-      setSiScopeId(null)
-      setSiScopeLabel(null)
-      setSiScopeEntities([])
-      setSiScopeQuery('')
-    }
-  }, [socialIntelLeadId])
-
-  // Fetch entities when scope type changes
-  useEffect(() => {
-    if (siScopeType && socialIntelLeadId != null) {
-      fetchSiScopeEntities(siScopeType, socialIntelLeadId, siScopeQuery || undefined)
-    }
-  }, [siScopeType, socialIntelLeadId, fetchSiScopeEntities, siScopeQuery])
-
-  const triggerSocialIntelForLead = async (contactId: number) => {
+  const triggerSocialIntelForLead = async (payload: { leadId: number; sources: string[]; maxResults: number; scopeType: 'meeting' | 'assessment' | null; scopeId: string | null }) => {
     setSocialIntelLoading(true)
     try {
       const session = await getCurrentSession()
       if (!session?.access_token) return
       const triggerBody: Record<string, unknown> = {
         workflow: 'social_listening_lead',
-        contact_submission_id: contactId,
-        sources: socialIntelSources,
-        maxResults: socialIntelScope,
+        contact_submission_id: payload.leadId,
+        sources: payload.sources,
+        maxResults: payload.maxResults,
       }
-      if (siScopeType && siScopeId) {
-        triggerBody.scope_type = siScopeType
-        triggerBody.scope_id = siScopeId
+      if (payload.scopeType && payload.scopeId) {
+        triggerBody.scope_type = payload.scopeType
+        triggerBody.scope_id = payload.scopeId
         triggerBody.phases = ['social']
       }
       const res = await fetch('/api/admin/value-evidence/trigger', {
@@ -3765,442 +3692,48 @@ function OutreachContent() {
             </AnimatePresence>
 
             {/* Evidence drawer */}
-            <AnimatePresence>
-              {evidenceDrawerContactId != null && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex justify-end bg-background/60"
-                  onClick={() => setEvidenceDrawerContactId(null)}
-                >
-                  <motion.div
-                    initial={{ x: 400 }}
-                    animate={{ x: 0 }}
-                    exit={{ x: 400 }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full max-w-md bg-background border-l border-silicon-slate shadow-xl flex flex-col max-h-full"
-                  >
-                    <div className="p-4 border-b border-silicon-slate flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-white">Value Evidence</h3>
-                      <button
-                        type="button"
-                        onClick={() => setEvidenceDrawerContactId(null)}
-                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-muted-foreground"
-                      >
-                        <X size={18} />
-                      </button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                      {evidenceDrawerLoading ? (
-                        <div className="flex justify-center py-8">
-                          <RefreshCw size={24} className="animate-spin text-muted-foreground" />
-                        </div>
-                      ) : evidenceDrawerData ? (
-                        <>
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-2">Pain point evidence</h4>
-                            {evidenceDrawerData.evidence.length === 0 ? (
-                              <p className="text-sm text-muted-foreground">No evidence yet.</p>
-                            ) : (
-                              <ul className="space-y-2">
-                                {evidenceDrawerData.evidence.map((e) => (
-                                  <EvidenceCard key={e.id} evidence={e} />
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-2">Value reports</h4>
-                            {evidenceDrawerData.reports.length === 0 ? (
-                              <p className="text-sm text-muted-foreground">No reports yet.</p>
-                            ) : (
-                              <ul className="space-y-2">
-                                {evidenceDrawerData.reports.map((r) => (
-                                  <li key={r.id}>
-                                    <Link
-                                      href={`/admin/value-evidence/reports/${r.id}`}
-                                      className="block p-2 rounded-lg bg-silicon-slate/50 border border-silicon-slate text-sm hover:bg-silicon-slate hover:border-white/20 transition-colors"
-                                      onClick={() => setEvidenceDrawerContactId(null)}
-                                    >
-                                      <span className="text-white">{r.title ?? 'Report'}</span>
-                                      <span className="text-muted-foreground ml-2">
-                                        {r.total_annual_value != null ? `$${r.total_annual_value}` : ''} · {new Date(r.created_at).toLocaleDateString()}
-                                      </span>
-                                    </Link>
-                                  </li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                          {evidenceDrawerData.reports.length === 0 && evidenceDrawerContactId && (
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                const session = await getCurrentSession()
-                                if (!session || !evidenceDrawerContactId) return
-                                const res = await fetch('/api/admin/value-evidence/reports/generate', {
-                                  method: 'POST',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                    Authorization: `Bearer ${session.access_token}`,
-                                  },
-                                  body: JSON.stringify({
-                                    contact_submission_id: evidenceDrawerContactId,
-                                  }),
-                                })
-                                if (res.ok) {
-                                  const r = await fetch(
-                                    `/api/admin/value-evidence/evidence?contact_id=${evidenceDrawerContactId}`,
-                                    { headers: { Authorization: `Bearer ${session.access_token}` } }
-                                  )
-                                  const d = await r.json()
-                                  if (r.ok) setEvidenceDrawerData(d)
-                                }
-                              }}
-                              className="w-full px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 rounded-lg font-medium text-sm"
-                            >
-                              Generate report
-                            </button>
-                          )}
-                          {evidenceDrawerContactId && (
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                const session = await getCurrentSession()
-                                if (!session) return
-                                const extractRes = await fetch('/api/admin/value-evidence/extract-leads', {
-                                  method: 'POST',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                    Authorization: `Bearer ${session.access_token}`,
-                                  },
-                                  body: JSON.stringify({
-                                    leads: [{ contact_submission_id: evidenceDrawerContactId }],
-                                  }),
-                                })
-                                if (extractRes.ok) {
-                                  startVepPolling()
-                                  await fetchLeads()
-                                }
-                                const r = await fetch(
-                                  `/api/admin/value-evidence/evidence?contact_id=${evidenceDrawerContactId}`,
-                                  { headers: { Authorization: `Bearer ${session.access_token}` } }
-                                )
-                                const d = await r.json()
-                                if (r.ok) setEvidenceDrawerData(d)
-                              }}
-                              className="w-full px-4 py-2 bg-silicon-slate/50 hover:bg-silicon-slate rounded-lg font-medium text-sm flex items-center justify-center gap-1"
-                            >
-                              <RefreshCw size={14} />
-                              Refresh evidence
-                            </button>
-                          )}
-                          {evidenceDrawerContactId && evidenceDrawerData && evidenceDrawerData.evidence.length > 0 && (
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                if (!confirm('Clear all evidence for this lead? This cannot be undone.')) return
-                                const session = await getCurrentSession()
-                                if (!session) return
-                                const res = await fetch(
-                                  `/api/admin/value-evidence/evidence?contact_id=${evidenceDrawerContactId}`,
-                                  { method: 'DELETE', headers: { Authorization: `Bearer ${session.access_token}` } }
-                                )
-                                if (res.ok) {
-                                  setEvidenceDrawerData({ evidence: [], reports: evidenceDrawerData.reports, totalEvidenceCount: 0 })
-                                  await fetchLeads()
-                                }
-                              }}
-                              className="w-full px-4 py-2 bg-red-900/30 hover:bg-red-900/50 border border-red-800/50 rounded-lg font-medium text-sm text-red-400 flex items-center justify-center gap-1"
-                            >
-                              <X size={14} />
-                              Clear evidence
-                            </button>
-                          )}
-                        </>
-                      ) : (
-                        <p className="text-sm text-muted-foreground">Could not load evidence.</p>
-                      )}
-                    </div>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <EvidenceDrawer
+              contactId={evidenceDrawerContactId}
+              data={evidenceDrawerData}
+              loading={evidenceDrawerLoading}
+              onClose={() => setEvidenceDrawerContactId(null)}
+              onDataChange={setEvidenceDrawerData}
+              onRefreshExtract={async (cid) => {
+                const session = await getCurrentSession()
+                if (!session) return
+                const extractRes = await fetch('/api/admin/value-evidence/extract-leads', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                  },
+                  body: JSON.stringify({ leads: [{ contact_submission_id: cid }] }),
+                })
+                if (extractRes.ok) {
+                  startVepPolling()
+                  await fetchLeads()
+                }
+              }}
+              fetchLeads={fetchLeads}
+            />
 
             {/* Social Intel modal */}
-            <AnimatePresence>
-              {socialIntelLeadId != null && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4"
-                  onClick={() => setSocialIntelLeadId(null)}
-                >
-                  <motion.div
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.95, opacity: 0 }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full max-w-sm bg-background border border-silicon-slate rounded-xl shadow-xl p-5"
-                  >
-                    <h3 className="text-lg font-semibold text-white mb-3">Social Intel</h3>
-                    <p className="text-xs text-muted-foreground mb-3">
-                      Select sources and scope for social listening on this lead.
-                    </p>
-                    <div className="flex flex-wrap gap-1.5 mb-3">
-                      {['reddit', 'google_maps', 'linkedin', 'g2', 'capterra'].map((src) => {
-                        const checked = socialIntelSources.includes(src)
-                        const label = src === 'google_maps' ? 'Google Maps' : src.charAt(0).toUpperCase() + src.slice(1)
-                        return (
-                          <button
-                            key={src}
-                            type="button"
-                            onClick={() => {
-                              const next = checked
-                                ? socialIntelSources.filter(s => s !== src)
-                                : [...socialIntelSources, src]
-                              if (next.length > 0) setSocialIntelSources(next)
-                            }}
-                            className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
-                              checked
-                                ? 'bg-cyan-600/20 text-cyan-300 border-cyan-600/40'
-                                : 'bg-gray-900/60 text-gray-500 border-gray-700/50 hover:text-gray-300'
-                            }`}
-                          >
-                            {label}
-                          </button>
-                        )
-                      })}
-                    </div>
-                    <select
-                      value={socialIntelScope}
-                      onChange={(e) => setSocialIntelScope(Number(e.target.value))}
-                      className="w-full text-xs bg-gray-900/80 text-gray-300 border border-gray-700/60 rounded px-2 py-1.5 mb-3 focus:outline-none focus:border-cyan-500/50"
-                    >
-                      <option value={5}>Quick Scan (~2-4 min)</option>
-                      <option value={10}>Standard Scan (~7-12 min)</option>
-                      <option value={20}>Deep Scan (~15-30 min)</option>
-                    </select>
-
-                    {/* Scope picker — optionally target a meeting or assessment for this lead */}
-                    <div className="mb-4 space-y-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          if (siScopeType) {
-                            setSiScopeType(null)
-                            setSiScopeId(null)
-                            setSiScopeLabel(null)
-                          } else {
-                            setSiScopeType('meeting')
-                          }
-                        }}
-                        className="text-[11px] text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1.5"
-                      >
-                        <Crosshair className="w-3 h-3" />
-                        {siScopeType && siScopeLabel
-                          ? <span className="text-emerald-400">Targeted: {siScopeLabel.substring(0, 40)}{siScopeLabel.length > 40 ? '...' : ''}</span>
-                          : 'Scope: Full lead context'
-                        }
-                      </button>
-                      {siScopeType && (
-                        <>
-                          <div className="flex gap-1.5">
-                            {(['meeting', 'assessment'] as const).map(st => (
-                              <button
-                                key={st}
-                                type="button"
-                                onClick={() => {
-                                  setSiScopeType(st)
-                                  setSiScopeId(null)
-                                  setSiScopeLabel(null)
-                                  setSiScopeQuery('')
-                                }}
-                                className={`text-[11px] px-2 py-0.5 rounded-full border transition-colors ${
-                                  siScopeType === st
-                                    ? 'bg-emerald-600/20 text-emerald-300 border-emerald-600/40'
-                                    : 'bg-gray-900/60 text-gray-500 border-gray-700/50 hover:text-gray-300'
-                                }`}
-                              >
-                                {st === 'meeting' ? 'Meeting' : 'Assessment'}
-                              </button>
-                            ))}
-                          </div>
-                          {siScopeId && siScopeLabel ? (
-                            <div className="flex items-center gap-1.5 text-[11px] bg-emerald-600/10 text-emerald-300 border border-emerald-600/30 rounded px-2 py-1.5">
-                              <Crosshair className="w-3 h-3 flex-shrink-0" />
-                              <span className="truncate flex-1">{siScopeLabel}</span>
-                              <button
-                                type="button"
-                                onClick={() => { setSiScopeId(null); setSiScopeLabel(null) }}
-                                className="p-0.5 rounded hover:bg-emerald-600/20 transition-colors"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="relative">
-                              <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500" />
-                              <input
-                                type="text"
-                                value={siScopeQuery}
-                                onChange={e => { setSiScopeQuery(e.target.value); setSiScopeDropdownOpen(true) }}
-                                onFocus={() => setSiScopeDropdownOpen(true)}
-                                placeholder={`Search ${siScopeType}s for this lead...`}
-                                className="w-full text-[11px] bg-gray-900/80 text-gray-300 border border-gray-700/60 rounded pl-7 pr-2 py-1.5 focus:outline-none focus:border-emerald-500/50 placeholder:text-gray-600"
-                              />
-                              {siScopeSearching && (
-                                <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 animate-spin" />
-                              )}
-                              <AnimatePresence>
-                                {siScopeDropdownOpen && !siScopeId && (
-                                  <motion.div
-                                    initial={{ opacity: 0, y: -4 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -4 }}
-                                    transition={{ duration: 0.1 }}
-                                    className="absolute left-0 right-0 top-full mt-1 max-h-[140px] overflow-y-auto bg-gray-900 border border-gray-700 rounded-lg shadow-xl z-50"
-                                  >
-                                    {siScopeEntities.length === 0 && !siScopeSearching && (
-                                      <div className="px-3 py-2 text-[11px] text-gray-500">
-                                        No {siScopeType}s found for this lead
-                                      </div>
-                                    )}
-                                    {siScopeEntities.map(entity => (
-                                      <button
-                                        key={entity.id}
-                                        type="button"
-                                        onClick={() => {
-                                          setSiScopeId(String(entity.id))
-                                          setSiScopeLabel(entity.label)
-                                          setSiScopeDropdownOpen(false)
-                                          setSiScopeQuery('')
-                                        }}
-                                        className="w-full text-left px-3 py-1.5 hover:bg-gray-800 transition-colors border-b border-gray-800/50 last:border-0"
-                                      >
-                                        <div className="text-[11px] text-gray-300 truncate">{entity.label}</div>
-                                        {entity.subtitle && (
-                                          <div className="text-[10px] text-gray-500 truncate">{entity.subtitle}</div>
-                                        )}
-                                      </button>
-                                    ))}
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setSocialIntelLeadId(null)}
-                        className="px-3 py-1.5 text-xs text-gray-400 hover:text-white transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        disabled={socialIntelLoading || socialIntelSources.length === 0}
-                        onClick={() => triggerSocialIntelForLead(socialIntelLeadId)}
-                        className="px-3 py-1.5 text-xs font-medium bg-cyan-600/20 text-cyan-300 border border-cyan-600/40 rounded hover:bg-cyan-600/30 transition-colors disabled:opacity-40"
-                      >
-                        {socialIntelLoading ? 'Starting...' : 'Run Social Intel'}
-                      </button>
-                    </div>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {socialIntelLeadId != null && (
+              <SocialIntelModal
+                leadId={socialIntelLeadId}
+                contactSubmissionId={socialIntelLeadId}
+                sources={socialIntelSources}
+                onSourcesChange={setSocialIntelSources}
+                scope={socialIntelScope}
+                onScopeChange={setSocialIntelScope}
+                loading={socialIntelLoading}
+                onTrigger={triggerSocialIntelForLead}
+                onClose={() => setSocialIntelLeadId(null)}
+              />
+            )}
 
             {/* Tech stack lookup modal (BuiltWith) */}
-            <AnimatePresence>
-              {techStackResult != null && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4"
-                  onClick={() => setTechStackResult(null)}
-                >
-                  <motion.div
-                    initial={{ scale: 0.95, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.95, opacity: 0 }}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full max-w-lg max-h-[85vh] overflow-hidden flex flex-col bg-background border border-silicon-slate rounded-xl shadow-xl"
-                  >
-                    <div className="p-4 border-b border-silicon-slate flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                        <Cpu size={20} />
-                        Tech stack — {techStackResult.domain}
-                      </h3>
-                      <button
-                        type="button"
-                        onClick={() => setTechStackResult(null)}
-                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate text-muted-foreground"
-                      >
-                        <X size={18} />
-                      </button>
-                    </div>
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                      {techStackResult.error ? (
-                        <p className="text-sm text-amber-400">{techStackResult.error}</p>
-                      ) : (
-                        <>
-                          {techStackResult.technologies && techStackResult.technologies.length > 0 ? (
-                            <>
-                              {techStackResult.byTag && Object.keys(techStackResult.byTag).length > 0 && (
-                                <div>
-                                  <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">By category</h4>
-                                  <div className="flex flex-wrap gap-2">
-                                    {Object.entries(techStackResult.byTag).map(([tag, names]) => (
-                                      <div key={tag} className="rounded-lg bg-silicon-slate/50 border border-silicon-slate p-2 min-w-[140px]">
-                                        <div className="text-xs text-muted-foreground mb-1">{tag}</div>
-                                        <ul className="text-sm text-foreground space-y-0.5">
-                                          {names.slice(0, 8).map((n) => (
-                                            <li key={n}>{n}</li>
-                                          ))}
-                                          {names.length > 8 && <li className="text-muted-foreground">+{names.length - 8} more</li>}
-                                        </ul>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                              <div>
-                                <h4 className="text-xs font-medium text-muted-foreground uppercase mb-2">
-                                  All technologies ({techStackResult.technologies.length})
-                                </h4>
-                                <div className="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
-                                  {techStackResult.technologies.map((t) => (
-                                    <span
-                                      key={t.name}
-                                      className="px-2 py-1 rounded bg-silicon-slate/50 border border-silicon-slate text-sm text-foreground"
-                                    >
-                                      {t.name}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            </>
-                          ) : (
-                            <p className="text-sm text-muted-foreground">No technologies detected for this domain.</p>
-                          )}
-                        </>
-                      )}
-                      {techStackResult.creditsRemaining != null && (
-                        <p className="text-xs text-muted-foreground/90">API credits remaining: {techStackResult.creditsRemaining}</p>
-                      )}
-                    </div>
-                  </motion.div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <TechStackModal result={techStackResult} onClose={() => setTechStackResult(null)} />
 
             {/* Generate outreach toast */}
             <AnimatePresence>
