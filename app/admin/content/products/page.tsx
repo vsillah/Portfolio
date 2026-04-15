@@ -6,6 +6,7 @@ import { Plus, Trash2, Edit, Eye, EyeOff, ArrowUp, ArrowDown, File } from 'lucid
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { getCurrentSession } from '@/lib/auth'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import { buildLinkWithReturn } from '@/lib/admin-return-context'
 import { PRODUCT_TYPE_LABELS } from '@/lib/constants/products'
 import { formatCurrency } from '@/lib/pricing-model'
 import Link from 'next/link'
@@ -291,7 +292,7 @@ export default function ProductsManagementPage() {
                       {product.is_active ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                     <Link
-                      href={`/admin/content/products/${product.id}`}
+                      href={buildLinkWithReturn(`/admin/content/products/${product.id}`, '/admin/content/products')}
                       className="p-2 bg-silicon-slate rounded-lg hover:bg-radiant-gold/20 inline-flex"
                       title="Edit"
                     >

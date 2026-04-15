@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
+import { buildLinkWithReturn } from '@/lib/admin-return-context';
 import { 
   FunnelStage,
   SessionOutcome,
@@ -510,7 +511,7 @@ export default function SalesDashboardPage() {
                       <td className="px-4 py-4">
                         <div>
                           <div className="font-medium text-foreground flex items-center gap-2">
-                            <Link href={`/admin/contacts/${lead.contact_id}`} className="hover:text-teal-400 transition-colors">{lead.name || 'Unknown'}</Link>
+                            <Link href={buildLinkWithReturn(`/admin/contacts/${lead.contact_id}`, '/admin/sales')} className="hover:text-teal-400 transition-colors">{lead.name || 'Unknown'}</Link>
                             {(() => {
                               const status = reportStatuses[String(lead.contact_id)];
                               if (!status) return null;
@@ -614,7 +615,7 @@ export default function SalesDashboardPage() {
                             if (status) {
                               return (
                                 <Link
-                                  href={`/admin/value-evidence/reports/${status.reportId}`}
+                                  href={buildLinkWithReturn(`/admin/value-evidence/reports/${status.reportId}`, '/admin/sales')}
                                   className="inline-flex items-center gap-1 px-2.5 py-1.5 text-emerald-400 hover:text-emerald-300 text-sm transition-colors"
                                   title="View value report"
                                 >
@@ -647,7 +648,7 @@ export default function SalesDashboardPage() {
                             );
                           })()}
                           <Link
-                            href={`/admin/outreach?tab=leads&id=${lead.contact_id}`}
+                            href={buildLinkWithReturn(`/admin/outreach?tab=leads&id=${lead.contact_id}`, '/admin/sales')}
                             className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-900/30 hover:bg-purple-800/50 text-purple-400 rounded-lg text-sm transition-colors"
                           >
                             <Users className="w-4 h-4" />
@@ -655,7 +656,7 @@ export default function SalesDashboardPage() {
                           </Link>
                           {lead.session ? (
                             <Link
-                              href={`/admin/sales/conversation/${lead.session.id}`}
+                              href={buildLinkWithReturn(`/admin/sales/conversation/${lead.session.id}`, '/admin/sales')}
                               className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-foreground rounded-lg text-sm hover:bg-emerald-700"
                             >
                               Continue
@@ -663,7 +664,7 @@ export default function SalesDashboardPage() {
                             </Link>
                           ) : lead.audit ? (
                             <Link
-                              href={`/admin/sales/${lead.audit.id}`}
+                              href={buildLinkWithReturn(`/admin/sales/${lead.audit.id}`, '/admin/sales')}
                               className="inline-flex items-center gap-1 px-3 py-1.5 bg-emerald-600 text-foreground rounded-lg text-sm hover:bg-emerald-700"
                             >
                               Start Call

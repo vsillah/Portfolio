@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { buildLinkWithReturn } from '@/lib/admin-return-context';
 import {
   Shield,
   Clock,
@@ -221,7 +222,7 @@ export default function GuaranteesAdminPage() {
                   return (
                     <Link
                       key={inst.id}
-                      href={`/admin/guarantees/${inst.id}`}
+                      href={buildLinkWithReturn(`/admin/guarantees/${inst.id}`, '/admin/guarantees')}
                       className="block p-4 bg-gray-900 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors"
                     >
                       <div className="flex items-center justify-between">

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Image from 'next/image'
 import { motion } from 'framer-motion'
+import { buildLinkWithReturn } from '@/lib/admin-return-context'
 import {
   Share2,
   FileText,
@@ -631,7 +632,7 @@ function SocialContentQueuePage() {
                 transition={{ delay: i * 0.03 }}
               >
                 <Link
-                  href={`/admin/social-content/${item.id}`}
+                  href={buildLinkWithReturn(`/admin/social-content/${item.id}`, '/admin/social-content')}
                   className="block bg-gray-900 border border-gray-800 rounded-xl p-4 hover:border-gray-700 transition-colors"
                 >
                   <div className="flex items-start gap-4">

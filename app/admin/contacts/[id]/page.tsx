@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
+import { getBackUrl, buildLinkWithReturn } from '@/lib/admin-return-context'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -106,6 +107,8 @@ const timelineIcons: Record<string, typeof User> = {
 
 function ContactDetailPage() {
   const { id } = useParams<{ id: string }>()
+  const searchParams = useSearchParams()
+  const backUrl = getBackUrl(searchParams, '/admin/outreach')
   const [data, setData] = useState<ContactData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -254,7 +257,7 @@ function ContactDetailPage() {
         <div className="min-h-screen bg-gray-950 p-8">
           <div className="max-w-4xl mx-auto bg-red-900/20 border border-red-800 rounded-lg p-6">
             <p className="text-red-400">{error || 'Contact not found'}</p>
-            <Link href="/admin/outreach" className="text-sm text-teal-400 hover:underline mt-2 inline-block">Back to Outreach</Link>
+            <Link href={backUrl} className="text-sm text-teal-400 hover:underline mt-2 inline-block">Back</Link>
           </div>
         </div>
       </ProtectedRoute>
@@ -375,10 +378,10 @@ function ContactDetailPage() {
 
             {/* Quick Generate Links */}
             <div className="flex flex-wrap gap-2 pt-1">
-              <Link href={`/admin/reports/gamma?contactId=${contact.id}`} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-emerald-400 rounded-lg flex items-center gap-1.5 transition-colors">
+              <Link href={buildLinkWithReturn(`/admin/reports/gamma?contactId=${contact.id}`, `/admin/contacts/${contact.id}`)} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-emerald-400 rounded-lg flex items-center gap-1.5 transition-colors">
                 <Plus className="w-3 h-3" /> Generate Deck
               </Link>
-              <Link href={`/admin/value-evidence?contactId=${contact.id}`} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-purple-400 rounded-lg flex items-center gap-1.5 transition-colors">
+              <Link href={buildLinkWithReturn(`/admin/value-evidence?contactId=${contact.id}`, `/admin/contacts/${contact.id}`)} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-purple-400 rounded-lg flex items-center gap-1.5 transition-colors">
                 <Plus className="w-3 h-3" /> Generate Value Report
               </Link>
               {salesSessions.length === 0 && (

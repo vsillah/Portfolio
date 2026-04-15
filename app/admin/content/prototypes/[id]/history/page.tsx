@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { getBackUrl } from '@/lib/admin-return-context'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
   ArrowLeft, ArrowRight, Clock, User, Loader2, 
@@ -42,6 +43,8 @@ const PRODUCTION_STAGES = ['Dev', 'QA', 'Pilot', 'Production']
 
 export default function PrototypeHistoryPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const backUrl = getBackUrl(searchParams, `/admin/content/prototypes/${params.id}`)
   const [loading, setLoading] = useState(true)
   const [history, setHistory] = useState<StageHistory[]>([])
   const [prototype, setPrototype] = useState<AppPrototype | null>(null)
@@ -70,7 +73,7 @@ export default function PrototypeHistoryPage({ params }: { params: { id: string 
       if (!protoResponse.ok) {
         if (protoResponse.status === 404) {
           showNotification('error', 'Prototype not found')
-          router.push('/admin/content/prototypes')
+          router.push(backUrl)
           return
         }
         throw new Error('Failed to fetch prototype')
@@ -100,7 +103,7 @@ export default function PrototypeHistoryPage({ params }: { params: { id: string 
     } finally {
       setLoading(false)
     }
-  }, [params.id, router, showNotification])
+  }, [params.id, router, backUrl, showNotification])
 
   useEffect(() => {
     fetchData()
@@ -182,7 +185,7 @@ export default function PrototypeHistoryPage({ params }: { params: { id: string 
             {/* Header */}
             <div className="flex items-center gap-4 mb-8">
               <Link 
-                href={`/admin/content/prototypes/${params.id}`}
+                href={backUrl}
                 className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
               >
                 <ArrowLeft size={20} />

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter, useParams } from 'next/navigation'
+import { buildLinkWithReturn } from '@/lib/admin-return-context'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -221,7 +222,7 @@ function EditPromptContent() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => router.push(`/admin/prompts/${promptKey}/history`)}
+              onClick={() => router.push(buildLinkWithReturn(`/admin/prompts/${promptKey}/history`, `/admin/prompts/${promptKey}`))}
               className="px-4 py-2 bg-silicon-slate/30 border border-radiant-gold/20 rounded-lg
                 text-sm hover:border-radiant-gold/40 transition-colors flex items-center gap-2"
             >
@@ -435,7 +436,7 @@ function EditPromptContent() {
             </div>
             <motion.button
               whileHover={{ scale: 1.02 }}
-              onClick={() => router.push(`/admin/prompts/${promptKey}/history`)}
+              onClick={() => router.push(buildLinkWithReturn(`/admin/prompts/${promptKey}/history`, `/admin/prompts/${promptKey}`))}
               className="mt-3 text-sm text-radiant-gold hover:underline"
             >
               View full history →

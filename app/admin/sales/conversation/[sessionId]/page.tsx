@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef, type Dispatch, type SetStateAction } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { getBackUrl } from '@/lib/admin-return-context';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
@@ -117,8 +118,10 @@ const TASKS_PER_PAGE = 10;
 export default function ConversationPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, session: authSession } = useAuth();
   const sessionId = params.sessionId as string;
+  const backUrl = getBackUrl(searchParams, '/admin/sales');
 
   /* ---- data state ---- */
   const [salesSession, setSalesSession] = useState<SalesSessionRow | null>(null);
@@ -872,7 +875,7 @@ export default function ConversationPage() {
                 Retry
               </button>
             )}
-            <button onClick={() => router.push('/admin/sales')} className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+            <button onClick={() => router.push(backUrl)} className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
               Return to Dashboard
             </button>
           </div>
@@ -893,7 +896,7 @@ export default function ConversationPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-            <button onClick={() => router.push('/admin/sales')} className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white">
+            <button onClick={() => router.push(backUrl)} className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>

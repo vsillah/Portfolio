@@ -29,9 +29,11 @@ import {
   X,
   Square,
   Loader2,
+  ArrowLeft,
 } from 'lucide-react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
+import { parseReturnTo, buildLinkWithReturn } from '@/lib/admin-return-context'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -169,6 +171,7 @@ function normalizeStatementForTab(vs: Record<string, unknown>) {
 
 export default function ValueEvidencePage() {
   const searchParams = useSearchParams()
+  const returnUrl = parseReturnTo(searchParams)
   const [activeTab, setActiveTab] = useState<TabName>('dashboard')
   const [dashData, setDashData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
@@ -335,6 +338,12 @@ export default function ValueEvidencePage() {
           { label: 'Admin', href: '/admin' },
           { label: 'Value Evidence Pipeline', href: '/admin/value-evidence' },
         ]} />
+
+        {returnUrl && (
+          <Link href={returnUrl} className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mt-2">
+            <ArrowLeft size={16} /> Back
+          </Link>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -2481,7 +2490,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <Link
-                href={`/admin/value-evidence/reports/${generateToast.reportId}`}
+                href={buildLinkWithReturn(`/admin/value-evidence/reports/${generateToast.reportId}`, '/admin/value-evidence')}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-silicon-slate/80 border border-silicon-slate rounded-lg text-sm text-foreground hover:bg-silicon-slate transition-colors"
               >
                 <ExternalLink size={14} />
@@ -2570,7 +2579,7 @@ function ReportsTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
                   </div>
                 </div>
                 <Link
-                  href={`/admin/value-evidence/reports/${selectedReport.id}`}
+                  href={buildLinkWithReturn(`/admin/value-evidence/reports/${selectedReport.id}`, '/admin/value-evidence')}
                   className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600/20 border border-emerald-500/40 rounded-lg text-emerald-300 text-sm hover:bg-emerald-600/30 transition-colors whitespace-nowrap"
                 >
                   <ExternalLink size={14} />

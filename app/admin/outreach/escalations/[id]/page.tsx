@@ -1,12 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, RefreshCw, User, Mail, MessageSquare, AlertTriangle } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import { getBackUrl } from '@/lib/admin-return-context'
 
 interface EscalationDetail {
   id: number
@@ -41,7 +42,9 @@ export default function EscalationDetailPage() {
 function EscalationDetailContent() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const id = params?.id as string
+  const backUrl = getBackUrl(searchParams, '/admin/outreach?tab=escalations')
   const [escalation, setEscalation] = useState<EscalationDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [leads, setLeads] = useState<LeadOption[]>([])
@@ -141,8 +144,8 @@ function EscalationDetailContent() {
       <div className="min-h-screen bg-background p-6">
         <div className="max-w-4xl mx-auto">
           <p className="text-muted-foreground">Escalation not found.</p>
-          <Link href="/admin/outreach?tab=escalations" className="mt-4 inline-flex items-center gap-2 text-radiant-gold hover:text-amber-400">
-            <ArrowLeft size={16} /> Back to Escalations
+          <Link href={backUrl} className="mt-4 inline-flex items-center gap-2 text-radiant-gold hover:text-amber-400">
+            <ArrowLeft size={16} /> Back
           </Link>
         </div>
       </div>
@@ -165,11 +168,11 @@ function EscalationDetailContent() {
 
         <div className="mt-6 flex items-center justify-between">
           <Link
-            href="/admin/outreach?tab=escalations"
+            href={backUrl}
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft size={18} />
-            Back to Escalations
+            Back
           </Link>
         </div>
 

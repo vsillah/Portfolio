@@ -26,9 +26,11 @@ import {
   ArrowUpDown,
   Trash2,
 } from 'lucide-react'
+import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import { buildLinkWithReturn } from '@/lib/admin-return-context'
 
 // ============================================================================
 // Types
@@ -803,7 +805,15 @@ function MeetingTasksContent() {
                               <div className="flex-1 min-w-0">
                                 {(task.client_name || task.project_name || task.lead_name) && (
                                   <div className="text-xs text-gray-500 mb-0.5 flex items-center gap-2">
-                                    {task.lead_name && !task.client_name && (
+                                    {task.lead_name && !task.client_name && task.contact_submission_id && (
+                                      <Link
+                                        href={buildLinkWithReturn(`/admin/outreach?tab=leads&id=${task.contact_submission_id}`, '/admin/meeting-tasks')}
+                                        className="flex items-center gap-1 text-violet-400 hover:text-violet-300"
+                                      >
+                                        <Link2 size={10} /> {task.lead_name}
+                                      </Link>
+                                    )}
+                                    {task.lead_name && !task.client_name && !task.contact_submission_id && (
                                       <span className="flex items-center gap-1 text-violet-400"><Link2 size={10} /> {task.lead_name}</span>
                                     )}
                                     {(task.client_name || task.project_name) && (
@@ -835,6 +845,15 @@ function MeetingTasksContent() {
                                     <span className="flex items-center gap-1 md:hidden">
                                       <Calendar size={11} /> {new Date(task.meeting_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                                     </span>
+                                  )}
+                                  {task.meeting_record_id && (
+                                    <Link
+                                      href={buildLinkWithReturn(`/admin/meetings/${task.meeting_record_id}`, '/admin/meeting-tasks')}
+                                      className="flex items-center gap-1 text-violet-400 hover:text-violet-300"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <MessageSquare size={11} /> View meeting
+                                    </Link>
                                   )}
                                   {task.due_date && <span className="text-amber-600">Due {new Date(task.due_date).toLocaleDateString()}</span>}
                                 </div>

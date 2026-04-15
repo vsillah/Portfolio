@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
+import { getBackUrl } from '@/lib/admin-return-context'
 import { motion } from 'framer-motion'
 import { ArrowLeft, Upload, File, X, DollarSign, Image as ImageIcon } from 'lucide-react'
 import { ImageUrlInput } from '@/components/admin/ImageUrlInput'
@@ -42,8 +43,10 @@ const PRODUCT_TYPE_OPTIONS = PRODUCT_TYPES.filter((t) => t !== 'merchandise').ma
 export default function ProductEditPage() {
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const id = params.id as string
   const isNew = id === 'new'
+  const backUrl = getBackUrl(searchParams, '/admin/content/products')
 
   const [loading, setLoading] = useState(!isNew)
   const [formData, setFormData] = useState({
@@ -84,7 +87,7 @@ export default function ProductEditPage() {
       })
         .then((res) => {
           if (!res.ok) {
-            if (res.status === 404) router.push('/admin/content/products')
+            if (res.status === 404) router.push(backUrl)
             return null
           }
           return res.json()
@@ -124,7 +127,7 @@ export default function ProductEditPage() {
         .catch((err) => console.error('Failed to fetch product:', err))
         .finally(() => setLoading(false))
     })
-  }, [id, isNew, router])
+  }, [id, isNew, router, backUrl])
 
   useEffect(() => {
     getCurrentSession().then((s) => {
@@ -165,7 +168,7 @@ export default function ProductEditPage() {
       body: JSON.stringify(payload),
     })
     if (response.ok) {
-      router.push('/admin/content/products')
+      router.push(backUrl)
     } else {
       const err = await response.json()
       alert(err.error || 'Failed to save product')
@@ -311,11 +314,11 @@ export default function ProductEditPage() {
           />
           <div className="mb-6">
             <Link
-              href="/admin/content/products"
+              href={backUrl}
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <ArrowLeft size={20} />
-              Back to Products
+              Back
             </Link>
           </div>
           <motion.div
@@ -562,7 +565,7 @@ export default function ProductEditPage() {
                   {isNew ? 'Create Product' : 'Update Product'}
                 </motion.button>
                 <Link
-                  href="/admin/content/products"
+                  href={backUrl}
                   className="px-6 py-2 btn-ghost font-semibold rounded-lg inline-flex items-center"
                 >
                   Cancel

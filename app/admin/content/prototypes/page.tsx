@@ -13,6 +13,7 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Link from 'next/link'
 import { getCurrentSession } from '@/lib/auth'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import { buildLinkWithReturn } from '@/lib/admin-return-context'
 
 interface AppPrototype {
   id: string
@@ -709,17 +710,17 @@ export default function PrototypesManagementPage() {
                     </div>
 
                     <div className="flex items-center gap-2 ml-4">
-                      <Link href={`/admin/content/prototypes/${prototype.id}`}>
+                      <Link href={buildLinkWithReturn(`/admin/content/prototypes/${prototype.id}`, '/admin/content/prototypes')}>
                         <button className="p-2 bg-silicon-slate/50 hover:bg-radiant-gold/20 border border-silicon-slate hover:border-radiant-gold/50 rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors" title="Edit">
                           <Edit size={18} />
                         </button>
                       </Link>
-                      <Link href={`/admin/content/prototypes/${prototype.id}/history`}>
+                      <Link href={buildLinkWithReturn(`/admin/content/prototypes/${prototype.id}/history`, '/admin/content/prototypes')}>
                         <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors" title="History">
                           <History size={18} />
                         </button>
                       </Link>
-                      <Link href={`/admin/content/prototypes/${prototype.id}/demos`}>
+                      <Link href={buildLinkWithReturn(`/admin/content/prototypes/${prototype.id}/demos`, '/admin/content/prototypes')}>
                         <button className="p-2 bg-silicon-slate/50 hover:bg-silicon-slate border border-silicon-slate rounded-lg text-muted-foreground hover:text-radiant-gold transition-colors" title="Demos">
                           <Film size={18} />
                         </button>

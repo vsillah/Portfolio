@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { getBackUrl } from '@/lib/admin-return-context';
 import {
   Shield,
   ArrowLeft,
@@ -32,7 +33,9 @@ import type { GuaranteeInstanceStatus, MilestoneStatus } from '@/lib/guarantees'
 export default function GuaranteeInstanceDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const instanceId = params.instanceId as string;
+  const backUrl = getBackUrl(searchParams, '/admin/guarantees');
 
   const [instance, setInstance] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -131,8 +134,8 @@ export default function GuaranteeInstanceDetailPage() {
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-400 mx-auto mb-4" />
           <p className="text-red-400">{error}</p>
-          <Link href="/admin/guarantees" className="text-blue-400 text-sm mt-2 inline-block">
-            Back to Guarantees
+          <Link href={backUrl} className="text-blue-400 text-sm mt-2 inline-block">
+            Back
           </Link>
         </div>
       </div>
@@ -161,7 +164,7 @@ export default function GuaranteeInstanceDetailPage() {
         {/* Header */}
         <div className="flex items-center gap-3">
           <Link
-            href="/admin/guarantees"
+            href={backUrl}
             className="p-2 text-gray-400 hover:text-white transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />

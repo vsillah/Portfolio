@@ -46,6 +46,7 @@ import {
   Inbox,
   Save,
   Unplug,
+  Video,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -59,6 +60,7 @@ import {
 } from '@/lib/admin-meeting-context-items'
 import { buildGmailComposeUrl } from '@/lib/gmail-compose'
 import { formatQuickWinsForDisplay, quickWinsToEditableString } from '@/lib/quick-wins-display'
+import { buildLinkWithReturn } from '@/lib/admin-return-context'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -292,6 +294,10 @@ function OutreachContent() {
   // Escalations for expanded lead (lead detail "Chat escalations for this contact")
   const [leadEscalations, setLeadEscalations] = useState<ChatEscalationRow[]>([])
   const [leadEscalationsLoading, setLeadEscalationsLoading] = useState(false)
+
+  // Related meetings for expanded lead
+  const [leadMeetings, setLeadMeetings] = useState<Array<{ id: string; meeting_type: string; meeting_date: string }>>([])
+  const [leadMeetingsLoading, setLeadMeetingsLoading] = useState(false)
 
   // Add lead modal (manual entry)
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
@@ -811,6 +817,36 @@ function OutreachContent() {
         })
         .catch(() => { if (!cancelled) setLeadEscalations([]) })
         .finally(() => { if (!cancelled) setLeadEscalationsLoading(false) })
+    })
+    return () => { cancelled = true }
+  }, [activeTab, expandedLeadId])
+
+  // Fetch related meetings for the expanded lead
+  useEffect(() => {
+    if (activeTab !== 'leads' || !expandedLeadId) {
+      setLeadMeetings([])
+      return
+    }
+    let cancelled = false
+    setLeadMeetingsLoading(true)
+    getCurrentSession().then((session) => {
+      if (!session?.access_token || cancelled) return
+      fetch(`/api/admin/sales/contact-meetings?contact_submission_id=${expandedLeadId}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+        .then((res) => res.ok ? res.json() : { meetings: [] })
+        .then((data) => {
+          if (!cancelled) {
+            const meetings = (data.meetings ?? []).map((m: { id: string; meeting_type: string; meeting_date: string }) => ({
+              id: m.id,
+              meeting_type: m.meeting_type,
+              meeting_date: m.meeting_date,
+            }))
+            setLeadMeetings(meetings)
+          }
+        })
+        .catch(() => { if (!cancelled) setLeadMeetings([]) })
+        .finally(() => { if (!cancelled) setLeadMeetingsLoading(false) })
     })
     return () => { cancelled = true }
   }, [activeTab, expandedLeadId])
@@ -4948,10 +4984,43 @@ function OutreachContent() {
                                     )
                                   })()}
 
+                                  {/* Related meetings for this lead */}
+                                  {expandedLeadId === lead.id && (leadMeetingsLoading || leadMeetings.length > 0) && (
+                                    <div className="mt-3 bg-background/60 rounded-lg p-3">
+                                      <div className="text-muted-foreground text-xs mb-2 flex items-center gap-1.5">
+                                        <Video size={12} />
+                                        Related Meetings
+                                      </div>
+                                      {leadMeetingsLoading ? (
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                          <RefreshCw size={12} className="animate-spin" /> Loading…
+                                        </div>
+                                      ) : (
+                                        <div className="flex flex-wrap gap-2">
+                                          {leadMeetings.map((m) => (
+                                            <Link
+                                              key={m.id}
+                                              href={buildLinkWithReturn(`/admin/meetings/${m.id}`, `/admin/outreach?tab=leads&id=${lead.id}`)}
+                                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-violet-900/30 text-violet-300 border border-violet-800/50 text-xs hover:bg-violet-800/40 transition-colors"
+                                            >
+                                              <Video size={12} />
+                                              {m.meeting_type.replace(/_/g, ' ')}
+                                              <span className="text-violet-400/70">
+                                                {new Date(m.meeting_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                              </span>
+                                            </Link>
+                                          ))}
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
                                   {lead.has_sales_conversation ? (
                                     <div className="mt-3">
                                       <Link
-                                        href={lead.latest_session_id ? `/admin/sales/conversation/${lead.latest_session_id}` : '/admin/sales'}
+                                        href={lead.latest_session_id
+                                          ? buildLinkWithReturn(`/admin/sales/conversation/${lead.latest_session_id}`, `/admin/outreach?tab=leads&id=${lead.id}`)
+                                          : '/admin/sales'}
                                         className="flex items-center gap-2 text-sm text-green-400 hover:text-green-300"
                                       >
                                         <CheckCircle size={14} />
@@ -4980,7 +5049,7 @@ function OutreachContent() {
                                             })
                                             if (res.ok) {
                                               const data = await res.json()
-                                              router.push(`/admin/sales/conversation/${data.data.id}`)
+                                              router.push(buildLinkWithReturn(`/admin/sales/conversation/${data.data.id}`, `/admin/outreach?tab=leads&id=${lead.id}`))
                                             }
                                           } catch (err) {
                                             console.error('Failed to start conversation:', err)
@@ -5012,7 +5081,7 @@ function OutreachContent() {
                                         {leadEscalations.map((e) => (
                                           <li key={e.id}>
                                             <Link
-                                              href={`/admin/outreach/escalations/${e.id}`}
+                                              href={buildLinkWithReturn(`/admin/outreach/escalations/${e.id}`, `/admin/outreach?tab=leads&id=${lead.id}`)}
                                               className="text-sm text-radiant-gold hover:text-amber-400"
                                             >
                                               {new Date(e.escalated_at).toLocaleString()} — {e.source} · {e.reason ?? 'escalation'}
@@ -5122,7 +5191,7 @@ function OutreachContent() {
                         <td className="px-4 py-3 text-sm text-muted-foreground">{e.reason ?? '—'}</td>
                         <td className="px-4 py-3">
                           <Link
-                            href={`/admin/outreach/escalations/${e.id}`}
+                            href={buildLinkWithReturn(`/admin/outreach/escalations/${e.id}`, '/admin/outreach?tab=escalations')}
                             className="text-sm text-radiant-gold hover:text-amber-400"
                           >
                             View

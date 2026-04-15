@@ -2,7 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { getBackUrl } from '@/lib/admin-return-context'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
 import { 
   Save, Trash2, ArrowLeft, Upload, X, Image as ImageIcon,
@@ -92,6 +93,8 @@ const PERSONA_TYPES = [
 
 export default function PrototypeEditPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const backUrl = getBackUrl(searchParams, '/admin/content/prototypes')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
@@ -157,7 +160,7 @@ export default function PrototypeEditPage({ params }: { params: { id: string } }
       if (!response.ok) {
         if (response.status === 404) {
           showNotification('error', 'Prototype not found')
-          router.push('/admin/content/prototypes')
+          router.push(backUrl)
           return
         }
         throw new Error('Failed to fetch prototype')
@@ -173,7 +176,7 @@ export default function PrototypeEditPage({ params }: { params: { id: string } }
     } finally {
       setLoading(false)
     }
-  }, [params.id, router, showNotification])
+  }, [params.id, router, backUrl, showNotification])
 
   useEffect(() => {
     fetchPrototype()
@@ -347,7 +350,7 @@ export default function PrototypeEditPage({ params }: { params: { id: string } }
 
       showNotification('success', 'Prototype deleted successfully')
       setTimeout(() => {
-        router.push('/admin/content/prototypes')
+        router.push(backUrl)
       }, 1000)
     } catch (error: any) {
       console.error('Error deleting prototype:', error)
@@ -666,7 +669,7 @@ export default function PrototypeEditPage({ params }: { params: { id: string } }
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
               <div className="flex items-center gap-4">
                 <Link 
-                  href="/admin/content/prototypes"
+                  href={backUrl}
                   className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
                 >
                   <ArrowLeft size={20} />

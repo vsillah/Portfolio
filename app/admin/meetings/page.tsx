@@ -562,10 +562,14 @@ function MeetingsContent() {
 
         {/* Contact-specific banner */}
         {contactIdFromUrl && (
-          <div className="mb-4 px-3 py-2 rounded-lg bg-violet-900/30 border border-violet-700/50 text-sm text-violet-200 flex items-center gap-2">
+          <div className="mb-4 px-3 py-2 rounded-lg bg-violet-900/30 border border-violet-700/50 text-sm text-violet-200 flex items-center gap-2 flex-wrap">
             Showing meetings for lead (ID: {contactIdFromUrl}).{' '}
             <Link href="/admin/meetings" className="text-violet-400 hover:underline">
               Show all
+            </Link>
+            <span className="text-violet-600">·</span>
+            <Link href={`/admin/outreach?tab=leads&id=${contactIdFromUrl}`} className="text-violet-400 hover:underline">
+              Back to lead
             </Link>
           </div>
         )}

@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
+import { getBackUrl } from '@/lib/admin-return-context'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { useAuth } from '@/components/AuthProvider'
@@ -62,7 +63,9 @@ export default function GenerationDetailPage() {
 function GenerationDetailContent() {
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const generationId = params.generationId as string
+  const backUrl = getBackUrl(searchParams, '/admin/chat-eval/axial-codes')
   
   const [generation, setGeneration] = useState<Generation | null>(null)
   const [reviews, setReviews] = useState<AxialCodeReview[]>([])
@@ -90,14 +93,14 @@ function GenerationDetailContent() {
         setReviews(data.reviews)
         setReviewStats(data.review_stats)
       } else if (response.status === 404) {
-        router.push('/admin/chat-eval/axial-codes')
+        router.push(backUrl)
       }
     } catch (error) {
       console.error('Error fetching generation:', error)
     } finally {
       setLoading(false)
     }
-  }, [generationId, router])
+  }, [generationId, router, backUrl])
 
   useEffect(() => {
     fetchGeneration()
@@ -197,10 +200,10 @@ function GenerationDetailContent() {
         <div className="max-w-4xl mx-auto text-center py-12">
           <h1 className="text-2xl font-heading mb-4">Generation Not Found</h1>
           <button
-            onClick={() => router.push('/admin/chat-eval/axial-codes')}
+            onClick={() => router.push(backUrl)}
             className="text-radiant-gold hover:underline"
           >
-            Back to Axial Codes
+            Back
           </button>
         </div>
       </div>
@@ -482,10 +485,10 @@ function GenerationDetailContent() {
         {/* Back button */}
         <div className="mt-8">
           <button
-            onClick={() => router.push('/admin/chat-eval/axial-codes')}
+            onClick={() => router.push(backUrl)}
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
-            ← Back to All Generations
+            ← Back
           </button>
         </div>
       </div>

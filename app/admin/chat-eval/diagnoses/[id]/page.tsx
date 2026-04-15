@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
+import { getBackUrl } from '@/lib/admin-return-context'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { useAuth } from '@/components/AuthProvider'
@@ -86,8 +87,10 @@ export default function DiagnosisDetailPage() {
 function DiagnosisDetailContent() {
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const diagnosisId = params.id as string
-  
+  const backUrl = getBackUrl(searchParams, '/admin/chat-eval/diagnoses')
+
   const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -116,14 +119,14 @@ function DiagnosisDetailContent() {
           .map((rec: Recommendation) => rec.id) || []
         setSelectedRecommendations(new Set(approved))
       } else if (response.status === 404) {
-        router.push('/admin/chat-eval/diagnoses')
+        router.push(backUrl)
       }
     } catch (error) {
       console.error('Error fetching diagnosis:', error)
     } finally {
       setLoading(false)
     }
-  }, [diagnosisId, router])
+  }, [diagnosisId, router, backUrl])
 
   useEffect(() => {
     fetchDiagnosis()
@@ -243,10 +246,10 @@ function DiagnosisDetailContent() {
         <div className="max-w-4xl mx-auto text-center py-12">
           <h1 className="text-2xl font-heading mb-4">Diagnosis Not Found</h1>
           <button
-            onClick={() => router.push('/admin/chat-eval/diagnoses')}
+            onClick={() => router.push(backUrl)}
             className="text-radiant-gold hover:underline"
           >
-            Back to Diagnoses
+            Back
           </button>
         </div>
       </div>
@@ -547,10 +550,10 @@ function DiagnosisDetailContent() {
         {/* Back button */}
         <div className="mt-8">
           <button
-            onClick={() => router.push('/admin/chat-eval/diagnoses')}
+            onClick={() => router.push(backUrl)}
             className="text-muted-foreground hover:text-foreground transition-colors"
           >
-            ← Back to All Diagnoses
+            ← Back
           </button>
         </div>
       </div>

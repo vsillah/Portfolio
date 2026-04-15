@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter, useParams, useSearchParams } from 'next/navigation'
+import { getBackUrl } from '@/lib/admin-return-context'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -45,7 +46,9 @@ export default function PromptHistoryPage() {
 function PromptHistoryContent() {
   const router = useRouter()
   const params = useParams()
+  const searchParams = useSearchParams()
   const promptKey = params.key as string
+  const backUrl = getBackUrl(searchParams, `/admin/prompts/${promptKey}`)
 
   const [prompt, setPrompt] = useState<SystemPrompt | null>(null)
   const [history, setHistory] = useState<PromptHistory[]>([])
@@ -304,11 +307,11 @@ function PromptHistoryContent() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => router.push(`/admin/prompts/${promptKey}`)}
+            onClick={() => router.push(backUrl)}
             className="px-4 py-2 bg-silicon-slate/30 border border-radiant-gold/20 rounded-lg
               text-sm hover:border-radiant-gold/40 transition-colors"
           >
-            ← Back to Edit
+            ← Back
           </motion.button>
         </div>
       </div>

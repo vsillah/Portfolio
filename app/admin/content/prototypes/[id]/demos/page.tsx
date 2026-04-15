@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { getBackUrl } from '@/lib/admin-return-context'
 import { motion, AnimatePresence, Reorder } from 'framer-motion'
 import { 
   Plus, Trash2, ArrowLeft, Upload, X, Video, Image as ImageIcon,
@@ -58,6 +59,8 @@ const PERSONA_TYPES = [
 
 export default function PrototypeDemosPage({ params }: { params: { id: string } }) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const backUrl = getBackUrl(searchParams, `/admin/content/prototypes/${params.id}`)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [demos, setDemos] = useState<Demo[]>([])
@@ -99,7 +102,7 @@ export default function PrototypeDemosPage({ params }: { params: { id: string } 
       if (!response.ok) {
         if (response.status === 404) {
           showNotification('error', 'Prototype not found')
-          router.push('/admin/content/prototypes')
+          router.push(backUrl)
           return
         }
         throw new Error('Failed to fetch prototype')
@@ -114,7 +117,7 @@ export default function PrototypeDemosPage({ params }: { params: { id: string } 
     } finally {
       setLoading(false)
     }
-  }, [params.id, router, showNotification])
+  }, [params.id, router, backUrl, showNotification])
 
   useEffect(() => {
     fetchData()
@@ -395,7 +398,7 @@ export default function PrototypeDemosPage({ params }: { params: { id: string } 
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
               <div className="flex items-center gap-4">
                 <Link 
-                  href={`/admin/content/prototypes/${params.id}`}
+                  href={backUrl}
                   className="p-2 bg-gray-800 rounded-lg hover:bg-gray-700 transition-colors"
                 >
                   <ArrowLeft size={20} />

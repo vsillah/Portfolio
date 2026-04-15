@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import { getBackUrl } from '@/lib/admin-return-context';
 import {
   ArrowLeft, CheckCircle2, XCircle, Clock, AlertCircle, Shield,
   Loader2, MessageSquare, DollarSign,
@@ -41,8 +42,10 @@ interface EnrollmentDetail {
 
 export default function EnrollmentDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const campaignId = params.id as string;
   const enrollmentId = params.enrollmentId as string;
+  const backUrl = getBackUrl(searchParams, `/admin/campaigns/${campaignId}`);
 
   const [enrollment, setEnrollment] = useState<EnrollmentDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -128,8 +131,8 @@ export default function EnrollmentDetailPage() {
         { label: enrollment.client_name || enrollment.client_email },
       ]} />
 
-      <Link href={`/admin/campaigns/${campaignId}`} className="text-gray-400 hover:text-white text-sm flex items-center gap-1 mb-4">
-        <ArrowLeft size={14} /> Back to campaign
+      <Link href={backUrl} className="text-gray-400 hover:text-white text-sm flex items-center gap-1 mb-4">
+        <ArrowLeft size={14} /> Back
       </Link>
 
       {/* Client Header */}

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import { buildLinkWithReturn } from '@/lib/admin-return-context'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { useAuth } from '@/components/AuthProvider'
@@ -283,7 +284,7 @@ function AxialCodesContent() {
                 key={gen.id}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
-                onClick={() => router.push(`/admin/chat-eval/axial-codes/${gen.id}`)}
+                onClick={() => router.push(buildLinkWithReturn(`/admin/chat-eval/axial-codes/${gen.id}`, '/admin/chat-eval/axial-codes'))}
                 className="p-5 bg-silicon-slate/20 border border-radiant-gold/10 rounded-xl
                   hover:border-radiant-gold/30 cursor-pointer transition-all"
               >

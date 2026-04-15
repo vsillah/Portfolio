@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -9,6 +9,7 @@ import {
   Clock, Loader2, X, ChevronRight, AlertCircle, UserPlus, Calendar,
 } from 'lucide-react';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
+import { getBackUrl, buildLinkWithReturn } from '@/lib/admin-return-context';
 import {
   CAMPAIGN_STATUS_LABELS, CAMPAIGN_STATUS_COLORS, CRITERIA_TYPE_LABELS,
   TRACKING_SOURCE_LABELS, ENROLLMENT_STATUS_LABELS, ENROLLMENT_STATUS_COLORS,
@@ -43,7 +44,9 @@ interface EnrollmentRow {
 export default function CampaignDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const campaignId = params.id as string;
+  const backUrl = getBackUrl(searchParams, '/admin/campaigns');
 
   const [campaign, setCampaign] = useState<CampaignDetail | null>(null);
   const [enrollments, setEnrollments] = useState<EnrollmentRow[]>([]);
@@ -197,7 +200,7 @@ export default function CampaignDetailPage() {
     return (
       <div className="min-h-screen bg-gray-950 text-white p-6">
         <p className="text-gray-400">Campaign not found.</p>
-        <Link href="/admin/campaigns" className="text-amber-400 hover:underline mt-2 inline-block">Back to campaigns</Link>
+        <Link href={backUrl} className="text-amber-400 hover:underline mt-2 inline-block">Back</Link>
       </div>
     );
   }
@@ -218,8 +221,8 @@ export default function CampaignDetailPage() {
 
       {/* Header */}
       <div className="mb-8">
-        <Link href="/admin/campaigns" className="text-gray-400 hover:text-white text-sm flex items-center gap-1 mb-4">
-          <ArrowLeft size={14} /> Back to campaigns
+        <Link href={backUrl} className="text-gray-400 hover:text-white text-sm flex items-center gap-1 mb-4">
+          <ArrowLeft size={14} /> Back
         </Link>
         <div className="flex items-center gap-4">
           <h1 className="text-3xl font-bold">{campaign.name}</h1>
@@ -436,7 +439,7 @@ export default function CampaignDetailPage() {
               enrollments.map((e) => {
                 const progress = calculateOverallProgress(e.campaign_progress || []);
                 return (
-                  <Link key={e.id} href={`/admin/campaigns/${campaignId}/enrollments/${e.id}`}>
+                  <Link key={e.id} href={buildLinkWithReturn(`/admin/campaigns/${campaignId}/enrollments/${e.id}`, `/admin/campaigns/${campaignId}`)}>
                     <motion.div whileHover={{ scale: 1.002 }} className="p-4 bg-gray-900 border border-gray-700 rounded-lg hover:border-amber-500/50 transition-colors cursor-pointer">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">

@@ -8,6 +8,7 @@ import {
   DollarSign, X, Loader2,
 } from 'lucide-react';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
+import { buildLinkWithReturn } from '@/lib/admin-return-context';
 import {
   CAMPAIGN_TYPE_LABELS, CAMPAIGN_STATUS_LABELS, CAMPAIGN_STATUS_COLORS,
   ENROLLMENT_STATUS_LABELS, validateSlug,
@@ -260,7 +261,7 @@ export default function CampaignsAdminPage() {
       ) : (
         <div className="space-y-4">
           {campaigns.map((c) => (
-            <Link key={c.id} href={`/admin/campaigns/${c.id}`}>
+            <Link key={c.id} href={buildLinkWithReturn(`/admin/campaigns/${c.id}`, '/admin/campaigns')}>
               <motion.div
                 whileHover={{ scale: 1.005 }}
                 className="p-5 bg-gray-900 border border-gray-700 rounded-xl hover:border-amber-500/50 transition-colors cursor-pointer"

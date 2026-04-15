@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { motion } from 'framer-motion'
 import { useRouter } from 'next/navigation'
+import { buildLinkWithReturn } from '@/lib/admin-return-context'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -255,7 +256,7 @@ function PromptsContent() {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => router.push(`/admin/prompts/${prompt.key}/history`)}
+                      onClick={() => router.push(buildLinkWithReturn(`/admin/prompts/${prompt.key}/history`, '/admin/prompts'))}
                       className="px-3 py-2 bg-silicon-slate/30 border border-radiant-gold/20 rounded-lg
                         text-sm hover:bg-silicon-slate/50 hover:border-radiant-gold/40 transition-all
                         flex items-center gap-2"

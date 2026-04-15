@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { getBackUrl } from '@/lib/admin-return-context'
 import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 import {
@@ -66,6 +67,8 @@ const PLATFORM_COLORS: Record<string, { active: string; inactive: string }> = {
 function SocialContentDetailPage() {
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const backUrl = getBackUrl(searchParams, '/admin/social-content')
   const [item, setItem] = useState<SocialContentItem | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -425,8 +428,8 @@ function SocialContentDetailPage() {
     return (
       <div className="min-h-screen bg-background text-foreground p-8">
         <p className="text-gray-400">Content not found.</p>
-        <Link href="/admin/social-content" className="text-blue-400 hover:underline text-sm mt-2 inline-block">
-          Back to queue
+        <Link href={backUrl} className="text-blue-400 hover:underline text-sm mt-2 inline-block">
+          Back
         </Link>
       </div>
     )
@@ -463,7 +466,7 @@ function SocialContentDetailPage() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => router.push('/admin/social-content')}
+              onClick={() => router.push(backUrl)}
               className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
+import { getBackUrl } from '@/lib/admin-return-context';
 import { 
   ProductWithRole,
   ContentWithRole,
@@ -228,8 +229,10 @@ function DiagnosticSection({
 export default function ClientWalkthroughPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
   const auditId = params.auditId as string;
+  const backUrl = getBackUrl(searchParams, '/admin/sales');
 
   // Data state
   const [audit, setAudit] = useState<DiagnosticAudit | null>(null);
@@ -975,7 +978,7 @@ export default function ClientWalkthroughPage() {
           <h2 className="text-lg font-medium text-white mb-2">Error Loading Data</h2>
           <p className="text-gray-400 mb-4">{error}</p>
           <button
-            onClick={() => router.push('/admin/sales')}
+            onClick={() => router.push(backUrl)}
             className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
           >
             Return to Dashboard
@@ -1000,7 +1003,7 @@ export default function ClientWalkthroughPage() {
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push('/admin/sales')}
+              onClick={() => router.push(backUrl)}
               className="p-2 hover:bg-gray-800 rounded-lg text-gray-400 hover:text-white"
             >
               <ArrowLeft className="w-5 h-5" />

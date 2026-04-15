@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
+import { getBackUrl } from '@/lib/admin-return-context'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import {
@@ -208,7 +209,9 @@ const markdownComponents = {
 
 export default function ValueReportPage() {
   const params = useParams()
+  const searchParams = useSearchParams()
   const id = params?.id as string
+  const backUrl = getBackUrl(searchParams, '/admin/value-evidence')
   const [report, setReport] = useState<Report | null>(null)
   const [contact, setContact] = useState<Contact | null>(null)
   const [benchmarks, setBenchmarks] = useState<Benchmark[]>([])
@@ -265,11 +268,11 @@ export default function ValueReportPage() {
 
         <div className="max-w-4xl mx-auto">
           <Link
-            href="/admin/value-evidence"
+            href={backUrl}
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
           >
             <ArrowLeft size={18} />
-            Back to Value Evidence
+            Back
           </Link>
 
           {loading && (
@@ -284,10 +287,10 @@ export default function ValueReportPage() {
               <AlertCircle size={48} className="text-red-400 mb-4" />
               <p className="text-red-300 text-lg mb-2">{error}</p>
               <Link
-                href="/admin/value-evidence"
+                href={backUrl}
                 className="text-muted-foreground hover:text-foreground"
               >
-                Return to Value Evidence
+                Back
               </Link>
             </div>
           )}

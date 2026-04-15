@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
+import { parseReturnTo } from '@/lib/admin-return-context';
 import { supabase } from '@/lib/supabase';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
@@ -27,6 +28,7 @@ import {
   Settings,
   Square,
   Zap,
+  ArrowLeft,
 } from 'lucide-react';
 import Link from 'next/link';
 import ExternalInputCard, { type ReportContextPreview } from '@/components/admin/ExternalInputCard';
@@ -108,6 +110,7 @@ export default function GammaReportsPage() {
 function GammaReportsContent() {
   const { session } = useAuth();
   const searchParams = useSearchParams();
+  const returnUrl = parseReturnTo(searchParams);
 
   // Form state
   const [reportType, setReportType] = useState<ReportType>(
@@ -841,6 +844,12 @@ function GammaReportsContent() {
             { label: 'Gamma Reports' },
           ]}
         />
+
+        {returnUrl && (
+          <Link href={returnUrl} className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mt-2">
+            <ArrowLeft size={16} /> Back
+          </Link>
+        )}
 
         <div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
