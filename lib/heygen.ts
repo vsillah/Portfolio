@@ -9,6 +9,8 @@ const HEYGEN_API_BASE = 'https://api.heygen.com'
 
 export interface CreateAvatarVideoParams {
   avatarId: string
+  /** Default avatar — use talking_photo when id came from listAvatars talking_photos. */
+  characterKind?: 'avatar' | 'talking_photo'
   script: string
   voiceId: string
   title?: string
@@ -44,6 +46,8 @@ export interface AvatarOption {
   id: string
   name: string
   type: 'avatar'
+  /** HeyGen video_inputs.character.type — photo avatars use talking_photo_id, not avatar_id. */
+  characterKind: 'avatar' | 'talking_photo'
 }
 
 export interface ListAvatarsResult {
@@ -53,7 +57,7 @@ export interface ListAvatarsResult {
 
 /**
  * List available avatars from HeyGen API (v2).
- * Returns only standard avatars (not talking photos) for use with createAvatarVideo.
+ * Includes standard avatars and talking photos (custom / photo avatars) from the same endpoint.
  */
 export async function listAvatars(): Promise<ListAvatarsResult> {
   const apiKey = process.env.HEYGEN_API_KEY
@@ -68,7 +72,10 @@ export async function listAvatars(): Promise<ListAvatarsResult> {
 
   let json: {
     error?: string | { code?: string; message?: string } | null
-    data?: { avatars?: Array<{ avatar_id?: string; avatar_name?: string }> }
+    data?: {
+      avatars?: Array<{ avatar_id?: string; avatar_name?: string }>
+      talking_photos?: Array<{ talking_photo_id?: string; talking_photo_name?: string }>
+    }
   } = {}
   try {
     json = (await res.json()) as typeof json
@@ -94,13 +101,28 @@ export async function listAvatars(): Promise<ListAvatarsResult> {
     return { avatars: [], error: errMsg }
   }
 
-  const avatars = (json.data?.avatars ?? []).map(a => ({
+  const standard = (json.data?.avatars ?? []).map(a => ({
     id: a.avatar_id ?? '',
     name: a.avatar_name ?? a.avatar_id ?? 'Unknown',
     type: 'avatar' as const,
+    characterKind: 'avatar' as const,
   })).filter(a => a.id)
 
-  return { avatars, error: null }
+  const photos = (json.data?.talking_photos ?? []).map(p => ({
+    id: p.talking_photo_id ?? '',
+    name: p.talking_photo_name
+      ? `${p.talking_photo_name} (photo avatar)`
+      : `${p.talking_photo_id ?? 'Photo'} (photo avatar)`,
+    type: 'avatar' as const,
+    characterKind: 'talking_photo' as const,
+  })).filter(a => a.id)
+
+  // Standard avatars first, then photo avatars; dedupe by id if HeyGen ever overlaps
+  const byId = new Map<string, AvatarOption>()
+  for (const a of standard) byId.set(a.id, a)
+  for (const a of photos) byId.set(a.id, a)
+
+  return { avatars: Array.from(byId.values()), error: null }
 }
 
 export interface VoiceOption {
@@ -201,6 +223,12 @@ export async function createAvatarVideo(params: CreateAvatarVideoParams): Promis
   const aspectRatio = params.aspectRatio ?? (params.channel ? channelToAspectRatio(params.channel) : '16:9')
   const dimension = aspectRatioToDimension(aspectRatio)
 
+  const kind = params.characterKind ?? 'avatar'
+  const character =
+    kind === 'talking_photo'
+      ? { type: 'talking_photo' as const, talking_photo_id: params.avatarId }
+      : { type: 'avatar' as const, avatar_id: params.avatarId }
+
   const body = {
     title: params.title ?? '',
     callback_id: params.callbackId ?? undefined,
@@ -210,10 +238,7 @@ export async function createAvatarVideo(params: CreateAvatarVideoParams): Promis
     },
     video_inputs: [
       {
-        character: {
-          type: 'avatar',
-          avatar_id: params.avatarId,
-        },
+        character,
         voice: {
           type: 'text',
           voice_id: params.voiceId,
@@ -513,6 +538,8 @@ export interface CreateVideoParams {
   /** For avatar mode */
   avatarId?: string
   voiceId?: string
+  /** When set, skips DB lookup (e.g. tests or explicit client). */
+  avatarCharacterKind?: 'avatar' | 'talking_photo'
   /** For template mode (overrides avatar when both templateId and avatarId are set) */
   templateId?: string
   brandVoiceId?: string
@@ -577,8 +604,19 @@ export async function createVideo(params: CreateVideoParams): Promise<CreateAvat
     }
   }
 
+  let characterKind: 'avatar' | 'talking_photo' = params.avatarCharacterKind ?? 'avatar'
+  if (!params.avatarCharacterKind) {
+    try {
+      const { getAvatarCharacterKindForHeyGen } = await import('./heygen-config')
+      characterKind = await getAvatarCharacterKindForHeyGen(avatarId)
+    } catch {
+      /* treat as standard avatar */
+    }
+  }
+
   return createAvatarVideo({
     avatarId,
+    characterKind,
     voiceId,
     script: params.script,
     title: params.title,

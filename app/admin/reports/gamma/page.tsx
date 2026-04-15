@@ -153,15 +153,26 @@ function GammaReportsContent() {
   const [selectedVoiceId, setSelectedVoiceId] = useState<string | null>(null);
   const [triggerAllLoading, setTriggerAllLoading] = useState(false);
 
-  // Theme
-  const [themes, setThemes] = useState<{ id: string; name: string }[]>([]);
+  // Theme (DB catalog + Gamma sync — see AssetPicker pattern next to HeyGen)
+  const [themeAssets, setThemeAssets] = useState<AssetPickerItem[]>([]);
   const [defaultThemeId, setDefaultThemeId] = useState<string | null>(null);
   const [selectedTheme, setSelectedTheme] = useState<string>('');
   const [loadingThemes, setLoadingThemes] = useState(true);
+  const [themeSyncing, setThemeSyncing] = useState(false);
+  const [themesLastSync, setThemesLastSync] = useState<{
+    syncedAt: string;
+    success: boolean;
+    themesSynced: number;
+    error: string | null;
+  } | null>(null);
+  const [hasGammaApiKey, setHasGammaApiKey] = useState(true);
 
   // History
   const [reports, setReports] = useState<GammaReport[]>([]);
   const [loadingReports, setLoadingReports] = useState(true);
+
+  const [generatingValueReport, setGeneratingValueReport] = useState(false);
+  const [valueReportGenerateError, setValueReportGenerateError] = useState<string | null>(null);
 
   const [externalExpandAllKey, setExternalExpandAllKey] = useState(0);
   const [externalCollapseAllKey, setExternalCollapseAllKey] = useState(0);
@@ -378,30 +389,133 @@ function GammaReportsContent() {
     } catch { /* non-critical */ }
   }, [getToken]);
 
-  // Fetch themes
+  const loadThemes = useCallback(async () => {
+    const token = await getToken();
+    if (!token) return;
+    setLoadingThemes(true);
+    try {
+      const res = await fetch('/api/admin/gamma-reports/themes', {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const assets = Array.isArray(data.themeAssets) ? (data.themeAssets as AssetPickerItem[]) : [];
+        setThemeAssets(assets);
+        setHasGammaApiKey(data.hasApiKey !== false);
+        const dflt = typeof data.defaultThemeId === 'string' ? data.defaultThemeId : '';
+        setDefaultThemeId(dflt || null);
+        if (data.lastSync && typeof data.lastSync === 'object') {
+          const ls = data.lastSync as Record<string, unknown>;
+          setThemesLastSync({
+            syncedAt: String(ls.syncedAt ?? ''),
+            success: Boolean(ls.success),
+            themesSynced: Number(ls.themesSynced ?? 0),
+            error: ls.error != null ? String(ls.error) : null,
+          });
+        } else {
+          setThemesLastSync(null);
+        }
+        setSelectedTheme((prev) => {
+          const ids = new Set(assets.map((a) => a.asset_id));
+          if (prev && ids.has(prev)) return prev;
+          if (dflt && ids.has(dflt)) return dflt;
+          return '';
+        });
+      }
+    } catch {
+      /* non-critical */
+    }
+    setLoadingThemes(false);
+  }, [getToken]);
+
   useEffect(() => {
     if (!session) return;
-    async function load() {
+    void loadThemes();
+  }, [session, loadThemes]);
+
+  const syncThemesFromGamma = useCallback(async () => {
+    const token = await getToken();
+    if (!token) return;
+    setThemeSyncing(true);
+    try {
+      const res = await fetch('/api/admin/gamma-reports/themes', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'sync' }),
+      });
+      if (!res.ok) {
+        if (process.env.NODE_ENV === 'development') {
+          const errBody = await res.json().catch(() => ({}));
+          console.warn('[gamma] theme sync failed', errBody);
+        }
+      }
+      await loadThemes();
+    } catch {
+      await loadThemes();
+    } finally {
+      setThemeSyncing(false);
+    }
+  }, [getToken, loadThemes]);
+
+  const toggleFavoriteTheme = useCallback(
+    async (themeId: string, fav: boolean) => {
       const token = await getToken();
       if (!token) return;
-      setLoadingThemes(true);
       try {
-        const res = await fetch('/api/admin/gamma-reports/themes', {
-          headers: { Authorization: `Bearer ${token}` },
+        await fetch('/api/admin/gamma-reports/themes', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'toggle_favorite', themeId, favorite: fav }),
         });
-        if (res.ok) {
-          const data = await res.json();
-          const list = Array.isArray(data.themes) ? data.themes : [];
-          setThemes(list.map((t: { id: string; name?: string }) => ({ id: t.id, name: t.name || t.id })));
-          const dflt = data.defaultThemeId || '';
-          setDefaultThemeId(dflt);
-          setSelectedTheme(dflt);
-        }
-      } catch { /* non-critical */ }
-      setLoadingThemes(false);
-    }
-    load();
-  }, [session, getToken]);
+        setThemeAssets((prev) =>
+          prev.map((t) => (t.asset_id === themeId ? { ...t, is_favorite: fav } : t))
+        );
+      } catch {
+        /* non-critical */
+      }
+    },
+    [getToken]
+  );
+
+  const setDefaultGammaTheme = useCallback(
+    async (themeId: string) => {
+      const token = await getToken();
+      if (!token) return;
+      try {
+        await fetch('/api/admin/gamma-reports/themes', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'set_default', themeId }),
+        });
+        setThemeAssets((prev) =>
+          prev.map((t) => ({ ...t, is_default: t.asset_id === themeId }))
+        );
+        setDefaultThemeId(themeId);
+      } catch {
+        /* non-critical */
+      }
+    },
+    [getToken]
+  );
+
+  const addManualGammaTheme = useCallback(
+    async (themeId: string, themeName: string) => {
+      const token = await getToken();
+      if (!token) return;
+      try {
+        await fetch('/api/admin/gamma-reports/themes', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'add_manual', themeId, themeName }),
+        });
+        await loadThemes();
+      } catch {
+        /* non-critical */
+      }
+    },
+    [getToken, loadThemes]
+  );
 
   // Fetch contacts
   useEffect(() => {
@@ -444,27 +558,89 @@ function GammaReportsContent() {
     load();
   }, [contactId, getToken]);
 
+  const loadValueReports = useCallback(
+    async (cid: string, options?: { selectId?: string }) => {
+      if (!cid) {
+        setValueReports([]);
+        setValueReportId('');
+        return;
+      }
+      const token = await getToken();
+      if (!token) return;
+      const res = await fetch(
+        `/api/admin/value-evidence/reports?contact_id=${encodeURIComponent(cid)}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const reportList = Array.isArray(data) ? data : data.reports || [];
+        setValueReports(reportList);
+        if (options?.selectId) {
+          setValueReportId(options.selectId);
+        } else if (reportList.length === 1) {
+          setValueReportId(reportList[0].id);
+        } else {
+          setValueReportId('');
+        }
+      }
+    },
+    [getToken]
+  );
+
   // Fetch value reports when contact changes
   useEffect(() => {
     if (!contactId) {
       setValueReports([]);
       setValueReportId('');
+      setValueReportGenerateError(null);
       return;
     }
-    async function load() {
+    setValueReportId('');
+    setValueReportGenerateError(null);
+    void loadValueReports(contactId);
+  }, [contactId, loadValueReports]);
+
+  async function handleGenerateValueReport() {
+    if (!contactId) return;
+    setGeneratingValueReport(true);
+    setValueReportGenerateError(null);
+    try {
       const token = await getToken();
-      const res = await fetch(`/api/admin/value-evidence/reports?contactId=${contactId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const reportList = Array.isArray(data) ? data : data.reports || [];
-        setValueReports(reportList);
-        if (reportList.length === 1) setValueReportId(reportList[0].id);
+      if (!token) {
+        setValueReportGenerateError('Please sign in again.');
+        return;
       }
+      const res = await fetch('/api/admin/value-evidence/reports/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          contact_submission_id: parseInt(contactId, 10),
+          report_type: 'client_facing',
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('[gamma] value report generate failed', data);
+        }
+        setValueReportGenerateError('We could not create the value report. Please try again.');
+        return;
+      }
+      const newId = data.report?.id as string | undefined;
+      if (newId) {
+        await loadValueReports(contactId, { selectId: newId });
+      } else {
+        await loadValueReports(contactId);
+      }
+    } catch {
+      setValueReportGenerateError('We could not create the value report. Please try again.');
+    } finally {
+      setGeneratingValueReport(false);
     }
-    load();
-  }, [contactId, getToken]);
+  }
 
   // Fetch report context preview for ExternalInputCards
   useEffect(() => {
@@ -730,6 +906,44 @@ function GammaReportsContent() {
             </select>
           </div>
 
+          {contactId && (
+            <div className="rounded-lg border border-gray-800 bg-gray-950/50 p-4 space-y-3">
+              {reportType === 'value_quantification' && (
+                <p className="text-xs text-amber-400/90">
+                  Value Quantification works best with a saved value report. Create one here if this contact does not have one yet.
+                </p>
+              )}
+              {valueReportGenerateError && (
+                <p className="text-xs text-red-400" role="alert">
+                  {valueReportGenerateError}
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={() => { void handleGenerateValueReport(); }}
+                disabled={generatingValueReport}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-green-600/20 border border-green-500/50 text-green-300 hover:bg-green-600/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {generatingValueReport ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Generating value report…
+                  </>
+                ) : (
+                  <>
+                    <FileText className="w-4 h-4" />
+                    {valueReports.length > 0 ? 'Regenerate value report' : 'Generate value report for this contact'}
+                  </>
+                )}
+              </button>
+              {valueReports.length === 0 && !generatingValueReport && (
+                <p className="text-xs text-gray-500">
+                  No value reports on file for this contact. Generate one to populate the selector below (same as Admin → Value Evidence Pipeline → Reports).
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Audit Picker */}
           {audits.length > 0 && (
             <div>
@@ -755,7 +969,7 @@ function GammaReportsContent() {
           )}
 
           {/* Value Report Picker */}
-          {valueReports.length > 0 && (
+          {contactId && valueReports.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">Value Report</label>
               <select
@@ -763,10 +977,10 @@ function GammaReportsContent() {
                 onChange={(e) => setValueReportId(e.target.value)}
                 className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white focus:border-emerald-500 focus:outline-none"
               >
-                <option value="">— No value report selected —</option>
+                <option value="">— No value report selected (latest used if omitted) —</option>
                 {valueReports.map((r) => (
                   <option key={r.id} value={r.id}>
-                    {r.title}
+                    {r.title?.trim() ? r.title : 'Value report'}
                   </option>
                 ))}
               </select>
@@ -774,34 +988,96 @@ function GammaReportsContent() {
           )}
         </div>
 
-        {/* Theme Selector */}
-        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4">
-          <div className="flex items-center gap-2 mb-2">
-            <Palette className="w-4 h-4 text-gray-400" />
+        {/* Theme — Gamma catalog (sync pulls all pages from Gamma API) */}
+        <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-4 space-y-3">
+          <div className="flex flex-wrap items-center gap-2 gap-y-1">
+            <Palette className="w-4 h-4 text-gray-400 shrink-0" />
             <span className="text-sm font-medium text-gray-300">Theme</span>
-            {selectedTheme === defaultThemeId && defaultThemeId && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/50 text-emerald-400 border border-emerald-800">default</span>
+            {selectedTheme === '' && defaultThemeId && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-600">
+                using default from settings
+              </span>
             )}
+            {selectedTheme !== '' && selectedTheme === defaultThemeId && defaultThemeId && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-900/50 text-emerald-400 border border-emerald-800">
+                default
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => void syncThemesFromGamma()}
+              disabled={themeSyncing || !hasGammaApiKey}
+              className="ml-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-medium bg-teal-900/40 text-teal-200 border border-teal-700/60 hover:bg-teal-800/50 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+              title="Fetch all themes from Gamma (paginated) and update the catalog"
+            >
+              {themeSyncing ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <RefreshCw className="w-3 h-3" />
+              )}
+              Sync from Gamma
+            </button>
           </div>
+          {!hasGammaApiKey && (
+            <p className="text-[11px] text-amber-400/90">
+              Set <code className="text-amber-200/90">GAMMA_API_KEY</code> to sync themes. Reports can still use{' '}
+              <code className="text-amber-200/90">GAMMA_DEFAULT_THEME_ID</code> when set.
+            </p>
+          )}
+          {themesLastSync?.syncedAt && (
+            <p className="text-[10px] text-gray-500">
+              Last Gamma sync: {new Date(themesLastSync.syncedAt).toLocaleString()}
+              {themesLastSync.themesSynced > 0 ? ` · ${themesLastSync.themesSynced} themes` : ''}
+              {!themesLastSync.success && themesLastSync.error ? ` · ${themesLastSync.error}` : ''}
+            </p>
+          )}
           {loadingThemes ? (
             <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading themes...
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading themes…
             </div>
-          ) : themes.length === 0 ? (
-            <p className="text-xs text-gray-500">No themes available. Reports will use workspace default.</p>
+          ) : themeAssets.length === 0 ? (
+            <div className="space-y-2">
+              <p className="text-xs text-gray-500">
+                No themes in the catalog yet. Click <strong className="text-gray-400">Sync from Gamma</strong> to import
+                your workspace themes (including custom themes past the first API page), or add a theme by ID if it does
+                not appear after sync.
+              </p>
+              <AssetPicker
+                label="Theme"
+                items={[]}
+                selectedId={null}
+                onSelect={() => {}}
+                onToggleFavorite={() => {
+                  /* no rows */
+                }}
+                onAddManual={async (id, name) => {
+                  await addManualGammaTheme(id, name);
+                }}
+              />
+            </div>
           ) : (
-            <select
-              value={selectedTheme}
-              onChange={(e) => setSelectedTheme(e.target.value)}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500"
-            >
-              <option value="">Workspace default</option>
-              {themes.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}{t.id === defaultThemeId ? ' (AmaduTown)' : ''}
-                </option>
-              ))}
-            </select>
+            <div className="space-y-2">
+              <AssetPicker
+                label="Theme"
+                items={themeAssets}
+                selectedId={selectedTheme === '' ? null : selectedTheme}
+                onSelect={(id) => setSelectedTheme(id)}
+                onToggleFavorite={(id, fav) => void toggleFavoriteTheme(id, fav)}
+                onSetDefault={(id) => void setDefaultGammaTheme(id)}
+                onAddManual={async (id, name) => {
+                  await addManualGammaTheme(id, name);
+                }}
+              />
+              {selectedTheme !== '' && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedTheme('')}
+                  className="text-[10px] text-gray-500 hover:text-teal-400/90 transition-colors"
+                >
+                  Clear selection — use default from settings (DB or GAMMA_DEFAULT_THEME_ID)
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -1014,7 +1290,7 @@ function GammaReportsContent() {
         <DataCompletenessPanel
           hasContact={!!contactId}
           hasAudit={!!auditId}
-          hasValueReport={!!valueReportId}
+          hasValueReport={Boolean(valueReportId) || valueReports.length > 0}
           serviceCount={0}
           reportType={reportType}
         />

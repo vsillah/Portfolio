@@ -10,6 +10,7 @@
 
 import { supabaseAdmin } from './supabase'
 import type { GammaGenerateOptions } from './gamma-client'
+import { resolveGammaThemeIdForGeneration } from './gamma-theme-config'
 import {
   type CalculationMethod,
   type ConfidenceLevel,
@@ -355,7 +356,7 @@ export async function buildGammaReportInput(
     ...params.gammaOptions,
   }
 
-  options.themeId = params.theme || process.env.GAMMA_DEFAULT_THEME_ID || undefined
+  options.themeId = await resolveGammaThemeIdForGeneration(params.theme)
 
   if (params.externalInputs?.customInstructions) {
     options.additionalInstructions = params.externalInputs.customInstructions
@@ -394,16 +395,31 @@ async function fetchReportContext(params: GammaReportParams): Promise<ReportCont
           .then((r: { data: AuditData | null }) => r.data)
       : Promise.resolve(null),
 
-    params.valueReportId
-      ? supabaseAdmin
+    (async (): Promise<ValueReportData | null> => {
+      if (params.valueReportId) {
+        const r = await supabaseAdmin
           .from('value_reports')
           .select(
             'id, title, report_type, industry, company_size_range, summary_markdown, value_statements, total_annual_value, evidence_chain'
           )
           .eq('id', params.valueReportId)
           .single()
-          .then((r: { data: ValueReportData | null }) => r.data)
-      : Promise.resolve(null),
+        return (r.data as ValueReportData | null) ?? null
+      }
+      if (params.contactSubmissionId) {
+        const r = await supabaseAdmin
+          .from('value_reports')
+          .select(
+            'id, title, report_type, industry, company_size_range, summary_markdown, value_statements, total_annual_value, evidence_chain'
+          )
+          .eq('contact_submission_id', params.contactSubmissionId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+        return (r.data as ValueReportData | null) ?? null
+      }
+      return null
+    })(),
 
     params.serviceIds && params.serviceIds.length > 0
       ? supabaseAdmin
@@ -478,7 +494,8 @@ export async function fetchReportAndVideoContext(
   params: GammaReportParams
 ): Promise<{ gammaInput: GammaReportInput; videoScriptContext: VideoScriptContext }> {
   const ctx = await fetchReportContext(params)
-  const gammaInput = buildGammaReportInputFromContext(ctx, params)
+  const resolvedTheme = await resolveGammaThemeIdForGeneration(params.theme)
+  const gammaInput = buildGammaReportInputFromContext(ctx, { ...params, theme: resolvedTheme })
   const videoScriptContext = reportContextToVideoScriptContext(ctx)
   return { gammaInput, videoScriptContext }
 }
@@ -537,7 +554,7 @@ function buildGammaReportInputFromContext(
     ...params.gammaOptions,
   }
 
-  options.themeId = params.theme || process.env.GAMMA_DEFAULT_THEME_ID || undefined
+  options.themeId = params.theme || undefined
 
   if (params.externalInputs?.customInstructions) {
     options.additionalInstructions = params.externalInputs.customInstructions

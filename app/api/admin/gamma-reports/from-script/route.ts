@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { generateGamma, waitForGeneration } from '@/lib/gamma-client'
+import { resolveGammaThemeIdForGeneration } from '@/lib/gamma-theme-config'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 120
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
       (body.title as string)?.trim() ||
       `One-pager from script (${new Date().toLocaleDateString()})`
 
-    const themeId = (body.theme as string)?.trim() || process.env.GAMMA_DEFAULT_THEME_ID || undefined
+    const themeId = await resolveGammaThemeIdForGeneration((body.theme as string) || null)
 
     const options = {
       format: 'presentation' as const,

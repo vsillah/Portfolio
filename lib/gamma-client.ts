@@ -159,3 +159,65 @@ export async function generateAndWait(
   const { generationId } = await generateGamma(inputText, options)
   return waitForGeneration(generationId)
 }
+
+/** One page from Gamma list-themes (cursor pagination). */
+export interface GammaThemeListItem {
+  id: string
+  name: string
+  type?: string
+}
+
+/**
+ * Fetch all workspace themes from Gamma (paginated GET /themes, limit 50 per page).
+ * Required so custom themes beyond the first page appear after sync.
+ */
+export async function listAllThemes(): Promise<{ themes: GammaThemeListItem[]; error: string | null }> {
+  const apiKey = process.env.GAMMA_API_KEY
+  if (!apiKey) {
+    return { themes: [], error: 'GAMMA_API_KEY not set' }
+  }
+
+  const themes: GammaThemeListItem[] = []
+  let after: string | undefined
+  const limit = 50
+  const maxPages = 100
+
+  for (let page = 0; page < maxPages; page++) {
+    const url = new URL(`${GAMMA_API_BASE}/themes`)
+    url.searchParams.set('limit', String(limit))
+    if (after) url.searchParams.set('after', after)
+
+    const res = await fetch(url.toString(), {
+      method: 'GET',
+      headers: { 'X-API-KEY': apiKey },
+    })
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}))
+      const msg =
+        (errBody as Record<string, unknown>).message != null
+          ? String((errBody as Record<string, unknown>).message)
+          : `Gamma API ${res.status}`
+      return { themes, error: msg }
+    }
+
+    const body = (await res.json()) as Record<string, unknown>
+    const raw = Array.isArray(body) ? body : Array.isArray(body.data) ? body.data : []
+    for (const row of raw) {
+      const r = row as Record<string, unknown>
+      const id = r.id != null ? String(r.id) : ''
+      if (!id) continue
+      const name = r.name != null ? String(r.name) : id
+      const type = r.type != null ? String(r.type) : undefined
+      themes.push({ id, name, type })
+    }
+
+    const hasMore = Boolean(body.hasMore)
+    const next =
+      body.nextCursor != null && String(body.nextCursor).length > 0 ? String(body.nextCursor) : null
+    if (!hasMore || !next) break
+    after = next
+  }
+
+  return { themes, error: null }
+}

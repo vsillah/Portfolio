@@ -167,7 +167,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'assetId is required' }, { status: 400 })
     }
 
-    const result = await addManualAsset(assetType, assetId.trim(), assetName?.trim() || assetId.trim())
+    const rawKind = body.avatarCharacterKind as string | undefined
+    const avatarCharacterKind =
+      assetType === 'avatar' && (rawKind === 'talking_photo' || rawKind === 'avatar') ? rawKind : undefined
+
+    const result = await addManualAsset(assetType, assetId.trim(), assetName?.trim() || assetId.trim(), {
+      avatarCharacterKind,
+    })
     if (result.error) {
       return NextResponse.json({ error: result.error }, { status: 500 })
     }

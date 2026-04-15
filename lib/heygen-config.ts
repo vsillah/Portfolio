@@ -64,6 +64,29 @@ export async function recordHeyGenSyncResult(result: SyncResult): Promise<void> 
 /**
  * Read last sync metadata (null if table empty / migration not applied).
  */
+const HEYGEN_CHARACTER_KIND_KEY = 'heygenCharacterKind' as const
+
+/**
+ * How HeyGen /v2/video/generate expects the selected character id (avatar_id vs talking_photo_id).
+ * Env-only defaults are always treated as standard avatars.
+ */
+export async function getAvatarCharacterKindForHeyGen(
+  avatarId: string | null | undefined
+): Promise<'avatar' | 'talking_photo'> {
+  if (!avatarId?.trim() || !supabaseAdmin) return 'avatar'
+
+  const { data, error } = await supabaseAdmin
+    .from('heygen_config')
+    .select('metadata')
+    .eq('asset_type', 'avatar')
+    .eq('asset_id', avatarId.trim())
+    .maybeSingle()
+
+  if (error || !data?.metadata || typeof data.metadata !== 'object') return 'avatar'
+  const kind = (data.metadata as Record<string, unknown>)[HEYGEN_CHARACTER_KIND_KEY]
+  return kind === 'talking_photo' ? 'talking_photo' : 'avatar'
+}
+
 export async function getHeyGenSyncState(): Promise<HeyGenSyncStateRow | null> {
   if (!supabaseAdmin) return null
 
@@ -185,9 +208,15 @@ export async function toggleFavorite(assetType: 'avatar' | 'voice', assetId: str
 export async function addManualAsset(
   assetType: 'avatar' | 'voice',
   assetId: string,
-  assetName: string
+  assetName: string,
+  opts?: { avatarCharacterKind?: 'avatar' | 'talking_photo' }
 ): Promise<{ id: string | null; error: string | null }> {
   if (!supabaseAdmin) return { id: null, error: 'supabaseAdmin not available' }
+
+  const metadata: Record<string, unknown> = { manual: true }
+  if (assetType === 'avatar') {
+    metadata[HEYGEN_CHARACTER_KIND_KEY] = opts?.avatarCharacterKind ?? 'avatar'
+  }
 
   const { data, error } = await supabaseAdmin
     .from('heygen_config')
@@ -196,7 +225,7 @@ export async function addManualAsset(
       asset_id: assetId,
       asset_name: assetName,
       is_favorite: true,
-      metadata: { manual: true },
+      metadata,
       synced_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     }, { onConflict: 'asset_type,asset_id', ignoreDuplicates: false })
@@ -224,14 +253,36 @@ export async function syncFromHeyGen(): Promise<SyncResult> {
   if (avatarResult.error) {
     errors.push(`Avatars: ${avatarResult.error}`)
   } else if (avatarResult.avatars.length > 0) {
-    const deduped = deduplicateById(avatarResult.avatars.map(a => ({
-      asset_type: 'avatar' as const,
-      asset_id: a.id,
-      asset_name: a.name,
-      metadata: {},
-      synced_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    })))
+    const { data: existingAvatarRows } = await supabaseAdmin
+      .from('heygen_config')
+      .select('asset_id, metadata')
+      .eq('asset_type', 'avatar')
+
+    const existingMeta = new Map<string, Record<string, unknown>>()
+    for (const row of existingAvatarRows ?? []) {
+      const id = row.asset_id as string
+      const m = row.metadata
+      existingMeta.set(id, m && typeof m === 'object' ? { ...(m as Record<string, unknown>) } : {})
+    }
+
+    const now = new Date().toISOString()
+    const deduped = deduplicateById(
+      avatarResult.avatars.map(a => {
+        const prev = existingMeta.get(a.id) ?? {}
+        const meta: Record<string, unknown> = { ...prev }
+        meta[HEYGEN_CHARACTER_KIND_KEY] = a.characterKind
+        meta.lastSyncedFromApi = true
+
+        return {
+          asset_type: 'avatar' as const,
+          asset_id: a.id,
+          asset_name: a.name,
+          metadata: meta,
+          synced_at: now,
+          updated_at: now,
+        }
+      })
+    )
 
     const { upserted, errors: batchErrors } = await batchUpsert(deduped)
     avatarsSynced = upserted

@@ -1910,22 +1910,6 @@ function OutreachContent() {
             className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
           />
 
-          <button
-            type="button"
-            onClick={() =>
-              window.open(
-                'https://mail.google.com/mail/',
-                '_blank',
-                'noopener,noreferrer'
-              )
-            }
-            className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-silicon-slate/80 text-muted-foreground hover:text-sky-300 hover:border-sky-500/40 transition-colors shrink-0"
-            title="Opens Gmail in a new tab. Use this if “Open in Gmail” asks you to sign in to Google first."
-          >
-            <Mail size={14} />
-            Gmail sign-in
-          </button>
-
           <div className="flex flex-wrap items-center gap-2 shrink-0 max-w-full border-l border-silicon-slate/60 pl-3 ml-1">
             {gmailUserOAuthStatus === null ? (
               <span className="text-xs text-muted-foreground">My Gmail…</span>
