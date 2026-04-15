@@ -12,7 +12,7 @@ import {
   User, Mail, Building2, Calendar, ExternalLink, FileText,
   Video, BarChart3, Send, Loader2, CheckCircle, AlertCircle, Clock,
   ChevronDown, ChevronUp, Sparkles, Plus, Eye, MessageSquare,
-  RefreshCw, Copy, Check, Linkedin, Filter,
+  RefreshCw, Copy, Check, Linkedin, Filter, Search, Trash2, X,
 } from 'lucide-react'
 
 /* ───────── Types ───────── */
@@ -74,6 +74,84 @@ interface ContactData {
 
 interface AssetRef { type: 'gamma_report' | 'video' | 'value_report'; id: string }
 
+type AssetTypeFilter = 'all' | 'gamma_report' | 'video' | 'value_report'
+type AssetSortKey = 'date_desc' | 'date_asc' | 'type' | 'status'
+
+interface UnifiedAsset {
+  id: string
+  assetType: 'gamma_report' | 'video' | 'value_report'
+  title: string
+  subtitle: string
+  status: string
+  created_at: string
+  url: string | null
+  urlLabel: string
+}
+
+function buildUnifiedAssets(
+  gammaReports: GammaReport[],
+  videos: VideoJob[],
+  valueReports: ValueReport[],
+): UnifiedAsset[] {
+  const assets: UnifiedAsset[] = []
+  for (const g of gammaReports) {
+    assets.push({
+      id: g.id,
+      assetType: 'gamma_report',
+      title: g.title || g.report_type,
+      subtitle: g.report_type,
+      status: g.status,
+      created_at: g.created_at,
+      url: g.gamma_url,
+      urlLabel: 'View deck',
+    })
+  }
+  for (const v of videos) {
+    assets.push({
+      id: v.id,
+      assetType: 'video',
+      title: `Video (${v.channel})`,
+      subtitle: v.script_source,
+      status: v.heygen_status || 'unknown',
+      created_at: v.created_at,
+      url: v.video_url,
+      urlLabel: 'Watch',
+    })
+  }
+  for (const vr of valueReports) {
+    assets.push({
+      id: vr.id,
+      assetType: 'value_report',
+      title: vr.title || vr.report_type,
+      subtitle: vr.report_type,
+      status: 'completed',
+      created_at: vr.created_at,
+      url: null,
+      urlLabel: '',
+    })
+  }
+  return assets
+}
+
+const ASSET_TYPE_LABELS: Record<AssetTypeFilter, string> = {
+  all: 'All Types',
+  gamma_report: 'Decks',
+  video: 'Videos',
+  value_report: 'Value Reports',
+}
+
+const ASSET_TYPE_ICON_MAP: Record<string, typeof FileText> = {
+  gamma_report: FileText,
+  video: Video,
+  value_report: BarChart3,
+}
+
+const ASSET_TYPE_COLORS: Record<string, string> = {
+  gamma_report: 'text-emerald-400',
+  video: 'text-amber-400',
+  value_report: 'text-purple-400',
+}
+
 /* ───────── Helpers ───────── */
 
 function StatusBadge({ status }: { status: string }) {
@@ -125,6 +203,12 @@ function ContactDetailPage() {
   const [sending, setSending] = useState(false)
   const [sendResult, setSendResult] = useState<{ success: boolean; error?: string } | null>(null)
   const [copied, setCopied] = useState(false)
+
+  // Asset management
+  const [assetSearch, setAssetSearch] = useState('')
+  const [assetTypeFilter, setAssetTypeFilter] = useState<AssetTypeFilter>('all')
+  const [assetSort, setAssetSort] = useState<AssetSortKey>('date_desc')
+  const [deletingAssetId, setDeletingAssetId] = useState<string | null>(null)
 
   // Sections
   const [showDeliveries, setShowDeliveries] = useState(false)
@@ -241,6 +325,29 @@ function ContactDetailPage() {
     }
   }
 
+  async function handleDeleteAsset(assetType: string, assetId: string) {
+    if (!confirm('Are you sure you want to delete this asset? This cannot be undone.')) return
+    setDeletingAssetId(assetId)
+    try {
+      const token = await getToken()
+      const res = await fetch(`/api/admin/contacts/${id}/assets`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ assetType, assetId }),
+      })
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}))
+        alert(d.error || 'Failed to delete asset')
+        return
+      }
+      fetchData()
+    } catch {
+      alert('Failed to delete asset. Please try again.')
+    } finally {
+      setDeletingAssetId(null)
+    }
+  }
+
   if (loading) {
     return (
       <ProtectedRoute requireAdmin>
@@ -313,84 +420,166 @@ function ContactDetailPage() {
           </div>
 
           {/* ── Assets ── */}
-          <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-white">Assets</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-              {/* Gamma Reports */}
-              {gammaReports.map(g => (
-                <div key={g.id} className={`bg-gray-900/50 border rounded-lg p-4 transition-colors cursor-pointer ${isSelected('gamma_report', g.id) ? 'border-teal-600 bg-teal-900/10' : 'border-gray-800 hover:border-gray-700'}`} onClick={() => toggleAsset({ type: 'gamma_report', id: g.id })}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                      <span className="text-sm font-medium text-white truncate">{g.title || g.report_type}</span>
-                    </div>
-                    <StatusBadge status={g.status} />
+          {(() => {
+            const allAssets = buildUnifiedAssets(gammaReports, videos, valueReports)
+
+            const filtered = allAssets
+              .filter(a => {
+                if (assetTypeFilter !== 'all' && a.assetType !== assetTypeFilter) return false
+                if (assetSearch) {
+                  const q = assetSearch.toLowerCase()
+                  return (
+                    a.title.toLowerCase().includes(q) ||
+                    a.subtitle.toLowerCase().includes(q) ||
+                    a.status.toLowerCase().includes(q)
+                  )
+                }
+                return true
+              })
+              .sort((a, b) => {
+                switch (assetSort) {
+                  case 'date_asc': return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                  case 'type': return a.assetType.localeCompare(b.assetType)
+                  case 'status': return a.status.localeCompare(b.status)
+                  default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                }
+              })
+
+            return (
+              <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">
+                {/* Section header */}
+                <div className="px-6 py-4 flex items-center justify-between flex-wrap gap-3">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-emerald-400" />
+                    <h2 className="text-base font-semibold text-white">Assets</h2>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">
+                      {filtered.length}{allAssets.length !== filtered.length ? ` / ${allAssets.length}` : ''}
+                    </span>
                   </div>
-                  <p className="text-[10px] text-gray-500 mt-2">{formatDate(g.created_at)} &middot; {g.report_type}</p>
-                  {g.gamma_url && (
-                    <a href={g.gamma_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[10px] text-teal-400 hover:underline mt-1 inline-flex items-center gap-1">
-                      <ExternalLink className="w-3 h-3" /> View deck
-                    </a>
+                  <div className="flex flex-wrap gap-2">
+                    <Link href={buildLinkWithReturn(`/admin/reports/gamma?contactId=${contact.id}`, `/admin/contacts/${contact.id}`)} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-emerald-400 rounded-lg flex items-center gap-1.5 transition-colors">
+                      <Plus className="w-3 h-3" /> Deck
+                    </Link>
+                    <Link href={buildLinkWithReturn(`/admin/value-evidence?contactId=${contact.id}`, `/admin/contacts/${contact.id}`)} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-purple-400 rounded-lg flex items-center gap-1.5 transition-colors">
+                      <Plus className="w-3 h-3" /> Value Report
+                    </Link>
+                    {salesSessions.length === 0 && (
+                      <Link href={`/admin/sales?newSession=true&contactId=${contact.id}`} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-amber-400 rounded-lg flex items-center gap-1.5 transition-colors">
+                        <Plus className="w-3 h-3" /> Sales Conversation
+                      </Link>
+                    )}
+                  </div>
+                </div>
+
+                {/* Toolbar: search, type filter, sort */}
+                {allAssets.length > 0 && (
+                  <div className="px-6 pb-3 flex flex-col sm:flex-row items-start sm:items-center gap-2 border-t border-gray-800 pt-3">
+                    <div className="relative flex-1 w-full sm:max-w-xs">
+                      <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500" />
+                      <input
+                        type="text"
+                        placeholder="Search assets..."
+                        value={assetSearch}
+                        onChange={e => setAssetSearch(e.target.value)}
+                        className="w-full pl-8 pr-8 py-1.5 text-xs bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-600 focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500"
+                      />
+                      {assetSearch && (
+                        <button onClick={() => setAssetSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={assetTypeFilter}
+                        onChange={e => setAssetTypeFilter(e.target.value as AssetTypeFilter)}
+                        className="text-xs bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-gray-300 focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500"
+                      >
+                        {(Object.keys(ASSET_TYPE_LABELS) as AssetTypeFilter[]).map(k => (
+                          <option key={k} value={k}>{ASSET_TYPE_LABELS[k]}</option>
+                        ))}
+                      </select>
+                      <select
+                        value={assetSort}
+                        onChange={e => setAssetSort(e.target.value as AssetSortKey)}
+                        className="text-xs bg-gray-900 border border-gray-700 rounded-lg px-2 py-1.5 text-gray-300 focus:ring-2 focus:ring-teal-500/50 focus:border-teal-500"
+                      >
+                        <option value="date_desc">Newest first</option>
+                        <option value="date_asc">Oldest first</option>
+                        <option value="type">By type</option>
+                        <option value="status">By status</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Scrollable asset grid */}
+                <div className="px-6 pb-4 max-h-[420px] overflow-y-auto">
+                  {filtered.length === 0 && allAssets.length > 0 && (
+                    <div className="text-center py-6">
+                      <p className="text-sm text-gray-500">No assets match your filters.</p>
+                      <button onClick={() => { setAssetSearch(''); setAssetTypeFilter('all') }} className="text-xs text-teal-400 hover:underline mt-1">
+                        Clear filters
+                      </button>
+                    </div>
+                  )}
+                  {allAssets.length === 0 && (
+                    <div className="bg-gray-900/30 border border-dashed border-gray-700 rounded-lg p-8 text-center">
+                      <p className="text-gray-500 text-sm">No assets generated yet for this contact.</p>
+                    </div>
+                  )}
+                  {filtered.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {filtered.map(asset => {
+                        const Icon = ASSET_TYPE_ICON_MAP[asset.assetType]
+                        const iconColor = ASSET_TYPE_COLORS[asset.assetType]
+                        const selected = isSelected(asset.assetType, asset.id)
+                        const isDeleting = deletingAssetId === asset.id
+                        return (
+                          <div
+                            key={`${asset.assetType}-${asset.id}`}
+                            className={`group bg-gray-900/50 border rounded-lg p-3 transition-colors cursor-pointer ${selected ? 'border-teal-600 bg-teal-900/10' : 'border-gray-800 hover:border-gray-700'}`}
+                            onClick={() => toggleAsset({ type: asset.assetType, id: asset.id })}
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-center gap-2 min-w-0 flex-1">
+                                <Icon className={`w-4 h-4 ${iconColor} flex-shrink-0`} />
+                                <span className="text-sm font-medium text-white truncate">{asset.title}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5 flex-shrink-0">
+                                <StatusBadge status={asset.status} />
+                                <button
+                                  onClick={e => { e.stopPropagation(); handleDeleteAsset(asset.assetType, asset.id) }}
+                                  disabled={isDeleting}
+                                  className="p-1 rounded text-gray-600 hover:text-red-400 hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
+                                  title="Delete asset"
+                                >
+                                  {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                                </button>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between mt-2">
+                              <p className="text-[10px] text-gray-500">{formatDate(asset.created_at)} &middot; {asset.subtitle}</p>
+                              {asset.url && (
+                                <a href={asset.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[10px] text-teal-400 hover:underline inline-flex items-center gap-1">
+                                  <ExternalLink className="w-3 h-3" /> {asset.urlLabel}
+                                </a>
+                              )}
+                            </div>
+                            {selected && (
+                              <div className="mt-1.5">
+                                <span className="text-[9px] text-teal-400 flex items-center gap-1"><Check className="w-2.5 h-2.5" /> Selected for delivery</span>
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
                   )}
                 </div>
-              ))}
-
-              {/* Videos */}
-              {videos.map(v => (
-                <div key={v.id} className={`bg-gray-900/50 border rounded-lg p-4 transition-colors cursor-pointer ${isSelected('video', v.id) ? 'border-teal-600 bg-teal-900/10' : 'border-gray-800 hover:border-gray-700'}`} onClick={() => toggleAsset({ type: 'video', id: v.id })}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <Video className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                      <span className="text-sm font-medium text-white truncate">Video ({v.channel})</span>
-                    </div>
-                    <StatusBadge status={v.heygen_status || 'unknown'} />
-                  </div>
-                  <p className="text-[10px] text-gray-500 mt-2">{formatDate(v.created_at)} &middot; {v.script_source}</p>
-                  {v.video_url && (
-                    <a href={v.video_url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[10px] text-teal-400 hover:underline mt-1 inline-flex items-center gap-1">
-                      <ExternalLink className="w-3 h-3" /> Watch
-                    </a>
-                  )}
-                </div>
-              ))}
-
-              {/* Value Reports */}
-              {valueReports.map(vr => (
-                <div key={vr.id} className={`bg-gray-900/50 border rounded-lg p-4 transition-colors cursor-pointer ${isSelected('value_report', vr.id) ? 'border-teal-600 bg-teal-900/10' : 'border-gray-800 hover:border-gray-700'}`} onClick={() => toggleAsset({ type: 'value_report', id: vr.id })}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <BarChart3 className="w-4 h-4 text-purple-400 flex-shrink-0" />
-                      <span className="text-sm font-medium text-white truncate">{vr.title || vr.report_type}</span>
-                    </div>
-                    <StatusBadge status="completed" />
-                  </div>
-                  <p className="text-[10px] text-gray-500 mt-2">{formatDate(vr.created_at)} &middot; {vr.report_type}</p>
-                </div>
-              ))}
-
-              {/* Empty state + quick actions */}
-              {!hasAnyAsset && (
-                <div className="col-span-full bg-gray-900/30 border border-dashed border-gray-700 rounded-lg p-8 text-center">
-                  <p className="text-gray-500 text-sm">No assets generated yet for this contact.</p>
-                </div>
-              )}
-            </div>
-
-            {/* Quick Generate Links */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              <Link href={buildLinkWithReturn(`/admin/reports/gamma?contactId=${contact.id}`, `/admin/contacts/${contact.id}`)} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-emerald-400 rounded-lg flex items-center gap-1.5 transition-colors">
-                <Plus className="w-3 h-3" /> Generate Deck
-              </Link>
-              <Link href={buildLinkWithReturn(`/admin/value-evidence?contactId=${contact.id}`, `/admin/contacts/${contact.id}`)} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-purple-400 rounded-lg flex items-center gap-1.5 transition-colors">
-                <Plus className="w-3 h-3" /> Generate Value Report
-              </Link>
-              {salesSessions.length === 0 && (
-                <Link href={`/admin/sales?newSession=true&contactId=${contact.id}`} className="text-xs px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-amber-400 rounded-lg flex items-center gap-1.5 transition-colors">
-                  <Plus className="w-3 h-3" /> Start Sales Conversation
-                </Link>
-              )}
-            </div>
-          </div>
+              </div>
+            )
+          })()}
 
           {/* ── Compose Delivery Email ── */}
           <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">
