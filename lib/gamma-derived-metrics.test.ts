@@ -5,7 +5,7 @@ vi.mock('./supabase', () => ({
   default: null,
 }))
 
-import { computeDerivedMetrics } from './gamma-report-builder'
+import { computeDerivedMetrics, resolveOrganizationLabel } from './gamma-report-builder'
 import type { CalculationMethod, ConfidenceLevel } from './value-calculations'
 
 function makeStatement(overrides: Partial<{
@@ -228,5 +228,92 @@ describe('computeDerivedMetrics', () => {
 
     expect(m.topPainPoints).toHaveLength(1)
     expect(m.topPainPoints[0].painPoint).toBe('Solo')
+  })
+})
+
+describe('resolveOrganizationLabel', () => {
+  it('prefers contact company when present', () => {
+    const label = resolveOrganizationLabel(
+      makeContext({
+        contact: {
+          company: '  Acme Community Center  ',
+          name: 'Contact Name',
+        },
+        audit: {
+          business_name: 'Audit Name',
+          website_url: 'https://www.audit-example.org',
+        },
+      })
+    )
+
+    expect(label).toBe('Acme Community Center')
+  })
+
+  it('falls back to audit business_name when contact company is blank', () => {
+    const label = resolveOrganizationLabel(
+      makeContext({
+        contact: {
+          company: '   ',
+          name: 'Contact Name',
+        },
+        audit: {
+          business_name: '  Audit Company  ',
+          website_url: 'https://www.audit-example.org',
+        },
+      })
+    )
+
+    expect(label).toBe('Audit Company')
+  })
+
+  it('falls back to normalized website hostname when company fields are empty', () => {
+    const label = resolveOrganizationLabel(
+      makeContext({
+        contact: {
+          company: '',
+          name: 'Contact Name',
+        },
+        audit: {
+          business_name: '',
+          website_url: 'www.example.org/some/path?x=1',
+        },
+      })
+    )
+
+    expect(label).toBe('example.org')
+  })
+
+  it('falls back to contact name when website url is invalid', () => {
+    const label = resolveOrganizationLabel(
+      makeContext({
+        contact: {
+          company: '',
+          name: '  Jane Prospect  ',
+        },
+        audit: {
+          business_name: '',
+          website_url: 'http://',
+        },
+      })
+    )
+
+    expect(label).toBe('Jane Prospect')
+  })
+
+  it('returns default when no identifying fields are available', () => {
+    const label = resolveOrganizationLabel(
+      makeContext({
+        contact: {
+          company: '   ',
+          name: '  ',
+        },
+        audit: {
+          business_name: '  ',
+          website_url: '  ',
+        },
+      })
+    )
+
+    expect(label).toBe('the Organization')
   })
 })
