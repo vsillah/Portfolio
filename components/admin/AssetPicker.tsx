@@ -39,6 +39,7 @@ export default function AssetPicker({
   const [addName, setAddName] = useState('')
   const [adding, setAdding] = useState(false)
   const [addError, setAddError] = useState<string | null>(null)
+  const [resolveWarning, setResolveWarning] = useState<string | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -68,6 +69,7 @@ export default function AssetPicker({
     if (!onAddManual || !addId.trim()) return
     setAdding(true)
     setAddError(null)
+    setResolveWarning(null)
 
     let resolvedName = addName.trim()
     if (!resolvedName && onResolveName) {
@@ -75,7 +77,8 @@ export default function AssetPicker({
       if (resolved.name) {
         resolvedName = resolved.name
       } else if (resolved.error) {
-        setAddError(resolved.error)
+        // Name not found — show input for manual name entry instead of blocking
+        setResolveWarning(resolved.error)
         setAdding(false)
         return
       }
@@ -85,6 +88,20 @@ export default function AssetPicker({
     setAddId('')
     setAddName('')
     setAddError(null)
+    setResolveWarning(null)
+    setAddMode(false)
+    setAdding(false)
+  }
+
+  async function handleAddWithName() {
+    if (!onAddManual || !addId.trim()) return
+    setAdding(true)
+    setAddError(null)
+    await onAddManual(addId.trim(), addName.trim() || addId.trim())
+    setAddId('')
+    setAddName('')
+    setAddError(null)
+    setResolveWarning(null)
     setAddMode(false)
     setAdding(false)
   }
@@ -209,26 +226,36 @@ export default function AssetPicker({
             <div className="p-3 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] text-gray-400 font-medium">Add {label.toLowerCase()} by ID</span>
-                <button type="button" onClick={() => { setAddMode(false); setAddError(null) }} className="text-gray-500 hover:text-foreground">
+                <button type="button" onClick={() => { setAddMode(false); setAddError(null); setResolveWarning(null) }} className="text-gray-500 hover:text-foreground">
                   <X className="w-3 h-3" />
                 </button>
               </div>
               <input
                 value={addId}
-                onChange={e => { setAddId(e.target.value); setAddError(null) }}
+                onChange={e => { setAddId(e.target.value); setAddError(null); setResolveWarning(null) }}
                 placeholder={`${label} ID`}
                 autoFocus
                 className="w-full px-2 py-1.5 rounded text-xs bg-background/50 border border-silicon-slate text-foreground focus:border-radiant-gold/50 focus:outline-none"
               />
-              {!onResolveName && (
+              {resolveWarning ? (
+                <>
+                  <p className="text-[9px] text-amber-400/90">Not found in HeyGen catalog — custom/instant avatars aren&apos;t listed by the API. Enter a name below to add it manually.</p>
+                  <input
+                    value={addName}
+                    onChange={e => setAddName(e.target.value)}
+                    placeholder="Display name"
+                    autoFocus
+                    className="w-full px-2 py-1.5 rounded text-xs bg-background/50 border border-silicon-slate text-foreground focus:border-radiant-gold/50 focus:outline-none"
+                  />
+                </>
+              ) : !onResolveName ? (
                 <input
                   value={addName}
                   onChange={e => setAddName(e.target.value)}
                   placeholder="Name (optional)"
                   className="w-full px-2 py-1.5 rounded text-xs bg-background/50 border border-silicon-slate text-foreground focus:border-radiant-gold/50 focus:outline-none"
                 />
-              )}
-              {onResolveName && (
+              ) : (
                 <p className="text-[9px] text-gray-500">Name will be resolved automatically from HeyGen.</p>
               )}
               {addError && (
@@ -236,12 +263,12 @@ export default function AssetPicker({
               )}
               <button
                 type="button"
-                onClick={handleAdd}
+                onClick={resolveWarning ? handleAddWithName : handleAdd}
                 disabled={!addId.trim() || adding}
                 className="w-full px-3 py-1.5 rounded-lg text-xs bg-radiant-gold/15 text-radiant-gold font-medium hover:bg-radiant-gold/25 disabled:opacity-50 flex items-center justify-center gap-1.5"
               >
                 {adding ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
-                {adding ? 'Resolving & adding…' : `Add ${label.toLowerCase()}`}
+                {adding ? 'Adding…' : resolveWarning ? `Add ${label.toLowerCase()} manually` : `Add ${label.toLowerCase()}`}
               </button>
             </div>
           )}
