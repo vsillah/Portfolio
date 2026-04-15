@@ -20,6 +20,7 @@ import {
   Plus,
   Pencil,
   Unlink,
+  ExternalLink,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -126,6 +127,40 @@ function MeetingsContent() {
   const [buildAuditInProgress, setBuildAuditInProgress] = useState(false)
   const [buildAuditError, setBuildAuditError] = useState<string | null>(null)
   const [buildAuditSuccess, setBuildAuditSuccess] = useState<{ auditId: string; meetingsUsed: number } | null>(null)
+  /** After a successful build, rows for this lead/project show View audit instead of Build (session only). */
+  const [recentAuditByTarget, setRecentAuditByTarget] = useState<{
+    auditId: string
+    mode: 'lead' | 'project'
+    targetId: string
+  } | null>(null)
+  /** Row that launched the last row-level build (e.g. unattributed meeting + picked lead). */
+  const [recentAuditSourceMeetingId, setRecentAuditSourceMeetingId] = useState<string | null>(null)
+
+  const auditBuildPillBase =
+    'inline-flex items-center justify-center gap-2 rounded-lg border text-sm font-medium transition-all'
+  const auditBuildPillReady =
+    'bg-gray-900/50 border-gray-800 hover:border-emerald-600/40 text-emerald-300 hover:bg-gray-800/80'
+  const auditBuildPillLoading =
+    'bg-gray-800 border-gray-600 ring-1 ring-emerald-500/40 text-emerald-200 cursor-wait'
+  const auditViewPillRow =
+    'inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all'
+  const auditViewPillProminent =
+    `${auditBuildPillBase} bg-gray-800 border-gray-600 ring-1 ring-emerald-500/50 text-emerald-300 px-4 py-2 hover:border-emerald-500/60 hover:bg-gray-800/90`
+
+  const rowShowsViewAudit = useCallback(
+    (m: MeetingRow) => {
+      if (!recentAuditByTarget) return false
+      if (recentAuditSourceMeetingId === m.id) return true
+      if (recentAuditByTarget.mode === 'lead') {
+        return (
+          m.contact_submission_id != null &&
+          String(m.contact_submission_id) === recentAuditByTarget.targetId
+        )
+      }
+      return m.client_project_id === recentAuditByTarget.targetId
+    },
+    [recentAuditByTarget, recentAuditSourceMeetingId],
+  )
 
   // Transcript expand
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -354,6 +389,7 @@ function MeetingsContent() {
 
   const handleRowAudit = async () => {
     if (!rowActionId || !rowAuditValue) return
+    const sourceMeetingId = rowActionId
     setBuildAuditError(null)
     setBuildAuditSuccess(null)
     setBuildAuditInProgress(true)
@@ -374,6 +410,12 @@ function MeetingsContent() {
         return
       }
       setBuildAuditSuccess({ auditId: data.auditId, meetingsUsed: data.meetingsUsed ?? 0 })
+      setRecentAuditByTarget({
+        auditId: data.auditId,
+        mode: rowAuditMode,
+        targetId: rowAuditMode === 'lead' ? String(Number(rowAuditValue)) : rowAuditValue,
+      })
+      setRecentAuditSourceMeetingId(sourceMeetingId)
       setRowActionId(null)
       setRowAuditPickerOpen(false)
       setRowAuditValue('')
@@ -457,6 +499,12 @@ function MeetingsContent() {
         return
       }
       setBuildAuditSuccess({ auditId: data.auditId, meetingsUsed: data.meetingsUsed ?? 0 })
+      setRecentAuditByTarget({
+        auditId: data.auditId,
+        mode: bulkAuditMode,
+        targetId: bulkAuditMode === 'lead' ? String(Number(targetId)) : targetId,
+      })
+      setRecentAuditSourceMeetingId(null)
       clearSelection()
     } catch {
       setBuildAuditError('Something went wrong. Please try again.')
@@ -697,12 +745,27 @@ function MeetingsContent() {
                         ))}
                   </select>
                   <button
+                    type="button"
                     onClick={handleBuildAuditFromSelected}
                     disabled={buildAuditInProgress || !bulkAuditValue}
-                    className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-sm font-medium flex items-center gap-1.5"
+                    aria-busy={buildAuditInProgress}
+                    className={`min-h-[2.25rem] px-3 py-1.5 ${auditBuildPillBase} ${
+                      buildAuditInProgress
+                        ? auditBuildPillLoading
+                        : 'bg-emerald-950/40 border-emerald-600/45 text-emerald-50 hover:bg-emerald-900/35 hover:border-emerald-500/55'
+                    } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
-                    {buildAuditInProgress ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                    Build audit
+                    {buildAuditInProgress ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin shrink-0" aria-hidden />
+                        <span>Building audit…</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles size={14} className="shrink-0" aria-hidden />
+                        <span>Build audit</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -712,11 +775,19 @@ function MeetingsContent() {
               <p className="mt-3 text-sm text-red-400" role="alert">{buildAuditError}</p>
             )}
             {buildAuditSuccess && (
-              <p className="mt-3 text-sm text-emerald-300">
-                Audit created from {buildAuditSuccess.meetingsUsed} meeting(s). View in{' '}
-                <Link href="/admin/sales" className="text-emerald-400 hover:underline">Sales</Link>{' '}
-                or under the lead&apos;s conversation.
-              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <p className="text-sm text-emerald-200/90">
+                  Audit ready — used {buildAuditSuccess.meetingsUsed} meeting
+                  {buildAuditSuccess.meetingsUsed === 1 ? '' : 's'}.
+                </p>
+                <Link
+                  href={`/admin/sales/${buildAuditSuccess.auditId}`}
+                  className={auditViewPillProminent}
+                >
+                  <ExternalLink size={14} className="shrink-0" aria-hidden />
+                  View audit
+                </Link>
+              </div>
             )}
           </div>
         )}
@@ -1379,14 +1450,30 @@ function MeetingsContent() {
                                     type="button"
                                     onClick={handleRowAudit}
                                     disabled={!rowAuditValue || buildAuditInProgress}
-                                    className="flex-1 py-1 rounded text-xs bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white"
+                                    aria-busy={buildAuditInProgress}
+                                    className={`flex-1 min-h-[2.25rem] py-2 px-3 ${auditBuildPillBase} text-xs ${
+                                      buildAuditInProgress
+                                        ? auditBuildPillLoading
+                                        : 'bg-emerald-950/40 border-emerald-600/45 text-emerald-50 hover:bg-emerald-900/35 hover:border-emerald-500/55'
+                                    } disabled:opacity-50 disabled:cursor-not-allowed`}
                                   >
-                                    {buildAuditInProgress ? '...' : 'Build'}
+                                    {buildAuditInProgress ? (
+                                      <>
+                                        <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" aria-hidden />
+                                        <span>Building audit…</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <Sparkles className="w-3.5 h-3.5 shrink-0" aria-hidden />
+                                        <span>Build audit</span>
+                                      </>
+                                    )}
                                   </button>
                                   <button
                                     type="button"
                                     onClick={dismissRowAuditForm}
-                                    className="py-1 px-2 rounded text-xs bg-gray-700 text-gray-300 hover:bg-gray-600"
+                                    disabled={buildAuditInProgress}
+                                    className="py-2 px-2 rounded-lg text-xs border border-gray-700 bg-gray-800 text-gray-300 hover:bg-gray-700 disabled:opacity-50"
                                   >
                                     Cancel
                                   </button>
@@ -1399,16 +1486,28 @@ function MeetingsContent() {
                               <div className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
                                 {isAttributed ? (
                                   <>
-                                    <button
-                                      type="button"
-                                      onClick={() => openRowAction(m.id, 'audit')}
-                                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
-                                      title="Build audit from this meeting"
-                                      aria-label="Build audit from this meeting"
-                                    >
-                                      <Sparkles size={12} aria-hidden />
-                                      Audit
-                                    </button>
+                                    {recentAuditByTarget && rowShowsViewAudit(m) ? (
+                                      <Link
+                                        href={`/admin/sales/${recentAuditByTarget.auditId}`}
+                                        className={auditViewPillRow}
+                                        title="Open diagnostic audit for this lead or project"
+                                        aria-label="View diagnostic audit"
+                                      >
+                                        <ExternalLink size={12} aria-hidden />
+                                        View audit
+                                      </Link>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => openRowAction(m.id, 'audit')}
+                                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                                        title="Build audit from meetings for this lead or project"
+                                        aria-label="Build audit from meetings for this lead or project"
+                                      >
+                                        <Sparkles size={12} aria-hidden />
+                                        Audit
+                                      </button>
+                                    )}
                                     <button
                                       type="button"
                                       onClick={() =>
@@ -1445,16 +1544,28 @@ function MeetingsContent() {
                                       <User size={12} aria-hidden />
                                       Attribute
                                     </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => openRowAction(m.id, 'audit')}
-                                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
-                                      title="Build audit — choose which lead or project to attach it to"
-                                      aria-label="Build audit — choose lead or project"
-                                    >
-                                      <Sparkles size={12} aria-hidden />
-                                      Audit
-                                    </button>
+                                    {recentAuditByTarget && rowShowsViewAudit(m) ? (
+                                      <Link
+                                        href={`/admin/sales/${recentAuditByTarget.auditId}`}
+                                        className={auditViewPillRow}
+                                        title="Open diagnostic audit for this lead or project"
+                                        aria-label="View diagnostic audit"
+                                      >
+                                        <ExternalLink size={12} aria-hidden />
+                                        View audit
+                                      </Link>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => openRowAction(m.id, 'audit')}
+                                        className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20"
+                                        title="Build audit — choose which lead or project to attach it to"
+                                        aria-label="Build audit — choose lead or project"
+                                      >
+                                        <Sparkles size={12} aria-hidden />
+                                        Audit
+                                      </button>
+                                    )}
                                   </>
                                 )}
                               </div>
@@ -1490,15 +1601,28 @@ function MeetingsContent() {
         )}
 
         {buildAuditSuccess && selectedCount < 2 && (
-          <div className="mt-4 px-3 py-2 rounded-lg bg-emerald-900/30 border border-emerald-700/50 text-sm text-emerald-200 flex items-center justify-between">
-            <span>
-              Audit created from {buildAuditSuccess.meetingsUsed} meeting(s). View in{' '}
-              <Link href="/admin/sales" className="text-emerald-400 hover:underline">Sales</Link>{' '}
-              or under the lead&apos;s conversation.
-            </span>
-            <button onClick={() => setBuildAuditSuccess(null)} className="text-gray-500 hover:text-gray-300 ml-3">
-              <X size={14} />
-            </button>
+          <div className="mt-4 flex flex-wrap items-center gap-3 px-4 py-3 rounded-lg border border-gray-800 bg-gray-900/50">
+            <p className="text-sm text-gray-300 flex-1 min-w-[200px]">
+              Audit ready — {buildAuditSuccess.meetingsUsed} meeting
+              {buildAuditSuccess.meetingsUsed === 1 ? '' : 's'} processed.
+            </p>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link href={`/admin/sales/${buildAuditSuccess.auditId}`} className={auditViewPillProminent}>
+                <ExternalLink size={14} className="shrink-0" aria-hidden />
+                View audit
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  setBuildAuditSuccess(null)
+                  setRecentAuditSourceMeetingId(null)
+                }}
+                className="p-2 rounded-lg border border-gray-700 text-gray-500 hover:text-gray-300 hover:bg-gray-800"
+                aria-label="Dismiss notice"
+              >
+                <X size={14} />
+              </button>
+            </div>
           </div>
         )}
 

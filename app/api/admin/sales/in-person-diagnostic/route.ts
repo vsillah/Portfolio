@@ -24,6 +24,8 @@ export async function POST(request: NextRequest) {
       contact_submission_id,
       diagnostic_data,
       status = 'in_progress',
+      /** Mirrors sales session / UI company; used when contact_submissions.company is empty. */
+      business_name: businessNameBody,
     } = body
 
     if (!sales_session_id) {
@@ -51,6 +53,14 @@ export async function POST(request: NextRequest) {
 
     if (status === 'completed') {
       insertData.completed_at = new Date().toISOString()
+    }
+
+    const businessName =
+      typeof businessNameBody === 'string' && businessNameBody.trim().length > 0
+        ? businessNameBody.trim()
+        : null
+    if (businessName) {
+      insertData.business_name = businessName
     }
 
     // Insert the diagnostic audit

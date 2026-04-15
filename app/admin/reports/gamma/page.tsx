@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
+import { supabase } from '@/lib/supabase';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import {
@@ -46,6 +47,13 @@ interface Contact {
   email: string;
 }
 
+interface GammaReportCompanionVideo {
+  job_id: string;
+  heygen_status: string | null;
+  /** HeyGen share page (preferred) or CDN URL when generation completed */
+  watch_url: string | null;
+}
+
 interface GammaReport {
   id: string;
   report_type: ReportType;
@@ -55,6 +63,7 @@ interface GammaReport {
   error_message: string | null;
   created_at: string;
   contact_submissions: Contact | null;
+  companion_video?: GammaReportCompanionVideo | null;
 }
 
 const REPORT_TYPES: { value: ReportType; label: string; description: string; slides: number }[] = [
@@ -513,7 +522,11 @@ function GammaReportsContent() {
     setResult(null);
 
     try {
-      const token = await getToken();
+      let token = await getToken();
+      if (!token) {
+        setError('Session expired. Please sign in again.');
+        return;
+      }
       const body: Record<string, unknown> = {
         reportType,
         externalInputs: {
@@ -535,25 +548,41 @@ function GammaReportsContent() {
       if (valueReportId) body.valueReportId = valueReportId;
       if (selectedTheme) body.theme = selectedTheme;
 
-      const res = await fetch('/api/admin/gamma-reports', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
+      const bodyJson = JSON.stringify(body);
+      const postGamma = (t: string) =>
+        fetch('/api/admin/gamma-reports', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${t}`,
+          },
+          body: bodyJson,
+        });
+
+      let res = await postGamma(token);
+      if (res.status === 401) {
+        await supabase.auth.refreshSession();
+        const fresh = await getCurrentSession();
+        if (fresh?.access_token) {
+          token = fresh.access_token;
+          res = await postGamma(token);
+        }
+      }
 
       const data = await res.json();
 
       if (!res.ok) {
         // Prefer API `details` (e.g. Gamma error message); generic `error` alone hides it (502 uses both).
-        const detail =
+        const raw =
           typeof data.details === 'string' && data.details.trim()
             ? data.details.trim()
             : typeof data.error === 'string'
               ? data.error
               : 'Generation failed';
+        const detail =
+          res.status === 401 || raw === 'Authentication required'
+            ? 'Session expired. Please refresh the page or sign in again.'
+            : raw;
         setError(detail);
         return;
       }
@@ -608,6 +637,7 @@ function GammaReportsContent() {
         return;
       }
       setCompanionJobId(data.jobId);
+      void fetchReports();
     } catch (err) {
       setCompanionError(err instanceof Error ? err.message : 'Something went wrong.');
     } finally {
@@ -1137,7 +1167,7 @@ function GammaReportsContent() {
                     <th className="text-left px-4 py-3 font-medium">Contact</th>
                     <th className="text-left px-4 py-3 font-medium">Status</th>
                     <th className="text-left px-4 py-3 font-medium">Date</th>
-                    <th className="text-left px-4 py-3 font-medium">Link</th>
+                    <th className="text-left px-4 py-3 font-medium">Report</th>
                     <th className="text-left px-4 py-3 font-medium">Video</th>
                   </tr>
                 </thead>
@@ -1171,24 +1201,21 @@ function GammaReportsContent() {
                             href={report.gamma_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                            className="text-emerald-400 hover:text-emerald-300 inline-flex items-center gap-1"
                           >
-                            Open <ExternalLink className="w-3.5 h-3.5" />
+                            Open report <ExternalLink className="w-3.5 h-3.5" />
                           </a>
                         ) : (
                           <span className="text-gray-600">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <button
-                          type="button"
-                          onClick={() => handleGenerateCompanionVideo(report.id)}
-                          disabled={generatingCompanion}
-                          className="text-amber-400 hover:text-amber-300 flex items-center gap-1 text-sm disabled:opacity-50"
-                        >
-                          <Video className="w-3.5 h-3.5" />
-                          Companion video
-                        </button>
+                        <CompanionVideoCell
+                          report={report}
+                          isStartingForThisRow={generatingCompanion && companionReportId === report.id}
+                          generatingCompanion={generatingCompanion}
+                          onGenerate={() => handleGenerateCompanionVideo(report.id)}
+                        />
                       </td>
                     </tr>
                   ))}
@@ -1199,6 +1226,89 @@ function GammaReportsContent() {
         </div>
       </div>
     </div>
+  );
+}
+
+function CompanionVideoCell({
+  report,
+  isStartingForThisRow,
+  generatingCompanion,
+  onGenerate,
+}: {
+  report: GammaReport;
+  isStartingForThisRow: boolean;
+  generatingCompanion: boolean;
+  onGenerate: () => void;
+}) {
+  const cv = report.companion_video;
+  const adminJobHref = cv?.job_id
+    ? `/admin/content/video-generation?jobId=${encodeURIComponent(cv.job_id)}`
+    : null;
+
+  if (isStartingForThisRow) {
+    return (
+      <span className="text-gray-500 text-xs inline-flex items-center gap-1">
+        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+        Starting…
+      </span>
+    );
+  }
+
+  if (cv?.watch_url) {
+    return (
+      <a
+        href={cv.watch_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-sky-400 hover:text-sky-300 inline-flex items-center gap-1"
+      >
+        <Video className="w-3.5 h-3.5 shrink-0" />
+        View video
+        <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+      </a>
+    );
+  }
+
+  if (cv?.job_id && adminJobHref) {
+    const st = cv.heygen_status;
+    if (st === 'failed') {
+      return (
+        <Link href={adminJobHref} className="text-red-400 hover:text-red-300 text-sm inline-flex items-center gap-1">
+          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+          Video failed
+        </Link>
+      );
+    }
+    if (st === 'completed' && !cv.watch_url) {
+      return (
+        <Link href={adminJobHref} className="text-amber-400/90 hover:text-amber-300 text-sm">
+          Open video job
+        </Link>
+      );
+    }
+    return (
+      <Link
+        href={adminJobHref}
+        className="text-gray-400 hover:text-gray-300 text-sm inline-flex items-center gap-1"
+      >
+        <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />
+        In progress
+      </Link>
+    );
+  }
+
+  return (
+    <span className="text-gray-600 text-sm inline-flex flex-wrap items-center gap-x-2 gap-y-1">
+      <span>—</span>
+      <button
+        type="button"
+        onClick={onGenerate}
+        disabled={generatingCompanion}
+        className="text-gray-500 hover:text-amber-400/90 underline-offset-2 hover:underline disabled:opacity-40 text-xs"
+      >
+        Generate video
+      </button>
+    </span>
   );
 }
 

@@ -79,6 +79,8 @@ export const diagnosticPutSchema = z.object({
   diagnosticData: z.record(z.string(), z.unknown()).optional(),
   currentCategory: z.enum(diagnosticCategoryValues).optional(),
   progress: diagnosticProgressSchema.optional(),
+  /** Synced from sales UI company name for Gamma/report titles when contact.company is empty. */
+  businessName: z.string().max(500).optional(),
 })
 
 /**

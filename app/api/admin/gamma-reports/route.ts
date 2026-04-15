@@ -6,6 +6,57 @@ import { insertGammaReportRow, runGammaGeneration } from '@/lib/gamma-generation
 
 export const dynamic = 'force-dynamic'
 
+type VideoJobRow = {
+  id: string
+  gamma_report_id: string | null
+  heygen_status: string | null
+  video_share_url: string | null
+  video_url: string | null
+  created_at: string
+}
+
+/** Newest completed job with a playable/share URL wins; else most recent job for status / admin link. */
+function attachCompanionVideoSummaries(
+  reports: Record<string, unknown>[],
+  jobs: VideoJobRow[]
+): Record<string, unknown>[] {
+  const byReport = new Map<string, VideoJobRow[]>()
+  for (const j of jobs) {
+    if (!j.gamma_report_id) continue
+    const arr = byReport.get(j.gamma_report_id) ?? []
+    arr.push(j)
+    byReport.set(j.gamma_report_id, arr)
+  }
+
+  return reports.map((r) => {
+    const id = r.id as string
+    const list = (byReport.get(id) ?? []).slice().sort((a, b) => {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
+    if (list.length === 0) {
+      return { ...r, companion_video: null }
+    }
+    const withUrl = list.find(
+      (j) =>
+        j.heygen_status === 'completed' &&
+        (Boolean(j.video_share_url?.trim()) || Boolean(j.video_url?.trim()))
+    )
+    const primary = withUrl ?? list[0]
+    const watchUrl =
+      primary.heygen_status === 'completed'
+        ? (primary.video_share_url?.trim() || primary.video_url?.trim() || null)
+        : null
+    return {
+      ...r,
+      companion_video: {
+        job_id: primary.id,
+        heygen_status: primary.heygen_status,
+        watch_url: watchUrl,
+      },
+    }
+  })
+}
+
 // ---------------------------------------------------------------------------
 // GET /api/admin/gamma-reports — list generated reports
 // ---------------------------------------------------------------------------
@@ -48,7 +99,25 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Failed to fetch reports' }, { status: 500 })
   }
 
-  return NextResponse.json({ reports: data || [] })
+  const reports = (data || []) as Record<string, unknown>[]
+  const reportIds = reports.map((row) => row.id as string).filter(Boolean)
+
+  let merged = reports
+  if (reportIds.length > 0) {
+    const { data: jobRows, error: jobsError } = await supabaseAdmin
+      .from('video_generation_jobs')
+      .select('id, gamma_report_id, heygen_status, video_share_url, video_url, created_at')
+      .in('gamma_report_id', reportIds)
+      .is('deleted_at', null)
+
+    if (jobsError) {
+      console.error('Failed to fetch companion video jobs for gamma reports:', jobsError)
+    } else {
+      merged = attachCompanionVideoSummaries(reports, (jobRows || []) as VideoJobRow[])
+    }
+  }
+
+  return NextResponse.json({ reports: merged })
 }
 
 // ---------------------------------------------------------------------------

@@ -99,6 +99,16 @@ interface AuditData {
   recommended_actions: string[] | null
   urgency_score: number | null
   opportunity_score: number | null
+  /** Captured on the audit row (often set when contact.company is empty). */
+  business_name?: string | null
+  website_url?: string | null
+  contact_email?: string | null
+  industry_slug?: string | null
+  responses_received?: Record<string, unknown> | null
+  questions_by_category?: Record<string, unknown> | null
+  enriched_tech_stack?: Record<string, unknown> | null
+  value_estimate?: Record<string, unknown> | null
+  sales_notes?: string | null
 }
 
 interface ValueReportData {
@@ -194,8 +204,61 @@ export function computeDerivedMetrics(ctx: ReportContext): DerivedMetrics {
 }
 
 // ---------------------------------------------------------------------------
+// Organization display name (contact + audit fallbacks)
+// ---------------------------------------------------------------------------
+
+function trimNonEmpty(s: string | null | undefined): string | null {
+  const t = (s ?? '').trim()
+  return t.length > 0 ? t : null
+}
+
+function hostnameFromUrl(url: string | null | undefined): string | null {
+  const raw = trimNonEmpty(url)
+  if (!raw) return null
+  try {
+    const withProto = raw.includes('://') ? raw : `https://${raw}`
+    const u = new URL(withProto)
+    const host = u.hostname.replace(/^www\./i, '')
+    return host.length > 0 ? host : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Best label for the prospect's organization in Gamma titles and copy.
+ * Prefer contact.company, then audit.business_name, then website host, then contact name.
+ */
+export function resolveOrganizationLabel(ctx: ReportContext): string {
+  const contact = ctx.contact
+  const audit = ctx.audit
+  const fromContactCompany = trimNonEmpty(contact?.company)
+  if (fromContactCompany) return fromContactCompany
+  const fromAuditBusiness = trimNonEmpty(audit?.business_name)
+  if (fromAuditBusiness) return fromAuditBusiness
+  const fromWebsite = hostnameFromUrl(audit?.website_url)
+  if (fromWebsite) return fromWebsite
+  const fromContactName = trimNonEmpty(contact?.name)
+  if (fromContactName) return fromContactName
+  return 'the Organization'
+}
+
+// ---------------------------------------------------------------------------
 // Formatting helpers
 // ---------------------------------------------------------------------------
+
+function formatQuestionsByCategory(raw: Record<string, unknown> | null | undefined): string | null {
+  if (!raw || typeof raw !== 'object') return null
+  const blocks: string[] = []
+  for (const [cat, qs] of Object.entries(raw)) {
+    if (!Array.isArray(qs) || qs.length === 0) continue
+    const label = cat.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+    const lines = qs.filter((q): q is string => typeof q === 'string' && q.trim().length > 0).map((q) => `- ${q.trim()}`)
+    if (lines.length === 0) continue
+    blocks.push(`### ${label}\n${lines.join('\n')}`)
+  }
+  return blocks.length > 0 ? blocks.join('\n\n') : null
+}
 
 function formatAuditSection(data: Record<string, unknown> | null, fallback: string): string {
   if (!data || typeof data !== 'object') return fallback
@@ -265,7 +328,7 @@ export async function buildGammaReportInput(
       throw new Error(`Unknown report type: ${params.reportType}`)
   }
 
-  const orgName = context.contact?.company || 'the organization'
+  const orgLabel = resolveOrganizationLabel(context)
   const numCards = numCardsForGammaReportType(params.reportType)
 
   const options: GammaGenerateOptions = {
@@ -277,7 +340,7 @@ export async function buildGammaReportInput(
     textOptions: {
       amount: 'detailed',
       tone: 'professional, data-driven, consultative',
-      audience: `nonprofit and small business leadership, board members, and executive directors at ${orgName}`,
+      audience: `nonprofit and small business leadership, board members, and executive directors at ${orgLabel}`,
       language: 'en',
     },
     imageOptions: {
@@ -324,7 +387,7 @@ async function fetchReportContext(params: GammaReportParams): Promise<ReportCont
       ? supabaseAdmin
           .from('diagnostic_audits')
           .select(
-            'id, business_challenges, tech_stack, automation_needs, ai_readiness, budget_timeline, decision_making, diagnostic_summary, key_insights, recommended_actions, urgency_score, opportunity_score'
+            'id, business_challenges, tech_stack, automation_needs, ai_readiness, budget_timeline, decision_making, diagnostic_summary, key_insights, recommended_actions, urgency_score, opportunity_score, business_name, website_url, contact_email, industry_slug, responses_received, questions_by_category, enriched_tech_stack, value_estimate, sales_notes'
           )
           .eq('id', params.diagnosticAuditId)
           .single()
@@ -398,8 +461,8 @@ function reportContextToVideoScriptContext(ctx: ReportContext): VideoScriptConte
       : null
   return {
     contactName: ctx.contact?.name ?? null,
-    company: ctx.contact?.company ?? null,
-    industry: ctx.contact?.industry ?? ctx.valueReport?.industry ?? null,
+    company: trimNonEmpty(ctx.contact?.company) ?? trimNonEmpty(ctx.audit?.business_name) ?? hostnameFromUrl(ctx.audit?.website_url) ?? trimNonEmpty(ctx.contact?.name) ?? null,
+    industry: ctx.contact?.industry ?? ctx.valueReport?.industry ?? trimNonEmpty(ctx.audit?.industry_slug)?.replace(/_/g, ' ') ?? null,
     diagnosticSummary: ctx.audit?.diagnostic_summary ?? null,
     valueStatementsSummary,
     totalAnnualValue: ctx.valueReport?.total_annual_value ?? null,
@@ -447,7 +510,7 @@ function buildGammaReportInputFromContext(
       throw new Error(`Unknown report type: ${params.reportType}`)
   }
 
-  const orgName = ctx.contact?.company || 'the organization'
+  const orgLabel = resolveOrganizationLabel(ctx)
   const numCards = numCardsForGammaReportType(params.reportType)
 
   const options: GammaGenerateOptions = {
@@ -459,7 +522,7 @@ function buildGammaReportInputFromContext(
     textOptions: {
       amount: 'detailed',
       tone: 'professional, data-driven, consultative',
-      audience: `nonprofit and small business leadership, board members, and executive directors at ${orgName}`,
+      audience: `nonprofit and small business leadership, board members, and executive directors at ${orgLabel}`,
       language: 'en',
     },
     imageOptions: {
@@ -491,7 +554,7 @@ function buildValueQuantificationPrompt(
   ctx: ReportContext,
   params: GammaReportParams
 ): { inputText: string; title: string } {
-  const orgName = ctx.contact?.company || 'the Organization'
+  const orgName = resolveOrganizationLabel(ctx)
   const industry = ctx.contact?.industry || ctx.valueReport?.industry || 'nonprofit'
   const companySize = normalizeCompanySize(
     ctx.contact?.employee_count || ctx.valueReport?.company_size_range || '11-50'
@@ -753,7 +816,7 @@ function buildImplementationStrategyPrompt(
   ctx: ReportContext,
   params: GammaReportParams
 ): { inputText: string; title: string } {
-  const orgName = ctx.contact?.company || 'the Organization'
+  const orgName = resolveOrganizationLabel(ctx)
   const domain = params.externalInputs?.siteCrawlData ? 'Website UX Redesign' : 'Digital Strategy'
   const title = `${orgName} ${domain}: Implementation Strategy`
   const metrics = computeDerivedMetrics(ctx)
@@ -1013,11 +1076,19 @@ function buildAuditSummaryPrompt(
   ctx: ReportContext,
   params: GammaReportParams
 ): { inputText: string; title: string } {
-  const orgName = ctx.contact?.company || 'the Organization'
+  const orgName = resolveOrganizationLabel(ctx)
   const metrics = computeDerivedMetrics(ctx)
   const title = `${orgName} — Diagnostic Audit Summary`
 
   const sections: string[] = []
+
+  sections.push(`# How to use this source material
+
+**Client organization (use this exact name in titles and body text):** ${orgName}
+
+- Base the deck on the **Prospect context** and **Diagnostic audit data** below. Do not replace this name with generic placeholders (e.g. "the organization", "the client").
+- When a field was not recorded, say so briefly instead of inventing facts.
+- Quote or paraphrase the structured responses; keep claims tied to what appears in the sections below.`)
 
   // --- Slide 1: Title + scores ---
   let titleSlide = `# ${title}\n\nPrepared by Amadutown Advisory Solutions\n${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
@@ -1028,7 +1099,55 @@ function buildAuditSummaryPrompt(
   }
   sections.push(titleSlide)
 
+  const contact = ctx.contact
+  const audit = ctx.audit
+  const prospectLines: string[] = [`- **Organization:** ${orgName}`]
+  const cName = trimNonEmpty(contact?.name)
+  if (cName) prospectLines.push(`- **Primary contact:** ${cName}`)
+  const cEmail = trimNonEmpty(contact?.email)
+  if (cEmail) prospectLines.push(`- **Email:** ${cEmail}`)
+  const auditEmail = trimNonEmpty(audit?.contact_email)
+  if (auditEmail && auditEmail !== cEmail) prospectLines.push(`- **Email (from audit):** ${auditEmail}`)
+  const web = trimNonEmpty(audit?.website_url)
+  if (web) prospectLines.push(`- **Website:** ${web}`)
+  const indFromContact = trimNonEmpty(contact?.industry)
+  const indFromAudit = trimNonEmpty(audit?.industry_slug)?.replace(/_/g, ' ')
+  if (indFromContact) prospectLines.push(`- **Industry:** ${indFromContact}`)
+  else if (indFromAudit) prospectLines.push(`- **Industry:** ${indFromAudit}`)
+  const emp = trimNonEmpty(contact?.employee_count)
+  if (emp) prospectLines.push(`- **Company size (contact record):** ${emp}`)
+  sections.push(`# Prospect context\n\n${prospectLines.join('\n')}`)
+
   if (ctx.audit) {
+    const ar = ctx.audit
+    const qbc = formatQuestionsByCategory(ar.questions_by_category ?? null)
+    if (qbc) {
+      sections.push(`# Topics & questions captured\n\n${qbc}`)
+    }
+
+    const rr = ar.responses_received
+    if (rr && typeof rr === 'object' && Object.keys(rr).length > 0) {
+      sections.push(
+        `# Conversation / progress responses\n\n${formatAuditSection(rr as Record<string, unknown>, 'No responses recorded.')}`
+      )
+    }
+
+    if (ar.sales_notes && ar.sales_notes.trim()) {
+      sections.push(`# Sales notes (internal context)\n\n${ar.sales_notes.trim()}`)
+    }
+
+    if (ar.enriched_tech_stack && typeof ar.enriched_tech_stack === 'object' && Object.keys(ar.enriched_tech_stack).length > 0) {
+      sections.push(
+        `# Enriched technology signals\n\n${formatAuditSection(ar.enriched_tech_stack as Record<string, unknown>, 'None.')}`
+      )
+    }
+
+    if (ar.value_estimate && typeof ar.value_estimate === 'object' && Object.keys(ar.value_estimate).length > 0) {
+      sections.push(
+        `# Value estimate (from audit)\n\n${formatAuditSection(ar.value_estimate as Record<string, unknown>, 'None.')}`
+      )
+    }
+
     const categories: { key: keyof AuditData; label: string }[] = [
       { key: 'business_challenges', label: 'Business Challenges' },
       { key: 'tech_stack', label: 'Technology Stack' },
@@ -1039,20 +1158,20 @@ function buildAuditSummaryPrompt(
     ]
 
     for (const cat of categories) {
-      const data = ctx.audit[cat.key]
+      const data = ar[cat.key]
       if (data && typeof data === 'object') {
-        sections.push(`# ${cat.label}\n\n${formatAuditSection(data as Record<string, unknown>, 'No data available.')}`)
+        sections.push(`# ${cat.label}\n\n${formatAuditSection(data as Record<string, unknown>, 'No data recorded for this category.')}`)
       }
     }
 
-    if (ctx.audit.diagnostic_summary) {
-      sections.push(`# Summary\n\n${ctx.audit.diagnostic_summary}`)
+    if (ar.diagnostic_summary) {
+      sections.push(`# Summary\n\n${ar.diagnostic_summary}`)
     }
-    if (ctx.audit.key_insights?.length) {
-      sections.push(`# Key Insights\n\n${ctx.audit.key_insights.map((i: string) => `- ${i}`).join('\n')}`)
+    if (ar.key_insights?.length) {
+      sections.push(`# Key Insights\n\n${ar.key_insights.map((i: string) => `- ${i}`).join('\n')}`)
     }
-    if (ctx.audit.recommended_actions?.length) {
-      sections.push(`# Recommended Actions\n\n${ctx.audit.recommended_actions.map((a: string) => `- ${a}`).join('\n')}`)
+    if (ar.recommended_actions?.length) {
+      sections.push(`# Recommended Actions\n\n${ar.recommended_actions.map((a: string) => `- ${a}`).join('\n')}`)
     }
   }
 
@@ -1086,7 +1205,7 @@ function buildProspectOverviewPrompt(
   ctx: ReportContext,
   params: GammaReportParams
 ): { inputText: string; title: string } {
-  const orgName = ctx.contact?.company || 'the Organization'
+  const orgName = resolveOrganizationLabel(ctx)
   const industry = ctx.contact?.industry || 'general'
   const metrics = computeDerivedMetrics(ctx)
   const title = `${orgName} — AI & Automation Opportunity Overview`

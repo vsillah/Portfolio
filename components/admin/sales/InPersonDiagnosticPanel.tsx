@@ -231,6 +231,7 @@ export function InPersonDiagnosticPanel({
             contact_submission_id: contactSubmissionId,
             diagnostic_data: diagnosticData,
             status: complete ? 'completed' : 'in_progress',
+            business_name: clientCompany?.trim() || undefined,
           }),
         });
         if (!res.ok) {
@@ -255,6 +256,7 @@ export function InPersonDiagnosticPanel({
             auditId,
             status: complete ? 'completed' : 'in_progress',
             diagnosticData,
+            businessName: clientCompany?.trim() || undefined,
           }),
         });
         if (!res.ok) throw new Error('Failed to update diagnostic');
@@ -268,7 +270,7 @@ export function InPersonDiagnosticPanel({
     } finally {
       setSaving(false);
     }
-  }, [auditId, sessionId, contactSubmissionId, diagnosticData, onAuditCreated, onAuditUpdated]);
+  }, [auditId, sessionId, contactSubmissionId, clientCompany, diagnosticData, onAuditCreated, onAuditUpdated]);
 
   // Generate AI insights from filled-in data
   const generateInsights = useCallback(async () => {

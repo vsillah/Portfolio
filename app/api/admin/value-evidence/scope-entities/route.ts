@@ -6,6 +6,29 @@ export const dynamic = 'force-dynamic'
 
 const VALID_TYPES = ['meeting', 'assessment', 'lead'] as const
 
+function parseMeetingStructuredNotes(raw: unknown): { text: string } | null {
+  if (!raw || typeof raw !== 'object') return null
+  const o = raw as Record<string, unknown>
+  const summary = typeof o.summary === 'string' ? o.summary.trim() : ''
+  const title = typeof o.title === 'string' ? o.title.trim() : ''
+  const text = summary || title
+  return text ? { text } : null
+}
+
+/** Date + local time so same calendar day meetings are distinguishable. */
+function formatMeetingWhen(iso: string | null): string {
+  if (!iso) return 'Unknown date'
+  const d = new Date(iso)
+  if (!Number.isFinite(d.getTime())) return 'Unknown date'
+  return d.toLocaleString(undefined, {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
 /**
  * GET /api/admin/value-evidence/scope-entities?type=meeting|assessment|lead&q=search
  * Returns recent entities for the targeted-run scope picker.
@@ -32,7 +55,7 @@ export async function GET(request: NextRequest) {
     if (type === 'meeting') {
       let query = supabaseAdmin
         .from('meeting_records')
-        .select('id, meeting_type, meeting_date, structured_notes, contact_submission_id, transcript')
+        .select('id, meeting_type, meeting_date, structured_notes, contact_submission_id, transcript, duration_minutes')
         .not('transcript', 'is', null)
         .order('meeting_date', { ascending: false })
         .limit(20)
@@ -47,16 +70,66 @@ export async function GET(request: NextRequest) {
       const { data, error } = await query
       if (error) throw error
 
-      const entities = (data || []).map((m: { id: string; meeting_type: string | null; meeting_date: string | null; structured_notes: unknown; contact_submission_id: number | null; transcript: string | null }) => {
-        const notes = m.structured_notes as { summary?: string } | null
-        const summary = notes?.summary || ''
-        const label = summary
-          ? summary.substring(0, 80) + (summary.length > 80 ? '...' : '')
-          : `${m.meeting_type || 'Meeting'} — ${m.meeting_date ? new Date(m.meeting_date).toLocaleDateString() : 'Unknown date'}`
+      const rows =
+        (data || []) as Array<{
+          id: string
+          meeting_type: string | null
+          meeting_date: string | null
+          structured_notes: unknown
+          contact_submission_id: number | null
+          transcript: string | null
+          duration_minutes: number | null
+        }>
+
+      const contactIds = [
+        ...new Set(
+          rows.map(r => r.contact_submission_id).filter((id): id is number => id != null && Number.isFinite(id)),
+        ),
+      ]
+      const contactById = new Map<number, { name: string | null; company: string | null }>()
+      if (contactIds.length > 0) {
+        const { data: contacts, error: contactsErr } = await supabaseAdmin
+          .from('contact_submissions')
+          .select('id, name, company')
+          .in('id', contactIds)
+        if (contactsErr) throw contactsErr
+        for (const c of contacts || []) {
+          const row = c as { id: number; name: string | null; company: string | null }
+          contactById.set(row.id, { name: row.name, company: row.company })
+        }
+      }
+
+      const entities = rows.map(m => {
+        const notes = parseMeetingStructuredNotes(m.structured_notes)
+        const blurb = notes?.text || ''
+        const typeDisplay = (m.meeting_type || 'Meeting').replace(/_/g, ' ')
+        const when = formatMeetingWhen(m.meeting_date)
+
+        const label =
+          blurb.length > 0
+            ? blurb.length > 80
+              ? `${blurb.slice(0, 80)}…`
+              : blurb
+            : `${typeDisplay} — ${when}`
+
+        const contact = m.contact_submission_id != null ? contactById.get(m.contact_submission_id) : undefined
+        const contactLine =
+          contact && (contact.company || contact.name)
+            ? [contact.company, contact.name].filter(Boolean).join(' · ')
+            : null
+
+        const subtitleParts: string[] = []
+        if (blurb.length > 0) subtitleParts.push(when)
+        if (contactLine) subtitleParts.push(contactLine)
+        if (m.duration_minutes != null && Number(m.duration_minutes) > 0) {
+          subtitleParts.push(`${m.duration_minutes} min`)
+        }
+        subtitleParts.push(`#${m.id.slice(0, 8)}`)
+
         return {
           id: m.id,
           label,
-          subtitle: m.meeting_date ? new Date(m.meeting_date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : null,
+          subtitle: subtitleParts.length > 0 ? subtitleParts.join(' · ') : null,
           hasTranscript: !!m.transcript,
           contactSubmissionId: m.contact_submission_id,
         }

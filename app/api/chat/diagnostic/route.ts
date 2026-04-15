@@ -106,7 +106,8 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
     const { diagnosticPutSchema } = await import('@/lib/chat-validation')
-    const { auditId, status, diagnosticData, currentCategory, progress } = diagnosticPutSchema.parse(body)
+    const { auditId, status, diagnosticData, currentCategory, progress, businessName } =
+      diagnosticPutSchema.parse(body)
 
     // Import here to avoid circular dependencies
     const { saveDiagnosticAudit } = await import('@/lib/diagnostic')
@@ -128,6 +129,7 @@ export async function PUT(request: NextRequest) {
       currentCategory,
       progress,
       diagnosticData,
+      ...(businessName !== undefined ? { businessName } : {}),
     })
 
     if (result.error) {
