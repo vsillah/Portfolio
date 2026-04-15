@@ -6,14 +6,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { generateDeliveryDraft, type AssetRef } from '@/lib/delivery-email'
+import { DeliveryDraftError, generateDeliveryDraft, type AssetRef } from '@/lib/delivery-email'
 import type { EmailTemplateKey } from '@/lib/constants/prompt-keys'
 
 export const dynamic = 'force-dynamic'
 
+/** Public site origin for dashboard links (avoids `https://undefined` when env precedence is wrong). */
+function composeDeliveryServerOrigin(): string {
+  const base = process.env.NEXT_PUBLIC_BASE_URL?.trim()
+  if (base) return base.replace(/\/$/, '')
+  const vercel = process.env.VERCEL_URL?.trim()
+  if (vercel) return `https://${vercel}`
+  return 'https://amadutown.com'
+}
+
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   const auth = await verifyAdmin(request)
   if (isAuthError(auth)) {
@@ -24,7 +33,8 @@ export async function POST(
     return NextResponse.json({ error: 'Server configuration error' }, { status: 500 })
   }
 
-  const contactId = parseInt(params.id, 10)
+  const resolved = await Promise.resolve(params)
+  const contactId = parseInt(resolved.id, 10)
   if (isNaN(contactId)) {
     return NextResponse.json({ error: 'Invalid contact ID' }, { status: 400 })
   }
@@ -53,9 +63,7 @@ export async function POST(
         .maybeSingle()
 
       if (access?.access_token) {
-        const origin = process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL
-          ? `https://${process.env.VERCEL_URL}`
-          : 'https://amadutown.com'
+        const origin = composeDeliveryServerOrigin()
         dashboardUrl = `${origin}/client/dashboard/${access.access_token}`
       }
     }
@@ -73,6 +81,32 @@ export async function POST(
     return NextResponse.json(draft)
   } catch (err) {
     console.error('[Compose delivery] Error:', err)
+    if (err instanceof DeliveryDraftError) {
+      if (err.code === 'openai_not_configured') {
+        return NextResponse.json(
+          {
+            error:
+              'Email drafts require an OpenAI API key. Add OPENAI_API_KEY to the server environment (for example Vercel → Project → Settings → Environment Variables) and redeploy.',
+          },
+          { status: 503 }
+        )
+      }
+      if (err.code === 'openai_upstream') {
+        return NextResponse.json(
+          {
+            error:
+              'The AI service did not complete this request. Check server logs for details, verify your OpenAI billing and model access, then try again.',
+          },
+          { status: 502 }
+        )
+      }
+      if (err.code === 'invalid_response') {
+        return NextResponse.json(
+          { error: 'The AI returned an unexpected response. Try generating again or adjust the template in System Prompts.' },
+          { status: 502 }
+        )
+      }
+    }
     return NextResponse.json(
       { error: 'Failed to generate email draft. Please try again.' },
       { status: 500 }

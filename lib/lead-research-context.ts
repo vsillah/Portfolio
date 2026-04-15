@@ -4,6 +4,7 @@
  */
 
 import { supabaseAdmin } from '@/lib/supabase'
+import { formatQuickWinsForDisplay } from '@/lib/quick-wins-display'
 
 /** Tier 1: contact_submissions enrichment */
 export interface ContactEnrichment {
@@ -137,8 +138,9 @@ export function buildResearchBrief(
   if (contact.interest_areas?.length) {
     lines.push(`Interest areas: ${contact.interest_areas.join(', ')}`)
   }
-  if (contact.quick_wins) {
-    lines.push('', '### Quick Wins Identified', contact.quick_wins)
+  {
+    const qw = formatQuickWinsForDisplay(contact.quick_wins as unknown)
+    if (qw) lines.push('', '### Quick Wins Identified', qw)
   }
   if (contact.ai_readiness_score != null || contact.competitive_pressure_score != null) {
     const scores: string[] = []

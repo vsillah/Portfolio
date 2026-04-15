@@ -25,6 +25,135 @@ export interface TechStackLookupResult {
   creditsRemaining?: number
 }
 
+/** Exported for tests — normalizes BuiltWith Domain API v22 (and legacy) JSON into tech rows. */
+export function technologiesFromBuiltWithPayload(data: unknown): {
+  technologies: TechStackItem[]
+  byTag: Record<string, string[]>
+} {
+  const technologies: TechStackItem[] = []
+  const byTag: Record<string, string[]> = {}
+
+  if (!data || typeof data !== 'object') {
+    return { technologies, byTag }
+  }
+
+  const root = data as Record<string, unknown>
+
+  const pathsToWalk: unknown[] = []
+
+  function collectPaths(paths: unknown) {
+    if (!Array.isArray(paths)) return
+    pathsToWalk.push(...paths)
+  }
+
+  /** Result may be { Paths: [...] } or an array of such objects (alternate API shapes). */
+  function collectFromResultInner(inner: unknown) {
+    if (inner == null) return
+    if (Array.isArray(inner)) {
+      for (const piece of inner) {
+        if (piece && typeof piece === 'object') {
+          collectPaths((piece as Record<string, unknown>).Paths)
+        }
+      }
+      return
+    }
+    if (typeof inner === 'object') {
+      collectPaths((inner as Record<string, unknown>).Paths)
+    }
+  }
+
+  if (Array.isArray(root.Results)) {
+    for (const block of root.Results) {
+      if (!block || typeof block !== 'object') continue
+      const b = block as Record<string, unknown>
+      collectPaths(b.Paths)
+      collectFromResultInner(b.Result)
+    }
+  }
+
+  if (pathsToWalk.length === 0 && root.Result != null) {
+    const top = root.Result
+    if (Array.isArray(top)) {
+      for (const piece of top) {
+        if (piece && typeof piece === 'object') {
+          collectPaths((piece as Record<string, unknown>).Paths)
+        }
+      }
+    } else if (typeof top === 'object') {
+      collectPaths((top as Record<string, unknown>).Paths)
+    }
+  }
+
+  function techDisplayName(tech: Record<string, unknown>): string | null {
+    const raw = tech.Name ?? tech.name
+    if (typeof raw === 'string' && raw.trim()) return raw.trim()
+    if (typeof raw === 'number' && Number.isFinite(raw)) return String(raw)
+    return null
+  }
+
+  function techTag(tech: Record<string, unknown>): string | undefined {
+    const raw = tech.Tag ?? tech.tag
+    return typeof raw === 'string' && raw.trim() ? raw.trim() : undefined
+  }
+
+  /** v22: flat { Name, Tag, ... } or legacy { Technology: { ... } }. */
+  function pushFromTechNode(raw: unknown) {
+    if (!raw || typeof raw !== 'object') return
+    const o = raw as Record<string, unknown>
+    const tech =
+      o.Technology && typeof o.Technology === 'object'
+        ? (o.Technology as Record<string, unknown>)
+        : o
+    const name = techDisplayName(tech)
+    if (!name) return
+    const tag = techTag(tech)
+    const categories = Array.isArray(tech.Categories)
+      ? tech.Categories.filter((c): c is string => typeof c === 'string')
+      : undefined
+    const parentRaw = tech.Parent ?? tech.parent
+    const parent = typeof parentRaw === 'string' && parentRaw.trim() ? parentRaw.trim() : undefined
+    const item: TechStackItem = {
+      name,
+      parent: parent || undefined,
+      tag,
+      categories: categories?.length ? categories : undefined,
+    }
+    technologies.push(item)
+    if (tag) {
+      if (!byTag[tag]) byTag[tag] = []
+      if (!byTag[tag].includes(name)) byTag[tag].push(name)
+    }
+  }
+
+  function walkPathObject(path: Record<string, unknown>) {
+    const direct = path.Technologies
+    if (Array.isArray(direct)) {
+      for (const t of direct) pushFromTechNode(t)
+    }
+    const pathEntry = path.Path
+    const pathArray = Array.isArray(pathEntry) ? pathEntry : pathEntry ? [pathEntry] : []
+    for (const p of pathArray) {
+      if (!p || typeof p !== 'object') continue
+      const techs = (p as { Technologies?: unknown[] }).Technologies
+      if (!Array.isArray(techs)) continue
+      for (const t of techs) pushFromTechNode(t)
+    }
+  }
+
+  for (const path of pathsToWalk) {
+    if (path && typeof path === 'object') walkPathObject(path as Record<string, unknown>)
+  }
+
+  const seen = new Set<string>()
+  const unique = technologies.filter((t) => {
+    if (seen.has(t.name)) return false
+    seen.add(t.name)
+    return true
+  })
+
+  return { technologies: unique, byTag }
+}
+
 /**
  * Extract root domain for BuiltWith lookup (e.g. "https://www.example.com/path" -> "example.com").
  */
@@ -132,100 +261,10 @@ export async function fetchTechStackByDomain(
       }
     }
 
-    const technologies: TechStackItem[] = []
-    const byTag: Record<string, string[]> = {}
-
     const resolvedLookup =
       (Array.isArray(data.Results) && data.Results[0]?.Lookup) || data.Lookup || domain
 
-    /** v22: each element is { Name, Tag, Categories?, Parent?, ... } OR legacy { Technology: { ... } }. */
-    function pushFromTechNode(raw: unknown) {
-      if (!raw || typeof raw !== 'object') return
-      const o = raw as Record<string, unknown>
-      const tech =
-        o.Technology && typeof o.Technology === 'object'
-          ? (o.Technology as Record<string, unknown>)
-          : o
-      const name = tech.Name
-      if (!name || typeof name !== 'string') return
-      const tag = typeof tech.Tag === 'string' ? tech.Tag : undefined
-      const categories = Array.isArray(tech.Categories)
-        ? tech.Categories.filter((c): c is string => typeof c === 'string')
-        : undefined
-      const parent = typeof tech.Parent === 'string' ? tech.Parent : undefined
-      const item: TechStackItem = {
-        name,
-        parent: parent || undefined,
-        tag,
-        categories: categories?.length ? categories : undefined,
-      }
-      technologies.push(item)
-      if (tag) {
-        if (!byTag[tag]) byTag[tag] = []
-        if (!byTag[tag].includes(name)) byTag[tag].push(name)
-      }
-    }
-
-    function walkPathObject(path: Record<string, unknown>) {
-      const direct = path.Technologies
-      if (Array.isArray(direct)) {
-        for (const t of direct) pushFromTechNode(t)
-      }
-      const pathEntry = path.Path
-      const pathArray = Array.isArray(pathEntry) ? pathEntry : pathEntry ? [pathEntry] : []
-      for (const p of pathArray) {
-        if (!p || typeof p !== 'object') continue
-        const techs = (p as { Technologies?: unknown[] }).Technologies
-        if (!Array.isArray(techs)) continue
-        for (const t of techs) pushFromTechNode(t)
-      }
-    }
-
-    const pathsLists: unknown[] = []
-
-    if (Array.isArray(data.Results) && data.Results.length > 0) {
-      for (const block of data.Results) {
-        const inner = block.Result
-        if (inner && typeof inner === 'object' && Array.isArray(inner.Paths)) {
-          pathsLists.push(...inner.Paths)
-        }
-      }
-    }
-
-    if (pathsLists.length === 0 && data.Result) {
-      const result = data.Result as { Paths?: unknown[] }
-      if (Array.isArray(result.Paths)) pathsLists.push(...result.Paths)
-      else {
-        const asArray = Array.isArray(data.Result) ? data.Result : [data.Result]
-        for (const pathObj of asArray) {
-          if (pathObj && typeof pathObj === 'object' && Array.isArray((pathObj as { Paths?: unknown[] }).Paths)) {
-            pathsLists.push(...(pathObj as { Paths: unknown[] }).Paths)
-          }
-        }
-      }
-    }
-
-    if (pathsLists.length === 0) {
-      return {
-        ok: true,
-        domain: resolvedLookup,
-        technologies: [],
-        byTag: {},
-        creditsRemaining: numCredits,
-      }
-    }
-
-    for (const path of pathsLists) {
-      if (path && typeof path === 'object') walkPathObject(path as Record<string, unknown>)
-    }
-
-    // Dedupe by name (same tech can appear on multiple paths)
-    const seen = new Set<string>()
-    const unique = technologies.filter((t) => {
-      if (seen.has(t.name)) return false
-      seen.add(t.name)
-      return true
-    })
+    const { technologies: unique, byTag } = technologiesFromBuiltWithPayload(data)
 
     return {
       ok: true,

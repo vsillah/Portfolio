@@ -16,11 +16,12 @@ export const ADMIN_CREATE_PARAMS = {
   RETURN_TO: 'returnTo',
 } as const
 
-export type AdminCreateResource = 'lead-magnets' | 'leads'
+export type AdminCreateResource = 'lead-magnets' | 'leads' | 'client-projects'
 
 const RESOURCE_PATHS: Record<AdminCreateResource, string> = {
   'lead-magnets': '/admin/content/lead-magnets',
   'leads': '/admin/outreach',
+  'client-projects': '/admin/client-projects',
 }
 
 /**

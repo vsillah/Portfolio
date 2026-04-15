@@ -58,6 +58,7 @@ import {
   meetingRecordUuidFromContextId,
 } from '@/lib/admin-meeting-context-items'
 import { buildGmailComposeUrl } from '@/lib/gmail-compose'
+import { formatQuickWinsForDisplay, quickWinsToEditableString } from '@/lib/quick-wins-display'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -197,6 +198,23 @@ function EvidenceCard({ evidence }: { evidence: { id: string; display_name: stri
 }
 
 const READAI_CACHE_TTL_MS = 5 * 60 * 1000
+
+/** Read.ai / DB meetings may use text, action, title, etc.; omit empty and literal "undefined". */
+function formatMeetingActionItemsAsBullets(actionItems: unknown[] | null | undefined): string {
+  if (!actionItems?.length) return ''
+  const lines: string[] = []
+  for (const ai of actionItems) {
+    let text = ''
+    if (typeof ai === 'string') text = ai.trim()
+    else if (ai && typeof ai === 'object') {
+      const o = ai as Record<string, unknown>
+      const t = o.text ?? o.action ?? o.title ?? o.description ?? o.body
+      text = typeof t === 'string' ? t.trim() : ''
+    }
+    if (text && text !== 'undefined') lines.push(`• ${text}`)
+  }
+  return lines.join('\n')
+}
 
 export default function OutreachAdminPage() {
   return (
@@ -972,7 +990,7 @@ function OutreachContent() {
           })
         }
         if (meeting.action_items?.length) {
-          const items = meeting.action_items.filter((ai: { text: string }) => ai.text).map((ai: { text: string }) => `• ${ai.text}`).join('\n')
+          const items = formatMeetingActionItemsAsBullets(meeting.action_items)
           if (!items) continue
           pending.push({
             meetingId,
@@ -1632,7 +1650,7 @@ function OutreachContent() {
         setAddLeadPainPoints((prev) => [prev, `--- From meeting: ${meeting.title} ---\n${meeting.summary}`].filter(Boolean).join('\n\n'))
       }
       if (meeting.action_items?.length) {
-        const items = meeting.action_items.filter((ai: { text: string }) => ai.text).map((ai: { text: string }) => `• ${ai.text}`).join('\n')
+        const items = formatMeetingActionItemsAsBullets(meeting.action_items)
         if (items) {
           setAddLeadQuickWins((prev) => [prev, `--- From meeting: ${meeting.title} ---\n${items}`].filter(Boolean).join('\n\n'))
         }
@@ -2352,14 +2370,18 @@ function OutreachContent() {
                                 </div>
                               </div>
 
-                              {item.contact_submissions?.quick_wins && (
-                                <div className="bg-background/60 rounded-lg p-3">
-                                  <div className="text-muted-foreground text-xs mb-1">Quick Wins</div>
-                                  <div className="text-sm text-foreground whitespace-pre-wrap max-h-24 overflow-y-auto">
-                                    {item.contact_submissions.quick_wins}
+                              {(() => {
+                                const qw = formatQuickWinsForDisplay(item.contact_submissions?.quick_wins as unknown)
+                                if (!qw) return null
+                                return (
+                                  <div className="bg-background/60 rounded-lg p-3">
+                                    <div className="text-muted-foreground text-xs mb-1">Quick Wins</div>
+                                    <div className="text-sm text-foreground whitespace-pre-wrap max-h-24 overflow-y-auto">
+                                      {qw}
+                                    </div>
                                   </div>
-                                </div>
-                              )}
+                                )
+                              })()}
 
                               <div className="flex gap-2">
                                 {item.contact_submissions?.email && (
@@ -3222,7 +3244,7 @@ function OutreachContent() {
                               <div>
                                 <label className="block text-sm font-medium text-muted-foreground mb-1">Quick wins</label>
                                 <textarea
-                                  value={enrichModalForm[l.id]?.quick_wins ?? l.quick_wins ?? ''}
+                                  value={enrichModalForm[l.id]?.quick_wins ?? quickWinsToEditableString(l.quick_wins as unknown)}
                                   onChange={(e) => setEnrichModalForm((f) => ({ ...f, [l.id]: { ...f[l.id], quick_wins: e.target.value } }))}
                                   rows={2}
                                   className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white placeholder-muted-foreground/60 focus:outline-none focus:border-radiant-gold resize-y"
@@ -3501,7 +3523,7 @@ function OutreachContent() {
                         const hasClassifyPayload = enrichModalLeads.some((l) => {
                           const f = enrichModalForm[l.id]
                           const pain = (f?.rep_pain_points ?? l.rep_pain_points ?? '').trim()
-                          const qw = (f?.quick_wins ?? l.quick_wins ?? '').trim()
+                          const qw = (f?.quick_wins ?? quickWinsToEditableString(l.quick_wins as unknown)).trim()
                           return Boolean(pain || qw)
                         })
                         const anyExtractable = enrichModalLeads.some((l) => l.has_extractable_text)
@@ -3551,7 +3573,9 @@ function OutreachContent() {
                                         message: (f?.message ?? l.message ?? '').trim() || undefined,
                                         input_type: f?.input_type ?? inputTypeFromLeadSource(l.lead_source),
                                         employee_count: (f?.employee_count ?? l.employee_count ?? '').trim() || undefined,
-                                        quick_wins: (f?.quick_wins ?? l.quick_wins ?? '').trim() || undefined,
+                                        quick_wins:
+                                          (f?.quick_wins ?? quickWinsToEditableString(l.quick_wins as unknown)).trim() ||
+                                          undefined,
                                         rep_pain_points: (f?.rep_pain_points ?? l.rep_pain_points ?? '').trim() || undefined,
                                         re_run_enrichment: enrichModalLeads.length === 1 ? unifiedModalReRunEnrichment : false,
                                       }
@@ -3599,7 +3623,8 @@ function OutreachContent() {
                                     for (const l of enrichModalLeads) {
                                       const form = enrichModalForm[l.id]
                                       const painPoints = form?.rep_pain_points ?? l.rep_pain_points ?? ''
-                                      const quickWins = form?.quick_wins ?? l.quick_wins ?? ''
+                                      const quickWins =
+                                        form?.quick_wins ?? quickWinsToEditableString(l.quick_wins as unknown)
                                       if (!painPoints.trim() && !quickWins.trim()) continue
                                       setEnrichClassifyLoading((prev) => ({ ...prev, [l.id]: true }))
                                       try {
@@ -3653,7 +3678,8 @@ function OutreachContent() {
                                         const vals = {
                                           rep_pain_points: form?.rep_pain_points ?? l.rep_pain_points,
                                           message: form?.message ?? l.message,
-                                          quick_wins: form?.quick_wins ?? l.quick_wins,
+                                          quick_wins:
+                                            form?.quick_wins ?? quickWinsToEditableString(l.quick_wins as unknown),
                                           industry: form?.industry ?? l.industry,
                                           employee_count: form?.employee_count ?? l.employee_count,
                                           company: form?.company ?? l.company,
@@ -4906,14 +4932,18 @@ function OutreachContent() {
                                     </div>
                                   </div>
 
-                                  {lead.quick_wins && (
-                                    <div className="mt-3 bg-background/60 rounded-lg p-3">
-                                      <div className="text-muted-foreground text-xs mb-1">Quick Wins</div>
-                                      <div className="text-sm text-foreground whitespace-pre-wrap max-h-24 overflow-y-auto">
-                                        {lead.quick_wins}
+                                  {(() => {
+                                    const quickWinsText = formatQuickWinsForDisplay(lead.quick_wins as unknown)
+                                    if (!quickWinsText) return null
+                                    return (
+                                      <div className="mt-3 bg-background/60 rounded-lg p-3">
+                                        <div className="text-muted-foreground text-xs mb-1">Quick Wins</div>
+                                        <div className="text-sm text-foreground whitespace-pre-wrap max-h-24 overflow-y-auto">
+                                          {quickWinsText}
+                                        </div>
                                       </div>
-                                    </div>
-                                  )}
+                                    )
+                                  })()}
 
                                   {lead.has_sales_conversation ? (
                                     <div className="mt-3">

@@ -18,6 +18,18 @@ import type {
   ValueReportContext,
 } from '@/lib/lead-research-context'
 import { loadLeadResearchBrief } from '@/lib/lead-research-context'
+import { quickWinsToLines } from '@/lib/quick-wins-display'
+
+/** Thrown for compose-delivery; route maps codes to HTTP status and safe admin-facing messages. */
+export class DeliveryDraftError extends Error {
+  constructor(
+    message: string,
+    public readonly code: 'openai_not_configured' | 'openai_upstream' | 'invalid_response'
+  ) {
+    super(message)
+    this.name = 'DeliveryDraftError'
+  }
+}
 
 /* ───────── Types ───────── */
 
@@ -202,8 +214,8 @@ function buildKeyFindings(
 
   // Tier 1 fallback: quick wins or pain points
   if (findings.length === 0 && contact.quick_wins) {
-    const wins = contact.quick_wins.split(/[;\n]/).map(w => w.trim()).filter(Boolean)
-    findings.push(...wins.slice(0, 3))
+    const wins = quickWinsToLines(contact.quick_wins as unknown, 3)
+    findings.push(...wins)
   }
   if (findings.length === 0 && contact.rep_pain_points) {
     const pains = contact.rep_pain_points.split(/[;\n]/).map(p => p.trim()).filter(Boolean)
@@ -244,8 +256,10 @@ function buildAssetSummary(assets: AssetDetail[], templateKey?: string, dashboar
  * Injects tiered research brief and anonymized social proof.
  */
 export async function generateDeliveryDraft(input: DeliveryDraftInput): Promise<DeliveryDraft> {
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) throw new Error('OPENAI_API_KEY not configured')
+  const apiKey = process.env.OPENAI_API_KEY?.trim()
+  if (!apiKey) {
+    throw new DeliveryDraftError('OPENAI_API_KEY not configured', 'openai_not_configured')
+  }
 
   const templateKey = input.templateKey || 'email_asset_delivery'
 
@@ -305,8 +319,8 @@ export async function generateDeliveryDraft(input: DeliveryDraftInput): Promise<
 
   if (!response.ok) {
     const errText = await response.text()
-    console.error('[Delivery email] OpenAI error:', errText)
-    throw new Error('Failed to generate delivery email draft')
+    console.error('[Delivery email] OpenAI error:', response.status, errText)
+    throw new DeliveryDraftError('OpenAI request failed', 'openai_upstream')
   }
 
   const result = await response.json()
@@ -322,9 +336,17 @@ export async function generateDeliveryDraft(input: DeliveryDraftInput): Promise<
     ).catch(() => {})
   }
 
-  if (!content) throw new Error('No response from AI for delivery email')
+  if (!content || typeof content !== 'string') {
+    throw new DeliveryDraftError('No response from AI for delivery email', 'invalid_response')
+  }
 
-  const parsed = JSON.parse(content) as { subject?: string; body?: string }
+  let parsed: { subject?: string; body?: string }
+  try {
+    parsed = JSON.parse(content) as { subject?: string; body?: string }
+  } catch {
+    console.error('[Delivery email] Non-JSON model output (first 200 chars):', content.slice(0, 200))
+    throw new DeliveryDraftError('AI returned invalid JSON', 'invalid_response')
+  }
 
   return {
     subject: parsed.subject || `Resources for ${contact.name}`,

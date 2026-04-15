@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { AnimatePresence } from 'framer-motion'
 import {
@@ -26,6 +27,7 @@ import Link from 'next/link'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { useAuth } from '@/components/AuthProvider'
 import { getCurrentSession } from '@/lib/auth'
+import { ADMIN_CREATE_PARAMS } from '@/lib/admin-create-context'
 
 interface ProjectSummary {
   id: string
@@ -142,6 +144,8 @@ interface PendingOnboardingProject {
 
 function ClientProjectsContent() {
   const { user } = useAuth()
+  const searchParams = useSearchParams()
+  const router = useRouter()
   const [projects, setProjects] = useState<ProjectSummary[]>([])
   const [pendingOnboarding, setPendingOnboarding] = useState<PendingOnboardingProject[]>([])
   const [stats, setStats] = useState<Stats>({
@@ -212,6 +216,12 @@ function ClientProjectsContent() {
   useEffect(() => {
     if (user) fetchPendingOnboarding()
   }, [user, fetchPendingOnboarding])
+
+  useEffect(() => {
+    if (searchParams.get(ADMIN_CREATE_PARAMS.OPEN) === ADMIN_CREATE_PARAMS.OPEN_ADD) {
+      setShowCreateModal(true)
+    }
+  }, [searchParams])
 
   const handleApproveOnboarding = async (projectId: string) => {
     const session = await getCurrentSession()
@@ -433,6 +443,10 @@ function ClientProjectsContent() {
                 setShowCreateModal(false)
                 fetchProjects()
                 fetchPendingOnboarding()
+                const returnTo = searchParams.get(ADMIN_CREATE_PARAMS.RETURN_TO)
+                if (returnTo?.startsWith('/admin')) {
+                  router.push(returnTo)
+                }
               }}
             />
           )}

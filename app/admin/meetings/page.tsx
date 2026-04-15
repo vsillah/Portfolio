@@ -28,6 +28,7 @@ import { getCurrentSession } from '@/lib/auth'
 import { adminCreateUrl } from '@/lib/admin-create-context'
 
 const CREATE_LEAD_SENTINEL = '__create_lead__'
+const CREATE_PROJECT_SENTINEL = '__create_project__'
 
 interface MeetingRow {
   id: string
@@ -255,6 +256,10 @@ function MeetingsContent() {
 
   const navigateToCreateLead = () => {
     router.push(adminCreateUrl('leads', { returnTo: '/admin/meetings' }))
+  }
+
+  const navigateToCreateProject = () => {
+    router.push(adminCreateUrl('client-projects', { returnTo: '/admin/meetings' }))
   }
 
   // Selection helpers
@@ -687,13 +692,23 @@ function MeetingsContent() {
                   <select
                     value={bulkValue}
                     onChange={(e) => {
-                      if (e.target.value === CREATE_LEAD_SENTINEL) { navigateToCreateLead(); return }
+                      if (e.target.value === CREATE_LEAD_SENTINEL) {
+                        navigateToCreateLead()
+                        return
+                      }
+                      if (e.target.value === CREATE_PROJECT_SENTINEL) {
+                        navigateToCreateProject()
+                        return
+                      }
                       setBulkValue(e.target.value)
                     }}
                     className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2 min-w-[200px]"
                   >
                     <option value="">{bulkMode === 'lead' ? 'Select lead...' : 'Select project...'}</option>
                     {bulkMode === 'lead' && <option value={CREATE_LEAD_SENTINEL}>+ Create new lead...</option>}
+                    {bulkMode === 'project' && (
+                      <option value={CREATE_PROJECT_SENTINEL}>+ Create new project...</option>
+                    )}
                     {bulkMode === 'lead'
                       ? leadOptions.map((l) => (
                           <option key={l.id} value={String(l.id)}>{l.name} {l.email ? `(${l.email})` : ''}</option>
@@ -729,13 +744,23 @@ function MeetingsContent() {
                   <select
                     value={bulkAuditValue}
                     onChange={(e) => {
-                      if (e.target.value === CREATE_LEAD_SENTINEL) { navigateToCreateLead(); return }
+                      if (e.target.value === CREATE_LEAD_SENTINEL) {
+                        navigateToCreateLead()
+                        return
+                      }
+                      if (e.target.value === CREATE_PROJECT_SENTINEL) {
+                        navigateToCreateProject()
+                        return
+                      }
                       setBulkAuditValue(e.target.value)
                     }}
                     className="rounded bg-gray-800 border border-gray-700 text-gray-200 text-sm py-1.5 px-2 min-w-[200px]"
                   >
                     <option value="">{bulkAuditMode === 'lead' ? 'Select lead...' : 'Select project...'}</option>
                     {bulkAuditMode === 'lead' && <option value={CREATE_LEAD_SENTINEL}>+ Create new lead...</option>}
+                    {bulkAuditMode === 'project' && (
+                      <option value={CREATE_PROJECT_SENTINEL}>+ Create new project...</option>
+                    )}
                     {bulkAuditMode === 'lead'
                       ? leadOptions.map((l) => (
                           <option key={l.id} value={String(l.id)}>{l.name} {l.email ? `(${l.email})` : ''}</option>
@@ -1172,6 +1197,17 @@ function MeetingsContent() {
                                           </button>
                                         </div>
                                       )}
+                                      {attributeMode === 'project' && (
+                                        <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
+                                          <button
+                                            type="button"
+                                            onClick={() => navigateToCreateProject()}
+                                            className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
+                                          >
+                                            <Plus size={12} /> Create new project...
+                                          </button>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 )}
@@ -1436,6 +1472,17 @@ function MeetingsContent() {
                                                 className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
                                               >
                                                 <Plus size={12} /> Create new lead...
+                                              </button>
+                                            </div>
+                                          )}
+                                          {rowAuditMode === 'project' && (
+                                            <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
+                                              <button
+                                                type="button"
+                                                onClick={() => navigateToCreateProject()}
+                                                className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
+                                              >
+                                                <Plus size={12} /> Create new project...
                                               </button>
                                             </div>
                                           )}
