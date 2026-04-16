@@ -37,13 +37,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const auditIdStr =
+      typeof diagnostic_audit_id === 'string' && diagnostic_audit_id.trim()
+        ? diagnostic_audit_id.trim()
+        : undefined
+
     const input: OnboardingGenerationInput = {
       line_items,
       client_name,
       client_company,
       bundle_name,
       contact_submission_id: contact_submission_id ? Number(contact_submission_id) : undefined,
-      diagnostic_audit_id: diagnostic_audit_id ? Number(diagnostic_audit_id) : undefined,
+      diagnostic_audit_id: auditIdStr,
       value_report_id: value_report_id || undefined,
       gamma_report_id: gamma_report_id || undefined,
     }

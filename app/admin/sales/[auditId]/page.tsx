@@ -44,6 +44,7 @@ import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
 import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
 import { ValueEvidenceCallPanel } from '@/components/admin/sales/ValueEvidenceCallPanel';
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
+import { useAdminReturnPath } from '@/lib/hooks/useAdminReturnPath';
 import { generateProposalEmailDraft, type ProposalEmailDraft } from '@/lib/proposal-email-draft';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
 import { 
@@ -233,6 +234,7 @@ export default function ClientWalkthroughPage() {
   const { user } = useAuth();
   const auditId = params.auditId as string;
   const backUrl = getBackUrl(searchParams, '/admin/sales');
+  const adminReturnPath = useAdminReturnPath();
 
   // Data state
   const [audit, setAudit] = useState<DiagnosticAudit | null>(null);
@@ -2277,6 +2279,8 @@ export default function ClientWalkthroughPage() {
           onClose={() => setShowProposalModal(false)}
           contactId={contact?.id ? parseInt(contact.id, 10) : null}
           defaultValueReportId={valueReportId}
+          diagnosticAuditId={auditId}
+          diagnosticReturnPath={adminReturnPath}
           onGenerate={async (data) => {
             const authSession = await getCurrentSession();
             if (!authSession?.access_token) return;

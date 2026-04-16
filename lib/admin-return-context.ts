@@ -69,3 +69,17 @@ export function getBackUrl(
 ): string {
   return parseReturnTo(searchParams) ?? defaultPath
 }
+
+/**
+ * Build the current admin path for use as `returnPath` in `buildLinkWithReturn`.
+ * Drops `returnTo` from the query string so nested links do not accumulate junk.
+ */
+export function buildAdminReturnPath(pathname: string, searchParamsString: string | undefined): string {
+  const path = pathname?.trim() || '/admin'
+  const raw = (searchParamsString ?? '').trim()
+  if (!raw) return path
+  const sp = new URLSearchParams(raw.startsWith('?') ? raw.slice(1) : raw)
+  sp.delete(RETURN_TO_PARAM)
+  const q = sp.toString()
+  return q ? `${path}?${q}` : path
+}

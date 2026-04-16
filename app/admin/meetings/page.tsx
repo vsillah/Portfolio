@@ -1,8 +1,8 @@
 'use client'
 
-import { Fragment, useEffect, useState, useCallback, useRef } from 'react'
+import { Fragment, useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import Link from 'next/link'
-import { useSearchParams, useRouter } from 'next/navigation'
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import {
   Video,
   Loader2,
@@ -26,6 +26,8 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import { adminCreateUrl } from '@/lib/admin-create-context'
+import { buildAdminReturnPath } from '@/lib/admin-return-context'
+import { ViewDiagnosticLink } from '@/components/admin/ViewDiagnosticLink'
 
 const CREATE_LEAD_SENTINEL = '__create_lead__'
 const CREATE_PROJECT_SENTINEL = '__create_project__'
@@ -77,8 +79,13 @@ export default function AdminMeetingsPage() {
 
 function MeetingsContent() {
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const router = useRouter()
   const contactIdFromUrl = searchParams.get('contact_submission_id')
+  const meetingsReturnPath = useMemo(
+    () => buildAdminReturnPath(pathname, searchParams.toString()),
+    [pathname, searchParams],
+  )
 
   const [meetings, setMeetings] = useState<MeetingRow[]>([])
   const [total, setTotal] = useState(0)
@@ -128,7 +135,7 @@ function MeetingsContent() {
   const [buildAuditInProgress, setBuildAuditInProgress] = useState(false)
   const [buildAuditError, setBuildAuditError] = useState<string | null>(null)
   const [buildAuditSuccess, setBuildAuditSuccess] = useState<{ auditId: string; meetingsUsed: number } | null>(null)
-  /** After a successful build, rows for this lead/project show View audit instead of Build (session only). */
+  /** After a successful build, rows for this lead/project show View diagnostic instead of Build (session only). */
   const [recentAuditByTarget, setRecentAuditByTarget] = useState<{
     auditId: string
     mode: 'lead' | 'project'
@@ -809,13 +816,14 @@ function MeetingsContent() {
                   Audit ready — used {buildAuditSuccess.meetingsUsed} meeting
                   {buildAuditSuccess.meetingsUsed === 1 ? '' : 's'}.
                 </p>
-                <Link
-                  href={`/admin/sales/${buildAuditSuccess.auditId}`}
+                <ViewDiagnosticLink
+                  auditId={buildAuditSuccess.auditId}
+                  returnPath={meetingsReturnPath}
                   className={auditViewPillProminent}
                 >
                   <ExternalLink size={14} className="shrink-0" aria-hidden />
-                  View audit
-                </Link>
+                  View diagnostic
+                </ViewDiagnosticLink>
               </div>
             )}
           </div>
@@ -1538,15 +1546,16 @@ function MeetingsContent() {
                                 {isAttributed ? (
                                   <>
                                     {recentAuditByTarget && rowShowsViewAudit(m) ? (
-                                      <Link
-                                        href={`/admin/sales/${recentAuditByTarget.auditId}`}
+                                      <ViewDiagnosticLink
+                                        auditId={recentAuditByTarget.auditId}
+                                        returnPath={meetingsReturnPath}
                                         className={auditViewPillRow}
-                                        title="Open diagnostic audit for this lead or project"
-                                        aria-label="View diagnostic audit"
+                                        title="Open diagnostic workspace for this lead or project"
+                                        aria-label="View diagnostic"
                                       >
                                         <ExternalLink size={12} aria-hidden />
-                                        View audit
-                                      </Link>
+                                        View diagnostic
+                                      </ViewDiagnosticLink>
                                     ) : (
                                       <button
                                         type="button"
@@ -1596,15 +1605,16 @@ function MeetingsContent() {
                                       Attribute
                                     </button>
                                     {recentAuditByTarget && rowShowsViewAudit(m) ? (
-                                      <Link
-                                        href={`/admin/sales/${recentAuditByTarget.auditId}`}
+                                      <ViewDiagnosticLink
+                                        auditId={recentAuditByTarget.auditId}
+                                        returnPath={meetingsReturnPath}
                                         className={auditViewPillRow}
-                                        title="Open diagnostic audit for this lead or project"
-                                        aria-label="View diagnostic audit"
+                                        title="Open diagnostic workspace for this lead or project"
+                                        aria-label="View diagnostic"
                                       >
                                         <ExternalLink size={12} aria-hidden />
-                                        View audit
-                                      </Link>
+                                        View diagnostic
+                                      </ViewDiagnosticLink>
                                     ) : (
                                       <button
                                         type="button"
@@ -1658,10 +1668,14 @@ function MeetingsContent() {
               {buildAuditSuccess.meetingsUsed === 1 ? '' : 's'} processed.
             </p>
             <div className="flex items-center gap-2 shrink-0">
-              <Link href={`/admin/sales/${buildAuditSuccess.auditId}`} className={auditViewPillProminent}>
+              <ViewDiagnosticLink
+                auditId={buildAuditSuccess.auditId}
+                returnPath={meetingsReturnPath}
+                className={auditViewPillProminent}
+              >
                 <ExternalLink size={14} className="shrink-0" aria-hidden />
-                View audit
-              </Link>
+                View diagnostic
+              </ViewDiagnosticLink>
               <button
                 type="button"
                 onClick={() => {

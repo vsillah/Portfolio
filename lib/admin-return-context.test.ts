@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   validateReturnPath,
   buildLinkWithReturn,
+  buildAdminReturnPath,
   parseReturnTo,
   getBackUrl,
   RETURN_TO_PARAM,
@@ -70,6 +71,28 @@ describe('buildLinkWithReturn', () => {
     )
     expect(buildLinkWithReturn('/admin/meetings/abc', '')).toBe(
       '/admin/meetings/abc'
+    )
+  })
+})
+
+describe('buildAdminReturnPath', () => {
+  it('returns pathname only when search is empty', () => {
+    expect(buildAdminReturnPath('/admin/reports/gamma', '')).toBe('/admin/reports/gamma')
+    expect(buildAdminReturnPath('/admin/reports/gamma', undefined)).toBe('/admin/reports/gamma')
+  })
+
+  it('preserves query and strips returnTo', () => {
+    expect(
+      buildAdminReturnPath(
+        '/admin/reports/gamma',
+        'type=audit_summary&contactId=5&returnTo=%2Fadmin%2Fsales',
+      ),
+    ).toBe('/admin/reports/gamma?type=audit_summary&contactId=5')
+  })
+
+  it('handles leading ? on search string', () => {
+    expect(buildAdminReturnPath('/admin/meetings', '?contact_submission_id=3')).toBe(
+      '/admin/meetings?contact_submission_id=3',
     )
   })
 })

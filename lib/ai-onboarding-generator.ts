@@ -30,7 +30,7 @@ export interface OnboardingGenerationInput {
   client_company?: string
   bundle_name?: string
   contact_submission_id?: number
-  diagnostic_audit_id?: number
+  diagnostic_audit_id?: string
   value_report_id?: string
   gamma_report_id?: string
 }

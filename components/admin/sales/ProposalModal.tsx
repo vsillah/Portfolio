@@ -5,6 +5,7 @@ import { FileText, XCircle, Loader2, AlertTriangle, CheckSquare, Square, Chevron
 import { getCurrentSession } from '@/lib/auth';
 import { formatCurrency } from '@/lib/pricing-model';
 import type { AIOnboardingContent } from '@/lib/ai-onboarding-generator';
+import { ViewDiagnosticLink } from '@/components/admin/ViewDiagnosticLink';
 
 const MARGIN_ALERT_THRESHOLD = typeof process.env.NEXT_PUBLIC_MARGIN_ALERT_THRESHOLD_PERCENT === 'string'
   ? parseFloat(process.env.NEXT_PUBLIC_MARGIN_ALERT_THRESHOLD_PERCENT) || 20
@@ -44,7 +45,9 @@ export interface ProposalModalProps {
   blendedMarginPercent?: number | null;
   blendedMarginDollar?: number | null;
   contactSubmissionId?: number | null;
-  diagnosticAuditId?: number | null;
+  diagnosticAuditId?: string | null;
+  /** Current admin page path for `returnTo` when opening the diagnostic workspace */
+  diagnosticReturnPath?: string;
   lineItems?: Array<{
     title: string;
     description?: string;
@@ -82,6 +85,7 @@ export function ProposalModal({
   blendedMarginDollar,
   contactSubmissionId,
   diagnosticAuditId,
+  diagnosticReturnPath,
   lineItems,
   bundleName,
   defaultServiceTermMonths,
@@ -268,14 +272,23 @@ export function ProposalModal({
   const headerTitle = heading ?? 'Generate Proposal';
 
   const header = (
-    <div className="flex items-center justify-between p-4 border-b border-gray-800 shrink-0">
-      <h3 className="text-lg font-semibold flex items-center gap-2">
-        <FileText className="w-5 h-5 text-blue-400" />
+    <div className="flex items-center justify-between gap-2 p-4 border-b border-gray-800 shrink-0">
+      <h3 className="text-lg font-semibold flex items-center gap-2 min-w-0 flex-1 truncate">
+        <FileText className="w-5 h-5 text-blue-400 shrink-0" />
         {headerTitle}
       </h3>
-      <button type="button" onClick={onClose} className="text-gray-400 hover:text-white" aria-label="Close">
-        <XCircle className="w-5 h-5" />
-      </button>
+      <div className="flex items-center gap-2 shrink-0">
+        {diagnosticAuditId && diagnosticReturnPath ? (
+          <ViewDiagnosticLink
+            auditId={diagnosticAuditId}
+            returnPath={diagnosticReturnPath}
+            className="text-sm font-medium text-emerald-400 hover:text-emerald-300 hover:underline whitespace-nowrap"
+          />
+        ) : null}
+        <button type="button" onClick={onClose} className="text-gray-400 hover:text-white" aria-label="Close">
+          <XCircle className="w-5 h-5" />
+        </button>
+      </div>
     </div>
   );
 

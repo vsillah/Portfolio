@@ -5,6 +5,8 @@ import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
 import { parseReturnTo } from '@/lib/admin-return-context';
+import { ViewDiagnosticLink } from '@/components/admin/ViewDiagnosticLink';
+import { useAdminReturnPath } from '@/lib/hooks/useAdminReturnPath';
 import { supabase } from '@/lib/supabase';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
@@ -111,6 +113,7 @@ function GammaReportsContent() {
   const { session } = useAuth();
   const searchParams = useSearchParams();
   const returnUrl = parseReturnTo(searchParams);
+  const adminReturnPath = useAdminReturnPath();
 
   // Form state
   const [reportType, setReportType] = useState<ReportType>(
@@ -974,6 +977,11 @@ function GammaReportsContent() {
                   );
                 })}
               </select>
+              {auditId ? (
+                <div className="mt-2">
+                  <ViewDiagnosticLink auditId={auditId} returnPath={adminReturnPath} />
+                </div>
+              ) : null}
             </div>
           )}
 

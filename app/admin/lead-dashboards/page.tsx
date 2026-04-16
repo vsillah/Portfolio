@@ -5,10 +5,13 @@ import { Copy, ExternalLink, LayoutDashboard, Loader2 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import { ViewDiagnosticLink } from '@/components/admin/ViewDiagnosticLink'
+
+const LEAD_DASHBOARDS_RETURN_PATH = '/admin/lead-dashboards'
 
 interface LeadDashboardRow {
   id: string
-  diagnostic_audit_id: number
+  diagnostic_audit_id: string | null
   client_email: string
   access_token: string
   created_at: string
@@ -103,7 +106,7 @@ export default function LeadDashboardsPage() {
                 <thead className="bg-silicon-slate border-b border-silicon-slate">
                   <tr>
                     <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Client email</th>
-                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Diagnostic ID</th>
+                    <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Diagnostic</th>
                     <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Created</th>
                     <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">Last accessed</th>
                     <th className="px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider w-48">Actions</th>
@@ -113,7 +116,21 @@ export default function LeadDashboardsPage() {
                   {list.map((row) => (
                     <tr key={row.id} className="bg-silicon-slate/30 hover:bg-silicon-slate/50">
                       <td className="px-4 py-3 text-sm text-foreground">{row.client_email}</td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground font-mono">{row.diagnostic_audit_id}</td>
+                      <td className="px-4 py-3 text-sm">
+                        {row.diagnostic_audit_id ? (
+                          <div className="flex flex-col gap-1 items-start">
+                            <ViewDiagnosticLink
+                              auditId={row.diagnostic_audit_id}
+                              returnPath={LEAD_DASHBOARDS_RETURN_PATH}
+                            />
+                            <span className="text-xs text-muted-foreground font-mono truncate max-w-[12rem]" title={row.diagnostic_audit_id}>
+                              {row.diagnostic_audit_id}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
                       <td className="px-4 py-3 text-sm text-muted-foreground">
                         {row.created_at ? new Date(row.created_at).toLocaleDateString() : '—'}
                       </td>

@@ -36,6 +36,8 @@ import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
 import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
 import { ValueEvidenceCallPanel } from '@/components/admin/sales/ValueEvidenceCallPanel';
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
+import { ViewDiagnosticLink } from '@/components/admin/ViewDiagnosticLink';
+import { useAdminReturnPath } from '@/lib/hooks/useAdminReturnPath';
 import { generateProposalEmailDraft, type ProposalEmailDraft } from '@/lib/proposal-email-draft';
 import { ConversationTimeline } from '@/components/admin/sales/ConversationTimeline';
 import { InPersonDiagnosticPanel } from '@/components/admin/sales/InPersonDiagnosticPanel';
@@ -122,6 +124,7 @@ export default function ConversationPage() {
   const { user, session: authSession } = useAuth();
   const sessionId = params.sessionId as string;
   const backUrl = getBackUrl(searchParams, '/admin/sales');
+  const adminReturnPath = useAdminReturnPath();
 
   /* ---- data state ---- */
   const [salesSession, setSalesSession] = useState<SalesSessionRow | null>(null);
@@ -960,9 +963,14 @@ export default function ConversationPage() {
           {/* ---- Col 2: Script Guide + objection help ---- */}
           <div className="flex flex-col min-h-[320px] max-h-[min(75vh,720px)] xl:max-h-[calc(100vh-10rem)] overflow-hidden">
             <div className="flex-1 min-h-0 overflow-y-auto bg-gray-900 rounded-lg border border-gray-800 p-6">
-              <div className="flex items-center gap-2 mb-4">
-                <FileText className="w-5 h-5 text-emerald-400" />
-                <h2 className="text-sm font-semibold text-white">Script Guide</h2>
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <div className="flex items-center gap-2 min-w-0">
+                  <FileText className="w-5 h-5 text-emerald-400 shrink-0" />
+                  <h2 className="text-sm font-semibold text-white truncate">Script Guide</h2>
+                </div>
+                {diagnosticAuditId ? (
+                  <ViewDiagnosticLink auditId={diagnosticAuditId} returnPath={adminReturnPath} />
+                ) : null}
               </div>
               <DynamicScriptFlow
                 steps={conversationState.dynamicSteps}
@@ -1259,7 +1267,8 @@ export default function ConversationPage() {
           blendedMarginPercent={blendedMarginPercent}
           blendedMarginDollar={blendedMarginDollar}
           contactSubmissionId={salesSession?.contact_submission_id ?? null}
-          diagnosticAuditId={diagnosticAuditId ? parseInt(diagnosticAuditId, 10) : null}
+          diagnosticAuditId={diagnosticAuditId}
+          diagnosticReturnPath={adminReturnPath}
           bundleName={bundles.find(b => b.id === selectedBundleId)?.name || 'Custom Offer'}
           defaultServiceTermMonths={(bundles.find(b => b.id === selectedBundleId) as { default_service_term_months?: number | null } | undefined)?.default_service_term_months ?? null}
           lineItems={selectedContentDetails.map(c => {
