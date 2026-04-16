@@ -22,6 +22,7 @@ import {
   Search,
   ChevronRight,
   ChevronDown,
+  Presentation,
 } from 'lucide-react';
 
 export interface SuggestedProductItem {
@@ -46,6 +47,8 @@ export interface StreamlinedProductSelectionProps {
   onRemove?: (contentType: string, contentId: string) => void;
   onToggleContent: (contentType: string, contentId: string) => void;
   onConvertToProposal: () => void;
+  onGeneratePresentation?: () => void;
+  presentationUrl?: string | null;
   /**
    * When set, replaces the flat “All” grid. Use for bundles + catalog-by-role.
    * Receives the current search string (trimmed, lowercased) so you can filter.
@@ -68,6 +71,8 @@ export function StreamlinedProductSelection({
   selectedContent,
   onToggleContent,
   onConvertToProposal,
+  onGeneratePresentation,
+  presentationUrl,
   allCatalogContent,
   offerFooterDetails,
   currentProposal,
@@ -366,6 +371,46 @@ export function StreamlinedProductSelection({
               <CreditCard className="w-4 h-4" />
               Proposal &amp; documents…
             </button>
+          )}
+          {onGeneratePresentation && (
+            <div className="mt-2 space-y-1">
+              {presentationUrl ? (
+                <div className="flex items-center gap-2">
+                  <a
+                    href={presentationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium bg-emerald-600/20 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-600/30 transition-colors"
+                  >
+                    <Presentation className="w-3.5 h-3.5" />
+                    Present Deck
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={onGeneratePresentation}
+                    className="px-2 py-2 rounded-lg text-xs text-gray-400 hover:text-emerald-300 border border-gray-700 hover:border-emerald-500/50 transition-colors"
+                    title="Regenerate presentation"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onGeneratePresentation}
+                  disabled={products.length === 0}
+                  className={`w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                    products.length === 0
+                      ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+                      : 'bg-emerald-600/20 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-600/30'
+                  }`}
+                >
+                  <Presentation className="w-3.5 h-3.5" />
+                  Generate Presentation
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

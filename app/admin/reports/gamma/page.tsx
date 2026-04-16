@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/AuthProvider';
 import { getCurrentSession } from '@/lib/auth';
@@ -23,7 +23,6 @@ import {
   Clock,
   AlertCircle,
   CheckCircle,
-  Search,
   Video,
   Info,
   Palette,
@@ -42,7 +41,7 @@ import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus';
 // Types
 // ---------------------------------------------------------------------------
 
-type ReportType = 'value_quantification' | 'implementation_strategy' | 'audit_summary' | 'prospect_overview';
+type ReportType = 'value_quantification' | 'implementation_strategy' | 'audit_summary' | 'prospect_overview' | 'offer_presentation';
 
 interface Contact {
   id: number;
@@ -75,25 +74,31 @@ const REPORT_TYPES: { value: ReportType; label: string; description: string; sli
     value: 'value_quantification',
     label: 'Value Quantification',
     description: '"Cost of Standing Still" — pain points mapped to dollar values with ROI, payback, and phased roadmap.',
-    slides: 16,
+    slides: 17,
   },
   {
     value: 'implementation_strategy',
     label: 'Implementation Strategy',
     description: 'Current state assessment, 3-track plan (DIY / Platform / ATAS), investment comparison, phased approach.',
-    slides: 19,
+    slides: 20,
   },
   {
     value: 'audit_summary',
     label: 'Audit Summary',
     description: 'Diagnostic audit results across all 6 categories with key insights and recommended actions.',
-    slides: 10,
+    slides: 11,
   },
   {
     value: 'prospect_overview',
     label: 'Prospect Overview',
     description: 'Lighter deck for prospects without a full audit — industry benchmarks and relevant services.',
-    slides: 8,
+    slides: 9,
+  },
+  {
+    value: 'offer_presentation',
+    label: 'Offer Presentation',
+    description: 'Sales-flow-aligned deck from a bundle or pricing tier — walk clients through the offer live with presenter notes.',
+    slides: 16,
   },
 ];
 
@@ -121,13 +126,18 @@ function GammaReportsContent() {
   );
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [contactId, setContactId] = useState<string>(searchParams.get('contactId') || '');
-  const [contactSearch, setContactSearch] = useState('');
   const [auditId, setAuditId] = useState<string>(searchParams.get('auditId') || '');
   const [audits, setAudits] = useState<
     { id: string | number; created_at: string; status: string; audit_type?: string | null }[]
   >([]);
   const [valueReportId, setValueReportId] = useState<string>(searchParams.get('valueReportId') || '');
   const [valueReports, setValueReports] = useState<{ id: string; title: string }[]>([]);
+
+  // Offer presentation — bundle picker
+  const [bundles, setBundles] = useState<{ id: string; name: string; pricing_tier_slug: string | null }[]>([]);
+  const [selectedBundleId, setSelectedBundleId] = useState<string>('');
+  const [selectedTierId, setSelectedTierId] = useState<string>('');
+  const [loadingBundles, setLoadingBundles] = useState(false);
 
   // External inputs (smart cards)
   const [assembledFindings, setAssembledFindings] = useState<string | undefined>();
@@ -541,6 +551,35 @@ function GammaReportsContent() {
     load();
   }, [session, getToken]);
 
+  // Fetch bundles when offer_presentation is selected
+  useEffect(() => {
+    if (reportType !== 'offer_presentation' || !session) return;
+    if (bundles.length > 0) return;
+    let cancelled = false;
+    async function loadBundles() {
+      setLoadingBundles(true);
+      try {
+        const token = await getToken();
+        if (!token || cancelled) return;
+        const res = await fetch('/api/admin/sales/bundles', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok && !cancelled) {
+          const data = await res.json();
+          const list = Array.isArray(data.bundles) ? data.bundles : Array.isArray(data) ? data : [];
+          setBundles(list.map((b: Record<string, unknown>) => ({
+            id: String(b.id),
+            name: String(b.name ?? 'Untitled'),
+            pricing_tier_slug: b.pricing_tier_slug ? String(b.pricing_tier_slug) : null,
+          })));
+        }
+      } catch { /* non-critical */ }
+      if (!cancelled) setLoadingBundles(false);
+    }
+    loadBundles();
+    return () => { cancelled = true; };
+  }, [reportType, session, getToken, bundles.length]);
+
   // Fetch audits when contact changes
   useEffect(() => {
     if (!contactId) {
@@ -725,10 +764,13 @@ function GammaReportsContent() {
       };
 
       if (contactId) body.contactSubmissionId = parseInt(contactId, 10);
-      // diagnostic_audits.id is UUID — do not parseInt
       if (auditId) body.diagnosticAuditId = auditId;
       if (valueReportId) body.valueReportId = valueReportId;
       if (selectedTheme) body.theme = selectedTheme;
+      if (reportType === 'offer_presentation') {
+        if (selectedBundleId) body.bundleId = selectedBundleId;
+        else if (selectedTierId) body.pricingTierId = selectedTierId;
+      }
 
       const bodyJson = JSON.stringify(body);
       const postGamma = (t: string) =>
@@ -827,14 +869,32 @@ function GammaReportsContent() {
     }
   }
 
-  const filteredContacts = contactSearch
-    ? contacts.filter(
-        (c) =>
-          c.name?.toLowerCase().includes(contactSearch.toLowerCase()) ||
-          c.company?.toLowerCase().includes(contactSearch.toLowerCase()) ||
-          c.email?.toLowerCase().includes(contactSearch.toLowerCase())
-      )
-    : contacts;
+  const contactPickerItems = useMemo<AssetPickerItem[]>(
+    () =>
+      contacts.map((c) => ({
+        asset_id: String(c.id),
+        asset_name: `${c.name}${c.company ? ` (${c.company})` : ''} — ${c.email}`,
+        is_favorite: false,
+        is_default: false,
+      })),
+    [contacts]
+  );
+
+  const templateButtonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  const handleTemplateRadiogroupKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (!['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+      e.preventDefault();
+      const currentIndex = REPORT_TYPES.findIndex((t) => t.value === reportType);
+      const delta = e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1;
+      const next = (currentIndex + delta + REPORT_TYPES.length) % REPORT_TYPES.length;
+      const nextValue = REPORT_TYPES[next].value;
+      setReportType(nextValue);
+      queueMicrotask(() => templateButtonRefs.current[next]?.focus());
+    },
+    [reportType]
+  );
 
   const selectedType = REPORT_TYPES.find((t) => t.value === reportType)!;
 
@@ -863,27 +923,46 @@ function GammaReportsContent() {
           </p>
         </div>
 
-        {/* Report Type Selection */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium text-gray-300">Report Template</label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {REPORT_TYPES.map((type) => (
-              <button
-                key={type.value}
-                onClick={() => setReportType(type.value)}
-                className={`text-left p-4 rounded-lg border transition-all ${
-                  reportType === type.value
-                    ? 'border-emerald-500 bg-emerald-500/10'
-                    : 'border-gray-700 bg-gray-900 hover:border-gray-600'
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-medium text-white">{type.label}</span>
-                  <span className="text-xs text-gray-500">{type.slides} slides</span>
-                </div>
-                <p className="text-sm text-gray-400 mt-1">{type.description}</p>
-              </button>
-            ))}
+        {/* Report Type Selection — same card pattern as Context; list + radiogroup */}
+        <div className="bg-gray-900 rounded-lg border border-gray-800 p-6 space-y-3">
+          <h2 id="gamma-report-template-heading" className="text-lg font-semibold text-white">
+            Report Template
+          </h2>
+          <div
+            role="radiogroup"
+            aria-labelledby="gamma-report-template-heading"
+            className="flex flex-col gap-2"
+            onKeyDown={handleTemplateRadiogroupKeyDown}
+          >
+            {REPORT_TYPES.map((type, index) => {
+              const selected = reportType === type.value;
+              return (
+                <button
+                  key={type.value}
+                  ref={(el) => {
+                    templateButtonRefs.current[index] = el;
+                  }}
+                  type="button"
+                  role="radio"
+                  aria-checked={selected}
+                  tabIndex={selected ? 0 : -1}
+                  onClick={() => setReportType(type.value)}
+                  className={`w-full text-left rounded-lg border px-4 py-3 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-900 ${
+                    selected
+                      ? 'border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500/30'
+                      : 'border-gray-800 bg-gray-800/50 hover:border-gray-700 hover:bg-gray-800'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-sm font-semibold text-white">{type.label}</span>
+                    <span className="shrink-0 text-xs font-medium text-gray-500 tabular-nums">
+                      {type.slides} slides
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm leading-relaxed text-gray-400">{type.description}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -891,31 +970,26 @@ function GammaReportsContent() {
         <div className="bg-gray-900 rounded-lg border border-gray-800 p-6 space-y-4">
           <h2 className="text-lg font-semibold text-white">Context</h2>
 
-          {/* Contact Picker */}
+          {/* Contact / Prospect — same AssetPicker pattern as Theme (dropdown + in-panel search) */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">Contact / Prospect</label>
-            <div className="relative">
-              <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-500" />
-              <input
-                type="text"
-                placeholder="Search contacts..."
-                value={contactSearch}
-                onChange={(e) => setContactSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white placeholder-gray-500 focus:border-emerald-500 focus:outline-none"
-              />
-            </div>
-            <select
-              value={contactId}
-              onChange={(e) => setContactId(e.target.value)}
-              className="mt-2 w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white focus:border-emerald-500 focus:outline-none"
-            >
-              <option value="">— No contact selected —</option>
-              {filteredContacts.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} {c.company ? `(${c.company})` : ''} — {c.email}
-                </option>
-              ))}
-            </select>
+            <AssetPicker
+              pickerMode="simple"
+              className="max-w-none"
+              label="Contact / Prospect"
+              items={contactPickerItems}
+              selectedId={contactId || null}
+              onSelect={(id) => setContactId(id)}
+              onToggleFavorite={() => {}}
+            />
+            {contactId !== '' && (
+              <button
+                type="button"
+                onClick={() => setContactId('')}
+                className="mt-1.5 text-[10px] text-gray-500 hover:text-teal-400/90 transition-colors"
+              >
+                Clear contact selection
+              </button>
+            )}
           </div>
 
           {contactId && (
@@ -1001,6 +1075,70 @@ function GammaReportsContent() {
                   </option>
                 ))}
               </select>
+            </div>
+          )}
+
+          {/* Bundle / Tier Picker — for offer_presentation */}
+          {reportType === 'offer_presentation' && (
+            <div className="space-y-3 pt-2 border-t border-gray-800">
+              <label className="block text-sm font-medium text-emerald-300">Offer Source (required)</label>
+              <p className="text-xs text-gray-400">
+                Select a bundle from your offer catalog or a static pricing tier. The deck will be built from the selected offer&apos;s items, pricing, and guarantees.
+              </p>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Bundle</label>
+                {loadingBundles ? (
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading bundles…
+                  </div>
+                ) : (
+                  <select
+                    value={selectedBundleId}
+                    onChange={(e) => {
+                      setSelectedBundleId(e.target.value);
+                      if (e.target.value) setSelectedTierId('');
+                    }}
+                    className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white focus:border-emerald-500 focus:outline-none"
+                  >
+                    <option value="">— Select a bundle —</option>
+                    {bundles.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name}{b.pricing_tier_slug ? ` (${b.pricing_tier_slug})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+              <div className="text-xs text-gray-500 text-center">— or —</div>
+              <div>
+                <label className="block text-xs font-medium text-gray-400 mb-1">Pricing Tier (static)</label>
+                <select
+                  value={selectedTierId}
+                  onChange={(e) => {
+                    setSelectedTierId(e.target.value);
+                    if (e.target.value) setSelectedBundleId('');
+                  }}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white focus:border-emerald-500 focus:outline-none"
+                >
+                  <option value="">— Select a pricing tier —</option>
+                  <optgroup label="Premium Tiers">
+                    <option value="quick-win">AI Quick Win ($997)</option>
+                    <option value="accelerator">AI Accelerator ($7,497)</option>
+                    <option value="growth-engine">Growth Engine ($14,997)</option>
+                    <option value="digital-transformation">Digital Transformation ($29,997+)</option>
+                  </optgroup>
+                  <optgroup label="Community Impact Tiers">
+                    <option value="ci-starter">CI Starter (Free)</option>
+                    <option value="ci-accelerator">CI Accelerator ($1,997)</option>
+                    <option value="ci-growth">CI Growth ($4,997)</option>
+                  </optgroup>
+                </select>
+              </div>
+              {!selectedBundleId && !selectedTierId && (
+                <p className="text-xs text-amber-400/90">
+                  Select a bundle or pricing tier to generate the offer presentation.
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -1425,16 +1563,17 @@ function GammaReportsContent() {
           </div>
         )}
 
-        {/* Report History */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-              <BarChart3 className="w-5 h-5 text-teal-400" />
+        {/* Report History — same card + header strip as other admin lists; body scrolls (contacts timeline pattern) */}
+        <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+          <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-gray-800">
+            <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-teal-400 shrink-0" />
               Report History
             </h2>
             <button
+              type="button"
               onClick={fetchReports}
-              className="text-sm text-gray-400 hover:text-white flex items-center gap-1"
+              className="text-sm text-gray-400 hover:text-white flex items-center gap-1 shrink-0"
             >
               <RefreshCw className="w-3.5 h-3.5" />
               Refresh
@@ -1442,19 +1581,19 @@ function GammaReportsContent() {
           </div>
 
           {loadingReports ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 px-6">
               <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
               Loading reports...
             </div>
           ) : reports.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
+            <div className="text-center py-8 text-gray-500 px-6">
               No reports generated yet. Create your first one above.
             </div>
           ) : (
-            <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+            <div className="max-h-[min(50vh,420px)] overflow-y-auto overflow-x-auto overscroll-contain">
               <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-800 text-gray-400">
+                <thead className="sticky top-0 z-10 bg-gray-900 border-b border-gray-800 shadow-[0_1px_0_0_rgb(31_41_55)]">
+                  <tr className="text-gray-400">
                     <th className="text-left px-4 py-3 font-medium">Title</th>
                     <th className="text-left px-4 py-3 font-medium">Type</th>
                     <th className="text-left px-4 py-3 font-medium">Contact</th>
@@ -1656,6 +1795,10 @@ const TEMPLATE_DATA_NEEDS: Record<string, { required: string[]; optional: string
   prospect_overview: {
     required: ['Contact'],
     optional: ['Diagnostic Audit', 'Value Report'],
+  },
+  offer_presentation: {
+    required: [],
+    optional: ['Contact', 'Diagnostic Audit', 'Value Report'],
   },
 };
 

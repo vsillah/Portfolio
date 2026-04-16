@@ -20,6 +20,9 @@ export default function AssetPicker({
   onAddManual,
   onSetDefault,
   onResolveName,
+  /** `simple`: full list when closed search is empty; no favorites / All toggle / star column (e.g. contacts). */
+  pickerMode = 'catalog',
+  className,
 }: {
   label: string
   items: AssetPickerItem[]
@@ -30,6 +33,8 @@ export default function AssetPicker({
   onSetDefault?: (id: string) => void
   /** Resolve a display name from the upstream API given an asset ID. */
   onResolveName?: (id: string) => Promise<{ name: string | null; error: string | null }>
+  pickerMode?: 'catalog' | 'simple'
+  className?: string
 }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -56,14 +61,19 @@ export default function AssetPicker({
     if (open && !addMode) inputRef.current?.focus()
   }, [open, addMode])
 
+  const isSimple = pickerMode === 'simple'
   const selected = items.find(i => i.asset_id === selectedId)
   const systemDefault = items.find(i => i.is_default)
   const favItems = items.filter(i => i.is_favorite)
   const pool = showAll ? items : favItems
   const q = search.toLowerCase()
-  const filtered = search
-    ? items.filter(i => i.asset_name.toLowerCase().includes(q) || i.asset_id.toLowerCase().includes(q))
-    : pool
+  const filtered = isSimple
+    ? (search.trim()
+        ? items.filter(i => i.asset_name.toLowerCase().includes(q) || i.asset_id.toLowerCase().includes(q))
+        : items)
+    : (search
+        ? items.filter(i => i.asset_name.toLowerCase().includes(q) || i.asset_id.toLowerCase().includes(q))
+        : pool)
 
   async function handleAdd() {
     if (!onAddManual || !addId.trim()) return
@@ -107,7 +117,7 @@ export default function AssetPicker({
   }
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-lg">
+    <div ref={containerRef} className={`relative w-full max-w-lg ${className ?? ''}`.trim()}>
       <label className="text-[10px] text-gray-400 font-medium mb-1 block">{label}</label>
       <button
         type="button"
@@ -143,20 +153,28 @@ export default function AssetPicker({
                   placeholder={`Search ${label.toLowerCase()}s…`}
                   className="flex-1 bg-transparent text-xs text-foreground placeholder:text-gray-600 outline-none"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowAll(!showAll)}
-                  className={`text-[9px] px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors ${showAll ? 'border-silicon-slate text-gray-500 hover:text-foreground' : 'border-amber-500/50 bg-amber-500/10 text-amber-400'}`}
-                >
-                  {showAll ? 'All' : '★ Favs'}
-                </button>
+                {!isSimple && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAll(!showAll)}
+                    className={`text-[9px] px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors ${showAll ? 'border-silicon-slate text-gray-500 hover:text-foreground' : 'border-amber-500/50 bg-amber-500/10 text-amber-400'}`}
+                  >
+                    {showAll ? 'All' : '★ Favs'}
+                  </button>
+                )}
               </div>
 
               {/* Options */}
               <div className="overflow-y-auto flex-1 py-1">
                 {filtered.length === 0 && (
                   <p className="text-[10px] text-gray-500 px-3 py-2">
-                    {search ? 'No matches found' : showAll ? 'No items synced' : 'No favorites — toggle to All'}
+                    {search.trim()
+                      ? 'No matches found'
+                      : isSimple
+                        ? 'Nothing to show yet.'
+                        : showAll
+                          ? 'No items synced'
+                          : 'No favorites — toggle to All'}
                   </p>
                 )}
                 {filtered.map(item => (
@@ -168,14 +186,16 @@ export default function AssetPicker({
                         : 'text-foreground hover:bg-white/5'
                     }`}
                   >
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.asset_id, !item.is_favorite) }}
-                      className={`shrink-0 text-xs transition-colors ${item.is_favorite ? 'text-amber-400 hover:text-amber-300' : 'text-gray-600 hover:text-amber-400'}`}
-                      title={item.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
-                    >
-                      {item.is_favorite ? '★' : '☆'}
-                    </button>
+                    {!isSimple && (
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.asset_id, !item.is_favorite) }}
+                        className={`shrink-0 text-xs transition-colors ${item.is_favorite ? 'text-amber-400 hover:text-amber-300' : 'text-gray-600 hover:text-amber-400'}`}
+                        title={item.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+                      >
+                        {item.is_favorite ? '★' : '☆'}
+                      </button>
+                    )}
 
                     <button
                       type="button"
@@ -186,13 +206,13 @@ export default function AssetPicker({
                       {item.metadata?.language ? <span className="text-gray-500 ml-1">({String(item.metadata.language)})</span> : null}
                     </button>
 
-                    {item.is_default && (
+                    {!isSimple && item.is_default && (
                       <span className="shrink-0 text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 font-medium">default</span>
                     )}
-                    {item.asset_id === selectedId && !item.is_default && (
+                    {!isSimple && item.asset_id === selectedId && !item.is_default && (
                       <span className="shrink-0 text-[9px] px-1.5 py-0.5 rounded bg-radiant-gold/20 text-radiant-gold font-medium">selected</span>
                     )}
-                    {onSetDefault && !item.is_default && (
+                    {!isSimple && onSetDefault && !item.is_default && (
                       <button
                         type="button"
                         onClick={(e) => { e.stopPropagation(); onSetDefault(item.asset_id) }}
@@ -209,7 +229,9 @@ export default function AssetPicker({
               {/* Footer */}
               <div className="px-3 py-1.5 border-t border-silicon-slate/50 flex items-center justify-between">
                 <span className="text-[9px] text-gray-600">
-                  {filtered.length} of {items.length} · {favItems.length} fav{favItems.length !== 1 ? 's' : ''}
+                  {isSimple
+                    ? `${filtered.length} of ${items.length}`
+                    : `${filtered.length} of ${items.length} · ${favItems.length} fav${favItems.length !== 1 ? 's' : ''}`}
                 </span>
                 {onAddManual && (
                   <button

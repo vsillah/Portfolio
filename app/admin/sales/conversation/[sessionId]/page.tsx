@@ -152,6 +152,8 @@ export default function ConversationPage() {
   const [proposalDocuments, setProposalDocuments] = useState<Array<{ id: string; document_type: string; title: string; display_order: number; created_at: string }>>([]);
   const [showAttachDocumentModal, setShowAttachDocumentModal] = useState(false);
   const [collapsedContentGroups, setCollapsedContentGroups] = useState<Set<string>>(new Set());
+  const [presentationUrl, setPresentationUrl] = useState<string | null>(null);
+  const [generatingPresentation, setGeneratingPresentation] = useState(false);
   const hasInitializedCollapsed = useRef(false);
 
   /* ---- value evidence ---- */
@@ -628,6 +630,26 @@ export default function ConversationPage() {
     } catch { setError('Failed to load bundle'); }
   };
 
+  const handleGeneratePresentation = async () => {
+    if (!authSession?.access_token || generatingPresentation) return;
+    setGeneratingPresentation(true);
+    try {
+      const body: Record<string, unknown> = { reportType: 'offer_presentation' };
+      if (selectedBundleId) body.bundleId = selectedBundleId;
+      if (contact?.id) body.contactSubmissionId = parseInt(contact.id, 10);
+      const res = await fetch('/api/admin/gamma-reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authSession.access_token}` },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.gammaUrl) {
+        setPresentationUrl(data.gammaUrl);
+      }
+    } catch { /* non-critical */ }
+    setGeneratingPresentation(false);
+  };
+
   const saveAsBundle = async (name: string, description?: string) => {
     if (!authSession?.access_token) return;
     try {
@@ -1034,6 +1056,8 @@ export default function ConversationPage() {
               onRemove={(contentType, contentId) => toggleContent(contentType as ContentType, contentId)}
               onToggleContent={(contentType, contentId) => toggleContent(contentType as ContentType, contentId)}
               onConvertToProposal={() => setShowProposalDrawer(true)}
+              onGeneratePresentation={selectedBundleId ? handleGeneratePresentation : undefined}
+              presentationUrl={presentationUrl}
               currentProposal={currentProposal ? { status: currentProposal.status, proposalLink: currentProposal.proposalLink } : null}
               allCatalogContent={({ searchLower: catalogSearch }) => {
                 const q = catalogSearch.trim();
