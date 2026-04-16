@@ -1,4 +1,5 @@
 echo "🔍 Running database health check before push..."
+echo "   (Skipped locally unless PROD_SUPABASE_URL + PROD_SUPABASE_SERVICE_ROLE_KEY are set; CI always runs.)"
 npm run db:health-check || {
   echo ""
   echo "❌ Database health check failed!"
@@ -6,7 +7,8 @@ npm run db:health-check || {
   echo "Options:"
   echo "  1. Fix the database issues"
   echo "  2. Update baseline if changes are intentional: npm run db:health-check:update"
-  echo "  3. Skip this check (NOT RECOMMENDED): git push --no-verify"
+  echo "  3. Dev database: npm run db:health-check:dev (uses .database-baseline-dev.json)"
+  echo "  4. Skip this check (NOT RECOMMENDED): git push --no-verify"
   echo ""
   exit 1
 }

@@ -3,7 +3,10 @@
  * 
  * Monitors critical database tables and alerts if row counts drop.
  * Defaults to PRODUCTION credentials (PROD_SUPABASE_*) so the pre-push
- * hook guards real data. Pass --dev to check the dev database instead.
+ * hook can guard real data when those vars are set. Without PROD_* on a
+ * local machine, the check is skipped (avoids comparing dev DB to prod
+ * baseline). CI sets CI=true and may use NEXT_PUBLIC_* secrets only.
+ * Pass --dev to check the dev database against .database-baseline-dev.json.
  * 
  * Usage:
  *   npx tsx scripts/database-health-check.ts            # production (default)
@@ -201,7 +204,29 @@ function compareWithBaseline(
   }
 }
 
+function hasExplicitProdCredentials(): boolean {
+  return Boolean(
+    process.env.PROD_SUPABASE_URL?.trim() && process.env.PROD_SUPABASE_SERVICE_ROLE_KEY?.trim()
+  )
+}
+
+function isCiEnvironment(): boolean {
+  return process.env.CI === 'true' || process.env.GITHUB_ACTIONS === 'true'
+}
+
 async function main() {
+  // Without explicit PROD_* credentials, a local run would fall back to
+  // NEXT_PUBLIC_SUPABASE_URL (usually dev) while still comparing to the
+  // tracked production baseline — false CRITICAL every time. Skip locally;
+  // CI still runs (typically NEXT_* secrets point at the baseline project).
+  if (!useDev && !hasExplicitProdCredentials() && !isCiEnvironment()) {
+    console.log('⏭️  Skipping database health check (pre-push).')
+    console.log('   Production credentials are not set: PROD_SUPABASE_URL + PROD_SUPABASE_SERVICE_ROLE_KEY in .env.local.')
+    console.log('   To enforce prod row counts before push, add those vars (same project as .database-baseline.json).')
+    console.log('   To check your dev database: npm run db:health-check:dev')
+    process.exit(0)
+  }
+
   console.log(`🔍 Running database health check [${envLabel}]...\n`)
 
   // Get current counts

@@ -10,7 +10,7 @@ globs:
 
 # Database Health Check — Baseline Management
 
-This project uses a database health check (`scripts/database-health-check.ts`) that runs automatically on `git push` (via a Husky pre-push hook). It **defaults to production** credentials (`PROD_SUPABASE_URL` / `PROD_SUPABASE_SERVICE_ROLE_KEY`) so the pre-push hook guards real data. Pass `--dev` to check the dev database instead.
+This project uses a database health check (`scripts/database-health-check.ts`) that runs automatically on `git push` (via a Husky pre-push hook). It **defaults to production** credentials (`PROD_SUPABASE_URL` / `PROD_SUPABASE_SERVICE_ROLE_KEY`) when both are set so the hook can compare live prod to `.database-baseline.json`. **Locally, if those two vars are missing, the check exits 0 (skipped)** so dev databases are not compared to the prod baseline (which caused false failures). **CI** (`CI=true` / GitHub Actions) still runs the check using configured secrets. Pass `--dev` to check the dev database instead.
 
 Baselines are stored in separate files:
 - **Production:** `.database-baseline.json` (tracked in git)

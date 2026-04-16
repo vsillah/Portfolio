@@ -108,7 +108,7 @@ Admin card color palette: Chat/Communication = amber→orange, Analytics = purpl
 - For tables with `display_order` / `sort_order`: assign sequential values on INSERT (fetch current max + 1), never rely on a default of 0. Use index-based reassignment for reordering, not value swaps.
 - When enum-like values change (`service_type`, `status`, `content_type`, etc.), update all layers: DB CHECK constraint, API validation, frontend union types, and seed/test data in the same change.
 
-**Database health check:** A Husky pre-push hook runs `scripts/database-health-check.ts`, which compares row counts against `.database-baseline.json` and blocks the push if data loss is detected. After any migration that seeds or deletes rows, run:
+**Database health check:** A Husky pre-push hook runs `scripts/database-health-check.ts`, which compares row counts against `.database-baseline.json` and blocks the push if data loss is detected. **Locally, the check is skipped (exit 0) unless both `PROD_SUPABASE_URL` and `PROD_SUPABASE_SERVICE_ROLE_KEY` are set**, so dev databases are not compared to the prod baseline. CI still runs the check. After any migration that seeds or deletes rows, run:
 
 ```bash
 npx tsx scripts/database-health-check.ts --update
