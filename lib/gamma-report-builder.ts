@@ -18,6 +18,28 @@ import {
   CONFIDENCE_LABELS,
   normalizeCompanySize,
 } from './value-calculations'
+import {
+  PRICING_TIERS,
+  COMMUNITY_IMPACT_TIERS,
+  CONTINUITY_PLANS,
+  COMPARISON_DATA,
+  TIER_HORMOZI_SCORES,
+  CI_TIER_HORMOZI_SCORES,
+  calculateValueStack,
+  formatCurrency as pricingFormatCurrency,
+  type PricingTier,
+  type GuaranteeDef,
+} from './pricing-model'
+import {
+  COMMON_OBJECTIONS,
+  STEP_TYPE_LABELS,
+  OBJECTION_STRATEGY_MAP,
+  OFFER_STRATEGY_LABELS,
+  type StepType,
+  type ObjectionHandler,
+} from './sales-scripts'
+import { expandBundleItems } from './bundle-expand'
+import { CREATOR_BACKGROUND } from './constants/creator-background'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -28,6 +50,7 @@ export type GammaReportType =
   | 'implementation_strategy'
   | 'audit_summary'
   | 'prospect_overview'
+  | 'offer_presentation'
 
 export interface ExternalInputs {
   thirdPartyFindings?: string
@@ -45,6 +68,9 @@ export interface GammaReportParams {
   valueReportId?: string
   proposalId?: string
   serviceIds?: string[]
+  bundleId?: string
+  pricingTierId?: string
+  salesScriptId?: string
   externalInputs?: ExternalInputs
   externalInputSources?: Partial<Record<'thirdPartyFindings' | 'competitorPlatform' | 'siteCrawlData', ExternalInputSourceMode>>
   theme?: string
@@ -288,15 +314,17 @@ function formatAuditSection(data: Record<string, unknown> | null, fallback: stri
 function numCardsForGammaReportType(reportType: GammaReportType): number {
   switch (reportType) {
     case 'value_quantification':
-      return 16
+      return 17
     case 'implementation_strategy':
-      return 19
+      return 20
     case 'audit_summary':
-      return 10
+      return 11
     case 'prospect_overview':
-      return 8
+      return 9
+    case 'offer_presentation':
+      return 16
     default:
-      return 19
+      return 20
   }
 }
 
@@ -325,6 +353,11 @@ export async function buildGammaReportInput(
     case 'prospect_overview':
       ({ inputText, title } = buildProspectOverviewPrompt(context, params))
       break
+    case 'offer_presentation': {
+      const offerCtx = await fetchOfferContext(params)
+      ;({ inputText, title } = buildOfferPresentationPrompt(context, offerCtx, params))
+      break
+    }
     default:
       throw new Error(`Unknown report type: ${params.reportType}`)
   }
@@ -495,7 +528,7 @@ export async function fetchReportAndVideoContext(
 ): Promise<{ gammaInput: GammaReportInput; videoScriptContext: VideoScriptContext }> {
   const ctx = await fetchReportContext(params)
   const resolvedTheme = await resolveGammaThemeIdForGeneration(params.theme)
-  const gammaInput = buildGammaReportInputFromContext(ctx, { ...params, theme: resolvedTheme })
+  const gammaInput = await buildGammaReportInputFromContext(ctx, { ...params, theme: resolvedTheme })
   const videoScriptContext = reportContextToVideoScriptContext(ctx)
   return { gammaInput, videoScriptContext }
 }
@@ -503,10 +536,10 @@ export async function fetchReportAndVideoContext(
 /**
  * Build Gamma report input from an already-fetched context (no extra fetch).
  */
-function buildGammaReportInputFromContext(
+async function buildGammaReportInputFromContext(
   ctx: ReportContext,
   params: GammaReportParams
-): GammaReportInput {
+): Promise<GammaReportInput> {
   let inputText: string
   let title: string
 
@@ -523,6 +556,11 @@ function buildGammaReportInputFromContext(
     case 'prospect_overview':
       ({ inputText, title } = buildProspectOverviewPrompt(ctx, params))
       break
+    case 'offer_presentation': {
+      const offerCtx = await fetchOfferContext(params)
+      ;({ inputText, title } = buildOfferPresentationPrompt(ctx, offerCtx, params))
+      break
+    }
     default:
       throw new Error(`Unknown report type: ${params.reportType}`)
   }
@@ -585,17 +623,12 @@ function buildValueQuantificationPrompt(
 
   const sections: string[] = []
 
-  // --- Slide 1: Title ---
-  sections.push(`
-# ${title}
-
-A data-driven analysis of unrealized value across ${orgName}'s digital presence — quantifying the financial case for action across ${statements.length} identified pain points.
-
-Prepared by: Amadutown Advisory Solutions
-Methodology: ATAS Value & Pricing Logic v1.0
-Segment: ${industry} | ${companySize} employees
-Date: ${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-`)
+  // --- Slide 1: Cover ---
+  sections.push(buildCoverSlide(
+    title,
+    orgName,
+    `Methodology: ATAS Value & Pricing Logic v1.0 | Segment: ${industry} | ${companySize} employees`
+  ))
 
   // --- Slide 2: Why This Analysis Matters ---
   sections.push(`
@@ -807,6 +840,9 @@ Contact: Amadutown Advisory Solutions
 Website: amadutown.com
 `)
 
+  // --- Bio slide ---
+  sections.push(buildBioSlide())
+
   // Add third-party findings context if provided
   if (params.externalInputs?.thirdPartyFindings) {
     sections.unshift(`
@@ -840,13 +876,8 @@ function buildImplementationStrategyPrompt(
 
   const sections: string[] = []
 
-  // --- Slide 1: Title ---
-  sections.push(`
-# ${title}
-
-Prepared by Amadutown Advisory Solutions (ATAS) for ${orgName}
-${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase()} | STRATEGIC ADVISORY
-`)
+  // --- Slide 1: Cover ---
+  sections.push(buildCoverSlide(title, orgName, 'STRATEGIC ADVISORY'))
 
   // --- Slide 2: Executive Summary ---
   const hasThirdParty = !!params.externalInputs?.thirdPartyFindings
@@ -1082,6 +1113,9 @@ Amadutown Advisory Solutions
 amadutown.com
 `)
 
+  // --- Bio slide ---
+  sections.push(buildBioSlide())
+
   return { inputText: sections.join('\n---\n'), title }
 }
 
@@ -1107,14 +1141,12 @@ function buildAuditSummaryPrompt(
 - When a field was not recorded, say so briefly instead of inventing facts.
 - Quote or paraphrase the structured responses; keep claims tied to what appears in the sections below.`)
 
-  // --- Slide 1: Title + scores ---
-  let titleSlide = `# ${title}\n\nPrepared by Amadutown Advisory Solutions\n${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
-  if (metrics.urgencyScore !== null || metrics.opportunityScore !== null) {
-    titleSlide += `\n\n`
-    if (metrics.urgencyScore !== null) titleSlide += `**Urgency Score:** ${metrics.urgencyScore}/10 | `
-    if (metrics.opportunityScore !== null) titleSlide += `**Opportunity Score:** ${metrics.opportunityScore}/10`
-  }
-  sections.push(titleSlide)
+  // --- Slide 1: Cover + scores ---
+  const scoreSubtitle = [
+    metrics.urgencyScore !== null ? `Urgency: ${metrics.urgencyScore}/10` : '',
+    metrics.opportunityScore !== null ? `Opportunity: ${metrics.opportunityScore}/10` : '',
+  ].filter(Boolean).join(' | ') || undefined
+  sections.push(buildCoverSlide(title, orgName, scoreSubtitle))
 
   const contact = ctx.contact
   const audit = ctx.audit
@@ -1211,6 +1243,9 @@ function buildAuditSummaryPrompt(
 
   sections.push(`# Next Steps\n\nContact Amadutown Advisory Solutions at amadutown.com to discuss these findings.`)
 
+  // --- Bio slide ---
+  sections.push(buildBioSlide())
+
   return { inputText: sections.join('\n---\n'), title }
 }
 
@@ -1229,7 +1264,7 @@ function buildProspectOverviewPrompt(
 
   const sections: string[] = []
 
-  sections.push(`# ${title}\n\nPrepared by Amadutown Advisory Solutions\n${new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`)
+  sections.push(buildCoverSlide(title, orgName))
 
   sections.push(`# About ${orgName}\n\nIndustry: ${industry}\nSize: ${ctx.contact?.employee_count || 'Unknown'}`)
 
@@ -1264,7 +1299,54 @@ function buildProspectOverviewPrompt(
 
   sections.push(`# Next Steps\n\nBook a discovery call at amadutown.com to explore how AI and automation can help ${orgName}.`)
 
+  // --- Bio slide ---
+  sections.push(buildBioSlide())
+
   return { inputText: sections.join('\n---\n'), title }
+}
+
+// ---------------------------------------------------------------------------
+// Shared Slide Helpers — branded cover + bio across all report types
+// ---------------------------------------------------------------------------
+
+function getSiteUrl(): string {
+  return process.env.NEXT_PUBLIC_SITE_URL || 'https://amadutown.com'
+}
+
+function buildCoverSlide(title: string, orgName: string, subtitle?: string): string {
+  const siteUrl = getSiteUrl()
+  const date = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  const lines = [
+    `# ${title}`,
+    `## Prepared for ${orgName}`,
+    '',
+    `![AmaduTown Advisory Solutions](${siteUrl}/logo_hd.png)`,
+    '',
+  ]
+  if (subtitle) lines.push(subtitle, '')
+  lines.push(`Prepared by: Amadutown Advisory Solutions`, `Date: ${date}`)
+  return lines.join('\n')
+}
+
+function buildBioSlide(): string {
+  const siteUrl = getSiteUrl()
+  const c = CREATOR_BACKGROUND
+  return [
+    `# Meet Your Advisor`,
+    `## ${c.name} (${c.alias})`,
+    '',
+    `![${c.name}](${siteUrl}/Profile_Photo_1.jpg)`,
+    '',
+    `**${c.role}**`,
+    '',
+    `${c.mission}`,
+    '',
+    `${c.brand.tone}`,
+    '',
+    `*${c.brand.signOff}.*`,
+    '',
+    `amadutown.com`,
+  ].join('\n')
 }
 
 // ---------------------------------------------------------------------------
@@ -1369,4 +1451,576 @@ function getATASOfferings(
   }
 
   return offerings
+}
+
+// ---------------------------------------------------------------------------
+// Offer Presentation — Types, Context Fetching, Presenter Notes, Prompt
+// ---------------------------------------------------------------------------
+
+interface OfferItemData {
+  title: string
+  description: string | null
+  offer_role: string | null
+  price: number
+  perceived_value: number
+  dream_outcome_description: string | null
+  is_deployed?: boolean
+  content_type?: string
+}
+
+interface OfferContext {
+  bundleName: string
+  bundleDescription: string | null
+  items: OfferItemData[]
+  totalRetailValue: number
+  totalPerceivedValue: number
+  offerPrice: number
+  savings: number
+  savingsPercent: number
+  guarantee: GuaranteeDef | null
+  hormoziScore: { dreamOutcome: number; likelihood: number; timeDelay: number; effortSacrifice: number; valueScore: number } | null
+  tierSlug: string | null
+  isDecoy: boolean
+}
+
+/**
+ * Load offer context from either a DB bundle or a static pricing tier.
+ * Bundle takes priority; falls back to pricingTierId.
+ */
+async function fetchOfferContext(params: GammaReportParams): Promise<OfferContext> {
+  try {
+    if (params.bundleId && supabaseAdmin) {
+      return await fetchOfferContextFromBundle(params.bundleId)
+    }
+    if (params.pricingTierId) {
+      return fetchOfferContextFromTier(params.pricingTierId)
+    }
+    throw new Error('offer_presentation requires either bundleId or pricingTierId')
+  } catch (err) {
+    if (err instanceof Error) throw err
+    const msg = typeof err === 'object' && err !== null ? JSON.stringify(err) : String(err)
+    throw new Error(`fetchOfferContext failed: ${msg}`)
+  }
+}
+
+async function fetchOfferContextFromBundle(bundleId: string): Promise<OfferContext> {
+  if (!supabaseAdmin) throw new Error('supabaseAdmin not available')
+
+  const { data: bundle, error } = await supabaseAdmin
+    .from('offer_bundles')
+    .select('id, name, description, bundle_price, pricing_tier_slug')
+    .eq('id', bundleId)
+    .single()
+
+  if (error || !bundle) {
+    throw new Error(`Bundle ${bundleId} not found: ${error ? JSON.stringify(error) : 'no data'}`)
+  }
+
+  const expandedItems = await expandBundleItems(bundleId)
+
+  const contentKeys = expandedItems.map((i) => `${i.content_type}:${i.content_id}`)
+  const byType = new Map<string, string[]>()
+  for (const item of expandedItems) {
+    const ids = byType.get(item.content_type) ?? []
+    ids.push(item.content_id)
+    byType.set(item.content_type, ids)
+  }
+
+  const rolesByKey = new Map<string, Record<string, unknown>>()
+  for (const [ct, ids] of byType.entries()) {
+    const { data: roles } = await supabaseAdmin
+      .from('content_offer_roles')
+      .select('*')
+      .eq('content_type', ct)
+      .in('content_id', ids)
+    for (const r of (roles ?? []) as Record<string, unknown>[]) {
+      rolesByKey.set(`${ct}:${r.content_id}`, r)
+    }
+  }
+
+  const contentByKey = new Map<string, Record<string, unknown>>()
+  const TABLE_MAP: Record<string, string> = {
+    product: 'products', project: 'projects', video: 'videos',
+    publication: 'publications', music: 'music', lead_magnet: 'lead_magnets',
+    prototype: 'app_prototypes', service: 'services',
+  }
+  for (const [ct, ids] of byType.entries()) {
+    const table = TABLE_MAP[ct]
+    if (!table) continue
+    const { data: rows } = await supabaseAdmin.from(table).select('*').in('id', ids)
+    for (const row of (rows ?? []) as Record<string, unknown>[]) {
+      contentByKey.set(`${ct}:${row.id}`, row)
+    }
+  }
+
+  const items: OfferItemData[] = []
+  for (const bi of expandedItems) {
+    const key = `${bi.content_type}:${bi.content_id}`
+    const content = contentByKey.get(key)
+    const role = rolesByKey.get(key)
+    if (!content) continue
+    items.push({
+      title: bi.override_title ?? String(content.title ?? content.name ?? 'Untitled'),
+      description: bi.override_description ?? (content.description != null ? String(content.description) : null),
+      offer_role: bi.override_role ?? (role?.offer_role as string | null) ?? null,
+      price: bi.override_price ?? (typeof role?.retail_price === 'number' ? role.retail_price as number : (typeof content.price === 'number' ? content.price as number : 0)),
+      perceived_value: bi.override_perceived_value ?? (typeof role?.perceived_value === 'number' ? role.perceived_value as number : 0),
+      dream_outcome_description: (role?.dream_outcome_description as string | null) ?? null,
+      is_deployed: Boolean(content.is_deployed),
+      content_type: bi.content_type,
+    })
+  }
+
+  const totalRetailValue = items.reduce((s, i) => s + i.price, 0)
+  const totalPerceivedValue = items.reduce((s, i) => s + (i.perceived_value || i.price), 0)
+  const offerPrice = typeof bundle.bundle_price === 'number' ? bundle.bundle_price : totalRetailValue
+  const savings = totalPerceivedValue - offerPrice
+  const savingsPercent = totalPerceivedValue > 0 ? Math.round((savings / totalPerceivedValue) * 100) : 0
+
+  const tierSlug = bundle.pricing_tier_slug as string | null
+  const allTiers = [...PRICING_TIERS, ...COMMUNITY_IMPACT_TIERS]
+  const matchedTier = tierSlug ? allTiers.find((t) => t.id === tierSlug) : null
+  const guarantee = matchedTier?.guarantee ?? null
+  const allScores = { ...TIER_HORMOZI_SCORES, ...CI_TIER_HORMOZI_SCORES }
+  const hormoziScore = tierSlug && allScores[tierSlug] ? allScores[tierSlug] : null
+
+  return {
+    bundleName: bundle.name as string,
+    bundleDescription: bundle.description as string | null,
+    items,
+    totalRetailValue,
+    totalPerceivedValue,
+    offerPrice,
+    savings,
+    savingsPercent,
+    guarantee,
+    hormoziScore,
+    tierSlug,
+    isDecoy: matchedTier?.isDecoy ?? false,
+  }
+}
+
+function fetchOfferContextFromTier(tierId: string): OfferContext {
+  const allTiers = [...PRICING_TIERS, ...COMMUNITY_IMPACT_TIERS]
+  const tier = allTiers.find((t) => t.id === tierId)
+  if (!tier) throw new Error(`Pricing tier ${tierId} not found`)
+
+  const stack = calculateValueStack(tier)
+  const allScores = { ...TIER_HORMOZI_SCORES, ...CI_TIER_HORMOZI_SCORES }
+  const hormoziScore = allScores[tierId] ?? null
+
+  return {
+    bundleName: tier.name,
+    bundleDescription: tier.tagline,
+    items: tier.items.map((i) => ({
+      title: i.title,
+      description: i.description,
+      offer_role: i.offerRole,
+      price: i.perceivedValue,
+      perceived_value: i.perceivedValue,
+      dream_outcome_description: null,
+      is_deployed: i.isDeployed,
+    })),
+    totalRetailValue: stack.totalRetailValue,
+    totalPerceivedValue: stack.totalRetailValue,
+    offerPrice: stack.bundlePrice,
+    savings: stack.totalSavings,
+    savingsPercent: stack.savingsPercent,
+    guarantee: tier.guarantee,
+    hormoziScore,
+    tierSlug: tier.id,
+    isDecoy: tier.isDecoy ?? false,
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Presenter Notes — private talking points + objection handlers per slide
+// ---------------------------------------------------------------------------
+
+interface PresenterNote {
+  talkingPoints: string[]
+  objectionHandlers: { trigger: string; response: string }[]
+  decisionCues: string[]
+}
+
+const STEP_PRESENTER_NOTES: Record<StepType, { defaultTalkingPoints: string[]; likelyObjections: string[] }> = {
+  opening: {
+    defaultTalkingPoints: [
+      'Build rapport — reference something specific about their organization',
+      'State the purpose: "walk you through what we can do together based on what we\'ve learned"',
+      'Set expectations for the conversation length and next steps',
+    ],
+    likelyObjections: [],
+  },
+  discovery: {
+    defaultTalkingPoints: [
+      'Confirm the pain points from the audit: "We identified X areas where you\'re leaving value on the table"',
+      'Ask: "Which of these resonates most with your day-to-day?"',
+      'Quantify: reference specific dollar figures from the value assessment',
+    ],
+    likelyObjections: ['feature_concern'],
+  },
+  presentation: {
+    defaultTalkingPoints: [
+      'Present each core offer in terms of the outcome it delivers, not just what it is',
+      'For deployed tools: "This is already built and running — not a promise, a product"',
+      'Connect each item to a specific pain point from discovery',
+    ],
+    likelyObjections: ['feature_concern', 'price_objection'],
+  },
+  value_stack: {
+    defaultTalkingPoints: [
+      'Walk through the value stack: "If you bought each of these individually, the total would be $X"',
+      '"But as a package, your investment is only $Y — that\'s Z% savings"',
+      'Pause after stating the price. Let the value sink in.',
+    ],
+    likelyObjections: ['price_objection'],
+  },
+  social_proof: {
+    defaultTalkingPoints: [
+      'Share a specific result: "We worked with a similar organization and they saw X within Y months"',
+      'Reference the comparison table: "Unlike typical agencies, we deploy actual tools, not just strategy docs"',
+    ],
+    likelyObjections: ['past_failure', 'competitor'],
+  },
+  risk_reversal: {
+    defaultTalkingPoints: [
+      'State the guarantee clearly: "If you don\'t see [outcome] within [timeframe], here\'s what happens"',
+      'Emphasize: "We take on the risk so you don\'t have to"',
+      'If conditional: explain the conditions are reasonable and designed for mutual success',
+    ],
+    likelyObjections: ['past_failure'],
+  },
+  pricing: {
+    defaultTalkingPoints: [
+      'Present the investment as a fraction of the annual value: "$X investment against $Y annual value"',
+      'ROI framing: "For every dollar invested, you get $Z back in year one"',
+      'If payment plans available, present them after the full price',
+    ],
+    likelyObjections: ['price_objection', 'budget_constrained_nonprofit'],
+  },
+  close: {
+    defaultTalkingPoints: [
+      'Direct ask: "Based on everything we\'ve discussed, are you ready to move forward?"',
+      'If positive: "Great — I\'ll send the proposal with the access code right after this call"',
+      'If neutral: "What would need to be true for this to be a yes?"',
+    ],
+    likelyObjections: ['timing_objection', 'authority_objection'],
+  },
+  followup: {
+    defaultTalkingPoints: [
+      'Schedule specific next step: "Let\'s put 30 minutes on the calendar for [date]"',
+      'Summarize what you agreed on and what the client should expect',
+      'Send the proposal link within the hour',
+    ],
+    likelyObjections: [],
+  },
+  objection_handle: {
+    defaultTalkingPoints: [
+      'Acknowledge the concern before responding',
+      'Use the specific objection handler for their type of concern',
+      'Redirect to value: "Let me show you why this is worth the investment"',
+    ],
+    likelyObjections: [],
+  },
+}
+
+function buildPresenterNotesForStep(stepType: StepType): PresenterNote {
+  const config = STEP_PRESENTER_NOTES[stepType]
+  const handlers: { trigger: string; response: string }[] = []
+  for (const objType of config.likelyObjections) {
+    const matched = COMMON_OBJECTIONS.filter(
+      (h) => h.category === objType || h.trigger.toLowerCase().includes(objType)
+    )
+    for (const m of matched) {
+      handlers.push({ trigger: m.trigger, response: m.response })
+    }
+  }
+
+  const strategies = OBJECTION_STRATEGY_MAP[config.likelyObjections[0] as keyof typeof OBJECTION_STRATEGY_MAP]
+  const decisionCues: string[] = []
+  if (strategies) {
+    decisionCues.push(
+      `If client objects: consider ${strategies.slice(0, 2).map((s) => OFFER_STRATEGY_LABELS[s]).join(' or ')}`
+    )
+  }
+  decisionCues.push(`If positive: advance to next slide`)
+
+  return {
+    talkingPoints: config.defaultTalkingPoints,
+    objectionHandlers: handlers,
+    decisionCues,
+  }
+}
+
+function formatPresenterNote(note: PresenterNote): string {
+  const lines: string[] = ['[PRESENTER NOTE — visible in presenter view only]']
+  if (note.talkingPoints.length > 0) {
+    lines.push('Talking points:')
+    for (const tp of note.talkingPoints) lines.push(`  • ${tp}`)
+  }
+  if (note.objectionHandlers.length > 0) {
+    lines.push('If they object:')
+    for (const oh of note.objectionHandlers) {
+      lines.push(`  • "${oh.trigger}" → ${oh.response.substring(0, 200)}`)
+    }
+  }
+  if (note.decisionCues.length > 0) {
+    lines.push('Decision cues:')
+    for (const dc of note.decisionCues) lines.push(`  • ${dc}`)
+  }
+  return lines.join('\n')
+}
+
+// ---------------------------------------------------------------------------
+// Template 5: Offer Presentation — sales-flow-aligned deck
+// ---------------------------------------------------------------------------
+
+function buildOfferPresentationPrompt(
+  ctx: ReportContext,
+  offerCtx: OfferContext,
+  params: GammaReportParams
+): { inputText: string; title: string } {
+  const orgName = resolveOrganizationLabel(ctx)
+  const metrics = computeDerivedMetrics(ctx)
+  const title = `${offerCtx.bundleName} — Prepared for ${orgName}`
+
+  const coreOffers = offerCtx.items.filter((i) => i.offer_role === 'core_offer')
+  const bonuses = offerCtx.items.filter((i) => i.offer_role === 'bonus')
+  const deployedTools = offerCtx.items.filter((i) => i.is_deployed)
+
+  const sections: string[] = []
+
+  // --- Meta instruction ---
+  sections.push(`# How to use this source material
+
+**Client organization:** ${orgName}
+**Package:** ${offerCtx.bundleName}
+
+- This deck is designed to be presented live during a sales conversation. Each slide maps to a stage in the sales flow.
+- [PRESENTER NOTE] blocks contain private talking points visible only in Gamma's presenter view.
+- Keep the client-facing content concise and visual. The detail lives in the presenter notes.`)
+
+  // --- Slide 1: Cover (opening) ---
+  const openingNotes = buildPresenterNotesForStep('opening')
+  sections.push(buildCoverSlide(
+    offerCtx.bundleName,
+    orgName,
+    offerCtx.bundleDescription || 'A tailored package designed to accelerate your digital transformation with AI and automation.'
+  ) + `\n\n${formatPresenterNote(openingNotes)}`)
+
+  // --- Slide 2: About ATAS (opening) ---
+  sections.push(`# About Amadutown Advisory Solutions
+
+**Mission:** Technology as the great equalizer for minority-owned businesses and nonprofits.
+
+**What Makes Us Different:**
+- Every tool we recommend is one we use ourselves — no theoretical advice
+- Product management roots: user journeys, conversion funnels, measurable outcomes
+- AI & nonprofit specialization with deployed, running tools
+- Strategy-first mindset: we solve the right problem before building
+
+${formatComparisonHighlights()}
+
+${formatPresenterNote(openingNotes)}`)
+
+  // --- Slide 3: Their Situation (discovery) ---
+  const discoveryNotes = buildPresenterNotesForStep('discovery')
+  if (ctx.audit || metrics.totalAnnualValue) {
+    let situationSlide = `# Your Current Situation\n## What We Found\n\n`
+    if (ctx.audit?.diagnostic_summary) {
+      situationSlide += `${ctx.audit.diagnostic_summary}\n\n`
+    }
+    if (metrics.urgencyScore !== null || metrics.opportunityScore !== null) {
+      if (metrics.urgencyScore !== null) situationSlide += `**Urgency Score:** ${metrics.urgencyScore}/10 | `
+      if (metrics.opportunityScore !== null) situationSlide += `**Opportunity Score:** ${metrics.opportunityScore}/10\n\n`
+    }
+    if (ctx.audit?.key_insights?.length) {
+      situationSlide += `**Key Findings:**\n`
+      for (const insight of ctx.audit.key_insights.slice(0, 4)) {
+        situationSlide += `- ${insight}\n`
+      }
+    }
+    situationSlide += `\n${formatPresenterNote(discoveryNotes)}`
+    sections.push(situationSlide)
+  }
+
+  // --- Slide 4: Cost of Inaction (discovery) ---
+  if (metrics.totalAnnualValue && metrics.totalAnnualValue > 0) {
+    let costSlide = `# The Cost of Standing Still\n## What Inaction Costs ${orgName} Every Year\n\n`
+    costSlide += `**${formatCurrency(metrics.totalAnnualValue)}** in annual value at stake across ${metrics.topPainPoints.length} identified areas.\n\n`
+    if (metrics.topPainPoints.length > 0) {
+      costSlide += `| Opportunity | Annual Value |\n|-----------|-------------|\n`
+      for (const pp of metrics.topPainPoints.slice(0, 5)) {
+        costSlide += `| ${pp.painPoint} | ${formatCurrency(pp.annualValue)} |\n`
+      }
+    }
+    costSlide += `\n${formatPresenterNote(discoveryNotes)}`
+    sections.push(costSlide)
+  }
+
+  // --- Slide 5: Core Offer (presentation) ---
+  const presentationNotes = buildPresenterNotesForStep('presentation')
+  if (coreOffers.length > 0) {
+    let coreSlide = `# What We'll Build For You\n## Core Deliverables\n\n`
+    for (const item of coreOffers) {
+      coreSlide += `### ${item.title}\n`
+      if (item.description) coreSlide += `${item.description}\n`
+      if (item.dream_outcome_description) coreSlide += `**Dream outcome:** ${item.dream_outcome_description}\n`
+      if (item.perceived_value > 0) coreSlide += `*Value: ${formatCurrency(item.perceived_value)}*\n`
+      coreSlide += `\n`
+    }
+    coreSlide += formatPresenterNote(presentationNotes)
+    sections.push(coreSlide)
+  }
+
+  // --- Slide 6: Bonuses (presentation) ---
+  if (bonuses.length > 0) {
+    let bonusSlide = `# Included Bonuses\n## Extra Value at No Additional Cost\n\n`
+    for (const item of bonuses) {
+      bonusSlide += `- **${item.title}** — ${item.description || 'Included with your package'}`
+      if (item.perceived_value > 0) bonusSlide += ` *(${formatCurrency(item.perceived_value)} value)*`
+      bonusSlide += `\n`
+    }
+    bonusSlide += `\n${formatPresenterNote(presentationNotes)}`
+    sections.push(bonusSlide)
+  }
+
+  // --- Slide 7: Deployed Tools (presentation) ---
+  if (deployedTools.length > 0) {
+    let toolSlide = `# Deployed AI Tools\n## Already Built, Already Running\n\n`
+    toolSlide += `These aren't promises — they're production tools that are live today:\n\n`
+    for (const item of deployedTools) {
+      toolSlide += `- **${item.title}** — ${item.description || 'Live and deployed'}\n`
+    }
+    toolSlide += `\nEvery tool is built on the same infrastructure we use ourselves. No vaporware.\n`
+    toolSlide += `\n${formatPresenterNote(presentationNotes)}`
+    sections.push(toolSlide)
+  }
+
+  // --- Slide 8: Value Stack (value_stack) ---
+  const valueStackNotes = buildPresenterNotesForStep('value_stack')
+  let stackSlide = `# The Value Stack\n## What You Get vs. What You Pay\n\n`
+  stackSlide += `| Component | Retail Value |\n|-----------|-------------|\n`
+  for (const item of offerCtx.items.slice(0, 10)) {
+    stackSlide += `| ${item.title} | ${formatCurrency(item.perceived_value || item.price)} |\n`
+  }
+  stackSlide += `| **Total Retail Value** | **${formatCurrency(offerCtx.totalPerceivedValue)}** |\n`
+  stackSlide += `| **Your Investment** | **${formatCurrency(offerCtx.offerPrice)}** |\n`
+  stackSlide += `| **You Save** | **${formatCurrency(offerCtx.savings)} (${offerCtx.savingsPercent}%)** |\n`
+  stackSlide += `\n${formatPresenterNote(valueStackNotes)}`
+  sections.push(stackSlide)
+
+  // --- Slide 9: Social Proof (social_proof) ---
+  const socialProofNotes = buildPresenterNotesForStep('social_proof')
+  let proofSlide = `# Why Organizations Trust ATAS\n\n`
+  proofSlide += `**What typical agencies deliver vs. what ATAS delivers:**\n\n`
+  proofSlide += `| Capability | Typical Agency | ATAS |\n|-----------|---------------|------|\n`
+  for (const row of COMPARISON_DATA.slice(0, 8)) {
+    const agencyVal = typeof row.typicalAgency === 'boolean' ? (row.typicalAgency ? 'Yes' : 'No') : row.typicalAgency
+    const atasVal = typeof row.amadutown === 'boolean' ? (row.amadutown ? 'Yes' : 'No') : row.amadutown
+    proofSlide += `| ${row.capability} | ${agencyVal} | ${atasVal} |\n`
+  }
+  proofSlide += `\n${formatPresenterNote(socialProofNotes)}`
+  sections.push(proofSlide)
+
+  // --- Slide 10: Guarantee (risk_reversal) ---
+  const riskNotes = buildPresenterNotesForStep('risk_reversal')
+  if (offerCtx.guarantee) {
+    const g = offerCtx.guarantee
+    let guaranteeSlide = `# Our Guarantee\n## ${g.name}\n\n`
+    guaranteeSlide += `**Type:** ${g.type === 'unconditional' ? 'Unconditional — no questions asked' : 'Conditional — tied to specific outcomes'}\n\n`
+    guaranteeSlide += `**${g.description}**\n\n`
+    guaranteeSlide += `- **Duration:** ${g.durationDays} days\n`
+    guaranteeSlide += `- **If we don't deliver:** ${g.payoutType === 'refund' ? 'Full refund' : g.payoutType === 'credit' ? 'Credit toward future work' : 'We continue working at no additional cost'}\n`
+    guaranteeSlide += `\nWe take on the risk so you don't have to.\n`
+    guaranteeSlide += `\n${formatPresenterNote(riskNotes)}`
+    sections.push(guaranteeSlide)
+  } else {
+    sections.push(`# Risk-Free Engagement\n\nWe stand behind our work. If you're not satisfied with the results, we'll work with you until you are.\n\n${formatPresenterNote(riskNotes)}`)
+  }
+
+  // --- Slide 11: Investment (pricing) ---
+  const pricingNotes = buildPresenterNotesForStep('pricing')
+  let investSlide = `# Your Investment\n\n`
+  investSlide += `| | Amount |\n|---|---|\n`
+  investSlide += `| Package Value | ${formatCurrency(offerCtx.totalPerceivedValue)} |\n`
+  investSlide += `| **Your Price** | **${formatCurrency(offerCtx.offerPrice)}** |\n`
+  investSlide += `| Savings | ${formatCurrency(offerCtx.savings)} (${offerCtx.savingsPercent}% off) |\n`
+  if (metrics.totalAnnualValue && metrics.totalAnnualValue > 0) {
+    investSlide += `\n**Against ${formatCurrency(metrics.totalAnnualValue)} in annual value at stake, this is a ${metrics.roi !== null ? `${metrics.roi}% ROI` : 'strong'} investment.**\n`
+  }
+  if (offerCtx.hormoziScore) {
+    investSlide += `\n**Value Equation Score:** ${offerCtx.hormoziScore.valueScore} (Dream Outcome: ${offerCtx.hormoziScore.dreamOutcome}/10, Likelihood: ${offerCtx.hormoziScore.likelihood}/10)\n`
+  }
+  investSlide += `\n${formatPresenterNote(pricingNotes)}`
+  sections.push(investSlide)
+
+  // --- Slide 12: ROI Breakdown (pricing) ---
+  if (metrics.totalAnnualValue && metrics.totalAnnualValue > 0) {
+    let roiSlide = `# Return on Investment\n## The Numbers Speak for Themselves\n\n`
+    roiSlide += `- **Annual Value at Stake:** ${formatCurrency(metrics.totalAnnualValue)}\n`
+    roiSlide += `- **Your Investment:** ${formatCurrency(offerCtx.offerPrice)}\n`
+    if (metrics.roi !== null) roiSlide += `- **First-Year ROI:** ${metrics.roi}%\n`
+    if (metrics.paybackMonths !== null) roiSlide += `- **Payback Period:** ${metrics.paybackMonths} months\n`
+    const yr2 = Math.round(metrics.totalAnnualValue * 1.2)
+    const yr3 = Math.round(metrics.totalAnnualValue * 1.44)
+    roiSlide += `\n**3-Year Projection:**\n`
+    roiSlide += `- Year 1: ${formatCurrency(metrics.totalAnnualValue)}\n`
+    roiSlide += `- Year 2: ${formatCurrency(yr2)} (20% growth)\n`
+    roiSlide += `- Year 3: ${formatCurrency(yr3)} (20% growth)\n`
+    roiSlide += `- **3-Year Total: ${formatCurrency(metrics.totalAnnualValue + yr2 + yr3)}**\n`
+    roiSlide += `\n${formatPresenterNote(pricingNotes)}`
+    sections.push(roiSlide)
+  }
+
+  // --- Slide 13: Implementation Timeline ---
+  let timelineSlide = `# Implementation Timeline\n## Phased Delivery for Early Wins\n\n`
+  timelineSlide += `**Phase 1 — Foundation (Weeks 1–4)**\n`
+  timelineSlide += `Strategy alignment, audit deep-dive, tool configuration, and quick wins.\n\n`
+  timelineSlide += `**Phase 2 — Build (Weeks 4–8)**\n`
+  timelineSlide += `Core tool deployment, automation setup, content systems, and initial results.\n\n`
+  timelineSlide += `**Phase 3 — Scale (Weeks 8–12)**\n`
+  timelineSlide += `Optimization, team training, handoff, and ongoing support setup.\n\n`
+  timelineSlide += `Each phase delivers measurable results. You don't wait 12 weeks to see impact — wins start in Phase 1.`
+  sections.push(timelineSlide)
+
+  // --- Slide 14: Continuity Options ---
+  if (CONTINUITY_PLANS.length > 0) {
+    let contSlide = `# Ongoing Support Options\n## Stay Connected After Launch\n\n`
+    for (const plan of CONTINUITY_PLANS.slice(0, 3)) {
+      contSlide += `### ${plan.name} — ${pricingFormatCurrency(plan.pricePerMonth)}/month\n`
+      contSlide += `${plan.description}\n`
+      for (const feature of plan.features.slice(0, 3)) {
+        contSlide += `- ${feature}\n`
+      }
+      contSlide += `\n`
+    }
+    contSlide += `These are optional — choose the level of ongoing support that matches your needs.`
+    sections.push(contSlide)
+  }
+
+  // --- Slide 15: Next Steps (close / followup) ---
+  const closeNotes = buildPresenterNotesForStep('close')
+  let nextSlide = `# Next Steps\n## Let's Move Forward\n\n`
+  nextSlide += `1. **Align on priorities** — Confirm which components matter most to your team\n`
+  nextSlide += `2. **Review the proposal** — We'll send a detailed proposal with everything discussed today\n`
+  nextSlide += `3. **Sign and schedule** — Accept the proposal and we'll kick off Phase 1 within one week\n\n`
+  nextSlide += `**Ready to start?** Let's align on next steps right now.\n\n`
+  nextSlide += `Amadutown Advisory Solutions\namadutown.com\n`
+  nextSlide += `\n${formatPresenterNote(closeNotes)}`
+  sections.push(nextSlide)
+
+  // --- Bio slide ---
+  sections.push(buildBioSlide())
+
+  return { inputText: sections.join('\n---\n'), title }
+}
+
+function formatComparisonHighlights(): string {
+  const highlights = COMPARISON_DATA.filter(
+    (row) => row.amadutown === true || (typeof row.amadutown === 'string' && row.amadutown !== 'No')
+  ).slice(0, 5)
+  if (highlights.length === 0) return ''
+  return `**Our capabilities:**\n` + highlights.map((h) => `- ${h.capability}: ${typeof h.amadutown === 'boolean' ? 'Yes' : h.amadutown}`).join('\n')
 }

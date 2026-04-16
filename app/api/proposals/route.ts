@@ -371,6 +371,7 @@ export async function POST(request: NextRequest) {
             implementation_strategy: 'strategy_report',
             audit_summary: 'strategy_report',
             prospect_overview: 'other',
+            offer_presentation: 'offer_presentation',
           };
 
           for (const gr of gammaRows) {

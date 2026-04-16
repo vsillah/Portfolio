@@ -145,10 +145,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'reportType is required' }, { status: 400 })
   }
 
-  const validTypes = ['value_quantification', 'implementation_strategy', 'audit_summary', 'prospect_overview']
+  const validTypes = ['value_quantification', 'implementation_strategy', 'audit_summary', 'prospect_overview', 'offer_presentation']
   if (!validTypes.includes(body.reportType)) {
     return NextResponse.json(
       { error: `Invalid reportType. Must be one of: ${validTypes.join(', ')}` },
+      { status: 400 }
+    )
+  }
+
+  if (body.reportType === 'offer_presentation' && !body.bundleId && !body.pricingTierId) {
+    return NextResponse.json(
+      { error: 'offer_presentation requires either bundleId or pricingTierId' },
       { status: 400 }
     )
   }
@@ -196,8 +203,13 @@ export async function POST(request: NextRequest) {
       credits: result.credits,
     })
   } catch (err: unknown) {
-    const errMsg = err instanceof Error ? err.message : 'Unknown error'
-    console.error('Gamma report generation error:', errMsg)
+    const errMsg = err instanceof Error
+      ? err.message
+      : (typeof err === 'object' && err !== null
+        ? JSON.stringify(err)
+        : String(err ?? 'Unknown error'))
+    const errStack = err instanceof Error ? err.stack : undefined
+    console.error('Gamma report generation error:', errMsg, errStack ?? '')
     return NextResponse.json({ error: 'Failed to generate report', details: errMsg }, { status: 500 })
   }
 }

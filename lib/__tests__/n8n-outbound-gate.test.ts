@@ -33,7 +33,6 @@ describe('N8N_OUTBOUND_DISABLED gate', () => {
 
   const functions: Array<{
     name: string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     call: (mod: Record<string, (...args: any[]) => any>) => Promise<unknown>
   }> = [
     {
