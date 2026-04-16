@@ -75,7 +75,7 @@ interface ContactData {
 interface AssetRef { type: 'gamma_report' | 'video' | 'value_report'; id: string }
 
 type AssetTypeFilter = 'all' | 'gamma_report' | 'video' | 'value_report'
-type AssetSortKey = 'date_desc' | 'date_asc' | 'type' | 'status'
+type AssetSortKey = 'date_desc' | 'date_asc' | 'type' | 'status' | 'title_asc' | 'title_desc'
 
 interface UnifiedAsset {
   id: string
@@ -126,8 +126,8 @@ function buildUnifiedAssets(
       subtitle: vr.report_type,
       status: 'completed',
       created_at: vr.created_at,
-      url: null,
-      urlLabel: '',
+      url: `/admin/value-evidence/reports/${vr.id}`,
+      urlLabel: 'View report',
     })
   }
   return assets
@@ -150,6 +150,12 @@ const ASSET_TYPE_COLORS: Record<string, string> = {
   gamma_report: 'text-emerald-400',
   video: 'text-amber-400',
   value_report: 'text-purple-400',
+}
+
+const ASSET_TYPE_TABLE_LABEL: Record<UnifiedAsset['assetType'], string> = {
+  gamma_report: 'Deck',
+  video: 'Video',
+  value_report: 'Value report',
 }
 
 /* ───────── Helpers ───────── */
@@ -438,10 +444,18 @@ function ContactDetailPage() {
               })
               .sort((a, b) => {
                 switch (assetSort) {
-                  case 'date_asc': return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-                  case 'type': return a.assetType.localeCompare(b.assetType)
-                  case 'status': return a.status.localeCompare(b.status)
-                  default: return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                  case 'date_asc':
+                    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+                  case 'type':
+                    return a.assetType.localeCompare(b.assetType)
+                  case 'status':
+                    return a.status.localeCompare(b.status)
+                  case 'title_asc':
+                    return a.title.localeCompare(b.title)
+                  case 'title_desc':
+                    return b.title.localeCompare(a.title)
+                  default:
+                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
                 }
               })
 
@@ -508,17 +522,19 @@ function ContactDetailPage() {
                         <option value="date_asc">Oldest first</option>
                         <option value="type">By type</option>
                         <option value="status">By status</option>
+                        <option value="title_asc">Title A–Z</option>
+                        <option value="title_desc">Title Z–A</option>
                       </select>
                     </div>
                   </div>
                 )}
 
-                {/* Scrollable asset grid */}
-                <div className="px-6 pb-4 max-h-[420px] overflow-y-auto">
+                {/* Scrollable asset table */}
+                <div className="px-6 pb-4 max-h-[min(70vh,560px)] overflow-hidden flex flex-col">
                   {filtered.length === 0 && allAssets.length > 0 && (
                     <div className="text-center py-6">
                       <p className="text-sm text-gray-500">No assets match your filters.</p>
-                      <button onClick={() => { setAssetSearch(''); setAssetTypeFilter('all') }} className="text-xs text-teal-400 hover:underline mt-1">
+                      <button type="button" onClick={() => { setAssetSearch(''); setAssetTypeFilter('all') }} className="text-xs text-teal-400 hover:underline mt-1">
                         Clear filters
                       </button>
                     </div>
@@ -529,51 +545,140 @@ function ContactDetailPage() {
                     </div>
                   )}
                   {filtered.length > 0 && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {filtered.map(asset => {
-                        const Icon = ASSET_TYPE_ICON_MAP[asset.assetType]
-                        const iconColor = ASSET_TYPE_COLORS[asset.assetType]
-                        const selected = isSelected(asset.assetType, asset.id)
-                        const isDeleting = deletingAssetId === asset.id
-                        return (
-                          <div
-                            key={`${asset.assetType}-${asset.id}`}
-                            className={`group bg-gray-900/50 border rounded-lg p-3 transition-colors cursor-pointer ${selected ? 'border-teal-600 bg-teal-900/10' : 'border-gray-800 hover:border-gray-700'}`}
-                            onClick={() => toggleAsset({ type: asset.assetType, id: asset.id })}
-                          >
-                            <div className="flex items-start justify-between gap-2">
-                              <div className="flex items-center gap-2 min-w-0 flex-1">
-                                <Icon className={`w-4 h-4 ${iconColor} flex-shrink-0`} />
-                                <span className="text-sm font-medium text-white truncate">{asset.title}</span>
-                              </div>
-                              <div className="flex items-center gap-1.5 flex-shrink-0">
-                                <StatusBadge status={asset.status} />
-                                <button
-                                  onClick={e => { e.stopPropagation(); handleDeleteAsset(asset.assetType, asset.id) }}
-                                  disabled={isDeleting}
-                                  className="p-1 rounded text-gray-600 hover:text-red-400 hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50"
-                                  title="Delete asset"
-                                >
-                                  {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                                </button>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between mt-2">
-                              <p className="text-[10px] text-gray-500">{formatDate(asset.created_at)} &middot; {asset.subtitle}</p>
-                              {asset.url && (
-                                <a href={asset.url} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="text-[10px] text-teal-400 hover:underline inline-flex items-center gap-1">
-                                  <ExternalLink className="w-3 h-3" /> {asset.urlLabel}
-                                </a>
-                              )}
-                            </div>
-                            {selected && (
-                              <div className="mt-1.5">
-                                <span className="text-[9px] text-teal-400 flex items-center gap-1"><Check className="w-2.5 h-2.5" /> Selected for delivery</span>
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
+                    <div className="overflow-x-auto overflow-y-auto rounded-lg border border-gray-800 flex-1 min-h-0">
+                      <table className="w-full text-left text-xs min-w-[640px]">
+                        <thead className="sticky top-0 z-10 bg-gray-950 border-b border-gray-800 shadow-[0_1px_0_0_rgb(31_41_55)]">
+                          <tr className="text-gray-500">
+                            <th className="px-3 py-2.5 w-10 text-center font-medium">Use</th>
+                            <th className="px-3 py-2.5 font-medium">
+                              <button
+                                type="button"
+                                onClick={() => setAssetSort('type')}
+                                className="inline-flex items-center gap-1 hover:text-teal-400 transition-colors"
+                              >
+                                Type
+                                {assetSort === 'type' ? <ChevronDown className="w-3 h-3 text-teal-500" /> : null}
+                              </button>
+                            </th>
+                            <th className="px-3 py-2.5 font-medium min-w-[140px]">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAssetSort(s => (s === 'title_asc' ? 'title_desc' : 'title_asc'))}
+                                className="inline-flex items-center gap-1 hover:text-teal-400 transition-colors"
+                              >
+                                Title
+                                {assetSort === 'title_asc' ? <ChevronUp className="w-3 h-3 text-teal-500" /> : null}
+                                {assetSort === 'title_desc' ? <ChevronDown className="w-3 h-3 text-teal-500" /> : null}
+                              </button>
+                            </th>
+                            <th className="px-3 py-2.5 font-medium">
+                              <button
+                                type="button"
+                                onClick={() => setAssetSort('status')}
+                                className="inline-flex items-center gap-1 hover:text-teal-400 transition-colors"
+                              >
+                                Status
+                                {assetSort === 'status' ? <ChevronDown className="w-3 h-3 text-teal-500" /> : null}
+                              </button>
+                            </th>
+                            <th className="px-3 py-2.5 font-medium whitespace-nowrap">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setAssetSort(s => {
+                                    if (s === 'date_desc') return 'date_asc'
+                                    if (s === 'date_asc') return 'date_desc'
+                                    return 'date_desc'
+                                  })}
+                                className="inline-flex items-center gap-1 hover:text-teal-400 transition-colors"
+                              >
+                                Created
+                                {assetSort === 'date_desc' ? <ChevronDown className="w-3 h-3 text-teal-500" /> : null}
+                                {assetSort === 'date_asc' ? <ChevronUp className="w-3 h-3 text-teal-500" /> : null}
+                              </button>
+                            </th>
+                            <th className="px-3 py-2.5 font-medium">Subtype</th>
+                            <th className="px-3 py-2.5 font-medium text-right">Open</th>
+                            <th className="px-3 py-2.5 font-medium text-right w-14"> </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-800/90">
+                          {filtered.map(asset => {
+                            const Icon = ASSET_TYPE_ICON_MAP[asset.assetType]
+                            const iconColor = ASSET_TYPE_COLORS[asset.assetType]
+                            const selected = isSelected(asset.assetType, asset.id)
+                            const isDeleting = deletingAssetId === asset.id
+                            return (
+                              <tr
+                                key={`${asset.assetType}-${asset.id}`}
+                                onClick={() => toggleAsset({ type: asset.assetType, id: asset.id })}
+                                className={`cursor-pointer transition-colors ${selected ? 'bg-teal-950/25 hover:bg-teal-950/35' : 'hover:bg-gray-900/80'}`}
+                              >
+                                <td className="px-3 py-2.5 text-center" onClick={e => e.stopPropagation()}>
+                                  <input
+                                    type="checkbox"
+                                    checked={selected}
+                                    onChange={() => toggleAsset({ type: asset.assetType, id: asset.id })}
+                                    className="rounded border-gray-600 bg-gray-900 text-teal-500 focus:ring-teal-500/40"
+                                    aria-label="Include in delivery"
+                                  />
+                                </td>
+                                <td className="px-3 py-2.5 whitespace-nowrap">
+                                  <span className="inline-flex items-center gap-1.5 text-gray-300">
+                                    <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
+                                    {ASSET_TYPE_TABLE_LABEL[asset.assetType]}
+                                  </span>
+                                </td>
+                                <td className="px-3 py-2.5 text-white font-medium max-w-[220px]">
+                                  <span className="line-clamp-2" title={asset.title}>{asset.title}</span>
+                                </td>
+                                <td className="px-3 py-2.5"><StatusBadge status={asset.status} /></td>
+                                <td className="px-3 py-2.5 text-gray-400 whitespace-nowrap">{formatDate(asset.created_at)}</td>
+                                <td className="px-3 py-2.5 text-gray-500 max-w-[120px]">
+                                  <span className="line-clamp-2" title={asset.subtitle}>{asset.subtitle}</span>
+                                </td>
+                                <td className="px-3 py-2.5 text-right" onClick={e => e.stopPropagation()}>
+                                  {asset.url ? (
+                                    asset.url.startsWith('http') ? (
+                                      <a
+                                        href={asset.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-1 text-teal-400 hover:text-teal-300"
+                                      >
+                                        <ExternalLink className="w-3 h-3" />
+                                        {asset.urlLabel}
+                                      </a>
+                                    ) : (
+                                      <Link
+                                        href={asset.url}
+                                        className="inline-flex items-center gap-1 text-teal-400 hover:text-teal-300"
+                                      >
+                                        <Eye className="w-3 h-3" />
+                                        {asset.urlLabel}
+                                      </Link>
+                                    )
+                                  ) : (
+                                    <span className="text-gray-600">—</span>
+                                  )}
+                                </td>
+                                <td className="px-3 py-2.5 text-right" onClick={e => e.stopPropagation()}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteAsset(asset.assetType, asset.id)}
+                                    disabled={isDeleting}
+                                    className="p-1.5 rounded-md text-gray-500 hover:text-red-400 hover:bg-red-900/25 transition-colors disabled:opacity-50"
+                                    title="Delete asset"
+                                  >
+                                    {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                                  </button>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
                     </div>
                   )}
                 </div>
