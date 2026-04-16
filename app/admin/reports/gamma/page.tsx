@@ -1477,8 +1477,13 @@ function GammaReportsContent() {
                       </td>
                       <td className="px-4 py-3 text-gray-400">
                         {report.contact_submissions ? (
-                          <Link href={`/admin/contacts/${report.contact_submissions.id}`} className="hover:text-teal-400 transition-colors">
-                            {report.contact_submissions.name}
+                          <Link
+                            href={`/admin/contacts/${report.contact_submissions.id}`}
+                            className="inline-flex items-center gap-1.5 text-white hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
+                            title="Open contact record"
+                          >
+                            <span>{report.contact_submissions.name}</span>
+                            <ExternalLink size={13} className="shrink-0 opacity-70 text-teal-400/90" aria-hidden />
                           </Link>
                         ) : '—'}
                       </td>

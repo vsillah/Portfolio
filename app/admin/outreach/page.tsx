@@ -314,6 +314,7 @@ function OutreachContent() {
   const [generateOutreachLoading, setGenerateOutreachLoading] = useState<number | null>(null)
   const [generateInAppLoading, setGenerateInAppLoading] = useState<number | null>(null)
   const [generateOutreachToast, setGenerateOutreachToast] = useState<string | null>(null)
+  const [n8nFailedLeadIds, setN8nFailedLeadIds] = useState<Set<number>>(new Set())
   const [emailDraftInboxLoadingId, setEmailDraftInboxLoadingId] = useState<string | null>(null)
   const [gmailUserDraftLoadingId, setGmailUserDraftLoadingId] = useState<string | null>(null)
   const [gmailUserOAuthStatus, setGmailUserOAuthStatus] = useState<{
@@ -1330,8 +1331,13 @@ function OutreachContent() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-white">
-                          <Link href={`/admin/contacts/${item.contact_submission_id}`} className="hover:text-teal-400 transition-colors">
-                            {item.contact_submissions?.name || 'Unknown'}
+                          <Link
+                            href={`/admin/contacts/${item.contact_submission_id}`}
+                            className="inline-flex items-center gap-1.5 text-white hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
+                            title="Open contact record"
+                          >
+                            <span>{item.contact_submissions?.name || 'Unknown'}</span>
+                            <ExternalLink size={13} className="shrink-0 opacity-70 text-teal-400/90" aria-hidden />
                           </Link>
                         </h3>
                         <span className={`px-2 py-0.5 rounded text-xs ${getScoreBadgeColor(item.contact_submissions?.lead_score)}`}>
@@ -2102,92 +2108,22 @@ function OutreachContent() {
                             </div>
                           </div>
 
-                          {/* Actions */}
-                          <div className="flex items-center gap-2 flex-wrap">
-                            {lead.evidence_count > 0 && (
-                              <button
-                                type="button"
-                                onClick={async () => {
-                                  const session = await getCurrentSession()
-                                  if (!session) return
-                                  setPushLoading(true)
-                                  try {
-                                    const res = await fetch('/api/admin/value-evidence/extract-leads', {
-                                      method: 'POST',
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                        Authorization: `Bearer ${session.access_token}`,
-                                      },
-                                      body: JSON.stringify({
-                                        leads: [{ contact_submission_id: lead.id }],
-                                      }),
-                                    })
-                                    const data = await res.json()
-                                    if (res.ok) {
-                                      // Start polling for extraction status
-                                      startVepPolling()
-                                      await fetchLeads()
-                                      if (evidenceDrawerContactId === lead.id) {
-                                        const r = await fetch(
-                                          `/api/admin/value-evidence/evidence?contact_id=${lead.id}`,
-                                          { headers: { Authorization: `Bearer ${session.access_token}` } }
-                                        )
-                                        const d = await r.json()
-                                        if (r.ok) setEvidenceDrawerData(d)
-                                      }
-                                    }
-                                  } finally {
-                                    setPushLoading(false)
-                                  }
-                                }}
-                                disabled={pushLoading}
-                                className="px-3 py-2 bg-silicon-slate/50 hover:bg-silicon-slate text-foreground rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                              >
-                                <RefreshCw size={14} />
-                                Refresh evidence
-                              </button>
-                            )}
-                            <button
-                              type="button"
-                              onClick={() => setSocialIntelLeadId(lead.id)}
-                              title="Run social intel for this lead"
-                              className="px-3 py-2 bg-cyan-900/50 hover:bg-cyan-800/50 text-cyan-300 border border-cyan-700 rounded-lg text-sm font-medium transition-colors flex items-center gap-1"
-                            >
-                              <Globe size={14} />
-                              Social Intel
-                            </button>
-                            {lead.last_vep_status === 'pending' && lead.evidence_count === 0 && (
-                              <button
-                                type="button"
-                                onClick={async () => {
-                                  const session = await getCurrentSession()
-                                  if (!session) return
-                                  setPushLoading(true)
-                                  try {
-                                    const res = await fetch('/api/admin/value-evidence/extract-leads/cancel', {
-                                      method: 'POST',
-                                      headers: {
-                                        'Content-Type': 'application/json',
-                                        Authorization: `Bearer ${session.access_token}`,
-                                      },
-                                      body: JSON.stringify({ contact_submission_ids: [lead.id] }),
-                                    })
-                                    if (res.ok) await fetchLeads()
-                                  } finally {
-                                    setPushLoading(false)
-                                  }
-                                }}
-                                disabled={pushLoading}
-                                className="px-3 py-2 bg-amber-900/50 hover:bg-amber-800/50 text-amber-300 border border-amber-700 rounded-lg text-sm font-medium transition-colors"
-                              >
-                                Cancel extraction
-                              </button>
-                            )}
+                          {/* Actions — primary CTA + progressive fallback + More + expand */}
+                          <div className="flex items-center gap-2 shrink-0">
+                            {/* Primary CTA: toggles between Generate Email and View Drafts */}
                             {!lead.do_not_contact && !lead.removed_at && (
-                              <>
+                              lead.messages_count > 0 ? (
+                                <Link
+                                  href={`/admin/outreach?tab=queue&contact=${lead.id}`}
+                                  className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
+                                >
+                                  <Mail size={14} />
+                                  View Drafts
+                                </Link>
+                              ) : (
                                 <button
                                   type="button"
-                                  title="Trigger n8n workflow (WF-CLG-002)"
+                                  title="Generate outreach email via n8n (WF-CLG-002)"
                                   onClick={async () => {
                                     const session = await getCurrentSession()
                                     if (!session) return
@@ -2200,19 +2136,34 @@ function OutreachContent() {
                                           Authorization: `Bearer ${session.access_token}`,
                                         },
                                       })
-                                      const data = await res.json()
-                                      if (res.ok && data.triggered) {
+                                      const data = await res.json().catch(() => ({}))
+                                      if (data.triggered) {
                                         setGenerateOutreachToast(`Email generation started for ${lead.name}`)
                                         setTimeout(() => setGenerateOutreachToast(null), 4000)
+                                        setN8nFailedLeadIds((prev) => {
+                                          const next = new Set(prev)
+                                          next.delete(lead.id)
+                                          return next
+                                        })
+                                      } else {
+                                        setN8nFailedLeadIds((prev) => new Set([...prev, lead.id]))
+                                        setGenerateOutreachToast(
+                                          `n8n unavailable for ${lead.name} — use Draft in app`
+                                        )
+                                        setTimeout(() => setGenerateOutreachToast(null), 6000)
                                       }
-                                    } catch (err) {
-                                      console.error('Generate outreach failed:', err)
+                                    } catch {
+                                      setN8nFailedLeadIds((prev) => new Set([...prev, lead.id]))
+                                      setGenerateOutreachToast(
+                                        `n8n unavailable for ${lead.name} — use Draft in app`
+                                      )
+                                      setTimeout(() => setGenerateOutreachToast(null), 6000)
                                     } finally {
                                       setGenerateOutreachLoading(null)
                                     }
                                   }}
                                   disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
-                                  className="px-3 py-2 bg-emerald-900/30 hover:bg-emerald-800/50 text-emerald-400 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
+                                  className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
                                 >
                                   {generateOutreachLoading === lead.id ? (
                                     <Loader2 size={14} className="animate-spin" />
@@ -2221,61 +2172,74 @@ function OutreachContent() {
                                   )}
                                   Generate Email
                                 </button>
-                                <button
-                                  type="button"
-                                  title="Create draft in the app (OpenAI + Message Queue). No n8n."
-                                  onClick={async () => {
-                                    const session = await getCurrentSession()
-                                    if (!session) return
-                                    setGenerateInAppLoading(lead.id)
-                                    try {
-                                      const res = await fetch(
-                                        `/api/admin/outreach/leads/${lead.id}/generate-in-app`,
-                                        {
-                                          method: 'POST',
-                                          headers: {
-                                            'Content-Type': 'application/json',
-                                            Authorization: `Bearer ${session.access_token}`,
-                                          },
-                                          body: JSON.stringify({}),
-                                        }
-                                      )
-                                      const data = await res.json().catch(() => ({}))
-                                      if (res.ok && data.outcome === 'created') {
-                                        setGenerateOutreachToast(
-                                          `Draft saved for ${lead.name} — open Message Queue to review`
-                                        )
-                                        setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                        await fetchData()
-                                      } else if (res.status === 409 && data.error) {
-                                        setGenerateOutreachToast(data.error)
-                                        setTimeout(() => setGenerateOutreachToast(null), 8000)
-                                      } else if (data.error) {
-                                        setGenerateOutreachToast(data.error)
-                                        setTimeout(() => setGenerateOutreachToast(null), 6000)
+                              )
+                            )}
+
+                            {/* Progressive fallback: Draft in app — appears when n8n fails */}
+                            {!lead.do_not_contact && !lead.removed_at && n8nFailedLeadIds.has(lead.id) && (
+                              <motion.button
+                                type="button"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                title="Generate draft in-app via OpenAI (fallback)"
+                                onClick={async () => {
+                                  const session = await getCurrentSession()
+                                  if (!session) return
+                                  setGenerateInAppLoading(lead.id)
+                                  try {
+                                    const res = await fetch(
+                                      `/api/admin/outreach/leads/${lead.id}/generate-in-app`,
+                                      {
+                                        method: 'POST',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                          Authorization: `Bearer ${session.access_token}`,
+                                        },
+                                        body: JSON.stringify({}),
                                       }
-                                    } catch (err) {
-                                      console.error('In-app generate failed:', err)
+                                    )
+                                    const data = await res.json().catch(() => ({}))
+                                    if (res.ok && data.outcome === 'created') {
                                       setGenerateOutreachToast(
-                                        'We could not create that draft. Please try again.'
+                                        `Draft saved for ${lead.name} — open Message Queue to review`
                                       )
                                       setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                    } finally {
-                                      setGenerateInAppLoading(null)
+                                      setN8nFailedLeadIds((prev) => {
+                                        const next = new Set(prev)
+                                        next.delete(lead.id)
+                                        return next
+                                      })
+                                      await fetchData()
+                                      await fetchLeads()
+                                    } else if (res.status === 409 && data.error) {
+                                      setGenerateOutreachToast(data.error)
+                                      setTimeout(() => setGenerateOutreachToast(null), 8000)
+                                    } else if (data.error) {
+                                      setGenerateOutreachToast(data.error)
+                                      setTimeout(() => setGenerateOutreachToast(null), 6000)
                                     }
-                                  }}
-                                  disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
-                                  className="px-3 py-2 bg-violet-900/30 hover:bg-violet-800/50 text-violet-300 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
-                                >
-                                  {generateInAppLoading === lead.id ? (
-                                    <Loader2 size={14} className="animate-spin" />
-                                  ) : (
-                                    <Sparkles size={14} />
-                                  )}
-                                  Draft in app
-                                </button>
-                              </>
+                                  } catch {
+                                    setGenerateOutreachToast(
+                                      'We could not create that draft. Please try again.'
+                                    )
+                                    setTimeout(() => setGenerateOutreachToast(null), 6000)
+                                  } finally {
+                                    setGenerateInAppLoading(null)
+                                  }
+                                }}
+                                disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
+                                className="px-3 py-2 bg-violet-900/30 hover:bg-violet-800/50 text-violet-300 border border-violet-700/50 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                              >
+                                {generateInAppLoading === lead.id ? (
+                                  <Loader2 size={14} className="animate-spin" />
+                                ) : (
+                                  <Sparkles size={14} />
+                                )}
+                                Draft in app
+                              </motion.button>
                             )}
+
+                            {/* More actions — grouped dropdown */}
                             <div className="relative shrink-0" id={`lead-actions-wrap-${lead.id}`}>
                               <button
                                 type="button"
@@ -2292,8 +2256,159 @@ function OutreachContent() {
                               {leadRowMenuOpenId === lead.id && (
                                 <div
                                   role="menu"
-                                  className="absolute right-0 top-full mt-1 z-50 min-w-[13rem] py-1 rounded-lg border border-silicon-slate bg-background shadow-xl"
+                                  className="absolute right-0 top-full mt-1 z-50 min-w-[14rem] py-1 rounded-lg border border-silicon-slate bg-background shadow-xl"
                                 >
+                                  {/* Compose & AI */}
+                                  {!lead.do_not_contact && !lead.removed_at && (
+                                    <>
+                                      <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">Compose</div>
+                                      <button
+                                        type="button"
+                                        role="menuitem"
+                                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-silicon-slate/60 flex items-center gap-2"
+                                        disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
+                                        onClick={async () => {
+                                          setLeadRowMenuOpenId(null)
+                                          const session = await getCurrentSession()
+                                          if (!session) return
+                                          setGenerateOutreachLoading(lead.id)
+                                          try {
+                                            const res = await fetch(`/api/admin/outreach/leads/${lead.id}/generate`, {
+                                              method: 'POST',
+                                              headers: {
+                                                'Content-Type': 'application/json',
+                                                Authorization: `Bearer ${session.access_token}`,
+                                              },
+                                            })
+                                            const data = await res.json().catch(() => ({}))
+                                            if (data.triggered) {
+                                              setGenerateOutreachToast(`Email generation started for ${lead.name}`)
+                                              setTimeout(() => setGenerateOutreachToast(null), 4000)
+                                            } else {
+                                              setN8nFailedLeadIds((prev) => new Set([...prev, lead.id]))
+                                              setGenerateOutreachToast(`n8n unavailable for ${lead.name} — use Draft in app`)
+                                              setTimeout(() => setGenerateOutreachToast(null), 6000)
+                                            }
+                                          } catch {
+                                            setN8nFailedLeadIds((prev) => new Set([...prev, lead.id]))
+                                            setGenerateOutreachToast(`n8n unavailable for ${lead.name} — use Draft in app`)
+                                            setTimeout(() => setGenerateOutreachToast(null), 6000)
+                                          } finally {
+                                            setGenerateOutreachLoading(null)
+                                          }
+                                        }}
+                                      >
+                                        <Mail size={14} className="shrink-0 opacity-80" />
+                                        Generate Email
+                                      </button>
+                                      <button
+                                        type="button"
+                                        role="menuitem"
+                                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-silicon-slate/60 flex items-center gap-2"
+                                        disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
+                                        onClick={async () => {
+                                          setLeadRowMenuOpenId(null)
+                                          const session = await getCurrentSession()
+                                          if (!session) return
+                                          setGenerateInAppLoading(lead.id)
+                                          try {
+                                            const res = await fetch(
+                                              `/api/admin/outreach/leads/${lead.id}/generate-in-app`,
+                                              {
+                                                method: 'POST',
+                                                headers: {
+                                                  'Content-Type': 'application/json',
+                                                  Authorization: `Bearer ${session.access_token}`,
+                                                },
+                                                body: JSON.stringify({}),
+                                              }
+                                            )
+                                            const data = await res.json().catch(() => ({}))
+                                            if (res.ok && data.outcome === 'created') {
+                                              setGenerateOutreachToast(`Draft saved for ${lead.name} — open Message Queue to review`)
+                                              setTimeout(() => setGenerateOutreachToast(null), 6000)
+                                              await fetchData()
+                                              await fetchLeads()
+                                            } else if (data.error) {
+                                              setGenerateOutreachToast(data.error)
+                                              setTimeout(() => setGenerateOutreachToast(null), 6000)
+                                            }
+                                          } catch {
+                                            setGenerateOutreachToast('We could not create that draft. Please try again.')
+                                            setTimeout(() => setGenerateOutreachToast(null), 6000)
+                                          } finally {
+                                            setGenerateInAppLoading(null)
+                                          }
+                                        }}
+                                      >
+                                        <Sparkles size={14} className="shrink-0 opacity-80" />
+                                        Draft in app
+                                      </button>
+                                      <div className="border-t border-silicon-slate my-1" />
+                                    </>
+                                  )}
+
+                                  {/* Research & intel */}
+                                  <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">Research</div>
+                                  <button
+                                    type="button"
+                                    role="menuitem"
+                                    className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-silicon-slate/60 flex items-center gap-2"
+                                    onClick={() => {
+                                      setLeadRowMenuOpenId(null)
+                                      setSocialIntelLeadId(lead.id)
+                                    }}
+                                  >
+                                    <Globe size={14} className="shrink-0 opacity-80" />
+                                    Social Intel
+                                  </button>
+                                  {lead.evidence_count > 0 && (
+                                    <button
+                                      type="button"
+                                      role="menuitem"
+                                      className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-silicon-slate/60 flex items-center gap-2"
+                                      disabled={pushLoading}
+                                      onClick={async () => {
+                                        setLeadRowMenuOpenId(null)
+                                        const session = await getCurrentSession()
+                                        if (!session) return
+                                        setPushLoading(true)
+                                        try {
+                                          const res = await fetch('/api/admin/value-evidence/extract-leads', {
+                                            method: 'POST',
+                                            headers: {
+                                              'Content-Type': 'application/json',
+                                              Authorization: `Bearer ${session.access_token}`,
+                                            },
+                                            body: JSON.stringify({
+                                              leads: [{ contact_submission_id: lead.id }],
+                                            }),
+                                          })
+                                          if (res.ok) {
+                                            startVepPolling()
+                                            await fetchLeads()
+                                            if (evidenceDrawerContactId === lead.id) {
+                                              const r = await fetch(
+                                                `/api/admin/value-evidence/evidence?contact_id=${lead.id}`,
+                                                { headers: { Authorization: `Bearer ${session.access_token}` } }
+                                              )
+                                              const d = await r.json()
+                                              if (r.ok) setEvidenceDrawerData(d)
+                                            }
+                                          }
+                                        } finally {
+                                          setPushLoading(false)
+                                        }
+                                      }}
+                                    >
+                                      <RefreshCw size={14} className="shrink-0 opacity-80" />
+                                      Refresh evidence
+                                    </button>
+                                  )}
+
+                                  {/* Pipeline */}
+                                  <div className="border-t border-silicon-slate my-1" />
+                                  <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">Pipeline</div>
                                   <button
                                     type="button"
                                     role="menuitem"
@@ -2306,6 +2421,45 @@ function OutreachContent() {
                                     <Edit3 size={14} className="shrink-0 opacity-80" />
                                     Review and edit
                                   </button>
+
+                                  {/* Background jobs (conditional) */}
+                                  {lead.last_vep_status === 'pending' && lead.evidence_count === 0 && (
+                                    <>
+                                      <div className="border-t border-silicon-slate my-1" />
+                                      <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">Background jobs</div>
+                                      <button
+                                        type="button"
+                                        role="menuitem"
+                                        className="w-full text-left px-3 py-2 text-sm text-amber-300 hover:bg-silicon-slate/60 flex items-center gap-2"
+                                        disabled={pushLoading}
+                                        onClick={async () => {
+                                          setLeadRowMenuOpenId(null)
+                                          const session = await getCurrentSession()
+                                          if (!session) return
+                                          setPushLoading(true)
+                                          try {
+                                            const res = await fetch('/api/admin/value-evidence/extract-leads/cancel', {
+                                              method: 'POST',
+                                              headers: {
+                                                'Content-Type': 'application/json',
+                                                Authorization: `Bearer ${session.access_token}`,
+                                              },
+                                              body: JSON.stringify({ contact_submission_ids: [lead.id] }),
+                                            })
+                                            if (res.ok) await fetchLeads()
+                                          } finally {
+                                            setPushLoading(false)
+                                          }
+                                        }}
+                                      >
+                                        <X size={14} className="shrink-0 opacity-80" />
+                                        Cancel extraction
+                                      </button>
+                                    </>
+                                  )}
+
+                                  {/* Danger */}
+                                  <div className="border-t border-silicon-slate my-1" />
                                   {!lead.removed_at && lead.do_not_contact && (
                                     <button
                                       type="button"
@@ -2377,10 +2531,14 @@ function OutreachContent() {
                                 </div>
                               )}
                             </div>
+
+                            {/* Expand / collapse */}
                             <button
                               onClick={() =>
                                 setExpandedLeadId(expandedLeadId === lead.id ? null : lead.id)
                               }
+                              aria-expanded={expandedLeadId === lead.id}
+                              aria-label={`${expandedLeadId === lead.id ? 'Collapse' : 'Expand'} details for ${lead.name}`}
                               className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground"
                             >
                               {expandedLeadId === lead.id ? (
@@ -2426,12 +2584,6 @@ function OutreachContent() {
                                           LinkedIn Profile
                                           <ExternalLink size={12} />
                                         </a>
-                                      </div>
-                                    )}
-                                    {lead.company && (
-                                      <div className="flex items-center gap-2">
-                                        <Building2 size={14} className="text-muted-foreground" />
-                                        <span className="text-foreground">{lead.company}</span>
                                       </div>
                                     )}
                                     {lead.job_title && (

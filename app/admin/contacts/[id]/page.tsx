@@ -6,6 +6,7 @@ import { getBackUrl, buildLinkWithReturn } from '@/lib/admin-return-context'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import Pagination from '@/components/admin/Pagination'
 import { getCurrentSession } from '@/lib/auth'
 import { EMAIL_TEMPLATE_KEYS, PROMPT_DISPLAY_NAMES, type EmailTemplateKey } from '@/lib/constants/prompt-keys'
 import {
@@ -187,6 +188,8 @@ const timelineIcons: Record<string, typeof User> = {
   value_report: BarChart3, outreach: MessageSquare, delivery: Send, sales: Sparkles,
 }
 
+const TIMELINE_PAGE_SIZE = 10
+
 /* ───────── Page ───────── */
 
 function ContactDetailPage() {
@@ -219,6 +222,7 @@ function ContactDetailPage() {
   // Sections
   const [showDeliveries, setShowDeliveries] = useState(false)
   const [showTimeline, setShowTimeline] = useState(true)
+  const [timelinePage, setTimelinePage] = useState(1)
   const [showComms, setShowComms] = useState(true)
   const [commsChannelFilter, setCommsChannelFilter] = useState<string>('all')
   const [commsTypeFilter, setCommsTypeFilter] = useState<string>('all')
@@ -266,6 +270,17 @@ function ContactDetailPage() {
   }, [id, getToken])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  useEffect(() => {
+    setTimelinePage(1)
+  }, [id])
+
+  useEffect(() => {
+    const len = data?.timeline?.length
+    if (len == null) return
+    const maxPage = Math.max(1, Math.ceil(len / TIMELINE_PAGE_SIZE))
+    setTimelinePage(p => Math.min(p, maxPage))
+  }, [data?.timeline?.length])
 
   function toggleAsset(ref: AssetRef) {
     setSelectedAssets(prev => {
@@ -379,6 +394,13 @@ function ContactDetailPage() {
 
   const { contact, gammaReports, videos, valueReports, audits, deliveries, dashboardAccess, salesSessions, timeline } = data
   const hasAnyAsset = gammaReports.length > 0 || videos.length > 0 || valueReports.length > 0
+
+  const timelineTotalPages = Math.max(1, Math.ceil(timeline.length / TIMELINE_PAGE_SIZE))
+  const safeTimelinePage = Math.min(timelinePage, timelineTotalPages)
+  const pagedTimeline = timeline.slice(
+    (safeTimelinePage - 1) * TIMELINE_PAGE_SIZE,
+    safeTimelinePage * TIMELINE_PAGE_SIZE,
+  )
 
   return (
     <ProtectedRoute requireAdmin>
@@ -949,31 +971,50 @@ function ContactDetailPage() {
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-gray-400" />
                 <span className="text-base font-semibold text-white">Activity Timeline</span>
+                {timeline.length > 0 && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700">
+                    {timeline.length}
+                  </span>
+                )}
               </div>
               {showTimeline ? <ChevronUp className="w-4 h-4 text-gray-500" /> : <ChevronDown className="w-4 h-4 text-gray-500" />}
             </button>
             {showTimeline && (
-              <div className="px-6 pb-4 border-t border-gray-800 pt-3">
-                <div className="space-y-0">
-                  {timeline.slice(0, 30).map((event, i) => {
-                    const Icon = timelineIcons[event.type] || Clock
-                    return (
-                      <div key={`${event.type}-${event.id || i}`} className="flex items-start gap-3 py-2.5 border-b border-gray-800/30 last:border-0">
-                        <div className="mt-0.5 w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
-                          <Icon className="w-3 h-3 text-gray-400" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-white">{event.title}</p>
-                          <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[10px] text-gray-500">{formatDateTime(event.date)}</span>
-                            {event.detail && <StatusBadge status={event.detail} />}
-                          </div>
-                        </div>
+              <div className="px-6 pb-4 border-t border-gray-800 pt-3 space-y-2">
+                {timeline.length === 0 ? (
+                  <p className="text-sm text-gray-500 py-2">No activity yet.</p>
+                ) : (
+                  <>
+                    <div className="max-h-[min(50vh,420px)] overflow-y-auto rounded-lg border border-gray-800/80 bg-gray-950/40">
+                      <div className="space-y-0 px-1">
+                        {pagedTimeline.map((event, i) => {
+                          const Icon = timelineIcons[event.type] || Clock
+                          return (
+                            <div key={`${event.type}-${event.id ?? `${safeTimelinePage}-${i}`}`} className="flex items-start gap-3 py-2.5 border-b border-gray-800/30 last:border-0 px-2">
+                              <div className="mt-0.5 w-6 h-6 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
+                                <Icon className="w-3 h-3 text-gray-400" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm text-white">{event.title}</p>
+                                <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                                  <span className="text-[10px] text-gray-500">{formatDateTime(event.date)}</span>
+                                  {event.detail && <StatusBadge status={event.detail} />}
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
-                    )
-                  })}
-                  {timeline.length === 0 && <p className="text-sm text-gray-500 py-2">No activity yet.</p>}
-                </div>
+                    </div>
+                    <Pagination
+                      page={safeTimelinePage}
+                      totalPages={timelineTotalPages}
+                      total={timeline.length}
+                      pageSize={TIMELINE_PAGE_SIZE}
+                      onPageChange={setTimelinePage}
+                    />
+                  </>
+                )}
               </div>
             )}
           </div>

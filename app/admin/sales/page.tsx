@@ -35,6 +35,7 @@ import {
   Trash2,
   Zap,
   Presentation,
+  ExternalLink,
 } from 'lucide-react';
 
 interface LeadAudit {
@@ -511,7 +512,14 @@ export default function SalesDashboardPage() {
                       <td className="px-4 py-4">
                         <div>
                           <div className="font-medium text-foreground flex items-center gap-2">
-                            <Link href={buildLinkWithReturn(`/admin/contacts/${lead.contact_id}`, '/admin/sales')} className="hover:text-teal-400 transition-colors">{lead.name || 'Unknown'}</Link>
+                            <Link
+                              href={buildLinkWithReturn(`/admin/contacts/${lead.contact_id}`, '/admin/sales')}
+                              className="inline-flex items-center gap-1.5 text-white hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
+                              title="Open contact record"
+                            >
+                              <span>{lead.name || 'Unknown'}</span>
+                              <ExternalLink size={13} className="shrink-0 opacity-70 text-teal-400/90" aria-hidden />
+                            </Link>
                             {(() => {
                               const status = reportStatuses[String(lead.contact_id)];
                               if (!status) return null;
