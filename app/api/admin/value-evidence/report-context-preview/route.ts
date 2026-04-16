@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
   const auditIdParam = auditId?.trim() || null
 
   try {
-    const [contactResult, auditResult, painPointResult, marketIntelResult] = await Promise.all([
+    const [contactResult, auditResult, painPointResult, marketIntelResult, meetingsResult] = await Promise.all([
       supabaseAdmin
         .from('contact_submissions')
         .select('id, name, company, industry, company_domain, website_tech_stack')
@@ -61,6 +61,13 @@ export async function GET(request: NextRequest) {
         .select('id, content_text, source_platform, content_type, industry_detected, sentiment_score, relevance_score')
         .order('relevance_score', { ascending: false })
         .limit(15),
+
+      supabaseAdmin
+        .from('meeting_records')
+        .select('id, meeting_type, meeting_date, transcript, structured_notes')
+        .eq('contact_submission_id', contactIdNum)
+        .order('meeting_date', { ascending: false })
+        .limit(20),
     ])
 
     const contact = contactResult.data
@@ -104,6 +111,74 @@ export async function GET(request: NextRequest) {
         }
       : null
 
+    const meetings = (meetingsResult.data || []) as Array<{
+      id: string
+      meeting_type: string | null
+      meeting_date: string | null
+      transcript: string | null
+      structured_notes: Record<string, unknown> | null
+    }>
+
+    const meetingExcerpts = meetings.flatMap((m) => {
+      const items: Array<{
+        meetingId: string
+        excerptId: string
+        sourceLabel: string
+        dateLabel?: string
+        text: string
+      }> = []
+      const dateLabel = m.meeting_date
+        ? new Date(m.meeting_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+        : undefined
+      const sourceLabel = `${(m.meeting_type || 'meeting').replace(/_/g, ' ')}${dateLabel ? ` (${dateLabel})` : ''}`
+
+      const transcriptText = (m.transcript || '').trim()
+      if (transcriptText) {
+        const sentences = transcriptText
+          .split(/(?<=[.?!])\s+/)
+          .map((s) => s.trim())
+          .filter((s) => s.length >= 30 && s.length <= 320)
+        sentences.slice(0, 6).forEach((sentence, idx) => {
+          items.push({
+            meetingId: m.id,
+            excerptId: `${m.id}:t${idx}`,
+            sourceLabel,
+            dateLabel,
+            text: sentence,
+          })
+        })
+      }
+
+      const notes = m.structured_notes
+      if (notes && typeof notes === 'object') {
+        for (const [key, value] of Object.entries(notes)) {
+          if (typeof value === 'string' && value.trim().length >= 20) {
+            items.push({
+              meetingId: m.id,
+              excerptId: `${m.id}:n:${key}`,
+              sourceLabel,
+              dateLabel,
+              text: `${key.replace(/_/g, ' ')}: ${value.trim().slice(0, 320)}`,
+            })
+          } else if (Array.isArray(value)) {
+            value.slice(0, 5).forEach((entry, idx) => {
+              if (typeof entry === 'string' && entry.trim().length >= 20) {
+                items.push({
+                  meetingId: m.id,
+                  excerptId: `${m.id}:n:${key}:${idx}`,
+                  sourceLabel,
+                  dateLabel,
+                  text: `${key.replace(/_/g, ' ')}: ${entry.trim().slice(0, 320)}`,
+                })
+              }
+            })
+          }
+        }
+      }
+
+      return items
+    })
+
     return NextResponse.json({
       auditFindings,
       marketIntel: marketIntel.map((mi: {
@@ -126,6 +201,7 @@ export async function GET(request: NextRequest) {
       techStack: contact?.website_tech_stack || null,
       companyDomain: contact?.company_domain || null,
       contactIndustry: contact?.industry || null,
+      meetingExcerpts,
     })
   } catch (err) {
     console.error('Report context preview error:', err)

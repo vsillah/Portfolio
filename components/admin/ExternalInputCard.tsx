@@ -38,12 +38,21 @@ export interface MarketIntelItem {
   relevance: number | null
 }
 
+export interface MeetingExcerpt {
+  meetingId: string
+  excerptId: string
+  sourceLabel: string
+  dateLabel?: string
+  text: string
+}
+
 export interface ReportContextPreview {
   auditFindings: AuditFindingsPreview | null
   marketIntel: MarketIntelItem[]
   techStack: Record<string, unknown> | null
   companyDomain: string | null
   contactIndustry: string | null
+  meetingExcerpts?: MeetingExcerpt[]
 }
 
 interface UploadedFile {

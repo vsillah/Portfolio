@@ -33,8 +33,11 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import ExternalInputCard, { type ReportContextPreview } from '@/components/admin/ExternalInputCard';
+import EvidencePreviewCard from '@/components/admin/EvidencePreviewCard';
+import MeetingVerbatimPicker, { type PickedVerbatim } from '@/components/admin/MeetingVerbatimPicker';
 import AssetPicker, { type AssetPickerItem } from '@/components/admin/AssetPicker';
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip';
+import { GammaDeckGenerateRow } from '@/components/admin/GammaDeckGenerateRow';
 import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus';
 
 // ---------------------------------------------------------------------------
@@ -146,6 +149,7 @@ function GammaReportsContent() {
   const [customInstructions, setCustomInstructions] = useState('');
   const [previewData, setPreviewData] = useState<ReportContextPreview | null>(null);
   const [loadingPreview, setLoadingPreview] = useState(false);
+  const [pickedVerbatims, setPickedVerbatims] = useState<PickedVerbatim[]>([]);
 
   // Generation state
   const [generating, setGenerating] = useState(false);
@@ -755,6 +759,7 @@ function GammaReportsContent() {
           competitorPlatform: assembledCompetitor || undefined,
           siteCrawlData: assembledSiteData || undefined,
           customInstructions: customInstructions || undefined,
+          meetingVerbatims: pickedVerbatims.length > 0 ? pickedVerbatims : undefined,
         },
         externalInputSources: {
           thirdPartyFindings: assembledFindings ? 'provided' : 'none',
@@ -897,6 +902,14 @@ function GammaReportsContent() {
   );
 
   const selectedType = REPORT_TYPES.find((t) => t.value === reportType)!;
+
+  const reportsForCurrentTemplate = useMemo(
+    () =>
+      [...reports]
+        .filter((r) => r.report_type === reportType)
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+    [reports, reportType]
+  );
 
   return (
     <div className="min-h-screen bg-gray-950 text-white p-6">
@@ -1363,6 +1376,25 @@ function GammaReportsContent() {
           )}
         </div>
 
+        {/* Evidence Preview — shows what source citations will back the report */}
+        {contactId && (
+          <EvidencePreviewCard
+            contactId={contactId}
+            auditId={auditId || undefined}
+            valueReportId={valueReportId || undefined}
+            getToken={getToken}
+          />
+        )}
+
+        {/* Meeting Verbatims — pick discovery quotes to cite verbatim in the deck */}
+        {contactId && (
+          <MeetingVerbatimPicker
+            excerpts={previewData?.meetingExcerpts}
+            loading={loadingPreview}
+            onChange={setPickedVerbatims}
+          />
+        )}
+
         {/* External Inputs — smart cards (collapsed by default); sits above custom instructions + Data Sources */}
         <div className="space-y-3">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -1450,31 +1482,16 @@ function GammaReportsContent() {
           reportType={reportType}
         />
 
-        {/* Generate Button */}
-        <div className="flex items-center gap-4">
-          <button
-            onClick={handleGenerate}
-            disabled={generating}
-            className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-lg hover:from-emerald-600 hover:to-teal-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-all"
-          >
-            {generating ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Generating {selectedType.label}...
-              </>
-            ) : (
-              <>
-                <FileText className="w-5 h-5" />
-                Generate {selectedType.label}
-              </>
-            )}
-          </button>
-          {generating && (
-            <span className="text-sm text-gray-400">
-              This may take 30–60 seconds while Gamma creates your presentation...
-            </span>
-          )}
-        </div>
+        {/* Generate — execution row (progress + milestones + history), same pattern as HeyGen config */}
+        <GammaDeckGenerateRow
+          generating={generating}
+          onGenerate={handleGenerate}
+          templateLabel={selectedType.label}
+          reportsForTemplate={reportsForCurrentTemplate}
+          disabled={generating}
+          helperTextWhileGenerating="This may take 30–60 seconds while Gamma creates your presentation."
+          fullReportHistoryHref="#gamma-report-history"
+        />
 
         {/* Error */}
         {error && (
@@ -1564,7 +1581,10 @@ function GammaReportsContent() {
         )}
 
         {/* Report History — same card + header strip as other admin lists; body scrolls (contacts timeline pattern) */}
-        <div className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden">
+        <div
+          id="gamma-report-history"
+          className="bg-gray-900 rounded-lg border border-gray-800 overflow-hidden scroll-mt-24"
+        >
           <div className="flex items-center justify-between gap-4 px-6 py-4 border-b border-gray-800">
             <h2 className="text-lg font-semibold text-white flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-teal-400 shrink-0" />

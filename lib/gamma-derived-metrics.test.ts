@@ -47,6 +47,8 @@ function makeContext(overrides: Record<string, unknown> = {}) {
     services: [],
     painPoints: [],
     benchmarks: [],
+    meetings: [],
+    painPointEvidence: [],
     ...overrides,
   } as Parameters<typeof computeDerivedMetrics>[0]
 }

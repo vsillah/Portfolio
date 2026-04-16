@@ -60,7 +60,7 @@ async function runAuditSummaryGamma(auditId: string): Promise<void> {
   const contactId: number = audit.contact_submission_id
 
   // 2. Build the Gamma report input
-  const { inputText, options, title } = await buildGammaReportInput({
+  const { inputText, options, title, citationsMeta } = await buildGammaReportInput({
     reportType: 'audit_summary',
     contactSubmissionId: contactId,
     diagnosticAuditId: audit.id,
@@ -77,6 +77,7 @@ async function runAuditSummaryGamma(auditId: string): Promise<void> {
     inputText,
     externalInputs: {},
     gammaOptions: options,
+    citationsMeta,
     createdBy: null,
   })
 

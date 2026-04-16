@@ -161,7 +161,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { inputText, options, title } = await buildGammaReportInput(body)
+    const { inputText, options, title, citationsMeta } = await buildGammaReportInput(body)
 
     const row = await insertGammaReportRow({
       reportType: body.reportType,
@@ -176,6 +176,7 @@ export async function POST(request: NextRequest) {
         ...(body.externalInputSources ? { _sources: body.externalInputSources } : {}),
       },
       gammaOptions: options,
+      citationsMeta,
       createdBy: auth.user.id,
     })
 

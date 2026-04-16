@@ -40,6 +40,17 @@ import {
 } from './sales-scripts'
 import { expandBundleItems } from './bundle-expand'
 import { CREATOR_BACKGROUND } from './constants/creator-background'
+import { fetchMeetingsForAudit, type MeetingForAudit } from './audit-from-meetings'
+import {
+  buildEvidenceIndex,
+  buildEvidenceLedgerSlide,
+  buildSourceFidelityPreamble,
+  citationTag,
+  firstOfKind,
+  itemsForAuditCategory,
+  itemsForPainPoint,
+  type EvidenceItem,
+} from './gamma-evidence-index'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -52,11 +63,24 @@ export type GammaReportType =
   | 'prospect_overview'
   | 'offer_presentation'
 
+export interface MeetingVerbatim {
+  /** Stable id for dedupe — usually `${meetingId}:${index}`. */
+  id: string
+  /** Verbatim quote text (already trimmed for length by the picker). */
+  verbatim: string
+  /** Display label, e.g. "Discovery call". */
+  sourceLabel: string
+  /** Optional ISO date label (YYYY-MM-DD). */
+  dateLabel?: string
+}
+
 export interface ExternalInputs {
   thirdPartyFindings?: string
   competitorPlatform?: string
   siteCrawlData?: string
   customInstructions?: string
+  /** Admin-picked meeting quotes to thread into the prompt and Evidence Ledger. */
+  meetingVerbatims?: MeetingVerbatim[]
 }
 
 export type ExternalInputSourceMode = 'provided' | 'none'
@@ -81,6 +105,12 @@ export interface GammaReportInput {
   inputText: string
   options: GammaGenerateOptions
   title: string
+  /** Canonical evidence index (with counts + timestamp) used to back the deck. */
+  citationsMeta: {
+    items: EvidenceItem[]
+    counts: Record<string, number>
+    generatedAt: string
+  }
 }
 
 /** Minimal context for video script generation (companion video from report). */
@@ -101,6 +131,8 @@ interface ReportContext {
   services: ServiceData[]
   painPoints: PainPointData[]
   benchmarks: BenchmarkData[]
+  meetings: MeetingForAudit[]
+  painPointEvidence: PainPointEvidenceData[]
 }
 
 interface ContactData {
@@ -111,6 +143,14 @@ interface ContactData {
   industry: string
   employee_count: string
   phone?: string
+  website_tech_stack?: Record<string, unknown> | null
+}
+
+interface PainPointEvidenceData {
+  id: string
+  excerpt: string
+  sourceType: string
+  categoryId: string
 }
 
 interface AuditData {
@@ -329,6 +369,29 @@ function numCardsForGammaReportType(reportType: GammaReportType): number {
 }
 
 // ---------------------------------------------------------------------------
+// Evidence index — bridges ReportContext + ExternalInputs to the evidence module
+// ---------------------------------------------------------------------------
+
+/**
+ * Build the deterministic evidence index for a report context. Per-template
+ * builders call this once and weave the resulting `[E#]` tags into the prompt.
+ */
+export function buildEvidenceForReport(
+  ctx: ReportContext,
+  externalInputs?: ExternalInputs
+): EvidenceItem[] {
+  return buildEvidenceIndex({
+    audit: ctx.audit,
+    contactWebsiteTechStack: ctx.contact?.website_tech_stack ?? null,
+    valueStatements: ctx.valueReport?.value_statements,
+    benchmarks: ctx.benchmarks,
+    meetings: ctx.meetings,
+    painPointEvidence: ctx.painPointEvidence,
+    pickedMeetingVerbatims: externalInputs?.meetingVerbatims,
+  })
+}
+
+// ---------------------------------------------------------------------------
 // Main entry point
 // ---------------------------------------------------------------------------
 
@@ -391,18 +454,54 @@ export async function buildGammaReportInput(
 
   options.themeId = await resolveGammaThemeIdForGeneration(params.theme)
 
-  if (params.externalInputs?.customInstructions) {
-    options.additionalInstructions = params.externalInputs.customInstructions
+  options.additionalInstructions = composeAdditionalInstructions(
+    context,
+    params.externalInputs,
+    options.additionalInstructions
+  )
+
+  const evidenceItems = buildEvidenceForReport(context, params.externalInputs)
+  const counts: Record<string, number> = {}
+  for (const it of evidenceItems) {
+    counts[it.kind] = (counts[it.kind] ?? 0) + 1
+  }
+  const citationsMeta = {
+    items: evidenceItems,
+    counts,
+    generatedAt: new Date().toISOString(),
   }
 
-  return { inputText, options, title }
+  return { inputText, options, title, citationsMeta }
+}
+
+/**
+ * Compose Gamma `additionalInstructions` from (a) Source Fidelity rules + Evidence Index,
+ * (b) caller-provided custom instructions, (c) any options.additionalInstructions already set.
+ *
+ * The preamble is included in BOTH the prompt body (per-template) and additionalInstructions.
+ * Gamma's rewrite pass uses additionalInstructions globally, so this keeps `[E#]` tags intact
+ * even when Gamma reflows the body text.
+ */
+function composeAdditionalInstructions(
+  ctx: ReportContext,
+  externalInputs: ExternalInputs | undefined,
+  existing: string | undefined
+): string | undefined {
+  const items = buildEvidenceForReport(ctx, externalInputs)
+  const preamble = buildSourceFidelityPreamble(items)
+  const parts: string[] = [preamble]
+  if (existing && existing.trim().length > 0) parts.push(existing.trim())
+  if (externalInputs?.customInstructions && externalInputs.customInstructions.trim().length > 0) {
+    parts.push(externalInputs.customInstructions.trim())
+  }
+  return parts.join('\n\n')
 }
 
 // ---------------------------------------------------------------------------
 // Data fetching
 // ---------------------------------------------------------------------------
 
-async function fetchReportContext(params: GammaReportParams): Promise<ReportContext> {
+export async function fetchReportContext(params: GammaReportParams): Promise<ReportContext> {
   if (!supabaseAdmin) {
     throw new Error('supabaseAdmin not available — server-side only')
   }
@@ -411,7 +510,7 @@ async function fetchReportContext(params: GammaReportParams): Promise<ReportCont
     params.contactSubmissionId
       ? supabaseAdmin
           .from('contact_submissions')
-          .select('id, name, email, company, industry, employee_count, phone')
+          .select('id, name, email, company, industry, employee_count, website_tech_stack')
           .eq('id', params.contactSubmissionId)
           .single()
           .then((r: { data: ContactData | null }) => r.data)
@@ -480,7 +579,42 @@ async function fetchReportContext(params: GammaReportParams): Promise<ReportCont
       .then((r: { data: BenchmarkData[] | null }) => (r.data || []) as BenchmarkData[]),
   ])
 
-  return { contact, audit, valueReport, services, painPoints, benchmarks }
+  // Source-data evidence — meetings (for verbatim quotes) and pain-point evidence (for source excerpts).
+  // Both are best-effort: if either fetch fails, the report still generates without those citations
+  // rather than blocking the whole flow.
+  const auditIdString = params.diagnosticAuditId != null ? String(params.diagnosticAuditId) : null
+  const [meetings, painPointEvidence] = await Promise.all([
+    params.contactSubmissionId
+      ? fetchMeetingsForAudit(params.contactSubmissionId).catch((err: unknown) => {
+          console.warn('[gamma-report-builder] fetchMeetingsForAudit failed:', err)
+          return [] as MeetingForAudit[]
+        })
+      : Promise.resolve([] as MeetingForAudit[]),
+
+    auditIdString
+      ? supabaseAdmin
+          .from('pain_point_evidence')
+          .select('id, source_excerpt, source_type, pain_point_category_id')
+          .eq('source_type', 'diagnostic_audit')
+          .eq('source_id', auditIdString)
+          .limit(20)
+          .then((r: { data: Array<{ id: string; source_excerpt: string; source_type: string; pain_point_category_id: string }> | null }) => {
+            const rows = r.data ?? []
+            return rows.map((row) => ({
+              id: row.id,
+              excerpt: row.source_excerpt,
+              sourceType: row.source_type,
+              categoryId: row.pain_point_category_id,
+            })) as PainPointEvidenceData[]
+          })
+          .catch((err: unknown) => {
+            console.warn('[gamma-report-builder] pain_point_evidence fetch failed:', err)
+            return [] as PainPointEvidenceData[]
+          })
+      : Promise.resolve([] as PainPointEvidenceData[]),
+  ])
+
+  return { contact, audit, valueReport, services, painPoints, benchmarks, meetings, painPointEvidence }
 }
 
 /**
@@ -594,11 +728,24 @@ async function buildGammaReportInputFromContext(
 
   options.themeId = params.theme || undefined
 
-  if (params.externalInputs?.customInstructions) {
-    options.additionalInstructions = params.externalInputs.customInstructions
+  options.additionalInstructions = composeAdditionalInstructions(
+    ctx,
+    params.externalInputs,
+    options.additionalInstructions
+  )
+
+  const evidenceItems = buildEvidenceForReport(ctx, params.externalInputs)
+  const counts: Record<string, number> = {}
+  for (const it of evidenceItems) {
+    counts[it.kind] = (counts[it.kind] ?? 0) + 1
+  }
+  const citationsMeta = {
+    items: evidenceItems,
+    counts,
+    generatedAt: new Date().toISOString(),
   }
 
-  return { inputText, options, title }
+  return { inputText, options, title, citationsMeta }
 }
 
 // ---------------------------------------------------------------------------
@@ -618,10 +765,14 @@ function buildValueQuantificationPrompt(
   const metrics = computeDerivedMetrics(ctx)
   const totalAnnualValue = metrics.totalAnnualValue || 0
   const totalInvestment = metrics.estimatedInvestment || 0
+  const evidence = buildEvidenceForReport(ctx, params.externalInputs)
 
   const title = `The Cost of Standing Still: ${orgName} Opportunity Quantification`
 
   const sections: string[] = []
+
+  // --- Source Fidelity Rules (must be the very first prompt block) ---
+  sections.push(buildSourceFidelityPreamble(evidence))
 
   // --- Slide 1: Cover ---
   sections.push(buildCoverSlide(
@@ -646,23 +797,35 @@ This analysis quantifies the opportunity using Amadutown's standardized value ca
 
   // --- Slide 2b: Current State Assessment (from diagnostic audit) ---
   if (ctx.audit) {
+    const challengeCite = firstOfKind(itemsForAuditCategory(evidence, 'business_challenges'), 'audit_response')
+    const meetingCite = firstOfKind(evidence, 'meeting_quote')
+    const scoreCite = firstOfKind(itemsForAuditCategory(evidence, 'scores'), 'audit_response')
+
     let assessmentSlide = `
 # CURRENT STATE ASSESSMENT
 ## Where ${orgName} Stands Today
 `
     if (ctx.audit.diagnostic_summary) {
-      assessmentSlide += `\n${ctx.audit.diagnostic_summary}\n`
+      const tag = challengeCite ? ` ${citationTag(challengeCite.id)}` : ''
+      assessmentSlide += `\n${ctx.audit.diagnostic_summary}${tag}\n`
     }
     if (metrics.urgencyScore !== null || metrics.opportunityScore !== null) {
+      const tag = scoreCite ? ` ${citationTag(scoreCite.id)}` : ''
       assessmentSlide += `\n`
       if (metrics.urgencyScore !== null) assessmentSlide += `**Urgency Score:** ${metrics.urgencyScore}/10 | `
-      if (metrics.opportunityScore !== null) assessmentSlide += `**Opportunity Score:** ${metrics.opportunityScore}/10\n`
+      if (metrics.opportunityScore !== null) assessmentSlide += `**Opportunity Score:** ${metrics.opportunityScore}/10${tag}\n`
     }
     if (ctx.audit.key_insights && ctx.audit.key_insights.length > 0) {
       assessmentSlide += `\n**Key Findings:**\n`
-      for (const insight of ctx.audit.key_insights.slice(0, 3)) {
-        assessmentSlide += `- ${insight}\n`
-      }
+      const insights = ctx.audit.key_insights.slice(0, 3)
+      const auditCites = itemsForAuditCategory(evidence, 'business_challenges').concat(
+        itemsForAuditCategory(evidence, 'automation_needs')
+      )
+      insights.forEach((insight, idx) => {
+        const cite = auditCites[idx] ?? meetingCite
+        const tag = cite ? ` ${citationTag(cite.id)}` : ''
+        assessmentSlide += `- ${insight}${tag}\n`
+      })
     }
     sections.push(assessmentSlide)
   }
@@ -697,24 +860,33 @@ Each identified pain point is assigned a calculation method from ATAS Value & Pr
 
   // --- Slides 5-9: Per-Pain-Point Detail Cards ---
   const recommendedActions = ctx.audit?.recommended_actions ?? []
+  const benchmarkCite = firstOfKind(evidence, 'benchmark')
   for (const stmt of metrics.topPainPoints) {
+    const formulaCite = itemsForPainPoint(evidence, stmt.painPoint)[0]
+    const formulaTag = formulaCite ? ` ${citationTag(formulaCite.id)}` : ''
+    const benchTag = benchmarkCite ? ` ${citationTag(benchmarkCite.id)}` : ''
+    const meetingCite = firstOfKind(evidence, 'meeting_quote')
+    const meetingTag = meetingCite ? ` ${citationTag(meetingCite.id)}` : ''
+
     let card = `
 # ${stmt.painPoint}
 
-**The Problem:** This area represents an estimated ${formatCurrency(stmt.annualValue)}/year in unrealized value.
+**The Problem:** This area represents an estimated ${formatCurrency(stmt.annualValue)}/year in unrealized value.${meetingTag}
 
 **Calculation — ${CALCULATION_METHOD_LABELS[stmt.calculationMethod]}:**
-${stmt.formulaReadable}
+${stmt.formulaReadable}${formulaTag}
 
-**Annual Lift:** ${formatCurrency(stmt.annualValue)}
-**Evidence:** ${stmt.evidenceSummary}
+**Annual Lift:** ${formatCurrency(stmt.annualValue)}${benchTag}
+**Evidence:** ${stmt.evidenceSummary}${formulaTag}
 **Confidence:** ${CONFIDENCE_LABELS[stmt.confidence]}
 `
     const matchingAction = recommendedActions.find(
       (a: string) => a.toLowerCase().includes(stmt.painPoint.toLowerCase().split(' ')[0])
     )
     if (matchingAction) {
-      card += `\n**Recommended Action:** ${matchingAction}\n`
+      const actionCite = firstOfKind(itemsForAuditCategory(evidence, 'automation_needs'), 'audit_response') ?? meetingCite
+      const actionTag = actionCite ? ` ${citationTag(actionCite.id)}` : ''
+      card += `\n**Recommended Action:** ${matchingAction}${actionTag}\n`
     }
     sections.push(card)
   }
@@ -727,11 +899,13 @@ ${stmt.formulaReadable}
 
 Every opportunity ranked by annual value. If budget is constrained, this answers: "Where do we start?"
 
-| # | Opportunity | Annual Lift |
-|---|-----------|------------|
+| # | Opportunity | Annual Lift | Source |
+|---|-----------|------------|--------|
 `
   sorted.forEach((stmt, i) => {
-    moneySlide += `| ${i + 1} | ${stmt.painPoint} | ${formatCurrency(stmt.annualValue)} |\n`
+    const cite = itemsForPainPoint(evidence, stmt.painPoint)[0]
+    const sourceCell = cite ? citationTag(cite.id) : '—'
+    moneySlide += `| ${i + 1} | ${stmt.painPoint} | ${formatCurrency(stmt.annualValue)} | ${sourceCell} |\n`
   })
   sections.push(moneySlide)
 
@@ -797,20 +971,8 @@ Year 2 Effect: Once the initial investment is recovered, recurring annual value 
 - Low (limited data)
 `)
 
-  // --- Slide 14: Sources ---
-  sections.push(`
-# SOURCES
-## Third-Party Research Validating Every Benchmark
-
-1. Bureau of Labor Statistics (BLS) — hourly wages, employee costs, industry data
-2. Glassdoor Salary Data — role-specific salaries, compensation benchmarks
-3. HubSpot Sales Benchmark Report — deal sizes, close rates, sales cycle length
-4. McKinsey & Company — AI adoption, automation potential by industry
-5. Gartner IT Spending Forecasts — IT budgets, tool spending
-6. M+R Benchmarks — nonprofit online fundraising metrics
-7. Fundraising Effectiveness Project (FEP) — donor retention rates
-8. Independent Sector — volunteer hour valuation
-`)
+  // --- Slide 14: Evidence Ledger (replaces the legacy generic Sources slide) ---
+  sections.push(buildEvidenceLedgerSlide(evidence))
 
   // --- Slide 15: Next Steps ---
   sections.push(`
@@ -872,9 +1034,13 @@ function buildImplementationStrategyPrompt(
   const orgName = resolveOrganizationLabel(ctx)
   const domain = params.externalInputs?.siteCrawlData ? 'Website UX Redesign' : 'Digital Strategy'
   const title = `${orgName} ${domain}: Implementation Strategy`
+  const evidence = buildEvidenceForReport(ctx, params.externalInputs)
   const metrics = computeDerivedMetrics(ctx)
 
   const sections: string[] = []
+
+  // --- Source Fidelity Rules (must be the very first prompt block) ---
+  sections.push(buildSourceFidelityPreamble(evidence))
 
   // --- Slide 1: Cover ---
   sections.push(buildCoverSlide(title, orgName, 'STRATEGIC ADVISORY'))
@@ -897,18 +1063,34 @@ ${hasThirdParty
 
   // --- Slide 3: Current State Assessment ---
   if (ctx.audit || params.externalInputs?.siteCrawlData) {
+    const techCite = firstOfKind(evidence, 'tech_stack')
+    const summaryCite = firstOfKind(itemsForAuditCategory(evidence, 'business_challenges'), 'audit_response')
+    const scoreCite = firstOfKind(itemsForAuditCategory(evidence, 'scores'), 'audit_response')
+
     let currentState = `
 # Current State Assessment
 
 `
     if (params.externalInputs?.siteCrawlData) {
-      currentState += `Based on site analysis:\n${params.externalInputs.siteCrawlData}\n\n`
+      const tag = techCite ? ` ${citationTag(techCite.id)}` : ''
+      currentState += `Based on site analysis:\n${params.externalInputs.siteCrawlData}${tag}\n\n`
     }
     if (ctx.audit?.diagnostic_summary) {
-      currentState += `**Diagnostic Summary:** ${ctx.audit.diagnostic_summary}\n\n`
+      const tag = summaryCite ? ` ${citationTag(summaryCite.id)}` : ''
+      currentState += `**Diagnostic Summary:** ${ctx.audit.diagnostic_summary}${tag}\n\n`
     }
     if (ctx.audit?.urgency_score) {
-      currentState += `**Urgency Score:** ${ctx.audit.urgency_score}/10 | **Opportunity Score:** ${ctx.audit.opportunity_score}/10\n`
+      const tag = scoreCite ? ` ${citationTag(scoreCite.id)}` : ''
+      currentState += `**Urgency Score:** ${ctx.audit.urgency_score}/10 | **Opportunity Score:** ${ctx.audit.opportunity_score}/10${tag}\n`
+    }
+    if (techCite) {
+      const techItems = evidence.filter((e) => e.kind === 'tech_stack').slice(0, 5)
+      if (techItems.length > 0) {
+        currentState += `\n**Detected technology stack:**\n`
+        for (const t of techItems) {
+          currentState += `- ${t.verbatim} ${citationTag(t.id)}\n`
+        }
+      }
     }
     sections.push(currentState)
   }
@@ -927,17 +1109,31 @@ ${params.externalInputs!.thirdPartyFindings}
   // --- Slides 5-8: Detailed Recommendation Breakdowns ---
   if (ctx.audit) {
     if (ctx.audit.key_insights && ctx.audit.key_insights.length > 0) {
+      const challengeCites = itemsForAuditCategory(evidence, 'business_challenges')
+      const meetingCite = firstOfKind(evidence, 'meeting_quote')
+      const insightLines = ctx.audit.key_insights.map((insight: string, idx: number) => {
+        const cite = challengeCites[idx] ?? meetingCite
+        const tag = cite ? ` ${citationTag(cite.id)}` : ''
+        return `- ${insight}${tag}`
+      })
       sections.push(`
 # Key Insights from Assessment
 
-${ctx.audit.key_insights.map((insight: string) => `- ${insight}`).join('\n')}
+${insightLines.join('\n')}
 `)
     }
     if (ctx.audit.recommended_actions && ctx.audit.recommended_actions.length > 0) {
+      const automationCites = itemsForAuditCategory(evidence, 'automation_needs')
+      const meetingCite = firstOfKind(evidence, 'meeting_quote')
+      const actionLines = ctx.audit.recommended_actions.map((action: string, idx: number) => {
+        const cite = automationCites[idx] ?? meetingCite
+        const tag = cite ? ` ${citationTag(cite.id)}` : ''
+        return `- ${action}${tag}`
+      })
       sections.push(`
 # Recommended Actions
 
-${ctx.audit.recommended_actions.map((action: string) => `- ${action}`).join('\n')}
+${actionLines.join('\n')}
 `)
     }
   }
@@ -967,10 +1163,14 @@ Every recommendation in this strategy has a measurable financial impact. The val
   }
 
   // --- Slide 9: Track 1 — DIY ---
+  const diyJustifyCite =
+    firstOfKind(itemsForAuditCategory(evidence, 'business_challenges'), 'audit_response') ??
+    firstOfKind(evidence, 'meeting_quote')
+  const diyTag = diyJustifyCite ? ` ${citationTag(diyJustifyCite.id)}` : ''
   sections.push(`
 # TRACK 1: DIY — Self-Service Implementation
 
-These changes can be made directly within ${orgName}'s existing platform at no additional cost beyond the current subscription. All tasks are within the capability of existing staff with basic CMS training.
+These changes can be made directly within ${orgName}'s existing platform at no additional cost beyond the current subscription. All tasks are within the capability of existing staff with basic CMS training.${diyTag}
 
 1. **Navigation Restructure** — Reorganize into a simplified, audience-based structure. Effort: 8–12 hrs · Cost: $0
 2. **Content Consolidation** — Delete or merge redundant pages to reduce bloat. Effort: 15–20 hrs · Cost: $0
@@ -1113,6 +1313,9 @@ Amadutown Advisory Solutions
 amadutown.com
 `)
 
+  // --- Evidence Ledger (must be the last content slide before bio) ---
+  sections.push(buildEvidenceLedgerSlide(evidence))
+
   // --- Bio slide ---
   sections.push(buildBioSlide())
 
@@ -1130,8 +1333,12 @@ function buildAuditSummaryPrompt(
   const orgName = resolveOrganizationLabel(ctx)
   const metrics = computeDerivedMetrics(ctx)
   const title = `${orgName} — Diagnostic Audit Summary`
+  const evidence = buildEvidenceForReport(ctx, params.externalInputs)
 
   const sections: string[] = []
+
+  // --- Source Fidelity Rules (must be the very first prompt block) ---
+  sections.push(buildSourceFidelityPreamble(evidence))
 
   sections.push(`# How to use this source material
 
@@ -1197,30 +1404,52 @@ function buildAuditSummaryPrompt(
       )
     }
 
-    const categories: { key: keyof AuditData; label: string }[] = [
-      { key: 'business_challenges', label: 'Business Challenges' },
-      { key: 'tech_stack', label: 'Technology Stack' },
-      { key: 'automation_needs', label: 'Automation Needs' },
-      { key: 'ai_readiness', label: 'AI Readiness' },
-      { key: 'budget_timeline', label: 'Budget & Timeline' },
-      { key: 'decision_making', label: 'Decision Making' },
+    const categories: { key: keyof AuditData; label: string; categoryKey: string }[] = [
+      { key: 'business_challenges', label: 'Business Challenges', categoryKey: 'business_challenges' },
+      { key: 'tech_stack', label: 'Technology Stack', categoryKey: 'tech_stack' },
+      { key: 'automation_needs', label: 'Automation Needs', categoryKey: 'automation_needs' },
+      { key: 'ai_readiness', label: 'AI Readiness', categoryKey: 'ai_readiness' },
+      { key: 'budget_timeline', label: 'Budget & Timeline', categoryKey: 'budget_timeline' },
+      { key: 'decision_making', label: 'Decision Making', categoryKey: 'decision_making' },
     ]
 
     for (const cat of categories) {
       const data = ar[cat.key]
       if (data && typeof data === 'object') {
-        sections.push(`# ${cat.label}\n\n${formatAuditSection(data as Record<string, unknown>, 'No data recorded for this category.')}`)
+        const cites = itemsForAuditCategory(evidence, cat.categoryKey)
+        const tagSuffix = cites.length > 0
+          ? ` ${cites.map((c) => citationTag(c.id)).join('')}`
+          : ''
+        sections.push(
+          `# ${cat.label}${tagSuffix}\n\n${formatAuditSection(data as Record<string, unknown>, 'No data recorded for this category.')}`
+        )
       }
     }
 
     if (ar.diagnostic_summary) {
-      sections.push(`# Summary\n\n${ar.diagnostic_summary}`)
+      const cite = firstOfKind(itemsForAuditCategory(evidence, 'business_challenges'), 'audit_response')
+      const tag = cite ? ` ${citationTag(cite.id)}` : ''
+      sections.push(`# Summary\n\n${ar.diagnostic_summary}${tag}`)
     }
     if (ar.key_insights?.length) {
-      sections.push(`# Key Insights\n\n${ar.key_insights.map((i: string) => `- ${i}`).join('\n')}`)
+      const meetingCite = firstOfKind(evidence, 'meeting_quote')
+      const cites = itemsForAuditCategory(evidence, 'business_challenges')
+      const lines = ar.key_insights.map((insight: string, idx: number) => {
+        const cite = cites[idx] ?? meetingCite
+        const tag = cite ? ` ${citationTag(cite.id)}` : ''
+        return `- ${insight}${tag}`
+      })
+      sections.push(`# Key Insights\n\n${lines.join('\n')}`)
     }
     if (ar.recommended_actions?.length) {
-      sections.push(`# Recommended Actions\n\n${ar.recommended_actions.map((a: string) => `- ${a}`).join('\n')}`)
+      const meetingCite = firstOfKind(evidence, 'meeting_quote')
+      const cites = itemsForAuditCategory(evidence, 'automation_needs')
+      const lines = ar.recommended_actions.map((action: string, idx: number) => {
+        const cite = cites[idx] ?? meetingCite
+        const tag = cite ? ` ${citationTag(cite.id)}` : ''
+        return `- ${action}${tag}`
+      })
+      sections.push(`# Recommended Actions\n\n${lines.join('\n')}`)
     }
   }
 
@@ -1235,13 +1464,18 @@ function buildAuditSummaryPrompt(
     if (metrics.topPainPoints.length > 0) {
       financialSlide += `\n**Top Opportunity Areas:**\n`
       for (const pp of metrics.topPainPoints.slice(0, 3)) {
-        financialSlide += `- ${pp.painPoint}: ${formatCurrency(pp.annualValue)}/yr\n`
+        const formulaCite = itemsForPainPoint(evidence, pp.painPoint)[0]
+        const tag = formulaCite ? ` ${citationTag(formulaCite.id)}` : ''
+        financialSlide += `- ${pp.painPoint}: ${formatCurrency(pp.annualValue)}/yr${tag}\n`
       }
     }
     sections.push(financialSlide)
   }
 
   sections.push(`# Next Steps\n\nContact Amadutown Advisory Solutions at amadutown.com to discuss these findings.`)
+
+  // --- Evidence Ledger ---
+  sections.push(buildEvidenceLedgerSlide(evidence))
 
   // --- Bio slide ---
   sections.push(buildBioSlide())
@@ -1261,8 +1495,12 @@ function buildProspectOverviewPrompt(
   const industry = ctx.contact?.industry || 'general'
   const metrics = computeDerivedMetrics(ctx)
   const title = `${orgName} — AI & Automation Opportunity Overview`
+  const evidence = buildEvidenceForReport(ctx, params.externalInputs)
 
   const sections: string[] = []
+
+  // --- Source Fidelity Rules (must be the very first prompt block) ---
+  sections.push(buildSourceFidelityPreamble(evidence))
 
   sections.push(buildCoverSlide(title, orgName))
 
@@ -1270,14 +1508,24 @@ function buildProspectOverviewPrompt(
 
   // Assessment Snapshot (light, one slide — skip if no audit)
   if (ctx.audit?.diagnostic_summary) {
-    let snapshot = `# Assessment Snapshot\n\n${ctx.audit.diagnostic_summary}`
+    const summaryCite = firstOfKind(itemsForAuditCategory(evidence, 'business_challenges'), 'audit_response')
+    const scoreCite = firstOfKind(itemsForAuditCategory(evidence, 'scores'), 'audit_response')
+    const summaryTag = summaryCite ? ` ${citationTag(summaryCite.id)}` : ''
+    const scoreTag = scoreCite ? ` ${citationTag(scoreCite.id)}` : ''
+    let snapshot = `# Assessment Snapshot\n\n${ctx.audit.diagnostic_summary}${summaryTag}`
     if (metrics.urgencyScore !== null) snapshot += `\n\n**Urgency:** ${metrics.urgencyScore}/10`
-    if (metrics.opportunityScore !== null) snapshot += ` | **Opportunity:** ${metrics.opportunityScore}/10`
+    if (metrics.opportunityScore !== null) snapshot += ` | **Opportunity:** ${metrics.opportunityScore}/10${scoreTag}`
     sections.push(snapshot)
   }
 
   if (ctx.painPoints.length > 0) {
-    sections.push(`# Common Pain Points in ${industry}\n\n${ctx.painPoints.slice(0, 6).map((pp) => `- **${pp.display_name}**: ${pp.description || 'A common challenge in this industry'}`).join('\n')}`)
+    const benchmarks = evidence.filter((e) => e.kind === 'benchmark')
+    const benchmarkLine = benchmarks.length > 0
+      ? `\n\n**Industry benchmarks referenced:** ${benchmarks.map((b) => citationTag(b.id)).join('')}`
+      : ''
+    sections.push(
+      `# Common Pain Points in ${industry}\n\n${ctx.painPoints.slice(0, 6).map((pp) => `- **${pp.display_name}**: ${pp.description || 'A common challenge in this industry'}`).join('\n')}${benchmarkLine}`
+    )
   }
 
   // Potential Annual Impact (light, one slide — skip if no value report)
@@ -1287,7 +1535,9 @@ function buildProspectOverviewPrompt(
     if (metrics.topPainPoints.length > 0) {
       impactSlide += `**Top Opportunity Areas:**\n`
       for (const pp of metrics.topPainPoints.slice(0, 3)) {
-        impactSlide += `- ${pp.painPoint}: ${formatCurrency(pp.annualValue)}/yr\n`
+        const cite = itemsForPainPoint(evidence, pp.painPoint)[0]
+        const tag = cite ? ` ${citationTag(cite.id)}` : ''
+        impactSlide += `- ${pp.painPoint}: ${formatCurrency(pp.annualValue)}/yr${tag}\n`
       }
     }
     sections.push(impactSlide)
@@ -1298,6 +1548,9 @@ function buildProspectOverviewPrompt(
   }
 
   sections.push(`# Next Steps\n\nBook a discovery call at amadutown.com to explore how AI and automation can help ${orgName}.`)
+
+  // --- Evidence Ledger ---
+  sections.push(buildEvidenceLedgerSlide(evidence))
 
   // --- Bio slide ---
   sections.push(buildBioSlide())
@@ -1784,12 +2037,16 @@ function buildOfferPresentationPrompt(
   const orgName = resolveOrganizationLabel(ctx)
   const metrics = computeDerivedMetrics(ctx)
   const title = `${offerCtx.bundleName} — Prepared for ${orgName}`
+  const evidence = buildEvidenceForReport(ctx, params.externalInputs)
 
   const coreOffers = offerCtx.items.filter((i) => i.offer_role === 'core_offer')
   const bonuses = offerCtx.items.filter((i) => i.offer_role === 'bonus')
   const deployedTools = offerCtx.items.filter((i) => i.is_deployed)
 
   const sections: string[] = []
+
+  // --- Source Fidelity Rules (must be the very first prompt block) ---
+  sections.push(buildSourceFidelityPreamble(evidence))
 
   // --- Meta instruction ---
   sections.push(`# How to use this source material
@@ -1829,17 +2086,25 @@ ${formatPresenterNote(openingNotes)}`)
   if (ctx.audit || metrics.totalAnnualValue) {
     let situationSlide = `# Your Current Situation\n## What We Found\n\n`
     if (ctx.audit?.diagnostic_summary) {
-      situationSlide += `${ctx.audit.diagnostic_summary}\n\n`
+      const summaryCite = firstOfKind(itemsForAuditCategory(evidence, 'business_challenges'), 'audit_response')
+      const tag = summaryCite ? ` ${citationTag(summaryCite.id)}` : ''
+      situationSlide += `${ctx.audit.diagnostic_summary}${tag}\n\n`
     }
     if (metrics.urgencyScore !== null || metrics.opportunityScore !== null) {
+      const scoreCite = firstOfKind(itemsForAuditCategory(evidence, 'scores'), 'audit_response')
+      const scoreTag = scoreCite ? ` ${citationTag(scoreCite.id)}` : ''
       if (metrics.urgencyScore !== null) situationSlide += `**Urgency Score:** ${metrics.urgencyScore}/10 | `
-      if (metrics.opportunityScore !== null) situationSlide += `**Opportunity Score:** ${metrics.opportunityScore}/10\n\n`
+      if (metrics.opportunityScore !== null) situationSlide += `**Opportunity Score:** ${metrics.opportunityScore}/10${scoreTag}\n\n`
     }
     if (ctx.audit?.key_insights?.length) {
+      const meetingCite = firstOfKind(evidence, 'meeting_quote')
+      const auditCites = itemsForAuditCategory(evidence, 'business_challenges')
       situationSlide += `**Key Findings:**\n`
-      for (const insight of ctx.audit.key_insights.slice(0, 4)) {
-        situationSlide += `- ${insight}\n`
-      }
+      ctx.audit.key_insights.slice(0, 4).forEach((insight: string, idx: number) => {
+        const cite = auditCites[idx] ?? meetingCite
+        const tag = cite ? ` ${citationTag(cite.id)}` : ''
+        situationSlide += `- ${insight}${tag}\n`
+      })
     }
     situationSlide += `\n${formatPresenterNote(discoveryNotes)}`
     sections.push(situationSlide)
@@ -1850,9 +2115,11 @@ ${formatPresenterNote(openingNotes)}`)
     let costSlide = `# The Cost of Standing Still\n## What Inaction Costs ${orgName} Every Year\n\n`
     costSlide += `**${formatCurrency(metrics.totalAnnualValue)}** in annual value at stake across ${metrics.topPainPoints.length} identified areas.\n\n`
     if (metrics.topPainPoints.length > 0) {
-      costSlide += `| Opportunity | Annual Value |\n|-----------|-------------|\n`
+      costSlide += `| Opportunity | Annual Value | Source |\n|-----------|-------------|--------|\n`
       for (const pp of metrics.topPainPoints.slice(0, 5)) {
-        costSlide += `| ${pp.painPoint} | ${formatCurrency(pp.annualValue)} |\n`
+        const cite = itemsForPainPoint(evidence, pp.painPoint)[0]
+        const tag = cite ? citationTag(cite.id) : ''
+        costSlide += `| ${pp.painPoint} | ${formatCurrency(pp.annualValue)} | ${tag} |\n`
       }
     }
     costSlide += `\n${formatPresenterNote(discoveryNotes)}`
@@ -1864,7 +2131,11 @@ ${formatPresenterNote(openingNotes)}`)
   if (coreOffers.length > 0) {
     let coreSlide = `# What We'll Build For You\n## Core Deliverables\n\n`
     for (const item of coreOffers) {
-      coreSlide += `### ${item.title}\n`
+      const matchedPainCite = itemsForPainPoint(evidence, `${item.title} ${item.description ?? ''}`)[0]
+      const auditCite = firstOfKind(itemsForAuditCategory(evidence, 'automation_needs'), 'audit_response')
+      const cite = matchedPainCite ?? auditCite
+      const tag = cite ? ` ${citationTag(cite.id)}` : ''
+      coreSlide += `### ${item.title}${tag}\n`
       if (item.description) coreSlide += `${item.description}\n`
       if (item.dream_outcome_description) coreSlide += `**Dream outcome:** ${item.dream_outcome_description}\n`
       if (item.perceived_value > 0) coreSlide += `*Value: ${formatCurrency(item.perceived_value)}*\n`
@@ -2010,6 +2281,9 @@ ${formatPresenterNote(openingNotes)}`)
   nextSlide += `Amadutown Advisory Solutions\namadutown.com\n`
   nextSlide += `\n${formatPresenterNote(closeNotes)}`
   sections.push(nextSlide)
+
+  // --- Evidence Ledger ---
+  sections.push(buildEvidenceLedgerSlide(evidence))
 
   // --- Bio slide ---
   sections.push(buildBioSlide())

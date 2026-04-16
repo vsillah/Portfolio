@@ -88,6 +88,7 @@ export async function POST(request: NextRequest) {
         input_text: gammaInput.inputText,
         external_inputs: body.externalInputs || {},
         gamma_options: gammaInput.options,
+        citations_meta: gammaInput.citationsMeta,
         status: 'generating',
         created_by: userId,
       })

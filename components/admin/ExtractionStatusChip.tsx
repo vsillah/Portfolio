@@ -697,7 +697,7 @@ function ScopePicker({
 // Progress bar component
 // ============================================================================
 
-function PipelineProgressBar({
+export function PipelineProgressBar({
   progressPct,
   stageLabel,
   stale,

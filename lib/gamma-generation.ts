@@ -20,6 +20,8 @@ export interface GammaRowInsertParams {
   externalInputs: Record<string, unknown>
   gammaOptions: GammaGenerateOptions
   createdBy: string | null
+  /** Canonical EvidenceItem[] (with counts + timestamp) used to build the deck. */
+  citationsMeta?: Record<string, unknown> | null
 }
 
 export interface GammaGenerationResult {
@@ -52,6 +54,7 @@ export async function insertGammaReportRow(
       input_text: params.inputText,
       external_inputs: params.externalInputs,
       gamma_options: params.gammaOptions,
+      citations_meta: params.citationsMeta ?? null,
       status: 'generating',
       created_by: params.createdBy,
     })
