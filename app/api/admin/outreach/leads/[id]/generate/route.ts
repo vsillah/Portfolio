@@ -73,7 +73,7 @@ export async function POST(
   const painPoints = lead.rep_pain_points || lead.quick_wins || undefined
 
   try {
-    await triggerOutreachGeneration({
+    const result = await triggerOutreachGeneration({
       contact_id: contactId,
       score_tier: 'hot',
       lead_score: 80,
@@ -83,12 +83,14 @@ export async function POST(
       pain_points: painPoints,
     })
 
-    return NextResponse.json({ triggered: true })
+    return NextResponse.json({
+      triggered: result.triggered,
+      ...(!result.triggered && { fallback: 'in-app' }),
+    })
   } catch (err) {
     console.error('[generate] Outreach generation trigger failed:', err)
     return NextResponse.json(
-      { error: 'Failed to trigger outreach generation' },
-      { status: 500 }
+      { triggered: false, fallback: 'in-app' }
     )
   }
 }

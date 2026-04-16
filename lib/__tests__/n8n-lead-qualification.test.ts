@@ -62,6 +62,7 @@ describe('triggerLeadQualificationWebhook', () => {
     await triggerLeadQualificationWebhook({
       name: 'Test',
       email: 'x@x.com',
+      message: 'test',
       submissionId: 'sub-456',
       submittedAt: '2026-03-20T00:00:00.000Z',
       source: 'test',
@@ -77,6 +78,7 @@ describe('triggerLeadQualificationWebhook', () => {
     await triggerLeadQualificationWebhook({
       name: 'Test',
       email: 'x@x.com',
+      message: 'test',
       submissionId: 'sub-789',
       submittedAt: '2026-03-20T00:00:00.000Z',
       source: 'test',
@@ -97,6 +99,7 @@ describe('triggerLeadQualificationWebhook', () => {
       triggerLeadQualificationWebhook({
         name: 'Test',
         email: 'x@x.com',
+        message: 'test',
         submissionId: 'sub-err',
         submittedAt: '2026-03-20T00:00:00.000Z',
         source: 'test',

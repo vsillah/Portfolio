@@ -1094,20 +1094,20 @@ export async function triggerOutreachGeneration(params: {
   is_followup?: boolean
   meeting_summary?: string
   pain_points?: string
-}): Promise<void> {
+}): Promise<{ triggered: boolean; error?: string }> {
   if (isN8nOutboundDisabled()) {
     logDisabledOutbound('triggerOutreachGeneration', N8N_CLG002_WEBHOOK_URL, params)
-    return
+    return { triggered: false, error: 'n8n outbound disabled' }
   }
 
   if (isMockN8nEnabled()) {
     logDisabledOutbound('[MOCK_N8N] triggerOutreachGeneration', N8N_CLG002_WEBHOOK_URL, params)
-    return
+    return { triggered: false, error: 'n8n mock mode' }
   }
 
   if (!N8N_CLG002_WEBHOOK_URL) {
     console.warn('N8N_CLG002_WEBHOOK_URL not configured - skipping outreach generation')
-    return
+    return { triggered: false, error: 'webhook URL not configured' }
   }
 
   try {
@@ -1123,10 +1123,13 @@ export async function triggerOutreachGeneration(params: {
     if (!response.ok) {
       const errorText = await response.text()
       console.error('Outreach gen webhook error:', response.status, errorText)
+      return { triggered: false, error: `n8n returned ${response.status}` }
     }
+
+    return { triggered: true }
   } catch (error) {
     console.error('Outreach gen webhook failed:', error)
-    // Fire-and-forget
+    return { triggered: false, error: error instanceof Error ? error.message : 'webhook request failed' }
   }
 }
 

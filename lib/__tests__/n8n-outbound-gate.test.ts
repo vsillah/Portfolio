@@ -33,7 +33,8 @@ describe('N8N_OUTBOUND_DISABLED gate', () => {
 
   const functions: Array<{
     name: string
-    call: (mod: Record<string, (...args: unknown[]) => unknown>) => Promise<unknown>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    call: (mod: Record<string, (...args: any[]) => any>) => Promise<unknown>
   }> = [
     {
       name: 'triggerLeadQualificationWebhook',
@@ -91,14 +92,14 @@ describe('N8N_OUTBOUND_DISABLED gate', () => {
   for (const { name, call } of functions) {
     it(`${name} does not call fetch when outbound is disabled`, async () => {
       const mod = await import('../n8n')
-      await call(mod as unknown as Record<string, (...args: unknown[]) => unknown>)
+      await call(mod as unknown as Record<string, (...args: any[]) => any>)
       expect(mockFetch).not.toHaveBeenCalled()
     })
 
     it(`${name} logs [N8N_DISABLED] when outbound is disabled`, async () => {
       const mod = await import('../n8n')
-      await call(mod as unknown as Record<string, (...args: unknown[]) => unknown>)
-      const logCalls = consoleSpy.mock.calls.map(c => c[0])
+      await call(mod as unknown as Record<string, (...args: any[]) => any>)
+      const logCalls = consoleSpy.mock.calls.map((c: unknown[]) => c[0])
       expect(logCalls.some((msg: string) => msg.includes('[N8N_DISABLED]'))).toBe(true)
     })
   }
