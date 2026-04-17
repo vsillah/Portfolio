@@ -8,6 +8,11 @@
 
 import { supabaseAdmin } from './supabase'
 import { n8nWebhookUrl, isN8nOutboundDisabled, logDisabledOutbound } from './n8n'
+// TaskCategory lives in ./meeting-action-task-category so backfill scripts can
+// import it without pulling in Supabase (lib/supabase.ts validates env at load
+// time). Imported locally here and re-exported below for consumers.
+import type { TaskCategory } from './meeting-action-task-category'
+import { inferTaskCategory } from './meeting-action-task-category'
 
 // ============================================================================
 // Types
@@ -48,11 +53,8 @@ export interface MeetingActionTask {
 }
 
 export type TaskStatus = MeetingActionTask['status']
-// TaskCategory lives in ./meeting-action-task-category so backfill scripts
-// can import it without pulling in Supabase. Re-exported for consumers.
-export type { TaskCategory } from './meeting-action-task-category'
-import type { TaskCategory as _TaskCategoryLocal } from './meeting-action-task-category'
-export const TASK_CATEGORIES: _TaskCategoryLocal[] = ['internal', 'outreach']
+export type { TaskCategory }
+export const TASK_CATEGORIES: TaskCategory[] = ['internal', 'outreach']
 
 /** Payload for the Slack task-sync n8n webhook */
 export interface SlackTaskSyncPayload {
