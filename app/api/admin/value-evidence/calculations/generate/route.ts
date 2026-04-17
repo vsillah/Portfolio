@@ -6,6 +6,7 @@ import {
   normalizeCompanySize,
   type IndustryBenchmark,
 } from '@/lib/value-calculations'
+import { applyValidatedEvidenceFilter } from '@/lib/source-validator'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,25 +51,28 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Get benchmarks
+  // Get benchmarks (exclude rejected by VEP Source Validator)
   const { data: benchmarks } = await supabaseAdmin
     .from('industry_benchmarks')
     .select('*')
+    .neq('validation_status', 'rejected')
     .or(`industry.eq.${industry},industry.eq._default`)
 
-  // Get evidence count
-  const { count: evidenceCount } = await supabaseAdmin
-    .from('pain_point_evidence')
-    .select('*', { count: 'exact', head: true })
-    .eq('pain_point_category_id', pain_point_category_id)
-    .or(`industry.eq.${industry},industry.is.null`)
+  // Get evidence count — apply source-validator downstream filter.
+  const { count: evidenceCount } = await applyValidatedEvidenceFilter(
+    supabaseAdmin
+      .from('pain_point_evidence')
+      .select('*', { count: 'exact', head: true })
+      .eq('pain_point_category_id', pain_point_category_id)
+  ).or(`industry.eq.${industry},industry.is.null`)
 
-  // Check for direct monetary evidence
-  const { count: monetaryCount } = await supabaseAdmin
-    .from('pain_point_evidence')
-    .select('*', { count: 'exact', head: true })
-    .eq('pain_point_category_id', pain_point_category_id)
-    .not('monetary_indicator', 'is', null)
+  // Check for direct monetary evidence — same filter.
+  const { count: monetaryCount } = await applyValidatedEvidenceFilter(
+    supabaseAdmin
+      .from('pain_point_evidence')
+      .select('*', { count: 'exact', head: true })
+      .eq('pain_point_category_id', pain_point_category_id)
+  ).not('monetary_indicator', 'is', null)
 
   // Generate calculation
   const result = autoGenerateCalculation(

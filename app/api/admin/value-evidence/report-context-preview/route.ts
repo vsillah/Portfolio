@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { applyValidatedEvidenceFilter } from '@/lib/source-validator'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,12 +49,13 @@ export async function GET(request: NextRequest) {
         : Promise.resolve({ data: null, error: null }),
 
       auditIdParam
-        ? supabaseAdmin
-            .from('pain_point_evidence')
-            .select('id, source_excerpt, source_type, pain_point_category_id')
-            .eq('source_type', 'diagnostic_audit')
-            .eq('source_id', auditIdParam)
-            .limit(20)
+        ? applyValidatedEvidenceFilter(
+            supabaseAdmin
+              .from('pain_point_evidence')
+              .select('id, source_excerpt, source_type, pain_point_category_id')
+              .eq('source_type', 'diagnostic_audit')
+              .eq('source_id', auditIdParam)
+          ).limit(20)
         : Promise.resolve({ data: [], error: null }),
 
       supabaseAdmin

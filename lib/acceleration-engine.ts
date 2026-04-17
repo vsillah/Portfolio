@@ -538,6 +538,7 @@ async function loadBenchmarks(
   const { data } = await supabaseAdmin
     .from('industry_benchmarks')
     .select('*')
+    .neq('validation_status', 'rejected')
     .in('industry', [industry, '_default'])
 
   return (data || []) as IndustryBenchmark[]

@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { applyValidatedEvidenceFilter } from '@/lib/source-validator';
 import {
   StepType,
   DynamicStep,
@@ -96,18 +97,19 @@ export async function POST(request: NextRequest) {
         { data: evidenceRows },
         { data: reports },
       ] = await Promise.all([
-        supabaseAdmin
-          .from('pain_point_evidence')
-          .select(`
-            source_excerpt,
-            confidence_score,
-            monetary_indicator,
-            monetary_context,
-            pain_point_categories(display_name)
-          `)
-          .eq('contact_submission_id', contactSubmissionId)
-          .order('confidence_score', { ascending: false })
-          .limit(20),
+        applyValidatedEvidenceFilter(
+          supabaseAdmin
+            .from('pain_point_evidence')
+            .select(`
+              source_excerpt,
+              confidence_score,
+              monetary_indicator,
+              monetary_context,
+              pain_point_categories(display_name)
+            `)
+            .eq('contact_submission_id', contactSubmissionId)
+            .order('confidence_score', { ascending: false })
+        ).limit(20),
         supabaseAdmin
           .from('value_reports')
           .select('title, total_annual_value')

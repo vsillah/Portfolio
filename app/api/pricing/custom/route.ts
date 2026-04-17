@@ -40,10 +40,11 @@ export async function GET(request: NextRequest) {
     const industry = contact?.industry || '_default';
     const companySize = normalizeCompanySize(contact?.company_size || diagnostic?.responses_received?.company_size);
 
-    // 3. Fetch benchmarks
+    // 3. Fetch benchmarks (exclude rejected by VEP Source Validator)
     const { data: benchmarks } = await supabaseAdmin
       .from('industry_benchmarks')
-      .select('*');
+      .select('*')
+      .neq('validation_status', 'rejected');
 
     const allBenchmarks: IndustryBenchmark[] = benchmarks || [];
 

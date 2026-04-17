@@ -7,7 +7,9 @@
  * - Anthropic: https://www.anthropic.com/pricing
  */
 
-import { supabaseAdmin } from '@/lib/supabase'
+// supabaseAdmin is lazy-imported inside recordCostEvent so this module can be
+// loaded in tests that only need the pure `compute*Cost` helpers without
+// tripping lib/supabase's env-var assertion.
 
 // OpenAI pricing (input, output) per 1M tokens — as of 2024
 const OPENAI_RATES: Record<string, { input: number; output: number }> = {
@@ -97,6 +99,10 @@ export function computeAnthropicCost(
  */
 export async function recordCostEvent(event: CostEventInput): Promise<{ ok: boolean; error?: string }> {
   try {
+    const { supabaseAdmin } = await import('@/lib/supabase')
+    if (!supabaseAdmin) {
+      return { ok: false, error: 'supabaseAdmin unavailable (client-side or missing env)' }
+    }
     const { error } = await supabaseAdmin.from('cost_events').insert({
       occurred_at: event.occurred_at,
       source: event.source,

@@ -16,7 +16,11 @@ import {
   ChevronUp,
   Target,
   ShieldCheck,
+  ShieldAlert,
   Clock,
+  Quote,
+  MoreVertical,
+  Beaker,
   Users,
   Zap,
   ArrowRight,
@@ -700,6 +704,57 @@ export default function ValueEvidencePage() {
 
 const PAGE_SIZE = 50
 
+// ---- Source validator helper types for Pain Points tab ---------------------
+
+type PpeValidationSummary = {
+  total: number
+  usable: number
+  blocked: number
+  by_source: { pending: number; validated: number; quarantined: number; rejected: number }
+  by_excerpt: { pending: number; faithful: number; unfaithful: number; insufficient: number }
+  last_validated_at: string | null
+}
+
+type SampleAuditItem = {
+  id: string
+  prompt_version?: string
+  result: {
+    id: string
+    source_validation_status: string
+    excerpt_faithfulness_status: string
+    excerpt_faithfulness_reason: string | null
+    excerpt_faithfulness_confidence: number | null
+    excerpt_supported: string | null
+    excerpt_quantified: string | null
+    validator_version: string
+    validation_error: string | null
+  }
+  sample?: {
+    excerpt: string
+    pain_category: string
+    monetary_indicator: number | null
+    monetary_context: string | null
+  }
+  error?: string
+}
+
+type SampleAuditResponse = {
+  summary: {
+    attempted: number
+    faithful: number
+    unfaithful: number
+    insufficient: number
+    errors: number
+    llm_cost_usd: number
+    duration_ms: number
+  }
+  items: SampleAuditItem[]
+  prompt_version: string
+  judge_version: string
+  model: string
+  cost_usd: number
+}
+
 function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRefreshNonce: number; focusId?: string | null; onFocusConsumed?: () => void }) {
   const [painPoints, setPainPoints] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -711,6 +766,131 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
   const [sortBy, setSortBy] = useState<'evidence' | 'calculations' | 'name' | 'impact'>('evidence')
   const [filterIndustry, setFilterIndustry] = useState<string>('all')
   const [searchQuery, setSearchQuery] = useState('')
+
+  // ---- Source validator state (Phase 2a) ------------------------------------
+  const [validating, setValidating] = useState(false)
+  const [validationMessage, setValidationMessage] = useState<string | null>(null)
+  const [validationSummary, setValidationSummary] = useState<PpeValidationSummary | null>(null)
+  const [sampleAuditOpen, setSampleAuditOpen] = useState(false)
+  const [sampleAuditLoading, setSampleAuditLoading] = useState(false)
+  const [sampleAuditError, setSampleAuditError] = useState<string | null>(null)
+  const [sampleAuditResponse, setSampleAuditResponse] = useState<SampleAuditResponse | null>(null)
+  const [showForceConfirm, setShowForceConfirm] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  const refreshValidationSummary = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+      const res = await fetch('/api/admin/value-evidence/validate-sources?table=pain_point_evidence', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setValidationSummary({
+          total: data.total ?? 0,
+          usable: data.usable ?? 0,
+          blocked: data.blocked ?? 0,
+          by_source: {
+            pending: data.by_source?.pending ?? 0,
+            validated: data.by_source?.validated ?? 0,
+            quarantined: data.by_source?.quarantined ?? 0,
+            rejected: data.by_source?.rejected ?? 0,
+          },
+          by_excerpt: {
+            pending: data.by_excerpt?.pending ?? 0,
+            faithful: data.by_excerpt?.faithful ?? 0,
+            unfaithful: data.by_excerpt?.unfaithful ?? 0,
+            insufficient: data.by_excerpt?.insufficient ?? 0,
+          },
+          last_validated_at: data.last_validated_at ?? null,
+        })
+      }
+    } catch (err) {
+      console.error('PPE validation summary fetch error:', err)
+    }
+  }, [])
+
+  const runValidation = useCallback(
+    async (mode: 'stale' | 'forced') => {
+      setValidating(true)
+      setValidationMessage(null)
+      try {
+        const session = await getCurrentSession()
+        if (!session?.access_token) return
+        const res = await fetch('/api/admin/value-evidence/validate-sources', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({
+            table: 'pain_point_evidence',
+            mode,
+            limit: 200,
+          }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (res.ok && data?.summary) {
+          const s = data.summary
+          const changedPhrase =
+            s.faithful + s.unfaithful + s.insufficient === 0
+              ? 'no status changes'
+              : `${s.faithful} newly faithful · ${s.unfaithful} unfaithful · ${s.insufficient} insufficient`
+          setValidationMessage(
+            `Ran ${s.attempted} rows. ${changedPhrase} (${s.duration_ms} ms${s.llm_cost_usd ? `, $${s.llm_cost_usd.toFixed(4)}` : ''}).`
+          )
+          await refreshValidationSummary()
+        } else {
+          setValidationMessage(data?.error ? `Validation failed: ${data.error}` : 'Validation failed.')
+        }
+      } catch (err) {
+        console.error('PPE validate error:', err)
+        setValidationMessage('Validation failed. See console for details.')
+      } finally {
+        setValidating(false)
+        setShowForceConfirm(false)
+      }
+    },
+    [refreshValidationSummary]
+  )
+
+  const runSampleAudit = useCallback(async () => {
+    setSampleAuditOpen(true)
+    setSampleAuditLoading(true)
+    setSampleAuditError(null)
+    setSampleAuditResponse(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setSampleAuditError('Session expired. Refresh and try again.')
+        return
+      }
+      const res = await fetch('/api/admin/value-evidence/validate-sources', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          table: 'pain_point_evidence',
+          mode: 'sample-audit',
+          limit: 20,
+        }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && data?.summary) {
+        setSampleAuditResponse(data as SampleAuditResponse)
+      } else {
+        setSampleAuditError(data?.error ?? 'Sample audit failed.')
+      }
+    } catch (err) {
+      console.error('Sample audit error:', err)
+      setSampleAuditError('Sample audit failed. See console for details.')
+    } finally {
+      setSampleAuditLoading(false)
+    }
+  }, [])
 
   useEffect(() => {
     async function fetch_pp() {
@@ -734,7 +914,8 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
       }
     }
     fetch_pp()
-  }, [pageRefreshNonce])
+    refreshValidationSummary()
+  }, [pageRefreshNonce, refreshValidationSummary])
 
   useEffect(() => {
     if (focusId && !loading && painPoints.length > 0) {
@@ -858,9 +1039,92 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold">Pain Point Categories ({filteredAndSorted.length}{filteredAndSorted.length !== painPointsWithData ? ` of ${painPointsWithData}` : ''})</h2>
+
+        <div className="flex items-center gap-2 relative">
+          <button
+            onClick={() => runValidation('stale')}
+            disabled={validating}
+            className="px-4 py-1.5 bg-indigo-600/30 border border-indigo-500/50 rounded-lg text-indigo-200 hover:bg-indigo-600/50 disabled:opacity-60 flex items-center gap-2 text-sm"
+            title="Judge excerpt faithfulness on pending and stale rows"
+          >
+            {validating ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+            Judge claims
+          </button>
+          <button
+            onClick={runSampleAudit}
+            disabled={validating || sampleAuditLoading}
+            className="px-3 py-1.5 bg-silicon-slate/80 border border-silicon-slate rounded-lg text-xs text-muted-foreground hover:text-foreground disabled:opacity-60 inline-flex items-center gap-1.5"
+            title="Run Claude Haiku on 20 rows without saving, to calibrate the prompt"
+          >
+            <Beaker size={12} />
+            Sample audit
+          </button>
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            className="p-1.5 bg-silicon-slate/80 border border-silicon-slate rounded-lg text-muted-foreground hover:text-foreground"
+            aria-label="More validation actions"
+            title="More"
+          >
+            <MoreVertical size={14} />
+          </button>
+          {menuOpen && (
+            <div className="absolute right-0 top-full mt-1 bg-silicon-slate border border-silicon-slate rounded-lg shadow-xl z-10 min-w-[220px] py-1">
+              <button
+                onClick={() => { setMenuOpen(false); setShowForceConfirm(true) }}
+                className="w-full text-left px-3 py-2 text-xs text-red-300 hover:bg-red-500/10 inline-flex items-center gap-2"
+              >
+                <RefreshCw size={12} /> Re-run all claims (force)
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {(validationSummary || validationMessage) && (
+        <div className="space-y-1 bg-silicon-slate/40 border border-silicon-slate rounded-lg px-3 py-2 text-xs text-muted-foreground">
+          {validationSummary && (
+            <>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-foreground font-medium">Usable: {validationSummary.usable} of {validationSummary.total} rows</span>
+                {validationSummary.last_validated_at && (
+                  <span className="text-muted-foreground/70">
+                    · Last run {new Date(validationSummary.last_validated_at).toLocaleString()}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="inline-flex items-center gap-1">
+                  <ShieldCheck size={10} className="text-slate-400" />
+                  <span>Source</span>
+                  <span className="text-emerald-400">{validationSummary.by_source.validated} ok</span>
+                  <span>/</span>
+                  <span className="text-amber-400">{validationSummary.by_source.quarantined} review</span>
+                  <span>/</span>
+                  <span className="text-red-400">{validationSummary.by_source.rejected} rejected</span>
+                  <span>/</span>
+                  <span className="text-slate-400">{validationSummary.by_source.pending} pending</span>
+                </span>
+                <span className="inline-flex items-center gap-1">
+                  <Quote size={10} className="text-slate-400" />
+                  <span>Claim</span>
+                  <span className="text-emerald-400">{validationSummary.by_excerpt.faithful} faithful</span>
+                  <span>/</span>
+                  <span className="text-red-400">{validationSummary.by_excerpt.unfaithful} unfaithful</span>
+                  <span>/</span>
+                  <span className="text-amber-400">{validationSummary.by_excerpt.insufficient} insufficient</span>
+                  <span>/</span>
+                  <span className="text-slate-400">{validationSummary.by_excerpt.pending} pending</span>
+                </span>
+              </div>
+            </>
+          )}
+          {validationMessage && (
+            <div className="text-teal-300" aria-live="polite">{validationMessage}</div>
+          )}
+        </div>
+      )}
 
       {/* Sort / Filter / Search toolbar */}
       <div className="flex flex-wrap items-center gap-3">
@@ -1006,40 +1270,52 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
                         {evidence && evidence.length === 0 && (
                           <p className="text-sm text-muted-foreground/90 py-2">No evidence collected yet for this pain point.</p>
                         )}
-                        {evidence && evidence.map((ev: any) => (
-                          <div key={ev.id} className="p-3 bg-silicon-slate/70 rounded-lg space-y-1.5">
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <span className="px-1.5 py-0.5 bg-purple-600/20 rounded text-purple-300 capitalize">
-                                {ev.source_type?.replace(/_/g, ' ')}
-                              </span>
-                              {ev.industry && (
-                                <span className="px-1.5 py-0.5 bg-blue-600/20 rounded text-blue-300">
-                                  {ev.industry}
-                                </span>
+                        {evidence && evidence.map((ev: any) => {
+                          const borderTint = getEvidenceBorderClass(ev)
+                          return (
+                            <div
+                              key={ev.id}
+                              className={`p-3 bg-silicon-slate/70 rounded-lg space-y-1.5 border-l-2 ${borderTint}`}
+                            >
+                              <div className="flex items-start gap-2">
+                                <div className="flex-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                                  <span className="px-1.5 py-0.5 bg-purple-600/20 rounded text-purple-300 capitalize">
+                                    {ev.source_type?.replace(/_/g, ' ')}
+                                  </span>
+                                  {ev.industry && (
+                                    <span className="px-1.5 py-0.5 bg-blue-600/20 rounded text-blue-300">
+                                      {ev.industry}
+                                    </span>
+                                  )}
+                                  {ev.confidence_score != null && (
+                                    <span className="text-radiant-gold">
+                                      {Math.round(ev.confidence_score * 100)}% confidence
+                                    </span>
+                                  )}
+                                  {ev.monetary_indicator != null && parseFloat(ev.monetary_indicator) > 0 && (
+                                    <span className="text-green-400 font-medium">
+                                      {formatCurrency(parseFloat(ev.monetary_indicator))}
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1 flex-shrink-0">
+                                  <SourceValidationBadge row={ev} />
+                                  <ExcerptFaithfulnessBadge row={ev} />
+                                </div>
+                              </div>
+                              <p className="text-sm text-foreground leading-relaxed">
+                                &ldquo;{ev.source_excerpt}&rdquo;
+                              </p>
+                              {ev.monetary_context && (
+                                <p className="text-xs text-muted-foreground/90 italic">Cost context: {ev.monetary_context}</p>
                               )}
-                              {ev.confidence_score != null && (
-                                <span className="text-radiant-gold">
-                                  {Math.round(ev.confidence_score * 100)}% confidence
-                                </span>
-                              )}
-                              {ev.monetary_indicator != null && parseFloat(ev.monetary_indicator) > 0 && (
-                                <span className="text-green-400 font-medium">
-                                  {formatCurrency(parseFloat(ev.monetary_indicator))}
-                                </span>
-                              )}
+                              <div className="text-xs text-muted-foreground/80">
+                                {ev.extracted_by && <span>Extracted by: {ev.extracted_by}</span>}
+                                {ev.created_at && <span className="ml-3">{new Date(ev.created_at).toLocaleDateString()}</span>}
+                              </div>
                             </div>
-                            <p className="text-sm text-foreground leading-relaxed">
-                              &ldquo;{ev.source_excerpt}&rdquo;
-                            </p>
-                            {ev.monetary_context && (
-                              <p className="text-xs text-muted-foreground/90 italic">Cost context: {ev.monetary_context}</p>
-                            )}
-                            <div className="text-xs text-muted-foreground/80">
-                              {ev.extracted_by && <span>Extracted by: {ev.extracted_by}</span>}
-                              {ev.created_at && <span className="ml-3">{new Date(ev.created_at).toLocaleDateString()}</span>}
-                            </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
 
                       {/* Calculations section */}
@@ -1121,6 +1397,342 @@ function PainPointsTab({ pageRefreshNonce, focusId, onFocusConsumed }: { pageRef
             <p className="text-sm mt-1">Run the Internal Extraction or Social Listening workflows to populate pain point data.</p>
           </div>
         )}
+      </div>
+
+      {sampleAuditOpen && (
+        <SampleAuditDrawer
+          loading={sampleAuditLoading}
+          error={sampleAuditError}
+          response={sampleAuditResponse}
+          onClose={() => setSampleAuditOpen(false)}
+          onResample={runSampleAudit}
+        />
+      )}
+
+      {showForceConfirm && (
+        <ForceRerunConfirmDialog
+          count={validationSummary?.total ?? painPoints.length}
+          running={validating}
+          onCancel={() => setShowForceConfirm(false)}
+          onConfirm={() => runValidation('forced')}
+        />
+      )}
+    </div>
+  )
+}
+
+// ============================================================================
+// Validation badges + drawer + dialog for Pain Points tab (Phase 2a)
+// ============================================================================
+
+function getEvidenceBorderClass(row: {
+  source_validation_status?: string | null
+  excerpt_faithfulness_status?: string | null
+}): string {
+  const source = row.source_validation_status ?? 'pending'
+  const excerpt = row.excerpt_faithfulness_status ?? 'pending'
+  const sourceBlocked = source === 'rejected'
+  const excerptBlocked = excerpt === 'unfaithful' || excerpt === 'insufficient'
+  if (sourceBlocked || excerptBlocked) return 'border-l-red-500/50'
+  const sourceUsable = source === 'validated' || source === 'quarantined'
+  const excerptUsable = excerpt === 'faithful'
+  if (sourceUsable && excerptUsable) return 'border-l-emerald-500/60'
+  return 'border-l-transparent'
+}
+
+function SourceValidationBadge({ row }: { row: { source_validation_status?: string | null } }) {
+  const status = row.source_validation_status ?? 'pending'
+  let label: string
+  let classes: string
+  let title: string
+  if (status === 'validated') {
+    label = 'source ok'
+    classes = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+    title = 'Source passed domain, methodology, and freshness checks.'
+  } else if (status === 'quarantined') {
+    label = 'source review'
+    classes = 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+    title = 'Source is usable but flagged — review tier or methodology before citing.'
+  } else if (status === 'rejected') {
+    label = 'source rejected'
+    classes = 'bg-red-500/15 text-red-300 border-red-500/30'
+    title = 'Source failed validation and should not be used downstream.'
+  } else {
+    label = 'source pending'
+    classes = 'bg-slate-500/15 text-slate-300 border-slate-500/30'
+    title = "Source hasn't been validated yet."
+  }
+  return (
+    <span
+      title={title}
+      aria-label={`Source validation: ${label}`}
+      className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border ${classes}`}
+    >
+      <ShieldCheck size={10} />
+      {label}
+    </span>
+  )
+}
+
+function ExcerptFaithfulnessBadge({
+  row,
+}: {
+  row: {
+    excerpt_faithfulness_status?: string | null
+    excerpt_faithfulness_reason?: string | null
+    excerpt_faithfulness_confidence?: number | null
+  }
+}) {
+  const status = row.excerpt_faithfulness_status ?? 'pending'
+  let label: string
+  let classes: string
+  let baseTitle: string
+  if (status === 'faithful') {
+    label = 'faithful'
+    classes = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+    baseTitle = 'Excerpt supports the pain category and monetary figure.'
+  } else if (status === 'unfaithful') {
+    label = 'unfaithful'
+    classes = 'bg-red-500/15 text-red-300 border-red-500/30'
+    baseTitle = 'Excerpt contradicts or misrepresents the claim — do not use.'
+  } else if (status === 'insufficient') {
+    label = 'insufficient'
+    classes = 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+    baseTitle = "Excerpt doesn't contain enough detail to support the claim."
+  } else {
+    label = 'claim pending'
+    classes = 'bg-slate-500/15 text-slate-300 border-slate-500/30'
+    baseTitle = "Claim-to-excerpt judge hasn't run on this row yet."
+  }
+  const reason = row.excerpt_faithfulness_reason?.trim()
+  const conf =
+    typeof row.excerpt_faithfulness_confidence === 'number'
+      ? ` (conf ${row.excerpt_faithfulness_confidence.toFixed(2)})`
+      : ''
+  const title = reason ? `${baseTitle}\n${reason}${conf}` : `${baseTitle}${conf}`
+  return (
+    <span
+      title={title}
+      aria-label={`Excerpt faithfulness: ${label}`}
+      className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border ${classes}`}
+    >
+      <Quote size={10} />
+      {label}
+    </span>
+  )
+}
+
+function SampleAuditDrawer({
+  loading,
+  error,
+  response,
+  onClose,
+  onResample,
+}: {
+  loading: boolean
+  error: string | null
+  response: SampleAuditResponse | null
+  onClose: () => void
+  onResample: () => void
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
+  return (
+    <div className="fixed inset-0 z-50 flex">
+      <div className="flex-1 bg-black/50" onClick={onClose} />
+      <div
+        role="dialog"
+        aria-labelledby="sample-audit-title"
+        aria-modal="true"
+        className="w-full max-w-[640px] h-full bg-silicon-slate border-l border-silicon-slate overflow-y-auto flex flex-col"
+      >
+        <div className="sticky top-0 bg-silicon-slate/95 backdrop-blur border-b border-silicon-slate px-4 py-3 z-10">
+          <div className="flex items-center justify-between">
+            <h3 id="sample-audit-title" className="text-sm font-semibold text-foreground inline-flex items-center gap-2">
+              <Beaker size={14} className="text-radiant-gold" />
+              Sample audit — 20 rows, dry run
+            </h3>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onResample}
+                disabled={loading}
+                className="text-xs px-2 py-1 border border-silicon-slate rounded hover:text-foreground text-muted-foreground disabled:opacity-60"
+              >
+                Re-sample
+              </button>
+              <button
+                onClick={onClose}
+                aria-label="Close"
+                className="p-1 text-muted-foreground hover:text-foreground"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          </div>
+          {response && !loading && (
+            <div className="mt-2 text-xs text-muted-foreground" aria-live="polite">
+              {response.summary.faithful} faithful · {response.summary.unfaithful} unfaithful · {response.summary.insufficient} insufficient
+              {response.summary.errors > 0 && ` · ${response.summary.errors} errors`}
+              <span className="text-muted-foreground/70"> · {response.model} · ${response.cost_usd.toFixed(4)} · {response.summary.duration_ms} ms</span>
+            </div>
+          )}
+          <p className="mt-1 text-[11px] text-muted-foreground/80">
+            Claude Haiku judges whether each excerpt supports its claim. Nothing is saved. Use this to calibrate the prompt before a full run.
+          </p>
+        </div>
+
+        <div className="p-4 space-y-3">
+          {loading && (
+            <>
+              <div className="h-1 bg-silicon-slate/60 rounded overflow-hidden">
+                <div className="h-full w-1/3 bg-radiant-gold/60 animate-pulse rounded" />
+              </div>
+              <p className="text-xs text-muted-foreground">Running sample on 20 rows. Usually 8–15s.</p>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="p-3 bg-silicon-slate/70 rounded-lg space-y-2">
+                  <div className="h-3 bg-silicon-slate/80 rounded animate-pulse w-1/3" />
+                  <div className="h-3 bg-silicon-slate/60 rounded animate-pulse w-full" />
+                  <div className="h-3 bg-silicon-slate/60 rounded animate-pulse w-5/6" />
+                </div>
+              ))}
+            </>
+          )}
+
+          {!loading && error && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded text-xs text-red-300">
+              {error}
+            </div>
+          )}
+
+          {!loading && !error && response && response.items.length === 0 && (
+            <p className="text-sm text-muted-foreground">
+              Sample returned 0 rows. Check that pain_point_evidence has rows with an excerpt to judge.
+            </p>
+          )}
+
+          {!loading && !error && response && response.items.map((item, idx) => (
+            <div
+              key={item.id}
+              className={`p-3 bg-silicon-slate/70 rounded-lg space-y-2 border-l-2 ${
+                item.result.excerpt_faithfulness_status === 'faithful'
+                  ? 'border-l-emerald-500/60'
+                  : item.result.excerpt_faithfulness_status === 'unfaithful'
+                    ? 'border-l-red-500/50'
+                    : 'border-l-amber-500/50'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">Row {idx + 1} of {response.items.length}</span>
+                <div className="flex items-center gap-1.5">
+                  <ExcerptFaithfulnessBadge row={item.result} />
+                  {item.result.excerpt_faithfulness_confidence != null && (
+                    <span className="text-[10px] text-muted-foreground">
+                      {item.result.excerpt_faithfulness_confidence.toFixed(2)}
+                    </span>
+                  )}
+                </div>
+              </div>
+              {item.sample && (
+                <>
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">CLAIM </span>
+                    <span className="text-foreground font-medium">{item.sample.pain_category}</span>
+                    {item.sample.monetary_indicator != null && (
+                      <span className="text-green-400 font-medium">
+                        {' · '}{formatCurrency(item.sample.monetary_indicator)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs">
+                    <span className="text-muted-foreground">EXCERPT </span>
+                    <span className="text-foreground italic">&ldquo;{item.sample.excerpt}&rdquo;</span>
+                  </div>
+                </>
+              )}
+              {item.result.excerpt_faithfulness_reason && (
+                <div className="text-xs">
+                  <span className="text-muted-foreground">REASON </span>
+                  <span className="text-foreground">{item.result.excerpt_faithfulness_reason}</span>
+                </div>
+              )}
+              {(item.result.excerpt_supported || item.result.excerpt_quantified) && (
+                <div className="flex items-center gap-2 text-[10px] text-muted-foreground/80">
+                  {item.result.excerpt_supported && (
+                    <span>supported: <span className="text-foreground">{item.result.excerpt_supported}</span></span>
+                  )}
+                  {item.result.excerpt_quantified && (
+                    <span>quantified: <span className="text-foreground">{item.result.excerpt_quantified}</span></span>
+                  )}
+                </div>
+              )}
+              {item.error && (
+                <div className="text-[10px] text-red-300">error: {item.error}</div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ForceRerunConfirmDialog({
+  count,
+  running,
+  onCancel,
+  onConfirm,
+}: {
+  count: number
+  running: boolean
+  onCancel: () => void
+  onConfirm: () => void
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !running) onCancel()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onCancel, running])
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div
+        role="dialog"
+        aria-labelledby="force-rerun-title"
+        aria-modal="true"
+        className="w-full max-w-md bg-silicon-slate border border-silicon-slate rounded-xl shadow-xl p-5 space-y-4"
+      >
+        <h3 id="force-rerun-title" className="text-sm font-semibold text-foreground">
+          Re-run every claim judge?
+        </h3>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          This re-judges all {count} rows, ignoring last-run timestamps and existing verdicts. Runs an LLM call per row. Use this after changing the prompt or judge rules.
+        </p>
+        <div className="flex items-center justify-end gap-2 pt-2">
+          <button
+            onClick={onCancel}
+            disabled={running}
+            autoFocus
+            className="px-3 py-1.5 bg-silicon-slate/80 border border-silicon-slate rounded-lg text-xs text-muted-foreground hover:text-foreground disabled:opacity-60"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={running}
+            className="px-3 py-1.5 bg-red-600/30 border border-red-500/50 rounded-lg text-xs text-red-200 hover:bg-red-600/50 disabled:opacity-60 inline-flex items-center gap-2"
+          >
+            {running ? <Loader2 size={12} className="animate-spin" /> : <RefreshCw size={12} />}
+            Re-run all
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -1453,8 +2065,11 @@ function BenchmarkCard({ b, onUpdate, onDelete }: {
 
   return (
     <div className="p-3 bg-silicon-slate/70 rounded-lg border border-silicon-slate/50 group relative">
-      <div className="text-xs text-muted-foreground uppercase tracking-wide">
-        {b.benchmark_type?.replace(/_/g, ' ')}
+      <div className="flex items-start justify-between gap-2">
+        <div className="text-xs text-muted-foreground uppercase tracking-wide">
+          {b.benchmark_type?.replace(/_/g, ' ')}
+        </div>
+        <ValidationStatusBadge row={b} />
       </div>
       <div className="text-lg font-semibold text-teal-400 mt-0.5">
         {b.benchmark_type === 'avg_close_rate'
@@ -1467,6 +2082,14 @@ function BenchmarkCard({ b, onUpdate, onDelete }: {
       {b.notes && (
         <div className="text-xs text-muted-foreground mt-1 truncate" title={b.notes}>{b.notes}</div>
       )}
+      {b.methodology_note && (
+        <div
+          className="text-[10px] text-muted-foreground/70 mt-1 truncate italic"
+          title={b.methodology_note}
+        >
+          {b.methodology_note}
+        </div>
+      )}
       <div className="absolute top-2 right-2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
         <button onClick={() => setEditing(true)} className="p-1 text-muted-foreground/80 hover:text-blue-400 transition-colors" title="Edit">
           <Pencil size={12} />
@@ -1476,6 +2099,52 @@ function BenchmarkCard({ b, onUpdate, onDelete }: {
         </button>
       </div>
     </div>
+  )
+}
+
+function ValidationStatusBadge({ row }: { row: any }) {
+  const status: string = row?.validation_status ?? 'pending'
+  const tier: number | null = typeof row?.trust_tier === 'number' ? row.trust_tier : null
+  const reasons: Array<{ code?: string; message?: string }> = Array.isArray(row?.validation_reasons)
+    ? row.validation_reasons
+    : []
+
+  const baseTitle =
+    reasons.length > 0
+      ? reasons.map((r) => (r.message ?? r.code ?? '').toString()).filter(Boolean).slice(0, 4).join('\n')
+      : 'Not yet validated.'
+  const title = tier ? `Tier ${tier}\n${baseTitle}` : baseTitle
+
+  let label: string
+  let classes: string
+  let Icon = ShieldCheck
+
+  if (status === 'validated') {
+    label = tier ? `T${tier}` : 'OK'
+    classes = 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+    Icon = CheckCircle2
+  } else if (status === 'rejected') {
+    label = tier ? `T${tier} rejected` : 'Rejected'
+    classes = 'bg-red-500/15 text-red-300 border-red-500/30'
+    Icon = X
+  } else if (status === 'quarantined') {
+    label = tier ? `T${tier} review` : 'Review'
+    classes = 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+    Icon = ShieldAlert
+  } else {
+    label = 'Pending'
+    classes = 'bg-slate-500/15 text-slate-300 border-slate-500/30'
+    Icon = Clock
+  }
+
+  return (
+    <span
+      title={title}
+      className={`inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded border ${classes}`}
+    >
+      <Icon size={10} />
+      {label}
+    </span>
   )
 }
 
@@ -1590,6 +2259,71 @@ function BenchmarksTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
   const [loading, setLoading] = useState(true)
   const [industryFilter, setIndustryFilter] = useState('')
   const [showAddForm, setShowAddForm] = useState(false)
+  const [validating, setValidating] = useState(false)
+  const [validationSummary, setValidationSummary] = useState<{
+    validated: number
+    rejected: number
+    quarantined: number
+    pending: number
+    last_validated_at: string | null
+  } | null>(null)
+  const [validationMessage, setValidationMessage] = useState<string | null>(null)
+
+  const fetchValidationSummary = useCallback(async () => {
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) return
+      const res = await fetch('/api/admin/value-evidence/validate-sources', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        setValidationSummary({
+          validated: data.by_status?.validated ?? 0,
+          rejected: data.by_status?.rejected ?? 0,
+          quarantined: data.by_status?.quarantined ?? 0,
+          pending: data.by_status?.pending ?? 0,
+          last_validated_at: data.last_validated_at ?? null,
+        })
+      }
+    } catch (err) {
+      console.error('Validation summary fetch error:', err)
+    }
+  }, [])
+
+  const handleValidate = useCallback(
+    async (mode: 'stale' | 'pending' | 'forced') => {
+      setValidating(true)
+      setValidationMessage(null)
+      try {
+        const session = await getCurrentSession()
+        if (!session?.access_token) return
+        const res = await fetch('/api/admin/value-evidence/validate-sources', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ table: 'industry_benchmarks', mode, limit: 200 }),
+        })
+        const data = await res.json().catch(() => ({}))
+        if (res.ok && data?.summary) {
+          const s = data.summary
+          setValidationMessage(
+            `Validated ${s.attempted}: ${s.validated} ok, ${s.rejected} rejected, ${s.quarantined} quarantined, ${s.errors} errors (${s.duration_ms} ms).`,
+          )
+        } else {
+          setValidationMessage(data?.error ? `Validation failed: ${data.error}` : 'Validation failed.')
+        }
+      } catch (err) {
+        console.error('Validate sources error:', err)
+        setValidationMessage('Validation failed. See console for details.')
+      } finally {
+        setValidating(false)
+      }
+    },
+    [],
+  )
 
   const fetchBenchmarks = useCallback(async () => {
     setLoading(true)
@@ -1616,7 +2350,8 @@ function BenchmarksTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
 
   useEffect(() => {
     fetchBenchmarks()
-  }, [fetchBenchmarks, pageRefreshNonce])
+    fetchValidationSummary()
+  }, [fetchBenchmarks, fetchValidationSummary, pageRefreshNonce])
 
   const handleDelete = async (id: string) => {
     if (!confirm('Permanently delete this benchmark? This cannot be undone.')) return
@@ -1668,10 +2403,60 @@ function BenchmarksTab({ pageRefreshNonce }: { pageRefreshNonce: number }) {
           <Plus size={14} />
           Add Benchmark
         </button>
-        <button onClick={fetchBenchmarks} className="p-1.5 bg-silicon-slate/80 rounded-lg hover:bg-gray-600">
+        <button
+          onClick={() => handleValidate('stale')}
+          disabled={validating}
+          className="px-4 py-1.5 bg-indigo-600/30 border border-indigo-500/50 rounded-lg text-indigo-200 hover:bg-indigo-600/50 disabled:opacity-60 flex items-center gap-2 text-sm"
+          title="Run the VEP Source Validator on stale + pending benchmarks"
+        >
+          {validating ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+          Validate sources
+        </button>
+        <button
+          onClick={() => handleValidate('forced')}
+          disabled={validating}
+          className="px-3 py-1.5 bg-silicon-slate/80 border border-silicon-slate rounded-lg text-xs text-muted-foreground hover:text-foreground disabled:opacity-60"
+          title="Force-re-validate every benchmark regardless of last_validated_at"
+        >
+          Re-run all
+        </button>
+        <button onClick={() => { fetchBenchmarks(); fetchValidationSummary() }} className="p-1.5 bg-silicon-slate/80 rounded-lg hover:bg-gray-600">
           <RefreshCw size={16} />
         </button>
       </div>
+
+      {(validationSummary || validationMessage) && (
+        <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground bg-silicon-slate/40 border border-silicon-slate rounded-lg px-3 py-2">
+          {validationSummary && (
+            <>
+              <span className="inline-flex items-center gap-1">
+                <CheckCircle2 size={12} className="text-emerald-400" />
+                {validationSummary.validated} validated
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <ShieldAlert size={12} className="text-amber-400" />
+                {validationSummary.quarantined} quarantined
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <X size={12} className="text-red-400" />
+                {validationSummary.rejected} rejected
+              </span>
+              <span className="inline-flex items-center gap-1">
+                <Clock size={12} className="text-slate-400" />
+                {validationSummary.pending} pending
+              </span>
+              {validationSummary.last_validated_at && (
+                <span className="text-muted-foreground/70">
+                  Last run: {new Date(validationSummary.last_validated_at).toLocaleString()}
+                </span>
+              )}
+            </>
+          )}
+          {validationMessage && (
+            <span className="text-teal-300">{validationMessage}</span>
+          )}
+        </div>
+      )}
 
       {showAddForm && (
         <AddBenchmarkForm

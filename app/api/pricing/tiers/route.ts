@@ -60,9 +60,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch industry benchmarks for dynamic retail value calculation
+    // (exclude rows rejected by VEP Source Validator)
     const { data: benchmarks } = await supabaseAdmin
       .from('industry_benchmarks')
-      .select('*');
+      .select('*')
+      .neq('validation_status', 'rejected');
     const allBenchmarks: IndustryBenchmark[] = (benchmarks || []) as IndustryBenchmark[];
 
     // Fetch bundles for this segment; exclude custom bundles.

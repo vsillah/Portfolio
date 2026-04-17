@@ -10,6 +10,7 @@
  */
 
 import { supabaseAdmin } from '@/lib/supabase'
+import { applyValidatedEvidenceFilter } from '@/lib/source-validator'
 import {
   determineConfidence,
   runCalculation,
@@ -88,12 +89,14 @@ export async function linkEvidenceToCalculations(
 
   if (!category) return { updated: 0, recalculated: 0, details: [] }
 
-  // 2. Get all evidence for this category
-  let evidenceQuery = sb
-    .from('pain_point_evidence')
-    .select('id, industry, monetary_indicator')
-    .eq('pain_point_category_id', painPointCategoryId)
-    .order('created_at', { ascending: false })
+  // 2. Get all evidence for this category (source-validator gate applied).
+  let evidenceQuery = applyValidatedEvidenceFilter(
+    sb
+      .from('pain_point_evidence')
+      .select('id, industry, monetary_indicator')
+      .eq('pain_point_category_id', painPointCategoryId)
+      .order('created_at', { ascending: false })
+  )
 
   if (filterIndustry) {
     evidenceQuery = evidenceQuery.eq('industry', filterIndustry)
@@ -263,11 +266,13 @@ export async function refreshCategoryStats(
 
   if (!rpcError) return
 
-  // Fallback: manual computation
-  const { data: evStats } = await sb
-    .from('pain_point_evidence')
-    .select('monetary_indicator')
-    .eq('pain_point_category_id', categoryId)
+  // Fallback: manual computation (source-validator gate applied).
+  const { data: evStats } = await applyValidatedEvidenceFilter(
+    sb
+      .from('pain_point_evidence')
+      .select('monetary_indicator')
+      .eq('pain_point_category_id', categoryId)
+  )
 
   const count = evStats?.length || 0
   const monetaryItems = (evStats || []).filter(

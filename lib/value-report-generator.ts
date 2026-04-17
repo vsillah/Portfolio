@@ -10,6 +10,7 @@
  */
 
 import { supabaseAdmin } from './supabase';
+import { applyValidatedEvidenceFilter } from './source-validator';
 import {
   type CalculationMethod,
   type ConfidenceLevel,
@@ -134,9 +135,11 @@ export async function generateValueReport(
   const normalizedSize = normalizeCompanySize(companySize);
 
   // Step 2: Fetch benchmarks for this industry/size
+  // Exclude benchmarks rejected by the VEP Source Validator from dollar math.
   const { data: benchmarks } = await supabaseAdmin
     .from('industry_benchmarks')
     .select('*')
+    .neq('validation_status', 'rejected')
     .or(`industry.eq.${industry},industry.eq._default`);
 
   if (!benchmarks || benchmarks.length === 0) {
@@ -153,18 +156,21 @@ export async function generateValueReport(
 
   if (!painPoints || painPoints.length === 0) return null;
 
-  // Get evidence for this industry (or no industry filter if we don't know)
-  const evidenceQuery = supabaseAdmin
-    .from('pain_point_evidence')
-    .select('*')
-    .order('confidence_score', { ascending: false });
+  // Get evidence for this industry (or no industry filter if we don't know).
+  // Apply the VEP source-validator downstream filter so rejected sources and
+  // (under strict mode) unfaithful excerpts don't leak into value reports.
+  const evidenceQuery = applyValidatedEvidenceFilter(
+    supabaseAdmin
+      .from('pain_point_evidence')
+      .select('*')
+      .order('confidence_score', { ascending: false })
+  );
 
   if (industry) {
     evidenceQuery.or(`industry.eq.${industry},industry.is.null`);
   }
 
   if (contactSubmissionId) {
-    // Also include evidence linked to this specific lead
     evidenceQuery.or(`contact_submission_id.eq.${contactSubmissionId}`);
   }
 
@@ -356,10 +362,11 @@ export async function getSuggestedPricing(params: {
 
   if (!mappings || mappings.length === 0) return null;
 
-  // Get benchmarks
+  // Get benchmarks (exclude rejected by VEP Source Validator)
   const { data: benchmarks } = await supabaseAdmin
     .from('industry_benchmarks')
     .select('*')
+    .neq('validation_status', 'rejected')
     .or(`industry.eq.${industry || '_default'},industry.eq._default`);
 
   // Get evidence counts
