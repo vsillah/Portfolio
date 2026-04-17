@@ -46,6 +46,10 @@ Implementation: `app/api/admin/social-content/[id]/regenerate-audio/route.ts` (a
 2. If an override env is **set** on the server, that full URL wins (check dashboard for the value).
 3. If unset, effective URL is `${N8N_BASE_URL}/webhook/${segment}` with defaults as in `lib/n8n.ts`.
 
+## System prompts carrying `{{meeting_action_items}}`
+
+As of `migrations/2026_04_17_meeting_action_tasks_contact_attribution.sql` and `migrations/2026_04_17_cold_outreach_meeting_action_items.sql`, both `email_follow_up` and `email_cold_outreach` rows in `system_prompts` embed `{{#meeting_action_items}}…{{/meeting_action_items}}` sentinels. Runtime injection lives in `lib/outreach-queue-generator.ts` (step 1) and `lib/delivery-email.ts` (`LINK_FREE_TEMPLATES` only); helper + tests in `lib/meeting-tasks-context.ts`. Redeploying against a DB that is missing these migrations will leave raw `{{meeting_action_items}}` tokens in drafts.
+
 ## Related documentation
 
 - `docs/staging-environment.md` — `NEXT_PUBLIC_APP_ENV`, n8n mock/outbound behavior by tier.
