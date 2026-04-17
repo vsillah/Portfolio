@@ -366,19 +366,30 @@ function formatAuditSection(data: Record<string, unknown> | null, fallback: stri
     .join('\n')
 }
 
-/** Slide counts aligned with Admin → Gamma report type cards (passed to Gamma API as numCards). */
+/** Slide counts aligned with Admin → Gamma report type cards (passed to Gamma API as numCards).
+ *
+ * Recent `Let's Talk` rollout:
+ *  - audit_summary, prospect_overview: replaced bare `Next Steps` one-liner with
+ *    `Let's Talk` in-place — count unchanged.
+ *  - value_quantification: replaced the bare `Ready to Align on Priorities?`
+ *    CTA slide with `Let's Talk`; kept the process-oriented `Turning Data Into
+ *    Action: A Phased Roadmap` slide — count unchanged.
+ *  - implementation_strategy, offer_presentation: kept the rich process Next
+ *    Steps slide AND added `Let's Talk` as a second, CTA-focused slide — count
+ *    bumped by +1.
+ */
 function numCardsForGammaReportType(reportType: GammaReportType): number {
   switch (reportType) {
     case 'value_quantification':
       return 17
     case 'implementation_strategy':
-      return 20
+      return 21
     case 'audit_summary':
       return 11
     case 'prospect_overview':
       return 9
     case 'offer_presentation':
-      return 16
+      return 17
     default:
       return 20
   }
@@ -1220,17 +1231,12 @@ Year 2 Effect: Once the initial investment is recovered, recurring annual value 
 The numbers are clear. Phase 1 captures free wins immediately. Phases 2–4 build sequentially, with each investment amplifying the one before it.
 `)
 
-  // --- Slide 16: CTA ---
-  sections.push(`
-# Ready to Align on Priorities?
-
-Amadutown Advisory Solutions is available to develop a detailed Statement of Work tailored to ${orgName}'s budget and timeline.
-
-**Book a 30-minute discovery call to get started.**
-
-Contact: Amadutown Advisory Solutions
-Website: amadutown.com
-`)
+  // --- Slide 16: Let's Talk (replaces the previous bare "Ready to Align on Priorities?" CTA) ---
+  sections.push(
+    buildLetsTalkSlide(
+      `Want to pressure-test these numbers against what ${fallbackOrgLabel(orgName)} is actually experiencing today?`
+    )
+  )
 
   // --- Bio slide ---
   sections.push(buildBioSlide())
@@ -1538,11 +1544,14 @@ Ready to turn ${orgName}'s website into a mission-aligned growth engine? Here's 
 2. **Align on Priorities & Budget** — Confirm which ATAS tracks and phases best match current capacity and available resources.
 3. **Develop Statement of Work** — ATAS drafts a detailed SOW with milestones, deliverables, timelines, and pricing.
 4. **Kick Off Phase 1** — Begin brand strategy and content audit within two weeks of contract signing. Early wins visible within the first 30 days.
-
-**Get in Touch:**
-Amadutown Advisory Solutions
-amadutown.com
 `)
+
+  // --- Slide: Let's Talk (CTA-focused close, paired with the Next Steps process slide above) ---
+  sections.push(
+    buildLetsTalkSlide(
+      `Want to pressure-test whether this sequence fits how ${fallbackOrgLabel(orgName)} actually operates?`
+    )
+  )
 
   // --- Feasibility Slides (stack-aware; only when bundle + feature flag) ---
   if (feasibility) {
@@ -1700,7 +1709,13 @@ function buildAuditSummaryPrompt(
     sections.push(financialSlide)
   }
 
-  sections.push(`# Next Steps\n\nContact Amadutown Advisory Solutions at amadutown.com to discuss these findings.`)
+  // --- Slide: Let's Talk (replaces the previous bare Next Steps one-liner) ---
+  const orgForCta = fallbackOrgLabel(orgName)
+  sections.push(
+    buildLetsTalkSlide(
+      `Want to pressure-test which of these gaps would move the needle most for ${orgForCta}?`
+    )
+  )
 
   // --- Evidence Ledger ---
   sections.push(buildEvidenceLedgerSlide(evidence))
@@ -1775,7 +1790,13 @@ function buildProspectOverviewPrompt(
     sections.push(`# Relevant ATAS Services\n\n${ctx.services.slice(0, 6).map((s) => `- **${s.title}** (${s.service_type}): ${s.description?.substring(0, 150)}...`).join('\n')}`)
   }
 
-  sections.push(`# Next Steps\n\nBook a discovery call at amadutown.com to explore how AI and automation can help ${orgName}.`)
+  // --- Slide: Let's Talk (replaces the previous bare Next Steps one-liner) ---
+  const orgForCtaProspect = fallbackOrgLabel(orgName)
+  sections.push(
+    buildLetsTalkSlide(
+      `Want to pressure-test which of these opportunities is the right first move for ${orgForCtaProspect}?`
+    )
+  )
 
   // --- Evidence Ledger ---
   sections.push(buildEvidenceLedgerSlide(evidence))
@@ -1807,6 +1828,59 @@ function buildCoverSlide(title: string, orgName: string, subtitle?: string): str
   if (subtitle) lines.push(subtitle, '')
   lines.push(`Prepared by: Amadutown Advisory Solutions`, `Date: ${date}`)
   return lines.join('\n')
+}
+
+/**
+ * Resolve the URL used in the `Let's Talk` callout for booking a discovery
+ * call. Falls back through the public Calendly URL, the legacy delivery-email
+ * Calendly link, and finally the marketing site so the slide always has a
+ * working URL even when Calendly env vars aren't set in this environment.
+ */
+function getDiscoveryCallUrl(): string {
+  return (
+    process.env.NEXT_PUBLIC_CALENDLY_DISCOVERY_CALL_URL ||
+    process.env.CALENDLY_DISCOVERY_LINK ||
+    'https://amadutown.com'
+  )
+}
+
+/**
+ * Build the final-CTA `Let's Talk` slide. The pressure-test question is
+ * per-report-type (see callers) so the CTA hooks into the specific argument
+ * each deck just made. Intentionally has no photo — the `Meet Your Advisor`
+ * slide that follows carries the photo + mission + sign-off.
+ */
+function buildLetsTalkSlide(pressureTestQuestion: string): string {
+  const discoveryUrl = getDiscoveryCallUrl()
+  return [
+    `# Let's Talk`,
+    '',
+    pressureTestQuestion,
+    '',
+    `AmaduTown Advisory Solutions helps nonprofits and minority-owned businesses put AI to work — with **honest strategy**, **automation we actually ship**, and **tools built to run without us**.`,
+    '',
+    `📅 **Book a discovery call**`,
+    `30 minutes. No pitch — just your situation and what's worth trying.`,
+    discoveryUrl,
+    '',
+    `🌐 **amadutown.com**`,
+    `See the approach, past work, and how we engage.`,
+  ].join('\n')
+}
+
+/**
+ * Normalize the organization label for use inside the `Let's Talk` pressure-test
+ * question. `resolveOrganizationLabel` returns `'the Organization'` as its last
+ * resort when no real name is known — in a warm CTA sentence that reads like a
+ * stage direction, so we substitute the softer `your organization` fallback
+ * recommended by UX.
+ */
+function fallbackOrgLabel(orgName: string | null | undefined): string {
+  const trimmed = trimNonEmpty(orgName)
+  if (!trimmed || trimmed.toLowerCase() === 'the organization') {
+    return 'your organization'
+  }
+  return trimmed
 }
 
 function buildBioSlide(): string {
@@ -2501,11 +2575,16 @@ ${formatPresenterNote(openingNotes)}`)
   let nextSlide = `# Next Steps\n## Let's Move Forward\n\n`
   nextSlide += `1. **Align on priorities** — Confirm which components matter most to your team\n`
   nextSlide += `2. **Review the proposal** — We'll send a detailed proposal with everything discussed today\n`
-  nextSlide += `3. **Sign and schedule** — Accept the proposal and we'll kick off Phase 1 within one week\n\n`
-  nextSlide += `**Ready to start?** Let's align on next steps right now.\n\n`
-  nextSlide += `Amadutown Advisory Solutions\namadutown.com\n`
+  nextSlide += `3. **Sign and schedule** — Accept the proposal and we'll kick off Phase 1 within one week\n`
   nextSlide += `\n${formatPresenterNote(closeNotes)}`
   sections.push(nextSlide)
+
+  // --- Slide: Let's Talk (CTA-focused close, paired with the Next Steps process slide above) ---
+  sections.push(
+    buildLetsTalkSlide(
+      `Want to pressure-test whether this bundle is the right first move for ${fallbackOrgLabel(orgName)}?`
+    )
+  )
 
   // --- Feasibility Slides (stack-aware; only when bundle + feature flag) ---
   if (feasibility) {

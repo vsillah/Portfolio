@@ -66,7 +66,7 @@ describe('Gamma prompt body — meta blocks removed', () => {
     expect(inputText).not.toContain('# How to use this source material')
 
     expect(inputText).toContain('Acme Widgets — Diagnostic Audit Summary')
-    expect(inputText).toContain('# Next Steps')
+    expect(inputText).toContain(`# Let's Talk`)
     expect(inputText).toContain('# Meet Your Advisor')
 
     const additional = options.additionalInstructions ?? ''
