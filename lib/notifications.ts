@@ -2,6 +2,8 @@
 // Uses Gmail SMTP via Nodemailer. Requires GMAIL_USER and GMAIL_APP_PASSWORD env vars.
 
 import nodemailer from 'nodemailer';
+import { previewFromBody } from '@/lib/email-message-utils';
+import { recordTransactionalEmailMessage, type SendEmailTrace } from '@/lib/email-messages';
 
 // ============================================================================
 // Email sending abstraction
@@ -30,7 +32,7 @@ const transporter = gmailUser && gmailPass
     })
   : null;
 
-export async function sendEmail(payload: EmailPayload): Promise<boolean> {
+async function deliverMail(payload: EmailPayload): Promise<boolean> {
   if (!transporter || !gmailUser) {
     console.warn('[NOTIFICATION EMAIL] Gmail not configured — logging instead:', {
       to: payload.to,
@@ -58,6 +60,22 @@ export async function sendEmail(payload: EmailPayload): Promise<boolean> {
     console.error('[NOTIFICATION EMAIL] Send failed:', err);
     return false;
   }
+}
+
+/** Optional `trace` records a row in `email_messages` (Admin Email Center). */
+export async function sendEmail(payload: EmailPayload, trace?: SendEmailTrace): Promise<boolean> {
+  const ok = await deliverMail(payload);
+  if (trace) {
+    const bodyPreview = previewFromBody(payload.text ?? payload.html ?? '');
+    void recordTransactionalEmailMessage({
+      trace,
+      recipientEmail: payload.to,
+      subject: payload.subject,
+      bodyPreview,
+      success: ok,
+    });
+  }
+  return ok;
 }
 
 // ============================================================================
@@ -102,6 +120,10 @@ export async function notifyGuaranteeActivated(params: {
       <ol>${params.conditions.map(c => `<li>${c.label}</li>`).join('')}</ol>
       <p>We'll check in periodically to track your progress.</p>
     `,
+  }, {
+    emailKind: 'guarantee_activated',
+    sourceSystem: 'notifications',
+    metadata: { guarantee_name: params.guaranteeName },
   });
 }
 
@@ -135,6 +157,10 @@ export async function notifyMilestoneVerified(params: {
         ? '<p style="color: green;"><strong>All conditions met! Payout options coming soon.</strong></p>' 
         : '<p>Keep going!</p>'}
     `,
+  }, {
+    emailKind: 'guarantee_milestone_verified',
+    sourceSystem: 'notifications',
+    metadata: { guarantee_name: params.guaranteeName, condition_label: params.conditionLabel },
   });
 }
 
@@ -188,6 +214,10 @@ export async function notifyConditionsMetPayoutChoice(params: {
       <ul>${options.map(o => `<li>${o}</li>`).join('')}</ul>
       <p><a href="${params.choosePayoutUrl}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; margin-top: 16px;">Choose Your Payout</a></p>
     `,
+  }, {
+    emailKind: 'guarantee_payout_choice',
+    sourceSystem: 'notifications',
+    metadata: { guarantee_name: params.guaranteeName },
   });
 }
 
@@ -224,6 +254,10 @@ export async function notifyPayoutProcessed(params: {
       <p>${details}</p>
       <p>Thank you for your trust in us.</p>
     `,
+  }, {
+    emailKind: 'guarantee_payout_processed',
+    sourceSystem: 'notifications',
+    metadata: { payout_type: params.payoutType, amount: params.amount },
   });
 }
 
@@ -253,6 +287,10 @@ export async function notifyGuaranteeExpiring(params: {
         ? `<h3>Outstanding conditions:</h3><ol>${params.pendingConditions.map(c => `<li>${c}</li>`).join('')}</ol>`
         : '<p style="color: green;">All conditions met!</p>'}
     `,
+  }, {
+    emailKind: 'guarantee_expiring',
+    sourceSystem: 'notifications',
+    metadata: { guarantee_name: params.guaranteeName, days_left: params.daysLeft },
   });
 }
 
@@ -289,6 +327,10 @@ export async function notifySubscriptionStarted(params: {
       <h3>What's included:</h3>
       <ul>${params.features.map(f => `<li>${f}</li>`).join('')}</ul>
     `,
+  }, {
+    emailKind: 'subscription_started',
+    sourceSystem: 'notifications',
+    metadata: { plan_name: params.planName },
   });
 }
 
@@ -311,6 +353,10 @@ export async function notifySubscriptionPaymentFailed(params: {
       <p>We couldn't process your payment for <strong>${params.planName}</strong>.</p>
       <p>Please update your payment method to avoid service interruption.</p>
     `,
+  }, {
+    emailKind: 'subscription_payment_failed',
+    sourceSystem: 'notifications',
+    metadata: { plan_name: params.planName },
   });
 }
 
@@ -337,6 +383,10 @@ export async function notifyCreditExhausted(params: {
       <p>Your guarantee credit for <strong>${params.planName}</strong> has been fully used.</p>
       <p>Your next invoice: <strong>$${params.nextAmount.toFixed(2)}/${params.billingInterval}</strong></p>
     `,
+  }, {
+    emailKind: 'subscription_credit_exhausted',
+    sourceSystem: 'notifications',
+    metadata: { plan_name: params.planName },
   });
 }
 
@@ -487,6 +537,11 @@ export async function notifyOrderConfirmation(params: {
       </div>
     `,
     attachments,
+  }, {
+    emailKind: 'order_confirmation',
+    sourceSystem: 'payments_webhook',
+    sourceId: String(params.orderId),
+    metadata: { order_id: params.orderId },
   });
 }
 
@@ -560,6 +615,11 @@ export async function notifyShipmentUpdate(params: {
         </div>
       </div>
     `,
+  }, {
+    emailKind: 'shipment',
+    sourceSystem: 'printful_webhook',
+    sourceId: String(params.orderId),
+    metadata: { order_id: params.orderId },
   });
 }
 
@@ -608,6 +668,10 @@ export async function notifyMeetingBooked(params: {
       <p>Looking forward to speaking with you!</p>
       <p>Best regards,<br/>${fromName}</p>
     `,
+  }, {
+    emailKind: 'meeting_booked',
+    sourceSystem: 'chat',
+    metadata: { meeting_type: params.meetingType ?? null },
   });
 }
 
@@ -651,5 +715,9 @@ export async function notifyChatTranscript(params: {
       <p>If you have any follow-up questions, feel free to start a new chat or reply to this email.</p>
       <p>Best regards,<br/>${fromName}</p>
     `,
+  }, {
+    emailKind: 'chat_transcript',
+    sourceSystem: 'chat',
+    metadata: { session_date: params.sessionDate },
   });
 }

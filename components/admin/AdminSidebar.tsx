@@ -42,6 +42,7 @@ import {
   GitCompare,
   Settings,
   Mail,
+  Inbox,
   UserCheck,
 } from 'lucide-react'
 import { ADMIN_NAV, isNavItemActive, isContentExpanded, isChatEvalExpanded } from '@/lib/admin-nav'
@@ -55,6 +56,7 @@ const ITEM_ICON_SIZE = 16
 /** Small icon per nav item so category items have clear hierarchy. */
 const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/outreach': Send,
+  '/admin/email-center': Inbox,
   '/admin/value-evidence': FileCheck,
   '/admin/social-content': Share2,
   '/admin/sales': BarChart3,

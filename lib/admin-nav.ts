@@ -28,6 +28,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
       label: 'Pipeline',
       items: [
         { label: 'Lead Pipeline', href: '/admin/outreach' },
+        { label: 'Email Center', href: '/admin/email-center' },
         { label: 'Value Evidence', href: '/admin/value-evidence' },
         { label: 'Social Content', href: '/admin/social-content' },
       ],

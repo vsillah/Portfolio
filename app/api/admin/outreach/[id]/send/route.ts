@@ -104,6 +104,11 @@ export async function POST(
       // Fire-and-forget is acceptable -- the workflow will handle retries
     }
 
+    const contactRow = item.contact_submissions as
+      | { id: number; email?: string }
+      | null
+      | undefined
+
     logCommunication({
       contactSubmissionId: item.contact_submission_id,
       channel: item.channel as 'email' | 'linkedin',
@@ -115,6 +120,8 @@ export async function POST(
       sourceId: item.id,
       status: 'queued',
       sentBy: authResult.user.id,
+      recipientEmail: contactRow?.email ?? null,
+      emailTransport: 'n8n',
       metadata: {
         sequence_step: item.sequence_step,
         outreach_queue_id: item.id,

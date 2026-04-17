@@ -11,7 +11,7 @@ import Pagination from '@/components/admin/Pagination'
 import { getCurrentSession } from '@/lib/auth'
 import { EMAIL_TEMPLATE_KEYS, PROMPT_DISPLAY_NAMES, type EmailTemplateKey } from '@/lib/constants/prompt-keys'
 import {
-  User, Mail, Building2, Calendar, ExternalLink, FileText,
+  User, Mail, Building2, Calendar, ExternalLink, FileText, Inbox,
   Video, BarChart3, Send, Loader2, CheckCircle, AlertCircle, Clock,
   ChevronDown, ChevronUp, Sparkles, Plus, Eye, MessageSquare,
   RefreshCw, Copy, Check, Linkedin, Filter, Search, Trash2, X,
@@ -441,7 +441,13 @@ function ContactDetailPage() {
                   <span className="text-[10px] text-gray-500 flex items-center gap-1"><Calendar className="w-3 h-3" />Since {formatDate(contact.created_at)}</span>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
+                <Link
+                  href={`/admin/email-center?contact=${contact.id}`}
+                  className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-amber-300 rounded-lg flex items-center gap-1.5 transition-colors"
+                >
+                  <Inbox className="w-3.5 h-3.5" /> Email Center
+                </Link>
                 {dashboardAccess && (
                   <a href={`/client/dashboard/${dashboardAccess.access_token}`} target="_blank" rel="noopener noreferrer" className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-teal-400 rounded-lg flex items-center gap-1.5 transition-colors">
                     <Eye className="w-3.5 h-3.5" /> Client Dashboard

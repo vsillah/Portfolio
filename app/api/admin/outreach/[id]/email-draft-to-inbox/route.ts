@@ -177,6 +177,7 @@ export async function POST(
       sourceId: item.id,
       status: 'sent',
       sentBy: authResult.user.id,
+      emailTransport: 'gmail_smtp',
       metadata: {
         outreach_queue_id: item.id,
         admin_inbox_copy: true,

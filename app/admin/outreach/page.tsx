@@ -1103,6 +1103,15 @@ function OutreachContent() {
                 Add lead
               </button>
             )}
+            <Link href="/admin/email-center">
+              <button
+                type="button"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-amber-500/40 text-amber-200 hover:bg-amber-950/40 font-medium transition-colors"
+              >
+                <Inbox size={16} />
+                Email Center
+              </button>
+            </Link>
             <Link href="/admin/outreach/dashboard">
               <button className="flex items-center gap-2 px-4 py-2 btn-gold text-imperial-navy font-semibold rounded-lg transition-colors">
                 <BarChart3 size={16} />

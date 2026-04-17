@@ -419,6 +419,8 @@ export async function sendDeliveryEmail(input: SendDeliveryInput): Promise<{ suc
     sourceId: delivery?.id ?? undefined,
     status: success ? 'sent' : 'failed',
     sentBy: input.sentBy,
+    recipientEmail: input.recipientEmail,
+    emailTransport: 'gmail_smtp',
     metadata: {
       recipient_email: input.recipientEmail,
       asset_count: input.assetIds.length,

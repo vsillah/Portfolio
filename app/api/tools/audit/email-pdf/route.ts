@@ -51,21 +51,29 @@ export async function POST(request: NextRequest) {
     const filename = `ai-automation-audit-${auditId}.pdf`
 
     const brand = process.env.EMAIL_FROM_NAME || 'AmaduTown'
-    const ok = await sendEmail({
-      to: email,
-      subject: 'Your AI & Automation Audit (PDF attached)',
-      text: [
-        'Hi,',
-        '',
-        'Attached is a printable PDF of your AI & Automation audit report.',
-        '',
-        `— ${brand}`,
-      ].join('\n'),
-      html: `<p>Hi,</p><p>Attached is a printable PDF of your <strong>AI &amp; Automation audit</strong> report.</p><p>— ${brand}</p>`,
-      attachments: [
-        { filename, content: buffer, contentType: 'application/pdf' },
-      ],
-    })
+    const ok = await sendEmail(
+      {
+        to: email,
+        subject: 'Your AI & Automation Audit (PDF attached)',
+        text: [
+          'Hi,',
+          '',
+          'Attached is a printable PDF of your AI & Automation audit report.',
+          '',
+          `— ${brand}`,
+        ].join('\n'),
+        html: `<p>Hi,</p><p>Attached is a printable PDF of your <strong>AI &amp; Automation audit</strong> report.</p><p>— ${brand}</p>`,
+        attachments: [
+          { filename, content: buffer, contentType: 'application/pdf' },
+        ],
+      },
+      {
+        emailKind: 'audit_pdf',
+        sourceSystem: 'tools_audit',
+        sourceId: auditId,
+        metadata: { audit_id: auditId },
+      },
+    )
 
     if (!ok) {
       return NextResponse.json(

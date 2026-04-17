@@ -189,6 +189,7 @@ export async function POST(
       sourceId: item.id,
       status: 'draft',
       sentBy: authResult.user.id,
+      emailTransport: 'logged_only',
       metadata: {
         outreach_queue_id: item.id,
         gmail_user_draft_id: draft.id,

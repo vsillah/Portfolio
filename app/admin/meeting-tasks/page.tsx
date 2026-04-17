@@ -679,14 +679,23 @@ function MeetingTasksContent() {
         ]} />
 
         {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 flex items-center justify-center">
-            <ClipboardCheck size={24} className="text-white" />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-violet-600 to-purple-600 flex items-center justify-center">
+              <ClipboardCheck size={24} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold">Meeting Action Tasks</h1>
+              <p className="text-gray-400">Track action items between meetings and send follow-ups</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold">Meeting Action Tasks</h1>
-            <p className="text-gray-400">Track action items between meetings and send follow-ups</p>
-          </div>
+          <Link
+            href="/admin/email-center"
+            className="inline-flex items-center gap-2 self-start sm:self-center px-4 py-2 rounded-lg border border-amber-500/40 text-amber-200 hover:bg-amber-950/30 text-sm font-medium transition-colors"
+          >
+            <Mail size={16} />
+            Email Center
+          </Link>
         </div>
 
         {/* Stats bar */}

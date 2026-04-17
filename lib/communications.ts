@@ -6,6 +6,8 @@
  */
 
 import { supabaseAdmin } from '@/lib/supabase'
+import { inferTransportFromCommunication, type EmailTransport } from '@/lib/email-message-utils'
+import { insertEmailMessageFromCommunication } from '@/lib/email-messages'
 
 export type CommChannel = 'email' | 'linkedin' | 'sms' | 'chat' | 'voice'
 export type CommDirection = 'outbound' | 'inbound'
@@ -27,6 +29,10 @@ export interface LogCommunicationInput {
   sentAt?: string | null
   sentBy?: string | null
   metadata?: Record<string, unknown>
+  /** Optional — improves Email Center recipient column */
+  recipientEmail?: string | null
+  /** Override inferred transport (gmail_smtp / n8n / logged_only) */
+  emailTransport?: EmailTransport
 }
 
 /**
@@ -65,6 +71,38 @@ export async function logCommunication(
     if (error) {
       console.error('[Communications] Failed to log:', error.message)
       return null
+    }
+
+    const commId = data?.id
+    if (commId) {
+      const meta = input.metadata ?? {}
+      const recipientFromMeta =
+        typeof meta.recipient_email === 'string' ? meta.recipient_email : undefined
+      const recipient =
+        input.recipientEmail ?? recipientFromMeta ?? null
+      const transport = inferTransportFromCommunication({
+        sourceSystem: input.sourceSystem,
+        messageType: input.messageType,
+        status: input.status ?? 'sent',
+        emailTransport: input.emailTransport,
+      })
+      void insertEmailMessageFromCommunication({
+        contactCommunicationId: commId,
+        contactSubmissionId: Number(input.contactSubmissionId),
+        emailKind: input.messageType,
+        channel: input.channel,
+        recipientEmail: recipient,
+        subject: input.subject ?? null,
+        body: input.body,
+        direction: input.direction,
+        status: input.status ?? 'sent',
+        transport,
+        sourceSystem: input.sourceSystem,
+        sourceId: input.sourceId ?? null,
+        metadata: input.metadata ?? {},
+        sentAt: input.sentAt ?? null,
+        sentBy: input.sentBy ?? null,
+      })
     }
 
     return data ? { id: data.id } : null
