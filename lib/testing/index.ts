@@ -130,6 +130,7 @@ export {
   supportEscalationScenario,
   quickBrowseScenario,
   standaloneAuditToolScenario,
+  feasibilitySnapshotSmokeScenario,
 
   // Chatbot question bank scenarios
   chatbotQuestionBankStratifiedScenario,

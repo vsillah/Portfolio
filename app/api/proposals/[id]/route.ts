@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
 import { verifyAdmin, isAuthError } from '@/lib/auth-server';
+import { projectForClient, type FeasibilityAssessment } from '@/lib/implementation-feasibility';
 
 // GET - Fetch proposal (public access for client viewing via link)
 export async function GET(
@@ -53,8 +54,19 @@ export async function GET(
       proposal.value_assessment.valueStatements.length > 0
     );
 
+    let feasibilityView: ReturnType<typeof projectForClient> | null = null;
+    if (proposal.feasibility_assessment) {
+      try {
+        feasibilityView = projectForClient(proposal.feasibility_assessment as FeasibilityAssessment);
+      } catch (projErr) {
+        console.error('[proposal GET] projectForClient failed', projErr);
+      }
+    }
+    const { feasibility_assessment: _stripped, ...proposalForClient } = proposal as Record<string, unknown>;
+    void _stripped;
+
     return NextResponse.json({
-      proposal,
+      proposal: { ...proposalForClient, feasibility_view: feasibilityView },
       canAccept,
       canPay,
       isExpired,

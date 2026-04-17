@@ -139,7 +139,7 @@ interface Lead {
   has_extractable_text: boolean
   do_not_contact?: boolean
   removed_at?: string | null
-  website_tech_stack?: { domain?: string; technologies?: unknown[]; byTag?: Record<string, string[]> } | null
+  website_tech_stack?: { domain?: string; technologies?: unknown[]; byTag?: Record<string, string[]>; creditsRemaining?: number | null } | null
 }
 
 interface LeadsResponse {
@@ -247,6 +247,18 @@ function OutreachContent() {
   // Related meetings for expanded lead
   const [leadMeetings, setLeadMeetings] = useState<Array<{ id: string; meeting_type: string; meeting_date: string }>>([])
   const [leadMeetingsLoading, setLeadMeetingsLoading] = useState(false)
+
+  // Meeting action tasks attributed to expanded lead (via meeting_action_tasks.contact_submission_id)
+  const [leadActionTasks, setLeadActionTasks] = useState<Array<{
+    id: string
+    title: string
+    status: 'pending' | 'in_progress' | 'complete' | 'cancelled'
+    task_category: 'internal' | 'outreach'
+    due_date: string | null
+    outreach_queue_id: string | null
+    meeting_record_id: string | null
+  }>>([])
+  const [leadActionTasksLoading, setLeadActionTasksLoading] = useState(false)
 
   // Add lead modal
   const [showAddLeadModal, setShowAddLeadModal] = useState(false)
@@ -623,6 +635,47 @@ function OutreachContent() {
         })
         .catch(() => { if (!cancelled) setLeadMeetings([]) })
         .finally(() => { if (!cancelled) setLeadMeetingsLoading(false) })
+    })
+    return () => { cancelled = true }
+  }, [activeTab, expandedLeadId])
+
+  // Fetch meeting action tasks attributed to this contact (via contact_submission_id)
+  useEffect(() => {
+    if (activeTab !== 'leads' || !expandedLeadId) {
+      setLeadActionTasks([])
+      return
+    }
+    let cancelled = false
+    setLeadActionTasksLoading(true)
+    getCurrentSession().then((session) => {
+      if (!session?.access_token || cancelled) return
+      fetch(`/api/meeting-action-tasks?contact_submission_id=${expandedLeadId}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+        .then((res) => res.ok ? res.json() : { tasks: [] })
+        .then((data) => {
+          if (!cancelled) {
+            setLeadActionTasks((data.tasks ?? []).map((t: {
+              id: string
+              title: string
+              status: 'pending' | 'in_progress' | 'complete' | 'cancelled'
+              task_category: 'internal' | 'outreach'
+              due_date: string | null
+              outreach_queue_id: string | null
+              meeting_record_id: string | null
+            }) => ({
+              id: t.id,
+              title: t.title,
+              status: t.status,
+              task_category: t.task_category,
+              due_date: t.due_date,
+              outreach_queue_id: t.outreach_queue_id,
+              meeting_record_id: t.meeting_record_id,
+            })))
+          }
+        })
+        .catch(() => { if (!cancelled) setLeadActionTasks([]) })
+        .finally(() => { if (!cancelled) setLeadActionTasksLoading(false) })
     })
     return () => { cancelled = true }
   }, [activeTab, expandedLeadId])
@@ -2668,6 +2721,7 @@ function OutreachContent() {
                                                   domain: data.domain,
                                                   technologies: data.technologies,
                                                   byTag: data.byTag,
+                                                  creditsRemaining: typeof data.creditsRemaining === 'number' ? data.creditsRemaining : null,
                                                 }
                                                 await fetch(`/api/admin/outreach/leads/${lead.id}`, {
                                                   method: 'PATCH',
@@ -2751,6 +2805,73 @@ function OutreachContent() {
                                       </div>
                                     )
                                   })()}
+
+                                  {/* Meeting action items attributed to this lead */}
+                                  {expandedLeadId === lead.id && (leadActionTasksLoading || leadActionTasks.length > 0) && (
+                                    <div className="mt-3 bg-background/60 rounded-lg p-3">
+                                      <div className="text-muted-foreground text-xs mb-2 flex items-center justify-between">
+                                        <span className="flex items-center gap-1.5">
+                                          <CheckCircle size={12} />
+                                          Meeting action items
+                                          {leadActionTasks.length > 0 && (
+                                            <span className="text-muted-foreground/70">
+                                              ({leadActionTasks.filter(t => t.status !== 'complete' && t.status !== 'cancelled').length} open
+                                              {' / '}{leadActionTasks.length} total)
+                                            </span>
+                                          )}
+                                        </span>
+                                        <Link
+                                          href={buildLinkWithReturn(
+                                            `/admin/meeting-tasks?contact_submission_id=${lead.id}`,
+                                            `/admin/outreach?tab=leads&id=${lead.id}`
+                                          )}
+                                          className="text-[11px] text-violet-400 hover:text-violet-300"
+                                        >
+                                          Manage →
+                                        </Link>
+                                      </div>
+                                      {leadActionTasksLoading ? (
+                                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                          <RefreshCw size={12} className="animate-spin" /> Loading…
+                                        </div>
+                                      ) : (
+                                        <ul className="space-y-1.5">
+                                          {leadActionTasks.slice(0, 6).map((t) => (
+                                            <li key={t.id} className="flex items-center gap-2 text-xs">
+                                              <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                                                t.status === 'complete' ? 'bg-emerald-500'
+                                                  : t.status === 'cancelled' ? 'bg-gray-600'
+                                                  : t.status === 'in_progress' ? 'bg-blue-500'
+                                                  : 'bg-amber-500'
+                                              }`} />
+                                              <span className={`truncate flex-1 ${
+                                                t.status === 'complete' || t.status === 'cancelled'
+                                                  ? 'text-muted-foreground line-through'
+                                                  : 'text-foreground'
+                                              }`}>
+                                                {t.title}
+                                              </span>
+                                              {t.task_category === 'outreach' && (
+                                                <span className="text-[10px] px-1 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20">
+                                                  outreach
+                                                </span>
+                                              )}
+                                              {t.outreach_queue_id && (
+                                                <span className="text-[10px] px-1 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20" title="An outreach draft has been generated for this task">
+                                                  draft
+                                                </span>
+                                              )}
+                                            </li>
+                                          ))}
+                                          {leadActionTasks.length > 6 && (
+                                            <li className="text-[11px] text-muted-foreground pt-1">
+                                              + {leadActionTasks.length - 6} more
+                                            </li>
+                                          )}
+                                        </ul>
+                                      )}
+                                    </div>
+                                  )}
 
                                   {/* Related meetings for this lead */}
                                   {expandedLeadId === lead.id && (leadMeetingsLoading || leadMeetings.length > 0) && (

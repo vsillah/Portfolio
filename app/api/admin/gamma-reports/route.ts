@@ -161,7 +161,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { inputText, options, title, citationsMeta } = await buildGammaReportInput(body)
+    const { inputText, options, title, citationsMeta, feasibilityAssessment } =
+      await buildGammaReportInput(body)
 
     const row = await insertGammaReportRow({
       reportType: body.reportType,
@@ -177,6 +178,7 @@ export async function POST(request: NextRequest) {
       },
       gammaOptions: options,
       citationsMeta,
+      feasibilityAssessment: feasibilityAssessment ? (feasibilityAssessment as unknown as Record<string, unknown>) : null,
       createdBy: auth.user.id,
     })
 

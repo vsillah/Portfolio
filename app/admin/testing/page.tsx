@@ -140,7 +140,11 @@ const SCENARIOS: ScenarioMeta[] = [
   { id: 'audit_from_meetings', name: 'Audit from Meetings', tags: ['smoke', 'admin', 'meetings', 'audit-from-meetings'], journeyStage: 'lead' },
   { id: 'meeting_pipeline_synthetic', name: 'Meeting Pipeline (Synthetic)', tags: ['pipeline', 'synthetic', 'mock-data'], journeyStage: 'lead' },
   { id: 'discovery_to_proposal_synthetic', name: 'Discovery to Proposal (Synthetic)', tags: ['pipeline', 'synthetic', 'mock-data'], journeyStage: ['lead', 'client'] },
+  { id: 'meeting_task_attribution_smoke', name: 'Meeting Task Attribution (Smoke)', tags: ['smoke', 'meeting', 'tasks', 'phase4'], journeyStage: 'lead' },
+  { id: 'meeting_task_send_to_outreach_smoke', name: 'Meeting Task → Send to Outreach (Smoke)', tags: ['smoke', 'meeting', 'tasks', 'outreach', 'phase4'], journeyStage: 'lead' },
+  { id: 'outreach_prompt_meeting_items_smoke', name: 'Outreach Prompt Meeting Items (Smoke)', tags: ['smoke', 'outreach', 'prompts', 'phase4'], journeyStage: 'lead' },
   { id: 'credential_rotation_smoke', name: 'Credential Rotation Smoke', tags: ['credential-rotation', 'smoke'], journeyStage: 'lead' },
+  { id: 'feasibility_snapshot_smoke', name: 'Feasibility Snapshot (Schema Smoke)', tags: ['feasibility', 'schema', 'smoke'], journeyStage: 'lead' },
   { id: 'full_funnel', name: 'Full Funnel Journey', tags: ['critical'], journeyStage: ['prospect', 'lead', 'client'] },
   { id: 'browse_and_buy', name: 'Browse and Buy', tags: ['e-commerce'], journeyStage: 'client' },
   // Populate demo (E2E-based, no SQL)
@@ -435,6 +439,93 @@ function E2eListboxEditLink({
     >
       Edit
     </Link>
+  )
+}
+
+function E2ePresetContents({
+  presetId,
+  stageFilter,
+}: {
+  presetId: string
+  stageFilter: '' | JourneyStage
+}) {
+  const ids = useMemo(() => {
+    const base = scenarioIdsForPreset(presetId)
+    if (!stageFilter) return base
+    return intersectScenariosWithStage(base, stageFilter)
+  }, [presetId, stageFilter])
+
+  const scenarios = useMemo(
+    () =>
+      ids
+        .map(id => SCENARIOS.find(s => s.id === id))
+        .filter((s): s is (typeof SCENARIOS)[number] => Boolean(s)),
+    [ids]
+  )
+
+  const stageLabel = stageFilter
+    ? JOURNEY_STAGES.find(s => s.id === stageFilter)?.label ?? stageFilter
+    : null
+
+  if (presetId === 'populate_demo') {
+    const demoIds = scenarioIdsForPreset('populate_demo')
+    const demoScenarios = demoIds
+      .map(id => SCENARIOS.find(s => s.id === id))
+      .filter((s): s is (typeof SCENARIOS)[number] => Boolean(s))
+    return (
+      <details className="group rounded-lg border border-radiant-gold/20 bg-imperial-navy/40">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-platinum-white/80 hover:bg-radiant-gold/5">
+          <span>
+            Contains <span className="text-radiant-gold">{demoScenarios.length}</span> seed scenarios
+          </span>
+          <span className="text-platinum-white/50 transition-transform group-open:rotate-90">›</span>
+        </summary>
+        <ul className="divide-y divide-radiant-gold/10 border-t border-radiant-gold/15">
+          {demoScenarios.map(s => (
+            <li key={s.id} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+              <span className="text-platinum-white/90">{s.name}</span>
+              <code className="text-[10px] text-platinum-white/45">{s.id}</code>
+            </li>
+          ))}
+        </ul>
+      </details>
+    )
+  }
+
+  if (scenarios.length === 0) {
+    return (
+      <div className="rounded-lg border border-radiant-gold/20 bg-imperial-navy/40 px-3 py-2 text-xs text-platinum-white/60">
+        No scenarios in this preset{stageLabel ? ` for ${stageLabel}` : ''}.
+      </div>
+    )
+  }
+
+  return (
+    <details className="group rounded-lg border border-radiant-gold/20 bg-imperial-navy/40">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2 text-xs font-medium text-platinum-white/80 hover:bg-radiant-gold/5">
+        <span>
+          Contains <span className="text-radiant-gold">{scenarios.length}</span>{' '}
+          {scenarios.length === 1 ? 'scenario' : 'scenarios'}
+          {stageLabel ? <span className="text-platinum-white/55"> in {stageLabel}</span> : null}
+        </span>
+        <span className="text-platinum-white/50 transition-transform group-open:rotate-90">›</span>
+      </summary>
+      <ul className="divide-y divide-radiant-gold/10 border-t border-radiant-gold/15">
+        {scenarios.map(s => (
+          <li key={s.id} className="flex items-center justify-between gap-3 px-3 py-1.5 text-xs">
+            <span className="min-w-0 flex-1 truncate text-platinum-white/90" title={s.name}>
+              {s.name}
+            </span>
+            <span className="flex shrink-0 items-center gap-2">
+              <span className="rounded border border-radiant-gold/25 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-radiant-gold/80">
+                {JOURNEY_STAGES.find(js => js.id === s.journeyStage)?.label ?? s.journeyStage}
+              </span>
+              <code className="text-[10px] text-platinum-white/45">{s.id}</code>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </details>
   )
 }
 
@@ -2026,6 +2117,12 @@ export default function TestingDashboard() {
                       <option key={s.id} value={s.id}>{s.label}</option>
                     ))}
                   </select>
+                </div>
+                <div className="md:col-span-2">
+                  <E2ePresetContents
+                    presetId={selectedPresetId}
+                    stageFilter={presetStageFilter}
+                  />
                 </div>
               </div>
             )}

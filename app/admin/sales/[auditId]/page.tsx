@@ -44,9 +44,11 @@ import { DynamicScriptFlow } from '@/components/admin/sales/DynamicScriptFlow';
 import { ValueEvidencePanel } from '@/components/admin/sales/ValueEvidencePanel';
 import { ValueEvidenceCallPanel } from '@/components/admin/sales/ValueEvidenceCallPanel';
 import { ProposalModal } from '@/components/admin/sales/ProposalModal';
+import TechStackVerificationCard from '@/components/admin/sales/TechStackVerificationCard';
 import { useAdminReturnPath } from '@/lib/hooks/useAdminReturnPath';
 import { generateProposalEmailDraft, type ProposalEmailDraft } from '@/lib/proposal-email-draft';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
+import LatestAuditBanner from '@/components/audits/LatestAuditBanner';
 import { 
   User, 
   Building,
@@ -1001,6 +1003,15 @@ export default function ClientWalkthroughPage() {
           ]} 
         />
 
+        <div className="mb-4">
+          <LatestAuditBanner
+            mode="admin"
+            auditId={auditId}
+            contactSubmissionId={audit?.contact_submission_id ?? contact?.id ?? null}
+            email={contact?.email ?? null}
+          />
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
@@ -1157,6 +1168,16 @@ export default function ClientWalkthroughPage() {
                 )}
               </div>
             </div>
+
+            {/* Admin-verified tech stack (BuiltWith vs audit reconciliation) */}
+            {(audit?.contact_submission_id || contact?.id) && (
+              <TechStackVerificationCard
+                contactSubmissionId={
+                  (audit?.contact_submission_id as number | undefined) ??
+                  (contact?.id ? parseInt(contact.id, 10) : 0)
+                }
+              />
+            )}
 
             {/* Diagnostic Summary */}
             {audit && (

@@ -133,6 +133,10 @@ export interface ValidateDatabaseStep {
   conditions: Record<string, unknown>
   expectedCount?: number
   expectedFields?: Record<string, unknown>
+  // When present, replaces the default `select('*')`. Any column in the list
+  // that does not exist on the table will cause PostgREST to error and fail
+  // the step — useful for asserting a migration has been applied.
+  selectColumns?: string[]
 }
 
 export interface ScreenshotStep {

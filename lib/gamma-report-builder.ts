@@ -39,6 +39,11 @@ import {
   type ObjectionHandler,
 } from './sales-scripts'
 import { expandBundleItems } from './bundle-expand'
+import {
+  FEASIBILITY_ASSESSMENT_ENABLED,
+  extractClientStackSources,
+  loadBundleProposedItems,
+} from './feasibility-snapshot'
 import { CREATOR_BACKGROUND } from './constants/creator-background'
 import { fetchMeetingsForAudit, type MeetingForAudit } from './audit-from-meetings'
 import {
@@ -51,6 +56,10 @@ import {
   itemsForPainPoint,
   type EvidenceItem,
 } from './gamma-evidence-index'
+import {
+  buildFeasibilityAssessment,
+  type FeasibilityAssessment,
+} from './implementation-feasibility'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -111,6 +120,12 @@ export interface GammaReportInput {
     counts: Record<string, number>
     generatedAt: string
   }
+  /**
+   * Stack-aware feasibility snapshot when bundleId is present and the feature
+   * flag is enabled. Included so the caller can persist it alongside
+   * gamma_reports.feasibility_assessment.
+   */
+  feasibilityAssessment?: FeasibilityAssessment | null
 }
 
 /** Minimal context for video script generation (companion video from report). */
@@ -144,6 +159,7 @@ interface ContactData {
   employee_count: string
   phone?: string
   website_tech_stack?: Record<string, unknown> | null
+  client_verified_tech_stack?: Record<string, unknown> | null
 }
 
 interface PainPointEvidenceData {
@@ -392,6 +408,139 @@ export function buildEvidenceForReport(
 }
 
 // ---------------------------------------------------------------------------
+// Feasibility loading helpers (thin wrapper around ./feasibility-snapshot)
+// ---------------------------------------------------------------------------
+
+/**
+ * Build the feasibility assessment for a report, or return null when the
+ * feature is disabled, no bundle is in scope, or the report type doesn't
+ * use it. Implementation strategy + offer presentation are the v1 targets.
+ */
+async function maybeBuildFeasibility(
+  ctx: ReportContext,
+  params: GammaReportParams
+): Promise<FeasibilityAssessment | null> {
+  if (!FEASIBILITY_ASSESSMENT_ENABLED) return null
+  if (params.reportType !== 'implementation_strategy' && params.reportType !== 'offer_presentation') {
+    return null
+  }
+  if (!params.bundleId) return null
+
+  const [proposedItems, bundleRow] = await Promise.all([
+    loadBundleProposedItems(params.bundleId),
+    supabaseAdmin
+      ? supabaseAdmin
+          .from('offer_bundles')
+          .select('id, name')
+          .eq('id', params.bundleId)
+          .single()
+          .then((r: { data: { id: string; name: string } | null }) => r.data)
+      : Promise.resolve(null),
+  ])
+
+  const { sources, creditsRemaining } = extractClientStackSources({
+    contactWebsiteTechStack: ctx.contact?.website_tech_stack ?? null,
+    contactVerifiedTechStack: ctx.contact?.client_verified_tech_stack ?? null,
+    auditEnrichedTechStack: ctx.audit?.enriched_tech_stack ?? null,
+  })
+
+  return buildFeasibilityAssessment({
+    proposedItems,
+    bundle: { id: bundleRow?.id ?? params.bundleId, name: bundleRow?.name ?? null },
+    clientStack: sources,
+    builtwithCreditsRemaining: creditsRemaining,
+  })
+}
+
+/**
+ * Render the three feasibility slides (Stack Fit, Effort & Complexity,
+ * Tradeoff Decisions) and an anti-fabrication fenced JSON block with the
+ * full assessment so Gamma uses the structured data verbatim.
+ */
+function buildFeasibilitySlides(
+  assessment: FeasibilityAssessment,
+  orgName: string
+): string {
+  const { items, open_tradeoffs, stack_fit_summary, overall_feasibility, estimated_complexity } = assessment
+
+  const fitRows = items
+    .map((it) => {
+      const matches = it.fit.filter((f) => f.kind === 'match').map((f) => `${f.our}`).join(', ')
+      const integrations = it.fit.filter((f) => f.kind === 'integrate').map((f) => `${f.our} \u2194 ${f.client ?? '?'}`).join(', ')
+      const gaps = it.fit.filter((f) => f.kind === 'gap').map((f) => f.our).join(', ')
+      const replaces = it.fit.filter((f) => f.kind === 'replace').map((f) => `${f.our} vs ${f.client ?? '?'}`).join(', ')
+      return `| ${it.title} | ${matches || '\u2014'} | ${integrations || '\u2014'} | ${gaps || '\u2014'} | ${replaces || '\u2014'} |`
+    })
+    .join('\n')
+
+  const stackFitSlide = `
+# Stack Fit Assessment
+## How ${orgName}'s Current Tools Line Up With This Package
+
+${stack_fit_summary}
+
+| Deliverable | Already Have | We Integrate | We Set Up | Replace Decision |
+|-------------|--------------|--------------|-----------|------------------|
+${fitRows || '| (no proposed items) | \u2014 | \u2014 | \u2014 | \u2014 |'}
+
+**Client stack source:** ${assessment.client_stack_source}. Overall feasibility: **${overall_feasibility}**.
+`
+
+  const effortRows = items
+    .map((it) => {
+      const infra = it.requires.client_infrastructure.join(', ') || 'None'
+      return `| ${it.title} | ${it.effort} | ${it.risks.join('; ') || '\u2014'} | ${infra} |`
+    })
+    .join('\n')
+
+  const effortSlide = `
+# Effort & Complexity
+## What Delivery Looks Like
+
+Overall complexity: **${estimated_complexity}**.
+
+| Deliverable | Effort | Notable Risks | Client Infrastructure Required |
+|-------------|--------|---------------|------------------------------|
+${effortRows || '| (no proposed items) | \u2014 | \u2014 | \u2014 |'}
+
+Effort is derived from the number of new components we set up, the integrations we wire to your stack, and any replacement decisions.
+`
+
+  const tradeoffsList = open_tradeoffs.length > 0
+    ? open_tradeoffs.map((t) => `- ${t}`).join('\n')
+    : '- No open tradeoff decisions. Proposed package lines up with current stack assumptions.'
+
+  const tradeoffSlide = `
+# Tradeoff Decisions
+## Where We Need Your Input Before Kickoff
+
+${tradeoffsList}
+`
+
+  const structured = `
+[STRUCTURED FEASIBILITY ASSESSMENT \u2014 use verbatim, do not infer additional findings]
+
+\`\`\`json
+${JSON.stringify(assessment, null, 2)}
+\`\`\`
+`
+
+  return [stackFitSlide, effortSlide, tradeoffSlide, structured].join('\n---\n')
+}
+
+function feasibilityAntiFabricationClause(assessment: FeasibilityAssessment | null): string {
+  if (!assessment) return ''
+  return [
+    'STACK-AWARE FEASIBILITY RULES:',
+    '- The Stack Fit, Effort & Complexity, and Tradeoff Decisions slides were generated deterministically from structured data.',
+    '- Do NOT invent new matches, integrations, gaps, risks, or tradeoffs that are not present in the STRUCTURED FEASIBILITY ASSESSMENT JSON block.',
+    '- Do NOT change effort labels (small / medium / large) or overall feasibility (high / medium / low).',
+    '- You may rewrite prose for clarity and tone; preserve every item, fit entry, and tradeoff exactly as listed.',
+    `- Client stack source: ${assessment.client_stack_source}. BuiltWith credits state: ${assessment.builtwith_credits_state}.`,
+  ].join('\n')
+}
+
+// ---------------------------------------------------------------------------
 // Main entry point
 // ---------------------------------------------------------------------------
 
@@ -399,6 +548,7 @@ export async function buildGammaReportInput(
   params: GammaReportParams
 ): Promise<GammaReportInput> {
   const context = await fetchReportContext(params)
+  const feasibilityAssessment = await maybeBuildFeasibility(context, params)
 
   let inputText: string
   let title: string
@@ -408,7 +558,7 @@ export async function buildGammaReportInput(
       ({ inputText, title } = buildValueQuantificationPrompt(context, params))
       break
     case 'implementation_strategy':
-      ({ inputText, title } = buildImplementationStrategyPrompt(context, params))
+      ({ inputText, title } = buildImplementationStrategyPrompt(context, params, feasibilityAssessment))
       break
     case 'audit_summary':
       ({ inputText, title } = buildAuditSummaryPrompt(context, params))
@@ -418,7 +568,7 @@ export async function buildGammaReportInput(
       break
     case 'offer_presentation': {
       const offerCtx = await fetchOfferContext(params)
-      ;({ inputText, title } = buildOfferPresentationPrompt(context, offerCtx, params))
+      ;({ inputText, title } = buildOfferPresentationPrompt(context, offerCtx, params, feasibilityAssessment))
       break
     }
     default:
@@ -457,7 +607,8 @@ export async function buildGammaReportInput(
   options.additionalInstructions = composeAdditionalInstructions(
     context,
     params.externalInputs,
-    options.additionalInstructions
+    options.additionalInstructions,
+    feasibilityAssessment
   )
 
   const evidenceItems = buildEvidenceForReport(context, params.externalInputs)
@@ -471,7 +622,7 @@ export async function buildGammaReportInput(
     generatedAt: new Date().toISOString(),
   }
 
-  return { inputText, options, title, citationsMeta }
+  return { inputText, options, title, citationsMeta, feasibilityAssessment }
 }
 
 /**
@@ -485,11 +636,14 @@ export async function buildGammaReportInput(
 function composeAdditionalInstructions(
   ctx: ReportContext,
   externalInputs: ExternalInputs | undefined,
-  existing: string | undefined
+  existing: string | undefined,
+  feasibilityAssessment?: FeasibilityAssessment | null
 ): string | undefined {
   const items = buildEvidenceForReport(ctx, externalInputs)
   const preamble = buildSourceFidelityPreamble(items)
   const parts: string[] = [preamble]
+  const feasibilityClause = feasibilityAntiFabricationClause(feasibilityAssessment ?? null)
+  if (feasibilityClause) parts.push(feasibilityClause)
   if (existing && existing.trim().length > 0) parts.push(existing.trim())
   if (externalInputs?.customInstructions && externalInputs.customInstructions.trim().length > 0) {
     parts.push(externalInputs.customInstructions.trim())
@@ -510,7 +664,7 @@ export async function fetchReportContext(params: GammaReportParams): Promise<Rep
     params.contactSubmissionId
       ? supabaseAdmin
           .from('contact_submissions')
-          .select('id, name, email, company, industry, employee_count, website_tech_stack')
+          .select('id, name, email, company, industry, employee_count, website_tech_stack, client_verified_tech_stack')
           .eq('id', params.contactSubmissionId)
           .single()
           .then((r: { data: ContactData | null }) => r.data)
@@ -674,6 +828,8 @@ async function buildGammaReportInputFromContext(
   ctx: ReportContext,
   params: GammaReportParams
 ): Promise<GammaReportInput> {
+  const feasibilityAssessment = await maybeBuildFeasibility(ctx, params)
+
   let inputText: string
   let title: string
 
@@ -682,7 +838,7 @@ async function buildGammaReportInputFromContext(
       ({ inputText, title } = buildValueQuantificationPrompt(ctx, params))
       break
     case 'implementation_strategy':
-      ({ inputText, title } = buildImplementationStrategyPrompt(ctx, params))
+      ({ inputText, title } = buildImplementationStrategyPrompt(ctx, params, feasibilityAssessment))
       break
     case 'audit_summary':
       ({ inputText, title } = buildAuditSummaryPrompt(ctx, params))
@@ -692,7 +848,7 @@ async function buildGammaReportInputFromContext(
       break
     case 'offer_presentation': {
       const offerCtx = await fetchOfferContext(params)
-      ;({ inputText, title } = buildOfferPresentationPrompt(ctx, offerCtx, params))
+      ;({ inputText, title } = buildOfferPresentationPrompt(ctx, offerCtx, params, feasibilityAssessment))
       break
     }
     default:
@@ -731,7 +887,8 @@ async function buildGammaReportInputFromContext(
   options.additionalInstructions = composeAdditionalInstructions(
     ctx,
     params.externalInputs,
-    options.additionalInstructions
+    options.additionalInstructions,
+    feasibilityAssessment
   )
 
   const evidenceItems = buildEvidenceForReport(ctx, params.externalInputs)
@@ -745,7 +902,7 @@ async function buildGammaReportInputFromContext(
     generatedAt: new Date().toISOString(),
   }
 
-  return { inputText, options, title, citationsMeta }
+  return { inputText, options, title, citationsMeta, feasibilityAssessment }
 }
 
 // ---------------------------------------------------------------------------
@@ -1029,7 +1186,8 @@ ${params.externalInputs.siteCrawlData}
 
 function buildImplementationStrategyPrompt(
   ctx: ReportContext,
-  params: GammaReportParams
+  params: GammaReportParams,
+  feasibility: FeasibilityAssessment | null = null
 ): { inputText: string; title: string } {
   const orgName = resolveOrganizationLabel(ctx)
   const domain = params.externalInputs?.siteCrawlData ? 'Website UX Redesign' : 'Digital Strategy'
@@ -1312,6 +1470,11 @@ Ready to turn ${orgName}'s website into a mission-aligned growth engine? Here's 
 Amadutown Advisory Solutions
 amadutown.com
 `)
+
+  // --- Feasibility Slides (stack-aware; only when bundle + feature flag) ---
+  if (feasibility) {
+    sections.push(buildFeasibilitySlides(feasibility, orgName))
+  }
 
   // --- Evidence Ledger (must be the last content slide before bio) ---
   sections.push(buildEvidenceLedgerSlide(evidence))
@@ -2032,7 +2195,8 @@ function formatPresenterNote(note: PresenterNote): string {
 function buildOfferPresentationPrompt(
   ctx: ReportContext,
   offerCtx: OfferContext,
-  params: GammaReportParams
+  params: GammaReportParams,
+  feasibility: FeasibilityAssessment | null = null
 ): { inputText: string; title: string } {
   const orgName = resolveOrganizationLabel(ctx)
   const metrics = computeDerivedMetrics(ctx)
@@ -2281,6 +2445,11 @@ ${formatPresenterNote(openingNotes)}`)
   nextSlide += `Amadutown Advisory Solutions\namadutown.com\n`
   nextSlide += `\n${formatPresenterNote(closeNotes)}`
   sections.push(nextSlide)
+
+  // --- Feasibility Slides (stack-aware; only when bundle + feature flag) ---
+  if (feasibility) {
+    sections.push(buildFeasibilitySlides(feasibility, orgName))
+  }
 
   // --- Evidence Ledger ---
   sections.push(buildEvidenceLedgerSlide(evidence))

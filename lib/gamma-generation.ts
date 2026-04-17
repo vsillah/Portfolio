@@ -22,6 +22,8 @@ export interface GammaRowInsertParams {
   createdBy: string | null
   /** Canonical EvidenceItem[] (with counts + timestamp) used to build the deck. */
   citationsMeta?: Record<string, unknown> | null
+  /** Stack-aware feasibility snapshot (implementation_strategy + offer_presentation only). */
+  feasibilityAssessment?: Record<string, unknown> | null
 }
 
 export interface GammaGenerationResult {
@@ -55,6 +57,7 @@ export async function insertGammaReportRow(
       external_inputs: params.externalInputs,
       gamma_options: params.gammaOptions,
       citations_meta: params.citationsMeta ?? null,
+      feasibility_assessment: params.feasibilityAssessment ?? null,
       status: 'generating',
       created_by: params.createdBy,
     })

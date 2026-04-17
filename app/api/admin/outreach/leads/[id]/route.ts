@@ -139,7 +139,7 @@ export async function PATCH(
       rep_pain_points?: string
       do_not_contact?: boolean
       removed_at?: string | null
-      website_tech_stack?: { domain: string; technologies?: unknown[]; byTag?: Record<string, string[]> }
+      website_tech_stack?: { domain: string; technologies?: unknown[]; byTag?: Record<string, string[]>; creditsRemaining?: number | null }
       website_tech_stack_fetched_at?: string
     }
 

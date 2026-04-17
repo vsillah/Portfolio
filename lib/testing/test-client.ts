@@ -694,7 +694,11 @@ export class SimulatedClient {
   }
   
   private async executeValidateDatabase(step: ValidateDatabaseStep): Promise<Record<string, unknown>> {
-    let query = this.supabase.from(step.table).select('*')
+    const selectExpr =
+      step.selectColumns && step.selectColumns.length > 0
+        ? step.selectColumns.join(',')
+        : '*'
+    let query = this.supabase.from(step.table).select(selectExpr)
     
     // Apply conditions (Supabase eq accepts string; coerce for dynamic conditions)
     for (const [field, value] of Object.entries(step.conditions)) {

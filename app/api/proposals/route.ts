@@ -11,6 +11,7 @@ import { getUpsellPathsForOffer, formatUpsellAsProposalAddon } from '@/lib/upsel
 import { generateAccessCode } from '@/lib/proposal-access-code';
 import { generateOnboardingPreviewPDF } from '@/lib/onboarding-preview-pdf';
 import { generateAIOnboardingContent, type AIOnboardingContent } from '@/lib/ai-onboarding-generator';
+import { buildFeasibilitySnapshot } from '@/lib/feasibility-snapshot';
 
 export const dynamic = 'force-dynamic';
 
@@ -154,6 +155,40 @@ export async function POST(request: NextRequest) {
       // Non-critical — continue without upsell add-ons
     }
 
+    // =========================================================================
+    // Build stack-aware feasibility snapshot (bundle tech stack vs client stack)
+    // Returns null when the feature flag is off, no bundle is selected, or
+    // required data is missing. Stored on proposals.feasibility_assessment so
+    // the proposal view can render a client-friendly "Implementation fit" block.
+    // =========================================================================
+    let feasibilityAssessment: Record<string, unknown> | null = null;
+    try {
+      if (bundle_id) {
+        let contactSubmissionId: number | null = null;
+        let diagnosticAuditId: string | null = null;
+        if (sales_session_id) {
+          const { data: sessionLink } = await supabaseAdmin
+            .from('sales_sessions')
+            .select('contact_submission_id, diagnostic_audit_id')
+            .eq('id', sales_session_id)
+            .single();
+          contactSubmissionId = (sessionLink?.contact_submission_id as number | null) ?? null;
+          diagnosticAuditId = (sessionLink?.diagnostic_audit_id as string | null) ?? null;
+        }
+        const snapshot = await buildFeasibilitySnapshot({
+          bundleId: bundle_id,
+          contactSubmissionId,
+          diagnosticAuditId,
+        });
+        if (snapshot) {
+          feasibilityAssessment = snapshot as unknown as Record<string, unknown>;
+        }
+      }
+    } catch (feasErr) {
+      console.error('Error building feasibility snapshot for proposal:', feasErr);
+      // Non-critical — continue without feasibility snapshot
+    }
+
     // Calculate valid_until
     const valid_until = new Date();
     valid_until.setDate(valid_until.getDate() + valid_days);
@@ -190,6 +225,9 @@ export async function POST(request: NextRequest) {
     // Attach upsell add-ons (stored as JSONB, not included in total by default)
     if (upsellAddons.length > 0) {
       insertData.upsell_addons = upsellAddons;
+    }
+    if (feasibilityAssessment) {
+      insertData.feasibility_assessment = feasibilityAssessment;
     }
 
     const { data: proposal, error: createError } = await supabaseAdmin

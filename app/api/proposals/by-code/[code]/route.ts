@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { projectForClient, type FeasibilityAssessment } from '@/lib/implementation-feasibility';
 
 export const dynamic = 'force-dynamic';
 
@@ -89,8 +90,23 @@ export async function GET(
       }
     }
 
+    // Project feasibility snapshot to client-safe shape (strip admin-only fields
+    // like raw conflicts and internal integration method hints).
+    let feasibilityView: ReturnType<typeof projectForClient> | null = null;
+    if (proposal.feasibility_assessment) {
+      try {
+        feasibilityView = projectForClient(proposal.feasibility_assessment as FeasibilityAssessment);
+      } catch (projErr) {
+        console.error('[proposal by-code] projectForClient failed', projErr);
+      }
+    }
+
+    // Strip the raw admin snapshot from what we return to the client.
+    const { feasibility_assessment: _stripped, ...proposalForClient } = proposal as Record<string, unknown>;
+    void _stripped;
+
     return NextResponse.json({
-      proposal,
+      proposal: { ...proposalForClient, feasibility_view: feasibilityView },
       canAccept,
       canPay,
       isExpired,

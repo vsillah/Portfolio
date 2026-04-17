@@ -85,6 +85,25 @@ interface Proposal {
   contract_signed_by_name?: string | null;
   access_code?: string;
   service_term_months?: number | null;
+  feasibility_view?: FeasibilityClientView | null;
+}
+
+interface FeasibilityClientItem {
+  title: string;
+  fit_summary: string;
+  effort_label: string;
+  works_with: string[];
+  connects_to: string[];
+  we_set_up: string[];
+}
+
+interface FeasibilityClientView {
+  generated_at: string;
+  overall_fit_label: string;
+  estimated_complexity_label: string;
+  items: FeasibilityClientItem[];
+  open_decisions: string[];
+  headline: string;
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -650,6 +669,11 @@ function ProposalByCodeContent() {
             />
           )}
 
+        {/* Implementation Fit Section */}
+        {proposal.feasibility_view && proposal.feasibility_view.items.length > 0 && (
+          <ImplementationFitSection view={proposal.feasibility_view} />
+        )}
+
         {/* Line Items */}
         <div className="bg-gray-900 rounded-xl border border-gray-800 mb-6 overflow-hidden">
           <div className="p-4 border-b border-gray-800">
@@ -908,6 +932,86 @@ function ProposalByCodeContent() {
         </div>
       </div>
     </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Implementation Fit Section - Stack-aware feasibility (client projection)
+// ============================================================================
+
+function ImplementationFitSection({ view }: { view: FeasibilityClientView }) {
+  return (
+    <div className="bg-gray-900 rounded-xl border border-gray-800 mb-6 overflow-hidden">
+      <div className="p-4 border-b border-gray-800 flex items-center gap-2">
+        <Package className="w-5 h-5 text-blue-400" />
+        <h2 className="font-semibold">Implementation Fit</h2>
+      </div>
+      <div className="p-5 space-y-5">
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-3">
+            <div className="text-xs uppercase tracking-wide text-blue-300 mb-1">Overall fit</div>
+            <div className="text-sm text-gray-100">{view.overall_fit_label}</div>
+          </div>
+          <div className="rounded-lg bg-purple-500/10 border border-purple-500/30 p-3">
+            <div className="text-xs uppercase tracking-wide text-purple-300 mb-1">Estimated scope</div>
+            <div className="text-sm text-gray-100">{view.estimated_complexity_label}</div>
+          </div>
+        </div>
+
+        {view.headline && (
+          <p className="text-sm text-gray-300">{view.headline}</p>
+        )}
+
+        <div className="space-y-3">
+          {view.items.map((item, idx) => (
+            <div key={idx} className="rounded-lg border border-gray-800 bg-gray-950/50 p-4">
+              <div className="flex items-start justify-between gap-3 mb-2">
+                <div className="font-medium text-gray-100">{item.title}</div>
+                <span className="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-300 whitespace-nowrap">
+                  {item.effort_label}
+                </span>
+              </div>
+              {item.fit_summary && (
+                <p className="text-sm text-gray-400 mb-3">{item.fit_summary}</p>
+              )}
+              <div className="space-y-1.5 text-xs">
+                {item.works_with.length > 0 && (
+                  <div>
+                    <span className="text-emerald-400 font-medium">Already on your stack:</span>{' '}
+                    <span className="text-gray-300">{item.works_with.join(', ')}</span>
+                  </div>
+                )}
+                {item.connects_to.length > 0 && (
+                  <div>
+                    <span className="text-blue-400 font-medium">Connects with:</span>{' '}
+                    <span className="text-gray-300">{item.connects_to.join(', ')}</span>
+                  </div>
+                )}
+                {item.we_set_up.length > 0 && (
+                  <div>
+                    <span className="text-amber-400 font-medium">We&apos;ll set up:</span>{' '}
+                    <span className="text-gray-300">{item.we_set_up.join(', ')}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {view.open_decisions.length > 0 && (
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+            <div className="text-xs uppercase tracking-wide text-amber-300 mb-1.5">
+              Decisions to discuss together
+            </div>
+            <ul className="text-sm text-gray-200 space-y-1 list-disc list-inside">
+              {view.open_decisions.map((d, i) => (
+                <li key={i}>{d}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

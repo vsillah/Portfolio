@@ -722,6 +722,153 @@ export const discoveryToProposalScenario: TestScenario = {
   tags: ['pipeline', 'discovery', 'synthetic', 'mock-data'],
 }
 
+// ============================================================================
+// Meeting action tasks → outreach cascade (Phase 4)
+// ============================================================================
+
+/**
+ * Scenario: Meeting → tasks attribution smoke.
+ *
+ * Exercises the meeting ingest endpoint and then validates the downstream
+ * `meeting_action_tasks` shape produced by `promoteActionItems`. Because the
+ * scenario runner does not pass ids between steps, this is a shape-level
+ * smoke — it confirms that:
+ *   - The ingest endpoint is reachable and creates a meeting_records row.
+ *   - `meeting_action_tasks.task_category` is queryable (migration applied).
+ *
+ * For the full attribution cascade (assign-lead → backfill contact_submission_id)
+ * run a manual API smoke per `docs/regression-smoke-checklist.md`.
+ */
+export const meetingTaskAttributionSmokeScenario: TestScenario = {
+  id: 'meeting_task_attribution_smoke',
+  name: 'Meeting Task Attribution (Smoke)',
+  description: 'Ingest a meeting and verify the meeting_action_tasks schema is present (task_category column query succeeds). Shape-level smoke for the Phase 4 attribution migration.',
+  journeyStage: 'lead',
+
+  steps: [
+    {
+      type: 'apiCall',
+      endpoint: '/api/admin/meetings/ingest',
+      method: 'POST',
+      body: {
+        transcript: `Phase 4 smoke — meeting task attribution. Recorded on ${new Date().toISOString()}.`,
+        title: 'Phase 4 Smoke: Meeting Task Attribution',
+        meeting_type: 'discovery_call',
+        meeting_date: new Date().toISOString(),
+        attendee_name: 'Phase4 Smoke Prospect',
+        attendee_email: 'test-phase4-attribution@test.amadutown.com',
+      },
+      expectedStatus: 201,
+      description: 'Ingest synthetic meeting transcript',
+    },
+    { type: 'delay', duration: 1500, description: 'Allow meeting insert to commit' },
+    {
+      type: 'validateDatabase',
+      table: 'meeting_records',
+      conditions: { meeting_type: 'discovery_call' },
+    },
+    {
+      // Validates the migration is applied: task_category='outreach' is a legal
+      // value on this column. Empty result set is acceptable (no test data yet).
+      type: 'validateDatabase',
+      table: 'meeting_action_tasks',
+      conditions: { task_category: 'outreach' },
+    },
+  ],
+
+  variability: { skipProbability: {}, delayRange: [500, 1500], responseVariation: false },
+  expectedOutcomes: {
+    mustComplete: ['apiCall'],
+    mustNotError: ['validateDatabase'],
+    dataValidation: [],
+  },
+  estimatedDuration: 8000,
+  tags: ['pipeline', 'meeting', 'tasks', 'phase4', 'smoke'],
+}
+
+/**
+ * Scenario: Send-to-outreach endpoint reachability.
+ *
+ * Hits POST /api/meeting-action-tasks/[id]/send-to-outreach with a non-existent
+ * task UUID and expects a 404. This proves:
+ *   - The route exists (migration + code deployed together).
+ *   - Admin auth is required and succeeds (adminToken reaches the route).
+ *   - The task-not-found path returns a safe generic error.
+ *
+ * Full idempotency + draft generation path is covered by the manual API
+ * smoke in the Phase 4 verification gate.
+ */
+export const meetingTaskSendToOutreachSmokeScenario: TestScenario = {
+  id: 'meeting_task_send_to_outreach_smoke',
+  name: 'Meeting Task → Send to Outreach (Endpoint Smoke)',
+  description: 'Verify the POST /api/meeting-action-tasks/[id]/send-to-outreach route is reachable, auth works, and returns 404 for a non-existent task id. Full generation path covered by manual API smoke.',
+  journeyStage: 'lead',
+
+  steps: [
+    {
+      type: 'apiCall',
+      endpoint: '/api/meeting-action-tasks/00000000-0000-0000-0000-000000000000/send-to-outreach',
+      method: 'POST',
+      body: {},
+      // 404 or 400 — either proves the route is reachable; we accept whichever
+      // the route chooses. Marking expectedStatus: 404 is the current behavior.
+      expectedStatus: 404,
+      description: 'Endpoint reachability smoke with non-existent task id',
+    },
+  ],
+
+  variability: { skipProbability: {}, delayRange: [0, 500], responseVariation: false },
+  expectedOutcomes: {
+    mustComplete: ['apiCall'],
+    mustNotError: [],
+    dataValidation: [],
+  },
+  estimatedDuration: 3000,
+  tags: ['meeting', 'tasks', 'outreach', 'phase4', 'smoke'],
+}
+
+/**
+ * Scenario: Outreach prompt carries meeting action items sentinel.
+ *
+ * Validates the migration that UPSERT'd {{#meeting_action_items}} sentinels
+ * into both email_cold_outreach and email_follow_up system prompts. Since
+ * validateDatabase only supports `.eq` filters, we assert on the presence of
+ * the two rows by key — the runtime wiring in outreach-queue-generator +
+ * delivery-email is covered by the vitest unit tests.
+ */
+export const outreachPromptMeetingItemsSmokeScenario: TestScenario = {
+  id: 'outreach_prompt_meeting_items_smoke',
+  name: 'Outreach Prompt Meeting Items (Smoke)',
+  description: 'Confirm email_cold_outreach and email_follow_up system prompt rows exist (schema + seed for {{meeting_action_items}} sentinels are in place).',
+  journeyStage: 'lead',
+
+  steps: [
+    {
+      type: 'validateDatabase',
+      table: 'system_prompts',
+      conditions: { key: 'email_cold_outreach' },
+      expectedCount: 1,
+    },
+    {
+      type: 'validateDatabase',
+      table: 'system_prompts',
+      conditions: { key: 'email_follow_up' },
+      expectedCount: 1,
+    },
+  ],
+
+  variability: { skipProbability: {}, delayRange: [0, 500], responseVariation: false },
+  expectedOutcomes: {
+    mustComplete: [],
+    mustNotError: ['validateDatabase'],
+    dataValidation: [
+      { table: 'system_prompts', field: 'key', condition: 'equals', value: 'email_cold_outreach' },
+    ],
+  },
+  estimatedDuration: 3000,
+  tags: ['outreach', 'prompts', 'phase4', 'smoke'],
+}
+
 /**
  * Scenario 14: Credential Rotation Smoke
  * Fires each major webhook trigger and confirms no 401/403/500 errors.
@@ -784,6 +931,52 @@ export const credentialRotationSmokeScenario: TestScenario = {
   },
   estimatedDuration: 8000,
   tags: ['credential-rotation', 'smoke-test', 'synthetic'],
+}
+
+/**
+ * Scenario: Feasibility snapshot columns are live (schema smoke).
+ *
+ * Asserts that the 2026-04-17 feasibility migration is applied on the target
+ * environment by running conditions-free validateDatabase queries against the
+ * three tables that gained columns. Empty result sets are acceptable — this
+ * is a shape-level check, not a data fixture.
+ */
+export const feasibilitySnapshotSmokeScenario: TestScenario = {
+  id: 'feasibility_snapshot_smoke',
+  name: 'Feasibility Snapshot (Schema Smoke)',
+  description:
+    'Verify the 2026-04-17 feasibility migration is applied: selects the new JSONB columns on gamma_reports, proposals, and contact_submissions so the step fails fast if the column is missing. Shape-level smoke only; runtime wiring is covered by Vitest.',
+  journeyStage: 'lead',
+
+  steps: [
+    {
+      type: 'validateDatabase',
+      table: 'gamma_reports',
+      conditions: {},
+      selectColumns: ['id', 'feasibility_assessment'],
+    },
+    {
+      type: 'validateDatabase',
+      table: 'proposals',
+      conditions: {},
+      selectColumns: ['id', 'feasibility_assessment'],
+    },
+    {
+      type: 'validateDatabase',
+      table: 'contact_submissions',
+      conditions: {},
+      selectColumns: ['id', 'client_verified_tech_stack'],
+    },
+  ],
+
+  variability: { skipProbability: {}, delayRange: [0, 200], responseVariation: false },
+  expectedOutcomes: {
+    mustComplete: ['validateDatabase'],
+    mustNotError: ['validateDatabase'],
+    dataValidation: [],
+  },
+  estimatedDuration: 2000,
+  tags: ['feasibility', 'schema', 'smoke', 'migration'],
 }
 
 // ============================================================================
@@ -1087,7 +1280,11 @@ export const ALL_SCENARIOS: TestScenario[] = [
   auditFromMeetingsScenario,
   meetingPipelineScenario,
   discoveryToProposalScenario,
+  meetingTaskAttributionSmokeScenario,
+  meetingTaskSendToOutreachSmokeScenario,
+  outreachPromptMeetingItemsSmokeScenario,
   credentialRotationSmokeScenario,
+  feasibilitySnapshotSmokeScenario,
   chatbotQuestionBankStratifiedScenario,
   chatbotQuestionBankBoundaryScenario,
   chatbotQuestionBankDiagnosticScenario,
@@ -1108,7 +1305,11 @@ export const SCENARIOS_BY_ID: Record<string, TestScenario> = {
   audit_from_meetings: auditFromMeetingsScenario,
   meeting_pipeline_synthetic: meetingPipelineScenario,
   discovery_to_proposal_synthetic: discoveryToProposalScenario,
+  meeting_task_attribution_smoke: meetingTaskAttributionSmokeScenario,
+  meeting_task_send_to_outreach_smoke: meetingTaskSendToOutreachSmokeScenario,
+  outreach_prompt_meeting_items_smoke: outreachPromptMeetingItemsSmokeScenario,
   credential_rotation_smoke: credentialRotationSmokeScenario,
+  feasibility_snapshot_smoke: feasibilitySnapshotSmokeScenario,
   chatbot_question_bank_stratified: chatbotQuestionBankStratifiedScenario,
   chatbot_question_bank_boundary: chatbotQuestionBankBoundaryScenario,
   chatbot_question_bank_diagnostic: chatbotQuestionBankDiagnosticScenario,
@@ -1151,7 +1352,11 @@ export const CRITICAL_SCENARIOS: TestScenario[] = [
  */
 export const SMOKE_TEST_SCENARIOS: TestScenario[] = [
   quickBrowseScenario,
-  standaloneAuditToolScenario
+  standaloneAuditToolScenario,
+  meetingTaskAttributionSmokeScenario,
+  meetingTaskSendToOutreachSmokeScenario,
+  outreachPromptMeetingItemsSmokeScenario,
+  feasibilitySnapshotSmokeScenario,
 ]
 
 /**
