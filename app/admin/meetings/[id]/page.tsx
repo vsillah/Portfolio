@@ -6,12 +6,25 @@ import Link from 'next/link'
 import {
   ArrowLeft, RefreshCw, Calendar, Clock, Video,
   CheckSquare, Lightbulb, AlertTriangle, MessageSquare,
-  ChevronDown, ChevronUp, Users, ExternalLink,
+  ChevronDown, ChevronUp, Users, ExternalLink, ListChecks,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import { getBackUrl, buildLinkWithReturn } from '@/lib/admin-return-context'
+
+interface MeetingTaskRow {
+  id: string
+  title: string
+  description: string | null
+  status: 'pending' | 'in_progress' | 'complete' | 'cancelled'
+  task_category: 'internal' | 'outreach'
+  owner: string | null
+  due_date: string | null
+  contact_submission_id: number | null
+  outreach_queue_id: string | null
+  lead?: { name?: string | null; email?: string | null } | null
+}
 
 interface MeetingDetail {
   id: string
@@ -86,6 +99,30 @@ function MeetingDetailContent() {
   const [meeting, setMeeting] = useState<MeetingDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [tasks, setTasks] = useState<MeetingTaskRow[]>([])
+  const [tasksLoading, setTasksLoading] = useState(true)
+
+  const fetchTasks = useCallback(async () => {
+    setTasksLoading(true)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) { setTasksLoading(false); return }
+      const res = await fetch(
+        `/api/meeting-action-tasks?meeting_record_id=${encodeURIComponent(id)}`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        setTasks(Array.isArray(data.tasks) ? data.tasks : [])
+      }
+    } catch {
+      // Silent — tasks section will simply show empty state.
+    } finally {
+      setTasksLoading(false)
+    }
+  }, [id])
+
+  useEffect(() => { fetchTasks() }, [fetchTasks])
 
   const fetchMeeting = useCallback(async () => {
     setLoading(true)
@@ -239,7 +276,7 @@ function MeetingDetailContent() {
             </Section>
           )}
 
-          {/* Action Items */}
+          {/* Action Items (raw extract from transcript) */}
           {meeting.action_items && meeting.action_items.length > 0 && (
             <Section title={`Action Items (${meeting.action_items.length})`} icon={CheckSquare}>
               <ul className="space-y-2">
@@ -250,6 +287,76 @@ function MeetingDetailContent() {
                   </li>
                 ))}
               </ul>
+            </Section>
+          )}
+
+          {/* Tasks (promoted into meeting_action_tasks for tracking + attribution) */}
+          {(tasksLoading || tasks.length > 0) && (
+            <Section
+              title={`Tasks${tasks.length > 0 ? ` (${tasks.length})` : ''}`}
+              icon={ListChecks}
+            >
+              {tasksLoading ? (
+                <p className="text-sm text-gray-500">Loading tasks...</p>
+              ) : (
+                <div className="space-y-2">
+                  <ul className="space-y-2">
+                    {tasks.map((t) => (
+                      <li
+                        key={t.id}
+                        className="flex items-start justify-between gap-3 rounded border border-gray-800 bg-gray-950 px-3 py-2"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-sm text-gray-200 truncate">{t.title}</span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide ${
+                              t.status === 'complete'
+                                ? 'bg-emerald-900/40 text-emerald-300'
+                                : t.status === 'cancelled'
+                                ? 'bg-gray-800 text-gray-500'
+                                : t.status === 'in_progress'
+                                ? 'bg-blue-900/40 text-blue-300'
+                                : 'bg-amber-900/40 text-amber-300'
+                            }`}>
+                              {t.status.replace('_', ' ')}
+                            </span>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide ${
+                              t.task_category === 'outreach'
+                                ? 'bg-violet-900/40 text-violet-300'
+                                : 'bg-gray-800 text-gray-400'
+                            }`}>
+                              {t.task_category}
+                            </span>
+                          </div>
+                          {(t.owner || t.lead?.name || t.lead?.email) && (
+                            <div className="mt-1 text-xs text-gray-500 flex flex-wrap gap-x-3">
+                              {t.owner && <span>Owner: <span className="text-gray-400">{t.owner}</span></span>}
+                              {(t.lead?.name || t.lead?.email) && (
+                                <span>
+                                  Attributed to:{' '}
+                                  <span className="text-gray-400">{t.lead?.name || t.lead?.email}</span>
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="pt-1">
+                    <Link
+                      href={buildLinkWithReturn(
+                        `/admin/meeting-tasks?meeting_record_id=${id}`,
+                        `/admin/meetings/${id}`
+                      )}
+                      className="inline-flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300"
+                    >
+                      <ListChecks size={12} aria-hidden />
+                      Manage tasks (edit, attribute, send to outreach)
+                    </Link>
+                  </div>
+                </div>
+              )}
             </Section>
           )}
 

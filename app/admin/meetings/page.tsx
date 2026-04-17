@@ -21,13 +21,16 @@ import {
   Pencil,
   Unlink,
   ExternalLink,
+  ListChecks,
+  Eye,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import { adminCreateUrl } from '@/lib/admin-create-context'
-import { buildAdminReturnPath } from '@/lib/admin-return-context'
+import { buildAdminReturnPath, buildLinkWithReturn } from '@/lib/admin-return-context'
 import { ViewDiagnosticLink } from '@/components/admin/ViewDiagnosticLink'
+import LatestAuditBanner from '@/components/audits/LatestAuditBanner'
 
 const CREATE_LEAD_SENTINEL = '__create_lead__'
 const CREATE_PROJECT_SENTINEL = '__create_project__'
@@ -804,6 +807,16 @@ function MeetingsContent() {
                     )}
                   </button>
                 </div>
+                {bulkAuditMode === 'lead' && bulkAuditValue && bulkAuditValue !== CREATE_LEAD_SENTINEL && (
+                  <div className="w-full">
+                    <LatestAuditBanner
+                      mode="admin"
+                      contactSubmissionId={bulkAuditValue}
+                      email={leadOptions.find((l) => String(l.id) === bulkAuditValue)?.email ?? null}
+                      variant="inline"
+                    />
+                  </div>
+                )}
               </div>
             )}
 
@@ -937,6 +950,24 @@ function MeetingsContent() {
                             ) : (
                               <span className="text-gray-600 text-xs">No transcript</span>
                             )}
+                            <div className="mt-2 flex items-center gap-3 text-[11px]">
+                              <Link
+                                href={buildLinkWithReturn(`/admin/meetings/${m.id}`, meetingsReturnPath)}
+                                className="inline-flex items-center gap-1 text-violet-400 hover:text-violet-300"
+                                title="Open meeting detail (full transcript, structured notes, tasks)"
+                              >
+                                <Eye size={12} aria-hidden />
+                                View transcript
+                              </Link>
+                              <Link
+                                href={`/admin/meeting-tasks?meeting_record_id=${m.id}`}
+                                className="inline-flex items-center gap-1 text-gray-400 hover:text-gray-200"
+                                title="Open the action tasks extracted from this meeting"
+                              >
+                                <ListChecks size={12} aria-hidden />
+                                View tasks
+                              </Link>
+                            </div>
                           </td>
 
                           {/* Attributed to — single source of truth for identity (Actions stay verb-only) */}

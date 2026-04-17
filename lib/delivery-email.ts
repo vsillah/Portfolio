@@ -19,6 +19,11 @@ import type {
 } from '@/lib/lead-research-context'
 import { loadLeadResearchBrief } from '@/lib/lead-research-context'
 import { quickWinsToLines } from '@/lib/quick-wins-display'
+import {
+  loadOpenOutreachTasksForContact,
+  formatMeetingActionItemsBlock,
+  applyMeetingActionItemsPlaceholders,
+} from '@/lib/meeting-tasks-context'
 
 /** Thrown for compose-delivery; route maps codes to HTTP status and safe admin-facing messages. */
 export class DeliveryDraftError extends Error {
@@ -277,6 +282,17 @@ export async function generateDeliveryDraft(input: DeliveryDraftInput): Promise<
   const assetSummary = buildAssetSummary(assets, templateKey, input.dashboardUrl)
 
   let systemPrompt = promptRow?.prompt || DEFAULT_ASSET_DELIVERY_PROMPT
+
+  // Meeting action items: only surface in outreach-style templates
+  // (cold outreach, follow-up). Asset-delivery templates have their own
+  // asset-summary focus; do not pollute them with action items.
+  // LINK_FREE_TEMPLATES is exactly { email_cold_outreach, email_follow_up }.
+  const surfaceMeetingItems = LINK_FREE_TEMPLATES.has(templateKey)
+  const meetingActionItems = surfaceMeetingItems
+    ? await loadOpenOutreachTasksForContact(input.contactId)
+    : []
+  const meetingActionItemsBlock = formatMeetingActionItemsBlock(meetingActionItems)
+  systemPrompt = applyMeetingActionItemsPlaceholders(systemPrompt, meetingActionItemsBlock)
 
   systemPrompt = systemPrompt
     .replace(/\{\{research_brief\}\}/g, researchBrief)

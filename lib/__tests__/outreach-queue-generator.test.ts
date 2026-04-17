@@ -52,20 +52,44 @@ vi.mock('@/lib/supabase', () => ({
           }),
         }
       }
+      if (table === 'meeting_action_tasks') {
+        // Stub for lib/meeting-tasks-context.loadOpenOutreachTasksForContact:
+        //   .select(...).eq(contact_submission_id, ...).eq(task_category, 'outreach')
+        //   .in('status', [...]).order(due_date).order(created_at).limit(...)
+        const emptyResult = () => Promise.resolve({ data: [], error: null })
+        const orderChain = (): { order: () => typeof orderChain; limit: () => Promise<{ data: [], error: null }> } => ({
+          order: orderChain as unknown as () => typeof orderChain,
+          limit: emptyResult,
+        })
+        return {
+          select: () => ({
+            eq: () => ({
+              eq: () => ({
+                in: () => orderChain(),
+              }),
+            }),
+          }),
+        }
+      }
       if (table === 'outreach_queue') {
+        const maybeSingleResult = () =>
+          Promise.resolve({
+            data: mockExistingDraftId ? { id: mockExistingDraftId } : null,
+            error: null,
+          })
+        const limitChain = () => ({ maybeSingle: maybeSingleResult })
+        const sourceTaskFilter = () => ({
+          limit: limitChain,
+        })
         return {
           select: () => ({
             eq: () => ({
               eq: () => ({
                 eq: () => ({
                   eq: () => ({
-                    limit: () => ({
-                      maybeSingle: () =>
-                        Promise.resolve({
-                          data: mockExistingDraftId ? { id: mockExistingDraftId } : null,
-                          error: null,
-                        }),
-                    }),
+                    is: sourceTaskFilter,
+                    eq: sourceTaskFilter,
+                    limit: limitChain,
                   }),
                 }),
               }),

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ClipboardCheck,
@@ -25,6 +26,7 @@ import {
   MessageSquare,
   ArrowUpDown,
   Trash2,
+  UserPlus,
 } from 'lucide-react'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -36,9 +38,11 @@ import { buildLinkWithReturn } from '@/lib/admin-return-context'
 // Types
 // ============================================================================
 
+type TaskCategory = 'internal' | 'outreach'
+
 interface MeetingActionTask {
   id: string
-  meeting_record_id: string
+  meeting_record_id: string | null
   client_project_id: string | null
   title: string
   description: string | null
@@ -48,6 +52,8 @@ interface MeetingActionTask {
   completed_at: string | null
   display_order: number
   created_at: string
+  task_category: TaskCategory
+  outreach_queue_id: string | null
   project_name?: string | null
   client_name?: string | null
   meeting_type?: string | null
@@ -102,6 +108,7 @@ interface CommTemplate {
 
 type Tab = 'tasks' | 'comms' | 'templates'
 type TaskFilter = 'all' | 'pending' | 'in_progress' | 'complete' | 'cancelled'
+type CategoryFilter = 'all' | TaskCategory
 type SortField = 'meeting_date' | 'owner' | 'status' | 'title' | 'created_at'
 type SortDir = 'asc' | 'desc'
 
@@ -140,15 +147,24 @@ export default function MeetingTasksPage() {
 }
 
 function MeetingTasksContent() {
+  const searchParams = useSearchParams()
+
+  // Pre-filter from URL query params. Meeting detail page links to
+  // /admin/meeting-tasks?meeting_record_id=<id> so we auto-scope the list.
+  const initialMeetingRecordId = searchParams.get('meeting_record_id') || ''
+  const initialContactSubmissionId = searchParams.get('contact_submission_id') || ''
+
   const [activeTab, setActiveTab] = useState<Tab>('tasks')
   const [allTasks, setAllTasks] = useState<MeetingActionTask[]>([])
   const [drafts, setDrafts] = useState<ClientUpdateDraft[]>([])
   const [projects, setProjects] = useState<TaskProject[]>([])
   const [selectedClientProjectId, setSelectedClientProjectId] = useState<string>('')
+  const [selectedMeetingRecordId, setSelectedMeetingRecordId] = useState<string>(initialMeetingRecordId)
   const [selectedMeetingDate, setSelectedMeetingDate] = useState<string>('')
-  const [selectedLead, setSelectedLead] = useState<string>('')
+  const [selectedLead, setSelectedLead] = useState<string>(initialContactSubmissionId)
   const [loading, setLoading] = useState(true)
   const [taskFilter, setTaskFilter] = useState<TaskFilter>('all')
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
   const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set())
   const [generatingDraft, setGeneratingDraft] = useState(false)
   const [sendingDraftId, setSendingDraftId] = useState<string | null>(null)
@@ -173,7 +189,10 @@ function MeetingTasksContent() {
   const [editTaskOwner, setEditTaskOwner] = useState('')
   const [editTaskDueDate, setEditTaskDueDate] = useState('')
   const [editTaskStatus, setEditTaskStatus] = useState<MeetingActionTask['status']>('pending')
+  const [editTaskCategory, setEditTaskCategory] = useState<TaskCategory>('internal')
+  const [editTaskContactId, setEditTaskContactId] = useState<string>('')
   const [savingTask, setSavingTask] = useState(false)
+  const [sendingToOutreachId, setSendingToOutreachId] = useState<string | null>(null)
   const [deletingDraftId, setDeletingDraftId] = useState<string | null>(null)
   const [templates, setTemplates] = useState<CommTemplate[]>([])
   const [editingTemplate, setEditingTemplate] = useState<CommTemplate | null>(null)
@@ -212,6 +231,7 @@ function MeetingTasksContent() {
       const headers = await getHeaders()
       const params = new URLSearchParams()
       if (selectedClientProjectId) params.set('client_project_id', selectedClientProjectId)
+      if (selectedMeetingRecordId) params.set('meeting_record_id', selectedMeetingRecordId)
       const qs = params.toString()
       const res = await fetch(`/api/meeting-action-tasks${qs ? `?${qs}` : ''}`, { headers })
       if (res.ok) {
@@ -221,7 +241,7 @@ function MeetingTasksContent() {
     } catch (err) {
       console.error('Failed to fetch tasks:', err)
     }
-  }, [getHeaders, selectedClientProjectId])
+  }, [getHeaders, selectedClientProjectId, selectedMeetingRecordId])
 
   const fetchDrafts = useCallback(async () => {
     try {
@@ -272,15 +292,19 @@ function MeetingTasksContent() {
   }, [fetchProjects, fetchTasks, fetchDrafts, fetchTemplates, fetchSiteSettings])
 
   // ── Client-side filtering ──
+  // Note: meeting_record_id and client_project_id filters are applied server-side
+  // in fetchTasks. Status/category/date/lead filters are applied here so they can
+  // be toggled instantly without refetching.
   const filteredTasks = useMemo(() => {
     return allTasks.filter(t => {
       if (taskFilter !== 'all' && t.status !== taskFilter) return false
+      if (categoryFilter !== 'all' && t.task_category !== categoryFilter) return false
       if (selectedMeetingDate && t.meeting_date?.slice(0, 10) !== selectedMeetingDate) return false
       if (selectedLead === '__unlinked__' && t.contact_submission_id) return false
       if (selectedLead && selectedLead !== '__unlinked__' && String(t.contact_submission_id) !== selectedLead) return false
       return true
     })
-  }, [allTasks, taskFilter, selectedMeetingDate, selectedLead])
+  }, [allTasks, taskFilter, categoryFilter, selectedMeetingDate, selectedLead])
 
   // ── Client-side sorting ──
   const sortedTasks = useMemo(() => {
@@ -320,7 +344,7 @@ function MeetingTasksContent() {
   const pagedTasks = sortedTasks.slice((safePage - 1) * TASKS_PER_PAGE, safePage * TASKS_PER_PAGE)
 
   // Reset page when filters/sort change
-  useEffect(() => { setPage(1) }, [taskFilter, selectedMeetingDate, selectedLead, selectedClientProjectId, sortField, sortDir])
+  useEffect(() => { setPage(1) }, [taskFilter, categoryFilter, selectedMeetingDate, selectedLead, selectedClientProjectId, selectedMeetingRecordId, sortField, sortDir])
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {
@@ -493,6 +517,11 @@ function MeetingTasksContent() {
     setEditTaskOwner(task.owner ?? '')
     setEditTaskDueDate(task.due_date ? task.due_date.slice(0, 10) : '')
     setEditTaskStatus(task.status)
+    setEditTaskCategory(task.task_category || 'internal')
+    setEditTaskContactId(task.contact_submission_id ? String(task.contact_submission_id) : '')
+    // Lead options are needed in the edit modal so the admin can attribute the
+    // task directly to a contact. Ensure they're loaded.
+    if (leadOptions.length === 0) fetchLeadOptions()
   }
 
   const saveTaskEdit = async () => {
@@ -500,6 +529,13 @@ function MeetingTasksContent() {
     setSavingTask(true)
     try {
       const headers = await getHeaders()
+      // Attribution policy: empty string = explicit unlink (null). A numeric value
+      // retargets the task. Because the assign-lead cascade only touches tasks that
+      // match the meeting's contact, this manual override is preserved across
+      // future meeting reassignments.
+      const contactIdNormalized =
+        editTaskContactId === '' ? null : Number(editTaskContactId)
+
       const res = await fetch('/api/meeting-action-tasks', {
         method: 'PATCH',
         headers,
@@ -511,6 +547,8 @@ function MeetingTasksContent() {
             owner: editTaskOwner || null,
             due_date: editTaskDueDate || null,
             status: editTaskStatus,
+            task_category: editTaskCategory,
+            contact_submission_id: contactIdNormalized,
           }],
         }),
       })
@@ -525,6 +563,39 @@ function MeetingTasksContent() {
       console.error('Failed to save task:', err)
     } finally {
       setSavingTask(false)
+    }
+  }
+
+  const handleSendToOutreach = async (task: MeetingActionTask) => {
+    if (!task.contact_submission_id) {
+      alert('This task is not attributed to a contact yet. Edit the task and pick a contact before sending to outreach.')
+      return
+    }
+    if (task.status === 'complete' || task.status === 'cancelled') {
+      alert(`Task is ${task.status}. Reopen it before sending to outreach.`)
+      return
+    }
+    setSendingToOutreachId(task.id)
+    try {
+      const headers = await getHeaders()
+      const res = await fetch(`/api/meeting-action-tasks/${task.id}/send-to-outreach`, {
+        method: 'POST',
+        headers,
+      })
+      const data = await res.json().catch(() => ({}))
+      if (res.ok) {
+        await fetchTasks()
+        alert(data.reused
+          ? 'Outreach draft already exists — opened in the outreach queue.'
+          : 'Outreach draft created. Review and send it from the outreach queue.')
+      } else {
+        alert(data.error || 'Could not send to outreach')
+      }
+    } catch (err) {
+      console.error('Failed to send to outreach:', err)
+      alert('Something went wrong sending this task to outreach.')
+    } finally {
+      setSendingToOutreachId(null)
     }
   }
 
@@ -574,7 +645,13 @@ function MeetingTasksContent() {
 
   const totalCommsReady = tasksByContact.size
 
-  const hasActiveFilters = selectedMeetingDate || selectedClientProjectId || selectedLead || taskFilter !== 'all'
+  const hasActiveFilters =
+    selectedMeetingDate ||
+    selectedClientProjectId ||
+    selectedLead ||
+    selectedMeetingRecordId ||
+    taskFilter !== 'all' ||
+    categoryFilter !== 'all'
 
   const filteredDrafts = commsTypeFilter === 'all'
     ? drafts
@@ -696,9 +773,32 @@ function MeetingTasksContent() {
                     <option value="cancelled">Cancelled ({stats.cancelled})</option>
                   </select>
 
+                  <select value={categoryFilter} onChange={e => { setCategoryFilter(e.target.value as CategoryFilter) }}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700 hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                    title="Filter by task category (outreach tasks can be sent to the outreach queue)">
+                    <option value="all">All categories</option>
+                    <option value="outreach">Outreach</option>
+                    <option value="internal">Internal</option>
+                  </select>
+
+                  {selectedMeetingRecordId && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium bg-violet-500/10 text-violet-300 border border-violet-500/30">
+                      <MessageSquare size={11} />
+                      Scoped to one meeting
+                      <button
+                        onClick={() => setSelectedMeetingRecordId('')}
+                        className="ml-1 text-violet-400 hover:text-white"
+                        title="Clear meeting scope"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+
                   {hasActiveFilters && (
                     <button onClick={() => {
-                      setSelectedMeetingDate(''); setSelectedClientProjectId(''); setSelectedLead(''); setTaskFilter('all')
+                      setSelectedMeetingDate(''); setSelectedClientProjectId(''); setSelectedLead('');
+                      setSelectedMeetingRecordId(''); setTaskFilter('all'); setCategoryFilter('all')
                     }} className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-colors">
                       Clear filters
                     </button>
@@ -819,20 +919,35 @@ function MeetingTasksContent() {
                                     {(task.client_name || task.project_name) && (
                                       <span>{[task.client_name, task.project_name].filter(Boolean).join(' — ')}</span>
                                     )}
-                                    {!task.contact_submission_id && (
+                                    {!task.contact_submission_id && task.meeting_record_id && (
                                       <button onClick={(e) => { e.stopPropagation(); setAssigningMeetingId(task.meeting_record_id); setAssignLeadValue(''); fetchLeadOptions() }}
                                         className="text-amber-400 hover:text-amber-300 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
                                         Assign lead
+                                      </button>
+                                    )}
+                                    {!task.contact_submission_id && !task.meeting_record_id && (
+                                      <button onClick={(e) => { e.stopPropagation(); openEditTask(task) }}
+                                        className="text-amber-400 hover:text-amber-300 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20"
+                                        title="This task has no parent meeting. Edit to attribute it to a contact directly.">
+                                        Attribute to contact
                                       </button>
                                     )}
                                   </div>
                                 )}
                                 {!task.client_name && !task.project_name && !task.lead_name && !task.contact_submission_id && (
                                   <div className="text-xs mb-0.5">
-                                    <button onClick={(e) => { e.stopPropagation(); setAssigningMeetingId(task.meeting_record_id); setAssignLeadValue(''); fetchLeadOptions() }}
-                                      className="text-amber-400 hover:text-amber-300 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
-                                      Assign lead
-                                    </button>
+                                    {task.meeting_record_id ? (
+                                      <button onClick={(e) => { e.stopPropagation(); setAssigningMeetingId(task.meeting_record_id); setAssignLeadValue(''); fetchLeadOptions() }}
+                                        className="text-amber-400 hover:text-amber-300 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20">
+                                        Assign lead
+                                      </button>
+                                    ) : (
+                                      <button onClick={(e) => { e.stopPropagation(); openEditTask(task) }}
+                                        className="text-amber-400 hover:text-amber-300 text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20"
+                                        title="This task has no parent meeting. Edit to attribute it to a contact directly.">
+                                        Attribute to contact
+                                      </button>
+                                    )}
                                   </div>
                                 )}
                                 <div className={`font-medium text-sm ${task.status === 'complete' ? 'line-through text-gray-500' : ''}`}>
@@ -840,6 +955,18 @@ function MeetingTasksContent() {
                                 </div>
                                 {task.description && <p className="text-xs text-gray-500 mt-0.5">{task.description}</p>}
                                 <div className="flex items-center gap-3 mt-1.5 text-xs text-gray-600">
+                                  <span
+                                    className={`text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide ${
+                                      task.task_category === 'outreach'
+                                        ? 'bg-violet-500/10 text-violet-300 border border-violet-500/30'
+                                        : 'bg-gray-800 text-gray-400 border border-gray-700'
+                                    }`}
+                                    title={task.task_category === 'outreach'
+                                      ? 'Outreach task — eligible to be sent to the outreach queue'
+                                      : 'Internal task — will not be sent to the outreach queue'}
+                                  >
+                                    {task.task_category}
+                                  </span>
                                   {task.owner && <span className="flex items-center gap-1"><User size={11} /> {task.owner}</span>}
                                   {task.meeting_date && (
                                     <span className="flex items-center gap-1 md:hidden">
@@ -879,6 +1006,36 @@ function MeetingTasksContent() {
                                   title="Edit task">
                                   <Edit3 size={14} />
                                 </button>
+                                {task.task_category === 'outreach'
+                                  && task.status !== 'complete'
+                                  && task.status !== 'cancelled'
+                                  && task.contact_submission_id
+                                  && (
+                                  task.outreach_queue_id ? (
+                                    <Link
+                                      href={buildLinkWithReturn(
+                                        `/admin/outreach?tab=leads&id=${task.contact_submission_id}`,
+                                        '/admin/meeting-tasks'
+                                      )}
+                                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-violet-500/10 text-violet-300 border border-violet-500/30 hover:bg-violet-500/20"
+                                      title="A draft is already linked to this task. Open outreach to review or send."
+                                    >
+                                      <Mail size={12} /> Draft ready
+                                    </Link>
+                                  ) : (
+                                    <button
+                                      onClick={() => handleSendToOutreach(task)}
+                                      disabled={sendingToOutreachId === task.id}
+                                      className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs bg-violet-500/10 text-violet-300 border border-violet-500/30 hover:bg-violet-500/20 disabled:opacity-50"
+                                      title="Generate an outreach draft for this task's attributed contact"
+                                    >
+                                      {sendingToOutreachId === task.id
+                                        ? <Loader2 size={12} className="animate-spin" />
+                                        : <Send size={12} />}
+                                      Send to outreach
+                                    </button>
+                                  )
+                                )}
                                 {task.status !== 'complete' && (
                                   <button onClick={() => updateTaskStatus(task.id, 'complete')}
                                     className="px-2 py-1 rounded text-xs bg-green-500/10 text-green-400 border border-green-500/30 hover:bg-green-500/20">
@@ -1312,6 +1469,32 @@ function MeetingTasksContent() {
                   <option value="complete">Complete</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
+
+                <label className="block text-sm text-gray-400 mb-1">Category</label>
+                <select value={editTaskCategory} onChange={e => setEditTaskCategory(e.target.value as TaskCategory)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white mb-1">
+                  <option value="internal">Internal (no outreach)</option>
+                  <option value="outreach">Outreach (can be sent to queue)</option>
+                </select>
+                <p className="text-[11px] text-gray-500 mb-4">
+                  Outreach tasks show a &quot;Send to outreach&quot; action and are eligible for follow-up emails.
+                </p>
+
+                <label className="block text-sm text-gray-400 mb-1 flex items-center gap-2">
+                  <UserPlus size={12} /> Attributed contact
+                </label>
+                <select value={editTaskContactId} onChange={e => setEditTaskContactId(e.target.value)}
+                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white mb-1">
+                  <option value="">Not attributed</option>
+                  {leadOptions.map(l => (
+                    <option key={l.id} value={String(l.id)}>
+                      {l.name}{l.email ? ` (${l.email})` : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-[11px] text-gray-500 mb-4">
+                  Overrides the meeting&apos;s cascaded attribution. Preserved when the meeting is reassigned.
+                </p>
 
                 <div className="flex justify-end gap-2 pt-2">
                   <button onClick={() => setEditingTask(null)}

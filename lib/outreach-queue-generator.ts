@@ -11,6 +11,11 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { getSystemPrompt } from '@/lib/system-prompts'
 import { recordOpenAICost } from '@/lib/cost-calculator'
 import { loadLeadResearchBrief } from '@/lib/lead-research-context'
+import {
+  loadOpenOutreachTasksForContact,
+  formatMeetingActionItemsBlock,
+  applyMeetingActionItemsPlaceholders,
+} from '@/lib/meeting-tasks-context'
 
 const PROMPT_KEY = 'email_cold_outreach' as const
 
@@ -154,6 +159,18 @@ export async function generateOutreachDraftInApp(params: {
   let systemPrompt =
     promptRow?.prompt ||
     `You are a BDR at AmaduTown. Use research brief and social proof. Respond with JSON: { "subject": "...", "body": "..." }`
+
+  // Meeting action items gating:
+  //   - Only surface for step 1; later steps already have their own talking points.
+  //   - applyMeetingActionItemsPlaceholders runs unconditionally so that if the
+  //     prompt carries {{meeting_action_items}} sentinels but we have no tasks,
+  //     the block is blanked out (no raw placeholder leaks into the draft).
+  const meetingActionItems =
+    sequenceStep === 1
+      ? await loadOpenOutreachTasksForContact(params.contactId)
+      : []
+  const meetingActionItemsBlock = formatMeetingActionItemsBlock(meetingActionItems)
+  systemPrompt = applyMeetingActionItemsPlaceholders(systemPrompt, meetingActionItemsBlock)
 
   systemPrompt = systemPrompt
     .replace(/\{\{research_brief\}\}/g, researchBrief)
