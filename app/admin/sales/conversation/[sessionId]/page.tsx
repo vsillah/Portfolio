@@ -44,6 +44,7 @@ import { InPersonDiagnosticPanel } from '@/components/admin/sales/InPersonDiagno
 import { CampaignContextPanel } from '@/components/admin/sales/CampaignContextPanel';
 import { StreamlinedProductSelection } from '@/components/admin/sales/StreamlinedProductSelection';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
+import LatestAuditBanner from '@/components/audits/LatestAuditBanner';
 import {
   User, Building, Mail, MessageSquare, ChevronRight, ChevronDown, ChevronUp,
   AlertCircle, Save, FileText, DollarSign, RefreshCw, ArrowLeft, Send,
@@ -917,6 +918,15 @@ export default function ConversationPage() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto px-4 py-6">
         <Breadcrumbs items={[{ label: 'Admin', href: '/admin' }, { label: 'Sales', href: '/admin/sales' }, { label: contact?.name || 'Conversation' }]} />
+
+        <div className="mb-4">
+          <LatestAuditBanner
+            mode="admin"
+            auditId={diagnosticAuditId ?? null}
+            contactSubmissionId={salesSession?.contact_submission_id ?? null}
+            email={contact?.email ?? null}
+          />
+        </div>
 
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

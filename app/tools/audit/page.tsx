@@ -15,6 +15,7 @@ import {
 } from '@/lib/audit-questions'
 import { getIndustryOptions } from '@/lib/constants/industry'
 import SiteThemeCorner from '@/components/SiteThemeCorner'
+import LatestAuditBanner from '@/components/audits/LatestAuditBanner'
 
 type Step = 'intro' | 'context' | 'form' | 'results'
 
@@ -679,6 +680,9 @@ export default function AuditToolPage() {
                   <p className="text-muted-foreground/90 text-xs mt-1">
                     Required for your personalized strategy report. We won&apos;t spam you.
                   </p>
+                  <div className="mt-3">
+                    <LatestAuditBanner mode="public" email={contextForm.email} />
+                  </div>
                 </div>
 
                 <div>

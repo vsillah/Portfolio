@@ -10,6 +10,7 @@ import { useAdminReturnPath } from '@/lib/hooks/useAdminReturnPath';
 import { supabase } from '@/lib/supabase';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Breadcrumbs from '@/components/admin/Breadcrumbs';
+import LatestAuditBanner from '@/components/audits/LatestAuditBanner';
 import {
   FileText,
   BarChart3,
@@ -920,6 +921,14 @@ function GammaReportsContent() {
             { label: 'Gamma Reports' },
           ]}
         />
+
+        {(auditId || contactId) && (
+          <LatestAuditBanner
+            mode="admin"
+            auditId={auditId || null}
+            contactSubmissionId={contactId || null}
+          />
+        )}
 
         {returnUrl && (
           <Link href={returnUrl} className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors mt-2">
