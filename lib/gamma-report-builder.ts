@@ -553,6 +553,7 @@ export async function buildGammaReportInput(
   let inputText: string
   let title: string
 
+  let metaInstructions: string | undefined
   switch (params.reportType) {
     case 'value_quantification':
       ({ inputText, title } = buildValueQuantificationPrompt(context, params))
@@ -568,7 +569,10 @@ export async function buildGammaReportInput(
       break
     case 'offer_presentation': {
       const offerCtx = await fetchOfferContext(params)
-      ;({ inputText, title } = buildOfferPresentationPrompt(context, offerCtx, params, feasibilityAssessment))
+      const built = buildOfferPresentationPrompt(context, offerCtx, params, feasibilityAssessment)
+      inputText = built.inputText
+      title = built.title
+      metaInstructions = built.metaInstructions
       break
     }
     default:
@@ -604,10 +608,14 @@ export async function buildGammaReportInput(
 
   options.themeId = await resolveGammaThemeIdForGeneration(params.theme)
 
+  const existingInstructions = [metaInstructions, options.additionalInstructions]
+    .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
+    .join('\n\n')
+
   options.additionalInstructions = composeAdditionalInstructions(
     context,
     params.externalInputs,
-    options.additionalInstructions,
+    existingInstructions || undefined,
     feasibilityAssessment
   )
 
@@ -642,13 +650,18 @@ export function composeAdditionalInstructions(
   const items = buildEvidenceForReport(ctx, externalInputs)
   const preamble = buildSourceFidelityPreamble(items)
   const feasibilityClause = feasibilityAntiFabricationClause(feasibilityAssessment ?? null)
+  const orgName = resolveOrganizationLabel(ctx)
+  const orgGuardrail =
+    `[CLIENT ORGANIZATION]\n` +
+    `Use "${orgName}" as the exact organization name in titles, headings, and body text. ` +
+    `Do not substitute generic phrases like "the organization", "the client", or "your company".`
   const customInstructions =
     externalInputs?.customInstructions && externalInputs.customInstructions.trim().length > 0
       ? externalInputs.customInstructions.trim()
       : ''
   const existingTrimmed = existing && existing.trim().length > 0 ? existing.trim() : ''
 
-  const parts: string[] = [preamble]
+  const parts: string[] = [preamble, orgGuardrail]
   if (feasibilityClause) parts.push(feasibilityClause)
   if (existingTrimmed) parts.push(existingTrimmed)
   if (customInstructions) parts.push(customInstructions)
@@ -873,8 +886,9 @@ export async function fetchReportAndVideoContext(
 
 /**
  * Build Gamma report input from an already-fetched context (no extra fetch).
+ * Exported for unit testing; production paths should use `buildGammaReportInput`.
  */
-async function buildGammaReportInputFromContext(
+export async function buildGammaReportInputFromContext(
   ctx: ReportContext,
   params: GammaReportParams
 ): Promise<GammaReportInput> {
@@ -882,6 +896,7 @@ async function buildGammaReportInputFromContext(
 
   let inputText: string
   let title: string
+  let metaInstructions: string | undefined
 
   switch (params.reportType) {
     case 'value_quantification':
@@ -898,7 +913,10 @@ async function buildGammaReportInputFromContext(
       break
     case 'offer_presentation': {
       const offerCtx = await fetchOfferContext(params)
-      ;({ inputText, title } = buildOfferPresentationPrompt(ctx, offerCtx, params, feasibilityAssessment))
+      const built = buildOfferPresentationPrompt(ctx, offerCtx, params, feasibilityAssessment)
+      inputText = built.inputText
+      title = built.title
+      metaInstructions = built.metaInstructions
       break
     }
     default:
@@ -934,10 +952,14 @@ async function buildGammaReportInputFromContext(
 
   options.themeId = params.theme || undefined
 
+  const existingInstructions = [metaInstructions, options.additionalInstructions]
+    .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
+    .join('\n\n')
+
   options.additionalInstructions = composeAdditionalInstructions(
     ctx,
     params.externalInputs,
-    options.additionalInstructions,
+    existingInstructions || undefined,
     feasibilityAssessment
   )
 
@@ -978,8 +1000,9 @@ function buildValueQuantificationPrompt(
 
   const sections: string[] = []
 
-  // --- Source Fidelity Rules (must be the very first prompt block) ---
-  sections.push(buildSourceFidelityPreamble(evidence))
+  // Source Fidelity Rules + Evidence Index are injected via additionalInstructions
+  // (see composeAdditionalInstructions) so they don't consume slide slots. Inline
+  // [E#] tags in each slide still reference the evidence items below.
 
   // --- Slide 1: Cover ---
   sections.push(buildCoverSlide(
@@ -1247,8 +1270,8 @@ function buildImplementationStrategyPrompt(
 
   const sections: string[] = []
 
-  // --- Source Fidelity Rules (must be the very first prompt block) ---
-  sections.push(buildSourceFidelityPreamble(evidence))
+  // Source Fidelity Rules + Evidence Index are injected via additionalInstructions
+  // so they don't consume slide slots. Inline [E#] tags reference evidence items.
 
   // --- Slide 1: Cover ---
   sections.push(buildCoverSlide(title, orgName, 'STRATEGIC ADVISORY'))
@@ -1550,16 +1573,8 @@ function buildAuditSummaryPrompt(
 
   const sections: string[] = []
 
-  // --- Source Fidelity Rules (must be the very first prompt block) ---
-  sections.push(buildSourceFidelityPreamble(evidence))
-
-  sections.push(`# How to use this source material
-
-**Client organization (use this exact name in titles and body text):** ${orgName}
-
-- Base the deck on the **Prospect context** and **Diagnostic audit data** below. Do not replace this name with generic placeholders (e.g. "the organization", "the client").
-- When a field was not recorded, say so briefly instead of inventing facts.
-- Quote or paraphrase the structured responses; keep claims tied to what appears in the sections below.`)
+  // Source Fidelity Rules, Evidence Index, and organization-name guardrail are
+  // injected via additionalInstructions so they don't consume slide slots.
 
   // --- Slide 1: Cover + scores ---
   const scoreSubtitle = [
@@ -1712,8 +1727,8 @@ function buildProspectOverviewPrompt(
 
   const sections: string[] = []
 
-  // --- Source Fidelity Rules (must be the very first prompt block) ---
-  sections.push(buildSourceFidelityPreamble(evidence))
+  // Source Fidelity Rules + Evidence Index are injected via additionalInstructions
+  // so they don't consume slide slots.
 
   sections.push(buildCoverSlide(title, orgName))
 
@@ -2247,7 +2262,7 @@ function buildOfferPresentationPrompt(
   offerCtx: OfferContext,
   params: GammaReportParams,
   feasibility: FeasibilityAssessment | null = null
-): { inputText: string; title: string } {
+): { inputText: string; title: string; metaInstructions: string } {
   const orgName = resolveOrganizationLabel(ctx)
   const metrics = computeDerivedMetrics(ctx)
   const title = `${offerCtx.bundleName} — Prepared for ${orgName}`
@@ -2259,18 +2274,14 @@ function buildOfferPresentationPrompt(
 
   const sections: string[] = []
 
-  // --- Source Fidelity Rules (must be the very first prompt block) ---
-  sections.push(buildSourceFidelityPreamble(evidence))
-
-  // --- Meta instruction ---
-  sections.push(`# How to use this source material
-
-**Client organization:** ${orgName}
-**Package:** ${offerCtx.bundleName}
-
-- This deck is designed to be presented live during a sales conversation. Each slide maps to a stage in the sales flow.
-- [PRESENTER NOTE] blocks contain private talking points visible only in Gamma's presenter view.
-- Keep the client-facing content concise and visual. The detail lives in the presenter notes.`)
+  // Source Fidelity Rules, Evidence Index, and presenter-note guidance below are
+  // injected via additionalInstructions so they don't consume slide slots.
+  const metaInstructions =
+    `[PRESENTATION GUIDANCE]\n` +
+    `Package: ${offerCtx.bundleName}\n` +
+    `- This deck is designed to be presented live during a sales conversation. Each slide maps to a stage in the sales flow.\n` +
+    `- [PRESENTER NOTE] blocks contain private talking points visible only in Gamma's presenter view.\n` +
+    `- Keep the client-facing content concise and visual. The detail lives in the presenter notes.`
 
   // --- Slide 1: Cover (opening) ---
   const openingNotes = buildPresenterNotesForStep('opening')
@@ -2507,7 +2518,7 @@ ${formatPresenterNote(openingNotes)}`)
   // --- Bio slide ---
   sections.push(buildBioSlide())
 
-  return { inputText: sections.join('\n---\n'), title }
+  return { inputText: sections.join('\n---\n'), title, metaInstructions }
 }
 
 function formatComparisonHighlights(): string {
