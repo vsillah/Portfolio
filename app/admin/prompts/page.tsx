@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useMemo } from 'react'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { buildLinkWithReturn } from '@/lib/admin-return-context'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -24,6 +25,7 @@ import {
   ImageIcon,
 } from 'lucide-react'
 import { getPromptDisplayName } from '@/lib/constants/prompt-keys'
+import { getLlmRegistryKeys, getEmailTemplateRegistry } from '@/lib/email/registry'
 
 interface SystemPrompt {
   id: string
@@ -73,6 +75,10 @@ function PromptsContent() {
   const [prompts, setPrompts] = useState<SystemPrompt[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const staticTemplateCount = useMemo(
+    () => getEmailTemplateRegistry().filter((e) => e.mode === 'static' && e.getPreviewHtml).length,
+    [],
+  )
 
   const fetchPrompts = useCallback(async () => {
     try {
@@ -133,6 +139,44 @@ function PromptsContent() {
           { label: 'Admin Dashboard', href: '/admin' },
           { label: 'System Prompts' }
         ]} />
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 p-5 rounded-xl border border-violet-500/25 bg-violet-950/20"
+        >
+          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+            <div className="min-w-0">
+              <h2 className="text-lg font-heading text-foreground mb-1 flex items-center gap-2">
+                <Mail className="w-5 h-5 text-violet-400 shrink-0" />
+                Email template registry
+              </h2>
+              <p className="text-sm text-muted-foreground max-w-2xl">
+                Prompt cards below include <strong>LLM-backed</strong> email keys (Saraev-style drafts). Typed HTML
+                for store and chat notifications lives in <code className="text-xs bg-black/30 px-1 rounded">lib/email/templates</code> and
+                is listed in the registry — preview {staticTemplateCount} static layouts in{' '}
+                <strong>Email Preview</strong>, and see what actually sent in <strong>Email Center</strong>.
+              </p>
+              <p className="text-xs text-muted-foreground/80 mt-2 font-mono break-all">
+                LLM registry keys: {getLlmRegistryKeys().join(', ')}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2 shrink-0">
+              <Link
+                href="/admin/email-preview"
+                className="px-3 py-2 text-sm rounded-lg bg-violet-600/30 border border-violet-500/40 text-violet-100 hover:bg-violet-600/50 transition-colors"
+              >
+                Email Preview
+              </Link>
+              <Link
+                href="/admin/email-center"
+                className="px-3 py-2 text-sm rounded-lg bg-amber-600/20 border border-amber-500/40 text-amber-100 hover:bg-amber-600/35 transition-colors"
+              >
+                Email Center
+              </Link>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">

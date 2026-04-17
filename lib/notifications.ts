@@ -4,6 +4,13 @@
 import nodemailer from 'nodemailer';
 import { previewFromBody } from '@/lib/email-message-utils';
 import { recordTransactionalEmailMessage, type SendEmailTrace } from '@/lib/email-messages';
+import { buildOrderConfirmationEmail } from '@/lib/email/templates/order-confirmation';
+import { buildShipmentEmail } from '@/lib/email/templates/shipment';
+import { buildMeetingBookedEmail } from '@/lib/email/templates/meeting-booked';
+import { buildChatTranscriptEmail } from '@/lib/email/templates/chat-transcript';
+import type { OrderConfirmationLineItem } from '@/lib/email/templates/order-confirmation';
+
+export type { OrderConfirmationLineItem as OrderConfirmationItem } from '@/lib/email/templates/order-confirmation';
 
 // ============================================================================
 // Email sending abstraction
@@ -394,19 +401,12 @@ export async function notifyCreditExhausted(params: {
 // Order Confirmation & Shipment Notifications
 // ============================================================================
 
-export interface OrderConfirmationItem {
-  name: string;
-  quantity: number;
-  unitPrice: number;
-  lineTotal: number;
-}
-
 export async function notifyOrderConfirmation(params: {
   clientEmail: string;
   clientName: string | null;
   orderId: number;
   orderDate: string;
-  items: OrderConfirmationItem[];
+  items: OrderConfirmationLineItem[];
   subtotal: number;
   discountAmount?: number;
   shippingCost?: number;
@@ -415,42 +415,18 @@ export async function notifyOrderConfirmation(params: {
   purchasesUrl: string;
   invoicePdfBuffer?: Buffer;
 }) {
-  const itemsText = params.items
-    .map((i) => `  ${i.name} × ${i.quantity} — $${i.lineTotal.toFixed(2)}`)
-    .join('\n');
-
-  const itemsHtml = params.items
-    .map(
-      (i) =>
-        `<tr>
-          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;">${i.name}</td>
-          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:center;">${i.quantity}</td>
-          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:right;">$${i.unitPrice.toFixed(2)}</td>
-          <td style="padding:10px 12px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:600;">$${i.lineTotal.toFixed(2)}</td>
-        </tr>`
-    )
-    .join('');
-
-  const totalsHtml = [
-    `<tr><td style="padding:4px 0;color:#6b7280;">Subtotal</td><td style="padding:4px 0;text-align:right;">$${params.subtotal.toFixed(2)}</td></tr>`,
-    params.discountAmount && params.discountAmount > 0
-      ? `<tr><td style="padding:4px 0;color:#6b7280;">Discount</td><td style="padding:4px 0;text-align:right;color:#16a34a;">-$${params.discountAmount.toFixed(2)}</td></tr>`
-      : '',
-    params.shippingCost && params.shippingCost > 0
-      ? `<tr><td style="padding:4px 0;color:#6b7280;">Shipping</td><td style="padding:4px 0;text-align:right;">$${params.shippingCost.toFixed(2)}</td></tr>`
-      : '',
-    params.tax && params.tax > 0
-      ? `<tr><td style="padding:4px 0;color:#6b7280;">Tax</td><td style="padding:4px 0;text-align:right;">$${params.tax.toFixed(2)}</td></tr>`
-      : '',
-    `<tr style="border-top:2px solid #1a2d4a;"><td style="padding:8px 0;font-size:16px;font-weight:700;">Total</td><td style="padding:8px 0;text-align:right;font-size:16px;font-weight:700;">$${params.totalAmount.toFixed(2)}</td></tr>`,
-  ]
-    .filter(Boolean)
-    .join('');
-
-  const orderDateFormatted = new Date(params.orderDate).toLocaleDateString(
-    'en-US',
-    { year: 'numeric', month: 'long', day: 'numeric' }
-  );
+  const { subject, html, text } = buildOrderConfirmationEmail({
+    clientName: params.clientName,
+    orderId: params.orderId,
+    orderDate: params.orderDate,
+    items: params.items,
+    subtotal: params.subtotal,
+    discountAmount: params.discountAmount,
+    shippingCost: params.shippingCost,
+    tax: params.tax,
+    totalAmount: params.totalAmount,
+    purchasesUrl: params.purchasesUrl,
+  });
 
   const attachments = params.invoicePdfBuffer
     ? [
@@ -462,87 +438,21 @@ export async function notifyOrderConfirmation(params: {
       ]
     : undefined;
 
-  await sendEmail({
-    to: params.clientEmail,
-    subject: `Order Confirmed — Order #${params.orderId}`,
-    text: [
-      `Hi ${params.clientName || 'there'},`,
-      '',
-      `Thank you for your order! Here's your confirmation for Order #${params.orderId}.`,
-      '',
-      `Date: ${orderDateFormatted}`,
-      '',
-      'Items:',
-      itemsText,
-      '',
-      `Total: $${params.totalAmount.toFixed(2)}`,
-      '',
-      `View your order: ${params.purchasesUrl}`,
-      '',
-      'Thank you for your business.',
-      'We Rise Together.',
-      '',
-      'Best regards,',
-      'Amadutown Advisory Solutions',
-    ].join('\n'),
-    html: `
-      <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <!-- Header -->
-        <div style="background:#1a2d4a;padding:20px 24px;text-align:center;">
-          <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">Amadutown Advisory Solutions</h1>
-        </div>
-
-        <div style="padding:24px;">
-          <h2 style="color:#1a2d4a;margin:0 0 4px;">Order Confirmed</h2>
-          <p style="color:#6b7280;margin:0 0 20px;font-size:14px;">Order #${params.orderId} · ${orderDateFormatted}</p>
-
-          <p>Hi ${params.clientName || 'there'},</p>
-          <p>Thank you for your order! Here's a summary of what you purchased.</p>
-
-          <!-- Items table -->
-          <table style="width:100%;border-collapse:collapse;margin:20px 0;">
-            <thead>
-              <tr style="background:#1a2d4a;">
-                <th style="padding:10px 12px;color:#ffffff;text-align:left;font-size:12px;text-transform:uppercase;">Item</th>
-                <th style="padding:10px 12px;color:#ffffff;text-align:center;font-size:12px;text-transform:uppercase;">Qty</th>
-                <th style="padding:10px 12px;color:#ffffff;text-align:right;font-size:12px;text-transform:uppercase;">Price</th>
-                <th style="padding:10px 12px;color:#ffffff;text-align:right;font-size:12px;text-transform:uppercase;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${itemsHtml}
-            </tbody>
-          </table>
-
-          <!-- Totals -->
-          <table style="width:220px;margin-left:auto;border-collapse:collapse;">
-            <tbody>
-              ${totalsHtml}
-            </tbody>
-          </table>
-
-          <!-- CTA -->
-          <div style="text-align:center;margin:28px 0;">
-            <a href="${params.purchasesUrl}" style="background:#C9A227;color:#1a2d4a;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:700;display:inline-block;">View Your Order</a>
-          </div>
-
-          <p style="color:#4b5563;font-size:13px;">If you have any questions about your order, simply reply to this email and we'll be happy to help.</p>
-        </div>
-
-        <!-- Footer -->
-        <div style="background:#1a2d4a;padding:16px 24px;text-align:center;">
-          <p style="margin:0;color:#C9A227;font-style:italic;font-size:13px;">We Rise Together</p>
-          <p style="margin:4px 0 0;color:#ffffff;font-size:11px;">Amadutown Advisory Solutions</p>
-        </div>
-      </div>
-    `,
-    attachments,
-  }, {
-    emailKind: 'order_confirmation',
-    sourceSystem: 'payments_webhook',
-    sourceId: String(params.orderId),
-    metadata: { order_id: params.orderId },
-  });
+  await sendEmail(
+    {
+      to: params.clientEmail,
+      subject,
+      text,
+      html,
+      attachments,
+    },
+    {
+      emailKind: 'order_confirmation',
+      sourceSystem: 'payments_webhook',
+      sourceId: String(params.orderId),
+      metadata: { order_id: params.orderId },
+    },
+  );
 }
 
 export async function notifyShipmentUpdate(params: {
@@ -554,73 +464,24 @@ export async function notifyShipmentUpdate(params: {
   carrier?: string | null;
   purchasesUrl: string;
 }) {
-  const carrierName = params.carrier || 'our shipping partner';
-  const trackingLine = params.trackingUrl
-    ? `Track your package: ${params.trackingUrl}`
-    : params.trackingNumber
-      ? `Tracking number: ${params.trackingNumber}`
-      : '';
-
-  const trackingHtml = params.trackingUrl
-    ? `<a href="${params.trackingUrl}" style="background:#C9A227;color:#1a2d4a;padding:14px 28px;text-decoration:none;border-radius:8px;font-weight:700;display:inline-block;">Track Your Package</a>`
-    : params.trackingNumber
-      ? `<p style="font-size:14px;">Tracking number: <strong>${params.trackingNumber}</strong></p>`
-      : '';
-
-  await sendEmail({
-    to: params.clientEmail,
-    subject: `Your Order Has Shipped — Order #${params.orderId}`,
-    text: [
-      `Hi ${params.clientName || 'there'},`,
-      '',
-      `Great news! Your order #${params.orderId} has been shipped via ${carrierName}.`,
-      '',
-      trackingLine,
-      '',
-      `View your order: ${params.purchasesUrl}`,
-      '',
-      'Thank you for your business.',
-      'We Rise Together.',
-      '',
-      'Best regards,',
-      'Amadutown Advisory Solutions',
-    ].filter(Boolean).join('\n'),
-    html: `
-      <div style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;max-width:600px;margin:0 auto;">
-        <!-- Header -->
-        <div style="background:#1a2d4a;padding:20px 24px;text-align:center;">
-          <h1 style="margin:0;color:#ffffff;font-size:20px;font-weight:700;">Amadutown Advisory Solutions</h1>
-        </div>
-
-        <div style="padding:24px;">
-          <h2 style="color:#1a2d4a;margin:0 0 4px;">Your Order Has Shipped!</h2>
-          <p style="color:#6b7280;margin:0 0 20px;font-size:14px;">Order #${params.orderId}</p>
-
-          <p>Hi ${params.clientName || 'there'},</p>
-          <p>Great news — your order has been shipped${params.carrier ? ` via <strong>${params.carrier}</strong>` : ''}! You should receive it soon.</p>
-
-          ${trackingHtml ? `<div style="text-align:center;margin:28px 0;">${trackingHtml}</div>` : ''}
-
-          <div style="text-align:center;margin:20px 0;">
-            <a href="${params.purchasesUrl}" style="color:#1a2d4a;font-weight:600;text-decoration:underline;">View your order details</a>
-          </div>
-
-          <p style="color:#4b5563;font-size:13px;">If you have any questions about your shipment, simply reply to this email and we'll be happy to help.</p>
-        </div>
-
-        <!-- Footer -->
-        <div style="background:#1a2d4a;padding:16px 24px;text-align:center;">
-          <p style="margin:0;color:#C9A227;font-style:italic;font-size:13px;">We Rise Together</p>
-          <p style="margin:4px 0 0;color:#ffffff;font-size:11px;">Amadutown Advisory Solutions</p>
-        </div>
-      </div>
-    `,
-  }, {
-    emailKind: 'shipment',
-    sourceSystem: 'printful_webhook',
-    sourceId: String(params.orderId),
-    metadata: { order_id: params.orderId },
+  const { subject, html, text } = buildShipmentEmail({
+    clientName: params.clientName,
+    orderId: params.orderId,
+    trackingNumber: params.trackingNumber,
+    trackingUrl: params.trackingUrl,
+    carrier: params.carrier,
+    purchasesUrl: params.purchasesUrl,
   });
+
+  await sendEmail(
+    { to: params.clientEmail, subject, html, text },
+    {
+      emailKind: 'shipment',
+      sourceSystem: 'printful_webhook',
+      sourceId: String(params.orderId),
+      metadata: { order_id: params.orderId },
+    },
+  );
 }
 
 // ============================================================================
@@ -635,44 +496,23 @@ export async function notifyMeetingBooked(params: {
   meetingTime?: string;
   calendlyLink?: string;
 }) {
-  const dateInfo = params.meetingDate
-    ? `<p>Date: <strong>${params.meetingDate}</strong>${params.meetingTime ? ` at <strong>${params.meetingTime}</strong>` : ''}</p>`
-    : '';
-
-  const linkInfo = params.calendlyLink
-    ? `<p>You can manage your booking here: <a href="${params.calendlyLink}">${params.calendlyLink}</a></p>`
-    : '';
-
-  await sendEmail({
-    to: params.clientEmail,
-    subject: `Meeting Confirmed${params.meetingType ? `: ${params.meetingType}` : ''}`,
-    text: [
-      `Hi ${params.clientName},`,
-      '',
-      `Your meeting${params.meetingType ? ` (${params.meetingType})` : ''} has been confirmed!`,
-      params.meetingDate ? `Date: ${params.meetingDate}${params.meetingTime ? ` at ${params.meetingTime}` : ''}` : '',
-      '',
-      params.calendlyLink ? `Manage your booking: ${params.calendlyLink}` : '',
-      '',
-      'Looking forward to speaking with you!',
-      '',
-      'Best regards,',
-      fromName,
-    ].filter(Boolean).join('\n'),
-    html: `
-      <h2>Meeting Confirmed!</h2>
-      <p>Hi ${params.clientName},</p>
-      <p>Your meeting${params.meetingType ? ` (<strong>${params.meetingType}</strong>)` : ''} has been confirmed.</p>
-      ${dateInfo}
-      ${linkInfo}
-      <p>Looking forward to speaking with you!</p>
-      <p>Best regards,<br/>${fromName}</p>
-    `,
-  }, {
-    emailKind: 'meeting_booked',
-    sourceSystem: 'chat',
-    metadata: { meeting_type: params.meetingType ?? null },
+  const { subject, html, text } = buildMeetingBookedEmail({
+    clientName: params.clientName,
+    meetingType: params.meetingType,
+    meetingDate: params.meetingDate,
+    meetingTime: params.meetingTime,
+    calendlyLink: params.calendlyLink,
+    senderDisplayName: fromName,
   });
+
+  await sendEmail(
+    { to: params.clientEmail, subject, html, text },
+    {
+      emailKind: 'meeting_booked',
+      sourceSystem: 'chat',
+      metadata: { meeting_type: params.meetingType ?? null },
+    },
+  );
 }
 
 export async function notifyChatTranscript(params: {
@@ -681,43 +521,19 @@ export async function notifyChatTranscript(params: {
   transcript: string;
   sessionDate: string;
 }) {
-  const transcriptHtml = params.transcript
-    .split('\n')
-    .map(line => {
-      if (line.startsWith('User:')) return `<p style="color: #d4a843;"><strong>${line}</strong></p>`;
-      if (line.startsWith('Assistant:')) return `<p style="color: #94a3b8;">${line}</p>`;
-      return `<p>${line}</p>`;
-    })
-    .join('');
-
-  await sendEmail({
-    to: params.clientEmail,
-    subject: `Your Chat Summary — ${params.sessionDate}`,
-    text: [
-      `Hi ${params.clientName},`,
-      '',
-      `Here's a summary of your chat session on ${params.sessionDate}:`,
-      '',
-      params.transcript,
-      '',
-      'If you have any follow-up questions, feel free to start a new chat or reply to this email.',
-      '',
-      'Best regards,',
-      fromName,
-    ].join('\n'),
-    html: `
-      <h2>Chat Summary</h2>
-      <p>Hi ${params.clientName},</p>
-      <p>Here's a summary of your chat session on <strong>${params.sessionDate}</strong>:</p>
-      <div style="background: #0f1729; padding: 16px; border-radius: 8px; margin: 16px 0;">
-        ${transcriptHtml}
-      </div>
-      <p>If you have any follow-up questions, feel free to start a new chat or reply to this email.</p>
-      <p>Best regards,<br/>${fromName}</p>
-    `,
-  }, {
-    emailKind: 'chat_transcript',
-    sourceSystem: 'chat',
-    metadata: { session_date: params.sessionDate },
+  const { subject, html, text } = buildChatTranscriptEmail({
+    clientName: params.clientName,
+    transcript: params.transcript,
+    sessionDate: params.sessionDate,
+    senderDisplayName: fromName,
   });
+
+  await sendEmail(
+    { to: params.clientEmail, subject, html, text },
+    {
+      emailKind: 'chat_transcript',
+      sourceSystem: 'chat',
+      metadata: { session_date: params.sessionDate },
+    },
+  );
 }

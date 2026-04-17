@@ -105,14 +105,22 @@ function EmailCenterContent() {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => void load()}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-silicon-slate hover:bg-silicon-slate/50 text-sm"
-          >
-            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-            Refresh
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Link
+              href="/admin/email-preview"
+              className="text-sm text-violet-400 hover:text-violet-300 underline"
+            >
+              Email Preview
+            </Link>
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-silicon-slate hover:bg-silicon-slate/50 text-sm"
+            >
+              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+              Refresh
+            </button>
+          </div>
         </div>
 
         <motion.div
