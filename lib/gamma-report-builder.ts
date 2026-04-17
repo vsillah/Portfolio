@@ -9,7 +9,7 @@
  */
 
 import { supabaseAdmin } from './supabase'
-import type { GammaGenerateOptions } from './gamma-client'
+import { GAMMA_MAX_ADDITIONAL_INSTRUCTIONS, type GammaGenerateOptions } from './gamma-client'
 import { resolveGammaThemeIdForGeneration } from './gamma-theme-config'
 import {
   type CalculationMethod,
@@ -633,7 +633,7 @@ export async function buildGammaReportInput(
  * Gamma's rewrite pass uses additionalInstructions globally, so this keeps `[E#]` tags intact
  * even when Gamma reflows the body text.
  */
-function composeAdditionalInstructions(
+export function composeAdditionalInstructions(
   ctx: ReportContext,
   externalInputs: ExternalInputs | undefined,
   existing: string | undefined,
@@ -641,14 +641,64 @@ function composeAdditionalInstructions(
 ): string | undefined {
   const items = buildEvidenceForReport(ctx, externalInputs)
   const preamble = buildSourceFidelityPreamble(items)
-  const parts: string[] = [preamble]
   const feasibilityClause = feasibilityAntiFabricationClause(feasibilityAssessment ?? null)
+  const customInstructions =
+    externalInputs?.customInstructions && externalInputs.customInstructions.trim().length > 0
+      ? externalInputs.customInstructions.trim()
+      : ''
+  const existingTrimmed = existing && existing.trim().length > 0 ? existing.trim() : ''
+
+  const parts: string[] = [preamble]
   if (feasibilityClause) parts.push(feasibilityClause)
-  if (existing && existing.trim().length > 0) parts.push(existing.trim())
-  if (externalInputs?.customInstructions && externalInputs.customInstructions.trim().length > 0) {
-    parts.push(externalInputs.customInstructions.trim())
+  if (existingTrimmed) parts.push(existingTrimmed)
+  if (customInstructions) parts.push(customInstructions)
+
+  const joined = parts.join('\n\n')
+  if (joined.length <= GAMMA_MAX_ADDITIONAL_INSTRUCTIONS) return joined
+
+  // Over the 5000-char limit. Preserve rules + feasibility clause + caller-supplied
+  // instructions; truncate the Evidence Index portion (the full index is also in the
+  // prompt body, so Gamma still sees every E# during the initial generation pass).
+  const nonPreamble = parts.slice(1)
+  const separator = '\n\n'
+  const nonPreambleLen =
+    nonPreamble.reduce((acc, p) => acc + p.length, 0) + separator.length * nonPreamble.length
+  const truncationNote = '\n… (evidence list truncated to fit Gamma 5000-char limit; full list in prompt body)'
+  const preambleBudget = Math.max(
+    0,
+    GAMMA_MAX_ADDITIONAL_INSTRUCTIONS - nonPreambleLen - truncationNote.length
+  )
+
+  const evidenceMarker = '[EVIDENCE INDEX]'
+  const evidenceIdx = preamble.indexOf(evidenceMarker)
+  let truncatedPreamble: string
+  if (evidenceIdx >= 0 && evidenceIdx + evidenceMarker.length <= preambleBudget) {
+    const head = preamble.slice(0, evidenceIdx + evidenceMarker.length)
+    const evidenceBody = preamble.slice(evidenceIdx + evidenceMarker.length)
+    const remainingBudget = Math.max(0, preambleBudget - head.length)
+    const keptLines: string[] = []
+    let used = 0
+    for (const line of evidenceBody.split('\n')) {
+      const lineCost = line.length + 1 // '\n'
+      if (used + lineCost > remainingBudget) break
+      keptLines.push(line)
+      used += lineCost
+    }
+    truncatedPreamble = head + keptLines.join('\n') + truncationNote
+  } else {
+    // Rules alone don't fit — last resort, hard-slice. Should be extremely rare.
+    truncatedPreamble = preamble.slice(0, preambleBudget) + truncationNote
   }
-  return parts.join('\n\n')
+
+  const finalParts = [truncatedPreamble, ...nonPreamble]
+  let result = finalParts.join(separator)
+  if (result.length > GAMMA_MAX_ADDITIONAL_INSTRUCTIONS) {
+    result = result.slice(0, GAMMA_MAX_ADDITIONAL_INSTRUCTIONS)
+  }
+  console.warn(
+    `[gamma-report-builder] additionalInstructions composed ${joined.length} chars, truncated to ${result.length} (cap ${GAMMA_MAX_ADDITIONAL_INSTRUCTIONS}).`
+  )
+  return result
 }
 
 // ---------------------------------------------------------------------------

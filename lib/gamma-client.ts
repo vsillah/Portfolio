@@ -7,6 +7,13 @@
 
 const GAMMA_API_BASE = 'https://public-api.gamma.app/v1.0'
 
+/**
+ * Gamma's Generate API rejects `additionalInstructions` longer than 5000 chars
+ * with a 400 validation error. Callers should pre-trim; this cap acts as a
+ * defensive guard if they don't.
+ */
+export const GAMMA_MAX_ADDITIONAL_INSTRUCTIONS = 5000
+
 function getApiKey(): string {
   const key = process.env.GAMMA_API_KEY
   if (!key) throw new Error('GAMMA_API_KEY environment variable is not set')
@@ -78,7 +85,17 @@ export async function generateGamma(
   if (options.themeId) body.themeId = options.themeId
   if (options.numCards) body.numCards = options.numCards
   if (options.cardSplit) body.cardSplit = options.cardSplit
-  if (options.additionalInstructions) body.additionalInstructions = options.additionalInstructions
+  if (options.additionalInstructions) {
+    const trimmed = options.additionalInstructions.length > GAMMA_MAX_ADDITIONAL_INSTRUCTIONS
+      ? options.additionalInstructions.slice(0, GAMMA_MAX_ADDITIONAL_INSTRUCTIONS)
+      : options.additionalInstructions
+    if (trimmed.length < options.additionalInstructions.length) {
+      console.warn(
+        `[gamma-client] additionalInstructions exceeded ${GAMMA_MAX_ADDITIONAL_INSTRUCTIONS} chars; truncating from ${options.additionalInstructions.length}.`
+      )
+    }
+    body.additionalInstructions = trimmed
+  }
   if (options.exportAs) body.exportAs = options.exportAs
   if (options.textOptions) body.textOptions = options.textOptions
   if (options.imageOptions) body.imageOptions = options.imageOptions
