@@ -53,6 +53,12 @@ async function fetchLatestMeetingSnippet(contactId: number): Promise<string | nu
 
 /**
  * Generate a cold-outreach email draft via OpenAI and insert into outreach_queue (status draft).
+ *
+ * `sourceTaskId` — when provided, the generated draft is linked back to a
+ * meeting_action_task via outreach_queue.source_task_id. The draft-exists
+ * guard also scopes to this field so a task-driven draft never collides with
+ * a sequence-driven draft for the same contact/step (see 2026_04_17 migration,
+ * CTO M3).
  */
 export async function generateOutreachDraftInApp(params: {
   contactId: number
@@ -62,6 +68,8 @@ export async function generateOutreachDraftInApp(params: {
   meetingSummary?: string | null
   /** When false, do not auto-load meeting context. Default true. */
   includeLatestMeeting?: boolean
+  /** When set, links the draft to a meeting_action_task via outreach_queue.source_task_id. */
+  sourceTaskId?: string | null
 }): Promise<InAppOutreachGenerateResult> {
   if (!isInAppOutreachGenerationEnabled()) {
     throw new Error('In-app outreach generation is disabled (ENABLE_IN_APP_OUTREACH_GEN=false)')
@@ -99,16 +107,27 @@ export async function generateOutreachDraftInApp(params: {
     throw new Error('Lead has been removed')
   }
 
+  const sourceTaskId = params.sourceTaskId ?? null
+
   if (!params.force) {
-    const { data: existing } = await supabaseAdmin
+    // Scope the "draft already exists" guard by source_task_id so a
+    // task-driven draft (sourceTaskId != null) never collides with a
+    // sequence-driven draft (sourceTaskId IS NULL) for the same contact/step.
+    let existingQuery = supabaseAdmin
       .from('outreach_queue')
       .select('id')
       .eq('contact_submission_id', params.contactId)
       .eq('channel', 'email')
       .eq('sequence_step', sequenceStep)
       .eq('status', 'draft')
-      .limit(1)
-      .maybeSingle()
+
+    if (sourceTaskId === null) {
+      existingQuery = existingQuery.is('source_task_id', null)
+    } else {
+      existingQuery = existingQuery.eq('source_task_id', sourceTaskId)
+    }
+
+    const { data: existing } = await existingQuery.limit(1).maybeSingle()
 
     if (existing?.id) {
       return { outcome: 'skipped', reason: 'draft_exists' }
@@ -210,6 +229,7 @@ export async function generateOutreachDraftInApp(params: {
       generation_model: model,
       generation_prompt_summary: `in_app:${PROMPT_KEY}`,
       is_test_data: isTestData,
+      source_task_id: sourceTaskId,
     })
     .select('id')
     .single()

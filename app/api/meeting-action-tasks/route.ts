@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { listTasks, updateTask, syncTasksToSlack } from '@/lib/meeting-action-tasks'
-import type { TaskStatus } from '@/lib/meeting-action-tasks'
+import { listTasks, updateTask, syncTasksToSlack, TASK_CATEGORIES } from '@/lib/meeting-action-tasks'
+import type { TaskStatus, TaskCategory } from '@/lib/meeting-action-tasks'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -12,6 +12,11 @@ export const dynamic = 'force-dynamic'
  * List tasks. Query params:
  *   - meeting_record_id: filter by meeting
  *   - client_project_id: filter by project
+ *   - contact_submission_id: filter by contact. Accepts a number or the literal
+ *     string "all" (or omit the param) meaning no restriction on contact.
+ *     Per `filter-all-option.mdc`, we never substitute a subset for "all".
+ *   - task_category: filter by category (comma-separated allowed). "all" or
+ *     omit for no restriction.
  *   - status: filter by status (comma-separated for multiple)
  *
  * Auth: admin only.
@@ -29,7 +34,34 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const meetingRecordId = searchParams.get('meeting_record_id') || undefined
     const clientProjectId = searchParams.get('client_project_id') || undefined
+    const contactSubmissionIdParam = searchParams.get('contact_submission_id')
+    const taskCategoryParam = searchParams.get('task_category')
     const statusParam = searchParams.get('status') || undefined
+
+    let contactSubmissionId: number | undefined
+    if (contactSubmissionIdParam && contactSubmissionIdParam !== 'all') {
+      const parsed = Number(contactSubmissionIdParam)
+      if (!Number.isInteger(parsed)) {
+        return NextResponse.json(
+          { error: 'contact_submission_id must be an integer or "all"' },
+          { status: 400 }
+        )
+      }
+      contactSubmissionId = parsed
+    }
+
+    let taskCategory: TaskCategory[] | undefined
+    if (taskCategoryParam && taskCategoryParam !== 'all') {
+      const parts = taskCategoryParam.split(',').map(s => s.trim()).filter(Boolean)
+      const invalid = parts.filter(p => !TASK_CATEGORIES.includes(p as TaskCategory))
+      if (invalid.length > 0) {
+        return NextResponse.json(
+          { error: `Invalid task_category value(s): ${invalid.join(', ')}. Allowed: ${TASK_CATEGORIES.join(', ')}` },
+          { status: 400 }
+        )
+      }
+      taskCategory = parts as TaskCategory[]
+    }
 
     // Validate status values against allowed enum
     const VALID_STATUSES: TaskStatus[] = ['pending', 'in_progress', 'complete', 'cancelled']
@@ -46,7 +78,13 @@ export async function GET(request: NextRequest) {
       status = parts as TaskStatus[]
     }
 
-    const tasks = await listTasks({ meetingRecordId, clientProjectId, status })
+    const tasks = await listTasks({
+      meetingRecordId,
+      clientProjectId,
+      contactSubmissionId,
+      taskCategory,
+      status,
+    })
 
     // Enrich with project + meeting context for display and filtering
     const projectIds = [...new Set((tasks || []).map(t => t.client_project_id).filter(Boolean))] as string[]
@@ -77,10 +115,19 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Batch-fetch lead details for meetings linked to contact_submissions
+    // Batch-fetch lead details. Prefer the task's OWN contact_submission_id (durable
+    // attribution, see 2026_04_17 migration) and fall back to the meeting's value
+    // for tasks that haven't been backfilled yet.
     const leadIds = [...new Set(
-      Object.values(meetingMap).map(m => m.contact_submission_id).filter(Boolean)
-    )] as number[]
+      (tasks || [])
+        .map(t => {
+          const direct = t.contact_submission_id
+          if (typeof direct === 'number') return direct
+          const meetingCs = t.meeting_record_id ? meetingMap[t.meeting_record_id]?.contact_submission_id : null
+          return meetingCs ?? null
+        })
+        .filter((v): v is number => typeof v === 'number')
+    )]
     let leadMap: Record<number, { name: string | null; email: string | null }> = {}
     if (leadIds.length > 0) {
       const { data: leads } = await supabaseAdmin
@@ -94,7 +141,9 @@ export async function GET(request: NextRequest) {
 
     const enrichedTasks = tasks.map(t => {
       const meeting = t.meeting_record_id ? meetingMap[t.meeting_record_id] : null
-      const csId = meeting?.contact_submission_id ?? null
+      const csId = typeof t.contact_submission_id === 'number'
+        ? t.contact_submission_id
+        : meeting?.contact_submission_id ?? null
       const lead = csId ? leadMap[csId] : null
       return {
         ...t,
@@ -153,6 +202,8 @@ export async function PATCH(request: NextRequest) {
         description?: string
         owner?: string
         due_date?: string
+        contact_submission_id?: number | null
+        task_category?: TaskCategory
       }>
       sync_slack?: boolean
     }
@@ -162,6 +213,32 @@ export async function PATCH(request: NextRequest) {
         { error: 'updates array is required' },
         { status: 400 }
       )
+    }
+
+    // Validate task_category against allowed enum (keeps DB layer, API layer,
+    // and UI layer in sync per enum-sync-checklist.mdc).
+    for (const upd of updates) {
+      if (
+        upd.task_category !== undefined &&
+        !TASK_CATEGORIES.includes(upd.task_category as TaskCategory)
+      ) {
+        return NextResponse.json(
+          {
+            error: `Invalid task_category: ${upd.task_category}. Allowed: ${TASK_CATEGORIES.join(', ')}`,
+          },
+          { status: 400 }
+        )
+      }
+      if (
+        upd.contact_submission_id !== undefined &&
+        upd.contact_submission_id !== null &&
+        !Number.isInteger(upd.contact_submission_id)
+      ) {
+        return NextResponse.json(
+          { error: 'contact_submission_id must be an integer or null' },
+          { status: 400 }
+        )
+      }
     }
 
     const userId = !isAuthError(authResult) ? authResult.user.id : undefined

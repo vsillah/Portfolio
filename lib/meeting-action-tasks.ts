@@ -27,8 +27,11 @@ export interface MeetingActionItem {
 /** Row shape for meeting_action_tasks */
 export interface MeetingActionTask {
   id: string
-  meeting_record_id: string
+  meeting_record_id: string | null
   client_project_id: string | null
+  contact_submission_id: number | null
+  task_category: TaskCategory
+  outreach_queue_id: string | null
   title: string
   description: string | null
   owner: string | null
@@ -45,6 +48,8 @@ export interface MeetingActionTask {
 }
 
 export type TaskStatus = MeetingActionTask['status']
+export type TaskCategory = 'internal' | 'outreach'
+export const TASK_CATEGORIES: TaskCategory[] = ['internal', 'outreach']
 
 /** Payload for the Slack task-sync n8n webhook */
 export interface SlackTaskSyncPayload {
@@ -77,7 +82,7 @@ export async function promoteActionItems(
   // 1. Fetch the meeting record (include key_decisions, structured_notes for fallback when action_items is empty)
   const { data: record, error: fetchErr } = await supabaseAdmin
     .from('meeting_records')
-    .select('id, client_project_id, action_items, key_decisions, structured_notes')
+    .select('id, client_project_id, contact_submission_id, action_items, key_decisions, structured_notes')
     .eq('id', meetingRecordId)
     .single()
 
@@ -136,16 +141,22 @@ export async function promoteActionItems(
       const title = (item.title || item.action || '').trim()
       return title.length > 0 && !existingTitles.has(title.toLowerCase())
     })
-    .map((item, idx) => ({
-      meeting_record_id: meetingRecordId,
-      client_project_id: record.client_project_id ?? null,
-      title: (item.title || item.action || 'Untitled action').trim(),
-      description: item.description || null,
-      owner: normaliseOwner(item.owner),
-      due_date: item.due_date || null,
-      status: normaliseStatus(item.status),
-      display_order: (existing?.length || 0) + idx,
-    }))
+    .map((item, idx) => {
+      const title = (item.title || item.action || 'Untitled action').trim()
+      const description = item.description || null
+      return {
+        meeting_record_id: meetingRecordId,
+        client_project_id: record.client_project_id ?? null,
+        contact_submission_id: (record.contact_submission_id as number | null) ?? null,
+        task_category: inferTaskCategory(title, description),
+        title,
+        description,
+        owner: normaliseOwner(item.owner),
+        due_date: item.due_date || null,
+        status: normaliseStatus(item.status),
+        display_order: (existing?.length || 0) + idx,
+      }
+    })
 
   if (toInsert.length === 0) {
     return { created: 0, skipped: rawItems.length }
@@ -167,10 +178,12 @@ export async function promoteActionItems(
 // CRUD helpers
 // ============================================================================
 
-/** List tasks, optionally filtered by meeting or project */
+/** List tasks, optionally filtered by meeting, project, contact, category, or status */
 export async function listTasks(filters: {
   meetingRecordId?: string
   clientProjectId?: string
+  contactSubmissionId?: number
+  taskCategory?: TaskCategory | TaskCategory[]
   status?: TaskStatus | TaskStatus[]
 }): Promise<MeetingActionTask[]> {
   let query = supabaseAdmin
@@ -183,6 +196,13 @@ export async function listTasks(filters: {
   }
   if (filters.clientProjectId) {
     query = query.eq('client_project_id', filters.clientProjectId)
+  }
+  if (typeof filters.contactSubmissionId === 'number') {
+    query = query.eq('contact_submission_id', filters.contactSubmissionId)
+  }
+  if (filters.taskCategory) {
+    const cats = Array.isArray(filters.taskCategory) ? filters.taskCategory : [filters.taskCategory]
+    query = query.in('task_category', cats)
   }
   if (filters.status) {
     const statuses = Array.isArray(filters.status) ? filters.status : [filters.status]
@@ -201,7 +221,11 @@ export async function listTasks(filters: {
 /** Update one or more fields on a task */
 export async function updateTask(
   taskId: string,
-  updates: Partial<Pick<MeetingActionTask, 'title' | 'description' | 'owner' | 'due_date' | 'status' | 'external_id' | 'slack_message_ts' | 'slack_channel_id'>>,
+  updates: Partial<Pick<MeetingActionTask,
+    'title' | 'description' | 'owner' | 'due_date' | 'status' |
+    'external_id' | 'slack_message_ts' | 'slack_channel_id' |
+    'contact_submission_id' | 'task_category' | 'outreach_queue_id'
+  >>,
   userId?: string
 ): Promise<MeetingActionTask> {
   // Auto-set completed_at / completed_by when status → complete
@@ -296,6 +320,32 @@ function normaliseOwner(raw?: string | null): string | null {
   if (!raw) return null
   const trimmed = raw.trim()
   return OWNER_ALIASES[trimmed.toLowerCase()] ?? trimmed
+}
+
+/**
+ * Heuristic: infer whether an extracted action item should default to
+ * 'outreach' (client-facing) or 'internal' (team). Admins can always flip
+ * this in the UI, so false positives are acceptable as long as the signal
+ * is clear (email/message/follow up/schedule a call with the client).
+ */
+const OUTREACH_PATTERNS: RegExp[] = [
+  /\bemail\b/i,
+  /\bsend\b[^.]{0,40}\b(proposal|report|summary|follow[- ]?up|recap|email|message|note|link|invite)\b/i,
+  /\bfollow[- ]?up\b/i,
+  /\breach\s+out\b/i,
+  /\boutreach\b/i,
+  /\b(schedule|book)\b[^.]{0,40}\b(call|meeting)\b/i,
+  /\bshare\b[^.]{0,40}\b(proposal|report|summary|deck|pricing|quote|update)\b/i,
+  /\b(nudge|ping|dm|message)\b.*(them|client|prospect|lead)\b/i,
+]
+
+export function inferTaskCategory(title: string, description: string | null): TaskCategory {
+  const haystack = `${title} ${description ?? ''}`.trim()
+  if (!haystack) return 'internal'
+  for (const re of OUTREACH_PATTERNS) {
+    if (re.test(haystack)) return 'outreach'
+  }
+  return 'internal'
 }
 
 /** Normalise various status strings from AI extraction to our enum */
