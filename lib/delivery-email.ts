@@ -10,7 +10,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { getSystemPrompt } from '@/lib/system-prompts'
 import { logCommunication } from '@/lib/communications'
 import { recordOpenAICost } from '@/lib/cost-calculator'
-import { sendEmail } from '@/lib/notifications'
+import { sendEmailWithOutcome } from '@/lib/notifications'
 import type { EmailTemplateKey } from '@/lib/constants/prompt-keys'
 import type {
   ContactEnrichment,
@@ -381,7 +381,7 @@ export async function sendDeliveryEmail(input: SendDeliveryInput): Promise<{ suc
     .map(line => line.trim() === '' ? '<br/>' : `<p>${line}</p>`)
     .join('\n')
 
-  const success = await sendEmail({
+  const { ok: success, transport: sendTransport } = await sendEmailWithOutcome({
     to: input.recipientEmail,
     subject: input.subject,
     html: bodyHtml,
@@ -420,7 +420,7 @@ export async function sendDeliveryEmail(input: SendDeliveryInput): Promise<{ suc
     status: success ? 'sent' : 'failed',
     sentBy: input.sentBy,
     recipientEmail: input.recipientEmail,
-    emailTransport: 'gmail_smtp',
+    emailTransport: sendTransport === 'resend' ? 'resend' : sendTransport === 'logged_only' ? 'logged_only' : 'gmail_smtp',
     metadata: {
       recipient_email: input.recipientEmail,
       asset_count: input.assetIds.length,

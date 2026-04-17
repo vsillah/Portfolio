@@ -31,7 +31,7 @@ export interface LogCommunicationInput {
   metadata?: Record<string, unknown>
   /** Optional — improves Email Center recipient column */
   recipientEmail?: string | null
-  /** Override inferred transport (gmail_smtp / n8n / logged_only) */
+  /** Override inferred transport (gmail_smtp / n8n / logged_only / resend / unknown) */
   emailTransport?: EmailTransport
 }
 

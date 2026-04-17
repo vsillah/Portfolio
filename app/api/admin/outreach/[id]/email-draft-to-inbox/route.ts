@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { sendEmail } from '@/lib/notifications'
+import { sendEmailWithOutcome } from '@/lib/notifications'
 import { logCommunication } from '@/lib/communications'
 
 export const dynamic = 'force-dynamic'
@@ -152,7 +152,7 @@ export async function POST(
       <pre style="white-space:pre-wrap;font-family:inherit;">${escapeHtml(bodyText)}</pre>
     `
 
-    const ok = await sendEmail({
+    const { ok, transport: sendTransport } = await sendEmailWithOutcome({
       to,
       subject: mailSubject,
       html: htmlBody,
@@ -177,7 +177,8 @@ export async function POST(
       sourceId: item.id,
       status: 'sent',
       sentBy: authResult.user.id,
-      emailTransport: 'gmail_smtp',
+      emailTransport:
+        sendTransport === 'resend' ? 'resend' : sendTransport === 'logged_only' ? 'logged_only' : 'gmail_smtp',
       metadata: {
         outreach_queue_id: item.id,
         admin_inbox_copy: true,

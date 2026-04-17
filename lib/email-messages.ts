@@ -74,12 +74,99 @@ export async function insertEmailMessageFromCommunication(
 }
 
 function normalizeStatusForEmailMessages(s: string): string {
-  if (s === 'replied') return 'replied'
-  if (s === 'bounced') return 'bounced'
-  if (s === 'failed') return 'failed'
-  if (s === 'draft') return 'draft'
-  if (s === 'queued') return 'queued'
-  return 'sent'
+  switch (s) {
+    case 'replied':
+    case 'bounced':
+    case 'failed':
+    case 'draft':
+    case 'queued':
+    case 'sending':
+    case 'delivered':
+    case 'complained':
+    case 'opened':
+    case 'clicked':
+    case 'delivery_delayed':
+      return s
+    default:
+      return 'sent'
+  }
+}
+
+function mapResendEventTypeToEmailStatus(eventType: string): string | null {
+  switch (eventType) {
+    case 'email.sent':
+      return 'sent'
+    case 'email.delivered':
+      return 'delivered'
+    case 'email.bounced':
+      return 'bounced'
+    case 'email.failed':
+      return 'failed'
+    case 'email.complained':
+      return 'complained'
+    case 'email.delivery_delayed':
+      return 'delivery_delayed'
+    case 'email.opened':
+      return 'opened'
+    case 'email.clicked':
+      return 'clicked'
+    case 'email.suppressed':
+      return 'failed'
+    default:
+      return null
+  }
+}
+
+/**
+ * Applies a verified Resend webhook event to the Email Center row matched by `external_id`.
+ */
+export async function updateEmailMessageFromResendWebhook(input: {
+  externalId: string
+  resendEventType: string
+  eventCreatedAt?: string
+}): Promise<{ updated: boolean; ignored: boolean }> {
+  if (!supabaseAdmin) return { updated: false, ignored: true }
+
+  const status = mapResendEventTypeToEmailStatus(input.resendEventType)
+  if (status === null) return { updated: false, ignored: true }
+
+  try {
+    const { data: row, error: selErr } = await supabaseAdmin
+      .from('email_messages')
+      .select('id, metadata')
+      .eq('external_id', input.externalId)
+      .maybeSingle()
+
+    if (selErr) {
+      console.error('[email_messages] webhook select failed:', selErr.message)
+      return { updated: false, ignored: false }
+    }
+    if (!row) return { updated: false, ignored: false }
+
+    const prevMeta =
+      row.metadata && typeof row.metadata === 'object' && !Array.isArray(row.metadata)
+        ? (row.metadata as Record<string, unknown>)
+        : {}
+    const metadata: Record<string, unknown> = {
+      ...prevMeta,
+      last_resend_event: input.resendEventType,
+      last_resend_event_at: input.eventCreatedAt ?? new Date().toISOString(),
+    }
+
+    const { error: upErr } = await supabaseAdmin
+      .from('email_messages')
+      .update({ status, metadata })
+      .eq('id', row.id)
+
+    if (upErr) {
+      console.error('[email_messages] webhook update failed:', upErr.message)
+      return { updated: false, ignored: false }
+    }
+    return { updated: true, ignored: false }
+  } catch (e) {
+    console.error('[email_messages] webhook unexpected:', e)
+    return { updated: false, ignored: false }
+  }
 }
 
 export interface SendEmailTrace {
@@ -96,8 +183,12 @@ export async function recordTransactionalEmailMessage(input: {
   subject: string
   bodyPreview: string
   success: boolean
+  transport?: EmailTransport
+  externalId?: string | null
 }): Promise<void> {
   if (!supabaseAdmin) return
+
+  const transport = input.transport ?? 'gmail_smtp'
 
   try {
     const { error } = await supabaseAdmin.from('email_messages').insert({
@@ -110,11 +201,12 @@ export async function recordTransactionalEmailMessage(input: {
       body_preview: input.bodyPreview.slice(0, 500),
       direction: 'outbound',
       status: input.success ? 'sent' : 'failed',
-      transport: 'gmail_smtp',
+      transport,
       source_system: input.trace.sourceSystem,
       source_id: input.trace.sourceId ?? null,
       context_json: {},
       metadata: input.trace.metadata ?? {},
+      external_id: input.externalId ?? null,
       sent_at: input.success ? new Date().toISOString() : null,
     })
     if (error) console.error('[email_messages] transactional insert failed:', error.message)

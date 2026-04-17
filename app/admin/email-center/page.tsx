@@ -21,13 +21,27 @@ interface EmailMessageRow {
   transport: string
   source_system: string
   source_id: string | null
+  external_id: string | null
   sent_at: string | null
   created_at: string
   metadata: Record<string, unknown>
 }
 
-const STATUS_OPTIONS = ['all', 'draft', 'queued', 'sent', 'failed', 'bounced', 'replied'] as const
-const TRANSPORT_OPTIONS = ['all', 'gmail_smtp', 'n8n', 'logged_only', 'unknown'] as const
+const STATUS_OPTIONS = [
+  'all',
+  'draft',
+  'queued',
+  'sent',
+  'failed',
+  'bounced',
+  'replied',
+  'delivered',
+  'complained',
+  'opened',
+  'clicked',
+  'delivery_delayed',
+] as const
+const TRANSPORT_OPTIONS = ['all', 'gmail_smtp', 'n8n', 'logged_only', 'unknown', 'resend'] as const
 
 export default function EmailCenterPage() {
   return (
@@ -263,6 +277,14 @@ function EmailCenterContent() {
                       {row.source_id && (
                         <div className="font-mono text-[10px] truncate max-w-[140px]" title={row.source_id}>
                           {row.source_id}
+                        </div>
+                      )}
+                      {row.external_id && (
+                        <div
+                          className="font-mono text-[10px] truncate max-w-[140px] text-amber-300/80"
+                          title={row.external_id}
+                        >
+                          ext:{row.external_id}
                         </div>
                       )}
                     </td>

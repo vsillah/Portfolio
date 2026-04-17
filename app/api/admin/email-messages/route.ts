@@ -58,6 +58,7 @@ export async function GET(request: NextRequest) {
       transport,
       source_system,
       source_id,
+      external_id,
       sent_at,
       created_at,
       metadata

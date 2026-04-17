@@ -1,6 +1,6 @@
 /** Pure helpers for Email Center — no Supabase import (safe for unit tests). */
 
-export type EmailTransport = 'gmail_smtp' | 'n8n' | 'logged_only' | 'unknown'
+export type EmailTransport = 'gmail_smtp' | 'n8n' | 'logged_only' | 'unknown' | 'resend'
 
 export function previewFromBody(body: string, maxLen = 500): string {
   const stripped = body.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()

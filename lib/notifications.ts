@@ -1,9 +1,10 @@
 // Notification Service — Guarantee, Subscription, and Chat lifecycle emails
-// Uses Gmail SMTP via Nodemailer. Requires GMAIL_USER and GMAIL_APP_PASSWORD env vars.
+// Sends via Resend when RESEND_API_KEY + RESEND_FROM_EMAIL are set; otherwise Gmail SMTP (Nodemailer);
+// otherwise log-only success when neither provider is configured.
 
-import nodemailer from 'nodemailer';
-import { previewFromBody } from '@/lib/email-message-utils';
+import { previewFromBody, type EmailTransport } from '@/lib/email-message-utils';
 import { recordTransactionalEmailMessage, type SendEmailTrace } from '@/lib/email-messages';
+import { deliverTransactionalMail, type TransactionalSendTransport } from '@/lib/email/deliver-transactional';
 import { buildOrderConfirmationEmail } from '@/lib/email/templates/order-confirmation';
 import { buildShipmentEmail } from '@/lib/email/templates/shipment';
 import { buildMeetingBookedEmail } from '@/lib/email/templates/meeting-booked';
@@ -28,50 +29,26 @@ interface EmailPayload {
   }>;
 }
 
-const gmailUser = process.env.GMAIL_USER;
-const gmailPass = process.env.GMAIL_APP_PASSWORD;
 const fromName = process.env.EMAIL_FROM_NAME || 'ATAS';
 
-const transporter = gmailUser && gmailPass
-  ? nodemailer.createTransport({
-      service: 'gmail',
-      auth: { user: gmailUser, pass: gmailPass },
-    })
-  : null;
+function transactionalTransportToEmailTransport(t: TransactionalSendTransport): EmailTransport {
+  if (t === 'resend') return 'resend';
+  if (t === 'logged_only') return 'logged_only';
+  return 'gmail_smtp';
+}
 
-async function deliverMail(payload: EmailPayload): Promise<boolean> {
-  if (!transporter || !gmailUser) {
-    console.warn('[NOTIFICATION EMAIL] Gmail not configured — logging instead:', {
-      to: payload.to,
-      subject: payload.subject,
-      textPreview: payload.text?.slice(0, 100) || payload.html.slice(0, 100),
-    });
-    return true;
-  }
-
-  try {
-    await transporter.sendMail({
-      from: `"${fromName}" <${gmailUser}>`,
-      to: payload.to,
-      subject: payload.subject,
-      html: payload.html,
-      text: payload.text,
-      attachments: payload.attachments?.map((a) => ({
-        filename: a.filename,
-        content: a.content,
-        contentType: a.contentType,
-      })),
-    });
-    return true;
-  } catch (err) {
-    console.error('[NOTIFICATION EMAIL] Send failed:', err);
-    return false;
-  }
+export interface SendEmailOutcome {
+  ok: boolean;
+  transport: TransactionalSendTransport;
+  messageId?: string;
 }
 
 /** Optional `trace` records a row in `email_messages` (Admin Email Center). */
-export async function sendEmail(payload: EmailPayload, trace?: SendEmailTrace): Promise<boolean> {
-  const ok = await deliverMail(payload);
+export async function sendEmailWithOutcome(
+  payload: EmailPayload,
+  trace?: SendEmailTrace,
+): Promise<SendEmailOutcome> {
+  const outcome = await deliverTransactionalMail(payload);
   if (trace) {
     const bodyPreview = previewFromBody(payload.text ?? payload.html ?? '');
     void recordTransactionalEmailMessage({
@@ -79,10 +56,22 @@ export async function sendEmail(payload: EmailPayload, trace?: SendEmailTrace): 
       recipientEmail: payload.to,
       subject: payload.subject,
       bodyPreview,
-      success: ok,
+      success: outcome.ok,
+      transport: transactionalTransportToEmailTransport(outcome.transport),
+      externalId: outcome.providerMessageId ?? null,
     });
   }
-  return ok;
+  return {
+    ok: outcome.ok,
+    transport: outcome.transport,
+    messageId: outcome.providerMessageId,
+  };
+}
+
+/** Optional `trace` records a row in `email_messages` (Admin Email Center). */
+export async function sendEmail(payload: EmailPayload, trace?: SendEmailTrace): Promise<boolean> {
+  const o = await sendEmailWithOutcome(payload, trace);
+  return o.ok;
 }
 
 // ============================================================================
