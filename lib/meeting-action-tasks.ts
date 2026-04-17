@@ -48,8 +48,11 @@ export interface MeetingActionTask {
 }
 
 export type TaskStatus = MeetingActionTask['status']
-export type TaskCategory = 'internal' | 'outreach'
-export const TASK_CATEGORIES: TaskCategory[] = ['internal', 'outreach']
+// TaskCategory lives in ./meeting-action-task-category so backfill scripts
+// can import it without pulling in Supabase. Re-exported for consumers.
+export type { TaskCategory } from './meeting-action-task-category'
+import type { TaskCategory as _TaskCategoryLocal } from './meeting-action-task-category'
+export const TASK_CATEGORIES: _TaskCategoryLocal[] = ['internal', 'outreach']
 
 /** Payload for the Slack task-sync n8n webhook */
 export interface SlackTaskSyncPayload {
@@ -322,31 +325,10 @@ function normaliseOwner(raw?: string | null): string | null {
   return OWNER_ALIASES[trimmed.toLowerCase()] ?? trimmed
 }
 
-/**
- * Heuristic: infer whether an extracted action item should default to
- * 'outreach' (client-facing) or 'internal' (team). Admins can always flip
- * this in the UI, so false positives are acceptable as long as the signal
- * is clear (email/message/follow up/schedule a call with the client).
- */
-const OUTREACH_PATTERNS: RegExp[] = [
-  /\bemail\b/i,
-  /\bsend\b[^.]{0,40}\b(proposal|report|summary|follow[- ]?up|recap|email|message|note|link|invite)\b/i,
-  /\bfollow[- ]?up\b/i,
-  /\breach\s+out\b/i,
-  /\boutreach\b/i,
-  /\b(schedule|book)\b[^.]{0,40}\b(call|meeting)\b/i,
-  /\bshare\b[^.]{0,40}\b(proposal|report|summary|deck|pricing|quote|update)\b/i,
-  /\b(nudge|ping|dm|message)\b.*(them|client|prospect|lead)\b/i,
-]
-
-export function inferTaskCategory(title: string, description: string | null): TaskCategory {
-  const haystack = `${title} ${description ?? ''}`.trim()
-  if (!haystack) return 'internal'
-  for (const re of OUTREACH_PATTERNS) {
-    if (re.test(haystack)) return 'outreach'
-  }
-  return 'internal'
-}
+// inferTaskCategory is defined in a Supabase-free module so backfill scripts
+// can import it before dotenv populates process.env. Re-exported here to keep
+// existing imports working.
+export { inferTaskCategory } from './meeting-action-task-category'
 
 /** Normalise various status strings from AI extraction to our enum */
 function normaliseStatus(raw?: string): TaskStatus {
