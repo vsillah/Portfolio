@@ -31,6 +31,7 @@ import {
 import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import LeadSearchCombobox from '@/components/admin/LeadSearchCombobox'
 import { getCurrentSession } from '@/lib/auth'
 import { buildLinkWithReturn } from '@/lib/admin-return-context'
 
@@ -1422,11 +1423,16 @@ function MeetingTasksContent() {
                 <p className="text-sm text-gray-400 mb-4">
                   Link this meeting to a contact submission so it appears in the lead&apos;s journey.
                 </p>
-                <select value={assignLeadValue} onChange={e => setAssignLeadValue(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white mb-4">
-                  <option value="">Select a lead...</option>
-                  {leadOptions.map(l => <option key={l.id} value={String(l.id)}>{l.name}{l.email ? ` (${l.email})` : ''}</option>)}
-                </select>
+                <div className="mb-4">
+                  <LeadSearchCombobox
+                    options={leadOptions}
+                    value={assignLeadValue}
+                    onChange={setAssignLeadValue}
+                    placeholder="Search leads…"
+                    className="w-full"
+                    onEscape={() => setAssigningMeetingId(null)}
+                  />
+                </div>
                 <div className="flex justify-end gap-2">
                   <button onClick={() => setAssigningMeetingId(null)} className="px-4 py-2 rounded-lg bg-gray-800 text-gray-300 border border-gray-700">Cancel</button>
                   <button onClick={handleAssignLead} disabled={!assignLeadValue || assigningInProgress}
@@ -1492,15 +1498,16 @@ function MeetingTasksContent() {
                 <label className="block text-sm text-gray-400 mb-1 flex items-center gap-2">
                   <UserPlus size={12} /> Attributed contact
                 </label>
-                <select value={editTaskContactId} onChange={e => setEditTaskContactId(e.target.value)}
-                  className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white mb-1">
-                  <option value="">Not attributed</option>
-                  {leadOptions.map(l => (
-                    <option key={l.id} value={String(l.id)}>
-                      {l.name}{l.email ? ` (${l.email})` : ''}
-                    </option>
-                  ))}
-                </select>
+                <div className="mb-1">
+                  <LeadSearchCombobox
+                    options={leadOptions}
+                    value={editTaskContactId}
+                    onChange={setEditTaskContactId}
+                    placeholder="Search contacts to attribute…"
+                    className="w-full"
+                    onEscape={() => setEditingTask(null)}
+                  />
+                </div>
                 <p className="text-[11px] text-gray-500 mb-4">
                   Overrides the meeting&apos;s cascaded attribution. Preserved when the meeting is reassigned.
                 </p>

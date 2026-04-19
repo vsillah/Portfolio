@@ -31,6 +31,7 @@ import { adminCreateUrl } from '@/lib/admin-create-context'
 import { buildAdminReturnPath, buildLinkWithReturn } from '@/lib/admin-return-context'
 import { ViewDiagnosticLink } from '@/components/admin/ViewDiagnosticLink'
 import LatestAuditBanner from '@/components/audits/LatestAuditBanner'
+import LeadSearchCombobox from '@/components/admin/LeadSearchCombobox'
 
 const CREATE_LEAD_SENTINEL = '__create_lead__'
 const CREATE_PROJECT_SENTINEL = '__create_project__'
@@ -120,7 +121,6 @@ function MeetingsContent() {
   const [rowAuditValue, setRowAuditValue] = useState('')
   /** When false, row audit uses attributed lead/project only (no Lead/Project/search UI). */
   const [rowAuditPickerOpen, setRowAuditPickerOpen] = useState(false)
-  const [leadSearchQuery, setLeadSearchQuery] = useState('')
   const [projectSearchQuery, setProjectSearchQuery] = useState('')
   const [comboboxHighlightIdx, setComboboxHighlightIdx] = useState(-1)
   const comboboxInputRef = useRef<HTMLInputElement>(null)
@@ -307,7 +307,6 @@ function MeetingsContent() {
     setRowActionType(type)
     setAttributeMode(opts?.attributeSeedMode ?? 'lead')
     setAttributeValue('')
-    setLeadSearchQuery('')
     setProjectSearchQuery('')
     setComboboxHighlightIdx(-1)
 
@@ -351,12 +350,6 @@ function MeetingsContent() {
       setAttributingInProgress(false)
     }
   }
-
-  const filteredLeadOptions = leadOptions.filter((l) => {
-    if (!leadSearchQuery.trim()) return true
-    const q = leadSearchQuery.toLowerCase()
-    return (l.name?.toLowerCase().includes(q)) || (l.email?.toLowerCase().includes(q))
-  })
 
   const filteredProjectOptions = projectOptions.filter((p) => {
     if (!projectSearchQuery.trim()) return true
@@ -444,7 +437,6 @@ function MeetingsContent() {
   const dismissRowAttributeForm = useCallback(() => {
     setRowActionId(null)
     setAttributeValue('')
-    setLeadSearchQuery('')
     setProjectSearchQuery('')
     setComboboxHighlightIdx(-1)
   }, [])
@@ -453,7 +445,6 @@ function MeetingsContent() {
     setRowActionId(null)
     setRowAuditValue('')
     setRowAuditPickerOpen(false)
-    setLeadSearchQuery('')
     setProjectSearchQuery('')
     setComboboxHighlightIdx(-1)
     setBuildAuditError(null)
@@ -1033,7 +1024,6 @@ function MeetingsContent() {
                                     onClick={() => {
                                       setAttributeMode('lead')
                                       setAttributeValue('')
-                                      setLeadSearchQuery('')
                                       setProjectSearchQuery('')
                                       setComboboxHighlightIdx(-1)
                                     }}
@@ -1050,7 +1040,6 @@ function MeetingsContent() {
                                     onClick={() => {
                                       setAttributeMode('project')
                                       setAttributeValue('')
-                                      setLeadSearchQuery('')
                                       setProjectSearchQuery('')
                                       setComboboxHighlightIdx(-1)
                                     }}
@@ -1063,39 +1052,39 @@ function MeetingsContent() {
                                     Project
                                   </button>
                                 </div>
-                                {attributeValue ? (
+                                {attributeMode === 'lead' ? (
+                                  <LeadSearchCombobox
+                                    options={leadOptions}
+                                    value={attributeValue}
+                                    onChange={setAttributeValue}
+                                    currentContactId={m.contact_submission_id}
+                                    onEscape={dismissRowAttributeForm}
+                                    footer={
+                                      <button
+                                        type="button"
+                                        onClick={() => navigateToCreateLead()}
+                                        className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
+                                      >
+                                        <Plus size={12} aria-hidden /> Create new lead...
+                                      </button>
+                                    }
+                                  />
+                                ) : attributeValue ? (
                                   <div className="rounded-lg bg-gray-800 border border-gray-700 px-2.5 py-2 flex items-start gap-2">
                                     <div className="min-w-0 flex-1">
-                                      {attributeMode === 'lead' ? (
-                                        <>
-                                          <div className="flex items-center gap-1 text-xs text-violet-300">
-                                            <User size={12} className="shrink-0" />
-                                            <span className="font-medium truncate">
-                                              {leadOptions.find((l) => String(l.id) === attributeValue)?.name ?? attributeValue}
-                                            </span>
-                                          </div>
-                                          {leadOptions.find((l) => String(l.id) === attributeValue)?.email && (
-                                            <p className="text-[11px] text-gray-500 truncate mt-0.5 pl-4">
-                                              {leadOptions.find((l) => String(l.id) === attributeValue)?.email}
-                                            </p>
-                                          )}
-                                        </>
-                                      ) : (
-                                        <div className="flex items-center gap-1 text-xs text-gray-200">
-                                          <Folder size={12} className="shrink-0 text-amber-500/70" />
-                                          <span className="font-medium truncate">
-                                            {projectOptions.find((p) => p.id === attributeValue)?.client_name ||
-                                              projectOptions.find((p) => p.id === attributeValue)?.project_name ||
-                                              attributeValue}
-                                          </span>
-                                        </div>
-                                      )}
+                                      <div className="flex items-center gap-1 text-xs text-gray-200">
+                                        <Folder size={12} className="shrink-0 text-amber-500/70" aria-hidden />
+                                        <span className="font-medium truncate">
+                                          {projectOptions.find((p) => p.id === attributeValue)?.client_name ||
+                                            projectOptions.find((p) => p.id === attributeValue)?.project_name ||
+                                            attributeValue}
+                                        </span>
+                                      </div>
                                     </div>
                                     <button
                                       type="button"
                                       onClick={() => {
                                         setAttributeValue('')
-                                        setLeadSearchQuery('')
                                         setProjectSearchQuery('')
                                         setComboboxHighlightIdx(-1)
                                         setTimeout(() => comboboxInputRef.current?.focus(), 0)
@@ -1108,18 +1097,17 @@ function MeetingsContent() {
                                 ) : (
                                   <div className="relative">
                                     <div className="flex items-center gap-1 rounded bg-gray-800 border border-gray-700 px-2 py-1">
-                                      <Search size={12} className="text-gray-500 shrink-0" />
+                                      <Search size={12} className="text-gray-500 shrink-0" aria-hidden />
                                       <input
                                         ref={comboboxInputRef}
                                         type="text"
-                                        value={attributeMode === 'lead' ? leadSearchQuery : projectSearchQuery}
+                                        value={projectSearchQuery}
                                         onChange={(e) => {
-                                          if (attributeMode === 'lead') setLeadSearchQuery(e.target.value)
-                                          else setProjectSearchQuery(e.target.value)
+                                          setProjectSearchQuery(e.target.value)
                                           setComboboxHighlightIdx(-1)
                                         }}
                                         onKeyDown={(e) => {
-                                          const items = attributeMode === 'lead' ? filteredLeadOptions : filteredProjectOptions
+                                          const items = filteredProjectOptions
                                           if (e.key === 'ArrowDown') {
                                             e.preventDefault()
                                             setComboboxHighlightIdx((prev) => Math.min(prev + 1, items.length - 1))
@@ -1128,68 +1116,23 @@ function MeetingsContent() {
                                             setComboboxHighlightIdx((prev) => Math.max(prev - 1, -1))
                                           } else if (e.key === 'Enter' && comboboxHighlightIdx >= 0) {
                                             e.preventDefault()
-                                            if (attributeMode === 'lead') {
-                                              const lead = filteredLeadOptions[comboboxHighlightIdx]
-                                              if (lead) setAttributeValue(String(lead.id))
-                                            } else {
-                                              const proj = filteredProjectOptions[comboboxHighlightIdx]
-                                              if (proj) setAttributeValue(proj.id)
-                                            }
+                                            const proj = filteredProjectOptions[comboboxHighlightIdx]
+                                            if (proj) setAttributeValue(proj.id)
                                           } else if (e.key === 'Escape') {
                                             dismissRowAttributeForm()
                                           }
                                         }}
-                                        placeholder={attributeMode === 'lead' ? 'Search leads...' : 'Search projects...'}
+                                        placeholder="Search projects..."
                                         className="bg-transparent text-xs text-gray-200 placeholder-gray-500 outline-none w-full"
                                         autoFocus
                                       />
                                     </div>
                                     <div className="absolute z-20 mt-1 w-full rounded bg-gray-800 border border-gray-700 shadow-lg flex flex-col max-h-56">
                                       <ul className="overflow-y-auto flex-1 py-1">
-                                        {(attributeMode === 'lead' ? filteredLeadOptions : filteredProjectOptions).length === 0 ? (
+                                        {filteredProjectOptions.length === 0 ? (
                                           <li className="px-2 py-2 text-xs text-gray-500">
-                                            No {attributeMode === 'lead' ? 'leads' : 'projects'} match &ldquo;{attributeMode === 'lead' ? leadSearchQuery : projectSearchQuery}&rdquo;
+                                            No projects match &ldquo;{projectSearchQuery}&rdquo;
                                           </li>
-                                        ) : attributeMode === 'lead' ? (
-                                          filteredLeadOptions.map((l, idx) => {
-                                            const isCurrentAttributed =
-                                              m.contact_submission_id != null && l.id === m.contact_submission_id
-                                            const isKbHighlight = comboboxHighlightIdx === idx
-                                            return (
-                                              <li
-                                                key={l.id}
-                                                onClick={() => setAttributeValue(String(l.id))}
-                                                onMouseEnter={() => setComboboxHighlightIdx(idx)}
-                                                className={`px-2 py-1.5 text-xs text-gray-200 cursor-pointer border-l-2 flex items-center justify-between gap-2 ${
-                                                  isCurrentAttributed
-                                                    ? 'border-violet-500 bg-violet-950/45'
-                                                    : 'border-transparent'
-                                                } ${
-                                                  isKbHighlight
-                                                    ? isCurrentAttributed
-                                                      ? 'bg-violet-900/55'
-                                                      : 'bg-gray-700'
-                                                    : ''
-                                                } ${
-                                                  !isKbHighlight && !isCurrentAttributed ? 'hover:bg-gray-700' : ''
-                                                } ${
-                                                  !isKbHighlight && isCurrentAttributed ? 'hover:bg-violet-900/50' : ''
-                                                }`}
-                                              >
-                                                <span className="min-w-0">
-                                                  <span className="font-medium">{l.name}</span>
-                                                  {l.email && (
-                                                    <span className="text-gray-500 ml-1">({l.email})</span>
-                                                  )}
-                                                </span>
-                                                {isCurrentAttributed ? (
-                                                  <span className="shrink-0 text-[10px] font-semibold uppercase tracking-wide text-violet-400">
-                                                    Current
-                                                  </span>
-                                                ) : null}
-                                              </li>
-                                            )
-                                          })
                                         ) : (
                                           filteredProjectOptions.map((p, idx) => {
                                             const isCurrentAttributed =
@@ -1229,28 +1172,15 @@ function MeetingsContent() {
                                           })
                                         )}
                                       </ul>
-                                      {attributeMode === 'lead' && (
-                                        <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
-                                          <button
-                                            type="button"
-                                            onClick={() => navigateToCreateLead()}
-                                            className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
-                                          >
-                                            <Plus size={12} /> Create new lead...
-                                          </button>
-                                        </div>
-                                      )}
-                                      {attributeMode === 'project' && (
-                                        <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
-                                          <button
-                                            type="button"
-                                            onClick={() => navigateToCreateProject()}
-                                            className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
-                                          >
-                                            <Plus size={12} /> Create new project...
-                                          </button>
-                                        </div>
-                                      )}
+                                      <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
+                                        <button
+                                          type="button"
+                                          onClick={() => navigateToCreateProject()}
+                                          className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
+                                        >
+                                          <Plus size={12} aria-hidden /> Create new project...
+                                        </button>
+                                      </div>
                                     </div>
                                   </div>
                                 )}
@@ -1327,7 +1257,6 @@ function MeetingsContent() {
                                       onClick={() => {
                                         setRowAuditPickerOpen(true)
                                         setRowAuditValue('')
-                                        setLeadSearchQuery('')
                                         setProjectSearchQuery('')
                                         setComboboxHighlightIdx(-1)
                                         setTimeout(() => rowAuditInputRef.current?.focus(), 0)
@@ -1346,7 +1275,6 @@ function MeetingsContent() {
                                         onClick={() => {
                                           setRowAuditMode('lead')
                                           setRowAuditValue('')
-                                          setLeadSearchQuery('')
                                           setProjectSearchQuery('')
                                           setComboboxHighlightIdx(-1)
                                         }}
@@ -1363,7 +1291,6 @@ function MeetingsContent() {
                                         onClick={() => {
                                           setRowAuditMode('project')
                                           setRowAuditValue('')
-                                          setLeadSearchQuery('')
                                           setProjectSearchQuery('')
                                           setComboboxHighlightIdx(-1)
                                         }}
@@ -1376,40 +1303,41 @@ function MeetingsContent() {
                                         Project
                                       </button>
                                     </div>
-                                    {rowAuditValue ? (
+                                    {rowAuditMode === 'lead' ? (
+                                      <LeadSearchCombobox
+                                        options={leadOptions}
+                                        value={rowAuditValue}
+                                        onChange={setRowAuditValue}
+                                        accent="emerald"
+                                        onEscape={dismissRowAuditForm}
+                                        fallbackName={m.lead_name ?? undefined}
+                                        fallbackEmail={m.lead_email}
+                                        footer={
+                                          <button
+                                            type="button"
+                                            onClick={() => navigateToCreateLead()}
+                                            className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
+                                          >
+                                            <Plus size={12} aria-hidden /> Create new lead...
+                                          </button>
+                                        }
+                                      />
+                                    ) : rowAuditValue ? (
                                       <div className="rounded-lg bg-gray-800 border border-gray-700 px-2.5 py-2 flex items-start gap-2">
                                         <div className="min-w-0 flex-1">
-                                          {rowAuditMode === 'lead' ? (
-                                            <>
-                                              <div className="flex items-center gap-1 text-xs text-emerald-300">
-                                                <User size={12} className="shrink-0" />
-                                                <span className="font-medium truncate">
-                                                  {leadOptions.find((l) => String(l.id) === rowAuditValue)?.name ??
-                                                    rowAuditValue}
-                                                </span>
-                                              </div>
-                                              {leadOptions.find((l) => String(l.id) === rowAuditValue)?.email && (
-                                                <p className="text-[11px] text-gray-500 truncate mt-0.5 pl-4">
-                                                  {leadOptions.find((l) => String(l.id) === rowAuditValue)?.email}
-                                                </p>
-                                              )}
-                                            </>
-                                          ) : (
-                                            <div className="flex items-center gap-1 text-xs text-gray-200">
-                                              <Folder size={12} className="shrink-0 text-amber-500/70" />
-                                              <span className="font-medium truncate">
-                                                {projectOptions.find((p) => p.id === rowAuditValue)?.client_name ||
-                                                  projectOptions.find((p) => p.id === rowAuditValue)?.project_name ||
-                                                  rowAuditValue}
-                                              </span>
-                                            </div>
-                                          )}
+                                          <div className="flex items-center gap-1 text-xs text-gray-200">
+                                            <Folder size={12} className="shrink-0 text-amber-500/70" aria-hidden />
+                                            <span className="font-medium truncate">
+                                              {projectOptions.find((p) => p.id === rowAuditValue)?.client_name ||
+                                                projectOptions.find((p) => p.id === rowAuditValue)?.project_name ||
+                                                rowAuditValue}
+                                            </span>
+                                          </div>
                                         </div>
                                         <button
                                           type="button"
                                           onClick={() => {
                                             setRowAuditValue('')
-                                            setLeadSearchQuery('')
                                             setProjectSearchQuery('')
                                             setComboboxHighlightIdx(-1)
                                             setTimeout(() => rowAuditInputRef.current?.focus(), 0)
@@ -1422,21 +1350,17 @@ function MeetingsContent() {
                                     ) : (
                                       <div className="relative">
                                         <div className="flex items-center gap-1 rounded bg-gray-800 border border-gray-700 px-2 py-1">
-                                          <Search size={12} className="text-gray-500 shrink-0" />
+                                          <Search size={12} className="text-gray-500 shrink-0" aria-hidden />
                                           <input
                                             ref={rowAuditInputRef}
                                             type="text"
-                                            value={rowAuditMode === 'lead' ? leadSearchQuery : projectSearchQuery}
+                                            value={projectSearchQuery}
                                             onChange={(e) => {
-                                              if (rowAuditMode === 'lead') setLeadSearchQuery(e.target.value)
-                                              else setProjectSearchQuery(e.target.value)
+                                              setProjectSearchQuery(e.target.value)
                                               setComboboxHighlightIdx(-1)
                                             }}
                                             onKeyDown={(e) => {
-                                              const items =
-                                                rowAuditMode === 'lead'
-                                                  ? filteredLeadOptions
-                                                  : filteredProjectOptions
+                                              const items = filteredProjectOptions
                                               if (e.key === 'ArrowDown') {
                                                 e.preventDefault()
                                                 setComboboxHighlightIdx((prev) =>
@@ -1447,51 +1371,23 @@ function MeetingsContent() {
                                                 setComboboxHighlightIdx((prev) => Math.max(prev - 1, -1))
                                               } else if (e.key === 'Enter' && comboboxHighlightIdx >= 0) {
                                                 e.preventDefault()
-                                                if (rowAuditMode === 'lead') {
-                                                  const lead = filteredLeadOptions[comboboxHighlightIdx]
-                                                  if (lead) setRowAuditValue(String(lead.id))
-                                                } else {
-                                                  const proj = filteredProjectOptions[comboboxHighlightIdx]
-                                                  if (proj) setRowAuditValue(proj.id)
-                                                }
+                                                const proj = filteredProjectOptions[comboboxHighlightIdx]
+                                                if (proj) setRowAuditValue(proj.id)
                                               } else if (e.key === 'Escape') {
                                                 dismissRowAuditForm()
                                               }
                                             }}
-                                            placeholder={
-                                              rowAuditMode === 'lead' ? 'Search leads...' : 'Search projects...'
-                                            }
+                                            placeholder="Search projects..."
                                             className="bg-transparent text-xs text-gray-200 placeholder-gray-500 outline-none w-full"
                                             autoFocus
                                           />
                                         </div>
                                         <div className="absolute z-20 mt-1 w-full rounded bg-gray-800 border border-gray-700 shadow-lg flex flex-col max-h-56">
                                           <ul className="overflow-y-auto flex-1 py-1">
-                                            {(rowAuditMode === 'lead'
-                                              ? filteredLeadOptions
-                                              : filteredProjectOptions
-                                            ).length === 0 ? (
+                                            {filteredProjectOptions.length === 0 ? (
                                               <li className="px-2 py-2 text-xs text-gray-500">
-                                                No {rowAuditMode === 'lead' ? 'leads' : 'projects'} match &ldquo;
-                                                {rowAuditMode === 'lead' ? leadSearchQuery : projectSearchQuery}
-                                                &rdquo;
+                                                No projects match &ldquo;{projectSearchQuery}&rdquo;
                                               </li>
-                                            ) : rowAuditMode === 'lead' ? (
-                                              filteredLeadOptions.map((l, idx) => (
-                                                <li
-                                                  key={l.id}
-                                                  onClick={() => setRowAuditValue(String(l.id))}
-                                                  onMouseEnter={() => setComboboxHighlightIdx(idx)}
-                                                  className={`px-2 py-1.5 text-xs text-gray-200 cursor-pointer ${
-                                                    comboboxHighlightIdx === idx ? 'bg-gray-700' : 'hover:bg-gray-700'
-                                                  }`}
-                                                >
-                                                  {l.name}
-                                                  {l.email && (
-                                                    <span className="text-gray-500 ml-1">({l.email})</span>
-                                                  )}
-                                                </li>
-                                              ))
                                             ) : (
                                               filteredProjectOptions.map((p, idx) => (
                                                 <li
@@ -1507,28 +1403,15 @@ function MeetingsContent() {
                                               ))
                                             )}
                                           </ul>
-                                          {rowAuditMode === 'lead' && (
-                                            <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
-                                              <button
-                                                type="button"
-                                                onClick={() => navigateToCreateLead()}
-                                                className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
-                                              >
-                                                <Plus size={12} /> Create new lead...
-                                              </button>
-                                            </div>
-                                          )}
-                                          {rowAuditMode === 'project' && (
-                                            <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
-                                              <button
-                                                type="button"
-                                                onClick={() => navigateToCreateProject()}
-                                                className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
-                                              >
-                                                <Plus size={12} /> Create new project...
-                                              </button>
-                                            </div>
-                                          )}
+                                          <div className="px-2 py-1.5 border-t border-gray-700 shrink-0">
+                                            <button
+                                              type="button"
+                                              onClick={() => navigateToCreateProject()}
+                                              className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-300 w-full"
+                                            >
+                                              <Plus size={12} aria-hidden /> Create new project...
+                                            </button>
+                                          </div>
                                         </div>
                                       </div>
                                     )}
