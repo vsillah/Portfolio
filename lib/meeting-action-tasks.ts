@@ -13,6 +13,10 @@ import { n8nWebhookUrl, isN8nOutboundDisabled, logDisabledOutbound } from './n8n
 // time). Imported locally here and re-exported below for consumers.
 import type { TaskCategory } from './meeting-action-task-category'
 import { inferTaskCategory } from './meeting-action-task-category'
+import {
+  normalizeActionItemsFromUnknownList,
+  resolveActionItemsRawList,
+} from './meeting-action-items-resolve'
 
 // ============================================================================
 // Types
@@ -20,11 +24,13 @@ import { inferTaskCategory } from './meeting-action-task-category'
 
 /** Shape of an action item as stored in meeting_records.action_items JSONB */
 export interface MeetingActionItem {
-  /** Display text; WF-MCH AI uses "action", some sources use "title" */
+  /** Display text; WF-MCH AI uses "action", Read.ai uses "text", some sources use "title" */
   title?: string
   action?: string
+  text?: string
   description?: string
   owner?: string
+  assignee?: string
   due_date?: string
   status?: string
 }
@@ -95,39 +101,21 @@ export async function promoteActionItems(
     throw new Error(`Meeting record not found: ${meetingRecordId}`)
   }
 
-  // WF-MCH sometimes double-JSON-encodes JSONB columns (stores a string like '"[...]"' instead of an array).
-  // safeParseArray handles: actual arrays, double-encoded strings, and nulls.
-  function safeParseArray(val: unknown): unknown[] {
-    if (Array.isArray(val)) return val
-    if (typeof val === 'string') {
-      try { const parsed = JSON.parse(val); if (Array.isArray(parsed)) return parsed } catch (_) {}
-    }
-    return []
-  }
+  const rawList = resolveActionItemsRawList(record)
+  const normalized = normalizeActionItemsFromUnknownList(rawList)
 
-  let rawItems: MeetingActionItem[] = safeParseArray(record.action_items) as MeetingActionItem[]
-
-  // Fallback: when action_items is empty, derive tasks from key_decisions or structured_notes.highlights
-  if (rawItems.length === 0) {
-    const kd = safeParseArray(record.key_decisions)
-    if (kd.length > 0) {
-      rawItems = kd
-        .filter((s: unknown) => typeof s === 'string' && s.trim().length > 0)
-        .map((s) => ({ action: (s as string).trim() }))
-    }
-  }
-  if (rawItems.length === 0 && record.structured_notes) {
-    const notes = typeof record.structured_notes === 'string' ? (() => { try { return JSON.parse(record.structured_notes as string) } catch (_) { return record.structured_notes } })() : record.structured_notes
-    const highlights = safeParseArray((notes as { highlights?: unknown }).highlights)
-    if (highlights.length > 0) {
-      rawItems = highlights
-        .filter((s: unknown) => typeof s === 'string' && s.trim().length > 0)
-        .map((s) => ({ action: (s as string).trim() }))
-    }
-  }
-
-  if (rawItems.length === 0) {
+  if (normalized.length === 0) {
     return { created: 0, skipped: 0 }
+  }
+
+  // Dedupe within this meeting by title (case-insensitive) before global check
+  const uniqueByTitle: typeof normalized = []
+  const seenLocal = new Set<string>()
+  for (const n of normalized) {
+    const k = n.title.toLowerCase()
+    if (seenLocal.has(k)) continue
+    seenLocal.add(k)
+    uniqueByTitle.push(n)
   }
 
   // 2. Check which titles already exist globally (prevents cross-meeting duplicates)
@@ -139,16 +127,15 @@ export async function promoteActionItems(
     (existing || []).map((t: { title: string }) => t.title.toLowerCase().trim())
   )
 
-  // 3. Build rows for new tasks only
-  // WF-MCH AI returns "action"; promote also accepts "title"
-  const toInsert = rawItems
-    .filter(item => {
-      const title = (item.title || item.action || '').trim()
+  // 3. Build rows for new tasks only (same field rules as meeting detail / normalize helper)
+  const toInsert = uniqueByTitle
+    .filter((item) => {
+      const title = item.title.trim()
       return title.length > 0 && !existingTitles.has(title.toLowerCase())
     })
     .map((item, idx) => {
-      const title = (item.title || item.action || 'Untitled action').trim()
-      const description = item.description || null
+      const title = item.title.trim()
+      const description = item.description
       return {
         meeting_record_id: meetingRecordId,
         client_project_id: record.client_project_id ?? null,
@@ -156,15 +143,15 @@ export async function promoteActionItems(
         task_category: inferTaskCategory(title, description),
         title,
         description,
-        owner: normaliseOwner(item.owner),
+        owner: normaliseOwner(item.owner ?? undefined),
         due_date: item.due_date || null,
-        status: normaliseStatus(item.status),
+        status: normaliseStatus(item.status ?? undefined),
         display_order: (existing?.length || 0) + idx,
       }
     })
 
   if (toInsert.length === 0) {
-    return { created: 0, skipped: rawItems.length }
+    return { created: 0, skipped: normalized.length }
   }
 
   // 4. Insert
@@ -176,7 +163,7 @@ export async function promoteActionItems(
     throw new Error(`Failed to insert tasks: ${insertErr.message}`)
   }
 
-  return { created: toInsert.length, skipped: rawItems.length - toInsert.length }
+  return { created: toInsert.length, skipped: normalized.length - toInsert.length }
 }
 
 // ============================================================================

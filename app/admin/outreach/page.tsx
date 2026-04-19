@@ -50,6 +50,7 @@ import { getCurrentSession } from '@/lib/auth'
 import ReviewEnrichModal from '@/components/admin/outreach/ReviewEnrichModal'
 import { buildGmailComposeUrl } from '@/lib/gmail-compose'
 import { formatQuickWinsForDisplay } from '@/lib/quick-wins-display'
+import { collectQuickWinTitlesFromMeetingRows } from '@/lib/meeting-action-items-resolve'
 import { buildLinkWithReturn } from '@/lib/admin-return-context'
 import TechStackModal from '@/components/admin/outreach/TechStackModal'
 import SocialIntelModal from '@/components/admin/outreach/SocialIntelModal'
@@ -244,8 +245,19 @@ function OutreachContent() {
   const [leadEscalations, setLeadEscalations] = useState<ChatEscalationRow[]>([])
   const [leadEscalationsLoading, setLeadEscalationsLoading] = useState(false)
 
-  // Related meetings for expanded lead
-  const [leadMeetings, setLeadMeetings] = useState<Array<{ id: string; meeting_type: string; meeting_date: string }>>([])
+  // Related meetings for expanded lead (include note fields for Quick Wins fallback)
+  const [leadMeetings, setLeadMeetings] = useState<
+    Array<{
+      id: string
+      meeting_type: string
+      meeting_date: string
+      action_items?: unknown
+      structured_notes?: unknown
+      key_decisions?: unknown
+    }>
+  >([])
+  /** Avoid showing another contact's meetings during expand switch (fetch is async). */
+  const [leadMeetingsContactId, setLeadMeetingsContactId] = useState<number | null>(null)
   const [leadMeetingsLoading, setLeadMeetingsLoading] = useState(false)
 
   // Meeting action tasks attributed to expanded lead (via meeting_action_tasks.contact_submission_id)
@@ -613,10 +625,14 @@ function OutreachContent() {
   useEffect(() => {
     if (activeTab !== 'leads' || !expandedLeadId) {
       setLeadMeetings([])
+      setLeadMeetingsContactId(null)
       return
     }
     let cancelled = false
+    setLeadMeetings([])
+    setLeadMeetingsContactId(null)
     setLeadMeetingsLoading(true)
+    const contactId = expandedLeadId
     getCurrentSession().then((session) => {
       if (!session?.access_token || cancelled) return
       fetch(`/api/admin/sales/contact-meetings?contact_submission_id=${expandedLeadId}`, {
@@ -625,15 +641,33 @@ function OutreachContent() {
         .then((res) => res.ok ? res.json() : { meetings: [] })
         .then((data) => {
           if (!cancelled) {
-            const meetings = (data.meetings ?? []).map((m: { id: string; meeting_type: string; meeting_date: string }) => ({
-              id: m.id,
-              meeting_type: m.meeting_type,
-              meeting_date: m.meeting_date,
-            }))
+            const meetings = (data.meetings ?? []).map(
+              (m: {
+                id: string
+                meeting_type: string
+                meeting_date: string
+                action_items?: unknown
+                structured_notes?: unknown
+                key_decisions?: unknown
+              }) => ({
+                id: m.id,
+                meeting_type: m.meeting_type,
+                meeting_date: m.meeting_date,
+                action_items: m.action_items,
+                structured_notes: m.structured_notes,
+                key_decisions: m.key_decisions,
+              })
+            )
             setLeadMeetings(meetings)
+            setLeadMeetingsContactId(contactId)
           }
         })
-        .catch(() => { if (!cancelled) setLeadMeetings([]) })
+        .catch(() => {
+          if (!cancelled) {
+            setLeadMeetings([])
+            setLeadMeetingsContactId(null)
+          }
+        })
         .finally(() => { if (!cancelled) setLeadMeetingsLoading(false) })
     })
     return () => { cancelled = true }
@@ -2803,11 +2837,27 @@ function OutreachContent() {
                                   </div>
 
                                   {(() => {
-                                    const quickWinsText = formatQuickWinsForDisplay(lead.quick_wins as unknown)
+                                    const fromDb = formatQuickWinsForDisplay(lead.quick_wins as unknown)
+                                    const meetingsForLead =
+                                      leadMeetingsContactId === lead.id ? leadMeetings : []
+                                    const fromMeetings =
+                                      !fromDb && meetingsForLead.length > 0
+                                        ? formatQuickWinsForDisplay(
+                                            collectQuickWinTitlesFromMeetingRows(meetingsForLead, { maxLines: 15 })
+                                          )
+                                        : null
+                                    const quickWinsText = fromDb || fromMeetings
                                     if (!quickWinsText) return null
                                     return (
                                       <div className="mt-3 bg-background/60 rounded-lg p-3">
-                                        <div className="text-muted-foreground text-xs mb-1">Quick Wins</div>
+                                        <div className="text-muted-foreground text-xs mb-1 flex items-center justify-between gap-2">
+                                          <span>Quick Wins</span>
+                                          {fromMeetings && !fromDb && (
+                                            <span className="text-[10px] font-normal text-muted-foreground/80">
+                                              From meeting notes
+                                            </span>
+                                          )}
+                                        </div>
                                         <div className="text-sm text-foreground whitespace-pre-wrap max-h-24 overflow-y-auto">
                                           {quickWinsText}
                                         </div>
@@ -2883,7 +2933,9 @@ function OutreachContent() {
                                   )}
 
                                   {/* Related meetings for this lead */}
-                                  {expandedLeadId === lead.id && (leadMeetingsLoading || leadMeetings.length > 0) && (
+                                  {expandedLeadId === lead.id &&
+                                    (leadMeetingsLoading ||
+                                      (leadMeetingsContactId === lead.id && leadMeetings.length > 0)) && (
                                     <div className="mt-3 bg-background/60 rounded-lg p-3">
                                       <div className="text-muted-foreground text-xs mb-2 flex items-center gap-1.5">
                                         <Video size={12} />
@@ -2895,7 +2947,7 @@ function OutreachContent() {
                                         </div>
                                       ) : (
                                         <div className="flex flex-wrap gap-2">
-                                          {leadMeetings.map((m) => (
+                                          {(leadMeetingsContactId === lead.id ? leadMeetings : []).map((m) => (
                                             <Link
                                               key={m.id}
                                               href={buildLinkWithReturn(`/admin/meetings/${m.id}`, `/admin/outreach?tab=leads&id=${lead.id}`)}

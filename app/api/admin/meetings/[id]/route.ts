@@ -1,51 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
+import {
+  actionItemsToDisplayParts,
+  normalizeActionItemsFromUnknownList,
+  normalizeStructuredNotes,
+  resolveActionItemsRawList,
+  safeParseJsonbArray,
+} from '@/lib/meeting-action-items-resolve'
 
 export const dynamic = 'force-dynamic'
-
-function safeParseArray(val: unknown): unknown[] {
-  if (Array.isArray(val)) return val
-  if (typeof val === 'string') {
-    try {
-      const parsed = JSON.parse(val)
-      if (Array.isArray(parsed)) return parsed
-    } catch {
-      /* ignore */
-    }
-  }
-  return []
-}
-
-function normalizeNotes(raw: unknown): Record<string, unknown> | null {
-  if (raw == null) return null
-  if (typeof raw === 'string') {
-    try {
-      const p = JSON.parse(raw)
-      return typeof p === 'object' && p !== null ? (p as Record<string, unknown>) : null
-    } catch {
-      return null
-    }
-  }
-  if (typeof raw === 'object') return raw as Record<string, unknown>
-  return null
-}
-
-function toActionItemTexts(rawItems: unknown[]): Array<{ text: string }> {
-  const out: Array<{ text: string }> = []
-  for (const item of rawItems) {
-    if (typeof item === 'string' && item.trim()) {
-      out.push({ text: item.trim() })
-      continue
-    }
-    if (item && typeof item === 'object') {
-      const o = item as { text?: unknown; action?: unknown; title?: unknown }
-      const t = o.text ?? o.action ?? o.title
-      if (typeof t === 'string' && t.trim()) out.push({ text: t.trim() })
-    }
-  }
-  return out
-}
 
 /**
  * GET /api/admin/meetings/:id
@@ -84,7 +48,7 @@ export async function GET(
     return NextResponse.json({ error: 'Meeting record not found' }, { status: 404 })
   }
 
-  const notes = normalizeNotes(row.structured_notes)
+  const notes = normalizeStructuredNotes(row.structured_notes)
   const summaryFromNotes =
     (typeof notes?.summary === 'string' && notes.summary.trim()) ||
     (typeof notes?.highlights === 'string' && notes.highlights.trim()) ||
@@ -95,13 +59,10 @@ export async function GET(
     summaryFromNotes ||
     (transcript.trim() ? transcript.slice(0, 4000) : null)
 
-  let actionParts = toActionItemTexts(safeParseArray(row.action_items))
-  if (actionParts.length === 0 && notes) {
-    actionParts = toActionItemTexts(safeParseArray(notes.action_items))
-  }
-  if (actionParts.length === 0) {
-    actionParts = toActionItemTexts(safeParseArray(row.key_decisions))
-  }
+  const normalizedActions = normalizeActionItemsFromUnknownList(
+    resolveActionItemsRawList(row as { action_items: unknown; key_decisions: unknown; structured_notes: unknown })
+  )
+  const actionParts = actionItemsToDisplayParts(normalizedActions)
 
   const title =
     typeof row.meeting_type === 'string' && row.meeting_type.trim()
@@ -123,16 +84,16 @@ export async function GET(
         summary,
         transcript: transcript || null,
         action_items: actionParts.length > 0 ? actionParts : null,
-        key_decisions: safeParseArray(row.key_decisions).map((d) =>
+        key_decisions: safeParseJsonbArray(row.key_decisions).map((d) =>
           typeof d === 'string' ? d : (d as { text?: string })?.text ?? String(d)
         ).filter(Boolean),
-        open_questions: safeParseArray((row as Record<string, unknown>).open_questions).map((q) =>
+        open_questions: safeParseJsonbArray((row as Record<string, unknown>).open_questions).map((q) =>
           typeof q === 'string' ? q : (q as { text?: string })?.text ?? String(q)
         ).filter(Boolean),
-        risks_identified: safeParseArray((row as Record<string, unknown>).risks_identified).map((r) =>
+        risks_identified: safeParseJsonbArray((row as Record<string, unknown>).risks_identified).map((r) =>
           typeof r === 'string' ? r : (r as { text?: string })?.text ?? String(r)
         ).filter(Boolean),
-        attendees: safeParseArray((row as Record<string, unknown>).attendees),
+        attendees: safeParseJsonbArray((row as Record<string, unknown>).attendees),
         recording_url: (row as Record<string, unknown>).recording_url ?? null,
         contact_submission_id: (row as Record<string, unknown>).contact_submission_id ?? null,
         client_project_id: (row as Record<string, unknown>).client_project_id ?? null,
