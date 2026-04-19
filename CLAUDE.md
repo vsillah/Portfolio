@@ -25,6 +25,10 @@ npm run db:health-check:update   # Rebaseline after intentional data changes
 
 Next.js 14 (App Router), TypeScript, Tailwind CSS, Framer Motion, Supabase (Postgres + Auth + Storage), Stripe, n8n (workflow automation), Vapi (voice AI), Playwright + Vitest.
 
+### Agentic AI patterns
+
+For AI-touching features (LLM calls, n8n agent nodes, RAG, HITL review), consult **`docs/agentic-patterns.md`** — it maps the 20 agentic design patterns to current code / n8n coverage, gaps, and retrofit backlog. The matching decision rule is **`.cursor/rules/agentic-patterns.mdc`**.
+
 ### Deployment and production env
 
 Production and Preview **secrets and URLs** live in the hosting provider’s environment settings (commonly **Vercel** → Project → Environment Variables), not in git. For default n8n URL patterns, social-content webhook segments, payload expectations, and how to trace effective URLs from code, read **`docs/deploy-context.md`** before guessing production values.

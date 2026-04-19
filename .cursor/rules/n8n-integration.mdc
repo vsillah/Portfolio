@@ -47,3 +47,8 @@ For **where production values live** (hosting dashboard vs code defaults) and so
 ## API trigger route
 
 - If the admin UI needs to start a workflow manually, add a route (e.g. `.../trigger/route.ts`) protected by `verifyAdmin`, which then calls the `lib/n8n.ts` trigger function and returns the result.
+
+## See also
+
+- `.cursor/rules/agentic-patterns.mdc` — decision rules for when to use each of the 20 agentic design patterns (routing, RAG, HITL, reflection, monitoring, etc.) across app code and n8n workflows.
+- `docs/agentic-patterns.md` — living scorecard mapping each pattern to current coverage + retrofit backlog.

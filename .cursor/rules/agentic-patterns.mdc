@@ -1,0 +1,103 @@
+---
+description: Decision rules for applying the 20 agentic design patterns across app code and n8n workflows.
+globs:
+  - lib/**/*.ts
+  - app/api/**/*.ts
+  - n8n-exports/**/*.json
+  - scripts/**/*.ts
+  - docs/agentic-patterns.md
+alwaysApply: false
+---
+
+# Agentic Patterns Playbook
+
+This rule tells you **when** to reach for each of the 20 agentic design patterns and **what artifacts** must land alongside any AI-touching change. The living scorecard (current coverage, gaps, backlog) lives at **`docs/agentic-patterns.md`** — treat it as the source of truth for per-pattern status.
+
+## When this rule applies
+
+Apply whenever your change involves any of:
+
+- An LLM call (OpenAI, Anthropic, Gemini, etc.) from app code, a script, or n8n.
+- An n8n `@n8n/n8n-nodes-langchain.agent` node, a Router node feeding ≥2 AI branches, or any tool/vector-store node.
+- A chain of ≥2 LLM-producing steps (even if some steps are non-LLM code nodes between them).
+- Retrieval from a vector store, RAG corpus, or structured knowledge source feeding an LLM.
+- Any human review step for AI-generated content (queues, approval UI, Slack sign-off).
+- A new destination for AI output (email send, Slack post, LinkedIn publish, client deliverable).
+
+If none of those apply, this rule is not relevant.
+
+## Canonical 20 patterns (4 buckets)
+
+The list is pinned in `docs/agentic-patterns.md`. Do not silently rename or drop entries — update the doc if the list evolves.
+
+- **Grounding:** Prompt Chaining, Routing, Parallelization, Tool Use, RAG.
+- **Transparent decision-making:** Planning/Orchestration, Chain-of-Thought, Tree-of-Thought, Multi-Agent Collaboration, Goal Tracking.
+- **Self-awareness / QA:** Reflection, Debate, Self-Consistency, Learning & Feedback, Memory Management.
+- **Production constraints:** Exception Handling, Human-in-the-Loop, Guardrails & Safety, Monitoring & Observability, Cost/Resource Control.
+
+## Decision triggers — use the pattern when…
+
+| Pattern | Reach for it when… |
+|---|---|
+| Prompt Chaining | A single prompt would have to do ≥2 distinct jobs (extract → transform → format). Split into named steps. |
+| Routing | ≥2 downstream behaviors depend on a categorical input (diagnostic vs chat, lead source, plan tier, model tier). |
+| Parallelization | Independent sub-tasks (multiple enrichments, multi-source research) can run concurrently with no shared mutable state. |
+| Tool Use | The LLM needs fresh/authoritative data (DB, Supabase, Perplexity, Apify, Gmail) or deterministic compute (pricing, scoring). |
+| RAG | The answer must cite or be grounded in project-specific docs, past meetings, evidence, or client-provided content. |
+| Planning / Orchestration | Work spans ≥3 workflows/services with ordering or state handoff (e.g. the WF-000 → WF-012 client lifecycle). |
+| Chain-of-Thought | Reasoning trace is valuable for auditability or debugging; capture it, don't just hope the model uses it. |
+| Tree-of-Thought | Solution space has branches that are cheap to explore and prune (rare today — document why you need it before adding). |
+| Multi-Agent Collaboration | One persona cannot hold all the responsibilities (researcher vs writer vs critic) without prompt bloat. |
+| Goal Tracking | The agent runs across turns or steps and "am I done?" is non-trivial (diagnostic categories, lifecycle milestones). |
+| Reflection | User-facing output ships without a human reviewer **and** low-quality output has real cost (outreach, client deliverables). |
+| Debate | High-stakes classification or extraction where a single pass has unacceptable error rate and you have budget for N calls. |
+| Self-Consistency | Same as Debate but with a single model — sample N times, take the majority / median. |
+| Learning & Feedback | You collect outcomes (replies, conversions, ratings) and want prompts/workflows to improve over time. |
+| Memory Management | Information must persist across turns (short-term: conversation window) or across sessions/agents (long-term: per-lead facts). |
+| Exception Handling | Any network or LLM call; standard retry/backoff + curated user-facing error (see `no-expose-errors-to-users.mdc`). |
+| Human-in-the-Loop | Any published artifact that leaves the building (outreach email, LinkedIn post, client deliverable, brand-facing copy). |
+| Guardrails & Safety | New auth boundary, new user-facing error path, or new destination for AI output — content-safety + authz check required. |
+| Monitoring & Observability | Any new agent step invoked in production — must emit `run_id`, `step_name`, `latency_ms`, token/$ cost. |
+| Cost/Resource Control | Model tier, max tokens, and per-request budget cap must be explicit, not implicit in a prompt string. |
+
+## Required artifacts when adding an agentic feature
+
+Every PR that adds or modifies an agentic flow **must**:
+
+1. **Declare patterns used.** In the PR description or plan, list which of the 20 patterns are present and why (one line each). Call out which ones you deliberately chose not to use.
+2. **Update the scorecard.** Edit the relevant pattern section in [`docs/agentic-patterns.md`](../../docs/agentic-patterns.md): citations for "Where we use it today", adjust coverage rating if it changed, close/update backlog items.
+3. **Name n8n nodes consistently** so the scorecard stays greppable:
+   - AI agent nodes: `Agent - <Purpose>` (e.g. `Agent - Lead Research`).
+   - Routers / IF nodes that choose between AI branches: `Router - <Decision>` (e.g. `Router - Diagnostic vs Chat`).
+   - Tool nodes: `Tool - <Service>` (e.g. `Tool - Perplexity`).
+   - Memory nodes: `Memory - <Scope>` (e.g. `Memory - Session Window`).
+4. **Emit a monitoring event** for every new production agent step via the agent-run trace helper (ticket #1 in the scorecard; until it ships, call the cost-events ingest directly: [`app/api/admin/cost-events/ingest/route.ts`](../../app/api/admin/cost-events/ingest/route.ts)).
+5. **Confirm HITL** for any path whose output reaches a client, prospect, or public channel. If HITL is intentionally skipped, justify it in the PR description.
+6. **Set Cost/Resource caps.** Hard-coded model IDs are acceptable only if paired with a `maxOutputTokens` cap and a per-request budget check (or wrapped via the future policy router, ticket #5).
+
+## Anti-patterns — do not ship these
+
+- **Single-pass LLM for high-stakes output.** No reflection, no HITL, no self-consistency — reject.
+- **Silent swallow of agent errors.** `catch {}` around an LLM/tool call without logging to cost-events or a trace. Reject.
+- **HITL bypass on publish paths.** Any code that posts to LinkedIn / sends an outreach email / ships a client deliverable without a reviewed state must be justified in the PR and documented in the scorecard.
+- **Hard-coded model IDs without env override.** `gpt-4o-mini` literal in business logic with no way to swap tiers. Move to config/policy.
+- **Hidden chains.** Calling an LLM inside a "helper" that also does side effects (DB writes, emails). Split into pure chain steps so each is observable.
+- **RAG with no retrieval quality signal.** If you add a new RAG path, add a way to evaluate top-k relevance (even a manual sample check recorded in the scorecard).
+- **Memory without a bound.** Conversation windows without a size cap, long-term memory without TTL or tenant scoping.
+- **Router without a default branch.** A router that can silently drop inputs it doesn't recognize.
+
+## Cross-references
+
+- `no-expose-errors-to-users.mdc` — user-facing error hygiene (applies to every AI failure path).
+- `n8n-integration.mdc` — webhook URL, ingest, mock/outbound gates for the n8n surface area.
+- `admin-api-auth.mdc` — `verifyAdmin` + Bearer-token patterns; required for any admin-triggered agent endpoint.
+- `evidence-before-fix.mdc` — before "fixing" an agent that misbehaves, instrument and reproduce first.
+- `supabase-rls.mdc` — RLS rules still apply to any data an agent reads or writes.
+
+## Where to look first when building agentic features
+
+- App-layer LLM call sites: [`lib/ai-onboarding-generator.ts`](../../lib/ai-onboarding-generator.ts), [`lib/llm-judge.ts`](../../lib/llm-judge.ts), [`lib/source-validator/llm-judge.ts`](../../lib/source-validator/llm-judge.ts), [`lib/meeting-pain-classifier.ts`](../../lib/meeting-pain-classifier.ts), [`lib/outreach-queue-generator.ts`](../../lib/outreach-queue-generator.ts).
+- Orchestration: [`lib/testing/orchestrator.ts`](../../lib/testing/orchestrator.ts).
+- Cost / observability seed: [`lib/cost-calculator.ts`](../../lib/cost-calculator.ts), [`app/api/admin/cost-events/ingest/route.ts`](../../app/api/admin/cost-events/ingest/route.ts).
+- Publishing / HITL endpoints: [`lib/publishing/linkedin.ts`](../../lib/publishing/linkedin.ts), social content queue flows in [`docs/admin-sales-lead-pipeline-sop.md`](../../docs/admin-sales-lead-pipeline-sop.md).
+- n8n surface: [`n8n-exports/manifest.json`](../../n8n-exports/manifest.json) lists every active workflow.
