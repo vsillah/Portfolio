@@ -399,18 +399,27 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // Batch: evidence count per contact_submission_id
+    // Batch: deduped evidence count per contact_submission_id.
+    // Mirrors the dedupe policy in GET /api/admin/value-evidence/evidence:
+    // one row per pain_point_category_id (classifier re-runs stack duplicate
+    // rows, so the raw count overstates how many distinct pain points exist).
     const { data: evidenceRows } = await supabaseAdmin
       .from('pain_point_evidence')
-      .select('contact_submission_id')
+      .select('contact_submission_id, pain_point_category_id')
       .in('contact_submission_id', contactIds)
 
-    const evidenceCountByContact: Record<number, number> = {}
+    const evidenceCategoriesByContact: Record<number, Set<string>> = {}
     for (const row of evidenceRows || []) {
       const id = row.contact_submission_id as number
-      if (id != null) {
-        evidenceCountByContact[id] = (evidenceCountByContact[id] || 0) + 1
-      }
+      if (id == null) continue
+      if (!evidenceCategoriesByContact[id]) evidenceCategoriesByContact[id] = new Set<string>()
+      const catKey =
+        (row.pain_point_category_id as string | null) ?? `__no_cat__:${row.contact_submission_id}`
+      evidenceCategoriesByContact[id].add(catKey)
+    }
+    const evidenceCountByContact: Record<number, number> = {}
+    for (const [id, cats] of Object.entries(evidenceCategoriesByContact)) {
+      evidenceCountByContact[Number(id)] = cats.size
     }
 
     // Batch: completed diagnostic per contact
