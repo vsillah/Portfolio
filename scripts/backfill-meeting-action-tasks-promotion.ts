@@ -68,6 +68,21 @@ if (!supabaseUrl || !serviceRoleKey) {
   process.exit(1)
 }
 
+// When --prod, force lib/supabase's supabaseAdmin to target production.
+// promoteActionItems imports lib/meeting-action-tasks → lib/supabase, which reads
+// NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (+ anon key for its init
+// assert). Override BEFORE the dynamic import in main().
+if (isProd) {
+  process.env.NEXT_PUBLIC_SUPABASE_URL = supabaseUrl
+  process.env.SUPABASE_SERVICE_ROLE_KEY = serviceRoleKey
+  // lib/supabase.ts asserts NEXT_PUBLIC_SUPABASE_ANON_KEY is set at module load;
+  // supabaseAdmin uses serviceRoleKey || anonKey for auth, so substituting the
+  // service role key here is safe for admin-only backfill use.
+  if (!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = serviceRoleKey
+  }
+}
+
 console.log(`Target: ${isProd ? 'PRODUCTION' : 'DEV'} (${supabaseUrl})`)
 console.log(`Mode:   ${dryRun ? 'DRY RUN (preview only)' : 'APPLY (promoteActionItems)'}`)
 if (meetingIdFilter) console.log(`Filter: meeting id = ${meetingIdFilter}`)

@@ -6,6 +6,7 @@
  * updating status, and (optionally) mirroring to Slack channels.
  */
 
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { supabaseAdmin } from './supabase'
 import { n8nWebhookUrl, isN8nOutboundDisabled, logDisabledOutbound } from './n8n'
 // TaskCategory lives in ./meeting-action-task-category so backfill scripts can
@@ -86,12 +87,21 @@ export interface SlackTaskSyncPayload {
  * Skips items that already exist (idempotent by meeting_record_id + title).
  *
  * Returns the number of tasks created.
+ *
+ * @param options.db Optional Supabase client (e.g. prod service-role from a script).
+ *                    Defaults to `supabaseAdmin` (dev URL from env in local scripts).
  */
 export async function promoteActionItems(
-  meetingRecordId: string
+  meetingRecordId: string,
+  options?: { db?: SupabaseClient }
 ): Promise<{ created: number; skipped: number }> {
+  const db = options?.db ?? supabaseAdmin
+  if (!db) {
+    throw new Error('promoteActionItems: no database client (pass options.db or run server-side)')
+  }
+
   // 1. Fetch the meeting record (include key_decisions, structured_notes for fallback when action_items is empty)
-  const { data: record, error: fetchErr } = await supabaseAdmin
+  const { data: record, error: fetchErr } = await db
     .from('meeting_records')
     .select('id, client_project_id, contact_submission_id, action_items, key_decisions, structured_notes')
     .eq('id', meetingRecordId)
@@ -144,7 +154,7 @@ export async function promoteActionItems(
         title,
         description,
         owner: normaliseOwner(item.owner ?? undefined),
-        due_date: item.due_date || null,
+        due_date: normaliseDueDate(item.due_date),
         status: normaliseStatus(item.status ?? undefined),
         display_order: (existing?.length || 0) + idx,
       }
@@ -312,6 +322,23 @@ function normaliseOwner(raw?: string | null): string | null {
   if (!raw) return null
   const trimmed = raw.trim()
   return OWNER_ALIASES[trimmed.toLowerCase()] ?? trimmed
+}
+
+/**
+ * Accept only values the Postgres `date` column can parse; AI extractors often emit
+ * fuzzy phrases like "Next month" or "End of week" which would fail the insert.
+ * We keep ISO YYYY-MM-DD (optionally with time) and drop anything else to null.
+ */
+function normaliseDueDate(raw?: string | null): string | null {
+  if (!raw) return null
+  const trimmed = raw.trim()
+  if (!trimmed) return null
+  // Accept "YYYY-MM-DD" or "YYYY-MM-DDTHH:MM…"; strip time portion for date column.
+  const m = trimmed.match(/^(\d{4}-\d{2}-\d{2})(?:[T ].*)?$/)
+  if (!m) return null
+  const dateOnly = m[1]
+  const t = Date.parse(dateOnly)
+  return Number.isNaN(t) ? null : dateOnly
 }
 
 // inferTaskCategory is defined in a Supabase-free module so backfill scripts
