@@ -13,15 +13,18 @@ vi.mock('nodemailer', () => ({
   },
 }))
 
-vi.mock('resend', () => ({
-  Resend: vi.fn().mockImplementation((apiKey: string) => {
+class ResendMock {
+  emails = {
+    send: mocks.resendSend,
+  }
+
+  constructor(apiKey: string) {
     mocks.resendCtor(apiKey)
-    return {
-      emails: {
-        send: mocks.resendSend,
-      },
-    }
-  }),
+  }
+}
+
+vi.mock('resend', () => ({
+  Resend: ResendMock,
 }))
 
 const BASE_ENV = { ...process.env }
