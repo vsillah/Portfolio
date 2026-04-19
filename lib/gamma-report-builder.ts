@@ -1212,9 +1212,6 @@ Year 2 Effect: Once the initial investment is recovered, recurring annual value 
 - Low (limited data)
 `)
 
-  // --- Slide 14: Evidence Ledger (replaces the legacy generic Sources slide) ---
-  sections.push(buildEvidenceLedgerSlide(evidence))
-
   // --- Slide 15: Next Steps ---
   sections.push(`
 # NEXT STEPS
@@ -1240,6 +1237,9 @@ The numbers are clear. Phase 1 captures free wins immediately. Phases 2–4 buil
 
   // --- Bio slide ---
   sections.push(buildBioSlide())
+
+  // --- Evidence Ledger (final reference-appendix slide; must stay last per UX) ---
+  sections.push(buildEvidenceLedgerSlide(evidence))
 
   // Add third-party findings context if provided
   if (params.externalInputs?.thirdPartyFindings) {
@@ -1558,11 +1558,11 @@ Ready to turn ${orgName}'s website into a mission-aligned growth engine? Here's 
     sections.push(buildFeasibilitySlides(feasibility, orgName))
   }
 
-  // --- Evidence Ledger (must be the last content slide before bio) ---
-  sections.push(buildEvidenceLedgerSlide(evidence))
-
   // --- Bio slide ---
   sections.push(buildBioSlide())
+
+  // --- Evidence Ledger (final reference-appendix slide; must stay last per UX) ---
+  sections.push(buildEvidenceLedgerSlide(evidence))
 
   return { inputText: sections.join('\n---\n'), title }
 }
@@ -1717,11 +1717,11 @@ function buildAuditSummaryPrompt(
     )
   )
 
-  // --- Evidence Ledger ---
-  sections.push(buildEvidenceLedgerSlide(evidence))
-
   // --- Bio slide ---
   sections.push(buildBioSlide())
+
+  // --- Evidence Ledger (final reference-appendix slide; must stay last per UX) ---
+  sections.push(buildEvidenceLedgerSlide(evidence))
 
   return { inputText: sections.join('\n---\n'), title }
 }
@@ -1798,11 +1798,11 @@ function buildProspectOverviewPrompt(
     )
   )
 
-  // --- Evidence Ledger ---
-  sections.push(buildEvidenceLedgerSlide(evidence))
-
   // --- Bio slide ---
   sections.push(buildBioSlide())
+
+  // --- Evidence Ledger (final reference-appendix slide; must stay last per UX) ---
+  sections.push(buildEvidenceLedgerSlide(evidence))
 
   return { inputText: sections.join('\n---\n'), title }
 }
@@ -1815,8 +1815,30 @@ function getSiteUrl(): string {
   return process.env.NEXT_PUBLIC_SITE_URL || 'https://amadutown.com'
 }
 
+/**
+ * Public asset base URL used for image references embedded in Gamma decks.
+ *
+ * Gamma's rendering servers fetch any image URL we embed in the deck markdown,
+ * so `http://localhost:3000/...` (common in `.env.local`) produces a broken
+ * image in the generated deck. Always resolve to a publicly reachable origin:
+ *
+ *   1. `GAMMA_PUBLIC_ASSET_BASE_URL` (explicit override, e.g. a Vercel
+ *      preview URL when testing new assets).
+ *   2. `NEXT_PUBLIC_SITE_URL` when it is not a local-loopback origin.
+ *   3. `https://amadutown.com` as a safe production default.
+ */
+function getPublicAssetBaseUrl(): string {
+  const override = process.env.GAMMA_PUBLIC_ASSET_BASE_URL
+  if (override && override.trim().length > 0) return override.trim()
+  const configured = process.env.NEXT_PUBLIC_SITE_URL
+  if (configured && !/^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])/i.test(configured)) {
+    return configured
+  }
+  return 'https://amadutown.com'
+}
+
 function buildCoverSlide(title: string, orgName: string, subtitle?: string): string {
-  const siteUrl = getSiteUrl()
+  const siteUrl = getPublicAssetBaseUrl()
   const date = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
   const lines = [
     `# ${title}`,
@@ -1884,7 +1906,7 @@ function fallbackOrgLabel(orgName: string | null | undefined): string {
 }
 
 function buildBioSlide(): string {
-  const siteUrl = getSiteUrl()
+  const siteUrl = getPublicAssetBaseUrl()
   const c = CREATOR_BACKGROUND
   return [
     `# Meet Your Advisor`,
@@ -2591,11 +2613,11 @@ ${formatPresenterNote(openingNotes)}`)
     sections.push(buildFeasibilitySlides(feasibility, orgName))
   }
 
-  // --- Evidence Ledger ---
-  sections.push(buildEvidenceLedgerSlide(evidence))
-
   // --- Bio slide ---
   sections.push(buildBioSlide())
+
+  // --- Evidence Ledger (final reference-appendix slide; must stay last per UX) ---
+  sections.push(buildEvidenceLedgerSlide(evidence))
 
   return { inputText: sections.join('\n---\n'), title, metaInstructions }
 }

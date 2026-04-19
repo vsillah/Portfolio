@@ -193,14 +193,14 @@ describe('buildEvidenceIndex', () => {
 describe('buildEvidenceLedgerSlide', () => {
   it('renders a clear empty-state slide when no items', () => {
     const md = buildEvidenceLedgerSlide([])
-    expect(md).toMatch(/EVIDENCE LEDGER/)
+    expect(md).toMatch(/# Where These Findings Come From/)
     expect(md).toMatch(/No structured source data/i)
   })
 
   it('groups items by kind with headings and includes verbatims', () => {
     const items = buildEvidenceIndex(fullInputs())
     const md = buildEvidenceLedgerSlide(items)
-    expect(md).toMatch(/EVIDENCE LEDGER/)
+    expect(md).toMatch(/# Where These Findings Come From/)
     expect(md).toMatch(/### Meeting verbatims/)
     expect(md).toMatch(/### Diagnostic audit responses/)
     expect(md).toMatch(/### Detected technology/)

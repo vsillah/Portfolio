@@ -104,7 +104,7 @@ export default function MeetingVerbatimPicker({ excerpts, loading, onChange }: P
             <div className="flex items-start gap-2 text-xs text-gray-400 bg-gray-800/40 rounded p-3">
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <p>
-                Add a meeting record (transcript or structured notes) on this contact to surface verbatims here. Selected quotes will be cited inline (e.g. <span className="font-mono text-emerald-400">[E3]</span>) and listed in the Evidence Ledger slide.
+                Add a meeting record (transcript or structured notes) on this contact to surface verbatims here. Selected quotes will be cited inline (e.g. <span className="font-mono text-emerald-400">[E3]</span>) and listed on the final &ldquo;Where These Findings Come From&rdquo; slide.
               </p>
             </div>
           ) : (

@@ -129,7 +129,7 @@ export default function EvidencePreviewCard({ contactId, auditId, valueReportId,
               ) : totalCount === 0 ? (
                 'No source evidence found yet — report will rely on AI inference only.'
               ) : (
-                `${totalCount} citable source${totalCount === 1 ? '' : 's'} will be referenced inline and listed in an Evidence Ledger slide.`
+                `${totalCount} citable source${totalCount === 1 ? '' : 's'} will be referenced inline and listed on the final "Where These Findings Come From" slide.`
               )}
             </p>
           </div>

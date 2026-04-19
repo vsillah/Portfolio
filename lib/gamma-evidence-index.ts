@@ -416,7 +416,11 @@ const KIND_ORDER: EvidenceKind[] = [
  * so Gamma cannot fabricate sources.
  */
 export function buildEvidenceLedgerSlide(items: EvidenceItem[]): string {
-  const lines: string[] = ['# EVIDENCE LEDGER', '## Source data referenced in this deck', '']
+  const lines: string[] = [
+    '# Where These Findings Come From',
+    '## Every claim tagged [E#] traces back to a source below — your meeting notes, your audit responses, your tech stack, and published benchmarks.',
+    '',
+  ]
 
   if (items.length === 0) {
     lines.push(
@@ -426,7 +430,7 @@ export function buildEvidenceLedgerSlide(items: EvidenceItem[]): string {
   }
 
   lines.push(
-    'Every `[E#]` tag in this deck refers back to one of the entries below. These are the only approved sources for quotes, statistics, and scores.',
+    'Nothing in this deck is marketing copy. Every number, quote, and recommendation is pinned to a source — so you can verify anything we have claimed and know exactly where it came from.',
     ''
   )
 
@@ -467,7 +471,7 @@ export function buildSourceFidelityPreamble(items: EvidenceItem[]): string {
     '2. When citing a meeting verbatim or an audit response, quote the source text in quotation marks. Do not paraphrase numbers, names, or technology details.',
     '3. Do not invent quotes, statistics, source names, dates, or technologies. If no Evidence Index entry supports a claim, omit the claim.',
     '4. Preserve every `[E#]` tag exactly as written in the source material below — do not renumber, drop, or merge them.',
-    '5. The final slide of the deck is the Evidence Ledger. Do not duplicate or alter that slide; the system appends it verbatim.',
+    '5. The very last slide of the deck is titled `Where These Findings Come From` and lists every source. Render it as its own standalone slide exactly as provided — do not merge it into the preceding slide, do not drop it, do not re-title it, do not summarize it. Its content is authored; preserve it verbatim.',
     '',
   ]
 
