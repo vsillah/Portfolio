@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   DollarSign,
@@ -204,6 +204,50 @@ export default function ValueEvidencePage() {
     }, 150)
     return () => clearTimeout(t)
   }, [searchParams, activeTab])
+
+  /**
+   * Deep-link from Lead Pipeline card: ?tab=dashboard&contactId=<id>
+   * Scopes the pipeline trigger bar to that lead and scrolls + briefly highlights it.
+   */
+  const [contactScopeHighlight, setContactScopeHighlight] = useState(false)
+  const appliedContactScopeRef = useRef<string | null>(null)
+  useEffect(() => {
+    const c = searchParams.get('contactId')
+    if (!c) return
+    if (activeTab !== 'dashboard') return
+    if (appliedContactScopeRef.current === c) return
+    appliedContactScopeRef.current = c
+
+    handleScopeChange('lead', c, null)
+    ;(async () => {
+      try {
+        const session = await getCurrentSession()
+        if (!session?.access_token) return
+        const res = await fetch(`/api/admin/contacts/${c}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        const label =
+          data?.contact?.name ||
+          data?.name ||
+          null
+        if (label) handleScopeChange('lead', c, label)
+      } catch {
+        // Non-fatal: scope still set without label.
+      }
+    })()
+
+    const scrollTimer = window.setTimeout(() => {
+      document.getElementById('vep-dashboard-pipeline')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 150)
+    setContactScopeHighlight(true)
+    const highlightTimer = window.setTimeout(() => setContactScopeHighlight(false), 2400)
+    return () => {
+      clearTimeout(scrollTimer)
+      clearTimeout(highlightTimer)
+    }
+  }, [searchParams, activeTab, handleScopeChange])
 
   const fetchDashboard = useCallback(async () => {
     setLoading(true)
@@ -443,7 +487,11 @@ export default function ValueEvidencePage() {
               {/* Pipeline Trigger Bar */}
               <div
                 id="vep-dashboard-pipeline"
-                className="flex items-center gap-3 flex-wrap scroll-mt-24"
+                className={`flex items-center gap-3 flex-wrap scroll-mt-24 rounded-xl transition-all duration-300 ${
+                  contactScopeHighlight
+                    ? 'ring-2 ring-emerald-400/60 bg-emerald-500/5 p-3 -m-3'
+                    : ''
+                }`}
               >
                 {eitherRunning ? (
                   <button

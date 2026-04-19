@@ -6,7 +6,6 @@ import { getBackUrl, buildLinkWithReturn } from '@/lib/admin-return-context'
 import Link from 'next/link'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
-import LatestAuditBanner from '@/components/audits/LatestAuditBanner'
 import Pagination from '@/components/admin/Pagination'
 import { getCurrentSession } from '@/lib/auth'
 import { EMAIL_TEMPLATE_KEYS, PROMPT_DISPLAY_NAMES, type EmailTemplateKey } from '@/lib/constants/prompt-keys'
@@ -413,12 +412,6 @@ function ContactDetailPage() {
             { label: 'Outreach', href: '/admin/outreach' },
             { label: contact.name },
           ]} />
-
-          <LatestAuditBanner
-            mode="admin"
-            contactSubmissionId={contact.id}
-            email={contact.email}
-          />
 
           {/* ── Header ── */}
           <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-6">

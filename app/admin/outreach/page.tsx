@@ -1137,6 +1137,16 @@ function OutreachContent() {
                 Add lead
               </button>
             )}
+            <Link href="/admin/value-evidence?tab=dashboard">
+              <button
+                type="button"
+                title="Value Evidence: workflow progress, cancel, and run history"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 text-emerald-200 hover:bg-emerald-950/40 font-medium transition-colors"
+              >
+                <ExternalLink size={16} aria-hidden />
+                Value Evidence
+              </button>
+            </Link>
             <Link href="/admin/email-center">
               <button
                 type="button"
@@ -1950,13 +1960,6 @@ function OutreachContent() {
                       >
                         {pushLoading ? 'Loading...' : 'Push to Value Evidence'}
                       </button>
-                      <Link
-                        href="/admin/value-evidence?tab=dashboard&highlight=vep001"
-                        className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-colors"
-                      >
-                        <ExternalLink size={14} aria-hidden />
-                        Open Value Evidence
-                      </Link>
                       <button
                         type="button"
                         onClick={() => setSelectedLeadIds(new Set())}
@@ -1965,20 +1968,6 @@ function OutreachContent() {
                         Clear selection
                       </button>
                     </div>
-                  </div>
-                )}
-                {selectedLeadIds.size === 0 && (
-                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-silicon-slate bg-silicon-slate/25 px-3 py-2.5 text-sm text-muted-foreground">
-                    <span className="min-w-0">
-                      Workflow progress, cancel, and run history: use the Value Evidence dashboard (not this list).
-                    </span>
-                    <Link
-                      href="/admin/value-evidence?tab=dashboard&highlight=vep001"
-                      className="inline-flex shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/20 hover:border-emerald-400/50 transition-colors"
-                    >
-                      <ExternalLink size={14} aria-hidden />
-                      Open Value Evidence
-                    </Link>
                   </div>
                 )}
                 <div className="flex items-center gap-2 mb-3">
@@ -2116,29 +2105,40 @@ function OutreachContent() {
                             )}
                             <div className="flex items-center gap-2 mt-2 flex-wrap">
                               {lead.evidence_count > 0 && (
-                                <button
-                                  type="button"
-                                  onClick={async () => {
-                                    setEvidenceDrawerContactId(lead.id)
-                                    setEvidenceDrawerLoading(true)
-                                    setEvidenceDrawerData(null)
-                                    try {
-                                      const session = await getCurrentSession()
-                                      if (!session) return
-                                      const res = await fetch(
-                                        `/api/admin/value-evidence/evidence?contact_id=${lead.id}`,
-                                        { headers: { Authorization: `Bearer ${session.access_token}` } }
-                                      )
-                                      const data = await res.json()
-                                      if (res.ok) setEvidenceDrawerData(data)
-                                    } finally {
-                                      setEvidenceDrawerLoading(false)
-                                    }
-                                  }}
-                                  className="px-2 py-1 rounded text-xs font-medium bg-green-900/50 text-green-400 border border-green-700 hover:bg-green-800/50"
-                                >
-                                  Evidence: {lead.evidence_count}
-                                </button>
+                                <span className="inline-flex items-stretch rounded text-xs font-medium bg-green-900/50 text-green-400 border border-green-700 overflow-hidden">
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      setEvidenceDrawerContactId(lead.id)
+                                      setEvidenceDrawerLoading(true)
+                                      setEvidenceDrawerData(null)
+                                      try {
+                                        const session = await getCurrentSession()
+                                        if (!session) return
+                                        const res = await fetch(
+                                          `/api/admin/value-evidence/evidence?contact_id=${lead.id}`,
+                                          { headers: { Authorization: `Bearer ${session.access_token}` } }
+                                        )
+                                        const data = await res.json()
+                                        if (res.ok) setEvidenceDrawerData(data)
+                                      } finally {
+                                        setEvidenceDrawerLoading(false)
+                                      }
+                                    }}
+                                    className="px-2 py-1 hover:bg-green-800/50 focus:outline-none focus:ring-2 focus:ring-green-500/40"
+                                    aria-label={`View ${lead.evidence_count} evidence items for ${lead.name}`}
+                                  >
+                                    Evidence: {lead.evidence_count}
+                                  </button>
+                                  <Link
+                                    href={`/admin/value-evidence?tab=dashboard&contactId=${lead.id}`}
+                                    className="px-1.5 py-1 border-l border-green-700/70 hover:bg-green-800/60 flex items-center focus:outline-none focus:ring-2 focus:ring-green-500/40"
+                                    title={`Open ${lead.name} in Value Evidence (workflow progress, run history)`}
+                                    aria-label={`Open ${lead.name} in Value Evidence dashboard`}
+                                  >
+                                    <ExternalLink size={11} aria-hidden className="opacity-80" />
+                                  </Link>
+                                </span>
                               )}
                               {(() => {
                                 const vepStaleMs = 10 * 60 * 1000
@@ -2501,6 +2501,50 @@ function OutreachContent() {
                                       Refresh evidence
                                     </button>
                                   )}
+
+                                  {/* Value Evidence */}
+                                  <div className="border-t border-silicon-slate my-1" />
+                                  <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">Value Evidence</div>
+                                  <Link
+                                    href={`/admin/value-evidence?tab=dashboard&contactId=${lead.id}`}
+                                    role="menuitem"
+                                    onClick={() => setLeadRowMenuOpenId(null)}
+                                    className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-silicon-slate/60 flex items-center gap-2"
+                                    aria-label={`Open ${lead.name} in Value Evidence dashboard`}
+                                  >
+                                    <ExternalLink size={14} className="shrink-0 opacity-80" aria-hidden />
+                                    Open in Value Evidence
+                                  </Link>
+                                  {(() => {
+                                    const vepStaleMs = 10 * 60 * 1000
+                                    const isVepStalePending =
+                                      lead.last_vep_status === 'pending' &&
+                                      lead.evidence_count === 0 &&
+                                      !!lead.last_vep_triggered_at &&
+                                      Date.now() - new Date(lead.last_vep_triggered_at).getTime() > vepStaleMs
+                                    const failed = lead.last_vep_status === 'failed'
+                                    if (!failed && !isVepStalePending) return null
+                                    return (
+                                      <button
+                                        type="button"
+                                        role="menuitem"
+                                        className="w-full text-left px-3 py-2 text-sm text-amber-200 hover:bg-silicon-slate/60 flex items-center gap-2"
+                                        disabled={pushLoading || !lead.has_extractable_text}
+                                        title={
+                                          !lead.has_extractable_text
+                                            ? 'Add notes, diagnostic, or report data before retrying'
+                                            : 'Open review and retry Value Evidence extraction'
+                                        }
+                                        onClick={() => {
+                                          setLeadRowMenuOpenId(null)
+                                          void openReviewEnrichModal([lead.id])
+                                        }}
+                                      >
+                                        <RefreshCw size={14} className="shrink-0 opacity-80" aria-hidden />
+                                        Retry extraction
+                                      </button>
+                                    )
+                                  })()}
 
                                   {/* Pipeline */}
                                   <div className="border-t border-silicon-slate my-1" />
