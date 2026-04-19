@@ -8,12 +8,13 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('svix', () => ({
-  Webhook: vi.fn().mockImplementation((secret: string) => {
-    mocks.webhookCtor(secret)
-    return {
-      verify: mocks.verify,
+  Webhook: class {
+    verify = mocks.verify
+
+    constructor(secret: string) {
+      mocks.webhookCtor(secret)
     }
-  }),
+  },
 }))
 
 vi.mock('@/lib/email-messages', () => ({
