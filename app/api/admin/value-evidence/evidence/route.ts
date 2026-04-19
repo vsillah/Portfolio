@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
       .from('pain_point_evidence')
       .select(`
         id,
+        pain_point_category_id,
         source_type,
         source_id,
         source_excerpt,
@@ -79,8 +80,9 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  const evidence = (evidenceRows || []).map((row: {
+  type EvidenceRow = {
     id: string
+    pain_point_category_id: string
     source_type: string
     source_id: string
     source_excerpt: string
@@ -89,7 +91,35 @@ export async function GET(request: NextRequest) {
     monetary_context: string | null
     created_at: string
     pain_point_categories: { display_name: string } | null
-  }) => ({
+  }
+
+  // Dedupe repeated lead-enrichment runs: same contact + category + monetary amount
+  // stacks fresh rows every time the classifier is re-run. Collapse to the
+  // highest-confidence representative (ties broken by most recent) and expose
+  // occurrence_count so the UI can show provenance later.
+  const rawRows = (evidenceRows || []) as EvidenceRow[]
+  const dedupeMap = new Map<string, { row: EvidenceRow; count: number }>()
+  for (const row of rawRows) {
+    const key = `${row.pain_point_category_id ?? ''}|${row.monetary_indicator ?? ''}`
+    const existing = dedupeMap.get(key)
+    if (!existing) {
+      dedupeMap.set(key, { row, count: 1 })
+      continue
+    }
+    existing.count += 1
+    const prevConf = Number(existing.row.confidence_score ?? 0)
+    const curConf = Number(row.confidence_score ?? 0)
+    const shouldReplace =
+      curConf > prevConf ||
+      (curConf === prevConf &&
+        new Date(row.created_at).getTime() > new Date(existing.row.created_at).getTime())
+    if (shouldReplace) existing.row = row
+  }
+  const dedupedRows = [...dedupeMap.values()].sort(
+    (a, b) => Number(b.row.confidence_score ?? 0) - Number(a.row.confidence_score ?? 0)
+  )
+
+  const evidence = dedupedRows.map(({ row, count }) => ({
     id: row.id,
     source_type: row.source_type,
     source_id: row.source_id,
@@ -99,6 +129,7 @@ export async function GET(request: NextRequest) {
     monetary_context: row.monetary_context,
     created_at: row.created_at,
     display_name: row.pain_point_categories?.display_name ?? null,
+    occurrence_count: count,
   }))
 
   return NextResponse.json({
