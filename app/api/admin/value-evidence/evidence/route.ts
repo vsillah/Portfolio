@@ -93,20 +93,41 @@ export async function GET(request: NextRequest) {
     pain_point_categories: { display_name: string } | null
   }
 
-  // Dedupe repeated lead-enrichment runs: same contact + category + monetary amount
-  // stacks fresh rows every time the classifier is re-run. Collapse to the
-  // highest-confidence representative (ties broken by most recent) and expose
-  // occurrence_count so the UI can show provenance later.
+  // Dedupe repeated lead-enrichment runs: the classifier re-runs stack fresh
+  // rows for the same contact + pain point category, often with slightly
+  // different monetary estimates. Collapse to a single row per category,
+  // keeping the highest-confidence representative (ties broken by most
+  // recent). Surface occurrence_count and monetary min/max so the UI can
+  // show provenance and range.
   const rawRows = (evidenceRows || []) as EvidenceRow[]
-  const dedupeMap = new Map<string, { row: EvidenceRow; count: number }>()
+  type DedupeEntry = {
+    row: EvidenceRow
+    count: number
+    monetary_min: number | null
+    monetary_max: number | null
+  }
+  const dedupeMap = new Map<string, DedupeEntry>()
   for (const row of rawRows) {
-    const key = `${row.pain_point_category_id ?? ''}|${row.monetary_indicator ?? ''}`
+    const key = row.pain_point_category_id ?? `__no_category__:${row.id}`
+    const amount =
+      row.monetary_indicator == null ? null : Number(row.monetary_indicator)
     const existing = dedupeMap.get(key)
     if (!existing) {
-      dedupeMap.set(key, { row, count: 1 })
+      dedupeMap.set(key, {
+        row,
+        count: 1,
+        monetary_min: amount,
+        monetary_max: amount,
+      })
       continue
     }
     existing.count += 1
+    if (amount != null) {
+      existing.monetary_min =
+        existing.monetary_min == null ? amount : Math.min(existing.monetary_min, amount)
+      existing.monetary_max =
+        existing.monetary_max == null ? amount : Math.max(existing.monetary_max, amount)
+    }
     const prevConf = Number(existing.row.confidence_score ?? 0)
     const curConf = Number(row.confidence_score ?? 0)
     const shouldReplace =
@@ -119,13 +140,15 @@ export async function GET(request: NextRequest) {
     (a, b) => Number(b.row.confidence_score ?? 0) - Number(a.row.confidence_score ?? 0)
   )
 
-  const evidence = dedupedRows.map(({ row, count }) => ({
+  const evidence = dedupedRows.map(({ row, count, monetary_min, monetary_max }) => ({
     id: row.id,
     source_type: row.source_type,
     source_id: row.source_id,
     source_excerpt: row.source_excerpt,
     confidence_score: row.confidence_score,
     monetary_indicator: row.monetary_indicator,
+    monetary_min,
+    monetary_max,
     monetary_context: row.monetary_context,
     created_at: row.created_at,
     display_name: row.pain_point_categories?.display_name ?? null,
