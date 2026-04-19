@@ -69,6 +69,10 @@ interface GammaReport {
   status: string;
   error_message: string | null;
   created_at: string;
+  /** Populated by `SELECT *` on gamma_reports; null for non-audit-anchored decks. */
+  diagnostic_audit_id?: string | null;
+  /** bigint in DB — serialized as number by Supabase. */
+  contact_submission_id?: number | null;
   contact_submissions: Contact | null;
   companion_video?: GammaReportCompanionVideo | null;
 }
@@ -158,6 +162,22 @@ function GammaReportsContent() {
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [showPromptPreview, setShowPromptPreview] = useState(false);
+
+  /**
+   * When we arrive on this page with context (auditId / contactId) and an
+   * audit_summary / etc. was already kicked off elsewhere (e.g. by the
+   * auto-summary hook on `audit-from-meetings`), we bind the pill + progress
+   * bar to that row so the UI mirrors what you'd see if you clicked Generate
+   * here yourself.
+   *
+   * Null when nothing is in-flight for the current context.
+   */
+  const [trackedInFlight, setTrackedInFlight] = useState<
+    { reportId: string; reportType: ReportType; startedAt: string } | null
+  >(null);
+  /** Remember whether the URL pinned `type=...`. We only auto-switch the
+   * active template when the user didn't explicitly request one. */
+  const urlTypePinnedRef = useRef<boolean>(Boolean(searchParams.get('type')));
 
   // Companion video
   const [generatingCompanion, setGeneratingCompanion] = useState(false);
@@ -740,6 +760,108 @@ function GammaReportsContent() {
   useEffect(() => {
     if (session) fetchReports();
   }, [session, fetchReports]);
+
+  /**
+   * Clear any tracked generation when the context (audit/contact) changes so
+   * detection below re-runs from scratch against the new target.
+   */
+  useEffect(() => {
+    setTrackedInFlight(null);
+  }, [auditId, contactId]);
+
+  /**
+   * On mount (with context), detect an already-running Gamma deck for this
+   * audit or contact. If found, bind the pill/progress UI to it — same
+   * behaviour as if the user had clicked Generate on this page themselves.
+   *
+   * Runs once per session+context change. Skips silently if nothing in-flight.
+   */
+  useEffect(() => {
+    if (!session) return;
+    if (!auditId && !contactId) return;
+    let cancelled = false;
+    async function detect() {
+      const token = await getToken();
+      if (!token || cancelled) return;
+      const params = new URLSearchParams({ status: 'generating', limit: '20' });
+      if (contactId) params.set('contactId', contactId);
+      const res = await fetch(`/api/admin/gamma-reports?${params}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok || cancelled) return;
+      const data = await res.json().catch(() => ({}));
+      const rows = Array.isArray(data.reports) ? (data.reports as GammaReport[]) : [];
+      const match = rows.find((r) => {
+        if (auditId && r.diagnostic_audit_id && String(r.diagnostic_audit_id) === String(auditId)) {
+          return true;
+        }
+        if (contactId && r.contact_submission_id != null && String(r.contact_submission_id) === String(contactId)) {
+          return true;
+        }
+        return false;
+      });
+      if (!match || cancelled) return;
+      setTrackedInFlight({
+        reportId: match.id,
+        reportType: match.report_type,
+        startedAt: match.created_at,
+      });
+      if (!urlTypePinnedRef.current) {
+        setReportType(match.report_type);
+      }
+    }
+    void detect();
+    return () => { cancelled = true; };
+  }, [session, auditId, contactId, getToken]);
+
+  /**
+   * Poll the tracked in-flight row until it flips to completed/failed, then
+   * hydrate the `result`/`error` state exactly like a local Generate click
+   * would. Refreshes history on every poll so the table stays in sync.
+   */
+  useEffect(() => {
+    if (!session || !trackedInFlight) return;
+    let cancelled = false;
+    const tick = async () => {
+      const token = await getToken();
+      if (!token || cancelled) return;
+      const res = await fetch('/api/admin/gamma-reports?limit=20', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok || cancelled) return;
+      const data = await res.json().catch(() => ({}));
+      const rows = Array.isArray(data.reports) ? (data.reports as GammaReport[]) : [];
+      setReports(rows);
+      const row = rows.find((r) => r.id === trackedInFlight.reportId);
+      if (!row) return;
+      if (row.status === 'completed') {
+        setTrackedInFlight(null);
+        if (row.gamma_url) {
+          setResult({
+            gammaUrl: row.gamma_url,
+            reportId: row.id,
+            title: row.title ?? '',
+          });
+        }
+      } else if (row.status === 'failed') {
+        setTrackedInFlight(null);
+        setError(row.error_message || 'Generation failed.');
+      }
+    };
+    void tick();
+    const id = window.setInterval(() => { void tick(); }, 5000);
+    return () => { cancelled = true; window.clearInterval(id); };
+  }, [session, trackedInFlight, getToken]);
+
+  /**
+   * Whether the current template has an in-flight generation we should
+   * reflect in the GammaDeckGenerateRow. External (tracked) generations use
+   * the row's real `created_at`; local generations fall back to mount time.
+   */
+  const trackedForCurrentType = trackedInFlight && trackedInFlight.reportType === reportType
+    ? trackedInFlight
+    : null;
+  const isGeneratingUi = generating || Boolean(trackedForCurrentType);
 
   // Generate report
   async function handleGenerate() {
@@ -1493,12 +1615,17 @@ function GammaReportsContent() {
 
         {/* Generate — execution row (progress + milestones + history), same pattern as HeyGen config */}
         <GammaDeckGenerateRow
-          generating={generating}
+          generating={isGeneratingUi}
           onGenerate={handleGenerate}
           templateLabel={selectedType.label}
           reportsForTemplate={reportsForCurrentTemplate}
-          disabled={generating}
-          helperTextWhileGenerating="This may take 30–60 seconds while Gamma creates your presentation."
+          disabled={isGeneratingUi}
+          helperTextWhileGenerating={
+            trackedForCurrentType
+              ? 'Generation was started from another screen — tracking progress here.'
+              : 'This may take 30–60 seconds while Gamma creates your presentation.'
+          }
+          startedAt={trackedForCurrentType?.startedAt}
           fullReportHistoryHref="#gamma-report-history"
         />
 

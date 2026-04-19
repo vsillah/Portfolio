@@ -210,6 +210,7 @@ export function GammaDeckGenerateRow({
   helperTextWhileGenerating,
   fullReportHistoryHref,
   recentRunsLimit = GAMMA_DRAWER_RECENT_RUNS,
+  startedAt,
 }: {
   generating: boolean
   onGenerate: () => void
@@ -221,6 +222,13 @@ export function GammaDeckGenerateRow({
   fullReportHistoryHref: string
   /** Override default (3) to match other admin “recent” lists. */
   recentRunsLimit?: number
+  /**
+   * When the generation was started elsewhere (e.g. auto audit_summary on
+   * `audit-from-meetings`) and we're tracking its progress from this page,
+   * pass the row's `created_at` so the progress estimate and elapsed timer
+   * reflect actual wall time instead of restarting from 0 at mount.
+   */
+  startedAt?: string | Date | null
 }) {
   const [elapsedMs, setElapsedMs] = useState(0)
   const startRef = useRef<number | null>(null)
@@ -233,14 +241,15 @@ export function GammaDeckGenerateRow({
       setElapsedMs(0)
       return
     }
-    startRef.current = Date.now()
+    const fromProvided = startedAt ? new Date(startedAt).getTime() : NaN
+    startRef.current = Number.isFinite(fromProvided) ? fromProvided : Date.now()
     const tick = () => {
-      if (startRef.current) setElapsedMs(Date.now() - startRef.current)
+      if (startRef.current) setElapsedMs(Math.max(0, Date.now() - startRef.current))
     }
     tick()
     const id = window.setInterval(tick, 400)
     return () => window.clearInterval(id)
-  }, [generating])
+  }, [generating, startedAt])
 
   const progress = useMemo(
     () => (generating ? estimateGammaDeckProgress(elapsedMs) : null),
