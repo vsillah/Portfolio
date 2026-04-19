@@ -13,6 +13,15 @@ import { insertGammaReportRow, runGammaGeneration } from './gamma-generation'
 
 const LOG_PREFIX = '[auto-audit-summary]'
 
+/**
+ * Background audits (especially multi-meeting `from_meetings` audits) produce
+ * larger decks that routinely take 5+ minutes to render on Gamma's side.
+ * Give the poll a 10-minute budget here so we don't flip rows to `failed`
+ * while Gamma is still working — the interactive `POST /api/admin/gamma-reports`
+ * path keeps its default 5 min so users aren't kept waiting.
+ */
+const AUTO_SUMMARY_WAIT_TIMEOUT_MS = 600_000
+
 function isEnabled(): boolean {
   const flag = process.env.AUTO_GENERATE_DIAGNOSTIC_AUDIT_SUMMARY
   if (flag === undefined || flag === '') return true
@@ -89,7 +98,9 @@ async function runAuditSummaryGamma(auditId: string): Promise<void> {
   console.info(`${LOG_PREFIX} Generating audit_summary for audit ${auditId}, gamma row ${row.id}`)
 
   // 4. Run generation with retries (shared helper handles retry + failure marking)
-  const result = await runGammaGeneration(row.id, inputText, options)
+  const result = await runGammaGeneration(row.id, inputText, options, {
+    waitTimeoutMs: AUTO_SUMMARY_WAIT_TIMEOUT_MS,
+  })
 
   if (result.status === 'completed') {
     console.info(`${LOG_PREFIX} Completed audit_summary for audit ${auditId}: ${result.gammaUrl}`)

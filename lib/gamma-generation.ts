@@ -71,6 +71,17 @@ export async function insertGammaReportRow(
   return row
 }
 
+/** Optional knobs for `runGammaGeneration`. Keep defaults interactive-friendly. */
+export interface RunGammaGenerationOptions {
+  /**
+   * Max time to poll Gamma for generation completion.
+   * Defaults to the `waitForGeneration` default (5 min) — appropriate for
+   * synchronous admin-driven requests. Background workers (e.g. the
+   * audit_summary auto-generator) can raise this for larger decks.
+   */
+  waitTimeoutMs?: number
+}
+
 /**
  * Run Gamma API generation for an existing gamma_reports row:
  * call generateGamma → poll waitForGeneration → update row to completed/failed.
@@ -79,7 +90,8 @@ export async function insertGammaReportRow(
 export async function runGammaGeneration(
   reportId: string,
   inputText: string,
-  options: GammaGenerateOptions
+  options: GammaGenerateOptions,
+  runOptions?: RunGammaGenerationOptions
 ): Promise<GammaGenerationResult> {
   if (!supabaseAdmin) throw new Error('supabaseAdmin not available')
 
@@ -98,7 +110,10 @@ export async function runGammaGeneration(
         .update({ gamma_generation_id: generationId })
         .eq('id', reportId)
 
-      const result = await waitForGeneration(generationId)
+      const result = await waitForGeneration(
+        generationId,
+        runOptions?.waitTimeoutMs != null ? { timeoutMs: runOptions.waitTimeoutMs } : undefined
+      )
 
       if (result.status === 'failed') {
         lastError = result.error?.message || 'Generation failed'
