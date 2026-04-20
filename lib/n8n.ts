@@ -1084,7 +1084,12 @@ const N8N_WRM003_WEBHOOK_URL = process.env.N8N_WRM003_WEBHOOK_URL
 
 /**
  * Trigger the outreach generation workflow (WF-CLG-002)
- * Called after lead enrichment for hot/warm leads
+ * Called after lead enrichment for hot/warm leads.
+ *
+ * `template_key` (Phase 2+) lets callers pin a specific Saraev template from
+ * `EMAIL_TEMPLATE_KEYS`. When omitted, WF-CLG-002 picks its own default (today:
+ * `email_cold_outreach` for sequence_step=1). Back-compat: callers that don't
+ * pass it get the exact payload we sent pre-Phase-2.
  */
 export async function triggerOutreachGeneration(params: {
   contact_id: number | string
@@ -1094,6 +1099,7 @@ export async function triggerOutreachGeneration(params: {
   is_followup?: boolean
   meeting_summary?: string
   pain_points?: string
+  template_key?: string
 }): Promise<{ triggered: boolean; error?: string }> {
   if (isN8nOutboundDisabled()) {
     logDisabledOutbound('triggerOutreachGeneration', N8N_CLG002_WEBHOOK_URL, params)

@@ -2,14 +2,24 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { triggerOutreachGeneration } from '@/lib/n8n'
+import {
+  EMAIL_TEMPLATE_KEYS,
+  type EmailTemplateKey,
+} from '@/lib/constants/prompt-keys'
 
 export const dynamic = 'force-dynamic'
+
+const EMAIL_TEMPLATE_KEY_SET = new Set<string>(EMAIL_TEMPLATE_KEYS)
 
 /**
  * POST /api/admin/outreach/leads/:id/generate
  *
  * Manually trigger outreach email generation (WF-CLG-002) for an existing lead.
  * Loads the lead and any linked meeting_records to build context for the email.
+ *
+ * Body (all fields optional; empty body preserves pre-Phase-2 behavior):
+ *   - templateKey: one of EMAIL_TEMPLATE_KEYS to pin the Saraev template used.
+ *   - customNote, includeDashboardLink: reserved for Phase 3+ (ignored today).
  */
 export async function POST(
   request: NextRequest,
@@ -23,6 +33,15 @@ export async function POST(
   const contactId = parseInt(params.id, 10)
   if (isNaN(contactId)) {
     return NextResponse.json({ error: 'Invalid lead ID' }, { status: 400 })
+  }
+
+  // Tolerate empty / non-JSON bodies (the original callers send none).
+  const body = (await request.json().catch(() => ({}))) as {
+    templateKey?: string
+  }
+  let templateKey: EmailTemplateKey | undefined
+  if (typeof body?.templateKey === 'string' && EMAIL_TEMPLATE_KEY_SET.has(body.templateKey)) {
+    templateKey = body.templateKey as EmailTemplateKey
   }
 
   const sb = supabaseAdmin
@@ -81,10 +100,12 @@ export async function POST(
       is_followup: false,
       meeting_summary: meetingSummary,
       pain_points: painPoints,
+      ...(templateKey ? { template_key: templateKey } : {}),
     })
 
     return NextResponse.json({
       triggered: result.triggered,
+      ...(templateKey ? { templateKey } : {}),
       ...(!result.triggered && { fallback: 'in-app' }),
     })
   } catch (err) {

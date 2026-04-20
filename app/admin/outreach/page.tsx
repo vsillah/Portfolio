@@ -56,6 +56,7 @@ import TechStackModal from '@/components/admin/outreach/TechStackModal'
 import SocialIntelModal from '@/components/admin/outreach/SocialIntelModal'
 import EvidenceDrawer from '@/components/admin/outreach/EvidenceDrawer'
 import AddLeadModal from '@/components/admin/outreach/AddLeadModal'
+import OutreachGenerationPill from '@/components/admin/OutreachGenerationPill'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -335,7 +336,6 @@ function OutreachContent() {
 
 
   // Generate outreach state
-  const [generateOutreachLoading, setGenerateOutreachLoading] = useState<number | null>(null)
   const [generateInAppLoading, setGenerateInAppLoading] = useState<number | null>(null)
   const [generateOutreachToast, setGenerateOutreachToast] = useState<string | null>(null)
   const [n8nFailedLeadIds, setN8nFailedLeadIds] = useState<Set<number>>(new Set())
@@ -2206,70 +2206,27 @@ function OutreachContent() {
 
                           {/* Actions — primary CTA + progressive fallback + More + expand */}
                           <div className="flex items-center gap-2 shrink-0">
-                            {/* Primary CTA: toggles between Generate Email and View Drafts */}
-                            {!lead.do_not_contact && !lead.removed_at && (
-                              lead.messages_count > 0 ? (
-                                <Link
-                                  href={`/admin/outreach?tab=queue&contact=${lead.id}`}
-                                  className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5"
-                                >
-                                  <Mail size={14} />
-                                  View Drafts
-                                </Link>
-                              ) : (
-                                <button
-                                  type="button"
-                                  title="Generate outreach email via n8n (WF-CLG-002)"
-                                  onClick={async () => {
-                                    const session = await getCurrentSession()
-                                    if (!session) return
-                                    setGenerateOutreachLoading(lead.id)
-                                    try {
-                                      const res = await fetch(`/api/admin/outreach/leads/${lead.id}/generate`, {
-                                        method: 'POST',
-                                        headers: {
-                                          'Content-Type': 'application/json',
-                                          Authorization: `Bearer ${session.access_token}`,
-                                        },
-                                      })
-                                      const data = await res.json().catch(() => ({}))
-                                      if (data.triggered) {
-                                        setGenerateOutreachToast(`Email generation started for ${lead.name}`)
-                                        setTimeout(() => setGenerateOutreachToast(null), 4000)
-                                        setN8nFailedLeadIds((prev) => {
-                                          const next = new Set(prev)
-                                          next.delete(lead.id)
-                                          return next
-                                        })
-                                      } else {
-                                        setN8nFailedLeadIds((prev) => new Set([...prev, lead.id]))
-                                        setGenerateOutreachToast(
-                                          `n8n unavailable for ${lead.name} — use Draft in app`
-                                        )
-                                        setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                      }
-                                    } catch {
-                                      setN8nFailedLeadIds((prev) => new Set([...prev, lead.id]))
-                                      setGenerateOutreachToast(
-                                        `n8n unavailable for ${lead.name} — use Draft in app`
-                                      )
-                                      setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                    } finally {
-                                      setGenerateOutreachLoading(null)
-                                    }
-                                  }}
-                                  disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
-                                  className="px-3 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
-                                >
-                                  {generateOutreachLoading === lead.id ? (
-                                    <Loader2 size={14} className="animate-spin" />
-                                  ) : (
-                                    <Mail size={14} />
-                                  )}
-                                  Generate Email
-                                </button>
-                              )
-                            )}
+                            {/* Primary CTA: pipeline-style pill (idle / running / succeeded / failed / cancelled / link). */}
+                            <OutreachGenerationPill
+                              lead={lead}
+                              onToast={(msg) => {
+                                setGenerateOutreachToast(msg)
+                                setTimeout(() => setGenerateOutreachToast(null), 6000)
+                              }}
+                              onFallbackAvailable={() => {
+                                setN8nFailedLeadIds((prev) => new Set([...prev, lead.id]))
+                              }}
+                              onFallbackCleared={() => {
+                                setN8nFailedLeadIds((prev) => {
+                                  const next = new Set(prev)
+                                  next.delete(lead.id)
+                                  return next
+                                })
+                              }}
+                              onSettled={() => {
+                                void fetchLeads()
+                              }}
+                            />
 
                             {/* Progressive fallback: Draft in app — appears when n8n fails */}
                             {!lead.do_not_contact && !lead.removed_at && n8nFailedLeadIds.has(lead.id) && (
@@ -2323,7 +2280,7 @@ function OutreachContent() {
                                     setGenerateInAppLoading(null)
                                   }
                                 }}
-                                disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
+                                disabled={generateInAppLoading === lead.id}
                                 className="px-3 py-2 bg-violet-900/30 hover:bg-violet-800/50 text-violet-300 border border-violet-700/50 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
                               >
                                 {generateInAppLoading === lead.id ? (
@@ -2354,7 +2311,7 @@ function OutreachContent() {
                                   role="menu"
                                   className="absolute right-0 top-full mt-1 z-50 min-w-[14rem] py-1 rounded-lg border border-silicon-slate bg-background shadow-xl"
                                 >
-                                  {/* Compose & AI */}
+                                  {/* Compose & AI — "Generate Email" lives on the primary pill; dropdown keeps only the in-app fallback. */}
                                   {!lead.do_not_contact && !lead.removed_at && (
                                     <>
                                       <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">Compose</div>
@@ -2362,46 +2319,7 @@ function OutreachContent() {
                                         type="button"
                                         role="menuitem"
                                         className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-silicon-slate/60 flex items-center gap-2"
-                                        disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
-                                        onClick={async () => {
-                                          setLeadRowMenuOpenId(null)
-                                          const session = await getCurrentSession()
-                                          if (!session) return
-                                          setGenerateOutreachLoading(lead.id)
-                                          try {
-                                            const res = await fetch(`/api/admin/outreach/leads/${lead.id}/generate`, {
-                                              method: 'POST',
-                                              headers: {
-                                                'Content-Type': 'application/json',
-                                                Authorization: `Bearer ${session.access_token}`,
-                                              },
-                                            })
-                                            const data = await res.json().catch(() => ({}))
-                                            if (data.triggered) {
-                                              setGenerateOutreachToast(`Email generation started for ${lead.name}`)
-                                              setTimeout(() => setGenerateOutreachToast(null), 4000)
-                                            } else {
-                                              setN8nFailedLeadIds((prev) => new Set([...prev, lead.id]))
-                                              setGenerateOutreachToast(`n8n unavailable for ${lead.name} — use Draft in app`)
-                                              setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                            }
-                                          } catch {
-                                            setN8nFailedLeadIds((prev) => new Set([...prev, lead.id]))
-                                            setGenerateOutreachToast(`n8n unavailable for ${lead.name} — use Draft in app`)
-                                            setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                          } finally {
-                                            setGenerateOutreachLoading(null)
-                                          }
-                                        }}
-                                      >
-                                        <Mail size={14} className="shrink-0 opacity-80" />
-                                        Generate Email
-                                      </button>
-                                      <button
-                                        type="button"
-                                        role="menuitem"
-                                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-silicon-slate/60 flex items-center gap-2"
-                                        disabled={generateOutreachLoading === lead.id || generateInAppLoading === lead.id}
+                                        disabled={generateInAppLoading === lead.id}
                                         onClick={async () => {
                                           setLeadRowMenuOpenId(null)
                                           const session = await getCurrentSession()

@@ -271,6 +271,24 @@ function ContactDetailPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
+  // Deep-link from the outreach pill: ?focus=compose[&template=<key>]#compose
+  // Opens the Compose Delivery Email section, pre-selects the template, and scrolls to it.
+  useEffect(() => {
+    if (loading || !data) return
+    if (searchParams?.get('focus') !== 'compose') return
+    setComposeOpen(true)
+    const t = searchParams.get('template')
+    if (t && (EMAIL_TEMPLATE_KEYS as readonly string[]).includes(t)) {
+      setSelectedTemplate(t as EmailTemplateKey)
+    }
+    // Defer one frame so the section has rendered before we scroll.
+    const handle = window.requestAnimationFrame(() => {
+      const el = document.getElementById('compose')
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+    return () => window.cancelAnimationFrame(handle)
+  }, [loading, data, searchParams])
+
   useEffect(() => {
     setTimelinePage(1)
   }, [id])
@@ -715,7 +733,7 @@ function ContactDetailPage() {
           })()}
 
           {/* ── Compose Delivery Email ── */}
-          <div className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden">
+          <div id="compose" className="bg-gray-900/60 border border-gray-800 rounded-xl overflow-hidden scroll-mt-20">
             <button onClick={() => setComposeOpen(!composeOpen)} className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-800/30 transition-colors">
               <div className="flex items-center gap-2">
                 <Send className="w-5 h-5 text-teal-400" />

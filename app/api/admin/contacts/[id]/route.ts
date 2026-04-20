@@ -52,6 +52,8 @@ export async function GET(
     dashboardRes,
     salesRes,
     communicationsRes,
+    meetingRes,
+    projectRes,
   ] = await Promise.all([
     supabaseAdmin
       .from('gamma_reports')
@@ -111,6 +113,19 @@ export async function GET(
       .eq('contact_submission_id', contactId)
       .order('created_at', { ascending: false })
       .limit(50),
+
+    supabaseAdmin
+      .from('meeting_records')
+      .select('id, meeting_date, meeting_type')
+      .eq('contact_submission_id', contactId)
+      .order('meeting_date', { ascending: false })
+      .limit(20),
+
+    supabaseAdmin
+      .from('client_projects')
+      .select('id, project_name, project_status')
+      .eq('contact_submission_id', contactId)
+      .limit(5),
   ])
 
   // Build timeline from all events
@@ -149,6 +164,8 @@ export async function GET(
     audits: auditRes.data ?? [],
     deliveries: deliveryRes.data ?? [],
     salesSessions: salesRes.data ?? [],
+    meetingRecords: meetingRes.data ?? [],
+    clientProjects: projectRes.data ?? [],
   }
 
   const suggestedTemplate = suggestEmailTemplate(pageData)

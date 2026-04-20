@@ -83,7 +83,19 @@ export interface ContactPageData {
   deliveries: Array<{ id: string }>
   salesSessions: Array<{ id: string }>
   audits: Array<{ id: string }>
+  /** Added Phase 2 — optional for back-compat; falls through to pre-existing branches when absent. */
+  meetingRecords?: Array<{ id: string }>
+  clientProjects?: Array<{ id: string }>
 }
+
+/** Why `suggestEmailTemplate()` landed on its answer — surfaced in tooltips/UI. */
+export type SuggestedTemplateReason =
+  | 'converted_client'
+  | 'proposal_sent'
+  | 'meeting_delivered'
+  | 'post_meeting'
+  | 'has_assets'
+  | 'cold'
 
 /* ───────── Data Fetching ───────── */
 
@@ -150,13 +162,96 @@ async function fetchAssetDetails(assetIds: AssetRef[]): Promise<AssetDetail[]> {
  * Can run client-side (from fetched data) or server-side.
  */
 export function suggestEmailTemplate(data: ContactPageData): EmailTemplateKey {
-  const hasClientProject = false // TODO: add client_projects to contact detail if needed
-  if (data.salesSessions.length > 0 && hasClientProject) return 'email_onboarding_welcome'
-  if (data.salesSessions.length > 0) return 'email_proposal_delivery'
-  if (data.deliveries.length > 0) return 'email_follow_up'
-  const hasAssets = data.gammaReports.length > 0 || data.videos.length > 0 || data.valueReports.length > 0
-  if (hasAssets) return 'email_asset_delivery'
-  return 'email_cold_outreach'
+  return suggestEmailTemplateWithReason(data).template
+}
+
+/**
+ * Same as `suggestEmailTemplate()` but also returns the branch that fired, for
+ * tooltips / UI explanations ("why this template?").
+ */
+export function suggestEmailTemplateWithReason(
+  data: ContactPageData,
+): { template: EmailTemplateKey; reason: SuggestedTemplateReason } {
+  const hasClientProject = (data.clientProjects?.length ?? 0) > 0
+  const hasMeetingRecords = (data.meetingRecords?.length ?? 0) > 0
+
+  if (data.salesSessions.length > 0 && hasClientProject) {
+    return { template: 'email_onboarding_welcome', reason: 'converted_client' }
+  }
+  if (data.salesSessions.length > 0) {
+    return { template: 'email_proposal_delivery', reason: 'proposal_sent' }
+  }
+  if (data.deliveries.length > 0) {
+    return { template: 'email_follow_up', reason: 'meeting_delivered' }
+  }
+  if (hasMeetingRecords) {
+    return { template: 'email_follow_up', reason: 'post_meeting' }
+  }
+  const hasAssets =
+    data.gammaReports.length > 0 ||
+    data.videos.length > 0 ||
+    data.valueReports.length > 0
+  if (hasAssets) return { template: 'email_asset_delivery', reason: 'has_assets' }
+  return { template: 'email_cold_outreach', reason: 'cold' }
+}
+
+/**
+ * Server-side helper: compute the suggested template for a single lead using
+ * count-only queries (no heavy joins). Returns both the template key and the
+ * branch reason so callers can surface a tooltip like "suggested because you've
+ * already sent them an asset".
+ *
+ * Six parallel `head:true, count:'exact'` queries against indexed FK columns;
+ * cheap enough to call per-row from the pill's chevron dropdown.
+ */
+export async function suggestEmailTemplateForLead(
+  leadId: number,
+): Promise<{ template: EmailTemplateKey; reason: SuggestedTemplateReason }> {
+  if (!supabaseAdmin) {
+    return { template: 'email_cold_outreach', reason: 'cold' }
+  }
+  const sb = supabaseAdmin
+
+  const countEq = (table: string) =>
+    sb
+      .from(table)
+      .select('id', { head: true, count: 'exact' })
+      .eq('contact_submission_id', leadId)
+
+  const [
+    gammaRes,
+    videoRes,
+    valueRes,
+    deliveryRes,
+    salesRes,
+    meetingRes,
+    projectRes,
+  ] = await Promise.all([
+    countEq('gamma_reports'),
+    sb
+      .from('video_generation_jobs')
+      .select('id', { head: true, count: 'exact' })
+      .eq('contact_submission_id', leadId)
+      .is('deleted_at', null),
+    countEq('value_reports'),
+    countEq('contact_deliveries'),
+    countEq('sales_sessions'),
+    countEq('meeting_records'),
+    countEq('client_projects'),
+  ])
+
+  const one = (n: number | null | undefined) => (n ?? 0) > 0 ? [{ id: 'x' }] : []
+  const pageData: ContactPageData = {
+    gammaReports: one(gammaRes.count),
+    videos: one(videoRes.count),
+    valueReports: one(valueRes.count),
+    deliveries: one(deliveryRes.count),
+    salesSessions: one(salesRes.count),
+    audits: [], // not consulted by suggestEmailTemplate; kept for type safety
+    meetingRecords: one(meetingRes.count),
+    clientProjects: one(projectRes.count),
+  }
+  return suggestEmailTemplateWithReason(pageData)
 }
 
 /* ───────── Key Findings Builder ───────── */
