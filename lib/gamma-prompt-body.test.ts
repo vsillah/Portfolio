@@ -57,7 +57,7 @@ describe('Gamma prompt body — meta blocks removed', () => {
   it('audit_summary body does not include Source Fidelity preamble or "How to use this source material"', async () => {
     const ctx = makeCtx()
     const { inputText, options } = await buildGammaReportInputFromContext(
-      ctx as Parameters<typeof buildGammaReportInputFromContext>[0],
+      ctx as unknown as Parameters<typeof buildGammaReportInputFromContext>[0],
       { reportType: 'audit_summary' } as Parameters<typeof buildGammaReportInputFromContext>[1]
     )
 
@@ -78,7 +78,7 @@ describe('Gamma prompt body — meta blocks removed', () => {
   it('cover slide is at or near the start of the audit_summary body (not buried behind 7k chars)', async () => {
     const ctx = makeCtx()
     const { inputText } = await buildGammaReportInputFromContext(
-      ctx as Parameters<typeof buildGammaReportInputFromContext>[0],
+      ctx as unknown as Parameters<typeof buildGammaReportInputFromContext>[0],
       { reportType: 'audit_summary' } as Parameters<typeof buildGammaReportInputFromContext>[1]
     )
     const coverPos = inputText.indexOf('# Acme Widgets — Diagnostic Audit Summary')

@@ -38,7 +38,7 @@ function createInsertBuilder(singleResult: DbResult) {
 
 function createUpdateBuilder(eqResult: DbResult) {
   const eq = vi.fn().mockResolvedValue(eqResult)
-  const update = vi.fn(() => ({ eq }))
+  const update = vi.fn((_payload: Record<string, unknown>) => ({ eq }))
   return { update, eq }
 }
 

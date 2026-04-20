@@ -56,9 +56,11 @@ vi.mock('@/lib/supabase', () => ({
         // Stub for lib/meeting-tasks-context.loadOpenOutreachTasksForContact:
         //   .select(...).eq(contact_submission_id, ...).eq(task_category, 'outreach')
         //   .in('status', [...]).order(due_date).order(created_at).limit(...)
-        const emptyResult = () => Promise.resolve({ data: [], error: null })
-        const orderChain = (): { order: () => typeof orderChain; limit: () => Promise<{ data: [], error: null }> } => ({
-          order: orderChain as unknown as () => typeof orderChain,
+        type EmptyResult = Promise<{ data: never[]; error: null }>
+        type OrderChain = { order: () => OrderChain; limit: () => EmptyResult }
+        const emptyResult = (): EmptyResult => Promise.resolve({ data: [], error: null })
+        const orderChain: () => OrderChain = () => ({
+          order: orderChain,
           limit: emptyResult,
         })
         return {

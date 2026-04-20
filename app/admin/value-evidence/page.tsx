@@ -211,6 +211,13 @@ export default function ValueEvidencePage() {
    */
   const [contactScopeHighlight, setContactScopeHighlight] = useState(false)
   const appliedContactScopeRef = useRef<string | null>(null)
+
+  const handleScopeChange = useCallback((type: ScopeType | null, id: string | null, label: string | null) => {
+    setScopeType(type)
+    setScopeId(id)
+    setScopeLabel(label)
+  }, [])
+
   useEffect(() => {
     const c = searchParams.get('contactId')
     if (!c) return
@@ -297,12 +304,6 @@ export default function ValueEvidencePage() {
 
   /** Internal → Social → (dev) Cloudflare tunnel readiness — not the same as admin nav tabs. */
   const pipelinePhaseTotal = tunnel.isDev ? 3 : 2
-
-  const handleScopeChange = useCallback((type: ScopeType | null, id: string | null, label: string | null) => {
-    setScopeType(type)
-    setScopeId(id)
-    setScopeLabel(label)
-  }, [])
 
   const triggerWorkflow = async (
     workflow: 'internal_extraction' | 'social_listening',

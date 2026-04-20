@@ -61,7 +61,7 @@ function baseCtx(overrides: Record<string, unknown> = {}) {
 async function buildBody(reportType: string, ctxOverrides: Record<string, unknown> = {}) {
   const ctx = baseCtx(ctxOverrides)
   const { inputText, options } = await buildGammaReportInputFromContext(
-    ctx as Parameters<typeof buildGammaReportInputFromContext>[0],
+    ctx as unknown as Parameters<typeof buildGammaReportInputFromContext>[0],
     { reportType } as Parameters<typeof buildGammaReportInputFromContext>[1]
   )
   return { inputText, options }
