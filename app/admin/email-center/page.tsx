@@ -3,10 +3,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
-import { Inbox, RefreshCw, ExternalLink, Info } from 'lucide-react'
+import { Inbox, RefreshCw, ExternalLink } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import { getCurrentSession } from '@/lib/auth'
 
 interface EmailMessageRow {
   id: string
@@ -78,7 +78,13 @@ function EmailCenterContent() {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch(`/api/admin/email-messages?${queryString}`)
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        throw new Error('Your session has expired. Please sign in again.')
+      }
+      const res = await fetch(`/api/admin/email-messages?${queryString}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
       const json = await res.json().catch(() => ({}))
       if (!res.ok) {
         throw new Error(typeof json.error === 'string' ? json.error : 'Failed to load messages')
@@ -136,29 +142,6 @@ function EmailCenterContent() {
             </button>
           </div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl border border-amber-500/25 bg-amber-950/20 p-4 flex gap-3 text-sm text-amber-100/90"
-        >
-          <Info className="shrink-0 mt-0.5 text-amber-400" size={18} />
-          <div className="space-y-1">
-            <p>
-              <strong>Storage map:</strong>{' '}
-              <code className="text-xs bg-black/30 px-1 rounded">email_messages</code> is the index you are
-              viewing. Lead outreach lifecycle still lives in{' '}
-              <code className="text-xs bg-black/30 px-1 rounded">outreach_queue</code>; asset sends in{' '}
-              <code className="text-xs bg-black/30 px-1 rounded">contact_deliveries</code>; full message bodies
-              and timeline events in{' '}
-              <code className="text-xs bg-black/30 px-1 rounded">contact_communications</code> when a lead is
-              linked.
-            </p>
-            <p className="text-amber-200/70">
-              New sends log here automatically. Historical rows were backfilled from the communications timeline.
-            </p>
-          </div>
-        </motion.div>
 
         <div className="flex flex-wrap gap-3 items-end">
           <label className="flex flex-col gap-1 text-xs text-muted-foreground">
