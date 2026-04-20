@@ -9,13 +9,14 @@ import {
   AUDIT_CATEGORIES,
   AUDIT_CATEGORY_ORDER,
   categoryFormToPayload,
-  formatPayloadLine,
   type AuditCategoryConfig,
   type AuditField,
 } from '@/lib/audit-questions'
 import { getIndustryOptions } from '@/lib/constants/industry'
 import SiteThemeCorner from '@/components/SiteThemeCorner'
 import LatestAuditBanner from '@/components/audits/LatestAuditBanner'
+import AuditReportView from '@/components/audits/AuditReportView'
+import { STEP_LABELS, type AuditReportViewModel } from '@/lib/audit-report-view'
 
 type Step = 'intro' | 'context' | 'form' | 'results'
 
@@ -33,282 +34,9 @@ interface AuditState {
   auditId: string
 }
 
-interface FetchedAudit {
-  id: string
-  status: string
-  businessChallenges?: Record<string, unknown>
-  techStack?: Record<string, unknown>
-  automationNeeds?: Record<string, unknown>
-  aiReadiness?: Record<string, unknown>
-  budgetTimeline?: Record<string, unknown>
-  decisionMaking?: Record<string, unknown>
-  diagnosticSummary?: string
-  keyInsights?: string[]
-  recommendedActions?: string[]
-  urgencyScore?: number | null
-  opportunityScore?: number | null
-  businessName?: string | null
-  websiteUrl?: string | null
-  contactEmail?: string | null
-  industrySlug?: string | null
-  enrichedTechStack?: {
-    domain?: string
-    technologies?: Array<{ name: string; tag?: string; categories?: string[] }>
-    byTag?: Record<string, string[]>
-  } | null
-  reportTier?: string | null
-}
-
-/** Score band for color and copy: 0–3 low, 4–6 mid, 7–10 high */
-function getScoreBand(score: number): 'low' | 'mid' | 'high' {
-  if (score <= 3) return 'low'
-  if (score <= 6) return 'mid'
-  return 'high'
-}
-
-function getScoreStyle(band: 'low' | 'mid' | 'high'): { bg: string; label: string } {
-  switch (band) {
-    case 'low':
-      return { bg: 'bg-red-500/20 border-red-400/60 text-red-200', label: 'Early stage' }
-    case 'mid':
-      return { bg: 'bg-amber-500/20 border-amber-400/60 text-amber-200', label: 'In progress' }
-    case 'high':
-      return { bg: 'bg-emerald-500/20 border-emerald-400/60 text-emerald-200', label: 'Strong' }
-  }
-}
-
-/** One-line definition for the band (UX: label alone is vague) */
-function getScoreDefinition(band: 'low' | 'mid' | 'high', scoreType: 'urgency' | 'opportunity'): string {
-  if (scoreType === 'urgency') {
-    switch (band) {
-      case 'low': return "You're at the start of your automation journey; small, focused steps will add up."
-      case 'mid': return "You're taking steps; focusing on one or two priorities will help you move faster."
-      case 'high': return "You're in a good position to act; the next step is execution and measuring impact."
-    }
-  }
-  switch (band) {
-    case 'low': return "Potential is high once you address a few foundations; our Resources can help."
-    case 'mid': return "You have room to grow impact by connecting systems and clarifying one key outcome."
-    case 'high': return "You're well positioned to capture value; focus on execution and clear metrics."
-  }
-}
-
-function getUrgencyImprovements(score: number): string[] {
-  const band = getScoreBand(score)
-  if (band === 'high') return []
-  if (band === 'low') {
-    return [
-      'Clarify who can approve decisions and on what timeline.',
-      'Identify one high-pain process to fix first and set a target date.',
-    ]
-  }
-  return [
-    'Document your current bottlenecks so you can prioritize automation.',
-    'Align stakeholders on a single “must fix” outcome for the next quarter.',
-  ]
-}
-
-function getOpportunityImprovements(score: number): string[] {
-  const band = getScoreBand(score)
-  if (band === 'high') return []
-  if (band === 'low') {
-    return [
-      'Map where manual work costs the most time or revenue.',
-      'Review our Resources for quick wins (templates, playbooks) that don’t require big budget.',
-    ]
-  }
-  return [
-    'Connect your CRM and key tools so automation can use existing data.',
-    'Pick one outcome (e.g. faster follow-up, less data entry) and measure baseline before automating.',
-  ]
-}
-
-/** Heuristic estimated opportunity value from budget + opportunity score (display only) */
-function getEstimatedOpportunityValue(
-  budgetTimeline?: Record<string, unknown> | null,
-  opportunityScore?: number | null
-): string | null {
-  if (opportunityScore == null) return null
-  const range = (budgetTimeline?.budget_range as string) || (budgetTimeline?.budget_flexibility as string)
-  const mult = opportunityScore <= 3 ? 0.5 : opportunityScore <= 6 ? 1 : 1.5
-  if (range === 'large' || range === 'value_driven') return `$${Math.round(50 * mult)}k–$150k+ potential value`
-  if (range === 'medium' || range === 'some_flex') return `$${Math.round(15 * mult)}k–$50k potential value`
-  if (range === 'small' || range === 'fixed') return `$${Math.round(5 * mult)}k–$15k potential value`
-  return `$${Math.round(10 * mult)}k–$40k potential value (based on your readiness)`
-}
-
-/** Horizontal 0–10 spectrum bar with segment colors and gold marker */
-function ScoreSpectrumBar({ score, scoreType }: { score: number; scoreType: 'urgency' | 'opportunity' }) {
-  const band = getScoreBand(score)
-  const style = getScoreStyle(band)
-  const label = `${scoreType === 'urgency' ? 'Urgency' : 'Opportunity'} score ${score} out of 10, ${style.label} range`
-  return (
-    <div className="mt-2" role="img" aria-label={label}>
-      <div className="flex items-center justify-between text-xs text-muted-foreground/90 mb-0.5">
-        <span>0</span>
-        <span>10</span>
-      </div>
-      <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-muted/50">
-        {/* Segment background */}
-        <div className="absolute inset-0 flex">
-          <div className="w-[30%] bg-red-500/20" />
-          <div className="w-[30%] bg-amber-500/20" />
-          <div className="w-[40%] bg-emerald-500/20" />
-        </div>
-        {/* Gold marker at score position */}
-        <div
-          className="absolute top-0 bottom-0 w-0.5 bg-radiant-gold rounded-full shadow-md"
-          style={{ left: `${(score / 10) * 100}%`, transform: 'translateX(-50%)' }}
-        />
-      </div>
-    </div>
-  )
-}
-
-/** Build human-readable score driver lines from audit payload (ties score to answers) */
-function getScoreDrivers(results: FetchedAudit): { urgency: string[]; opportunity: string[] } {
-  const urgency: string[] = []
-  const opportunity: string[] = []
-  const bt = results.budgetTimeline
-  const dm = results.decisionMaking
-  const an = results.automationNeeds
-  const ar = results.aiReadiness
-  const ts = results.techStack
-
-  if (bt) {
-    const timeline = formatPayloadLine('budget_timeline', 'timeline', bt.timeline)
-    if (timeline) { urgency.push(timeline); opportunity.push(timeline) }
-    const range = formatPayloadLine('budget_timeline', 'budget_range', bt.budget_range)
-    if (range) opportunity.push(range)
-    const flex = formatPayloadLine('budget_timeline', 'budget_flexibility', bt.budget_flexibility)
-    if (flex) opportunity.push(flex)
-  }
-  if (dm) {
-    const decisionMaker = formatPayloadLine('decision_making', 'decision_maker', dm.decision_maker)
-    if (decisionMaker) { urgency.push(decisionMaker); opportunity.push(decisionMaker) }
-    const approval = formatPayloadLine('decision_making', 'approval_process', dm.approval_process)
-    if (approval) urgency.push(approval)
-  }
-  if (an?.priority_areas && Array.isArray(an.priority_areas)) {
-    const n = (an.priority_areas as string[]).length
-    if (n > 0) opportunity.push(`Priority areas to automate: ${n} selected`)
-  }
-  if (ar) {
-    const dq = formatPayloadLine('ai_readiness', 'data_quality', ar.data_quality)
-    if (dq) opportunity.push(dq)
-    const tr = formatPayloadLine('ai_readiness', 'team_readiness', ar.team_readiness)
-    if (tr) opportunity.push(tr)
-  }
-  if (ts) {
-    const ir = formatPayloadLine('tech_stack', 'integration_readiness', ts.integration_readiness)
-    if (ir) opportunity.push(ir)
-  }
-  return { urgency: urgency.slice(0, 4), opportunity: opportunity.slice(0, 4) }
-}
-
-export interface ImprovementArea {
-  id: string
-  label: string
-  reason: string
-  nextStepLabel: string
-  nextStepUrl: string
-}
-
-/** Derive improvement areas from payload + scores; each maps to a specific next step */
-function getImprovementAreas(results: FetchedAudit): ImprovementArea[] {
-  const areas: ImprovementArea[] = []
-  const ts = results.techStack
-  const ar = results.aiReadiness
-  const dm = results.decisionMaking
-  const bt = results.budgetTimeline
-  const urgency = results.urgencyScore ?? 5
-  const opportunity = results.opportunityScore ?? 5
-
-  if (ts?.integration_readiness === 'not_connected' || ts?.integration_readiness === 'some_apis') {
-    areas.push({
-      id: 'integration',
-      label: 'Integration readiness',
-      reason: 'Your tools aren’t fully connected yet. Connecting your CRM and key systems will make automation more effective.',
-      nextStepLabel: 'Resources: Get your systems connected',
-      nextStepUrl: '/resources',
-    })
-  }
-  if (ar?.data_quality === 'scattered' || ar?.data_quality === 'some_systems') {
-    areas.push({
-      id: 'data_quality',
-      label: 'Data quality',
-      reason: 'Your data is in multiple places and not yet connected. Cleaning and structuring it will unlock better automation.',
-      nextStepLabel: 'Resources: Get your data in shape',
-      nextStepUrl: '/resources',
-    })
-  }
-  if (ar?.team_readiness === 'not_yet' || ar?.team_readiness === 'individual') {
-    areas.push({
-      id: 'team_readiness',
-      label: 'Team readiness',
-      reason: 'Getting one champion or a small pilot in place will build confidence and show quick wins.',
-      nextStepLabel: 'Resources: Templates and playbooks to get started',
-      nextStepUrl: '/resources',
-    })
-  }
-  if ((dm?.approval_process === 'committee' || dm?.approval_process === 'budget_threshold') && getScoreBand(urgency) !== 'high') {
-    areas.push({
-      id: 'decision_process',
-      label: 'Decision process',
-      reason: 'Involving stakeholders early and clarifying who can approve what will speed up decisions.',
-      nextStepLabel: 'Start a conversation in chat for a tailored plan',
-      nextStepUrl: '/',
-    })
-  }
-  if (bt?.timeline === 'exploring' && urgency >= 5) {
-    areas.push({
-      id: 'timeline',
-      label: 'Timeline clarity',
-      reason: 'Picking one target date or one “must fix” outcome will help prioritize and move faster.',
-      nextStepLabel: 'Resources: Roadmaps and prioritization guides',
-      nextStepUrl: '/resources',
-    })
-  }
-  if ((bt?.budget_range === 'none' || bt?.budget_range === 'small') && getScoreBand(opportunity) !== 'low') {
-    areas.push({
-      id: 'budget',
-      label: 'Budget alignment',
-      reason: 'Quick wins and templates can show impact without a large budget; we have options to match.',
-      nextStepLabel: 'Resources: High-leverage tactics and templates',
-      nextStepUrl: '/resources',
-    })
-  }
-  return areas
-}
-
-const CATEGORY_KEYS = AUDIT_CATEGORY_ORDER
-
-const STEP_LABELS = [
-  'Challenges',
-  'Tech stack',
-  'Automation',
-  'AI readiness',
-  'Budget',
-  'Decision',
-]
-
-/** Results payload keys for each category (same order as STEP_LABELS) */
-const RESULTS_CATEGORY_KEYS: (keyof FetchedAudit)[] = [
-  'businessChallenges',
-  'techStack',
-  'automationNeeds',
-  'aiReadiness',
-  'budgetTimeline',
-  'decisionMaking',
-]
-
-function getCategoryCaptureStatus(results: FetchedAudit): boolean[] {
-  return RESULTS_CATEGORY_KEYS.map((key) => {
-    const data = results[key]
-    if (data == null || typeof data !== 'object') return false
-    return Object.keys(data).length > 0
-  })
-}
+// Canonical view-model comes from lib/audit-report-view; keep a local alias so
+// the rest of this page's code reads the same after extraction.
+type FetchedAudit = AuditReportViewModel
 
 function hasOtherOption(field: AuditField): boolean {
   return !!field.options?.some((o) => o.value === 'other')
@@ -489,8 +217,6 @@ export default function AuditToolPage() {
   const [results, setResults] = useState<FetchedAudit | null>(null)
   /** Persist submitted form values per category so "Back" can restore */
   const [submittedByCategory, setSubmittedByCategory] = useState<Record<string, Record<string, string | string[] | boolean>>>({})
-  /** Results: expandable "What your scores mean" drawer (collapsed by default) */
-  const [scoreDefinitionsOpen, setScoreDefinitionsOpen] = useState(false)
   /** Step 0: context capture form */
   const [contextForm, setContextForm] = useState<ContextFormData>({
     businessName: '',
@@ -845,354 +571,88 @@ export default function AuditToolPage() {
               exit={{ opacity: 0 }}
               className="space-y-6"
             >
-              <h1 className="text-3xl font-bold text-radiant-gold">
-                {results?.businessName ? `${results.businessName} — Audit Complete` : 'Your audit is complete'}
-              </h1>
-
-              {/* Report tier badge */}
-              {results?.reportTier && results.reportTier !== 'bronze' && (
-                <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-medium ${
-                  results.reportTier === 'platinum' ? 'bg-emerald-500/20 border-emerald-400/40 text-emerald-200'
-                    : results.reportTier === 'gold' ? 'bg-yellow-500/20 border-yellow-400/40 text-yellow-200'
-                    : 'bg-slate-400/20 border-slate-300/40 text-slate-200'
-                }`}>
-                  <span>
-                    {results.reportTier === 'platinum' ? 'Strategy Package'
-                      : results.reportTier === 'gold' ? 'Full Analysis'
-                      : 'Smart Report'}
-                  </span>
-                </div>
-              )}
-
               {results ? (
-                <>
-                  {/* Capture summary: same 6-step progress indicator as the form; checkmark when that category had responses */}
-                  {(() => {
-                    const captured = getCategoryCaptureStatus(results)
-                    return (
-                      <div className="rounded-xl border border-radiant-gold/30 bg-black/20 p-4" aria-label="Inputs captured">
-                        <p className="text-muted-foreground text-sm mb-3">What we captured</p>
-                        <div className="flex items-center justify-between gap-1">
-                          {STEP_LABELS.map((label, i) => (
-                            <div key={i} className="flex flex-1 flex-col items-center">
-                              <div
-                                className={`
-                                  flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold
-                                  ${captured[i] ? 'bg-radiant-gold text-imperial-navy' : 'bg-muted/50 text-muted-foreground/90'}
-                                `}
-                                aria-hidden
-                              >
-                                {captured[i] ? '✓' : i + 1}
-                              </div>
-                              <span className={`mt-1 text-xs ${captured[i] ? 'text-muted-foreground' : 'text-muted-foreground/90'}`}>
-                                {label}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )
-                  })()}
-
-                  {/* 1. Score cards */}
-                  {(results.urgencyScore != null || results.opportunityScore != null) && (
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {results.urgencyScore != null && (() => {
-                          const band = getScoreBand(results.urgencyScore!)
-                          const style = getScoreStyle(band)
-                          const definition = getScoreDefinition(band, 'urgency')
-                          const tips = getUrgencyImprovements(results.urgencyScore!)
-                          return (
-                            <div className="rounded-lg border border-foreground/20 bg-black/20 p-4">
-                              <p className="text-muted-foreground text-sm">Urgency score</p>
-                              <div className="flex flex-wrap items-center gap-2 mt-1">
-                                <span className="text-2xl font-bold">{results.urgencyScore}/10</span>
-                                <span className="text-sm font-medium opacity-90">({style.label})</span>
-                              </div>
-                              <p className="text-xs opacity-90 mt-1" style={{ lineHeight: 1.35 }}>{definition}</p>
-                              <ScoreSpectrumBar score={results.urgencyScore!} scoreType="urgency" />
-                              {tips.length > 0 && (
-                                <div className="mt-3 pt-3 border-t border-current/20">
-                                  <p className="text-xs font-medium opacity-90 mb-1">How to improve</p>
-                                  <ul className="list-disc list-inside text-sm space-y-0.5 opacity-90">
-                                    {tips.map((t, i) => <li key={i}>{t}</li>)}
-                                  </ul>
-                                </div>
-                              )}
-                            </div>
-                          )
-                        })()}
-                        {results.opportunityScore != null && (() => {
-                          const band = getScoreBand(results.opportunityScore!)
-                          const style = getScoreStyle(band)
-                          const definition = getScoreDefinition(band, 'opportunity')
-                          const tips = getOpportunityImprovements(results.opportunityScore!)
-                          return (
-                            <div className="rounded-lg border border-foreground/20 bg-black/20 p-4">
-                              <p className="text-muted-foreground text-sm">Opportunity score</p>
-                              <div className="flex flex-wrap items-center gap-2 mt-1">
-                                <span className="text-2xl font-bold">{results.opportunityScore}/10</span>
-                                <span className="text-sm font-medium opacity-90">({style.label})</span>
-                              </div>
-                              <p className="text-xs opacity-90 mt-1" style={{ lineHeight: 1.35 }}>{definition}</p>
-                              <ScoreSpectrumBar score={results.opportunityScore!} scoreType="opportunity" />
-                              {tips.length > 0 && (
-                                <div className="mt-3 pt-3 border-t border-current/20">
-                                  <p className="text-xs font-medium opacity-90 mb-1">How to improve</p>
-                                  <ul className="list-disc list-inside text-sm space-y-0.5 opacity-90">
-                                    {tips.map((t, i) => <li key={i}>{t}</li>)}
-                                  </ul>
-                                </div>
-                              )}
-                            </div>
-                          )
-                        })()}
-                      </div>
-
-                      {/* 2. Expandable "What your scores mean" drawer */}
-                      <div className="rounded-lg border border-foreground/20 bg-black/20 overflow-hidden">
+                <AuditReportView
+                  report={results}
+                  headerVariant="flow"
+                  footerSlot={
+                    <div className="space-y-3">
+                      <p className="text-muted-foreground text-sm">
+                        Your responses have been saved. You can start a new audit anytime or head to Resources to find tools that match your goals.
+                      </p>
+                      <div className="flex flex-wrap gap-3">
                         <button
                           type="button"
-                          onClick={() => setScoreDefinitionsOpen((o) => !o)}
-                          className="w-full px-4 py-3 flex items-center justify-between text-left text-foreground/90 hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30 rounded-lg"
-                          aria-expanded={scoreDefinitionsOpen}
+                          onClick={() => {
+                            setStep('intro')
+                            setAuditState(null)
+                            setResults(null)
+                            setCategoryIndex(0)
+                            setSubmittedByCategory({})
+                            setError('')
+                            setContextForm({ businessName: '', websiteUrl: '', email: '', industry: '' })
+                          }}
+                          className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-imperial-navy"
                         >
-                          <span className="font-semibold text-foreground">What your scores mean</span>
-                          <span className="text-muted-foreground text-sm" aria-hidden>
-                            {scoreDefinitionsOpen ? '▼' : '▶'}
-                          </span>
+                          Start a new audit
                         </button>
-                        {scoreDefinitionsOpen && (
-                          <div className="px-4 pb-4 pt-0 border-t border-foreground/10">
-                            <ul className="list-disc list-inside space-y-1.5 text-foreground/90 text-sm mt-3">
-                              <li><strong className="text-foreground">Urgency (0–10)</strong> — How soon it makes sense to act, based on your timeline, decision process, and pain level.</li>
-                              <li><strong className="text-foreground">Opportunity (0–10)</strong> — How much impact you could get from acting now, based on budget, priorities, and readiness.</li>
-                              <li><strong className="text-foreground">Your results</strong> — These scores are based only on the answers you gave in this audit.</li>
-                            </ul>
-                          </div>
+                        {user && (
+                          <Link
+                            href="/purchases#audit"
+                            className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-foreground hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
+                          >
+                            Open My library
+                          </Link>
                         )}
+                        <Link
+                          href="/"
+                          className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-foreground hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
+                        >
+                          Back to home
+                        </Link>
                       </div>
-                    </div>
-                  )}
-
-                  {/* 3. Estimated opportunity value */}
-                  {getEstimatedOpportunityValue(results.budgetTimeline, results.opportunityScore) && (
-                    <div className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-4">
-                      <p className="text-muted-foreground text-sm">Estimated opportunity value</p>
-                      <p className="text-xl font-bold text-radiant-gold">
-                        {getEstimatedOpportunityValue(results.budgetTimeline, results.opportunityScore)}
-                      </p>
-                      <p className="text-muted-foreground text-xs mt-1">
-                        Based on your budget and readiness; actual value depends on implementation and scope.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* 4. Based on your answers */}
-                  {(() => {
-                    const drivers = getScoreDrivers(results)
-                    const hasDrivers = drivers.urgency.length > 0 || drivers.opportunity.length > 0
-                    if (!hasDrivers) return null
-                    const allLines = [...new Set([...drivers.urgency, ...drivers.opportunity])]
-                    return (
-                      <div className="rounded-lg border border-foreground/20 bg-black/20 p-4">
-                        <h2 className="text-foreground font-semibold mb-2">Based on your answers</h2>
-                        <ul className="list-disc list-inside space-y-1 text-foreground/90 text-sm">
-                          {allLines.slice(0, 5).map((line, i) => (
-                            <li key={i}>{line}</li>
-                          ))}
-                        </ul>
-                        <p className="text-muted-foreground text-sm mt-2">
-                          {results.urgencyScore != null && results.opportunityScore != null
-                            ? `Together, these support your Urgency score of ${results.urgencyScore} and Opportunity score of ${results.opportunityScore}.`
-                            : results.urgencyScore != null
-                              ? `Together, these support your Urgency score of ${results.urgencyScore}.`
-                              : results.opportunityScore != null
-                                ? `Together, these support your Opportunity score of ${results.opportunityScore}.`
-                                : ''}
+                      {user && (
+                        <p className="text-muted-foreground text-sm">
+                          Your report is saved to{' '}
+                          <Link href="/purchases#audit" className="text-radiant-gold/90 hover:underline">
+                            My library
+                          </Link>{' '}
+                          while you&apos;re signed in (same email as your audit helps if you complete it as a guest).
                         </p>
-                      </div>
-                    )
-                  })()}
-
-                  {/* 5. Recommended next steps */}
-                  {(() => {
-                    const areas = getImprovementAreas(results)
-                    return (
-                      <div>
-                        <h2 className="text-lg font-semibold text-foreground mb-2">Recommended next steps</h2>
-                        {areas.length > 0 ? (
-                          <ul className="space-y-3 list-none p-0 m-0">
-                            {areas.map((a) => (
-                              <li key={a.id} className="rounded-lg border border-radiant-gold/30 bg-radiant-gold/5 p-4">
-                                <p className="font-medium text-foreground">Improve: {a.label}</p>
-                                <p className="text-sm text-muted-foreground mt-0.5">{a.reason}</p>
-                                <Link
-                                  href={a.nextStepUrl}
-                                  className="inline-block mt-2 text-sm font-medium text-radiant-gold hover:underline focus:outline-none focus:ring-2 focus:ring-radiant-gold/50"
-                                >
-                                  {a.nextStepLabel} →
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <ul className="space-y-3 text-foreground/90">
-                            <li>
-                              <Link href="/resources" className="text-radiant-gold font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-radiant-gold/50">
-                                Browse Resources →
-                              </Link>
-                              <span className="text-muted-foreground"> — Templates, playbooks, and guides.</span>
-                            </li>
-                            <li>
-                              <Link href="/" className="text-radiant-gold font-medium hover:underline focus:outline-none focus:ring-2 focus:ring-radiant-gold/50">
-                                Start a conversation in chat →
-                              </Link>
-                              <span className="text-muted-foreground"> — Go deeper and get a tailored plan.</span>
-                            </li>
-                          </ul>
-                        )}
-                      </div>
-                    )
-                  })()}
-
-                  {/* Tech stack comparison (Gold tier — when BuiltWith data available) */}
-                  {results.enrichedTechStack?.technologies && results.enrichedTechStack.technologies.length > 0 && (
-                    <div className="rounded-lg border border-radiant-gold/30 bg-black/20 p-4">
-                      <h2 className="text-lg font-semibold text-foreground mb-2">Tech Stack Analysis</h2>
-                      <p className="text-muted-foreground text-sm mb-3">
-                        We detected the following technologies on <span className="text-radiant-gold">{results.enrichedTechStack.domain || results.websiteUrl}</span>:
-                      </p>
-                      {results.enrichedTechStack.byTag && Object.keys(results.enrichedTechStack.byTag).length > 0 ? (
-                        <div className="grid grid-cols-2 gap-2">
-                          {Object.entries(results.enrichedTechStack.byTag).slice(0, 8).map(([tag, tools]) => (
-                            <div key={tag} className="rounded-md bg-muted/40 p-2">
-                              <p className="text-xs font-medium text-radiant-gold/80">{tag}</p>
-                              <p className="text-sm text-foreground/90">{(tools as string[]).join(', ')}</p>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {results.enrichedTechStack.technologies.slice(0, 12).map((tech) => (
-                            <span key={tech.name} className="inline-block rounded-full bg-muted/50 px-3 py-1 text-xs text-muted-foreground">
-                              {tech.name}
-                            </span>
-                          ))}
-                          {results.enrichedTechStack.technologies.length > 12 && (
-                            <span className="inline-block rounded-full bg-muted/40 px-3 py-1 text-xs text-muted-foreground/90">
-                              +{results.enrichedTechStack.technologies.length - 12} more
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Cross-reference with self-reported stack */}
-                      {typeof results.techStack?.crm === 'string' && results.techStack.crm && (
-                        <div className="mt-3 pt-3 border-t border-foreground/10">
-                          <p className="text-xs text-muted-foreground">
-                            You reported using <span className="text-muted-foreground">{results.techStack.crm}</span> as your CRM
-                            {typeof results.techStack.marketing === 'string' && results.techStack.marketing ? ` and ${results.techStack.marketing} for marketing` : ''}.
-                            {results.enrichedTechStack?.byTag?.['Analytics'] ? ' We also detected analytics tools on your site.' : ''}
-                          </p>
-                        </div>
                       )}
                     </div>
-                  )}
-
-                  {/* Locked section prompts for upgradeable tiers */}
-                  {(!results.enrichedTechStack?.technologies || results.enrichedTechStack.technologies.length === 0) && !results.websiteUrl && (
-                    <div className="rounded-lg border border-dashed border-foreground/20 bg-black/10 p-4">
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl opacity-60">🔒</span>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Tech Stack Analysis</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Add your website URL to unlock a comparison of your detected tech stack vs. what you reported.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {!results.websiteUrl && (
-                    <div className="rounded-lg border border-dashed border-foreground/20 bg-black/10 p-4">
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl opacity-60">🔒</span>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Website Visual Analysis</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Add your website URL and industry to unlock an annotated analysis of your site with specific improvement recommendations.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {(!results.contactEmail || !results.websiteUrl || !results.industrySlug) && (
-                    <div className="rounded-lg border border-dashed border-foreground/20 bg-black/10 p-4">
-                      <div className="flex items-start gap-3">
-                        <span className="text-2xl opacity-60">🔒</span>
-                        <div>
-                          <p className="text-sm font-medium text-muted-foreground">Personalized Strategy Deck</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            Complete your audit with email, website URL, and industry to unlock a downloadable strategy deck tailored to your business.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <p className="text-muted-foreground text-sm">
-                    Your responses have been saved. You can start a new audit anytime or head to Resources to find tools that match your goals.
-                  </p>
-                </>
+                  }
+                />
               ) : (
-                <p className="text-muted-foreground">
-                  Your audit has been saved. You can close this page or start another audit.
-                </p>
-              )}
-              <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep('intro')
-                    setAuditState(null)
-                    setResults(null)
-                    setCategoryIndex(0)
-                    setSubmittedByCategory({})
-                    setScoreDefinitionsOpen(false)
-                    setError('')
-                    setContextForm({ businessName: '', websiteUrl: '', email: '', industry: '' })
-                  }}
-                  className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-imperial-navy"
-                >
-                  Start a new audit
-                </button>
-                {user && (
-                  <Link
-                    href="/purchases#audit"
-                    className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-foreground hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
-                  >
-                    Open My library
-                  </Link>
-                )}
-                <Link
-                  href="/"
-                  className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-foreground hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
-                >
-                  Back to home
-                </Link>
-              </div>
-              {user && (
-                <p className="text-muted-foreground text-sm">
-                  Your report is saved to{' '}
-                  <Link href="/purchases#audit" className="text-radiant-gold/90 hover:underline">
-                    My library
-                  </Link>{' '}
-                  while you&apos;re signed in (same email as your audit helps if you complete it as a guest).
-                </p>
+                <>
+                  <h1 className="text-3xl font-bold text-radiant-gold">Your audit is complete</h1>
+                  <p className="text-muted-foreground">
+                    Your audit has been saved. You can close this page or start another audit.
+                  </p>
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStep('intro')
+                        setAuditState(null)
+                        setResults(null)
+                        setCategoryIndex(0)
+                        setSubmittedByCategory({})
+                        setError('')
+                        setContextForm({ businessName: '', websiteUrl: '', email: '', industry: '' })
+                      }}
+                      className="px-6 py-3 rounded-lg bg-radiant-gold text-imperial-navy font-semibold hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-radiant-gold focus:ring-offset-2 focus:ring-offset-imperial-navy"
+                    >
+                      Start a new audit
+                    </button>
+                    <Link
+                      href="/"
+                      className="inline-flex items-center px-6 py-3 rounded-lg border border-radiant-gold/40 text-foreground hover:bg-radiant-gold/10 focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
+                    >
+                      Back to home
+                    </Link>
+                  </div>
+                </>
               )}
             </motion.div>
           )}
