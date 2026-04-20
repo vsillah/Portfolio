@@ -28,7 +28,7 @@ export function ViewDiagnosticLink({
   const id = typeof auditId === 'string' ? auditId.trim() : ''
   if (!id) return null
 
-  const href = buildLinkWithReturn(`/admin/sales/${id}`, returnPath)
+  const href = buildLinkWithReturn(`/tools/audit/report/${id}`, returnPath)
 
   return (
     <Link
