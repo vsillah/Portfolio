@@ -59,12 +59,21 @@ export const sessionIdParamSchema = z.object({
 })
 
 /**
+ * diagnostic_audits.id is BIGINT in this project, but some legacy callers and
+ * tests pass UUIDs. Accept either format to avoid false-negative validation.
+ */
+const auditIdSchema = z.union([
+  z.string().uuid(),
+  z.string().regex(/^\d+$/, 'Invalid auditId format'),
+])
+
+/**
  * Schema for GET query params on /api/chat/diagnostic.
  */
 export const diagnosticGetSchema = z
   .object({
     sessionId: chatSessionIdSchema.optional(),
-    auditId: z.string().uuid().optional(),
+    auditId: auditIdSchema.optional(),
   })
   .refine((d) => d.sessionId || d.auditId, {
     message: 'sessionId or auditId is required',
@@ -74,7 +83,7 @@ export const diagnosticGetSchema = z
  * Schema for PUT /api/chat/diagnostic body.
  */
 export const diagnosticPutSchema = z.object({
-  auditId: z.string().uuid('Invalid auditId format'),
+  auditId: auditIdSchema,
   status: z.enum(['completed', 'in_progress', 'abandoned']).optional(),
   diagnosticData: z.record(z.string(), z.unknown()).optional(),
   currentCategory: z.enum(diagnosticCategoryValues).optional(),
