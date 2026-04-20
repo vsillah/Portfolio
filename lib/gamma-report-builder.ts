@@ -1840,11 +1840,15 @@ function getPublicAssetBaseUrl(): string {
 function buildCoverSlide(title: string, orgName: string, subtitle?: string): string {
   const siteUrl = getPublicAssetBaseUrl()
   const date = new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  // Gamma's image preprocessor skips markdown `![alt](url)` and HTML `<img>`
+  // tags — it only detects raw, whitespace-separated HTTPS URLs ending in a
+  // recognized image extension. So emit the raw URL on its own line.
+  // Ref: https://developers.gamma.app/guides/image-url-best-practices
   const lines = [
     `# ${title}`,
     `## Prepared for ${orgName}`,
     '',
-    `![AmaduTown Advisory Solutions](${siteUrl}/logo_hd.png)`,
+    `${siteUrl}/logo_hd.png`,
     '',
   ]
   if (subtitle) lines.push(subtitle, '')
@@ -1908,11 +1912,14 @@ function fallbackOrgLabel(orgName: string | null | undefined): string {
 function buildBioSlide(): string {
   const siteUrl = getPublicAssetBaseUrl()
   const c = CREATOR_BACKGROUND
+  // Gamma's image preprocessor silently skips markdown `![alt](url)` image
+  // syntax — raw URLs on their own line are the only format it detects.
+  // Ref: https://developers.gamma.app/guides/image-url-best-practices
   return [
     `# Meet Your Advisor`,
     `## ${c.name} (${c.alias})`,
     '',
-    `![${c.name}](${siteUrl}/Profile_Photo_1.jpg)`,
+    `${siteUrl}/Profile_Photo_1.jpg`,
     '',
     `**${c.role}**`,
     '',

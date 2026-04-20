@@ -201,22 +201,27 @@ describe('evidence ledger placement + public asset URLs', () => {
     process.env.NEXT_PUBLIC_SITE_URL = 'http://localhost:3000'
     delete process.env.GAMMA_PUBLIC_ASSET_BASE_URL
     const { inputText } = await buildBody('audit_summary')
-    expect(inputText).toMatch(/!\[[^\]]*\]\(https:\/\/amadutown\.com\/Profile_Photo_1\.jpg\)/)
-    expect(inputText).toMatch(/!\[AmaduTown[^\]]*\]\(https:\/\/amadutown\.com\/logo_hd\.png\)/)
-    expect(inputText).not.toMatch(/!\[[^\]]*\]\(http:\/\/localhost:3000/)
+    // Gamma only picks up raw URLs on their own line (not markdown image
+    // syntax), so we assert the raw URL form and explicitly reject the
+    // wrapped-markdown form that Gamma silently drops.
+    expect(inputText).toContain('\nhttps://amadutown.com/Profile_Photo_1.jpg\n')
+    expect(inputText).toContain('\nhttps://amadutown.com/logo_hd.png\n')
+    expect(inputText).not.toMatch(/!\[[^\]]*\]\(https?:\/\/[^)]*Profile_Photo/)
+    expect(inputText).not.toMatch(/!\[[^\]]*\]\(https?:\/\/[^)]*logo_hd/)
+    expect(inputText).not.toContain('http://localhost:3000/Profile_Photo_1.jpg')
   })
 
   it('honors GAMMA_PUBLIC_ASSET_BASE_URL override when set', async () => {
     process.env.NEXT_PUBLIC_SITE_URL = 'http://localhost:3000'
     process.env.GAMMA_PUBLIC_ASSET_BASE_URL = 'https://preview.amadutown.com'
     const { inputText } = await buildBody('audit_summary')
-    expect(inputText).toMatch(/!\[[^\]]*\]\(https:\/\/preview\.amadutown\.com\/Profile_Photo_1\.jpg\)/)
+    expect(inputText).toContain('\nhttps://preview.amadutown.com/Profile_Photo_1.jpg\n')
   })
 
   it('uses NEXT_PUBLIC_SITE_URL directly when it is a public https origin', async () => {
     process.env.NEXT_PUBLIC_SITE_URL = 'https://amadutown.com'
     delete process.env.GAMMA_PUBLIC_ASSET_BASE_URL
     const { inputText } = await buildBody('audit_summary')
-    expect(inputText).toMatch(/!\[[^\]]*\]\(https:\/\/amadutown\.com\/Profile_Photo_1\.jpg\)/)
+    expect(inputText).toContain('\nhttps://amadutown.com/Profile_Photo_1.jpg\n')
   })
 })
