@@ -351,8 +351,12 @@ export default function ClientWalkthroughPage() {
         bundlesRes.ok ? bundlesRes.json() : { bundles: [] },
       ]);
 
-      // Find the specific audit
-      const foundAudit = auditData.audits?.find((a: DiagnosticAudit & { contact_submissions: ContactInfo }) => a.id === auditId);
+      // Find the specific audit. Normalize both sides to strings because
+      // `diagnostic_audits.id` is BIGINT in Postgres — Supabase serializes it
+      // as a JSON number, while `params.auditId` from the URL is a string.
+      const foundAudit = auditData.audits?.find(
+        (a: DiagnosticAudit & { contact_submissions: ContactInfo }) => String(a.id) === String(auditId)
+      );
       if (!foundAudit) {
         throw new Error('Audit not found');
       }
