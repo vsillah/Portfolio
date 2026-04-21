@@ -93,6 +93,7 @@ export default function OutreachGenerationPill({
     useOutreachGeneration({
       leadId: lead.id,
       leadName: lead.name,
+      messagesCount: lead.messages_count,
       onToast,
       onFallbackAvailable,
       onSettled,

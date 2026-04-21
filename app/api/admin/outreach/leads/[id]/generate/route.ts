@@ -103,8 +103,15 @@ export async function POST(
       ...(templateKey ? { template_key: templateKey } : {}),
     })
 
+    const { count: queueCountImmediate } = await sb
+      .from('outreach_queue')
+      .select('id', { count: 'exact', head: true })
+      .eq('contact_submission_id', contactId)
+
     return NextResponse.json({
       triggered: result.triggered,
+      /** Rows in outreach_queue for this lead right after the n8n webhook returns (0 = async insert or failure). */
+      queueCountImmediate: queueCountImmediate ?? 0,
       ...(templateKey ? { templateKey } : {}),
       ...(!result.triggered && { fallback: 'in-app' }),
     })

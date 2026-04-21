@@ -10,9 +10,9 @@ import type { EmailTemplateKey } from '@/lib/constants/prompt-keys'
  * Pure UI state machine over the existing `POST /api/admin/outreach/leads/:id/generate`
  * endpoint (n8n WF-CLG-002). No polling, no status endpoint, no runs table yet.
  *
- * Running state is derived from a local pending flag plus a 25s safety timer. On
- * timer expiry we auto-settle to `idle` and ask the parent to refetch leads so
- * the "Generate Email" button swaps to "View Drafts" once messages_count updates.
+ * Running state uses a safety timer. When the API reports `queueCountImmediate === 0`
+ * after n8n returns 200, we wait longer and refetch periodically — HTTP success does
+ * not guarantee a DB row yet. If no draft appears, we surface the in-app fallback.
  *
  * Phase 2 will add a `templateKey` argument to `start()` and plumb it through to
  * the API route. Phase 3 will replace the timer with real `/status` polling and
@@ -28,6 +28,8 @@ export type OutreachGenerationState =
 export interface UseOutreachGenerationOptions {
   leadId: number
   leadName: string
+  /** From lead list; used to detect when a draft row appears while n8n finishes async. */
+  messagesCount: number
   onToast?: (msg: string) => void
   /** n8n returned triggered:false or threw — parent should reveal "Draft in app" fallback. */
   onFallbackAvailable?: () => void
@@ -49,19 +51,32 @@ export interface UseOutreachGenerationReturn {
 }
 
 const SAFETY_TIMEOUT_MS = 25_000
+/** When n8n returns 200 but outreach_queue is still empty, wait before giving up. */
+const EXTENDED_DRAFT_WAIT_MS = 75_000
+const REFETCH_POLL_MS = 4_000
 const CANCELLED_DISPLAY_MS = 4_000
 const SUCCEEDED_DISPLAY_MS = 3_000
 
-function phaseFor(elapsedMs: number): string {
+function phaseFor(
+  elapsedMs: number,
+  extendedDraftWait: boolean,
+  awaitingHttpResponse: boolean,
+): string {
+  if (awaitingHttpResponse) {
+    if (elapsedMs < 2_500) return 'Starting…'
+    return 'Contacting n8n…'
+  }
+  const cap = extendedDraftWait ? EXTENDED_DRAFT_WAIT_MS : SAFETY_TIMEOUT_MS
   if (elapsedMs < 2_000) return 'Queuing…'
-  if (elapsedMs < 18_000) return 'Generating…'
-  if (elapsedMs < SAFETY_TIMEOUT_MS) return 'Saving draft…'
+  if (elapsedMs < (extendedDraftWait ? 40_000 : 18_000)) return 'Generating…'
+  if (elapsedMs < cap - 5_000) return 'Saving draft…'
   return 'Still working…'
 }
 
 export function useOutreachGeneration({
   leadId,
   leadName,
+  messagesCount,
   onToast,
   onFallbackAvailable,
   onSettled,
@@ -69,13 +84,21 @@ export function useOutreachGeneration({
 }: UseOutreachGenerationOptions): UseOutreachGenerationReturn {
   const [state, setState] = useState<OutreachGenerationState>('idle')
   const [elapsedMs, setElapsedMs] = useState(0)
+  const [extendedDraftWait, setExtendedDraftWait] = useState(false)
+  /** True while session + POST /generate are in flight; draft-detection stays off. */
+  const [awaitingHttpResponse, setAwaitingHttpResponse] = useState(false)
   const [lastTemplateKey, setLastTemplateKey] = useState<EmailTemplateKey | null>(null)
 
   const startedAtRef = useRef<number | null>(null)
   const tickTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const safetyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const transientTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const refetchPollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const messagesCountRef = useRef(messagesCount)
+  const messagesAtGenerationStartRef = useRef(0)
   const mountedRef = useRef(true)
+
+  messagesCountRef.current = messagesCount
 
   useEffect(() => {
     mountedRef.current = true
@@ -84,6 +107,7 @@ export function useOutreachGeneration({
       if (tickTimerRef.current) clearInterval(tickTimerRef.current)
       if (safetyTimerRef.current) clearTimeout(safetyTimerRef.current)
       if (transientTimerRef.current) clearTimeout(transientTimerRef.current)
+      if (refetchPollRef.current) clearInterval(refetchPollRef.current)
     }
   }, [])
 
@@ -100,6 +124,12 @@ export function useOutreachGeneration({
       clearTimeout(transientTimerRef.current)
       transientTimerRef.current = null
     }
+    if (refetchPollRef.current) {
+      clearInterval(refetchPollRef.current)
+      refetchPollRef.current = null
+    }
+    setExtendedDraftWait(false)
+    setAwaitingHttpResponse(false)
   }, [])
 
   const settleToIdle = useCallback(
@@ -128,8 +158,11 @@ export function useOutreachGeneration({
     [clearTimers, onSettled],
   )
 
-  const beginRunning = useCallback(() => {
+  /** Spinner + elapsed immediately on click; no DB-wait timers yet. */
+  const startOptimisticRunning = useCallback(() => {
     clearTimers()
+    setAwaitingHttpResponse(true)
+    setExtendedDraftWait(false)
     startedAtRef.current = Date.now()
     setElapsedMs(0)
     setState('running')
@@ -138,13 +171,44 @@ export function useOutreachGeneration({
       if (!startedAtRef.current || !mountedRef.current) return
       setElapsedMs(Date.now() - startedAtRef.current)
     }, 250)
+  }, [clearTimers])
+
+  /** After HTTP 200 + triggered + empty queue: poll refetch and long safety (keeps existing tick + elapsed). */
+  const attachExtendedDraftWaitTimers = useCallback(() => {
+    messagesAtGenerationStartRef.current = messagesCountRef.current
+    setExtendedDraftWait(true)
+
+    refetchPollRef.current = setInterval(() => {
+      if (!mountedRef.current) return
+      onSettled?.()
+    }, REFETCH_POLL_MS)
 
     safetyTimerRef.current = setTimeout(() => {
       if (!mountedRef.current) return
-      onToast?.(`Check the Message Queue for the draft for ${leadName}.`)
+      if (messagesCountRef.current > messagesAtGenerationStartRef.current) {
+        onToast?.(`Check the Message Queue for the draft for ${leadName}.`)
+        settleToIdle('success')
+        return
+      }
+      onFallbackAvailable?.()
+      onToast?.(
+        `No draft appeared after waiting. Use Draft in app or check n8n for ${leadName}.`,
+      )
+      clearTimers()
+      startedAtRef.current = null
+      setElapsedMs(0)
+      setState('failed')
+      onSettled?.()
+    }, EXTENDED_DRAFT_WAIT_MS)
+  }, [clearTimers, leadName, onFallbackAvailable, onSettled, onToast, settleToIdle])
+
+  useEffect(() => {
+    if (state !== 'running' || !startedAtRef.current || awaitingHttpResponse) return
+    if (messagesCount > messagesAtGenerationStartRef.current) {
+      onToast?.(`Draft is ready for ${leadName} — open Message Queue`)
       settleToIdle('success')
-    }, SAFETY_TIMEOUT_MS)
-  }, [clearTimers, leadName, onToast, settleToIdle])
+    }
+  }, [state, messagesCount, awaitingHttpResponse, leadName, onToast, settleToIdle])
 
   const performGenerate = useCallback(async (templateKey?: EmailTemplateKey) => {
     const session = await getCurrentSession()
@@ -153,8 +217,9 @@ export function useOutreachGeneration({
       return
     }
 
-    beginRunning()
     if (templateKey) setLastTemplateKey(templateKey)
+
+    startOptimisticRunning()
 
     try {
       const res = await fetch(`/api/admin/outreach/leads/${leadId}/generate`, {
@@ -168,9 +233,20 @@ export function useOutreachGeneration({
       const data = await res.json().catch(() => ({}))
       if (!mountedRef.current) return
 
+      setAwaitingHttpResponse(false)
+
+      const rawQ = (data as { queueCountImmediate?: unknown }).queueCountImmediate
+      const queueCountImmediate = typeof rawQ === 'number' ? rawQ : null
+
       if (data?.triggered) {
         onFallbackCleared?.()
-        onToast?.(`Email generation started for ${leadName}`)
+        if (queueCountImmediate !== null && queueCountImmediate > 0) {
+          onToast?.(`Draft is ready for ${leadName} — open Message Queue`)
+          settleToIdle('success')
+          return
+        }
+        attachExtendedDraftWaitTimers()
+        onToast?.(`n8n accepted this job — waiting for a draft to appear…`)
       } else {
         clearTimers()
         startedAtRef.current = null
@@ -181,6 +257,7 @@ export function useOutreachGeneration({
       }
     } catch {
       if (!mountedRef.current) return
+      setAwaitingHttpResponse(false)
       clearTimers()
       startedAtRef.current = null
       setElapsedMs(0)
@@ -189,13 +266,15 @@ export function useOutreachGeneration({
       onToast?.(`n8n unavailable for ${leadName} — use Draft in app`)
     }
   }, [
-    beginRunning,
+    attachExtendedDraftWaitTimers,
     clearTimers,
     leadId,
     leadName,
     onFallbackAvailable,
     onFallbackCleared,
     onToast,
+    settleToIdle,
+    startOptimisticRunning,
   ])
 
   const start = useCallback(
@@ -220,7 +299,7 @@ export function useOutreachGeneration({
   return {
     state,
     elapsedMs,
-    phaseLabel: phaseFor(elapsedMs),
+    phaseLabel: phaseFor(elapsedMs, extendedDraftWait, awaitingHttpResponse),
     lastTemplateKey,
     start,
     cancel,
