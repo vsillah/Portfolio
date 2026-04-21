@@ -231,27 +231,6 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // In-app notification (non-blocking)
-    if (!shouldChainSocial) {
-      const wfLabel = wf === 'vep001' ? 'Internal Evidence' : 'Social Listening'
-      supabaseAdmin
-        .from('admin_notifications')
-        .insert({
-          type: 'vep_complete',
-          payload: {
-            run_id: run.id,
-            workflow_id: wf,
-            workflow_label: wfLabel,
-            status,
-            items_inserted: items_inserted ?? 0,
-            error_message: error_message ?? null,
-          },
-        })
-        .then(({ error: notifErr }: { error: { message: string } | null }) => {
-          if (notifErr) console.warn('admin_notifications insert failed (table may not exist):', notifErr.message)
-        })
-    }
-
     return NextResponse.json({ ok: true, run_id: run.id, chained_social: shouldChainSocial })
   } catch (err) {
     console.error('workflow-complete error:', err)

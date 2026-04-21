@@ -47,8 +47,6 @@ import {
 } from 'lucide-react'
 import { ADMIN_NAV, isNavItemActive, isContentExpanded, isChatEvalExpanded } from '@/lib/admin-nav'
 import { useState, useEffect } from 'react'
-import { useAdminNotifications } from '@/lib/hooks/useAdminNotifications'
-
 const CONTENT_HUB_CHILDREN_ID = 'admin-nav-content-children'
 const CHAT_EVAL_CHILDREN_ID = 'admin-nav-chat-eval-children'
 const ITEM_ICON_SIZE = 16
@@ -108,13 +106,10 @@ function NavItemIcon({ href }: { href: string }) {
   return <Icon size={ITEM_ICON_SIZE} className="shrink-0 text-muted-foreground" />
 }
 
-const BADGE_HREFS = new Set(['/admin/value-evidence'])
-
 export default function AdminSidebar() {
   const pathname = usePathname()
   const [contentOpen, setContentOpen] = useState(false)
   const [chatEvalOpen, setChatEvalOpen] = useState(false)
-  const { unreadCount } = useAdminNotifications()
   const contentExpanded = contentOpen || isContentExpanded(pathname ?? '')
   const chatEvalExpanded = chatEvalOpen || isChatEvalExpanded(pathname ?? '')
 
@@ -222,9 +217,6 @@ export default function AdminSidebar() {
                           >
                             <NavItemIcon href={item.href} />
                             {item.label}
-                            {BADGE_HREFS.has(item.href) && unreadCount > 0 && (
-                              <span className="ml-auto flex h-2 w-2 rounded-full bg-amber-400" title={`${unreadCount} unread`} />
-                            )}
                           </Link>
                         )}
                       </div>
