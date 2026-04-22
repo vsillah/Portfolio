@@ -73,7 +73,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            'Connect your Gmail account first (Message Queue → Connect my Gmail).',
+            'Connect your Gmail account first (admin: Google sign-in for Gmail drafts).',
         },
         { status: 400 }
       )

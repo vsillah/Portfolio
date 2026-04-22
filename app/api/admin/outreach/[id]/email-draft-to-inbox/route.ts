@@ -120,7 +120,7 @@ export async function POST(
       )
     }
 
-    const mailSubject = `[Message Queue copy] ${origSubject} — ${leadName}`
+    const mailSubject = `[Email center copy] ${origSubject} — ${leadName}`
 
     const plainBody = [
       `Lead: ${leadName}`,

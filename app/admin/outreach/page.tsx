@@ -9,7 +9,6 @@ import {
   CheckCircle,
   XCircle,
   Edit3,
-  Send,
   Search,
   Filter,
   RefreshCw,
@@ -38,8 +37,6 @@ import {
   Cpu,
   Loader2,
   MoreHorizontal,
-  Sparkles,
-  Inbox,
   Save,
   Unplug,
   Video,
@@ -48,7 +45,6 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import ReviewEnrichModal from '@/components/admin/outreach/ReviewEnrichModal'
-import { buildGmailComposeUrl } from '@/lib/gmail-compose'
 import { formatQuickWinsForDisplay } from '@/lib/quick-wins-display'
 import { collectQuickWinTitlesFromMeetingRows } from '@/lib/meeting-action-items-resolve'
 import { buildLinkWithReturn } from '@/lib/admin-return-context'
@@ -56,60 +52,9 @@ import TechStackModal from '@/components/admin/outreach/TechStackModal'
 import SocialIntelModal from '@/components/admin/outreach/SocialIntelModal'
 import EvidenceDrawer from '@/components/admin/outreach/EvidenceDrawer'
 import AddLeadModal from '@/components/admin/outreach/AddLeadModal'
-import OutreachGenerationPill from '@/components/admin/OutreachGenerationPill'
+import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
-
-interface Contact {
-  id: number
-  name: string
-  email: string
-  company: string
-  company_domain: string
-  job_title: string
-  industry: string
-  lead_score: number
-  qualification_status: string
-  lead_source: string
-  outreach_status: string
-  full_report: string
-  quick_wins: string
-  ai_readiness_score: number
-  competitive_pressure_score: number
-  linkedin_url: string
-}
-
-interface OutreachItem {
-  id: string
-  contact_submission_id: number
-  channel: 'email' | 'linkedin'
-  subject: string | null
-  body: string
-  sequence_step: number
-  status: string
-  thread_id: string | null
-  scheduled_send_at: string | null
-  sent_at: string | null
-  replied_at: string | null
-  reply_content: string | null
-  generation_model: string
-  generation_prompt_summary: string
-  approved_at: string | null
-  created_at: string
-  updated_at: string
-  contact_submissions: Contact
-}
-
-interface Stats {
-  draft: number
-  approved: number
-  sent: number
-  replied: number
-  bounced: number
-  cancelled: number
-  rejected: number
-  total: number
-}
 
 interface Lead {
   id: number
@@ -142,6 +87,8 @@ interface Lead {
   do_not_contact?: boolean
   removed_at?: string | null
   website_tech_stack?: { domain?: string; technologies?: unknown[]; byTag?: Record<string, string[]>; creditsRemaining?: number | null } | null
+  /** Last N email rows from outreach_queue (from batched leads GET) */
+  recent_email_drafts?: { id: string; subject: string | null; status: string; created_at: string }[]
 }
 
 interface LeadsResponse {
@@ -150,7 +97,7 @@ interface LeadsResponse {
   page: number
 }
 
-type TabType = 'queue' | 'leads' | 'escalations'
+type TabType = 'leads' | 'escalations'
 
 interface ChatEscalationRow {
   id: number
@@ -180,31 +127,12 @@ export default function OutreachAdminPage() {
 function OutreachContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  
-  // Tab management
+
+  // Tab management (default: All Leads)
   const [activeTab, setActiveTab] = useState<TabType>(() => {
     const tab = searchParams?.get('tab')
-    return (tab === 'leads' || tab === 'queue' || tab === 'escalations') ? tab : 'queue'
+    return tab === 'leads' || tab === 'escalations' ? tab : 'leads'
   })
-
-  // Queue state
-  const [items, setItems] = useState<OutreachItem[]>([])
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [statusFilter, setStatusFilter] = useState('draft')
-  const [channelFilter, setChannelFilter] = useState('all')
-  const [search, setSearch] = useState('')
-  const [contactFilter, setContactFilter] = useState<number | null>(() => {
-    const contact = searchParams?.get('contact')
-    return contact ? parseInt(contact) : null
-  })
-  const [filteredContactName, setFilteredContactName] = useState<string | null>(null)
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editSubject, setEditSubject] = useState('')
-  const [editBody, setEditBody] = useState('')
-  const [actionLoading, setActionLoading] = useState(false)
 
   // Leads state
   const [leads, setLeads] = useState<Lead[]>([])
@@ -336,18 +264,8 @@ function OutreachContent() {
 
 
   // Generate outreach state
-  const [generateInAppLoading, setGenerateInAppLoading] = useState<number | null>(null)
   const [generateOutreachToast, setGenerateOutreachToast] = useState<string | null>(null)
   const [n8nFailedLeadIds, setN8nFailedLeadIds] = useState<Set<number>>(new Set())
-  const [emailDraftInboxLoadingId, setEmailDraftInboxLoadingId] = useState<string | null>(null)
-  const [gmailUserDraftLoadingId, setGmailUserDraftLoadingId] = useState<string | null>(null)
-  const [gmailUserOAuthStatus, setGmailUserOAuthStatus] = useState<{
-    connected: boolean
-    googleEmail: string | null
-    configured: boolean
-  } | null>(null)
-  const [gmailOAuthConnectLoading, setGmailOAuthConnectLoading] = useState(false)
-  const [gmailOAuthDisconnectLoading, setGmailOAuthDisconnectLoading] = useState(false)
 
   // Tech stack lookup (BuiltWith) — modal state
   const [techStackLoading, setTechStackLoading] = useState(false)
@@ -358,74 +276,6 @@ function OutreachContent() {
     error?: string
     creditsRemaining?: number
   } | null>(null)
-
-  const fetchData = useCallback(async () => {
-    setLoading(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session) return
-
-      const params = new URLSearchParams({
-        status: statusFilter,
-        channel: channelFilter,
-        ...(search && { search }),
-        ...(contactFilter && { contact: contactFilter.toString() }),
-      })
-
-      const response = await fetch(`/api/admin/outreach?${params}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        setItems(Array.isArray(data.items) ? data.items : [])
-        setStats(data.stats ?? { draft: 0, approved: 0, sent: 0, replied: 0, bounced: 0, cancelled: 0, rejected: 0, total: 0 })
-        const contact = contactFilter && Array.isArray(data.items) && data.items.length > 0
-          ? data.items[0].contact_submissions
-          : null
-        setFilteredContactName(contact && typeof contact === 'object' && !Array.isArray(contact) && contact.name != null
-          ? String(contact.name)
-          : null)
-      }
-    } catch (error) {
-      console.error('Failed to fetch outreach data:', error)
-    } finally {
-      setLoading(false)
-    }
-  }, [statusFilter, channelFilter, search, contactFilter])
-
-  const fetchGmailUserOAuthStatus = useCallback(async () => {
-    try {
-      const session = await getCurrentSession()
-      if (!session) {
-        setGmailUserOAuthStatus(null)
-        return
-      }
-      const r = await fetch('/api/admin/oauth/google-gmail/status', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      const data = (await r.json().catch(() => ({}))) as {
-        connected?: boolean
-        googleEmail?: string | null
-        configured?: boolean
-      }
-      if (r.ok && typeof data.connected === 'boolean') {
-        setGmailUserOAuthStatus({
-          connected: data.connected,
-          googleEmail: data.googleEmail ?? null,
-          configured: Boolean(data.configured),
-        })
-      } else {
-        setGmailUserOAuthStatus({
-          connected: false,
-          googleEmail: null,
-          configured: false,
-        })
-      }
-    } catch {
-      setGmailUserOAuthStatus(null)
-    }
-  }, [])
 
   const fetchLeads = useCallback(async () => {
     setLeadsLoading(true)
@@ -484,6 +334,20 @@ function OutreachContent() {
       setEscalationsLoading(false)
     }
   }, [escalationsPage, escalationsLinkedFilter])
+
+  // Legacy `?tab=queue`: the Message queue list lived here; email rows now use Email center.
+  useEffect(() => {
+    if (searchParams?.get('tab') !== 'queue') return
+    const contact = searchParams.get('contact')
+    if (contact) {
+      router.replace(`/admin/email-center?contact=${encodeURIComponent(contact)}`)
+      return
+    }
+    const p = new URLSearchParams(searchParams.toString())
+    p.delete('tab')
+    p.set('tab', 'leads')
+    router.replace(`/admin/outreach?${p.toString()}`)
+  }, [searchParams, router])
 
   // VEP extraction polling: start/stop based on vepPollingActive flag
   const startVepPolling = useCallback(() => {
@@ -548,15 +412,12 @@ function OutreachContent() {
   }, [])
 
   useEffect(() => {
-    if (activeTab === 'queue') {
-      fetchData()
-      void fetchGmailUserOAuthStatus()
-    } else if (activeTab === 'leads') {
+    if (activeTab === 'leads') {
       fetchLeads()
-    } else if (activeTab === 'escalations') {
+    } else {
       fetchEscalations()
     }
-  }, [activeTab, fetchData, fetchLeads, fetchEscalations, fetchGmailUserOAuthStatus])
+  }, [activeTab, fetchLeads, fetchEscalations])
 
   // Auto-open add-lead modal when navigated with ?open=add (e.g. from Meetings page)
   useEffect(() => {
@@ -590,13 +451,13 @@ function OutreachContent() {
       setTimeout(() => setGenerateOutreachToast(null), 10000)
     }
 
-    void fetchGmailUserOAuthStatus()
     const params = new URLSearchParams(searchParams?.toString() ?? '')
     params.delete('gmail_connected')
     params.delete('gmail_oauth_error')
+    if (params.get('tab') == null) params.set('tab', 'leads')
     const qs = params.toString()
-    router.replace(qs ? `/admin/outreach?${qs}` : '/admin/outreach')
-  }, [searchParams, router, fetchGmailUserOAuthStatus])
+    router.replace(`/admin/outreach?${qs}`)
+  }, [searchParams, router])
 
   // Fetch escalations for the expanded lead (for "Chat escalations for this contact")
   useEffect(() => {
@@ -774,313 +635,11 @@ function OutreachContent() {
     [fetchLeads]
   )
 
-  const handleAction = async (action: 'approve' | 'reject', ids: string[]) => {
-    setActionLoading(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session) return
-
-      const response = await fetch('/api/admin/outreach', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ action, ids }),
-      })
-
-      if (response.ok) {
-        setSelectedIds(new Set())
-        await fetchData()
-      }
-    } catch (error) {
-      console.error(`Failed to ${action}:`, error)
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
-  const handleEdit = async (id: string) => {
-    setActionLoading(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session) return
-
-      const response = await fetch('/api/admin/outreach', {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          action: 'edit',
-          ids: [id],
-          updates: { subject: editSubject, body: editBody },
-        }),
-      })
-
-      if (response.ok) {
-        setEditingId(null)
-        await fetchData()
-      }
-    } catch (error) {
-      console.error('Failed to edit:', error)
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
-  const handleSend = async (id: string) => {
-    setActionLoading(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session) return
-
-      const response = await fetch(`/api/admin/outreach/${id}/send`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
-      })
-
-      if (response.ok) {
-        await fetchData()
-      }
-    } catch (error) {
-      console.error('Failed to send:', error)
-    } finally {
-      setActionLoading(false)
-    }
-  }
-
-  const toggleSelect = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev)
-      if (next.has(id)) next.delete(id)
-      else next.add(id)
-      return next
-    })
-  }
-
-  const toggleSelectAll = () => {
-    if (selectedIds.size === items.length) {
-      setSelectedIds(new Set())
-    } else {
-      setSelectedIds(new Set(items.map((i) => i.id)))
-    }
-  }
-
-  const startEditing = (item: OutreachItem) => {
-    setEditingId(item.id)
-    setEditSubject(item.subject || '')
-    setEditBody(item.body)
-  }
-
-  const openDraftInGmail = useCallback(
-    (item: OutreachItem) => {
-      const email = item.contact_submissions?.email?.trim()
-      if (!email?.includes('@')) {
-        setGenerateOutreachToast('This lead has no valid email address.')
-        setTimeout(() => setGenerateOutreachToast(null), 6000)
-        return
-      }
-      const subject = editingId === item.id ? editSubject : item.subject ?? ''
-      const body = editingId === item.id ? editBody : item.body
-      const { url, omitBodyFromUrl } = buildGmailComposeUrl(email, subject, body)
-      const openTab = () => {
-        window.open(url, '_blank', 'noopener,noreferrer')
-      }
-      if (omitBodyFromUrl) {
-        void navigator.clipboard.writeText(body).then(() => {
-          openTab()
-          setGenerateOutreachToast(
-            'Gmail opened. Message body was copied — paste it into the compose window (body was too long for the link).'
-          )
-          setTimeout(() => setGenerateOutreachToast(null), 8000)
-        }).catch(() => {
-          openTab()
-          setGenerateOutreachToast(
-            'Gmail opened with recipient and subject only. Copy the message body from the preview below.'
-          )
-          setTimeout(() => setGenerateOutreachToast(null), 10000)
-        })
-      } else {
-        openTab()
-      }
-    },
-    [editingId, editSubject, editBody]
-  )
-
-  const emailDraftCopyToInbox = async (item: OutreachItem) => {
-    const subject = editingId === item.id ? editSubject : item.subject ?? ''
-    const body = editingId === item.id ? editBody : item.body
-    setEmailDraftInboxLoadingId(item.id)
-    try {
-      const session = await getCurrentSession()
-      if (!session) {
-        setGenerateOutreachToast('Please sign in to continue.')
-        setTimeout(() => setGenerateOutreachToast(null), 6000)
-        return
-      }
-      const res = await fetch(
-        `/api/admin/outreach/${item.id}/email-draft-to-inbox`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            subject,
-            body,
-          }),
-        }
-      )
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string
-        message?: string
-      }
-      if (res.ok) {
-        setGenerateOutreachToast(
-          data.message ?? 'A copy was sent to your account email.'
-        )
-        setTimeout(() => setGenerateOutreachToast(null), 6000)
-      } else {
-        setGenerateOutreachToast(
-          data.error ?? 'We could not send that copy. Please try again.'
-        )
-        setTimeout(() => setGenerateOutreachToast(null), 8000)
-      }
-    } catch {
-      setGenerateOutreachToast(
-        'We could not send that copy. Please try again.'
-      )
-      setTimeout(() => setGenerateOutreachToast(null), 8000)
-    } finally {
-      setEmailDraftInboxLoadingId(null)
-    }
-  }
-
-  const saveGmailUserDraft = async (item: OutreachItem) => {
-    const subject = editingId === item.id ? editSubject : item.subject ?? ''
-    const body = editingId === item.id ? editBody : item.body
-    setGmailUserDraftLoadingId(item.id)
-    try {
-      const session = await getCurrentSession()
-      if (!session) {
-        setGenerateOutreachToast('Please sign in to continue.')
-        setTimeout(() => setGenerateOutreachToast(null), 6000)
-        return
-      }
-      const res = await fetch(
-        `/api/admin/outreach/${item.id}/gmail-user-draft`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ subject, body }),
-        }
-      )
-      const data = (await res.json().catch(() => ({}))) as {
-        error?: string
-        message?: string
-        openGmailUrl?: string
-      }
-      if (res.ok) {
-        setGenerateOutreachToast(
-          data.message ?? 'Draft saved in your Gmail.'
-        )
-        setTimeout(() => setGenerateOutreachToast(null), 7000)
-        if (data.openGmailUrl) {
-          window.open(data.openGmailUrl, '_blank', 'noopener,noreferrer')
-        }
-      } else {
-        setGenerateOutreachToast(
-          data.error ?? 'Could not save a Gmail draft. Please try again.'
-        )
-        setTimeout(() => setGenerateOutreachToast(null), 9000)
-      }
-    } catch {
-      setGenerateOutreachToast(
-        'Could not save a Gmail draft. Please try again.'
-      )
-      setTimeout(() => setGenerateOutreachToast(null), 9000)
-    } finally {
-      setGmailUserDraftLoadingId(null)
-    }
-  }
-
-  const startGmailUserOAuthConnect = async () => {
-    setGmailOAuthConnectLoading(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session) {
-        setGenerateOutreachToast('Please sign in to continue.')
-        setTimeout(() => setGenerateOutreachToast(null), 6000)
-        return
-      }
-      const res = await fetch('/api/admin/oauth/google-gmail/start', {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      const data = (await res.json().catch(() => ({}))) as {
-        url?: string
-        error?: string
-      }
-      if (res.ok && data.url) {
-        window.location.href = data.url
-        return
-      }
-      setGenerateOutreachToast(
-        data.error ?? 'Could not start Gmail sign-in. Please try again.'
-      )
-      setTimeout(() => setGenerateOutreachToast(null), 8000)
-    } finally {
-      setGmailOAuthConnectLoading(false)
-    }
-  }
-
-  const disconnectGmailUserOAuth = async () => {
-    setGmailOAuthDisconnectLoading(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session) return
-      const res = await fetch('/api/admin/oauth/google-gmail/disconnect', {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      await fetchGmailUserOAuthStatus()
-      if (res.ok) {
-        setGenerateOutreachToast('Gmail disconnected from this admin account.')
-        setTimeout(() => setGenerateOutreachToast(null), 6000)
-      } else {
-        setGenerateOutreachToast('Could not disconnect. Please try again.')
-        setTimeout(() => setGenerateOutreachToast(null), 6000)
-      }
-    } finally {
-      setGmailOAuthDisconnectLoading(false)
-    }
-  }
-
   const getScoreBadgeColor = (score: number | null) => {
     if (!score) return 'bg-silicon-slate text-foreground'
     if (score >= 70) return 'bg-green-900/50 text-green-400 border border-green-700'
     if (score >= 40) return 'bg-yellow-900/50 text-yellow-400 border border-yellow-700'
     return 'bg-red-900/50 text-red-400 border border-red-700'
-  }
-
-  const getStatusBadge = (status: string) => {
-    const colors: Record<string, string> = {
-      draft: 'bg-radiant-gold/20 text-radiant-gold border border-radiant-gold/50',
-      approved: 'bg-green-900/50 text-green-400 border border-green-700',
-      sent: 'bg-silicon-slate text-foreground border border-silicon-slate',
-      replied: 'bg-emerald-900/50 text-emerald-400 border border-emerald-700',
-      bounced: 'bg-red-900/50 text-red-400 border border-red-700',
-      cancelled: 'bg-silicon-slate/70 text-muted-foreground border border-silicon-slate',
-      rejected: 'bg-red-900/50 text-red-400 border border-red-700',
-    }
-    return colors[status] || 'bg-silicon-slate/70 text-muted-foreground'
   }
 
   return (
@@ -1100,11 +659,9 @@ function OutreachContent() {
               Lead Pipeline
             </h1>
             <p className="text-muted-foreground mt-1">
-              {activeTab === 'queue'
-                ? 'Review and approve AI-generated outreach messages before sending'
-                : activeTab === 'escalations'
-                  ? 'Chat and voice escalations — link to leads and view transcripts'
-                  : 'Manage all leads, view details, and track progress'}
+              {activeTab === 'escalations'
+                ? 'Chat and voice escalations — link to leads and view transcripts'
+                : 'Manage all leads, view details, and track progress. For email send history and rows, use Email center.'}
             </p>
           </div>
           {lastVepRun && (
@@ -1144,10 +701,10 @@ function OutreachContent() {
               </button>
             </Link>
             <button
-              onClick={activeTab === 'queue' ? fetchData : activeTab === 'leads' ? fetchLeads : fetchEscalations}
+              onClick={activeTab === 'leads' ? fetchLeads : fetchEscalations}
               className="flex items-center gap-2 px-4 py-2 btn-ghost rounded-lg transition-colors"
             >
-              <RefreshCw size={16} className={(loading || leadsLoading || escalationsLoading) ? 'animate-spin' : ''} />
+              <RefreshCw size={16} className={(leadsLoading || escalationsLoading) ? 'animate-spin' : ''} />
               Refresh
             </button>
           </div>
@@ -1155,22 +712,6 @@ function OutreachContent() {
 
         {/* Tabs */}
         <div className="flex items-center gap-2 mb-8 border-b border-silicon-slate">
-          <button
-            onClick={() => handleTabChange('queue')}
-            className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
-              activeTab === 'queue'
-                ? 'border-radiant-gold text-foreground'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            <MessageSquare size={18} />
-            <span className="font-medium">Message Queue</span>
-            {stats && stats.draft > 0 && (
-              <span className="px-2 py-0.5 bg-radiant-gold text-imperial-navy text-xs font-semibold rounded-full">
-                {stats.draft}
-              </span>
-            )}
-          </button>
           <button
             onClick={() => handleTabChange('leads')}
             className={`flex items-center gap-2 px-4 py-3 border-b-2 transition-all ${
@@ -1204,565 +745,6 @@ function OutreachContent() {
             )}
           </button>
         </div>
-
-        {/* Queue Tab Content */}
-        {activeTab === 'queue' && (
-          <>
-            {/* Stats */}
-            {stats && (
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3 mb-8">
-            {Object.entries(stats)
-              .filter(([key]) => key !== 'total')
-              .map(([key, value]) => (
-                <button
-                  key={key}
-                  onClick={() => setStatusFilter(key)}
-                  className={`p-3 rounded-lg border transition-all ${
-                    statusFilter === key
-                      ? 'bg-silicon-slate border-radiant-gold'
-                      : 'bg-silicon-slate/50 border-silicon-slate hover:bg-silicon-slate'
-                  }`}
-                >
-                  <div className="text-2xl font-bold">{value}</div>
-                  <div className="text-xs text-muted-foreground capitalize">{key}</div>
-                </button>
-              ))}
-          </div>
-        )}
-
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          <Filter size={14} className="text-gray-500" />
-          <select
-            value={channelFilter}
-            onChange={(e) => setChannelFilter(e.target.value)}
-            className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm"
-          >
-            <option value="all">All Channels</option>
-            <option value="email">Email Only</option>
-            <option value="linkedin">LinkedIn Only</option>
-          </select>
-
-          <input
-            type="text"
-            placeholder="Search by name, email, or company..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-gray-800 text-gray-300 border border-gray-700 rounded-lg px-3 py-1.5 text-sm flex-1 min-w-[200px]"
-          />
-
-          <div className="flex flex-wrap items-center gap-2 shrink-0 max-w-full border-l border-silicon-slate/60 pl-3 ml-1">
-            {gmailUserOAuthStatus === null ? (
-              <span className="text-xs text-muted-foreground">My Gmail…</span>
-            ) : !gmailUserOAuthStatus.configured ? (
-              <span
-                className="text-xs text-muted-foreground"
-                title="An administrator must enable Google sign-in for Gmail drafts on the server"
-              >
-                My Gmail drafts: unavailable
-              </span>
-            ) : gmailUserOAuthStatus.connected ? (
-              <>
-                <span className="text-xs text-emerald-400/90 truncate max-w-[220px]">
-                  My Gmail: {gmailUserOAuthStatus.googleEmail}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => void disconnectGmailUserOAuth()}
-                  disabled={gmailOAuthDisconnectLoading}
-                  className="flex items-center gap-1 px-2 py-1 text-xs rounded border border-silicon-slate text-muted-foreground hover:text-rose-300 disabled:opacity-50"
-                  title="Remove saved Gmail access for your admin login"
-                >
-                  {gmailOAuthDisconnectLoading ? (
-                    <Loader2 size={12} className="animate-spin" />
-                  ) : (
-                    <Unplug size={12} />
-                  )}
-                  Disconnect
-                </button>
-              </>
-            ) : (
-              <button
-                type="button"
-                onClick={() => void startGmailUserOAuthConnect()}
-                disabled={gmailOAuthConnectLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg border border-emerald-600/50 text-emerald-300 hover:bg-emerald-950/40 disabled:opacity-50"
-                title="Sign in with Google so the app can create drafts in your Gmail"
-              >
-                {gmailOAuthConnectLoading ? (
-                  <Loader2 size={14} className="animate-spin" />
-                ) : (
-                  <Mail size={14} />
-                )}
-                Connect my Gmail
-              </button>
-            )}
-          </div>
-
-          {/* Contact Filter Badge */}
-          {contactFilter && filteredContactName && (
-            <div className="flex items-center gap-2 px-3 py-2 bg-silicon-slate border border-radiant-gold/50 rounded-lg">
-              <Users size={14} className="text-blue-400" />
-              <span className="text-sm text-blue-400">
-                Filtered by: <span className="font-medium">{filteredContactName}</span>
-              </span>
-              <button
-                onClick={() => {
-                  setContactFilter(null)
-                  setFilteredContactName(null)
-                  const params = new URLSearchParams(searchParams?.toString() || '')
-                  params.delete('contact')
-                  router.push(`/admin/outreach?${params.toString()}`)
-                }}
-                className="p-0.5 hover:bg-radiant-gold/20 rounded transition-colors"
-              >
-                <X size={14} className="text-blue-400" />
-              </button>
-            </div>
-          )}
-
-          {/* Bulk Actions */}
-          {selectedIds.size > 0 && statusFilter === 'draft' && (
-            <div className="flex items-center gap-2 ml-auto">
-              <span className="text-sm text-muted-foreground">
-                {selectedIds.size} selected
-              </span>
-              <button
-                onClick={() => handleAction('approve', Array.from(selectedIds))}
-                disabled={actionLoading}
-                className="flex items-center gap-1 px-3 py-2 bg-green-600 hover:bg-green-500 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-              >
-                <CheckCircle size={14} />
-                Approve All
-              </button>
-              <button
-                onClick={() => handleAction('reject', Array.from(selectedIds))}
-                disabled={actionLoading}
-                className="flex items-center gap-1 px-3 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-              >
-                <XCircle size={14} />
-                Reject All
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Select All */}
-        {items.length > 0 && statusFilter === 'draft' && (
-          <div className="flex items-center gap-2 mb-4">
-            <input
-              type="checkbox"
-              checked={selectedIds.size === items.length && items.length > 0}
-              onChange={toggleSelectAll}
-              className="w-4 h-4 rounded border-gray-600 bg-gray-800"
-            />
-            <span className="text-sm text-muted-foreground">Select all</span>
-          </div>
-        )}
-
-        {/* Items List */}
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <RefreshCw size={24} className="animate-spin text-muted-foreground" />
-          </div>
-        ) : items.length === 0 ? (
-          <div className="text-center py-20">
-            <MessageSquare size={48} className="mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-xl font-medium text-muted-foreground">
-              No {statusFilter} messages
-            </h3>
-            <p className="text-muted-foreground mt-2">
-              {statusFilter === 'draft'
-                ? 'New drafts will appear here when leads are processed'
-                : `No messages with status "${statusFilter}"`}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <AnimatePresence>
-              {items.map((item) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="bg-silicon-slate/50 border border-silicon-slate rounded-xl overflow-hidden"
-                >
-                  {/* Card Header */}
-                  <div className="p-4 flex items-start gap-3">
-                    {statusFilter === 'draft' && (
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(item.id)}
-                        onChange={() => toggleSelect(item.id)}
-                        className="mt-1 w-4 h-4 rounded border-gray-600 bg-gray-800"
-                      />
-                    )}
-
-                    {/* Channel Icon */}
-                    <div
-                      className={`p-2 rounded-lg ${
-                        item.channel === 'email'
-                          ? 'bg-silicon-slate text-radiant-gold'
-                          : 'bg-sky-900/30 text-sky-400'
-                      }`}
-                    >
-                      {item.channel === 'email' ? (
-                        <Mail size={20} />
-                      ) : (
-                        <Linkedin size={20} />
-                      )}
-                    </div>
-
-                    {/* Lead Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-white">
-                          <Link
-                            href={`/admin/contacts/${item.contact_submission_id}`}
-                            className="inline-flex items-center gap-1.5 text-white hover:text-teal-300 transition-colors underline decoration-dotted decoration-teal-400/70 underline-offset-4 hover:decoration-teal-300"
-                            title="Open contact record"
-                          >
-                            <span>{item.contact_submissions?.name || 'Unknown'}</span>
-                            <ExternalLink size={13} className="shrink-0 opacity-70 text-teal-400/90" aria-hidden />
-                          </Link>
-                        </h3>
-                        <span className={`px-2 py-0.5 rounded text-xs ${getScoreBadgeColor(item.contact_submissions?.lead_score)}`}>
-                          Score: {item.contact_submissions?.lead_score || 'N/A'}
-                        </span>
-                        <span className={`px-2 py-0.5 rounded text-xs ${getStatusBadge(item.status)}`}>
-                          {item.status}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          Step {item.sequence_step}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
-                        {item.contact_submissions?.job_title && (
-                          <span className="flex items-center gap-1">
-                            <User size={12} />
-                            {item.contact_submissions.job_title}
-                          </span>
-                        )}
-                        {item.contact_submissions?.company && (
-                          <span className="flex items-center gap-1">
-                            <Building2 size={12} />
-                            {item.contact_submissions.company}
-                          </span>
-                        )}
-                        {item.contact_submissions?.ai_readiness_score && (
-                          <span className="flex items-center gap-1">
-                            <Star size={12} />
-                            AI: {item.contact_submissions.ai_readiness_score}/10
-                          </span>
-                        )}
-                      </div>
-                      {item.channel === 'email' && item.subject && (
-                        <p className="mt-2 text-sm text-foreground">
-                          <span className="text-muted-foreground">Subject:</span>{' '}
-                          {item.subject}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/admin/outreach?tab=leads&id=${item.contact_submission_id}`}
-                        className="p-2 rounded-lg bg-silicon-slate hover:bg-silicon-slate/80 text-radiant-gold transition-colors"
-                        title="View Lead Profile"
-                      >
-                        <User size={16} />
-                      </Link>
-                      {item.channel === 'email' &&
-                        (item.status === 'draft' || item.status === 'approved') && (
-                          <>
-                            <button
-                              type="button"
-                              onClick={() => openDraftInGmail(item)}
-                              disabled={
-                                actionLoading ||
-                                !item.contact_submissions?.email?.trim()?.includes('@')
-                              }
-                              className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground hover:text-sky-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-muted-foreground"
-                              aria-label="Open draft in Gmail compose"
-                              title={
-                                item.contact_submissions?.email?.trim()?.includes('@')
-                                  ? 'Open Gmail compose with this draft pre-filled'
-                                  : 'Lead has no email — add one on the contact profile'
-                              }
-                            >
-                              <ExternalLink size={16} />
-                            </button>
-                            {gmailUserOAuthStatus?.connected && (
-                              <button
-                                type="button"
-                                onClick={() => void saveGmailUserDraft(item)}
-                                disabled={
-                                  actionLoading ||
-                                  gmailUserDraftLoadingId === item.id ||
-                                  !item.contact_submissions?.email
-                                    ?.trim()
-                                    ?.includes('@')
-                                }
-                                className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground hover:text-violet-300 disabled:opacity-40 disabled:cursor-not-allowed"
-                                aria-label="Save draft to my Gmail"
-                                title={
-                                  item.contact_submissions?.email?.trim()?.includes('@')
-                                    ? 'Create a draft in your Gmail (OAuth) — opens Drafts in a new tab'
-                                    : 'Lead has no email — add one on the contact profile'
-                                }
-                              >
-                                {gmailUserDraftLoadingId === item.id ? (
-                                  <Loader2 size={16} className="animate-spin" />
-                                ) : (
-                                  <Save size={16} />
-                                )}
-                              </button>
-                            )}
-                          </>
-                        )}
-                      {(item.status === 'draft' || item.status === 'approved') && (
-                        <button
-                          type="button"
-                          onClick={() => void emailDraftCopyToInbox(item)}
-                          disabled={
-                            actionLoading ||
-                            emailDraftInboxLoadingId === item.id
-                          }
-                          className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground hover:text-emerald-300 disabled:opacity-40 disabled:cursor-not-allowed"
-                          aria-label="Email a copy of this draft to my inbox"
-                          title="Email a copy to the address on your admin profile (uses the site’s configured mail sender)"
-                        >
-                          {emailDraftInboxLoadingId === item.id ? (
-                            <Loader2 size={16} className="animate-spin" />
-                          ) : (
-                            <Inbox size={16} />
-                          )}
-                        </button>
-                      )}
-                      {item.status === 'draft' && (
-                        <>
-                          <button
-                            onClick={() => startEditing(item)}
-                            className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground hover:text-white"
-                            title="Edit"
-                          >
-                            <Edit3 size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleAction('approve', [item.id])}
-                            disabled={actionLoading}
-                            className="p-2 rounded-lg bg-green-900/30 hover:bg-green-800/50 transition-colors text-green-400 disabled:opacity-50"
-                            title="Approve"
-                          >
-                            <CheckCircle size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleAction('reject', [item.id])}
-                            disabled={actionLoading}
-                            className="p-2 rounded-lg bg-red-900/30 hover:bg-red-800/50 transition-colors text-red-400 disabled:opacity-50"
-                            title="Reject"
-                          >
-                            <XCircle size={16} />
-                          </button>
-                        </>
-                      )}
-                      {item.status === 'approved' && (
-                        <button
-                          onClick={() => handleSend(item.id)}
-                          disabled={actionLoading}
-                          className="flex items-center gap-1 px-3 py-2 btn-gold text-imperial-navy hover:opacity-90 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-                        >
-                          <Send size={14} />
-                          Send Now
-                        </button>
-                      )}
-                      <button
-                        onClick={() =>
-                          setExpandedId(expandedId === item.id ? null : item.id)
-                        }
-                        className="p-2 rounded-lg bg-silicon-slate/50 hover:bg-silicon-slate transition-colors text-muted-foreground"
-                      >
-                        {expandedId === item.id ? (
-                          <ChevronUp size={16} />
-                        ) : (
-                          <ChevronDown size={16} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Expanded Content */}
-                  <AnimatePresence>
-                    {expandedId === item.id && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        className="border-t border-silicon-slate"
-                      >
-                        <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                          {/* Message Preview */}
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1">
-                              <Eye size={14} />
-                              Message Preview
-                            </h4>
-                            {editingId === item.id ? (
-                              <div className="space-y-3">
-                                {item.channel === 'email' && (
-                                  <input
-                                    type="text"
-                                    value={editSubject}
-                                    onChange={(e) =>
-                                      setEditSubject(e.target.value)
-                                    }
-                                    className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white focus:outline-none focus:border-radiant-gold"
-                                    placeholder="Subject"
-                                  />
-                                )}
-                                <textarea
-                                  value={editBody}
-                                  onChange={(e) => setEditBody(e.target.value)}
-                                  rows={8}
-                                  className="w-full px-3 py-2 bg-silicon-slate/50 border border-silicon-slate rounded-lg text-white focus:outline-none focus:border-radiant-gold resize-y"
-                                />
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => handleEdit(item.id)}
-                                    disabled={actionLoading}
-                                    className="px-3 py-1.5 btn-gold text-imperial-navy hover:opacity-90 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-                                  >
-                                    Save Changes
-                                  </button>
-                                  <button
-                                    onClick={() => setEditingId(null)}
-                                    className="px-3 py-1.5 bg-silicon-slate/50 hover:bg-silicon-slate rounded-lg text-sm transition-colors"
-                                  >
-                                    Cancel
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="bg-background/60 rounded-lg p-4 text-sm whitespace-pre-wrap text-foreground max-h-64 overflow-y-auto">
-                                {item.body}
-                              </div>
-                            )}
-
-                            {/* Reply Content */}
-                            {item.reply_content && (
-                              <div className="mt-4">
-                                <h4 className="text-sm font-medium text-emerald-400 mb-2 flex items-center gap-1">
-                                  <MessageSquare size={14} />
-                                  Reply Received
-                                </h4>
-                                <div className="bg-emerald-900/20 border border-emerald-800 rounded-lg p-4 text-sm text-emerald-300 whitespace-pre-wrap">
-                                  {item.reply_content}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Lead Research Brief */}
-                          <div>
-                            <h4 className="text-sm font-medium text-muted-foreground mb-2 flex items-center gap-1">
-                              <Star size={14} />
-                              Lead Research Brief
-                            </h4>
-                            <div className="space-y-3">
-                              <div className="grid grid-cols-2 gap-2 text-sm">
-                                <div className="bg-background/60 rounded-lg p-3">
-                                  <div className="text-muted-foreground text-xs">Lead Score</div>
-                                  <div className="text-lg font-bold">
-                                    {item.contact_submissions?.lead_score || 'N/A'}
-                                  </div>
-                                </div>
-                                <div className="bg-background/60 rounded-lg p-3">
-                                  <div className="text-muted-foreground text-xs">AI Readiness</div>
-                                  <div className="text-lg font-bold">
-                                    {item.contact_submissions?.ai_readiness_score || 'N/A'}/10
-                                  </div>
-                                </div>
-                                <div className="bg-background/60 rounded-lg p-3">
-                                  <div className="text-muted-foreground text-xs">Competitive Pressure</div>
-                                  <div className="text-lg font-bold">
-                                    {item.contact_submissions?.competitive_pressure_score || 'N/A'}/10
-                                  </div>
-                                </div>
-                                <div className="bg-background/60 rounded-lg p-3">
-                                  <div className="text-muted-foreground text-xs">Source</div>
-                                  <div className="text-sm font-medium">
-                                    {item.contact_submissions?.lead_source || 'N/A'}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {(() => {
-                                const qw = formatQuickWinsForDisplay(item.contact_submissions?.quick_wins as unknown)
-                                if (!qw) return null
-                                return (
-                                  <div className="bg-background/60 rounded-lg p-3">
-                                    <div className="text-muted-foreground text-xs mb-1">Quick Wins</div>
-                                    <div className="text-sm text-foreground whitespace-pre-wrap max-h-24 overflow-y-auto">
-                                      {qw}
-                                    </div>
-                                  </div>
-                                )
-                              })()}
-
-                              <div className="flex gap-2">
-                                {item.contact_submissions?.email && (
-                                  <a
-                                    href={`mailto:${item.contact_submissions.email}`}
-                                    className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300"
-                                  >
-                                    <Mail size={12} />
-                                    {item.contact_submissions.email}
-                                  </a>
-                                )}
-                                {item.contact_submissions?.linkedin_url && (
-                                  <a
-                                    href={item.contact_submissions.linkedin_url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="flex items-center gap-1 text-xs text-sky-400 hover:text-sky-300"
-                                  >
-                                    <ExternalLink size={12} />
-                                    LinkedIn
-                                  </a>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Metadata */}
-                            <div className="mt-4 text-xs text-muted-foreground space-y-1">
-                              <div className="flex items-center gap-1">
-                                <Clock size={12} />
-                                Created: {new Date(item.created_at).toLocaleString()}
-                              </div>
-                              {item.sent_at && (
-                                <div>Sent: {new Date(item.sent_at).toLocaleString()}</div>
-                              )}
-                              {item.replied_at && (
-                                <div>Replied: {new Date(item.replied_at).toLocaleString()}</div>
-                              )}
-                              {item.generation_model && (
-                                <div>Model: {item.generation_model}</div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-        )}
-          </>
-        )}
 
         {/* Leads Tab Content */}
         {activeTab === 'leads' && (
@@ -2061,12 +1043,12 @@ function OutreachContent() {
                                 </span>
                               )}
                               <Link
-                                href={`/admin/outreach?tab=queue&contact=${lead.id}`}
+                                href={`/admin/email-center?contact=${lead.id}`}
                                 className="inline-flex items-center gap-1 text-muted-foreground hover:text-blue-300 transition-colors underline decoration-dotted decoration-blue-400/50 underline-offset-2 hover:decoration-blue-300"
-                                title={`Open message queue (${lead.messages_count} messages, ${lead.messages_sent} sent)`}
-                                aria-label={`Open message queue for ${lead.name}`}
+                                title={`Open Email center for this lead (${lead.messages_count} messages, ${lead.messages_sent} sent)`}
+                                aria-label={`Open Email center for ${lead.name}`}
                               >
-                                <MessageSquare size={12} className="shrink-0" aria-hidden />
+                                <Mail size={12} className="shrink-0" aria-hidden />
                                 <span>
                                   {lead.messages_count} messages ({lead.messages_sent} sent)
                                 </span>
@@ -2188,8 +1170,9 @@ function OutreachContent() {
                           {/* Actions — primary CTA + progressive fallback + More + expand */}
                           <div className="flex items-center gap-2 shrink-0">
                             {/* Primary CTA: pipeline-style pill (idle / running / succeeded / failed / cancelled / link). */}
-                            <OutreachGenerationPill
+                            <OutreachEmailGenerateRow
                               lead={lead}
+                              n8nFallback={n8nFailedLeadIds.has(lead.id)}
                               onToast={(msg) => {
                                 setGenerateOutreachToast(msg)
                                 setTimeout(() => setGenerateOutreachToast(null), 6000)
@@ -2208,70 +1191,6 @@ function OutreachContent() {
                                 void fetchLeads()
                               }}
                             />
-
-                            {/* Progressive fallback: Draft in app — appears when n8n fails */}
-                            {!lead.do_not_contact && !lead.removed_at && n8nFailedLeadIds.has(lead.id) && (
-                              <motion.button
-                                type="button"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                title="Generate draft in-app via OpenAI (fallback)"
-                                onClick={async () => {
-                                  const session = await getCurrentSession()
-                                  if (!session) return
-                                  setGenerateInAppLoading(lead.id)
-                                  try {
-                                    const res = await fetch(
-                                      `/api/admin/outreach/leads/${lead.id}/generate-in-app`,
-                                      {
-                                        method: 'POST',
-                                        headers: {
-                                          'Content-Type': 'application/json',
-                                          Authorization: `Bearer ${session.access_token}`,
-                                        },
-                                        body: JSON.stringify({}),
-                                      }
-                                    )
-                                    const data = await res.json().catch(() => ({}))
-                                    if (res.ok && data.outcome === 'created') {
-                                      setGenerateOutreachToast(
-                                        `Draft saved for ${lead.name} — open Message Queue to review`
-                                      )
-                                      setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                      setN8nFailedLeadIds((prev) => {
-                                        const next = new Set(prev)
-                                        next.delete(lead.id)
-                                        return next
-                                      })
-                                      await fetchData()
-                                      await fetchLeads()
-                                    } else if (res.status === 409 && data.error) {
-                                      setGenerateOutreachToast(data.error)
-                                      setTimeout(() => setGenerateOutreachToast(null), 8000)
-                                    } else if (data.error) {
-                                      setGenerateOutreachToast(data.error)
-                                      setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                    }
-                                  } catch {
-                                    setGenerateOutreachToast(
-                                      'We could not create that draft. Please try again.'
-                                    )
-                                    setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                  } finally {
-                                    setGenerateInAppLoading(null)
-                                  }
-                                }}
-                                disabled={generateInAppLoading === lead.id}
-                                className="px-3 py-2 bg-violet-900/30 hover:bg-violet-800/50 text-violet-300 border border-violet-700/50 rounded-lg text-sm font-medium transition-colors flex items-center gap-1.5 disabled:opacity-50"
-                              >
-                                {generateInAppLoading === lead.id ? (
-                                  <Loader2 size={14} className="animate-spin" />
-                                ) : (
-                                  <Sparkles size={14} />
-                                )}
-                                Draft in app
-                              </motion.button>
-                            )}
 
                             {/* More actions — grouped dropdown */}
                             <div className="relative shrink-0" id={`lead-actions-wrap-${lead.id}`}>
@@ -2292,56 +1211,7 @@ function OutreachContent() {
                                   role="menu"
                                   className="absolute right-0 top-full mt-1 z-50 min-w-[14rem] py-1 rounded-lg border border-silicon-slate bg-background shadow-xl"
                                 >
-                                  {/* Compose & AI — "Generate Email" lives on the primary pill; dropdown keeps only the in-app fallback. */}
-                                  {!lead.do_not_contact && !lead.removed_at && (
-                                    <>
-                                      <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">Compose</div>
-                                      <button
-                                        type="button"
-                                        role="menuitem"
-                                        className="w-full text-left px-3 py-2 text-sm text-foreground hover:bg-silicon-slate/60 flex items-center gap-2"
-                                        disabled={generateInAppLoading === lead.id}
-                                        onClick={async () => {
-                                          setLeadRowMenuOpenId(null)
-                                          const session = await getCurrentSession()
-                                          if (!session) return
-                                          setGenerateInAppLoading(lead.id)
-                                          try {
-                                            const res = await fetch(
-                                              `/api/admin/outreach/leads/${lead.id}/generate-in-app`,
-                                              {
-                                                method: 'POST',
-                                                headers: {
-                                                  'Content-Type': 'application/json',
-                                                  Authorization: `Bearer ${session.access_token}`,
-                                                },
-                                                body: JSON.stringify({}),
-                                              }
-                                            )
-                                            const data = await res.json().catch(() => ({}))
-                                            if (res.ok && data.outcome === 'created') {
-                                              setGenerateOutreachToast(`Draft saved for ${lead.name} — open Message Queue to review`)
-                                              setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                              await fetchData()
-                                              await fetchLeads()
-                                            } else if (data.error) {
-                                              setGenerateOutreachToast(data.error)
-                                              setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                            }
-                                          } catch {
-                                            setGenerateOutreachToast('We could not create that draft. Please try again.')
-                                            setTimeout(() => setGenerateOutreachToast(null), 6000)
-                                          } finally {
-                                            setGenerateInAppLoading(null)
-                                          }
-                                        }}
-                                      >
-                                        <Sparkles size={14} className="shrink-0 opacity-80" />
-                                        Draft in app
-                                      </button>
-                                      <div className="border-t border-silicon-slate my-1" />
-                                    </>
-                                  )}
+                                  {/* Compose & in-app generation live on the lead row (OutreachEmailGenerateRow). */}
 
                                   {/* Research & intel */}
                                   <div className="px-3 py-1.5 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">Research</div>

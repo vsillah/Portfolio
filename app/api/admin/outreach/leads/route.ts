@@ -448,9 +448,45 @@ export async function GET(request: NextRequest) {
       sessionsByContact[cid].push({ id: row.id, created_at: row.created_at })
     }
 
-    // For each lead, get aggregated message data (outreach_queue still per-lead)
-    const leadsWithMetadata = await Promise.all(
-      (contacts || []).map(async (contact: {
+    // Batch: all outreach_queue rows for this page of contacts (avoids N+1 per lead).
+    const { data: allQueueRows } = await supabaseAdmin
+      .from('outreach_queue')
+      .select('id, contact_submission_id, status, subject, created_at, channel')
+      .in('contact_submission_id', contactIds)
+
+    type QueueRow = {
+      id: string
+      contact_submission_id: number
+      status: string
+      subject: string | null
+      created_at: string
+      channel: string
+    }
+    const messagesByContact: Record<number, QueueRow[]> = {}
+    for (const row of (allQueueRows || []) as QueueRow[]) {
+      const cid = row.contact_submission_id
+      if (!messagesByContact[cid]) messagesByContact[cid] = []
+      messagesByContact[cid].push(row)
+    }
+    for (const cid of contactIds) {
+      const arr = messagesByContact[cid] || []
+      arr.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )
+    }
+
+    // Batch: at least one diagnostic per contact (replaces N per-lead .limit(1) queries)
+    const { data: allAuditsForLeads } = await supabaseAdmin
+      .from('diagnostic_audits')
+      .select('id, contact_submission_id')
+      .in('contact_submission_id', contactIds)
+    const contactWithAudit = new Set(
+      (allAuditsForLeads || []).map((a: { contact_submission_id: number }) => a.contact_submission_id),
+    )
+
+    const RECENT_EMAIL_DRAFTS = 3
+    const leadsWithMetadata = (contacts || []).map(
+      (contact: {
         id: number
         name: string
         email: string
@@ -474,23 +510,22 @@ export async function GET(request: NextRequest) {
         last_vep_triggered_at: string | null
         last_vep_status: string | null
       }) => {
-        const { data: messages } = await supabaseAdmin
-          .from('outreach_queue')
-          .select('id, status')
-          .eq('contact_submission_id', contact.id)
-
-        const messages_count = messages?.length || 0
-        const messages_sent = messages?.filter((m: { id: string; status: string }) => m.status === 'sent').length || 0
-        const has_reply = messages?.some((m: { id: string; status: string }) => m.status === 'replied') || false
-
-        const { data: audits } = await supabaseAdmin
-          .from('diagnostic_audits')
-          .select('id')
-          .eq('contact_submission_id', contact.id)
-          .limit(1)
+        const messages = messagesByContact[contact.id] || []
+        const messages_count = messages.length
+        const messages_sent = messages.filter((m) => m.status === 'sent').length
+        const has_reply = messages.some((m) => m.status === 'replied')
+        const emailChrono = messages.filter((m) => m.channel === 'email')
+        const recent_email_drafts = emailChrono
+          .slice(0, RECENT_EMAIL_DRAFTS)
+          .map((m) => ({
+            id: m.id,
+            subject: m.subject,
+            status: m.status,
+            created_at: m.created_at,
+          }))
 
         const leadSessions = sessionsByContact[contact.id] || []
-        const has_sales_conversation = (audits?.length || 0) > 0 || leadSessions.length > 0
+        const has_sales_conversation = contactWithAudit.has(contact.id) || leadSessions.length > 0
         const latest_session_id = leadSessions.length > 0 ? leadSessions[0].id : null
         const session_count = leadSessions.length
         const hasText =
@@ -512,8 +547,9 @@ export async function GET(request: NextRequest) {
           last_vep_triggered_at: contact.last_vep_triggered_at ?? null,
           last_vep_status: contact.last_vep_status ?? null,
           has_extractable_text,
+          recent_email_drafts,
         }
-      })
+      },
     )
 
     return NextResponse.json({

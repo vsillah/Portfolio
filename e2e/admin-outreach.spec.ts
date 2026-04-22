@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * Smoke tests for Admin Outreach (Leads + Queue).
+ * Smoke tests for Admin Lead Pipeline (All Leads + Escalations).
  * Covers critical paths in docs/regression-smoke-checklist.md.
  * Auth may redirect to login; UI tests accept either authenticated content or sign-in.
  */
@@ -29,10 +29,10 @@ test.describe('Admin Outreach API', () => {
 })
 
 test.describe('Admin Outreach UI', () => {
-  test('Outreach page loads (Queue or Leads tab or sign-in)', async ({ page }) => {
+  test('Outreach page loads (Leads tab or sign-in)', async ({ page }) => {
     await page.goto('/admin/outreach')
-    // Either we see outreach content (Queue/Leads) or we are on sign-in
-    const hasOutreach = await page.getByText(/outreach|queue|leads|manage all leads/i).first().isVisible().catch(() => false)
+    // Either we see lead pipeline content or we are on sign-in
+    const hasOutreach = await page.getByText(/leads|manage all leads|lead pipeline/i).first().isVisible().catch(() => false)
     const hasSignIn = await page.getByText(/sign in|log in/i).first().isVisible().catch(() => false)
     expect(hasOutreach || hasSignIn).toBe(true)
   })
@@ -49,14 +49,10 @@ test.describe('Admin Outreach UI', () => {
     expect(hasLeadsContent || hasSignIn).toBe(true)
   })
 
-  test('Queue tab is available when opening outreach with tab=queue', async ({ page }) => {
-    await page.goto('/admin/outreach?tab=queue')
-    const hasQueueContent = await page
-      .getByText(/queue|draft|approved|push to value evidence/i)
-      .first()
-      .isVisible()
-      .catch(() => false)
+  test('Message Queue tab is not shown (single email history: Email center)', async ({ page }) => {
+    await page.goto('/admin/outreach?tab=leads')
+    const hasQueueTab = await page.getByRole('button', { name: /message queue/i }).count()
     const hasSignIn = await page.getByText(/sign in|log in/i).first().isVisible().catch(() => false)
-    expect(hasQueueContent || hasSignIn).toBe(true)
+    expect(hasQueueTab === 0 || hasSignIn).toBe(true)
   })
 })

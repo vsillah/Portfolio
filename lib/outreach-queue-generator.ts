@@ -16,6 +16,7 @@ import {
   formatMeetingActionItemsBlock,
   applyMeetingActionItemsPlaceholders,
 } from '@/lib/meeting-tasks-context'
+import { appendPineconeAndChatContextToSystemPrompt } from '@/lib/email-llm-context'
 
 const PROMPT_KEY = 'email_cold_outreach' as const
 
@@ -176,6 +177,11 @@ export async function generateOutreachDraftInApp(params: {
     .replace(/\{\{research_brief\}\}/g, researchBrief)
     .replace(/\{\{social_proof\}\}/g, socialProof)
     .replace(/\{\{sender_name\}\}/g, senderName)
+
+  systemPrompt = await appendPineconeAndChatContextToSystemPrompt(systemPrompt, {
+    contact,
+    researchTextForRag: researchBrief,
+  })
 
   const config = (promptRow?.config ?? {}) as { model?: string; temperature?: number; maxTokens?: number }
   const model = config.model || 'gpt-4o-mini'

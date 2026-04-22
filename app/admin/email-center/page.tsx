@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { Inbox, RefreshCw, ExternalLink } from 'lucide-react'
+import { Inbox, RefreshCw, ExternalLink, Search, X } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -53,26 +53,53 @@ export default function EmailCenterPage() {
 
 function EmailCenterContent() {
   const searchParams = useSearchParams()
-  const initialContact = searchParams.get('contact') ?? ''
+  const router = useRouter()
+  const pathname = usePathname()
+  /** When set (e.g. from Lead Pipeline link), still filters server-side but no free-form ID field. */
+  const contactFromUrl = searchParams.get('contact')?.trim() ?? ''
 
   const [items, setItems] = useState<EmailMessageRow[]>([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [contactFilter, setContactFilter] = useState(initialContact)
+  const [searchInput, setSearchInput] = useState(() => searchParams.get('q') ?? '')
+  const [qDebounced, setQDebounced] = useState(() => searchParams.get('q') ?? '')
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [kindFilter, setKindFilter] = useState('')
   const [transportFilter, setTransportFilter] = useState<string>('all')
+  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Debounce search (meeting records pattern)
+  useEffect(() => {
+    if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+    searchDebounceRef.current = setTimeout(() => {
+      setQDebounced(searchInput.trim())
+      searchDebounceRef.current = null
+    }, 400)
+    return () => {
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+    }
+  }, [searchInput])
+
+  const clearLeadFilter = useCallback(() => {
+    const p = new URLSearchParams(searchParams.toString())
+    p.delete('contact')
+    const qs = p.toString()
+    router.replace(qs ? `${pathname}?${qs}` : pathname)
+  }, [pathname, router, searchParams])
 
   const queryString = useMemo(() => {
     const p = new URLSearchParams()
-    if (contactFilter.trim()) p.set('contact', contactFilter.trim())
+    if (contactFromUrl && !Number.isNaN(Number(contactFromUrl))) {
+      p.set('contact', contactFromUrl)
+    }
+    if (qDebounced) p.set('q', qDebounced)
     if (statusFilter !== 'all') p.set('status', statusFilter)
     if (kindFilter.trim()) p.set('kind', kindFilter.trim())
     if (transportFilter !== 'all') p.set('transport', transportFilter)
     p.set('limit', '75')
     return p.toString()
-  }, [contactFilter, statusFilter, kindFilter, transportFilter])
+  }, [contactFromUrl, qDebounced, statusFilter, kindFilter, transportFilter])
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -143,60 +170,95 @@ function EmailCenterContent() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3 items-end">
-          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-            Contact ID
-            <input
-              value={contactFilter}
-              onChange={(e) => setContactFilter(e.target.value)}
-              placeholder="e.g. 123 (optional)"
-              className="rounded-lg bg-silicon-slate/40 border border-silicon-slate px-3 py-2 text-sm text-foreground w-40"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-            Status
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-lg bg-silicon-slate/40 border border-silicon-slate px-3 py-2 text-sm text-foreground min-w-[140px]"
-            >
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {s === 'all' ? 'All statuses' : s}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-            Kind (email_kind)
-            <input
-              value={kindFilter}
-              onChange={(e) => setKindFilter(e.target.value)}
-              placeholder="e.g. cold_outreach"
-              className="rounded-lg bg-silicon-slate/40 border border-silicon-slate px-3 py-2 text-sm text-foreground w-44"
-            />
-          </label>
-          <label className="flex flex-col gap-1 text-xs text-muted-foreground">
-            Transport
-            <select
-              value={transportFilter}
-              onChange={(e) => setTransportFilter(e.target.value)}
-              className="rounded-lg bg-silicon-slate/40 border border-silicon-slate px-3 py-2 text-sm text-foreground min-w-[160px]"
-            >
-              {TRANSPORT_OPTIONS.map((t) => (
-                <option key={t} value={t}>
-                  {t === 'all' ? 'All transports' : t}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button
-            type="button"
-            onClick={() => void load()}
-            className="px-4 py-2 rounded-lg btn-gold text-imperial-navy text-sm font-medium"
-          >
-            Apply filters
-          </button>
+        <div className="space-y-3">
+          {contactFromUrl && !Number.isNaN(Number(contactFromUrl)) && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs text-muted-foreground">Lead filter (from your link):</span>
+              <span className="inline-flex items-center gap-1.5 rounded-lg border border-teal-500/40 bg-teal-950/30 px-2.5 py-1 text-sm text-teal-100">
+                <Link
+                  href={`/admin/contacts/${contactFromUrl}`}
+                  className="text-teal-300 hover:underline"
+                >
+                  Contact #{contactFromUrl}
+                </Link>
+                <button
+                  type="button"
+                  onClick={clearLeadFilter}
+                  className="rounded p-0.5 text-teal-200/80 hover:bg-teal-500/20 hover:text-white"
+                  title="Show all contacts"
+                  aria-label="Clear lead filter and show all contacts"
+                >
+                  <X size={14} />
+                </button>
+              </span>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-3 w-full min-w-0">
+            <div className="relative w-full max-w-2xl min-w-0">
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                aria-hidden
+              />
+              <input
+                type="search"
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                placeholder="Search by subject, recipient, kind, source, or lead name / email…"
+                className="w-full min-w-0 rounded-lg border border-silicon-slate bg-silicon-slate/40 py-2 pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-radiant-gold/30"
+                aria-label="Search email messages"
+                autoComplete="off"
+              />
+            </div>
+
+            <div className="flex flex-wrap gap-3 items-end">
+              <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+                Status
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="rounded-lg bg-silicon-slate/40 border border-silicon-slate px-3 py-2 text-sm text-foreground min-w-[140px]"
+                >
+                  {STATUS_OPTIONS.map((s) => (
+                    <option key={s} value={s}>
+                      {s === 'all' ? 'All statuses' : s}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+                Kind (email_kind)
+                <input
+                  value={kindFilter}
+                  onChange={(e) => setKindFilter(e.target.value)}
+                  placeholder="e.g. cold_outreach"
+                  className="rounded-lg bg-silicon-slate/40 border border-silicon-slate px-3 py-2 text-sm text-foreground w-44"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-xs text-muted-foreground">
+                Transport
+                <select
+                  value={transportFilter}
+                  onChange={(e) => setTransportFilter(e.target.value)}
+                  className="rounded-lg bg-silicon-slate/40 border border-silicon-slate px-3 py-2 text-sm text-foreground min-w-[160px]"
+                >
+                  {TRANSPORT_OPTIONS.map((t) => (
+                    <option key={t} value={t}>
+                      {t === 'all' ? 'All transports' : t}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                onClick={() => void load()}
+                className="px-4 py-2 rounded-lg btn-gold text-imperial-navy text-sm font-medium"
+              >
+                Apply filters
+              </button>
+            </div>
+          </div>
         </div>
 
         {error && (

@@ -24,6 +24,7 @@ import {
   formatMeetingActionItemsBlock,
   applyMeetingActionItemsPlaceholders,
 } from '@/lib/meeting-tasks-context'
+import { appendPineconeAndChatContextToSystemPrompt } from '@/lib/email-llm-context'
 
 /** Thrown for compose-delivery; route maps codes to HTTP status and safe admin-facing messages. */
 export class DeliveryDraftError extends Error {
@@ -404,6 +405,12 @@ export async function generateDeliveryDraft(input: DeliveryDraftInput): Promise<
     .replace(/\{\{#dashboard_url\}\}([\s\S]*?)\{\{\/dashboard_url\}\}/g, input.dashboardUrl ? '$1' : '')
     .replace(/\{\{custom_note\}\}/g, input.customNote || '')
     .replace(/\{\{#custom_note\}\}([\s\S]*?)\{\{\/custom_note\}\}/g, input.customNote ? '$1' : '')
+
+  // Pinecone (n8n RAG) + optional same-email site chat — same as in-app outreach
+  systemPrompt = await appendPineconeAndChatContextToSystemPrompt(systemPrompt, {
+    contact,
+    researchTextForRag: researchBrief,
+  })
 
   const config = (promptRow?.config ?? {}) as { model?: string; temperature?: number; maxTokens?: number }
   const model = config.model || 'gpt-4o-mini'

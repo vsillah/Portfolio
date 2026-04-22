@@ -1026,7 +1026,7 @@ export default function AddLeadModal({ open, onClose, onLeadAdded, onOutreachGen
           className="mb-4 p-3 rounded-lg bg-purple-900/30 border border-purple-700 text-purple-300 text-sm flex items-center gap-2"
         >
           <Mail size={16} />
-          Discovery email is being generated — check the Message Queue in ~30 seconds.
+          Discovery email is being generated — check Email center in ~30 seconds.
           <button
             type="button"
             onClick={() => setAddLeadOutreachToast(false)}

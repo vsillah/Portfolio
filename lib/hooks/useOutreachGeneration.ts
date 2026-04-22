@@ -5,7 +5,7 @@ import { getCurrentSession } from '@/lib/auth'
 import type { EmailTemplateKey } from '@/lib/constants/prompt-keys'
 
 /**
- * Phase 1 hook for the <OutreachGenerationPill /> component.
+ * Phase 1 hook for <OutreachEmailGenerateRow /> (n8n path).
  *
  * Pure UI state machine over the existing `POST /api/admin/outreach/leads/:id/generate`
  * endpoint (n8n WF-CLG-002). No polling, no status endpoint, no runs table yet.
@@ -186,7 +186,7 @@ export function useOutreachGeneration({
     safetyTimerRef.current = setTimeout(() => {
       if (!mountedRef.current) return
       if (messagesCountRef.current > messagesAtGenerationStartRef.current) {
-        onToast?.(`Check the Message Queue for the draft for ${leadName}.`)
+        onToast?.(`Check Email center for the draft for ${leadName}.`)
         settleToIdle('success')
         return
       }
@@ -205,7 +205,7 @@ export function useOutreachGeneration({
   useEffect(() => {
     if (state !== 'running' || !startedAtRef.current || awaitingHttpResponse) return
     if (messagesCount > messagesAtGenerationStartRef.current) {
-      onToast?.(`Draft is ready for ${leadName} — open Message Queue`)
+      onToast?.(`Draft is ready for ${leadName} — open Email center`)
       settleToIdle('success')
     }
   }, [state, messagesCount, awaitingHttpResponse, leadName, onToast, settleToIdle])
@@ -241,7 +241,7 @@ export function useOutreachGeneration({
       if (data?.triggered) {
         onFallbackCleared?.()
         if (queueCountImmediate !== null && queueCountImmediate > 0) {
-          onToast?.(`Draft is ready for ${leadName} — open Message Queue`)
+          onToast?.(`Draft is ready for ${leadName} — open Email center`)
           settleToIdle('success')
           return
         }
@@ -291,7 +291,7 @@ export function useOutreachGeneration({
   const cancel = useCallback(() => {
     if (state !== 'running') return
     onToast?.(
-      `Stopped watching ${leadName}. The draft may still appear in your Message Queue.`,
+      `Stopped watching ${leadName}. The draft may still appear in Email center or the message list.`,
     )
     settleToIdle('cancel')
   }, [leadName, onToast, settleToIdle, state])

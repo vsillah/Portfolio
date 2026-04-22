@@ -2,6 +2,8 @@
 
 This doc summarizes findings from using the n8n MCP to inspect the **RAG Chatbot for AmaduTown using Google Gemini** workflow and related executions.
 
+**App connectivity (Pinecone RAG webhook):** Authenticated `GET /api/admin/rag-health` calls the `amadutown-rag-query` webhook and returns a short `preview` when the chain (including Pinecone) responds. See [`docs/email-rag-knowledge-and-chat-policy.md`](email-rag-knowledge-and-chat-policy.md) for email generation behavior.
+
 ## Workflow status (as of check)
 
 - **Workflow ID:** `nWF9u3cNrB7BRtb5`

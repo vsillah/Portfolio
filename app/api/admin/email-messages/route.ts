@@ -10,7 +10,8 @@ const DEFAULT_LIMIT = 50
 /**
  * GET /api/admin/email-messages
  * Unified index for Admin Email Center (filters optional).
- * Query: contact (contact_submission_id), status, kind (email_kind), transport, limit, offset
+ * Query: contact (contact_submission_id), status, kind (email_kind), transport,
+ * q (ilike on subject, body, recipient, kind, source fields; + contact name/email/company), limit, offset
  */
 export async function GET(request: NextRequest) {
   const auth = await verifyAdmin(request)
@@ -27,6 +28,7 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status')
   const kind = searchParams.get('kind')
   const transport = searchParams.get('transport')
+  const qText = (searchParams.get('q') ?? '').trim()
   const limitRaw = searchParams.get('limit')
   const offsetRaw = searchParams.get('offset')
 
@@ -41,6 +43,16 @@ export async function GET(request: NextRequest) {
     Math.max(1, Number(limitRaw) || DEFAULT_LIMIT),
   )
   const offset = Math.max(0, Number(offsetRaw) || 0)
+
+  let contactIdsFromNameSearch: number[] = []
+  if (qText) {
+    const { data: nameRows } = await supabaseAdmin
+      .from('contact_submissions')
+      .select('id')
+      .or(`name.ilike.%${qText}%,email.ilike.%${qText}%,company.ilike.%${qText}%`)
+      .limit(300)
+    contactIdsFromNameSearch = (nameRows ?? []).map((r: { id: number }) => r.id)
+  }
 
   let q = supabaseAdmin
     .from('email_messages')
@@ -79,6 +91,25 @@ export async function GET(request: NextRequest) {
   }
   if (transport && transport !== 'all') {
     q = q.eq('transport', transport)
+  }
+  if (qText) {
+    const orParts: string[] = [
+      `subject.ilike.%${qText}%`,
+      `body_preview.ilike.%${qText}%`,
+      `recipient_email.ilike.%${qText}%`,
+      `email_kind.ilike.%${qText}%`,
+      `channel.ilike.%${qText}%`,
+      `source_system.ilike.%${qText}%`,
+      `source_id.ilike.%${qText}%`,
+      `external_id.ilike.%${qText}%`,
+    ]
+    if (/^\d+$/.test(qText)) {
+      orParts.push(`contact_submission_id.eq.${qText}`)
+    }
+    if (contactIdsFromNameSearch.length > 0) {
+      orParts.push(`contact_submission_id.in.(${contactIdsFromNameSearch.join(',')})`)
+    }
+    q = q.or(orParts.join(','))
   }
 
   const { data, error, count } = await q

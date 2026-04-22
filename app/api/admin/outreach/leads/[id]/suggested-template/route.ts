@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic'
 /**
  * GET /api/admin/outreach/leads/:id/suggested-template
  *
- * Lightweight journey-stage suggestion for the <OutreachGenerationPill /> chevron.
+ * Lightweight journey-stage suggestion for the Outreach lead row template menu.
  * Computes the template via count-only queries against the lead's related tables
  * (gamma_reports, video_generation_jobs, value_reports, contact_deliveries,
  * sales_sessions, meeting_records, client_projects) and returns:

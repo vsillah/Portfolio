@@ -32,16 +32,16 @@ export async function GET(request: NextRequest) {
   const oauthError = searchParams.get('error')
 
   if (oauthError) {
-    return outreachRedirect(request, { tab: 'queue', gmail_oauth_error: '1' })
+    return outreachRedirect(request, { tab: 'leads', gmail_oauth_error: '1' })
   }
 
   if (!code || !state) {
-    return outreachRedirect(request, { tab: 'queue', gmail_oauth_error: '1' })
+    return outreachRedirect(request, { tab: 'leads', gmail_oauth_error: '1' })
   }
 
   const userId = verifyOAuthState(state)
   if (!userId) {
-    return outreachRedirect(request, { tab: 'queue', gmail_oauth_error: 'state' })
+    return outreachRedirect(request, { tab: 'leads', gmail_oauth_error: 'state' })
   }
 
   if (
@@ -49,14 +49,14 @@ export async function GET(request: NextRequest) {
     !isGmailUserOAuthClientConfigured() ||
     !isGmailUserOauthSecretConfigured()
   ) {
-    return outreachRedirect(request, { tab: 'queue', gmail_oauth_error: 'config' })
+    return outreachRedirect(request, { tab: 'leads', gmail_oauth_error: 'config' })
   }
 
   try {
     const tokens = await exchangeCodeForTokens(code)
     if (!tokens.refresh_token) {
       return outreachRedirect(request, {
-        tab: 'queue',
+        tab: 'leads',
         gmail_oauth_error: 'refresh',
       })
     }
@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
     const googleEmail = await fetchGoogleAccountEmail(tokens.refresh_token)
     if (!googleEmail?.includes('@')) {
       return outreachRedirect(request, {
-        tab: 'queue',
+        tab: 'leads',
         gmail_oauth_error: 'email',
       })
     }
@@ -87,12 +87,12 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('[Gmail user OAuth] upsert failed:', error.message)
-      return outreachRedirect(request, { tab: 'queue', gmail_oauth_error: 'save' })
+      return outreachRedirect(request, { tab: 'leads', gmail_oauth_error: 'save' })
     }
 
-    return outreachRedirect(request, { tab: 'queue', gmail_connected: '1' })
+    return outreachRedirect(request, { tab: 'leads', gmail_connected: '1' })
   } catch (error) {
     console.error('GET /api/admin/oauth/google-gmail/callback:', error)
-    return outreachRedirect(request, { tab: 'queue', gmail_oauth_error: '1' })
+    return outreachRedirect(request, { tab: 'leads', gmail_oauth_error: '1' })
   }
 }
