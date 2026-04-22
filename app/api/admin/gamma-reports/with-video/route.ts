@@ -9,6 +9,7 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { buildGammaReportInput, fetchReportAndVideoContext, type GammaReportParams } from '@/lib/gamma-report-builder'
 import { generateGamma } from '@/lib/gamma-client'
+import { CALENDLY_EVENT_KEYS, isCalendlyEventKey } from '@/lib/calendly-events'
 import { buildVideoScriptFromVideoContext } from '@/lib/video-script-from-context'
 import { createVideo } from '@/lib/heygen'
 import { isOverVideoGenerationLimit } from '@/lib/video-generation-rate-limit'
@@ -60,6 +61,15 @@ export async function POST(request: NextRequest) {
     if (!validTypes.includes(body.reportType)) {
       return NextResponse.json(
         { error: `Invalid reportType. Must be one of: ${validTypes.join(', ')}` },
+        { status: 400 }
+      )
+    }
+
+    if (body.calendlyEventKey !== undefined && !isCalendlyEventKey(body.calendlyEventKey)) {
+      return NextResponse.json(
+        {
+          error: `Invalid calendlyEventKey. Must be one of: ${CALENDLY_EVENT_KEYS.join(', ')}`,
+        },
         { status: 400 }
       )
     }

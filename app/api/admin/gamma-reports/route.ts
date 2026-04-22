@@ -3,6 +3,7 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { buildGammaReportInput, type GammaReportParams } from '@/lib/gamma-report-builder'
 import { insertGammaReportRow, runGammaGeneration } from '@/lib/gamma-generation'
+import { CALENDLY_EVENT_KEYS, isCalendlyEventKey } from '@/lib/calendly-events'
 
 export const dynamic = 'force-dynamic'
 
@@ -156,6 +157,15 @@ export async function POST(request: NextRequest) {
   if (body.reportType === 'offer_presentation' && !body.bundleId && !body.pricingTierId) {
     return NextResponse.json(
       { error: 'offer_presentation requires either bundleId or pricingTierId' },
+      { status: 400 }
+    )
+  }
+
+  if (body.calendlyEventKey !== undefined && !isCalendlyEventKey(body.calendlyEventKey)) {
+    return NextResponse.json(
+      {
+        error: `Invalid calendlyEventKey. Must be one of: ${CALENDLY_EVENT_KEYS.join(', ')}`,
+      },
       { status: 400 }
     )
   }

@@ -58,11 +58,15 @@ function baseCtx(overrides: Record<string, unknown> = {}) {
   }
 }
 
-async function buildBody(reportType: string, ctxOverrides: Record<string, unknown> = {}) {
+async function buildBody(
+  reportType: string,
+  ctxOverrides: Record<string, unknown> = {},
+  paramOverrides: Record<string, unknown> = {}
+) {
   const ctx = baseCtx(ctxOverrides)
   const { inputText, options } = await buildGammaReportInputFromContext(
     ctx as unknown as Parameters<typeof buildGammaReportInputFromContext>[0],
-    { reportType } as Parameters<typeof buildGammaReportInputFromContext>[1]
+    { reportType, ...paramOverrides } as Parameters<typeof buildGammaReportInputFromContext>[1]
   )
   return { inputText, options }
 }
@@ -84,7 +88,8 @@ describe(`Let's Talk final slide`, () => {
     expect(inputText.match(/# Let's Talk/g)?.length).toBe(1)
     expect(inputText).not.toContain('Contact Amadutown Advisory Solutions at amadutown.com to discuss these findings.')
     expect(inputText).toContain(`Want to pressure-test which of these gaps would move the needle most for Acme Widgets?`)
-    expect(inputText).toContain(`📅 **Book a discovery call**`)
+    // audit_summary defaults to the Discovery Call (pre-commit).
+    expect(inputText).toContain(`📅 **Book a Discovery Call**`)
     expect(inputText).toContain(`🌐 **amadutown.com**`)
   })
 
@@ -94,6 +99,7 @@ describe(`Let's Talk final slide`, () => {
     expect(inputText.match(/# Let's Talk/g)?.length).toBe(1)
     expect(inputText).not.toContain('Book a discovery call at amadutown.com to explore')
     expect(inputText).toContain(`Want to pressure-test which of these opportunities is the right first move for Acme Widgets?`)
+    expect(inputText).toContain(`📅 **Book a Discovery Call**`)
   })
 
   it('falls back to "your organization" when the org name cannot be resolved', async () => {
@@ -147,6 +153,85 @@ describe(`Let's Talk final slide`, () => {
     const letsTalk = inputText.slice(letsTalkStart, letsTalkEnd > 0 ? letsTalkEnd : undefined)
     expect(letsTalk).not.toContain('Profile_Photo')
     expect(letsTalk).not.toMatch(/!\[[^\]]*Sillah[^\]]*\]/)
+  })
+})
+
+/**
+ * Regression: per-report-type Calendly routing (pre-commit → Discovery Call,
+ * post-commit → Onboarding Call) with admin override support. See
+ * `lib/calendly-events.ts` and `.cursor/plans/calendly-per-report-type_d49ba7dc.plan.md`.
+ */
+describe(`Let's Talk — per-report-type Calendly routing`, () => {
+  const envSnap: Record<string, string | undefined> = {
+    NEXT_PUBLIC_CALENDLY_DISCOVERY_CALL_URL: process.env.NEXT_PUBLIC_CALENDLY_DISCOVERY_CALL_URL,
+    CALENDLY_DISCOVERY_LINK: process.env.CALENDLY_DISCOVERY_LINK,
+    CALENDLY_ONBOARDING_CALL_URL: process.env.CALENDLY_ONBOARDING_CALL_URL,
+    CALENDLY_KICKOFF_MEETING_URL: process.env.CALENDLY_KICKOFF_MEETING_URL,
+    CALENDLY_RENEWAL_REVIEW_URL: process.env.CALENDLY_RENEWAL_REVIEW_URL,
+  }
+
+  // Silence the "env var not set, falling back" warnings that
+  // `getCalendlyUrlForEvent` emits during these tests — they're expected.
+  let warnSpy: ReturnType<typeof vi.spyOn>
+
+  beforeEach(() => {
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+  })
+
+  afterEach(() => {
+    warnSpy.mockRestore()
+    for (const [k, v] of Object.entries(envSnap)) {
+      if (v === undefined) delete process.env[k]
+      else process.env[k] = v
+    }
+  })
+
+  it('value_quantification defaults to the Onboarding Call', async () => {
+    process.env.CALENDLY_ONBOARDING_CALL_URL = 'https://cal.example.com/onboarding'
+    const { inputText } = await buildBody('value_quantification')
+    expect(inputText).toContain('📅 **Book a Onboarding Call**')
+    expect(inputText).toContain('45 minutes.')
+    expect(inputText).toContain('https://cal.example.com/onboarding')
+    expect(inputText).not.toContain('📅 **Book a Discovery Call**')
+  })
+
+  it('implementation_strategy defaults to the Onboarding Call', async () => {
+    process.env.CALENDLY_ONBOARDING_CALL_URL = 'https://cal.example.com/onboarding'
+    const { inputText } = await buildBody('implementation_strategy')
+    expect(inputText).toContain('📅 **Book a Onboarding Call**')
+    expect(inputText).toContain('https://cal.example.com/onboarding')
+  })
+
+  it('audit_summary and prospect_overview default to the Discovery Call', async () => {
+    process.env.NEXT_PUBLIC_CALENDLY_DISCOVERY_CALL_URL = 'https://cal.example.com/discovery'
+    for (const reportType of ['audit_summary', 'prospect_overview']) {
+      const { inputText } = await buildBody(reportType)
+      expect(inputText).toContain('📅 **Book a Discovery Call**')
+      expect(inputText).toContain('https://cal.example.com/discovery')
+    }
+  })
+
+  it('admin override wins over the report-type default (kickoff on audit_summary)', async () => {
+    process.env.NEXT_PUBLIC_CALENDLY_DISCOVERY_CALL_URL = 'https://cal.example.com/discovery'
+    process.env.CALENDLY_KICKOFF_MEETING_URL = 'https://cal.example.com/kickoff'
+    const { inputText } = await buildBody('audit_summary', {}, { calendlyEventKey: 'kickoff' })
+    expect(inputText).toContain('📅 **Book a Kick Off Meeting**')
+    expect(inputText).toContain('60 minutes.')
+    expect(inputText).toContain('https://cal.example.com/kickoff')
+    expect(inputText).not.toContain('📅 **Book a Discovery Call**')
+  })
+
+  it('onboarding falls back to the Discovery URL when CALENDLY_ONBOARDING_CALL_URL is missing', async () => {
+    delete process.env.CALENDLY_ONBOARDING_CALL_URL
+    process.env.NEXT_PUBLIC_CALENDLY_DISCOVERY_CALL_URL = 'https://cal.example.com/discovery'
+    const { inputText } = await buildBody('value_quantification')
+    // Label + copy stay Onboarding (the admin intent), only the URL falls back.
+    expect(inputText).toContain('📅 **Book a Onboarding Call**')
+    expect(inputText).toContain('https://cal.example.com/discovery')
+    // And we should have warned about the missing env var.
+    expect(warnSpy).toHaveBeenCalled()
+    const calls = warnSpy.mock.calls.map((c) => String(c[0] ?? ''))
+    expect(calls.some((m) => m.includes('CALENDLY_ONBOARDING_CALL_URL'))).toBe(true)
   })
 })
 

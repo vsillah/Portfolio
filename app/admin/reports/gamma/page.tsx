@@ -40,6 +40,17 @@ import AssetPicker, { type AssetPickerItem } from '@/components/admin/AssetPicke
 import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip';
 import { GammaDeckGenerateRow } from '@/components/admin/GammaDeckGenerateRow';
 import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus';
+import type { CalendlyEventKey } from '@/lib/calendly-events';
+
+interface CalendlyEventOption {
+  key: CalendlyEventKey;
+  label: string;
+  duration: string;
+  blurb: string;
+  envVar: string;
+  url: string;
+  isConfigured: boolean;
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -207,6 +218,12 @@ function GammaReportsContent() {
     error: string | null;
   } | null>(null);
   const [hasGammaApiKey, setHasGammaApiKey] = useState(true);
+
+  // Calendly (per-report-type "Next meeting" CTA on the Let's Talk slide)
+  const [calendlyEvents, setCalendlyEvents] = useState<CalendlyEventOption[]>([]);
+  const [calendlyDefaults, setCalendlyDefaults] = useState<Record<ReportType, CalendlyEventKey> | null>(null);
+  const [calendlyEventKey, setCalendlyEventKey] = useState<CalendlyEventKey | ''>('');
+  const [calendlyUserOverrode, setCalendlyUserOverrode] = useState(false);
 
   // History
   const [reports, setReports] = useState<GammaReport[]>([]);
@@ -469,6 +486,41 @@ function GammaReportsContent() {
     }
     setLoadingThemes(false);
   }, [getToken]);
+
+  const loadCalendlyEvents = useCallback(async () => {
+    const token = await getToken();
+    if (!token) return;
+    try {
+      const res = await fetch('/api/admin/gamma-reports/calendly-events', {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: 'no-store',
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (Array.isArray(data.events)) {
+        setCalendlyEvents(data.events as CalendlyEventOption[]);
+      }
+      if (data.defaultsByReportType && typeof data.defaultsByReportType === 'object') {
+        setCalendlyDefaults(data.defaultsByReportType as Record<ReportType, CalendlyEventKey>);
+      }
+    } catch {
+      /* non-critical — falls back to server-side default if admin doesn't override */
+    }
+  }, [getToken]);
+
+  useEffect(() => {
+    if (!session) return;
+    void loadCalendlyEvents();
+  }, [session, loadCalendlyEvents]);
+
+  // Auto-select the default event for the current report type whenever the
+  // report type changes, unless the admin explicitly overrode the selection.
+  useEffect(() => {
+    if (!calendlyDefaults) return;
+    if (calendlyUserOverrode) return;
+    const next = calendlyDefaults[reportType];
+    if (next) setCalendlyEventKey(next);
+  }, [reportType, calendlyDefaults, calendlyUserOverrode]);
 
   useEffect(() => {
     if (!session) return;
@@ -895,6 +947,7 @@ function GammaReportsContent() {
       if (auditId) body.diagnosticAuditId = auditId;
       if (valueReportId) body.valueReportId = valueReportId;
       if (selectedTheme) body.theme = selectedTheme;
+      if (calendlyEventKey) body.calendlyEventKey = calendlyEventKey;
       if (reportType === 'offer_presentation') {
         if (selectedBundleId) body.bundleId = selectedBundleId;
         else if (selectedTierId) body.pricingTierId = selectedTierId;
@@ -1107,6 +1160,85 @@ function GammaReportsContent() {
                 </button>
               );
             })}
+          </div>
+
+          {/* Next meeting (Calendly event on the Let's Talk slide) */}
+          <div className="pt-4 border-t border-gray-800 space-y-2">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <label htmlFor="calendly-event-select" className="block text-sm font-semibold text-white">
+                  Next meeting
+                </label>
+                <p className="text-xs text-gray-400 mt-0.5">
+                  Sets the Calendly link and CTA copy on the final &ldquo;Let&rsquo;s Talk&rdquo; slide. Defaults change with the report type.
+                </p>
+              </div>
+              {calendlyEventKey && calendlyDefaults && calendlyDefaults[reportType] === calendlyEventKey && !calendlyUserOverrode ? (
+                <span className="shrink-0 text-[10px] uppercase tracking-wider text-emerald-400/80 bg-emerald-500/10 border border-emerald-500/30 rounded px-1.5 py-0.5">
+                  Default
+                </span>
+              ) : calendlyUserOverrode ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCalendlyUserOverrode(false);
+                    if (calendlyDefaults) setCalendlyEventKey(calendlyDefaults[reportType]);
+                  }}
+                  className="shrink-0 text-[10px] uppercase tracking-wider text-gray-400 hover:text-emerald-400 transition-colors"
+                >
+                  Reset to default
+                </button>
+              ) : null}
+            </div>
+            <select
+              id="calendly-event-select"
+              value={calendlyEventKey}
+              onChange={(e) => {
+                setCalendlyEventKey(e.target.value as CalendlyEventKey);
+                setCalendlyUserOverrode(true);
+              }}
+              disabled={calendlyEvents.length === 0}
+              className="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded text-sm text-white focus:border-emerald-500 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {calendlyEvents.length === 0 ? (
+                <option value="">Loading events…</option>
+              ) : (
+                calendlyEvents.map((ev) => (
+                  <option key={ev.key} value={ev.key}>
+                    {ev.label} ({ev.duration}){ev.isConfigured ? '' : ' — env var not set'}
+                  </option>
+                ))
+              )}
+            </select>
+            {(() => {
+              const selected = calendlyEvents.find((e) => e.key === calendlyEventKey);
+              if (!selected) return null;
+              return (
+                <div className="rounded-md border border-gray-800 bg-gray-950/50 p-3 space-y-1.5">
+                  <p className="text-xs text-gray-400">{selected.blurb}</p>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-gray-500">URL:</span>
+                    <a
+                      href={selected.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-400 hover:underline truncate"
+                    >
+                      {selected.url}
+                    </a>
+                  </div>
+                  {!selected.isConfigured && selected.key !== 'discovery_call' && (
+                    <p className="text-[11px] text-amber-400/90 flex items-start gap-1.5">
+                      <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
+                      <span>
+                        <code className="font-mono">{selected.envVar}</code> is not set. This deck will fall back to the Discovery Call URL.
+                        Add it to <code className="font-mono">.env.local</code> and Vercel env to route this event correctly.
+                      </span>
+                    </p>
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
 

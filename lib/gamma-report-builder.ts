@@ -60,6 +60,12 @@ import {
   buildFeasibilityAssessment,
   type FeasibilityAssessment,
 } from './implementation-feasibility'
+import {
+  defaultCalendlyEventForReportType,
+  resolveCalendlyEvent,
+  type CalendlyEventKey,
+  type CalendlyEventMeta,
+} from './calendly-events'
 
 // ---------------------------------------------------------------------------
 // Types
@@ -108,6 +114,12 @@ export interface GammaReportParams {
   externalInputSources?: Partial<Record<'thirdPartyFindings' | 'competitorPlatform' | 'siteCrawlData', ExternalInputSourceMode>>
   theme?: string
   gammaOptions?: Partial<GammaGenerateOptions>
+  /**
+   * Admin override for the Calendly event booked from the `Let's Talk` CTA
+   * slide. When omitted, each report type falls back to the default event
+   * in `lib/calendly-events.ts` (`defaultCalendlyEventForReportType`).
+   */
+  calendlyEventKey?: CalendlyEventKey
 }
 
 export interface GammaReportInput {
@@ -1231,7 +1243,8 @@ The numbers are clear. Phase 1 captures free wins immediately. Phases 2–4 buil
   // --- Slide 16: Let's Talk (replaces the previous bare "Ready to Align on Priorities?" CTA) ---
   sections.push(
     buildLetsTalkSlide(
-      `Want to pressure-test these numbers against what ${fallbackOrgLabel(orgName)} is actually experiencing today?`
+      `Want to pressure-test these numbers against what ${fallbackOrgLabel(orgName)} is actually experiencing today?`,
+      resolveCalendlyEventForParams(params)
     )
   )
 
@@ -1549,7 +1562,8 @@ Ready to turn ${orgName}'s website into a mission-aligned growth engine? Here's 
   // --- Slide: Let's Talk (CTA-focused close, paired with the Next Steps process slide above) ---
   sections.push(
     buildLetsTalkSlide(
-      `Want to pressure-test whether this sequence fits how ${fallbackOrgLabel(orgName)} actually operates?`
+      `Want to pressure-test whether this sequence fits how ${fallbackOrgLabel(orgName)} actually operates?`,
+      resolveCalendlyEventForParams(params)
     )
   )
 
@@ -1713,7 +1727,8 @@ function buildAuditSummaryPrompt(
   const orgForCta = fallbackOrgLabel(orgName)
   sections.push(
     buildLetsTalkSlide(
-      `Want to pressure-test which of these gaps would move the needle most for ${orgForCta}?`
+      `Want to pressure-test which of these gaps would move the needle most for ${orgForCta}?`,
+      resolveCalendlyEventForParams(params)
     )
   )
 
@@ -1794,7 +1809,8 @@ function buildProspectOverviewPrompt(
   const orgForCtaProspect = fallbackOrgLabel(orgName)
   sections.push(
     buildLetsTalkSlide(
-      `Want to pressure-test which of these opportunities is the right first move for ${orgForCtaProspect}?`
+      `Want to pressure-test which of these opportunities is the right first move for ${orgForCtaProspect}?`,
+      resolveCalendlyEventForParams(params)
     )
   )
 
@@ -1857,27 +1873,20 @@ function buildCoverSlide(title: string, orgName: string, subtitle?: string): str
 }
 
 /**
- * Resolve the URL used in the `Let's Talk` callout for booking a discovery
- * call. Falls back through the public Calendly URL, the legacy delivery-email
- * Calendly link, and finally the marketing site so the slide always has a
- * working URL even when Calendly env vars aren't set in this environment.
- */
-function getDiscoveryCallUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_CALENDLY_DISCOVERY_CALL_URL ||
-    process.env.CALENDLY_DISCOVERY_LINK ||
-    'https://amadutown.com'
-  )
-}
-
-/**
  * Build the final-CTA `Let's Talk` slide. The pressure-test question is
  * per-report-type (see callers) so the CTA hooks into the specific argument
  * each deck just made. Intentionally has no photo — the `Meet Your Advisor`
  * slide that follows carries the photo + mission + sign-off.
+ *
+ * The meeting CTA is per-report-type (with admin override): pre-commit decks
+ * route to the Discovery Call; post-commit decks (value_quantification,
+ * implementation_strategy) route to the Onboarding Call. See
+ * `lib/calendly-events.ts`.
  */
-function buildLetsTalkSlide(pressureTestQuestion: string): string {
-  const discoveryUrl = getDiscoveryCallUrl()
+function buildLetsTalkSlide(
+  pressureTestQuestion: string,
+  calendlyEvent: CalendlyEventMeta & { url: string }
+): string {
   return [
     `# Let's Talk`,
     '',
@@ -1885,13 +1894,24 @@ function buildLetsTalkSlide(pressureTestQuestion: string): string {
     '',
     `AmaduTown Advisory Solutions helps nonprofits and minority-owned businesses put AI to work — with **honest strategy**, **automation we actually ship**, and **tools built to run without us**.`,
     '',
-    `📅 **Book a discovery call**`,
-    `30 minutes. No pitch — just your situation and what's worth trying.`,
-    discoveryUrl,
+    `📅 **Book a ${calendlyEvent.label}**`,
+    `${calendlyEvent.duration}. ${calendlyEvent.blurb}`,
+    calendlyEvent.url,
     '',
     `🌐 **amadutown.com**`,
     `See the approach, past work, and how we engage.`,
   ].join('\n')
+}
+
+/**
+ * Resolve the Calendly event for a given report type, honoring the admin
+ * override from `GammaReportParams.calendlyEventKey` when present.
+ */
+function resolveCalendlyEventForParams(
+  params: GammaReportParams
+): CalendlyEventMeta & { url: string } {
+  const key = params.calendlyEventKey ?? defaultCalendlyEventForReportType(params.reportType)
+  return resolveCalendlyEvent(key)
 }
 
 /**
@@ -2611,7 +2631,8 @@ ${formatPresenterNote(openingNotes)}`)
   // --- Slide: Let's Talk (CTA-focused close, paired with the Next Steps process slide above) ---
   sections.push(
     buildLetsTalkSlide(
-      `Want to pressure-test whether this bundle is the right first move for ${fallbackOrgLabel(orgName)}?`
+      `Want to pressure-test whether this bundle is the right first move for ${fallbackOrgLabel(orgName)}?`,
+      resolveCalendlyEventForParams(params)
     )
   )
 
