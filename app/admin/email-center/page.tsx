@@ -421,8 +421,15 @@ function EmailCenterContent() {
                         {row.subject ?? '(no subject)'}
                       </div>
                     </td>
-                    <td className="px-4 py-3 max-w-[280px] text-xs text-muted-foreground truncate" title={row.body_preview}>
-                      {row.body_preview}
+                    <td className="px-4 py-3 max-w-[280px] text-xs">
+                      <Link
+                        href={`/admin/email-messages/${row.id}`}
+                        className="inline-flex items-center gap-1 text-muted-foreground hover:text-violet-300 hover:underline truncate max-w-full"
+                        title={`Open email preview — ${row.body_preview}`}
+                      >
+                        <span className="truncate">{row.body_preview || '(empty)'}</span>
+                        <ExternalLink size={12} className="shrink-0 text-violet-400/70" />
+                      </Link>
                     </td>
                   </tr>
                 ))
