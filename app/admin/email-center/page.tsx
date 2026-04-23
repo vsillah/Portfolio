@@ -43,6 +43,14 @@ const STATUS_OPTIONS = [
 ] as const
 const TRANSPORT_OPTIONS = ['all', 'gmail_smtp', 'n8n', 'logged_only', 'unknown', 'resend'] as const
 
+function contactLabelFromRow(row: { name: string | null; email: string | null; company: string | null }, id: string) {
+  const name = row.name?.trim() ?? ''
+  if (name) return name
+  const email = row.email?.trim() ?? ''
+  if (email) return email
+  return `Contact #${id}`
+}
+
 export default function EmailCenterPage() {
   return (
     <ProtectedRoute requireAdmin>
@@ -67,6 +75,12 @@ function EmailCenterContent() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [kindFilter, setKindFilter] = useState('')
   const [transportFilter, setTransportFilter] = useState<string>('all')
+  const [leadContactInfo, setLeadContactInfo] = useState<{
+    name: string | null
+    email: string | null
+    company: string | null
+  } | null>(null)
+  const [leadContactLoading, setLeadContactLoading] = useState(false)
   const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Debounce search (meeting records pattern)
@@ -82,11 +96,52 @@ function EmailCenterContent() {
   }, [searchInput])
 
   const clearLeadFilter = useCallback(() => {
+    setLeadContactInfo(null)
     const p = new URLSearchParams(searchParams.toString())
     p.delete('contact')
     const qs = p.toString()
     router.replace(qs ? `${pathname}?${qs}` : pathname)
   }, [pathname, router, searchParams])
+
+  useEffect(() => {
+    const id = contactFromUrl.trim()
+    if (!id || Number.isNaN(Number(id))) {
+      setLeadContactInfo(null)
+      return
+    }
+    let cancelled = false
+    setLeadContactLoading(true)
+    setLeadContactInfo(null)
+    void (async () => {
+      try {
+        const session = await getCurrentSession()
+        if (!session?.access_token) {
+          if (!cancelled) setLeadContactInfo(null)
+          return
+        }
+        const res = await fetch(`/api/admin/contacts/${id}/name`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        const json = await res.json().catch(() => ({}))
+        if (cancelled) return
+        if (!res.ok || !json?.contact) {
+          setLeadContactInfo(null)
+          return
+        }
+        const c = json.contact as { name: string | null; email: string | null; company: string | null }
+        setLeadContactInfo({
+          name: c.name,
+          email: c.email,
+          company: c.company,
+        })
+      } finally {
+        if (!cancelled) setLeadContactLoading(false)
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [contactFromUrl])
 
   const queryString = useMemo(() => {
     const p = new URLSearchParams()
@@ -174,17 +229,28 @@ function EmailCenterContent() {
           {contactFromUrl && !Number.isNaN(Number(contactFromUrl)) && (
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-xs text-muted-foreground">Lead filter (from your link):</span>
-              <span className="inline-flex items-center gap-1.5 rounded-lg border border-teal-500/40 bg-teal-950/30 px-2.5 py-1 text-sm text-teal-100">
+              <span className="inline-flex items-center gap-1.5 rounded-lg border border-teal-500/40 bg-teal-950/30 px-2.5 py-1 text-sm text-teal-100 max-w-full min-w-0">
                 <Link
                   href={`/admin/contacts/${contactFromUrl}`}
-                  className="text-teal-300 hover:underline"
+                  className="text-teal-300 hover:underline truncate min-w-0"
+                  title={
+                    leadContactInfo
+                      ? [leadContactInfo.name, leadContactInfo.email, `ID ${contactFromUrl}`]
+                          .filter(Boolean)
+                          .join(' · ')
+                      : `Open contact #${contactFromUrl}`
+                  }
                 >
-                  Contact #{contactFromUrl}
+                  {leadContactLoading
+                    ? 'Loading…'
+                    : leadContactInfo
+                      ? contactLabelFromRow(leadContactInfo, contactFromUrl)
+                      : `Contact #${contactFromUrl}`}
                 </Link>
                 <button
                   type="button"
                   onClick={clearLeadFilter}
-                  className="rounded p-0.5 text-teal-200/80 hover:bg-teal-500/20 hover:text-white"
+                  className="rounded p-0.5 text-teal-200/80 hover:bg-teal-500/20 hover:text-white shrink-0"
                   title="Show all contacts"
                   aria-label="Clear lead filter and show all contacts"
                 >

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import {
   generateOutreachDraftInApp,
@@ -96,6 +97,21 @@ export async function POST(
       force,
       outreach_queue_id: result.id,
     })
+
+    if (supabaseAdmin) {
+      const nowIso = new Date().toISOString()
+      const { error: n8nStatusErr } = await supabaseAdmin
+        .from('contact_submissions')
+        .update({
+          last_n8n_outreach_triggered_at: nowIso,
+          last_n8n_outreach_status: 'success',
+          last_n8n_outreach_template_key: 'in_app',
+        })
+        .eq('id', contactId)
+      if (n8nStatusErr) {
+        console.warn('[generate-in-app] last_n8n status update', n8nStatusErr.message)
+      }
+    }
 
     return NextResponse.json({
       outcome: 'created',

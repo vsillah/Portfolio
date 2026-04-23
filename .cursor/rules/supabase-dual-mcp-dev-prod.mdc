@@ -18,6 +18,8 @@ Inspect tool descriptors under `mcps/user-supabase/` vs `mcps/user-supabase-prod
 
 For **migrations** (`apply_migration`), **DDL** (`execute_sql`), or **session work that must match every deployed DB**:
 
+- If the user says to run, apply, or load SQL in **Supabase** and does **not** scope a single project (“dev only”, “prod only”), **always call `apply_migration` (or the same DDL) on both** `user-supabase` and `user-supabase-prod` in the same turn, unless a prerequisite blocks prod.
+
 1. **Apply the same change on both MCPs** in one session unless the user clearly scoped to one environment (e.g. “dev only”, “never touch prod”).
 2. **Order:** **`user-supabase` first**, then **`user-supabase-prod`** — validate on non-prod before prod.
 3. **Parity:** The SQL must match the `migrations/*.sql` file written on disk (see migration rollout checklist).

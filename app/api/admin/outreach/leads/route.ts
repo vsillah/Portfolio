@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { triggerLeadQualificationWebhook, triggerOutreachGeneration } from '@/lib/n8n'
 import { leadSourceFromInputType } from '@/lib/constants/lead-source'
+import { partitionN8nOutreachReconcile } from '@/lib/n8n-outreach-contact-status'
 
 export const dynamic = 'force-dynamic'
 
@@ -333,6 +334,9 @@ export async function GET(request: NextRequest) {
         rep_pain_points,
         last_vep_triggered_at,
         last_vep_status,
+        last_n8n_outreach_triggered_at,
+        last_n8n_outreach_status,
+        last_n8n_outreach_template_key,
         do_not_contact,
         removed_at,
         website_tech_stack,
@@ -475,6 +479,36 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Stuck n8n "pending" → success if an email row appeared; → failed if stale
+    const { toSuccess: n8nReconcileSuccess, toFail: n8nReconcileFail } = partitionN8nOutreachReconcile(
+      (contacts || []) as Array<{
+        id: number
+        last_n8n_outreach_status: string | null
+        last_n8n_outreach_triggered_at: string | null
+      }>,
+      messagesByContact,
+    )
+    const n8nSuccessSet = new Set(n8nReconcileSuccess)
+    const n8nFailSet = new Set(n8nReconcileFail)
+    if (n8nReconcileSuccess.length > 0) {
+      const { error: n8nOkErr } = await supabaseAdmin
+        .from('contact_submissions')
+        .update({ last_n8n_outreach_status: 'success' })
+        .in('id', n8nReconcileSuccess)
+      if (n8nOkErr) {
+        console.warn('n8n reconcile success batch:', n8nOkErr.message)
+      }
+    }
+    if (n8nReconcileFail.length > 0) {
+      const { error: n8nFailErr } = await supabaseAdmin
+        .from('contact_submissions')
+        .update({ last_n8n_outreach_status: 'failed' })
+        .in('id', n8nReconcileFail)
+      if (n8nFailErr) {
+        console.warn('n8n reconcile fail batch:', n8nFailErr.message)
+      }
+    }
+
     // Batch: at least one diagnostic per contact (replaces N per-lead .limit(1) queries)
     const { data: allAuditsForLeads } = await supabaseAdmin
       .from('diagnostic_audits')
@@ -509,6 +543,9 @@ export async function GET(request: NextRequest) {
         rep_pain_points: string | null
         last_vep_triggered_at: string | null
         last_vep_status: string | null
+        last_n8n_outreach_triggered_at: string | null
+        last_n8n_outreach_status: string | null
+        last_n8n_outreach_template_key: string | null
       }) => {
         const messages = messagesByContact[contact.id] || []
         const messages_count = messages.length
@@ -535,6 +572,10 @@ export async function GET(request: NextRequest) {
           (contact.rep_pain_points?.trim()?.length ?? 0) > 0
         const has_extractable_text = hasText || hasCompletedDiagnostic.has(contact.id)
 
+        let lastN8nStatus = contact.last_n8n_outreach_status ?? null
+        if (n8nSuccessSet.has(contact.id)) lastN8nStatus = 'success'
+        else if (n8nFailSet.has(contact.id)) lastN8nStatus = 'failed'
+
         return {
           ...contact,
           messages_count,
@@ -546,6 +587,9 @@ export async function GET(request: NextRequest) {
           evidence_count: evidenceCountByContact[contact.id] ?? 0,
           last_vep_triggered_at: contact.last_vep_triggered_at ?? null,
           last_vep_status: contact.last_vep_status ?? null,
+          last_n8n_outreach_triggered_at: contact.last_n8n_outreach_triggered_at ?? null,
+          last_n8n_outreach_status: lastN8nStatus,
+          last_n8n_outreach_template_key: contact.last_n8n_outreach_template_key ?? null,
           has_extractable_text,
           recent_email_drafts,
         }

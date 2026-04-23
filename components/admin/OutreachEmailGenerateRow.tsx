@@ -123,11 +123,17 @@ export interface OutreachEmailGenerateRowProps {
     messages_sent?: number
     do_not_contact?: boolean
     removed_at?: string | null
+    /** Server state (DB); mirrors value-evidence VEP last_vep_* pattern */
+    last_n8n_outreach_status?: 'pending' | 'success' | 'failed' | null
+    last_n8n_outreach_triggered_at?: string | null
+    last_n8n_outreach_template_key?: string | null
     recent_email_drafts?: RecentEmailDraftItem[]
   }
   onToast?: (msg: string) => void
   onFallbackAvailable?: () => void
   onSettled?: () => void
+  /** Fire when the Outreach menu opens so the parent can refetch queue rows (Email — recent). */
+  onOutreachOpen?: () => void
   onFallbackCleared?: () => void
   n8nFallback?: boolean
 }
@@ -137,10 +143,11 @@ export function OutreachEmailGenerateRow({
   onToast,
   onFallbackAvailable,
   onSettled,
+  onOutreachOpen,
   onFallbackCleared,
   n8nFallback = false,
 }: OutreachEmailGenerateRowProps) {
-  const { state, elapsedMs, phaseLabel, start, cancel, retry } = useOutreachGeneration({
+  const { state, elapsedMs, phaseLabel, start, cancel, retry, dismissResult } = useOutreachGeneration({
     leadId: lead.id,
     leadName: lead.name,
     messagesCount: lead.messages_count,
@@ -155,6 +162,7 @@ export function OutreachEmailGenerateRow({
   const [suggested, setSuggested] = useState<{ template: EmailTemplateKey; reason: SuggestedReason } | null>(null)
   const [suggestLoading, setSuggestLoading] = useState(false)
   const panelRef = useRef<HTMLDivElement | null>(null)
+  const panelWasOpenRef = useRef(false)
   const inAppAbortRef = useRef<AbortController | null>(null)
   const [inAppRunning, setInAppRunning] = useState(false)
   const inAppStartRef = useRef<number | null>(null)
@@ -163,18 +171,38 @@ export function OutreachEmailGenerateRow({
 
   const recent = lead.recent_email_drafts ?? []
   const dnc = Boolean(lead.do_not_contact || lead.removed_at)
-  const n8nActive = state === 'running' && !inAppRunning
+  const serverN8nPending = lead.last_n8n_outreach_status === 'pending'
+  const serverN8nSuccess = lead.last_n8n_outreach_status === 'success'
+  const serverN8nFailed = lead.last_n8n_outreach_status === 'failed'
+  const n8nActive = (state === 'running' || serverN8nPending) && !inAppRunning
   const anyRun = n8nActive || inAppRunning
+  const [serverN8nTick, setServerN8nTick] = useState(0)
+  useEffect(() => {
+    if (!serverN8nPending || inAppRunning) return
+    const id = window.setInterval(() => setServerN8nTick((n) => n + 1), 300)
+    return () => window.clearInterval(id)
+  }, [serverN8nPending, inAppRunning])
+  const n8nEffectiveElapsed = useMemo(() => {
+    if (serverN8nPending && lead.last_n8n_outreach_triggered_at) {
+      return Date.now() - new Date(lead.last_n8n_outreach_triggered_at).getTime()
+    }
+    return elapsedMs
+  }, [serverN8nPending, lead.last_n8n_outreach_triggered_at, elapsedMs, serverN8nTick])
+  const showN8nBarSuccess = (state === 'succeeded' || serverN8nSuccess) && !inAppRunning
   const progressN8n = useMemo(
-    () => (n8nActive ? estimateMilestoneProgress(N8N_STAGES, N8N_TYPICAL_S, elapsedMs) : null),
-    [n8nActive, elapsedMs],
+    () => (n8nActive ? estimateMilestoneProgress(N8N_STAGES, N8N_TYPICAL_S, n8nEffectiveElapsed) : null),
+    [n8nActive, n8nEffectiveElapsed],
   )
   const progressInApp = useMemo(
     () => (inAppRunning ? estimateMilestoneProgress(INAPP_STAGES, INAPP_TYPICAL_S, inAppElapsedMs) : null),
     [inAppRunning, inAppElapsedMs],
   )
   const progress = inAppRunning ? progressInApp : progressN8n
-  const phaseDisplay = inAppRunning ? (progressInApp?.currentStageLabel ?? 'Working…') : phaseLabel
+  const phaseDisplay = inAppRunning
+    ? (progressInApp?.currentStageLabel ?? 'Working…')
+    : serverN8nPending && state !== 'running'
+      ? (progressN8n?.currentStageLabel ?? phaseLabel)
+      : phaseLabel
   const messagesSent = lead.messages_sent ?? 0
   /** One line for n8n vs in-app; keep in sync across split control, menu, and compact card. */
   const runningHeadline = inAppRunning ? 'Generating draft' : 'Running outreach'
@@ -221,6 +249,13 @@ export function OutreachEmailGenerateRow({
     const id = window.setInterval(t, 300)
     return () => window.clearInterval(id)
   }, [inAppRunning])
+
+  useEffect(() => {
+    if (panelOpen && !panelWasOpenRef.current) {
+      onOutreachOpen?.()
+    }
+    panelWasOpenRef.current = panelOpen
+  }, [panelOpen, onOutreachOpen])
 
   useEffect(() => {
     if (!panelOpen) return
@@ -291,7 +326,7 @@ export function OutreachEmailGenerateRow({
     [dnc, lead.id, lead.name, onFallbackCleared, onSettled, onToast],
   )
 
-  const onCancel = useCallback(() => {
+  const onCancel = useCallback(async () => {
     if (inAppRunning && inAppAbortRef.current) {
       inAppAbortRef.current.abort()
       onToast?.('Stopped the in-app request. If a row appears, check the queue.')
@@ -300,8 +335,24 @@ export function OutreachEmailGenerateRow({
       setInAppLoading(false)
       return
     }
-    cancel()
-  }, [cancel, inAppRunning, onToast])
+    if (serverN8nPending) {
+      const session = await getCurrentSession()
+      if (session?.access_token) {
+        const res = await fetch(`/api/admin/outreach/leads/${lead.id}/n8n-outreach-pending-cancel`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        if (!res.ok) {
+          onToast?.('Could not update status. Try again.')
+          return
+        }
+        onSettled?.()
+      }
+    }
+    if (state === 'running') {
+      cancel()
+    }
+  }, [cancel, inAppRunning, lead.id, onSettled, onToast, serverN8nPending, state])
 
   const contactHref = `/admin/contacts/${lead.id}?focus=compose${
     suggested?.template ? `&template=${suggested.template}` : ''
@@ -319,16 +370,16 @@ export function OutreachEmailGenerateRow({
     if (anyRun && progress) {
       return `${runningHeadline} — ${progress.currentStageLabel}`
     }
-    if (state === 'succeeded') return 'Draft created'
+    if (state === 'succeeded' || serverN8nSuccess) return 'Draft created'
     if (state === 'cancelled') return 'Stopped'
     if (state === 'failed' && n8nFallback) return 'Automation down'
-    if (state === 'failed') return 'n8n issue'
+    if (state === 'failed' || serverN8nFailed) return 'n8n issue'
     if (lead.messages_count === 0) return 'No activity yet'
     if (messagesSent > 0) {
       return `${lead.messages_count} in queue, ${messagesSent} sent`
     }
     return `${lead.messages_count} in queue`
-  }, [anyRun, progress, state, n8nFallback, lead.messages_count, messagesSent, runningHeadline])
+  }, [anyRun, progress, state, n8nFallback, serverN8nSuccess, serverN8nFailed, lead.messages_count, messagesSent, runningHeadline])
 
   const queueCountLabel = useMemo(() => {
     if (lead.messages_count === 0) return null
@@ -342,21 +393,57 @@ export function OutreachEmailGenerateRow({
 
   const showProgressCard = Boolean(anyRun && progress && !panelOpen)
 
+  const dismissN8nBar = useCallback(async () => {
+    const session = await getCurrentSession()
+    if (session?.access_token) {
+      const res = await fetch(`/api/admin/outreach/leads/${lead.id}/n8n-outreach-ack`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (!res.ok) {
+        onToast?.('Could not dismiss. Try again.')
+        return
+      }
+    }
+    onSettled?.()
+    dismissResult()
+  }, [dismissResult, lead.id, onSettled, onToast])
+
   let outreachBar: ReactNode
-  if (state === 'succeeded') {
+  if (showN8nBarSuccess) {
+    const emailCenterHref = `/admin/email-center?contact=${lead.id}`
     outreachBar = (
       <div
-        className="inline-flex h-9 min-h-11 w-full min-w-0 max-w-sm items-center justify-center gap-2 rounded-lg bg-emerald-600/90 px-3 text-sm font-medium text-white"
+        className="inline-flex h-9 min-h-11 w-full min-w-0 max-w-sm items-center justify-between gap-1 rounded-lg bg-emerald-600/90 pl-2.5 pr-1.5 text-sm font-medium text-white"
         role="status"
-        title="Draft ready — open Email center for this lead"
+        title="Draft is in the queue. Open Email center to view or send."
       >
-        <CheckCircle size={14} className="shrink-0" />
-        <span>Check Email center</span>
-        {queueCountLabel && (
-          <span className="ml-0.5 truncate text-xs font-normal text-white/80" title={queueCountLabel}>
-            · {queueCountLabel}
-          </span>
-        )}
+        <a
+          href={emailCenterHref}
+          className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 py-1.5 no-underline text-white hover:underline"
+          onClick={() => {
+            setPanelOpen(false)
+          }}
+        >
+          <CheckCircle size={14} className="shrink-0" />
+          <span className="truncate">Draft ready — Email center</span>
+          {queueCountLabel && (
+            <span className="ml-0.5 hidden truncate text-xs font-normal text-white/80 sm:inline" title={queueCountLabel}>
+              · {queueCountLabel}
+            </span>
+          )}
+        </a>
+        <button
+          type="button"
+          className="shrink-0 rounded p-1 text-white/90 hover:bg-white/15"
+          title="Clear this success state (draft stays in the queue)"
+          aria-label="Dismiss draft ready"
+          onClick={() => {
+            void dismissN8nBar()
+          }}
+        >
+          <X size={16} className="mx-0.5" />
+        </button>
       </div>
     )
   } else if (state === 'cancelled') {
@@ -367,7 +454,10 @@ export function OutreachEmailGenerateRow({
         {queueCountLabel && <span className="truncate text-xs">· {queueCountLabel}</span>}
       </div>
     )
-  } else if (state === 'failed' && !n8nActive && !inAppRunning && !n8nFallback) {
+  } else if (
+    (state === 'failed' && !n8nActive && !inAppRunning && !n8nFallback) ||
+    (serverN8nFailed && !n8nActive && !inAppRunning)
+  ) {
     outreachBar = (
       <div className="flex w-full min-w-0 max-w-sm flex-col gap-1 sm:flex-row sm:items-center sm:gap-2">
         <button
@@ -715,9 +805,16 @@ export function OutreachEmailGenerateRow({
 
                 <div className="border-t border-silicon-slate bg-muted/15 px-2.5 py-2">
                   <p className="mb-1 text-[10px] font-medium uppercase text-muted-foreground/80">Email — recent</p>
-                  {recent.length === 0 ? (
+                  {recent.length === 0 && (state === 'succeeded' || serverN8nSuccess) && (
+                    <p className="mb-1.5 text-[11px] leading-relaxed text-emerald-200/90">
+                      Draft is in the queue. This list updates when the row syncs — use View all if you do not see it
+                      here yet.
+                    </p>
+                  )}
+                  {recent.length === 0 && !serverN8nSuccess && state !== 'succeeded' && (
                     <p className="text-[12px] text-muted-foreground">No email rows yet</p>
-                  ) : (
+                  )}
+                  {recent.length > 0 ? (
                     <ul className="mb-2 max-h-24 overflow-y-auto text-[12px]">
                       {recent.map((r) => (
                         <li
@@ -733,7 +830,7 @@ export function OutreachEmailGenerateRow({
                         </li>
                       ))}
                     </ul>
-                  )}
+                  ) : null}
                   <div className="flex flex-col gap-0.5 text-[11px]">
                     <a
                       href={`/admin/email-center?contact=${lead.id}`}

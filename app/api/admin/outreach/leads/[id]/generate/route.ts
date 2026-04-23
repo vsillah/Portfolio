@@ -90,6 +90,8 @@ export async function POST(
   }
 
   const painPoints = lead.rep_pain_points || lead.quick_wins || undefined
+  const templateKeyStr: string | null = templateKey ?? null
+  const nowIso = new Date().toISOString()
 
   try {
     const result = await triggerOutreachGeneration({
@@ -108,15 +110,55 @@ export async function POST(
       .select('id', { count: 'exact', head: true })
       .eq('contact_submission_id', contactId)
 
+    const q = queueCountImmediate ?? 0
+    if (result.triggered) {
+      if (q > 0) {
+        await sb
+          .from('contact_submissions')
+          .update({
+            last_n8n_outreach_triggered_at: nowIso,
+            last_n8n_outreach_status: 'success',
+            last_n8n_outreach_template_key: templateKeyStr,
+          })
+          .eq('id', contactId)
+      } else {
+        await sb
+          .from('contact_submissions')
+          .update({
+            last_n8n_outreach_triggered_at: nowIso,
+            last_n8n_outreach_status: 'pending',
+            last_n8n_outreach_template_key: templateKeyStr,
+          })
+          .eq('id', contactId)
+      }
+    } else {
+      await sb
+        .from('contact_submissions')
+        .update({
+          last_n8n_outreach_triggered_at: nowIso,
+          last_n8n_outreach_status: 'failed',
+          last_n8n_outreach_template_key: templateKeyStr,
+        })
+        .eq('id', contactId)
+    }
+
     return NextResponse.json({
       triggered: result.triggered,
       /** Rows in outreach_queue for this lead right after the n8n webhook returns (0 = async insert or failure). */
-      queueCountImmediate: queueCountImmediate ?? 0,
+      queueCountImmediate: q,
       ...(templateKey ? { templateKey } : {}),
       ...(!result.triggered && { fallback: 'in-app' }),
     })
   } catch (err) {
     console.error('[generate] Outreach generation trigger failed:', err)
+    await sb
+      .from('contact_submissions')
+      .update({
+        last_n8n_outreach_triggered_at: nowIso,
+        last_n8n_outreach_status: 'failed',
+        last_n8n_outreach_template_key: templateKeyStr,
+      })
+      .eq('id', contactId)
     return NextResponse.json(
       { triggered: false, fallback: 'in-app' }
     )

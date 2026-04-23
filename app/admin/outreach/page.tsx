@@ -83,6 +83,9 @@ interface Lead {
   evidence_count: number
   last_vep_triggered_at: string | null
   last_vep_status: string | null
+  last_n8n_outreach_triggered_at: string | null
+  last_n8n_outreach_status: string | null
+  last_n8n_outreach_template_key: string | null
   has_extractable_text: boolean
   do_not_contact?: boolean
   removed_at?: string | null
@@ -277,8 +280,9 @@ function OutreachContent() {
     creditsRemaining?: number
   } | null>(null)
 
-  const fetchLeads = useCallback(async () => {
-    setLeadsLoading(true)
+  const fetchLeads = useCallback(async (opts?: { silent?: boolean }) => {
+    const silent = Boolean(opts?.silent)
+    if (!silent) setLeadsLoading(true)
     try {
       const session = await getCurrentSession()
       if (!session) return
@@ -305,7 +309,7 @@ function OutreachContent() {
     } catch (error) {
       console.error('Failed to fetch leads:', error)
     } finally {
-      setLeadsLoading(false)
+      if (!silent) setLeadsLoading(false)
     }
   }, [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsVisibilityFilter, leadsSearch, leadsPage, leadsPerPage])
 
@@ -372,9 +376,10 @@ function OutreachContent() {
         const data: LeadsResponse = await response.json()
         setLeads(data.leads)
         setLeadsTotal(data.total)
-        // Stop polling if no leads are pending
-        const hasPending = data.leads.some((l: Lead) => l.last_vep_status === 'pending')
-        if (!hasPending && vepPollingRef.current) {
+        // Stop when no VEP and no n8n CLG run is still "pending" on the current page
+        const hasVepPending = data.leads.some((l: Lead) => l.last_vep_status === 'pending')
+        const hasN8nPending = data.leads.some((l: Lead) => l.last_n8n_outreach_status === 'pending')
+        if (!hasVepPending && !hasN8nPending && vepPollingRef.current) {
           clearInterval(vepPollingRef.current)
           vepPollingRef.current = null
           setVepPollingActive(false)
@@ -392,6 +397,14 @@ function OutreachContent() {
       }
     }
   }, [])
+
+  // If the list already has a pending n8n CLG run (e.g. after refresh), keep polling like VEP
+  useEffect(() => {
+    if (activeTab !== 'leads') return
+    if (leads.some((l) => l.last_n8n_outreach_status === 'pending' || l.last_vep_status === 'pending')) {
+      startVepPolling()
+    }
+  }, [activeTab, leads, startVepPolling])
 
   // Fetch latest VEP extraction run (one-time on mount)
   useEffect(() => {
@@ -701,7 +714,10 @@ function OutreachContent() {
               </button>
             </Link>
             <button
-              onClick={activeTab === 'leads' ? fetchLeads : fetchEscalations}
+              onClick={() => {
+                if (activeTab === 'leads') void fetchLeads()
+                else void fetchEscalations()
+              }}
               className="flex items-center gap-2 px-4 py-2 btn-ghost rounded-lg transition-colors"
             >
               <RefreshCw size={16} className={(leadsLoading || escalationsLoading) ? 'animate-spin' : ''} />
@@ -1188,7 +1204,10 @@ function OutreachContent() {
                                 })
                               }}
                               onSettled={() => {
-                                void fetchLeads()
+                                void fetchLeads({ silent: true })
+                              }}
+                              onOutreachOpen={() => {
+                                void fetchLeads({ silent: true })
                               }}
                             />
 

@@ -8,15 +8,16 @@ import type { EmailTemplateKey } from '@/lib/constants/prompt-keys'
  * Phase 1 hook for <OutreachEmailGenerateRow /> (n8n path).
  *
  * Pure UI state machine over the existing `POST /api/admin/outreach/leads/:id/generate`
- * endpoint (n8n WF-CLG-002). No polling, no status endpoint, no runs table yet.
+ * endpoint (n8n WF-CLG-002). While waiting for a `outreach_queue` row, the parent
+ * `onSettled` callback should refetch leads in the background.
  *
  * Running state uses a safety timer. When the API reports `queueCountImmediate === 0`
  * after n8n returns 200, we wait longer and refetch periodically — HTTP success does
  * not guarantee a DB row yet. If no draft appears, we surface the in-app fallback.
  *
- * Phase 2 will add a `templateKey` argument to `start()` and plumb it through to
- * the API route. Phase 3 will replace the timer with real `/status` polling and
- * wire a backend-aware `/cancel` endpoint.
+ * Succeeded (draft detected or immediate queue row) stays visible until a new
+ * `start`, `dismissResult`, or `retry` — it does not auto-clear after a few
+ * seconds (parent should pass `onSettled` to refetch lead rows and Email — recent).
  */
 export type OutreachGenerationState =
   | 'idle'
@@ -48,6 +49,8 @@ export interface UseOutreachGenerationReturn {
   start: (templateKey?: EmailTemplateKey) => Promise<void>
   cancel: () => void
   retry: () => Promise<void>
+  /** Clears a sticky success state so the main Outreach control returns to idle. */
+  dismissResult: () => void
 }
 
 const SAFETY_TIMEOUT_MS = 25_000
@@ -55,7 +58,6 @@ const SAFETY_TIMEOUT_MS = 25_000
 const EXTENDED_DRAFT_WAIT_MS = 75_000
 const REFETCH_POLL_MS = 4_000
 const CANCELLED_DISPLAY_MS = 4_000
-const SUCCEEDED_DISPLAY_MS = 3_000
 
 function phaseFor(
   elapsedMs: number,
@@ -140,10 +142,6 @@ export function useOutreachGeneration({
       setElapsedMs(0)
       if (reason === 'success') {
         setState('succeeded')
-        transientTimerRef.current = setTimeout(() => {
-          if (!mountedRef.current) return
-          setState('idle')
-        }, SUCCEEDED_DISPLAY_MS)
       } else if (reason === 'cancel') {
         setState('cancelled')
         transientTimerRef.current = setTimeout(() => {
@@ -296,6 +294,12 @@ export function useOutreachGeneration({
     settleToIdle('cancel')
   }, [leadName, onToast, settleToIdle, state])
 
+  const dismissResult = useCallback(() => {
+    if (state !== 'succeeded') return
+    if (!mountedRef.current) return
+    setState('idle')
+  }, [state])
+
   return {
     state,
     elapsedMs,
@@ -304,5 +308,6 @@ export function useOutreachGeneration({
     start,
     cancel,
     retry,
+    dismissResult,
   }
 }
