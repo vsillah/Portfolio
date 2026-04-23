@@ -71,6 +71,9 @@ BEGIN
     LEFT(COALESCE(NEW.body, ''), 500),
     'outbound',
     CASE
+      WHEN NEW.status = 'rejected'  THEN 'failed'
+      WHEN NEW.status = 'cancelled' THEN 'failed'
+      WHEN NEW.status = 'approved'  THEN 'queued'
       WHEN NEW.status IN ('draft', 'queued', 'sending', 'sent', 'failed',
                            'bounced', 'replied', 'delivered', 'complained',
                            'opened', 'clicked', 'delivery_delayed')
@@ -85,7 +88,8 @@ BEGIN
       'sequence_step',              NEW.sequence_step,
       'sequence_id',                NEW.sequence_id,
       'generation_model',           NEW.generation_model,
-      'generation_prompt_summary',  NEW.generation_prompt_summary
+      'generation_prompt_summary',  NEW.generation_prompt_summary,
+      'original_queue_status',      NEW.status
     )),
     NEW.sent_at,
     COALESCE(NEW.created_at, now())
