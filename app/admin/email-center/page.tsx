@@ -361,8 +361,9 @@ function EmailCenterContent() {
               ) : items.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
-                    No rows yet. After you apply the database migration, new sends appear here; historical email
-                    timeline rows are backfilled from <code className="text-xs">contact_communications</code>.
+                    No rows match the current filters. Outreach drafts, transactional sends, and historical
+                    emails all flow into <code className="text-xs">email_messages</code>; try clearing the
+                    status / kind / transport filters above.
                   </td>
                 </tr>
               ) : (
