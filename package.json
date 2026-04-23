@@ -13,6 +13,8 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
+    "n8n:drift-check": "tsx scripts/n8n-workflow-drift-check.ts",
+    "n8n:drift-check:warn": "tsx scripts/n8n-workflow-drift-check.ts -- --warn",
     "db:health-check": "tsx scripts/database-health-check.ts",
     "db:health-check:update": "tsx scripts/database-health-check.ts --update",
     "db:health-check:dev": "tsx scripts/database-health-check.ts --dev",

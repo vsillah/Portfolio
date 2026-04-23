@@ -32,6 +32,26 @@ Use this when deploying **portfolio-staging** (or any staging Vercel environment
 
 Cursor **n8n MCP** uses `N8N_API_URL` + `N8N_API_KEY` (or Cloud-specific vars per MCP README). That is separate from the Next.js app’s `N8N_*_WEBHOOK_URL` values.
 
+## Drift detection (STAG ↔ PROD)
+
+Once STAG and PROD are in sync, keep them that way with the drift checker:
+
+```bash
+# Fail build/CI on drift
+npm run n8n:drift-check
+
+# Print-only mode (never fails)
+npm run n8n:drift-check:warn
+```
+
+Requires `N8N_API_KEY` in `.env.local` (Settings → API Keys in n8n Cloud). The
+script diffs each `WF-…` / `WF-…-STAG` pair node-by-node, ignoring expected
+env-specific fields (credentials, webhook IDs, positions, Slack channel IDs,
+URLs). Edit `WORKFLOW_PAIRS` in [`scripts/n8n-workflow-drift-check.ts`](../scripts/n8n-workflow-drift-check.ts) to add new pairs or expand the ignore list.
+
+This catches regressions like the 2026-04-22 `Get Lead Data` misconfig where
+PROD diverged from STAG silently for weeks.
+
 ## Related
 
 - [docs/staging-n8n-activation-matrix.md](./staging-n8n-activation-matrix.md) — workflow IDs, test status, blockers
