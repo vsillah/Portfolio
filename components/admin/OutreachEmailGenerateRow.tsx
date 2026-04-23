@@ -829,7 +829,7 @@ export function OutreachEmailGenerateRow({
                   {recent.length === 0 && (state === 'succeeded' || serverN8nSuccess) && (
                     <p className="mb-1.5 text-[11px] leading-relaxed text-emerald-200/90">
                       Draft is in the queue. This list updates when the row syncs — tap Refresh or use View all if you
-                      don't see it yet.
+                      do not see it yet.
                     </p>
                   )}
                   {recent.length === 0 && !serverN8nSuccess && state !== 'succeeded' && (
@@ -846,7 +846,7 @@ export function OutreachEmailGenerateRow({
                           : `/admin/email-center?contact=${lead.id}`
                         const itemTitle = r.email_message_id
                           ? `Open ${r.subject || 'this draft'} in the email viewer`
-                          : `View ${r.subject || 'this draft'} in the Email Center (indexer hasn't caught up yet)`
+                          : `View ${r.subject || 'this draft'} in the Email Center (indexer has not caught up yet)`
                         return (
                           <li key={r.id} className="border-b border-border/20 last:border-0">
                             <Link

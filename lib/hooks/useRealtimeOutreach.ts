@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { RealtimeChannel, RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 import { supabase } from '@/lib/supabase'
 
@@ -78,6 +78,17 @@ export function useRealtimeOutreach({
     idSetRef.current = new Set(visibleContactIds ?? [])
   }, [visibleContactIds])
 
+  // Stable, statically-checkable keys so we resubscribe when the *page* of ids
+  // changes but not on every new array instance from fetchLeads.
+  const idPageKey = useMemo(() => {
+    const list = visibleContactIds
+    const n = list?.length ?? 0
+    if (n === 0 || !list) {
+      return { n: 0, first: 0, last: 0 }
+    }
+    return { n, first: list[0]!, last: list[n - 1]! }
+  }, [visibleContactIds])
+
   useEffect(() => {
     if (!enabled || !visibleContactIds || visibleContactIds.length === 0) return
 
@@ -132,15 +143,8 @@ export function useRealtimeOutreach({
       if (debounceTimer) clearTimeout(debounceTimer)
       void supabase.removeChannel(channel)
     }
-    // Intentionally depend on a stable key for the id list (length + first/last
-    // ids) rather than the array reference. The ref holds the full live set so
-    // we don't tear down the subscription on every fetchLeads round-trip.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    enabled,
-    debounceMs,
-    visibleContactIds?.length ?? 0,
-    visibleContactIds?.[0] ?? 0,
-    visibleContactIds?.[visibleContactIds.length - 1] ?? 0,
-  ])
+    // `visibleContactIds` is not listed: the set is kept current via the effect
+    // above; `idPageKey` controls when to recreate the channel.
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- see comment above
+  }, [enabled, debounceMs, idPageKey.n, idPageKey.first, idPageKey.last])
 }

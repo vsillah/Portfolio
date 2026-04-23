@@ -349,7 +349,6 @@ export function useOutreachGeneration({
     onFallbackAvailable,
     onFallbackCleared,
     onToast,
-    settleToIdle,
     startOptimisticRunning,
   ])
 
