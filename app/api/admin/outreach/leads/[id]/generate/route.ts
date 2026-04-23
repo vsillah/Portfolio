@@ -105,32 +105,25 @@ export async function POST(
       ...(templateKey ? { template_key: templateKey } : {}),
     })
 
-    const { count: queueCountImmediate } = await sb
-      .from('outreach_queue')
-      .select('id', { count: 'exact', head: true })
-      .eq('contact_submission_id', contactId)
-
-    const q = queueCountImmediate ?? 0
+    // Authoritative completion is delivered by
+    //   - INSERT trigger `trg_outreach_queue_mark_n8n_success` (DB-level, fires
+    //     when n8n/in-app actually writes the draft row), and
+    //   - `/api/webhooks/n8n/outreach-generation-complete` (n8n's final node),
+    // both of which flip `last_n8n_outreach_status` from `pending` → `success`
+    // / `failed`. Those transitions are streamed to open admin tabs via
+    // Supabase Realtime (see `useRealtimeOutreach`). We must not shortcut to
+    // `success` here — `triggerOutreachGeneration` is a fire-and-forget
+    // webhook ack, and any historical "count > 0" check spuriously marks
+    // success for any lead that already had queue rows from prior runs.
     if (result.triggered) {
-      if (q > 0) {
-        await sb
-          .from('contact_submissions')
-          .update({
-            last_n8n_outreach_triggered_at: nowIso,
-            last_n8n_outreach_status: 'success',
-            last_n8n_outreach_template_key: templateKeyStr,
-          })
-          .eq('id', contactId)
-      } else {
-        await sb
-          .from('contact_submissions')
-          .update({
-            last_n8n_outreach_triggered_at: nowIso,
-            last_n8n_outreach_status: 'pending',
-            last_n8n_outreach_template_key: templateKeyStr,
-          })
-          .eq('id', contactId)
-      }
+      await sb
+        .from('contact_submissions')
+        .update({
+          last_n8n_outreach_triggered_at: nowIso,
+          last_n8n_outreach_status: 'pending',
+          last_n8n_outreach_template_key: templateKeyStr,
+        })
+        .eq('id', contactId)
     } else {
       await sb
         .from('contact_submissions')
@@ -144,8 +137,14 @@ export async function POST(
 
     return NextResponse.json({
       triggered: result.triggered,
-      /** Rows in outreach_queue for this lead right after the n8n webhook returns (0 = async insert or failure). */
-      queueCountImmediate: q,
+      /**
+       * Preserved for back-compat with older clients; always 0 now. n8n's
+       * webhook is fire-and-forget and the response does not guarantee a
+       * draft row exists yet. Use `last_n8n_outreach_status` (pushed via
+       * Realtime) to determine completion.
+       * @deprecated
+       */
+      queueCountImmediate: 0,
       ...(templateKey ? { templateKey } : {}),
       ...(!result.triggered && { fallback: 'in-app' }),
     })

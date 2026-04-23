@@ -53,6 +53,7 @@ import SocialIntelModal from '@/components/admin/outreach/SocialIntelModal'
 import EvidenceDrawer from '@/components/admin/outreach/EvidenceDrawer'
 import AddLeadModal from '@/components/admin/outreach/AddLeadModal'
 import { OutreachEmailGenerateRow } from '@/components/admin/OutreachEmailGenerateRow'
+import { useRealtimeOutreach } from '@/lib/hooks/useRealtimeOutreach'
 import Link from 'next/link'
 import { useSearchParams, useRouter } from 'next/navigation'
 
@@ -91,7 +92,13 @@ interface Lead {
   removed_at?: string | null
   website_tech_stack?: { domain?: string; technologies?: unknown[]; byTag?: Record<string, string[]>; creditsRemaining?: number | null } | null
   /** Last N email rows from outreach_queue (from batched leads GET) */
-  recent_email_drafts?: { id: string; subject: string | null; status: string; created_at: string }[]
+  recent_email_drafts?: {
+    id: string
+    subject: string | null
+    status: string
+    created_at: string
+    email_message_id?: string | null
+  }[]
 }
 
 interface LeadsResponse {
@@ -405,6 +412,18 @@ function OutreachContent() {
       startVepPolling()
     }
   }, [activeTab, leads, startVepPolling])
+
+  // Realtime push updates (Supabase Realtime → Postgres logical replication):
+  // flips pills and refreshes "Email — recent" the moment n8n CLG-002 marks a
+  // run success/failed OR a new outreach_queue row is inserted. Fallback polling
+  // (startVepPolling, 4s) remains as a safety net in case Realtime drops events.
+  useRealtimeOutreach({
+    enabled: activeTab === 'leads',
+    visibleContactIds: activeTab === 'leads' ? leads.map((l) => l.id) : null,
+    onEvent: () => {
+      void fetchLeads({ silent: true })
+    },
+  })
 
   // Fetch latest VEP extraction run (one-time on mount)
   useEffect(() => {

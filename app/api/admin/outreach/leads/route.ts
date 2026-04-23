@@ -518,7 +518,31 @@ export async function GET(request: NextRequest) {
       (allAuditsForLeads || []).map((a: { contact_submission_id: number }) => a.contact_submission_id),
     )
 
-    const RECENT_EMAIL_DRAFTS = 3
+    const RECENT_EMAIL_DRAFTS = 5
+
+    // Batch: map outreach_queue.id → email_messages.id (for clickable deep links
+    // to /admin/email-messages/[id]). Scoped to the email rows we'll surface.
+    const emailQueueIdsForLookup = Array.from(
+      new Set(
+        ((allQueueRows || []) as QueueRow[])
+          .filter((r) => r.channel === 'email')
+          .map((r) => r.id),
+      ),
+    )
+    const emailMessageIdByQueueId: Record<string, string> = {}
+    if (emailQueueIdsForLookup.length > 0) {
+      const { data: emRows } = await supabaseAdmin
+        .from('email_messages')
+        .select('id, source_id')
+        .eq('source_system', 'outreach_queue')
+        .in('source_id', emailQueueIdsForLookup)
+      for (const row of (emRows || []) as { id: string; source_id: string | null }[]) {
+        if (row.source_id && !emailMessageIdByQueueId[row.source_id]) {
+          emailMessageIdByQueueId[row.source_id] = row.id
+        }
+      }
+    }
+
     const leadsWithMetadata = (contacts || []).map(
       (contact: {
         id: number
@@ -559,6 +583,7 @@ export async function GET(request: NextRequest) {
             subject: m.subject,
             status: m.status,
             created_at: m.created_at,
+            email_message_id: emailMessageIdByQueueId[m.id] ?? null,
           }))
 
         const leadSessions = sessionsByContact[contact.id] || []

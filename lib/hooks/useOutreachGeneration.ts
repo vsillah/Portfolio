@@ -31,6 +31,24 @@ export interface UseOutreachGenerationOptions {
   leadName: string
   /** From lead list; used to detect when a draft row appears while n8n finishes async. */
   messagesCount: number
+  /**
+   * Authoritative server-side status of the last n8n CLG-002 run. Arrives via
+   * the batched `/api/admin/outreach/leads` fetch, which is now kept fresh in
+   * real time by the `useRealtimeOutreach` subscription on the parent page.
+   * When this flips from `pending` → `success`/`failed` while the hook is in
+   * `running`, we trust the server and transition accordingly — **but only
+   * after `n8nTriggeredAt` has advanced past the value captured at run start**.
+   * Otherwise the previous run's lingering `success` would fake-settle the
+   * new run the moment the HTTP trigger completes.
+   */
+  n8nStatus?: 'pending' | 'success' | 'failed' | null
+  /**
+   * Paired with `n8nStatus`: the `last_n8n_outreach_triggered_at` timestamp
+   * (ISO string). Used as the run-identity key — each click of a template
+   * bumps this on the server, so the client can tell "this status belongs to
+   * my new run" vs. "this is stale from the previous run."
+   */
+  n8nTriggeredAt?: string | null
   onToast?: (msg: string) => void
   /** n8n returned triggered:false or threw — parent should reveal "Draft in app" fallback. */
   onFallbackAvailable?: () => void
@@ -53,10 +71,17 @@ export interface UseOutreachGenerationReturn {
   dismissResult: () => void
 }
 
-const SAFETY_TIMEOUT_MS = 25_000
-/** When n8n returns 200 but outreach_queue is still empty, wait before giving up. */
-const EXTENDED_DRAFT_WAIT_MS = 75_000
-const REFETCH_POLL_MS = 4_000
+/**
+ * When n8n returns 200 but outreach_queue is still empty, wait before giving
+ * up. Realtime is now the primary signal (`useRealtimeOutreach` on the parent
+ * page pushes status/queue changes within ~1s of completion), so this is a
+ * soft safety net for the rare case Realtime drops events or the dashboard was
+ * opened mid-run. Anything longer than this falls back to "Draft in app" UX,
+ * but the server-side `last_n8n_outreach_status` remains authoritative and
+ * the next successful event/refetch re-syncs the UI.
+ */
+const EXTENDED_DRAFT_WAIT_MS = 8 * 60_000
+const REFETCH_POLL_MS = 10_000
 const CANCELLED_DISPLAY_MS = 4_000
 
 function phaseFor(
@@ -68,17 +93,20 @@ function phaseFor(
     if (elapsedMs < 2_500) return 'Starting…'
     return 'Contacting n8n…'
   }
-  const cap = extendedDraftWait ? EXTENDED_DRAFT_WAIT_MS : SAFETY_TIMEOUT_MS
   if (elapsedMs < 2_000) return 'Queuing…'
   if (elapsedMs < (extendedDraftWait ? 40_000 : 18_000)) return 'Generating…'
-  if (elapsedMs < cap - 5_000) return 'Saving draft…'
-  return 'Still working…'
+  // Past the first minute we stop promising "almost done" — Realtime will
+  // resolve the moment the server reports success/failed.
+  if (elapsedMs < 90_000) return 'Saving draft…'
+  return 'Still working — waiting for n8n…'
 }
 
 export function useOutreachGeneration({
   leadId,
   leadName,
   messagesCount,
+  n8nStatus = null,
+  n8nTriggeredAt = null,
   onToast,
   onFallbackAvailable,
   onSettled,
@@ -99,6 +127,13 @@ export function useOutreachGeneration({
   const messagesCountRef = useRef(messagesCount)
   const messagesAtGenerationStartRef = useRef(0)
   const mountedRef = useRef(true)
+  /**
+   * Snapshot of `n8nTriggeredAt` at run start. The server bumps this value on
+   * every trigger, so once the incoming prop is different we know the new run
+   * has been registered server-side and any subsequent `n8nStatus` value is
+   * about **this** run (not the previous one's leftover success / failed).
+   */
+  const triggeredAtBaselineRef = useRef<string | null>(null)
 
   messagesCountRef.current = messagesCount
 
@@ -165,11 +200,16 @@ export function useOutreachGeneration({
     setElapsedMs(0)
     setState('running')
 
+    // Snapshot the lead's current `last_n8n_outreach_triggered_at` so the
+    // server-status effect can ignore stale statuses (e.g. the previous run's
+    // `success`) and only act once the server has recorded this new run.
+    triggeredAtBaselineRef.current = n8nTriggeredAt ?? null
+
     tickTimerRef.current = setInterval(() => {
       if (!startedAtRef.current || !mountedRef.current) return
       setElapsedMs(Date.now() - startedAtRef.current)
     }, 250)
-  }, [clearTimers])
+  }, [clearTimers, n8nTriggeredAt])
 
   /** After HTTP 200 + triggered + empty queue: poll refetch and long safety (keeps existing tick + elapsed). */
   const attachExtendedDraftWaitTimers = useCallback(() => {
@@ -208,6 +248,43 @@ export function useOutreachGeneration({
     }
   }, [state, messagesCount, awaitingHttpResponse, leadName, onToast, settleToIdle])
 
+  // Authoritative server completion (pushed via Supabase Realtime on the
+  // parent page → lead refetch → these props change). We only trust the
+  // server's `n8nStatus` once its companion `n8nTriggeredAt` has advanced
+  // past the value captured at run start — that's how we know the status
+  // belongs to **this** run, not the previous one's leftover success / failed.
+  useEffect(() => {
+    if (state !== 'running' || !startedAtRef.current || awaitingHttpResponse) return
+    // Gate on a fresh triggered_at. Without this, a lead whose previous run
+    // succeeded would fake-settle the instant the new run's HTTP trigger
+    // completes, before Realtime has a chance to surface the `pending` state.
+    if (!n8nTriggeredAt || n8nTriggeredAt === triggeredAtBaselineRef.current) return
+
+    if (n8nStatus === 'success') {
+      onToast?.(`Draft is ready for ${leadName} — open Email center`)
+      settleToIdle('success')
+    } else if (n8nStatus === 'failed') {
+      clearTimers()
+      startedAtRef.current = null
+      setElapsedMs(0)
+      setState('failed')
+      onFallbackAvailable?.()
+      onToast?.(`n8n reported a failure for ${leadName} — use Draft in app`)
+      onSettled?.()
+    }
+  }, [
+    state,
+    n8nStatus,
+    n8nTriggeredAt,
+    awaitingHttpResponse,
+    clearTimers,
+    leadName,
+    onFallbackAvailable,
+    onSettled,
+    onToast,
+    settleToIdle,
+  ])
+
   const performGenerate = useCallback(async (templateKey?: EmailTemplateKey) => {
     const session = await getCurrentSession()
     if (!session) {
@@ -236,16 +313,14 @@ export function useOutreachGeneration({
 
       setAwaitingHttpResponse(false)
 
-      const rawQ = (data as { queueCountImmediate?: unknown }).queueCountImmediate
-      const queueCountImmediate = typeof rawQ === 'number' ? rawQ : null
-
       if (data?.triggered) {
         onFallbackCleared?.()
-        if (queueCountImmediate !== null && queueCountImmediate > 0) {
-          onToast?.(`Draft is ready for ${leadName} — open Email center`)
-          settleToIdle('success')
-          return
-        }
+        // `queueCountImmediate` from `/generate` is deprecated and no longer
+        // a reliable completion signal (it historically counted *all* rows for
+        // the lead and fake-settled runs on leads with prior queue history).
+        // We always wait for the authoritative status push via Realtime
+        // (`n8nStatus === 'success'` with a fresh `n8nTriggeredAt`) or for a
+        // new outreach_queue row to arrive (`messages_count` bump).
         attachExtendedDraftWaitTimers()
         onToast?.(`n8n accepted this job — waiting for a draft to appear…`)
       } else {

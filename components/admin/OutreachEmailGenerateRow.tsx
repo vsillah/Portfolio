@@ -113,6 +113,12 @@ export interface RecentEmailDraftItem {
   subject: string | null
   status: string
   created_at: string
+  /**
+   * Optional email_messages.id so the Outreach menu can deep-link each recent
+   * row to /admin/email-messages/[id]. Null when no email_messages row has
+   * been indexed yet (e.g. workflow still running or indexer hasn't caught up).
+   */
+  email_message_id?: string | null
 }
 
 export interface OutreachEmailGenerateRowProps {
@@ -151,6 +157,8 @@ export function OutreachEmailGenerateRow({
     leadId: lead.id,
     leadName: lead.name,
     messagesCount: lead.messages_count,
+    n8nStatus: lead.last_n8n_outreach_status ?? null,
+    n8nTriggeredAt: lead.last_n8n_outreach_triggered_at ?? null,
     onToast,
     onFallbackAvailable,
     onSettled,
@@ -421,14 +429,16 @@ export function OutreachEmailGenerateRow({
           onClick={() => {
             setPanelOpen(true)
           }}
+          aria-label={`Draft ready for ${lead.name} — open Outreach panel`}
         >
           <CheckCircle size={14} className="shrink-0" />
-          <span className="truncate">Draft ready — view below</span>
+          <span className="truncate">Draft ready</span>
           {queueCountLabel && (
             <span className="ml-0.5 hidden truncate text-xs font-normal text-white/80 sm:inline" title={queueCountLabel}>
               · {queueCountLabel}
             </span>
           )}
+          <ChevronDown className="h-3.5 w-3.5 shrink-0 text-white/85" aria-hidden />
         </button>
         <button
           type="button"
@@ -801,31 +811,68 @@ export function OutreachEmailGenerateRow({
                 </div>
 
                 <div className="border-t border-silicon-slate bg-muted/15 px-2.5 py-2">
-                  <p className="mb-1 text-[10px] font-medium uppercase text-muted-foreground/80">Email — recent</p>
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <p className="text-[10px] font-medium uppercase text-muted-foreground/80">Email — recent</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onOutreachOpen?.()
+                      }}
+                      className="inline-flex min-h-6 items-center gap-1 rounded px-1.5 text-[10px] font-medium text-muted-foreground transition-colors hover:bg-silicon-slate/40 hover:text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-400/40"
+                      title="Refresh recent emails"
+                      aria-label="Refresh recent emails"
+                    >
+                      <RotateCcw size={11} className="shrink-0" aria-hidden />
+                      Refresh
+                    </button>
+                  </div>
                   {recent.length === 0 && (state === 'succeeded' || serverN8nSuccess) && (
                     <p className="mb-1.5 text-[11px] leading-relaxed text-emerald-200/90">
-                      Draft is in the queue. This list updates when the row syncs — use View all if you do not see it
-                      here yet.
+                      Draft is in the queue. This list updates when the row syncs — tap Refresh or use View all if you
+                      don't see it yet.
                     </p>
                   )}
                   {recent.length === 0 && !serverN8nSuccess && state !== 'succeeded' && (
                     <p className="text-[12px] text-muted-foreground">No email rows yet</p>
                   )}
                   {recent.length > 0 ? (
-                    <ul className="mb-2 max-h-24 overflow-y-auto text-[12px]">
-                      {recent.map((r) => (
-                        <li
-                          key={r.id}
-                          className="border-b border-border/20 py-1.5 last:border-0"
-                        >
-                          <p className="truncate" title={r.subject ?? 'No subject'}>
-                            {r.subject || '(no subject)'}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">
-                            {r.status} · {timeAgo(r.created_at)}
-                          </p>
-                        </li>
-                      ))}
+                    <ul
+                      className="mb-2 max-h-40 overflow-y-auto text-[12px]"
+                      aria-label={`Recent emails for ${lead.name}`}
+                    >
+                      {recent.map((r) => {
+                        const href = r.email_message_id
+                          ? `/admin/email-messages/${r.email_message_id}`
+                          : `/admin/email-center?contact=${lead.id}`
+                        const itemTitle = r.email_message_id
+                          ? `Open ${r.subject || 'this draft'} in the email viewer`
+                          : `View ${r.subject || 'this draft'} in the Email Center (indexer hasn't caught up yet)`
+                        return (
+                          <li key={r.id} className="border-b border-border/20 last:border-0">
+                            <Link
+                              href={href}
+                              onClick={() => {
+                                setPanelOpen(false)
+                              }}
+                              className="block min-h-9 rounded px-1 py-1.5 transition-colors hover:bg-silicon-slate/40 focus:bg-silicon-slate/40 focus:outline-none"
+                              title={itemTitle}
+                            >
+                              <p
+                                className="truncate font-medium text-foreground"
+                                title={r.subject ?? 'No subject'}
+                              >
+                                {r.subject || '(no subject)'}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {r.status} · {timeAgo(r.created_at)}
+                                {!r.email_message_id && (
+                                  <span className="ml-1 text-muted-foreground/70">· indexing…</span>
+                                )}
+                              </p>
+                            </Link>
+                          </li>
+                        )
+                      })}
                     </ul>
                   ) : null}
                   <div className="flex flex-col gap-0.5 text-[11px]">
