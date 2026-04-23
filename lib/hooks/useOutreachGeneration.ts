@@ -217,6 +217,9 @@ export function useOutreachGeneration({
 
     if (templateKey) setLastTemplateKey(templateKey)
 
+    // Optimistic: a new n8n run is starting — hide the previous "n8n unavailable" UI.
+    onFallbackCleared?.()
+
     startOptimisticRunning()
 
     try {

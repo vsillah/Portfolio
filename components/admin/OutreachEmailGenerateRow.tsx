@@ -710,7 +710,7 @@ export function OutreachEmailGenerateRow({
 
             {channel === 'email' && (
               <div className="p-0">
-                {n8nFallback && !inAppLoading && !inAppRunning && (
+                {n8nFallback && !inAppLoading && !anyRun && (
                   <div className="m-2 rounded-md border border-violet-500/30 bg-violet-950/25 p-2 text-[12px] text-violet-100/95">
                     <p className="mb-0.5 font-medium">n8n is unavailable for this run</p>
                     <p className="text-[11px] text-violet-200/80">Use the OpenAI cold draft below.</p>
