@@ -176,18 +176,16 @@ export function OutreachEmailGenerateRow({
   const serverN8nFailed = lead.last_n8n_outreach_status === 'failed'
   const n8nActive = (state === 'running' || serverN8nPending) && !inAppRunning
   const anyRun = n8nActive || inAppRunning
-  const [serverN8nTick, setServerN8nTick] = useState(0)
+  const [, bumpServerN8nProgress] = useState(0)
   useEffect(() => {
     if (!serverN8nPending || inAppRunning) return
-    const id = window.setInterval(() => setServerN8nTick((n) => n + 1), 300)
+    const id = window.setInterval(() => bumpServerN8nProgress((n) => n + 1), 300)
     return () => window.clearInterval(id)
   }, [serverN8nPending, inAppRunning])
-  const n8nEffectiveElapsed = useMemo(() => {
-    if (serverN8nPending && lead.last_n8n_outreach_triggered_at) {
-      return Date.now() - new Date(lead.last_n8n_outreach_triggered_at).getTime()
-    }
-    return elapsedMs
-  }, [serverN8nPending, lead.last_n8n_outreach_triggered_at, elapsedMs, serverN8nTick])
+  const n8nEffectiveElapsed =
+    serverN8nPending && lead.last_n8n_outreach_triggered_at
+      ? Date.now() - new Date(lead.last_n8n_outreach_triggered_at).getTime()
+      : elapsedMs
   const showN8nBarSuccess = (state === 'succeeded' || serverN8nSuccess) && !inAppRunning
   const progressN8n = useMemo(
     () => (n8nActive ? estimateMilestoneProgress(N8N_STAGES, N8N_TYPICAL_S, n8nEffectiveElapsed) : null),
@@ -389,10 +387,6 @@ export function OutreachEmailGenerateRow({
     return `${lead.messages_count} in queue`
   }, [lead.messages_count, messagesSent])
 
-  if (dnc) return null
-
-  const showProgressCard = Boolean(anyRun && progress && !panelOpen)
-
   const dismissN8nBar = useCallback(async () => {
     const session = await getCurrentSession()
     if (session?.access_token) {
@@ -408,6 +402,10 @@ export function OutreachEmailGenerateRow({
     onSettled?.()
     dismissResult()
   }, [dismissResult, lead.id, onSettled, onToast])
+
+  if (dnc) return null
+
+  const showProgressCard = Boolean(anyRun && progress && !panelOpen)
 
   let outreachBar: ReactNode
   if (showN8nBarSuccess) {

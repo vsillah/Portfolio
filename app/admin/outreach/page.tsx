@@ -84,7 +84,7 @@ interface Lead {
   last_vep_triggered_at: string | null
   last_vep_status: string | null
   last_n8n_outreach_triggered_at: string | null
-  last_n8n_outreach_status: string | null
+  last_n8n_outreach_status: 'pending' | 'success' | 'failed' | null
   last_n8n_outreach_template_key: string | null
   has_extractable_text: boolean
   do_not_contact?: boolean

@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
  * Clears last_n8n_outreach_* after the user dismisses the success / failure pill (browser ack).
  */
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await verifyAdmin(request)

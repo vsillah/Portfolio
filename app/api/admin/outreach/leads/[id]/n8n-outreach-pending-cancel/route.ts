@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
  * (same pattern as VEP extract cancel) so the pill is not still "pending" after refresh.
  */
 export async function POST(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const auth = await verifyAdmin(request)
