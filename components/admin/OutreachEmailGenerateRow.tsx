@@ -409,28 +409,27 @@ export function OutreachEmailGenerateRow({
 
   let outreachBar: ReactNode
   if (showN8nBarSuccess) {
-    const emailCenterHref = `/admin/email-center?contact=${lead.id}`
     outreachBar = (
       <div
         className="inline-flex h-9 min-h-11 w-full min-w-0 max-w-sm items-center justify-between gap-1 rounded-lg bg-emerald-600/90 pl-2.5 pr-1.5 text-sm font-medium text-white"
         role="status"
-        title="Draft is in the queue. Open Email center to view or send."
+        title="Draft is in the queue. Click to view it in the Outreach panel below."
       >
-        <a
-          href={emailCenterHref}
-          className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 py-1.5 no-underline text-white hover:underline"
+        <button
+          type="button"
+          className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 bg-transparent py-1.5 text-white hover:underline"
           onClick={() => {
-            setPanelOpen(false)
+            setPanelOpen(true)
           }}
         >
           <CheckCircle size={14} className="shrink-0" />
-          <span className="truncate">Draft ready — Email center</span>
+          <span className="truncate">Draft ready — view below</span>
           {queueCountLabel && (
             <span className="ml-0.5 hidden truncate text-xs font-normal text-white/80 sm:inline" title={queueCountLabel}>
               · {queueCountLabel}
             </span>
           )}
-        </a>
+        </button>
         <button
           type="button"
           className="shrink-0 rounded p-1 text-white/90 hover:bg-white/15"
