@@ -79,6 +79,35 @@ Run trigger scripts in this order. Each phase depends on the previous one being 
 - **Phase 3** scripted tests complete. 3.3 (WF-002 Kickoff) full flow verified: Supabase update, Gmail prep email, Slack channel create + topic + welcome message (channelName fixed to reference Extract Booking Details).
 - **Optional:** Phase 3.1 E2E — send a real cold email from admin, reply to it, confirm WF-CLG-004 runs the reply branch.
 
+## WF-CLG-002: Outreach Generation — fixes applied 2026-04
+
+**Repo export:** `n8n-exports/WF-CLG-002-Outreach-Generation.json`
+**Prod ID:** `G4A9YUNCwokMhGA8` | **STAG ID:** `3bdhN10tXpt3LbI1`
+
+All three fixes below were applied directly to prod and STAG via `n8n_update_partial_workflow` (MCP) and mirrored in the repo export. No re-import needed; this section documents the change history.
+
+### 1. `outreach_status` gate removed
+
+**Problem:** The workflow had an **If** node (`Already Contacted?`: `outreach_status` equals `not_contacted`). The **false** output had **no** downstream nodes, so for leads already in another state the run “succeeded” in n8n but **never** reached **Generate Email** or **outreach_queue** — and the app never got a queue row or completion webhook.
+
+**Change:** **Get Lead Data** → **Generate Email** and **Generate LinkedIn Message** directly; the If node and its empty false branch are removed. Every trigger now uses the same LLM + `outreach_queue` path regardless of `outreach_status`. Verified via execution #11905 for a `sequence_active` lead (drafts written, Slack fired, completion webhook acked).
+
+**If you need a gate for scheduled runs only later:** add a **Merge** or a condition on a dedicated flag (e.g. from the webhook body) instead of hard-blocking all non-`not_contacted` leads.
+
+### 2. AI-agent prompt expression evaluation
+
+**Problem:** `parameters.text` on `Generate Email` and `Generate LinkedIn Message` was stored as a plain string, so n8n never evaluated `{{ $json.name }}`, `{{ $json.company }}`, etc. The LLM received the raw placeholder syntax and echoed it verbatim into the draft subject/body (e.g. `"Unlocking AI Potential at {{ $json.company }}"`).
+
+**Change:** Prepended `=` to both `text` fields so n8n evaluates them as expressions before sending to the LLM. Verified via execution #11906: drafts now contain substituted values (e.g. `"Exploring New Opportunities with Monomoy Advisors"`, `"Hi Kyle,..."`).
+
+**Rule of thumb for future agent nodes:** any `text`/`prompt` field that references `{{ $json... }}` or `{{ $('Node').first().json... }}` **must** start with `=`. Without it, n8n treats the whole string as a literal and the LLM hallucinates around the placeholders.
+
+### 3. Slack node: explicit `resource` / `operation`
+
+**Problem:** `Slack: Drafts Ready` relied on default `resource`/`operation` values, which the validator flagged as invalid (`"Invalid value for 'operation'. Must be one of: delete, getPermalink, search, post, sendAndWait, update"`). Ran fine at runtime but violated the "never trust defaults" rule.
+
+**Change:** Added `resource: "message"` and `operation: "post"` explicitly. Validator no longer complains about missing operation; message posts correctly to `#outreach` with substituted lead fields.
+
 ## Skipped
 
 - **HeyGen Cold Email** — No HeyGen API key

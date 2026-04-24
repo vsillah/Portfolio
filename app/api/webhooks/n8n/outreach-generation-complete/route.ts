@@ -11,9 +11,16 @@ export const dynamic = 'force-dynamic'
  * without waiting on the 20-minute DB reconcile fallback.
  *
  * Contract with n8n:
- *   - Success path: final HTTP node in the happy path posts `{ status: 'success' }`.
+ *   - Success path: final HTTP node in the happy path posts `{ status: 'success' }`
+ *     after a draft is written (or use success only if the DB insert trigger
+ *     is guaranteed; usually success is inferred from the queue row).
  *   - Failure path: dedicated "Error Workflow" (Error Trigger) posts
  *     `{ status: 'failed', error_message }`.
+ *   - **Early / alternate branches (IF, Switch) that do NOT insert a row:**
+ *     n8n still shows Execution Succeeded, but the app would stay `pending`
+ *     forever. Add a manual HTTP node on *every* terminal no-draft branch
+ *     that POSTs here with `status: 'failed'` and `error_message` explaining
+ *     the skip (e.g. lead did not pass "Already Contacted" gate).
  *
  * We only transition rows that are currently `pending` so we never clobber a
  * manual override (e.g. admin already dismissed the pill).
