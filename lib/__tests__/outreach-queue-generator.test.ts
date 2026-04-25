@@ -215,7 +215,10 @@ describe('generateOutreachDraftInApp', () => {
       expect(result.body).toBe('Body text for outreach.')
     }
     expect(mockFetch).toHaveBeenCalled()
-    const [, init] = mockFetch.mock.calls[0]
+    const [, init] = mockFetch.mock.calls.find(([url]) =>
+      String(url).includes('/v1/chat/completions')
+    ) ?? []
+    expect(init).toBeDefined()
     expect(JSON.parse(init.body as string).model).toBe('gpt-4o-mini')
   })
 
