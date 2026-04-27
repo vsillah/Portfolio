@@ -545,11 +545,24 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://n8n.amadutown.com/webhook/clg-outreach-gen",
+        "url": "={{ $vars.AMADUTOWN_PUBLIC_BASE_URL || 'https://amadutown.com' }}/api/webhooks/n8n/outreach-followup-trigger",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ contact_id: $json.contact_id || $json.id, score_tier: 'hot', lead_score: $json.lead_score }) }}",
-        "options": {}
+        "jsonBody": "={{ JSON.stringify({ contact_submission_id: $('New Lead').item.json.body.submissionId, sequence_step: 1, template_key: 'email_cold_outreach' }) }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
       }
     },
     {
@@ -563,11 +576,24 @@
       ],
       "parameters": {
         "method": "POST",
-        "url": "https://n8n.amadutown.com/webhook/clg-outreach-gen",
+        "url": "={{ $vars.AMADUTOWN_PUBLIC_BASE_URL || 'https://amadutown.com' }}/api/webhooks/n8n/outreach-followup-trigger",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ contact_id: $json.contact_id || $json.id, score_tier: 'warm', lead_score: $json.lead_score }) }}",
-        "options": {}
+        "jsonBody": "={{ JSON.stringify({ contact_submission_id: $('New Lead').item.json.body.submissionId, sequence_step: 1, template_key: 'email_cold_outreach' }) }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
       }
     },
     {
@@ -1392,11 +1418,24 @@
         ],
         "parameters": {
           "method": "POST",
-          "url": "https://n8n.amadutown.com/webhook/clg-outreach-gen",
+          "url": "={{ $vars.AMADUTOWN_PUBLIC_BASE_URL || 'https://amadutown.com' }}/api/webhooks/n8n/outreach-followup-trigger",
           "sendBody": true,
           "specifyBody": "json",
-          "jsonBody": "={{ JSON.stringify({ contact_id: $json.contact_id || $json.id, score_tier: 'hot', lead_score: $json.lead_score }) }}",
-          "options": {}
+          "jsonBody": "={{ JSON.stringify({ contact_submission_id: $('New Lead').item.json.body.submissionId, sequence_step: 1, template_key: 'email_cold_outreach' }) }}",
+          "options": {},
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $vars.N8N_INGEST_SECRET }}"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
         }
       },
       {
@@ -1410,11 +1449,24 @@
         ],
         "parameters": {
           "method": "POST",
-          "url": "https://n8n.amadutown.com/webhook/clg-outreach-gen",
+          "url": "={{ $vars.AMADUTOWN_PUBLIC_BASE_URL || 'https://amadutown.com' }}/api/webhooks/n8n/outreach-followup-trigger",
           "sendBody": true,
           "specifyBody": "json",
-          "jsonBody": "={{ JSON.stringify({ contact_id: $json.contact_id || $json.id, score_tier: 'warm', lead_score: $json.lead_score }) }}",
-          "options": {}
+          "jsonBody": "={{ JSON.stringify({ contact_submission_id: $('New Lead').item.json.body.submissionId, sequence_step: 1, template_key: 'email_cold_outreach' }) }}",
+          "options": {},
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $vars.N8N_INGEST_SECRET }}"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
         }
       },
       {
