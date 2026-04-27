@@ -42,6 +42,19 @@ function applySentinel(
   return { prompt: replaced, hadSentinel }
 }
 
+/**
+ * Metadata produced by {@link appendPineconeAndChatContextWithMetadata} alongside
+ * the assembled prompt. Surfaced to `outreach_queue.generation_inputs` for
+ * Phase 2 traceability ("why this draft?"). The `pineconeBlockHash` is a short
+ * sha256 prefix of the RAG block — useful for spotting drafts that share the
+ * same retrieved corpus chunk without storing the full block per row.
+ */
+export interface PineconeChatContextMetadata {
+  pineconeChars: number
+  priorChatPresent: boolean
+  pineconeBlockHash: string | null
+}
+
 export async function appendPineconeAndChatContextToSystemPrompt(
   systemPrompt: string,
   input: {
@@ -50,6 +63,23 @@ export async function appendPineconeAndChatContextToSystemPrompt(
     researchTextForRag: string
   }
 ): Promise<string> {
+  const { prompt } = await appendPineconeAndChatContextWithMetadata(systemPrompt, input)
+  return prompt
+}
+
+/**
+ * Same as {@link appendPineconeAndChatContextToSystemPrompt} but also returns
+ * the sizes / fingerprint of what was injected. Callers that persist a
+ * generation trace (outreach-queue-generator) use this; everything else can
+ * keep using the simpler wrapper.
+ */
+export async function appendPineconeAndChatContextWithMetadata(
+  systemPrompt: string,
+  input: {
+    contact: ContactEnrichment
+    researchTextForRag: string
+  }
+): Promise<{ prompt: string; metadata: PineconeChatContextMetadata }> {
   const ragQuery = buildEmailRagQueryText({
     company: input.contact.company,
     industry: input.contact.industry,
@@ -66,9 +96,6 @@ export async function appendPineconeAndChatContextToSystemPrompt(
 
   let out = chatApply.prompt
 
-  // Backward-compat: when a template has NOT adopted a sentinel, append at end
-  // so existing templates continue to benefit from RAG / chat context without
-  // any edit. Once a template adopts the sentinel, it controls placement.
   if (!ragApply.hadSentinel && ragBlock) {
     out += `\n\n${DEFAULT_PINECONE_HEADING}\n${ragBlock}`
   }
@@ -76,5 +103,24 @@ export async function appendPineconeAndChatContextToSystemPrompt(
     out += `\n\n${DEFAULT_PRIOR_CHAT_HEADING}\n${chatBlock}`
   }
 
-  return out
+  return {
+    prompt: out,
+    metadata: {
+      pineconeChars: ragBlock?.length ?? 0,
+      priorChatPresent: Boolean(chatBlock && chatBlock.length > 0),
+      pineconeBlockHash: ragBlock ? hashBlockShort(ragBlock) : null,
+    },
+  }
+}
+
+/**
+ * Short, deterministic fingerprint of the RAG block. Truncated to 12 hex chars
+ * — enough to spot duplicates within the outreach_queue corpus without leaking
+ * full content to anyone reading generation_inputs.
+ */
+function hashBlockShort(block: string): string {
+  // Lazily required so this file remains client-safe at import time; this
+  // helper is only ever called from server code paths.
+  const crypto = require('crypto') as typeof import('crypto')
+  return crypto.createHash('sha256').update(block).digest('hex').slice(0, 12)
 }

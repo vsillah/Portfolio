@@ -8,6 +8,8 @@ const mockRecordAnthropicCost = vi.fn()
 /** When set, duplicate-check returns this draft id (skip path). */
 let mockExistingDraftId: string | null = null
 let mockInsertId = '00000000-0000-4000-8000-000000000001'
+/** Captures the payload passed to outreach_queue.insert() (Phase 2 traceability tests). */
+let lastOutreachInsertPayload: Record<string, unknown> | null = null
 
 vi.mock('@/lib/system-prompts', () => ({
   getSystemPrompt: (...args: unknown[]) => mockGetSystemPrompt(...args),
@@ -99,15 +101,18 @@ vi.mock('@/lib/supabase', () => ({
               }),
             }),
           }),
-          insert: () => ({
-            select: () => ({
-              single: () =>
-                Promise.resolve({
-                  data: { id: mockInsertId },
-                  error: null,
-                }),
-            }),
-          }),
+          insert: (payload: Record<string, unknown>) => {
+            lastOutreachInsertPayload = payload
+            return {
+              select: () => ({
+                single: () =>
+                  Promise.resolve({
+                    data: { id: mockInsertId },
+                    error: null,
+                  }),
+              }),
+            }
+          },
         }
       }
       return {}
@@ -151,9 +156,11 @@ describe('generateOutreachDraftInApp', () => {
     vi.resetModules()
     mockExistingDraftId = null
     mockInsertId = '00000000-0000-4000-8000-000000000001'
+    lastOutreachInsertPayload = null
     mockGetSystemPrompt.mockResolvedValue({
       prompt: 'Brief:\n{{research_brief}}\nProof:\n{{social_proof}}\nFrom {{sender_name}}',
       config: { model: 'gpt-4o-mini', temperature: 0.7, maxTokens: 600 },
+      version: 7,
     })
     mockLoadLeadResearchBrief.mockResolvedValue({
       contact: {
@@ -245,6 +252,37 @@ describe('generateOutreachDraftInApp', () => {
 
     expect(mockGetSystemPrompt).toHaveBeenCalledWith('email_follow_up')
   })
+
+  it('persists a generation_inputs trace on email insert (Phase 2)', async () => {
+    const { generateOutreachDraftInApp } = await import('../outreach-queue-generator')
+    await generateOutreachDraftInApp({
+      contactId: 99,
+      templateKey: 'email_cold_outreach',
+      force: true,
+    })
+
+    expect(lastOutreachInsertPayload).not.toBeNull()
+    const inputs = lastOutreachInsertPayload?.generation_inputs as
+      | Record<string, unknown>
+      | undefined
+    expect(inputs).toBeDefined()
+    expect(inputs?.template_key).toBe('email_cold_outreach')
+    expect(inputs?.channel).toBe('email')
+    expect(inputs?.model).toBe('gpt-4o-mini')
+    expect(inputs?.provider).toBe('openai')
+    expect(inputs?.temperature).toBe(0.7)
+    expect(inputs?.max_tokens).toBe(600)
+    expect(inputs?.sequence_step).toBe(1)
+    expect(inputs?.prompt_version).toBe(7)
+    expect(typeof inputs?.research_brief_chars).toBe('number')
+    expect(typeof inputs?.social_proof_chars).toBe('number')
+    expect(inputs?.meeting_summary_present).toBe(false)
+    expect(inputs?.meeting_action_items_chars).toBe(0)
+    // EMAIL_RAG_ENABLED=false in beforeEach → pinecone block is empty
+    expect(inputs?.pinecone_chars).toBe(0)
+    expect(inputs?.prior_chat_present).toBe(false)
+    expect(inputs?.pinecone_block_hash).toBeNull()
+  })
 })
 
 describe('formatLinkedInBody', () => {
@@ -267,10 +305,12 @@ describe('generateLinkedInDraftInApp', () => {
     vi.resetModules()
     mockExistingDraftId = null
     mockInsertId = '00000000-0000-4000-8000-0000000000aa'
+    lastOutreachInsertPayload = null
     mockGetSystemPrompt.mockResolvedValue({
       prompt:
         'LinkedIn outreach for {{research_brief}} from {{sender_name}}. Voice: {{social_proof}}',
       config: { model: 'gpt-4o-mini', temperature: 0.7, maxTokens: 600 },
+      version: 3,
     })
     mockLoadLeadResearchBrief.mockResolvedValue({
       contact: {
@@ -389,5 +429,32 @@ describe('generateLinkedInDraftInApp', () => {
     })
 
     expect(mockGetSystemPrompt).toHaveBeenCalledWith('linkedin_cold_outreach')
+  })
+
+  it('persists a generation_inputs trace on LinkedIn insert (Phase 2)', async () => {
+    const { generateLinkedInDraftInApp } = await import('../outreach-queue-generator')
+    await generateLinkedInDraftInApp({
+      contactId: 99,
+      templateKey: 'linkedin_cold_outreach',
+      force: true,
+    })
+
+    expect(lastOutreachInsertPayload).not.toBeNull()
+    const inputs = lastOutreachInsertPayload?.generation_inputs as
+      | Record<string, unknown>
+      | undefined
+    expect(inputs).toBeDefined()
+    expect(inputs?.template_key).toBe('linkedin_cold_outreach')
+    expect(inputs?.channel).toBe('linkedin')
+    expect(inputs?.model).toBe('gpt-4o-mini')
+    expect(inputs?.provider).toBe('openai')
+    expect(inputs?.prompt_version).toBe(3)
+    expect(inputs?.sequence_step).toBe(1)
+    expect(typeof inputs?.research_brief_chars).toBe('number')
+    expect(typeof inputs?.social_proof_chars).toBe('number')
+    expect(inputs?.meeting_summary_present).toBe(false)
+    expect(inputs?.pinecone_chars).toBe(0)
+    expect(inputs?.prior_chat_present).toBe(false)
+    expect(inputs?.pinecone_block_hash).toBeNull()
   })
 })

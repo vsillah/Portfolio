@@ -25,9 +25,16 @@ import {
   formatMeetingActionItemsBlock,
   applyMeetingActionItemsPlaceholders,
 } from '@/lib/meeting-tasks-context'
-import { appendPineconeAndChatContextToSystemPrompt } from '@/lib/email-llm-context'
+import {
+  appendPineconeAndChatContextWithMetadata,
+  type PineconeChatContextMetadata,
+} from '@/lib/email-llm-context'
 import { generateJsonCompletion } from '@/lib/llm-dispatch'
-import { DEFAULT_OUTREACH_MODEL } from '@/lib/constants/llm-models'
+import {
+  DEFAULT_OUTREACH_MODEL,
+  inferProvider,
+  type LlmProvider,
+} from '@/lib/constants/llm-models'
 import {
   EMAIL_TEMPLATE_KEYS,
   LINKEDIN_TEMPLATE_KEYS,
@@ -38,6 +45,20 @@ import {
 
 const DEFAULT_EMAIL_TEMPLATE_KEY: EmailTemplateKey = 'email_cold_outreach'
 const DEFAULT_LINKEDIN_TEMPLATE_KEY: LinkedInTemplateKey = 'linkedin_cold_outreach'
+
+/**
+ * The literal "user message" string we send to the LLM for each channel.
+ * Exported so the Preview Prompt admin route can show admins exactly what the
+ * generator will send — these strings are part of the prompt contract.
+ */
+export const EMAIL_USER_PROMPT =
+  'Draft the cold outreach email now. Respond only with JSON: { "subject": "...", "body": "..." }'
+export const LINKEDIN_USER_PROMPT =
+  'Draft the LinkedIn invite + follow-up DM now. Respond only with JSON: { "connection_note": "...", "follow_up_dm": "..." }'
+
+export function userPromptFor(channel: OutreachChannel): string {
+  return channel === 'linkedin' ? LINKEDIN_USER_PROMPT : EMAIL_USER_PROMPT
+}
 
 /** Max chars for user-supplied meeting summary (prompt injection / cost guard). */
 export const MEETING_SUMMARY_MAX_CHARS = 8000
@@ -80,14 +101,72 @@ interface PromptContext {
   systemPrompt: string
   promptRow: SystemPrompt | null
   model: string
+  provider: LlmProvider
   temperature: number
   maxTokens: number
-  /** Char counts for downstream traceability (Phase 2). */
+  /**
+   * Char counts + RAG fingerprint for downstream traceability (Phase 2).
+   * Persisted into `outreach_queue.generation_inputs` on every successful
+   * draft insert and surfaced in the "Why this draft?" admin panel.
+   */
   contextSizes: {
     researchBrief: number
     socialProof: number
     meetingSnippet: number
     meetingActionItems: number
+    pineconeChars: number
+    priorChatPresent: boolean
+    pineconeBlockHash: string | null
+  }
+}
+
+/**
+ * Shape persisted to `outreach_queue.generation_inputs` (jsonb). Keep keys in
+ * sync with `migrations/2026_04_27_outreach_queue_generation_inputs.sql` and
+ * the WhyThisDraftModal renderer — the migration is intentionally schema-less,
+ * so this type is the single source of truth that humans look at.
+ */
+export interface GenerationInputs {
+  template_key: string
+  prompt_version: number | null
+  channel: OutreachChannel
+  model: string
+  provider: LlmProvider
+  temperature: number
+  max_tokens: number
+  sequence_step: number
+  research_brief_chars: number
+  social_proof_chars: number
+  meeting_summary_present: boolean
+  meeting_action_items_chars: number
+  pinecone_chars: number
+  prior_chat_present: boolean
+  pinecone_block_hash: string | null
+}
+
+function buildGenerationInputs(args: {
+  ctx: PromptContext
+  templateKey: string
+  channel: OutreachChannel
+  sequenceStep: number
+}): GenerationInputs {
+  const { ctx, templateKey, channel, sequenceStep } = args
+  return {
+    template_key: templateKey,
+    prompt_version: ctx.promptRow?.version ?? null,
+    channel,
+    model: ctx.model,
+    provider: ctx.provider,
+    temperature: ctx.temperature,
+    max_tokens: ctx.maxTokens,
+    sequence_step: sequenceStep,
+    research_brief_chars: ctx.contextSizes.researchBrief,
+    social_proof_chars: ctx.contextSizes.socialProof,
+    meeting_summary_present: ctx.contextSizes.meetingSnippet > 0,
+    meeting_action_items_chars: ctx.contextSizes.meetingActionItems,
+    pinecone_chars: ctx.contextSizes.pineconeChars,
+    prior_chat_present: ctx.contextSizes.priorChatPresent,
+    pinecone_block_hash: ctx.contextSizes.pineconeBlockHash,
   }
 }
 
@@ -160,10 +239,12 @@ export async function buildOutreachPromptContext(
     .replace(/\{\{social_proof\}\}/g, socialProof)
     .replace(/\{\{sender_name\}\}/g, senderName)
 
-  systemPrompt = await appendPineconeAndChatContextToSystemPrompt(systemPrompt, {
+  const ragResult = await appendPineconeAndChatContextWithMetadata(systemPrompt, {
     contact,
     researchTextForRag: researchBrief,
   })
+  systemPrompt = ragResult.prompt
+  const ragMeta: PineconeChatContextMetadata = ragResult.metadata
 
   const config = (promptRow?.config ?? {}) as {
     model?: string
@@ -173,12 +254,14 @@ export async function buildOutreachPromptContext(
   const model = config.model || DEFAULT_OUTREACH_MODEL
   const temperature = config.temperature ?? 0.75
   const maxTokens = config.maxTokens ?? (req.channel === 'linkedin' ? 600 : 600)
+  const provider = inferProvider(model)
 
   return {
     contact,
     systemPrompt,
     promptRow,
     model,
+    provider,
     temperature,
     maxTokens,
     contextSizes: {
@@ -186,6 +269,9 @@ export async function buildOutreachPromptContext(
       socialProof: socialProof.length,
       meetingSnippet: meetingSnippet?.length ?? 0,
       meetingActionItems: meetingActionItemsBlock?.length ?? 0,
+      pineconeChars: ragMeta.pineconeChars,
+      priorChatPresent: ragMeta.priorChatPresent,
+      pineconeBlockHash: ragMeta.pineconeBlockHash,
     },
   }
 }
@@ -335,8 +421,7 @@ export async function generateOutreachDraftInApp(params: {
   const completion = await generateJsonCompletion({
     model: ctx.model,
     systemPrompt: ctx.systemPrompt,
-    userPrompt:
-      'Draft the cold outreach email now. Respond only with JSON: { "subject": "...", "body": "..." }',
+    userPrompt: EMAIL_USER_PROMPT,
     temperature: ctx.temperature,
     maxTokens: ctx.maxTokens,
     costContext: {
@@ -363,6 +448,13 @@ export async function generateOutreachDraftInApp(params: {
   }
   const subject = (parsed.subject || `Quick note for ${ctx.contact.name}`).trim()
 
+  const generationInputs = buildGenerationInputs({
+    ctx,
+    templateKey,
+    channel: 'email',
+    sequenceStep,
+  })
+
   const { data: inserted, error: insertErr } = await supabaseAdmin
     .from('outreach_queue')
     .insert({
@@ -374,6 +466,7 @@ export async function generateOutreachDraftInApp(params: {
       status: 'draft',
       generation_model: ctx.model,
       generation_prompt_summary: `in_app:${templateKey}`,
+      generation_inputs: generationInputs,
       is_test_data: isTestData,
       source_task_id: sourceTaskId,
     })
@@ -470,8 +563,7 @@ export async function generateLinkedInDraftInApp(params: {
   const completion = await generateJsonCompletion({
     model: ctx.model,
     systemPrompt: ctx.systemPrompt,
-    userPrompt:
-      'Draft the LinkedIn invite + follow-up DM now. Respond only with JSON: { "connection_note": "...", "follow_up_dm": "..." }',
+    userPrompt: LINKEDIN_USER_PROMPT,
     temperature: ctx.temperature,
     maxTokens: ctx.maxTokens,
     costContext: {
@@ -515,6 +607,13 @@ export async function generateLinkedInDraftInApp(params: {
 
   const body = formatLinkedInBody(cappedNote, dm)
 
+  const generationInputs = buildGenerationInputs({
+    ctx,
+    templateKey,
+    channel: 'linkedin',
+    sequenceStep,
+  })
+
   const { data: inserted, error: insertErr } = await supabaseAdmin
     .from('outreach_queue')
     .insert({
@@ -526,6 +625,7 @@ export async function generateLinkedInDraftInApp(params: {
       status: 'draft',
       generation_model: ctx.model,
       generation_prompt_summary: `in_app:${templateKey}`,
+      generation_inputs: generationInputs,
       is_test_data: isTestData,
       source_task_id: sourceTaskId,
     })
