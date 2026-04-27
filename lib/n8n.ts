@@ -17,7 +17,7 @@ export { isMockN8nEnabled, isN8nOutboundDisabled }
 
 /**
  * Base URL for the n8n instance. All webhook URLs are constructed from this
- * unless overridden by a per-workflow env var (e.g. N8N_CLG002_WEBHOOK_URL).
+ * unless overridden by a per-workflow env var (e.g. N8N_CLG003_WEBHOOK_URL).
  * Default is n8n Cloud; set N8N_BASE_URL to https://n8n.amadutown.com to use self-hosted.
  */
 export const N8N_BASE_URL =
@@ -1066,8 +1066,14 @@ export function formatHistoryForN8n(messages: ChatMessage[]): ChatMessage[] {
 // Cold Lead Pipeline Webhook Functions
 // ============================================================================
 
-const N8N_CLG002_WEBHOOK_URL = process.env.N8N_CLG002_WEBHOOK_URL
-  || n8nWebhookUrl('clg-outreach-gen')
+/**
+ * Outreach generation (formerly WF-CLG-002) was retired in Phase 4 of the
+ * unified in-app outreach generator (2026-04-27). All draft generation now
+ * runs through `lib/outreach-queue-generator.ts#generateOutreachDraftInApp`,
+ * including the auto-follow-up branch which n8n re-enters via
+ * `/api/webhooks/n8n/outreach-followup-trigger`. There is no longer a
+ * `N8N_CLG002_WEBHOOK_URL` env var or `triggerOutreachGeneration()` helper.
+ */
 const N8N_CLG003_WEBHOOK_URL = process.env.N8N_CLG003_WEBHOOK_URL
   || n8nWebhookUrl('clg-send')
 
@@ -1081,63 +1087,6 @@ const N8N_WRM002_WEBHOOK_URL = process.env.N8N_WRM002_WEBHOOK_URL
   || n8nWebhookUrl('wrm-002-google-contacts')
 const N8N_WRM003_WEBHOOK_URL = process.env.N8N_WRM003_WEBHOOK_URL
   || n8nWebhookUrl('wrm-003-linkedin')
-
-/**
- * Trigger the outreach generation workflow (WF-CLG-002)
- * Called after lead enrichment for hot/warm leads.
- *
- * `template_key` (Phase 2+) lets callers pin a specific Saraev template from
- * `EMAIL_TEMPLATE_KEYS`. When omitted, WF-CLG-002 picks its own default (today:
- * `email_cold_outreach` for sequence_step=1). Back-compat: callers that don't
- * pass it get the exact payload we sent pre-Phase-2.
- */
-export async function triggerOutreachGeneration(params: {
-  contact_id: number | string
-  score_tier: 'hot' | 'warm'
-  lead_score: number
-  sequence_step?: number
-  is_followup?: boolean
-  meeting_summary?: string
-  pain_points?: string
-  template_key?: string
-}): Promise<{ triggered: boolean; error?: string }> {
-  if (isN8nOutboundDisabled()) {
-    logDisabledOutbound('triggerOutreachGeneration', N8N_CLG002_WEBHOOK_URL, params)
-    return { triggered: false, error: 'n8n outbound disabled' }
-  }
-
-  if (isMockN8nEnabled()) {
-    logDisabledOutbound('[MOCK_N8N] triggerOutreachGeneration', N8N_CLG002_WEBHOOK_URL, params)
-    return { triggered: false, error: 'n8n mock mode' }
-  }
-
-  if (!N8N_CLG002_WEBHOOK_URL) {
-    console.warn('N8N_CLG002_WEBHOOK_URL not configured - skipping outreach generation')
-    return { triggered: false, error: 'webhook URL not configured' }
-  }
-
-  try {
-    const response = await fetch(N8N_CLG002_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-      body: JSON.stringify(params),
-    })
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('Outreach gen webhook error:', response.status, errorText)
-      return { triggered: false, error: `n8n returned ${response.status}` }
-    }
-
-    return { triggered: true }
-  } catch (error) {
-    console.error('Outreach gen webhook failed:', error)
-    return { triggered: false, error: error instanceof Error ? error.message : 'webhook request failed' }
-  }
-}
 
 /**
  * Trigger the send workflow (WF-CLG-003)

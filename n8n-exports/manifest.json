@@ -25,7 +25,6 @@
     { "id": "otOXK9TZzv01NA01", "name": "WF-012: Project Delivery & Upsell", "nodes": 12 },
     { "id": "LZn83NWY2FIgABUl", "name": "Lead Research and Qualifying Agent", "nodes": 22 },
     { "id": "ItrvKM7BLuvcgJ7a", "name": "WF-CLG-001: Cold Lead Sourcing", "nodes": 12 },
-    { "id": "fBxaEIyYlMfWxsxB", "name": "WF-CLG-002: Outreach Generation", "nodes": 18 },
     { "id": "ITDwcU2ct2gHwWwE", "name": "WF-CLG-003: Send and Follow-Up", "nodes": 15 },
     { "id": "b2dHSCu8YpH1mv0e", "name": "WF-CLG-004: Reply Detection and Notification", "nodes": 14 },
     { "id": "SqbKwtEaOuuDFKa0", "name": "WF-WRM-001: Facebook Warm Lead Scraper", "nodes": 11 },
@@ -49,6 +48,6 @@
     { "id": "JN7zL4QwkHRt47xl", "name": "ReversR Beta Tester Intake form", "nodes": 3 },
     { "id": "DiN2zado2GVk2Lka", "name": "WF-LMN-001: Ebook Nurture Sequence", "nodes": 21 }
   ],
-  "export_note": "The 3 WRM workflow JSONs are pre-exported. All other active workflows are on the local n8n instance (http://127.0.0.1:5678). To bulk-export: n8n UI > Settings > Export All Workflows, or use the n8n MCP tools (n8n_get_workflow with mode=full for each ID).",
-  "last_updated": "2026-02-25"
+  "export_note": "The 3 WRM workflow JSONs are pre-exported. All other active workflows are on the local n8n instance (http://127.0.0.1:5678). To bulk-export: n8n UI > Settings > Export All Workflows, or use the n8n MCP tools (n8n_get_workflow with mode=full for each ID). WF-CLG-002 (Outreach Generation) was retired 2026-04-27 — its export is preserved under archive/ for reference; runtime generation now happens in-app via lib/outreach-queue-generator.ts and the auto-follow-up branch of WF-CLG-003 calls /api/webhooks/n8n/outreach-followup-trigger.",
+  "last_updated": "2026-04-27"
 }

@@ -18,7 +18,6 @@ describe('N8N_OUTBOUND_DISABLED gate', () => {
     process.env.MOCK_N8N = 'false'
     process.env.N8N_LEAD_WEBHOOK_URL = 'https://test/lead'
     process.env.N8N_EBOOK_NURTURE_WEBHOOK_URL = 'https://test/ebook'
-    process.env.N8N_CLG002_WEBHOOK_URL = 'https://test/clg002'
     process.env.N8N_CLG003_WEBHOOK_URL = 'https://test/clg003'
     process.env.N8N_VEP001_WEBHOOK_URL = 'https://test/vep001'
     process.env.N8N_VEP002_WEBHOOK_URL = 'https://test/vep002'
@@ -48,10 +47,6 @@ describe('N8N_OUTBOUND_DISABLED gate', () => {
         lead_magnet_title: 'T', lead_magnet_slug: 's', download_id: 'd1',
         download_timestamp: 'now',
       }),
-    },
-    {
-      name: 'triggerOutreachGeneration',
-      call: (m) => m.triggerOutreachGeneration({ contact_id: 1, score_tier: 'hot', lead_score: 90 }),
     },
     {
       name: 'triggerOutreachSend',

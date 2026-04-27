@@ -20,7 +20,7 @@ Use this when deploying **portfolio-staging** (or any staging Vercel environment
 | `N8N_DIAGNOSTIC_COMPLETION_WEBHOOK_URL` | Optional; falls back to `N8N_LEAD_WEBHOOK_URL` |
 | `N8N_EBOOK_NURTURE_WEBHOOK_URL` | STAG LMN-001 |
 | `N8N_LEAD_WEBHOOK_URL` | Lead qualification / completion (if used on staging) |
-| `N8N_CLG002_WEBHOOK_URL` / `N8N_CLG003_WEBHOOK_URL` | STAG outreach |
+| `N8N_CLG003_WEBHOOK_URL` | STAG outreach send + auto-follow-up (calls back into the app via `/api/webhooks/n8n/outreach-followup-trigger`; CLG-002 was retired 2026-04-27 — drafts are now generated in-app) |
 | `N8N_WRM001_WEBHOOK_URL` … `N8N_WRM003_WEBHOOK_URL` | STAG warm lead scrapers |
 | `N8N_VEP001_WEBHOOK_URL` / `N8N_VEP002_WEBHOOK_URL` | STAG value evidence |
 | `N8N_SOC001_WEBHOOK_URL` / `N8N_SOC002_WEBHOOK_URL` | STAG social pipelines |

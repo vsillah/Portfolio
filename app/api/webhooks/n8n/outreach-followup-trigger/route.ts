@@ -32,7 +32,7 @@ const EMAIL_KEY_SET = new Set<string>(EMAIL_TEMPLATE_KEYS)
  * Pinecone RAG voice, and prior-correspondence context (Phase 3).
  *
  * Auth: `Authorization: Bearer ${N8N_INGEST_SECRET}` — same pattern as the
- * other n8n→app webhooks (`milestone-notify`, `outreach-generation-complete`).
+ * other n8n→app webhooks (`milestone-notify`, `vep-task-complete`).
  *
  * Body:
  *   {

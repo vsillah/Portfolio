@@ -14,9 +14,14 @@ env vars in `.env.local` **MUST** point at the `-STAG` workflow variant's UUID w
 
 | Workflow family | Prod webhook path (DO NOT USE in dev)       | Stag webhook path (use in dev)                                            |
 |-----------------|---------------------------------------------|---------------------------------------------------------------------------|
-| WF-CLG-002      | `/webhook/clg-outreach-gen`                 | `/webhook/563561e2-b9b7-489d-be2d-a12ae07a8259` (WF-CLG-002-STAG)         |
 | WF-VEP-001      | `/webhook/vep-001-extract`                  | `/webhook/f1d3e5ed-ee01-4a00-8201-0803228701c2` (WF-VEP-001-STAG)         |
 | WF-VEP-002      | `/webhook/vep-002-social`                   | `/webhook/a40cb90d-ef00-407a-b3db-1b03e585cbb4` (WF-VEP-002-STAG)         |
+
+> **WF-CLG-002 retired (2026-04-27):** Outreach drafts are now generated in-app
+> via `generateOutreachDraftInApp` (`lib/outreach-queue-generator.ts`), so there
+> is no `/webhook/clg-outreach-gen` to route in dev anymore. The auto-follow-up
+> branch of WF-CLG-003 calls `/api/webhooks/n8n/outreach-followup-trigger`
+> (Bearer `N8N_INGEST_SECRET`) directly on the deployed app.
 
 Both are hosted at `https://amadutown.app.n8n.cloud`. The Supabase credential bound to the node
 determines which DB is queried — prod paths use a prod cred, STAG paths use the dev cred.
@@ -24,54 +29,11 @@ Sending a `contact_id` that only exists in dev to a prod workflow produces a **s
 `Get Lead Data` result; there is no error, and (historically) no failure callback either — the
 graph simply ends at node 2/16 with `status: success`.
 
-## Smell / symptoms
+## Smell / symptoms (VEP family)
 
-- UI pill sits at "Running outreach · Queuing & generating" forever (~37% stall)
-- n8n execution in the app shows only **2 of 16 nodes** executed (`New Qualified Lead` → `Get Lead Data`)
-- `Get Lead Data` shows `itemsOutput: 0`, but the overall execution reports `status: success`
-- `contact_submissions.last_n8n_outreach_status` stays `pending` indefinitely (until the 20-min
-  `STALE_N8N_PENDING_MS` reconciler flips it to `failed`)
-- No row ever lands in `outreach_queue`
-- No POST hits `/api/webhooks/n8n/outreach-generation-complete` on the app server
-
-## Fix
-
-1. In `.env.local`, set `N8N_CLG002_WEBHOOK_URL` to the STAG UUID path:
-
-   ```
-   N8N_CLG002_WEBHOOK_URL=https://amadutown.app.n8n.cloud/webhook/563561e2-b9b7-489d-be2d-a12ae07a8259
-   ```
-
-2. Restart `next dev` (`npm run dev`). The server reads env only at boot, so a running process
-   still holds the old value.
-3. If a lead is stuck `pending`, flip it via dev Supabase MCP so the UI exposes Retry:
-
-   ```sql
-   update contact_submissions
-     set last_n8n_outreach_status = 'failed',
-         last_n8n_outreach_triggered_at = now()
-   where id = <lead_id>
-     and last_n8n_outreach_status = 'pending';
-   ```
-
-4. For **production** (Vercel env), keep the bare `/webhook/clg-outreach-gen` — that's the correct
-   prod path. Only `.env.local` should ever hold the STAG UUID.
-
-## Why both workflows now also have a "Lead Found?" safety net
-
-As of 2026-04-24, both `WF-CLG-002` (`G4A9YUNCwokMhGA8`) and `WF-CLG-002-STAG` (`3bdhN10tXpt3LbI1`)
-have been hardened so an empty `Get Lead Data` result **cannot** silently swallow a run:
-
-- `Get Lead Data` is set to `alwaysOutputData: true` — even 0-row results produce a `{}` item
-  downstream instead of halting the graph.
-- A new `Lead Found?` IF node checks `{{ $json.id }}` exists after `Get Lead Data`.
-- The **false** branch routes to a new `Notify App: Lead Not Found` HTTP node that POSTs
-  `{ status: "failed", error_message: "Get Lead Data returned no row for contact_id …" }` to
-  `/api/webhooks/n8n/outreach-generation-complete`, so the app flips the pending row to
-  `failed` within seconds.
-
-This means a future dev-webhook-mis-routing will surface as a red "Retry n8n" pill instead of
-an infinite "Running outreach" stall. Do not remove this branch when editing either workflow.
+- VEP completion callback never reaches the app; `last_vep_status` stays `pending`
+- n8n execution shows fewer nodes than expected; `Get Lead Data`-style fetches return 0 rows
+- No POST hits the relevant `/api/webhooks/...` on the app server
 
 ## VEP-001 silent-failure hardening (same family of bug)
 

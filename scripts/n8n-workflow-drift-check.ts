@@ -30,17 +30,10 @@ type WorkflowPair = {
 }
 
 const WORKFLOW_PAIRS: WorkflowPair[] = [
-  {
-    label: 'WF-CLG-002: Outreach Generation',
-    prodId: 'G4A9YUNCwokMhGA8',
-    stagId: '3bdhN10tXpt3LbI1',
-    ignorePaths: [
-      // Slack channel + URL differ by env
-      'parameters.channelId',
-      'parameters.text',
-      'parameters.url',
-    ],
-  },
+  // WF-CLG-002 (Outreach Generation) was retired 2026-04-27 — outreach drafts are
+  // now generated in-app via lib/outreach-queue-generator.ts. Auto-follow-ups
+  // re-enter the app via /api/webhooks/n8n/outreach-followup-trigger called from
+  // WF-CLG-003.
   {
     label: 'WF-CLG-003: Send and Follow-Up',
     prodId: 'l4iaJwxbeMlR7pTr',

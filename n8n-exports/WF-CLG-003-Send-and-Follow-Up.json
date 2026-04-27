@@ -289,10 +289,10 @@
             {
               "id": "check-reply",
               "leftValue": "={{ $json }}",
-              "rightValue": "",
               "operator": {
                 "type": "object",
-                "operation": "notEmpty"
+                "operation": "notEmpty",
+                "singleValue": true
               }
             }
           ]
@@ -311,11 +311,24 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://n8n.amadutown.com/webhook/clg-outreach-gen",
+        "url": "={{ $vars.AMADUTOWN_PUBLIC_BASE_URL || 'https://amadutown.com' }}/api/webhooks/n8n/outreach-followup-trigger",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ contact_id: $('Approved Outreach').first().json.body.contact_submission_id, score_tier: $('Approved Outreach').first().json.body.score_tier || 'warm', lead_score: $('Approved Outreach').first().json.body.lead_score || 50, sequence_step: ($('Approved Outreach').first().json.body.sequence_step || 1) + 1, is_followup: true }) }}",
-        "options": {}
+        "jsonBody": "={{ JSON.stringify({ contact_submission_id: $('Approved Outreach').first().json.body.contact_submission_id, sequence_step: ($('Approved Outreach').first().json.body.sequence_step || 1) + 1, template_key: 'email_follow_up' }) }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
       },
       "id": "gen-followup",
       "name": "Generate Follow-Up",
@@ -328,7 +341,7 @@
     },
     {
       "parameters": {
-        "content": "## WF-CLG-003: Send and Follow-Up\n\nTriggered by admin approval from the outreach review screen.\n\n**Flow:**\n1. Receives approved outreach item data via webhook\n2. Routes by channel (email / linkedin)\n3. Email: Sends via Gmail, captures thread_id for reply matching\n4. LinkedIn: Posts Slack notification for manual send (V1)\n5. Updates outreach_queue status to 'sent'\n6. If sequence has more steps: waits 4 days, checks for reply\n7. If no reply: triggers WF-CLG-002 for next follow-up step\n\n**Env vars:**\n- N8N_CLG003_WEBHOOK_URL (this workflow's webhook)\n- N8N_CLG002_WEBHOOK_URL (outreach gen webhook)\n- SLACK_OUTREACH_CHANNEL_ID"
+        "content": "## WF-CLG-003: Send and Follow-Up\n\nTriggered by admin approval from the outreach review screen.\n\n**Flow:**\n1. Receives approved outreach item data via webhook\n2. Routes by channel (email / linkedin)\n3. Email: Sends via Gmail, captures thread_id for reply matching\n4. LinkedIn: Posts Slack notification for manual send (V1)\n5. Updates outreach_queue status to 'sent'\n6. If sequence has more steps: waits 4 days, checks for reply\n7. If no reply: calls Next.js `/api/webhooks/n8n/outreach-followup-trigger` (in-app generator) to produce step n+1 draft\n\n**Env vars (n8n cloud):**\n- $vars.AMADUTOWN_PUBLIC_BASE_URL → https://amadutown.com (PROD)\n- $vars.N8N_INGEST_SECRET (Bearer token for the follow-up endpoint)\n- SLACK_OUTREACH_CHANNEL_ID\n\n**Phase 4 (2026-04-27):** WF-CLG-002 retired. Follow-up generation now runs in-app via the unified outreach generator (`generateOutreachDraftInApp`) so it uses the active Saraev system_prompt, Pinecone RAG voice, and prior-correspondence context."
       },
       "id": "note-workflow",
       "name": "Workflow Note",

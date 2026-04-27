@@ -9,9 +9,9 @@ import { supabase } from '@/lib/supabase'
  *
  * Subscribes (via Supabase Realtime / Postgres logical replication) to:
  *   - UPDATEs on `contact_submissions` — so the pill flips the moment
- *     `last_n8n_outreach_status` transitions pending → success / failed
- *     (either from `/api/webhooks/n8n/outreach-generation-complete` or the
- *     `trg_outreach_queue_mark_n8n_success` INSERT trigger).
+ *     `last_n8n_outreach_status` transitions pending → success / failed,
+ *     driven by the in-app generator (`generateOutreachDraftInApp`) and the
+ *     `trg_outreach_queue_mark_n8n_success` INSERT trigger.
  *   - INSERTs on `outreach_queue` — so a new draft row makes it into the
  *     "Email — recent" list without a manual refresh.
  *

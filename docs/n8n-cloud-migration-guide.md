@@ -132,10 +132,17 @@ DRY_RUN=1 ./scripts/update-cloud-workflows-from-exports.sh
 `lib/n8n.ts` exports `N8N_BASE_URL` and `n8nWebhookUrl(path)`. All webhook constants use this pattern:
 
 ```typescript
-const N8N_CLG002_WEBHOOK_URL = process.env.N8N_CLG002_WEBHOOK_URL
-  || n8nWebhookUrl('clg-outreach-gen')
-// => https://n8n.amadutown.com/webhook/clg-outreach-gen (or n8n Cloud if N8N_BASE_URL changed)
+const N8N_CLG003_WEBHOOK_URL = process.env.N8N_CLG003_WEBHOOK_URL
+  || n8nWebhookUrl('clg-send')
+// => https://amadutown.app.n8n.cloud/webhook/clg-send (or self-hosted if N8N_BASE_URL changed)
 ```
+
+> **Note (2026-04-27):** `N8N_CLG002_WEBHOOK_URL` and the `clg-outreach-gen` n8n
+> path were retired. Outreach drafts are now generated in-app
+> (`generateOutreachDraftInApp` in `lib/outreach-queue-generator.ts`) and the
+> auto-follow-up branch of WF-CLG-003 calls
+> `/api/webhooks/n8n/outreach-followup-trigger` (Bearer `N8N_INGEST_SECRET`)
+> instead of CLG-002.
 
 ### Cut over to n8n Cloud (done 2026-02-25)
 
