@@ -15,6 +15,8 @@ import {
   ExternalLink,
   Sparkles,
   MessageSquare,
+  HelpCircle,
+  Eye,
 } from 'lucide-react'
 import { PipelineProgressBar } from '@/components/admin/ExtractionStatusChip'
 import { getCurrentSession } from '@/lib/auth'
@@ -28,6 +30,9 @@ import {
   type OutreachChannel,
 } from '@/lib/constants/prompt-keys'
 import { estimateMilestoneProgress, type PipelineStage } from '@/lib/pipeline-progress'
+import WhyThisDraftModal, {
+  type WhyThisDraftRequest,
+} from '@/components/admin/outreach/WhyThisDraftModal'
 
 // Generation pipeline stages used by the in-flight progress bar. The same
 // labels apply to the in-app path because /generate is now the in-app generator.
@@ -147,6 +152,7 @@ export function OutreachEmailGenerateRow({
   const inAppStartRef = useRef<number | null>(null)
   const [inAppElapsedMs, setInAppElapsedMs] = useState(0)
   const [inAppLoading, setInAppLoading] = useState(false)
+  const [whyRequest, setWhyRequest] = useState<WhyThisDraftRequest | null>(null)
 
   const recent = lead.recent_email_drafts ?? []
   const dnc = Boolean(lead.do_not_contact || lead.removed_at)
@@ -762,17 +768,35 @@ export function OutreachEmailGenerateRow({
                   {EMAIL_TEMPLATE_KEYS.map((key) => {
                     const isSug = suggested?.template === key
                     return (
-                      <li key={key}>
+                      <li key={key} className="flex items-center gap-1">
                         <button
                           type="button"
                           disabled={anyRun}
-                          className="flex w-full min-h-9 items-center justify-between gap-2 rounded-md px-2.5 text-left text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="flex min-h-9 flex-1 items-center justify-between gap-2 rounded-md px-2.5 text-left text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
                           onClick={() => {
                             pickTemplate(key, 'email')
                           }}
                         >
                           <span className="truncate">{getPromptDisplayName(key)}</span>
                           {isSug && <span className="shrink-0 text-[9px] text-purple-300">★</span>}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={anyRun}
+                          onClick={() => {
+                            setWhyRequest({
+                              mode: 'preview',
+                              leadId: lead.id,
+                              leadName: lead.name,
+                              channel: 'email',
+                              templateKey: key,
+                            })
+                          }}
+                          title={`Preview the assembled prompt for ${getPromptDisplayName(key)} (no LLM call, no draft saved)`}
+                          aria-label={`Preview prompt for ${getPromptDisplayName(key)}`}
+                          className="flex min-h-9 shrink-0 items-center justify-center rounded-md px-1.5 text-muted-foreground transition-colors hover:bg-silicon-slate/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                          <Eye size={12} />
                         </button>
                       </li>
                     )
@@ -834,27 +858,45 @@ export function OutreachEmailGenerateRow({
                           : `View ${r.subject || 'this draft'} in the Email Center (indexer has not caught up yet)`
                         return (
                           <li key={r.id} className="border-b border-border/20 last:border-0">
-                            <Link
-                              href={href}
-                              onClick={() => {
-                                setPanelOpen(false)
-                              }}
-                              className="block min-h-9 rounded px-1 py-1.5 transition-colors hover:bg-silicon-slate/40 focus:bg-silicon-slate/40 focus:outline-none"
-                              title={itemTitle}
-                            >
-                              <p
-                                className="truncate font-medium text-foreground"
-                                title={r.subject ?? 'No subject'}
+                            <div className="flex items-start gap-1">
+                              <Link
+                                href={href}
+                                onClick={() => {
+                                  setPanelOpen(false)
+                                }}
+                                className="block min-h-9 flex-1 rounded px-1 py-1.5 transition-colors hover:bg-silicon-slate/40 focus:bg-silicon-slate/40 focus:outline-none"
+                                title={itemTitle}
                               >
-                                {r.subject || '(no subject)'}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground">
-                                {r.status} · {timeAgo(r.created_at)}
-                                {!r.email_message_id && (
-                                  <span className="ml-1 text-muted-foreground/70">· indexing…</span>
-                                )}
-                              </p>
-                            </Link>
+                                <p
+                                  className="truncate font-medium text-foreground"
+                                  title={r.subject ?? 'No subject'}
+                                >
+                                  {r.subject || '(no subject)'}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {r.status} · {timeAgo(r.created_at)}
+                                  {!r.email_message_id && (
+                                    <span className="ml-1 text-muted-foreground/70">· indexing…</span>
+                                  )}
+                                </p>
+                              </Link>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  setWhyRequest({
+                                    mode: 'inputs',
+                                    queueId: r.id,
+                                    subject: r.subject,
+                                  })
+                                }}
+                                title="Why this draft? — show the prompt + model + context blocks recorded at generation time"
+                                aria-label={`Why this draft for ${r.subject ?? 'no subject'}`}
+                                className="mt-1 shrink-0 rounded p-1 text-muted-foreground transition-colors hover:bg-silicon-slate/40 hover:text-foreground"
+                              >
+                                <HelpCircle size={12} />
+                              </button>
+                            </div>
                           </li>
                         )
                       })}
@@ -905,16 +947,34 @@ export function OutreachEmailGenerateRow({
                   aria-label="LinkedIn templates"
                 >
                   {LINKEDIN_TEMPLATE_KEYS.map((key) => (
-                    <li key={key}>
+                    <li key={key} className="flex items-center gap-1">
                       <button
                         type="button"
                         disabled={anyRun}
-                        className="flex w-full min-h-9 items-center justify-between gap-2 rounded-md px-2.5 text-left text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex min-h-9 flex-1 items-center justify-between gap-2 rounded-md px-2.5 text-left text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={() => {
                           pickTemplate(key, 'linkedin')
                         }}
                       >
                         <span className="truncate">{getPromptDisplayName(key)}</span>
+                      </button>
+                      <button
+                        type="button"
+                        disabled={anyRun}
+                        onClick={() => {
+                          setWhyRequest({
+                            mode: 'preview',
+                            leadId: lead.id,
+                            leadName: lead.name,
+                            channel: 'linkedin',
+                            templateKey: key,
+                          })
+                        }}
+                        title={`Preview the assembled prompt for ${getPromptDisplayName(key)} (no LLM call, no draft saved)`}
+                        aria-label={`Preview prompt for ${getPromptDisplayName(key)}`}
+                        className="flex min-h-9 shrink-0 items-center justify-center rounded-md px-1.5 text-muted-foreground transition-colors hover:bg-silicon-slate/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <Eye size={12} />
                       </button>
                     </li>
                   ))}
@@ -934,6 +994,11 @@ export function OutreachEmailGenerateRow({
           </motion.div>
         )}
       </AnimatePresence>
+
+      <WhyThisDraftModal
+        request={whyRequest}
+        onClose={() => setWhyRequest(null)}
+      />
     </div>
   )
 }
