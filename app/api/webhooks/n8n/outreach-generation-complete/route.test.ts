@@ -44,7 +44,7 @@ describe('POST /api/webhooks/n8n/outreach-generation-complete', () => {
 
   afterEach(() => {
     process.env = { ...originalEnv }
-    vi.clearAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('rejects requests without the n8n bearer token', async () => {

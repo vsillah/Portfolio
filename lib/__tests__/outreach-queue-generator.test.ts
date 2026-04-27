@@ -177,22 +177,29 @@ describe('generateOutreachDraftInApp', () => {
     })
     mockRecordOpenAICost.mockResolvedValue(undefined)
 
-    mockFetch = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        choices: [
-          {
-            message: {
-              content: JSON.stringify({ subject: 'Hello', body: 'Body text for outreach.' }),
-            },
-          },
-        ],
-        usage: { prompt_tokens: 10, completion_tokens: 20, total_tokens: 30 },
-      }),
+    mockFetch = vi.fn((url: string) => {
+      if (url === 'https://api.openai.com/v1/chat/completions') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({ subject: 'Hello', body: 'Body text for outreach.' }),
+                },
+              },
+            ],
+            usage: { prompt_tokens: 10, completion_tokens: 20, total_tokens: 30 },
+          }),
+        })
+      }
+
+      return Promise.reject(new Error(`Unexpected fetch URL: ${url}`))
     })
     vi.stubGlobal('fetch', mockFetch)
     process.env.OPENAI_API_KEY = 'sk-test-key'
     process.env.ENABLE_IN_APP_OUTREACH_GEN = 'true'
+    process.env.EMAIL_RAG_ENABLED = 'false'
   })
 
   afterEach(() => {
@@ -214,8 +221,9 @@ describe('generateOutreachDraftInApp', () => {
       expect(result.subject).toBe('Hello')
       expect(result.body).toBe('Body text for outreach.')
     }
-    expect(mockFetch).toHaveBeenCalled()
-    const [, init] = mockFetch.mock.calls[0]
+    const openAiCall = mockFetch.mock.calls.find(([url]) => url === 'https://api.openai.com/v1/chat/completions')
+    expect(openAiCall).toBeDefined()
+    const [, init] = openAiCall!
     expect(JSON.parse(init.body as string).model).toBe('gpt-4o-mini')
   })
 
