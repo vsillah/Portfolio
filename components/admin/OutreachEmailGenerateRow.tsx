@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
+  Calendar,
   ChevronDown,
   CheckCircle,
   FileText,
@@ -154,6 +155,57 @@ export function OutreachEmailGenerateRow({
   const [inAppLoading, setInAppLoading] = useState(false)
   const [whyRequest, setWhyRequest] = useState<WhyThisDraftRequest | null>(null)
 
+  /** `meeting_records.id` for prompt + dedup; empty = server uses latest meeting for this lead. */
+  const [outreachMeetingId, setOutreachMeetingId] = useState('')
+  const [meetingsList, setMeetingsList] = useState<
+    { id: string; meeting_date: string; meeting_type: string | null }[]
+  >([])
+  const [meetingsLoading, setMeetingsLoading] = useState(false)
+  const [meetingsError, setMeetingsError] = useState(false)
+
+  const loadMeetingsForLead = useCallback(async () => {
+    setMeetingsLoading(true)
+    setMeetingsError(false)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) {
+        setMeetingsList([])
+        return
+      }
+      const res = await fetch(
+        `/api/admin/meetings?contact_submission_id=${lead.id}&limit=50&offset=0`,
+        { headers: { Authorization: `Bearer ${session.access_token}` } },
+      )
+      if (!res.ok) {
+        setMeetingsError(true)
+        setMeetingsList([])
+        return
+      }
+      const data = (await res.json()) as {
+        meetings?: { id: string; meeting_date: string; meeting_type: string | null }[]
+      }
+      setMeetingsList(data.meetings ?? [])
+    } catch {
+      setMeetingsError(true)
+      setMeetingsList([])
+    } finally {
+      setMeetingsLoading(false)
+    }
+  }, [lead.id])
+
+  useEffect(() => {
+    setOutreachMeetingId('')
+    setMeetingsList([])
+  }, [lead.id])
+
+  useEffect(() => {
+    void loadMeetingsForLead()
+  }, [loadMeetingsForLead])
+
+  useEffect(() => {
+    if (panelOpen) void loadMeetingsForLead()
+  }, [panelOpen, loadMeetingsForLead])
+
   const recent = lead.recent_email_drafts ?? []
   const dnc = Boolean(lead.do_not_contact || lead.removed_at)
   const serverN8nPending = lead.last_n8n_outreach_status === 'pending'
@@ -171,7 +223,11 @@ export function OutreachEmailGenerateRow({
     serverN8nPending && lead.last_n8n_outreach_triggered_at
       ? Date.now() - new Date(lead.last_n8n_outreach_triggered_at).getTime()
       : elapsedMs
-  const showN8nBarSuccess = (state === 'succeeded' || serverN8nSuccess) && !inAppRunning
+  // Do not use serverN8nSuccess alone while the hook is in `running` — a new run
+  // can start before the lead refetch clears last_n8n, which produced "Draft ready"
+  // plus "Generating…" and misled users that Email center should already show the new draft.
+  const showN8nBarSuccess =
+    (state === 'succeeded' || (serverN8nSuccess && state === 'idle')) && !inAppRunning
   const progressN8n = useMemo(
     () => (n8nActive ? estimateMilestoneProgress(GENERATE_STAGES, GENERATE_TYPICAL_S, n8nEffectiveElapsed) : null),
     [n8nActive, n8nEffectiveElapsed],
@@ -280,11 +336,32 @@ export function OutreachEmailGenerateRow({
             'Content-Type': 'application/json',
             Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify(force ? { force: true } : {}),
+          body: JSON.stringify(
+            force
+              ? {
+                  force: true,
+                  ...(outreachMeetingId ? { meeting_record_id: outreachMeetingId } : {}),
+                }
+              : {
+                  ...(outreachMeetingId ? { meeting_record_id: outreachMeetingId } : {}),
+                },
+          ),
         })
-        const data = (await res.json().catch(() => ({}))) as { outcome?: string; error?: string }
+        const data = (await res.json().catch(() => ({}))) as {
+          outcome?: string
+          error?: string
+          openDraftUrl?: string
+        }
         if (ac.signal.aborted) return
-        if (res.ok && data.outcome === 'created') {
+        if (res.ok && data.outcome === 'existing' && data.openDraftUrl) {
+          if (typeof window !== 'undefined') {
+            window.open(data.openDraftUrl, '_blank', 'noopener,noreferrer')
+          }
+          onToast?.(
+            `A draft for this template and meeting already exists for ${lead.name} — opening it in a new tab.`,
+          )
+          onSettled?.()
+        } else if (res.ok && data.outcome === 'created') {
           onToast?.(`Draft saved for ${lead.name} — check Email center`)
           onFallbackCleared?.()
           onSettled?.()
@@ -306,7 +383,7 @@ export function OutreachEmailGenerateRow({
         setInAppElapsedMs(0)
       }
     },
-    [dnc, lead.id, lead.name, onFallbackCleared, onSettled, onToast],
+    [dnc, lead.id, lead.name, onFallbackCleared, onSettled, onToast, outreachMeetingId],
   )
 
   const onCancel = useCallback(async () => {
@@ -342,11 +419,13 @@ export function OutreachEmailGenerateRow({
   }#compose`
   const emailCenterHref = `/admin/email-center?contact=${lead.id}`
 
+  const meetingIdForRequest = outreachMeetingId.trim() || undefined
+
   const runGenerate = (
     key?: EmailTemplateKey | LinkedInTemplateKey,
     targetChannel: Channel = channel,
   ) => {
-    void start(key, targetChannel)
+    void start(key, targetChannel, meetingIdForRequest)
   }
 
   const pickTemplate = (
@@ -585,6 +664,48 @@ export function OutreachEmailGenerateRow({
   return (
     <div className="relative w-full min-w-0 max-w-md" ref={panelRef}>
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">{outreachBar}</div>
+
+      <div className="mt-1.5 w-full min-w-0 max-w-sm">
+        <label
+          htmlFor={`outreach-meeting-${lead.id}`}
+          className="mb-0.5 flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/90"
+        >
+          <Calendar className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
+          Meeting for drafts
+        </label>
+        <select
+          id={`outreach-meeting-${lead.id}`}
+          className="h-9 w-full min-w-0 max-w-sm rounded-md border border-silicon-slate/90 bg-silicon-slate/30 px-2 pr-6 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+          value={outreachMeetingId}
+          onChange={(e) => {
+            setOutreachMeetingId(e.target.value)
+          }}
+          disabled={anyRun || inAppLoading}
+          title="Which meeting’s notes to use for this draft. Default: latest by date for this lead."
+        >
+          <option value="">
+            {meetingsLoading ? 'Loading meetings…' : 'Latest meeting (by date)'}
+          </option>
+          {meetingsList.map((m) => {
+            const when = m.meeting_date
+              ? new Date(m.meeting_date).toLocaleDateString(undefined, {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric',
+                })
+              : '—'
+            const type = (m.meeting_type && m.meeting_type.trim()) || 'Meeting'
+            return (
+              <option key={m.id} value={m.id}>
+                {when} · {type}
+              </option>
+            )
+          })}
+        </select>
+        {meetingsError && (
+          <p className="mt-0.5 text-[10px] text-amber-200/90">Could not load meetings. Using latest is still available.</p>
+        )}
+      </div>
 
       {showProgressCard && (
         <div

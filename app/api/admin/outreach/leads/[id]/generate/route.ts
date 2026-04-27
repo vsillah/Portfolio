@@ -41,6 +41,7 @@ const CHANNEL_SET = new Set<string>(OUTREACH_CHANNELS)
  *   - templateKey: pin a Saraev/LinkedIn template; must match the channel
  *   - sequenceStep: 1-6 (default 1)
  *   - force: bypass the duplicate-draft guard
+ *   - meeting_record_id: optional `meeting_records.id` (UUID) for context + dedup
  */
 export async function POST(
   request: NextRequest,
@@ -60,7 +61,10 @@ export async function POST(
     channel?: string
     templateKey?: string
     sequenceStep?: number
+    /** If true, insert another row even when a draft already exists for this step. */
     force?: boolean
+    /** Optional: scope the draft to this meeting (must belong to the lead). */
+    meeting_record_id?: string
   }
 
   const channel: OutreachChannel =
@@ -104,7 +108,9 @@ export async function POST(
 
   const { data: lead, error: leadError } = await sb
     .from('contact_submissions')
-    .select('id, name, email, do_not_contact, removed_at')
+    .select(
+      'id, name, email, do_not_contact, removed_at, last_n8n_outreach_status, last_n8n_outreach_triggered_at, last_n8n_outreach_template_key',
+    )
     .eq('id', contactId)
     .single()
 
@@ -120,6 +126,17 @@ export async function POST(
   if (lead.removed_at) {
     return NextResponse.json({ error: 'Lead has been removed' }, { status: 400 })
   }
+
+  const n8nSnapshot = {
+    last_n8n_outreach_status: lead.last_n8n_outreach_status as string | null,
+    last_n8n_outreach_triggered_at: lead.last_n8n_outreach_triggered_at as string | null,
+    last_n8n_outreach_template_key: lead.last_n8n_outreach_template_key as string | null,
+  }
+
+  const meetingRecordId =
+    typeof body.meeting_record_id === 'string' && body.meeting_record_id.trim() !== ''
+      ? body.meeting_record_id.trim()
+      : null
 
   const triggeredAtIso = new Date().toISOString()
   // Mark pending so the Outreach panel + Realtime show "running" copy while we
@@ -141,14 +158,69 @@ export async function POST(
             contactId,
             sequenceStep,
             force,
+            meetingRecordId,
             templateKey: templateKey as LinkedInTemplateKey | undefined,
           })
         : await generateOutreachDraftInApp({
             contactId,
             sequenceStep,
             force,
+            meetingRecordId,
             templateKey: templateKey as EmailTemplateKey | undefined,
           })
+
+    if (result.outcome === 'existing') {
+      await sb
+        .from('contact_submissions')
+        .update({
+          last_n8n_outreach_status: n8nSnapshot.last_n8n_outreach_status,
+          last_n8n_outreach_triggered_at: n8nSnapshot.last_n8n_outreach_triggered_at,
+          last_n8n_outreach_template_key: n8nSnapshot.last_n8n_outreach_template_key,
+        })
+        .eq('id', contactId)
+
+      const { data: emRow } = await sb
+        .from('email_messages')
+        .select('id')
+        .eq('source_system', 'outreach_queue')
+        .eq('source_id', result.queueId)
+        .maybeSingle()
+      const emailMessageId = (emRow?.id as string) ?? null
+      const openDraftUrl = emailMessageId
+        ? `/admin/email-messages/${emailMessageId}`
+        : `/admin/email-center?contact=${contactId}`
+
+      return NextResponse.json({
+        triggered: false,
+        outcome: 'existing',
+        queueId: result.queueId,
+        templateKey: result.templateKey,
+        channel: result.channel,
+        emailMessageId,
+        openDraftUrl,
+      })
+    }
+
+    if (result.outcome === 'skipped') {
+      await sb
+        .from('contact_submissions')
+        .update({
+          last_n8n_outreach_status: n8nSnapshot.last_n8n_outreach_status,
+          last_n8n_outreach_triggered_at: n8nSnapshot.last_n8n_outreach_triggered_at,
+          last_n8n_outreach_template_key: n8nSnapshot.last_n8n_outreach_template_key,
+        })
+        .eq('id', contactId)
+      return NextResponse.json(
+        {
+          error:
+            'A draft is already linked to this task. Open it from the meeting task or Email center.',
+          outcome: 'skipped',
+          reason: 'draft_exists',
+          triggered: false,
+        },
+        { status: 409 },
+      )
+    }
 
     await sb
       .from('contact_submissions')
@@ -172,18 +244,22 @@ export async function POST(
       })
     }
 
+    // Only `created` reaches here (`existing` and `skipped` return above).
+    if (result.outcome !== 'created') {
+      return NextResponse.json({ error: 'Unexpected generation outcome' }, { status: 500 })
+    }
+
     return NextResponse.json({
       // `triggered` preserves the existing client contract (`useOutreachGeneration`
       // expects it). With the in-app path the work is already complete, but the
       // hook still flips to "success" via Realtime / messages_count bump.
       triggered: true,
-      queueCountImmediate: result.outcome === 'created' ? 1 : 0,
+      queueCountImmediate: 1,
       outcome: result.outcome,
       channel,
       ...(templateKey ? { templateKey } : {}),
-      ...(result.outcome === 'created'
-        ? { id: result.id, subject: result.subject }
-        : { reason: result.reason }),
+      id: result.id,
+      subject: result.subject,
     })
   } catch (err) {
     console.error('[generate] in-app generation failed:', err)
@@ -195,6 +271,12 @@ export async function POST(
       .eq('id', contactId)
 
     const message = err instanceof Error ? err.message : String(err)
+    if (message === 'Meeting not found for this lead') {
+      return NextResponse.json(
+        { error: 'The selected meeting was not found for this lead.' },
+        { status: 400 }
+      )
+    }
     if (message === 'Lead is marked as do-not-contact') {
       return NextResponse.json({ error: message }, { status: 400 })
     }

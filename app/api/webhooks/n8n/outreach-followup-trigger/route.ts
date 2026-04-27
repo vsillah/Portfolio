@@ -193,7 +193,9 @@ export async function POST(request: NextRequest) {
       ...(templateKey ? { template_key: templateKey } : {}),
       ...(result.outcome === 'created'
         ? { queue_id: result.id, subject: result.subject }
-        : { reason: result.reason }),
+        : result.outcome === 'existing'
+          ? { queue_id: result.queueId, already_exists: true as const, template_key: result.templateKey }
+          : { reason: result.reason }),
     })
   } catch (err) {
     console.error('[outreach-followup-trigger] generation failed:', err)

@@ -44,6 +44,7 @@ export async function POST(
     force?: boolean
     meeting_summary?: string
     skip_meeting_context?: boolean
+    meeting_record_id?: string
   } = {}
   try {
     body = await request.json()
@@ -66,14 +67,46 @@ export async function POST(
       : 1
   const force = body.force === true
 
+  const meetingRecordId =
+    typeof body.meeting_record_id === 'string' && body.meeting_record_id.trim() !== ''
+      ? body.meeting_record_id.trim()
+      : null
+
   try {
     const result = await generateOutreachDraftInApp({
       contactId,
       sequenceStep,
       force,
       meetingSummary: body.meeting_summary ?? null,
+      meetingRecordId,
       includeLatestMeeting: body.skip_meeting_context !== true,
     })
+
+    if (result.outcome === 'existing') {
+      if (!supabaseAdmin) {
+        return NextResponse.json(
+          { error: 'Server configuration error' },
+          { status: 500 }
+        )
+      }
+      const { data: emRow } = await supabaseAdmin
+        .from('email_messages')
+        .select('id')
+        .eq('source_system', 'outreach_queue')
+        .eq('source_id', result.queueId)
+        .maybeSingle()
+      const emailMessageId = (emRow?.id as string) ?? null
+      const openDraftUrl = emailMessageId
+        ? `/admin/email-messages/${emailMessageId}`
+        : `/admin/email-center?contact=${contactId}`
+      return NextResponse.json({
+        outcome: 'existing',
+        queueId: result.queueId,
+        templateKey: result.templateKey,
+        emailMessageId,
+        openDraftUrl,
+      })
+    }
 
     if (result.outcome === 'skipped') {
       console.info('[generate-in-app] skipped draft_exists', {
@@ -83,7 +116,8 @@ export async function POST(
       })
       return NextResponse.json(
         {
-          error: 'A draft message already exists for this lead at this sequence step. Use force to create another.',
+          error:
+            'A draft is already linked to this source. Open Email center or use force to add another copy.',
           outcome: 'skipped',
           reason: 'draft_exists',
         },
@@ -122,6 +156,12 @@ export async function POST(
     const message = err instanceof Error ? err.message : String(err)
     console.error('[generate-in-app] error', { contactId, sequenceStep, force, message })
 
+    if (message === 'Meeting not found for this lead') {
+      return NextResponse.json(
+        { error: 'The selected meeting was not found for this lead.' },
+        { status: 400 }
+      )
+    }
     if (message === 'Lead not found') {
       return NextResponse.json({ error: 'Lead not found' }, { status: 404 })
     }

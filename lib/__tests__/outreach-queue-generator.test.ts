@@ -52,11 +52,26 @@ vi.mock('@/lib/supabase', () => ({
       if (table === 'meeting_records') {
         return {
           select: () => ({
-            eq: () => ({
-              order: () => ({
-                limit: () => Promise.resolve({ data: [], error: null }),
-              }),
-            }),
+            eq: (col: string) => {
+              if (col === 'contact_submission_id') {
+                return {
+                  order: () => ({
+                    limit: () => ({
+                      maybeSingle: () =>
+                        Promise.resolve({ data: null, error: null }),
+                    }),
+                  }),
+                }
+              }
+              return {
+                eq: () => ({
+                  maybeSingle: () =>
+                    Promise.resolve({ data: { id: 'm1' }, error: null }),
+                }),
+                maybeSingle: () =>
+                  Promise.resolve({ data: { id: 'm1' }, error: null }),
+              }
+            },
           }),
         }
       }
@@ -93,7 +108,13 @@ vi.mock('@/lib/supabase', () => ({
             error: null,
           })
         const dupLimit = () => ({ maybeSingle: dupMaybeSingle })
-        const dupSourceTaskFilter = () => ({ limit: dupLimit })
+        /** After .is(source_task, null).contains(...).is(context) | .eq(context) */
+        const dupSourceTaskFilter = () => ({
+          contains: () => ({
+            is: () => ({ limit: dupLimit }),
+            eq: () => ({ limit: dupLimit }),
+          }),
+        })
 
         // Phase 3 prior-outreach loader chain:
         //   .select().eq(contact_submission_id).in('status', [...]).order(...).limit(...)
@@ -110,7 +131,8 @@ vi.mock('@/lib/supabase', () => ({
                 eq: () => ({
                   eq: () => ({
                     is: dupSourceTaskFilter,
-                    eq: dupSourceTaskFilter,
+                    // Task idempotency: 5th eq (source_task_id) then limit
+                    eq: () => ({ limit: dupLimit }),
                     limit: dupLimit,
                   }),
                 }),
@@ -271,12 +293,17 @@ describe('generateOutreachDraftInApp', () => {
     expect(JSON.parse(init.body).model).toBe('gpt-4o-mini')
   })
 
-  it('returns skipped when draft exists and force is false', async () => {
+  it('returns existing when a draft for this template and meeting already exists and force is false', async () => {
     mockExistingDraftId = 'existing-draft-id'
     const { generateOutreachDraftInApp } = await import('../outreach-queue-generator')
     const result = await generateOutreachDraftInApp({ contactId: 99, force: false })
 
-    expect(result).toEqual({ outcome: 'skipped', reason: 'draft_exists' })
+    expect(result).toEqual({
+      outcome: 'existing',
+      queueId: 'existing-draft-id',
+      templateKey: 'email_cold_outreach',
+      channel: 'email',
+    })
     expect(mockFetch).not.toHaveBeenCalled()
   })
 

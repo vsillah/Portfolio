@@ -145,6 +145,17 @@ export async function POST(
       )
     }
 
+    if (result.outcome === 'existing') {
+      return NextResponse.json(
+        {
+          error:
+            'A draft is already in the queue for this meeting and template. Open it from Email center or the task.',
+          queueId: result.queueId,
+        },
+        { status: 409 }
+      )
+    }
+
     await updateTask(taskId, { outreach_queue_id: result.id })
 
     return NextResponse.json({

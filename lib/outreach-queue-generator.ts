@@ -83,6 +83,12 @@ export function isInAppOutreachGenerationEnabled(): boolean {
 
 export type InAppOutreachGenerateResult =
   | { outcome: 'created'; id: string; subject: string | null; body: string }
+  | {
+      outcome: 'existing'
+      queueId: string
+      templateKey: string
+      channel: OutreachChannel
+    }
   | { outcome: 'skipped'; reason: 'draft_exists' }
 
 // ============================================================================
@@ -95,6 +101,11 @@ interface PromptContextRequest {
   templateKey: string
   /** Falsy / absent → not appended; otherwise capped before injection. */
   meetingSummary?: string | null
+  /**
+   * When set, use this meeting's notes (must belong to the contact). Takes
+   * precedence over includeLatestMeeting for snippet selection.
+   */
+  meetingRecordId?: string | null
   /** When false, skip auto-loading the latest meeting record. Default true. */
   includeLatestMeeting?: boolean
   /** Step 1 surfaces meeting action items; later steps blank them. */
@@ -186,6 +197,20 @@ function buildGenerationInputs(args: {
   }
 }
 
+function meetingTextFromRow(meeting: {
+  transcript: string | null
+  raw_notes: string | null
+  structured_notes: unknown
+}): string | null {
+  const notes = meeting.structured_notes as Record<string, unknown> | null
+  const raw =
+    (notes?.summary as string) ||
+    meeting.raw_notes ||
+    (meeting.transcript ? meeting.transcript.substring(0, 1000) : null)
+  if (!raw?.trim()) return null
+  return capMeetingSummary(raw)
+}
+
 async function fetchLatestMeetingSnippet(contactId: number): Promise<string | null> {
   if (!supabaseAdmin) return null
   const { data: meetings } = await supabaseAdmin
@@ -196,14 +221,61 @@ async function fetchLatestMeetingSnippet(contactId: number): Promise<string | nu
     .limit(1)
 
   if (!meetings?.length) return null
-  const meeting = meetings[0]
-  const notes = meeting.structured_notes as Record<string, unknown> | null
-  const raw =
-    (notes?.summary as string) ||
-    meeting.raw_notes ||
-    (meeting.transcript ? meeting.transcript.substring(0, 1000) : null)
-  if (!raw?.trim()) return null
-  return capMeetingSummary(raw)
+  return meetingTextFromRow(meetings[0])
+}
+
+async function fetchMeetingSnippetByRecordId(
+  contactId: number,
+  meetingRecordId: string,
+): Promise<string | null> {
+  if (!supabaseAdmin) return null
+  const { data: meeting } = await supabaseAdmin
+    .from('meeting_records')
+    .select('transcript, raw_notes, structured_notes')
+    .eq('id', meetingRecordId)
+    .eq('contact_submission_id', contactId)
+    .maybeSingle()
+  if (!meeting) return null
+  return meetingTextFromRow(meeting)
+}
+
+/**
+ * Resolves the meeting that scopes a sequence-driven draft (context column +
+ * prompt notes). When `meetingRecordId` is set, it must belong to the contact.
+ * Otherwise, when `includeLatestMeeting` is true, use the most recent record.
+ */
+export async function resolveContextMeetingRecordIdForOutreach(options: {
+  contactId: number
+  /** Explicit meeting (UUID) from the client, or from product flows. */
+  meetingRecordId?: string | null
+  /** When no explicit id, load the latest `meeting_records` row for the contact. */
+  includeLatestMeeting: boolean
+}): Promise<string | null> {
+  if (!supabaseAdmin) return null
+  const raw = options.meetingRecordId?.trim()
+  if (raw) {
+    const { data, error } = await supabaseAdmin
+      .from('meeting_records')
+      .select('id')
+      .eq('id', raw)
+      .eq('contact_submission_id', options.contactId)
+      .maybeSingle()
+    if (error || !data?.id) {
+      throw new Error('Meeting not found for this lead')
+    }
+    return data.id as string
+  }
+  if (options.includeLatestMeeting) {
+    const { data } = await supabaseAdmin
+      .from('meeting_records')
+      .select('id')
+      .eq('contact_submission_id', options.contactId)
+      .order('meeting_date', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+    return (data?.id as string) ?? null
+  }
+  return null
 }
 
 /**
@@ -222,6 +294,8 @@ export async function buildOutreachPromptContext(
   let meetingSnippet: string | null = null
   if (req.meetingSummary != null && req.meetingSummary.trim() !== '') {
     meetingSnippet = capMeetingSummary(req.meetingSummary)
+  } else if (req.meetingRecordId) {
+    meetingSnippet = await fetchMeetingSnippetByRecordId(req.contactId, req.meetingRecordId)
   } else if (req.includeLatestMeeting !== false) {
     meetingSnippet = await fetchLatestMeetingSnippet(req.contactId)
   }
@@ -349,11 +423,29 @@ interface DuplicateGuardArgs {
   channel: OutreachChannel
   sequenceStep: number
   sourceTaskId: string | null
+  /** Required for sequence-driven (null source_task) duplicate detection. */
+  templateKey: string
+  /** meeting_records.id; null = no meeting context in scope. */
+  contextMeetingRecordId: string | null
   force: boolean
 }
 
 async function findExistingDraft(args: DuplicateGuardArgs): Promise<string | null> {
   if (!supabaseAdmin || args.force) return null
+
+  if (args.sourceTaskId != null) {
+    const { data: existing } = await supabaseAdmin
+      .from('outreach_queue')
+      .select('id')
+      .eq('contact_submission_id', args.contactId)
+      .eq('channel', args.channel)
+      .eq('sequence_step', args.sequenceStep)
+      .eq('status', 'draft')
+      .eq('source_task_id', args.sourceTaskId)
+      .limit(1)
+      .maybeSingle()
+    return (existing?.id as string | undefined) ?? null
+  }
 
   let existingQuery = supabaseAdmin
     .from('outreach_queue')
@@ -362,11 +454,13 @@ async function findExistingDraft(args: DuplicateGuardArgs): Promise<string | nul
     .eq('channel', args.channel)
     .eq('sequence_step', args.sequenceStep)
     .eq('status', 'draft')
+    .is('source_task_id', null)
+    .contains('generation_inputs', { template_key: args.templateKey })
 
-  if (args.sourceTaskId === null) {
-    existingQuery = existingQuery.is('source_task_id', null)
+  if (args.contextMeetingRecordId == null) {
+    existingQuery = existingQuery.is('context_meeting_record_id', null)
   } else {
-    existingQuery = existingQuery.eq('source_task_id', args.sourceTaskId)
+    existingQuery = existingQuery.eq('context_meeting_record_id', args.contextMeetingRecordId)
   }
 
   const { data: existing } = await existingQuery.limit(1).maybeSingle()
@@ -395,6 +489,8 @@ export async function generateOutreachDraftInApp(params: {
   sequenceStep?: number
   force?: boolean
   meetingSummary?: string | null
+  /** `meeting_records.id` (UUID) — prompt + duplicate scope. */
+  meetingRecordId?: string | null
   includeLatestMeeting?: boolean
   sourceTaskId?: string | null
   templateKey?: EmailTemplateKey
@@ -421,15 +517,36 @@ export async function generateOutreachDraftInApp(params: {
   const sourceTaskId = params.sourceTaskId ?? null
   const force = params.force === true
 
+  const hasSummary = params.meetingSummary != null && params.meetingSummary.trim() !== ''
+  const includeLatest = params.includeLatestMeeting !== false
+  const contextMeetingRecordId =
+    sourceTaskId != null
+      ? null
+      : await resolveContextMeetingRecordIdForOutreach({
+          contactId: params.contactId,
+          meetingRecordId: params.meetingRecordId ?? null,
+          includeLatestMeeting: hasSummary ? false : includeLatest,
+        })
+
   const existingId = await findExistingDraft({
     contactId: params.contactId,
     channel: 'email',
     sequenceStep,
     sourceTaskId,
+    templateKey,
+    contextMeetingRecordId: sourceTaskId == null ? contextMeetingRecordId : null,
     force,
   })
   if (existingId) {
-    return { outcome: 'skipped', reason: 'draft_exists' }
+    if (sourceTaskId != null) {
+      return { outcome: 'skipped', reason: 'draft_exists' }
+    }
+    return {
+      outcome: 'existing',
+      queueId: existingId,
+      templateKey,
+      channel: 'email',
+    }
   }
 
   const ctx = await buildOutreachPromptContext({
@@ -437,7 +554,8 @@ export async function generateOutreachDraftInApp(params: {
     channel: 'email',
     templateKey,
     meetingSummary: params.meetingSummary,
-    includeLatestMeeting: params.includeLatestMeeting,
+    meetingRecordId: contextMeetingRecordId ?? undefined,
+    includeLatestMeeting: hasSummary ? false : includeLatest,
     sequenceStep,
   })
 
@@ -492,6 +610,7 @@ export async function generateOutreachDraftInApp(params: {
       generation_inputs: generationInputs,
       is_test_data: isTestData,
       source_task_id: sourceTaskId,
+      context_meeting_record_id: sourceTaskId == null ? contextMeetingRecordId : null,
     })
     .select('id')
     .single()
@@ -537,6 +656,7 @@ export async function generateLinkedInDraftInApp(params: {
   sequenceStep?: number
   force?: boolean
   meetingSummary?: string | null
+  meetingRecordId?: string | null
   includeLatestMeeting?: boolean
   sourceTaskId?: string | null
   templateKey?: LinkedInTemplateKey
@@ -563,15 +683,36 @@ export async function generateLinkedInDraftInApp(params: {
   const sourceTaskId = params.sourceTaskId ?? null
   const force = params.force === true
 
+  const hasSummary = params.meetingSummary != null && params.meetingSummary.trim() !== ''
+  const includeLatest = params.includeLatestMeeting !== false
+  const contextMeetingRecordId =
+    sourceTaskId != null
+      ? null
+      : await resolveContextMeetingRecordIdForOutreach({
+          contactId: params.contactId,
+          meetingRecordId: params.meetingRecordId ?? null,
+          includeLatestMeeting: hasSummary ? false : includeLatest,
+        })
+
   const existingId = await findExistingDraft({
     contactId: params.contactId,
     channel: 'linkedin',
     sequenceStep,
     sourceTaskId,
+    templateKey,
+    contextMeetingRecordId: sourceTaskId == null ? contextMeetingRecordId : null,
     force,
   })
   if (existingId) {
-    return { outcome: 'skipped', reason: 'draft_exists' }
+    if (sourceTaskId != null) {
+      return { outcome: 'skipped', reason: 'draft_exists' }
+    }
+    return {
+      outcome: 'existing',
+      queueId: existingId,
+      templateKey,
+      channel: 'linkedin',
+    }
   }
 
   const ctx = await buildOutreachPromptContext({
@@ -579,7 +720,8 @@ export async function generateLinkedInDraftInApp(params: {
     channel: 'linkedin',
     templateKey,
     meetingSummary: params.meetingSummary,
-    includeLatestMeeting: params.includeLatestMeeting,
+    meetingRecordId: contextMeetingRecordId ?? undefined,
+    includeLatestMeeting: hasSummary ? false : includeLatest,
     sequenceStep,
   })
 
@@ -651,6 +793,7 @@ export async function generateLinkedInDraftInApp(params: {
       generation_inputs: generationInputs,
       is_test_data: isTestData,
       source_task_id: sourceTaskId,
+      context_meeting_record_id: sourceTaskId == null ? contextMeetingRecordId : null,
     })
     .select('id')
     .single()

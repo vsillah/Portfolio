@@ -77,6 +77,8 @@ export interface UseOutreachGenerationReturn {
   start: (
     templateKey?: OutreachTemplateKey,
     channel?: OutreachChannel,
+    /** Optional `meeting_records.id` — omitted means server uses latest for this lead. */
+    meetingRecordId?: string | null,
   ) => Promise<void>
   cancel: () => void
   retry: () => Promise<void>
@@ -142,6 +144,8 @@ export function useOutreachGeneration({
   const messagesCountRef = useRef(messagesCount)
   const messagesAtGenerationStartRef = useRef(0)
   const mountedRef = useRef(true)
+  /** Set on each /generate so Retry uses the same meeting scope. */
+  const lastMeetingRecordIdRef = useRef<string | undefined>(undefined)
   /**
    * Snapshot of `n8nTriggeredAt` at run start. The server bumps this value on
    * every trigger, so once the incoming prop is different we know the new run
@@ -303,6 +307,8 @@ export function useOutreachGeneration({
   const performGenerate = useCallback(async (
     templateKey?: OutreachTemplateKey,
     channel: OutreachChannel = 'email',
+    /** When set, scopes context + dedup to this `meeting_records` row. Omit to use server default (latest). */
+    meetingRecordId?: string | null,
   ) => {
     const session = await getCurrentSession()
     if (!session) {
@@ -312,6 +318,8 @@ export function useOutreachGeneration({
 
     if (templateKey) setLastTemplateKey(templateKey)
     setLastChannel(channel)
+    const trimmed = meetingRecordId?.trim() ?? ''
+    lastMeetingRecordIdRef.current = trimmed || undefined
 
     // Optimistic: hide any previous "fallback available" UI; a fresh run is starting.
     onFallbackCleared?.()
@@ -330,12 +338,51 @@ export function useOutreachGeneration({
         body: JSON.stringify({
           channel,
           ...(templateKey ? { templateKey } : {}),
+          ...(trimmed ? { meeting_record_id: trimmed } : {}),
         }),
       })
-      const data = await res.json().catch(() => ({}))
+      const data = (await res.json().catch(() => ({}))) as {
+        triggered?: boolean
+        error?: string
+        outcome?: string
+        reason?: string
+        fallback?: string
+        openDraftUrl?: string
+        templateKey?: string
+        queueId?: string
+        emailMessageId?: string | null
+      }
       if (!mountedRef.current) return
 
       setAwaitingHttpResponse(false)
+
+      if (res.ok && data.outcome === 'existing' && data.openDraftUrl) {
+        clearTimers()
+        startedAtRef.current = null
+        setElapsedMs(0)
+        setState('idle')
+        if (typeof window !== 'undefined') {
+          window.open(data.openDraftUrl, '_blank', 'noopener,noreferrer')
+        }
+        onToast?.(
+          `A draft for this template and meeting already exists for ${leadName} — opening it in a new tab.`,
+        )
+        onSettled?.()
+        return
+      }
+
+      if (res.status === 409 && data.outcome === 'skipped') {
+        clearTimers()
+        startedAtRef.current = null
+        setElapsedMs(0)
+        setState('idle')
+        onToast?.(
+          (typeof data.error === 'string' && data.error) ||
+            `A draft for ${leadName} is already in the queue for this step — check Email — recent and Email center.`,
+        )
+        onSettled?.()
+        return
+      }
 
       if (data?.triggered) {
         onFallbackCleared?.()
@@ -381,14 +428,22 @@ export function useOutreachGeneration({
   ])
 
   const start = useCallback(
-    async (templateKey?: OutreachTemplateKey, channel: OutreachChannel = 'email') => {
-      await performGenerate(templateKey, channel)
+    async (
+      templateKey?: OutreachTemplateKey,
+      channel: OutreachChannel = 'email',
+      meetingRecordId?: string | null,
+    ) => {
+      await performGenerate(templateKey, channel, meetingRecordId)
     },
     [performGenerate],
   )
 
   const retry = useCallback(async () => {
-    await performGenerate(lastTemplateKey ?? undefined, lastChannel)
+    await performGenerate(
+      lastTemplateKey ?? undefined,
+      lastChannel,
+      lastMeetingRecordIdRef.current,
+    )
   }, [performGenerate, lastTemplateKey, lastChannel])
 
   const cancel = useCallback(() => {
