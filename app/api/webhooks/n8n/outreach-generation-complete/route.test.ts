@@ -47,7 +47,7 @@ describe('POST /api/webhooks/n8n/outreach-generation-complete', () => {
 
   afterEach(() => {
     process.env = { ...originalEnv }
-    vi.clearAllMocks()
+    vi.restoreAllMocks()
   })
 
   it('returns 401 when bearer token is invalid', async () => {
