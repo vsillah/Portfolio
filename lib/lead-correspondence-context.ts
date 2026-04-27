@@ -98,20 +98,18 @@ interface RenderableEntry {
  * Load prior outreach history for a contact.
  *
  * @param contactId  — `contact_submissions.id`
- * @param channel    — current channel being generated; influences scope. Today
+ * @param _channel   — current channel being generated; influences scope. Today
  *                     we surface ALL channels for the lead (so an email
  *                     generator sees prior LinkedIn DMs and vice versa) since
- *                     reps treat the lead as one relationship. Pass `'email'`
- *                     or `'linkedin'` for forward-compatibility — future
- *                     versions may scope strictly.
+ *                     reps treat the lead as one relationship. Underscored
+ *                     to mark it as intentionally unused (currently); future
+ *                     versions may scope strictly to a single channel.
  * @returns          - `block`: the rendered text block (or null when nothing).
  *                   - `metadata`: structured trace for `generation_inputs`.
  */
 export async function loadLeadCorrespondenceExcerpt(
   contactId: number,
-  // Reserved for future channel-scoped filtering. Currently unused — see JSDoc.
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  channel: OutreachChannel,
+  _channel: OutreachChannel,
 ): Promise<{ block: string | null; metadata: PriorOutreachMetadata }> {
   const empty: PriorOutreachMetadata = {
     entriesConsidered: 0,
