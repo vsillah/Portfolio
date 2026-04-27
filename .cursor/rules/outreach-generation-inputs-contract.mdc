@@ -1,0 +1,78 @@
+---
+description: Contract for outreach_queue.generation_inputs — every new outreach draft generator must populate it
+alwaysApply: true
+---
+
+# Outreach generation_inputs Contract (Phase 2 traceability)
+
+## Why
+
+`outreach_queue.generation_inputs` (jsonb, added 2026-04-27) is how admins
+answer **"why does this draft look the way it does?"** without re-running the
+LLM. The "Why this draft?" popover (`components/admin/outreach/WhyThisDraftModal.tsx`)
+and the "Preview prompt" affordance both read from this shape.
+
+If a generator writes to `outreach_queue` without populating `generation_inputs`,
+the row becomes a black box — admins see "Trace not recorded" and lose the
+ability to audit, tweak, or compare.
+
+## Where it lives
+
+- DB column: `public.outreach_queue.generation_inputs` (`jsonb`, nullable)
+- Migration: `migrations/2026_04_27_outreach_queue_generation_inputs.sql`
+- Type: [`GenerationInputs`](../../lib/outreach-queue-generator.ts) in
+  `lib/outreach-queue-generator.ts` — single source of truth for the shape
+- Builder: `buildGenerationInputs({ ctx, templateKey, channel, sequenceStep })`
+  in the same file — always use it; do **not** hand-roll the object literal
+- Reader (existing draft): `GET /api/admin/outreach/drafts/:queueId/inputs`
+- Reader (preview, no LLM call): `GET /api/admin/outreach/leads/:id/preview-prompt?channel=&templateKey=`
+
+## Required keys (must all be set on insert)
+
+```ts
+{
+  template_key: string                 // matches a row in system_prompts.key
+  prompt_version: number | null        // system_prompts.version snapshot
+  channel: 'email' | 'linkedin'
+  model: string                        // resolved model id sent to the LLM
+  provider: 'openai' | 'anthropic'     // inferProvider(model)
+  temperature: number
+  max_tokens: number
+  sequence_step: number                // 1-6
+  research_brief_chars: number
+  social_proof_chars: number
+  meeting_summary_present: boolean
+  meeting_action_items_chars: number
+  pinecone_chars: number               // RAG block length, 0 when disabled
+  prior_chat_present: boolean
+  pinecone_block_hash: string | null   // sha256(8) of the RAG block, null when no block
+}
+```
+
+Adding a new context block (e.g. Phase 3 `prior_outreach_history`)? Update the
+`GenerationInputs` type, `buildGenerationInputs`, the migration's column comment,
+and the WhyThisDraftModal `KvSection` rendering in lockstep.
+
+## When to write
+
+Every code path that inserts into `outreach_queue` with `status='draft'` and
+the row was produced by an in-app generator must set `generation_inputs`.
+Reuse `buildOutreachPromptContext` so the sizes / fingerprint come out
+correctly — do not skip RAG just because tests are noisy. Use
+`EMAIL_RAG_ENABLED=false` in tests instead.
+
+Drafts produced manually (rep typed it themselves) or by external callbacks
+that don't have the trace can leave `generation_inputs` `null`. The UI treats
+`null` as "Trace not recorded" — that's the supported gap.
+
+## Don'ts
+
+- Don't store the full assembled prompt in `generation_inputs`. Use the
+  `preview-prompt` route to re-derive on demand. Storing the prompt would
+  bloat the table and leak Pinecone content.
+- Don't widen `generation_inputs` to capture per-token usage — that's
+  `llm_costs` territory, joined by `outreach_queue.id` when needed.
+- Don't add a `CHECK` constraint on the jsonb shape. Phase 3 will append
+  fields; a strict schema would force a coordinated migration every time.
+- Don't expose `generation_inputs` to non-admin endpoints — it's an audit
+  surface, not a customer-facing field.
