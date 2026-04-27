@@ -1,11 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { triggerLeadQualificationWebhook, triggerOutreachGeneration } from '@/lib/n8n'
+import { triggerLeadQualificationWebhook } from '@/lib/n8n'
 import { leadSourceFromInputType } from '@/lib/constants/lead-source'
 import { partitionN8nOutreachReconcile } from '@/lib/n8n-outreach-contact-status'
+import { partitionVepReconcile } from '@/lib/vep-contact-status'
+import { generateOutreachDraftInApp } from '@/lib/outreach-queue-generator'
+import { notifyOutreachDraftReady } from '@/lib/slack-outreach-notification'
 
 export const dynamic = 'force-dynamic'
+/**
+ * In-app email draft generation runs synchronously when `generate_outreach`
+ * is true (or for `input_type === 'meeting'`). Saraev-style prompts + RAG can
+ * push the LLM past the default 10s budget; bump to 60s like the
+ * `/leads/[id]/generate` endpoint.
+ */
+export const maxDuration = 60
+
+/**
+ * Kick off in-app outreach generation for a freshly-created/updated lead.
+ *
+ * Replaces the prior `triggerOutreachGeneration` n8n webhook (WF-CLG-002):
+ *  - Loads `system_prompts.email_cold_outreach` with full RAG + chat context
+ *  - Inserts the draft into `outreach_queue`
+ *  - Pings Slack via `SLACK_OUTREACH_DRAFT_WEBHOOK_URL` (best effort)
+ *
+ * Awaited so the draft exists by the time the API responds and the admin UI
+ * sees it on the next refetch. Errors are caught and logged — they must not
+ * block the lead create/update response.
+ */
+async function generateInAppDraftForNewLead(params: {
+  contactId: number
+  contactName: string | null
+  contactEmail: string | null
+  meetingSummary?: string | null
+}): Promise<void> {
+  try {
+    const result = await generateOutreachDraftInApp({
+      contactId: params.contactId,
+      sequenceStep: 1,
+      meetingSummary: params.meetingSummary ?? undefined,
+    })
+    if (result.outcome === 'created') {
+      notifyOutreachDraftReady({
+        contactId: params.contactId,
+        contactName: params.contactName,
+        contactEmail: params.contactEmail,
+        channel: 'email',
+        templateKey: 'email_cold_outreach',
+        queueId: result.id,
+      }).catch((err) => {
+        console.warn('[leads] notifyOutreachDraftReady failed', err)
+      })
+    }
+  } catch (err) {
+    console.error('[leads] in-app outreach generation failed:', err)
+  }
+}
 
 function normalizeUrl(url: string | undefined): string | null {
   if (!url || !url.trim()) return null
@@ -181,16 +232,11 @@ export async function POST(request: NextRequest) {
 
       const shouldGenerateOutreachOnUpdate = generate_outreach || input_type === 'meeting'
       if (shouldGenerateOutreachOnUpdate) {
-        triggerOutreachGeneration({
-          contact_id: existingId,
-          score_tier: 'hot',
-          lead_score: 80,
-          sequence_step: 1,
-          is_followup: false,
-          meeting_summary: meeting_summary || undefined,
-          pain_points: meeting_pain_points || rep_pain_points || undefined,
-        }).catch((err) => {
-          console.error('Outreach generation webhook failed (update path):', err)
+        await generateInAppDraftForNewLead({
+          contactId: existingId,
+          contactName: name?.trim() || null,
+          contactEmail: email?.trim()?.toLowerCase() || null,
+          meetingSummary: meeting_summary || null,
         })
       }
 
@@ -259,16 +305,11 @@ export async function POST(request: NextRequest) {
 
     const shouldGenerateOutreach = generate_outreach || input_type === 'meeting'
     if (shouldGenerateOutreach) {
-      triggerOutreachGeneration({
-        contact_id: newId,
-        score_tier: 'hot',
-        lead_score: 80,
-        sequence_step: 1,
-        is_followup: false,
-        meeting_summary: meeting_summary || undefined,
-        pain_points: meeting_pain_points || rep_pain_points || undefined,
-      }).catch((err) => {
-        console.error('Outreach generation webhook failed:', err)
+      await generateInAppDraftForNewLead({
+        contactId: newId,
+        contactName: name.trim(),
+        contactEmail: email?.trim()?.toLowerCase() || null,
+        meetingSummary: meeting_summary || null,
       })
     }
 
@@ -509,6 +550,29 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // VEP-001 pending sweep: flip leads that never got a workflow-complete
+    // callback (pre-hardening crashes, mis-routed webhooks, etc.) to `failed`
+    // after STALE_VEP_PENDING_MS so the UI exposes "Retry" instead of an
+    // indefinite "Stalled — retry" chip.
+    const { toFail: vepReconcileFail } = partitionVepReconcile(
+      (contacts || []) as Array<{
+        id: number
+        last_vep_status: string | null
+        last_vep_triggered_at: string | null
+      }>,
+    )
+    const vepFailSet = new Set(vepReconcileFail)
+    if (vepReconcileFail.length > 0) {
+      const { error: vepFailErr } = await supabaseAdmin
+        .from('contact_submissions')
+        .update({ last_vep_status: 'failed' })
+        .in('id', vepReconcileFail)
+        .eq('last_vep_status', 'pending')
+      if (vepFailErr) {
+        console.warn('VEP reconcile fail batch:', vepFailErr.message)
+      }
+    }
+
     // Batch: at least one diagnostic per contact (replaces N per-lead .limit(1) queries)
     const { data: allAuditsForLeads } = await supabaseAdmin
       .from('diagnostic_audits')
@@ -601,6 +665,9 @@ export async function GET(request: NextRequest) {
         if (n8nSuccessSet.has(contact.id)) lastN8nStatus = 'success'
         else if (n8nFailSet.has(contact.id)) lastN8nStatus = 'failed'
 
+        let lastVepStatus = contact.last_vep_status ?? null
+        if (vepFailSet.has(contact.id)) lastVepStatus = 'failed'
+
         return {
           ...contact,
           messages_count,
@@ -611,7 +678,7 @@ export async function GET(request: NextRequest) {
           session_count,
           evidence_count: evidenceCountByContact[contact.id] ?? 0,
           last_vep_triggered_at: contact.last_vep_triggered_at ?? null,
-          last_vep_status: contact.last_vep_status ?? null,
+          last_vep_status: lastVepStatus,
           last_n8n_outreach_triggered_at: contact.last_n8n_outreach_triggered_at ?? null,
           last_n8n_outreach_status: lastN8nStatus,
           last_n8n_outreach_template_key: contact.last_n8n_outreach_template_key ?? null,

@@ -8,7 +8,13 @@ export const dynamic = 'force-dynamic'
  * POST /api/admin/value-evidence/workflow-complete
  * Called by n8n at the end of a run.
  * Auth: Bearer N8N_INGEST_SECRET.
- * Body: { run_id?: string, workflow_id: 'vep001'|'vep002', status: 'success'|'failed', items_inserted?: number, error_message?: string }
+ * Body: { run_id?: string, workflow_id: 'vep001'|'vep002', status: 'success'|'failed', items_inserted?: number, error_message?: string, contact_submission_ids?: number[] }
+ *
+ * When `contact_submission_ids` is present, any of those leads still in
+ * `last_vep_status = 'pending'` are flipped to `success` (if the run ended
+ * successfully — even with 0 items inserted) or `failed` (if n8n reported an
+ * error). Without this, zero-evidence success paths leave leads stuck in
+ * `pending` forever (see audit in .cursor/rules/n8n-dev-stag-webhook-routing.mdc).
  */
 export async function POST(request: NextRequest) {
   const authHeader = request.headers.get('authorization')
@@ -21,12 +27,20 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json().catch(() => ({}))
-    const { run_id, workflow_id, status: completionStatus, items_inserted, error_message } = body as {
+    const {
+      run_id,
+      workflow_id,
+      status: completionStatus,
+      items_inserted,
+      error_message,
+      contact_submission_ids,
+    } = body as {
       run_id?: string
       workflow_id?: string
       status?: string
       items_inserted?: number
       error_message?: string
+      contact_submission_ids?: unknown
     }
 
     if (!workflow_id) {
@@ -121,6 +135,30 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('workflow-complete update error:', error)
       return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // Flip `contact_submissions.last_vep_status` for in-scope leads that are
+    // still `pending`. Only VEP-001 owns this signal (VEP-002 is a secondary
+    // pipeline; its per-lead status is derived elsewhere). Skip during
+    // auto-chaining — the run is still in-flight (workflow_id was flipped to
+    // vep002 above), so leave leads pending until the final social callback.
+    if (wf === 'vep001' && !shouldChainSocial) {
+      const rawIds = Array.isArray(contact_submission_ids) ? contact_submission_ids : []
+      const ids = rawIds
+        .map((v) => (typeof v === 'number' ? v : typeof v === 'string' ? Number(v) : NaN))
+        .filter((n) => Number.isFinite(n) && n > 0) as number[]
+
+      if (ids.length > 0) {
+        const newStatus = status === 'failed' ? 'failed' : 'success'
+        const { error: statusErr } = await supabaseAdmin
+          .from('contact_submissions')
+          .update({ last_vep_status: newStatus })
+          .in('id', ids)
+          .eq('last_vep_status', 'pending')
+        if (statusErr) {
+          console.warn('workflow-complete last_vep_status update error:', statusErr.message)
+        }
+      }
     }
 
     // Fire social phase if auto-chaining

@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { clearPromptCache } from '@/lib/system-prompts'
+import {
+  SUPPORTED_OUTREACH_MODELS,
+  isSupportedOutreachModel,
+} from '@/lib/constants/llm-models'
+import { isOutreachPromptKey } from '@/lib/constants/prompt-keys'
 
 export const dynamic = 'force-dynamic'
 
@@ -82,7 +87,27 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     if (name !== undefined) updates.name = name
     if (description !== undefined) updates.description = description
     if (prompt !== undefined) updates.prompt = prompt
-    if (config !== undefined) updates.config = config
+    if (config !== undefined) {
+      // Outreach + LLM-judge prompts go through `lib/llm-dispatch.ts`. Reject
+      // models that aren't in the curated whitelist so the dispatcher and the
+      // cost calculator stay aligned with the admin dropdown.
+      if (key === 'llm_judge' || isOutreachPromptKey(key)) {
+        const cfg = (config && typeof config === 'object' ? config : {}) as Record<string, unknown>
+        const modelValue = cfg.model
+        if (typeof modelValue === 'string' && modelValue.trim() !== '') {
+          if (!isSupportedOutreachModel(modelValue)) {
+            const allowed = SUPPORTED_OUTREACH_MODELS.map((m) => m.id).join(', ')
+            return NextResponse.json(
+              {
+                error: `Unsupported model '${modelValue}'. Allowed: ${allowed}.`,
+              },
+              { status: 400 },
+            )
+          }
+        }
+      }
+      updates.config = config
+    }
     if (is_active !== undefined) updates.is_active = is_active
 
     const { data, error } = await supabaseAdmin
