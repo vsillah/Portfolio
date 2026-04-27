@@ -10,6 +10,10 @@ let mockExistingDraftId: string | null = null
 let mockInsertId = '00000000-0000-4000-8000-000000000001'
 /** Captures the payload passed to outreach_queue.insert() (Phase 2 traceability tests). */
 let lastOutreachInsertPayload: Record<string, unknown> | null = null
+/** Phase 3 — rows the prior-outreach loader sees on outreach_queue. */
+let mockPriorOutreachRows: Array<Record<string, unknown>> = []
+/** Phase 3 — rows the prior-outreach loader sees on contact_communications. */
+let mockPriorInboundCommsRows: Array<Record<string, unknown>> = []
 
 vi.mock('@/lib/system-prompts', () => ({
   getSystemPrompt: (...args: unknown[]) => mockGetSystemPrompt(...args),
@@ -78,24 +82,36 @@ vi.mock('@/lib/supabase', () => ({
         }
       }
       if (table === 'outreach_queue') {
-        const maybeSingleResult = () =>
+        // Duplicate-check chain (before LLM call):
+        //   .select().eq(contact_submission_id).eq(channel).eq(sequence_step)
+        //     .eq(status)
+        //     [.is(source_task_id, null) | .eq(source_task_id, ...)]
+        //     .limit(1).maybeSingle()
+        const dupMaybeSingle = () =>
           Promise.resolve({
             data: mockExistingDraftId ? { id: mockExistingDraftId } : null,
             error: null,
           })
-        const limitChain = () => ({ maybeSingle: maybeSingleResult })
-        const sourceTaskFilter = () => ({
-          limit: limitChain,
-        })
+        const dupLimit = () => ({ maybeSingle: dupMaybeSingle })
+        const dupSourceTaskFilter = () => ({ limit: dupLimit })
+
+        // Phase 3 prior-outreach loader chain:
+        //   .select().eq(contact_submission_id).in('status', [...]).order(...).limit(...)
+        const priorLimit = () =>
+          Promise.resolve({ data: mockPriorOutreachRows, error: null })
+        const priorOrder = () => ({ limit: priorLimit })
+        const priorIn = () => ({ order: priorOrder })
+
         return {
           select: () => ({
             eq: () => ({
+              in: priorIn,
               eq: () => ({
                 eq: () => ({
                   eq: () => ({
-                    is: sourceTaskFilter,
-                    eq: sourceTaskFilter,
-                    limit: limitChain,
+                    is: dupSourceTaskFilter,
+                    eq: dupSourceTaskFilter,
+                    limit: dupLimit,
                   }),
                 }),
               }),
@@ -113,6 +129,26 @@ vi.mock('@/lib/supabase', () => ({
               }),
             }
           },
+        }
+      }
+      if (table === 'contact_communications') {
+        // Phase 3 prior-outreach loader chain:
+        //   .select().eq(contact_submission_id).eq(direction, 'inbound')
+        //     .order(created_at, ...).limit(N)
+        return {
+          select: () => ({
+            eq: () => ({
+              eq: () => ({
+                order: () => ({
+                  limit: () =>
+                    Promise.resolve({
+                      data: mockPriorInboundCommsRows,
+                      error: null,
+                    }),
+                }),
+              }),
+            }),
+          }),
         }
       }
       return {}
@@ -157,6 +193,8 @@ describe('generateOutreachDraftInApp', () => {
     mockExistingDraftId = null
     mockInsertId = '00000000-0000-4000-8000-000000000001'
     lastOutreachInsertPayload = null
+    mockPriorOutreachRows = []
+    mockPriorInboundCommsRows = []
     mockGetSystemPrompt.mockResolvedValue({
       prompt: 'Brief:\n{{research_brief}}\nProof:\n{{social_proof}}\nFrom {{sender_name}}',
       config: { model: 'gpt-4o-mini', temperature: 0.7, maxTokens: 600 },
@@ -282,6 +320,44 @@ describe('generateOutreachDraftInApp', () => {
     expect(inputs?.pinecone_chars).toBe(0)
     expect(inputs?.prior_chat_present).toBe(false)
     expect(inputs?.pinecone_block_hash).toBeNull()
+    // Phase 3 — empty prior outreach when there is no history.
+    expect(inputs?.prior_outreach_chars).toBe(0)
+    expect(inputs?.prior_outreach_entries).toBe(0)
+    expect(inputs?.prior_outreach_has_inbound).toBe(false)
+  })
+
+  it('reflects prior outreach history in generation_inputs (Phase 3)', async () => {
+    const recentIso = new Date().toISOString()
+    mockPriorOutreachRows = [
+      {
+        id: '00000000-0000-4000-8000-0000000000a1',
+        channel: 'email',
+        subject: 'Initial pitch',
+        body: 'Saw your AI rollout — would love to compare notes.',
+        sequence_step: 1,
+        status: 'replied',
+        reply_content: 'Thanks — let’s pick this up next week. — Kyle',
+        sent_at: recentIso,
+        replied_at: recentIso,
+        created_at: recentIso,
+      },
+    ]
+
+    const { generateOutreachDraftInApp } = await import('../outreach-queue-generator')
+    await generateOutreachDraftInApp({
+      contactId: 99,
+      templateKey: 'email_cold_outreach',
+      force: true,
+    })
+
+    expect(lastOutreachInsertPayload).not.toBeNull()
+    const inputs = lastOutreachInsertPayload?.generation_inputs as
+      | Record<string, unknown>
+      | undefined
+    expect(inputs).toBeDefined()
+    expect(inputs?.prior_outreach_entries).toBe(1)
+    expect((inputs?.prior_outreach_chars as number) ?? 0).toBeGreaterThan(0)
+    expect(inputs?.prior_outreach_has_inbound).toBe(true)
   })
 })
 
@@ -306,6 +382,8 @@ describe('generateLinkedInDraftInApp', () => {
     mockExistingDraftId = null
     mockInsertId = '00000000-0000-4000-8000-0000000000aa'
     lastOutreachInsertPayload = null
+    mockPriorOutreachRows = []
+    mockPriorInboundCommsRows = []
     mockGetSystemPrompt.mockResolvedValue({
       prompt:
         'LinkedIn outreach for {{research_brief}} from {{sender_name}}. Voice: {{social_proof}}',

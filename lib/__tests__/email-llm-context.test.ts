@@ -130,3 +130,64 @@ describe('appendPineconeAndChatContextWithMetadata', () => {
     expect(out).toBe('p')
   })
 })
+
+describe('applyPriorOutreachHistorySentinel', () => {
+  it('substitutes the bare {{prior_outreach_history}} placeholder', async () => {
+    const { applyPriorOutreachHistorySentinel } = await import(
+      '../email-llm-context'
+    )
+    const tpl = 'Top.\n{{prior_outreach_history}}\nBottom.'
+    const out = applyPriorOutreachHistorySentinel(tpl, 'HISTORY_BLOCK')
+    expect(out).toContain('HISTORY_BLOCK')
+    expect(out).not.toContain('{{prior_outreach_history}}')
+    expect(out.indexOf('Top.')).toBeLessThan(out.indexOf('HISTORY_BLOCK'))
+    expect(out.indexOf('HISTORY_BLOCK')).toBeLessThan(out.indexOf('Bottom.'))
+  })
+
+  it('substitutes inside the block sentinel and keeps surrounding context', async () => {
+    const { applyPriorOutreachHistorySentinel } = await import(
+      '../email-llm-context'
+    )
+    const tpl =
+      'Top.\n{{#prior_outreach_history}}\n## Heading\n{{prior_outreach_history}}\nReminder: do not repeat.\n{{/prior_outreach_history}}\nBottom.'
+    const out = applyPriorOutreachHistorySentinel(tpl, 'HISTORY_BLOCK')
+    expect(out).toContain('## Heading')
+    expect(out).toContain('HISTORY_BLOCK')
+    expect(out).toContain('Reminder: do not repeat.')
+    expect(out).not.toContain('{{#prior_outreach_history}}')
+    expect(out).not.toContain('{{/prior_outreach_history}}')
+  })
+
+  it('strips the wrapped block when value is null', async () => {
+    const { applyPriorOutreachHistorySentinel } = await import(
+      '../email-llm-context'
+    )
+    const tpl =
+      'Top.\n{{#prior_outreach_history}}\n## Heading\n{{prior_outreach_history}}\n{{/prior_outreach_history}}\nBottom.'
+    const out = applyPriorOutreachHistorySentinel(tpl, null)
+    expect(out).not.toContain('Heading')
+    expect(out).not.toContain('{{prior_outreach_history}}')
+    expect(out).toContain('Top.')
+    expect(out).toContain('Bottom.')
+  })
+
+  it('appends a default block at the end when sentinel is missing and value is non-empty', async () => {
+    const { applyPriorOutreachHistorySentinel } = await import(
+      '../email-llm-context'
+    )
+    const tpl = 'plain template, no sentinel'
+    const out = applyPriorOutreachHistorySentinel(tpl, 'HISTORY_BLOCK')
+    expect(out.startsWith(tpl)).toBe(true)
+    expect(out).toContain('HISTORY_BLOCK')
+  })
+
+  it('is a no-op when sentinel is missing and value is null/empty', async () => {
+    const { applyPriorOutreachHistorySentinel } = await import(
+      '../email-llm-context'
+    )
+    const tpl = 'plain template, no sentinel'
+    expect(applyPriorOutreachHistorySentinel(tpl, null)).toBe(tpl)
+    expect(applyPriorOutreachHistorySentinel(tpl, '')).toBe(tpl)
+    expect(applyPriorOutreachHistorySentinel(tpl, '   ')).toBe(tpl)
+  })
+})
