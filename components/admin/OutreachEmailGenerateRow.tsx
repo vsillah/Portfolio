@@ -21,58 +21,31 @@ import { getCurrentSession } from '@/lib/auth'
 import { useOutreachGeneration } from '@/lib/hooks/useOutreachGeneration'
 import {
   EMAIL_TEMPLATE_KEYS,
+  LINKEDIN_TEMPLATE_KEYS,
   getPromptDisplayName,
   type EmailTemplateKey,
+  type LinkedInTemplateKey,
+  type OutreachChannel,
 } from '@/lib/constants/prompt-keys'
+import { estimateMilestoneProgress, type PipelineStage } from '@/lib/pipeline-progress'
 
-const N8N_STAGES: { label: string; startsAt: number }[] = [
-  { label: 'Contacting n8n', startsAt: 0 },
-  { label: 'Queuing & generating', startsAt: 3 },
-  { label: 'Saving to queue', startsAt: 20 },
+// Generation pipeline stages used by the in-flight progress bar. The same
+// labels apply to the in-app path because /generate is now the in-app generator.
+const GENERATE_STAGES: PipelineStage[] = [
+  { label: 'Building prompt', startsAt: 0 },
+  { label: 'Calling model', startsAt: 3 },
+  { label: 'Saving draft', startsAt: 20 },
 ]
-const N8N_TYPICAL_S = 50
+const GENERATE_TYPICAL_S = 45
 
-const INAPP_STAGES: { label: string; startsAt: number }[] = [
+const INAPP_STAGES: PipelineStage[] = [
   { label: 'Loading lead context', startsAt: 0 },
   { label: 'Calling model', startsAt: 4 },
   { label: 'Saving draft', startsAt: 20 },
 ]
 const INAPP_TYPICAL_S = 42
 
-type Channel = 'email' | 'sms' | 'phone'
-
-function estimateMilestoneProgress(
-  stages: { label: string; startsAt: number }[],
-  typicalS: number,
-  elapsedMs: number,
-): { currentStageLabel: string; progressPct: number; stepIndex: number; stepTotal: number } {
-  const stagesDef = stages
-  const elapsedS = elapsedMs / 1000
-  let currentLabel = stagesDef[0].label
-  let stageIdx = 0
-  for (let i = stagesDef.length - 1; i >= 0; i--) {
-    if (elapsedS >= stagesDef[i].startsAt) {
-      currentLabel = stagesDef[i].label
-      stageIdx = i
-      break
-    }
-  }
-  const nextStart =
-    stageIdx + 1 < stagesDef.length ? stagesDef[stageIdx + 1].startsAt : typicalS
-  const segStart = stagesDef[stageIdx].startsAt
-  const segLen = Math.max(5, nextStart - segStart)
-  const t = Math.min(1, Math.max(0, (elapsedS - segStart) / segLen))
-  const eased = 1 - Math.exp(-2.8 * t)
-  const base = (stageIdx / stagesDef.length) * 88
-  const span = (1 / stagesDef.length) * 88
-  const progressPct = Math.round(Math.min(94, Math.max(3, base + eased * span * 0.92)))
-  return {
-    currentStageLabel: currentLabel,
-    progressPct,
-    stepIndex: stageIdx + 1,
-    stepTotal: stagesDef.length,
-  }
-}
+type Channel = OutreachChannel
 
 type SuggestedReason =
   | 'converted_client'
@@ -91,11 +64,9 @@ const REASON_LABELS: Record<SuggestedReason, string> = {
   cold: 'cold lead — first touch',
 }
 
-const CANCEL_HONEST =
-  'Stops this screen from waiting. n8n or the model may still finish; check Email center for the row when it appears.'
-
+/** Shown on hover of the run cancel (X) control only. */
 const CANCEL_BUTTON_HELP =
-  'Stops this UI from waiting. Does not cancel the job in n8n or the model. Check Email center if a draft appears.'
+  'Stops this screen from waiting. The model may still finish in the background and the draft can show up in the queue.'
 
 function timeAgo(date: string): string {
   const ms = Date.now() - new Date(date).getTime()
@@ -196,7 +167,7 @@ export function OutreachEmailGenerateRow({
       : elapsedMs
   const showN8nBarSuccess = (state === 'succeeded' || serverN8nSuccess) && !inAppRunning
   const progressN8n = useMemo(
-    () => (n8nActive ? estimateMilestoneProgress(N8N_STAGES, N8N_TYPICAL_S, n8nEffectiveElapsed) : null),
+    () => (n8nActive ? estimateMilestoneProgress(GENERATE_STAGES, GENERATE_TYPICAL_S, n8nEffectiveElapsed) : null),
     [n8nActive, n8nEffectiveElapsed],
   )
   const progressInApp = useMemo(
@@ -363,13 +334,20 @@ export function OutreachEmailGenerateRow({
   const contactHref = `/admin/contacts/${lead.id}?focus=compose${
     suggested?.template ? `&template=${suggested.template}` : ''
   }#compose`
+  const emailCenterHref = `/admin/email-center?contact=${lead.id}`
 
-  const runN8n = (key?: EmailTemplateKey) => {
-    void start(key)
+  const runGenerate = (
+    key?: EmailTemplateKey | LinkedInTemplateKey,
+    targetChannel: Channel = channel,
+  ) => {
+    void start(key, targetChannel)
   }
 
-  const pickTemplateN8n = (key: EmailTemplateKey) => {
-    runN8n(key)
+  const pickTemplate = (
+    key: EmailTemplateKey | LinkedInTemplateKey,
+    targetChannel: Channel = channel,
+  ) => {
+    runGenerate(key, targetChannel)
   }
 
   const activitySummary = useMemo(() => {
@@ -378,8 +356,8 @@ export function OutreachEmailGenerateRow({
     }
     if (state === 'succeeded' || serverN8nSuccess) return 'Draft created'
     if (state === 'cancelled') return 'Stopped'
-    if (state === 'failed' && n8nFallback) return 'Automation down'
-    if (state === 'failed' || serverN8nFailed) return 'n8n issue'
+    if (state === 'failed' && n8nFallback) return 'Generation failed'
+    if (state === 'failed' || serverN8nFailed) return 'Generation failed'
     if (lead.messages_count === 0) return 'No activity yet'
     if (messagesSent > 0) {
       return `${lead.messages_count} in queue, ${messagesSent} sent`
@@ -419,16 +397,16 @@ export function OutreachEmailGenerateRow({
   if (showN8nBarSuccess) {
     outreachBar = (
       <div
-        className="inline-flex h-9 min-h-11 w-full min-w-0 max-w-sm items-center justify-between gap-1 rounded-lg bg-emerald-600/90 pl-2.5 pr-1.5 text-sm font-medium text-white"
+        className="inline-flex h-9 min-h-11 w-full min-w-0 max-w-sm items-stretch justify-between gap-0 overflow-hidden rounded-lg bg-emerald-600/90 text-sm font-medium text-white"
         role="status"
-        title="Draft is in the queue. Click to view it in the Outreach panel below."
       >
         <button
           type="button"
-          className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 bg-transparent py-1.5 text-white hover:underline"
+          className="inline-flex min-w-0 flex-1 items-center justify-center gap-1.5 bg-transparent py-1.5 pl-2.5 pr-1 text-white hover:underline"
           onClick={() => {
             setPanelOpen(true)
           }}
+          title="Outreach options and email history for this lead"
           aria-label={`Draft ready for ${lead.name} — open Outreach panel`}
         >
           <CheckCircle size={14} className="shrink-0" />
@@ -440,9 +418,20 @@ export function OutreachEmailGenerateRow({
           )}
           <ChevronDown className="h-3.5 w-3.5 shrink-0 text-white/85" aria-hidden />
         </button>
+        <Link
+          href={emailCenterHref}
+          className="inline-flex max-w-[45%] shrink-0 items-center justify-center gap-1 border-l border-white/20 px-2.5 text-xs font-semibold text-white/95 no-underline hover:bg-white/10"
+          title="View this lead in Email center (queue and send history)"
+          onClick={() => {
+            setPanelOpen(false)
+          }}
+        >
+          <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden />
+          <span className="min-w-0 truncate">Email center</span>
+        </Link>
         <button
           type="button"
-          className="shrink-0 rounded p-1 text-white/90 hover:bg-white/15"
+          className="shrink-0 border-l border-white/20 px-1.5 text-white/90 hover:bg-white/15"
           title="Clear this success state (draft stays in the queue)"
           aria-label="Dismiss draft ready"
           onClick={() => {
@@ -475,7 +464,7 @@ export function OutreachEmailGenerateRow({
           className="inline-flex h-9 min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-red-700/60 bg-red-950/40 px-3 text-sm font-medium text-red-200 hover:bg-red-950/60"
         >
           <RotateCcw size={14} className="shrink-0" />
-          <span>Retry n8n</span>
+          <span>Retry generation</span>
           <AlertCircle size={12} className="opacity-70" />
         </button>
         {queueCountLabel && (
@@ -491,15 +480,12 @@ export function OutreachEmailGenerateRow({
     )
   } else if (anyRun) {
     const phase = progress?.currentStageLabel ?? phaseDisplay
-    const runningTitle = `${runningHeadline} — ${phase}${
-      queueCountLabel
-        ? `. ${queueCountLabel} — tap to open details, or Cancel to stop waiting.`
-        : ' — tap to open details, or Cancel to stop waiting.'
-    }`
+    const runningTitle = queueCountLabel
+      ? `${runningHeadline} — ${phase} · ${queueCountLabel} · open for details`
+      : `${runningHeadline} — ${phase} · open for details`
     outreachBar = (
       <div
         className="flex w-full min-w-0 max-w-sm overflow-hidden rounded-lg border border-amber-500/50 min-h-11"
-        title={CANCEL_HONEST}
         role="group"
         aria-label={`${runningHeadline} for ${lead.name}`}
       >
@@ -543,7 +529,7 @@ export function OutreachEmailGenerateRow({
           onClick={onCancel}
           className="shrink-0 border-l border-amber-500/30 bg-amber-950/50 px-2.5 text-amber-200 transition-colors hover:bg-amber-950/75"
           title={CANCEL_BUTTON_HELP}
-          aria-label="Cancel: stop this screen from waiting. Does not cancel the job in n8n or the model."
+          aria-label={CANCEL_BUTTON_HELP}
         >
           <X size={16} className="mx-auto" />
         </button>
@@ -614,9 +600,6 @@ export function OutreachEmailGenerateRow({
             stale={false}
             barOnly
           />
-          <p className="mt-1 text-[10px] text-muted-foreground" title={CANCEL_HONEST}>
-            {CANCEL_HONEST}
-          </p>
         </div>
       )}
 
@@ -655,19 +638,28 @@ export function OutreachEmailGenerateRow({
                   stale={false}
                   barOnly
                 />
-                <p className="mt-1.5 text-[10px] text-muted-foreground" title={CANCEL_HONEST}>
-                  {CANCEL_HONEST}
-                </p>
               </div>
             )}
-            {anyRun && (
-              <p
-                className="border-b border-amber-500/15 bg-amber-950/10 px-3 py-1.5 text-[10px] leading-relaxed text-amber-100/80"
+            {showN8nBarSuccess && !anyRun && (
+              <div
+                className="border-b border-emerald-500/25 bg-emerald-950/20 px-3 py-2"
                 role="status"
               >
-                Finish or cancel this run to change channel or start another template. Cancel stops this screen
-                from waiting, not the job in n8n or the model.
-              </p>
+                <p className="text-[11px] leading-relaxed text-emerald-100/90">
+                  <Link
+                    href={emailCenterHref}
+                    onClick={() => {
+                      setPanelOpen(false)
+                    }}
+                    className="font-medium text-sky-300/95 underline decoration-sky-400/35 underline-offset-2 hover:decoration-sky-300/60"
+                  >
+                    Open Email center
+                  </Link>
+                  <span className="text-emerald-100/75">
+                    {" — this contact's email queue. Refresh the list below if the new row is still syncing."}
+                  </span>
+                </p>
+              </div>
             )}
             <div
               className="flex border-b border-silicon-slate/80"
@@ -677,31 +669,27 @@ export function OutreachEmailGenerateRow({
               {(
                 [
                   { id: 'email' as const, label: 'Email' },
-                  { id: 'sms' as const, label: 'SMS' },
-                  { id: 'phone' as const, label: 'Phone' },
+                  { id: 'linkedin' as const, label: 'LinkedIn' },
                 ] as const
               ).map((tab) => {
                 const active = channel === tab.id
-                const isSoon = tab.id !== 'email'
                 return (
                   <button
                     key={tab.id}
                     type="button"
                     role="tab"
                     aria-selected={active}
-                    disabled={isSoon || anyRun}
+                    disabled={anyRun}
                     title={
-                      isSoon
-                        ? 'Coming soon'
-                        : anyRun
-                          ? 'Wait for the current run to finish'
-                          : `Channel: ${tab.label}`
+                      anyRun
+                        ? 'Wait for the current run to finish'
+                        : `Channel: ${tab.label}`
                     }
                     onClick={() => {
-                      if (!isSoon && !anyRun) setChannel(tab.id)
+                      if (!anyRun) setChannel(tab.id)
                     }}
                     className={`min-h-9 flex-1 border-b-2 px-0.5 py-1.5 text-center text-xs font-medium leading-tight transition-colors ${
-                      isSoon || anyRun
+                      anyRun
                         ? 'cursor-not-allowed border-transparent text-muted-foreground/60'
                         : active
                           ? 'border-emerald-500 text-foreground'
@@ -709,9 +697,6 @@ export function OutreachEmailGenerateRow({
                     }`}
                   >
                     <span className="block">{tab.label}</span>
-                    {isSoon && (
-                      <span className="mt-0.5 block text-[9px] font-normal normal-case text-muted-foreground/70">soon</span>
-                    )}
                   </button>
                 )
               })}
@@ -721,8 +706,8 @@ export function OutreachEmailGenerateRow({
               <div className="p-0">
                 {n8nFallback && !inAppLoading && !anyRun && (
                   <div className="m-2 rounded-md border border-violet-500/30 bg-violet-950/25 p-2 text-[12px] text-violet-100/95">
-                    <p className="mb-0.5 font-medium">n8n is unavailable for this run</p>
-                    <p className="text-[11px] text-violet-200/80">Use the OpenAI cold draft below.</p>
+                    <p className="mb-0.5 font-medium">Generation failed for this run</p>
+                    <p className="text-[11px] text-violet-200/80">Try again with the cold draft below.</p>
                     <button
                       type="button"
                       disabled={anyRun}
@@ -739,7 +724,7 @@ export function OutreachEmailGenerateRow({
 
                 <div className="px-3 pt-2.5">
                   <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
-                    n8n — quick generate
+                    Email templates
                   </p>
                   {suggestLoading && (
                     <p className="mb-1.5 text-[11px] text-muted-foreground">
@@ -755,7 +740,7 @@ export function OutreachEmailGenerateRow({
                       type="button"
                       disabled={anyRun}
                       onClick={() => {
-                        pickTemplateN8n(suggested.template)
+                        pickTemplate(suggested.template, 'email')
                       }}
                       className="flex w-full min-h-11 items-center justify-between gap-2 rounded-md border border-emerald-500/30 bg-gradient-to-r from-emerald-600/20 to-teal-600/15 px-2.5 py-2 text-left text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:opacity-50"
                     >
@@ -772,7 +757,7 @@ export function OutreachEmailGenerateRow({
 
                 <ul
                   className="max-h-32 space-y-0.5 overflow-y-auto px-1.5 py-0.5 text-xs"
-                  aria-label="n8n email templates"
+                  aria-label="Email templates"
                 >
                   {EMAIL_TEMPLATE_KEYS.map((key) => {
                     const isSug = suggested?.template === key
@@ -783,7 +768,7 @@ export function OutreachEmailGenerateRow({
                           disabled={anyRun}
                           className="flex w-full min-h-9 items-center justify-between gap-2 rounded-md px-2.5 text-left text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
                           onClick={() => {
-                            pickTemplateN8n(key)
+                            pickTemplate(key, 'email')
                           }}
                         >
                           <span className="truncate">{getPromptDisplayName(key)}</span>
@@ -795,7 +780,7 @@ export function OutreachEmailGenerateRow({
                 </ul>
 
                 <div className="h-px bg-border/50" />
-                <p className="px-3 pt-1.5 text-[10px] text-muted-foreground">In-app (OpenAI) — cold outreach</p>
+                <p className="px-3 pt-1.5 text-[10px] text-muted-foreground">Quick draft — cold outreach</p>
                 <div className="px-2.5 pb-2">
                   <button
                     type="button"
@@ -806,7 +791,7 @@ export function OutreachEmailGenerateRow({
                     }}
                   >
                     {inAppLoading ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                    Draft in app
+                    Draft cold email
                   </button>
                 </div>
 
@@ -843,7 +828,7 @@ export function OutreachEmailGenerateRow({
                       {recent.map((r) => {
                         const href = r.email_message_id
                           ? `/admin/email-messages/${r.email_message_id}`
-                          : `/admin/email-center?contact=${lead.id}`
+                          : emailCenterHref
                         const itemTitle = r.email_message_id
                           ? `Open ${r.subject || 'this draft'} in the email viewer`
                           : `View ${r.subject || 'this draft'} in the Email Center (indexer has not caught up yet)`
@@ -877,7 +862,7 @@ export function OutreachEmailGenerateRow({
                   ) : null}
                   <div className="flex flex-col gap-0.5 text-[11px]">
                     <a
-                      href={`/admin/email-center?contact=${lead.id}`}
+                      href={emailCenterHref}
                       className="inline-flex min-h-8 min-w-0 max-w-full items-center gap-1.5 text-primary hover:underline"
                       title="View all outreach and email history for this lead (Email center, filtered to this contact)"
                       aria-label={`View all outreach and email history for ${lead.name}`}
@@ -899,6 +884,50 @@ export function OutreachEmailGenerateRow({
                       Contact — compose
                     </Link>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {channel === 'linkedin' && (
+              <div className="p-0">
+                <div className="px-3 pt-2.5">
+                  <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">
+                    LinkedIn templates
+                  </p>
+                  <p className="mb-2 text-[11px] leading-snug text-muted-foreground/80">
+                    Generates a connection note plus a follow-up DM. Send the note via LinkedIn manually,
+                    then queue the DM 3–7 days after the invite is accepted.
+                  </p>
+                </div>
+
+                <ul
+                  className="max-h-32 space-y-0.5 overflow-y-auto px-1.5 py-0.5 text-xs"
+                  aria-label="LinkedIn templates"
+                >
+                  {LINKEDIN_TEMPLATE_KEYS.map((key) => (
+                    <li key={key}>
+                      <button
+                        type="button"
+                        disabled={anyRun}
+                        className="flex w-full min-h-9 items-center justify-between gap-2 rounded-md px-2.5 text-left text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
+                        onClick={() => {
+                          pickTemplate(key, 'linkedin')
+                        }}
+                      >
+                        <span className="truncate">{getPromptDisplayName(key)}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="border-t border-silicon-slate bg-muted/15 px-2.5 py-2">
+                  <p className="text-[10px] font-medium uppercase text-muted-foreground/80">
+                    Where drafts go
+                  </p>
+                  <p className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                    LinkedIn drafts land in the outreach queue with a CONNECTION NOTE + FOLLOW-UP DM
+                    block. Review them in the lead&apos;s Outreach panel before sending.
+                  </p>
                 </div>
               </div>
             )}

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { isWarmLeadSource } from '@/lib/constants/lead-source'
 import {
@@ -106,6 +106,22 @@ interface LeadsResponse {
   total: number
   page: number
 }
+
+/** Deduplicate silent /api/admin/outreach/leads refetches (Realtime, poll) */
+const MIN_SILENT_LEADS_FETCH_MS = 2000
+/** n8n + VEP pending fallback when Supabase Realtime lags; keep slower than min silent gap */
+const VEP_N8N_PENDING_POLL_MS = 10_000
+/** Slightly coalesce burst UPDATE/INSERT events before refetching the list */
+const OUTREACH_REALTIME_DEBOUNCE_MS = 1500
+/**
+ * "Active pending" windows. Rows whose `triggered_at` is older than this are
+ * treated as stale (surfaced as "Stalled — retry" / reconciled to failed by
+ * the GET handler) and no longer drive live polling / Realtime.
+ * Kept in sync with `lib/n8n-outreach-contact-status.ts#STALE_N8N_PENDING_MS`
+ * (20 min) and the existing VEP "Stalled — retry" chip threshold (10 min).
+ */
+const ACTIVE_N8N_PENDING_MS = 20 * 60 * 1000
+const ACTIVE_VEP_PENDING_MS = 10 * 60 * 1000
 
 type TabType = 'leads' | 'escalations'
 
@@ -268,6 +284,8 @@ function OutreachContent() {
   // VEP extraction polling: track IDs being extracted
   const vepPollingRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const [vepPollingActive, setVepPollingActive] = useState(false)
+  const leadsListFetchInFlightRef = useRef(false)
+  const lastSilentLeadsListFetchAtRef = useRef(0)
 
   // Last VEP extraction run (from value_evidence_workflow_runs)
   const [lastVepRun, setLastVepRun] = useState<{ triggered_at: string; status: string } | null>(null)
@@ -287,38 +305,82 @@ function OutreachContent() {
     creditsRemaining?: number
   } | null>(null)
 
-  const fetchLeads = useCallback(async (opts?: { silent?: boolean }) => {
-    const silent = Boolean(opts?.silent)
-    if (!silent) setLeadsLoading(true)
-    try {
-      const session = await getCurrentSession()
-      if (!session) return
+  const fetchLeads = useCallback(
+    async (opts?: { silent?: boolean; force?: boolean }): Promise<LeadsResponse | null> => {
+      const silent = Boolean(opts?.silent)
+      const force = Boolean(opts?.force)
 
-      const params = new URLSearchParams({
-        filter: leadsTempFilter,
-        visibility: leadsVisibilityFilter,
-        ...(leadsStatusFilter !== 'all' && { status: leadsStatusFilter }),
-        ...(leadsSourceFilter !== 'all' && { source: leadsSourceFilter }),
-        ...(leadsSearch && { search: leadsSearch }),
-        limit: leadsPerPage.toString(),
-        offset: ((leadsPage - 1) * leadsPerPage).toString(),
-      })
-
-      const response = await fetch(`/api/admin/outreach/leads?${params}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-
-      if (response.ok) {
-        const data: LeadsResponse = await response.json()
-        setLeads(data.leads)
-        setLeadsTotal(data.total)
+      if (silent && !force) {
+        if (leadsListFetchInFlightRef.current) return null
+        const t = lastSilentLeadsListFetchAtRef.current
+        if (t > 0 && Date.now() - t < MIN_SILENT_LEADS_FETCH_MS) return null
       }
-    } catch (error) {
-      console.error('Failed to fetch leads:', error)
-    } finally {
-      if (!silent) setLeadsLoading(false)
-    }
-  }, [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsVisibilityFilter, leadsSearch, leadsPage, leadsPerPage])
+
+      if (!silent) setLeadsLoading(true)
+      leadsListFetchInFlightRef.current = true
+      try {
+        const session = await getCurrentSession()
+        if (!session) return null
+
+        const params = new URLSearchParams({
+          filter: leadsTempFilter,
+          visibility: leadsVisibilityFilter,
+          ...(leadsStatusFilter !== 'all' && { status: leadsStatusFilter }),
+          ...(leadsSourceFilter !== 'all' && { source: leadsSourceFilter }),
+          ...(leadsSearch && { search: leadsSearch }),
+          limit: leadsPerPage.toString(),
+          offset: ((leadsPage - 1) * leadsPerPage).toString(),
+        })
+
+        const response = await fetch(`/api/admin/outreach/leads?${params}`, {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+
+        if (response.ok) {
+          const data: LeadsResponse = await response.json()
+          setLeads(data.leads)
+          setLeadsTotal(data.total)
+          if (silent) {
+            lastSilentLeadsListFetchAtRef.current = Date.now()
+          }
+          return data
+        }
+        return null
+      } catch (error) {
+        console.error('Failed to fetch leads:', error)
+        return null
+      } finally {
+        leadsListFetchInFlightRef.current = false
+        if (!silent) setLeadsLoading(false)
+      }
+    },
+    [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsVisibilityFilter, leadsSearch, leadsPage, leadsPerPage],
+  )
+
+  /**
+   * True only while a run is **actively** pending: server-side status is
+   * `pending` AND its `triggered_at` is within the active window. Stale
+   * pending rows (shown as "Stalled — retry") should NOT keep the poll or
+   * Realtime running because there is no progress to detect.
+   */
+  const hasVepOrN8nPending = useMemo(() => {
+    const now = Date.now()
+    return leads.some((l) => {
+      if (l.last_n8n_outreach_status === 'pending') {
+        const age = l.last_n8n_outreach_triggered_at
+          ? now - new Date(l.last_n8n_outreach_triggered_at).getTime()
+          : Number.POSITIVE_INFINITY
+        if (Number.isFinite(age) && age < ACTIVE_N8N_PENDING_MS) return true
+      }
+      if (l.last_vep_status === 'pending') {
+        const age = l.last_vep_triggered_at
+          ? now - new Date(l.last_vep_triggered_at).getTime()
+          : Number.POSITIVE_INFINITY
+        if (Number.isFinite(age) && age < ACTIVE_VEP_PENDING_MS) return true
+      }
+      return false
+    })
+  }, [leads])
 
   const fetchEscalations = useCallback(async () => {
     setEscalationsLoading(true)
@@ -360,40 +422,36 @@ function OutreachContent() {
     router.replace(`/admin/outreach?${p.toString()}`)
   }, [searchParams, router])
 
-  // VEP extraction polling: start/stop based on vepPollingActive flag
+  // VEP extraction + n8n pending: slower poll + shared fetchLeads dedupe; Realtime remains primary
   const startVepPolling = useCallback(() => {
     if (vepPollingRef.current) return // already polling
     setVepPollingActive(true)
     vepPollingRef.current = setInterval(async () => {
-      const session = await getCurrentSession()
-      if (!session) return
-      const params = new URLSearchParams({
-        filter: leadsTempFilter,
-        visibility: leadsVisibilityFilter,
-        ...(leadsStatusFilter !== 'all' && { status: leadsStatusFilter }),
-        ...(leadsSourceFilter !== 'all' && { source: leadsSourceFilter }),
-        ...(leadsSearch && { search: leadsSearch }),
-        limit: leadsPerPage.toString(),
-        offset: ((leadsPage - 1) * leadsPerPage).toString(),
-      })
-      const response = await fetch(`/api/admin/outreach/leads?${params}`, {
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      if (response.ok) {
-        const data: LeadsResponse = await response.json()
-        setLeads(data.leads)
-        setLeadsTotal(data.total)
-        // Stop when no VEP and no n8n CLG run is still "pending" on the current page
-        const hasVepPending = data.leads.some((l: Lead) => l.last_vep_status === 'pending')
-        const hasN8nPending = data.leads.some((l: Lead) => l.last_n8n_outreach_status === 'pending')
-        if (!hasVepPending && !hasN8nPending && vepPollingRef.current) {
-          clearInterval(vepPollingRef.current)
-          vepPollingRef.current = null
-          setVepPollingActive(false)
+      const data = await fetchLeads({ silent: true })
+      if (!data) return
+      const now = Date.now()
+      const stillActive = data.leads.some((l: Lead) => {
+        if (l.last_n8n_outreach_status === 'pending') {
+          const age = l.last_n8n_outreach_triggered_at
+            ? now - new Date(l.last_n8n_outreach_triggered_at).getTime()
+            : Number.POSITIVE_INFINITY
+          if (Number.isFinite(age) && age < ACTIVE_N8N_PENDING_MS) return true
         }
+        if (l.last_vep_status === 'pending') {
+          const age = l.last_vep_triggered_at
+            ? now - new Date(l.last_vep_triggered_at).getTime()
+            : Number.POSITIVE_INFINITY
+          if (Number.isFinite(age) && age < ACTIVE_VEP_PENDING_MS) return true
+        }
+        return false
+      })
+      if (!stillActive && vepPollingRef.current) {
+        clearInterval(vepPollingRef.current)
+        vepPollingRef.current = null
+        setVepPollingActive(false)
       }
-    }, 4000)
-  }, [leadsTempFilter, leadsStatusFilter, leadsSourceFilter, leadsVisibilityFilter, leadsSearch, leadsPage, leadsPerPage])
+    }, VEP_N8N_PENDING_POLL_MS)
+  }, [fetchLeads])
 
   // Cleanup on unmount
   useEffect(() => {
@@ -405,24 +463,36 @@ function OutreachContent() {
     }
   }, [])
 
-  // If the list already has a pending n8n CLG run (e.g. after refresh), keep polling like VEP
+  // Start VEP/n8n fallback poll only while the current page has a pending run; clear as soon as none
   useEffect(() => {
-    if (activeTab !== 'leads') return
-    if (leads.some((l) => l.last_n8n_outreach_status === 'pending' || l.last_vep_status === 'pending')) {
-      startVepPolling()
+    if (activeTab !== 'leads') {
+      if (vepPollingRef.current) {
+        clearInterval(vepPollingRef.current)
+        vepPollingRef.current = null
+        setVepPollingActive(false)
+      }
+      return
     }
-  }, [activeTab, leads, startVepPolling])
+    if (hasVepOrN8nPending) {
+      startVepPolling()
+    } else {
+      if (vepPollingRef.current) {
+        clearInterval(vepPollingRef.current)
+        vepPollingRef.current = null
+        setVepPollingActive(false)
+      }
+    }
+  }, [activeTab, hasVepOrN8nPending, startVepPolling])
 
-  // Realtime push updates (Supabase Realtime → Postgres logical replication):
-  // flips pills and refreshes "Email — recent" the moment n8n CLG-002 marks a
-  // run success/failed OR a new outreach_queue row is inserted. Fallback polling
-  // (startVepPolling, 4s) remains as a safety net in case Realtime drops events.
+  // Realtime: only while something is pending so idle pages do not refetch on unrelated DB events
   useRealtimeOutreach({
-    enabled: activeTab === 'leads',
-    visibleContactIds: activeTab === 'leads' ? leads.map((l) => l.id) : null,
+    enabled: activeTab === 'leads' && hasVepOrN8nPending,
+    visibleContactIds:
+      activeTab === 'leads' && hasVepOrN8nPending ? leads.map((l) => l.id) : null,
     onEvent: () => {
       void fetchLeads({ silent: true })
     },
+    debounceMs: OUTREACH_REALTIME_DEBOUNCE_MS,
   })
 
   // Fetch latest VEP extraction run (one-time on mount)

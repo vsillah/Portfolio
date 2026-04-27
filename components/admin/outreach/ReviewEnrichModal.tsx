@@ -24,8 +24,32 @@ import {
   isMeetingRecordContextId,
   meetingRecordUuidFromContextId,
 } from '@/lib/admin-meeting-context-items'
+import { PipelineProgressBar } from '@/components/admin/ExtractionStatusChip'
+import { estimateMilestoneProgress, type PipelineStage } from '@/lib/pipeline-progress'
 
 const READAI_CACHE_TTL_MS = 5 * 60 * 1000
+
+// Value Evidence pipeline progress stages.
+// Step 1 ("Push to VEP") fires n8n WF-VEP-001; typical run is ~25–35s end-to-end.
+// Step 2 ("Classify & Store Evidence") is an in-app call to
+// /api/admin/meetings/classify-pain-points which invokes an LLM and inserts
+// rows into value_evidence; typical run is ~10–20s.
+// The "typical" totals err long so the bar eases toward 94% rather than
+// stalling at 100% when a run takes longer than the baseline.
+const VEP_PUSH_STAGES: PipelineStage[] = [
+  { label: 'Contacting n8n workflow', startsAt: 0 },
+  { label: 'Fetching source rows', startsAt: 3 },
+  { label: 'Classifying pain points in n8n', startsAt: 10 },
+  { label: 'Writing evidence rows', startsAt: 22 },
+]
+const VEP_PUSH_TYPICAL_S = 32
+
+const CLASSIFY_STAGES: PipelineStage[] = [
+  { label: 'Submitting text to classifier', startsAt: 0 },
+  { label: 'Classifying pain points', startsAt: 3 },
+  { label: 'Storing evidence rows', startsAt: 12 },
+]
+const CLASSIFY_TYPICAL_S = 18
 
 type PendingMeetingImport = {
   meetingId: string
@@ -87,7 +111,7 @@ export interface ReviewEnrichModalProps {
   leadIds: number[]
   pushLoading: boolean
   setPushLoading: (v: boolean) => void
-  fetchLeads: () => Promise<void>
+  fetchLeads: () => Promise<unknown>
   startVepPolling: () => void
   onSelectedLeadsClear: () => void
 }
@@ -107,6 +131,65 @@ function formatMeetingActionItemsAsBullets(actionItems: unknown[] | null | undef
     if (text && text !== 'undefined') lines.push(`• ${text}`)
   }
   return lines.join('\n')
+}
+
+type StepState = 'idle' | 'running' | 'done' | 'skipped' | 'failed' | 'locked'
+
+/**
+ * Small pipeline-step card used inside the Value Evidence panel. Matches the
+ * visual language of the outreach progress bar (amber for running, green for
+ * done, muted for idle) so the two pipelines read as clearly distinct yet
+ * related.
+ */
+function StepCard({
+  index,
+  title,
+  subtitle,
+  state,
+}: {
+  index: number
+  title: string
+  subtitle: string
+  state: StepState
+}) {
+  const ring =
+    state === 'running'
+      ? 'border-amber-500/50 bg-amber-950/25'
+      : state === 'done'
+      ? 'border-green-600/50 bg-green-950/25'
+      : state === 'failed'
+      ? 'border-red-600/50 bg-red-950/25'
+      : state === 'skipped'
+      ? 'border-silicon-slate/70 bg-silicon-slate/20'
+      : state === 'locked'
+      ? 'border-silicon-slate/60 bg-silicon-slate/10 opacity-60'
+      : 'border-silicon-slate bg-silicon-slate/30'
+  const indexColor =
+    state === 'running'
+      ? 'bg-amber-500 text-imperial-navy'
+      : state === 'done'
+      ? 'bg-green-600 text-white'
+      : state === 'failed'
+      ? 'bg-red-600 text-white'
+      : state === 'locked'
+      ? 'bg-silicon-slate/60 text-muted-foreground/70'
+      : 'bg-silicon-slate text-muted-foreground'
+  return (
+    <div className={`flex-1 min-w-0 rounded-md border px-3 py-2 ${ring}`}>
+      <div className="flex items-center gap-2 mb-0.5">
+        <span
+          className={`inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${indexColor}`}
+          aria-hidden
+        >
+          {state === 'done' ? <CheckCircle size={12} /> : state === 'running' ? <Loader2 size={10} className="animate-spin" /> : index}
+        </span>
+        <p className="text-[12px] font-medium text-white truncate">{title}</p>
+      </div>
+      <p className="text-[11px] text-muted-foreground truncate" title={subtitle}>
+        {subtitle}
+      </p>
+    </div>
+  )
 }
 
 export default function ReviewEnrichModal({
@@ -142,6 +225,16 @@ export default function ReviewEnrichModal({
   // Pain-point classification
   const [enrichClassifiedItems, setEnrichClassifiedItems] = useState<Record<number, ClassifiedPainPoint[]>>({})
   const [enrichClassifyLoading, setEnrichClassifyLoading] = useState<Record<number, boolean>>({})
+  const [enrichClassifyError, setEnrichClassifyError] = useState<string | null>(null)
+
+  // Value Evidence pipeline progress tracking.
+  // We stamp `*StartedAt` when either phase kicks off and clear it when the
+  // phase settles. A shared 500ms ticker (`nowTick`) drives progress-bar
+  // re-renders so `estimateMilestoneProgress` can ease forward even while no
+  // other state changes.
+  const [vepPushStartedAt, setVepPushStartedAt] = useState<number | null>(null)
+  const [classifyStartedAt, setClassifyStartedAt] = useState<number | null>(null)
+  const [nowTick, setNowTick] = useState(() => Date.now())
 
   // Track the leadIds we last loaded so we don't re-fetch on every render
   const prevLeadIdsRef = useRef<string>('')
@@ -412,8 +505,20 @@ export default function ReviewEnrichModal({
   useEffect(() => {
     if (!open) {
       setEnrichModalVepPushCompleted(false)
+      setVepPushStartedAt(null)
+      setClassifyStartedAt(null)
+      setEnrichClassifyError(null)
     }
   }, [open])
+
+  // Tick every 500ms while either VEP phase is active so PipelineProgressBar
+  // eases forward between state changes. We stop ticking as soon as both
+  // phases are idle to avoid needless renders.
+  useEffect(() => {
+    if (vepPushStartedAt == null && classifyStartedAt == null) return
+    const id = setInterval(() => setNowTick(Date.now()), 500)
+    return () => clearInterval(id)
+  }, [vepPushStartedAt, classifyStartedAt])
 
   if (!open || enrichModalLeads.length === 0) return null
 
@@ -860,7 +965,7 @@ export default function ReviewEnrichModal({
                 </div>
               )}
             </div>
-            <div className="p-4 border-t border-silicon-slate flex flex-col gap-2">
+            <div className="p-4 border-t border-silicon-slate flex flex-col gap-3">
               {(() => {
                 const allLeadsAlreadyHaveEvidence =
                   enrichModalLeads.length > 0 &&
@@ -874,14 +979,168 @@ export default function ReviewEnrichModal({
                   return Boolean(pain || qw)
                 })
                 const anyExtractable = enrichModalLeads.some((l) => l.has_extractable_text)
+                const classifyActive = Object.values(enrichClassifyLoading).some(Boolean)
+                const classifyDone =
+                  enrichModalLeads.length > 0 &&
+                  enrichModalLeads.every(
+                    (l) => (enrichClassifiedItems[l.id]?.length ?? 0) > 0,
+                  )
+                const totalClassifiedItems = enrichModalLeads.reduce(
+                  (sum, l) => sum + (enrichClassifiedItems[l.id]?.length ?? 0),
+                  0,
+                )
+
+                // Step 1 — "Push to VEP": skipped when evidence already exists,
+                // running while the webhook is in flight, done once the app has
+                // received the extract-leads 200, idle otherwise.
+                const step1State: StepState = allLeadsAlreadyHaveEvidence
+                  ? 'skipped'
+                  : pushLoading
+                  ? 'running'
+                  : enrichModalVepPushCompleted
+                  ? 'done'
+                  : 'idle'
+
+                // Step 2 — "Classify & Store": locked until step 1 finishes (or
+                // evidence is already present), running during the classifier
+                // call, done after at least one evidence row is returned.
+                const step2State: StepState = classifyActive
+                  ? 'running'
+                  : classifyDone
+                  ? 'done'
+                  : showClassifyPrimary
+                  ? 'idle'
+                  : 'locked'
+
+                const pushProgress =
+                  pushLoading && vepPushStartedAt != null
+                    ? estimateMilestoneProgress(
+                        VEP_PUSH_STAGES,
+                        VEP_PUSH_TYPICAL_S,
+                        nowTick - vepPushStartedAt,
+                      )
+                    : null
+                const classifyProgress =
+                  classifyActive && classifyStartedAt != null
+                    ? estimateMilestoneProgress(
+                        CLASSIFY_STAGES,
+                        CLASSIFY_TYPICAL_S,
+                        nowTick - classifyStartedAt,
+                      )
+                    : null
 
                 return (
                   <>
-                    {showClassifyPrimary && enrichModalVepPushCompleted && !allLeadsAlreadyHaveEvidence ? (
-                      <p className="text-xs text-muted-foreground text-right">
-                        Push started. Next, classify pain points and quick wins to store structured evidence.
-                      </p>
-                    ) : null}
+                    {/* Value Evidence pipeline status panel.
+                        Always rendered so users can see — at a glance — that
+                        this is a two-step pipeline distinct from email
+                        generation, which step is active, and why a button
+                        might be disabled (missing payload vs processing). */}
+                    <div
+                      className="rounded-lg border border-silicon-slate bg-silicon-slate/20 p-3"
+                      role="region"
+                      aria-label="Value Evidence pipeline status"
+                    >
+                      <div className="mb-2 flex items-center gap-2">
+                        <Cpu size={14} className="text-purple-300" aria-hidden />
+                        <p className="text-sm font-medium text-white leading-tight">
+                          Value Evidence pipeline
+                        </p>
+                        <span className="text-[11px] font-normal text-muted-foreground">
+                          · separate from email generation
+                        </span>
+                      </div>
+
+                      <div className="flex items-stretch gap-2">
+                        <StepCard
+                          index={1}
+                          title="Push to VEP"
+                          state={step1State}
+                          subtitle={
+                            step1State === 'skipped'
+                              ? 'Skipped — evidence already on file'
+                              : step1State === 'running'
+                              ? pushProgress?.currentStageLabel ?? 'Contacting n8n…'
+                              : step1State === 'done'
+                              ? 'Pushed · ready to classify'
+                              : !anyExtractable
+                              ? 'Add notes or diagnostic data above'
+                              : 'Send raw notes to n8n WF-VEP-001'
+                          }
+                        />
+                        <StepCard
+                          index={2}
+                          title="Classify & store"
+                          state={step2State}
+                          subtitle={
+                            step2State === 'running'
+                              ? classifyProgress?.currentStageLabel ??
+                                'Classifying…'
+                              : step2State === 'done'
+                              ? `Stored ${totalClassifiedItems} evidence row${totalClassifiedItems === 1 ? '' : 's'}`
+                              : step2State === 'locked'
+                              ? 'Unlocks after step 1 completes'
+                              : !hasClassifyPayload
+                              ? 'Add pain points or quick wins above'
+                              : 'Classify and save evidence rows'
+                          }
+                        />
+                      </div>
+
+                      {pushProgress && (
+                        <div className="mt-3" aria-live="polite">
+                          <p className="mb-1 text-[11px] font-medium text-amber-200">
+                            Step 1 of 2 · Pushing to Value Evidence
+                          </p>
+                          <PipelineProgressBar
+                            progressPct={pushProgress.progressPct}
+                            stageLabel={pushProgress.currentStageLabel}
+                            stale={false}
+                            barOnly
+                          />
+                        </div>
+                      )}
+                      {classifyProgress && (
+                        <div className="mt-3" aria-live="polite">
+                          <p className="mb-1 text-[11px] font-medium text-purple-200">
+                            Step 2 of 2 · Classifying &amp; storing evidence
+                          </p>
+                          <PipelineProgressBar
+                            progressPct={classifyProgress.progressPct}
+                            stageLabel={classifyProgress.currentStageLabel}
+                            stale={false}
+                            barOnly
+                          />
+                        </div>
+                      )}
+
+                      {/* Inline hints that replace the silent "button is grey" state. */}
+                      {step2State === 'idle' && !hasClassifyPayload && (
+                        <div className="mt-2 flex items-start gap-2 rounded border border-amber-800/60 bg-amber-900/20 px-2 py-1.5 text-[11px] text-amber-200">
+                          <AlertTriangle size={12} className="mt-0.5 shrink-0" aria-hidden />
+                          <span>
+                            Add pain points or quick wins above, then click{' '}
+                            <span className="font-semibold">Classify &amp; Store Evidence</span> to run the classifier.
+                          </span>
+                        </div>
+                      )}
+                      {enrichClassifyError && (
+                        <div className="mt-2 flex items-start gap-2 rounded border border-red-800/60 bg-red-900/25 px-2 py-1.5 text-[11px] text-red-300">
+                          <AlertTriangle size={12} className="mt-0.5 shrink-0" aria-hidden />
+                          <span>Classify failed: {enrichClassifyError}</span>
+                        </div>
+                      )}
+                      {step2State === 'done' && !classifyActive && (
+                        <div className="mt-2 flex items-start gap-2 rounded border border-green-800/60 bg-green-900/20 px-2 py-1.5 text-[11px] text-green-200">
+                          <CheckCircle size={12} className="mt-0.5 shrink-0" aria-hidden />
+                          <span>
+                            Stored {totalClassifiedItems} evidence row
+                            {totalClassifiedItems === 1 ? '' : 's'}. You can close this modal.
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="flex flex-wrap justify-end gap-2">
                       <button
                         type="button"
@@ -967,43 +1226,62 @@ export default function ReviewEnrichModal({
                           onClick={async () => {
                             const session = await getCurrentSession()
                             if (!session) return
-                            for (const l of enrichModalLeads) {
-                              const form = enrichModalForm[l.id]
-                              const painPoints = form?.rep_pain_points ?? l.rep_pain_points ?? ''
-                              const quickWins =
-                                form?.quick_wins ?? quickWinsToEditableString(l.quick_wins as unknown)
-                              if (!painPoints.trim() && !quickWins.trim()) continue
-                              setEnrichClassifyLoading((prev) => ({ ...prev, [l.id]: true }))
-                              try {
-                                const res = await fetch('/api/admin/meetings/classify-pain-points', {
-                                  method: 'POST',
-                                  headers: {
-                                    'Content-Type': 'application/json',
-                                    Authorization: `Bearer ${session.access_token}`,
-                                  },
-                                  body: JSON.stringify({
-                                    pain_points: painPoints,
-                                    quick_wins: quickWins,
-                                    contact_submission_id: l.id,
-                                    insert_evidence: true,
-                                  }),
-                                })
-                                const data = await res.json()
-                                if (res.ok && data.classified) {
-                                  setEnrichClassifiedItems((prev) => ({ ...prev, [l.id]: data.classified }))
+                            setEnrichClassifyError(null)
+                            setClassifyStartedAt(Date.now())
+                            try {
+                              for (const l of enrichModalLeads) {
+                                const form = enrichModalForm[l.id]
+                                const painPoints = form?.rep_pain_points ?? l.rep_pain_points ?? ''
+                                const quickWins =
+                                  form?.quick_wins ?? quickWinsToEditableString(l.quick_wins as unknown)
+                                if (!painPoints.trim() && !quickWins.trim()) continue
+                                setEnrichClassifyLoading((prev) => ({ ...prev, [l.id]: true }))
+                                try {
+                                  const res = await fetch('/api/admin/meetings/classify-pain-points', {
+                                    method: 'POST',
+                                    headers: {
+                                      'Content-Type': 'application/json',
+                                      Authorization: `Bearer ${session.access_token}`,
+                                    },
+                                    body: JSON.stringify({
+                                      pain_points: painPoints,
+                                      quick_wins: quickWins,
+                                      contact_submission_id: l.id,
+                                      insert_evidence: true,
+                                    }),
+                                  })
+                                  const data = await res.json().catch(() => ({}))
+                                  if (!res.ok) {
+                                    throw new Error(data.error || `Request failed (${res.status})`)
+                                  }
+                                  if (data.classified) {
+                                    setEnrichClassifiedItems((prev) => ({ ...prev, [l.id]: data.classified }))
+                                  }
+                                } catch (err) {
+                                  console.error('Classify failed:', err)
+                                  setEnrichClassifyError(
+                                    err instanceof Error ? err.message : 'Unknown error',
+                                  )
+                                } finally {
+                                  setEnrichClassifyLoading((prev) => ({ ...prev, [l.id]: false }))
                                 }
-                              } catch (err) {
-                                console.error('Classify failed:', err)
-                              } finally {
-                                setEnrichClassifyLoading((prev) => ({ ...prev, [l.id]: false }))
                               }
+                            } finally {
+                              setClassifyStartedAt(null)
                             }
                           }}
-                          className="px-4 py-2 bg-purple-600/80 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg font-medium"
+                          className="px-4 py-2 bg-purple-600/80 hover:bg-purple-500 disabled:opacity-50 text-white rounded-lg font-medium flex items-center gap-2"
                         >
-                          {Object.values(enrichClassifyLoading).some(Boolean)
-                            ? 'Classifying...'
-                            : 'Classify & Store Evidence'}
+                          {classifyActive ? (
+                            <>
+                              <Loader2 size={14} className="animate-spin" aria-hidden />
+                              Classifying…
+                            </>
+                          ) : classifyDone ? (
+                            'Re-classify'
+                          ) : (
+                            'Classify & Store Evidence'
+                          )}
                         </button>
                       ) : (
                         <button
@@ -1018,6 +1296,7 @@ export default function ReviewEnrichModal({
                             const session = await getCurrentSession()
                             if (!session) return
                             setPushLoading(true)
+                            setVepPushStartedAt(Date.now())
                             try {
                               const leadsPayload = enrichModalLeads.map((l) => {
                                 const form = enrichModalForm[l.id]
@@ -1057,11 +1336,19 @@ export default function ReviewEnrichModal({
                               console.error(e)
                             } finally {
                               setPushLoading(false)
+                              setVepPushStartedAt(null)
                             }
                           }}
-                          className="px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 rounded-lg font-medium"
+                          className="px-4 py-2 btn-gold text-imperial-navy hover:opacity-90 disabled:opacity-50 rounded-lg font-medium flex items-center gap-2"
                         >
-                          {pushLoading ? 'Pushing...' : 'Push to Value Evidence'}
+                          {pushLoading ? (
+                            <>
+                              <Loader2 size={14} className="animate-spin" aria-hidden />
+                              Pushing…
+                            </>
+                          ) : (
+                            'Push to Value Evidence'
+                          )}
                         </button>
                       )}
                     </div>

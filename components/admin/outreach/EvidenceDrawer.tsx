@@ -34,7 +34,7 @@ interface EvidenceDrawerProps {
   onClose: () => void
   onDataChange: (data: EvidenceDrawerData | null) => void
   onRefreshExtract: (contactId: number) => Promise<void>
-  fetchLeads: () => Promise<void>
+  fetchLeads: () => Promise<unknown>
 }
 
 function EvidenceCard({ evidence }: { evidence: EvidenceItem }) {

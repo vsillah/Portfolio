@@ -16,6 +16,11 @@ import {
   Code,
   Sliders
 } from 'lucide-react'
+import {
+  SUPPORTED_OUTREACH_MODELS,
+  DEFAULT_OUTREACH_MODEL,
+} from '@/lib/constants/llm-models'
+import { isOutreachPromptKey } from '@/lib/constants/prompt-keys'
 
 interface SystemPrompt {
   id: string
@@ -365,20 +370,29 @@ function EditPromptContent() {
                   <span className="text-xs text-muted-foreground/80">Maximum response length</span>
                 </div>
 
-                {/* Model (for LLM judge) */}
-                {prompt.key === 'llm_judge' && (
+                {/* Model selector — available for the LLM judge and every
+                    outreach template (email + LinkedIn). The list is sourced
+                    from SUPPORTED_OUTREACH_MODELS so the dispatcher and the
+                    PUT validator stay aligned with the dropdown. */}
+                {(prompt.key === 'llm_judge' || isOutreachPromptKey(prompt.key)) && (
                   <div className="flex items-center gap-4">
                     <label className="w-32 text-sm text-muted-foreground">Model</label>
                     <select
-                      value={(config.model as string) || 'claude-sonnet-4-20250514'}
+                      value={
+                        (config.model as string) ||
+                        (prompt.key === 'llm_judge'
+                          ? 'claude-sonnet-4-20250514'
+                          : DEFAULT_OUTREACH_MODEL)
+                      }
                       onChange={(e) => setConfig({ ...config, model: e.target.value })}
                       className="w-64 px-3 py-2 bg-background/50 border border-radiant-gold/20 rounded
                         text-foreground focus:outline-none focus:border-radiant-gold/50"
                     >
-                      <option value="claude-sonnet-4-20250514">Claude Sonnet 4</option>
-                      <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
-                      <option value="gpt-4o">GPT-4o</option>
-                      <option value="gpt-4o-mini">GPT-4o Mini</option>
+                      {SUPPORTED_OUTREACH_MODELS.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 )}
