@@ -1,0 +1,122 @@
+---
+description: Localhost must target the -STAG n8n workflow webhook, not the bare prod path. Prod paths query prod Supabase and silently no-op on dev-only leads.
+globs: .env*,lib/n8n.ts,app/api/**/route.ts
+alwaysApply: false
+---
+
+# n8n Dev/Stag Webhook Routing
+
+## Invariant
+
+When developing locally (`localhost:3000` → dev Supabase at `xxissfhcdjivuhxwjyhv`), the `N8N_*_WEBHOOK_URL`
+env vars in `.env.local` **MUST** point at the `-STAG` workflow variant's UUID webhook path,
+**NOT** the bare slug shared with the production workflow.
+
+| Workflow family | Prod webhook path (DO NOT USE in dev)       | Stag webhook path (use in dev)                                            |
+|-----------------|---------------------------------------------|---------------------------------------------------------------------------|
+| WF-CLG-002      | `/webhook/clg-outreach-gen`                 | `/webhook/563561e2-b9b7-489d-be2d-a12ae07a8259` (WF-CLG-002-STAG)         |
+| WF-VEP-001      | `/webhook/vep-001-extract`                  | `/webhook/f1d3e5ed-ee01-4a00-8201-0803228701c2` (WF-VEP-001-STAG)         |
+| WF-VEP-002      | `/webhook/vep-002-social`                   | `/webhook/a40cb90d-ef00-407a-b3db-1b03e585cbb4` (WF-VEP-002-STAG)         |
+
+Both are hosted at `https://amadutown.app.n8n.cloud`. The Supabase credential bound to the node
+determines which DB is queried — prod paths use a prod cred, STAG paths use the dev cred.
+Sending a `contact_id` that only exists in dev to a prod workflow produces a **silent** empty
+`Get Lead Data` result; there is no error, and (historically) no failure callback either — the
+graph simply ends at node 2/16 with `status: success`.
+
+## Smell / symptoms
+
+- UI pill sits at "Running outreach · Queuing & generating" forever (~37% stall)
+- n8n execution in the app shows only **2 of 16 nodes** executed (`New Qualified Lead` → `Get Lead Data`)
+- `Get Lead Data` shows `itemsOutput: 0`, but the overall execution reports `status: success`
+- `contact_submissions.last_n8n_outreach_status` stays `pending` indefinitely (until the 20-min
+  `STALE_N8N_PENDING_MS` reconciler flips it to `failed`)
+- No row ever lands in `outreach_queue`
+- No POST hits `/api/webhooks/n8n/outreach-generation-complete` on the app server
+
+## Fix
+
+1. In `.env.local`, set `N8N_CLG002_WEBHOOK_URL` to the STAG UUID path:
+
+   ```
+   N8N_CLG002_WEBHOOK_URL=https://amadutown.app.n8n.cloud/webhook/563561e2-b9b7-489d-be2d-a12ae07a8259
+   ```
+
+2. Restart `next dev` (`npm run dev`). The server reads env only at boot, so a running process
+   still holds the old value.
+3. If a lead is stuck `pending`, flip it via dev Supabase MCP so the UI exposes Retry:
+
+   ```sql
+   update contact_submissions
+     set last_n8n_outreach_status = 'failed',
+         last_n8n_outreach_triggered_at = now()
+   where id = <lead_id>
+     and last_n8n_outreach_status = 'pending';
+   ```
+
+4. For **production** (Vercel env), keep the bare `/webhook/clg-outreach-gen` — that's the correct
+   prod path. Only `.env.local` should ever hold the STAG UUID.
+
+## Why both workflows now also have a "Lead Found?" safety net
+
+As of 2026-04-24, both `WF-CLG-002` (`G4A9YUNCwokMhGA8`) and `WF-CLG-002-STAG` (`3bdhN10tXpt3LbI1`)
+have been hardened so an empty `Get Lead Data` result **cannot** silently swallow a run:
+
+- `Get Lead Data` is set to `alwaysOutputData: true` — even 0-row results produce a `{}` item
+  downstream instead of halting the graph.
+- A new `Lead Found?` IF node checks `{{ $json.id }}` exists after `Get Lead Data`.
+- The **false** branch routes to a new `Notify App: Lead Not Found` HTTP node that POSTs
+  `{ status: "failed", error_message: "Get Lead Data returned no row for contact_id …" }` to
+  `/api/webhooks/n8n/outreach-generation-complete`, so the app flips the pending row to
+  `failed` within seconds.
+
+This means a future dev-webhook-mis-routing will surface as a red "Retry n8n" pill instead of
+an infinite "Running outreach" stall. Do not remove this branch when editing either workflow.
+
+## VEP-001 silent-failure hardening (same family of bug)
+
+The VEP pipeline had a related but different silent-failure class: when `Prepare Text for
+Classification` filtered all input items out (dev-only `contact_submission_id` not present in
+prod DB, or ingest path simply returned 0 evidence items), the classifier received empty text,
+the AI refused, the parser emitted `_empty: true`, and — in STAG — the graph **ended with no
+callback at all** (no false-branch on `Filter Empty Results`). Eric's contact row sat at
+`last_vep_status = 'pending'` for 15 days as a result.
+
+As of 2026-04-24, both `WF-VEP-001` (`iqGylSD1c2lDxlDT`) and `WF-VEP-001-STAG`
+(`7YdqfO7rewTHICHy`) have been hardened. The end-to-end contract is now:
+
+1. **Every terminal callback echoes `contact_submission_ids`.** The app's
+   `/api/admin/value-evidence/workflow-complete` uses those IDs to flip
+   `contact_submissions.last_vep_status` from `pending` → `success` (or `failed`), regardless
+   of how many evidence items were inserted. Previously this endpoint only touched
+   `value_evidence_workflow_runs`, leaving leads stranded in `pending`.
+2. **`Filter Empty Results` has both branches wired.** STAG now has a `Report Completion
+   (No Items)` callback on the false branch (matching prod's long-standing node), so an
+   empty-AI-result can no longer exit silently.
+3. **Both workflows set `errorWorkflow` to self.** The `Error Trigger` → `Report Failure`
+   pair is no longer dead code; any thrown error now emits a `failed` callback.
+4. **Prod no longer hardcodes `N8N_INGEST_SECRET`.** All four HTTP callback nodes in prod
+   (`POST to Ingest Endpoint`, `Report Completion`, `Report Failure`,
+   `Report Completion (No Items)`) now pull `=Bearer {{ $vars.N8N_INGEST_SECRET }}` from n8n
+   Variables, matching STAG. Rotating the secret only requires an n8n Variables update.
+5. **App-side stale sweeper.** `lib/vep-contact-status.ts#partitionVepReconcile` (mirror of
+   `partitionN8nOutreachReconcile`) runs on every `/api/admin/outreach/leads` GET and flips
+   any `pending` row older than `STALE_VEP_PENDING_MS` (15 min) to `failed`. This is the
+   belt-and-suspenders against any future callback-drop.
+
+Do not remove any of these branches. If you edit the workflows, preserve the
+`contact_submission_ids` echo in every terminal HTTP callback body — the shape the app
+expects is documented at the top of `app/api/admin/value-evidence/workflow-complete/route.ts`.
+
+## Related rules
+
+- `supabase-dual-mcp-dev-prod.mdc` — the dev vs prod DB reasoning (this rule is the n8n-side complement).
+- `deploy-context.mdc` — localhost/stag/prod environment invariants.
+- `n8n-integration.mdc` — general n8n webhook plumbing.
+
+## Credential / secret drift warning
+
+The STAG failure-callback node uses `$vars.N8N_INGEST_SECRET` (n8n) and the app validates it
+against `N8N_INGEST_SECRET` (`.env.local` line ~70). If the two drift, the callback will 401 and
+the only remaining success signal is the DB trigger `trg_outreach_queue_n8n_success`. Keep these
+in sync when rotating secrets.
