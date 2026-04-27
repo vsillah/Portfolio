@@ -27,8 +27,13 @@ import {
 } from '@/lib/meeting-tasks-context'
 import {
   appendPineconeAndChatContextWithMetadata,
+  applyPriorOutreachHistorySentinel,
   type PineconeChatContextMetadata,
 } from '@/lib/email-llm-context'
+import {
+  loadLeadCorrespondenceExcerpt,
+  type PriorOutreachMetadata,
+} from '@/lib/lead-correspondence-context'
 import { generateJsonCompletion } from '@/lib/llm-dispatch'
 import {
   DEFAULT_OUTREACH_MODEL,
@@ -117,6 +122,10 @@ interface PromptContext {
     pineconeChars: number
     priorChatPresent: boolean
     pineconeBlockHash: string | null
+    /** Phase 3 — prior outreach history block size + entry count + inbound flag. */
+    priorOutreachChars: number
+    priorOutreachEntries: number
+    priorOutreachHasInbound: boolean
   }
 }
 
@@ -142,6 +151,10 @@ export interface GenerationInputs {
   pinecone_chars: number
   prior_chat_present: boolean
   pinecone_block_hash: string | null
+  /** Phase 3 — prior outreach history (sent/replied/inbound) injected into prompt. */
+  prior_outreach_chars: number
+  prior_outreach_entries: number
+  prior_outreach_has_inbound: boolean
 }
 
 function buildGenerationInputs(args: {
@@ -167,6 +180,9 @@ function buildGenerationInputs(args: {
     pinecone_chars: ctx.contextSizes.pineconeChars,
     prior_chat_present: ctx.contextSizes.priorChatPresent,
     pinecone_block_hash: ctx.contextSizes.pineconeBlockHash,
+    prior_outreach_chars: ctx.contextSizes.priorOutreachChars,
+    prior_outreach_entries: ctx.contextSizes.priorOutreachEntries,
+    prior_outreach_has_inbound: ctx.contextSizes.priorOutreachHasInbound,
   }
 }
 
@@ -239,6 +255,10 @@ export async function buildOutreachPromptContext(
     .replace(/\{\{social_proof\}\}/g, socialProof)
     .replace(/\{\{sender_name\}\}/g, senderName)
 
+  const priorOutreach = await loadLeadCorrespondenceExcerpt(req.contactId, req.channel)
+  systemPrompt = applyPriorOutreachHistorySentinel(systemPrompt, priorOutreach.block)
+  const priorMeta: PriorOutreachMetadata = priorOutreach.metadata
+
   const ragResult = await appendPineconeAndChatContextWithMetadata(systemPrompt, {
     contact,
     researchTextForRag: researchBrief,
@@ -272,6 +292,9 @@ export async function buildOutreachPromptContext(
       pineconeChars: ragMeta.pineconeChars,
       priorChatPresent: ragMeta.priorChatPresent,
       pineconeBlockHash: ragMeta.pineconeBlockHash,
+      priorOutreachChars: priorMeta.chars,
+      priorOutreachEntries: priorMeta.entriesIncluded,
+      priorOutreachHasInbound: priorMeta.hasInbound,
     },
   }
 }

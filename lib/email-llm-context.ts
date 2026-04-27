@@ -24,9 +24,11 @@ const DEFAULT_PINECONE_HEADING =
 const DEFAULT_PRIOR_CHAT_HEADING =
   '## Prior site chat with this email address (use for continuity; do not quote verbatim unless natural)'
 
+type SentinelKey = 'pinecone_context' | 'prior_site_chat' | 'prior_outreach_history'
+
 function applySentinel(
   prompt: string,
-  sentinel: 'pinecone_context' | 'prior_site_chat',
+  sentinel: SentinelKey,
   value: string | null
 ): { prompt: string; hadSentinel: boolean } {
   const blockRe = new RegExp(`\\{\\{#${sentinel}\\}\\}([\\s\\S]*?)\\{\\{\\/${sentinel}\\}\\}`, 'g')
@@ -40,6 +42,33 @@ function applySentinel(
   const withBlock = prompt.replace(blockRe, value ? '$1' : '')
   const replaced = withBlock.replace(bareRe, value ?? '')
   return { prompt: replaced, hadSentinel }
+}
+
+/**
+ * Apply (or strip) the `{{#prior_outreach_history}}…{{/prior_outreach_history}}`
+ * sentinel in a system prompt with the supplied rendered block.
+ *
+ * Phase 3 traceability: distinct from {@link appendPineconeAndChatContextWithMetadata}
+ * because the prior-outreach loader needs `contactId` (not just the contact
+ * row) and is only relevant to outreach generators — not delivery emails.
+ *
+ * Behavior matches the pinecone / prior_site_chat sentinels:
+ *   - Sentinel present + block non-empty → block is substituted in place.
+ *   - Sentinel present + block null/empty → wrapped block stripped, bare
+ *     placeholder becomes empty string.
+ *   - Sentinel absent + block non-empty → default heading + block appended at
+ *     end of prompt (back-compat for any template that hasn't adopted the
+ *     sentinel yet).
+ */
+export function applyPriorOutreachHistorySentinel(
+  systemPrompt: string,
+  block: string | null,
+): string {
+  const result = applySentinel(systemPrompt, 'prior_outreach_history', block)
+  if (!result.hadSentinel && block && block.trim() !== '') {
+    return `${result.prompt}\n\n${block}`
+  }
+  return result.prompt
 }
 
 /**
