@@ -1,27 +1,49 @@
 /**
- * In-app outreach draft generation: OpenAI + insert into outreach_queue.
+ * In-app outreach draft generation: assembles a system prompt from
+ * `system_prompts`, enriches with research / RAG / chat / meeting context,
+ * dispatches to the right LLM provider per `config.model`, and inserts the
+ * resulting draft into `outreach_queue`.
  *
- * Parity note vs WF-CLG-002 (n8n): Uses the same system_prompts template `email_cold_outreach`
- * ({{research_brief}}, {{social_proof}}, {{sender_name}}) and the same tiered research brief
- * as delivery emails. This path additionally appends "## Recent meeting context" from the latest
- * linked meeting_record when available (or from an explicit capped client-provided summary).
+ * Two entry points:
+ *  - `generateOutreachDraftInApp`     — channel='email'  (Saraev 6-step JSON)
+ *  - `generateLinkedInDraftInApp`     — channel='linkedin' (connection_note + follow_up_dm)
+ *
+ * Both share `buildOutreachPromptContext` for prompt assembly so they stay in
+ * lockstep on research brief, Pinecone RAG, prior site chat, meeting tasks,
+ * and the `{{...}}` sentinels.
+ *
+ * Parity vs WF-CLG-002 (n8n, deprecated): same template keys, same tiered
+ * research brief, same RAG path. The n8n agent nodes were ignoring all of
+ * that — this module is the single source of truth.
  */
 
 import { supabaseAdmin } from '@/lib/supabase'
-import { getSystemPrompt } from '@/lib/system-prompts'
-import { recordOpenAICost } from '@/lib/cost-calculator'
-import { loadLeadResearchBrief } from '@/lib/lead-research-context'
+import { getSystemPrompt, type SystemPrompt } from '@/lib/system-prompts'
+import { loadLeadResearchBrief, type ContactEnrichment } from '@/lib/lead-research-context'
 import {
   loadOpenOutreachTasksForContact,
   formatMeetingActionItemsBlock,
   applyMeetingActionItemsPlaceholders,
 } from '@/lib/meeting-tasks-context'
 import { appendPineconeAndChatContextToSystemPrompt } from '@/lib/email-llm-context'
+import { generateJsonCompletion } from '@/lib/llm-dispatch'
+import { DEFAULT_OUTREACH_MODEL } from '@/lib/constants/llm-models'
+import {
+  EMAIL_TEMPLATE_KEYS,
+  LINKEDIN_TEMPLATE_KEYS,
+  type EmailTemplateKey,
+  type LinkedInTemplateKey,
+  type OutreachChannel,
+} from '@/lib/constants/prompt-keys'
 
-const PROMPT_KEY = 'email_cold_outreach' as const
+const DEFAULT_EMAIL_TEMPLATE_KEY: EmailTemplateKey = 'email_cold_outreach'
+const DEFAULT_LINKEDIN_TEMPLATE_KEY: LinkedInTemplateKey = 'linkedin_cold_outreach'
 
 /** Max chars for user-supplied meeting summary (prompt injection / cost guard). */
 export const MEETING_SUMMARY_MAX_CHARS = 8000
+
+/** Max LinkedIn invite (connection note) length, mirroring the platform cap. */
+export const LINKEDIN_CONNECTION_NOTE_MAX_CHARS = 300
 
 export function capMeetingSummary(text: string): string {
   const t = text.trim()
@@ -34,8 +56,40 @@ export function isInAppOutreachGenerationEnabled(): boolean {
 }
 
 export type InAppOutreachGenerateResult =
-  | { outcome: 'created'; id: string; subject: string; body: string }
+  | { outcome: 'created'; id: string; subject: string | null; body: string }
   | { outcome: 'skipped'; reason: 'draft_exists' }
+
+// ============================================================================
+// Shared prompt-context builder
+// ============================================================================
+
+interface PromptContextRequest {
+  contactId: number
+  channel: OutreachChannel
+  templateKey: string
+  /** Falsy / absent → not appended; otherwise capped before injection. */
+  meetingSummary?: string | null
+  /** When false, skip auto-loading the latest meeting record. Default true. */
+  includeLatestMeeting?: boolean
+  /** Step 1 surfaces meeting action items; later steps blank them. */
+  sequenceStep: number
+}
+
+interface PromptContext {
+  contact: ContactEnrichment
+  systemPrompt: string
+  promptRow: SystemPrompt | null
+  model: string
+  temperature: number
+  maxTokens: number
+  /** Char counts for downstream traceability (Phase 2). */
+  contextSizes: {
+    researchBrief: number
+    socialProof: number
+    meetingSnippet: number
+    meetingActionItems: number
+  }
+}
 
 async function fetchLatestMeetingSnippet(contactId: number): Promise<string | null> {
   if (!supabaseAdmin) return null
@@ -58,95 +112,23 @@ async function fetchLatestMeetingSnippet(contactId: number): Promise<string | nu
 }
 
 /**
- * Generate a cold-outreach email draft via OpenAI and insert into outreach_queue (status draft).
- *
- * `sourceTaskId` — when provided, the generated draft is linked back to a
- * meeting_action_task via outreach_queue.source_task_id. The draft-exists
- * guard also scopes to this field so a task-driven draft never collides with
- * a sequence-driven draft for the same contact/step (see 2026_04_17 migration,
- * CTO M3).
+ * Build the fully-substituted system prompt + LLM config for an outreach
+ * generation. Pure-ish wrt the database: reads `system_prompts`, lead
+ * research, meetings, and the RAG/chat sentinels — but does not write
+ * anywhere. Callers (email / LinkedIn) decide how to interpret the LLM JSON
+ * response and what row to insert into `outreach_queue`.
  */
-export async function generateOutreachDraftInApp(params: {
-  contactId: number
-  sequenceStep?: number
-  force?: boolean
-  /** When set, used as meeting context (capped). When omitted, latest linked meeting is used when present. */
-  meetingSummary?: string | null
-  /** When false, do not auto-load meeting context. Default true. */
-  includeLatestMeeting?: boolean
-  /** When set, links the draft to a meeting_action_task via outreach_queue.source_task_id. */
-  sourceTaskId?: string | null
-}): Promise<InAppOutreachGenerateResult> {
-  if (!isInAppOutreachGenerationEnabled()) {
-    throw new Error('In-app outreach generation is disabled (ENABLE_IN_APP_OUTREACH_GEN=false)')
-  }
-
-  const apiKey = process.env.OPENAI_API_KEY
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY not configured')
-  }
-
-  if (!supabaseAdmin) {
-    throw new Error('Database not available')
-  }
-
-  const sequenceStep =
-    typeof params.sequenceStep === 'number' && params.sequenceStep >= 1 && params.sequenceStep <= 6
-      ? params.sequenceStep
-      : 1
-
-  const { data: lead, error: leadError } = await supabaseAdmin
-    .from('contact_submissions')
-    .select('id, do_not_contact, removed_at, is_test_data')
-    .eq('id', params.contactId)
-    .single()
-
-  if (leadError || !lead) {
-    throw new Error('Lead not found')
-  }
-
-  if (lead.do_not_contact) {
-    throw new Error('Lead is marked as do-not-contact')
-  }
-
-  if (lead.removed_at) {
-    throw new Error('Lead has been removed')
-  }
-
-  const sourceTaskId = params.sourceTaskId ?? null
-
-  if (!params.force) {
-    // Scope the "draft already exists" guard by source_task_id so a
-    // task-driven draft (sourceTaskId != null) never collides with a
-    // sequence-driven draft (sourceTaskId IS NULL) for the same contact/step.
-    let existingQuery = supabaseAdmin
-      .from('outreach_queue')
-      .select('id')
-      .eq('contact_submission_id', params.contactId)
-      .eq('channel', 'email')
-      .eq('sequence_step', sequenceStep)
-      .eq('status', 'draft')
-
-    if (sourceTaskId === null) {
-      existingQuery = existingQuery.is('source_task_id', null)
-    } else {
-      existingQuery = existingQuery.eq('source_task_id', sourceTaskId)
-    }
-
-    const { data: existing } = await existingQuery.limit(1).maybeSingle()
-
-    if (existing?.id) {
-      return { outcome: 'skipped', reason: 'draft_exists' }
-    }
-  }
-
-  const { contact, researchBrief: baseBrief, socialProof } = await loadLeadResearchBrief(params.contactId)
+export async function buildOutreachPromptContext(
+  req: PromptContextRequest,
+): Promise<PromptContext> {
+  const { contact, researchBrief: baseBrief, socialProof } =
+    await loadLeadResearchBrief(req.contactId)
 
   let meetingSnippet: string | null = null
-  if (params.meetingSummary != null && params.meetingSummary.trim() !== '') {
-    meetingSnippet = capMeetingSummary(params.meetingSummary)
-  } else if (params.includeLatestMeeting !== false) {
-    meetingSnippet = await fetchLatestMeetingSnippet(params.contactId)
+  if (req.meetingSummary != null && req.meetingSummary.trim() !== '') {
+    meetingSnippet = capMeetingSummary(req.meetingSummary)
+  } else if (req.includeLatestMeeting !== false) {
+    meetingSnippet = await fetchLatestMeetingSnippet(req.contactId)
   }
 
   const researchBrief =
@@ -154,12 +136,12 @@ export async function generateOutreachDraftInApp(params: {
       ? `${baseBrief}\n\n## Recent meeting context\n${meetingSnippet}`
       : baseBrief
 
-  const promptRow = await getSystemPrompt(PROMPT_KEY)
+  const promptRow = await getSystemPrompt(req.templateKey)
   const senderName = process.env.EMAIL_FROM_NAME || 'Vambah Sillah'
 
   let systemPrompt =
     promptRow?.prompt ||
-    `You are a BDR at AmaduTown. Use research brief and social proof. Respond with JSON: { "subject": "...", "body": "..." }`
+    fallbackPromptFor(req.channel)
 
   // Meeting action items gating:
   //   - Only surface for step 1; later steps already have their own talking points.
@@ -167,8 +149,8 @@ export async function generateOutreachDraftInApp(params: {
   //     prompt carries {{meeting_action_items}} sentinels but we have no tasks,
   //     the block is blanked out (no raw placeholder leaks into the draft).
   const meetingActionItems =
-    sequenceStep === 1
-      ? await loadOpenOutreachTasksForContact(params.contactId)
+    req.sequenceStep === 1
+      ? await loadOpenOutreachTasksForContact(req.contactId)
       : []
   const meetingActionItemsBlock = formatMeetingActionItemsBlock(meetingActionItems)
   systemPrompt = applyMeetingActionItemsPlaceholders(systemPrompt, meetingActionItemsBlock)
@@ -183,62 +165,203 @@ export async function generateOutreachDraftInApp(params: {
     researchTextForRag: researchBrief,
   })
 
-  const config = (promptRow?.config ?? {}) as { model?: string; temperature?: number; maxTokens?: number }
-  const model = config.model || 'gpt-4o-mini'
+  const config = (promptRow?.config ?? {}) as {
+    model?: string
+    temperature?: number
+    maxTokens?: number
+  }
+  const model = config.model || DEFAULT_OUTREACH_MODEL
   const temperature = config.temperature ?? 0.75
-  const maxTokens = config.maxTokens ?? 600
+  const maxTokens = config.maxTokens ?? (req.channel === 'linkedin' ? 600 : 600)
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+  return {
+    contact,
+    systemPrompt,
+    promptRow,
+    model,
+    temperature,
+    maxTokens,
+    contextSizes: {
+      researchBrief: researchBrief.length,
+      socialProof: socialProof.length,
+      meetingSnippet: meetingSnippet?.length ?? 0,
+      meetingActionItems: meetingActionItemsBlock?.length ?? 0,
     },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        {
-          role: 'user',
-          content:
-            'Draft the cold outreach email now. Respond only with JSON: { "subject": "...", "body": "..." }',
-        },
-      ],
-      temperature,
-      max_tokens: maxTokens,
-      response_format: { type: 'json_object' },
-    }),
+  }
+}
+
+function fallbackPromptFor(channel: OutreachChannel): string {
+  if (channel === 'linkedin') {
+    return [
+      'You are a BDR at AmaduTown. Use the research brief and social proof.',
+      'Respond with JSON: { "connection_note": "...", "follow_up_dm": "..." }',
+      'connection_note must be <= 280 characters.',
+    ].join('\n')
+  }
+  return [
+    'You are a BDR at AmaduTown. Use the research brief and social proof.',
+    'Respond with JSON: { "subject": "...", "body": "..." }',
+  ].join('\n')
+}
+
+// ============================================================================
+// Lead-validation helpers
+// ============================================================================
+
+interface LeadGuardResult {
+  isTestData: boolean
+}
+
+async function loadAndGuardLead(contactId: number): Promise<LeadGuardResult> {
+  if (!supabaseAdmin) {
+    throw new Error('Database not available')
+  }
+  const { data: lead, error: leadError } = await supabaseAdmin
+    .from('contact_submissions')
+    .select('id, do_not_contact, removed_at, is_test_data')
+    .eq('id', contactId)
+    .single()
+
+  if (leadError || !lead) {
+    throw new Error('Lead not found')
+  }
+  if (lead.do_not_contact) {
+    throw new Error('Lead is marked as do-not-contact')
+  }
+  if (lead.removed_at) {
+    throw new Error('Lead has been removed')
+  }
+
+  return { isTestData: lead.is_test_data === true }
+}
+
+interface DuplicateGuardArgs {
+  contactId: number
+  channel: OutreachChannel
+  sequenceStep: number
+  sourceTaskId: string | null
+  force: boolean
+}
+
+async function findExistingDraft(args: DuplicateGuardArgs): Promise<string | null> {
+  if (!supabaseAdmin || args.force) return null
+
+  let existingQuery = supabaseAdmin
+    .from('outreach_queue')
+    .select('id')
+    .eq('contact_submission_id', args.contactId)
+    .eq('channel', args.channel)
+    .eq('sequence_step', args.sequenceStep)
+    .eq('status', 'draft')
+
+  if (args.sourceTaskId === null) {
+    existingQuery = existingQuery.is('source_task_id', null)
+  } else {
+    existingQuery = existingQuery.eq('source_task_id', args.sourceTaskId)
+  }
+
+  const { data: existing } = await existingQuery.limit(1).maybeSingle()
+  return (existing?.id as string | undefined) ?? null
+}
+
+// ============================================================================
+// Email generator (replaces the original generateOutreachDraftInApp body)
+// ============================================================================
+
+/**
+ * Generate a cold-outreach email draft via the configured LLM and insert into
+ * outreach_queue (status draft).
+ *
+ * `sourceTaskId` — when provided, the generated draft is linked back to a
+ * meeting_action_task via outreach_queue.source_task_id. The draft-exists
+ * guard also scopes to this field so a task-driven draft never collides with
+ * a sequence-driven draft for the same contact/step (see 2026_04_17 migration,
+ * CTO M3).
+ *
+ * `templateKey` — pin a specific Saraev template (one of EMAIL_TEMPLATE_KEYS).
+ * Defaults to `email_cold_outreach` for back-compat with pre-Phase-2 callers.
+ */
+export async function generateOutreachDraftInApp(params: {
+  contactId: number
+  sequenceStep?: number
+  force?: boolean
+  meetingSummary?: string | null
+  includeLatestMeeting?: boolean
+  sourceTaskId?: string | null
+  templateKey?: EmailTemplateKey
+}): Promise<InAppOutreachGenerateResult> {
+  if (!isInAppOutreachGenerationEnabled()) {
+    throw new Error('In-app outreach generation is disabled (ENABLE_IN_APP_OUTREACH_GEN=false)')
+  }
+  if (!supabaseAdmin) {
+    throw new Error('Database not available')
+  }
+
+  const sequenceStep =
+    typeof params.sequenceStep === 'number' && params.sequenceStep >= 1 && params.sequenceStep <= 6
+      ? params.sequenceStep
+      : 1
+
+  const templateKey: EmailTemplateKey =
+    params.templateKey && (EMAIL_TEMPLATE_KEYS as readonly string[]).includes(params.templateKey)
+      ? params.templateKey
+      : DEFAULT_EMAIL_TEMPLATE_KEY
+
+  const { isTestData } = await loadAndGuardLead(params.contactId)
+
+  const sourceTaskId = params.sourceTaskId ?? null
+  const force = params.force === true
+
+  const existingId = await findExistingDraft({
+    contactId: params.contactId,
+    channel: 'email',
+    sequenceStep,
+    sourceTaskId,
+    force,
+  })
+  if (existingId) {
+    return { outcome: 'skipped', reason: 'draft_exists' }
+  }
+
+  const ctx = await buildOutreachPromptContext({
+    contactId: params.contactId,
+    channel: 'email',
+    templateKey,
+    meetingSummary: params.meetingSummary,
+    includeLatestMeeting: params.includeLatestMeeting,
+    sequenceStep,
   })
 
-  if (!response.ok) {
-    const errText = await response.text()
-    console.error('[outreach-queue-generator] OpenAI error:', errText)
-    throw new Error('Failed to generate outreach draft')
+  const completion = await generateJsonCompletion({
+    model: ctx.model,
+    systemPrompt: ctx.systemPrompt,
+    userPrompt:
+      'Draft the cold outreach email now. Respond only with JSON: { "subject": "...", "body": "..." }',
+    temperature: ctx.temperature,
+    maxTokens: ctx.maxTokens,
+    costContext: {
+      reference: { type: 'contact', id: String(params.contactId) },
+      metadata: {
+        operation: 'outreach_queue_in_app',
+        channel: 'email',
+        template_key: templateKey,
+      },
+    },
+  })
+
+  let parsed: { subject?: string; body?: string }
+  try {
+    parsed = JSON.parse(completion.content) as { subject?: string; body?: string }
+  } catch (err) {
+    console.error('[outreach-queue-generator] email JSON parse failed:', err, completion.content.slice(0, 200))
+    throw new Error('Generated email JSON was malformed')
   }
 
-  const result = await response.json()
-  const content = result.choices?.[0]?.message?.content as string | undefined
-  const usage = result.usage
-
-  if (usage) {
-    recordOpenAICost(usage, model, { type: 'contact', id: String(params.contactId) }, {
-      operation: 'outreach_queue_in_app',
-    }).catch(() => {})
-  }
-
-  if (!content) {
-    throw new Error('No response from AI for outreach draft')
-  }
-
-  const parsed = JSON.parse(content) as { subject?: string; body?: string }
   const body = (parsed.body || '').trim()
   if (!body) {
     throw new Error('Generated outreach body is empty')
   }
-
-  const subject = (parsed.subject || `Quick note for ${contact.name}`).trim()
-
-  const isTestData = lead.is_test_data === true
+  const subject = (parsed.subject || `Quick note for ${ctx.contact.name}`).trim()
 
   const { data: inserted, error: insertErr } = await supabaseAdmin
     .from('outreach_queue')
@@ -249,8 +372,8 @@ export async function generateOutreachDraftInApp(params: {
       body,
       sequence_step: sequenceStep,
       status: 'draft',
-      generation_model: model,
-      generation_prompt_summary: `in_app:${PROMPT_KEY}`,
+      generation_model: ctx.model,
+      generation_prompt_summary: `in_app:${templateKey}`,
       is_test_data: isTestData,
       source_task_id: sourceTaskId,
     })
@@ -268,4 +391,171 @@ export async function generateOutreachDraftInApp(params: {
     subject,
     body,
   }
+}
+
+// ============================================================================
+// LinkedIn generator
+// ============================================================================
+
+/**
+ * Generate a LinkedIn outreach draft (connection note + follow-up DM) and
+ * insert it into outreach_queue with channel='linkedin'.
+ *
+ * The body is formatted as a single text blob:
+ *
+ *   CONNECTION NOTE
+ *
+ *   <note>
+ *
+ *   ---
+ *
+ *   FOLLOW-UP DM (send 3-7 days after the invite is accepted)
+ *
+ *   <follow_up_dm>
+ *
+ * which renders cleanly in the existing Outreach UI without schema changes.
+ * `subject` is left null (per the existing channel='linkedin' convention).
+ */
+export async function generateLinkedInDraftInApp(params: {
+  contactId: number
+  sequenceStep?: number
+  force?: boolean
+  meetingSummary?: string | null
+  includeLatestMeeting?: boolean
+  sourceTaskId?: string | null
+  templateKey?: LinkedInTemplateKey
+}): Promise<InAppOutreachGenerateResult> {
+  if (!isInAppOutreachGenerationEnabled()) {
+    throw new Error('In-app outreach generation is disabled (ENABLE_IN_APP_OUTREACH_GEN=false)')
+  }
+  if (!supabaseAdmin) {
+    throw new Error('Database not available')
+  }
+
+  const sequenceStep =
+    typeof params.sequenceStep === 'number' && params.sequenceStep >= 1 && params.sequenceStep <= 6
+      ? params.sequenceStep
+      : 1
+
+  const templateKey: LinkedInTemplateKey =
+    params.templateKey && (LINKEDIN_TEMPLATE_KEYS as readonly string[]).includes(params.templateKey)
+      ? params.templateKey
+      : DEFAULT_LINKEDIN_TEMPLATE_KEY
+
+  const { isTestData } = await loadAndGuardLead(params.contactId)
+
+  const sourceTaskId = params.sourceTaskId ?? null
+  const force = params.force === true
+
+  const existingId = await findExistingDraft({
+    contactId: params.contactId,
+    channel: 'linkedin',
+    sequenceStep,
+    sourceTaskId,
+    force,
+  })
+  if (existingId) {
+    return { outcome: 'skipped', reason: 'draft_exists' }
+  }
+
+  const ctx = await buildOutreachPromptContext({
+    contactId: params.contactId,
+    channel: 'linkedin',
+    templateKey,
+    meetingSummary: params.meetingSummary,
+    includeLatestMeeting: params.includeLatestMeeting,
+    sequenceStep,
+  })
+
+  const completion = await generateJsonCompletion({
+    model: ctx.model,
+    systemPrompt: ctx.systemPrompt,
+    userPrompt:
+      'Draft the LinkedIn invite + follow-up DM now. Respond only with JSON: { "connection_note": "...", "follow_up_dm": "..." }',
+    temperature: ctx.temperature,
+    maxTokens: ctx.maxTokens,
+    costContext: {
+      reference: { type: 'contact', id: String(params.contactId) },
+      metadata: {
+        operation: 'outreach_queue_in_app',
+        channel: 'linkedin',
+        template_key: templateKey,
+      },
+    },
+  })
+
+  let parsed: { connection_note?: string; follow_up_dm?: string }
+  try {
+    parsed = JSON.parse(completion.content) as {
+      connection_note?: string
+      follow_up_dm?: string
+    }
+  } catch (err) {
+    console.error(
+      '[outreach-queue-generator] linkedin JSON parse failed:',
+      err,
+      completion.content.slice(0, 200),
+    )
+    throw new Error('Generated LinkedIn JSON was malformed')
+  }
+
+  const note = (parsed.connection_note || '').trim()
+  const dm = (parsed.follow_up_dm || '').trim()
+  if (!note) {
+    throw new Error('Generated LinkedIn connection_note is empty')
+  }
+  if (!dm) {
+    throw new Error('Generated LinkedIn follow_up_dm is empty')
+  }
+
+  const cappedNote =
+    note.length > LINKEDIN_CONNECTION_NOTE_MAX_CHARS
+      ? note.slice(0, LINKEDIN_CONNECTION_NOTE_MAX_CHARS - 1) + '…'
+      : note
+
+  const body = formatLinkedInBody(cappedNote, dm)
+
+  const { data: inserted, error: insertErr } = await supabaseAdmin
+    .from('outreach_queue')
+    .insert({
+      contact_submission_id: params.contactId,
+      channel: 'linkedin',
+      subject: null,
+      body,
+      sequence_step: sequenceStep,
+      status: 'draft',
+      generation_model: ctx.model,
+      generation_prompt_summary: `in_app:${templateKey}`,
+      is_test_data: isTestData,
+      source_task_id: sourceTaskId,
+    })
+    .select('id')
+    .single()
+
+  if (insertErr || !inserted?.id) {
+    console.error('[outreach-queue-generator] linkedin insert error:', insertErr)
+    throw new Error('Failed to save LinkedIn draft')
+  }
+
+  return {
+    outcome: 'created',
+    id: inserted.id as string,
+    subject: null,
+    body,
+  }
+}
+
+/** Exported for tests: format the LinkedIn body the way the UI expects. */
+export function formatLinkedInBody(connectionNote: string, followUpDm: string): string {
+  return [
+    'CONNECTION NOTE',
+    '',
+    connectionNote,
+    '',
+    '---',
+    '',
+    'FOLLOW-UP DM (send 3-7 days after the invite is accepted)',
+    '',
+    followUpDm,
+  ].join('\n')
 }

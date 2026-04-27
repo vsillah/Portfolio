@@ -2,22 +2,30 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getCurrentSession } from '@/lib/auth'
-import type { EmailTemplateKey } from '@/lib/constants/prompt-keys'
+import type {
+  EmailTemplateKey,
+  LinkedInTemplateKey,
+  OutreachChannel,
+} from '@/lib/constants/prompt-keys'
+
+export type OutreachTemplateKey = EmailTemplateKey | LinkedInTemplateKey
 
 /**
- * Phase 1 hook for <OutreachEmailGenerateRow /> (n8n path).
+ * UI state machine over `POST /api/admin/outreach/leads/:id/generate`.
  *
- * Pure UI state machine over the existing `POST /api/admin/outreach/leads/:id/generate`
- * endpoint (n8n WF-CLG-002). While waiting for a `outreach_queue` row, the parent
- * `onSettled` callback should refetch leads in the background.
+ * The endpoint is now backed by the in-app generator (Phase 1 — Option A): it
+ * loads `system_prompts`, runs the curated LLM via `lib/llm-dispatch.ts`, and
+ * inserts the draft into `outreach_queue` synchronously. We still attach the
+ * "wait for the row" timers because the success signal can come from two
+ * places — Realtime (`useRealtimeOutreach` on the parent page) or a
+ * `messages_count` bump after a refetch — and HTTP completion is racing both.
  *
- * Running state uses a safety timer. When the API reports `queueCountImmediate === 0`
- * after n8n returns 200, we wait longer and refetch periodically — HTTP success does
- * not guarantee a DB row yet. If no draft appears, we surface the in-app fallback.
+ * Channel-aware: callers pass `channel: 'email' | 'linkedin'` to `start`, and
+ * `templateKey` may be either an `EmailTemplateKey` or a `LinkedInTemplateKey`.
  *
- * Succeeded (draft detected or immediate queue row) stays visible until a new
- * `start`, `dismissResult`, or `retry` — it does not auto-clear after a few
- * seconds (parent should pass `onSettled` to refetch lead rows and Email — recent).
+ * Running copy intentionally avoids "n8n" — the legacy WF-CLG-002 path is
+ * deprecated. Names like `n8nStatus` / `last_n8n_outreach_status` survive in
+ * the DB column names for now (renamed in a later phase).
  */
 export type OutreachGenerationState =
   | 'idle'
@@ -63,8 +71,13 @@ export interface UseOutreachGenerationReturn {
   elapsedMs: number
   phaseLabel: string
   /** Last template the user actually ran with (populated on success trigger). */
-  lastTemplateKey: EmailTemplateKey | null
-  start: (templateKey?: EmailTemplateKey) => Promise<void>
+  lastTemplateKey: OutreachTemplateKey | null
+  /** Last channel used. Defaults to 'email' for back-compat with existing UI. */
+  lastChannel: OutreachChannel
+  start: (
+    templateKey?: OutreachTemplateKey,
+    channel?: OutreachChannel,
+  ) => Promise<void>
   cancel: () => void
   retry: () => Promise<void>
   /** Clears a sticky success state so the main Outreach control returns to idle. */
@@ -91,14 +104,15 @@ function phaseFor(
 ): string {
   if (awaitingHttpResponse) {
     if (elapsedMs < 2_500) return 'Starting…'
-    return 'Contacting n8n…'
+    if (elapsedMs < 8_000) return 'Building prompt…'
+    return 'Calling model…'
   }
   if (elapsedMs < 2_000) return 'Queuing…'
   if (elapsedMs < (extendedDraftWait ? 40_000 : 18_000)) return 'Generating…'
   // Past the first minute we stop promising "almost done" — Realtime will
   // resolve the moment the server reports success/failed.
   if (elapsedMs < 90_000) return 'Saving draft…'
-  return 'Still working — waiting for n8n…'
+  return 'Still working…'
 }
 
 export function useOutreachGeneration({
@@ -117,7 +131,8 @@ export function useOutreachGeneration({
   const [extendedDraftWait, setExtendedDraftWait] = useState(false)
   /** True while session + POST /generate are in flight; draft-detection stays off. */
   const [awaitingHttpResponse, setAwaitingHttpResponse] = useState(false)
-  const [lastTemplateKey, setLastTemplateKey] = useState<EmailTemplateKey | null>(null)
+  const [lastTemplateKey, setLastTemplateKey] = useState<OutreachTemplateKey | null>(null)
+  const [lastChannel, setLastChannel] = useState<OutreachChannel>('email')
 
   const startedAtRef = useRef<number | null>(null)
   const tickTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -230,7 +245,7 @@ export function useOutreachGeneration({
       }
       onFallbackAvailable?.()
       onToast?.(
-        `No draft appeared after waiting. Use Draft in app or check n8n for ${leadName}.`,
+        `No draft appeared after waiting. Try the in-app draft for ${leadName}.`,
       )
       clearTimers()
       startedAtRef.current = null
@@ -269,7 +284,7 @@ export function useOutreachGeneration({
       setElapsedMs(0)
       setState('failed')
       onFallbackAvailable?.()
-      onToast?.(`n8n reported a failure for ${leadName} — use Draft in app`)
+      onToast?.(`Generation failed for ${leadName} — try Draft in app`)
       onSettled?.()
     }
   }, [
@@ -285,7 +300,10 @@ export function useOutreachGeneration({
     settleToIdle,
   ])
 
-  const performGenerate = useCallback(async (templateKey?: EmailTemplateKey) => {
+  const performGenerate = useCallback(async (
+    templateKey?: OutreachTemplateKey,
+    channel: OutreachChannel = 'email',
+  ) => {
     const session = await getCurrentSession()
     if (!session) {
       onToast?.('Please sign in to continue.')
@@ -293,11 +311,14 @@ export function useOutreachGeneration({
     }
 
     if (templateKey) setLastTemplateKey(templateKey)
+    setLastChannel(channel)
 
-    // Optimistic: a new n8n run is starting — hide the previous "n8n unavailable" UI.
+    // Optimistic: hide any previous "fallback available" UI; a fresh run is starting.
     onFallbackCleared?.()
 
     startOptimisticRunning()
+
+    const channelLabel = channel === 'linkedin' ? 'LinkedIn' : 'email'
 
     try {
       const res = await fetch(`/api/admin/outreach/leads/${leadId}/generate`, {
@@ -306,7 +327,10 @@ export function useOutreachGeneration({
           'Content-Type': 'application/json',
           Authorization: `Bearer ${session.access_token}`,
         },
-        body: templateKey ? JSON.stringify({ templateKey }) : undefined,
+        body: JSON.stringify({
+          channel,
+          ...(templateKey ? { templateKey } : {}),
+        }),
       })
       const data = await res.json().catch(() => ({}))
       if (!mountedRef.current) return
@@ -315,21 +339,23 @@ export function useOutreachGeneration({
 
       if (data?.triggered) {
         onFallbackCleared?.()
-        // `queueCountImmediate` from `/generate` is deprecated and no longer
-        // a reliable completion signal (it historically counted *all* rows for
-        // the lead and fake-settled runs on leads with prior queue history).
-        // We always wait for the authoritative status push via Realtime
-        // (`n8nStatus === 'success'` with a fresh `n8nTriggeredAt`) or for a
-        // new outreach_queue row to arrive (`messages_count` bump).
+        // The in-app generator inserts the draft synchronously, so the
+        // success signal usually arrives within milliseconds via Realtime
+        // (last_n8n_outreach_status → 'success' with a fresh triggered_at)
+        // or a messages_count bump on the next refetch. We still attach the
+        // long safety timer for the rare case Realtime drops events.
         attachExtendedDraftWaitTimers()
-        onToast?.(`n8n accepted this job — waiting for a draft to appear…`)
+        onToast?.(`Generating ${channelLabel} draft for ${leadName}…`)
       } else {
         clearTimers()
         startedAtRef.current = null
         setElapsedMs(0)
         setState('failed')
         onFallbackAvailable?.()
-        onToast?.(`n8n unavailable for ${leadName} — use Draft in app`)
+        onToast?.(
+          data?.error ||
+            `Could not generate the ${channelLabel} draft for ${leadName} — try again.`,
+        )
       }
     } catch {
       if (!mountedRef.current) return
@@ -339,7 +365,9 @@ export function useOutreachGeneration({
       setElapsedMs(0)
       setState('failed')
       onFallbackAvailable?.()
-      onToast?.(`n8n unavailable for ${leadName} — use Draft in app`)
+      onToast?.(
+        `Could not reach the generator for ${leadName} — try again.`,
+      )
     }
   }, [
     attachExtendedDraftWaitTimers,
@@ -353,15 +381,15 @@ export function useOutreachGeneration({
   ])
 
   const start = useCallback(
-    async (templateKey?: EmailTemplateKey) => {
-      await performGenerate(templateKey)
+    async (templateKey?: OutreachTemplateKey, channel: OutreachChannel = 'email') => {
+      await performGenerate(templateKey, channel)
     },
     [performGenerate],
   )
 
   const retry = useCallback(async () => {
-    await performGenerate(lastTemplateKey ?? undefined)
-  }, [performGenerate, lastTemplateKey])
+    await performGenerate(lastTemplateKey ?? undefined, lastChannel)
+  }, [performGenerate, lastTemplateKey, lastChannel])
 
   const cancel = useCallback(() => {
     if (state !== 'running') return
@@ -382,6 +410,7 @@ export function useOutreachGeneration({
     elapsedMs,
     phaseLabel: phaseFor(elapsedMs, extendedDraftWait, awaitingHttpResponse),
     lastTemplateKey,
+    lastChannel,
     start,
     cancel,
     retry,

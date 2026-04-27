@@ -15,6 +15,7 @@ export const PROMPT_KEYS = [
   'email_follow_up',
   'email_proposal_delivery',
   'email_onboarding_welcome',
+  'linkedin_cold_outreach',
   'social_topic_extraction',
   'social_copywriting',
   'social_image_generation',
@@ -36,6 +37,7 @@ export const PROMPT_DISPLAY_NAMES: Record<string, string> = {
   email_follow_up: 'Follow-Up Email',
   email_proposal_delivery: 'Proposal Delivery Email',
   email_onboarding_welcome: 'Onboarding Welcome Email',
+  linkedin_cold_outreach: 'LinkedIn Cold Outreach',
   social_topic_extraction: 'Social — Topic Extraction',
   social_copywriting: 'Social — Copywriting',
   social_image_generation: 'Social — Image Generation',
@@ -62,6 +64,37 @@ export const EMAIL_TEMPLATE_KEYS = [
 ] as const
 
 export type EmailTemplateKey = (typeof EMAIL_TEMPLATE_KEYS)[number]
+
+/**
+ * Subset of prompt keys that drive LinkedIn outreach drafts. Mirrors the
+ * email template list — when more LinkedIn templates land (e.g. follow-up
+ * DM), add them here and the channel tab + generator will surface them.
+ */
+export const LINKEDIN_TEMPLATE_KEYS = [
+  'linkedin_cold_outreach',
+] as const
+
+export type LinkedInTemplateKey = (typeof LINKEDIN_TEMPLATE_KEYS)[number]
+
+/** Outreach channel names accepted by the lead-level `/generate` endpoint. */
+export const OUTREACH_CHANNELS = ['email', 'linkedin'] as const
+export type OutreachChannel = (typeof OUTREACH_CHANNELS)[number]
+
+/** Bundle the Email + LinkedIn template keys keyed by channel. */
+export const TEMPLATE_KEYS_BY_CHANNEL: Record<
+  OutreachChannel,
+  readonly string[]
+> = {
+  email: EMAIL_TEMPLATE_KEYS,
+  linkedin: LINKEDIN_TEMPLATE_KEYS,
+}
+
+export function isOutreachPromptKey(key: string): boolean {
+  return (
+    (EMAIL_TEMPLATE_KEYS as readonly string[]).includes(key) ||
+    (LINKEDIN_TEMPLATE_KEYS as readonly string[]).includes(key)
+  )
+}
 
 export function getPromptDisplayName(key: string): string {
   return PROMPT_DISPLAY_NAMES[key] ?? key
