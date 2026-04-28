@@ -18,6 +18,7 @@ import {
   MessageSquare,
   HelpCircle,
   Eye,
+  Play,
 } from 'lucide-react'
 import { PipelineProgressBar } from '@/components/admin/ExtractionStatusChip'
 import { getCurrentSession } from '@/lib/auth'
@@ -665,48 +666,6 @@ export function OutreachEmailGenerateRow({
     <div className="relative w-full min-w-0 max-w-md" ref={panelRef}>
       <div className="flex min-w-0 flex-wrap items-center gap-1.5">{outreachBar}</div>
 
-      <div className="mt-1.5 w-full min-w-0 max-w-sm">
-        <label
-          htmlFor={`outreach-meeting-${lead.id}`}
-          className="mb-0.5 flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/90"
-        >
-          <Calendar className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
-          Meeting for drafts
-        </label>
-        <select
-          id={`outreach-meeting-${lead.id}`}
-          className="h-9 w-full min-w-0 max-w-sm rounded-md border border-silicon-slate/90 bg-silicon-slate/30 px-2 pr-6 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-50"
-          value={outreachMeetingId}
-          onChange={(e) => {
-            setOutreachMeetingId(e.target.value)
-          }}
-          disabled={anyRun || inAppLoading}
-          title="Which meeting’s notes to use for this draft. Default: latest by date for this lead."
-        >
-          <option value="">
-            {meetingsLoading ? 'Loading meetings…' : 'Latest meeting (by date)'}
-          </option>
-          {meetingsList.map((m) => {
-            const when = m.meeting_date
-              ? new Date(m.meeting_date).toLocaleDateString(undefined, {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric',
-                })
-              : '—'
-            const type = (m.meeting_type && m.meeting_type.trim()) || 'Meeting'
-            return (
-              <option key={m.id} value={m.id}>
-                {when} · {type}
-              </option>
-            )
-          })}
-        </select>
-        {meetingsError && (
-          <p className="mt-0.5 text-[10px] text-amber-200/90">Could not load meetings. Using latest is still available.</p>
-        )}
-      </div>
-
       {showProgressCard && (
         <div
           className="mt-1.5 w-full min-w-0 max-w-sm rounded-md border border-emerald-500/30 bg-emerald-950/20 p-2"
@@ -788,6 +747,52 @@ export function OutreachEmailGenerateRow({
                 </p>
               </div>
             )}
+            <div className="border-b border-silicon-slate/80 px-3 py-2.5">
+              <label
+                htmlFor={`outreach-meeting-${lead.id}`}
+                className="mb-1 flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80"
+              >
+                <Calendar className="h-3 w-3 shrink-0 opacity-80" aria-hidden />
+                Meeting context
+              </label>
+              <select
+                id={`outreach-meeting-${lead.id}`}
+                className="h-9 w-full min-w-0 rounded-md border border-silicon-slate/90 bg-silicon-slate/30 px-2 pr-6 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-emerald-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+                value={outreachMeetingId}
+                onChange={(e) => {
+                  setOutreachMeetingId(e.target.value)
+                }}
+                disabled={anyRun || inAppLoading}
+                title="Notes from this meeting feed prompts and duplicate detection. Default: latest by date."
+              >
+                <option value="">
+                  {meetingsLoading ? 'Loading meetings…' : 'Latest meeting (default)'}
+                </option>
+                {meetingsList.map((m) => {
+                  const when = m.meeting_date
+                    ? new Date(m.meeting_date).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })
+                    : '—'
+                  const type = (m.meeting_type && m.meeting_type.trim()) || 'Meeting'
+                  return (
+                    <option key={m.id} value={m.id}>
+                      {when} · {type}
+                    </option>
+                  )
+                })}
+              </select>
+              <p className="mt-1 text-[10px] leading-snug text-muted-foreground/85">
+                Used for suggestions, cold draft, and duplicate detection (template + meeting).
+              </p>
+              {meetingsError && (
+                <p className="mt-1 text-[10px] text-amber-200/90">
+                  Could not load meetings. Latest is still available.
+                </p>
+              )}
+            </div>
             <div
               className="flex border-b border-silicon-slate/80"
               role="tablist"
@@ -893,13 +898,23 @@ export function OutreachEmailGenerateRow({
                         <button
                           type="button"
                           disabled={anyRun}
+                          title={`Run ${getPromptDisplayName(key)} — generate a draft with the LLM`}
+                          aria-label={`Run template: ${getPromptDisplayName(key)}`}
                           className="flex min-h-9 flex-1 items-center justify-between gap-2 rounded-md px-2.5 text-left text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
                           onClick={() => {
                             pickTemplate(key, 'email')
                           }}
                         >
-                          <span className="truncate">{getPromptDisplayName(key)}</span>
-                          {isSug && <span className="shrink-0 text-[9px] text-purple-300">★</span>}
+                          <span className="min-w-0 flex-1 truncate">{getPromptDisplayName(key)}</span>
+                          <span className="flex shrink-0 items-center gap-1">
+                            {isSug && <span className="text-[9px] text-purple-300">★</span>}
+                            <Play
+                              size={12}
+                              className="shrink-0 text-emerald-400/90"
+                              aria-hidden
+                              strokeWidth={2.25}
+                            />
+                          </span>
                         </button>
                         <button
                           type="button"
@@ -913,11 +928,11 @@ export function OutreachEmailGenerateRow({
                               templateKey: key,
                             })
                           }}
-                          title={`Preview the assembled prompt for ${getPromptDisplayName(key)} (no LLM call, no draft saved)`}
-                          aria-label={`Preview prompt for ${getPromptDisplayName(key)}`}
+                          title={`View assembled prompt for ${getPromptDisplayName(key)} (no LLM call, no draft saved)`}
+                          aria-label={`View prompt only: ${getPromptDisplayName(key)}`}
                           className="flex min-h-9 shrink-0 items-center justify-center rounded-md px-1.5 text-muted-foreground transition-colors hover:bg-silicon-slate/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                         >
-                          <Eye size={12} />
+                          <Eye size={12} aria-hidden />
                         </button>
                       </li>
                     )
@@ -1072,12 +1087,20 @@ export function OutreachEmailGenerateRow({
                       <button
                         type="button"
                         disabled={anyRun}
+                        title={`Run ${getPromptDisplayName(key)} — generate queue draft with the LLM`}
+                        aria-label={`Run template: ${getPromptDisplayName(key)}`}
                         className="flex min-h-9 flex-1 items-center justify-between gap-2 rounded-md px-2.5 text-left text-foreground hover:bg-silicon-slate/50 disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={() => {
                           pickTemplate(key, 'linkedin')
                         }}
                       >
-                        <span className="truncate">{getPromptDisplayName(key)}</span>
+                        <span className="min-w-0 flex-1 truncate">{getPromptDisplayName(key)}</span>
+                        <Play
+                          size={12}
+                          className="shrink-0 text-emerald-400/90"
+                          aria-hidden
+                          strokeWidth={2.25}
+                        />
                       </button>
                       <button
                         type="button"
@@ -1091,11 +1114,11 @@ export function OutreachEmailGenerateRow({
                             templateKey: key,
                           })
                         }}
-                        title={`Preview the assembled prompt for ${getPromptDisplayName(key)} (no LLM call, no draft saved)`}
-                        aria-label={`Preview prompt for ${getPromptDisplayName(key)}`}
+                        title={`View assembled prompt for ${getPromptDisplayName(key)} (no LLM call, no draft saved)`}
+                        aria-label={`View prompt only: ${getPromptDisplayName(key)}`}
                         className="flex min-h-9 shrink-0 items-center justify-center rounded-md px-1.5 text-muted-foreground transition-colors hover:bg-silicon-slate/40 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
                       >
-                        <Eye size={12} />
+                        <Eye size={12} aria-hidden />
                       </button>
                     </li>
                   ))}
