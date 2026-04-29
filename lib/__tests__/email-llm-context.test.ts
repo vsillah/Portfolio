@@ -11,13 +11,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 const mockBuildEmailRagQueryText = vi.fn()
-const mockFetchRagContextForEmailQuery = vi.fn()
+const mockFetchRagContextForEmailQueryWithDiagnostics = vi.fn()
 const mockFetchRecentSiteChatExcerptForLeadEmail = vi.fn()
+
+const disabledRagDiag = {
+  rag_query_chars: 14,
+  skipped_reason: 'email_rag_disabled' as const,
+  attempted: false,
+  error_class: null,
+  http_status: null,
+  latency_ms: null,
+  empty_response: false,
+}
 
 vi.mock('@/lib/rag-query', () => ({
   buildEmailRagQueryText: (...args: unknown[]) => mockBuildEmailRagQueryText(...args),
-  fetchRagContextForEmailQuery: (...args: unknown[]) =>
-    mockFetchRagContextForEmailQuery(...args),
+  fetchRagContextForEmailQueryWithDiagnostics: (...args: unknown[]) =>
+    mockFetchRagContextForEmailQueryWithDiagnostics(...args),
 }))
 
 vi.mock('@/lib/lead-chat-excerpt', () => ({
@@ -48,12 +58,15 @@ describe('appendPineconeAndChatContextWithMetadata', () => {
   beforeEach(() => {
     vi.resetModules()
     mockBuildEmailRagQueryText.mockReturnValue('rag-query-text')
-    mockFetchRagContextForEmailQuery.mockReset()
+    mockFetchRagContextForEmailQueryWithDiagnostics.mockReset()
     mockFetchRecentSiteChatExcerptForLeadEmail.mockReset()
   })
 
   it('returns 0 chars + null hash when neither RAG nor chat are available', async () => {
-    mockFetchRagContextForEmailQuery.mockResolvedValue(null)
+    mockFetchRagContextForEmailQueryWithDiagnostics.mockResolvedValue({
+      block: null,
+      diagnostics: disabledRagDiag,
+    })
     mockFetchRecentSiteChatExcerptForLeadEmail.mockResolvedValue(null)
     const { appendPineconeAndChatContextWithMetadata } = await import(
       '../email-llm-context'
@@ -66,11 +79,24 @@ describe('appendPineconeAndChatContextWithMetadata', () => {
     expect(metadata.pineconeChars).toBe(0)
     expect(metadata.priorChatPresent).toBe(false)
     expect(metadata.pineconeBlockHash).toBeNull()
+    expect(metadata.ragSkippedReason).toBe('email_rag_disabled')
+    expect(metadata.ragAttempted).toBe(false)
   })
 
   it('reports RAG length and a 12-char fingerprint when RAG returns a block', async () => {
     const ragBlock = 'Voice example A. Voice example B.'
-    mockFetchRagContextForEmailQuery.mockResolvedValue(ragBlock)
+    mockFetchRagContextForEmailQueryWithDiagnostics.mockResolvedValue({
+      block: ragBlock,
+      diagnostics: {
+        rag_query_chars: 14,
+        skipped_reason: null,
+        attempted: true,
+        error_class: null,
+        http_status: 200,
+        latency_ms: 12,
+        empty_response: false,
+      },
+    })
     mockFetchRecentSiteChatExcerptForLeadEmail.mockResolvedValue(null)
     const { appendPineconeAndChatContextWithMetadata } = await import(
       '../email-llm-context'
@@ -84,11 +110,24 @@ describe('appendPineconeAndChatContextWithMetadata', () => {
     expect(metadata.pineconeBlockHash).not.toBeNull()
     expect(metadata.pineconeBlockHash!.length).toBe(12)
     expect(/^[0-9a-f]{12}$/.test(metadata.pineconeBlockHash!)).toBe(true)
+    expect(metadata.ragAttempted).toBe(true)
+    expect(metadata.ragLatencyMs).toBe(12)
   })
 
   it('the fingerprint is deterministic per RAG block', async () => {
     const ragBlock = 'stable-block'
-    mockFetchRagContextForEmailQuery.mockResolvedValue(ragBlock)
+    mockFetchRagContextForEmailQueryWithDiagnostics.mockResolvedValue({
+      block: ragBlock,
+      diagnostics: {
+        rag_query_chars: 1,
+        skipped_reason: null,
+        attempted: true,
+        error_class: null,
+        http_status: 200,
+        latency_ms: 1,
+        empty_response: false,
+      },
+    })
     mockFetchRecentSiteChatExcerptForLeadEmail.mockResolvedValue(null)
     const { appendPineconeAndChatContextWithMetadata } = await import(
       '../email-llm-context'
@@ -105,7 +144,10 @@ describe('appendPineconeAndChatContextWithMetadata', () => {
   })
 
   it('flags priorChatPresent when chat excerpt is non-empty', async () => {
-    mockFetchRagContextForEmailQuery.mockResolvedValue(null)
+    mockFetchRagContextForEmailQueryWithDiagnostics.mockResolvedValue({
+      block: null,
+      diagnostics: disabledRagDiag,
+    })
     mockFetchRecentSiteChatExcerptForLeadEmail.mockResolvedValue('chat excerpt body')
     const { appendPineconeAndChatContextWithMetadata } = await import(
       '../email-llm-context'
@@ -118,7 +160,10 @@ describe('appendPineconeAndChatContextWithMetadata', () => {
   })
 
   it('back-compat wrapper delegates to the metadata helper', async () => {
-    mockFetchRagContextForEmailQuery.mockResolvedValue(null)
+    mockFetchRagContextForEmailQueryWithDiagnostics.mockResolvedValue({
+      block: null,
+      diagnostics: disabledRagDiag,
+    })
     mockFetchRecentSiteChatExcerptForLeadEmail.mockResolvedValue(null)
     const { appendPineconeAndChatContextToSystemPrompt } = await import(
       '../email-llm-context'

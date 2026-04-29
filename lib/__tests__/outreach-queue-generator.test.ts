@@ -75,6 +75,23 @@ vi.mock('@/lib/supabase', () => ({
           }),
         }
       }
+      if (table === 'value_evidence_summary') {
+        const empty = () => Promise.resolve({ data: [] as unknown[], error: null })
+        return {
+          select: () => ({
+            eq: () => ({
+              order: () => ({
+                limit: empty,
+              }),
+            }),
+            is: () => ({
+              order: () => ({
+                limit: empty,
+              }),
+            }),
+          }),
+        }
+      }
       if (table === 'meeting_action_tasks') {
         // Stub for lib/meeting-tasks-context.loadOpenOutreachTasksForContact:
         //   .select(...).eq(contact_submission_id, ...).eq(task_category, 'outreach')
@@ -351,6 +368,14 @@ describe('generateOutreachDraftInApp', () => {
     expect(inputs?.prior_outreach_chars).toBe(0)
     expect(inputs?.prior_outreach_entries).toBe(0)
     expect(inputs?.prior_outreach_has_inbound).toBe(false)
+    expect(inputs?.meeting_text_source).toBe('none')
+    expect(inputs?.value_evidence_chars).toBe(0)
+    expect(inputs?.value_evidence_rows).toBe(0)
+    expect(inputs?.rag_skipped_reason).toBe('email_rag_disabled')
+    expect(inputs?.rag_attempted).toBe(false)
+    expect(typeof inputs?.rag_query_chars).toBe('number')
+    expect((inputs?.rag_query_chars as number) ?? 0).toBeGreaterThan(0)
+    expect(inputs?.rag_empty_response).toBe(false)
   })
 
   it('reflects prior outreach history in generation_inputs (Phase 3)', async () => {
@@ -561,5 +586,7 @@ describe('generateLinkedInDraftInApp', () => {
     expect(inputs?.pinecone_chars).toBe(0)
     expect(inputs?.prior_chat_present).toBe(false)
     expect(inputs?.pinecone_block_hash).toBeNull()
+    expect(inputs?.meeting_text_source).toBe('none')
+    expect(inputs?.rag_skipped_reason).toBe('email_rag_disabled')
   })
 })

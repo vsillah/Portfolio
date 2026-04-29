@@ -42,10 +42,23 @@ ability to audit, tweak, or compare.
   research_brief_chars: number
   social_proof_chars: number
   meeting_summary_present: boolean
+  meeting_text_source: 'none' | 'inline_summary' | 'structured_summary' | 'raw_notes' | 'transcript_excerpt'
   meeting_action_items_chars: number
   pinecone_chars: number               // RAG block length, 0 when disabled
   prior_chat_present: boolean
   pinecone_block_hash: string | null   // sha256(8) of the RAG block, null when no block
+  prior_outreach_chars: number
+  prior_outreach_entries: number
+  prior_outreach_has_inbound: boolean
+  value_evidence_chars: number         // industry VEP excerpt injected into brief
+  value_evidence_rows: number
+  rag_query_chars: number
+  rag_skipped_reason: string | null    // e.g. email_rag_disabled, n8n_outbound_disabled
+  rag_attempted: boolean
+  rag_error_class: string | null       // http | timeout | network | parse
+  rag_http_status: number | null
+  rag_latency_ms: number | null
+  rag_empty_response: boolean         // HTTP ok but normalized block empty
 }
 ```
 

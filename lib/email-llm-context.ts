@@ -1,5 +1,8 @@
 import type { ContactEnrichment } from '@/lib/lead-research-context'
-import { buildEmailRagQueryText, fetchRagContextForEmailQuery } from '@/lib/rag-query'
+import {
+  buildEmailRagQueryText,
+  fetchRagContextForEmailQueryWithDiagnostics,
+} from '@/lib/rag-query'
 import { fetchRecentSiteChatExcerptForLeadEmail } from '@/lib/lead-chat-excerpt'
 
 /**
@@ -20,7 +23,7 @@ import { fetchRecentSiteChatExcerptForLeadEmail } from '@/lib/lead-chat-excerpt'
  */
 
 const DEFAULT_PINECONE_HEADING =
-  "## Vambah's past work and phrasing (use this to match tone and drop in one concrete story)"
+  "## Vambah's past work and phrasing (match tone; ground 2–3 specifics in this section + Research brief + Meeting context — do not invent facts)"
 const DEFAULT_PRIOR_CHAT_HEADING =
   '## Prior site chat with this email address (use for continuity; do not quote verbatim unless natural)'
 
@@ -82,6 +85,14 @@ export interface PineconeChatContextMetadata {
   pineconeChars: number
   priorChatPresent: boolean
   pineconeBlockHash: string | null
+  /** RAG webhook telemetry (persisted on outreach_queue.generation_inputs). */
+  ragQueryChars: number
+  ragSkippedReason: string | null
+  ragAttempted: boolean
+  ragErrorClass: string | null
+  ragHttpStatus: number | null
+  ragLatencyMs: number | null
+  ragEmptyResponse: boolean
 }
 
 export async function appendPineconeAndChatContextToSystemPrompt(
@@ -115,10 +126,12 @@ export async function appendPineconeAndChatContextWithMetadata(
     researchSnippet: input.researchTextForRag,
   })
 
-  const [ragBlock, chatBlock] = await Promise.all([
-    fetchRagContextForEmailQuery(ragQuery),
+  const [ragResult, chatBlock] = await Promise.all([
+    fetchRagContextForEmailQueryWithDiagnostics(ragQuery),
     fetchRecentSiteChatExcerptForLeadEmail(input.contact.email),
   ])
+  const ragBlock = ragResult.block
+  const d = ragResult.diagnostics
 
   const ragApply = applySentinel(systemPrompt, 'pinecone_context', ragBlock)
   const chatApply = applySentinel(ragApply.prompt, 'prior_site_chat', chatBlock)
@@ -138,6 +151,13 @@ export async function appendPineconeAndChatContextWithMetadata(
       pineconeChars: ragBlock?.length ?? 0,
       priorChatPresent: Boolean(chatBlock && chatBlock.length > 0),
       pineconeBlockHash: ragBlock ? hashBlockShort(ragBlock) : null,
+      ragQueryChars: d.rag_query_chars,
+      ragSkippedReason: d.skipped_reason,
+      ragAttempted: d.attempted,
+      ragErrorClass: d.error_class,
+      ragHttpStatus: d.http_status,
+      ragLatencyMs: d.latency_ms,
+      ragEmptyResponse: d.empty_response,
     },
   }
 }

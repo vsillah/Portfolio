@@ -30,6 +30,7 @@ import {
   applyPriorOutreachHistorySentinel,
   type PineconeChatContextMetadata,
 } from '@/lib/email-llm-context'
+import { fetchIndustryValueEvidenceExcerpt } from '@/lib/value-evidence-industry-excerpt'
 import {
   loadLeadCorrespondenceExcerpt,
   type PriorOutreachMetadata,
@@ -76,6 +77,16 @@ export function capMeetingSummary(text: string): string {
   if (t.length <= MEETING_SUMMARY_MAX_CHARS) return t
   return t.slice(0, MEETING_SUMMARY_MAX_CHARS) + '\n…[truncated]'
 }
+
+/** Provenance of meeting text injected into the research brief (generation_inputs). */
+export type MeetingTextSource =
+  | 'none'
+  | 'inline_summary'
+  | 'structured_summary'
+  | 'raw_notes'
+  | 'transcript_excerpt'
+
+const MEETING_TRANSCRIPT_FALLBACK_CAP = 8_000
 
 export function isInAppOutreachGenerationEnabled(): boolean {
   return process.env.ENABLE_IN_APP_OUTREACH_GEN !== 'false'
@@ -129,6 +140,7 @@ interface PromptContext {
     researchBrief: number
     socialProof: number
     meetingSnippet: number
+    meetingTextSource: MeetingTextSource
     meetingActionItems: number
     pineconeChars: number
     priorChatPresent: boolean
@@ -137,6 +149,15 @@ interface PromptContext {
     priorOutreachChars: number
     priorOutreachEntries: number
     priorOutreachHasInbound: boolean
+    valueEvidenceChars: number
+    valueEvidenceRows: number
+    ragQueryChars: number
+    ragSkippedReason: string | null
+    ragAttempted: boolean
+    ragErrorClass: string | null
+    ragHttpStatus: number | null
+    ragLatencyMs: number | null
+    ragEmptyResponse: boolean
   }
 }
 
@@ -166,6 +187,19 @@ export interface GenerationInputs {
   prior_outreach_chars: number
   prior_outreach_entries: number
   prior_outreach_has_inbound: boolean
+  /** Where meeting text came from (inline form vs DB structured vs transcript cap). */
+  meeting_text_source: MeetingTextSource
+  /** Industry value evidence block from `value_evidence_summary` (0 when skipped/empty). */
+  value_evidence_chars: number
+  value_evidence_rows: number
+  /** RAG query length sent to n8n (0 when skipped before HTTP). */
+  rag_query_chars: number
+  rag_skipped_reason: string | null
+  rag_attempted: boolean
+  rag_error_class: string | null
+  rag_http_status: number | null
+  rag_latency_ms: number | null
+  rag_empty_response: boolean
 }
 
 function buildGenerationInputs(args: {
@@ -194,6 +228,16 @@ function buildGenerationInputs(args: {
     prior_outreach_chars: ctx.contextSizes.priorOutreachChars,
     prior_outreach_entries: ctx.contextSizes.priorOutreachEntries,
     prior_outreach_has_inbound: ctx.contextSizes.priorOutreachHasInbound,
+    meeting_text_source: ctx.contextSizes.meetingTextSource,
+    value_evidence_chars: ctx.contextSizes.valueEvidenceChars,
+    value_evidence_rows: ctx.contextSizes.valueEvidenceRows,
+    rag_query_chars: ctx.contextSizes.ragQueryChars,
+    rag_skipped_reason: ctx.contextSizes.ragSkippedReason,
+    rag_attempted: ctx.contextSizes.ragAttempted,
+    rag_error_class: ctx.contextSizes.ragErrorClass,
+    rag_http_status: ctx.contextSizes.ragHttpStatus,
+    rag_latency_ms: ctx.contextSizes.ragLatencyMs,
+    rag_empty_response: ctx.contextSizes.ragEmptyResponse,
   }
 }
 
@@ -201,18 +245,26 @@ function meetingTextFromRow(meeting: {
   transcript: string | null
   raw_notes: string | null
   structured_notes: unknown
-}): string | null {
+}): { text: string | null; source: MeetingTextSource } {
   const notes = meeting.structured_notes as Record<string, unknown> | null
-  const raw =
-    (notes?.summary as string) ||
-    meeting.raw_notes ||
-    (meeting.transcript ? meeting.transcript.substring(0, 1000) : null)
-  if (!raw?.trim()) return null
-  return capMeetingSummary(raw)
+  const summaryRaw = notes?.summary as string | undefined
+  if (summaryRaw?.trim()) {
+    return { text: capMeetingSummary(summaryRaw), source: 'structured_summary' }
+  }
+  if (meeting.raw_notes?.trim()) {
+    return { text: capMeetingSummary(meeting.raw_notes), source: 'raw_notes' }
+  }
+  if (meeting.transcript?.trim()) {
+    const slice = meeting.transcript.substring(0, MEETING_TRANSCRIPT_FALLBACK_CAP)
+    return { text: capMeetingSummary(slice), source: 'transcript_excerpt' }
+  }
+  return { text: null, source: 'none' }
 }
 
-async function fetchLatestMeetingSnippet(contactId: number): Promise<string | null> {
-  if (!supabaseAdmin) return null
+async function fetchLatestMeetingSnippet(
+  contactId: number,
+): Promise<{ text: string | null; source: MeetingTextSource }> {
+  if (!supabaseAdmin) return { text: null, source: 'none' }
   const { data: meetings } = await supabaseAdmin
     .from('meeting_records')
     .select('transcript, raw_notes, structured_notes')
@@ -220,22 +272,22 @@ async function fetchLatestMeetingSnippet(contactId: number): Promise<string | nu
     .order('meeting_date', { ascending: false })
     .limit(1)
 
-  if (!meetings?.length) return null
+  if (!meetings?.length) return { text: null, source: 'none' }
   return meetingTextFromRow(meetings[0])
 }
 
 async function fetchMeetingSnippetByRecordId(
   contactId: number,
   meetingRecordId: string,
-): Promise<string | null> {
-  if (!supabaseAdmin) return null
+): Promise<{ text: string | null; source: MeetingTextSource }> {
+  if (!supabaseAdmin) return { text: null, source: 'none' }
   const { data: meeting } = await supabaseAdmin
     .from('meeting_records')
     .select('transcript, raw_notes, structured_notes')
     .eq('id', meetingRecordId)
     .eq('contact_submission_id', contactId)
     .maybeSingle()
-  if (!meeting) return null
+  if (!meeting) return { text: null, source: 'none' }
   return meetingTextFromRow(meeting)
 }
 
@@ -292,18 +344,29 @@ export async function buildOutreachPromptContext(
     await loadLeadResearchBrief(req.contactId)
 
   let meetingSnippet: string | null = null
+  let meetingTextSource: MeetingTextSource = 'none'
   if (req.meetingSummary != null && req.meetingSummary.trim() !== '') {
     meetingSnippet = capMeetingSummary(req.meetingSummary)
+    meetingTextSource = 'inline_summary'
   } else if (req.meetingRecordId) {
-    meetingSnippet = await fetchMeetingSnippetByRecordId(req.contactId, req.meetingRecordId)
+    const m = await fetchMeetingSnippetByRecordId(req.contactId, req.meetingRecordId)
+    meetingSnippet = m.text
+    meetingTextSource = m.source
   } else if (req.includeLatestMeeting !== false) {
-    meetingSnippet = await fetchLatestMeetingSnippet(req.contactId)
+    const m = await fetchLatestMeetingSnippet(req.contactId)
+    meetingSnippet = m.text
+    meetingTextSource = m.source
   }
 
-  const researchBrief =
+  let researchBrief =
     meetingSnippet && meetingSnippet.length > 0
       ? `${baseBrief}\n\n## Recent meeting context\n${meetingSnippet}`
       : baseBrief
+
+  const valueEvidence = await fetchIndustryValueEvidenceExcerpt(contact.industry)
+  if (valueEvidence.block) {
+    researchBrief = `${researchBrief}\n\n${valueEvidence.block}`
+  }
 
   const promptRow = await getSystemPrompt(req.templateKey)
   const senderName = process.env.EMAIL_FROM_NAME || 'Vambah Sillah'
@@ -362,6 +425,7 @@ export async function buildOutreachPromptContext(
       researchBrief: researchBrief.length,
       socialProof: socialProof.length,
       meetingSnippet: meetingSnippet?.length ?? 0,
+      meetingTextSource,
       meetingActionItems: meetingActionItemsBlock?.length ?? 0,
       pineconeChars: ragMeta.pineconeChars,
       priorChatPresent: ragMeta.priorChatPresent,
@@ -369,6 +433,15 @@ export async function buildOutreachPromptContext(
       priorOutreachChars: priorMeta.chars,
       priorOutreachEntries: priorMeta.entriesIncluded,
       priorOutreachHasInbound: priorMeta.hasInbound,
+      valueEvidenceChars: valueEvidence.chars,
+      valueEvidenceRows: valueEvidence.rowsUsed,
+      ragQueryChars: ragMeta.ragQueryChars,
+      ragSkippedReason: ragMeta.ragSkippedReason,
+      ragAttempted: ragMeta.ragAttempted,
+      ragErrorClass: ragMeta.ragErrorClass,
+      ragHttpStatus: ragMeta.ragHttpStatus,
+      ragLatencyMs: ragMeta.ragLatencyMs,
+      ragEmptyResponse: ragMeta.ragEmptyResponse,
     },
   }
 }

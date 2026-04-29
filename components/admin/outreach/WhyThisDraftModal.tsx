@@ -39,10 +39,20 @@ interface GenerationInputsShape {
   research_brief_chars?: number
   social_proof_chars?: number
   meeting_summary_present?: boolean
+  meeting_text_source?: string
   meeting_action_items_chars?: number
   pinecone_chars?: number
   prior_chat_present?: boolean
   pinecone_block_hash?: string | null
+  value_evidence_chars?: number
+  value_evidence_rows?: number
+  rag_query_chars?: number
+  rag_skipped_reason?: string | null
+  rag_attempted?: boolean
+  rag_error_class?: string | null
+  rag_http_status?: number | null
+  rag_latency_ms?: number | null
+  rag_empty_response?: boolean
 }
 
 interface DraftInputsResponse {
@@ -74,10 +84,20 @@ interface PreviewPromptResponse {
     researchBriefChars: number
     socialProofChars: number
     meetingSnippetChars: number
+    meetingTextSource: string
     meetingActionItemsChars: number
     pineconeChars: number
     priorChatPresent: boolean
     pineconeBlockHash: string | null
+    valueEvidenceChars: number
+    valueEvidenceRows: number
+    ragQueryChars: number
+    ragSkippedReason: string | null
+    ragAttempted: boolean
+    ragErrorClass: string | null
+    ragHttpStatus: number | null
+    ragLatencyMs: number | null
+    ragEmptyResponse: boolean
   }
 }
 
@@ -314,12 +334,58 @@ function InputsView({ data }: { data: DraftInputsResponse }) {
               v={inputs.meeting_summary_present ? 'present' : 'none'}
             />
             <KvRow
+              k="Meeting text source"
+              v={inputs.meeting_text_source ?? '—'}
+            />
+            <KvRow
               k="Meeting action items"
               v={`${inputs.meeting_action_items_chars ?? 0} chars`}
             />
             <KvRow
+              k="Industry value evidence"
+              v={`${inputs.value_evidence_rows ?? 0} rows · ${inputs.value_evidence_chars ?? 0} chars`}
+            />
+            <KvRow
               k="Pinecone RAG"
               v={`${inputs.pinecone_chars ?? 0} chars`}
+            />
+            <KvRow
+              k="RAG attempted"
+              v={inputs.rag_attempted === true ? 'yes' : inputs.rag_attempted === false ? 'no' : '—'}
+            />
+            <KvRow
+              k="RAG skipped reason"
+              v={inputs.rag_skipped_reason ?? '—'}
+            />
+            <KvRow
+              k="RAG error"
+              v={inputs.rag_error_class ?? '—'}
+            />
+            <KvRow
+              k="RAG HTTP status"
+              v={
+                inputs.rag_http_status != null ? String(inputs.rag_http_status) : '—'
+              }
+            />
+            <KvRow
+              k="RAG latency"
+              v={
+                inputs.rag_latency_ms != null ? `${inputs.rag_latency_ms} ms` : '—'
+              }
+            />
+            <KvRow
+              k="RAG query size"
+              v={`${inputs.rag_query_chars ?? 0} chars`}
+            />
+            <KvRow
+              k="RAG empty response"
+              v={
+                inputs.rag_empty_response === true
+                  ? 'yes'
+                  : inputs.rag_empty_response === false
+                    ? 'no'
+                    : '—'
+              }
             />
             <KvRow
               k="Prior site chat"
@@ -383,13 +449,51 @@ function PreviewView({
           k="Meeting snippet"
           v={`${data.contextSizes.meetingSnippetChars} chars`}
         />
+        <KvRow k="Meeting text source" v={data.contextSizes.meetingTextSource} />
         <KvRow
           k="Meeting action items"
           v={`${data.contextSizes.meetingActionItemsChars} chars`}
         />
         <KvRow
+          k="Industry value evidence"
+          v={`${data.contextSizes.valueEvidenceRows} rows · ${data.contextSizes.valueEvidenceChars} chars`}
+        />
+        <KvRow
           k="Pinecone RAG"
           v={`${data.contextSizes.pineconeChars} chars`}
+        />
+        <KvRow
+          k="RAG attempted"
+          v={data.contextSizes.ragAttempted ? 'yes' : 'no'}
+        />
+        <KvRow
+          k="RAG skipped reason"
+          v={data.contextSizes.ragSkippedReason ?? '—'}
+        />
+        <KvRow k="RAG error" v={data.contextSizes.ragErrorClass ?? '—'} />
+        <KvRow
+          k="RAG HTTP status"
+          v={
+            data.contextSizes.ragHttpStatus != null
+              ? String(data.contextSizes.ragHttpStatus)
+              : '—'
+          }
+        />
+        <KvRow
+          k="RAG latency"
+          v={
+            data.contextSizes.ragLatencyMs != null
+              ? `${data.contextSizes.ragLatencyMs} ms`
+              : '—'
+          }
+        />
+        <KvRow
+          k="RAG query size"
+          v={`${data.contextSizes.ragQueryChars} chars`}
+        />
+        <KvRow
+          k="RAG empty response"
+          v={data.contextSizes.ragEmptyResponse ? 'yes' : 'no'}
         />
         <KvRow
           k="Prior site chat"

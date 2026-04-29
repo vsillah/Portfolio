@@ -187,7 +187,7 @@ export function buildResearchBrief(
       lines.push(`Total annual value identified: $${Number(valueReport.total_annual_value).toLocaleString()}`)
     }
     if (valueReport.value_statements && Array.isArray(valueReport.value_statements)) {
-      const stmts = valueReport.value_statements.slice(0, 3)
+      const stmts = valueReport.value_statements.slice(0, 5)
       for (const s of stmts) {
         const stmt = s as Record<string, unknown>
         if (stmt.statement || stmt.description) {
@@ -196,8 +196,9 @@ export function buildResearchBrief(
       }
     }
     if (valueReport.summary_markdown) {
-      const truncated = valueReport.summary_markdown.slice(0, 500)
-      lines.push('', 'Summary:', truncated + (valueReport.summary_markdown.length > 500 ? '...' : ''))
+      const cap = 2_000
+      const truncated = valueReport.summary_markdown.slice(0, cap)
+      lines.push('', 'Summary:', truncated + (valueReport.summary_markdown.length > cap ? '...' : ''))
     }
   }
 
