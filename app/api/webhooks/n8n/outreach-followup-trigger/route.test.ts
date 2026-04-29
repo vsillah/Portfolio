@@ -5,8 +5,9 @@
  * `WF-CLG-003: Send and Follow-Up` used to call after the 4-day no-reply
  * branch. Verifies bearer auth, body validation (template_key vs.
  * EMAIL_TEMPLATE_KEYS, sequence_step bounds, missing contact_submission_id),
- * lead-status gating (DNC + removed_at), the success path delegating to
- * `generateOutreachDraftInApp`, and the Slack-notify side-effect.
+ * lead-status gating (DNC + removed_at), generator outcomes (created /
+ * existing / skipped), sequence-step clamping, provider-key failures, and the
+ * Slack-notify side-effect for newly created drafts.
  */
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -212,6 +213,40 @@ describe('POST /api/webhooks/n8n/outreach-followup-trigger', () => {
     )
   })
 
+  it('accepts string contact_submission_id and forwards force=true to the generator', async () => {
+    const res = await POST(
+      makeReq({
+        contact_submission_id: '42',
+        force: true,
+      }),
+    )
+
+    expect(res.status).toBe(200)
+    expect(mocks.generateOutreachDraftInApp).toHaveBeenCalledWith(
+      expect.objectContaining({
+        contactId: 42,
+        force: true,
+      }),
+    )
+  })
+
+  it('returns existing draft metadata without firing Slack when the generator finds a duplicate', async () => {
+    mocks.generateOutreachDraftInApp.mockResolvedValue({
+      outcome: 'existing',
+      queueId: 'existing-queue-1',
+      templateKey: 'email_follow_up',
+    })
+
+    const res = await POST(makeReq({ contact_submission_id: 42 }))
+    expect(res.status).toBe(200)
+    const body = (await res.json()) as Record<string, unknown>
+    expect(body.outcome).toBe('existing')
+    expect(body.already_exists).toBe(true)
+    expect(body.queue_id).toBe('existing-queue-1')
+    expect(body.template_key).toBe('email_follow_up')
+    expect(mocks.notifyOutreachDraftReady).not.toHaveBeenCalled()
+  })
+
   it('returns outcome=skipped + reason without firing Slack when generator skips', async () => {
     mocks.generateOutreachDraftInApp.mockResolvedValue({
       outcome: 'skipped',
@@ -237,6 +272,14 @@ describe('POST /api/webhooks/n8n/outreach-followup-trigger', () => {
   it('returns 503 when the LLM provider key is missing', async () => {
     mocks.generateOutreachDraftInApp.mockRejectedValue(
       new Error('OPENAI_API_KEY not configured'),
+    )
+    const res = await POST(makeReq({ contact_submission_id: 42 }))
+    expect(res.status).toBe(503)
+  })
+
+  it('returns 503 when the Anthropic provider key is missing', async () => {
+    mocks.generateOutreachDraftInApp.mockRejectedValue(
+      new Error('ANTHROPIC_API_KEY not configured'),
     )
     const res = await POST(makeReq({ contact_submission_id: 42 }))
     expect(res.status).toBe(503)
