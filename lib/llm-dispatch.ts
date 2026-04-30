@@ -22,6 +22,7 @@ import {
 
 export interface LlmCostContext {
   reference?: { type: string; id: string }
+  agentRunId?: string
   metadata?: Record<string, unknown>
 }
 
@@ -104,6 +105,7 @@ async function callOpenAI(req: LlmJsonRequest): Promise<LlmJsonResponse> {
       req.model,
       req.costContext.reference,
       req.costContext.metadata,
+      req.costContext.agentRunId,
     ).catch(() => {})
   }
 
@@ -166,6 +168,7 @@ async function callAnthropic(req: LlmJsonRequest): Promise<LlmJsonResponse> {
       req.model,
       req.costContext.reference,
       req.costContext.metadata,
+      req.costContext.agentRunId,
     ).catch(() => {})
   }
 

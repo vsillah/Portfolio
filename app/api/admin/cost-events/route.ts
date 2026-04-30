@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { occurred_at, source, amount, currency, reference_type, reference_id, metadata } = body
+    const { occurred_at, source, amount, currency, reference_type, reference_id, agent_run_id, metadata } = body
 
     if (!occurred_at || !source || amount == null || amount === '') {
       return NextResponse.json(
@@ -117,6 +117,7 @@ export async function POST(request: NextRequest) {
         currency: currency || 'usd',
         reference_type: reference_type || null,
         reference_id: reference_id || null,
+        agent_run_id: agent_run_id || null,
         metadata: metadata || {},
       })
       .select()

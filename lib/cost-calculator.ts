@@ -45,6 +45,7 @@ export interface CostEventInput {
   currency?: string
   reference_type?: string
   reference_id?: string
+  agent_run_id?: string
   metadata?: Record<string, unknown>
 }
 
@@ -110,6 +111,7 @@ export async function recordCostEvent(event: CostEventInput): Promise<{ ok: bool
       currency: event.currency || 'usd',
       reference_type: event.reference_type ?? null,
       reference_id: event.reference_id ?? null,
+      agent_run_id: event.agent_run_id ?? null,
       metadata: event.metadata ?? {},
     })
     if (error) {
@@ -131,7 +133,8 @@ export async function recordOpenAICost(
   usage: Usage,
   model: string,
   reference?: { type: string; id: string },
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
+  agentRunId?: string,
 ): Promise<void> {
   const amount = computeOpenAICost(usage, model)
   if (amount <= 0) return
@@ -141,6 +144,7 @@ export async function recordOpenAICost(
     amount,
     reference_type: reference?.type,
     reference_id: reference?.id,
+    agent_run_id: agentRunId,
     metadata: { model, ...metadata },
   })
 }
@@ -152,7 +156,8 @@ export async function recordAnthropicCost(
   usage: Usage,
   model: string,
   reference?: { type: string; id: string },
-  metadata?: Record<string, unknown>
+  metadata?: Record<string, unknown>,
+  agentRunId?: string,
 ): Promise<void> {
   const amount = computeAnthropicCost(usage, model)
   if (amount <= 0) return
@@ -162,6 +167,7 @@ export async function recordAnthropicCost(
     amount,
     reference_type: reference?.type,
     reference_id: reference?.id,
+    agent_run_id: agentRunId,
     metadata: { model, ...metadata },
   })
 }

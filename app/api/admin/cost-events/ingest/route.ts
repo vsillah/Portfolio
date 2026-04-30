@@ -35,6 +35,7 @@ interface IngestCostEvent {
   currency?: string
   reference_type?: string
   reference_id?: string
+  agent_run_id?: string
   metadata?: Record<string, unknown>
 }
 
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
           currency: item.currency || 'usd',
           reference_type: item.reference_type || null,
           reference_id: item.reference_id || null,
+          agent_run_id: item.agent_run_id || null,
           metadata: item.metadata || {},
         })
 

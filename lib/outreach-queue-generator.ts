@@ -37,6 +37,10 @@ import {
 } from '@/lib/lead-correspondence-context'
 import { generateJsonCompletion } from '@/lib/llm-dispatch'
 import {
+  attachAgentArtifact,
+  recordAgentStep,
+} from '@/lib/agent-run'
+import {
   DEFAULT_OUTREACH_MODEL,
   inferProvider,
   type LlmProvider,
@@ -567,6 +571,7 @@ export async function generateOutreachDraftInApp(params: {
   includeLatestMeeting?: boolean
   sourceTaskId?: string | null
   templateKey?: EmailTemplateKey
+  agentRunId?: string | null
 }): Promise<InAppOutreachGenerateResult> {
   if (!isInAppOutreachGenerationEnabled()) {
     throw new Error('In-app outreach generation is disabled (ENABLE_IN_APP_OUTREACH_GEN=false)')
@@ -632,6 +637,23 @@ export async function generateOutreachDraftInApp(params: {
     sequenceStep,
   })
 
+  if (params.agentRunId) {
+    await recordAgentStep({
+      runId: params.agentRunId,
+      stepKey: 'prompt_context',
+      name: 'Prompt context assembled',
+      status: 'completed',
+      outputSummary: `Prepared ${templateKey} email prompt for contact ${params.contactId}.`,
+      metadata: {
+        channel: 'email',
+        template_key: templateKey,
+        model: ctx.model,
+        sequence_step: sequenceStep,
+      },
+      idempotencyKey: `${params.agentRunId}:email:prompt_context`,
+    }).catch((err) => console.warn('[outreach-queue-generator] agent step failed:', err))
+  }
+
   const completion = await generateJsonCompletion({
     model: ctx.model,
     systemPrompt: ctx.systemPrompt,
@@ -640,6 +662,7 @@ export async function generateOutreachDraftInApp(params: {
     maxTokens: ctx.maxTokens,
     costContext: {
       reference: { type: 'contact', id: String(params.contactId) },
+      agentRunId: params.agentRunId ?? undefined,
       metadata: {
         operation: 'outreach_queue_in_app',
         channel: 'email',
@@ -647,6 +670,25 @@ export async function generateOutreachDraftInApp(params: {
       },
     },
   })
+
+  if (params.agentRunId) {
+    await recordAgentStep({
+      runId: params.agentRunId,
+      stepKey: 'llm_dispatch',
+      name: 'LLM draft generated',
+      status: 'completed',
+      tokensIn: completion.usage?.prompt_tokens ?? completion.usage?.input_tokens ?? null,
+      tokensOut: completion.usage?.completion_tokens ?? completion.usage?.output_tokens ?? null,
+      outputSummary: `Generated email JSON with ${completion.provider}.`,
+      metadata: {
+        provider: completion.provider,
+        model: completion.model,
+        channel: 'email',
+        template_key: templateKey,
+      },
+      idempotencyKey: `${params.agentRunId}:email:llm_dispatch`,
+    }).catch((err) => console.warn('[outreach-queue-generator] agent step failed:', err))
+  }
 
   let parsed: { subject?: string; body?: string }
   try {
@@ -693,6 +735,28 @@ export async function generateOutreachDraftInApp(params: {
     throw new Error('Failed to save outreach draft')
   }
 
+  if (params.agentRunId) {
+    await attachAgentArtifact({
+      runId: params.agentRunId,
+      artifactType: 'outreach_draft',
+      title: subject,
+      refType: 'outreach_queue',
+      refId: inserted.id as string,
+      url: `/admin/outreach?contact=${params.contactId}`,
+      metadata: { channel: 'email', template_key: templateKey },
+      idempotencyKey: `${params.agentRunId}:email:artifact:${inserted.id}`,
+    }).catch((err) => console.warn('[outreach-queue-generator] agent artifact failed:', err))
+    await recordAgentStep({
+      runId: params.agentRunId,
+      stepKey: 'draft_saved',
+      name: 'Outreach draft saved',
+      status: 'completed',
+      outputSummary: `Saved draft ${inserted.id}.`,
+      metadata: { queue_id: inserted.id, channel: 'email' },
+      idempotencyKey: `${params.agentRunId}:email:draft_saved`,
+    }).catch((err) => console.warn('[outreach-queue-generator] agent step failed:', err))
+  }
+
   return {
     outcome: 'created',
     id: inserted.id as string,
@@ -733,6 +797,7 @@ export async function generateLinkedInDraftInApp(params: {
   includeLatestMeeting?: boolean
   sourceTaskId?: string | null
   templateKey?: LinkedInTemplateKey
+  agentRunId?: string | null
 }): Promise<InAppOutreachGenerateResult> {
   if (!isInAppOutreachGenerationEnabled()) {
     throw new Error('In-app outreach generation is disabled (ENABLE_IN_APP_OUTREACH_GEN=false)')
@@ -798,6 +863,23 @@ export async function generateLinkedInDraftInApp(params: {
     sequenceStep,
   })
 
+  if (params.agentRunId) {
+    await recordAgentStep({
+      runId: params.agentRunId,
+      stepKey: 'prompt_context',
+      name: 'Prompt context assembled',
+      status: 'completed',
+      outputSummary: `Prepared ${templateKey} LinkedIn prompt for contact ${params.contactId}.`,
+      metadata: {
+        channel: 'linkedin',
+        template_key: templateKey,
+        model: ctx.model,
+        sequence_step: sequenceStep,
+      },
+      idempotencyKey: `${params.agentRunId}:linkedin:prompt_context`,
+    }).catch((err) => console.warn('[outreach-queue-generator] agent step failed:', err))
+  }
+
   const completion = await generateJsonCompletion({
     model: ctx.model,
     systemPrompt: ctx.systemPrompt,
@@ -806,6 +888,7 @@ export async function generateLinkedInDraftInApp(params: {
     maxTokens: ctx.maxTokens,
     costContext: {
       reference: { type: 'contact', id: String(params.contactId) },
+      agentRunId: params.agentRunId ?? undefined,
       metadata: {
         operation: 'outreach_queue_in_app',
         channel: 'linkedin',
@@ -813,6 +896,25 @@ export async function generateLinkedInDraftInApp(params: {
       },
     },
   })
+
+  if (params.agentRunId) {
+    await recordAgentStep({
+      runId: params.agentRunId,
+      stepKey: 'llm_dispatch',
+      name: 'LLM draft generated',
+      status: 'completed',
+      tokensIn: completion.usage?.prompt_tokens ?? completion.usage?.input_tokens ?? null,
+      tokensOut: completion.usage?.completion_tokens ?? completion.usage?.output_tokens ?? null,
+      outputSummary: `Generated LinkedIn JSON with ${completion.provider}.`,
+      metadata: {
+        provider: completion.provider,
+        model: completion.model,
+        channel: 'linkedin',
+        template_key: templateKey,
+      },
+      idempotencyKey: `${params.agentRunId}:linkedin:llm_dispatch`,
+    }).catch((err) => console.warn('[outreach-queue-generator] agent step failed:', err))
+  }
 
   let parsed: { connection_note?: string; follow_up_dm?: string }
   try {
@@ -874,6 +976,28 @@ export async function generateLinkedInDraftInApp(params: {
   if (insertErr || !inserted?.id) {
     console.error('[outreach-queue-generator] linkedin insert error:', insertErr)
     throw new Error('Failed to save LinkedIn draft')
+  }
+
+  if (params.agentRunId) {
+    await attachAgentArtifact({
+      runId: params.agentRunId,
+      artifactType: 'outreach_draft',
+      title: `LinkedIn draft for ${ctx.contact.name}`,
+      refType: 'outreach_queue',
+      refId: inserted.id as string,
+      url: `/admin/outreach?contact=${params.contactId}`,
+      metadata: { channel: 'linkedin', template_key: templateKey },
+      idempotencyKey: `${params.agentRunId}:linkedin:artifact:${inserted.id}`,
+    }).catch((err) => console.warn('[outreach-queue-generator] agent artifact failed:', err))
+    await recordAgentStep({
+      runId: params.agentRunId,
+      stepKey: 'draft_saved',
+      name: 'Outreach draft saved',
+      status: 'completed',
+      outputSummary: `Saved LinkedIn draft ${inserted.id}.`,
+      metadata: { queue_id: inserted.id, channel: 'linkedin' },
+      idempotencyKey: `${params.agentRunId}:linkedin:draft_saved`,
+    }).catch((err) => console.warn('[outreach-queue-generator] agent step failed:', err))
   }
 
   return {

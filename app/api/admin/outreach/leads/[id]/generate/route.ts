@@ -15,6 +15,13 @@ import {
   type OutreachChannel,
 } from '@/lib/constants/prompt-keys'
 import { notifyOutreachDraftReady } from '@/lib/slack-outreach-notification'
+import {
+  endAgentRun,
+  markAgentRunFailed,
+  recordAgentEvent,
+  recordAgentStep,
+  startAgentRun,
+} from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 /**
@@ -139,6 +146,39 @@ export async function POST(
       : null
 
   const triggeredAtIso = new Date().toISOString()
+  const agentRun = await startAgentRun({
+    agentKey: 'manual-admin',
+    runtime: 'manual',
+    kind: 'outreach_generation',
+    title: `Generate ${channel} outreach draft`,
+    subject: {
+      type: 'contact_submission',
+      id: contactId,
+      label: lead.name || lead.email || `Lead ${contactId}`,
+    },
+    triggerSource: 'admin:outreach_generate',
+    triggeredByUserId: auth.user.id,
+    currentStep: 'Lead validated',
+    metadata: {
+      channel,
+      template_key: templateKey ?? null,
+      sequence_step: sequenceStep,
+      force,
+      meeting_record_id: meetingRecordId,
+    },
+  })
+  const agentRunId = agentRun.id
+
+  await recordAgentStep({
+    runId: agentRunId,
+    stepKey: 'lead_validated',
+    name: 'Lead validated',
+    status: 'completed',
+    outputSummary: `Lead ${contactId} is eligible for outreach generation.`,
+    metadata: { contact_id: contactId, channel },
+    idempotencyKey: `${agentRunId}:lead_validated`,
+  }).catch((err) => console.warn('[generate] agent step failed', err))
+
   // Mark pending so the Outreach panel + Realtime show "running" copy while we
   // synchronously generate. The success/failed flip happens at the end of the
   // try/catch — the row is single-writer per request.
@@ -160,6 +200,7 @@ export async function POST(
             force,
             meetingRecordId,
             templateKey: templateKey as LinkedInTemplateKey | undefined,
+            agentRunId,
           })
         : await generateOutreachDraftInApp({
             contactId,
@@ -167,6 +208,7 @@ export async function POST(
             force,
             meetingRecordId,
             templateKey: templateKey as EmailTemplateKey | undefined,
+            agentRunId,
           })
 
     if (result.outcome === 'existing') {
@@ -185,6 +227,19 @@ export async function POST(
         .eq('source_system', 'outreach_queue')
         .eq('source_id', result.queueId)
         .maybeSingle()
+
+      await endAgentRun({
+        runId: agentRunId,
+        status: 'completed',
+        currentStep: 'Existing draft returned',
+        outcome: {
+          outcome: 'existing',
+          queue_id: result.queueId,
+          channel: result.channel,
+          template_key: result.templateKey,
+        },
+      }).catch((err) => console.warn('[generate] end agent run failed', err))
+
       const emailMessageId = (emRow?.id as string) ?? null
       const openDraftUrl = emailMessageId
         ? `/admin/email-messages/${emailMessageId}`
@@ -196,6 +251,7 @@ export async function POST(
         queueId: result.queueId,
         templateKey: result.templateKey,
         channel: result.channel,
+        agentRunId,
         emailMessageId,
         openDraftUrl,
       })
@@ -210,6 +266,12 @@ export async function POST(
           last_n8n_outreach_template_key: n8nSnapshot.last_n8n_outreach_template_key,
         })
         .eq('id', contactId)
+      await endAgentRun({
+        runId: agentRunId,
+        status: 'cancelled',
+        currentStep: 'Skipped existing task draft',
+        outcome: { outcome: 'skipped', reason: 'draft_exists' },
+      }).catch((err) => console.warn('[generate] end agent run failed', err))
       return NextResponse.json(
         {
           error:
@@ -217,6 +279,7 @@ export async function POST(
           outcome: 'skipped',
           reason: 'draft_exists',
           triggered: false,
+          agentRunId,
         },
         { status: 409 },
       )
@@ -242,12 +305,32 @@ export async function POST(
       }).catch((err) => {
         console.warn('[generate] notifyOutreachDraftReady failed', err)
       })
+      await recordAgentEvent({
+        runId: agentRunId,
+        eventType: 'notification_dispatched',
+        severity: 'info',
+        message: 'Slack draft-ready notification queued.',
+        metadata: { queue_id: result.id, channel },
+        idempotencyKey: `${agentRunId}:notification_dispatched`,
+      }).catch((err) => console.warn('[generate] agent event failed', err))
     }
 
     // Only `created` reaches here (`existing` and `skipped` return above).
     if (result.outcome !== 'created') {
       return NextResponse.json({ error: 'Unexpected generation outcome' }, { status: 500 })
     }
+
+    await endAgentRun({
+      runId: agentRunId,
+      status: 'completed',
+      currentStep: 'Outreach draft ready',
+      outcome: {
+        outcome: result.outcome,
+        queue_id: result.id,
+        channel,
+        template_key: templateKey ?? null,
+      },
+    }).catch((err) => console.warn('[generate] end agent run failed', err))
 
     return NextResponse.json({
       // `triggered` preserves the existing client contract (`useOutreachGeneration`
@@ -257,12 +340,28 @@ export async function POST(
       queueCountImmediate: 1,
       outcome: result.outcome,
       channel,
+      agentRunId,
       ...(templateKey ? { templateKey } : {}),
       id: result.id,
       subject: result.subject,
     })
   } catch (err) {
     console.error('[generate] in-app generation failed:', err)
+    const message = err instanceof Error ? err.message : String(err)
+    await recordAgentStep({
+      runId: agentRunId,
+      stepKey: 'generation_failed',
+      name: 'Generation failed',
+      status: 'failed',
+      outputSummary: message,
+      metadata: { channel, template_key: templateKey ?? null },
+      idempotencyKey: `${agentRunId}:generation_failed`,
+    }).catch((stepErr) => console.warn('[generate] agent failure step failed', stepErr))
+    await markAgentRunFailed(agentRunId, message, {
+      channel,
+      template_key: templateKey ?? null,
+      contact_id: contactId,
+    }).catch((runErr) => console.warn('[generate] mark agent run failed', runErr))
     await sb
       .from('contact_submissions')
       .update({
@@ -270,7 +369,6 @@ export async function POST(
       })
       .eq('id', contactId)
 
-    const message = err instanceof Error ? err.message : String(err)
     if (message === 'Meeting not found for this lead') {
       return NextResponse.json(
         { error: 'The selected meeting was not found for this lead.' },
