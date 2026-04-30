@@ -23,6 +23,7 @@ When the implementation phase is complete and the user signals readiness to comm
 - Run any pre-push health checks (e.g. database table verification).
 - Push to remote.
 - Confirm push succeeded.
+- **Cursor `origin/cursor/*` branches:** When work is merged to `main` and the user does not need the agent branch for review, delete the remote branch (`git push origin --delete <name>`) so disposable branches do not accumulate. See **`cursor-agent-branch-hygiene.mdc`** and `scripts/list-cursor-commits-not-in-main.sh` for backlog consolidation.
 
 ## Mode reminder
 Committing and pushing require Agent mode. If the user asks to commit while in a read-only mode, prompt them to switch before proceeding rather than silently failing.

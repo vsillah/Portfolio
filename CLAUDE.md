@@ -129,6 +129,10 @@ git add .database-baseline.json && git commit -m "Update database baseline"
 
 When a list API resolves related data per item: batch-fetch by dimension using `.in('id', ids)` or `.eq(...).in(...)`, run batches in parallel via `Promise.all`, then resolve in memory using maps. Never add per-item DB calls inside a result loop (N+1). See `app/api/admin/sales/bundles/[id]/resolve/route.ts` for the reference pattern.
 
+## Cursor agent branches (`origin/cursor/*`)
+
+Cursor may create a new remote branch per run. **After merging to `main`**, delete remotes you no longer need to avoid dozens of stale branches. To **consolidate a backlog**, see **`.cursor/rules/cursor-agent-branch-hygiene.mdc`** and run **`bash scripts/list-cursor-commits-not-in-main.sh`** (lists unique commits not in `main` for cherry-pick integration).
+
 ## Commit conventions
 
 Use scoped prefixes: `db:`, `lib:`, `api:`, `ui:`, `test:`, `config:`, `style:`, `feat:`.

@@ -1,0 +1,42 @@
+---
+description: Prevent piles of stale origin/cursor/* branches; merge to main and clean up; how to consolidate later
+alwaysApply: true
+---
+
+# Cursor agent branch hygiene (`origin/cursor/*`)
+
+## Why this happens
+
+Cursor often creates a **new remote branch per agent run** (e.g. `cursor/missing-test-coverage-xxxx`). If each run finishes without **merging to `main` and deleting the remote branch**, dozens of near-duplicate branches accumulate. They are not harmful to `main`, but they clutter the repo and make “merge everything later” manual work.
+
+## Prevention (default for every agent session)
+
+1. **Prefer one line of integration** — When the task is incremental (tests, small fixes), work from **up-to-date `main`** or a **single** integration branch (e.g. `integrate/<topic>-<date>`) and merge to `main` when verified, instead of leaving many parallel `cursor/*` remotes.
+2. **End of a successful task** — After `npm test` / `npm run build` / `npm run lint` pass (per `end-of-session-workflow.mdc`):
+   - **Commit** on the current branch.
+   - **Merge or fast-forward to `main`** (or open one PR) and **`git push origin main`** when the user wants production history updated.
+   - **Delete the remote agent branch** when work is fully on `main`:  
+     `git push origin --delete <branch-name>`  
+     (Only if the user does not need that branch for review; ask once if unsure.)
+3. **Do not spawn a second `cursor/*` remote** for the same small follow-up (e.g. “fix test typo”) — continue on the same branch or `main` unless the user asked for isolation.
+
+## After the fact — consolidate many `cursor/*` remotes
+
+When many `origin/cursor/*` branches already exist (excluding `codex/*` / `codec/*` if the user asked to ignore them):
+
+1. `git fetch origin --prune`
+2. From **`origin/main`**, create an integration branch:  
+   `git checkout -b integrate/cursor-backlog-$(date +%F) origin/main`
+3. **List unique commits** not yet in `main` across all cursor remotes:  
+   `bash scripts/list-cursor-commits-not-in-main.sh`  
+   Review the log; remove any SHAs you intentionally skip (e.g. obsolete mega-branches).
+4. **Cherry-pick** in listed order (drops empty picks when a patch is already on `main`):  
+   `git cherry-pick <sha>...` or loop with `git cherry-pick <sha> --empty=drop`  
+   Resolve conflicts once per commit; prefer keeping **`main`-era** behavior when a branch is very old.
+5. Verify (`npm test`, `npm run build`, `npm run lint`), **merge to `main`**, **push**, then **delete** merged `origin/cursor/*` branches the user no longer needs.
+
+There is **no fully safe one-click “merge all”** for divergent agent branches touching the same files; the script below gives a **reviewable commit list**; cherry-pick integration stays explicit.
+
+## User-side settings (optional)
+
+In **Cursor → Settings**, check **Git / branch** options (wording varies by version): prefer defaulting agents to **current branch** or **`main`** when possible so fewer disposable remotes are created.
