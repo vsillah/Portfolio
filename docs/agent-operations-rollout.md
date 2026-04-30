@@ -79,6 +79,31 @@ Current safety constraints:
 - Metadata marks the run as `bridge_read_only`.
 - Future Hermes write actions must go through `agent_approvals`.
 
+## Runtime Policy And Approval Gates
+
+Runtime policies live in `lib/agent-policy.ts` and are shown in `/admin/agents`.
+
+Policy dimensions:
+
+- file reads
+- file writes
+- external API calls
+- client-data access
+- production data writes
+- actions requiring approval
+
+Approval gates are represented in `agent_approvals`, not ad hoc UI state. Pending approvals move eligible runs into `waiting_for_approval`; approving the last pending checkpoint returns the run to `running`; rejecting or cancelling a checkpoint terminates the run as `failed` or `cancelled`.
+
+Current required approval gates:
+
+- publishing
+- sending email
+- database writes outside known workflows
+- production config changes
+- public content derived from private material
+
+Slack should be treated as a notification and lightweight decision surface later. The source of truth remains Portfolio admin plus `agent_approvals`.
+
 ## Safety Rules
 
 - New agent work should create an `agent_run` before doing meaningful work.

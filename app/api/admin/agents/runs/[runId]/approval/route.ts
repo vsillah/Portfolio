@@ -26,6 +26,7 @@ export async function POST(
   }
 
   const body = (await request.json().catch(() => ({}))) as {
+    approval_id?: string
     approval_type?: string
     status?: string
     requested_by_agent_key?: string | null
@@ -34,7 +35,9 @@ export async function POST(
   }
 
   if (!body.approval_type) {
-    return NextResponse.json({ error: 'approval_type is required' }, { status: 400 })
+    if (!body.approval_id) {
+      return NextResponse.json({ error: 'approval_type is required' }, { status: 400 })
+    }
   }
   const status = body.status ?? 'pending'
   if (!isApprovalStatus(status)) {
@@ -42,33 +45,104 @@ export async function POST(
   }
 
   const decided = status !== 'pending'
-  const { data, error } = await supabaseAdmin
-    .from('agent_approvals')
-    .insert({
-      run_id: params.runId,
-      approval_type: body.approval_type,
-      status,
-      requested_by_agent_key: body.requested_by_agent_key ?? null,
-      decided_by_user_id: decided ? auth.user.id : null,
-      decided_at: decided ? new Date().toISOString() : null,
-      decision_notes: body.decision_notes ?? null,
-      metadata: body.metadata ?? {},
-    })
-    .select('id')
-    .single()
+  let approvalId = body.approval_id ?? null
 
-  if (error || !data?.id) {
-    console.error('[agent-approval] insert failed:', error)
-    return NextResponse.json({ error: 'Failed to record approval' }, { status: 500 })
+  if (approvalId) {
+    const { data, error } = await supabaseAdmin
+      .from('agent_approvals')
+      .update({
+        status,
+        decided_by_user_id: decided ? auth.user.id : null,
+        decided_at: decided ? new Date().toISOString() : null,
+        decision_notes: body.decision_notes ?? null,
+        metadata: body.metadata ?? {},
+      })
+      .eq('id', approvalId)
+      .eq('run_id', params.runId)
+      .select('id')
+      .single()
+
+    if (error || !data?.id) {
+      console.error('[agent-approval] update failed:', error)
+      return NextResponse.json({ error: 'Failed to update approval' }, { status: 500 })
+    }
+    approvalId = data.id as string
+  } else {
+    const { data, error } = await supabaseAdmin
+      .from('agent_approvals')
+      .insert({
+        run_id: params.runId,
+        approval_type: body.approval_type,
+        status,
+        requested_by_agent_key: body.requested_by_agent_key ?? null,
+        decided_by_user_id: decided ? auth.user.id : null,
+        decided_at: decided ? new Date().toISOString() : null,
+        decision_notes: body.decision_notes ?? null,
+        metadata: body.metadata ?? {},
+      })
+      .select('id')
+      .single()
+
+    if (error || !data?.id) {
+      console.error('[agent-approval] insert failed:', error)
+      return NextResponse.json({ error: 'Failed to record approval' }, { status: 500 })
+    }
+    approvalId = data.id as string
   }
 
   await supabaseAdmin.from('agent_run_events').insert({
     run_id: params.runId,
-    event_type: 'approval_recorded',
+    event_type: approvalId === body.approval_id ? 'approval_decided' : 'approval_recorded',
     severity: status === 'rejected' ? 'warning' : 'info',
-    message: `${body.approval_type}: ${status}`,
-    metadata: { approval_id: data.id, status },
+    message: `${body.approval_type ?? body.approval_id}: ${status}`,
+    metadata: { approval_id: approvalId, status },
   })
 
-  return NextResponse.json({ ok: true, approval_id: data.id })
+  if (status === 'pending') {
+    await supabaseAdmin
+      .from('agent_runs')
+      .update({
+        status: 'waiting_for_approval',
+        current_step: body.approval_type ? `Approval required: ${body.approval_type}` : 'Approval required',
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', params.runId)
+      .in('status', ['queued', 'running'])
+  }
+
+  if (status === 'rejected' || status === 'cancelled') {
+    await supabaseAdmin
+      .from('agent_runs')
+      .update({
+        status: status === 'rejected' ? 'failed' : 'cancelled',
+        current_step: status === 'rejected' ? 'Approval rejected' : 'Approval cancelled',
+        error_message: body.decision_notes ?? `Approval ${status}`,
+        completed_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', params.runId)
+  }
+
+  if (status === 'approved') {
+    const { data: pending } = await supabaseAdmin
+      .from('agent_approvals')
+      .select('id')
+      .eq('run_id', params.runId)
+      .eq('status', 'pending')
+      .limit(1)
+
+    if (!pending || pending.length === 0) {
+      await supabaseAdmin
+        .from('agent_runs')
+        .update({
+          status: 'running',
+          current_step: 'Approval granted',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', params.runId)
+        .eq('status', 'waiting_for_approval')
+    }
+  }
+
+  return NextResponse.json({ ok: true, approval_id: approvalId })
 }

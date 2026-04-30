@@ -7,6 +7,7 @@ import { Activity, ArrowRight, Bot, CheckCircle2, Clock, DollarSign, RefreshCw, 
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import { APPROVAL_GATES, RUNTIME_POLICIES } from '@/lib/agent-policy'
 
 export default function AgentOperationsPage() {
   const [hermesLoading, setHermesLoading] = useState(false)
@@ -100,6 +101,43 @@ export default function AgentOperationsPage() {
             <SignalCard icon={<XCircle size={18} />} label="Failure modes" value="Failed, stale" />
             <SignalCard icon={<DollarSign size={18} />} label="Cost linkage" value="cost_events.agent_run_id" />
           </div>
+
+          <section className="mt-8 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+            <h2 className="text-lg font-semibold mb-4">Runtime Policies</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {RUNTIME_POLICIES.map((policy) => (
+                <div key={policy.runtime} className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <p className="font-semibold">{policy.label}</p>
+                    <span className="rounded-full border border-silicon-slate/60 bg-black/20 px-2 py-1 text-xs">
+                      {policy.runtime}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                    <PolicyFlag label="Read files" value={policy.canReadFiles} />
+                    <PolicyFlag label="Write files" value={policy.canWriteFiles} />
+                    <PolicyFlag label="External APIs" value={policy.canCallExternalApis} />
+                    <PolicyFlag label="Client data" value={policy.canTouchClientData} />
+                  </div>
+                  <p className="mt-3 text-xs text-muted-foreground">Production writes: {policy.canWriteProductionData}</p>
+                  <p className="mt-2 text-sm text-muted-foreground">{policy.notes}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+            <h2 className="text-lg font-semibold mb-4">Approval Gates</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {APPROVAL_GATES.map((gate) => (
+                <div key={gate.action} className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
+                  <p className="font-medium">{gate.label}</p>
+                  <p className="text-sm text-muted-foreground mt-1">{gate.description}</p>
+                  <p className="text-xs text-muted-foreground mt-2">Type: {gate.approvalType}</p>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
     </ProtectedRoute>
@@ -114,6 +152,15 @@ function SignalCard({ icon, label, value }: { icon: ReactNode; label: string; va
         <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
       </div>
       <p className="text-sm font-medium">{value}</p>
+    </div>
+  )
+}
+
+function PolicyFlag({ label, value }: { label: string; value: boolean }) {
+  return (
+    <div className="flex items-center justify-between gap-2 rounded-md bg-black/10 px-2 py-1">
+      <span>{label}</span>
+      <span className={value ? 'text-green-300' : 'text-red-300'}>{value ? 'yes' : 'no'}</span>
     </div>
   )
 }

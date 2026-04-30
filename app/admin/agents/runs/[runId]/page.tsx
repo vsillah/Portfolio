@@ -60,6 +60,32 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
     fetchDetail()
   }, [fetchDetail])
 
+  async function decideApproval(approvalId: string, status: 'approved' | 'rejected') {
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch(`/api/admin/agents/runs/${runId}/approval`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          approval_id: approvalId,
+          status,
+          decision_notes: status === 'approved' ? 'Approved from Agent Operations' : 'Rejected from Agent Operations',
+        }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || `HTTP ${res.status}`)
+      }
+      await fetchDetail()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update approval')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
@@ -118,7 +144,14 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               <h2 className="text-lg font-semibold mb-4">Artifacts & Approvals</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <List rows={data.artifacts} titleKey="title" fallbackTitle="Artifact" detailKey="artifact_type" empty="No artifacts attached." />
-                <List rows={data.approvals} titleKey="approval_type" fallbackTitle="Approval" detailKey="status" empty="No approvals recorded." />
+                <List
+                  rows={data.approvals}
+                  titleKey="approval_type"
+                  fallbackTitle="Approval"
+                  detailKey="status"
+                  empty="No approvals recorded."
+                  onDecision={decideApproval}
+                />
               </div>
             </section>
           </>
@@ -158,7 +191,21 @@ function Timeline({ rows, timeKey, titleKey, detailKey, fallback }: { rows: AnyR
   )
 }
 
-function List({ rows, titleKey, fallbackTitle, detailKey, empty }: { rows: AnyRow[]; titleKey: string; fallbackTitle: string; detailKey: string; empty: string }) {
+function List({
+  rows,
+  titleKey,
+  fallbackTitle,
+  detailKey,
+  empty,
+  onDecision,
+}: {
+  rows: AnyRow[]
+  titleKey: string
+  fallbackTitle: string
+  detailKey: string
+  empty: string
+  onDecision?: (approvalId: string, status: 'approved' | 'rejected') => void
+}) {
   if (rows.length === 0) return <p className="text-sm text-muted-foreground">{empty}</p>
   return (
     <div className="space-y-2">
@@ -170,6 +217,22 @@ function List({ rows, titleKey, fallbackTitle, detailKey, empty }: { rows: AnyRo
             <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap rounded-md bg-black/20 p-3 text-xs text-muted-foreground">
               {artifactSummary(row)}
             </pre>
+          ) : null}
+          {onDecision && row.status === 'pending' && typeof row.id === 'string' ? (
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={() => onDecision(row.id as string, 'approved')}
+                className="rounded-md border border-green-500/40 bg-green-500/10 px-3 py-1 text-xs text-green-300 hover:bg-green-500/20"
+              >
+                Approve
+              </button>
+              <button
+                onClick={() => onDecision(row.id as string, 'rejected')}
+                className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-1 text-xs text-red-300 hover:bg-red-500/20"
+              >
+                Reject
+              </button>
+            </div>
           ) : null}
           {row.url ? <a className="text-sm text-radiant-gold hover:underline" href={String(row.url)}>Open</a> : null}
         </div>
