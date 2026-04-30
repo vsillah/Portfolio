@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { attachAgentArtifact, endAgentRun, markAgentRunFailed, recordAgentStep } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,7 +27,13 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json().catch(() => ({}))
-    const { source } = body as { source?: string }
+    const { source, agent_run_id, status: completionStatus, leads_inserted, error_message } = body as {
+      source?: string
+      agent_run_id?: string
+      status?: string
+      leads_inserted?: number
+      error_message?: string
+    }
 
     if (!source || !VALID_SOURCES.includes(source as (typeof VALID_SOURCES)[number])) {
       return NextResponse.json(
@@ -37,6 +44,8 @@ export async function POST(request: NextRequest) {
 
     const completedAt = new Date().toISOString()
 
+    const status = completionStatus === 'failed' ? 'failed' : 'success'
+
     const { error } = await supabaseAdmin
       .from('warm_lead_trigger_audit')
       .insert({
@@ -44,7 +53,9 @@ export async function POST(request: NextRequest) {
         triggered_by: null,
         triggered_at: completedAt,
         options: {},
-        status: 'success',
+        status,
+        leads_inserted: leads_inserted ?? null,
+        error_message: error_message ?? null,
         completed_at: completedAt
       })
 
@@ -56,9 +67,57 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    if (agent_run_id) {
+      try {
+        await recordAgentStep({
+          runId: agent_run_id,
+          stepKey: 'n8n_workflow_complete',
+          name: status === 'failed' ? 'n8n workflow failed' : 'n8n workflow completed',
+          status: status === 'failed' ? 'failed' : 'completed',
+          outputSummary: error_message ?? `${leads_inserted ?? 0} lead(s) inserted`,
+          metadata: {
+            source,
+            leads_inserted: leads_inserted ?? null,
+          },
+          idempotencyKey: `${agent_run_id}:complete:${source}`,
+        })
+
+        if (status === 'failed') {
+          await markAgentRunFailed(agent_run_id, error_message ?? 'n8n workflow failed', {
+            source,
+            leads_inserted: leads_inserted ?? null,
+          })
+        } else {
+          if (leads_inserted && leads_inserted > 0) {
+            await attachAgentArtifact({
+              runId: agent_run_id,
+              artifactType: 'lead_import',
+              title: `${leads_inserted} warm lead(s)`,
+              refType: 'warm_lead_trigger_audit',
+              refId: source,
+              metadata: { source, leads_inserted },
+              idempotencyKey: `${agent_run_id}:artifact:${source}`,
+            })
+          }
+          await endAgentRun({
+            runId: agent_run_id,
+            status: 'completed',
+            currentStep: 'Warm lead scrape complete',
+            outcome: {
+              source,
+              leads_inserted: leads_inserted ?? null,
+            },
+          })
+        }
+      } catch (agentError) {
+        console.warn('warm lead agent run update failed:', agentError)
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Run complete recorded for source: ${source}`
+      message: `Run complete recorded for source: ${source}`,
+      agent_run_id: agent_run_id ?? null,
     })
   } catch (err) {
     console.error('run-complete error:', err)

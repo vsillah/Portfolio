@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { recordAgentEvent, recordAgentStep } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,8 +21,9 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json().catch(() => ({}))
-    const { run_id, workflow_id, stage, status: stageStatus, items_count } = body as {
+    const { run_id, agent_run_id, workflow_id, stage, status: stageStatus, items_count } = body as {
       run_id?: string
+      agent_run_id?: string
       workflow_id?: string
       stage?: string
       status?: string
@@ -100,7 +102,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ ok: true, run_id: run.id })
+    if (agent_run_id) {
+      const normalizedStatus = stageStatus === 'error' ? 'failed' : stageStatus === 'running' ? 'running' : 'completed'
+      await recordAgentStep({
+        runId: agent_run_id,
+        stepKey: `n8n_${wf}_${stage}`,
+        name: stage,
+        status: normalizedStatus,
+        outputSummary: items_count != null ? `${items_count} item(s)` : stageStatus ?? 'complete',
+        metadata: {
+          workflow_id: wf,
+          legacy_run_id: run.id,
+          items_count: items_count ?? null,
+          n8n_status: stageStatus ?? null,
+        },
+        idempotencyKey: `${agent_run_id}:${wf}:${stage}:${stageStatus ?? 'complete'}`,
+      }).catch(async (agentError) => {
+        console.warn('workflow-progress agent step failed:', agentError)
+        await recordAgentEvent({
+          runId: agent_run_id,
+          eventType: 'n8n_progress',
+          severity: stageStatus === 'error' ? 'error' : 'info',
+          message: stage,
+          metadata: {
+            workflow_id: wf,
+            legacy_run_id: run.id,
+            items_count: items_count ?? null,
+            n8n_status: stageStatus ?? null,
+          },
+          idempotencyKey: `${agent_run_id}:${wf}:${stage}:event:${stageStatus ?? 'complete'}`,
+        }).catch(() => {})
+      })
+    }
+
+    return NextResponse.json({ ok: true, run_id: run.id, agent_run_id: agent_run_id ?? null })
   } catch (err) {
     console.error('workflow-progress error:', err)
     return NextResponse.json(

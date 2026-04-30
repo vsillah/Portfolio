@@ -133,6 +133,7 @@ describe('POST /api/admin/value-evidence/workflow-complete', () => {
     expect(jsonMock).toHaveBeenCalledWith({
       ok: true,
       run_id: 'running-vep001',
+      agent_run_id: null,
       chained_social: false,
     })
   })
@@ -173,6 +174,7 @@ describe('POST /api/admin/value-evidence/workflow-complete', () => {
     expect(jsonMock).toHaveBeenCalledWith({
       ok: true,
       run_id: 'created-vep-run',
+      agent_run_id: null,
       chained_social: false,
     })
   })

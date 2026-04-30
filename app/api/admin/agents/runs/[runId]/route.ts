@@ -11,6 +11,19 @@ function isStatus(value: string): value is AgentRunStatus {
   return AGENT_RUN_STATUSES.includes(value as AgentRunStatus)
 }
 
+async function authorizeAdminOrN8n(request: NextRequest) {
+  const token = request.headers.get('authorization')?.replace('Bearer ', '')
+  if (process.env.N8N_INGEST_SECRET && token === process.env.N8N_INGEST_SECRET) {
+    return null
+  }
+
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+  return null
+}
+
 /**
  * GET /api/admin/agents/runs/:runId
  * Returns one run with timeline detail, artifacts, approvals, handoffs, and costs.
@@ -95,10 +108,8 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: { runId: string } },
 ) {
-  const auth = await verifyAdmin(request)
-  if (isAuthError(auth)) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status })
-  }
+  const authError = await authorizeAdminOrN8n(request)
+  if (authError) return authError
   if (!supabaseAdmin) {
     return NextResponse.json({ error: 'Database not available' }, { status: 500 })
   }

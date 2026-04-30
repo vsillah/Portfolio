@@ -4,6 +4,7 @@ import { triggerSocialContentExtraction } from '@/lib/n8n'
 import { getSocialContentPrompts } from '@/lib/system-prompts'
 import { supabaseAdmin } from '@/lib/supabase'
 import { extractMeetingTitle, extractMeetingSourceUrl, extractParticipants, extractMeetingSummary } from '@/lib/social-content'
+import { markAgentRunFailed, recordAgentStep, startAgentRun } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -111,7 +112,12 @@ export async function POST(request: NextRequest) {
     // Insert all run rows before firing any webhooks (claim meetings)
     const runsToCreate = meetingIds.filter(id => !alreadyRunning.has(id))
 
-    type RunInfo = { run_id: string; meeting_record_id: string; status: 'running' | 'skipped_existing' | 'failed' }
+    type RunInfo = {
+      run_id: string
+      meeting_record_id: string
+      status: 'running' | 'skipped_existing' | 'failed'
+      agent_run_id?: string
+    }
     const runs: RunInfo[] = []
 
     // Add already-running runs as "skipped"
@@ -138,7 +144,28 @@ export async function POST(request: NextRequest) {
       }
 
       for (const row of inserted) {
-        runs.push({ run_id: row.id, meeting_record_id: row.meeting_record_id!, status: 'running' })
+        const meetingId = row.meeting_record_id!
+        const agentRun = await startAgentRun({
+          agentKey: 'n8n-automation',
+          runtime: 'n8n',
+          kind: 'social_content_extraction',
+          title: 'Extract social content from meeting',
+          subject: { type: 'meeting_record', id: meetingId, label: `Meeting ${meetingId}` },
+          triggerSource: 'admin_social_content_trigger',
+          triggeredByUserId: authResult.user.id,
+          currentStep: 'Dispatching n8n workflow',
+          metadata: {
+            workflow: 'WF-SOC-001',
+            legacy_run_id: row.id,
+          },
+          idempotencyKey: `n8n:social-content:${row.id}`,
+        })
+        runs.push({
+          run_id: row.id,
+          meeting_record_id: meetingId,
+          status: 'running',
+          agent_run_id: agentRun.id,
+        })
       }
     }
 
@@ -156,11 +183,26 @@ export async function POST(request: NextRequest) {
       const result = await triggerSocialContentExtraction({
         meetingRecordId: run.meeting_record_id,
         runId: run.run_id,
+        agentRunId: run.agent_run_id,
         prompts,
       })
 
       if (result.triggered) {
         triggeredCount++
+        if (run.agent_run_id) {
+          await recordAgentStep({
+            runId: run.agent_run_id,
+            stepKey: 'n8n_webhook_dispatched',
+            name: 'n8n workflow dispatched',
+            status: 'completed',
+            outputSummary: result.message,
+            metadata: {
+              workflow: 'WF-SOC-001',
+              legacy_run_id: run.run_id,
+            },
+            idempotencyKey: `${run.agent_run_id}:dispatch`,
+          }).catch((error) => console.warn('Agent run dispatch step failed:', error))
+        }
       } else {
         lastError = result.message
         await supabaseAdmin
@@ -172,10 +214,17 @@ export async function POST(request: NextRequest) {
           })
           .eq('id', run.run_id)
         run.status = 'failed'
+        if (run.agent_run_id) {
+          await markAgentRunFailed(run.agent_run_id, result.message ?? 'Webhook trigger failed', {
+            workflow: 'WF-SOC-001',
+            legacy_run_id: run.run_id,
+          }).catch((error) => console.warn('Agent run failure update failed:', error))
+        }
 
         // Short-circuit on n8n errors (e.g. 502) to avoid hammering a down service
         if (result.message?.includes('502') || result.message?.includes('503')) {
           for (let j = i + 1; j < newRuns.length; j++) {
+            const skippedRun = newRuns[j]
             await supabaseAdmin
               .from('social_content_extraction_runs')
               .update({
@@ -183,8 +232,14 @@ export async function POST(request: NextRequest) {
                 completed_at: new Date().toISOString(),
                 error_message: 'Skipped — n8n unavailable',
               })
-              .eq('id', newRuns[j].run_id)
-            newRuns[j].status = 'failed'
+              .eq('id', skippedRun.run_id)
+            skippedRun.status = 'failed'
+            if (skippedRun.agent_run_id) {
+              await markAgentRunFailed(skippedRun.agent_run_id, 'Skipped - n8n unavailable', {
+                workflow: 'WF-SOC-001',
+                legacy_run_id: skippedRun.run_id,
+              }).catch((error) => console.warn('Agent run failure update failed:', error))
+            }
           }
           break
         }
@@ -198,7 +253,12 @@ export async function POST(request: NextRequest) {
       message: triggeredCount > 0
         ? `${triggeredCount} extraction(s) triggered${skippedCount > 0 ? `, ${skippedCount} already running` : ''}`
         : lastError ?? 'No extractions triggered',
-      runs: runs.map(r => ({ run_id: r.run_id, meeting_record_id: r.meeting_record_id, status: r.status })),
+      runs: runs.map(r => ({
+        run_id: r.run_id,
+        agent_run_id: r.agent_run_id,
+        meeting_record_id: r.meeting_record_id,
+        status: r.status,
+      })),
       triggered: triggeredCount,
       skipped: skippedCount,
       failed: runs.filter(r => r.status === 'failed').length,

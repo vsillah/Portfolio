@@ -102,7 +102,7 @@ describe('POST /api/admin/social-content/workflow-complete', () => {
     )
 
     expect(response.status).toBe(200)
-    expect(await response.json()).toEqual({ ok: true, run_id: 'soc-run-1' })
+    expect(await response.json()).toEqual({ ok: true, run_id: 'soc-run-1', agent_run_id: null })
     expect(insertBuilder.insert).toHaveBeenCalledWith({ status: 'running' })
 
     const updatePayload = updateBuilder.update.mock.calls[0][0] as Record<string, unknown>
@@ -138,7 +138,7 @@ describe('POST /api/admin/social-content/workflow-complete', () => {
     )
 
     expect(response.status).toBe(200)
-    expect(await response.json()).toEqual({ ok: true, run_id: 'run-7' })
+    expect(await response.json()).toEqual({ ok: true, run_id: 'run-7', agent_run_id: null })
 
     const updatePayload = updateBuilder.update.mock.calls[0][0] as Record<string, unknown>
     expect(updatePayload.status).toBe('success')
