@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       runId,
       stepKey: 'collect_health_signals',
       name: 'Collected read-only health signals',
-      status: 'running',
+      status: 'completed',
       inputSummary: 'Database, n8n runtime flags, recent agent runs, costs, and workflow status snapshots.',
       idempotencyKey: `${runId}:collect`,
     })
