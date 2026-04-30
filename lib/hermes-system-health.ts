@@ -120,8 +120,7 @@ export async function buildHermesSystemHealthSummary(): Promise<HermesSystemHeal
     }
   }
 
-  const [dbProbe, agentRunsResult, costsResult, socialRunsResult, valueRunsResult, warmRunsResult] = await Promise.all([
-    safeQuery('database probe', supabaseAdmin.from('site_settings').select('id').limit(1).maybeSingle()),
+  const [agentRunsResult, costsResult, socialRunsResult, valueRunsResult, warmRunsResult] = await Promise.all([
     safeQuery<AgentRunHealthRow[]>(
       'agent_runs',
       supabaseAdmin
@@ -171,9 +170,10 @@ export async function buildHermesSystemHealthSummary(): Promise<HermesSystemHeal
   const stale = agentRuns.filter((row) => row.status === 'stale').length
   const running = agentRuns.filter((row) => row.status === 'running' || row.status === 'queued').length
   const totalUsd = costs.reduce((sum, row) => sum + Number(row.amount ?? 0), 0)
+  const databaseConnected = agentRunsResult.ok
 
   const warnings = [
-    !dbProbe.ok ? 'Database probe failed' : null,
+    !agentRunsResult.ok ? agentRunsResult.error ?? 'Agent run table probe failed' : null,
     n8nFlags.mockN8n.effective ? 'MOCK_N8N is enabled' : null,
     n8nFlags.disableOutbound.effective ? 'N8N outbound calls are disabled' : null,
     failed > 0 ? `${failed} agent run(s) failed in the last 24 hours` : null,
@@ -184,7 +184,7 @@ export async function buildHermesSystemHealthSummary(): Promise<HermesSystemHeal
   ].filter(Boolean) as string[]
 
   const overall: HermesSystemHealthSummary['overall'] =
-    !dbProbe.ok ? 'error' : warnings.length > 0 ? 'warning' : 'ok'
+    !databaseConnected ? 'error' : warnings.length > 0 ? 'warning' : 'ok'
 
   const summaryMarkdown = [
     '# Hermes System Health Summary',
@@ -194,7 +194,7 @@ export async function buildHermesSystemHealthSummary(): Promise<HermesSystemHeal
     '',
     '## Signals',
     '',
-    `- Database: ${dbProbe.ok ? 'connected' : 'unavailable'}`,
+    `- Database: ${databaseConnected ? 'connected' : 'unavailable'}`,
     `- n8n tier: ${n8nFlags.tier}`,
     `- n8n mock enabled: ${String(n8nFlags.mockN8n.effective)}`,
     `- n8n outbound disabled: ${String(n8nFlags.disableOutbound.effective)}`,
@@ -217,7 +217,7 @@ export async function buildHermesSystemHealthSummary(): Promise<HermesSystemHeal
     overall,
     summaryMarkdown,
     signals: {
-      database: dbProbe.ok ? 'connected' : 'unavailable',
+      database: databaseConnected ? 'connected' : 'unavailable',
       n8n: {
         deploymentTier: n8nFlags.tier,
         mockEnabled: n8nFlags.mockN8n.effective,
