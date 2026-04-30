@@ -166,6 +166,11 @@ function List({ rows, titleKey, fallbackTitle, detailKey, empty }: { rows: AnyRo
         <div key={String(row.id)} className="rounded-lg border border-silicon-slate/50 bg-background/40 p-3">
           <p className="font-medium">{String(row[titleKey] || fallbackTitle)}</p>
           <p className="text-sm text-muted-foreground">{String(row[detailKey] ?? '')}</p>
+          {artifactSummary(row) ? (
+            <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap rounded-md bg-black/20 p-3 text-xs text-muted-foreground">
+              {artifactSummary(row)}
+            </pre>
+          ) : null}
           {row.url ? <a className="text-sm text-radiant-gold hover:underline" href={String(row.url)}>Open</a> : null}
         </div>
       ))}
@@ -185,4 +190,11 @@ function formatDate(value?: string) {
 
 function asString(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined
+}
+
+function artifactSummary(row: AnyRow): string | null {
+  const metadata = row.metadata
+  if (!metadata || typeof metadata !== 'object') return null
+  const summary = (metadata as Record<string, unknown>).summary_markdown
+  return typeof summary === 'string' ? summary : null
 }

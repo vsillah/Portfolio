@@ -66,6 +66,19 @@ Current n8n trace coverage:
 - Value evidence workflows create an `n8n` run, dispatch `agent_run_id`, record progress stages, preserve auto-chained VEP-001 to VEP-002 behavior, and complete/fail the shared run after the final phase.
 - Warm lead scrapers create an `n8n` run, dispatch `agent_run_id`, and can complete/fail the shared run when the n8n completion callback echoes the ID.
 
+## Hermes Bridge
+
+The first Hermes slice is read-only: `POST /api/admin/agents/hermes/system-health`.
+
+It creates a `hermes` runtime run, collects operational health signals, records steps/events through the shared agent run tables, and attaches a system health summary artifact. The deployed app does not spawn a local Hermes process; this bridge establishes the trace and governance contract that Hermes Gateway can call later.
+
+Current safety constraints:
+
+- No production writes beyond agent trace tables.
+- No external publishing, email sending, or client-data mutation.
+- Metadata marks the run as `bridge_read_only`.
+- Future Hermes write actions must go through `agent_approvals`.
+
 ## Safety Rules
 
 - New agent work should create an `agent_run` before doing meaningful work.
