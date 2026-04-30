@@ -104,6 +104,15 @@ Current required approval gates:
 
 Slack should be treated as a notification and lightweight decision surface later. The source of truth remains Portfolio admin plus `agent_approvals`.
 
+## Approval Drill
+
+Use `POST /api/admin/agents/approval-drill` or the **Approval Drill** card on `/admin/agents` to create a disposable `manual` runtime run with a pending approval checkpoint. This verifies that:
+
+- pending approvals appear on the run detail page,
+- the run starts in `waiting_for_approval`,
+- approve/reject decisions write through `agent_approvals`,
+- rejected drills terminate without touching a production workflow.
+
 ## Safety Rules
 
 - New agent work should create an `agent_run` before doing meaningful work.
