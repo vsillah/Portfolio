@@ -82,6 +82,7 @@ describe('recordCostEvent', () => {
       currency: 'usd',
       reference_type: null,
       reference_id: null,
+      agent_run_id: null,
       metadata: {},
     })
   })
@@ -151,7 +152,26 @@ describe('recordOpenAICost / recordAnthropicCost', () => {
         currency: 'usd',
         reference_type: 'diagnostic_audit',
         reference_id: 'audit-123',
+        agent_run_id: null,
         metadata: { model: 'gpt-4o-mini', operation: 'generate_insights' },
+      })
+    )
+  })
+
+  it('records agent_run_id when provided', async () => {
+    await recordAnthropicCost(
+      { input_tokens: 1_000_000, output_tokens: 0 },
+      'claude-3-5-sonnet-20241022',
+      { type: 'contact', id: '42' },
+      { operation: 'outreach_queue_in_app' },
+      'run-123',
+    )
+
+    expect(mocks.insertMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        agent_run_id: 'run-123',
+        reference_type: 'contact',
+        reference_id: '42',
       })
     )
   })
