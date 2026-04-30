@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { triggerSocialListening } from '@/lib/n8n'
+import { attachAgentArtifact, endAgentRun, markAgentRunFailed, recordAgentStep } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +30,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}))
     const {
       run_id,
+      agent_run_id,
       workflow_id,
       status: completionStatus,
       items_inserted,
@@ -36,6 +38,7 @@ export async function POST(request: NextRequest) {
       contact_submission_ids,
     } = body as {
       run_id?: string
+      agent_run_id?: string
       workflow_id?: string
       status?: string
       items_inserted?: number
@@ -244,11 +247,70 @@ export async function POST(request: NextRequest) {
 
       triggerSocialListening({
         runId: run.id,
+        agentRunId: agent_run_id,
         maxResults: socialMaxResults,
         sources: socialSources,
         contactSubmissionId,
         leadContext,
       }).catch(e => console.error('Auto-chain social trigger failed:', e))
+    }
+
+    if (agent_run_id) {
+      try {
+        await recordAgentStep({
+          runId: agent_run_id,
+          stepKey: `n8n_${wf}_complete`,
+          name: shouldChainSocial
+            ? 'Internal evidence phase completed'
+            : status === 'failed'
+            ? 'n8n workflow failed'
+            : 'n8n workflow completed',
+          status: status === 'failed' ? 'failed' : 'completed',
+          outputSummary: error_message ?? `${items_inserted ?? 0} item(s) inserted`,
+          metadata: {
+            workflow_id: wf,
+            legacy_run_id: run.id,
+            items_inserted: items_inserted ?? null,
+            chained_social: shouldChainSocial,
+          },
+          idempotencyKey: `${agent_run_id}:${wf}:complete:${run.id}`,
+        })
+
+        if (!shouldChainSocial && items_inserted && items_inserted > 0) {
+          await attachAgentArtifact({
+            runId: agent_run_id,
+            artifactType: 'value_evidence',
+            title: `${items_inserted} value evidence item(s)`,
+            refType: 'value_evidence_workflow_run',
+            refId: run.id,
+            metadata: { workflow_id: wf, items_inserted },
+            idempotencyKey: `${agent_run_id}:artifact:${run.id}`,
+          })
+        }
+
+        if (!shouldChainSocial) {
+          if (status === 'failed') {
+            await markAgentRunFailed(agent_run_id, error_message ?? 'n8n workflow failed', {
+              workflow_id: wf,
+              legacy_run_id: run.id,
+              items_inserted: items_inserted ?? null,
+            })
+          } else {
+            await endAgentRun({
+              runId: agent_run_id,
+              status: 'completed',
+              currentStep: 'Value evidence workflow complete',
+              outcome: {
+                workflow_id: wf,
+                legacy_run_id: run.id,
+                items_inserted: items_inserted ?? null,
+              },
+            })
+          }
+        }
+      } catch (agentError) {
+        console.warn('value-evidence agent run update failed:', agentError)
+      }
     }
 
     // Slack notification (non-blocking) — skip if auto-chaining (will notify on final completion)
@@ -269,7 +331,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ ok: true, run_id: run.id, chained_social: shouldChainSocial })
+    return NextResponse.json({ ok: true, run_id: run.id, agent_run_id: agent_run_id ?? null, chained_social: shouldChainSocial })
   } catch (err) {
     console.error('workflow-complete error:', err)
     return NextResponse.json(

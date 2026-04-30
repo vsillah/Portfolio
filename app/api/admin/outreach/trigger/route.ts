@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { triggerWarmLeadScrape } from '@/lib/n8n'
 import { supabaseAdmin } from '@/lib/supabase'
+import { markAgentRunFailed, recordAgentStep, startAgentRun } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const triggered: Record<string, { triggered: boolean; message: string; skipped?: boolean; executionId?: string }> = {}
+    const triggered: Record<string, { triggered: boolean; message: string; skipped?: boolean; executionId?: string; agent_run_id?: string }> = {}
 
     // Helper to trigger a single source
     const triggerSource = async (src: 'facebook' | 'google_contacts' | 'linkedin') => {
@@ -83,8 +84,26 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        const agentRun = await startAgentRun({
+          agentKey: 'n8n-automation',
+          runtime: 'n8n',
+          kind: 'warm_lead_scrape',
+          title: `Run ${src} warm lead scraper`,
+          subject: { type: 'lead_source', id: src, label: src },
+          triggerSource: 'admin_outreach_trigger',
+          triggeredByUserId: userId,
+          currentStep: 'Dispatching n8n workflow',
+          metadata: {
+            workflow: `WRM-${src}`,
+            source: src,
+            options: options || {},
+          },
+          idempotencyKey: `n8n:warm-lead:${src}:${Date.now()}`,
+        })
+
         const result = await triggerWarmLeadScrape({
           source: src,
+          agentRunId: agentRun.id,
           options: options || {}
         })
 
@@ -99,7 +118,23 @@ export async function POST(request: NextRequest) {
             error_message: result.triggered ? null : result.message
           })
 
-        return result
+        if (result.triggered) {
+          await recordAgentStep({
+            runId: agentRun.id,
+            stepKey: 'n8n_webhook_dispatched',
+            name: 'n8n workflow dispatched',
+            status: 'completed',
+            outputSummary: result.message,
+            metadata: { source: src },
+            idempotencyKey: `${agentRun.id}:dispatch`,
+          }).catch((error) => console.warn('Warm lead agent dispatch step failed:', error))
+        } else {
+          await markAgentRunFailed(agentRun.id, result.message ?? 'Webhook trigger failed', {
+            source: src,
+          }).catch((error) => console.warn('Warm lead agent failure update failed:', error))
+        }
+
+        return { ...result, agent_run_id: agentRun.id }
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : 'Unknown error'
         

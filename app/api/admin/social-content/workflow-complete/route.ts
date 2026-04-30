@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
+import { attachAgentArtifact, endAgentRun, markAgentRunFailed, recordAgentStep } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,8 +20,9 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json().catch(() => ({}))
-    const { run_id, status: completionStatus, items_inserted, error_message } = body as {
+    const { run_id, agent_run_id, status: completionStatus, items_inserted, error_message } = body as {
       run_id?: string
+      agent_run_id?: string
       status?: string
       items_inserted?: number
       error_message?: string
@@ -88,7 +90,58 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ ok: true, run_id: run.id })
+    if (agent_run_id) {
+      try {
+        await recordAgentStep({
+          runId: agent_run_id,
+          stepKey: 'n8n_workflow_complete',
+          name: status === 'failed' ? 'n8n workflow failed' : 'n8n workflow completed',
+          status: status === 'failed' ? 'failed' : 'completed',
+          outputSummary: error_message ?? `${items_inserted ?? 0} item(s) inserted`,
+          metadata: {
+            workflow: 'WF-SOC-001',
+            legacy_run_id: run.id,
+            items_inserted: items_inserted ?? null,
+          },
+          idempotencyKey: `${agent_run_id}:complete:${run.id}`,
+        })
+
+        if (items_inserted && items_inserted > 0) {
+          await attachAgentArtifact({
+            runId: agent_run_id,
+            artifactType: 'social_content',
+            title: `${items_inserted} social content item(s)`,
+            refType: 'social_content_extraction_run',
+            refId: run.id,
+            metadata: { workflow: 'WF-SOC-001', items_inserted },
+            idempotencyKey: `${agent_run_id}:artifact:${run.id}`,
+          })
+        }
+
+        if (status === 'failed') {
+          await markAgentRunFailed(agent_run_id, error_message ?? 'n8n workflow failed', {
+            workflow: 'WF-SOC-001',
+            legacy_run_id: run.id,
+            items_inserted: items_inserted ?? null,
+          })
+        } else {
+          await endAgentRun({
+            runId: agent_run_id,
+            status: 'completed',
+            currentStep: 'Social content extraction complete',
+            outcome: {
+              workflow: 'WF-SOC-001',
+              legacy_run_id: run.id,
+              items_inserted: items_inserted ?? null,
+            },
+          })
+        }
+      } catch (agentError) {
+        console.warn('social-content agent run update failed:', agentError)
+      }
+    }
+
+    return NextResponse.json({ ok: true, run_id: run.id, agent_run_id: agent_run_id ?? null })
   } catch (err) {
     console.error('social-content workflow-complete error:', err)
     return NextResponse.json(

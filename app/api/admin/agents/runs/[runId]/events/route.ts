@@ -8,6 +8,19 @@ function isSeverity(value: string): value is AgentEventSeverity {
   return AGENT_EVENT_SEVERITIES.includes(value as AgentEventSeverity)
 }
 
+async function authorizeAdminOrN8n(request: NextRequest) {
+  const token = request.headers.get('authorization')?.replace('Bearer ', '')
+  if (process.env.N8N_INGEST_SECRET && token === process.env.N8N_INGEST_SECRET) {
+    return null
+  }
+
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+  return null
+}
+
 /**
  * POST /api/admin/agents/runs/:runId/events
  * Writes an audit event for a run. Used by admin tools and future n8n callbacks.
@@ -16,10 +29,8 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { runId: string } },
 ) {
-  const auth = await verifyAdmin(request)
-  if (isAuthError(auth)) {
-    return NextResponse.json({ error: auth.error }, { status: auth.status })
-  }
+  const authError = await authorizeAdminOrN8n(request)
+  if (authError) return authError
 
   const body = (await request.json().catch(() => ({}))) as {
     event_type?: string

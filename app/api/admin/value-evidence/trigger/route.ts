@@ -5,6 +5,7 @@ import {
   triggerValueEvidenceExtraction,
   triggerSocialListening,
 } from '@/lib/n8n'
+import { markAgentRunFailed, recordAgentStep, startAgentRun } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -258,6 +259,37 @@ export async function POST(request: NextRequest) {
       console.warn('value_evidence_workflow_runs insert failed (table may not exist):', insertError.message)
     }
 
+    let agentRunId: string | undefined
+    if (run?.id) {
+      const title =
+        workflow === 'internal_extraction'
+          ? 'Extract value evidence'
+          : workflow === 'social_listening_lead'
+          ? 'Run lead social listening'
+          : 'Run market social listening'
+      const agentRun = await startAgentRun({
+        agentKey: 'n8n-automation',
+        runtime: 'n8n',
+        kind: workflow,
+        title,
+        subject: scopeContext
+          ? { type: scope_type, id: scope_id, label: scopeContext.scopeLabel }
+          : contact_submission_id
+          ? { type: 'contact_submission', id: contact_submission_id, label: `Lead ${contact_submission_id}` }
+          : { type: 'workflow', id: workflowId, label: workflowId },
+        triggerSource: 'admin_value_evidence_trigger',
+        triggeredByUserId: auth.user.id,
+        currentStep: 'Dispatching n8n workflow',
+        metadata: {
+          workflow_id: workflowId,
+          legacy_run_id: run.id,
+          scope: Object.keys(scope).length > 0 ? scope : null,
+        },
+        idempotencyKey: `n8n:value-evidence:${run.id}`,
+      })
+      agentRunId = agentRun.id
+    }
+
     let result: { triggered: boolean; message: string }
     let leadContext: Record<string, unknown> | undefined = scopeContext?.leadContext
 
@@ -283,7 +315,10 @@ export async function POST(request: NextRequest) {
     const runSocial = !validPhases || validPhases.includes('social')
 
     if (workflow === 'internal_extraction') {
-      const opts: { runId?: string; contactSubmissionIds?: number[] } = { runId: run?.id }
+      const opts: { runId?: string; agentRunId?: string; contactSubmissionIds?: number[] } = {
+        runId: run?.id,
+        agentRunId,
+      }
       if (scopeContext?.contactSubmissionId) {
         opts.contactSubmissionIds = [scopeContext.contactSubmissionId]
       }
@@ -292,6 +327,7 @@ export async function POST(request: NextRequest) {
       // Targeted social-only: use scope's leadContext
       result = await triggerSocialListening({
         runId: run?.id,
+        agentRunId,
         maxResults: validMaxResults,
         sources: validSources,
         contactSubmissionId: scopeContext.contactSubmissionId,
@@ -300,6 +336,7 @@ export async function POST(request: NextRequest) {
     } else {
       result = await triggerSocialListening({
         runId: run?.id,
+        agentRunId,
         maxResults: validMaxResults,
         sources: validSources,
         contactSubmissionId: isSingleLead ? contact_submission_id : scopeContext?.contactSubmissionId,
@@ -307,7 +344,26 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    return NextResponse.json({ ...result, run_id: run?.id })
+    if (agentRunId) {
+      if (result.triggered) {
+        await recordAgentStep({
+          runId: agentRunId,
+          stepKey: 'n8n_webhook_dispatched',
+          name: 'n8n workflow dispatched',
+          status: 'completed',
+          outputSummary: result.message,
+          metadata: { workflow_id: workflowId, legacy_run_id: run?.id },
+          idempotencyKey: `${agentRunId}:dispatch`,
+        }).catch((error) => console.warn('Value evidence agent dispatch step failed:', error))
+      } else {
+        await markAgentRunFailed(agentRunId, result.message ?? 'Webhook trigger failed', {
+          workflow_id: workflowId,
+          legacy_run_id: run?.id,
+        }).catch((error) => console.warn('Value evidence agent run failure update failed:', error))
+      }
+    }
+
+    return NextResponse.json({ ...result, run_id: run?.id, agent_run_id: agentRunId ?? null })
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : 'Unknown error'
     console.error('Trigger error:', message)

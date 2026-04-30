@@ -1158,6 +1158,7 @@ export async function triggerOutreachSend(params: {
  */
 export async function triggerWarmLeadScrape(params: {
   source: 'facebook' | 'google_contacts' | 'linkedin'
+  agentRunId?: string
   options?: {
     /** For Facebook: list of group UIDs to scrape */
     group_uids?: string[]
@@ -1201,6 +1202,7 @@ export async function triggerWarmLeadScrape(params: {
     const payload = {
       source: params.source,
       triggered_at: new Date().toISOString(),
+      agent_run_id: params.agentRunId,
       ...params.options,
     }
     
@@ -1245,6 +1247,8 @@ export interface ValueEvidenceExtractionOptions {
   enrichments?: Record<number, { pain_points_freetext?: string }>
   /** Run ID for progress/complete callbacks; n8n can echo this back to update run status. */
   runId?: string
+  /** Shared Agent Operations trace id; n8n should echo this as agent_run_id in callbacks. */
+  agentRunId?: string
 }
 
 /**
@@ -1290,6 +1294,9 @@ export async function triggerValueEvidenceExtraction(
     if (options?.runId) {
       body.run_id = options.runId
     }
+    if (options?.agentRunId) {
+      body.agent_run_id = options.agentRunId
+    }
 
     const response = await fetchWithTimeout(N8N_VEP001_WEBHOOK_URL, {
       method: 'POST',
@@ -1322,6 +1329,8 @@ export async function triggerValueEvidenceExtraction(
 export interface SocialListeningOptions {
   /** Run ID for progress/complete callbacks; n8n can echo this back to update run status. */
   runId?: string
+  /** Shared Agent Operations trace id; n8n should echo this as agent_run_id in callbacks. */
+  agentRunId?: string
   /** Max results per platform (default 20 in n8n). Quick=5, Standard=10, Deep=20. */
   maxResults?: number
   /** Subset of sources to scrape; omit or pass all 5 for full run. */
@@ -1357,6 +1366,9 @@ export async function triggerSocialListening(options?: SocialListeningOptions): 
     }
     if (options?.runId) {
       body.run_id = options.runId
+    }
+    if (options?.agentRunId) {
+      body.agent_run_id = options.agentRunId
     }
     if (options?.maxResults) {
       body.maxResults = options.maxResults
@@ -1410,6 +1422,7 @@ const N8N_SOC002_WEBHOOK_URL =
 export async function triggerSocialContentExtraction(options?: {
   meetingRecordId?: string
   runId?: string
+  agentRunId?: string
   prompts?: {
     topicExtraction: string
     copywriting: string
@@ -1435,6 +1448,9 @@ export async function triggerSocialContentExtraction(options?: {
     }
     if (options?.runId) {
       body.run_id = options.runId
+    }
+    if (options?.agentRunId) {
+      body.agent_run_id = options.agentRunId
     }
     if (options?.meetingRecordId) {
       body.meeting_record_id = options.meetingRecordId

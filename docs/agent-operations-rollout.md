@@ -49,6 +49,23 @@ Costs are linked through `cost_events.agent_run_id`.
 7. Evaluate OpenCode/OpenClaw only after the shared trace layer can observe one test run.
 8. Gradually migrate older workflow run tables into the shared model where it reduces duplication.
 
+## n8n Callback Contract
+
+App-triggered n8n workflows should receive both the existing workflow-specific `run_id` and the shared `agent_run_id`. The legacy ID keeps existing workflow pages working; `agent_run_id` lets n8n report into Agent Operations.
+
+Supported callback conventions:
+
+- Progress callbacks include `agent_run_id`, `workflow_id`, `stage`, `status`, and optional item counts.
+- Completion callbacks include `agent_run_id`, `run_id`, `workflow_id`, `status`, optional item counts, and `error_message` on failure.
+- Generic callbacks can write events with `POST /api/admin/agents/runs/[runId]/events` using `N8N_INGEST_SECRET`.
+- Generic status updates can use `PATCH /api/admin/agents/runs/[runId]` using `N8N_INGEST_SECRET`.
+
+Current n8n trace coverage:
+
+- Social content extraction creates an `n8n` run, dispatches `agent_run_id`, and completes/fails the shared run from the n8n completion callback.
+- Value evidence workflows create an `n8n` run, dispatch `agent_run_id`, record progress stages, preserve auto-chained VEP-001 to VEP-002 behavior, and complete/fail the shared run after the final phase.
+- Warm lead scrapers create an `n8n` run, dispatch `agent_run_id`, and can complete/fail the shared run when the n8n completion callback echoes the ID.
+
 ## Safety Rules
 
 - New agent work should create an `agent_run` before doing meaningful work.
