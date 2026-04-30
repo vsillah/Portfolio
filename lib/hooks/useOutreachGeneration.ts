@@ -343,6 +343,8 @@ export function useOutreachGeneration({
       })
       const data = (await res.json().catch(() => ({}))) as {
         triggered?: boolean
+        /** Present when the server inserted a queue row in the same request (in-app generator). */
+        queueCountImmediate?: number
         error?: string
         outcome?: string
         reason?: string
@@ -385,7 +387,22 @@ export function useOutreachGeneration({
       }
 
       if (data?.triggered) {
-        onFallbackCleared?.()
+        if (
+          typeof data.queueCountImmediate === 'number' &&
+          data.queueCountImmediate > 0
+        ) {
+          clearTimers()
+          startedAtRef.current = null
+          setElapsedMs(0)
+          setState('succeeded')
+          onToast?.(`Draft is ready for ${leadName} — open Email center`)
+          onSettled?.()
+          transientTimerRef.current = setTimeout(() => {
+            if (!mountedRef.current) return
+            setState('idle')
+          }, 3_000)
+          return
+        }
         // The in-app generator inserts the draft synchronously, so the
         // success signal usually arrives within milliseconds via Realtime
         // (last_n8n_outreach_status → 'success' with a fresh triggered_at)
@@ -423,6 +440,7 @@ export function useOutreachGeneration({
     leadName,
     onFallbackAvailable,
     onFallbackCleared,
+    onSettled,
     onToast,
     startOptimisticRunning,
   ])

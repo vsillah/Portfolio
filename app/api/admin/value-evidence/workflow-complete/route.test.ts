@@ -130,7 +130,11 @@ describe('POST /api/admin/value-evidence/workflow-complete', () => {
       })
     )
     expect(updateChain.eq).toHaveBeenCalledWith('id', 'running-vep001')
-    expect(jsonMock).toHaveBeenCalledWith({ ok: true, run_id: 'running-vep001' })
+    expect(jsonMock).toHaveBeenCalledWith({
+      ok: true,
+      run_id: 'running-vep001',
+      chained_social: false,
+    })
   })
 
   it('creates run row when no run is found and keeps normalized workflow id', async () => {
@@ -166,6 +170,10 @@ describe('POST /api/admin/value-evidence/workflow-complete', () => {
       })
     )
     expect(updateChain.eq).toHaveBeenCalledWith('id', 'created-vep-run')
-    expect(jsonMock).toHaveBeenCalledWith({ ok: true, run_id: 'created-vep-run' })
+    expect(jsonMock).toHaveBeenCalledWith({
+      ok: true,
+      run_id: 'created-vep-run',
+      chained_social: false,
+    })
   })
 })

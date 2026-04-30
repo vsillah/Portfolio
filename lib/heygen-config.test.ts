@@ -109,7 +109,12 @@ describe('heygen-config', () => {
       if (table !== 'heygen_config') {
         throw new Error(`Unexpected table: ${table}`)
       }
-      return { upsert }
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+        upsert,
+      }
     })
 
     const result = await syncFromHeyGen()

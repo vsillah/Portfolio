@@ -27,9 +27,12 @@ describe('useOutreachGeneration', () => {
   })
 
   it('settles as succeeded immediately when API reports queueCountImmediate > 0', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      json: async () => ({ triggered: true, queueCountImmediate: 1 }),
-    } as Response)
+    global.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ triggered: true, queueCountImmediate: 1 }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
 
     const onToast = vi.fn()
     const onSettled = vi.fn()
@@ -52,9 +55,7 @@ describe('useOutreachGeneration', () => {
 
     expect(result.current.state).toBe('succeeded')
     expect(onFallbackCleared).toHaveBeenCalledTimes(1)
-    expect(onToast).toHaveBeenCalledWith(
-      'Draft is ready for ACME Lead — open Message Queue',
-    )
+    expect(onToast).toHaveBeenCalledWith('Draft is ready for ACME Lead — open Email center')
     expect(onSettled).toHaveBeenCalledTimes(1)
 
     await act(async () => {
@@ -64,9 +65,12 @@ describe('useOutreachGeneration', () => {
   })
 
   it('times out into fallback when queue remains empty during extended wait', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      json: async () => ({ triggered: true, queueCountImmediate: 0 }),
-    } as Response)
+    global.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ triggered: true, queueCountImmediate: 0 }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
 
     const onToast = vi.fn()
     const onSettled = vi.fn()
@@ -89,27 +93,28 @@ describe('useOutreachGeneration', () => {
 
     expect(result.current.state).toBe('running')
     expect(result.current.phaseLabel).toBe('Queuing…')
-    expect(onToast).toHaveBeenCalledWith(
-      'n8n accepted this job — waiting for a draft to appear…',
-    )
+    expect(onToast).toHaveBeenCalledWith('Generating email draft for No Draft Lead…')
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(75_000)
+      await vi.advanceTimersByTimeAsync(8 * 60_000 + 1_000)
     })
 
     expect(result.current.state).toBe('failed')
 
     expect(onFallbackAvailable).toHaveBeenCalledTimes(1)
     expect(onToast).toHaveBeenCalledWith(
-      'No draft appeared after waiting. Use Draft in app or check n8n for No Draft Lead.',
+      'No draft appeared after waiting. Try the in-app draft for No Draft Lead.',
     )
     expect(onSettled).toHaveBeenCalled()
   })
 
   it('settles early when messagesCount increases during extended wait', async () => {
-    global.fetch = vi.fn().mockResolvedValue({
-      json: async () => ({ triggered: true, queueCountImmediate: 0 }),
-    } as Response)
+    global.fetch = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify({ triggered: true, queueCountImmediate: 0 }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
 
     const onToast = vi.fn()
     const onSettled = vi.fn()
@@ -140,7 +145,7 @@ describe('useOutreachGeneration', () => {
     expect(result.current.state).toBe('succeeded')
 
     expect(onToast).toHaveBeenCalledWith(
-      'Draft is ready for Appearing Draft Lead — open Message Queue',
+      'Draft is ready for Appearing Draft Lead — open Email center',
     )
     expect(onSettled).toHaveBeenCalledTimes(1)
   })

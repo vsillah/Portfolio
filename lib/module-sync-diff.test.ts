@@ -62,18 +62,18 @@ describe('readPortfolioModule', () => {
     const tempRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'module-sync-diff-'))
     const modulePath = path.join(tempRoot, 'sample-module')
     await fs.promises.mkdir(path.join(modulePath, 'node_modules'), { recursive: true })
-    await fs.promises.mkdir(path.join(modulePath, '.git'), { recursive: true })
+    await fs.promises.mkdir(path.join(modulePath, '.cursor'), { recursive: true })
     await fs.promises.writeFile(path.join(modulePath, 'keep.txt'), 'hello')
     await fs.promises.writeFile(path.join(modulePath, 'empty.txt'), '')
     await fs.promises.writeFile(path.join(modulePath, 'node_modules', 'ignore.txt'), 'ignored')
-    await fs.promises.writeFile(path.join(modulePath, '.git', 'config'), 'ignored')
+    await fs.promises.writeFile(path.join(modulePath, '.cursor', 'rules.md'), 'ignored')
 
     const files = await readPortfolioModule(tempRoot, 'sample-module')
 
     expect(files.get('keep.txt')).toBe('hello')
     expect(files.get('empty.txt')).toBe('')
     expect(files.has('node_modules/ignore.txt')).toBe(false)
-    expect(files.has('.git/config')).toBe(false)
+    expect(files.has('.cursor/rules.md')).toBe(false)
 
     await fs.promises.rm(tempRoot, { recursive: true, force: true })
   })

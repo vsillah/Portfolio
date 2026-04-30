@@ -104,7 +104,7 @@ describe('useOutreachGeneration', () => {
     expect(callbacks.onFallbackCleared).toHaveBeenCalledTimes(1)
     expect(callbacks.onSettled).toHaveBeenCalledTimes(1)
     expect(callbacks.onFallbackAvailable).not.toHaveBeenCalled()
-    expect(callbacks.onToast).toHaveBeenCalledWith('Draft is ready for Acme — open Message Queue')
+    expect(callbacks.onToast).toHaveBeenCalledWith('Draft is ready for Acme — open Email center')
 
     await act(async () => {
       await vi.advanceTimersByTimeAsync(3_000)
@@ -136,9 +136,7 @@ describe('useOutreachGeneration', () => {
     })
 
     expect(result.current.state).toBe('running')
-    expect(callbacks.onToast).toHaveBeenCalledWith(
-      'n8n accepted this job — waiting for a draft to appear…',
-    )
+    expect(callbacks.onToast).toHaveBeenCalledWith('Generating email draft for Acme…')
 
     await act(async () => {
       rerender({ messagesCount: 1 })
@@ -173,13 +171,13 @@ describe('useOutreachGeneration', () => {
     expect(result.current.state).toBe('running')
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(75_000)
+      await vi.advanceTimersByTimeAsync(8 * 60_000 + 1_000)
     })
 
     expect(result.current.state).toBe('failed')
     expect(callbacks.onFallbackAvailable).toHaveBeenCalledTimes(1)
     expect(callbacks.onToast).toHaveBeenCalledWith(
-      'No draft appeared after waiting. Use Draft in app or check n8n for Acme.',
+      'No draft appeared after waiting. Try the in-app draft for Acme.',
     )
     expect(callbacks.onSettled).toHaveBeenCalled()
   })
