@@ -232,7 +232,7 @@
             },
             {
               "name": "Authorization",
-              "value": "=Bearer REPLACE_WITH_APIFY_API_TOKEN"
+              "value": "=Bearer {{ $vars.APIFY_TOKEN }}"
             }
           ]
         }
