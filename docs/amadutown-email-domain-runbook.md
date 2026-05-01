@@ -31,6 +31,16 @@ AmaduTown uses a phased hybrid email migration:
    - every alias routes to the expected mailbox
    - SPF, DKIM, and DMARC pass in a received-message header test
 
+### Cloudflare DNS Records
+
+Based on Google Workspace Admin Help, new Workspace setups can use the single Google MX record:
+
+| Type | Name | Priority | Value |
+| --- | --- | --- | --- |
+| `MX` | `@` | `1` | `smtp.google.com` |
+
+Add SPF, DKIM, and DMARC TXT records from the Google Admin setup flow. DKIM values are generated per Workspace tenant, so do not hard-code them before the Google Admin console provides the selector/value.
+
 ## Phase 2: Portfolio Environment
 
 Set these variables in local and deployed environments:
