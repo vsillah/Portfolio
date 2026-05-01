@@ -65,6 +65,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Chat Eval', href: '/admin/chat-eval' },
         { label: 'Analytics', href: '/admin/analytics' },
         { label: 'Cost & Revenue', href: '/admin/cost-revenue' },
+        { label: 'Subscription Watch', href: '/admin/subscriptions' },
         { label: 'Agent Operations', href: '/admin/agents' },
         { label: 'Technology Bakeoffs', href: '/admin/technology-bakeoffs' },
         { label: 'Client Experience', href: '/admin/client-experience' },
