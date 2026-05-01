@@ -113,6 +113,16 @@ Use `POST /api/admin/agents/approval-drill` or the **Approval Drill** card on `/
 - approve/reject decisions write through `agent_approvals`,
 - rejected drills terminate without touching a production workflow.
 
+## OpenCode/OpenClaw Evaluation
+
+Use `POST /api/admin/agents/runtime-evaluation` or the **Runtime Evaluation** card on `/admin/agents` to create an observable `opencode` runtime evaluation run. The v1 probe is deliberately side-effect free: it checks whether `opencode`, `openclaw`, or `opencode-ai` is available on `PATH`, records the result as a step and artifact, and fails the run when no executable is installed.
+
+This keeps OpenCode/OpenClaw out of production automation until installation, auth, rollback, and audit behavior are proven through Agent Operations.
+
+## Stale Run Sweep
+
+Use `POST /api/admin/agents/runs/stale-sweep` or the **Sweep stale** button on `/admin/agents/runs` to mark queued/running runs as `stale` when they pass `stale_after` or the default active-run threshold. Runs waiting for approval are intentionally excluded so human checkpoints do not auto-expire as infrastructure failures.
+
 ## Safety Rules
 
 - New agent work should create an `agent_run` before doing meaningful work.

@@ -44,6 +44,8 @@ function AgentRunsContent() {
   const [status, setStatus] = useState<(typeof STATUSES)[number]>('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [sweepLoading, setSweepLoading] = useState(false)
+  const [sweepMessage, setSweepMessage] = useState<string | null>(null)
 
   const fetchRuns = useCallback(async () => {
     setLoading(true)
@@ -75,6 +77,28 @@ function AgentRunsContent() {
     fetchRuns()
   }, [fetchRuns])
 
+  async function sweepStaleRuns() {
+    setSweepLoading(true)
+    setSweepMessage(null)
+    setError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch('/api/admin/agents/runs/stale-sweep', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      setSweepMessage(`Checked ${body.checked ?? 0} active run(s); marked ${body.marked ?? 0} stale.`)
+      await fetchRuns()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to sweep stale runs')
+    } finally {
+      setSweepLoading(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
       <div className="max-w-7xl mx-auto">
@@ -89,14 +113,30 @@ function AgentRunsContent() {
             <h1 className="text-3xl font-bold mb-1">Agent Runs</h1>
             <p className="text-muted-foreground text-sm">Live and historical traces across supported runtimes.</p>
           </div>
-          <button
-            onClick={fetchRuns}
-            className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
-          >
-            <RefreshCw size={16} />
-            Refresh
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={sweepStaleRuns}
+              disabled={sweepLoading}
+              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+            >
+              <RefreshCw size={16} className={sweepLoading ? 'animate-spin' : ''} />
+              Sweep stale
+            </button>
+            <button
+              onClick={fetchRuns}
+              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
+            >
+              <RefreshCw size={16} />
+              Refresh
+            </button>
+          </div>
         </div>
+
+        {sweepMessage ? (
+          <div className="mb-4 rounded-lg border border-cyan-500/40 bg-cyan-500/10 p-3 text-sm text-cyan-100">
+            {sweepMessage}
+          </div>
+        ) : null}
 
         <div className="mb-5 flex gap-3 flex-wrap">
           <select

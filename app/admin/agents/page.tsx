@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import type { ReactNode } from 'react'
-import { Activity, ArrowRight, Bot, CheckCircle2, Clock, DollarSign, RefreshCw, XCircle } from 'lucide-react'
+import { Activity, ArrowRight, Bot, CheckCircle2, Clock, DollarSign, RefreshCw, ShieldAlert, XCircle } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -16,6 +16,9 @@ export default function AgentOperationsPage() {
   const [drillLoading, setDrillLoading] = useState(false)
   const [drillResult, setDrillResult] = useState<{ runId: string; approvalType: string } | null>(null)
   const [drillError, setDrillError] = useState<string | null>(null)
+  const [runtimeLoading, setRuntimeLoading] = useState(false)
+  const [runtimeResult, setRuntimeResult] = useState<{ runId: string; available: boolean } | null>(null)
+  const [runtimeError, setRuntimeError] = useState<string | null>(null)
 
   async function runHermesHealthSummary() {
     setHermesLoading(true)
@@ -66,6 +69,31 @@ export default function AgentOperationsPage() {
     }
   }
 
+  async function evaluateOpenCodeRuntime() {
+    setRuntimeLoading(true)
+    setRuntimeError(null)
+    setRuntimeResult(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch('/api/admin/agents/runtime-evaluation', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ runtime: 'opencode' }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      setRuntimeResult({ runId: body.run_id, available: Boolean(body.available) })
+    } catch (err) {
+      setRuntimeError(err instanceof Error ? err.message : 'Failed to evaluate OpenCode/OpenClaw')
+    } finally {
+      setRuntimeLoading(false)
+    }
+  }
+
   return (
     <ProtectedRoute requireAdmin>
       <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
@@ -78,7 +106,7 @@ export default function AgentOperationsPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
             <Link
               href="/admin/agents/runs"
               className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 p-5 hover:border-radiant-gold/60 transition-colors"
@@ -151,6 +179,34 @@ export default function AgentOperationsPage() {
                 </Link>
               ) : null}
               {drillError ? <p className="text-sm text-red-300">{drillError}</p> : null}
+            </div>
+
+            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 p-5">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div>
+                  <div className="flex items-center gap-2 text-orange-300 mb-2">
+                    <ShieldAlert size={20} />
+                    <h2 className="text-lg font-semibold">Runtime Evaluation</h2>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Probe OpenCode/OpenClaw availability without running worker tasks or mutating production data.
+                  </p>
+                </div>
+                <button
+                  onClick={evaluateOpenCodeRuntime}
+                  disabled={runtimeLoading}
+                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+                >
+                  <RefreshCw size={16} className={runtimeLoading ? 'animate-spin' : ''} />
+                  Probe
+                </button>
+              </div>
+              {runtimeResult ? (
+                <Link href={`/admin/agents/runs/${runtimeResult.runId}`} className="text-sm text-radiant-gold hover:underline">
+                  Open {runtimeResult.available ? 'available' : 'unavailable'} runtime run
+                </Link>
+              ) : null}
+              {runtimeError ? <p className="text-sm text-red-300">{runtimeError}</p> : null}
             </div>
           </div>
 
