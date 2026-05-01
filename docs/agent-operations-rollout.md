@@ -28,6 +28,15 @@ Supported run statuses:
 
 The first version adds an Agent Operations console under `/admin/agents`. It reads generic agent trace tables instead of building a custom dashboard for every workflow. Existing workflow-specific pages remain live during the rollout.
 
+The console now includes an Agent Engagement roster so the operating model is visible from the same place as the traces:
+
+- Portfolio Operations Manager — n8n/Codex morning review, stale-run cleanup, Slack notification, and health artifact.
+- Hermes Health Analyst — read-only secondary runtime summary.
+- Outreach Generation Agent — traced outreach drafts and cost-linked LLM usage.
+- Value Evidence Agent — n8n evidence/listening workflows and generated reports.
+- Approval Steward — manual approval checkpoints stored in `agent_approvals`.
+- Slack Command Path — planned mobile-friendly command surface for read-only checks and approval-routed actions.
+
 The shared trace tables are:
 
 - `agent_registry`
@@ -136,6 +145,13 @@ Use `POST /api/cron/agent-ops-morning-review` with `Authorization: Bearer N8N_IN
 - optionally posts a Slack summary when `SLACK_AGENT_OPS_WEBHOOK_URL` is configured.
 
 Recommended schedule: n8n Cloud weekday morning trigger, owned by the automation layer. Slack remains a notification surface only; Portfolio admin and `agent_runs` remain the source of truth.
+
+Admin operators can also trigger the same review with `POST /api/admin/agents/morning-review` or the **Run morning review** button on `/admin/agents`. This path requires admin auth and uses `trigger_source = admin_agent_ops_morning_review`.
+
+The n8n import artifact lives at `n8n-exports/WF-AGENT-OPS-MORNING-REVIEW.json`. Keep it inactive until the n8n Cloud variables are confirmed:
+
+- `AMADUTOWN_PUBLIC_BASE_URL=https://amadutown.com`
+- `N8N_INGEST_SECRET=<same bearer secret configured in Portfolio>`
 
 ## Safety Rules
 

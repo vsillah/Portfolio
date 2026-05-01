@@ -5,6 +5,11 @@ This folder contains exported n8n workflows ready for import into n8n Cloud.
 ## 📁 Contents
 
 ### Workflows
+- **WF-AGENT-OPS-MORNING-REVIEW.json**
+  - Runs the Agent Operations morning review without a human in the loop
+  - Schedule: Weekdays at 9am in the n8n workspace timezone
+  - Calls `POST /api/cron/agent-ops-morning-review` and relies on Portfolio for trace creation, stale-run sweep, artifact attachment, and optional Slack notification
+
 - **WF-WRM-001-Facebook-Warm-Lead-Scraper.json**
   - Scrapes Facebook friends, group members, and post engagement
   - Schedule: Weekly (Mondays at 9am)
@@ -57,18 +62,23 @@ Requires `N8N_CLOUD_API_KEY` in `.env.local`. Matches by workflow name.
 
 ### 3. Configure Environment Variables
 Go to **Settings → Environments** and add:
+- `AMADUTOWN_PUBLIC_BASE_URL`
+- `N8N_INGEST_SECRET`
 - `APIFY_API_TOKEN`
 - `FACEBOOK_PROFILE_URL`
 - `FACEBOOK_GROUP_UIDS`
 - `LINKEDIN_COOKIE`
 - `LINKEDIN_PROFILE_URL`
 - `APP_BASE_URL`
-- `N8N_INGEST_SECRET`
 
 See [environment-variables-reference.md](./environment-variables-reference.md) for details.
 
 ### 4. Test Workflows
 ```bash
+# Agent Operations morning review
+curl -X POST https://amadutown.com/api/cron/agent-ops-morning-review \
+  -H "Authorization: Bearer $N8N_INGEST_SECRET"
+
 # Test each webhook
 curl -X POST https://your-workspace.app.n8n.cloud/webhook/wrm-001-facebook
 curl -X POST https://your-workspace.app.n8n.cloud/webhook/wrm-002-google-contacts
@@ -120,6 +130,7 @@ Environment variables must be set separately in n8n Cloud.
 - **Apify Token:** For web scraping actors
 - **LinkedIn Cookie:** For connections scraper (expires ~1 year)
 - **N8N Ingest Secret:** For webhook authentication (must match Next.js app)
+- **AmaduTown public base URL:** For scheduled app callbacks, usually `https://amadutown.com`
 - **Google OAuth2:** For Contacts API (use n8n's built-in OAuth2)
 
 ## 📈 Expected Usage

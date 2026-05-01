@@ -1,0 +1,102 @@
+{
+  "name": "WF-AGENT-OPS: Morning Review",
+  "active": false,
+  "nodes": [
+    {
+      "id": "weekday-morning-schedule",
+      "name": "Weekday Morning Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [0, 240],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1-5"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "manual-run",
+      "name": "Manual Run",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [0, 440],
+      "parameters": {}
+    },
+    {
+      "id": "call-agent-ops-review",
+      "name": "Call Agent Ops Morning Review",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [320, 336],
+      "parameters": {
+        "method": "POST",
+        "url": "={{($vars.AMADUTOWN_PUBLIC_BASE_URL || $env.AMADUTOWN_PUBLIC_BASE_URL || 'https://amadutown.com').replace(/\\/$/, '')}}/api/cron/agent-ops-morning-review",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{$vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET}}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ source: 'n8n_cloud_morning_review', requested_at: new Date().toISOString() }) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "note",
+      "name": "Agent Ops Morning Review Notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-20, 40],
+      "parameters": {
+        "content": "## WF-AGENT-OPS: Morning Review\n\n**Purpose:** no-human-in-the-loop daily Agent Operations review.\n\n**Schedule:** weekdays at 9:00 AM in the n8n workspace timezone.\n\n**Flow:** Schedule or manual trigger -> POST Portfolio cron route -> route creates a traced n8n agent run, sweeps stale runs, attaches the review artifact, and posts Slack if `SLACK_AGENT_OPS_WEBHOOK_URL` is configured in Portfolio.\n\n**Required n8n variables:**\n- `AMADUTOWN_PUBLIC_BASE_URL` = `https://amadutown.com`\n- `N8N_INGEST_SECRET` = same secret configured in Portfolio\n\nKeep inactive until variables are confirmed, then activate in n8n Cloud."
+      }
+    }
+  ],
+  "connections": {
+    "Weekday Morning Schedule": {
+      "main": [
+        [
+          {
+            "node": "Call Agent Ops Morning Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Run": {
+      "main": [
+        [
+          {
+            "node": "Call Agent Ops Morning Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/New_York"
+  }
+}
