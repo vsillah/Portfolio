@@ -3,6 +3,7 @@
   "use_case": "full_business_automation",
   "dependencies": ["n8n", "apify", "google_people_api", "slack", "openai", "calendly", "gmail", "pinecone"],
   "exported_workflows": [
+    "WF-AGENT-OPS-MORNING-REVIEW.json",
     "WF-WRM-001-Facebook-Warm-Lead-Scraper.json",
     "WF-WRM-002-Google-Contacts-Sync.json",
     "WF-WRM-003-LinkedIn-Warm-Lead-Scraper.json"
@@ -49,5 +50,5 @@
     { "id": "DiN2zado2GVk2Lka", "name": "WF-LMN-001: Ebook Nurture Sequence", "nodes": 21 }
   ],
   "export_note": "The 3 WRM workflow JSONs are pre-exported. All other active workflows are on the local n8n instance (http://127.0.0.1:5678). To bulk-export: n8n UI > Settings > Export All Workflows, or use the n8n MCP tools (n8n_get_workflow with mode=full for each ID). WF-CLG-002 (Outreach Generation) was retired 2026-04-27 — its export is preserved under archive/ for reference; runtime generation now happens in-app via lib/outreach-queue-generator.ts and the auto-follow-up branch of WF-CLG-003 calls /api/webhooks/n8n/outreach-followup-trigger.",
-  "last_updated": "2026-04-27"
+  "last_updated": "2026-05-01"
 }
