@@ -24,6 +24,7 @@
     "db:health-check:update": "tsx scripts/database-health-check.ts --update",
     "db:health-check:dev": "tsx scripts/database-health-check.ts --dev",
     "db:health-check:dev:update": "tsx scripts/database-health-check.ts --dev --update",
+    "source-protocol:smoke": "tsx scripts/source-protocol-smoke.ts",
     "staging:publications-parity": "tsx scripts/ensure-publications-experience-parity.ts --env-file .env.staging",
     "printful:webhook": "tsx scripts/printful-setup-webhook.ts",
     "storyboard:assets:schematics": "tsx scripts/generate-storyboard-schematics.ts",

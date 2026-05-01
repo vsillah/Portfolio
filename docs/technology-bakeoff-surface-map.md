@@ -12,6 +12,7 @@ The principle: do not swap tools because something looks new. Run a small, compa
 | Presentation and deck production | `/admin/presentations`, `/admin/reports/gamma`, course and deck packages | Codex/PPTX, Gamma, Claude Design, Paper, Excalidraw | clarity, voice, editability, export quality, proof, speaker readiness | winning base keeps source guide, notes, screenshots, QA exports |
 | Chat and diagnostic models | `/api/chat`, `/admin/chat-eval`, `/tools/audit`, `/api/chat/diagnostic` | hosted LLMs, local RAG, open-weight models, model routers | answer accuracy, source use, escalation quality, latency, cost, safety | chat eval score improves without hurting conversion or trust |
 | RAG and knowledge retrieval | `/api/knowledge`, `lib/rag-query.ts`, local RAG shadow mode, chatbot knowledge build | Supabase/Postgres retrieval, local vector stores, hosted vector DBs, rerankers | recall, precision, freshness, privacy, query latency, maintenance burden | shadow results beat current retrieval on saved test questions |
+| Creator-rights research assistant | source-respecting LLM protocol, banned/challenged author MVP, creator/payout receipts | OLMo, Qwen, Mistral, Llama, Command R-style retrieval models, rerankers | citation faithfulness, license provenance, creator consent, payout accounting, latency, cost | candidate passes both quality and license/governance gates in `lib/source-respecting-llm-protocol.ts` |
 | Social content generation | `/admin/social-content`, n8n social workflows, LinkedIn review queue | copy models, image models, TTS, scheduling/publishing tools | voice fit, approval burden, image quality, platform fit, rights, publish reliability | human review acceptance rate rises and private-source handling stays clean |
 | Voice and avatar video | video generation, HeyGen webhooks, VAPI webhook, meeting follow-up content | HeyGen, ElevenLabs, Vapi, avatar/video alternatives, direct TTS providers | voice quality, likeness/control, webhook reliability, cost per minute, consent and approval | approval gate for public/client-facing voice or avatar output |
 | Workflow automation runtime | n8n exports, `/admin/agents`, webhook routes, cron routes | n8n Cloud, Codex automations, Vercel cron, Supabase scheduled jobs, local scripts | observability, retries, cost, deploy friction, audit trail, rollback | new workflows write run traces or equivalent evidence before production use |
@@ -57,5 +58,6 @@ Existing examples:
 - `lib/media-generation-bakeoff.ts`
 - `lib/ai-layer-fit-evaluation.ts`
 - `lib/agent-runtime-evaluation.ts`
+- `lib/source-respecting-llm-protocol.ts`
 
 When a new surface gets repeated evaluation pressure, create the evaluator first, then wire it into the admin UI.

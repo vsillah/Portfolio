@@ -47,6 +47,7 @@ Creates `meeting_records` table for WF-MCH (Meeting Complete Handler). Depends o
 - `database_schema_chat.sql` - Chat sessions and messages
 - `database_schema_diagnostic.sql` - AI diagnostic audits
 - `database_schema_testing.sql` - E2E testing framework
+- `database_schema_source_respecting_llm.sql` - Source-respecting LLM creator registry, license grants, source chunks, answer receipts, monthly payout settlements, disputes, and model reviews
 - `database_schema_proposals.sql` - Proposal tracking
 - `database_schema_sales.sql` - Sales funnel
 - `database_schema_bundles.sql` - Offer bundles (extends sales)

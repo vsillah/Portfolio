@@ -8,6 +8,11 @@ This directory contains comprehensive documentation for the my-portfolio project
 
 - **[Admin/Sales Lead Pipeline SOP](./admin-sales-lead-pipeline-sop.md)** - Single source of truth for new admin and sales associates: lead pipeline (trigger, ingest, enrichment, outreach, review, send), inbound leads (contact form, chat, diagnostic, voice/VAPI), sales and proposals, configuring products/bundles/scripts, pricing research, post-sale lifecycle (payment, client projects, onboarding, milestones), follow-up sequences, workflow reference, and other admin tools.
 
+### Source-respecting AI
+
+- **[Source-Respecting LLM Protocol](./source-respecting-llm-protocol.md)** - Open nonprofit protocol blueprint for banned/challenged authors, Black history archives, creator permissions, cited answers, source-use receipts, and payout simulation.
+- **[Creator-Rights Model Review Monitor](./creator-rights-model-review-monitor.md)** - Monthly model-review operating guide for citation quality, license provenance, governance fit, and approval-gated model promotion.
+
 ### Warm Lead Workflow
 
 - **[Warm Lead Workflow Integration](./warm-lead-workflow-integration.md)** - Complete guide to the warm lead pipeline, including:
