@@ -19,6 +19,7 @@ type CredentialInventory = {
   providers: {
     infisical: {
       projectSlug: string
+      projectId?: string
       secretPath: string
       envMap: Record<EnvironmentName, string>
     }
@@ -43,7 +44,15 @@ type CredentialSecret = {
   verification: string[]
   rollback: string
   approvalRequired?: EnvironmentName[]
+  baseline?: Partial<Record<EnvironmentName, CredentialBaseline>>
   lastRotatedAt?: Partial<Record<EnvironmentName, string>>
+}
+
+type CredentialBaseline = {
+  status: 'pending-provider-confirmation' | 'confirmed' | 'unknown'
+  lastRotatedAt: string | null
+  evidence: string
+  updatedAt: string
 }
 
 type RotationPacket = {
@@ -74,6 +83,7 @@ const ROOT = path.resolve(__dirname, '..')
 const INVENTORY_PATH = path.join(ROOT, 'docs', 'credential-inventory.json')
 const AUDIT_DIR = path.join(ROOT, '.credential-rotation-audits')
 const VALID_ENVS: EnvironmentName[] = ['dev', 'staging', 'prod']
+const PROVIDER_READ_TIMEOUT_MS = 10_000
 
 function main() {
   const args = parseArgs(process.argv.slice(2))
@@ -155,7 +165,8 @@ function listDue(inventory: CredentialInventory, args: ParsedArgs) {
   if (Number.isNaN(asOf.getTime())) fail(`Invalid --as-of value: ${String(args.options['as-of'])}`)
 
   const rows = envSecrets(inventory, env).map((secret) => {
-    const lastRotatedAt = secret.lastRotatedAt?.[env] ?? null
+    const baseline = getBaseline(secret, env)
+    const lastRotatedAt = baseline.lastRotatedAt
     const dueAt = lastRotatedAt ? addDays(new Date(lastRotatedAt), secret.rotationCadenceDays) : null
     const status = !lastRotatedAt ? 'needs-baseline' : dueAt && dueAt <= asOf ? 'due' : 'ok'
     return {
@@ -167,6 +178,8 @@ function listDue(inventory: CredentialInventory, args: ParsedArgs) {
       lastRotatedAt,
       dueAt: dueAt ? dueAt.toISOString().slice(0, 10) : null,
       status,
+      baselineStatus: baseline.status,
+      baselineEvidence: baseline.evidence,
       approvalRequired: secret.approvalRequired?.includes(env) ?? false,
     }
   })
@@ -180,7 +193,7 @@ function listDue(inventory: CredentialInventory, args: ParsedArgs) {
   for (const row of rows) {
     const approval = row.approvalRequired ? ' approval-required' : ''
     const due = row.dueAt ? ` due=${row.dueAt}` : ' due=unknown'
-    console.log(`${row.status.padEnd(14)} ${row.envVar.padEnd(32)} ${row.rotationMode}${due}${approval}`)
+    console.log(`${row.status.padEnd(14)} ${row.envVar.padEnd(32)} ${row.rotationMode}${due} baseline=${row.baselineStatus}${approval}`)
   }
 }
 
@@ -265,11 +278,12 @@ function syncRuntime(inventory: CredentialInventory, args: ParsedArgs) {
 
 function smoke(inventory: CredentialInventory, args: ParsedArgs) {
   const env = getEnv(args)
+  const requireProviderAccess = Boolean(args.options['require-provider-access'])
   const checks: Array<{ label: string; command: string[]; required: boolean }> = [
     { label: 'Inventory loads', command: ['node', '-e', `JSON.parse(require('fs').readFileSync(${JSON.stringify(INVENTORY_PATH)}, 'utf8'));`], required: true },
     { label: 'n8n export secret scan', command: ['bash', 'scripts/check-n8n-secrets.sh'], required: true },
-    { label: 'Infisical CLI available', command: ['infisical', '--version'], required: false },
-    { label: '1Password CLI available', command: ['op', '--version'], required: false },
+    { label: 'Infisical CLI available', command: ['infisical', '--version'], required: requireProviderAccess },
+    { label: '1Password CLI available', command: ['op', '--version'], required: requireProviderAccess },
   ]
 
   if (process.env.N8N_API_KEY) {
@@ -277,14 +291,57 @@ function smoke(inventory: CredentialInventory, args: ParsedArgs) {
   }
 
   const results = checks.map((check) => runCheck(check))
-  const dueCount = envSecrets(inventory, env).filter((secret) => !secret.lastRotatedAt?.[env]).length
+  const providerResults = runProviderAccessChecks(inventory, env, requireProviderAccess)
+  const dueCount = envSecrets(inventory, env).filter((secret) => !getBaseline(secret, env).lastRotatedAt).length
   console.log(`Credential inventory secrets for ${env}: ${envSecrets(inventory, env).length}`)
   console.log(`Secrets missing rotation baseline for ${env}: ${dueCount}`)
 
   const failedRequired = results.filter((result) => result.required && !result.ok)
-  if (failedRequired.length > 0) {
+  const failedProviderRequired = providerResults.filter((result) => result.required && !result.ok)
+  if (failedRequired.length > 0 || failedProviderRequired.length > 0) {
     process.exit(1)
   }
+}
+
+function getBaseline(secret: CredentialSecret, env: EnvironmentName): CredentialBaseline {
+  const explicit = secret.baseline?.[env]
+  if (explicit) return explicit
+  return {
+    status: secret.lastRotatedAt?.[env] ? 'confirmed' : 'unknown',
+    lastRotatedAt: secret.lastRotatedAt?.[env] ?? null,
+    evidence: secret.lastRotatedAt?.[env] ? 'legacy lastRotatedAt field' : 'baseline not recorded',
+    updatedAt: 'unknown',
+  }
+}
+
+function runProviderAccessChecks(inventory: CredentialInventory, env: EnvironmentName, required: boolean) {
+  const checks: Array<{ provider: SourceOfTruth; label: string; secret: CredentialSecret | undefined; required: boolean }> = [
+    {
+      provider: 'infisical',
+      label: 'Infisical scoped secret read',
+      secret: envSecrets(inventory, env).find((secret) => secret.sourceOfTruth === 'infisical'),
+      required,
+    },
+    {
+      provider: '1password',
+      label: '1Password scoped item read',
+      secret: envSecrets(inventory, env).find((secret) => secret.sourceOfTruth === '1password'),
+      required,
+    },
+  ]
+
+  return checks.map((check) => {
+    if (!check.secret) {
+      console.log(`skipped ${check.label} no ${check.provider} secret in inventory for ${env}`)
+      return { ...check, ok: !check.required }
+    }
+
+    const result = tryReadSecret(inventory, check.secret, env)
+    const marker = result.ok ? 'ok' : check.required ? 'failed' : 'skipped'
+    console.log(`${marker.padEnd(7)} ${check.label} (${check.secret.envVar})`)
+    if (result.ok === false && check.required) console.error(result.message)
+    return { ...check, ok: result.ok }
+  })
 }
 
 function selectSecrets(inventory: CredentialInventory, args: ParsedArgs, env: EnvironmentName): CredentialSecret[] {
@@ -297,33 +354,60 @@ function selectSecrets(inventory: CredentialInventory, args: ParsedArgs, env: En
 }
 
 function readSecret(inventory: CredentialInventory, secret: CredentialSecret, env: EnvironmentName): string {
+  const result = tryReadSecret(inventory, secret, env)
+  if (result.ok === false) fail(result.message)
+  return result.value
+}
+
+function tryReadSecret(
+  inventory: CredentialInventory,
+  secret: CredentialSecret,
+  env: EnvironmentName,
+): { ok: true; value: string } | { ok: false; message: string } {
   if (secret.sourceOfTruth === 'infisical') {
     const infisicalEnv = inventory.providers.infisical.envMap[env]
     const secretPath = inventory.providers.infisical.secretPath
-    const result = spawnSync('infisical', ['secrets', 'get', secret.envVar, '--env', infisicalEnv, '--path', secretPath, '--plain'], {
+    const args = ['secrets', 'get', secret.envVar, '--env', infisicalEnv, '--path', secretPath, '--plain']
+    if (inventory.providers.infisical.projectId) args.push('--projectId', inventory.providers.infisical.projectId)
+    const result = spawnSync('infisical', args, {
       cwd: ROOT,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
       env: process.env,
+      timeout: PROVIDER_READ_TIMEOUT_MS,
     })
     if (result.status !== 0) {
-      fail(`Infisical read failed for ${secret.envVar}. Authenticate the Infisical CLI and confirm ${infisicalEnv}${secretPath} access.`)
+      return {
+        ok: false,
+        message: `Infisical read failed for ${secret.envVar}. Authenticate the Infisical CLI and confirm ${infisicalEnv}${secretPath} access.`,
+      }
     }
-    return result.stdout.trim()
+    const value = result.stdout.trim()
+    if (!value) return { ok: false, message: `Infisical returned an empty value for ${secret.envVar}.` }
+    return { ok: true, value }
   }
 
   const vault = inventory.providers.onepassword.vaults[env]
-  const ref = `op://${vault}/${secret.envVar}/credential`
-  const result = spawnSync('op', ['read', ref], {
+  const result = spawnSync('op', ['item', 'get', secret.envVar, '--vault', vault, '--format', 'json'], {
     cwd: ROOT,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     env: process.env,
+    timeout: PROVIDER_READ_TIMEOUT_MS,
   })
   if (result.status !== 0) {
-    fail(`1Password read failed for ${secret.envVar}. Expected item ref ${ref}.`)
+    return { ok: false, message: `1Password read failed for ${secret.envVar}. Expected item ${secret.envVar} in vault ${vault}.` }
   }
-  return result.stdout.trim()
+  let item: { fields?: Array<{ id?: string; label?: string; value?: string }> }
+  try {
+    item = JSON.parse(result.stdout) as { fields?: Array<{ id?: string; label?: string; value?: string }> }
+  } catch {
+    return { ok: false, message: `1Password returned invalid JSON for ${secret.envVar}.` }
+  }
+  const field = item.fields?.find((candidate) => candidate.label === 'credential' || candidate.id === 'credential')
+  const value = field?.value?.trim() ?? ''
+  if (!value) return { ok: false, message: `1Password returned an empty value for ${secret.envVar}.` }
+  return { ok: true, value }
 }
 
 function writeLocalEnv(filePath: string, envVar: string, value: string) {
@@ -430,6 +514,7 @@ Commands:
   rotate        --env <dev|staging|prod> --secret <id-or-envVar> [--local-env .env.staging] [--length 48]
   sync-runtime  --env <dev|staging|prod> --secret <id-or-envVar> [--local-env .env.staging]
   smoke         --env <dev|staging|prod>
+  smoke         --env <dev|staging|prod> --require-provider-access
 
 The broker never prints secret values. Rotation packets are written to .credential-rotation-audits/.`)
 }

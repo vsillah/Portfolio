@@ -29,9 +29,12 @@ npm run credentials:inject -- --env staging -- npm run n8n:drift-check -- --warn
 npm run credentials:rotate -- --secret n8n-ingest-secret --env staging
 npm run credentials:sync-runtime -- --secret n8n-ingest-secret --env staging
 npm run credentials:smoke -- --env staging
+npm run credentials:smoke -- --env staging --require-provider-access
 ```
 
 The broker never prints raw secret values. Rotation packets are written to `.credential-rotation-audits/`, which is ignored by git.
+
+Use plain `credentials:smoke` for local registry checks. Use `--require-provider-access` after `op` and `infisical` are installed/authenticated; that mode fails unless the broker can read one scoped test secret from each source of truth without printing its value.
 
 ## Rotation Rules
 
@@ -45,6 +48,7 @@ The broker never prints raw secret values. Rotation packets are written to `.cre
 ## Source And Sink Rules
 
 - The inventory owns canonical secret names, owners, source of truth, runtime sinks, cadence, verification, and rollback notes.
+- Each inventory entry has per-environment `baseline` metadata. `pending-provider-confirmation` means the secret is tracked but the last rotation date has not been verified from Infisical, 1Password, a provider dashboard/API, or an approved rotation packet.
 - `.env.local` and `.env.staging` are local runtime sinks only. Do not treat them as primary records.
 - n8n Variables/Credentials are runtime consumers. Prefer external secrets if the active n8n plan supports it; otherwise keep n8n values synced from Infisical/1Password.
 - Vercel env vars are deployment runtime consumers. Changing Vercel values only affects new deployments.
@@ -65,8 +69,10 @@ The broker never prints raw secret values. Rotation packets are written to `.cre
 - Create an Infisical `portfolio` project with `dev`, `staging`, and `prod` environments.
 - Create machine identities per environment, not one broad cross-client identity.
 - Populate Infisical secrets using the env var names in `docs/credential-inventory.json`.
+- Replace each `pending-provider-confirmation` baseline with a verified `lastRotatedAt` date and evidence note.
 - Configure runtime sinks from the source of truth: Vercel env vars, n8n Variables/Credentials, and local ignored env files.
 - Run `npm run credentials:smoke -- --env staging` after the first sync.
+- Run `npm run credentials:smoke -- --env staging --require-provider-access` before calling the system operational.
 
 ## Existing Portfolio References
 
