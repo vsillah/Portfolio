@@ -41,6 +41,12 @@ import { ExtractionStatusChip } from '@/components/admin/ExtractionStatusChip';
 import { GammaDeckGenerateRow } from '@/components/admin/GammaDeckGenerateRow';
 import { useWorkflowStatus } from '@/lib/hooks/useWorkflowStatus';
 import type { CalendlyEventKey } from '@/lib/calendly-events';
+import {
+  buildPresentationBakeoffPlan,
+  type PresentationBakeoffPlan,
+  type PresentationCandidate,
+  type PresentationFormat,
+} from '@/lib/presentation-bakeoff';
 
 interface CalendlyEventOption {
   key: CalendlyEventKey;
@@ -98,8 +104,8 @@ const REPORT_TYPES: { value: ReportType; label: string; description: string; sli
   {
     value: 'implementation_strategy',
     label: 'Implementation Strategy',
-    description: 'Current state assessment, 3-track plan (DIY / Platform / ATAS), investment comparison, phased approach.',
-    slides: 20,
+    description: 'Current state, AI layer-fit strategy, stack-aware implementation plan, investment comparison, phased approach.',
+    slides: 23,
   },
   {
     value: 'audit_summary',
@@ -172,6 +178,7 @@ function GammaReportsContent() {
   const [result, setResult] = useState<{ gammaUrl: string; reportId: string; title: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [copiedBakeoffTool, setCopiedBakeoffTool] = useState<string | null>(null);
   const [showPromptPreview, setShowPromptPreview] = useState(false);
 
   /**
@@ -1078,6 +1085,53 @@ function GammaReportsContent() {
   );
 
   const selectedType = REPORT_TYPES.find((t) => t.value === reportType)!;
+  const bakeoffFormat: PresentationFormat =
+    reportType === 'offer_presentation'
+      ? 'sales_presentation'
+      : reportType === 'implementation_strategy'
+        ? 'strategy_workshop'
+        : reportType === 'prospect_overview'
+          ? 'thought_leadership'
+          : 'internal_update';
+  const presentationBakeoffPlan = useMemo(
+    () => buildPresentationBakeoffPlan({
+      title: selectedType.label,
+      thesis: customInstructions.trim() || selectedType.description,
+      audience: reportType === 'offer_presentation' ? 'clients' : 'colleagues',
+      format: bakeoffFormat,
+      durationMinutes: selectedType.slides <= 11 ? 20 : 45,
+      proofAssets: [
+        selectedType.label,
+        contactId ? 'Contact context' : '',
+        auditId ? 'Diagnostic audit' : '',
+        valueReportId || valueReports.length > 0 ? 'Value evidence' : '',
+        'Service content',
+      ].filter(Boolean),
+      demoRoutes: ['/admin/reports/gamma'],
+      sourceAnchors: [
+        'Portfolio evidence',
+        'Value evidence records',
+        'Market or third-party references when claims are used',
+      ],
+      brandSystem: 'amadutown',
+      needsEditablePptx: true,
+      needsLiveDemos: reportType !== 'prospect_overview',
+      needsSourceValidation: true,
+      needsFacilitatorNotes: reportType === 'offer_presentation' || reportType === 'implementation_strategy',
+    }),
+    [
+      auditId,
+      bakeoffFormat,
+      contactId,
+      customInstructions,
+      reportType,
+      selectedType.description,
+      selectedType.label,
+      selectedType.slides,
+      valueReportId,
+      valueReports.length,
+    ]
+  );
 
   const reportsForCurrentTemplate = useMemo(
     () =>
@@ -1086,6 +1140,12 @@ function GammaReportsContent() {
         .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     [reports, reportType]
   );
+
+  async function handleCopyBakeoffPrompt(candidate: PresentationCandidate) {
+    await navigator.clipboard.writeText(candidate.generationPrompt);
+    setCopiedBakeoffTool(candidate.tool);
+    window.setTimeout(() => setCopiedBakeoffTool(null), 1400);
+  }
 
   return (
     <div className="min-h-screen bg-gray-950 text-white p-6">
@@ -1745,6 +1805,12 @@ function GammaReportsContent() {
           reportType={reportType}
         />
 
+        <PresentationBakeoffPanel
+          plan={presentationBakeoffPlan}
+          copiedTool={copiedBakeoffTool}
+          onCopyPrompt={handleCopyBakeoffPrompt}
+        />
+
         {/* Generate — execution row (progress + milestones + history), same pattern as HeyGen config */}
         <GammaDeckGenerateRow
           generating={isGeneratingUi}
@@ -2034,6 +2100,100 @@ function CompanionVideoCell({
         Generate video
       </button>
     </span>
+  );
+}
+
+function PresentationBakeoffPanel({
+  plan,
+  copiedTool,
+  onCopyPrompt,
+}: {
+  plan: PresentationBakeoffPlan;
+  copiedTool: string | null;
+  onCopyPrompt: (candidate: PresentationCandidate) => void;
+}) {
+  return (
+    <div className="bg-gray-900 rounded-lg border border-gray-800 p-5 space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-amber-300">
+            <Zap className="w-4 h-4" />
+            <span className="text-xs font-semibold uppercase tracking-wider">Presentation options</span>
+          </div>
+          <h2 className="mt-2 text-lg font-semibold text-white">Compare the deck path before generating.</h2>
+          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-gray-400">
+            Gamma is one option. Use the same brief to compare it against Codex/PPTX and Claude Design before choosing the final production path.
+          </p>
+        </div>
+        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-100">
+          <span className="block text-xs uppercase tracking-wider text-amber-300/80">Recommended</span>
+          <span className="font-semibold">{plan.recommendedLabel}</span>
+        </div>
+      </div>
+
+      <div className="grid gap-3 lg:grid-cols-3">
+        {plan.candidates.map((candidate) => (
+          <div key={candidate.tool} className="rounded-lg border border-gray-800 bg-gray-950/50 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-semibold text-white">{candidate.label}</h3>
+                <p className="mt-1 text-xs leading-relaxed text-gray-500">{candidate.role}</p>
+              </div>
+              <span className="rounded bg-gray-800 px-2 py-1 text-xs font-semibold text-amber-300">
+                {candidate.totalScore.toFixed(2)}
+              </span>
+            </div>
+            <p className="mt-3 text-xs leading-relaxed text-gray-400">{candidate.bestFor}</p>
+            <p className="mt-2 text-xs leading-relaxed text-gray-500">
+              Watch: {candidate.watchOutFor}
+            </p>
+            <div className="mt-3 space-y-2">
+              {candidate.scores.slice(0, 4).map((score) => (
+                <div key={score.dimension}>
+                  <div className="mb-1 flex items-center justify-between text-[11px] text-gray-500">
+                    <span>{score.dimension}</span>
+                    <span>{score.score}/5</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-gray-800">
+                    <div className="h-full rounded-full bg-amber-400" style={{ width: `${score.score * 20}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => onCopyPrompt(candidate)}
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded border border-gray-700 bg-gray-900 px-3 py-2 text-xs font-medium text-gray-200 transition-colors hover:border-amber-400/50 hover:text-amber-300"
+            >
+              {copiedTool === candidate.tool ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+              {copiedTool === candidate.tool ? 'Copied prompt' : 'Copy prompt'}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-3">
+        <BakeoffChecklist title="Course plan" items={plan.coursePlan.slice(0, 3)} />
+        <BakeoffChecklist title="Source plan" items={plan.sourcePlan.slice(0, 3)} />
+        <BakeoffChecklist title="QA checks" items={plan.qaChecklist.slice(0, 3)} />
+      </div>
+    </div>
+  );
+}
+
+function BakeoffChecklist({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div className="rounded-lg border border-gray-800 bg-gray-950/40 p-3">
+      <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-300">{title}</h3>
+      <ul className="mt-2 space-y-2">
+        {items.map((item) => (
+          <li key={item} className="flex gap-2 text-xs leading-relaxed text-gray-500">
+            <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300" />
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
