@@ -99,7 +99,7 @@ It currently covers:
 The persistence foundation lives in:
 
 - [`database_schema_source_respecting_llm.sql`](../database_schema_source_respecting_llm.sql)
-- [`migrations/2026_05_01_source_respecting_llm.sql`](../migrations/2026_05_01_source_respecting_llm.sql)
+- [`migrations/20260501193000_source_respecting_llm.sql`](../migrations/20260501193000_source_respecting_llm.sql)
 - [`lib/source-respecting-llm-persistence.ts`](../lib/source-respecting-llm-persistence.ts)
 - [`scripts/seed-source-respecting-llm-demo.sql`](../scripts/seed-source-respecting-llm-demo.sql)
 
@@ -109,5 +109,10 @@ Internal persistence APIs:
 - `POST /api/admin/source-protocol/monthly-payouts` upserts monthly payout settlement rows.
 
 Both routes require `Authorization: Bearer <SOURCE_PROTOCOL_INGEST_SECRET>`. They are internal admin/system endpoints and should not be exposed as public creator UX.
+
+Smoke test:
+
+- `npm run source-protocol:smoke` builds a synthetic receipt and monthly settlement without network calls.
+- `SOURCE_PROTOCOL_API_BASE_URL=http://localhost:3000 SOURCE_PROTOCOL_INGEST_SECRET=... npm run source-protocol:smoke -- --post` posts the same synthetic payloads to the internal APIs.
 
 Future UI work should wrap these modules and routes rather than reimplementing permission or payout logic in page components.
