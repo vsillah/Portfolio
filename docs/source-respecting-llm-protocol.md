@@ -96,4 +96,18 @@ It currently covers:
 - abuse flags
 - model-review gates
 
-Future UI/API work should wrap this module rather than reimplementing permission or payout logic in page components.
+The persistence foundation lives in:
+
+- [`database_schema_source_respecting_llm.sql`](../database_schema_source_respecting_llm.sql)
+- [`migrations/2026_05_01_source_respecting_llm.sql`](../migrations/2026_05_01_source_respecting_llm.sql)
+- [`lib/source-respecting-llm-persistence.ts`](../lib/source-respecting-llm-persistence.ts)
+- [`scripts/seed-source-respecting-llm-demo.sql`](../scripts/seed-source-respecting-llm-demo.sql)
+
+Internal persistence APIs:
+
+- `POST /api/admin/source-protocol/receipts` persists one `AnswerReceipt` plus attributed chunk rows.
+- `POST /api/admin/source-protocol/monthly-payouts` upserts monthly payout settlement rows.
+
+Both routes require `Authorization: Bearer <SOURCE_PROTOCOL_INGEST_SECRET>`. They are internal admin/system endpoints and should not be exposed as public creator UX.
+
+Future UI work should wrap these modules and routes rather than reimplementing permission or payout logic in page components.
