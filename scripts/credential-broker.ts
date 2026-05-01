@@ -19,6 +19,7 @@ type CredentialInventory = {
   providers: {
     infisical: {
       projectSlug: string
+      projectId?: string
       secretPath: string
       envMap: Record<EnvironmentName, string>
     }
@@ -82,6 +83,7 @@ const ROOT = path.resolve(__dirname, '..')
 const INVENTORY_PATH = path.join(ROOT, 'docs', 'credential-inventory.json')
 const AUDIT_DIR = path.join(ROOT, '.credential-rotation-audits')
 const VALID_ENVS: EnvironmentName[] = ['dev', 'staging', 'prod']
+const PROVIDER_READ_TIMEOUT_MS = 10_000
 
 function main() {
   const args = parseArgs(process.argv.slice(2))
@@ -365,11 +367,14 @@ function tryReadSecret(
   if (secret.sourceOfTruth === 'infisical') {
     const infisicalEnv = inventory.providers.infisical.envMap[env]
     const secretPath = inventory.providers.infisical.secretPath
-    const result = spawnSync('infisical', ['secrets', 'get', secret.envVar, '--env', infisicalEnv, '--path', secretPath, '--plain'], {
+    const args = ['secrets', 'get', secret.envVar, '--env', infisicalEnv, '--path', secretPath, '--plain']
+    if (inventory.providers.infisical.projectId) args.push('--projectId', inventory.providers.infisical.projectId)
+    const result = spawnSync('infisical', args, {
       cwd: ROOT,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
       env: process.env,
+      timeout: PROVIDER_READ_TIMEOUT_MS,
     })
     if (result.status !== 0) {
       return {
@@ -383,17 +388,24 @@ function tryReadSecret(
   }
 
   const vault = inventory.providers.onepassword.vaults[env]
-  const ref = `op://${vault}/${secret.envVar}/credential`
-  const result = spawnSync('op', ['read', ref], {
+  const result = spawnSync('op', ['item', 'get', secret.envVar, '--vault', vault, '--format', 'json'], {
     cwd: ROOT,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
     env: process.env,
+    timeout: PROVIDER_READ_TIMEOUT_MS,
   })
   if (result.status !== 0) {
-    return { ok: false, message: `1Password read failed for ${secret.envVar}. Expected item ref ${ref}.` }
+    return { ok: false, message: `1Password read failed for ${secret.envVar}. Expected item ${secret.envVar} in vault ${vault}.` }
   }
-  const value = result.stdout.trim()
+  let item: { fields?: Array<{ id?: string; label?: string; value?: string }> }
+  try {
+    item = JSON.parse(result.stdout) as { fields?: Array<{ id?: string; label?: string; value?: string }> }
+  } catch {
+    return { ok: false, message: `1Password returned invalid JSON for ${secret.envVar}.` }
+  }
+  const field = item.fields?.find((candidate) => candidate.label === 'credential' || candidate.id === 'credential')
+  const value = field?.value?.trim() ?? ''
   if (!value) return { ok: false, message: `1Password returned an empty value for ${secret.envVar}.` }
   return { ok: true, value }
 }
