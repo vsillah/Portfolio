@@ -25,10 +25,10 @@ Summary:
   usage was not confirmed in this pass, but current client traffic is still too
   low to judge whether the implementation-strategy workflow benefits from
   BuiltWith enrichment.
-- Fireflies looks less like an active cancellation target and more like a
-  cancellation-confirmation task: Gmail shows a refund on 2026-03-20 and a
-  weekly digest on 2026-03-23. Verify whether the paid plan is already canceled
-  before taking any further action.
+- Fireflies is resolved as canceled per Vambah confirmation on 2026-05-01.
+  Gmail also showed a refund on 2026-03-20 and a weekly digest on 2026-03-23.
+  Keep it out of the active cancellation queue unless new paid-plan evidence
+  appears.
 - Printful, Vapi, Resend, and Pinecone remain unresolved because they have
   code/config references but no recent billing receipt evidence in Gmail.
 - Vercel remains unresolved: Gmail had only a Terms update, the connector did
@@ -79,7 +79,7 @@ Derived Movement Since Manual Refresh
 | Tool/vendor | Billing evidence | Usage evidence | Movement | Recommendation |
 | --- | --- | --- | --- | --- |
 | BuiltWith | Three receipts on 2026-04-10 | No confirmed operational usage in this pass, but client traffic is still early | Remains a watch item | Keep for now; reassess after more outreach/client volume and implementation-strategy usage evidence |
-| Fireflies.ai | Refund on 2026-03-20 | Digest on 2026-03-23; prior duplicate recap evidence | Moves from redundancy watch to cancellation-confirmation check | Verify paid plan status; if already canceled, remove from cancellation queue and document as resolved |
+| Fireflies.ai | Refund on 2026-03-20; Vambah confirmed canceled on 2026-05-01 | Digest on 2026-03-23; prior duplicate recap evidence | Resolved as canceled | Remove from active cancellation queue; only re-open if new paid-plan evidence appears |
 | Gamma | Receipts on 2026-05-01 and 2026-04-01 | Active report/deck code and DB rows | Stronger keep signal | Keep |
 | n8n Cloud | Receipt on 2026-04-22 | Active executions on 2026-05-01 | Stronger keep signal | Keep |
 | Read.ai | Receipt on 2026-04-20 | April meetings available | Stronger keep signal | Keep; fix stale in-app token separately |
@@ -103,24 +103,24 @@ Watch Items And Candidate Cancellations
   Keep it active through the next outreach/client cycle, then reassess with
   dashboard/API usage and sales-flow evidence. Dependency packet:
   [builtwith-deprecation-packet.md](./builtwith-deprecation-packet.md).
-- **Fireflies: candidate for resolved/canceled status verification.** The refund
-  suggests the paid plan may already be canceled. Do not request cancellation
-  unless dashboard status says the paid plan is still active.
+- **Fireflies: resolved as canceled.** Vambah confirmed on 2026-05-01 that
+  Fireflies is already canceled. Do not treat it as an active cancellation
+  target unless new billing evidence shows a paid plan was restarted.
 
 Next Audit Focus
 
-- Use Computer Use on billing dashboards for BuiltWith, Fireflies, Vercel,
-  Printful, Vapi, Resend, and Pinecone. BuiltWith currently requires a CAPTCHA
-  before dashboard access, so usage confirmation needs Vambah handoff or
-  explicit approval at that gate. Stop at any fresh login, payment-owner, or
-  account-setting gate and record the needed manual step.
+- Use Computer Use on billing dashboards for Vercel, Printful, Vapi, Resend,
+  and Pinecone. BuiltWith currently requires a CAPTCHA before dashboard access,
+  so defer dashboard usage confirmation until the outreach/client-volume
+  reassessment. Stop at any fresh login, payment-owner, or account-setting gate
+  and record the needed manual step.
 - For BuiltWith, keep it active while outreach ramps. Collect API/dashboard
   usage history and compare implementation-strategy/proposal outcomes for leads
   where stack enrichment helped versus leads where it did not. Use
   [builtwith-deprecation-packet.md](./builtwith-deprecation-packet.md) only if a
   later cancellation decision is approved.
-- For Fireflies, confirm whether the subscription is already canceled after the
-  2026-03-20 refund.
+- For Fireflies, keep the resolved/canceled status unless new paid-plan evidence
+  appears.
 - For Vercel, locate the actual hosting account/project outside the current
   connector context.
 
