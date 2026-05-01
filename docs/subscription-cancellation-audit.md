@@ -1,0 +1,102 @@
+# Portfolio Subscription Cancellation Audit
+
+Recurring audit tracker for paid apps, hosted services, model/API providers,
+automation runtimes, design/media tools, and third-party integrations used by
+Portfolio.
+
+Authority boundary: this tracker never approves cancellation by itself. A tool
+only becomes a cancellation candidate after two consecutive audit sessions with
+no meaningful usage signal, or after clear redundancy plus a lower-risk
+replacement path. Production changes require explicit approval in the form
+`Cancel <tool/vendor> for Portfolio`.
+
+## 2026-05-01 Baseline Run
+
+Status: YELLOW
+
+Summary:
+
+- No cancellation approvals requested.
+- No tool has two consecutive inactive audit sessions yet; this is the baseline.
+- Supabase and n8n are active operational dependencies.
+- Meeting capture has a redundancy signal: Read.ai and Fireflies both posted
+  recaps into the meeting transcript workflow in April 2026.
+- In-app Read.ai OAuth storage looks stale even though the external Read.ai
+  account is active through the connector and Slack recap flow.
+- Vapi, Printful, and some media/social generation paths need another audit
+  session before any cancellation recommendation.
+
+Raw Findings
+
+- Git state: worktree was already dirty on `codex/client-ai-ops-roadmap`.
+  Existing modified/untracked files were treated as unrelated and left alone.
+- Existing durable tracker: none found before this file.
+- Repo evidence inspected: `package.json`, `.env.example`,
+  `.env.staging.example`, `n8n-exports/manifest.json`, n8n exports, docs,
+  app API routes, integration libraries, migrations, and admin/bakeoff docs.
+- Supabase connector: project `My Portfolio` is `ACTIVE_HEALTHY`; table counts
+  show active app usage, including `analytics_events`, `pain_point_evidence`,
+  `value_evidence_workflow_runs`, `meeting_records`, `gamma_reports`,
+  `heygen_config`, `orders`, and `cost_events`.
+- n8n Cloud connector: 76 workflows listed; recent executions observed on
+  2026-05-01, especially monitor/scheduled workflows and RAG webhook traffic.
+- Stripe connector: unavailable in this session due auth requirement.
+- Vercel connector: account/team project listing was not available from the
+  current connector context; repo has no `.vercel/project.json`.
+- Google Drive search: no clear subscription/billing tracker found.
+- Slack connector: `#meeting-transcripts` exists and contains recent Read.ai
+  and Fireflies recap posts in April 2026.
+- Read AI connector: recent meetings were available from April 2026 onward.
+
+Derived Inventory
+
+| Status | Tool/vendor | Purpose in Portfolio | Evidence source | Cost/billing signal | Last code/config/reference usage | Last operational usage signal | Dependencies/replacement risk | Session inactivity | Recommendation |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| GREEN | Supabase | Primary database, auth/session data, storage-adjacent app state, realtime admin data | `@supabase/supabase-js`, env templates, migrations, connector table list | Paid status not shown; project is active healthy | Repo references across app/lib/scripts; last inspected 2026-05-01 | Active row counts across core tables; project active healthy | High: primary data plane | Active | Keep |
+| GREEN | n8n Cloud | Workflow automation runtime for lead intake, RAG, meetings, social, value evidence, progress updates | `n8n-exports`, env templates, `lib/n8n.ts`, n8n connector | Paid status not shown; cloud workspace active | Manifest last updated 2026-04-27; many env routes | Executions observed on 2026-05-01 | High: many webhooks and callbacks depend on it | Active | Keep; rationalize duplicate/staging workflows separately |
+| GREEN | OpenAI | In-app LLM generation, RAG embeddings in n8n, cost tracking | `lib/llm-dispatch.ts`, `lib/cost-calculator.ts`, n8n credential refs | Usage cost tracked in `cost_events` | Cost events last observed 2026-04-28 | Recent LLM cost rows and active code paths | Medium/high: outreach, audit, meeting, social, RAG | Active | Keep; update pricing rates periodically |
+| GREEN | Gamma | Admin report/deck generation and theme sync | `lib/gamma-client.ts`, Gamma report routes, env templates | API credit/billing unknown | `gamma_reports` rows and theme sync code | Last Gamma report row 2026-04-16; theme sync 2026-04-16 | Medium: deck/report workflow | Active | Keep |
+| GREEN | HeyGen | Avatar/video generation, catalog sync, report companion video | `lib/heygen.ts`, video-generation routes, `docs/heygen-template-brand-setup.md` | API plan unknown | Code and env routes active; sync tables present | Completed video job from 2026-03-25; catalog sync 2026-04-08 | Medium: video generation depends on it | Active but quieter | Keep; review cost after next content campaign |
+| GREEN | Read.ai | Meeting capture and Slack recap source; optional in-app meeting lookup | `lib/read-ai.ts`, migrations, meeting docs, Read AI connector, Slack recaps | Subscription status unknown | App token table exists but stored token expired 2026-03-27 | Connector lists April 2026 meetings; Slack recaps posted April 2026 | Medium: meeting follow-up pipeline uses recaps | Active externally; stale in app token | Keep account; investigate stale in-app token path |
+| GREEN | Slack | Meeting intake, sales notifications, outreach notifications, workflow status | n8n refs, env templates, Slack connector | Paid workspace status unknown | Many n8n Slack nodes and app webhook env vars | Recent transcript channel activity in April 2026 | Medium/high: ops notifications and meeting ingestion | Active | Keep |
+| YELLOW | Fireflies.ai | Meeting recaps appearing alongside Read.ai in Slack | Slack channel evidence | Subscription status unknown | No direct repo integration found | April 2026 recap posts in `#meeting-transcripts` | Low/medium: duplicate meeting assistant if Read.ai is canonical | Active but redundant | Investigate redundancy with Read.ai before renewal |
+| YELLOW | Pinecone | Vector store behind n8n RAG ingestion/query workflows | n8n manifest and node types | Paid status unknown | n8n credential refs; no direct app dependency found | RAG query execution observed 2026-04-30; ingestion workflow active in prod | Medium: RAG quality may depend on current index | Active via n8n | Investigate direct billing and whether local/Supabase RAG can replace |
+| YELLOW | Vercel | Hosting/deployments, Speed Insights dependency | package dependency, docs, Vercel connector attempt | Billing not available | `@vercel/speed-insights`, deployment docs | Connector could not list project in this session | High: production hosting likely depends on it | Unknown | Investigate with Vercel account/project access |
+| YELLOW | Stripe | Payments, checkout, webhooks, continuity plans | Stripe deps, payment routes, env templates | Connector auth required; app has 26 orders | Active code routes and Stripe env vars | Supabase orders exist; no live Stripe read available | High: commerce/payment path | Unknown | Keep until Stripe dashboard usage is checked |
+| YELLOW | Printful | Store fulfillment, product variants, shipping/mockups/webhooks | `lib/printful.ts`, Printful admin routes, env templates | Subscription/usage unknown | Code and product tables present | `orders` has rows; `printful_sync_log` has 0 rows | Medium: store fulfillment fallback required | First-session quiet | Watch; verify recent Printful dashboard/orders next run |
+| YELLOW | Vapi | Voice AI/webhook integration | `@vapi-ai/web`, `lib/vapi.ts`, `/api/vapi/webhook` | Usage/cost unknown | Env/template and webhook code present | No recent DB cost signal found this run | Medium if voice chat is public | First-session quiet | Watch; check Vapi dashboard next run |
+| YELLOW | Resend | Optional transactional email and deliverability webhooks | `resend` dependency, email delivery code, webhook route | Usage/cost unknown | Email provider fallback code present | `email_messages` has rows; provider-specific usage not verified | Low/medium: Gmail fallback exists | Unknown | Investigate whether Resend is configured in production |
+| YELLOW | Gmail/Google APIs | SMTP fallback, user Gmail drafts/OAuth, Drive sync | env templates, googleapis dependency, Gmail routes, Drive sync routes | Workspace/API billing unknown | Active code/config references | Gmail draft creds table empty; Drive queue has rows | Medium: email and asset workflows | Mixed | Keep; clean unused OAuth paths only after second quiet run |
+| YELLOW | Calendly | Booking links, n8n webhook router, report next-meeting links | env templates, n8n trigger refs, Calendly event libs | Paid status unknown | Active links and n8n routes | n8n active workflows include Calendly router | Medium: sales/onboarding booking | Active by config | Keep |
+| YELLOW | Apify | Lead scraping, social listening, actor health monitor | n8n env docs, n8n node refs | Paid status unknown | n8n workflows and env references | n8n actor monitors executed 2026-05-01 | Medium: lead discovery/value evidence | Active | Keep; review actor spend |
+| YELLOW | BuiltWith | Tech-stack lookup/enrichment | `lib/tech-stack-lookup.ts`, env templates | Paid status unknown | Code and env reference present | No operational evidence found this run | Low/medium: enrichment can be optional | First-session quiet | Watch |
+| YELLOW | ElevenLabs | TTS/audio in social content workflow | env templates, n8n env docs | Paid status unknown | Env and n8n docs reference | Social extraction last success 2026-04-08 | Medium for audio generation | First-session quiet-ish | Watch with social pipeline |
+| YELLOW | LinkedIn API | Social publishing / warm lead scraping credentials | env templates, auth/publishing routes, n8n docs | Paid status not applicable/unknown | Code and n8n references present | Warm lead audit last failed 2026-03-23 due outbound disabled | First-session quiet; public/social risk | Watch; verify before cancellation |
+| YELLOW | Google Drive | Video asset queue, script folders, Drive-to-RAG ingestion | `lib/google-drive.ts`, Drive sync routes, n8n RAG ingest | Workspace billing unknown | Code and n8n references present | Drive video queue has 35 rows; n8n ingestion active in prod | Medium: asset/provenance workflows | Active | Keep |
+| YELLOW | USPS | Address validation/suggest for commerce | `lib/usps.ts`, address routes, env templates | API cost unknown | Code and tests present | No operational evidence found this run | Low/medium: commerce UX fallback needed | First-session quiet | Watch |
+| YELLOW | Figma / Paper / Excalidraw / HeyGen design ecosystem | Design/reference tools around decks, diagrams, visual assets | bakeoff docs, local design docs, Drive search | Billing unknown | No production app dependency for Figma/Paper/Excalidraw found | No connector/billing evidence gathered this run | Low for app runtime; high for creative workflow if actively used | Unknown | Investigate manually; do not cancel from repo evidence alone |
+
+Candidate Cancellations
+
+None approved or recommended for cancellation on this baseline run.
+
+Investigate Before Next Run
+
+- Fireflies.ai vs Read.ai: confirm whether both are intentionally active. If
+  both are paid and both continue to post duplicate meeting summaries, choose a
+  canonical capture source before renewal.
+- Read.ai in-app OAuth: the Portfolio `integration_tokens` row is stale while
+  the external Read.ai connector is active. Decide whether to refresh the
+  Portfolio token path or remove that in-app lookup surface.
+- Vapi: verify dashboard usage and whether the public voice feature is enabled.
+- Printful: verify recent store orders/syncs outside Supabase before judging.
+- Pinecone: identify billing owner and whether current RAG can move to
+  Supabase/local retrieval after bakeoff evidence.
+- Vercel and Stripe: reconnect or authorize read-only billing/project access
+  for future audits.
+
+Approval Needed
+
+No cancellation action should be taken now. Future cancellation requires the
+exact phrase `Cancel <tool/vendor> for Portfolio`, then a separate verification,
+branch, deprecation packet, validation, and rollback plan for that named tool.
