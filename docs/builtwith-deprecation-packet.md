@@ -1,21 +1,26 @@
-# BuiltWith Deprecation Packet
+# BuiltWith Watch And Deprecation Packet
 
 Date: 2026-05-01
 
-Status: cancellation-review candidate. This packet is not approval to cancel
-BuiltWith or remove production functionality. Cancellation still requires the
-explicit phrase `Cancel BuiltWith for Portfolio`.
+Status: watch item. BuiltWith should remain active while Portfolio increases
+outreach and client traffic. This packet is a dependency map and future
+deprecation plan only; it is not approval to cancel BuiltWith or remove
+production functionality. Cancellation still requires the explicit phrase
+`Cancel BuiltWith for Portfolio`.
 
 ## Recommendation
 
-Prepare BuiltWith for a controlled deprecation unless dashboard/API usage shows
-recent operational value that was not visible from the current evidence pass.
+Keep BuiltWith as a watched integration until more prospects and clients move
+through the outreach, audit, implementation-strategy, and proposal workflows.
+The current traffic level is not enough to decide whether BuiltWith improves
+sales preparation, implementation strategy quality, or conversion.
 
-The likely replacement path is not another paid API by default. First preserve
-the existing admin-verified tech stack workflow, stop depending on automatic
-public-audit enrichment, and use manual or browser-assisted research for client
-stack confirmation. If automated enrichment is still useful, run a small
-provider bakeoff before promoting a replacement.
+If later evidence shows low usage, low conversion value, or avoidable spend, use
+this packet to plan a controlled deprecation. The likely replacement path is not
+another paid API by default. First preserve the existing admin-verified tech
+stack workflow, reduce automatic enrichment where appropriate, and use manual or
+browser-assisted research for client stack confirmation. If automated enrichment
+is still useful, run a small provider bakeoff before promoting a replacement.
 
 ## Evidence
 
@@ -24,10 +29,11 @@ provider bakeoff before promoting a replacement.
 - The BuiltWith dashboard/account check was attempted through Computer Use, but
   the site presented an image CAPTCHA before dashboard access. No account,
   cancellation, billing, or settings action was taken.
-- Repo evidence confirms BuiltWith has live integration surfaces, but no current
-  dashboard/API usage history was confirmed in this pass.
-- BuiltWith should remain a review candidate until dashboard/API usage is
-  checked or Vambah approves cancellation based on the available evidence.
+- Repo evidence confirms BuiltWith has live integration surfaces that support
+  sales preparation and implementation feasibility.
+- BuiltWith should remain on the watchlist until enough outreach/client volume
+  exists to evaluate whether its stack enrichment materially helps the
+  implementation strategy and sales flow.
 
 ## Portfolio Dependency Map
 
@@ -76,8 +82,8 @@ Docs:
 
 - `docs/admin-sales-lead-pipeline-sop.md` documents the lead-pipeline BuiltWith
   lookup, admin-verified stack reconciliation, and `BUILTWITH_API_KEY`.
-- `docs/subscription-cancellation-audit.md` tracks BuiltWith as the strongest
-  cancellation-review candidate after the 2026-05-01 billing evidence pass.
+- `docs/subscription-cancellation-audit.md` tracks BuiltWith as a watched
+  integration after the 2026-05-01 billing evidence pass.
 
 ## Blast Radius If Removed Incorrectly
 
@@ -92,12 +98,14 @@ Docs:
 
 ## Replacement Options
 
-Option A: keep BuiltWith with a stricter usage policy.
+Option A: keep BuiltWith and measure value during outreach.
 
 - Keep the current integration, but restrict use to qualified sales leads or
   paid-client preparation.
+- Track whether BuiltWith-informed implementation strategies improve sales
+  preparation, proposal quality, or conversion.
 - Add a feature flag or explicit admin-only gate before any automatic lookup.
-- Best if dashboard usage shows it is helping active sales work.
+- Best while client traffic is still ramping.
 
 Option B: deprecate automatic lookup and use manual/admin verification.
 
@@ -126,8 +134,8 @@ Option D: cache-only fallback.
 
 ## Approval-Gated Implementation Plan
 
-Only run this plan after Vambah gives the approval phrase
-`Cancel BuiltWith for Portfolio`.
+Only run this plan after there is enough sales/client evidence to justify
+removal and Vambah gives the approval phrase `Cancel BuiltWith for Portfolio`.
 
 1. Add a provider gate, for example `TECH_STACK_LOOKUP_PROVIDER=disabled` or
    `BUILTWITH_LOOKUP_ENABLED=false`, defaulting to disabled for automatic public

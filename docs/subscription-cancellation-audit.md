@@ -21,9 +21,10 @@ Summary:
   or payment-confirmation emails were found for Gamma, n8n, Read.ai, Supabase,
   BuiltWith, Apify, HeyGen, ElevenLabs, Calendly, Anthropic, OpenAI/ChatGPT Pro,
   and Google Cloud.
-- BuiltWith is now the strongest cost-review candidate: recent receipts were
-  found, but no meaningful operational usage signal was confirmed in the repo,
-  database, n8n, or connector evidence gathered so far.
+- BuiltWith stays on the watchlist: recent receipts were found and operational
+  usage was not confirmed in this pass, but current client traffic is still too
+  low to judge whether the implementation-strategy workflow benefits from
+  BuiltWith enrichment.
 - Fireflies looks less like an active cancellation target and more like a
   cancellation-confirmation task: Gmail shows a refund on 2026-03-20 and a
   weekly digest on 2026-03-23. Verify whether the paid plan is already canceled
@@ -77,7 +78,7 @@ Derived Movement Since Manual Refresh
 
 | Tool/vendor | Billing evidence | Usage evidence | Movement | Recommendation |
 | --- | --- | --- | --- | --- |
-| BuiltWith | Three receipts on 2026-04-10 | No confirmed operational usage | Moves from watchlist to cost-review candidate | Prepare replacement/deprecation review before renewal; likely cancellation candidate if dashboard confirms no recent API usage |
+| BuiltWith | Three receipts on 2026-04-10 | No confirmed operational usage in this pass, but client traffic is still early | Remains a watch item | Keep for now; reassess after more outreach/client volume and implementation-strategy usage evidence |
 | Fireflies.ai | Refund on 2026-03-20 | Digest on 2026-03-23; prior duplicate recap evidence | Moves from redundancy watch to cancellation-confirmation check | Verify paid plan status; if already canceled, remove from cancellation queue and document as resolved |
 | Gamma | Receipts on 2026-05-01 and 2026-04-01 | Active report/deck code and DB rows | Stronger keep signal | Keep |
 | n8n Cloud | Receipt on 2026-04-22 | Active executions on 2026-05-01 | Stronger keep signal | Keep |
@@ -93,13 +94,14 @@ Derived Movement Since Manual Refresh
 | Resend | No billing receipt found | Optional provider with Gmail fallback | Still unresolved | Verify production env before keeping as paid dependency |
 | Pinecone | No billing receipt found | n8n RAG references active | Still unresolved | Check billing/API usage and compare with Supabase/local RAG replacement path |
 
-Candidate Cancellations
+Watch Items And Candidate Cancellations
 
-- **BuiltWith: candidate for cancellation review, not cancellation yet.** It has
-  recent paid receipts and repeated quiet operational evidence. Before approval,
-  verify dashboard/API usage, identify any live lead-enrichment flows still
-  calling it, and confirm whether browser/manual research or another enrichment
-  source can replace it. Deprecation packet:
+- **BuiltWith: watch item, not a cancellation candidate right now.** It has
+  recent paid receipts and the current pass did not confirm operational usage,
+  but Portfolio has not yet had enough client traffic to evaluate whether
+  BuiltWith improves implementation strategy, sales preparation, or conversion.
+  Keep it active through the next outreach/client cycle, then reassess with
+  dashboard/API usage and sales-flow evidence. Dependency packet:
   [builtwith-deprecation-packet.md](./builtwith-deprecation-packet.md).
 - **Fireflies: candidate for resolved/canceled status verification.** The refund
   suggests the paid plan may already be canceled. Do not request cancellation
@@ -112,9 +114,11 @@ Next Audit Focus
   before dashboard access, so usage confirmation needs Vambah handoff or
   explicit approval at that gate. Stop at any fresh login, payment-owner, or
   account-setting gate and record the needed manual step.
-- For BuiltWith, collect API/dashboard usage history and use
-  [builtwith-deprecation-packet.md](./builtwith-deprecation-packet.md) as the
-  approval-gated code-path and replacement plan if cancellation is approved.
+- For BuiltWith, keep it active while outreach ramps. Collect API/dashboard
+  usage history and compare implementation-strategy/proposal outcomes for leads
+  where stack enrichment helped versus leads where it did not. Use
+  [builtwith-deprecation-packet.md](./builtwith-deprecation-packet.md) only if a
+  later cancellation decision is approved.
 - For Fireflies, confirm whether the subscription is already canceled after the
   2026-03-20 refund.
 - For Vercel, locate the actual hosting account/project outside the current
