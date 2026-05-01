@@ -43,7 +43,6 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Bundles', href: '/admin/sales/bundles' },
         { label: 'Scripts', href: '/admin/sales/scripts' },
         { label: 'Upsell Paths', href: '/admin/sales/upsell-paths' },
-        { label: 'Presentation Generator', href: '/admin/presentations' },
         { label: 'Gamma Reports', href: '/admin/reports/gamma' },
       ],
     },
