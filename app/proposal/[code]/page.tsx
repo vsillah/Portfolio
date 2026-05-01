@@ -86,6 +86,20 @@ interface Proposal {
   access_code?: string;
   service_term_months?: number | null;
   feasibility_view?: FeasibilityClientView | null;
+  implementation_roadmap_snapshot?: ImplementationRoadmapSnapshot | null;
+}
+
+interface ImplementationRoadmapSnapshot {
+  title: string;
+  clientSummary: string;
+  phases: Array<{ title: string; objective: string; acceptanceCriteria: string[] }>;
+  tasks: Array<{ title: string; ownerType: 'client' | 'amadutown' | 'shared'; clientVisible: boolean; priority: string }>;
+  costSummary: {
+    oneTimeClientOwned: number;
+    monthlyClientOwned: number;
+    amadutownSetup: number;
+    quoteRequiredCount: number;
+  };
 }
 
 interface FeasibilityClientItem {
@@ -674,6 +688,10 @@ function ProposalByCodeContent() {
           <ImplementationFitSection view={proposal.feasibility_view} />
         )}
 
+        {proposal.implementation_roadmap_snapshot && (
+          <ImplementationRoadmapSection snapshot={proposal.implementation_roadmap_snapshot} />
+        )}
+
         {/* Line Items */}
         <div className="bg-gray-900 rounded-xl border border-gray-800 mb-6 overflow-hidden">
           <div className="p-4 border-b border-gray-800">
@@ -1014,6 +1032,70 @@ function ImplementationFitSection({ view }: { view: FeasibilityClientView }) {
       </div>
     </div>
   );
+}
+
+function ImplementationRoadmapSection({ snapshot }: { snapshot: ImplementationRoadmapSnapshot }) {
+  const fmt = (amount: number) => new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  }).format(amount)
+
+  const clientTasks = snapshot.tasks.filter((task) => task.clientVisible)
+
+  return (
+    <div className="bg-gray-900 rounded-xl border border-gray-800 mb-6 overflow-hidden">
+      <div className="p-4 border-b border-gray-800 flex items-center gap-2">
+        <ClipboardList className="w-5 h-5 text-emerald-400" />
+        <h2 className="font-semibold">Implementation Roadmap & Startup Costs</h2>
+      </div>
+      <div className="p-5 space-y-5">
+        <p className="text-sm text-gray-300">{snapshot.clientSummary}</p>
+
+        <div className="grid sm:grid-cols-3 gap-3">
+          <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-3">
+            <div className="text-xs uppercase tracking-wide text-emerald-300 mb-1">Estimated startup</div>
+            <div className="text-lg font-semibold text-gray-100">{fmt(snapshot.costSummary.oneTimeClientOwned)}</div>
+            <p className="text-xs text-gray-500 mt-1">Client-owned one-time costs</p>
+          </div>
+          <div className="rounded-lg bg-blue-500/10 border border-blue-500/30 p-3">
+            <div className="text-xs uppercase tracking-wide text-blue-300 mb-1">Monthly operating</div>
+            <div className="text-lg font-semibold text-gray-100">{fmt(snapshot.costSummary.monthlyClientOwned)}</div>
+            <p className="text-xs text-gray-500 mt-1">Estimated external subscriptions</p>
+          </div>
+          <div className="rounded-lg bg-amber-500/10 border border-amber-500/30 p-3">
+            <div className="text-xs uppercase tracking-wide text-amber-300 mb-1">Quote-required</div>
+            <div className="text-lg font-semibold text-gray-100">{snapshot.costSummary.quoteRequiredCount}</div>
+            <p className="text-xs text-gray-500 mt-1">Items needing live vendor confirmation</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {snapshot.phases.map((phase, index) => (
+            <div key={`${phase.title}-${index}`} className="rounded-lg border border-gray-800 bg-gray-950/50 p-4">
+              <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">Phase {index + 1}</div>
+              <h3 className="font-medium text-gray-100">{phase.title}</h3>
+              <p className="text-sm text-gray-400 mt-1">{phase.objective}</p>
+            </div>
+          ))}
+        </div>
+
+        {clientTasks.length > 0 && (
+          <div className="rounded-lg border border-gray-800 bg-gray-950/50 p-4">
+            <div className="text-xs uppercase tracking-wide text-gray-500 mb-2">Client-visible setup tasks</div>
+            <ul className="space-y-1.5 text-sm text-gray-300">
+              {clientTasks.slice(0, 6).map((task, index) => (
+                <li key={`${task.title}-${index}`} className="flex items-center justify-between gap-3">
+                  <span>{task.title}</span>
+                  <span className="text-xs text-gray-500 capitalize">{task.ownerType}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 // ============================================================================

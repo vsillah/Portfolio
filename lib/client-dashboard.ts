@@ -6,6 +6,8 @@
  */
 
 import { supabaseAdmin } from './supabase'
+import { getRoadmapBundleForProject, syncRoadmapTaskFromProjection } from './client-ai-ops-roadmap-db'
+import type { RoadmapClientView } from './client-ai-ops-roadmap'
 import { getSignedUrl } from './storage'
 import type { CategoryScores, ScoreSnapshot } from './assessment-scoring'
 import type { AssessmentCategory } from './assessment-scoring'
@@ -94,6 +96,7 @@ export interface DashboardTask {
   accelerated_headline: string | null
   accelerated_savings: string | null
   created_at: string
+  roadmap_task_id?: string | null
   // Resolved at API layer
   accelerated_bundle?: {
     id: string
@@ -203,6 +206,7 @@ export interface DashboardData {
   } | null
   valueReports: ClientValueReport[]
   gammaReports: ClientGammaReport[]
+  aiOpsRoadmap: RoadmapClientView | null
 }
 
 // ============================================================================
@@ -776,6 +780,7 @@ export async function getDashboardByToken(
 
   const valueReports = (allValueReportsResult.data || []) as ClientValueReport[]
   const gammaReports = (allGammaReportsResult.data || []) as ClientGammaReport[]
+  const aiOpsRoadmap = await getRoadmapBundleForProject(projectId).then((bundle) => bundle?.clientView ?? null).catch(() => null)
 
   return {
     data: {
@@ -805,6 +810,7 @@ export async function getDashboardByToken(
       valueReport: valueReportResult.data || null,
       valueReports,
       gammaReports,
+      aiOpsRoadmap,
     },
     stage: 'client',
   }
@@ -852,6 +858,10 @@ export async function updateTaskStatus(
     console.error('Error updating task status:', error)
     return { success: false, error: error.message }
   }
+
+  await syncRoadmapTaskFromProjection('dashboard', taskId, status).catch((err) => {
+    console.error('Error syncing roadmap task from dashboard task:', err)
+  })
 
   return { success: true }
 }

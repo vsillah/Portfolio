@@ -62,6 +62,7 @@ interface MeetingActionTask {
   contact_submission_id?: number | null
   lead_name?: string | null
   lead_email?: string | null
+  roadmap_task_id?: string | null
 }
 
 interface LeadOption {
@@ -110,6 +111,7 @@ interface CommTemplate {
 type Tab = 'tasks' | 'comms' | 'templates'
 type TaskFilter = 'all' | 'pending' | 'in_progress' | 'complete' | 'cancelled'
 type CategoryFilter = 'all' | TaskCategory
+type SourceFilter = 'all' | 'roadmap' | 'meeting'
 type SortField = 'meeting_date' | 'owner' | 'status' | 'title' | 'created_at'
 type SortDir = 'asc' | 'desc'
 
@@ -166,6 +168,7 @@ function MeetingTasksContent() {
   const [loading, setLoading] = useState(true)
   const [taskFilter, setTaskFilter] = useState<TaskFilter>('all')
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
+  const [sourceFilter, setSourceFilter] = useState<SourceFilter>('all')
   const [updatingIds, setUpdatingIds] = useState<Set<string>>(new Set())
   const [generatingDraft, setGeneratingDraft] = useState(false)
   const [sendingDraftId, setSendingDraftId] = useState<string | null>(null)
@@ -303,9 +306,11 @@ function MeetingTasksContent() {
       if (selectedMeetingDate && t.meeting_date?.slice(0, 10) !== selectedMeetingDate) return false
       if (selectedLead === '__unlinked__' && t.contact_submission_id) return false
       if (selectedLead && selectedLead !== '__unlinked__' && String(t.contact_submission_id) !== selectedLead) return false
+      if (sourceFilter === 'roadmap' && !t.roadmap_task_id) return false
+      if (sourceFilter === 'meeting' && t.roadmap_task_id) return false
       return true
     })
-  }, [allTasks, taskFilter, categoryFilter, selectedMeetingDate, selectedLead])
+  }, [allTasks, taskFilter, categoryFilter, selectedMeetingDate, selectedLead, sourceFilter])
 
   // ── Client-side sorting ──
   const sortedTasks = useMemo(() => {
@@ -652,7 +657,8 @@ function MeetingTasksContent() {
     selectedLead ||
     selectedMeetingRecordId ||
     taskFilter !== 'all' ||
-    categoryFilter !== 'all'
+    categoryFilter !== 'all' ||
+    sourceFilter !== 'all'
 
   const filteredDrafts = commsTypeFilter === 'all'
     ? drafts
@@ -791,6 +797,14 @@ function MeetingTasksContent() {
                     <option value="internal">Internal</option>
                   </select>
 
+                  <select value={sourceFilter} onChange={e => { setSourceFilter(e.target.value as SourceFilter) }}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium bg-gray-800 text-gray-300 border border-gray-700 hover:border-gray-600 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                    title="Filter roadmap-projected tasks separately from meeting-derived tasks">
+                    <option value="all">All sources</option>
+                    <option value="roadmap">Roadmap</option>
+                    <option value="meeting">Meeting/manual</option>
+                  </select>
+
                   {selectedMeetingRecordId && (
                     <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-medium bg-violet-500/10 text-violet-300 border border-violet-500/30">
                       <MessageSquare size={11} />
@@ -808,7 +822,7 @@ function MeetingTasksContent() {
                   {hasActiveFilters && (
                     <button onClick={() => {
                       setSelectedMeetingDate(''); setSelectedClientProjectId(''); setSelectedLead('');
-                      setSelectedMeetingRecordId(''); setTaskFilter('all'); setCategoryFilter('all')
+                      setSelectedMeetingRecordId(''); setTaskFilter('all'); setCategoryFilter('all'); setSourceFilter('all')
                     }} className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-500/10 border border-red-500/30 hover:bg-red-500/20 transition-colors">
                       Clear filters
                     </button>
@@ -977,6 +991,11 @@ function MeetingTasksContent() {
                                   >
                                     {task.task_category}
                                   </span>
+                                  {task.roadmap_task_id && (
+                                    <span className="text-[10px] px-1.5 py-0.5 rounded uppercase tracking-wide bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
+                                      roadmap
+                                    </span>
+                                  )}
                                   {task.owner && <span className="flex items-center gap-1"><User size={11} /> {task.owner}</span>}
                                   {task.meeting_date && (
                                     <span className="flex items-center gap-1 md:hidden">

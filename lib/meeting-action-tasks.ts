@@ -18,6 +18,7 @@ import {
   normalizeActionItemsFromUnknownList,
   resolveActionItemsRawList,
 } from './meeting-action-items-resolve'
+import { syncRoadmapTaskFromProjection } from './client-ai-ops-roadmap-db'
 
 // ============================================================================
 // Types
@@ -57,6 +58,7 @@ export interface MeetingActionTask {
   slack_channel_id: string | null
   created_at: string
   updated_at: string
+  roadmap_task_id?: string | null
 }
 
 export type TaskStatus = MeetingActionTask['status']
@@ -250,6 +252,12 @@ export async function updateTask(
 
   if (error || !data) {
     throw new Error(`Failed to update task ${taskId}: ${error?.message}`)
+  }
+
+  if (updates.status) {
+    await syncRoadmapTaskFromProjection('meeting', taskId, updates.status).catch((err) => {
+      console.error('Error syncing roadmap task from meeting task:', err)
+    })
   }
 
   return data as MeetingActionTask

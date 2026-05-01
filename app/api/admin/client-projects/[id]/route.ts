@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import { getRoadmapBundleForProject } from '@/lib/client-ai-ops-roadmap-db'
 
 export const dynamic = 'force-dynamic'
 
@@ -108,6 +109,8 @@ export async function GET(
       .eq('client_project_id', id)
       .maybeSingle()
 
+    const aiOpsRoadmap = await getRoadmapBundleForProject(id).catch(() => null)
+
     return NextResponse.json({
       project,
       onboarding_plan: onboardingPlan,
@@ -119,6 +122,7 @@ export async function GET(
       kickoff_agenda: kickoffAgenda || null,
       provisioning_items: provisioningItems || [],
       offboarding_checklist: offboardingChecklist || null,
+      ai_ops_roadmap: aiOpsRoadmap,
     })
   } catch (error) {
     console.error('Error in GET /api/admin/client-projects/[id]:', error)
