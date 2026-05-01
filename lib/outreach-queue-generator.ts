@@ -52,6 +52,7 @@ import {
   type LinkedInTemplateKey,
   type OutreachChannel,
 } from '@/lib/constants/prompt-keys'
+import { getEmailFromName } from '@/lib/business-email-config'
 
 const DEFAULT_EMAIL_TEMPLATE_KEY: EmailTemplateKey = 'email_cold_outreach'
 const DEFAULT_LINKEDIN_TEMPLATE_KEY: LinkedInTemplateKey = 'linkedin_cold_outreach'
@@ -373,7 +374,7 @@ export async function buildOutreachPromptContext(
   }
 
   const promptRow = await getSystemPrompt(req.templateKey)
-  const senderName = process.env.EMAIL_FROM_NAME || 'Vambah Sillah'
+  const senderName = getEmailFromName()
 
   let systemPrompt =
     promptRow?.prompt ||

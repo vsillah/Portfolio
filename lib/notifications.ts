@@ -10,6 +10,7 @@ import { buildShipmentEmail } from '@/lib/email/templates/shipment';
 import { buildMeetingBookedEmail } from '@/lib/email/templates/meeting-booked';
 import { buildChatTranscriptEmail } from '@/lib/email/templates/chat-transcript';
 import type { OrderConfirmationLineItem } from '@/lib/email/templates/order-confirmation';
+import { getEmailFromName } from '@/lib/business-email-config';
 
 export type { OrderConfirmationLineItem as OrderConfirmationItem } from '@/lib/email/templates/order-confirmation';
 
@@ -28,8 +29,6 @@ interface EmailPayload {
     contentType: string;
   }>;
 }
-
-const fromName = process.env.EMAIL_FROM_NAME || 'ATAS';
 
 function transactionalTransportToEmailTransport(t: TransactionalSendTransport): EmailTransport {
   if (t === 'resend') return 'resend';
@@ -485,6 +484,7 @@ export async function notifyMeetingBooked(params: {
   meetingTime?: string;
   calendlyLink?: string;
 }) {
+  const fromName = getEmailFromName();
   const { subject, html, text } = buildMeetingBookedEmail({
     clientName: params.clientName,
     meetingType: params.meetingType,
@@ -510,6 +510,7 @@ export async function notifyChatTranscript(params: {
   transcript: string;
   sessionDate: string;
 }) {
+  const fromName = getEmailFromName();
   const { subject, html, text } = buildChatTranscriptEmail({
     clientName: params.clientName,
     transcript: params.transcript,

@@ -92,7 +92,8 @@ describe('deliverTransactionalMail', () => {
     expect(mocks.resendCtor).toHaveBeenCalledWith('re_test_key')
     expect(mocks.resendSend).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: '"ATAS" <notifications@example.com>',
+        from: '"AmaduTown" <notifications@example.com>',
+        replyTo: 'clients@amadutown.com',
         to: 'client@example.com',
       }),
     )
@@ -107,6 +108,8 @@ describe('deliverTransactionalMail', () => {
     setEnv({
       RESEND_API_KEY: 're_test_key',
       RESEND_FROM_EMAIL: 'notifications@example.com',
+      BUSINESS_FROM_EMAIL: 'vambah@amadutown.com',
+      BUSINESS_REPLY_TO_EMAIL: 'clients@amadutown.com',
       GMAIL_USER: 'sender@gmail.com',
       GMAIL_APP_PASSWORD: 'gmail-app-password',
     })
@@ -125,7 +128,9 @@ describe('deliverTransactionalMail', () => {
     expect(mocks.createTransport).toHaveBeenCalledTimes(1)
     expect(mocks.sendMail).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: '"ATAS" <sender@gmail.com>',
+        from: '"AmaduTown" <vambah@amadutown.com>',
+        replyTo: 'clients@amadutown.com',
+        sender: 'sender@gmail.com',
         to: 'client@example.com',
       }),
     )
@@ -148,5 +153,21 @@ describe('deliverTransactionalMail', () => {
     const result = await deliverTransactionalMail(payload)
 
     expect(result).toEqual({ ok: false, transport: 'resend' })
+  })
+
+  it('reports transactional mail configured when gmail smtp is available', async () => {
+    setEnv({
+      RESEND_API_KEY: undefined,
+      RESEND_FROM_EMAIL: undefined,
+      GMAIL_USER: 'transport@example.com',
+      GMAIL_APP_PASSWORD: 'gmail-app-password',
+    })
+    mocks.createTransport.mockReturnValueOnce({
+      sendMail: mocks.sendMail,
+    })
+
+    const { isTransactionalMailConfigured } = await import('./deliver-transactional')
+
+    expect(isTransactionalMailConfigured()).toBe(true)
   })
 })

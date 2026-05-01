@@ -4,6 +4,7 @@ import { getDiagnosticAudit } from '@/lib/diagnostic'
 import { userOwnsAudit } from '@/lib/audit-report-access'
 import { auditRecordToPdfData, generateAuditReportPDFBuffer } from '@/lib/audit-report-pdf'
 import { sendEmail } from '@/lib/notifications'
+import { getEmailFromName } from '@/lib/business-email-config'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,7 +51,7 @@ export async function POST(request: NextRequest) {
     const buffer = await generateAuditReportPDFBuffer(pdfData)
     const filename = `ai-automation-audit-${auditId}.pdf`
 
-    const brand = process.env.EMAIL_FROM_NAME || 'AmaduTown'
+    const brand = getEmailFromName()
     const ok = await sendEmail(
       {
         to: email,
