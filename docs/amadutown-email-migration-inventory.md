@@ -12,6 +12,17 @@ This inventory supports the phased `amadutown.com` email rollout. It is intentio
 | n8n Cloud credentials | External setup required | Reconnect selected Gmail credentials to Workspace mailbox |
 | SaaS login migration | Inventory started | Update only business-critical accounts first |
 
+## Domain DNS Snapshot
+
+Checked on 2026-05-01:
+
+| Record Type | Observed Value | Meaning |
+| --- | --- | --- |
+| Availability | `amadutown.com` is not available for purchase | Domain likely already owned or reserved |
+| Nameservers | `bailey.ns.cloudflare.com`, `zod.ns.cloudflare.com` | DNS is managed through Cloudflare |
+| MX | no record returned | Google Workspace mail routing still needs MX records |
+| TXT | no record returned | SPF/DKIM/DMARC still need to be configured |
+
 ## Portfolio Environment Variables
 
 Set these before or immediately after merging PR #81:
