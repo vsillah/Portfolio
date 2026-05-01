@@ -104,8 +104,8 @@ const REPORT_TYPES: { value: ReportType; label: string; description: string; sli
   {
     value: 'implementation_strategy',
     label: 'Implementation Strategy',
-    description: 'Current state assessment, 3-track plan (DIY / Platform / ATAS), investment comparison, phased approach.',
-    slides: 20,
+    description: 'Current state, AI layer-fit strategy, stack-aware implementation plan, investment comparison, phased approach.',
+    slides: 23,
   },
   {
     value: 'audit_summary',

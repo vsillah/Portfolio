@@ -61,6 +61,10 @@ import {
   type FeasibilityAssessment,
 } from './implementation-feasibility'
 import {
+  buildAiLayerFitEvaluation,
+  type AiLayerFitEvaluation,
+} from './ai-layer-fit-evaluation'
+import {
   defaultCalendlyEventForReportType,
   resolveCalendlyEvent,
   type CalendlyEventKey,
@@ -395,7 +399,7 @@ function numCardsForGammaReportType(reportType: GammaReportType): number {
     case 'value_quantification':
       return 17
     case 'implementation_strategy':
-      return 21
+      return 23
     case 'audit_summary':
       return 11
     case 'prospect_overview':
@@ -473,6 +477,127 @@ async function maybeBuildFeasibility(
     clientStack: sources,
     builtwithCreditsRemaining: creditsRemaining,
   })
+}
+
+function collectWorkflowSignals(ctx: ReportContext): string[] {
+  const signals: string[] = []
+  const audit = ctx.audit
+  if (!audit) return signals
+
+  const fields: Array<Record<string, unknown> | null | undefined> = [
+    audit.business_challenges,
+    audit.tech_stack,
+    audit.automation_needs,
+    audit.ai_readiness,
+    audit.decision_making,
+  ]
+
+  for (const field of fields) {
+    if (!field || typeof field !== 'object') continue
+    for (const [key, value] of Object.entries(field)) {
+      signals.push(key)
+      if (typeof value === 'string') signals.push(value)
+      else if (Array.isArray(value)) {
+        for (const item of value) {
+          if (typeof item === 'string') signals.push(item)
+        }
+      } else if (value && typeof value === 'object') {
+        for (const nested of Object.values(value as Record<string, unknown>)) {
+          if (typeof nested === 'string') signals.push(nested)
+          else if (Array.isArray(nested)) {
+            for (const item of nested) {
+              if (typeof item === 'string') signals.push(item)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if (audit.diagnostic_summary) signals.push(audit.diagnostic_summary)
+  for (const insight of audit.key_insights ?? []) signals.push(insight)
+  for (const action of audit.recommended_actions ?? []) signals.push(action)
+  return signals
+}
+
+function buildAiLayerFitForContext(ctx: ReportContext): AiLayerFitEvaluation {
+  const { sources } = extractClientStackSources({
+    contactWebsiteTechStack: ctx.contact?.website_tech_stack ?? null,
+    contactVerifiedTechStack: ctx.contact?.client_verified_tech_stack ?? null,
+    auditEnrichedTechStack: ctx.audit?.enriched_tech_stack ?? null,
+  })
+
+  return buildAiLayerFitEvaluation({
+    clientStack: sources,
+    workflowSignals: collectWorkflowSignals(ctx),
+    dataSensitivity: ['client data', 'workflow data', 'permission boundaries'],
+    governanceNotes: ['human approval', 'review before external use'],
+  })
+}
+
+function buildAiLayerFitSlides(
+  evaluation: AiLayerFitEvaluation,
+  orgName: string
+): string {
+  const scoreRows = evaluation.scores
+    .map((s) => `| ${s.label} | ${s.score}/5 | ${Math.round(s.weight * 100)}% | ${s.weightedScore.toFixed(2)} | ${s.evidence} |`)
+    .join('\n')
+
+  const candidateRows = evaluation.candidate_layers
+    .map((c) => `| ${c.label} | ${c.fitHypothesis} |`)
+    .join('\n')
+
+  const detectedStack = evaluation.detected_stack.length > 0
+    ? evaluation.detected_stack.slice(0, 10).join(', ')
+    : 'No verified stack technologies captured yet.'
+
+  const openQuestions = evaluation.open_questions.length > 0
+    ? evaluation.open_questions.map((q) => `- ${q}`).join('\n')
+    : '- No open questions captured for this evaluation.'
+
+  const scoreSlide = `
+# AI Layer-Fit Strategy
+## Which AI Layer Fits ${orgName}'s Current Operating Stack?
+
+This assessment evaluates AI tools as layers inside the current operating system: tools, data, permissions, workflows, team habits, and implementation capacity.
+
+**Recommended layer:** ${evaluation.recommended_layer_label}  
+**Decision:** ${evaluation.decision_label}  
+**Weighted score:** ${evaluation.weighted_total.toFixed(2)}/5  
+**Client stack source:** ${evaluation.client_stack_source}
+
+Detected stack signals: ${detectedStack}
+
+| Dimension | Score | Weight | Weighted | Evidence |
+|-----------|------:|-------:|---------:|----------|
+${scoreRows}
+`
+
+  const routingSlide = `
+# AI Tool Routing
+## Match The Shape Of The Work To The Shape Of The Tool
+
+${evaluation.routing_summary}
+
+| Candidate layer | Fit hypothesis |
+|-----------------|----------------|
+${candidateRows}
+
+**Pilot recommendation:** ${evaluation.pilot_recommendation}
+
+**Open questions before rollout:**
+${openQuestions}
+`
+
+  const structured = `
+[STRUCTURED AI LAYER-FIT EVALUATION — use verbatim, do not infer additional findings]
+
+\`\`\`json
+${JSON.stringify(evaluation, null, 2)}
+\`\`\`
+`
+
+  return [scoreSlide, routingSlide, structured].join('\n---\n')
 }
 
 /**
@@ -563,6 +688,17 @@ function feasibilityAntiFabricationClause(assessment: FeasibilityAssessment | nu
   ].join('\n')
 }
 
+function aiLayerFitAntiFabricationClause(evaluation: AiLayerFitEvaluation | null): string {
+  if (!evaluation) return ''
+  return [
+    'AI LAYER-FIT RULES:',
+    '- The AI Layer-Fit Strategy and AI Tool Routing slides were generated deterministically from structured data.',
+    '- Do NOT invent additional tools, scores, dimensions, or candidate layers that are not present in the STRUCTURED AI LAYER-FIT EVALUATION JSON block.',
+    '- Preserve the weighted total, decision label, recommended layer, and open questions exactly as listed.',
+    '- You may rewrite prose for clarity and tone; keep the routing recommendation anchored in the client stack and workflow signals.',
+  ].join('\n')
+}
+
 // ---------------------------------------------------------------------------
 // Main entry point
 // ---------------------------------------------------------------------------
@@ -572,6 +708,10 @@ export async function buildGammaReportInput(
 ): Promise<GammaReportInput> {
   const context = await fetchReportContext(params)
   const feasibilityAssessment = await maybeBuildFeasibility(context, params)
+  const aiLayerFitEvaluation =
+    params.reportType === 'implementation_strategy'
+      ? buildAiLayerFitForContext(context)
+      : null
 
   let inputText: string
   let title: string
@@ -582,7 +722,12 @@ export async function buildGammaReportInput(
       ({ inputText, title } = buildValueQuantificationPrompt(context, params))
       break
     case 'implementation_strategy':
-      ({ inputText, title } = buildImplementationStrategyPrompt(context, params, feasibilityAssessment))
+      ({ inputText, title } = buildImplementationStrategyPrompt(
+        context,
+        params,
+        feasibilityAssessment,
+        aiLayerFitEvaluation
+      ))
       break
     case 'audit_summary':
       ({ inputText, title } = buildAuditSummaryPrompt(context, params))
@@ -639,7 +784,8 @@ export async function buildGammaReportInput(
     context,
     params.externalInputs,
     existingInstructions || undefined,
-    feasibilityAssessment
+    feasibilityAssessment,
+    aiLayerFitEvaluation
   )
 
   const evidenceItems = buildEvidenceForReport(context, params.externalInputs)
@@ -668,11 +814,13 @@ export function composeAdditionalInstructions(
   ctx: ReportContext,
   externalInputs: ExternalInputs | undefined,
   existing: string | undefined,
-  feasibilityAssessment?: FeasibilityAssessment | null
+  feasibilityAssessment?: FeasibilityAssessment | null,
+  aiLayerFitEvaluation?: AiLayerFitEvaluation | null
 ): string | undefined {
   const items = buildEvidenceForReport(ctx, externalInputs)
   const preamble = buildSourceFidelityPreamble(items)
   const feasibilityClause = feasibilityAntiFabricationClause(feasibilityAssessment ?? null)
+  const aiLayerFitClause = aiLayerFitAntiFabricationClause(aiLayerFitEvaluation ?? null)
   const orgName = resolveOrganizationLabel(ctx)
   const orgGuardrail =
     `[CLIENT ORGANIZATION]\n` +
@@ -686,6 +834,7 @@ export function composeAdditionalInstructions(
 
   const parts: string[] = [preamble, orgGuardrail]
   if (feasibilityClause) parts.push(feasibilityClause)
+  if (aiLayerFitClause) parts.push(aiLayerFitClause)
   if (existingTrimmed) parts.push(existingTrimmed)
   if (customInstructions) parts.push(customInstructions)
 
@@ -916,6 +1065,10 @@ export async function buildGammaReportInputFromContext(
   params: GammaReportParams
 ): Promise<GammaReportInput> {
   const feasibilityAssessment = await maybeBuildFeasibility(ctx, params)
+  const aiLayerFitEvaluation =
+    params.reportType === 'implementation_strategy'
+      ? buildAiLayerFitForContext(ctx)
+      : null
 
   let inputText: string
   let title: string
@@ -926,7 +1079,12 @@ export async function buildGammaReportInputFromContext(
       ({ inputText, title } = buildValueQuantificationPrompt(ctx, params))
       break
     case 'implementation_strategy':
-      ({ inputText, title } = buildImplementationStrategyPrompt(ctx, params, feasibilityAssessment))
+      ({ inputText, title } = buildImplementationStrategyPrompt(
+        ctx,
+        params,
+        feasibilityAssessment,
+        aiLayerFitEvaluation
+      ))
       break
     case 'audit_summary':
       ({ inputText, title } = buildAuditSummaryPrompt(ctx, params))
@@ -983,7 +1141,8 @@ export async function buildGammaReportInputFromContext(
     ctx,
     params.externalInputs,
     existingInstructions || undefined,
-    feasibilityAssessment
+    feasibilityAssessment,
+    aiLayerFitEvaluation
   )
 
   const evidenceItems = buildEvidenceForReport(ctx, params.externalInputs)
@@ -1279,7 +1438,8 @@ ${params.externalInputs.siteCrawlData}
 function buildImplementationStrategyPrompt(
   ctx: ReportContext,
   params: GammaReportParams,
-  feasibility: FeasibilityAssessment | null = null
+  feasibility: FeasibilityAssessment | null = null,
+  aiLayerFit: AiLayerFitEvaluation | null = null
 ): { inputText: string; title: string } {
   const orgName = resolveOrganizationLabel(ctx)
   const domain = params.externalInputs?.siteCrawlData ? 'Website UX Redesign' : 'Digital Strategy'
@@ -1410,6 +1570,11 @@ Every recommendation in this strategy has a measurable financial impact. The val
       }
     }
     sections.push(financialSlide)
+  }
+
+  // --- AI Layer-Fit Strategy ---
+  if (aiLayerFit) {
+    sections.push(buildAiLayerFitSlides(aiLayerFit, orgName))
   }
 
   // --- Slide 9: Track 1 — DIY ---

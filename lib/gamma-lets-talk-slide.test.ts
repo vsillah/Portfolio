@@ -202,6 +202,43 @@ describe(`Let's Talk — per-report-type Calendly routing`, () => {
     expect(inputText).toContain('https://cal.example.com/onboarding')
   })
 
+  it('implementation_strategy includes AI layer-fit strategy and structured guardrails', async () => {
+    const { inputText, options } = await buildBody('implementation_strategy', {
+      contact: {
+        company: 'Acme Widgets',
+        name: 'Jane Doe',
+        email: 'jane@acme.test',
+        client_verified_tech_stack: {
+          technologies: [
+            { name: 'Microsoft 365', tag: 'Email' },
+            { name: 'SharePoint', tag: 'Content Management' },
+            { name: 'Microsoft Teams', tag: 'Workflow Automation' },
+          ],
+        },
+      },
+      audit: {
+        ...baseCtx().audit,
+        automation_needs: {
+          priority_areas: ['reporting', 'data_sync'],
+          desired_outcomes: ['one_click_reports', 'fewer_manual_steps'],
+        },
+      },
+    })
+
+    expect(inputText).toContain('# AI Layer-Fit Strategy')
+    expect(inputText).toContain('**Recommended layer:** Embedded platform AI')
+    expect(inputText).toContain('# AI Tool Routing')
+    expect(inputText).toContain('[STRUCTURED AI LAYER-FIT EVALUATION')
+    expect(options.additionalInstructions).toContain('AI LAYER-FIT RULES:')
+    expect(options.numCards).toBe(23)
+  })
+
+  it('audit_summary does not include AI layer-fit strategy slides', async () => {
+    const { inputText, options } = await buildBody('audit_summary')
+    expect(inputText).not.toContain('# AI Layer-Fit Strategy')
+    expect(options.additionalInstructions).not.toContain('AI LAYER-FIT RULES:')
+  })
+
   it('audit_summary and prospect_overview default to the Discovery Call', async () => {
     process.env.NEXT_PUBLIC_CALENDLY_DISCOVERY_CALL_URL = 'https://cal.example.com/discovery'
     for (const reportType of ['audit_summary', 'prospect_overview']) {
@@ -230,8 +267,8 @@ describe(`Let's Talk — per-report-type Calendly routing`, () => {
     expect(inputText).toContain('https://cal.example.com/discovery')
     // And we should have warned about the missing env var.
     expect(warnSpy).toHaveBeenCalled()
-    const calls = warnSpy.mock.calls.map((c) => String(c[0] ?? ''))
-    expect(calls.some((m) => m.includes('CALENDLY_ONBOARDING_CALL_URL'))).toBe(true)
+    const calls = warnSpy.mock.calls.map((c: unknown[]) => String(c[0] ?? ''))
+    expect(calls.some((m: string) => m.includes('CALENDLY_ONBOARDING_CALL_URL'))).toBe(true)
   })
 })
 

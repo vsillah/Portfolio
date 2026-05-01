@@ -24,7 +24,7 @@ function createSelectBuilder(result: SelectResult) {
 
 function createUpdateBuilder(result: UpdateResult) {
   const eq = vi.fn().mockResolvedValue(result)
-  const update = vi.fn(() => ({ eq }))
+  const update = vi.fn((_payload: Record<string, unknown>) => ({ eq }))
   return { update, eq }
 }
 
