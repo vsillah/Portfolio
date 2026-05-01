@@ -35,6 +35,7 @@ import {
   Play,
   ChevronDown,
   ChevronUp,
+  ClipboardList,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
@@ -213,6 +214,15 @@ interface ProjectDetail {
   kickoff_agenda: KickoffAgendaData | null
   provisioning_items: ProvisioningItemData[]
   offboarding_checklist: OffboardingChecklistData | null
+  ai_ops_roadmap: {
+    roadmap: { id: string; title: string; status: string; client_summary: string | null } | null
+    phases: Array<{ id: string; title: string; objective: string; status: string; phase_order: number }>
+    tasks: Array<{ id: string; title: string; status: string; owner_type: string; priority: string; client_visible: boolean; meeting_task_visible: boolean }>
+    costItems: Array<{ id: string; category: string; label: string; payer: string; cost_type: string; amount: number | string | null }>
+    clientView: {
+      costSummary: { oneTimeClientOwned: number; monthlyClientOwned: number; quoteRequiredCount: number }
+    }
+  } | null
 }
 
 // ============================================================================
@@ -331,6 +341,7 @@ function ProjectDetailContent() {
     kickoff_agenda,
     provisioning_items = [],
     offboarding_checklist,
+    ai_ops_roadmap,
   } = data
   const milestones = onboarding_plan?.milestones || []
   const completedCount = milestones.filter(
@@ -378,6 +389,13 @@ function ProjectDetailContent() {
 
         {/* Client Dashboard Management */}
         <DashboardManagement projectId={projectId} accessToken={accessToken || ''} />
+
+        <AiOpsRoadmapAdminSection
+          projectId={projectId}
+          accessToken={accessToken || ''}
+          roadmap={ai_ops_roadmap}
+          onRefresh={fetchProject}
+        />
 
         {/* Kickoff Agenda + Provisioning */}
         <KickoffAgendaSection
@@ -1149,6 +1167,119 @@ function MilestoneCompleteModal({
         </div>
       </motion.div>
     </motion.div>
+  )
+}
+
+// ============================================================================
+// AI Ops Roadmap Section
+// ============================================================================
+
+function AiOpsRoadmapAdminSection({
+  projectId,
+  accessToken,
+  roadmap,
+  onRefresh,
+}: {
+  projectId: string
+  accessToken: string
+  roadmap: ProjectDetail['ai_ops_roadmap']
+  onRefresh: () => void
+}) {
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const createRoadmap = async () => {
+    if (!accessToken) return
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/admin/client-projects/${projectId}/ai-ops`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ project_tasks: true }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      onRefresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create roadmap')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const costs = roadmap?.clientView?.costSummary
+  const phases = roadmap?.phases ?? []
+  const tasks = roadmap?.tasks ?? []
+  const completed = tasks.filter((task) => task.status === 'complete').length
+  const progress = tasks.length > 0 ? Math.round((completed / tasks.length) * 100) : 0
+
+  return (
+    <div className="mb-8 p-5 bg-gray-900 border border-gray-800 rounded-xl">
+      <div className="flex items-start justify-between gap-4 mb-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <ClipboardList size={18} className="text-emerald-400" />
+            <h2 className="text-lg font-semibold">AI Ops Roadmap</h2>
+          </div>
+          <p className="text-sm text-gray-400">
+            Sales-to-delivery phases, task projections, client-owned costs, and reporting gates.
+          </p>
+        </div>
+        <button
+          onClick={createRoadmap}
+          disabled={loading || !accessToken}
+          className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-gray-700 bg-gray-800 hover:border-emerald-500/60 text-sm disabled:opacity-60"
+        >
+          <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+          {roadmap ? 'Sync Tasks' : 'Create Roadmap'}
+        </button>
+      </div>
+
+      {error && <p className="text-sm text-red-300 mb-3">{error}</p>}
+
+      {roadmap ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mb-4">
+            <div className="rounded-lg bg-gray-950/50 border border-gray-800 p-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Status</p>
+              <p className="text-sm text-gray-200 capitalize">{roadmap.roadmap?.status}</p>
+            </div>
+            <div className="rounded-lg bg-gray-950/50 border border-gray-800 p-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Progress</p>
+              <p className="text-sm text-gray-200">{completed}/{tasks.length} tasks ({progress}%)</p>
+            </div>
+            <div className="rounded-lg bg-gray-950/50 border border-gray-800 p-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Startup</p>
+              <p className="text-sm text-gray-200">${costs?.oneTimeClientOwned ?? 0}</p>
+            </div>
+            <div className="rounded-lg bg-gray-950/50 border border-gray-800 p-3">
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Monthly</p>
+              <p className="text-sm text-gray-200">${costs?.monthlyClientOwned ?? 0}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-2">
+            {phases.map((phase) => (
+              <div key={phase.id} className="rounded-lg border border-gray-800 bg-gray-950/40 p-3">
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Phase {phase.phase_order}</p>
+                <p className="text-sm font-medium text-gray-200">{phase.title}</p>
+                <p className="text-xs text-gray-500 mt-1 capitalize">{phase.status.replace(/_/g, ' ')}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="rounded-lg border border-dashed border-gray-700 bg-gray-950/30 p-4">
+          <p className="text-sm text-gray-400">
+            No AI Ops roadmap exists yet. Create one to generate phased delivery tasks for the client dashboard and admin meeting task queue.
+          </p>
+        </div>
+      )}
+    </div>
   )
 }
 
