@@ -65,6 +65,7 @@ const NAV_ITEM_ICONS: Record<string, LucideIcon> = {
   '/admin/sales/bundles': Layers,
   '/admin/sales/scripts': FileText,
   '/admin/sales/upsell-paths': Route,
+  '/admin/presentations': Sparkles,
   '/admin/reports/gamma': Presentation,
   '/admin/client-projects': FolderKanban,
   '/admin/meetings': Video,
