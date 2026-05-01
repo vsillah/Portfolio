@@ -10,6 +10,90 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-05-01 Manual Refresh Run
+
+Status: YELLOW
+
+Summary:
+
+- No cancellation approvals requested.
+- No tool has two consecutive inactive audit sessions yet.
+- Supabase, n8n Cloud, Read.ai, Slack, Gamma, HeyGen, Google Drive, and the
+  core LLM paths continue to show meaningful usage or active dependency signals.
+- Fireflies remains the clearest redundancy question because it appears to
+  overlap with Read.ai in meeting recap capture, but it is not ready for
+  cancellation without billing and owner confirmation.
+- Vercel and Stripe remain high-risk unknowns because billing/project access was
+  not available through the current connector context.
+- Printful, Vapi, BuiltWith, USPS, Resend, LinkedIn, and ElevenLabs remain
+  watchlist items, not cancellation candidates.
+
+Raw Findings
+
+- Git state: clean worktree before the refresh. The first local pass started
+  from `codex/source-respecting-llm-protocol`, then this doc-only update was
+  moved onto `codex/subscription-cancellation-refresh` from `main` before
+  commit.
+- Supabase connector: project `My Portfolio` is `ACTIVE_HEALTHY`. Current row
+  signals include `analytics_events` 4939, `pain_point_evidence` 4681,
+  `project_reminders` 857, `meeting_records` 109, `orders` 26,
+  `social_content_queue` 28, `drive_video_queue` 35, `heygen_config` 9084,
+  `gamma_reports` 6, and `cost_events` 13.
+- n8n Cloud connector: 76 workflows listed. Recent executions were successful
+  on 2026-05-01 through at least 18:00 UTC, including milestone planning,
+  Gamma cleanup, and Apify actor monitor workflows.
+- n8n export evidence: exported workflows include 60 Supabase nodes, 40 Slack
+  nodes, 18 OpenAI chat model nodes, 15 Gmail nodes, 9 schedule triggers, 5
+  Apify nodes, 4 Google Drive nodes, 3 Pinecone vector store nodes, 2 Calendly
+  triggers, 1 Stripe trigger, and 1 Anthropic node.
+- Read AI connector: six meetings were available since 2026-04-01, with the
+  latest starting on 2026-04-15. This keeps Read.ai active as an external
+  meeting-capture account even if the Portfolio in-app OAuth token path remains
+  stale.
+- Vercel connector: `list_teams` returned no teams, and the repo still has no
+  `.vercel/project.json`; project/deployment billing status remains unresolved.
+- Local reference counts across app/lib/scripts/docs show broad implementation
+  footprint: Gamma 1038, Read/Read.ai text paths 1701, HeyGen 626, Slack 541,
+  Stripe 466, Printful 398, Calendly 387, OpenAI 292, Anthropic 179, BuiltWith
+  175, USPS 146, Resend 134, Apify 137, Pinecone 117, Vapi 113, ElevenLabs
+  118, Gemini 34, and Fireflies 5.
+
+Derived Movement Since Baseline
+
+| Tool/vendor | Prior status | Refresh signal | Current inactivity status | Recommendation |
+| --- | --- | --- | --- | --- |
+| Supabase | GREEN | Project active and core tables show live Portfolio state | Active | Keep |
+| n8n Cloud | GREEN | Successful executions on 2026-05-01 and 76 workflows present | Active | Keep; later rationalize duplicate/staging workflows |
+| Read.ai | GREEN | April meetings available through connector | Active externally | Keep; separately fix or remove stale in-app token path |
+| Fireflies.ai | YELLOW | Only 5 local references; prior Slack evidence showed duplicate meeting recap behavior | Redundancy watch, not inactive | Investigate whether both meeting assistants are paid |
+| Vercel | YELLOW | Connector did not expose account/project; no `.vercel/project.json` | Unknown, high-risk | Keep; needs browser or account-level billing check |
+| Stripe | YELLOW | Strong repo and database dependency, but no live dashboard access in this run | Unknown, high-risk | Keep until Stripe billing/dashboard usage is checked |
+| Printful | YELLOW | Large code footprint, product variants present, sync log still quiet | First-session quiet continues | Watch; verify dashboard order/sync activity |
+| Vapi | YELLOW | Code/env footprint remains; no fresh usage signal found | First-session quiet continues | Watch; check Vapi dashboard before any recommendation |
+| BuiltWith | YELLOW | Code/env footprint remains; no fresh operational signal found | First-session quiet continues | Watch; evaluate replacement with browser/other enrichment |
+| USPS | YELLOW | Commerce address routes/tests remain; no fresh operational signal found | First-session quiet continues | Watch; keep until checkout/shipping path is reviewed |
+| Resend | YELLOW | Webhook and email code remain; provider-specific production usage unresolved | Unknown | Investigate whether production uses Resend or Gmail fallback |
+| ElevenLabs | YELLOW | n8n social audio reference remains; no new run confirmed | First-session quiet-ish | Watch with next social content campaign |
+
+Candidate Cancellations
+
+None. This refresh strengthens the watchlist, but it does not meet the
+two-session inactivity gate for any paid tool.
+
+Next Audit Focus
+
+- Use Computer Use or browser access for billing dashboards where connectors
+  are insufficient: Vercel, Stripe, Printful, Vapi, BuiltWith, ElevenLabs, and
+  any Fireflies account.
+- Decide whether Fireflies and Read.ai are both intentionally active before the
+  next renewal cycle.
+- Confirm whether Resend is configured in production or whether Gmail/n8n is
+  the real outbound channel.
+- Verify whether Printful has recent fulfillment activity outside the Portfolio
+  `printful_sync_log`.
+- Check whether Vapi is still enabled in production UX or only remains in the
+  template/product surface.
+
 ## 2026-05-01 Baseline Run
 
 Status: YELLOW
