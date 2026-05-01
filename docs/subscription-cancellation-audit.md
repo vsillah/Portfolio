@@ -99,7 +99,8 @@ Candidate Cancellations
   recent paid receipts and repeated quiet operational evidence. Before approval,
   verify dashboard/API usage, identify any live lead-enrichment flows still
   calling it, and confirm whether browser/manual research or another enrichment
-  source can replace it.
+  source can replace it. Deprecation packet:
+  [builtwith-deprecation-packet.md](./builtwith-deprecation-packet.md).
 - **Fireflies: candidate for resolved/canceled status verification.** The refund
   suggests the paid plan may already be canceled. Do not request cancellation
   unless dashboard status says the paid plan is still active.
@@ -111,8 +112,9 @@ Next Audit Focus
   before dashboard access, so usage confirmation needs Vambah handoff or
   explicit approval at that gate. Stop at any fresh login, payment-owner, or
   account-setting gate and record the needed manual step.
-- For BuiltWith, collect API/dashboard usage history and list exact Portfolio
-  code paths that would be deprecated or replaced if approved.
+- For BuiltWith, collect API/dashboard usage history and use
+  [builtwith-deprecation-packet.md](./builtwith-deprecation-packet.md) as the
+  approval-gated code-path and replacement plan if cancellation is approved.
 - For Fireflies, confirm whether the subscription is already canceled after the
   2026-03-20 refund.
 - For Vercel, locate the actual hosting account/project outside the current
