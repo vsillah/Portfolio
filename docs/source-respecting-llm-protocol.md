@@ -48,17 +48,27 @@ If chain of title is not verified, the work can be staged for review but should 
 - Sensitive-history handling for family records, sacred/community-restricted knowledge, minors, violence, and doxxing risk.
 - Monthly transparency report covering source use, payouts, disputes, revoked works, and model-review decisions.
 
-## Payout Simulation
+## Payout Accrual And Monthly Settlement
 
 Launch payouts in simulation mode first.
 
-Default split per paid query:
+Default split per paid query/use:
 
 - 60% creator pool
 - 25% protocol operations
 - 15% legal, reserve, and community fund
 
-Creator-pool allocation is based on cited and allowed source chunks that materially support the answer. The source receipt should show supported output tokens and payout weight per chunk.
+Creator-pool allocation is calculated per use. Each `AnswerReceipt` records the cited and allowed source chunks that materially support the answer, the supported output tokens, and the accrued payout weight per chunk.
+
+Actual money movement should happen as a monthly settlement, not as a transaction per answer. Monthly settlement reduces payment-processing costs, makes creator statements easier to review, and gives the protocol time to hold suspicious accruals for review before paying them out.
+
+Default monthly settlement rules:
+
+- Aggregate all per-use accruals by creator and period.
+- Use `YYYY-MM` as the settlement period.
+- Hold payouts below the minimum settlement threshold for review or rollover.
+- Hold payouts with abuse flags, disputes, revoked licenses, or unresolved rights questions.
+- Pay only approved monthly settlements.
 
 ## Abuse Controls
 
@@ -82,6 +92,7 @@ It currently covers:
 - license-use decisions
 - source-chunk attribution receipts
 - payout simulation
+- monthly payout settlement
 - abuse flags
 - model-review gates
 

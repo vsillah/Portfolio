@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   buildAnswerReceipt,
   buildCreatorRightsModelReview,
+  buildMonthlyPayoutSettlement,
   type CreatorRightsModelCandidate,
   type LicenseGrant,
   type LicensedWork,
@@ -73,8 +74,8 @@ describe('buildAnswerReceipt', () => {
     expect(receipt.operationsPoolUsd).toBe(0.25)
     expect(receipt.reservePoolUsd).toBe(0.15)
     expect(receipt.attributedChunks).toHaveLength(2)
-    expect(receipt.attributedChunks[0]).toMatchObject({ weight: 0.3, payoutUsd: 0.18 })
-    expect(receipt.attributedChunks[1]).toMatchObject({ weight: 0.7, payoutUsd: 0.42 })
+    expect(receipt.attributedChunks[0]).toMatchObject({ weight: 0.3, accruedPayoutUsd: 0.18 })
+    expect(receipt.attributedChunks[1]).toMatchObject({ weight: 0.7, accruedPayoutUsd: 0.42 })
     expect(receipt.decisions.every((decision) => decision.decision === 'allow')).toBe(true)
   })
 
@@ -131,6 +132,79 @@ describe('buildAnswerReceipt', () => {
     expect(receipt.abuseFlags).toContain('duplicate_query_pattern')
     expect(receipt.abuseFlags).toContain('creator_self_query_payout_risk')
     expect(receipt.abuseFlags).toContain('source_stuffing_review')
+  })
+})
+
+describe('buildMonthlyPayoutSettlement', () => {
+  it('aggregates per-use accruals into monthly creator settlements', () => {
+    const firstReceipt = buildAnswerReceipt({
+      modelId: 'allenai/Olmo-3-7B-Instruct',
+      works: [work],
+      sources: [retrieved('chunk-a', 50), retrieved('chunk-b', 50)],
+      context: {
+        intendedUses: ['summarization', 'commercial'],
+        queryText: 'What did the source say first?',
+        outputTokenCount: 100,
+        netQueryRevenueUsd: 10,
+        generatedAt: '2026-05-02T12:00:00.000Z',
+      },
+    })
+    const secondReceipt = buildAnswerReceipt({
+      modelId: 'allenai/Olmo-3-7B-Instruct',
+      works: [work],
+      sources: [retrieved('chunk-c', 100)],
+      context: {
+        intendedUses: ['summarization', 'commercial'],
+        queryText: 'What did the source say next?',
+        outputTokenCount: 100,
+        netQueryRevenueUsd: 10,
+        generatedAt: '2026-05-03T12:00:00.000Z',
+      },
+    })
+
+    const settlement = buildMonthlyPayoutSettlement({
+      period: '2026-05',
+      receipts: [firstReceipt, secondReceipt],
+      minimumSettlementUsd: 10,
+      generatedAt: '2026-06-01T08:30:00.000Z',
+    })
+
+    expect(settlement.totalAccruedUsd).toBe(12)
+    expect(settlement.totalPayableUsd).toBe(12)
+    expect(settlement.payouts).toHaveLength(1)
+    expect(settlement.payouts[0]).toMatchObject({
+      creatorId: 'creator-1',
+      period: '2026-05',
+      attributedChunkCount: 3,
+      attributedTokenCount: 200,
+      accruedPayoutUsd: 12,
+      settlementStatus: 'pending',
+    })
+  })
+
+  it('holds monthly settlements below the minimum threshold for review', () => {
+    const receipt = buildAnswerReceipt({
+      modelId: 'allenai/Olmo-3-7B-Instruct',
+      works: [work],
+      sources: [retrieved('chunk-a', 100)],
+      context: {
+        intendedUses: ['summarization'],
+        queryText: 'Low-value query.',
+        outputTokenCount: 100,
+        netQueryRevenueUsd: 1,
+      },
+    })
+
+    const settlement = buildMonthlyPayoutSettlement({
+      period: '2026-05',
+      receipts: [receipt],
+      minimumSettlementUsd: 10,
+    })
+
+    expect(settlement.totalAccruedUsd).toBe(0.6)
+    expect(settlement.totalPayableUsd).toBe(0)
+    expect(settlement.heldCreatorIds).toEqual(['creator-1'])
+    expect(settlement.payouts[0].settlementStatus).toBe('held_for_review')
   })
 })
 

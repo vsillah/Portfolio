@@ -115,7 +115,7 @@ export interface AttributionWeight {
   citationLabel: string
   supportedOutputTokens: number
   weight: number
-  payoutUsd: number
+  accruedPayoutUsd: number
 }
 
 export interface AnswerReceipt {
@@ -133,6 +133,26 @@ export interface AnswerReceipt {
   attributedChunks: AttributionWeight[]
   decisions: SourceUseDecision[]
   abuseFlags: string[]
+}
+
+export interface MonthlyCreatorPayout {
+  creatorId: string
+  period: string
+  answerReceiptIds: string[]
+  attributedChunkCount: number
+  attributedTokenCount: number
+  accruedPayoutUsd: number
+  settlementStatus: 'simulation' | 'pending' | 'approved' | 'paid' | 'held_for_review'
+}
+
+export interface MonthlyPayoutSettlement {
+  period: string
+  generatedAt: string
+  minimumSettlementUsd: number
+  totalAccruedUsd: number
+  totalPayableUsd: number
+  heldCreatorIds: string[]
+  payouts: MonthlyCreatorPayout[]
 }
 
 export interface CreatorRightsModelCandidate {
@@ -258,7 +278,7 @@ export function buildAnswerReceipt(input: {
       citationLabel: source.chunk.citationLabel,
       supportedOutputTokens,
       weight: Number(weight.toFixed(6)),
-      payoutUsd: money(creatorPoolUsd * weight),
+      accruedPayoutUsd: money(creatorPoolUsd * weight),
     }
   })
 
@@ -277,6 +297,60 @@ export function buildAnswerReceipt(input: {
     attributedChunks,
     decisions,
     abuseFlags: detectUsageAbuse(input.sources, input.context),
+  }
+}
+
+export function buildMonthlyPayoutSettlement(input: {
+  period: string
+  receipts: AnswerReceipt[]
+  minimumSettlementUsd?: number
+  generatedAt?: string
+}): MonthlyPayoutSettlement {
+  const minimumSettlementUsd = input.minimumSettlementUsd ?? 10
+  const payoutsByCreator = new Map<string, MonthlyCreatorPayout>()
+
+  for (const receipt of input.receipts) {
+    for (const attribution of receipt.attributedChunks) {
+      const current =
+        payoutsByCreator.get(attribution.creatorId) ??
+        ({
+          creatorId: attribution.creatorId,
+          period: input.period,
+          answerReceiptIds: [],
+          attributedChunkCount: 0,
+          attributedTokenCount: 0,
+          accruedPayoutUsd: 0,
+          settlementStatus: 'simulation',
+        } satisfies MonthlyCreatorPayout)
+
+      current.answerReceiptIds = unique([...current.answerReceiptIds, receipt.id])
+      current.attributedChunkCount += 1
+      current.attributedTokenCount += attribution.supportedOutputTokens
+      current.accruedPayoutUsd = money(current.accruedPayoutUsd + attribution.accruedPayoutUsd)
+      payoutsByCreator.set(attribution.creatorId, current)
+    }
+  }
+
+  const payouts = [...payoutsByCreator.values()].map((payout) => ({
+    ...payout,
+    settlementStatus:
+      payout.accruedPayoutUsd >= minimumSettlementUsd ? 'pending' : 'held_for_review',
+  })) satisfies MonthlyCreatorPayout[]
+
+  return {
+    period: input.period,
+    generatedAt: input.generatedAt ?? new Date().toISOString(),
+    minimumSettlementUsd,
+    totalAccruedUsd: money(payouts.reduce((total, payout) => total + payout.accruedPayoutUsd, 0)),
+    totalPayableUsd: money(
+      payouts
+        .filter((payout) => payout.settlementStatus === 'pending')
+        .reduce((total, payout) => total + payout.accruedPayoutUsd, 0)
+    ),
+    heldCreatorIds: payouts
+      .filter((payout) => payout.settlementStatus === 'held_for_review')
+      .map((payout) => payout.creatorId),
+    payouts,
   }
 }
 
