@@ -12,6 +12,8 @@ Supported runtimes:
 - `opencode` — deferred coding worker runtime for isolated review and worktree experiments.
 - `manual` — human-triggered admin actions and approvals.
 
+The standing operating role for site health, chatbot accuracy, scenario testing, and failure triage is the [Portfolio Operations Manager](./portfolio-operations-manager.md). It runs as an external Codex automation first and uses this Agent Operations control plane for visibility and approvals as deeper integration is added.
+
 Supported run statuses:
 
 - `queued`
