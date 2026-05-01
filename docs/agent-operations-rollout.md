@@ -123,6 +123,18 @@ This keeps OpenCode/OpenClaw out of production automation until installation, au
 
 Use `POST /api/admin/agents/runs/stale-sweep` or the **Sweep stale** button on `/admin/agents/runs` to mark queued/running runs as `stale` when they pass `stale_after` or the default active-run threshold. Runs waiting for approval are intentionally excluded so human checkpoints do not auto-expire as infrastructure failures.
 
+## Agent Ops Morning Review
+
+Use `POST /api/cron/agent-ops-morning-review` with `Authorization: Bearer N8N_INGEST_SECRET` to run the daily no-human-in-the-loop review. The route:
+
+- creates a traceable `n8n` runtime run,
+- sweeps stale queued/running agent runs,
+- builds the Agent Operations health summary,
+- attaches an `agent_ops_morning_review` artifact,
+- optionally posts a Slack summary when `SLACK_AGENT_OPS_WEBHOOK_URL` is configured.
+
+Recommended schedule: n8n Cloud weekday morning trigger, owned by the automation layer. Slack remains a notification surface only; Portfolio admin and `agent_runs` remain the source of truth.
+
 ## Safety Rules
 
 - New agent work should create an `agent_run` before doing meaningful work.
