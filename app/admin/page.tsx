@@ -61,12 +61,22 @@ type AnalyticsStats = {
   eventsByType?: Record<string, number>
 }
 type ConfigCountsRes = { users?: number; prompts?: number; contentItems?: number }
+type SubscriptionStatusRes = {
+  buckets?: {
+    keep?: string[]
+    watch?: string[]
+    unresolved?: string[]
+    resolvedCanceled?: string[]
+    needsDecision?: string[]
+  }
+  summary?: { headline?: string }
+}
 
 function AdminDashboardContent() {
   const [pipeline, setPipeline] = useState<{ outreach: OutreachDashboard | null; valueEvidence: ValueEvidenceDashboard | null; reports: ValueReportsRes['reports'] | null }>({ outreach: null, valueEvidence: null, reports: null })
   const [sales, setSales] = useState<{ stats: SalesRes['stats'] | null; campaigns: CampaignsRes['data'] | null }>({ stats: null, campaigns: null })
   const [postSale, setPostSale] = useState<{ projects: ClientProjectsRes['projects'] | null; tasks: MeetingTasksRes['tasks'] | null; guarantees: GuaranteesRes['data'] | null }>({ projects: null, tasks: null, guarantees: null })
-  const [quality, setQuality] = useState<{ chatStats: ChatEvalStats | null; chatSessions: ChatEvalSessionsRes['sessions'] | null; analytics: AnalyticsStats | null }>({ chatStats: null, chatSessions: null, analytics: null })
+  const [quality, setQuality] = useState<{ chatStats: ChatEvalStats | null; chatSessions: ChatEvalSessionsRes['sessions'] | null; analytics: AnalyticsStats | null; subscriptions: SubscriptionStatusRes | null }>({ chatStats: null, chatSessions: null, analytics: null, subscriptions: null })
   const [config, setConfig] = useState<ConfigCountsRes | null>(null)
   const [pipelineError, setPipelineError] = useState(false)
   const [salesError, setSalesError] = useState(false)
@@ -91,7 +101,7 @@ function AdminDashboardContent() {
       outreach, valueEvidence, reportsRes,
       salesRes, campaignsRes,
       projectsRes, tasksRes, guaranteesRes,
-      chatStats, chatSessionsRes, analyticsRes,
+      chatStats, chatSessionsRes, analyticsRes, subscriptionsRes,
       configRes,
     ] = await Promise.all([
       safeFetch('/api/admin/outreach/dashboard').catch(() => null),
@@ -105,6 +115,7 @@ function AdminDashboardContent() {
       safeFetch('/api/admin/chat-eval/stats?days=7').catch(() => null),
       safeFetch('/api/admin/chat-eval?limit=5').catch(() => null),
       safeFetch('/api/analytics/stats?days=7').catch(() => null),
+      safeFetch('/api/admin/subscriptions/status').catch(() => null),
       safeFetch('/api/admin/configuration/counts').catch(() => null),
     ])
 
@@ -132,11 +143,12 @@ function AdminDashboardContent() {
       })
     } else { setPostSaleError(true) }
 
-    if (chatStats || chatSessionsRes || analyticsRes) {
+    if (chatStats || chatSessionsRes || analyticsRes || subscriptionsRes) {
       setQuality({
         chatStats: chatStats ?? null,
         chatSessions: (chatSessionsRes as ChatEvalSessionsRes)?.sessions ?? null,
         analytics: analyticsRes ?? null,
+        subscriptions: subscriptionsRes ?? null,
       })
     } else { setQualityError(true) }
 
@@ -419,6 +431,7 @@ function AdminDashboardContent() {
             secondaryLinks={[
               { label: 'Analytics', href: '/admin/analytics' },
               { label: 'Cost & Revenue', href: '/admin/cost-revenue' },
+              { label: 'Subscription Watch', href: '/admin/subscriptions' },
               { label: 'E2E Testing', href: '/admin/testing' },
             ]}
             error={qualityError}
@@ -465,6 +478,12 @@ function AdminDashboardContent() {
                   />
                 </div>
                 <ul className="space-y-1.5 text-sm">
+                  {quality.subscriptions?.buckets && (
+                    <li className="flex justify-between gap-2 text-muted-foreground">
+                      <span className="truncate">Subscription watch</span>
+                      <span className="shrink-0">{quality.subscriptions.buckets.needsDecision?.length ?? 0} need review</span>
+                    </li>
+                  )}
                   {(quality.chatSessions ?? []).slice(0, 5).map((s, i) => (
                     <li key={i} className="truncate text-muted-foreground">{s?.visitor_email ?? s?.session_id ?? '—'}</li>
                   ))}

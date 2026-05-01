@@ -1,0 +1,126 @@
+{
+  "generatedAt": "2026-05-01",
+  "sourceDocument": "/docs/subscription-cancellation-audit.md",
+  "weeklyReportAutomationId": "portfolio-subscription-weekly-report",
+  "dailyMonitorAutomationId": "portfolio-subscription-cancellation-monitor",
+  "approvalPhrasePattern": "Cancel <tool/vendor> for Portfolio",
+  "summary": {
+    "status": "yellow",
+    "headline": "Most core Portfolio subscriptions remain active or unresolved. BuiltWith is a watch item during outreach ramp; Fireflies is resolved as canceled.",
+    "nextReviewFocus": [
+      "Verify Vercel billing/project ownership.",
+      "Check Printful dashboard/store order history.",
+      "Check Vapi dashboard call history and production voice enablement.",
+      "Verify whether Resend is configured in production.",
+      "Check Pinecone billing/API usage against the RAG replacement path."
+    ]
+  },
+  "buckets": {
+    "keep": ["Gamma", "n8n Cloud", "Read.ai", "Supabase", "Apify", "HeyGen", "Calendly", "Anthropic", "OpenAI/ChatGPT Pro", "Google Cloud"],
+    "watch": ["BuiltWith", "ElevenLabs"],
+    "unresolved": ["Vercel", "Printful", "Vapi", "Resend", "Pinecone"],
+    "resolvedCanceled": ["Fireflies.ai"],
+    "needsDecision": ["Vercel", "Printful", "Vapi", "Resend", "Pinecone"]
+  },
+  "vendors": [
+    {
+      "name": "BuiltWith",
+      "status": "watch",
+      "statusColor": "yellow",
+      "billingSignal": "Receipts found on 2026-04-10 for $99.00, $99.00, and $109.00.",
+      "usageSignal": "No confirmed operational usage in the latest pass, but client traffic is still early.",
+      "portfolioDependency": "Tech-stack lookup/enrichment supports lead prep, implementation strategy, and feasibility assessment.",
+      "recommendation": "Keep active during outreach ramp; reassess after more leads, audits, implementation strategies, proposals, and client outcomes.",
+      "nextAction": "Compare sales-flow outcomes where BuiltWith enrichment helped versus leads where it did not.",
+      "decisionRequired": false,
+      "links": [
+        { "label": "Dependency packet", "href": "https://github.com/vsillah/Portfolio/blob/codex/admin-subscription-watch/docs/builtwith-deprecation-packet.md" },
+        { "label": "Audit tracker", "href": "https://github.com/vsillah/Portfolio/blob/codex/admin-subscription-watch/docs/subscription-cancellation-audit.md" }
+      ]
+    },
+    {
+      "name": "Fireflies.ai",
+      "status": "resolved_canceled",
+      "statusColor": "green",
+      "billingSignal": "Refund found on 2026-03-20; Vambah confirmed canceled on 2026-05-01.",
+      "usageSignal": "Prior Slack recap evidence overlapped with Read.ai; no longer an active paid-plan target.",
+      "portfolioDependency": "No direct Portfolio repo integration found in the latest audit.",
+      "recommendation": "Keep out of active cancellation queue unless new paid-plan evidence appears.",
+      "nextAction": "No action unless a new Fireflies receipt or paid-plan signal appears.",
+      "decisionRequired": false,
+      "links": [
+        { "label": "Audit tracker", "href": "https://github.com/vsillah/Portfolio/blob/codex/admin-subscription-watch/docs/subscription-cancellation-audit.md" }
+      ]
+    },
+    {
+      "name": "Vercel",
+      "status": "unresolved",
+      "statusColor": "yellow",
+      "billingSignal": "No billing receipt found in the latest Gmail pass; connector did not expose a team/project.",
+      "usageSignal": "Production hosting is likely but unverified from the current connector context.",
+      "portfolioDependency": "High-risk hosting/deployment dependency.",
+      "recommendation": "Keep until dashboard/account ownership and project billing are confirmed.",
+      "nextAction": "Use dashboard access to locate the actual hosting account/project and billing owner.",
+      "decisionRequired": true,
+      "links": [
+        { "label": "Audit tracker", "href": "https://github.com/vsillah/Portfolio/blob/codex/admin-subscription-watch/docs/subscription-cancellation-audit.md" }
+      ]
+    },
+    {
+      "name": "Printful",
+      "status": "unresolved",
+      "statusColor": "yellow",
+      "billingSignal": "No recent billing receipt found in the latest Gmail pass.",
+      "usageSignal": "Fulfillment code exists and product variants are present; printful_sync_log was quiet.",
+      "portfolioDependency": "Store fulfillment and merchandise sync risk.",
+      "recommendation": "Investigate before any cancellation decision.",
+      "nextAction": "Check Printful dashboard/store order history and whether merchandise remains part of the active offer set.",
+      "decisionRequired": true,
+      "links": [
+        { "label": "Audit tracker", "href": "https://github.com/vsillah/Portfolio/blob/codex/admin-subscription-watch/docs/subscription-cancellation-audit.md" }
+      ]
+    },
+    {
+      "name": "Vapi",
+      "status": "unresolved",
+      "statusColor": "yellow",
+      "billingSignal": "No recent billing receipt found in the latest Gmail pass.",
+      "usageSignal": "Voice code and env references exist; no fresh call usage signal was confirmed.",
+      "portfolioDependency": "Voice/audit experience risk if production voice UI is enabled.",
+      "recommendation": "Investigate dashboard call history before classifying.",
+      "nextAction": "Check Vapi dashboard call history and whether production voice UX is enabled.",
+      "decisionRequired": true,
+      "links": [
+        { "label": "Audit tracker", "href": "https://github.com/vsillah/Portfolio/blob/codex/admin-subscription-watch/docs/subscription-cancellation-audit.md" }
+      ]
+    },
+    {
+      "name": "Resend",
+      "status": "unresolved",
+      "statusColor": "yellow",
+      "billingSignal": "No recent billing receipt found in the latest Gmail pass.",
+      "usageSignal": "Optional transactional email provider with Gmail fallback.",
+      "portfolioDependency": "Transactional email delivery risk if production is configured to use Resend.",
+      "recommendation": "Verify production env before keeping as a paid dependency or removing.",
+      "nextAction": "Confirm whether production uses Resend or Gmail/n8n as the real outbound channel.",
+      "decisionRequired": true,
+      "links": [
+        { "label": "Audit tracker", "href": "https://github.com/vsillah/Portfolio/blob/codex/admin-subscription-watch/docs/subscription-cancellation-audit.md" }
+      ]
+    },
+    {
+      "name": "Pinecone",
+      "status": "unresolved",
+      "statusColor": "yellow",
+      "billingSignal": "No recent billing receipt found in the latest Gmail pass.",
+      "usageSignal": "n8n RAG workflow references remain active.",
+      "portfolioDependency": "RAG/vector-store workflow risk.",
+      "recommendation": "Check billing/API usage and compare with Supabase/local RAG replacement path.",
+      "nextAction": "Verify Pinecone usage and whether the current RAG path still depends on it.",
+      "decisionRequired": true,
+      "links": [
+        { "label": "Audit tracker", "href": "https://github.com/vsillah/Portfolio/blob/codex/admin-subscription-watch/docs/subscription-cancellation-audit.md" }
+      ]
+    }
+  ]
+}
