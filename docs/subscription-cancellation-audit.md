@@ -10,6 +10,114 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-05-01 Billing Evidence Pass
+
+Status: YELLOW
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- Gmail billing evidence materially improved the subscription map. Recent paid
+  or payment-confirmation emails were found for Gamma, n8n, Read.ai, Supabase,
+  BuiltWith, Apify, HeyGen, ElevenLabs, Calendly, Anthropic, OpenAI/ChatGPT Pro,
+  and Google Cloud.
+- BuiltWith is now the strongest cost-review candidate: recent receipts were
+  found, but no meaningful operational usage signal was confirmed in the repo,
+  database, n8n, or connector evidence gathered so far.
+- Fireflies looks less like an active cancellation target and more like a
+  cancellation-confirmation task: Gmail shows a refund on 2026-03-20 and a
+  weekly digest on 2026-03-23. Verify whether the paid plan is already canceled
+  before taking any further action.
+- Printful, Vapi, Resend, and Pinecone remain unresolved because they have
+  code/config references but no recent billing receipt evidence in Gmail.
+- Vercel remains unresolved: Gmail had only a Terms update, the connector did
+  not expose a team/project, and the repo has no `.vercel/project.json`.
+
+Raw Findings
+
+- Git state: branch `codex/subscription-cancellation-refresh`; unrelated
+  `.gitignore` modification present and left untouched.
+- Computer Use: Chrome was inspected. It was open to an Infisical success page.
+  A BuiltWith dashboard/login check was attempted, but BuiltWith presented an
+  image CAPTCHA before account access. The CAPTCHA was not solved and no
+  dashboard cancellation or account-setting actions were attempted.
+- Gmail search, 180-day billing window:
+  - Gamma receipt on 2026-05-01 and prior receipt on 2026-04-01.
+  - n8n receipt on 2026-04-22 for Cloud Pro-1, amount shown in snippet as
+    $63.75.
+  - Read AI receipt on 2026-04-20.
+  - Supabase payment received on 2026-04-09, amount shown in snippet as $25.27.
+  - BuiltWith receipts on 2026-04-10 for $99.00, $99.00, and $109.00.
+  - Apify invoices/payment-success emails on 2026-04-03, 2026-03-03,
+    2026-02-03, 2026-01-03, 2025-12-03, and 2025-11-03; latest amount shown in
+    snippet as $39.00.
+  - HeyGen receipts on 2026-04-14, 2026-03-14, and 2026-03-12.
+  - ElevenLabs receipts on 2026-04-19 and 2026-03-19.
+  - Calendly receipt on 2026-04-04.
+  - Google Cloud payment received on 2026-05-01, amount shown in snippet as
+    $9.33.
+  - Anthropic receipts on 2026-04-11, 2026-03-21, 2026-03-11, 2026-02-12, and
+    2025-12-16, plus a 2026-03-18 API credit access warning.
+  - OpenAI email on 2026-04-29 confirms ChatGPT Pro subscription; 2026-02-12
+    email confirms API usage tier increase.
+  - Fireflies refund on 2026-03-20 and weekly digest on 2026-03-23.
+  - No recent billing receipts found for Vercel, Printful, Vapi, Resend, or
+    Pinecone with the searched Gmail queries.
+- Local evidence retained from prior pass:
+  - BuiltWith has code/env references but no operational rows or connector usage
+    signal found.
+  - Vapi has voice code/env references but no fresh usage signal found.
+  - Printful has store/fulfillment code paths and product variants, but
+    `printful_sync_log` was empty in Supabase.
+  - Resend exists as an optional transactional email provider with Gmail SMTP
+    fallback.
+  - Pinecone remains active indirectly through n8n RAG workflow references.
+
+Derived Movement Since Manual Refresh
+
+| Tool/vendor | Billing evidence | Usage evidence | Movement | Recommendation |
+| --- | --- | --- | --- | --- |
+| BuiltWith | Three receipts on 2026-04-10 | No confirmed operational usage | Moves from watchlist to cost-review candidate | Prepare replacement/deprecation review before renewal; likely cancellation candidate if dashboard confirms no recent API usage |
+| Fireflies.ai | Refund on 2026-03-20 | Digest on 2026-03-23; prior duplicate recap evidence | Moves from redundancy watch to cancellation-confirmation check | Verify paid plan status; if already canceled, remove from cancellation queue and document as resolved |
+| Gamma | Receipts on 2026-05-01 and 2026-04-01 | Active report/deck code and DB rows | Stronger keep signal | Keep |
+| n8n Cloud | Receipt on 2026-04-22 | Active executions on 2026-05-01 | Stronger keep signal | Keep |
+| Read.ai | Receipt on 2026-04-20 | April meetings available | Stronger keep signal | Keep; fix stale in-app token separately |
+| Supabase | Payment on 2026-04-09 | Active project and table rows | Stronger keep signal | Keep |
+| Apify | Monthly invoices through 2026-04-03 | Actor monitor executions on 2026-05-01 | Stronger keep signal with spend-review need | Keep; review actor spend and scraping cadence |
+| HeyGen | Receipts through 2026-04-14 | Catalog/video code and DB rows | Stronger keep signal | Keep; review after next campaign |
+| ElevenLabs | Receipts through 2026-04-19 | One social-audio workflow reference; no new run confirmed | Paid but quiet-ish | Watch; review before renewal if social audio remains paused |
+| Calendly | Receipt on 2026-04-04 | Active booking links and n8n router references | Stronger keep signal | Keep |
+| Vercel | No billing receipt found; connector unavailable | Production hosting likely but unverified | Still unresolved | Needs dashboard/account check |
+| Printful | No billing receipt found | Fulfillment code exists; sync log quiet | Still unresolved | Check dashboard/store order history |
+| Vapi | No billing receipt found | Voice code exists; no usage signal | Still unresolved | Check dashboard call history and whether production voice UI is enabled |
+| Resend | No billing receipt found | Optional provider with Gmail fallback | Still unresolved | Verify production env before keeping as paid dependency |
+| Pinecone | No billing receipt found | n8n RAG references active | Still unresolved | Check billing/API usage and compare with Supabase/local RAG replacement path |
+
+Candidate Cancellations
+
+- **BuiltWith: candidate for cancellation review, not cancellation yet.** It has
+  recent paid receipts and repeated quiet operational evidence. Before approval,
+  verify dashboard/API usage, identify any live lead-enrichment flows still
+  calling it, and confirm whether browser/manual research or another enrichment
+  source can replace it.
+- **Fireflies: candidate for resolved/canceled status verification.** The refund
+  suggests the paid plan may already be canceled. Do not request cancellation
+  unless dashboard status says the paid plan is still active.
+
+Next Audit Focus
+
+- Use Computer Use on billing dashboards for BuiltWith, Fireflies, Vercel,
+  Printful, Vapi, Resend, and Pinecone. BuiltWith currently requires a CAPTCHA
+  before dashboard access, so usage confirmation needs Vambah handoff or
+  explicit approval at that gate. Stop at any fresh login, payment-owner, or
+  account-setting gate and record the needed manual step.
+- For BuiltWith, collect API/dashboard usage history and list exact Portfolio
+  code paths that would be deprecated or replaced if approved.
+- For Fireflies, confirm whether the subscription is already canceled after the
+  2026-03-20 refund.
+- For Vercel, locate the actual hosting account/project outside the current
+  connector context.
+
 ## 2026-05-01 Manual Refresh Run
 
 Status: YELLOW
