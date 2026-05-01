@@ -78,13 +78,24 @@ Use this doc when rotating credentials to avoid missing a plug-in point. Each cr
 
 ---
 
+### BUSINESS_FROM_EMAIL, BUSINESS_REPLY_TO_EMAIL, ADMIN_NOTIFICATION_EMAIL, AUTOMATION_INBOUND_EMAIL
+
+| Location | File | Purpose |
+|----------|------|---------|
+| | `lib/business-email-config.ts` | Client-facing email identity and role inbox routing |
+| | `lib/email/deliver-transactional.ts` | Sender and reply-to values for transactional delivery |
+
+**Rotate:** Update the env values and redeploy. Keep these separate from transport credentials so a provider swap does not change the public sender identity.
+
+---
+
 ### GMAIL_USER, GMAIL_APP_PASSWORD
 
 | Location | File | Purpose |
 |----------|------|---------|
-| | `lib/notifications.ts` | Email sending (ATAS) |
+| | `lib/email/deliver-transactional.ts` | Gmail SMTP transport fallback credentials |
 
-**Rotate:** Google Account → App passwords; update `.env.local`, redeploy.
+**Rotate:** Google Account → App passwords; update `.env.local`, redeploy. During the AmaduTown branded-email migration, this account may be a transport credential while `BUSINESS_FROM_EMAIL` remains the client-facing sender.
 
 ---
 

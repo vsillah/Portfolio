@@ -25,6 +25,7 @@ import {
   applyMeetingActionItemsPlaceholders,
 } from '@/lib/meeting-tasks-context'
 import { appendPineconeAndChatContextToSystemPrompt } from '@/lib/email-llm-context'
+import { getEmailFromName } from '@/lib/business-email-config'
 
 /** Thrown for compose-delivery; route maps codes to HTTP status and safe admin-facing messages. */
 export class DeliveryDraftError extends Error {
@@ -372,7 +373,7 @@ export async function generateDeliveryDraft(input: DeliveryDraftInput): Promise<
 
   const { contact, diagnostic, valueReport, researchBrief, socialProof: proof } = leadCtx
 
-  const senderName = process.env.EMAIL_FROM_NAME || 'Vambah Sillah'
+  const senderName = getEmailFromName()
   const calendlyLink = getCalendlyLink(templateKey)
   const keyFindings = buildKeyFindings(contact, diagnostic, valueReport)
   const assetSummary = buildAssetSummary(assets, templateKey, input.dashboardUrl)

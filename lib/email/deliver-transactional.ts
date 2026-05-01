@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer'
 import { Resend } from 'resend'
+import { formatMailboxAddress, resolveBusinessEmailConfig } from '@/lib/business-email-config'
 
 export interface TransactionalEmailPayload {
   to: string
@@ -23,9 +24,9 @@ export interface TransactionalSendOutcome {
 
 const gmailUser = process.env.GMAIL_USER
 const gmailPass = process.env.GMAIL_APP_PASSWORD
-const fromName = process.env.EMAIL_FROM_NAME || 'ATAS'
 const resendKey = process.env.RESEND_API_KEY?.trim()
 const resendFromRaw = process.env.RESEND_FROM_EMAIL?.trim()
+const businessEmail = resolveBusinessEmailConfig()
 
 const transporter =
   gmailUser && gmailPass
@@ -36,9 +37,13 @@ const transporter =
     : null
 
 function resolveResendFrom(): string | null {
-  if (!resendFromRaw) return null
-  if (resendFromRaw.includes('<') && resendFromRaw.includes('>')) return resendFromRaw
-  return `"${fromName}" <${resendFromRaw}>`
+  const fromEmail = businessEmail.fromEmail || resendFromRaw
+  if (!fromEmail) return null
+  return formatMailboxAddress(businessEmail.fromName, fromEmail)
+}
+
+export function isTransactionalMailConfigured(): boolean {
+  return Boolean((resendKey && resolveResendFrom()) || (gmailUser && gmailPass))
 }
 
 async function sendViaResend(
@@ -47,7 +52,7 @@ async function sendViaResend(
   if (!resendKey) return { ok: false }
   const from = resolveResendFrom()
   if (!from) {
-    console.warn('[Transactional email] RESEND_API_KEY set but RESEND_FROM_EMAIL missing')
+    console.warn('[Transactional email] RESEND_API_KEY set but no sender email is configured')
     return { ok: false }
   }
   const resend = new Resend(resendKey)
@@ -57,6 +62,7 @@ async function sendViaResend(
     subject: payload.subject,
     html: payload.html,
     text: payload.text,
+    replyTo: businessEmail.replyToEmail,
     attachments: payload.attachments?.map((a) => ({
       filename: a.filename,
       content: a.content,
@@ -75,7 +81,9 @@ async function sendViaGmail(payload: TransactionalEmailPayload): Promise<boolean
   if (!transporter || !gmailUser) return false
   try {
     await transporter.sendMail({
-      from: `"${fromName}" <${gmailUser}>`,
+      from: formatMailboxAddress(businessEmail.fromName, businessEmail.fromEmail),
+      replyTo: businessEmail.replyToEmail,
+      sender: gmailUser,
       to: payload.to,
       subject: payload.subject,
       html: payload.html,

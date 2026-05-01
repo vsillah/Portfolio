@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { sendEmailWithOutcome } from '@/lib/notifications'
 import { logCommunication } from '@/lib/communications'
+import { isTransactionalMailConfigured } from '@/lib/email/deliver-transactional'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,10 +45,7 @@ export async function POST(
       )
     }
 
-    const gmailConfigured = Boolean(
-      process.env.GMAIL_USER?.trim() && process.env.GMAIL_APP_PASSWORD?.trim()
-    )
-    if (!gmailConfigured) {
+    if (!isTransactionalMailConfigured()) {
       return NextResponse.json(
         { error: 'Email delivery is not configured for this site.' },
         { status: 503 }

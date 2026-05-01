@@ -6,6 +6,7 @@
  */
 
 import { supabaseAdmin } from './supabase'
+import { resolveBusinessEmailConfig } from './business-email-config'
 
 export async function getSiteSetting<T = string>(key: string): Promise<T | null> {
   try {
@@ -40,5 +41,5 @@ export async function setSiteSetting(key: string, value: unknown): Promise<boole
 
 export async function getBusinessOwnerEmail(): Promise<string> {
   const email = await getSiteSetting<string>('business_owner_email')
-  return email || process.env.GMAIL_USER || 'vsillah@gmail.com'
+  return email || resolveBusinessEmailConfig().adminNotificationEmail
 }
