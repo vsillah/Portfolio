@@ -1,6 +1,5 @@
 import { createHmac, timingSafeEqual } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
-import { handleAgentSlackCommand } from '@/lib/agent-slack-command'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,11 +16,24 @@ export async function POST(request: NextRequest) {
     }
 
     const formData = new URLSearchParams(rawBody)
-    const result = await handleAgentSlackCommand({
+    const input = {
       text: formData.get('text') || '',
       userId: formData.get('user_id'),
       userName: formData.get('user_name'),
-    })
+    }
+    const responseUrl = formData.get('response_url')
+
+    if (responseUrl) {
+      void postDelayedAgentResponse(responseUrl, input)
+
+      return NextResponse.json({
+        response_type: 'ephemeral',
+        text: `Agent Ops received \`/agent ${input.text || 'help'}\`. I am preparing the result now.`,
+      })
+    }
+
+    const { handleAgentSlackCommand } = await import('@/lib/agent-slack-command')
+    const result = await handleAgentSlackCommand(input)
 
     return NextResponse.json({
       response_type: result.responseType,
@@ -33,6 +45,36 @@ export async function POST(request: NextRequest) {
       response_type: 'ephemeral',
       text: 'An error occurred processing the Agent Ops command. Check the Portfolio logs and try again.',
     })
+  }
+}
+
+async function postDelayedAgentResponse(
+  responseUrl: string,
+  input: { text: string; userId?: string | null; userName?: string | null },
+) {
+  try {
+    const { handleAgentSlackCommand } = await import('@/lib/agent-slack-command')
+    const result = await handleAgentSlackCommand(input)
+    await fetch(responseUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        response_type: result.responseType,
+        replace_original: false,
+        text: result.text,
+      }),
+    })
+  } catch (error) {
+    console.error('Error posting delayed Slack agent command response:', error)
+    await fetch(responseUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        response_type: 'ephemeral',
+        replace_original: false,
+        text: 'Agent Ops command started, but the delayed result failed. Check Portfolio logs and /admin/agents/runs.',
+      }),
+    }).catch(() => {})
   }
 }
 
