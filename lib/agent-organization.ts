@@ -331,6 +331,10 @@ export function getAgentsForPod(podKey: AgentPodKey) {
   return AGENT_ORGANIZATION.filter((agent) => agent.podKey === podKey)
 }
 
+export function getAgentByKey(agentKey: string) {
+  return AGENT_ORGANIZATION.find((agent) => agent.key === agentKey)
+}
+
 export function getAgentOrganizationSummary() {
   return AGENT_PODS.map((pod) => {
     const agents = getAgentsForPod(pod.key)
