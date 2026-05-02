@@ -6,22 +6,27 @@ This inventory supports the phased `amadutown.com` email rollout. It is intentio
 
 | Area | Status | Next Action |
 | --- | --- | --- |
-| Portfolio code | Ready in PR #81 | Merge after review, then set env vars in Vercel |
-| Vercel previews | Passing for `portfolio` and `portfolio-staging` | Verify post-merge production deployments |
-| Google Workspace | External setup required | Create Workspace user and aliases for `amadutown.com` |
+| Portfolio code | Merged via PR #81 | Set business email env vars in Vercel and keep transport credentials unchanged until cutover |
+| Vercel checks | Passing for `portfolio` and `portfolio-staging` on PR #81 | Re-verify after env var changes |
+| Google Workspace | Active for `vambah@amadutown.com` | Run live send/receive and header tests before client-facing cutover |
+| Domain DNS | Manual Cloudflare DNS configured and publicly visible | Monitor propagation, bounces, and SPF/DKIM/DMARC results from received-message headers |
+| Aliases | Created for `hello@`, `clients@`, `billing@`, and `automation@` | Confirm each alias receives mail and routes to the expected inbox/label |
 | n8n Cloud credentials | External setup required | Reconnect selected Gmail credentials to Workspace mailbox |
 | SaaS login migration | Inventory started | Update only business-critical accounts first |
 
 ## Domain DNS Snapshot
 
-Checked on 2026-05-01:
+Manual verification snapshot:
 
 | Record Type | Observed Value | Meaning |
 | --- | --- | --- |
 | Availability | `amadutown.com` is not available for purchase | Domain likely already owned or reserved |
 | Nameservers | `bailey.ns.cloudflare.com`, `zod.ns.cloudflare.com` | DNS is managed through Cloudflare |
-| MX | no record returned | Google Workspace mail routing still needs MX records |
-| TXT | no record returned | SPF/DKIM/DMARC still need to be configured |
+| MX | `1 smtp.google.com.` | Google Workspace Gmail routing is present |
+| TXT root | `v=spf1 include:_spf.google.com ~all` | SPF authorizes Google Workspace mail |
+| TXT root | `google-site-verification=...` | Google Workspace domain verification is present |
+| TXT `google._domainkey` | `v=DKIM1;k=rsa;p=...` | Google Workspace DKIM public key is present |
+| TXT `_dmarc` | `v=DMARC1; p=none; rua=mailto:vambah@amadutown.com` | DMARC monitoring is active before enforcement |
 
 ## Portfolio Environment Variables
 
