@@ -13,12 +13,16 @@ import {
   DollarSign,
   RefreshCw,
   ShieldAlert,
+  Workflow,
   XCircle,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+import { getAgentOrganizationSummary } from '@/lib/agent-organization'
 import { APPROVAL_GATES, RUNTIME_POLICIES } from '@/lib/agent-policy'
+
+const AGENT_ORGANIZATION_SUMMARY = getAgentOrganizationSummary()
 
 export default function AgentOperationsPage() {
   const [hermesLoading, setHermesLoading] = useState(false)
@@ -338,6 +342,59 @@ export default function AgentOperationsPage() {
           </div>
 
           <section className="mt-8 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+            <div className="flex items-center gap-2 text-radiant-gold mb-2">
+              <Workflow size={20} />
+              <h2 className="text-lg font-semibold">Agent Organization Map</h2>
+            </div>
+            <p className="text-sm text-muted-foreground max-w-3xl">
+              Maps the target agent organization to the n8n workflow families currently wired into the operating system.
+            </p>
+
+            <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {AGENT_ORGANIZATION_SUMMARY.map((pod) => (
+                <div key={pod.key} className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <p className="font-semibold">{pod.name}</p>
+                      <p className="mt-1 text-sm text-muted-foreground">{pod.purpose}</p>
+                    </div>
+                    <span className="w-fit rounded-full border border-silicon-slate/60 bg-black/20 px-2 py-1 text-xs">
+                      {pod.activeWorkflowCount} active workflows
+                    </span>
+                  </div>
+                  <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
+                    <OrgCount label="Active" value={pod.activeAgentCount} tone="green" />
+                    <OrgCount label="Partial" value={pod.partialAgentCount} tone="yellow" />
+                    <OrgCount label="Planned" value={pod.plannedAgentCount} tone="slate" />
+                  </div>
+                  <div className="mt-4 space-y-3">
+                    {pod.agents.map((agent) => (
+                      <div key={agent.key} className="rounded-md border border-silicon-slate/50 bg-black/10 p-3">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="font-medium">{agent.name}</p>
+                          <StatusPill status={agent.status} />
+                          <span className="rounded-full border border-silicon-slate/50 px-2 py-0.5 text-xs text-muted-foreground">
+                            {agent.primaryRuntime}
+                          </span>
+                        </div>
+                        <p className="mt-2 text-sm text-muted-foreground">{agent.responsibility}</p>
+                        {agent.n8nWorkflows.length > 0 ? (
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            n8n: {agent.n8nWorkflows.slice(0, 3).map((workflow) => workflow.name).join(', ')}
+                            {agent.n8nWorkflows.length > 3 ? ` +${agent.n8nWorkflows.length - 3} more` : ''}
+                          </p>
+                        ) : (
+                          <p className="mt-2 text-xs text-muted-foreground">n8n: not primary runtime yet</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="mt-8 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
             <h2 className="text-lg font-semibold mb-4">Runtime Policies</h2>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {RUNTIME_POLICIES.map((policy) => (
@@ -389,6 +446,29 @@ function SignalCard({ icon, label, value }: { icon: ReactNode; label: string; va
       <p className="text-sm font-medium">{value}</p>
     </div>
   )
+}
+
+function OrgCount({ label, value, tone }: { label: string; value: number; tone: 'green' | 'yellow' | 'slate' }) {
+  const toneClass =
+    tone === 'green' ? 'text-green-300' : tone === 'yellow' ? 'text-yellow-300' : 'text-muted-foreground'
+
+  return (
+    <div className="rounded-md border border-silicon-slate/50 bg-black/10 p-2">
+      <p className="text-muted-foreground">{label}</p>
+      <p className={`mt-1 text-lg font-semibold ${toneClass}`}>{value}</p>
+    </div>
+  )
+}
+
+function StatusPill({ status }: { status: 'active' | 'partial' | 'planned' }) {
+  const className =
+    status === 'active'
+      ? 'border-green-400/40 bg-green-500/10 text-green-200'
+      : status === 'partial'
+        ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-200'
+        : 'border-silicon-slate/60 bg-black/20 text-muted-foreground'
+
+  return <span className={`rounded-full border px-2 py-0.5 text-xs ${className}`}>{status}</span>
 }
 
 const AGENT_ENGAGEMENTS = [

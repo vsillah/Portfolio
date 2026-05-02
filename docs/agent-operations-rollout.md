@@ -37,6 +37,17 @@ The console now includes an Agent Engagement roster so the operating model is vi
 - Approval Steward — manual approval checkpoints stored in `agent_approvals`.
 - Slack Command Path — planned mobile-friendly command surface for read-only checks and approval-routed actions.
 
+It also includes an Agent Organization Map that aligns the target operating model to the active n8n workflow families. The typed source of truth for that map is `lib/agent-organization.ts`, with org-level registry rows seeded by `migrations/2026_05_01_agent_organization_registry.sql`.
+
+Current pod alignment:
+
+- Chief of Staff — Agent Ops morning review and executive escalation layer.
+- Strategy & Narrative — planned Codex/Hermes-first agents; not primarily n8n yet.
+- Research & Knowledge — lead research, RAG, diagnostics, value evidence, source register workflows.
+- Content Production — social extraction, repurposing, audio/image regeneration, brand/course agents.
+- Product & Automation — client workflow backbone, monitoring, provisioning, task sync, tooling parity.
+- Publishing & Follow-Up — social publish, outbound/follow-up, Gmail draft, nurture, Slack and meeting intake.
+
 The shared trace tables are:
 
 - `agent_registry`
