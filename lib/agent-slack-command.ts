@@ -1,7 +1,9 @@
 import { runAgentOpsMorningReview } from '@/lib/agent-ops-morning-review'
+import { AGENT_ORGANIZATION, getAgentByKey } from '@/lib/agent-organization'
+import { startAgentRun, recordAgentEvent } from '@/lib/agent-run'
 import { supabaseAdmin } from '@/lib/supabase'
 
-type SlackCommandName = 'help' | 'status' | 'failed' | 'approvals' | 'morning-review'
+type SlackCommandName = 'help' | 'status' | 'failed' | 'approvals' | 'morning-review' | 'agents' | 'run'
 
 export type AgentSlackCommandInput = {
   text: string
@@ -62,7 +64,13 @@ function commandFromText(text: string): SlackCommandName {
   if (command === 'failed' || command === 'failures') return 'failed'
   if (command === 'approval' || command === 'approvals') return 'approvals'
   if (command === 'morning-review' || command === 'morning' || command === 'review') return 'morning-review'
+  if (command === 'agents' || command === 'list') return 'agents'
+  if (command === 'run' || command === 'start') return 'run'
   return 'help'
+}
+
+function commandArgs(text: string) {
+  return text.trim().split(/\s+/).slice(1)
 }
 
 function formatHelp() {
@@ -72,6 +80,8 @@ function formatHelp() {
     '`/agent failed` - latest failed or stale runs.',
     '`/agent approvals` - pending approval checkpoints.',
     '`/agent morning-review` - run the approved Agent Ops morning review trace.',
+    '`/agent agents` - list currently mapped agents and engagement keys.',
+    '`/agent run <agent-key>` - create a traceable engagement request for an agent.',
   ].join('\n')
 }
 
@@ -216,6 +226,82 @@ export async function runMorningReviewSlackText(input: AgentSlackCommandInput) {
   }
 }
 
+function formatAgentListSlackText() {
+  const active = AGENT_ORGANIZATION.filter((agent) => agent.status === 'active')
+  const partial = AGENT_ORGANIZATION.filter((agent) => agent.status === 'partial')
+  const plannedCount = AGENT_ORGANIZATION.filter((agent) => agent.status === 'planned').length
+  const lines = [...active, ...partial].map(
+    (agent) => `- \`${agent.key}\` - ${agent.name} [${agent.primaryRuntime}/${agent.status}]`,
+  )
+
+  return [
+    '*Agent organization*',
+    ...lines,
+    `Planned agents hidden from this quick list: ${plannedCount}`,
+    `Use \`/agent run <agent-key>\` to create a traceable engagement request.`,
+    `Review: ${baseUrl()}/admin/agents`,
+  ].join('\n')
+}
+
+export async function createAgentEngagementSlackText(input: AgentSlackCommandInput) {
+  const [agentKey] = commandArgs(input.text)
+  if (!agentKey) {
+    return [
+      'Missing agent key.',
+      'Use `/agent agents` to see available keys, then `/agent run <agent-key>`.',
+    ].join('\n')
+  }
+
+  const agent = getAgentByKey(agentKey)
+  if (!agent) {
+    return [
+      `Unknown agent key: \`${agentKey}\``,
+      'Use `/agent agents` to see available keys.',
+    ].join('\n')
+  }
+
+  try {
+    const actor = input.userName || input.userId || 'Slack user'
+    const run = await startAgentRun({
+      agentKey: agent.key,
+      runtime: 'manual',
+      kind: 'agent_engagement_request',
+      title: `Engage ${agent.name}`,
+      status: 'queued',
+      subject: { type: 'slack_command', id: input.userId ?? actor, label: actor },
+      triggerSource: 'slack_agent_run_command',
+      currentStep: 'Engagement request queued',
+      metadata: {
+        requested_agent: agent.key,
+        requested_agent_name: agent.name,
+        pod: agent.podKey,
+        primary_runtime: agent.primaryRuntime,
+        approval_gate: agent.approvalGate,
+        engagement_path: agent.engagementPath,
+      },
+    })
+
+    await recordAgentEvent({
+      runId: run.id,
+      eventType: 'agent_engagement_requested',
+      severity: 'info',
+      message: `${actor} requested ${agent.name} from Slack`,
+      metadata: { agent_key: agent.key, slack_user_id: input.userId ?? null, slack_user_name: input.userName ?? null },
+      idempotencyKey: `${run.id}:slack-requested`,
+    })
+
+    return [
+      `*${agent.name} engagement queued*`,
+      `Agent key: \`${agent.key}\``,
+      `Runtime path: ${agent.primaryRuntime}`,
+      `Current guardrail: ${agent.approvalGate}`,
+      `Review: ${agentRunsUrl(run.id)}`,
+    ].join('\n')
+  } catch (error) {
+    return `Agent engagement request failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
 export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Promise<AgentSlackCommandResult> {
   const command = commandFromText(input.text)
   const text =
@@ -227,12 +313,18 @@ export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Pr
           ? await buildApprovalsSlackText()
           : command === 'morning-review'
             ? await runMorningReviewSlackText(input)
-            : formatHelp()
+            : command === 'agents'
+              ? formatAgentListSlackText()
+              : command === 'run'
+                ? await createAgentEngagementSlackText(input)
+                : formatHelp()
 
   return { responseType: 'ephemeral', text }
 }
 
 export const agentSlackCommandInternals = {
   commandFromText,
+  commandArgs,
+  formatAgentListSlackText,
   formatHelp,
 }

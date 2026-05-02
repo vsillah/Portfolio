@@ -176,6 +176,8 @@ The route verifies Slack signatures with `SLACK_SIGNING_SECRET` when configured 
 - `/agent failed` — latest failed or stale agent runs with links back to Agent Operations.
 - `/agent approvals` — pending approval checkpoints with run links.
 - `/agent morning-review` — runs the approved Agent Ops morning review path with `trigger_source = slack_agent_ops_command`.
+- `/agent agents` — lists active and partial agent organization entries with their engagement keys.
+- `/agent run <agent-key>` — creates a traceable `manual` runtime engagement request in `agent_runs` without mutating production workflow data.
 
 Slack is an engagement surface, not the source of truth. The admin console and shared trace tables remain authoritative.
 
