@@ -164,6 +164,21 @@ The n8n import artifact lives at `n8n-exports/WF-AGENT-OPS-MORNING-REVIEW.json`.
 - `AMADUTOWN_PUBLIC_BASE_URL=https://amadutown.com`
 - `N8N_INGEST_SECRET=<same bearer secret configured in Portfolio>`
 
+## Slack Agent Command
+
+Configure the Slack slash command `/agent` to call `POST /api/slack/agent`. The production request URL is:
+
+- `https://amadutown.com/api/slack/agent`
+
+The route verifies Slack signatures with `SLACK_SIGNING_SECRET` when configured and returns ephemeral responses. Supported commands:
+
+- `/agent status` — active runs, failed/stale counts, pending approvals, and cost-event activity.
+- `/agent failed` — latest failed or stale agent runs with links back to Agent Operations.
+- `/agent approvals` — pending approval checkpoints with run links.
+- `/agent morning-review` — runs the approved Agent Ops morning review path with `trigger_source = slack_agent_ops_command`.
+
+Slack is an engagement surface, not the source of truth. The admin console and shared trace tables remain authoritative.
+
 ## Safety Rules
 
 - New agent work should create an `agent_run` before doing meaningful work.

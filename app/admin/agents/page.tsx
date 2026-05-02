@@ -531,8 +531,8 @@ const AGENT_ENGAGEMENTS = [
     name: 'Slack Command Path',
     runtime: 'slack + n8n',
     purpose: 'Mobile-friendly command surface for checking status without adding Telegram or another channel.',
-    engage: 'Planned Slack slash-command layer that calls admin-safe agent triggers.',
-    gate: 'Read-only commands first; mutating actions route to approval.',
+    engage: 'Use /agent status, /agent failed, /agent approvals, or /agent morning-review in Slack.',
+    gate: 'Status, failed, and approvals are read-only; morning-review writes only the approved Agent Ops trace.',
     links: [{ label: 'Runbook', href: '/admin/agents' }],
   },
 ] satisfies Array<{
