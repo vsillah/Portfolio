@@ -13,6 +13,7 @@ import {
   DollarSign,
   MessageSquare,
   RefreshCw,
+  Send,
   ShieldAlert,
   Workflow,
   XCircle,
@@ -38,6 +39,9 @@ export default function AgentOperationsPage() {
   const [morningLoading, setMorningLoading] = useState(false)
   const [morningResult, setMorningResult] = useState<{ runId: string; overall: string; slackNotified: boolean } | null>(null)
   const [morningError, setMorningError] = useState<string | null>(null)
+  const [engagingAgentKey, setEngagingAgentKey] = useState<string | null>(null)
+  const [engagementResults, setEngagementResults] = useState<Record<string, string>>({})
+  const [engagementError, setEngagementError] = useState<string | null>(null)
 
   async function runHermesHealthSummary() {
     setHermesLoading(true)
@@ -135,6 +139,33 @@ export default function AgentOperationsPage() {
       setMorningError(err instanceof Error ? err.message : 'Failed to run Agent Ops morning review')
     } finally {
       setMorningLoading(false)
+    }
+  }
+
+  async function queueAgentEngagement(agentKey: string, agentName: string) {
+    setEngagingAgentKey(agentKey)
+    setEngagementError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch('/api/admin/agents/engage', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          agent_key: agentKey,
+          note: `Queued from Agent Operations for ${agentName}.`,
+        }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      setEngagementResults((current) => ({ ...current, [agentKey]: body.run_id }))
+    } catch (err) {
+      setEngagementError(err instanceof Error ? err.message : 'Failed to queue agent engagement')
+    } finally {
+      setEngagingAgentKey(null)
     }
   }
 
@@ -368,6 +399,7 @@ export default function AgentOperationsPage() {
             <p className="text-sm text-muted-foreground max-w-3xl">
               Maps the target agent organization to the n8n workflow families currently wired into the operating system.
             </p>
+            {engagementError ? <p className="mt-3 text-sm text-red-300">{engagementError}</p> : null}
 
             <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
               {AGENT_ORGANIZATION_SUMMARY.map((pod) => (
@@ -405,6 +437,27 @@ export default function AgentOperationsPage() {
                         ) : (
                           <p className="mt-2 text-xs text-muted-foreground">n8n: not primary runtime yet</p>
                         )}
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {engagementResults[agent.key] ? (
+                            <Link
+                              href={`/admin/agents/runs/${engagementResults[agent.key]}`}
+                              className="inline-flex items-center gap-1 rounded-md border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200 hover:underline"
+                            >
+                              Engagement queued
+                              <ArrowRight size={12} />
+                            </Link>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => queueAgentEngagement(agent.key, agent.name)}
+                              disabled={engagingAgentKey === agent.key}
+                              className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/50 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+                            >
+                              <Send size={12} />
+                              Queue engagement
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>

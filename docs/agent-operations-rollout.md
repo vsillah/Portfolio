@@ -181,6 +181,17 @@ The route verifies Slack signatures with `SLACK_SIGNING_SECRET` when configured 
 
 Slack is an engagement surface, not the source of truth. The admin console and shared trace tables remain authoritative.
 
+## Agent Engagement Requests
+
+Use `POST /api/admin/agents/engage`, the **Queue engagement** buttons on `/admin/agents`, or Slack `/agent run <agent-key>` to create a traceable `manual` runtime engagement request for any mapped agent.
+
+Engagement requests:
+
+- create an `agent_run` with `kind = agent_engagement_request`,
+- start in `queued`,
+- record the requested agent key, pod, runtime path, and approval gate,
+- do not execute the target agent or mutate production data.
+
 ## Chief of Staff Chat
 
 The first conversational agent surface is `/admin/agents/chief-of-staff`.
