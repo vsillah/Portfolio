@@ -271,39 +271,51 @@ export async function projectRoadmapTasks(clientProjectId: string): Promise<{ da
       }
     }
 
-    if (task.meeting_task_visible) {
-      const { data: existing } = await db
-        .from('meeting_action_tasks')
-        .select('id')
-        .eq('roadmap_task_id', roadmapTaskId)
-        .maybeSingle()
-
-      if (!existing) {
-        const { data, error } = await db
-          .from('meeting_action_tasks')
-          .insert({
-            meeting_record_id: null,
-            client_project_id: clientProjectId,
-            roadmap_task_id: roadmapTaskId,
-            title: task.title,
-            description: task.description,
-            owner: task.owner_type === 'client' ? 'Client' : 'AmaduTown',
-            due_date: task.due_date ?? null,
-            status: meetingTaskStatusFromRoadmap(task.status as RoadmapTaskStatus),
-            task_category: 'internal',
-            display_order: 0,
-          })
-          .select('id')
-          .single()
-
-        if (error) throw new Error(`Failed to create meeting roadmap task: ${error.message}`)
-        await db.from('client_ai_ops_roadmap_tasks').update({ meeting_action_task_id: data.id }).eq('id', roadmapTaskId)
-        meetingCreated += 1
-      }
-    }
+    const meetingTaskId = await projectRoadmapTaskToMeetingTask(clientProjectId, task)
+    if (meetingTaskId) meetingCreated += 1
   }
 
   return { dashboardCreated, meetingCreated }
+}
+
+export async function projectRoadmapTaskToMeetingTask(clientProjectId: string, task: JsonRecord): Promise<string | null> {
+  const db = requireDb()
+  const roadmapTaskId = task.id as string | undefined
+  if (!roadmapTaskId || !task.meeting_task_visible) return null
+
+  const { data: existing } = await db
+    .from('meeting_action_tasks')
+    .select('id')
+    .eq('roadmap_task_id', roadmapTaskId)
+    .maybeSingle()
+
+  if (existing?.id) {
+    if (!task.meeting_action_task_id) {
+      await db.from('client_ai_ops_roadmap_tasks').update({ meeting_action_task_id: existing.id }).eq('id', roadmapTaskId)
+    }
+    return null
+  }
+
+  const { data, error } = await db
+    .from('meeting_action_tasks')
+    .insert({
+      meeting_record_id: null,
+      client_project_id: clientProjectId,
+      roadmap_task_id: roadmapTaskId,
+      title: task.title,
+      description: task.description,
+      owner: task.owner_type === 'client' ? 'Client' : 'AmaduTown',
+      due_date: task.due_date ?? null,
+      status: meetingTaskStatusFromRoadmap(task.status as RoadmapTaskStatus),
+      task_category: 'internal',
+      display_order: 0,
+    })
+    .select('id')
+    .single()
+
+  if (error) throw new Error(`Failed to create meeting roadmap task: ${error.message}`)
+  await db.from('client_ai_ops_roadmap_tasks').update({ meeting_action_task_id: data.id }).eq('id', roadmapTaskId)
+  return data.id as string
 }
 
 export async function syncRoadmapTaskFromProjection(source: 'dashboard' | 'meeting', taskId: string, status: string): Promise<void> {
