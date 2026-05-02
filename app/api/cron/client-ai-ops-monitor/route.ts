@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { refreshRoadmapPhaseRollups } from '@/lib/client-ai-ops-roadmap-db'
+import {
+  projectRoadmapTaskToMeetingTask,
+  refreshRoadmapPhaseRollups,
+} from '@/lib/client-ai-ops-roadmap-db'
 
 export const dynamic = 'force-dynamic'
 
 type MonitorTaskRow = { id: string; title: string; status: string; due_date: string | null }
 type MonitorCostRow = { id: string; pricing_state: string; last_checked_at: string | null; label: string }
 
-export async function POST(request: NextRequest) {
-  const token = request.headers.get('authorization')?.replace('Bearer ', '')
-  if (!process.env.N8N_INGEST_SECRET || token !== process.env.N8N_INGEST_SECRET) {
+function isAuthorizedCronRequest(request: NextRequest): boolean {
+  const token = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
+  const allowedTokens = [process.env.CRON_SECRET, process.env.N8N_INGEST_SECRET].filter(Boolean)
+  return Boolean(token && allowedTokens.includes(token))
+}
+
+async function runMonitor(request: NextRequest) {
+  if (!isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -96,7 +104,18 @@ export async function POST(request: NextRequest) {
         .eq('task_key', followupKey)
         .maybeSingle()
 
-      if (!existingFollowup) {
+      if (existingFollowup?.id) {
+        await projectRoadmapTaskToMeetingTask(roadmap.client_project_id, {
+          ...existingFollowup,
+          meeting_task_visible: true,
+          owner_type: 'amadutown',
+          priority: 'high',
+          status: 'pending',
+          title: 'Review AI Ops monitoring findings',
+          description: 'Review overdue tasks, stale pricing, missing reports, or open monitoring findings from the daily AI Ops monitor.',
+          due_date: null,
+        })
+      } else {
         const { data: firstPhase } = await supabaseAdmin
           .from('client_ai_ops_roadmap_phases')
           .select('id')
@@ -122,9 +141,12 @@ export async function POST(request: NextRequest) {
               cost_category: 'monitoring',
               metadata: { monitoring_summary: monitoringSummary },
             })
-            .select('id')
+            .select('*')
             .single()
-          if (task?.id) createdTasks.push(task.id)
+          if (task?.id) {
+            await projectRoadmapTaskToMeetingTask(roadmap.client_project_id, task)
+            createdTasks.push(task.id)
+          }
         }
       }
     }
@@ -136,4 +158,12 @@ export async function POST(request: NextRequest) {
     reports_created: createdReports.length,
     followup_tasks_created: createdTasks.length,
   })
+}
+
+export async function GET(request: NextRequest) {
+  return runMonitor(request)
+}
+
+export async function POST(request: NextRequest) {
+  return runMonitor(request)
 }
