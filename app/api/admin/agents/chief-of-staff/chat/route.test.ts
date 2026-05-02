@@ -44,6 +44,16 @@ describe('POST /api/admin/agents/chief-of-staff/chat', () => {
       runId: 'chief-run-1',
       reply: 'The morning review is clean. Watch one pending approval.',
       suggestedActions: ['Open Agent Operations'],
+      actionProposals: [
+        {
+          label: 'Approve outbound update',
+          description: 'Create an approval checkpoint before sending a client update.',
+          action: 'send_email',
+          approvalType: 'send_email',
+          requiresApproval: true,
+          riskLevel: 'high',
+        },
+      ],
       model: 'gpt-4o-mini',
     })
   })
@@ -79,6 +89,16 @@ describe('POST /api/admin/agents/chief-of-staff/chat', () => {
       run_id: 'chief-run-1',
       reply: 'The morning review is clean. Watch one pending approval.',
       suggested_actions: ['Open Agent Operations'],
+      action_proposals: [
+        {
+          label: 'Approve outbound update',
+          description: 'Create an approval checkpoint before sending a client update.',
+          action: 'send_email',
+          approvalType: 'send_email',
+          requiresApproval: true,
+          riskLevel: 'high',
+        },
+      ],
       model: 'gpt-4o-mini',
     })
     expect(mocks.runChiefOfStaffChat).toHaveBeenCalledWith(expect.objectContaining({

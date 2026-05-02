@@ -2,16 +2,26 @@
 
 import Link from 'next/link'
 import { FormEvent, useMemo, useState } from 'react'
-import { ArrowLeft, Bot, ExternalLink, Send } from 'lucide-react'
+import { ArrowLeft, Bot, ExternalLink, Send, ShieldCheck } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
+
+type ChiefOfStaffActionProposal = {
+  label: string
+  description: string
+  action: string
+  approvalType: string | null
+  requiresApproval: boolean
+  riskLevel: 'low' | 'medium' | 'high'
+}
 
 type ChatMessage = {
   role: 'user' | 'assistant'
   content: string
   runId?: string
   suggestedActions?: string[]
+  actionProposals?: ChiefOfStaffActionProposal[]
 }
 
 const STARTER_PROMPTS = [
@@ -31,6 +41,8 @@ export default function ChiefOfStaffAgentPage() {
   ])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [creatingApproval, setCreatingApproval] = useState<string | null>(null)
+  const [approvalLinks, setApprovalLinks] = useState<Record<string, string>>({})
   const [error, setError] = useState<string | null>(null)
 
   const history = useMemo(
@@ -69,6 +81,7 @@ export default function ChiefOfStaffAgentPage() {
           content: body.reply,
           runId: body.run_id,
           suggestedActions: Array.isArray(body.suggested_actions) ? body.suggested_actions : [],
+          actionProposals: Array.isArray(body.action_proposals) ? body.action_proposals : [],
         },
       ])
     } catch (err) {
@@ -81,6 +94,39 @@ export default function ChiefOfStaffAgentPage() {
   function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     sendMessage()
+  }
+
+  async function createApprovalCheckpoint(sourceRunId: string | undefined, proposal: ChiefOfStaffActionProposal) {
+    if (!sourceRunId || creatingApproval) return
+
+    const key = `${sourceRunId}:${proposal.action}:${proposal.label}`
+    setCreatingApproval(key)
+    setError(null)
+
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+
+      const res = await fetch('/api/admin/agents/chief-of-staff/actions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          source_run_id: sourceRunId,
+          proposal,
+        }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+
+      setApprovalLinks((current) => ({ ...current, [key]: body.run_id }))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create approval checkpoint')
+    } finally {
+      setCreatingApproval(null)
+    }
   }
 
   return (
@@ -160,6 +206,61 @@ export default function ChiefOfStaffAgentPage() {
                             {action}
                           </button>
                         ))}
+                      </div>
+                    ) : null}
+                    {message.actionProposals?.length ? (
+                      <div className="mt-4 space-y-2">
+                        {message.actionProposals.map((proposal) => {
+                          const key = `${message.runId}:${proposal.action}:${proposal.label}`
+                          const approvalRunId = approvalLinks[key]
+
+                          return (
+                            <div
+                              key={key}
+                              className="rounded-lg border border-silicon-slate/60 bg-black/10 p-3"
+                            >
+                              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <p className="text-sm font-semibold">{proposal.label}</p>
+                                    <span className="rounded-full border border-silicon-slate/60 px-2 py-0.5 text-[11px] uppercase text-muted-foreground">
+                                      {proposal.riskLevel}
+                                    </span>
+                                    {proposal.approvalType ? (
+                                      <span className="rounded-full border border-radiant-gold/40 bg-radiant-gold/10 px-2 py-0.5 text-[11px] text-radiant-gold">
+                                        {proposal.approvalType}
+                                      </span>
+                                    ) : null}
+                                  </div>
+                                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                                    {proposal.description}
+                                  </p>
+                                </div>
+                                {proposal.requiresApproval ? (
+                                  approvalRunId ? (
+                                    <Link
+                                      href={`/admin/agents/runs/${approvalRunId}`}
+                                      className="inline-flex shrink-0 items-center gap-1 rounded-md border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200 hover:underline"
+                                    >
+                                      Approval created
+                                      <ExternalLink size={12} />
+                                    </Link>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => createApprovalCheckpoint(message.runId, proposal)}
+                                      disabled={loading || creatingApproval === key}
+                                      className="inline-flex shrink-0 items-center gap-1 rounded-md border border-radiant-gold/50 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+                                    >
+                                      <ShieldCheck size={12} />
+                                      Create approval
+                                    </button>
+                                  )
+                                ) : null}
+                              </div>
+                            </div>
+                          )
+                        })}
                       </div>
                     ) : null}
                   </div>

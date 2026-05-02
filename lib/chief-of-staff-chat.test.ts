@@ -67,10 +67,28 @@ describe('Chief of Staff chat helpers', () => {
     const result = parseChiefOfStaffJson(JSON.stringify({
       reply: 'Focus on the pending deployment and the approval queue.',
       suggested_actions: ['Check failed runs', 'Run morning review'],
+      action_proposals: [
+        {
+          label: 'Approve outbound update',
+          description: 'Prepare a checkpoint before sending a client-facing status email.',
+          action: 'send_email',
+          risk_level: 'high',
+        },
+      ],
     }))
 
     expect(result.reply).toContain('pending deployment')
     expect(result.suggestedActions).toEqual(['Check failed runs', 'Run morning review'])
+    expect(result.actionProposals).toEqual([
+      {
+        label: 'Approve outbound update',
+        description: 'Prepare a checkpoint before sending a client-facing status email.',
+        action: 'send_email',
+        approvalType: 'send_email',
+        requiresApproval: true,
+        riskLevel: 'high',
+      },
+    ])
   })
 
   it('builds a read-only operational prompt', () => {
@@ -78,6 +96,7 @@ describe('Chief of Staff chat helpers', () => {
 
     expect(prompt.systemPrompt).toContain('production mutations')
     expect(prompt.systemPrompt).toContain('Return JSON only')
+    expect(prompt.systemPrompt).toContain('action_proposals')
     expect(prompt.userPrompt).toContain('Morning review')
     expect(prompt.userPrompt).toContain('What needs attention?')
   })

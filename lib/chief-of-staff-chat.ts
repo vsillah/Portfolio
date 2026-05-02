@@ -6,6 +6,11 @@ import {
   recordAgentStep,
   startAgentRun,
 } from '@/lib/agent-run'
+import {
+  actionRequiresApproval,
+  getApprovalGate,
+  type AgentAction,
+} from '@/lib/agent-policy'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export type ChiefOfStaffChatMessage = {
@@ -23,7 +28,17 @@ export type ChiefOfStaffChatResponse = {
   runId: string
   reply: string
   suggestedActions: string[]
+  actionProposals: ChiefOfStaffActionProposal[]
   model: string
+}
+
+export type ChiefOfStaffActionProposal = {
+  label: string
+  description: string
+  action: AgentAction
+  approvalType: string | null
+  requiresApproval: boolean
+  riskLevel: 'low' | 'medium' | 'high'
 }
 
 type AgentRunSummaryRow = {
@@ -64,6 +79,18 @@ export type ChiefOfStaffContext = {
 }
 
 const DEFAULT_MODEL = 'gpt-4o-mini'
+const CHIEF_OF_STAFF_ACTIONS: AgentAction[] = [
+  'read_files',
+  'write_files',
+  'external_api_call',
+  'client_data_access',
+  'known_workflow_db_write',
+  'unknown_db_write',
+  'publish_public_content',
+  'send_email',
+  'production_config_change',
+  'public_content_from_private_material',
+]
 
 function sinceHours(hours: number) {
   return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
@@ -89,8 +116,55 @@ export function normalizeChiefOfStaffHistory(
     .slice(-8)
 }
 
-export function parseChiefOfStaffJson(content: string): { reply: string; suggestedActions: string[] } {
-  const parsed = JSON.parse(content) as { reply?: unknown; suggested_actions?: unknown }
+function isAgentAction(value: unknown): value is AgentAction {
+  return typeof value === 'string' && CHIEF_OF_STAFF_ACTIONS.includes(value as AgentAction)
+}
+
+function parseRiskLevel(value: unknown, requiresApproval: boolean): ChiefOfStaffActionProposal['riskLevel'] {
+  if (value === 'low' || value === 'medium' || value === 'high') return value
+  return requiresApproval ? 'high' : 'medium'
+}
+
+function parseActionProposals(parsed: { action_proposals?: unknown }): ChiefOfStaffActionProposal[] {
+  if (!Array.isArray(parsed.action_proposals)) return []
+
+  return parsed.action_proposals
+    .flatMap((proposal): ChiefOfStaffActionProposal[] => {
+      if (!proposal || typeof proposal !== 'object') return []
+      const raw = proposal as Record<string, unknown>
+      if (!isAgentAction(raw.action)) return []
+
+      const label = typeof raw.label === 'string' ? raw.label.trim() : ''
+      const description = typeof raw.description === 'string' ? raw.description.trim() : ''
+      if (!label || !description) return []
+
+      const gate = getApprovalGate(raw.action)
+      const requiresApproval = gate ? true : actionRequiresApproval('codex', raw.action)
+
+      return [
+        {
+          label: label.slice(0, 120),
+          description: description.slice(0, 400),
+          action: raw.action,
+          approvalType: gate?.approvalType ?? null,
+          requiresApproval,
+          riskLevel: parseRiskLevel(raw.risk_level, requiresApproval),
+        },
+      ]
+    })
+    .slice(0, 5)
+}
+
+export function parseChiefOfStaffJson(content: string): {
+  reply: string
+  suggestedActions: string[]
+  actionProposals: ChiefOfStaffActionProposal[]
+} {
+  const parsed = JSON.parse(content) as {
+    reply?: unknown
+    suggested_actions?: unknown
+    action_proposals?: unknown
+  }
   const reply = typeof parsed.reply === 'string' ? parsed.reply.trim() : ''
   if (!reply) {
     throw new Error('Chief of Staff response missing reply')
@@ -104,7 +178,7 @@ export function parseChiefOfStaffJson(content: string): { reply: string; suggest
         .slice(0, 5)
     : []
 
-  return { reply, suggestedActions }
+  return { reply, suggestedActions, actionProposals: parseActionProposals(parsed) }
 }
 
 export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext> {
@@ -168,7 +242,9 @@ export function buildChiefOfStaffPrompt(context: ChiefOfStaffContext, history: C
       'Your job is to translate executive intent into clear priorities, operational status, escalation decisions, and next actions.',
       'Use only the provided operating context. If the user asks for production mutations, sending messages, publishing, or config changes, explain that approval is required and suggest the approval path.',
       'Be concise, direct, and operational. Do not pretend to have run tools that are not in the context.',
-      'Return JSON only with keys: reply, suggested_actions.',
+      'When proposing an executable next step, include a typed action proposal. The proposal is only a recommendation; it does not execute work.',
+      'Use only these action ids: read_files, write_files, external_api_call, client_data_access, known_workflow_db_write, unknown_db_write, publish_public_content, send_email, production_config_change, public_content_from_private_material.',
+      'Return JSON only with keys: reply, suggested_actions, action_proposals.',
     ].join('\n'),
     userPrompt: JSON.stringify(
       {
@@ -177,6 +253,14 @@ export function buildChiefOfStaffPrompt(context: ChiefOfStaffContext, history: C
         response_contract: {
           reply: 'A concise answer to the user. Prefer concrete status, blockers, and next steps.',
           suggested_actions: 'Up to five short actions the user can take or ask the agent to do next.',
+          action_proposals: [
+            {
+              label: 'Short button label for a concrete proposed action.',
+              description: 'One sentence describing the proposed action and why it is useful.',
+              action: 'One allowed action id. Use approval-gated ids for risky work.',
+              risk_level: 'low, medium, or high.',
+            },
+          ],
         },
       },
       null,
@@ -250,7 +334,11 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
       tokensIn: completion.usage?.prompt_tokens ?? completion.usage?.input_tokens ?? null,
       tokensOut: completion.usage?.completion_tokens ?? completion.usage?.output_tokens ?? null,
       outputSummary: parsed.reply.slice(0, 500),
-      metadata: { model, suggested_actions: parsed.suggestedActions },
+      metadata: {
+        model,
+        suggested_actions: parsed.suggestedActions,
+        action_proposals: parsed.actionProposals,
+      },
     })
 
     await endAgentRun({
@@ -260,6 +348,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
       outcome: {
         reply_preview: parsed.reply.slice(0, 500),
         suggested_actions: parsed.suggestedActions,
+        action_proposals: parsed.actionProposals,
       },
     })
 
@@ -267,6 +356,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
       runId: run.id,
       reply: parsed.reply,
       suggestedActions: parsed.suggestedActions,
+      actionProposals: parsed.actionProposals,
       model,
     }
   } catch (error) {
