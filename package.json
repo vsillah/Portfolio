@@ -24,6 +24,8 @@
     "db:health-check:update": "tsx scripts/database-health-check.ts --update",
     "db:health-check:dev": "tsx scripts/database-health-check.ts --dev",
     "db:health-check:dev:update": "tsx scripts/database-health-check.ts --dev --update",
+    "deploy:watch": "tsx scripts/vercel-deployment-watch.ts",
+    "deploy:watch:once": "tsx scripts/vercel-deployment-watch.ts --once",
     "source-protocol:smoke": "tsx scripts/source-protocol-smoke.ts",
     "staging:publications-parity": "tsx scripts/ensure-publications-experience-parity.ts --env-file .env.staging",
     "printful:webhook": "tsx scripts/printful-setup-webhook.ts",
