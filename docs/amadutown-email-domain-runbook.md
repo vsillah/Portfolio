@@ -31,15 +31,37 @@ AmaduTown uses a phased hybrid email migration:
    - every alias routes to the expected mailbox
    - SPF, DKIM, and DMARC pass in a received-message header test
 
+Current setup state:
+
+- Google Workspace user `vambah@amadutown.com` is active.
+- Google Admin Console shows `hello@amadutown.com`, `clients@amadutown.com`, `billing@amadutown.com`, and `automation@amadutown.com` as alternate email aliases for the primary user.
+- Google Workspace confirmed the domain verification code, Gmail activation, and DKIM code entry.
+- Live send/receive and header inspection remain manual QA gates before client-facing cutover.
+
 ### Cloudflare DNS Records
 
-Based on Google Workspace Admin Help, new Workspace setups can use the single Google MX record:
+Manual verification was used for setup. Do not use automatic registrar/DNS authorization unless a later operator explicitly approves it.
 
-| Type | Name | Priority | Value |
-| --- | --- | --- | --- |
-| `MX` | `@` | `1` | `smtp.google.com` |
+Current Cloudflare records:
 
-Add SPF, DKIM, and DMARC TXT records from the Google Admin setup flow. DKIM values are generated per Workspace tenant, so do not hard-code them before the Google Admin console provides the selector/value.
+| Type | Name | Priority | Value | Purpose |
+| --- | --- | --- | --- | --- |
+| `TXT` | `@` | n/a | `google-site-verification=...` | Manual Google Workspace domain verification |
+| `MX` | `@` | `1` | `smtp.google.com` | Google Workspace Gmail routing |
+| `TXT` | `@` | n/a | `v=spf1 include:_spf.google.com ~all` | SPF authorization for Google mail |
+| `TXT` | `google._domainkey` | n/a | Google Workspace generated DKIM public key | DKIM signing for Workspace mail |
+| `TXT` | `_dmarc` | n/a | `v=DMARC1; p=none; rua=mailto:vambah@amadutown.com` | DMARC monitoring policy |
+
+Public DNS checks should return:
+
+```bash
+dig MX amadutown.com +short
+dig TXT amadutown.com +short
+dig TXT google._domainkey.amadutown.com +short
+dig TXT _dmarc.amadutown.com +short
+```
+
+Do not paste the full DKIM value into shared notes unless a DNS repair requires it. It is not a password, but it is noisy and should be read from Cloudflare or Google Admin when needed.
 
 ## Phase 2: Portfolio Environment
 
