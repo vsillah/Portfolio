@@ -189,7 +189,10 @@ The first conversational agent surface is `/admin/agents/chief-of-staff`.
 - It reads current Agent Operations context: active runs, recent failed/stale runs, pending approvals, and cost events.
 - It creates a traced `codex` runtime `agent_run` for every exchange.
 - It uses `CHIEF_OF_STAFF_AGENT_MODEL` when set, otherwise `gpt-4o-mini`.
-- V1 is read-only. It can recommend next actions and approval paths, but it does not mutate production workflows, send messages, publish content, or change configuration.
+- It returns both plain suggested follow-ups and typed action proposals using the shared runtime policy action IDs.
+- Typed action proposals can be converted into approval checkpoints with `POST /api/admin/agents/chief-of-staff/actions`.
+- The approval action route creates a separate `manual` runtime run in `waiting_for_approval` and a pending `agent_approvals` record.
+- V1 remains non-executing. It can recommend next actions and create approval checkpoints, but it does not mutate production workflows, send messages, publish content, or change configuration.
 
 ## Safety Rules
 
