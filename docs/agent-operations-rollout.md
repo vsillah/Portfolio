@@ -181,6 +181,16 @@ The route verifies Slack signatures with `SLACK_SIGNING_SECRET` when configured 
 
 Slack is an engagement surface, not the source of truth. The admin console and shared trace tables remain authoritative.
 
+## Chief of Staff Chat
+
+The first conversational agent surface is `/admin/agents/chief-of-staff`.
+
+- It is admin-only.
+- It reads current Agent Operations context: active runs, recent failed/stale runs, pending approvals, and cost events.
+- It creates a traced `codex` runtime `agent_run` for every exchange.
+- It uses `CHIEF_OF_STAFF_AGENT_MODEL` when set, otherwise `gpt-4o-mini`.
+- V1 is read-only. It can recommend next actions and approval paths, but it does not mutate production workflows, send messages, publish content, or change configuration.
+
 ## Safety Rules
 
 - New agent work should create an `agent_run` before doing meaningful work.
