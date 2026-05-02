@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Clock,
   DollarSign,
+  MessageSquare,
   RefreshCw,
   ShieldAlert,
   Workflow,
@@ -162,6 +163,24 @@ export default function AgentOperationsPage() {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     View active and recent agent runs, current steps, runtime, costs, errors, and approvals.
+                  </p>
+                </div>
+                <ArrowRight size={20} className="text-muted-foreground shrink-0" />
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/agents/chief-of-staff"
+              className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 p-5 hover:border-radiant-gold/60 transition-colors"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 text-radiant-gold mb-2">
+                    <MessageSquare size={20} />
+                    <h2 className="text-lg font-semibold">Chief of Staff Chat</h2>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Ask for priorities, blockers, approval risk, and next actions from the agent operating context.
                   </p>
                 </div>
                 <ArrowRight size={20} className="text-muted-foreground shrink-0" />
