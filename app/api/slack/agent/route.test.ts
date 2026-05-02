@@ -53,6 +53,22 @@ describe('POST /api/slack/agent', () => {
     expect(mocks.handleAgentSlackCommand).not.toHaveBeenCalled()
   })
 
+  it('rejects unsigned production requests when the signing secret is missing', async () => {
+    process.env = { ...ORIGINAL_ENV, NODE_ENV: 'production', VERCEL: '1', SLACK_SIGNING_SECRET: '' }
+
+    const response = await POST(
+      new Request('http://localhost/api/slack/agent', {
+        method: 'POST',
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ text: 'status' }).toString(),
+      }) as never,
+    )
+
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({ error: 'Invalid Slack signature' })
+    expect(mocks.handleAgentSlackCommand).not.toHaveBeenCalled()
+  })
+
   it('dispatches form-encoded slash command text to the command handler', async () => {
     const request = signedRequest(
       new URLSearchParams({

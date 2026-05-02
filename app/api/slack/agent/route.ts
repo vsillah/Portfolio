@@ -39,8 +39,14 @@ export async function POST(request: NextRequest) {
 function verifySlackSignature(request: NextRequest, rawBody: string) {
   const signingSecret = process.env.SLACK_SIGNING_SECRET
   if (!signingSecret) {
-    console.warn('SLACK_SIGNING_SECRET not configured -- skipping verification')
-    return true
+    const allowUnsignedLocal =
+      process.env.NODE_ENV !== 'production' && !process.env.VERCEL && process.env.NEXT_PUBLIC_APP_ENV !== 'staging'
+    if (allowUnsignedLocal) {
+      console.warn('SLACK_SIGNING_SECRET not configured -- skipping verification for local development')
+      return true
+    }
+    console.warn('SLACK_SIGNING_SECRET not configured -- rejecting Slack request')
+    return false
   }
 
   const timestamp = request.headers.get('x-slack-request-timestamp')
