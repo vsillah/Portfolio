@@ -8,6 +8,11 @@ This directory contains comprehensive documentation for the my-portfolio project
 
 - **[Admin/Sales Lead Pipeline SOP](./admin-sales-lead-pipeline-sop.md)** - Single source of truth for new admin and sales associates: lead pipeline (trigger, ingest, enrichment, outreach, review, send), inbound leads (contact form, chat, diagnostic, voice/VAPI), sales and proposals, configuring products/bundles/scripts, pricing research, post-sale lifecycle (payment, client projects, onboarding, milestones), follow-up sequences, workflow reference, and other admin tools.
 
+### Agent Coordination
+
+- **[Agent Roles](./agents/README.md)** - Role instructions for parallel Codex, Cursor, Hermes, and other agent chats working in Portfolio.
+- **[Integration Captain Queue](./integration-captain-queue.md)** - Shared queue for PR handoffs, merge readiness, Vercel verification, and blocked work.
+
 ### Source-respecting AI
 
 - **[Source-Respecting LLM Protocol](./source-respecting-llm-protocol.md)** - Open nonprofit protocol blueprint for banned/challenged authors, Black history archives, creator permissions, cited answers, source-use receipts, and payout simulation.
