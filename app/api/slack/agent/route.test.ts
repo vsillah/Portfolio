@@ -32,6 +32,12 @@ function signedRequest(body: URLSearchParams, secret = 'test-slack-secret') {
 describe('POST /api/slack/agent', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+      }),
+    )
     process.env = { ...ORIGINAL_ENV, SLACK_SIGNING_SECRET: 'test-slack-secret' }
     mocks.handleAgentSlackCommand.mockResolvedValue({
       responseType: 'ephemeral',
@@ -40,6 +46,7 @@ describe('POST /api/slack/agent', () => {
   })
 
   afterEach(() => {
+    vi.unstubAllGlobals()
     process.env = ORIGINAL_ENV
   })
 
@@ -90,5 +97,42 @@ describe('POST /api/slack/agent', () => {
       userId: 'U123',
       userName: 'vambah',
     })
+  })
+
+  it('acknowledges Slack immediately and posts detailed command output through response_url', async () => {
+    const request = signedRequest(
+      new URLSearchParams({
+        text: 'status',
+        user_id: 'U123',
+        user_name: 'vambah',
+        response_url: 'https://hooks.slack.com/commands/test-response',
+      }),
+    )
+
+    const response = await POST(request as never)
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({
+      response_type: 'ephemeral',
+      text: 'Agent Ops received `/agent status`. I am preparing the result now.',
+    })
+    await vi.waitFor(() => {
+      expect(mocks.handleAgentSlackCommand).toHaveBeenCalledWith({
+        text: 'status',
+        userId: 'U123',
+        userName: 'vambah',
+      })
+    })
+    expect(fetch).toHaveBeenCalledWith(
+      'https://hooks.slack.com/commands/test-response',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          response_type: 'ephemeral',
+          replace_original: false,
+          text: 'Agent Ops status',
+        }),
+      }),
+    )
   })
 })
