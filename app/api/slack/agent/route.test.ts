@@ -3,10 +3,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({
   handleAgentSlackCommand: vi.fn(),
+  waitUntil: vi.fn(),
 }))
 
 vi.mock('@/lib/agent-slack-command', () => ({
   handleAgentSlackCommand: mocks.handleAgentSlackCommand,
+}))
+
+vi.mock('@vercel/functions', () => ({
+  waitUntil: mocks.waitUntil,
 }))
 
 import { POST } from './route'
@@ -46,6 +51,7 @@ describe('POST /api/slack/agent', () => {
   })
 
   afterEach(() => {
+    vi.useRealTimers()
     vi.unstubAllGlobals()
     process.env = ORIGINAL_ENV
   })
@@ -99,7 +105,7 @@ describe('POST /api/slack/agent', () => {
     })
   })
 
-  it('acknowledges Slack immediately and posts detailed command output through response_url', async () => {
+  it('returns detailed command output directly when it completes inside Slack response window', async () => {
     const request = signedRequest(
       new URLSearchParams({
         text: 'status',
@@ -114,15 +120,51 @@ describe('POST /api/slack/agent', () => {
     expect(response.status).toBe(200)
     expect(await response.json()).toEqual({
       response_type: 'ephemeral',
+      text: 'Agent Ops status',
+    })
+    expect(mocks.handleAgentSlackCommand).toHaveBeenCalledWith({
+      text: 'status',
+      userId: 'U123',
+      userName: 'vambah',
+    })
+    expect(fetch).not.toHaveBeenCalled()
+    expect(mocks.waitUntil).not.toHaveBeenCalled()
+  })
+
+  it('acknowledges Slack before the timeout and schedules delayed delivery when command work is slow', async () => {
+    vi.useFakeTimers()
+    mocks.handleAgentSlackCommand.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => resolve({ responseType: 'ephemeral', text: 'Slow status' }), 3000)
+        }),
+    )
+
+    const request = signedRequest(
+      new URLSearchParams({
+        text: 'status',
+        user_id: 'U123',
+        user_name: 'vambah',
+        response_url: 'https://hooks.slack.com/commands/test-response',
+      }),
+    )
+
+    const responsePromise = POST(request as never)
+    await vi.advanceTimersByTimeAsync(2500)
+    const response = await responsePromise
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({
+      response_type: 'ephemeral',
       text: 'Agent Ops received `/agent status`. I am preparing the result now.',
     })
-    await vi.waitFor(() => {
-      expect(mocks.handleAgentSlackCommand).toHaveBeenCalledWith({
-        text: 'status',
-        userId: 'U123',
-        userName: 'vambah',
-      })
-    })
+
+    expect(mocks.waitUntil).toHaveBeenCalledTimes(1)
+    const delayedPromise = mocks.waitUntil.mock.calls[0]?.[0] as Promise<unknown>
+
+    await vi.advanceTimersByTimeAsync(500)
+    await delayedPromise
+
     expect(fetch).toHaveBeenCalledWith(
       'https://hooks.slack.com/commands/test-response',
       expect.objectContaining({
@@ -130,7 +172,7 @@ describe('POST /api/slack/agent', () => {
         body: JSON.stringify({
           response_type: 'ephemeral',
           replace_original: false,
-          text: 'Agent Ops status',
+          text: 'Slow status',
         }),
       }),
     )

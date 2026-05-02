@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
+import { waitUntil } from '@vercel/functions'
 
 export const dynamic = 'force-dynamic'
 
@@ -22,9 +23,18 @@ export async function POST(request: NextRequest) {
       userName: formData.get('user_name'),
     }
     const responseUrl = formData.get('response_url')
+    const commandResult = runAgentCommand(input)
 
     if (responseUrl) {
-      void postDelayedAgentResponse(responseUrl, input)
+      const result = await withTimeout(commandResult, 2500)
+      if (result) {
+        return NextResponse.json({
+          response_type: result.responseType,
+          text: result.text,
+        })
+      }
+
+      waitUntil(postDelayedAgentResponse(responseUrl, commandResult))
 
       return NextResponse.json({
         response_type: 'ephemeral',
@@ -32,8 +42,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const { handleAgentSlackCommand } = await import('@/lib/agent-slack-command')
-    const result = await handleAgentSlackCommand(input)
+    const result = await commandResult
 
     return NextResponse.json({
       response_type: result.responseType,
@@ -48,13 +57,34 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function postDelayedAgentResponse(
-  responseUrl: string,
+async function runAgentCommand(
   input: { text: string; userId?: string | null; userName?: string | null },
 ) {
+  const { handleAgentSlackCommand } = await import('@/lib/agent-slack-command')
+  return handleAgentSlackCommand(input)
+}
+
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => resolve(null), timeoutMs)
+    promise
+      .then((value) => {
+        clearTimeout(timer)
+        resolve(value)
+      })
+      .catch((error) => {
+        clearTimeout(timer)
+        reject(error)
+      })
+  })
+}
+
+async function postDelayedAgentResponse(
+  responseUrl: string,
+  commandResult: Promise<{ responseType: string; text: string }>,
+) {
   try {
-    const { handleAgentSlackCommand } = await import('@/lib/agent-slack-command')
-    const result = await handleAgentSlackCommand(input)
+    const result = await commandResult
     await fetch(responseUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
