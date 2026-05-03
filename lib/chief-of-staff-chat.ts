@@ -12,6 +12,10 @@ import {
   type AgentAction,
 } from '@/lib/agent-policy'
 import { getAgentByKey } from '@/lib/agent-organization'
+import {
+  listCodexAutomationInventory,
+  type CodexAutomationInventory,
+} from '@/lib/codex-automation-inventory'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export type ChiefOfStaffChatMessage = {
@@ -76,6 +80,37 @@ type CostSummaryRow = {
   model: string | null
 }
 
+export type ChiefOfStaffAutomationContext = {
+  available: boolean
+  reason: string | null
+  sourceDirectory: string
+  generatedAt: string
+  overview: CodexAutomationInventory['overview']
+  hiddenCount: number
+  highRiskAutomations: Array<{
+    id: string
+    name: string
+    category: string
+    boundary: string
+    contextHealth: string
+    missingQuestions: string[]
+  }>
+  contextGapAutomations: Array<{
+    id: string
+    name: string
+    category: string
+    riskLevel: string
+    contextHealth: string
+    missingQuestions: string[]
+    recommendations: string[]
+  }>
+  duplicateCandidates: Array<{
+    id: string
+    name: string
+    category: string
+  }>
+}
+
 export type ChiefOfStaffContext = {
   generatedAt: string
   activeRuns: AgentRunSummaryRow[]
@@ -87,6 +122,7 @@ export type ChiefOfStaffContext = {
     providers: string[]
     models: string[]
   }
+  automationContext: ChiefOfStaffAutomationContext
 }
 
 const DEFAULT_MODEL = 'gpt-4o-mini'
@@ -202,6 +238,75 @@ function parseAgentEngagements(parsed: { agent_engagements?: unknown }): ChiefOf
     .slice(0, 4)
 }
 
+export function summarizeAutomationContext(inventory: CodexAutomationInventory): ChiefOfStaffAutomationContext {
+  const automations = inventory.automations
+  const missingQuestions = (automation: CodexAutomationInventory['automations'][number]) =>
+    automation.contextQuestions
+      .filter((question) => !question.answered)
+      .map((question) => question.id)
+
+  if (!inventory.available) {
+    return {
+      available: false,
+      reason: inventory.reason ?? 'Automation inventory is unavailable.',
+      sourceDirectory: inventory.sourceDirectory,
+      generatedAt: inventory.generatedAt,
+      overview: inventory.overview,
+      hiddenCount: inventory.hiddenCount,
+      highRiskAutomations: [],
+      contextGapAutomations: [],
+      duplicateCandidates: [],
+    }
+  }
+
+  return {
+    available: true,
+    reason: null,
+    sourceDirectory: inventory.sourceDirectory,
+    generatedAt: inventory.generatedAt,
+    overview: inventory.overview,
+    hiddenCount: inventory.hiddenCount,
+    highRiskAutomations: automations
+      .filter((automation) => automation.riskLevel === 'high')
+      .slice(0, 6)
+      .map((automation) => ({
+        id: automation.id,
+        name: automation.name,
+        category: automation.category,
+        boundary: automation.managementBoundary,
+        contextHealth: automation.contextHealth,
+        missingQuestions: missingQuestions(automation),
+      })),
+    contextGapAutomations: automations
+      .filter((automation) => automation.contextQuestions.some((question) => !question.answered))
+      .sort((a, b) => {
+        const healthRank = { red: 0, yellow: 1, green: 2 }
+        return healthRank[a.contextHealth] - healthRank[b.contextHealth] || b.contextGaps.length - a.contextGaps.length
+      })
+      .slice(0, 6)
+      .map((automation) => ({
+        id: automation.id,
+        name: automation.name,
+        category: automation.category,
+        riskLevel: automation.riskLevel,
+        contextHealth: automation.contextHealth,
+        missingQuestions: missingQuestions(automation),
+        recommendations: automation.contextQuestions
+          .filter((question) => !question.answered)
+          .map((question) => question.recommendation)
+          .slice(0, 3),
+      })),
+    duplicateCandidates: automations
+      .filter((automation) => automation.duplicateCandidate)
+      .slice(0, 8)
+      .map((automation) => ({
+        id: automation.id,
+        name: automation.name,
+        category: automation.category,
+      })),
+  }
+}
+
 export function parseChiefOfStaffJson(content: string): {
   reply: string
   suggestedActions: string[]
@@ -239,7 +344,7 @@ export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext>
   const db = assertDatabase()
   const since = sinceHours(24)
 
-  const [activeRes, failedRes, approvalsRes, costsRes] = await Promise.all([
+  const [activeRes, failedRes, approvalsRes, costsRes, automationInventory] = await Promise.all([
     db
       .from('agent_runs')
       .select('id, agent_key, runtime, title, status, current_step, error_message, started_at')
@@ -264,6 +369,7 @@ export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext>
       .select('amount, provider, model')
       .gte('occurred_at', since)
       .limit(100),
+    listCodexAutomationInventory(),
   ])
 
   for (const result of [activeRes, failedRes, approvalsRes, costsRes]) {
@@ -286,6 +392,7 @@ export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext>
       providers: Array.from(new Set(costRows.map((row) => row.provider).filter(Boolean) as string[])),
       models: Array.from(new Set(costRows.map((row) => row.model).filter(Boolean) as string[])),
     },
+    automationContext: summarizeAutomationContext(automationInventory),
   }
 }
 
@@ -296,6 +403,7 @@ export function buildChiefOfStaffPrompt(context: ChiefOfStaffContext, history: C
       'Your job is to translate executive intent into clear priorities, operational status, escalation decisions, and next actions.',
       'Use only the provided operating context. If the user asks for production mutations, sending messages, publishing, or config changes, explain that approval is required and suggest the approval path.',
       'Be concise, direct, and operational. Do not pretend to have run tools that are not in the context.',
+      'Automation context is a summarized, read-only inventory. Use it to identify risky automations, missing context, duplicate jobs, and when the Automation Systems Agent should be engaged.',
       'When proposing an executable next step, include a typed action proposal. The proposal is only a recommendation; it does not execute work.',
       'When the next step should be handled by one of the mapped agents, include an agent_engagements proposal with the exact agent_key.',
       'Use only these action ids: read_files, write_files, external_api_call, client_data_access, known_workflow_db_write, unknown_db_write, publish_public_content, send_email, production_config_change, public_content_from_private_material.',
