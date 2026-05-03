@@ -75,6 +75,18 @@ describe('Chief of Staff chat helpers', () => {
           risk_level: 'high',
         },
       ],
+      agent_engagements: [
+        {
+          agent_key: 'research-source-register',
+          label: 'Run research agent',
+          rationale: 'Gather source-backed context for this decision.',
+        },
+        {
+          agent_key: 'unknown-agent',
+          label: 'Ignore unknown',
+          rationale: 'This should be dropped.',
+        },
+      ],
     }))
 
     expect(result.reply).toContain('pending deployment')
@@ -89,6 +101,16 @@ describe('Chief of Staff chat helpers', () => {
         riskLevel: 'high',
       },
     ])
+    expect(result.agentEngagements).toEqual([
+      {
+        agentKey: 'research-source-register',
+        agentName: 'Research & Source Register Agent',
+        label: 'Run research agent',
+        rationale: 'Gather source-backed context for this decision.',
+        status: 'partial',
+        executionMode: 'read_only',
+      },
+    ])
   })
 
   it('builds a read-only operational prompt', () => {
@@ -97,6 +119,7 @@ describe('Chief of Staff chat helpers', () => {
     expect(prompt.systemPrompt).toContain('production mutations')
     expect(prompt.systemPrompt).toContain('Return JSON only')
     expect(prompt.systemPrompt).toContain('action_proposals')
+    expect(prompt.systemPrompt).toContain('agent_engagements')
     expect(prompt.userPrompt).toContain('Morning review')
     expect(prompt.userPrompt).toContain('What needs attention?')
   })
