@@ -105,6 +105,24 @@ describe('agent-run helpers', () => {
     }))
   })
 
+  it('records a waiting-for-approval step and surfaces that status on the run', async () => {
+    mocks.singleQueue.push({ data: { id: 'step-approval' }, error: null })
+
+    const result = await recordAgentStep({
+      runId: 'run-1',
+      name: 'Manager approval required',
+      status: 'waiting_for_approval',
+      idempotencyKey: 'step-approval-idem',
+    })
+
+    expect(result).toEqual({ id: 'step-approval' })
+    expect(mocks.fromMock).toHaveBeenCalledWith('agent_run_steps')
+    expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
+      current_step: 'Manager approval required',
+      status: 'waiting_for_approval',
+    }))
+  })
+
   it('records events and artifacts', async () => {
     mocks.singleQueue.push(
       { data: { id: 'event-1' }, error: null },
