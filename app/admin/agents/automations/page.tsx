@@ -7,8 +7,8 @@ import {
   ArrowRight,
   Bot,
   CheckCircle2,
-  Clock,
   FileText,
+  ListChecks,
   RefreshCw,
   ShieldAlert,
   SlidersHorizontal,
@@ -46,6 +46,13 @@ type AutomationProfile = {
   managementBoundary: AutomationBoundary
   contextHealth: AutomationContextHealth
   contextGaps: string[]
+  contextQuestions: {
+    id: string
+    question: string
+    answered: boolean
+    answer: string | null
+    recommendation: string
+  }[]
   contextProfile: {
     purpose: string | null
     operatingRhythm: string | null
@@ -83,6 +90,7 @@ const STATUSES = [ALL, 'ACTIVE', 'PAUSED'] as const
 const RISKS = [ALL, 'low', 'medium', 'high'] as const
 const CONTEXT_HEALTH = [ALL, 'green', 'yellow', 'red'] as const
 const EMPTY_AUTOMATIONS: AutomationProfile[] = []
+type ViewMode = 'inventory' | 'context-gaps'
 
 export default function AgentAutomationsPage() {
   return (
@@ -101,6 +109,7 @@ function AgentAutomationsContent() {
   const [risk, setRisk] = useState<(typeof RISKS)[number]>(ALL)
   const [contextHealth, setContextHealth] = useState<(typeof CONTEXT_HEALTH)[number]>(ALL)
   const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>('inventory')
 
   const fetchInventory = useCallback(async () => {
     setLoading(true)
@@ -140,6 +149,14 @@ function AgentAutomationsContent() {
   }, [automations, category, status, risk, contextHealth])
 
   const selected = automations.find((automation) => automation.id === selectedId) || filtered[0] || null
+  const contextGapAutomations = useMemo(() => {
+    return automations
+      .filter((automation) => automation.contextQuestions.some((question) => !question.answered))
+      .sort((a, b) => {
+        const healthRank = { red: 0, yellow: 1, green: 2 }
+        return healthRank[a.contextHealth] - healthRank[b.contextHealth] || b.contextGaps.length - a.contextGaps.length
+      })
+  }, [automations])
   const duplicateWarnings = automations.filter((automation) => automation.duplicateCandidate)
   const workspaceWarnings = automations.filter((automation) => !automation.cwds.some((cwd) => cwd.includes('/Projects/Portfolio')))
   const authorityWarnings = automations.filter(
@@ -207,6 +224,23 @@ function AgentAutomationsContent() {
               docWarnings={docWarnings}
             />
 
+            <div className="mb-6 inline-flex rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-1">
+              <button
+                onClick={() => setViewMode('inventory')}
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm ${viewMode === 'inventory' ? 'bg-radiant-gold/15 text-radiant-gold' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <FileText size={16} />
+                Inventory
+              </button>
+              <button
+                onClick={() => setViewMode('context-gaps')}
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm ${viewMode === 'context-gaps' ? 'bg-radiant-gold/15 text-radiant-gold' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <ListChecks size={16} />
+                Context Gaps
+              </button>
+            </div>
+
             <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
               <div className="mb-4 flex items-center gap-2 text-radiant-gold">
                 <SlidersHorizontal size={18} />
@@ -225,10 +259,20 @@ function AgentAutomationsContent() {
               </div>
             </section>
 
-            <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_420px] gap-6">
-              <AutomationTable automations={filtered} selectedId={selected?.id || null} onSelect={setSelectedId} />
-              {selected ? <ContextReadiness automation={selected} /> : null}
-            </div>
+            {viewMode === 'inventory' ? (
+              <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_420px] gap-6">
+                <AutomationTable automations={filtered} selectedId={selected?.id || null} onSelect={setSelectedId} />
+                {selected ? <ContextReadiness automation={selected} /> : null}
+              </div>
+            ) : (
+              <ContextGapsView
+                automations={contextGapAutomations}
+                onSelect={(id) => {
+                  setSelectedId(id)
+                  setViewMode('inventory')
+                }}
+              />
+            )}
 
             <p className="mt-5 text-xs text-muted-foreground">
               Source: {inventory.sourceDirectory}. Generated {formatDateTime(inventory.generatedAt)}. Prompt excerpts are sanitized and truncated.
@@ -343,6 +387,96 @@ function ContextReadiness({ automation }: { automation: AutomationProfile }) {
         <ContextList label="Governing docs, skills, and runbooks" values={profile.governingDocs} />
       </div>
     </aside>
+  )
+}
+
+function ContextGapsView({
+  automations,
+  onSelect,
+}: {
+  automations: AutomationProfile[]
+  onSelect: (id: string) => void
+}) {
+  if (automations.length === 0) {
+    return (
+      <div className="rounded-lg border border-green-400/30 bg-green-500/10 p-6 text-green-100">
+        <div className="flex items-center gap-2 font-medium">
+          <CheckCircle2 size={18} />
+          All visible automations answer the current context-readiness questions.
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+        <div className="flex items-center gap-2 text-radiant-gold">
+          <ListChecks size={18} />
+          <h2 className="font-semibold">Context Gaps Workflow</h2>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Read-only readiness review for the seven operating-context questions. Missing answers are recommendations only; v1 does not write back to TOML, docs, or skills.
+        </p>
+      </div>
+
+      {automations.map((automation) => {
+        const missing = automation.contextQuestions.filter((question) => !question.answered)
+        return (
+          <article key={automation.id} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+            <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-lg font-semibold">{automation.name}</h3>
+                  <ContextBadge health={automation.contextHealth} />
+                  <RiskBadge risk={automation.riskLevel} />
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground break-all">{automation.sourceFile}</p>
+              </div>
+              <button
+                onClick={() => onSelect(automation.id)}
+                className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background px-3 py-2 text-sm hover:border-radiant-gold/60"
+              >
+                View inventory details
+                <ArrowRight size={15} />
+              </button>
+            </div>
+
+            <div className="mb-4 rounded-lg border border-yellow-400/30 bg-yellow-500/10 p-3 text-sm text-yellow-100">
+              <span className="font-medium">{missing.length} missing answer(s): </span>
+              {missing.map((question) => question.id).join(', ')}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+              {automation.contextQuestions.map((question) => (
+                <div
+                  key={question.id}
+                  className={`rounded-lg border p-4 ${
+                    question.answered
+                      ? 'border-green-400/20 bg-green-500/5'
+                      : 'border-yellow-400/30 bg-yellow-500/10'
+                  }`}
+                >
+                  <div className="mb-2 flex items-start gap-2">
+                    {question.answered ? (
+                      <CheckCircle2 className="mt-0.5 shrink-0 text-green-300" size={16} />
+                    ) : (
+                      <AlertTriangle className="mt-0.5 shrink-0 text-yellow-300" size={16} />
+                    )}
+                    <h4 className="text-sm font-medium">{question.question}</h4>
+                  </div>
+                  {question.answered ? (
+                    <p className="text-sm text-muted-foreground">{question.answer}</p>
+                  ) : (
+                    <p className="text-sm text-yellow-100">{question.recommendation}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </article>
+        )
+      })}
+    </section>
   )
 }
 

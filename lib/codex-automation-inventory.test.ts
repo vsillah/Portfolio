@@ -102,6 +102,34 @@ cwds = ["/Users/vambahsillah"]
       managementBoundary: 'approval-required',
     }))
     expect(inventory.automations[0].controlDocs).toContain('docs/portfolio-operations-manager.md')
+    expect(inventory.automations[0].contextQuestions.every((question) => question.answered)).toBe(true)
+  })
+
+  it('marks unanswered context-readiness questions without generating answers', async () => {
+    await writeAutomation('portfolio-thin-monitor', `
+id = "portfolio-thin-monitor"
+kind = "cron"
+name = "Portfolio Thin Monitor"
+prompt = "Check Portfolio."
+status = "ACTIVE"
+rrule = "FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=8;BYMINUTE=0;BYSECOND=0"
+cwds = ["/Users/vambahsillah/Projects/Portfolio"]
+`)
+
+    const inventory = await listCodexAutomationInventory(tempRoot!)
+    const automation = inventory.automations[0]
+    const unanswered = automation.contextQuestions.filter((question) => !question.answered)
+
+    expect(automation.contextHealth).toBe('red')
+    expect(unanswered.map((question) => question.id)).toEqual(expect.arrayContaining([
+      'decision',
+      'boundary',
+      'outputs',
+      'escalation',
+      'governance',
+    ]))
+    expect(unanswered.find((question) => question.id === 'boundary')?.answer).toBeNull()
+    expect(unanswered.find((question) => question.id === 'boundary')?.recommendation).toContain('authority boundary')
   })
 
   it('flags duplicate credential rotation jobs and sanitizes prompt excerpts', async () => {

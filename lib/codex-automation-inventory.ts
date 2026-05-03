@@ -16,6 +16,14 @@ export type AutomationRiskLevel = 'low' | 'medium' | 'high'
 export type AutomationBoundary = 'read-only' | 'branch-only' | 'approval-required' | 'never automatic'
 export type AutomationContextHealth = 'green' | 'yellow' | 'red'
 
+export interface CodexAutomationContextQuestion {
+  id: string
+  question: string
+  answered: boolean
+  answer: string | null
+  recommendation: string
+}
+
 export interface CodexAutomationProfile {
   id: string
   name: string
@@ -38,6 +46,7 @@ export interface CodexAutomationProfile {
   managementBoundary: AutomationBoundary
   contextHealth: AutomationContextHealth
   contextGaps: string[]
+  contextQuestions: CodexAutomationContextQuestion[]
   contextProfile: {
     purpose: string | null
     operatingRhythm: string | null
@@ -190,6 +199,7 @@ function buildAutomationProfile(raw: ParsedAutomationToml, sourceFile: string): 
   const managementBoundary = classifyBoundary(prompt)
   const contextProfile = buildContextProfile(name, prompt, cwds, controlDocs, managementBoundary)
   const contextGaps = findContextGaps(contextProfile, prompt)
+  const contextQuestions = buildContextQuestions(contextProfile, prompt)
   const riskLevel = classifyRisk(prompt, category, managementBoundary)
 
   return {
@@ -214,6 +224,7 @@ function buildAutomationProfile(raw: ParsedAutomationToml, sourceFile: string): 
     managementBoundary,
     contextHealth: classifyContextHealth(contextGaps, riskLevel),
     contextGaps,
+    contextQuestions,
     contextProfile,
   }
 }
@@ -417,8 +428,70 @@ function findContextGaps(
   if (profile.expectedOutputs.length === 0) gaps.push('missing outputs')
   if (profile.governingDocs.length === 0) gaps.push('missing control docs')
   if (!profile.escalationTrigger) gaps.push('missing escalation trigger')
-  if (!/(do not|approval|required|read-only|never|branch|authority)/i.test(prompt)) gaps.push('missing authority boundary')
+  if (!hasExplicitAuthorityBoundary(prompt)) gaps.push('missing authority boundary')
   return gaps
+}
+
+function buildContextQuestions(
+  profile: CodexAutomationProfile['contextProfile'],
+  prompt: string,
+): CodexAutomationContextQuestion[] {
+  const hasBoundary = hasExplicitAuthorityBoundary(prompt)
+  return [
+    {
+      id: 'purpose',
+      question: 'What does this automation protect or improve?',
+      answered: Boolean(profile.purpose),
+      answer: profile.purpose,
+      recommendation: 'Add a one-sentence purpose statement to the prompt or governing runbook.',
+    },
+    {
+      id: 'decision',
+      question: 'What decision does it support?',
+      answered: Boolean(profile.recurringDecisions),
+      answer: profile.recurringDecisions,
+      recommendation: 'Name the recurring decision this job helps an agent or Vambah make.',
+    },
+    {
+      id: 'inputs',
+      question: 'What does it inspect?',
+      answered: profile.inputs.length > 0,
+      answer: profile.inputs.length > 0 ? profile.inputs.join(', ') : null,
+      recommendation: 'List source paths, control docs, APIs, dashboards, or reports inspected by the automation.',
+    },
+    {
+      id: 'boundary',
+      question: 'What should it never do automatically?',
+      answered: hasBoundary,
+      answer: hasBoundary ? profile.authorityBoundary : null,
+      recommendation: 'State the authority boundary explicitly, especially approvals, production, credentials, cancellations, and merge/deploy actions.',
+    },
+    {
+      id: 'outputs',
+      question: 'What should it produce?',
+      answered: profile.expectedOutputs.length > 0,
+      answer: profile.expectedOutputs.length > 0 ? profile.expectedOutputs.join(', ') : null,
+      recommendation: 'Specify the expected output shape, such as report, summary, alert, approval packet, or branch handoff.',
+    },
+    {
+      id: 'escalation',
+      question: 'What failure should alert Vambah?',
+      answered: Boolean(profile.escalationTrigger),
+      answer: profile.escalationTrigger,
+      recommendation: 'Define the failure, drift, stale source, blocked credential, or red-status condition that should trigger escalation.',
+    },
+    {
+      id: 'governance',
+      question: 'What doc, skill, or runbook governs it?',
+      answered: profile.governingDocs.length > 0,
+      answer: profile.governingDocs.length > 0 ? profile.governingDocs.join(', ') : null,
+      recommendation: 'Reference the governing doc, skill, source register, or runbook path in the automation prompt.',
+    },
+  ]
+}
+
+function hasExplicitAuthorityBoundary(prompt: string) {
+  return /(do not|approval|required|read-only|never|branch|authority)/i.test(prompt)
 }
 
 function classifyContextHealth(contextGaps: string[], riskLevel: AutomationRiskLevel): AutomationContextHealth {
