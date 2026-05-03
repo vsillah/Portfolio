@@ -1,6 +1,6 @@
 import { runAgentOpsMorningReview } from '@/lib/agent-ops-morning-review'
+import { createAgentEngagementRun } from '@/lib/agent-engagement'
 import { AGENT_ORGANIZATION, getAgentByKey } from '@/lib/agent-organization'
-import { startAgentRun, recordAgentEvent } from '@/lib/agent-run'
 import { supabaseAdmin } from '@/lib/supabase'
 
 type SlackCommandName = 'help' | 'status' | 'failed' | 'approvals' | 'morning-review' | 'agents' | 'run'
@@ -262,40 +262,30 @@ export async function createAgentEngagementSlackText(input: AgentSlackCommandInp
 
   try {
     const actor = input.userName || input.userId || 'Slack user'
-    const run = await startAgentRun({
-      agentKey: agent.key,
-      runtime: 'manual',
-      kind: 'agent_engagement_request',
-      title: `Engage ${agent.name}`,
-      status: 'queued',
-      subject: { type: 'slack_command', id: input.userId ?? actor, label: actor },
+    const result = await createAgentEngagementRun({
+      agent,
+      actor: {
+        subjectType: 'slack_command',
+        subjectId: input.userId ?? actor,
+        subjectLabel: actor,
+      },
       triggerSource: 'slack_agent_run_command',
-      currentStep: 'Engagement request queued',
-      metadata: {
-        requested_agent: agent.key,
-        requested_agent_name: agent.name,
-        pod: agent.podKey,
-        primary_runtime: agent.primaryRuntime,
-        approval_gate: agent.approvalGate,
-        engagement_path: agent.engagementPath,
+      requestedEventMessage: `${actor} requested ${agent.name} from Slack`,
+      eventMetadata: {
+        slack_user_id: input.userId ?? null,
+        slack_user_name: input.userName ?? null,
       },
     })
 
-    await recordAgentEvent({
-      runId: run.id,
-      eventType: 'agent_engagement_requested',
-      severity: 'info',
-      message: `${actor} requested ${agent.name} from Slack`,
-      metadata: { agent_key: agent.key, slack_user_id: input.userId ?? null, slack_user_name: input.userName ?? null },
-      idempotencyKey: `${run.id}:slack-requested`,
-    })
-
     return [
-      `*${agent.name} engagement queued*`,
+      result.status === 'completed'
+        ? `*${agent.name} read-only dispatch ready*`
+        : `*${agent.name} engagement queued*`,
       `Agent key: \`${agent.key}\``,
       `Runtime path: ${agent.primaryRuntime}`,
+      `Execution mode: ${result.executionMode}`,
       `Current guardrail: ${agent.approvalGate}`,
-      `Review: ${agentRunsUrl(run.id)}`,
+      `Review: ${agentRunsUrl(result.runId)}`,
     ].join('\n')
   } catch (error) {
     return `Agent engagement request failed: ${error instanceof Error ? error.message : 'Unknown error'}`

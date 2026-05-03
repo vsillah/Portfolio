@@ -177,13 +177,13 @@ The route verifies Slack signatures with `SLACK_SIGNING_SECRET` when configured 
 - `/agent approvals` — pending approval checkpoints with run links.
 - `/agent morning-review` — runs the approved Agent Ops morning review path with `trigger_source = slack_agent_ops_command`.
 - `/agent agents` — lists active and partial agent organization entries with their engagement keys.
-- `/agent run <agent-key>` — creates a traceable `manual` runtime engagement request in `agent_runs` without mutating production workflow data.
+- `/agent run <agent-key>` — creates the same traceable `manual` runtime engagement request as the admin button; active or partial agents produce a read-only dispatch artifact, while planned agents stay queued for review.
 
 Slack is an engagement surface, not the source of truth. The admin console and shared trace tables remain authoritative.
 
 ## Agent Engagement Requests
 
-Use `POST /api/admin/agents/engage`, the **Run read-only** buttons on `/admin/agents`, or Slack `/agent run <agent-key>` to create a traceable `manual` runtime engagement request for any mapped agent.
+Use `POST /api/admin/agents/engage`, the **Run read-only** buttons on `/admin/agents`, or Slack `/agent run <agent-key>` to create a traceable `manual` runtime engagement request for any mapped agent. Both entry points use the same engagement helper so their run metadata, work packets, and read-only dispatch artifacts stay aligned.
 
 Engagement requests:
 
