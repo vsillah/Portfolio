@@ -22,6 +22,7 @@ export interface ChatbotKnowledgeEntry {
 export const CHATBOT_KNOWLEDGE_SOURCES: ChatbotKnowledgeEntry[] = [
   { path: 'docs/chatbot-products-and-services-overview.md', sectionTitle: 'What AmaduTown Offers (products and services)' },
   { path: 'docs/chatbot-campaigns-overview.md', sectionTitle: 'Active Promotions & Attraction Campaigns' },
+  { path: 'docs/vambah-personality-public-safe.md', sectionTitle: 'Vambah Personality Corpus (public-safe)' },
   { path: 'docs/user-help-guide.md', sectionTitle: 'User Help Guide' },
   { path: 'docs/admin-sales-lead-pipeline-sop.md', sectionTitle: 'Admin & Sales Lead Pipeline (overview)' },
   { path: 'README.md', sectionTitle: 'Project overview' },
