@@ -17,10 +17,13 @@
 
 - **Health check (admin):** `GET /api/admin/rag-health` (optional `?q=` custom query). Confirms the app can reach the RAG webhook and return non-empty text. Still respects `MOCK_N8N` and `N8N_DISABLE_OUTBOUND`.
 - **n8n:** The workflow exposing `amadutown-rag-query` must be **active** and the Pinecone node must have valid credentials (see `docs/staging-n8n-activation-matrix.md` for historical staging notes).
+- **Local chatbot knowledge:** `GET /api/knowledge` and `GET /api/knowledge/chatbot` now include `docs/vambah-personality-public-safe.md`, a public-safe personality corpus summary generated from the governed local corpus. This improves the website chatbot's local knowledge bundle without mutating Pinecone.
+- **Pinecone status:** personality-corpus Pinecone ingestion remains deferred. Ingest only after reviewing the staged corpus pack and deciding whether the Pinecone-backed n8n workflow should treat it as a canonical source.
 
 ## Code entry points
 
 - [`lib/rag-query.ts`](../lib/rag-query.ts) — HTTP client and query string builder.  
+- [`lib/chatbot-knowledge.ts`](../lib/chatbot-knowledge.ts) — Local `/api/knowledge` source registry, including the public-safe personality corpus document.
 - [`lib/email-llm-context.ts`](../lib/email-llm-context.ts) — Appends RAG + optional chat blocks to the system prompt.  
 - [`lib/lead-chat-excerpt.ts`](../lib/lead-chat-excerpt.ts) — Optional site chat transcript.  
 - [`lib/outreach-queue-generator.ts`](../lib/outreach-queue-generator.ts), [`lib/delivery-email.ts`](../lib/delivery-email.ts) — Call the appender after template placeholders are resolved.
