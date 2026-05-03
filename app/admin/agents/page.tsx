@@ -40,7 +40,7 @@ export default function AgentOperationsPage() {
   const [morningResult, setMorningResult] = useState<{ runId: string; overall: string; slackNotified: boolean } | null>(null)
   const [morningError, setMorningError] = useState<string | null>(null)
   const [engagingAgentKey, setEngagingAgentKey] = useState<string | null>(null)
-  const [engagementResults, setEngagementResults] = useState<Record<string, string>>({})
+  const [engagementResults, setEngagementResults] = useState<Record<string, { runId: string; status: string }>>({})
   const [engagementError, setEngagementError] = useState<string | null>(null)
 
   async function runHermesHealthSummary() {
@@ -161,7 +161,10 @@ export default function AgentOperationsPage() {
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
-      setEngagementResults((current) => ({ ...current, [agentKey]: body.run_id }))
+      setEngagementResults((current) => ({
+        ...current,
+        [agentKey]: { runId: body.run_id, status: body.status || 'queued' },
+      }))
     } catch (err) {
       setEngagementError(err instanceof Error ? err.message : 'Failed to queue agent engagement')
     } finally {
@@ -440,10 +443,12 @@ export default function AgentOperationsPage() {
                         <div className="mt-3 flex flex-wrap gap-2">
                           {engagementResults[agent.key] ? (
                             <Link
-                              href={`/admin/agents/runs/${engagementResults[agent.key]}`}
+                              href={`/admin/agents/runs/${engagementResults[agent.key].runId}`}
                               className="inline-flex items-center gap-1 rounded-md border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200 hover:underline"
                             >
-                              Engagement queued
+                              {engagementResults[agent.key].status === 'completed'
+                                ? 'Read-only run ready'
+                                : 'Engagement queued'}
                               <ArrowRight size={12} />
                             </Link>
                           ) : (
@@ -454,7 +459,7 @@ export default function AgentOperationsPage() {
                               className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/50 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
                             >
                               <Send size={12} />
-                              Queue engagement
+                              Run read-only
                             </button>
                           )}
                         </div>

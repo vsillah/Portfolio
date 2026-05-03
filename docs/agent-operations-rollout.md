@@ -183,7 +183,7 @@ Slack is an engagement surface, not the source of truth. The admin console and s
 
 ## Agent Engagement Requests
 
-Use `POST /api/admin/agents/engage`, the **Queue engagement** buttons on `/admin/agents`, or Slack `/agent run <agent-key>` to create a traceable `manual` runtime engagement request for any mapped agent.
+Use `POST /api/admin/agents/engage`, the **Run read-only** buttons on `/admin/agents`, or Slack `/agent run <agent-key>` to create a traceable `manual` runtime engagement request for any mapped agent.
 
 Engagement requests:
 
@@ -191,7 +191,9 @@ Engagement requests:
 - start in `queued`,
 - record the requested agent key, pod, runtime path, and approval gate,
 - attach an `agent_engagement_work_packet` artifact with a readable work brief, mapped workflow coverage, and suggested next action,
-- do not execute the target agent or mutate production data.
+- for active or partial agents, complete a read-only dispatch step and attach an `agent_read_only_dispatch` artifact with next actions,
+- keep planned agents queued for review until they have a narrow first task,
+- do not mutate production data.
 
 ## Chief of Staff Chat
 
