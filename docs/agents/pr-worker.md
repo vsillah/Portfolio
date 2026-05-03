@@ -22,6 +22,8 @@ git log -1 --oneline --decorate
 
 If the checkout is dirty before you start, identify whether the files belong to your task. If they do not, pause and either switch to a clean worktree/branch or ask the integration captain.
 
+If another chat may be working in an adjacent area, run `docs/agents/enhancement-impact-preflight.md` before implementation and include the result in the handoff.
+
 ## Before Handoff
 
 Run validation appropriate to the change:
@@ -41,6 +43,12 @@ Add or paste this into `docs/integration-captain-queue.md`:
 - Branch:
 - PR:
 - Purpose:
+- Impact preflight:
+  - Predicted files:
+  - Shared routes/APIs/tables/helpers:
+  - Active PRs or branches checked:
+  - Overlap rating: green/yellow/red
+  - Coordination decision:
 - Changed files:
 - Validation run:
 - Known risks:
