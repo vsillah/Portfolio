@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Clock,
   DollarSign,
+  ListChecks,
   MessageSquare,
   RefreshCw,
   Send,
@@ -215,6 +216,24 @@ export default function AgentOperationsPage() {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Ask for priorities, blockers, approval risk, and next actions from the agent operating context.
+                  </p>
+                </div>
+                <ArrowRight size={20} className="text-muted-foreground shrink-0" />
+              </div>
+            </Link>
+
+            <Link
+              href="/admin/agents/automations"
+              className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 p-5 hover:border-radiant-gold/60 transition-colors"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 text-cyan-300 mb-2">
+                    <ListChecks size={20} />
+                    <h2 className="text-lg font-semibold">Automation Context</h2>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Review Codex automation schedules, risk, duplicates, and context readiness for future agents.
                   </p>
                 </div>
                 <ArrowRight size={20} className="text-muted-foreground shrink-0" />

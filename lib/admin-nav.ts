@@ -67,6 +67,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Cost & Revenue', href: '/admin/cost-revenue' },
         { label: 'Subscription Watch', href: '/admin/subscriptions' },
         { label: 'Agent Operations', href: '/admin/agents' },
+        { label: 'Automation Context', href: '/admin/agents/automations' },
         { label: 'Technology Bakeoffs', href: '/admin/technology-bakeoffs' },
         { label: 'Client Experience', href: '/admin/client-experience' },
         { label: 'E2E Testing', href: '/admin/testing' },
