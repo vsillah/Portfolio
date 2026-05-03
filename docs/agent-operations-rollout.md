@@ -194,6 +194,7 @@ Engagement requests:
 - record the requested agent key, pod, runtime path, and approval gate,
 - attach an `agent_engagement_work_packet` artifact with a readable work brief, mapped workflow coverage, and suggested next action,
 - for active or partial agents, complete a read-only dispatch step and attach an `agent_read_only_dispatch` artifact with next actions,
+- include a first-task template for priority agents so each read-only dispatch has an objective, checklist, and expected output,
 - keep planned agents queued for review until they have a narrow first task,
 - do not mutate production data.
 

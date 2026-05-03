@@ -8,8 +8,9 @@ This is the active implementation queue for turning the agent organization into 
 - [x] Keep Portfolio admin as the source of truth for agent operations.
 - [x] Support read-only agent dispatch from `/admin/agents`.
 - [x] Support the same read-only dispatch from Slack `/agent run <agent-key>`.
-- [ ] Let Chief of Staff chat recommend mapped agents and launch their read-only dispatch runs.
-- [ ] Keep every launched agent engagement visible in `/admin/agents/runs`.
+- [x] Let Chief of Staff chat recommend mapped agents and launch their read-only dispatch runs.
+- [x] Keep every launched agent engagement visible in `/admin/agents/runs`.
+- [ ] Add first-task templates to read-only dispatch artifacts for priority agents.
 - [ ] Validate with focused tests, typecheck, lint, build, PR previews, merge, and production/staging deployment checks.
 
 ## Next Operating Milestones
@@ -20,7 +21,7 @@ This is the active implementation queue for turning the agent organization into 
    - Launching the recommendation must create the same traced read-only engagement used by admin and Slack.
 
 2. Agent-specific first tasks
-   - Give the highest-value partial agents a first narrow read-only task:
+   - Give the highest-value agents a first narrow read-only task:
      - `chief-of-staff`
      - `research-source-register`
      - `voice-content-architect`

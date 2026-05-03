@@ -33,6 +33,72 @@ export interface AgentEngagementRunResult {
   dispatchArtifactAttached: boolean
 }
 
+export type AgentFirstTaskTemplate = {
+  objective: string
+  checklist: string[]
+  output: string
+}
+
+export const AGENT_FIRST_TASKS: Record<string, AgentFirstTaskTemplate> = {
+  'chief-of-staff': {
+    objective: 'Produce a current operating brief across runs, approvals, failures, and the next agent to engage.',
+    checklist: [
+      'Review active, failed, stale, and approval-waiting runs.',
+      'Identify the highest-risk blocker or unresolved handoff.',
+      'Recommend one next read-only agent engagement or one approval checkpoint.',
+    ],
+    output: 'Executive operations brief with blocker, owner, next action, and trace link.',
+  },
+  'research-source-register': {
+    objective: 'Prepare a source-backed research brief for the current decision without publishing or exposing private material.',
+    checklist: [
+      'Clarify the decision, claim, or content point that needs evidence.',
+      'List available source surfaces and whether each is public, private, or client-derived.',
+      'Return a citation-ready source register and flag material requiring approval before public use.',
+    ],
+    output: 'Research source register with source class, relevance, usage boundary, and approval risk.',
+  },
+  'voice-content-architect': {
+    objective: 'Turn a source-backed idea into Vambah-aligned content structure while preserving privacy boundaries.',
+    checklist: [
+      'Identify the narrative tension, audience, and desired operating outcome.',
+      'Map the idea into a reusable post, script, carousel, or campaign structure.',
+      'Flag any private-to-public content risk before drafting publishable copy.',
+    ],
+    output: 'Content architecture brief with angle, structure, proof points, and approval boundary.',
+  },
+  'automation-systems': {
+    objective: 'Review mapped automation workflow posture and identify the safest next operational action.',
+    checklist: [
+      'Summarize active production and staging workflow coverage.',
+      'Identify workflows that are safe to monitor versus workflows that require approval before mutation.',
+      'Recommend whether to inspect status, run a known admin path, or create an approval checkpoint.',
+    ],
+    output: 'Automation posture brief with workflow coverage, risk boundary, and next safe action.',
+  },
+  'inbox-follow-up': {
+    objective: 'Prepare a follow-up readiness brief without sending external messages.',
+    checklist: [
+      'Separate draft, reply-detection, nurture, and meeting-intake workflow coverage.',
+      'Flag any email send or public message action that requires human approval.',
+      'Recommend the safest next review surface for outbound or follow-up work.',
+    ],
+    output: 'Follow-up readiness brief with channel, workflow, approval gate, and next review step.',
+  },
+}
+
+function firstTaskForAgent(agent: AgentOrganizationNode): AgentFirstTaskTemplate {
+  return AGENT_FIRST_TASKS[agent.key] ?? {
+    objective: 'Define the next narrow read-only task before allowing this agent to perform side effects.',
+    checklist: [
+      'Confirm the agent responsibility and mapped runtime.',
+      'Identify the current evidence or workflow surface to inspect.',
+      'Return a reviewable artifact and keep production side effects behind the approval gate.',
+    ],
+    output: 'Read-only work brief with evidence, next action, and approval boundary.',
+  }
+}
+
 export function buildAgentEngagementWorkPacket(agent: AgentOrganizationNode, note: string | null) {
   const pod = AGENT_PODS.find((item) => item.key === agent.podKey)
   const activeWorkflows = agent.n8nWorkflows.filter((workflow) => workflow.active)
@@ -92,6 +158,7 @@ export function buildReadOnlyAgentDispatch(agent: AgentOrganizationNode, note: s
   const activeWorkflows = agent.n8nWorkflows.filter((workflow) => workflow.active)
   const productionWorkflows = activeWorkflows.filter((workflow) => workflow.environment === 'production')
   const stagingWorkflows = activeWorkflows.filter((workflow) => workflow.environment === 'staging')
+  const firstTask = firstTaskForAgent(agent)
 
   const nextActions =
     agent.key === 'chief-of-staff'
@@ -125,6 +192,15 @@ export function buildReadOnlyAgentDispatch(agent: AgentOrganizationNode, note: s
     '### Suggested next actions',
     ...nextActions.map((action) => `- ${action}`),
     '',
+    '### First task',
+    firstTask.objective,
+    '',
+    '### First task checklist',
+    ...firstTask.checklist.map((item) => `- ${item}`),
+    '',
+    '### Expected output',
+    firstTask.output,
+    '',
     '### Approval boundary',
     agent.approvalGate,
     note ? ['', '### Operator note', note].join('\n') : '',
@@ -137,6 +213,7 @@ export function buildReadOnlyAgentDispatch(agent: AgentOrganizationNode, note: s
     activeWorkflowCount: activeWorkflows.length,
     productionWorkflowCount: productionWorkflows.length,
     stagingWorkflowCount: stagingWorkflows.length,
+    firstTask,
     summaryMarkdown,
   }
 }
@@ -232,6 +309,7 @@ export async function createAgentEngagementRun(
         production_workflow_count: dispatch.productionWorkflowCount,
         staging_workflow_count: dispatch.stagingWorkflowCount,
         next_actions: dispatch.nextActions,
+        first_task: dispatch.firstTask,
         executes_action: false,
       },
       idempotencyKey: `${run.id}:read-only-dispatch-step`,
@@ -251,6 +329,7 @@ export async function createAgentEngagementRun(
         production_workflow_count: dispatch.productionWorkflowCount,
         staging_workflow_count: dispatch.stagingWorkflowCount,
         next_actions: dispatch.nextActions,
+        first_task: dispatch.firstTask,
         approval_gate: agent.approvalGate,
         executes_action: false,
       },
@@ -268,6 +347,7 @@ export async function createAgentEngagementRun(
         active_workflow_count: dispatch.activeWorkflowCount,
         work_packet_attached: Boolean(artifact),
         dispatch_artifact_attached: dispatchArtifactAttached,
+        first_task: dispatch.firstTask,
         executes_action: false,
       },
     })
