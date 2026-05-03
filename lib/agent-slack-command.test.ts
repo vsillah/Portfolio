@@ -11,11 +11,17 @@ vi.mock('@/lib/agent-ops-morning-review', () => ({
 const agentRunMocks = vi.hoisted(() => ({
   startAgentRun: vi.fn(),
   recordAgentEvent: vi.fn(),
+  recordAgentStep: vi.fn(),
+  endAgentRun: vi.fn(),
+  attachAgentArtifact: vi.fn(),
 }))
 
 vi.mock('@/lib/agent-run', () => ({
   startAgentRun: agentRunMocks.startAgentRun,
   recordAgentEvent: agentRunMocks.recordAgentEvent,
+  recordAgentStep: agentRunMocks.recordAgentStep,
+  endAgentRun: agentRunMocks.endAgentRun,
+  attachAgentArtifact: agentRunMocks.attachAgentArtifact,
 }))
 
 import { agentSlackCommandInternals, createAgentEngagementSlackText } from '@/lib/agent-slack-command'
@@ -57,6 +63,9 @@ describe('agent Slack command parsing', () => {
   it('creates a traceable engagement request for a known agent', async () => {
     agentRunMocks.startAgentRun.mockResolvedValue({ id: 'run-123' })
     agentRunMocks.recordAgentEvent.mockResolvedValue({ id: 'event-123' })
+    agentRunMocks.recordAgentStep.mockResolvedValue({ id: 'step-123' })
+    agentRunMocks.endAgentRun.mockResolvedValue(undefined)
+    agentRunMocks.attachAgentArtifact.mockResolvedValue({ id: 'artifact-123' })
 
     const text = await createAgentEngagementSlackText({
       text: 'run chief-of-staff',
@@ -78,7 +87,26 @@ describe('agent Slack command parsing', () => {
         eventType: 'agent_engagement_requested',
       }),
     )
-    expect(text).toContain('Chief of Staff Agent engagement queued')
+    expect(agentRunMocks.recordAgentStep).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runId: 'run-123',
+        stepKey: 'read_only_dispatch',
+      }),
+    )
+    expect(agentRunMocks.attachAgentArtifact).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runId: 'run-123',
+        artifactType: 'agent_read_only_dispatch',
+      }),
+    )
+    expect(agentRunMocks.endAgentRun).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runId: 'run-123',
+        status: 'completed',
+      }),
+    )
+    expect(text).toContain('Chief of Staff Agent read-only dispatch ready')
+    expect(text).toContain('Execution mode: read_only')
     expect(text).toContain('/admin/agents/runs/run-123')
   })
 
