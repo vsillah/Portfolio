@@ -2,6 +2,8 @@
 
 The Portfolio admin remains the control plane. Codex and n8n stay as the primary operating backbone, while Hermes is added as a secondary runtime after shared run tracing is available. OpenCode/OpenClaw are deferred until their work can be observed, audited, and rolled back through the same trace model.
 
+The active execution queue for the remaining rollout work lives in [Agent Operations Task List](./agent-operations-task-list.md).
+
 ## Runtime Model
 
 Supported runtimes:
@@ -204,6 +206,7 @@ The first conversational agent surface is `/admin/agents/chief-of-staff`.
 - It creates a traced `codex` runtime `agent_run` for every exchange.
 - It uses `CHIEF_OF_STAFF_AGENT_MODEL` when set, otherwise `gpt-4o-mini`.
 - It returns both plain suggested follow-ups and typed action proposals using the shared runtime policy action IDs.
+- It can recommend mapped agent engagement proposals with `agent_key`, label, and rationale so the chat can launch the same read-only dispatch path used by `/admin/agents` and Slack.
 - Typed action proposals can be converted into approval checkpoints with `POST /api/admin/agents/chief-of-staff/actions`.
 - The approval action route creates a separate `manual` runtime run in `waiting_for_approval` and a pending `agent_approvals` record.
 - V1 remains non-executing. It can recommend next actions and create approval checkpoints, but it does not mutate production workflows, send messages, publish content, or change configuration.

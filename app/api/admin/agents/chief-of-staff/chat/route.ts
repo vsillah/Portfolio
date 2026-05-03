@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
       reply: result.reply,
       suggested_actions: result.suggestedActions,
       action_proposals: result.actionProposals,
+      agent_engagements: result.agentEngagements,
       model: result.model,
     })
   } catch (error) {

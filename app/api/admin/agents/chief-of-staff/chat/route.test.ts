@@ -54,6 +54,16 @@ describe('POST /api/admin/agents/chief-of-staff/chat', () => {
           riskLevel: 'high',
         },
       ],
+      agentEngagements: [
+        {
+          agentKey: 'research-source-register',
+          agentName: 'Research & Source Register Agent',
+          label: 'Run research agent',
+          rationale: 'Collect source-backed context for the next decision.',
+          status: 'partial',
+          executionMode: 'read_only',
+        },
+      ],
       model: 'gpt-4o-mini',
     })
   })
@@ -97,6 +107,16 @@ describe('POST /api/admin/agents/chief-of-staff/chat', () => {
           approvalType: 'send_email',
           requiresApproval: true,
           riskLevel: 'high',
+        },
+      ],
+      agent_engagements: [
+        {
+          agentKey: 'research-source-register',
+          agentName: 'Research & Source Register Agent',
+          label: 'Run research agent',
+          rationale: 'Collect source-backed context for the next decision.',
+          status: 'partial',
+          executionMode: 'read_only',
         },
       ],
       model: 'gpt-4o-mini',

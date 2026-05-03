@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { FormEvent, useMemo, useState } from 'react'
-import { ArrowLeft, Bot, ExternalLink, Send, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Bot, ExternalLink, PlayCircle, Send, ShieldCheck } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -16,12 +16,22 @@ type ChiefOfStaffActionProposal = {
   riskLevel: 'low' | 'medium' | 'high'
 }
 
+type ChiefOfStaffAgentEngagementProposal = {
+  agentKey: string
+  agentName: string
+  label: string
+  rationale: string
+  status: 'active' | 'partial' | 'planned'
+  executionMode: 'read_only' | 'queued_for_review'
+}
+
 type ChatMessage = {
   role: 'user' | 'assistant'
   content: string
   runId?: string
   suggestedActions?: string[]
   actionProposals?: ChiefOfStaffActionProposal[]
+  agentEngagements?: ChiefOfStaffAgentEngagementProposal[]
 }
 
 const STARTER_PROMPTS = [
@@ -43,6 +53,8 @@ export default function ChiefOfStaffAgentPage() {
   const [loading, setLoading] = useState(false)
   const [creatingApproval, setCreatingApproval] = useState<string | null>(null)
   const [approvalLinks, setApprovalLinks] = useState<Record<string, string>>({})
+  const [engagingAgent, setEngagingAgent] = useState<string | null>(null)
+  const [engagementLinks, setEngagementLinks] = useState<Record<string, { runId: string; status: string }>>({})
   const [error, setError] = useState<string | null>(null)
 
   const history = useMemo(
@@ -82,6 +94,7 @@ export default function ChiefOfStaffAgentPage() {
           runId: body.run_id,
           suggestedActions: Array.isArray(body.suggested_actions) ? body.suggested_actions : [],
           actionProposals: Array.isArray(body.action_proposals) ? body.action_proposals : [],
+          agentEngagements: Array.isArray(body.agent_engagements) ? body.agent_engagements : [],
         },
       ])
     } catch (err) {
@@ -126,6 +139,42 @@ export default function ChiefOfStaffAgentPage() {
       setError(err instanceof Error ? err.message : 'Failed to create approval checkpoint')
     } finally {
       setCreatingApproval(null)
+    }
+  }
+
+  async function runAgentEngagement(sourceRunId: string | undefined, proposal: ChiefOfStaffAgentEngagementProposal) {
+    const key = `${sourceRunId}:${proposal.agentKey}:${proposal.label}`
+    if (engagingAgent === key) return
+
+    setEngagingAgent(key)
+    setError(null)
+
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+
+      const res = await fetch('/api/admin/agents/engage', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          agent_key: proposal.agentKey,
+          note: `Launched from Chief of Staff chat${sourceRunId ? ` run ${sourceRunId}` : ''}: ${proposal.rationale}`,
+        }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+
+      setEngagementLinks((current) => ({
+        ...current,
+        [key]: { runId: body.run_id, status: body.status || 'queued' },
+      }))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to run agent engagement')
+    } finally {
+      setEngagingAgent(null)
     }
   }
 
@@ -257,6 +306,57 @@ export default function ChiefOfStaffAgentPage() {
                                     </button>
                                   )
                                 ) : null}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : null}
+                    {message.agentEngagements?.length ? (
+                      <div className="mt-4 space-y-2">
+                        {message.agentEngagements.map((proposal) => {
+                          const key = `${message.runId}:${proposal.agentKey}:${proposal.label}`
+                          const engagement = engagementLinks[key]
+
+                          return (
+                            <div
+                              key={key}
+                              className="rounded-lg border border-cyan-400/30 bg-cyan-500/10 p-3"
+                            >
+                              <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+                                <div>
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <p className="text-sm font-semibold">{proposal.label}</p>
+                                    <span className="rounded-full border border-cyan-300/40 px-2 py-0.5 text-[11px] text-cyan-100">
+                                      {proposal.agentKey}
+                                    </span>
+                                    <span className="rounded-full border border-silicon-slate/60 px-2 py-0.5 text-[11px] uppercase text-muted-foreground">
+                                      {proposal.executionMode}
+                                    </span>
+                                  </div>
+                                  <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                                    {proposal.rationale}
+                                  </p>
+                                </div>
+                                {engagement ? (
+                                  <Link
+                                    href={`/admin/agents/runs/${engagement.runId}`}
+                                    className="inline-flex shrink-0 items-center gap-1 rounded-md border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200 hover:underline"
+                                  >
+                                    {engagement.status === 'completed' ? 'Run ready' : 'Queued'}
+                                    <ExternalLink size={12} />
+                                  </Link>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => runAgentEngagement(message.runId, proposal)}
+                                    disabled={loading || engagingAgent === key}
+                                    className="inline-flex shrink-0 items-center gap-1 rounded-md border border-cyan-300/40 bg-cyan-500/10 px-2 py-1 text-xs text-cyan-100 hover:bg-cyan-500/15 disabled:opacity-60"
+                                  >
+                                    <PlayCircle size={12} />
+                                    {proposal.executionMode === 'read_only' ? 'Run read-only' : 'Queue'}
+                                  </button>
+                                )}
                               </div>
                             </div>
                           )
