@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   isAuthError: vi.fn(),
   startAgentRun: vi.fn(),
   recordAgentEvent: vi.fn(),
+  attachAgentArtifact: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -15,6 +16,7 @@ vi.mock('@/lib/auth-server', () => ({
 vi.mock('@/lib/agent-run', () => ({
   startAgentRun: mocks.startAgentRun,
   recordAgentEvent: mocks.recordAgentEvent,
+  attachAgentArtifact: mocks.attachAgentArtifact,
 }))
 
 import { POST } from './route'
@@ -34,6 +36,7 @@ describe('POST /api/admin/agents/engage', () => {
     mocks.isAuthError.mockReturnValue(false)
     mocks.startAgentRun.mockResolvedValue({ id: 'engagement-run-1' })
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
+    mocks.attachAgentArtifact.mockResolvedValue({ id: 'artifact-1' })
   })
 
   it('requires admin auth', async () => {
@@ -60,6 +63,7 @@ describe('POST /api/admin/agents/engage', () => {
       agent_key: 'chief-of-staff',
       agent_name: 'Chief of Staff Agent',
       status: 'queued',
+      work_packet_attached: true,
     })
     expect(mocks.startAgentRun).toHaveBeenCalledWith(expect.objectContaining({
       agentKey: 'chief-of-staff',
@@ -71,6 +75,16 @@ describe('POST /api/admin/agents/engage', () => {
     expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
       runId: 'engagement-run-1',
       eventType: 'agent_engagement_requested',
+    }))
+    expect(mocks.attachAgentArtifact).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'engagement-run-1',
+      artifactType: 'agent_engagement_work_packet',
+      title: 'Chief of Staff Agent work packet',
+      metadata: expect.objectContaining({
+        summary_markdown: expect.stringContaining('Chief of Staff Agent Work Packet'),
+        suggested_next_action: expect.any(String),
+        executes_action: false,
+      }),
     }))
   })
 

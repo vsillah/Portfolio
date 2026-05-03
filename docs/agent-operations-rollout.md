@@ -190,6 +190,7 @@ Engagement requests:
 - create an `agent_run` with `kind = agent_engagement_request`,
 - start in `queued`,
 - record the requested agent key, pod, runtime path, and approval gate,
+- attach an `agent_engagement_work_packet` artifact with a readable work brief, mapped workflow coverage, and suggested next action,
 - do not execute the target agent or mutate production data.
 
 ## Chief of Staff Chat
