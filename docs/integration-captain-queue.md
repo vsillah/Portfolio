@@ -38,6 +38,12 @@ Every worker chat should add a handoff here or paste the same structure into the
 - PR:
 - Owner/chat:
 - Purpose:
+- Impact preflight:
+  - Predicted files:
+  - Shared routes/APIs/tables/helpers:
+  - Active PRs or branches checked:
+  - Overlap rating:
+  - Coordination decision:
 - Changed files:
 - Validation run:
 - Vercel preview:

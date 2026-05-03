@@ -41,6 +41,7 @@ Confirm:
 - whether `main` equals `origin/main`
 - which PRs are ready, draft, blocked, or stale
 - whether any worker handoffs in `docs/integration-captain-queue.md` need action
+- whether any ready PR skipped an impact preflight despite touching a hot surface
 
 ## Merge Gate
 
@@ -48,6 +49,7 @@ Before merging a PR:
 
 - PR is not draft.
 - PR has a clear purpose and scoped file set.
+- PR has an impact preflight when it touches a hot surface or overlaps another active branch.
 - Required validation is documented in the PR or handoff.
 - `Vercel - portfolio` preview is success.
 - `Vercel - portfolio-staging` preview is success.
