@@ -2,7 +2,7 @@
 
 The Portfolio admin remains the control plane. Codex and n8n stay as the primary operating backbone, while Hermes is added as a secondary runtime after shared run tracing is available. OpenCode/OpenClaw are deferred until their work can be observed, audited, and rolled back through the same trace model.
 
-The active execution queue for the remaining rollout work lives in [Agent Operations Task List](./agent-operations-task-list.md).
+The phase gates, definitions of done, and scope-control rules live in [Agent Operations Roadmap](./agent-operations-roadmap.md). The active execution queue for the remaining rollout work lives in [Agent Operations Task List](./agent-operations-task-list.md).
 
 ## Runtime Model
 
