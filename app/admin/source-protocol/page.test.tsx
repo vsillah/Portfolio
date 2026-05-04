@@ -17,6 +17,7 @@ const overview = {
   generatedAt: '2026-05-03T12:00:00.000Z',
   summary: {
     creators: 1,
+    portalAccounts: 1,
     works: 1,
     activeGrants: 1,
     retrievableChunks: 1,
@@ -27,6 +28,7 @@ const overview = {
     accruedPayoutUsd: 0.006,
   },
   creators: [],
+  portalAccounts: [],
   works: [],
   licenseGrants: [],
   chunks: [],

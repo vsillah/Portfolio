@@ -21,6 +21,7 @@ type SourceProtocolOverview = {
   migration?: string
   summary?: {
     creators: number
+    portalAccounts: number
     works: number
     activeGrants: number
     retrievableChunks: number
@@ -31,6 +32,7 @@ type SourceProtocolOverview = {
     accruedPayoutUsd: number
   }
   creators?: any[]
+  portalAccounts?: any[]
   works?: any[]
   licenseGrants?: any[]
   chunks?: any[]
@@ -160,6 +162,7 @@ function SourceProtocolContent() {
 
             <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
               <Stat icon={<Users size={18} />} label="Creators" value={summary.creators} />
+              <Stat icon={<Users size={18} />} label="Portal accounts" value={summary.portalAccounts} />
               <Stat icon={<BookOpenCheck size={18} />} label="Works" value={summary.works} />
               <Stat icon={<Database size={18} />} label="Retrievable chunks" value={summary.retrievableChunks} />
               <Stat icon={<FileText size={18} />} label="Answer receipts" value={summary.answerReceipts} />
