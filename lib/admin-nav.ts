@@ -69,6 +69,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Agent Operations', href: '/admin/agents' },
         { label: 'Automation Context', href: '/admin/agents/automations' },
         { label: 'Technology Bakeoffs', href: '/admin/technology-bakeoffs' },
+        { label: 'Source Protocol', href: '/admin/source-protocol' },
         { label: 'Client Experience', href: '/admin/client-experience' },
         { label: 'E2E Testing', href: '/admin/testing' },
       ],
