@@ -1,9 +1,19 @@
 import { runAgentOpsMorningReview } from '@/lib/agent-ops-morning-review'
 import { createAgentEngagementRun } from '@/lib/agent-engagement'
+import { runAgentWarRoom } from '@/lib/agent-war-room'
 import { AGENT_ORGANIZATION, getAgentByKey } from '@/lib/agent-organization'
 import { supabaseAdmin } from '@/lib/supabase'
 
-type SlackCommandName = 'help' | 'status' | 'failed' | 'approvals' | 'morning-review' | 'agents' | 'run'
+type SlackCommandName =
+  | 'help'
+  | 'status'
+  | 'failed'
+  | 'approvals'
+  | 'morning-review'
+  | 'agents'
+  | 'run'
+  | 'standup'
+  | 'discuss'
 
 export type AgentSlackCommandInput = {
   text: string
@@ -66,6 +76,8 @@ function commandFromText(text: string): SlackCommandName {
   if (command === 'morning-review' || command === 'morning' || command === 'review') return 'morning-review'
   if (command === 'agents' || command === 'list') return 'agents'
   if (command === 'run' || command === 'start') return 'run'
+  if (command === 'standup') return 'standup'
+  if (command === 'discuss') return 'discuss'
   return 'help'
 }
 
@@ -82,6 +94,8 @@ function formatHelp() {
     '`/agent morning-review` - run the approved Agent Ops morning review trace.',
     '`/agent agents` - list currently mapped agents and engagement keys.',
     '`/agent run <agent-key>` - create a traceable engagement request for an agent.',
+    '`/agent standup` - run a text War Room standup across active/partial agents.',
+    '`/agent discuss <question>` - gather agent perspectives and a Chief of Staff synthesis.',
   ].join('\n')
 }
 
@@ -292,6 +306,66 @@ export async function createAgentEngagementSlackText(input: AgentSlackCommandInp
   }
 }
 
+export async function runWarRoomStandupSlackText(input: AgentSlackCommandInput) {
+  try {
+    const actor = input.userName || input.userId || 'Slack user'
+    const result = await runAgentWarRoom({
+      command: 'standup',
+      triggerSource: 'slack_agent_standup_command',
+      actor: {
+        id: input.userId ?? actor,
+        label: actor,
+        type: 'slack_command',
+      },
+    })
+
+    const lines = result.updates
+      .slice(0, 6)
+      .map((update) => `- ${update.agent_name}: ${update.update}`)
+
+    return [
+      '*Agent War Room standup complete*',
+      ...lines,
+      `Chief of Staff: ${result.synthesis}`,
+      `Review: ${agentRunsUrl(result.runId)}`,
+    ].join('\n')
+  } catch (error) {
+    return `Agent War Room standup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function runWarRoomDiscussSlackText(input: AgentSlackCommandInput) {
+  const message = commandArgs(input.text).join(' ').trim()
+  if (!message) return 'Missing discussion topic. Use `/agent discuss <question>`.'
+
+  try {
+    const actor = input.userName || input.userId || 'Slack user'
+    const result = await runAgentWarRoom({
+      command: 'discuss',
+      message,
+      triggerSource: 'slack_agent_discuss_command',
+      actor: {
+        id: input.userId ?? actor,
+        label: actor,
+        type: 'slack_command',
+      },
+    })
+
+    const lines = result.updates
+      .slice(0, 5)
+      .map((update) => `- ${update.agent_name}: ${update.update}`)
+
+    return [
+      '*Agent War Room discussion complete*',
+      ...lines,
+      `Chief of Staff: ${result.synthesis}`,
+      `Review: ${agentRunsUrl(result.runId)}`,
+    ].join('\n')
+  } catch (error) {
+    return `Agent War Room discussion failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
 export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Promise<AgentSlackCommandResult> {
   const command = commandFromText(input.text)
   const text =
@@ -307,7 +381,11 @@ export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Pr
               ? formatAgentListSlackText()
               : command === 'run'
                 ? await createAgentEngagementSlackText(input)
-                : formatHelp()
+                : command === 'standup'
+                  ? await runWarRoomStandupSlackText(input)
+                  : command === 'discuss'
+                    ? await runWarRoomDiscussSlackText(input)
+                    : formatHelp()
 
   return { responseType: 'ephemeral', text }
 }

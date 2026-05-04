@@ -1,612 +1,446 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   Activity,
+  AlertTriangle,
   ArrowRight,
   Bot,
-  CalendarCheck,
   CheckCircle2,
-  Clock,
-  DollarSign,
-  ListChecks,
+  CircleDollarSign,
+  Clock3,
   MessageSquare,
+  Network,
+  Radio,
   RefreshCw,
   Send,
-  ShieldAlert,
-  Workflow,
-  XCircle,
+  ShieldCheck,
+  Sparkles,
+  Users,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
-import { getAgentOrganizationSummary } from '@/lib/agent-organization'
-import { APPROVAL_GATES, RUNTIME_POLICIES } from '@/lib/agent-policy'
 
-const AGENT_ORGANIZATION_SUMMARY = getAgentOrganizationSummary()
-
-type AgentEngagementRecord = {
-  runId: string
+type MissionRun = {
+  id: string
+  agent_key: string | null
+  runtime: string
+  kind: string
+  title: string
   status: string
-  currentStep: string | null
-  startedAt: string | null
-  completedAt: string | null
-  executionMode: string | null
+  subject_label: string | null
+  current_step: string | null
+  error_message: string | null
+  started_at: string
+  completed_at: string | null
+  cost_total: number
+}
+
+type MissionSnapshot = {
+  generated_at: string
+  status_strip: {
+    active: number
+    queued: number
+    running: number
+    waiting_for_approval: number
+    failed: number
+    stale: number
+    cost_today: number
+    pending_approvals: number
+  }
+  roster: Array<{
+    key: string
+    name: string
+    purpose: string
+    agents: Array<{
+      key: string
+      name: string
+      pod: string
+      status: 'active' | 'partial' | 'planned'
+      runtime: string
+      responsibility: string
+      active_workflow_count: number
+      latest_run: MissionRun | null
+    }>
+  }>
+  attention_queue: MissionRun[]
+  active_runs: MissionRun[]
+  latest_events: Array<{
+    run_id: string
+    event_type: string
+    severity: string
+    message: string | null
+    occurred_at: string
+  }>
+  latest_standup: MissionRun | null
+}
+
+type WarRoomResult = {
+  run_id: string
+  command: 'standup' | 'discuss'
+  synthesis: string
+  updates: Array<{
+    agent_key: string
+    agent_name: string
+    pod: string
+    runtime: string
+    status: string
+    update: string
+    next_action: string
+    approval_gate: string
+  }>
+}
+
+type ChiefReply = {
+  run_id: string
+  reply: string
+  suggested_actions: string[]
+  agent_engagements: Array<{
+    agentKey: string
+    agentName: string
+    label: string
+    rationale: string
+    status: string
+    executionMode: string
+  }>
 }
 
 export default function AgentOperationsPage() {
-  const [hermesLoading, setHermesLoading] = useState(false)
-  const [hermesResult, setHermesResult] = useState<{ runId: string; overall: string } | null>(null)
-  const [hermesError, setHermesError] = useState<string | null>(null)
-  const [drillLoading, setDrillLoading] = useState(false)
-  const [drillResult, setDrillResult] = useState<{ runId: string; approvalType: string } | null>(null)
-  const [drillError, setDrillError] = useState<string | null>(null)
-  const [runtimeLoading, setRuntimeLoading] = useState(false)
-  const [runtimeResult, setRuntimeResult] = useState<{ runId: string; available: boolean } | null>(null)
-  const [runtimeError, setRuntimeError] = useState<string | null>(null)
-  const [morningLoading, setMorningLoading] = useState(false)
-  const [morningResult, setMorningResult] = useState<{ runId: string; overall: string; slackNotified: boolean } | null>(null)
-  const [morningError, setMorningError] = useState<string | null>(null)
-  const [engagingAgentKey, setEngagingAgentKey] = useState<string | null>(null)
-  const [engagementResults, setEngagementResults] = useState<Record<string, AgentEngagementRecord>>({})
-  const [engagementError, setEngagementError] = useState<string | null>(null)
-  const [engagementStatusLoading, setEngagementStatusLoading] = useState(false)
+  const [snapshot, setSnapshot] = useState<MissionSnapshot | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [command, setCommand] = useState('')
+  const [chiefLoading, setChiefLoading] = useState(false)
+  const [chiefReply, setChiefReply] = useState<ChiefReply | null>(null)
+  const [warRoomLoading, setWarRoomLoading] = useState<'standup' | 'discuss' | null>(null)
+  const [warRoomResult, setWarRoomResult] = useState<WarRoomResult | null>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [actionResult, setActionResult] = useState<{ label: string; runId: string } | null>(null)
 
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadEngagementStatuses() {
-      setEngagementStatusLoading(true)
-      try {
-        const session = await getCurrentSession()
-        if (!session?.access_token) return
-        const res = await fetch('/api/admin/agents/engagements', {
-          headers: { Authorization: `Bearer ${session.access_token}` },
-        })
-        const body = await res.json().catch(() => ({}))
-        if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
-        if (cancelled || !Array.isArray(body.engagements)) return
-
-        const byAgent: Record<string, AgentEngagementRecord> = {}
-        for (const item of body.engagements) {
-          if (!item?.agent_key || !item.run_id) continue
-          byAgent[item.agent_key] = {
-            runId: item.run_id,
-            status: item.status || 'queued',
-            currentStep: item.current_step || null,
-            startedAt: item.started_at || null,
-            completedAt: item.completed_at || null,
-            executionMode: item.execution_mode || null,
-          }
-        }
-        setEngagementResults((current) => ({ ...byAgent, ...current }))
-      } catch (err) {
-        if (!cancelled) {
-          setEngagementError(err instanceof Error ? err.message : 'Failed to load agent engagement status')
-        }
-      } finally {
-        if (!cancelled) setEngagementStatusLoading(false)
-      }
-    }
-
-    loadEngagementStatuses()
-    return () => {
-      cancelled = true
-    }
+  const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
+    const session = await getCurrentSession()
+    if (!session?.access_token) throw new Error('Missing admin session')
+    return fetch(path, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(init.headers ?? {}),
+      },
+    })
   }, [])
 
-  async function runHermesHealthSummary() {
-    setHermesLoading(true)
-    setHermesError(null)
-    setHermesResult(null)
+  const loadMissionControl = useCallback(async () => {
+    setLoading(true)
+    setError(null)
     try {
-      const session = await getCurrentSession()
-      if (!session?.access_token) throw new Error('Missing admin session')
-      const res = await fetch('/api/admin/agents/hermes/system-health', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
-      setHermesResult({ runId: body.run_id, overall: body.overall })
+      const response = await authedFetch('/api/admin/agents/mission-control')
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setSnapshot(body)
     } catch (err) {
-      setHermesError(err instanceof Error ? err.message : 'Failed to run Hermes health summary')
+      setError(err instanceof Error ? err.message : 'Failed to load Mission Control')
     } finally {
-      setHermesLoading(false)
+      setLoading(false)
+    }
+  }, [authedFetch])
+
+  useEffect(() => {
+    loadMissionControl()
+  }, [loadMissionControl])
+
+  async function submitChiefOfStaff(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const message = command.trim()
+    if (!message) return
+
+    setChiefLoading(true)
+    setChiefReply(null)
+    setError(null)
+    try {
+      const response = await authedFetch('/api/admin/agents/chief-of-staff/chat', {
+        method: 'POST',
+        body: JSON.stringify({ message }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setChiefReply(body)
+      setCommand('')
+      await loadMissionControl()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Chief of Staff command failed')
+    } finally {
+      setChiefLoading(false)
     }
   }
 
-  async function createApprovalDrill() {
-    setDrillLoading(true)
-    setDrillError(null)
-    setDrillResult(null)
+  async function runWarRoom(commandName: 'standup' | 'discuss') {
+    const message = commandName === 'discuss' ? command.trim() : ''
+    if (commandName === 'discuss' && !message) {
+      setError('Add a discussion question first.')
+      return
+    }
+
+    setWarRoomLoading(commandName)
+    setWarRoomResult(null)
+    setError(null)
     try {
-      const session = await getCurrentSession()
-      if (!session?.access_token) throw new Error('Missing admin session')
-      const res = await fetch('/api/admin/agents/approval-drill', {
+      const response = await authedFetch('/api/admin/agents/war-room', {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          approval_type: 'production_config_change',
-          note: 'Approval drill from Agent Operations.',
-        }),
+        body: JSON.stringify({ command: commandName, message }),
       })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
-      setDrillResult({ runId: body.run_id, approvalType: body.approval_type })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setWarRoomResult(body)
+      if (commandName === 'discuss') setCommand('')
+      await loadMissionControl()
     } catch (err) {
-      setDrillError(err instanceof Error ? err.message : 'Failed to create approval drill')
+      setError(err instanceof Error ? err.message : 'War Room command failed')
     } finally {
-      setDrillLoading(false)
+      setWarRoomLoading(null)
     }
   }
 
-  async function evaluateOpenCodeRuntime() {
-    setRuntimeLoading(true)
-    setRuntimeError(null)
-    setRuntimeResult(null)
+  async function runOperatorAction(kind: 'morning-review' | 'hermes' | 'approval-drill' | 'runtime-evaluation') {
+    const paths = {
+      'morning-review': '/api/admin/agents/morning-review',
+      hermes: '/api/admin/agents/hermes/system-health',
+      'approval-drill': '/api/admin/agents/approval-drill',
+      'runtime-evaluation': '/api/admin/agents/runtime-evaluation',
+    }
+    const bodies = {
+      'morning-review': undefined,
+      hermes: undefined,
+      'approval-drill': { approval_type: 'production_config_change', note: 'Approval drill from Mission Control.' },
+      'runtime-evaluation': { runtime: 'opencode' },
+    }
+
+    setActionLoading(kind)
+    setActionResult(null)
+    setError(null)
     try {
-      const session = await getCurrentSession()
-      if (!session?.access_token) throw new Error('Missing admin session')
-      const res = await fetch('/api/admin/agents/runtime-evaluation', {
+      const response = await authedFetch(paths[kind], {
         method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ runtime: 'opencode' }),
+        body: bodies[kind] ? JSON.stringify(bodies[kind]) : undefined,
       })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
-      setRuntimeResult({ runId: body.run_id, available: Boolean(body.available) })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setActionResult({ label: kind.replace(/-/g, ' '), runId: body.run_id })
+      await loadMissionControl()
     } catch (err) {
-      setRuntimeError(err instanceof Error ? err.message : 'Failed to evaluate OpenCode/OpenClaw')
+      setError(err instanceof Error ? err.message : `${kind} failed`)
     } finally {
-      setRuntimeLoading(false)
+      setActionLoading(null)
     }
   }
 
-  async function runMorningReview() {
-    setMorningLoading(true)
-    setMorningError(null)
-    setMorningResult(null)
-    try {
-      const session = await getCurrentSession()
-      if (!session?.access_token) throw new Error('Missing admin session')
-      const res = await fetch('/api/admin/agents/morning-review', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
-      setMorningResult({
-        runId: body.run_id,
-        overall: body.overall,
-        slackNotified: Boolean(body.slack_notified),
-      })
-    } catch (err) {
-      setMorningError(err instanceof Error ? err.message : 'Failed to run Agent Ops morning review')
-    } finally {
-      setMorningLoading(false)
-    }
-  }
-
-  async function queueAgentEngagement(agentKey: string, agentName: string) {
-    setEngagingAgentKey(agentKey)
-    setEngagementError(null)
-    try {
-      const session = await getCurrentSession()
-      if (!session?.access_token) throw new Error('Missing admin session')
-      const res = await fetch('/api/admin/agents/engage', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          agent_key: agentKey,
-          note: `Queued from Agent Operations for ${agentName}.`,
-        }),
-      })
-      const body = await res.json().catch(() => ({}))
-      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
-      setEngagementResults((current) => ({
-        ...current,
-        [agentKey]: {
-          runId: body.run_id,
-          status: body.status || 'queued',
-          currentStep: body.status === 'completed' ? 'Read-only dispatch ready' : 'Engagement request queued',
-          startedAt: new Date().toISOString(),
-          completedAt: body.status === 'completed' ? new Date().toISOString() : null,
-          executionMode: body.execution_mode || null,
-        },
-      }))
-    } catch (err) {
-      setEngagementError(err instanceof Error ? err.message : 'Failed to queue agent engagement')
-    } finally {
-      setEngagingAgentKey(null)
-    }
-  }
+  const topAgents = useMemo(
+    () => snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').slice(0, 10) ?? [],
+    [snapshot],
+  )
 
   return (
     <ProtectedRoute requireAdmin>
-      <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
-        <div className="max-w-6xl mx-auto">
+      <div className="min-h-screen bg-background text-foreground p-5 lg:p-7">
+        <div className="max-w-7xl mx-auto">
           <Breadcrumbs items={[{ label: 'Admin Dashboard', href: '/admin' }, { label: 'Agent Operations' }]} />
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-1">Agent Operations</h1>
-            <p className="text-muted-foreground text-sm">
-              Shared control plane for Codex, n8n, Hermes, OpenCode, and manual agent work.
-            </p>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
-            <Link
-              href="/admin/agents/runs"
-              className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 p-5 hover:border-radiant-gold/60 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 text-radiant-gold mb-2">
-                    <Activity size={20} />
-                    <h2 className="text-lg font-semibold">Run Console</h2>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    View active and recent agent runs, current steps, runtime, costs, errors, and approvals.
-                  </p>
-                </div>
-                <ArrowRight size={20} className="text-muted-foreground shrink-0" />
-              </div>
-            </Link>
-
-            <Link
-              href="/admin/agents/chief-of-staff"
-              className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 p-5 hover:border-radiant-gold/60 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 text-radiant-gold mb-2">
-                    <MessageSquare size={20} />
-                  <h2 className="text-lg font-semibold">Chief of Staff Chat</h2>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                    Use the front-door router for priorities, blockers, approval risk, and which agent should handle the next step.
-                </p>
-              </div>
-                <ArrowRight size={20} className="text-muted-foreground shrink-0" />
-              </div>
-            </Link>
-
-            <Link
-              href="/admin/agents/automations"
-              className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 p-5 hover:border-radiant-gold/60 transition-colors"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 text-cyan-300 mb-2">
-                    <ListChecks size={20} />
-                    <h2 className="text-lg font-semibold">Automation Context</h2>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Review Codex automation schedules, risk, duplicates, and context readiness for future agents.
-                  </p>
-                </div>
-                <ArrowRight size={20} className="text-muted-foreground shrink-0" />
-              </div>
-            </Link>
-
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 p-5">
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <div>
-                  <div className="flex items-center gap-2 text-cyan-300 mb-2">
-                    <Bot size={20} />
-                    <h2 className="text-lg font-semibold">Hermes Health Summary</h2>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Run a read-only secondary-runtime check across agent runs, n8n flags, costs, and workflow status.
-                  </p>
-                </div>
-                <button
-                  onClick={runHermesHealthSummary}
-                  disabled={hermesLoading}
-                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
-                >
-                  <RefreshCw size={16} className={hermesLoading ? 'animate-spin' : ''} />
-                  Run
-                </button>
-              </div>
-              {hermesResult ? (
-                <Link href={`/admin/agents/runs/${hermesResult.runId}`} className="text-sm text-radiant-gold hover:underline">
-                  Open {hermesResult.overall} health run
-                </Link>
-              ) : null}
-              {hermesError ? <p className="text-sm text-red-300">{hermesError}</p> : null}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-radiant-gold">Mission Control</p>
+              <h1 className="mt-1 text-3xl font-bold">Agent Operations</h1>
+              <p className="mt-1 max-w-3xl text-sm text-muted-foreground">
+                One command surface for agent status, standups, blockers, and traceable engagement across Codex, n8n, Hermes, OpenCode, and manual work.
+              </p>
             </div>
-
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 p-5">
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <div>
-                  <div className="flex items-center gap-2 text-yellow-300 mb-2">
-                    <CheckCircle2 size={20} />
-                    <h2 className="text-lg font-semibold">Approval Drill</h2>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Create a disposable approval checkpoint to verify approve and reject behavior.
-                  </p>
-                </div>
-                <button
-                  onClick={createApprovalDrill}
-                  disabled={drillLoading}
-                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
-                >
-                  <RefreshCw size={16} className={drillLoading ? 'animate-spin' : ''} />
-                  Create
-                </button>
-              </div>
-              {drillResult ? (
-                <Link href={`/admin/agents/runs/${drillResult.runId}`} className="text-sm text-radiant-gold hover:underline">
-                  Open {drillResult.approvalType} drill
-                </Link>
-              ) : null}
-              {drillError ? <p className="text-sm text-red-300">{drillError}</p> : null}
-            </div>
-
-            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 p-5">
-              <div className="flex items-start justify-between gap-3 mb-3">
-                <div>
-                  <div className="flex items-center gap-2 text-orange-300 mb-2">
-                    <ShieldAlert size={20} />
-                    <h2 className="text-lg font-semibold">Runtime Evaluation</h2>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Probe OpenCode/OpenClaw availability without running worker tasks or mutating production data.
-                  </p>
-                </div>
-                <button
-                  onClick={evaluateOpenCodeRuntime}
-                  disabled={runtimeLoading}
-                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
-                >
-                  <RefreshCw size={16} className={runtimeLoading ? 'animate-spin' : ''} />
-                  Probe
-                </button>
-              </div>
-              {runtimeResult ? (
-                <Link href={`/admin/agents/runs/${runtimeResult.runId}`} className="text-sm text-radiant-gold hover:underline">
-                  Open {runtimeResult.available ? 'available' : 'unavailable'} runtime run
-                </Link>
-              ) : null}
-              {runtimeError ? <p className="text-sm text-red-300">{runtimeError}</p> : null}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={loadMissionControl}
+                disabled={loading}
+                className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+              >
+                <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+                Refresh
+              </button>
+              <Link href="/admin/agents/runs" className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15">
+                <Activity size={16} />
+                Runs
+              </Link>
             </div>
           </div>
 
-          <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
-            <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-              <div>
-                <div className="flex items-center gap-2 text-radiant-gold mb-2">
-                  <CalendarCheck size={20} />
-                  <h2 className="text-lg font-semibold">Production Engagement Paths</h2>
-                </div>
-                <p className="text-sm text-muted-foreground max-w-3xl">
-                  Current callable surfaces that already create traces, reviews, or workflow handoffs. Use Chief of Staff Chat when you want routing instead of choosing a path manually.
-                </p>
+          {error ? (
+            <div className="mt-4 rounded-lg border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              {error}
+            </div>
+          ) : null}
+
+          <section className="mt-5 grid grid-cols-2 gap-3 lg:grid-cols-7">
+            <MetricCard icon={<Radio size={16} />} label="Active" value={snapshot?.status_strip.active ?? 0} />
+            <MetricCard icon={<Clock3 size={16} />} label="Running" value={snapshot?.status_strip.running ?? 0} />
+            <MetricCard icon={<ShieldCheck size={16} />} label="Approvals" value={snapshot?.status_strip.pending_approvals ?? 0} />
+            <MetricCard icon={<AlertTriangle size={16} />} label="Failed" value={snapshot?.status_strip.failed ?? 0} tone="red" />
+            <MetricCard icon={<AlertTriangle size={16} />} label="Stale" value={snapshot?.status_strip.stale ?? 0} tone="yellow" />
+            <MetricCard icon={<CircleDollarSign size={16} />} label="Cost today" value={`$${(snapshot?.status_strip.cost_today ?? 0).toFixed(4)}`} />
+            <MetricCard icon={<Users size={16} />} label="Agents" value={topAgents.length} />
+          </section>
+
+          <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
+              <div className="flex items-center gap-2 text-radiant-gold">
+                <MessageSquare size={18} />
+                <h2 className="font-semibold">Chief of Staff Command</h2>
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={runMorningReview}
-                  disabled={morningLoading}
-                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
-                >
-                  <RefreshCw size={16} className={morningLoading ? 'animate-spin' : ''} />
-                  Run morning review
-                </button>
-                <Link
-                  href="/admin/agents/runs"
-                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60"
-                >
-                  <Activity size={16} />
-                  View runs
+              <form onSubmit={submitChiefOfStaff} className="mt-3 flex flex-col gap-3 md:flex-row">
+                <input
+                  value={command}
+                  onChange={(event) => setCommand(event.target.value)}
+                  placeholder="Ask what needs attention, or type a topic for /discuss..."
+                  className="min-h-[44px] flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 text-sm outline-none focus:border-radiant-gold/70"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    disabled={chiefLoading || !command.trim()}
+                    className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+                  >
+                    <Send size={16} />
+                    Ask
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => runWarRoom('standup')}
+                    disabled={warRoomLoading !== null}
+                    className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+                  >
+                    <Sparkles size={16} />
+                    Standup
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => runWarRoom('discuss')}
+                    disabled={warRoomLoading !== null || !command.trim()}
+                    className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+                  >
+                    <Users size={16} />
+                    Discuss
+                  </button>
+                </div>
+              </form>
+
+              {chiefReply ? (
+                <ResultPanel
+                  title="Chief of Staff"
+                  href={`/admin/agents/runs/${chiefReply.run_id}`}
+                  body={chiefReply.reply}
+                  items={chiefReply.agent_engagements.map((agent) => `${agent.agentName}: ${agent.rationale}`)}
+                />
+              ) : null}
+
+              {warRoomResult ? (
+                <ResultPanel
+                  title={warRoomResult.command === 'standup' ? 'War Room Standup' : 'War Room Discussion'}
+                  href={`/admin/agents/runs/${warRoomResult.run_id}`}
+                  body={warRoomResult.synthesis}
+                  items={warRoomResult.updates.map((update) => `${update.agent_name}: ${update.update}`)}
+                />
+              ) : null}
+            </div>
+
+            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-radiant-gold">
+                  <AlertTriangle size={18} />
+                  <h2 className="font-semibold">Attention Queue</h2>
+                </div>
+                <Link href="/admin/agents/runs" className="text-xs text-radiant-gold hover:underline">Open all</Link>
+              </div>
+              <div className="mt-3 space-y-2">
+                {snapshot?.attention_queue.length ? snapshot.attention_queue.slice(0, 5).map((run) => (
+                  <RunRow key={run.id} run={run} />
+                )) : (
+                  <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+                    No failed, stale, approval-waiting, or high-cost runs need attention.
+                  </p>
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_0.8fr]">
+            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+              <div className="flex items-center gap-2 text-radiant-gold">
+                <Network size={18} />
+                <h2 className="font-semibold">Agent Roster</h2>
+              </div>
+              <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
+                {topAgents.map((agent) => (
+                  <div key={agent.key} className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium">{agent.name}</p>
+                      <StatusPill status={agent.status} />
+                      <span className="rounded-full border border-silicon-slate/50 px-2 py-0.5 text-xs text-muted-foreground">
+                        {agent.runtime}
+                      </span>
+                    </div>
+                    <p className="mt-2 line-clamp-2 text-sm text-muted-foreground">{agent.responsibility}</p>
+                    <div className="mt-3 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                      <span>{agent.active_workflow_count} active workflow(s)</span>
+                      {agent.latest_run ? (
+                        <Link href={`/admin/agents/runs/${agent.latest_run.id}`} className="text-radiant-gold hover:underline">
+                          {agent.latest_run.status.replace(/_/g, ' ')}
+                        </Link>
+                      ) : (
+                        <span>No recent trace</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+              <div className="flex items-center gap-2 text-radiant-gold">
+                <Bot size={18} />
+                <h2 className="font-semibold">Drilldowns & Controls</h2>
+              </div>
+              <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
+                <ControlLink href="/admin/agents/chief-of-staff" label="Chief of Staff Chat" />
+                <ControlLink href="/admin/agents/runs" label="Run Console" />
+                <ControlLink href="/admin/agents/automations" label="Automation Context" />
+                <ActionButton label="Morning review" loading={actionLoading === 'morning-review'} onClick={() => runOperatorAction('morning-review')} />
+                <ActionButton label="Hermes health" loading={actionLoading === 'hermes'} onClick={() => runOperatorAction('hermes')} />
+                <ActionButton label="Approval drill" loading={actionLoading === 'approval-drill'} onClick={() => runOperatorAction('approval-drill')} />
+                <ActionButton label="OpenCode probe" loading={actionLoading === 'runtime-evaluation'} onClick={() => runOperatorAction('runtime-evaluation')} />
+              </div>
+              {actionResult ? (
+                <Link href={`/admin/agents/runs/${actionResult.runId}`} className="mt-3 block rounded-lg border border-emerald-400/30 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200 hover:underline">
+                  Open {actionResult.label} run
                 </Link>
-              </div>
+              ) : null}
             </div>
-            {morningResult ? (
-              <div className="mt-4 rounded-lg border border-green-400/30 bg-green-500/10 px-4 py-3 text-sm">
-                <Link href={`/admin/agents/runs/${morningResult.runId}`} className="text-green-200 hover:underline">
-                  Open {morningResult.overall} morning review run
+          </section>
+
+          <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+            <div className="flex items-center gap-2 text-radiant-gold">
+              <Activity size={18} />
+              <h2 className="font-semibold">Latest Activity</h2>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
+              {snapshot?.latest_events.length ? snapshot.latest_events.slice(0, 6).map((event) => (
+                <Link key={`${event.run_id}-${event.occurred_at}-${event.event_type}`} href={`/admin/agents/runs/${event.run_id}`} className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-medium">{event.event_type}</p>
+                    <span className="text-xs text-muted-foreground">{formatTime(event.occurred_at)}</span>
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-muted-foreground">{event.message || event.severity}</p>
                 </Link>
-                <span className="text-muted-foreground">
-                  {' '}
-                  · Slack {morningResult.slackNotified ? 'notified' : 'not configured or skipped'}
-                </span>
-              </div>
-            ) : null}
-            {morningError ? <p className="mt-3 text-sm text-red-300">{morningError}</p> : null}
-
-            <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {AGENT_ENGAGEMENTS.map((agent) => (
-                <div key={agent.key} className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <p className="font-semibold">{agent.name}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">{agent.purpose}</p>
-                    </div>
-                    <span className="rounded-full border border-silicon-slate/60 bg-black/20 px-2 py-1 text-xs">
-                      {agent.runtime}
-                    </span>
-                  </div>
-                  <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Engage</p>
-                      <p className="mt-1">{agent.engage}</p>
-                    </div>
-                    <div>
-                      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Gate</p>
-                      <p className="mt-1">{agent.gate}</p>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {agent.links.map((link) => (
-                      <Link
-                        key={`${agent.key}-${link.href}`}
-                        href={link.href}
-                        className="inline-flex items-center gap-1 rounded-md border border-silicon-slate/60 bg-black/10 px-2 py-1 text-xs hover:border-radiant-gold/60"
-                      >
-                        {link.label}
-                        <ArrowRight size={12} />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <SignalCard icon={<Clock size={18} />} label="Active states" value="Queued, running, approval" />
-            <SignalCard icon={<CheckCircle2 size={18} />} label="Completion" value="Completed, cancelled" />
-            <SignalCard icon={<XCircle size={18} />} label="Failure modes" value="Failed, stale" />
-            <SignalCard icon={<DollarSign size={18} />} label="Cost linkage" value="cost_events.agent_run_id" />
-          </div>
-
-          <section className="mt-8 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
-            <div className="flex items-center gap-2 text-radiant-gold mb-2">
-              <Workflow size={20} />
-              <h2 className="text-lg font-semibold">Agent Organization Map</h2>
-            </div>
-            <p className="text-sm text-muted-foreground max-w-3xl">
-              Target operating model for the agent organization. Each card describes the role, maturity, primary runtime, and mapped n8n workflow coverage. This is the org chart; the Production Engagement Paths above are the current ways to invoke work.
-            </p>
-            {engagementError ? <p className="mt-3 text-sm text-red-300">{engagementError}</p> : null}
-            {engagementStatusLoading ? (
-              <p className="mt-3 text-xs text-muted-foreground">Loading latest engagement traces...</p>
-            ) : null}
-
-            <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {AGENT_ORGANIZATION_SUMMARY.map((pod) => (
-                <div key={pod.key} className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-                    <div>
-                      <p className="font-semibold">{pod.name}</p>
-                      <p className="mt-1 text-sm text-muted-foreground">{pod.purpose}</p>
-                    </div>
-                    <span className="w-fit rounded-full border border-silicon-slate/60 bg-black/20 px-2 py-1 text-xs">
-                      {pod.activeWorkflowCount} active workflows
-                    </span>
-                  </div>
-                  <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-                    <OrgCount label="Active" value={pod.activeAgentCount} tone="green" />
-                    <OrgCount label="Partial" value={pod.partialAgentCount} tone="yellow" />
-                    <OrgCount label="Planned" value={pod.plannedAgentCount} tone="slate" />
-                  </div>
-                  <div className="mt-4 space-y-3">
-                    {pod.agents.map((agent) => {
-                      const engagement = engagementResults[agent.key]
-
-                      return (
-                        <div key={agent.key} className="rounded-md border border-silicon-slate/50 bg-black/10 p-3">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className="font-medium">{agent.name}</p>
-                            <StatusPill status={agent.status} />
-                            <span className="rounded-full border border-silicon-slate/50 px-2 py-0.5 text-xs text-muted-foreground">
-                              {agent.primaryRuntime}
-                            </span>
-                          </div>
-                          <p className="mt-2 text-sm text-muted-foreground">{agent.responsibility}</p>
-                          {agent.n8nWorkflows.length > 0 ? (
-                            <p className="mt-2 text-xs text-muted-foreground">
-                              n8n: {agent.n8nWorkflows.slice(0, 3).map((workflow) => workflow.name).join(', ')}
-                              {agent.n8nWorkflows.length > 3 ? ` +${agent.n8nWorkflows.length - 3} more` : ''}
-                            </p>
-                          ) : (
-                            <p className="mt-2 text-xs text-muted-foreground">n8n: not primary runtime yet</p>
-                          )}
-                          {engagement ? (
-                            <div className="mt-3 rounded-md border border-silicon-slate/50 bg-background/40 px-3 py-2 text-xs text-muted-foreground">
-                              <p>
-                                Latest engagement:{' '}
-                                <span className="text-foreground">
-                                  {engagement.status.replace(/_/g, ' ')}
-                                </span>
-                                {engagement.executionMode
-                                  ? ` · ${engagement.executionMode.replace(/_/g, ' ')}`
-                                  : ''}
-                              </p>
-                              {engagement.currentStep ? (
-                                <p className="mt-1">{engagement.currentStep}</p>
-                              ) : null}
-                            </div>
-                          ) : null}
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {engagement ? (
-                              <Link
-                                href={`/admin/agents/runs/${engagement.runId}`}
-                                className="inline-flex items-center gap-1 rounded-md border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200 hover:underline"
-                              >
-                                {engagement.status === 'completed'
-                                  ? 'Read-only run ready'
-                                  : 'Engagement queued'}
-                                <ArrowRight size={12} />
-                              </Link>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => queueAgentEngagement(agent.key, agent.name)}
-                                disabled={engagingAgentKey === agent.key}
-                                className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/50 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
-                              >
-                                <Send size={12} />
-                                Run read-only
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="mt-8 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
-            <h2 className="text-lg font-semibold mb-4">Runtime Policies</h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {RUNTIME_POLICIES.map((policy) => (
-                <div key={policy.runtime} className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
-                  <div className="flex items-center justify-between gap-3 mb-2">
-                    <p className="font-semibold">{policy.label}</p>
-                    <span className="rounded-full border border-silicon-slate/60 bg-black/20 px-2 py-1 text-xs">
-                      {policy.runtime}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
-                    <PolicyFlag label="Read files" value={policy.canReadFiles} />
-                    <PolicyFlag label="Write files" value={policy.canWriteFiles} />
-                    <PolicyFlag label="External APIs" value={policy.canCallExternalApis} />
-                    <PolicyFlag label="Client data" value={policy.canTouchClientData} />
-                  </div>
-                  <p className="mt-3 text-xs text-muted-foreground">Production writes: {policy.canWriteProductionData}</p>
-                  <p className="mt-2 text-sm text-muted-foreground">{policy.notes}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="mt-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
-            <h2 className="text-lg font-semibold mb-4">Approval Gates</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {APPROVAL_GATES.map((gate) => (
-                <div key={gate.action} className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
-                  <p className="font-medium">{gate.label}</p>
-                  <p className="text-sm text-muted-foreground mt-1">{gate.description}</p>
-                  <p className="text-xs text-muted-foreground mt-2">Type: {gate.approvalType}</p>
-                </div>
-              ))}
+              )) : (
+                <p className="text-sm text-muted-foreground">No recent agent events found.</p>
+              )}
             </div>
           </section>
         </div>
@@ -615,26 +449,15 @@ export default function AgentOperationsPage() {
   )
 }
 
-function SignalCard({ icon, label, value }: { icon: ReactNode; label: string; value: string }) {
+function MetricCard({ icon, label, value, tone = 'default' }: { icon: ReactNode; label: string; value: string | number; tone?: 'default' | 'red' | 'yellow' }) {
+  const toneClass = tone === 'red' ? 'text-red-200' : tone === 'yellow' ? 'text-yellow-200' : 'text-foreground'
   return (
-    <div className="rounded-lg border border-silicon-slate/60 bg-black/10 p-4">
-      <div className="flex items-center gap-2 text-muted-foreground mb-1">
+    <div className="rounded-lg border border-silicon-slate/60 bg-silicon-slate/20 p-3">
+      <div className="flex items-center gap-2 text-muted-foreground">
         {icon}
         <span className="text-xs font-semibold uppercase tracking-wider">{label}</span>
       </div>
-      <p className="text-sm font-medium">{value}</p>
-    </div>
-  )
-}
-
-function OrgCount({ label, value, tone }: { label: string; value: number; tone: 'green' | 'yellow' | 'slate' }) {
-  const toneClass =
-    tone === 'green' ? 'text-green-300' : tone === 'yellow' ? 'text-yellow-300' : 'text-muted-foreground'
-
-  return (
-    <div className="rounded-md border border-silicon-slate/50 bg-black/10 p-2">
-      <p className="text-muted-foreground">{label}</p>
-      <p className={`mt-1 text-lg font-semibold ${toneClass}`}>{value}</p>
+      <p className={`mt-2 text-2xl font-semibold ${toneClass}`}>{value}</p>
     </div>
   )
 }
@@ -650,85 +473,69 @@ function StatusPill({ status }: { status: 'active' | 'partial' | 'planned' }) {
   return <span className={`rounded-full border px-2 py-0.5 text-xs ${className}`}>{status}</span>
 }
 
-const AGENT_ENGAGEMENTS = [
-  {
-    key: 'portfolio-operations-manager',
-    name: 'Portfolio Operations Manager',
-    runtime: 'n8n + codex',
-    purpose: 'Daily agent health, stale-run cleanup, Slack summary, and admin review trace.',
-    engage: 'Automatic morning review or the Run morning review button.',
-    gate: 'Notification-only; production config changes still require approval.',
-    links: [
-      { label: 'Runs', href: '/admin/agents/runs' },
-      { label: 'Runbook', href: '/admin/agents' },
-    ],
-  },
-  {
-    key: 'hermes-health-analyst',
-    name: 'Hermes Health Analyst',
-    runtime: 'hermes',
-    purpose: 'Read-only secondary-runtime summary across agent runs, costs, n8n flags, and workflow status.',
-    engage: 'Use Hermes Health Summary from this page.',
-    gate: 'No production writes in v1.',
-    links: [{ label: 'Runs', href: '/admin/agents/runs' }],
-  },
-  {
-    key: 'outreach-generation',
-    name: 'Outreach Generation Agent',
-    runtime: 'codex + n8n',
-    purpose: 'Creates observable outreach draft traces with prompt assembly, LLM dispatch, cost linkage, and artifact references.',
-    engage: 'Use existing outreach and lead-pipeline admin workflows.',
-    gate: 'Human review before sending email.',
-    links: [
-      { label: 'Lead Pipeline', href: '/admin/outreach' },
-      { label: 'Runs', href: '/admin/agents/runs' },
-    ],
-  },
-  {
-    key: 'evidence-listening',
-    name: 'Value Evidence Agent',
-    runtime: 'n8n',
-    purpose: 'Collects and routes value evidence, social-listening findings, and workflow traces for review.',
-    engage: 'Use Value Evidence and workflow-specific admin surfaces.',
-    gate: 'Public content and client-facing summaries require approval.',
-    links: [
-      { label: 'Value Evidence', href: '/admin/value-evidence' },
-      { label: 'Runs', href: '/admin/agents/runs' },
-    ],
-  },
-  {
-    key: 'approval-steward',
-    name: 'Approval Steward',
-    runtime: 'manual',
-    purpose: 'Keeps publishing, email, production config, and sensitive-data gates represented in agent_approvals.',
-    engage: 'Use Approval Drill and run-detail approval controls.',
-    gate: 'Approval state is the system of record.',
-    links: [{ label: 'Runs', href: '/admin/agents/runs' }],
-  },
-  {
-    key: 'slack-command-path',
-    name: 'Slack Command Path',
-    runtime: 'slack + n8n',
-    purpose: 'Mobile-friendly command surface for checking status without adding Telegram or another channel.',
-    engage: 'Use /agent status, /agent failed, /agent approvals, or /agent morning-review in Slack.',
-    gate: 'Status, failed, and approvals are read-only; morning-review writes only the approved Agent Ops trace.',
-    links: [{ label: 'Runbook', href: '/admin/agents' }],
-  },
-] satisfies Array<{
-  key: string
-  name: string
-  runtime: string
-  purpose: string
-  engage: string
-  gate: string
-  links: Array<{ label: string; href: string }>
-}>
-
-function PolicyFlag({ label, value }: { label: string; value: boolean }) {
+function RunRow({ run }: { run: MissionRun }) {
   return (
-    <div className="flex items-center justify-between gap-2 rounded-md bg-black/10 px-2 py-1">
-      <span>{label}</span>
-      <span className={value ? 'text-green-300' : 'text-red-300'}>{value ? 'yes' : 'no'}</span>
+    <Link href={`/admin/agents/runs/${run.id}`} className="block rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="font-medium">{run.title}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{run.runtime} · {run.status.replace(/_/g, ' ')}</p>
+        </div>
+        <ArrowRight size={16} className="shrink-0 text-muted-foreground" />
+      </div>
+      {run.current_step ? <p className="mt-2 text-muted-foreground">{run.current_step}</p> : null}
+      {run.error_message ? <p className="mt-2 text-red-200">{run.error_message}</p> : null}
+    </Link>
+  )
+}
+
+function ResultPanel({ title, href, body, items }: { title: string; href: string; body: string; items: string[] }) {
+  return (
+    <div className="mt-4 rounded-lg border border-silicon-slate/60 bg-background/45 p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="font-semibold">{title}</p>
+        <Link href={href} className="text-xs text-radiant-gold hover:underline">Open trace</Link>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">{body}</p>
+      {items.length ? (
+        <div className="mt-3 space-y-1">
+          {items.slice(0, 5).map((item) => (
+            <p key={item} className="text-xs text-muted-foreground">{item}</p>
+          ))}
+        </div>
+      ) : null}
     </div>
   )
+}
+
+function ControlLink({ href, label }: { href: string; label: string }) {
+  return (
+    <Link href={href} className="inline-flex items-center justify-between gap-2 rounded-lg border border-silicon-slate/60 bg-black/10 px-3 py-2 text-sm hover:border-radiant-gold/60">
+      {label}
+      <ArrowRight size={14} />
+    </Link>
+  )
+}
+
+function ActionButton({ label, loading, onClick }: { label: string; loading: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={loading}
+      className="inline-flex items-center justify-between gap-2 rounded-lg border border-silicon-slate/60 bg-black/10 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-60"
+    >
+      {label}
+      {loading ? <RefreshCw size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+    </button>
+  )
+}
+
+function formatTime(value: string) {
+  return new Intl.DateTimeFormat('en', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(value))
 }
