@@ -2,6 +2,7 @@
 import { spawnSync } from 'node:child_process'
 import {
   formatDeploymentWatchSummary,
+  getDeploymentWatchGuidance,
   parseDeploymentWatchArgs,
   summarizeDeploymentStatus,
   type GitHubCombinedStatus,
@@ -78,6 +79,7 @@ async function main(): Promise<void> {
 
       console.log(`\n[attempt ${attempt}] ${new Date().toISOString()}`)
       console.log(formatDeploymentWatchSummary(summary))
+      console.log(getDeploymentWatchGuidance(summary).join('\n'))
 
       if (summary.state === 'success') {
         process.exit(0)

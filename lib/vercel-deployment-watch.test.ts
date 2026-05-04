@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   formatDeploymentWatchSummary,
+  getDeploymentWatchGuidance,
   parseDeploymentWatchArgs,
   summarizeDeploymentStatus,
 } from './vercel-deployment-watch'
@@ -113,5 +114,58 @@ describe('formatDeploymentWatchSummary', () => {
     expect(formatDeploymentWatchSummary(summary)).toContain('deployment_state=pending')
     expect(formatDeploymentWatchSummary(summary)).toContain('context="Vercel – portfolio"')
     expect(formatDeploymentWatchSummary(summary)).toContain('url=https://vercel.com/example')
+  })
+})
+
+describe('getDeploymentWatchGuidance', () => {
+  it('marks successful deployments as ready', () => {
+    const summary = summarizeDeploymentStatus({
+      state: 'success',
+      statuses: [
+        { context: 'Vercel – portfolio', state: 'success' },
+        { context: 'Vercel – portfolio-staging', state: 'success' },
+      ],
+    })
+
+    expect(getDeploymentWatchGuidance(summary)).toEqual([
+      'guidance=ready; both required Vercel contexts passed',
+    ])
+  })
+
+  it('asks autopilot to inspect a pending context after eight minutes', () => {
+    const summary = summarizeDeploymentStatus({
+      state: 'pending',
+      statuses: [
+        { context: 'Vercel – portfolio', state: 'success' },
+        {
+          context: 'Vercel – portfolio-staging',
+          state: 'pending',
+          target_url: 'https://vercel.com/example',
+          updated_at: '2026-05-02T10:00:00Z',
+        },
+      ],
+    })
+
+    expect(getDeploymentWatchGuidance(summary, Date.parse('2026-05-02T10:09:30Z'))).toEqual([
+      'guidance=inspect; context="Vercel – portfolio-staging" pending 9m; inspect Vercel before assuming the build is healthy inspect=https://vercel.com/example',
+    ])
+  })
+
+  it('blocks autopilot after fifteen minutes of pending deployment status', () => {
+    const summary = summarizeDeploymentStatus({
+      state: 'pending',
+      statuses: [
+        { context: 'Vercel – portfolio', state: 'success' },
+        {
+          context: 'Vercel – portfolio-staging',
+          state: 'pending',
+          updated_at: '2026-05-02T10:00:00Z',
+        },
+      ],
+    })
+
+    expect(getDeploymentWatchGuidance(summary, Date.parse('2026-05-02T10:15:00Z'))).toEqual([
+      'guidance=blocked; context="Vercel – portfolio-staging" pending 15m; inspect or rerun deployment before proceeding',
+    ])
   })
 })
