@@ -29,3 +29,5 @@ The goal is simple: workers can keep moving, but only one integration captain me
 ## Standing Rule
 
 If multiple chats are active, treat the shared checkout as user-owned. Do not assume dirty files belong to the current chat.
+
+For recurring cleanup and reporting decisions, use the GitHub hygiene methods in `docs/agents/integration-captain.md` before deleting branches, worktrees, or queue entries.

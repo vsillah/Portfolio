@@ -103,3 +103,59 @@ When reporting, label each finding as one of:
 - `watch`: harmless now, but worth cleaning if it persists
 - `debt`: inefficient, risky, or likely to create future merge noise
 - `blocker`: must be resolved before the next merge or deployment step
+
+## GitHub Hygiene Methods
+
+Use these methods when they reduce future merge noise or make parallel work easier to reason about.
+
+### Branch Lifecycle
+
+- Prefer short-lived branches named by owner and purpose, such as `codex/agent-command-room`.
+- Keep one branch to one feature, fix, or docs update.
+- Delete remote branches after their PR is merged and post-merge verification passes.
+- Delete local branches only when they have no commits missing from `origin/main`.
+- Leave recovery stashes and unknown local branches in place until their owner or purpose is clear.
+
+Before deleting a local branch with a gone upstream, check:
+
+```bash
+git log --oneline <branch> --not origin/main
+```
+
+If that command returns commits, classify the branch as `watch` or `debt` instead of deleting it.
+
+### PR Queue Discipline
+
+- Process one non-draft PR at a time.
+- Do not start the next merge until both post-merge Vercel contexts are green.
+- Treat draft PRs as `normal` unless they overlap hot files, stay stale for several days, or their work already landed elsewhere.
+- Promote a draft PR to merge consideration only after the owner marks it ready or the captain verifies its intent directly.
+- If two PRs touch the same hot files, merge the lower-risk/shared-foundation PR first, then re-check the second PR against updated `main`.
+
+### Hot File Awareness
+
+Treat these as hot surfaces that deserve extra scrutiny:
+
+- shared admin shells, nav, layout, and auth wrappers
+- shared agent runtime libraries and Slack command handlers
+- database migrations, RLS policies, seeds, and generated schema types
+- Vercel config, environment handling, webhooks, and cron routes
+- generated files that are expensive to regenerate or easy to pollute
+
+For hot surfaces, require one of:
+
+- an impact preflight in the PR or handoff
+- a focused local re-validation by the captain
+- explicit sequencing because another active PR touches the same surface
+
+### Automated Checks Worth Adding
+
+Recommend automation when the same issue appears more than twice:
+
+- stale branch report: list local branches with gone upstreams and whether they have unique commits
+- open PR age report: flag ready PRs older than 48 hours and draft PRs older than 7 days
+- hot-file overlap report: compare open PR file lists before implementation starts
+- post-merge health monitor: verify Vercel contexts plus `/api/health` for production and staging
+- queue hygiene report: compare `docs/integration-captain-queue.md` against open PRs
+
+Start these as read-only reports. Only add auto-cleanup after the captain has proven the report is accurate over repeated runs.
