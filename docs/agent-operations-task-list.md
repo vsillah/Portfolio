@@ -14,9 +14,9 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 ## Next Build Queue
 
 1. Queue affordances
-   - Add filters for status, agent, runtime, source, and execution mode.
-   - Clarify owner, next action, and source trace on queue items.
-   - Add a focused `/admin/agents/work` drilldown only if the overview becomes too crowded.
+   - [x] Add filters for status, agent, runtime, source, and execution mode.
+   - [x] Clarify owner, next action, and source trace on queue items.
+   - [x] Keep this inside Mission Control; do not add `/admin/agents/work` unless the overview becomes crowded after review.
 
 2. Approval-backed execution
    - Convert Chief of Staff side-effect recommendations into explicit approval checkpoints.
@@ -49,6 +49,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Approval drill and run-detail approval decisions.
 - [x] Runtime evaluation probe for OpenCode/OpenClaw.
 - [x] Engagement Work Queue in review.
+- [x] Queue affordance filters and owner/source clarity in review.
 
 ## Scope Guard
 
