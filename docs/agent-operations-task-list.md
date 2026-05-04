@@ -19,9 +19,10 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Keep this inside Mission Control; do not add `/admin/agents/work` unless the overview becomes crowded after review.
 
 2. Approval-backed execution
-   - Convert Chief of Staff side-effect recommendations into explicit approval checkpoints.
-   - Store the action payload with the approval/run artifact.
-   - Keep email, publishing, production config, unknown DB writes, and private-to-public material behind `agent_approvals`.
+   - [x] Convert Chief of Staff side-effect recommendations into explicit approval checkpoints.
+   - [x] Store the action payload with the approval/run artifact.
+   - [x] Preserve approval action payload metadata when approve/reject decisions are recorded.
+   - [x] Keep email, publishing, production config, unknown DB writes, and private-to-public material behind `agent_approvals`.
 
 3. n8n trace expansion
    - Prioritize workflows that already touch production automation or LLM costs.
@@ -50,6 +51,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Runtime evaluation probe for OpenCode/OpenClaw.
 - [x] Engagement Work Queue in review.
 - [x] Queue affordance filters and owner/source clarity in review.
+- [x] Approval-backed execution payloads and decision metadata in review.
 
 ## Scope Guard
 

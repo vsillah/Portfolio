@@ -213,9 +213,9 @@ function List({
         <div key={String(row.id)} className="rounded-lg border border-silicon-slate/50 bg-background/40 p-3">
           <p className="font-medium">{String(row[titleKey] || fallbackTitle)}</p>
           <p className="text-sm text-muted-foreground">{String(row[detailKey] ?? '')}</p>
-          {artifactSummary(row) ? (
+          {rowSummary(row) ? (
             <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap rounded-md bg-black/20 p-3 text-xs text-muted-foreground">
-              {artifactSummary(row)}
+              {rowSummary(row)}
             </pre>
           ) : null}
           {onDecision && row.status === 'pending' && typeof row.id === 'string' ? (
@@ -255,9 +255,23 @@ function asString(value: unknown): string | undefined {
   return typeof value === 'string' ? value : undefined
 }
 
-function artifactSummary(row: AnyRow): string | null {
+function rowSummary(row: AnyRow): string | null {
   const metadata = row.metadata
   if (!metadata || typeof metadata !== 'object') return null
-  const summary = (metadata as Record<string, unknown>).summary_markdown
-  return typeof summary === 'string' ? summary : null
+  const record = metadata as Record<string, unknown>
+  const summary = record.summary_markdown
+  if (typeof summary === 'string') return summary
+
+  const payload = record.action_payload
+  if (payload && typeof payload === 'object') {
+    const actionPayload = payload as Record<string, unknown>
+    return [
+      `Action: ${String(actionPayload.action ?? '-').replace(/_/g, ' ')}`,
+      `Approval type: ${String(actionPayload.approval_type ?? '-').replace(/_/g, ' ')}`,
+      `Risk: ${String(actionPayload.risk_level ?? '-')}`,
+      `Executes action now: ${actionPayload.executes_action ? 'yes' : 'no'}`,
+      `Boundary: ${String(actionPayload.side_effect_boundary ?? 'No side effect is executed by this checkpoint.')}`,
+    ].join('\n')
+  }
+  return null
 }
