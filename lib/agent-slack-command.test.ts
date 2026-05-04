@@ -48,6 +48,7 @@ vi.mock('@/lib/agent-inbox-routing', () => ({
 import {
   agentSlackCommandInternals,
   buildAgentBriefSlackText,
+  buildAgentEngagementQueueSlackText,
   buildAgentInboxSlackText,
   createAgentEngagementSlackText,
   routeAgentInboxSlackText,
@@ -69,6 +70,9 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('morning')).toBe('morning-review')
     expect(agentSlackCommandInternals.commandFromText('agents')).toBe('agents')
     expect(agentSlackCommandInternals.commandFromText('list')).toBe('agents')
+    expect(agentSlackCommandInternals.commandFromText('engagements')).toBe('engagements')
+    expect(agentSlackCommandInternals.commandFromText('work')).toBe('engagements')
+    expect(agentSlackCommandInternals.commandFromText('queue')).toBe('engagements')
     expect(agentSlackCommandInternals.commandFromText('inbox')).toBe('inbox')
     expect(agentSlackCommandInternals.commandFromText('brief')).toBe('brief')
     expect(agentSlackCommandInternals.commandFromText('route 1')).toBe('route')
@@ -82,6 +86,7 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('unknown')).toBe('help')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent status')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent run <agent-key>')
+    expect(agentSlackCommandInternals.formatHelp()).toContain('/agent engagements')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent inbox')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent route <number-or-id>')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent standup')
@@ -200,6 +205,30 @@ describe('agent Slack command parsing', () => {
     expect(text).toContain('Agent Inbox')
     expect(text).toContain('1. *HIGH* Automation Systems Agent')
     expect(text).toContain('/agent route <number>')
+    expect(text).toContain('/admin/agents/runs/failed-run')
+  })
+
+  it('formats the engagement work queue for Slack', async () => {
+    inboxMocks.buildAgentMissionControlSnapshot.mockResolvedValue({
+      engagement_queue: [
+        {
+          run_id: 'engagement-run',
+          agent_name: 'Automation Systems Agent',
+          status: 'completed',
+          execution_mode: 'read_only',
+          current_step: 'Read-only dispatch ready',
+          next_action: 'Review workflow health.',
+          source_run_id: 'failed-run',
+        },
+      ],
+    })
+
+    const text = await buildAgentEngagementQueueSlackText()
+
+    expect(text).toContain('Engagement Work Queue')
+    expect(text).toContain('Automation Systems Agent')
+    expect(text).toContain('[completed/read_only]')
+    expect(text).toContain('/admin/agents/runs/engagement-run')
     expect(text).toContain('/admin/agents/runs/failed-run')
   })
 

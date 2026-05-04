@@ -54,6 +54,23 @@ export type AgentInboxItem = {
   source_run_id: string | null
 }
 
+export type AgentEngagementQueueItem = {
+  run_id: string
+  agent_key: string
+  agent_name: string
+  pod: string
+  status: string
+  current_step: string | null
+  execution_mode: string
+  requested_from: string | null
+  source_inbox_item_id: string | null
+  source_run_id: string | null
+  note: string | null
+  next_action: string | null
+  started_at: string
+  completed_at: string | null
+}
+
 export type DailyOperatingBrief = {
   headline: string
   synthesis: string
@@ -104,8 +121,28 @@ function findAgent(agentKey: string | null | undefined) {
   return AGENT_ORGANIZATION.find((agent) => agent.key === agentKey) ?? AGENT_ORGANIZATION.find((agent) => agent.key === 'chief-of-staff')
 }
 
+function requestedAgentKey(run: AgentRunRow) {
+  const requested = run.metadata?.requested_agent
+  return typeof requested === 'string' && requested.trim() ? requested.trim() : run.agent_key
+}
+
+function stringMetadataValue(metadata: Record<string, unknown> | null | undefined, key: string) {
+  const value = metadata?.[key]
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function executionModeForRun(run: AgentRunRow) {
+  const explicitMode = stringMetadataValue(run.metadata, 'execution_mode')
+  if (explicitMode) return explicitMode
+
+  const executesAction = run.metadata?.executes_action ?? run.outcome?.executes_action
+  if (typeof executesAction === 'boolean') return executesAction ? 'action' : 'read_only'
+
+  return 'read_only'
+}
+
 function inboxItemForRun(run: AgentRunRow, costByRun: Map<string, number>): AgentInboxItem {
-  const agent = findAgent(run.agent_key ?? (typeof run.metadata?.requested_agent === 'string' ? run.metadata.requested_agent : null))
+  const agent = findAgent(requestedAgentKey(run))
   const cost = costByRun.get(run.id) ?? 0
   const priority: AgentInboxItem['priority'] =
     run.status === 'failed' || run.status === 'waiting_for_approval'
@@ -202,6 +239,31 @@ export function buildAgentInbox(input: {
   return [...approvalItems, ...runItems, ...(standupItem ? [standupItem] : [])]
     .filter((item, index, list) => list.findIndex((candidate) => candidate.id === item.id) === index)
     .sort((a, b) => priorityRank[a.priority] - priorityRank[b.priority])
+    .slice(0, 8)
+}
+
+export function buildAgentEngagementQueue(runs: AgentRunRow[]): AgentEngagementQueueItem[] {
+  return runs
+    .filter((run) => run.kind === 'agent_engagement_request')
+    .map((run) => {
+      const agent = findAgent(requestedAgentKey(run))
+      return {
+        run_id: run.id,
+        agent_key: agent?.key ?? 'chief-of-staff',
+        agent_name: agent?.name ?? 'Chief of Staff Agent',
+        pod: agent ? agentPodName(agent.podKey) : 'Chief of Staff',
+        status: run.status,
+        current_step: run.current_step,
+        execution_mode: executionModeForRun(run),
+        requested_from: stringMetadataValue(run.metadata, 'route_action') ?? run.subject_label,
+        source_inbox_item_id: stringMetadataValue(run.metadata, 'agent_inbox_item_id'),
+        source_run_id: stringMetadataValue(run.metadata, 'source_run_id'),
+        note: stringMetadataValue(run.metadata, 'note'),
+        next_action: stringMetadataValue(run.metadata, 'suggested_next_action'),
+        started_at: run.started_at,
+        completed_at: run.completed_at,
+      }
+    })
     .slice(0, 8)
 }
 
@@ -320,6 +382,7 @@ export async function buildAgentMissionControlSnapshot() {
     (run) => run.kind === 'agent_war_room_standup' && typeof run.outcome?.synthesis === 'string',
   )
   const agentInbox = buildAgentInbox({ runs, approvals, costByRun, latestStandup })
+  const engagementQueue = buildAgentEngagementQueue(runs)
   const costToday = Number(costs.reduce((sum, row) => sum + Number(row.amount ?? 0), 0).toFixed(4))
   const dailyBrief = buildDailyOperatingBrief({
     approvals,
@@ -373,6 +436,7 @@ export async function buildAgentMissionControlSnapshot() {
     latest_standup: latestStandup ? summarizeRun(latestStandup, costByRun) : null,
     daily_brief: dailyBrief,
     agent_inbox: agentInbox,
+    engagement_queue: engagementQueue,
     approvals: approvals.slice(0, 8),
   }
 }

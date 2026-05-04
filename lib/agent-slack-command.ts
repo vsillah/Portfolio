@@ -13,6 +13,7 @@ type SlackCommandName =
   | 'approvals'
   | 'morning-review'
   | 'agents'
+  | 'engagements'
   | 'inbox'
   | 'brief'
   | 'route'
@@ -80,6 +81,7 @@ function commandFromText(text: string): SlackCommandName {
   if (command === 'approval' || command === 'approvals') return 'approvals'
   if (command === 'morning-review' || command === 'morning' || command === 'review') return 'morning-review'
   if (command === 'agents' || command === 'list') return 'agents'
+  if (command === 'engagements' || command === 'work' || command === 'queue') return 'engagements'
   if (command === 'inbox' || command === 'queue') return 'inbox'
   if (command === 'brief') return 'brief'
   if (command === 'route') return 'route'
@@ -101,6 +103,7 @@ function formatHelp() {
     '`/agent approvals` - pending approval checkpoints.',
     '`/agent morning-review` - run the approved Agent Ops morning review trace.',
     '`/agent agents` - list currently mapped agents and engagement keys.',
+    '`/agent engagements` - show the latest routed engagement work queue.',
     '`/agent inbox` - show numbered Agent Inbox items.',
     '`/agent brief` - show the current Daily Operating Brief.',
     '`/agent route <number-or-id>` - route an Agent Inbox item through Chief of Staff.',
@@ -108,6 +111,30 @@ function formatHelp() {
     '`/agent standup` - run a text War Room standup across active/partial agents.',
     '`/agent discuss <question>` - gather agent perspectives and a Chief of Staff synthesis.',
   ].join('\n')
+}
+
+export async function buildAgentEngagementQueueSlackText(limit = 5) {
+  try {
+    const snapshot = await buildAgentMissionControlSnapshot()
+    const items = snapshot.engagement_queue.slice(0, limit)
+    if (items.length === 0) {
+      return `*Engagement Work Queue*\nNo routed engagement requests yet.\nReview: ${baseUrl()}/admin/agents`
+    }
+
+    const lines = items.map((item, index) => {
+      const source = item.source_run_id ? ` from <${agentRunsUrl(item.source_run_id)}|inbox trace>` : ''
+      const step = item.current_step ?? item.next_action ?? 'Engagement request queued.'
+      return `${index + 1}. <${agentRunsUrl(item.run_id)}|${item.agent_name}> [${item.status}/${item.execution_mode}]${source}\n   ${step}`
+    })
+
+    return [
+      '*Engagement Work Queue*',
+      ...lines,
+      `Review: ${baseUrl()}/admin/agents`,
+    ].join('\n')
+  } catch (error) {
+    return `Engagement queue lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
 }
 
 export async function buildAgentInboxSlackText(limit = 5) {
@@ -464,19 +491,21 @@ export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Pr
             ? await runMorningReviewSlackText(input)
             : command === 'agents'
               ? formatAgentListSlackText()
-              : command === 'inbox'
-                ? await buildAgentInboxSlackText()
-                : command === 'brief'
-                  ? await buildAgentBriefSlackText()
-                  : command === 'route'
-                    ? await routeAgentInboxSlackText(input)
-                    : command === 'run'
-                      ? await createAgentEngagementSlackText(input)
-                      : command === 'standup'
-                        ? await runWarRoomStandupSlackText(input)
-                        : command === 'discuss'
-                          ? await runWarRoomDiscussSlackText(input)
-                          : formatHelp()
+              : command === 'engagements'
+                ? await buildAgentEngagementQueueSlackText()
+                : command === 'inbox'
+                  ? await buildAgentInboxSlackText()
+                  : command === 'brief'
+                    ? await buildAgentBriefSlackText()
+                    : command === 'route'
+                      ? await routeAgentInboxSlackText(input)
+                      : command === 'run'
+                        ? await createAgentEngagementSlackText(input)
+                        : command === 'standup'
+                          ? await runWarRoomStandupSlackText(input)
+                          : command === 'discuss'
+                            ? await runWarRoomDiscussSlackText(input)
+                            : formatHelp()
 
   return { responseType: 'ephemeral', text }
 }
