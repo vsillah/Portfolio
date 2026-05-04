@@ -102,11 +102,14 @@ type MissionSnapshot = {
     run_id: string
     agent_key: string
     agent_name: string
+    owner_label: string
     pod: string
+    runtime: string
     status: string
     current_step: string | null
     execution_mode: string
     requested_from: string | null
+    source_label: string
     source_inbox_item_id: string | null
     source_run_id: string | null
     note: string | null
@@ -654,6 +657,40 @@ function AgentEngagementRecommendations({
 }
 
 function EngagementQueuePanel({ items }: { items: MissionSnapshot['engagement_queue'] }) {
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [agentFilter, setAgentFilter] = useState('all')
+  const [runtimeFilter, setRuntimeFilter] = useState('all')
+  const [sourceFilter, setSourceFilter] = useState('all')
+  const [modeFilter, setModeFilter] = useState('all')
+
+  const statusOptions = useMemo(() => uniqueQueueValues(items.map((item) => item.status)), [items])
+  const agentOptions = useMemo(() => {
+    const byKey = new Map(items.map((item) => [item.agent_key, item.agent_name]))
+    return Array.from(byKey.entries()).sort((a, b) => a[1].localeCompare(b[1]))
+  }, [items])
+  const runtimeOptions = useMemo(() => uniqueQueueValues(items.map((item) => item.runtime)), [items])
+  const sourceOptions = useMemo(() => uniqueQueueValues(items.map((item) => item.source_label)), [items])
+  const modeOptions = useMemo(() => uniqueQueueValues(items.map((item) => item.execution_mode)), [items])
+
+  const filteredItems = useMemo(() => items.filter((item) => (
+    (statusFilter === 'all' || item.status === statusFilter) &&
+    (agentFilter === 'all' || item.agent_key === agentFilter) &&
+    (runtimeFilter === 'all' || item.runtime === runtimeFilter) &&
+    (sourceFilter === 'all' || item.source_label === sourceFilter) &&
+    (modeFilter === 'all' || item.execution_mode === modeFilter)
+  )), [agentFilter, items, modeFilter, runtimeFilter, sourceFilter, statusFilter])
+
+  const visibleItems = filteredItems.slice(0, 6)
+  const activeFilterCount = [statusFilter, agentFilter, runtimeFilter, sourceFilter, modeFilter].filter((filter) => filter !== 'all').length
+
+  function clearFilters() {
+    setStatusFilter('all')
+    setAgentFilter('all')
+    setRuntimeFilter('all')
+    setSourceFilter('all')
+    setModeFilter('all')
+  }
+
   return (
     <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -665,8 +702,28 @@ function EngagementQueuePanel({ items }: { items: MissionSnapshot['engagement_qu
           Open run console
         </Link>
       </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-5">
+        <QueueFilter label="Status" value={statusFilter} onChange={setStatusFilter} options={statusOptions} />
+        <QueueFilter label="Agent" value={agentFilter} onChange={setAgentFilter} options={agentOptions.map(([value, label]) => ({ value, label }))} />
+        <QueueFilter label="Runtime" value={runtimeFilter} onChange={setRuntimeFilter} options={runtimeOptions} />
+        <QueueFilter label="Source" value={sourceFilter} onChange={setSourceFilter} options={sourceOptions} />
+        <QueueFilter label="Mode" value={modeFilter} onChange={setModeFilter} options={modeOptions} />
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+        <span>
+          Showing {visibleItems.length} of {filteredItems.length} filtered request(s), {items.length} total.
+        </span>
+        {activeFilterCount ? (
+          <button type="button" onClick={clearFilters} className="text-radiant-gold hover:underline">
+            Clear {activeFilterCount} filter(s)
+          </button>
+        ) : null}
+      </div>
+
       <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
-        {items.length ? items.slice(0, 6).map((item) => (
+        {visibleItems.length ? visibleItems.map((item) => (
           <Link
             key={item.run_id}
             href={`/admin/agents/runs/${item.run_id}`}
@@ -678,25 +735,84 @@ function EngagementQueuePanel({ items }: { items: MissionSnapshot['engagement_qu
                 {item.status.replace(/_/g, ' ')}
               </span>
               <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
+                {item.runtime}
+              </span>
+              <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
                 {item.execution_mode.replace(/_/g, ' ')}
               </span>
             </div>
-            <p className="mt-2 line-clamp-2 text-muted-foreground">
-              {item.current_step ?? item.next_action ?? 'Engagement request is queued for review.'}
-            </p>
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <span>{item.pod}</span>
-              <span>{formatTime(item.started_at)}</span>
-              {item.source_run_id ? <span>from inbox trace</span> : null}
+            <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+              <QueueDetail label="Owner" value={item.owner_label} />
+              <QueueDetail label="Source" value={item.source_label} />
+              <QueueDetail label="Pod" value={item.pod} />
+              <QueueDetail label="Requested" value={formatTime(item.started_at)} />
             </div>
+            <p className="mt-3 line-clamp-2 text-muted-foreground">
+              <span className="font-medium text-foreground/80">Next action: </span>
+              {item.next_action ?? item.current_step ?? 'Engagement request is queued for review.'}
+            </p>
+            {item.source_run_id ? (
+              <p className="mt-2 text-xs text-radiant-gold">Source trace linked</p>
+            ) : null}
           </Link>
-        )) : (
+        )) : items.length ? (
+          <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+            No engagement requests match the current filters.
+          </p>
+        ) : (
           <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
             No routed agent engagements yet. Use Chief of Staff recommendations, Agent Inbox routing, or Slack `/agent run`.
           </p>
         )}
       </div>
     </section>
+  )
+}
+
+function uniqueQueueValues(values: Array<string | null | undefined>) {
+  return Array.from(new Set(values.filter((value): value is string => Boolean(value)))).sort((a, b) => a.localeCompare(b))
+}
+
+function QueueFilter({
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  options: Array<string | { value: string; label: string }>
+}) {
+  return (
+    <label className="text-xs text-muted-foreground">
+      <span className="mb-1 block font-medium text-foreground/80">{label}</span>
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-10 w-full rounded-lg border border-silicon-slate/70 bg-background/70 px-2 text-sm outline-none focus:border-radiant-gold/70"
+      >
+        <option value="all">All {label.toLowerCase()}</option>
+        {options.map((option) => {
+          const optionValue = typeof option === 'string' ? option : option.value
+          const optionLabel = typeof option === 'string' ? option : option.label
+          return (
+            <option key={optionValue} value={optionValue}>
+              {optionLabel.replace(/_/g, ' ')}
+            </option>
+          )
+        })}
+      </select>
+    </label>
+  )
+}
+
+function QueueDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="font-medium text-foreground/80">{label}</p>
+      <p className="mt-0.5 truncate">{value.replace(/_/g, ' ')}</p>
+    </div>
   )
 }
 

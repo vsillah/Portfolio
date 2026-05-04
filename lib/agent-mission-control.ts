@@ -58,11 +58,14 @@ export type AgentEngagementQueueItem = {
   run_id: string
   agent_key: string
   agent_name: string
+  owner_label: string
   pod: string
+  runtime: string
   status: string
   current_step: string | null
   execution_mode: string
   requested_from: string | null
+  source_label: string
   source_inbox_item_id: string | null
   source_run_id: string | null
   note: string | null
@@ -139,6 +142,24 @@ function executionModeForRun(run: AgentRunRow) {
   if (typeof executesAction === 'boolean') return executesAction ? 'action' : 'read_only'
 
   return 'read_only'
+}
+
+function readableLabel(value: string | null | undefined) {
+  if (!value) return null
+  return value
+    .replace(/^agent_/, 'agent ')
+    .replace(/_/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function sourceLabelForRun(run: AgentRunRow) {
+  const requestedFrom = stringMetadataValue(run.metadata, 'route_action') ?? run.subject_label
+  if (stringMetadataValue(run.metadata, 'agent_inbox_item_id')) return 'Agent Inbox'
+  if (requestedFrom?.toLowerCase().includes('slack')) return 'Slack'
+  if (requestedFrom?.toLowerCase().includes('chief')) return 'Chief of Staff'
+  if (requestedFrom?.toLowerCase().includes('admin')) return 'Admin'
+  return readableLabel(requestedFrom) ?? 'Manual'
 }
 
 function inboxItemForRun(run: AgentRunRow, costByRun: Map<string, number>): AgentInboxItem {
@@ -247,15 +268,19 @@ export function buildAgentEngagementQueue(runs: AgentRunRow[]): AgentEngagementQ
     .filter((run) => run.kind === 'agent_engagement_request')
     .map((run) => {
       const agent = findAgent(requestedAgentKey(run))
+      const agentName = agent?.name ?? 'Chief of Staff Agent'
       return {
         run_id: run.id,
         agent_key: agent?.key ?? 'chief-of-staff',
-        agent_name: agent?.name ?? 'Chief of Staff Agent',
+        agent_name: agentName,
+        owner_label: agentName,
         pod: agent ? agentPodName(agent.podKey) : 'Chief of Staff',
+        runtime: run.runtime,
         status: run.status,
         current_step: run.current_step,
         execution_mode: executionModeForRun(run),
         requested_from: stringMetadataValue(run.metadata, 'route_action') ?? run.subject_label,
+        source_label: sourceLabelForRun(run),
         source_inbox_item_id: stringMetadataValue(run.metadata, 'agent_inbox_item_id'),
         source_run_id: stringMetadataValue(run.metadata, 'source_run_id'),
         note: stringMetadataValue(run.metadata, 'note'),
