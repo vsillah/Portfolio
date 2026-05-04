@@ -4,7 +4,7 @@ vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: null,
 }))
 
-import { buildAgentInbox, buildDailyOperatingBrief } from '@/lib/agent-mission-control'
+import { buildAgentEngagementQueue, buildAgentInbox, buildDailyOperatingBrief } from '@/lib/agent-mission-control'
 
 type InboxInput = Parameters<typeof buildAgentInbox>[0]
 type MissionRunRow = InboxInput['runs'][number]
@@ -111,5 +111,43 @@ describe('Agent Mission Control helpers', () => {
     ]))
     expect(inbox.filter((item) => item.source_run_id === 'approval-run')).toHaveLength(1)
     expect(inbox[0].priority).toBe('high')
+  })
+
+  it('builds a readable engagement queue from traced engagement requests', () => {
+    const queue = buildAgentEngagementQueue([
+      run({
+        id: 'engagement-run',
+        agent_key: 'manual',
+        kind: 'agent_engagement_request',
+        status: 'completed',
+        current_step: 'Read-only dispatch ready',
+        metadata: {
+          requested_agent: 'automation-systems',
+          route_action: 'agent_engagement',
+          agent_inbox_item_id: 'failed-run:failed',
+          source_run_id: 'failed-run',
+          note: 'Triage the failed webhook.',
+          suggested_next_action: 'Review mapped workflow health.',
+          executes_action: false,
+        },
+      }),
+      run({
+        id: 'ordinary-run',
+        kind: 'agent_task',
+      }),
+    ])
+
+    expect(queue).toHaveLength(1)
+    expect(queue[0]).toMatchObject({
+      run_id: 'engagement-run',
+      agent_key: 'automation-systems',
+      agent_name: 'Automation Systems Agent',
+      status: 'completed',
+      execution_mode: 'read_only',
+      requested_from: 'agent_engagement',
+      source_inbox_item_id: 'failed-run:failed',
+      source_run_id: 'failed-run',
+      next_action: 'Review mapped workflow health.',
+    })
   })
 })

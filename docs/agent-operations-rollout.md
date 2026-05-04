@@ -192,6 +192,7 @@ The route verifies Slack signatures with `SLACK_SIGNING_SECRET` when configured 
 - `/agent approvals` — pending approval checkpoints with run links.
 - `/agent morning-review` — runs the approved Agent Ops morning review path with `trigger_source = slack_agent_ops_command`.
 - `/agent agents` — lists active and partial agent organization entries with their engagement keys.
+- `/agent engagements` — lists the latest routed read-only engagement requests from the shared work queue.
 - `/agent inbox` — lists numbered Agent Inbox items from Mission Control.
 - `/agent brief` — returns the current Daily Operating Brief.
 - `/agent route <number-or-id>` — routes an Agent Inbox item through the same read-only Chief of Staff/agent engagement path used by the admin console.
@@ -203,7 +204,7 @@ Slack is an engagement surface, not the source of truth. The admin console and s
 
 ## Mission Control And War Room
 
-Mission Control uses `GET /api/admin/agents/mission-control` as a derived read model over existing tables. It does not introduce new schema in v1. The endpoint returns the status strip, agent roster, attention queue, Agent Inbox, Daily Operating Brief, active runs, latest events, pending approvals, and latest standup trace.
+Mission Control uses `GET /api/admin/agents/mission-control` as a derived read model over existing tables. It does not introduce new schema in v1. The endpoint returns the status strip, agent roster, attention queue, Agent Inbox, Engagement Work Queue, Daily Operating Brief, active runs, latest events, pending approvals, and latest standup trace.
 
 The Daily Operating Brief and Agent Inbox are derived views, not new persistence:
 
@@ -232,11 +233,14 @@ Engagement requests:
 - create an `agent_run` with `kind = agent_engagement_request`,
 - start in `queued`,
 - record the requested agent key, pod, runtime path, and approval gate,
+- preserve routing metadata such as source inbox item and source run when launched from Agent Inbox,
 - attach an `agent_engagement_work_packet` artifact with a readable work brief, mapped workflow coverage, and suggested next action,
 - for active or partial agents, complete a read-only dispatch step and attach an `agent_read_only_dispatch` artifact with next actions,
 - include a first-task template for priority agents so each read-only dispatch has an objective, checklist, and expected output,
 - keep planned agents queued for review until they have a narrow first task,
 - do not mutate production data.
+
+The Engagement Work Queue on `/admin/agents` and Slack `/agent engagements` are derived from these same `agent_engagement_request` traces. This makes routed requests visible as a queue without adding a new table or moving the source of truth out of `agent_runs`.
 
 ## Chief of Staff Chat
 
@@ -248,6 +252,7 @@ The first conversational agent surface is `/admin/agents/chief-of-staff`.
 - It uses `CHIEF_OF_STAFF_AGENT_MODEL` when set, otherwise `gpt-4o-mini`.
 - It returns both plain suggested follow-ups and typed action proposals using the shared runtime policy action IDs.
 - It can recommend mapped agent engagement proposals with `agent_key`, label, and rationale so the chat can launch the same read-only dispatch path used by `/admin/agents` and Slack.
+- Mission Control can launch those Chief of Staff recommendations directly through `POST /api/admin/agents/engage`, then the resulting work appears in the Engagement Work Queue.
 - Typed action proposals can be converted into approval checkpoints with `POST /api/admin/agents/chief-of-staff/actions`.
 - The approval action route creates a separate `manual` runtime run in `waiting_for_approval` and a pending `agent_approvals` record.
 - V1 remains non-executing. It can recommend next actions and create approval checkpoints, but it does not mutate production workflows, send messages, publish content, or change configuration.

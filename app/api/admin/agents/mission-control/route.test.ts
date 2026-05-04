@@ -55,6 +55,7 @@ describe('GET /api/admin/agents/mission-control', () => {
         next_actions: ['Run War Room standup.'],
       },
       agent_inbox: [],
+      engagement_queue: [],
       approvals: [],
     })
   })
@@ -85,6 +86,7 @@ describe('GET /api/admin/agents/mission-control', () => {
       generated_from: 'current_state',
     })
     expect(body.agent_inbox).toEqual([])
+    expect(body.engagement_queue).toEqual([])
     expect(mocks.buildAgentMissionControlSnapshot).toHaveBeenCalledOnce()
   })
 
