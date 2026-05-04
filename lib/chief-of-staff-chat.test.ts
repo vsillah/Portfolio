@@ -18,6 +18,7 @@ vi.mock('@/lib/supabase', () => ({
 
 import {
   buildChiefOfStaffPrompt,
+  getChiefOfStaffAgentRoutingCatalog,
   normalizeChiefOfStaffHistory,
   parseChiefOfStaffJson,
   summarizeAutomationContext,
@@ -27,6 +28,7 @@ import type { CodexAutomationInventory } from './codex-automation-inventory'
 
 const context: ChiefOfStaffContext = {
   generatedAt: '2026-05-02T12:00:00.000Z',
+  agentRoutingCatalog: getChiefOfStaffAgentRoutingCatalog(),
   activeRuns: [
     {
       id: 'run-1',
@@ -157,12 +159,36 @@ describe('Chief of Staff chat helpers', () => {
 
     expect(prompt.systemPrompt).toContain('production mutations')
     expect(prompt.systemPrompt).toContain('Automation context')
+    expect(prompt.systemPrompt).toContain('front-door router')
     expect(prompt.systemPrompt).toContain('Return JSON only')
     expect(prompt.systemPrompt).toContain('action_proposals')
     expect(prompt.systemPrompt).toContain('agent_engagements')
+    expect(prompt.systemPrompt).toContain('strategic-narrative')
+    expect(prompt.systemPrompt).toContain('course-curriculum-builder')
     expect(prompt.userPrompt).toContain('Morning review')
+    expect(prompt.userPrompt).toContain('agentRoutingCatalog')
+    expect(prompt.userPrompt).toContain('Strategy & Narrative Pod')
     expect(prompt.userPrompt).toContain('Portfolio Credential Rotation Due Report')
     expect(prompt.userPrompt).toContain('What needs attention?')
+  })
+
+  it('keeps the Chief of Staff router aligned to the agent organization map', () => {
+    const catalog = getChiefOfStaffAgentRoutingCatalog()
+
+    expect(catalog.length).toBeGreaterThan(10)
+    expect(catalog.map((agent) => agent.key)).toEqual(expect.arrayContaining([
+      'chief-of-staff',
+      'strategic-narrative',
+      'research-source-register',
+      'voice-content-architect',
+      'automation-systems',
+      'inbox-follow-up',
+    ]))
+    expect(catalog.find((agent) => agent.key === 'automation-systems')).toMatchObject({
+      pod: 'Product & Automation Pod',
+      status: 'active',
+      primaryRuntime: 'n8n',
+    })
   })
 
   it('summarizes automation context without raw prompt excerpts', () => {

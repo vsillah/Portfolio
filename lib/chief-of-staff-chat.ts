@@ -11,7 +11,7 @@ import {
   getApprovalGate,
   type AgentAction,
 } from '@/lib/agent-policy'
-import { getAgentByKey } from '@/lib/agent-organization'
+import { AGENT_ORGANIZATION, AGENT_PODS, getAgentByKey } from '@/lib/agent-organization'
 import {
   listCodexAutomationInventory,
   type CodexAutomationInventory,
@@ -113,6 +113,7 @@ export type ChiefOfStaffAutomationContext = {
 
 export type ChiefOfStaffContext = {
   generatedAt: string
+  agentRoutingCatalog: ChiefOfStaffAgentRoutingEntry[]
   activeRuns: AgentRunSummaryRow[]
   recentFailures: AgentRunSummaryRow[]
   pendingApprovals: AgentApprovalSummaryRow[]
@@ -123,6 +124,18 @@ export type ChiefOfStaffContext = {
     models: string[]
   }
   automationContext: ChiefOfStaffAutomationContext
+}
+
+export type ChiefOfStaffAgentRoutingEntry = {
+  key: string
+  name: string
+  pod: string
+  status: 'active' | 'partial' | 'planned'
+  primaryRuntime: string
+  responsibility: string
+  engagementPath: string
+  approvalGate: string
+  activeWorkflowCount: number
 }
 
 const DEFAULT_MODEL = 'gpt-4o-mini'
@@ -148,6 +161,20 @@ function assertDatabase() {
     throw new Error('Database not available')
   }
   return supabaseAdmin
+}
+
+export function getChiefOfStaffAgentRoutingCatalog(): ChiefOfStaffAgentRoutingEntry[] {
+  return AGENT_ORGANIZATION.map((agent) => ({
+    key: agent.key,
+    name: agent.name,
+    pod: AGENT_PODS.find((pod) => pod.key === agent.podKey)?.name ?? agent.podKey,
+    status: agent.status,
+    primaryRuntime: agent.primaryRuntime,
+    responsibility: agent.responsibility,
+    engagementPath: agent.engagementPath,
+    approvalGate: agent.approvalGate,
+    activeWorkflowCount: agent.n8nWorkflows.filter((workflow) => workflow.active).length,
+  }))
 }
 
 export function normalizeChiefOfStaffHistory(
@@ -383,6 +410,7 @@ export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext>
 
   return {
     generatedAt: new Date().toISOString(),
+    agentRoutingCatalog: getChiefOfStaffAgentRoutingCatalog(),
     activeRuns: (activeRes.data ?? []) as AgentRunSummaryRow[],
     recentFailures: (failedRes.data ?? []) as AgentRunSummaryRow[],
     pendingApprovals: (approvalsRes.data ?? []) as AgentApprovalSummaryRow[],
@@ -397,6 +425,8 @@ export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext>
 }
 
 export function buildChiefOfStaffPrompt(context: ChiefOfStaffContext, history: ChiefOfStaffChatMessage[]) {
+  const agentKeys = context.agentRoutingCatalog.map((agent) => agent.key)
+
   return {
     systemPrompt: [
       'You are the Chief of Staff Agent for Vambah and AmaduTown.',
@@ -405,9 +435,12 @@ export function buildChiefOfStaffPrompt(context: ChiefOfStaffContext, history: C
       'Be concise, direct, and operational. Do not pretend to have run tools that are not in the context.',
       'Automation context is a summarized, read-only inventory. Use it to identify risky automations, missing context, duplicate jobs, and when the Automation Systems Agent should be engaged.',
       'When proposing an executable next step, include a typed action proposal. The proposal is only a recommendation; it does not execute work.',
+      'You are the front-door router for the agent organization. When the user asks who should handle work, choose the best mapped agent from the routing catalog.',
       'When the next step should be handled by one of the mapped agents, include an agent_engagements proposal with the exact agent_key.',
+      'Prefer active or partial agents for immediate read-only engagement. Planned agents can be recommended, but label them as queued for review in your reply.',
+      'If several agents could help, pick one primary next agent and at most two supporting agents.',
       'Use only these action ids: read_files, write_files, external_api_call, client_data_access, known_workflow_db_write, unknown_db_write, publish_public_content, send_email, production_config_change, public_content_from_private_material.',
-      'Use only these agent keys when recommending an agent engagement: chief-of-staff, research-source-register, private-knowledge-librarian, voice-content-architect, content-repurposing, engineering-copilot, automation-systems, agent-tooling-parity, website-product-copy, inbox-follow-up.',
+      `Use only these agent keys when recommending an agent engagement: ${agentKeys.join(', ')}.`,
       'Return JSON only with keys: reply, suggested_actions, action_proposals, agent_engagements.',
     ].join('\n'),
     userPrompt: JSON.stringify(

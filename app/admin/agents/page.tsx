@@ -272,12 +272,12 @@ export default function AgentOperationsPage() {
                 <div>
                   <div className="flex items-center gap-2 text-radiant-gold mb-2">
                     <MessageSquare size={20} />
-                    <h2 className="text-lg font-semibold">Chief of Staff Chat</h2>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Ask for priorities, blockers, approval risk, and next actions from the agent operating context.
-                  </p>
+                  <h2 className="text-lg font-semibold">Chief of Staff Chat</h2>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                    Use the front-door router for priorities, blockers, approval risk, and which agent should handle the next step.
+                </p>
+              </div>
                 <ArrowRight size={20} className="text-muted-foreground shrink-0" />
               </div>
             </Link>
@@ -390,10 +390,10 @@ export default function AgentOperationsPage() {
               <div>
                 <div className="flex items-center gap-2 text-radiant-gold mb-2">
                   <CalendarCheck size={20} />
-                  <h2 className="text-lg font-semibold">Agent Engagement</h2>
+                  <h2 className="text-lg font-semibold">Production Engagement Paths</h2>
                 </div>
                 <p className="text-sm text-muted-foreground max-w-3xl">
-                  Operational roster for the agents that are ready to run, where to engage them, and what approval gates apply.
+                  Current callable surfaces that already create traces, reviews, or workflow handoffs. Use Chief of Staff Chat when you want routing instead of choosing a path manually.
                 </p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
@@ -479,7 +479,7 @@ export default function AgentOperationsPage() {
               <h2 className="text-lg font-semibold">Agent Organization Map</h2>
             </div>
             <p className="text-sm text-muted-foreground max-w-3xl">
-              Maps the target agent organization to the n8n workflow families currently wired into the operating system.
+              Target operating model for the agent organization. Each card describes the role, maturity, primary runtime, and mapped n8n workflow coverage. This is the org chart; the Production Engagement Paths above are the current ways to invoke work.
             </p>
             {engagementError ? <p className="mt-3 text-sm text-red-300">{engagementError}</p> : null}
             {engagementStatusLoading ? (
