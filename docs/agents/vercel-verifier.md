@@ -13,6 +13,10 @@ Both must pass before a ready PR is merged. Both must pass again after the merge
 
 ## Commands
 
+Runbook:
+
+- [Vercel Deployment Runbook](../vercel-deployment-runbook.md)
+
 Autopilot watcher:
 
 ```bash

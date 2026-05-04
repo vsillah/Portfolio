@@ -196,3 +196,42 @@ export function formatDeploymentWatchSummary(summary: DeploymentWatchSummary): s
 
   return lines.join('\n')
 }
+
+export function getDeploymentWatchGuidance(
+  summary: DeploymentWatchSummary,
+  nowMs = Date.now()
+): string[] {
+  if (summary.state === 'success') {
+    return ['guidance=ready; both required Vercel contexts passed']
+  }
+
+  if (summary.failedContexts.length > 0) {
+    return summary.failedContexts.map((status) => {
+      const urlHint = status.targetUrl ? ` inspect=${status.targetUrl}` : ''
+      return `guidance=failed; context="${status.context}" failed; stop merge/deploy flow and inspect logs${urlHint}`
+    })
+  }
+
+  return summary.pendingContexts.map((status) => {
+    if (status.state === 'missing') {
+      return `guidance=pending; context="${status.context}" missing; keep polling until GitHub receives the Vercel status`
+    }
+
+    const updatedMs = status.updatedAt ? Date.parse(status.updatedAt) : Number.NaN
+    const ageMinutes = Number.isFinite(updatedMs)
+      ? Math.max(0, Math.floor((nowMs - updatedMs) / 60000))
+      : null
+    const ageText = ageMinutes === null ? 'unknown age' : `${ageMinutes}m`
+    const urlHint = status.targetUrl ? ` inspect=${status.targetUrl}` : ''
+
+    if (ageMinutes !== null && ageMinutes >= 15) {
+      return `guidance=blocked; context="${status.context}" pending ${ageText}; inspect or rerun deployment before proceeding${urlHint}`
+    }
+
+    if (ageMinutes !== null && ageMinutes >= 8) {
+      return `guidance=inspect; context="${status.context}" pending ${ageText}; inspect Vercel before assuming the build is healthy${urlHint}`
+    }
+
+    return `guidance=pending; context="${status.context}" pending ${ageText}; continue polling${urlHint}`
+  })
+}
