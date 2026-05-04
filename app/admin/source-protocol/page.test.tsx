@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { ADMIN_NAV } from '@/lib/admin-nav'
@@ -28,7 +28,19 @@ const overview = {
     accruedPayoutUsd: 0.006,
   },
   creators: [],
-  portalAccounts: [],
+  portalAccounts: [
+    {
+      id: '8f111111-1111-4111-8111-111111111111',
+      creator_id: '7f111111-1111-4111-8111-111111111111',
+      user_id: '6f111111-1111-4111-8111-111111111111',
+      user_email: 'creator@example.com',
+      creator_display_name: 'Demo Creator',
+      status: 'active',
+      can_view_earnings: true,
+      can_view_receipts: true,
+      created_at: '2026-05-03T12:00:00.000Z',
+    },
+  ],
   works: [],
   licenseGrants: [],
   chunks: [],
@@ -70,6 +82,11 @@ describe('SourceProtocolPage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Source Protocol' })).toBeInTheDocument()
     expect(screen.getByText(/Payouts accrue per answer receipt/i)).toBeInTheDocument()
+    expect(screen.getByText('Demo Creator')).toBeInTheDocument()
+    expect(screen.getByText('creator@example.com')).toBeInTheDocument()
+
+    fireEvent.click(screen.getAllByRole('button', { name: /Receipts/i })[0])
+
     expect(screen.getByText('allenai/Olmo-3-7B-Instruct')).toBeInTheDocument()
     expect(screen.getByText(/1 cited \/ 1 attributed/i)).toBeInTheDocument()
 

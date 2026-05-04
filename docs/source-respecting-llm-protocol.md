@@ -118,6 +118,8 @@ Creator portal foundation:
 - `source_creator_portal_accounts` links an authenticated user to a creator profile. Access is explicit and admin-controlled; the protocol does not infer account ownership from names, emails, or public metadata.
 - `GET /api/source-protocol/creator/statement` returns the signed-in creator's read-only statement: works, active grants, retrievable chunks, attributed receipt rows, monthly payout rows, and dispute/support rows.
 - `/creator/source-protocol` projects that statement for nontechnical creators. It does not approve payouts, change licenses, ingest work, open disputes, or revoke grants.
+- `/admin/source-protocol` includes a `Portal Access` tab for admins to link a creator profile to an authenticated user account, set earnings/receipt visibility, and suspend or revoke portal access.
+- `POST/PATCH /api/admin/source-protocol/portal-accounts` are admin-only account-linking routes. They do not create creators, users, works, grants, receipts, disputes, or payouts.
 
 Smoke test:
 

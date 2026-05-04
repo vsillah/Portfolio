@@ -147,6 +147,24 @@ export async function GET(request: NextRequest) {
     const accruedPayoutUsd = payoutRows.reduce((sum: number, payout: any) => {
       return sum + Number(payout.accrued_payout_usd ?? 0)
     }, 0)
+    const portalUserIds = [...new Set(portalAccountRows.map((account: any) => account.user_id).filter(Boolean))]
+    const { data: portalUsers, error: portalUsersError } = portalUserIds.length > 0
+      ? await supabaseAdmin
+        .from('user_profiles')
+        .select('id, email, role')
+        .in('id', portalUserIds)
+      : { data: [], error: null }
+
+    if (portalUsersError) throw portalUsersError
+
+    const usersById = new Map<string, any>((portalUsers ?? []).map((user: any) => [user.id, user]))
+    const creatorsById = new Map<string, any>(creatorRows.map((creator: any) => [creator.id, creator]))
+    const enrichedPortalAccounts = portalAccountRows.map((account: any) => ({
+      ...account,
+      user_email: usersById.get(account.user_id)?.email ?? null,
+      user_role: usersById.get(account.user_id)?.role ?? null,
+      creator_display_name: creatorsById.get(account.creator_id)?.display_name ?? null,
+    }))
 
     return NextResponse.json({
       available: true,
@@ -164,7 +182,7 @@ export async function GET(request: NextRequest) {
         accruedPayoutUsd: Number(accruedPayoutUsd.toFixed(6)),
       },
       creators: creatorRows,
-      portalAccounts: portalAccountRows,
+      portalAccounts: enrichedPortalAccounts,
       works: workRows,
       licenseGrants: grantRows,
       chunks: chunkRows,
