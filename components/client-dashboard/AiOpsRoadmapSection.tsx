@@ -1,6 +1,6 @@
 'use client'
 
-import { ClipboardList, DollarSign, ShieldCheck } from 'lucide-react'
+import { Activity, ClipboardList, DollarSign, ShieldCheck } from 'lucide-react'
 import type { RoadmapClientView } from '@/lib/client-ai-ops-roadmap'
 
 interface Props {
@@ -13,6 +13,15 @@ function formatCurrency(amount: number): string {
     currency: 'USD',
     maximumFractionDigits: 0,
   }).format(amount)
+}
+
+function formatDate(value: string | null): string {
+  if (!value) return 'Not generated yet'
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  }).format(new Date(value))
 }
 
 export default function AiOpsRoadmapSection({ roadmap }: Props) {
@@ -96,6 +105,48 @@ export default function AiOpsRoadmapSection({ roadmap }: Props) {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+
+      {roadmap.latestReport && (
+        <div className="mt-5 rounded-lg border border-cyan-900/60 bg-cyan-950/10 p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Activity className="w-4 h-4 text-cyan-300" />
+                <p className="text-xs text-gray-500 uppercase tracking-wide">Latest report</p>
+              </div>
+              <h4 className="font-medium text-gray-100">{roadmap.latestReport.title}</h4>
+              {roadmap.latestReport.summary && (
+                <p className="text-sm text-gray-400 mt-1">{roadmap.latestReport.summary}</p>
+              )}
+            </div>
+            <span className="text-xs px-2 py-1 rounded border border-gray-700 bg-gray-800 text-gray-300 capitalize">
+              {roadmap.latestReport.status.replace(/_/g, ' ')}
+            </span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mt-4 text-sm">
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Generated</p>
+              <p className="text-gray-300">{formatDate(roadmap.latestReport.generatedAt)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Client actions</p>
+              <p className="text-gray-300">{roadmap.latestReport.clientActions.length}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Approvals</p>
+              <p className="text-gray-300">{roadmap.latestReport.approvalNeededCount}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500 uppercase tracking-wide">Monitoring flags</p>
+              <p className="text-gray-300">
+                {(roadmap.latestReport.monitoringSummary?.overdueTasks ?? 0) +
+                  (roadmap.latestReport.monitoringSummary?.staleCostItems ?? 0) +
+                  (roadmap.latestReport.monitoringSummary?.reportMissing ? 1 : 0)}
+              </p>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   buildDefaultClientAiOpsRoadmap,
+  buildClientRoadmapView,
   buildProposalRoadmapSnapshot,
   dashboardStatusFromRoadmap,
   meetingTaskStatusFromRoadmap,
@@ -47,5 +48,68 @@ describe('client AI ops roadmap', () => {
     expect(meetingTaskStatusFromRoadmap('cancelled')).toBe('cancelled')
     expect(roadmapStatusFromProjectedTask('complete')).toBe('complete')
     expect(roadmapStatusFromProjectedTask('pending')).toBe('pending')
+  })
+
+  it('adds a client-safe latest report summary to the roadmap view', () => {
+    const view = buildClientRoadmapView({
+      roadmap: {
+        title: 'Acme AI Ops Roadmap',
+        status: 'active',
+        client_summary: 'Implementation is underway.',
+      },
+      phases: [
+        {
+          id: 'phase-1',
+          title: 'Launch and reporting',
+          objective: 'Start reporting cadence.',
+          status: 'in_progress',
+          phase_order: 1,
+        },
+      ],
+      tasks: [
+        {
+          phase_id: 'phase-1',
+          title: 'Review report',
+          owner_type: 'client',
+          priority: 'high',
+          status: 'pending',
+          due_date: null,
+          client_visible: true,
+        },
+      ],
+      costItems: [],
+      reports: [
+        {
+          title: 'Monthly AI Ops report',
+          report_type: 'monthly',
+          status: 'needs_review',
+          generated_at: '2026-05-03T12:00:00.000Z',
+          summary: 'Roadmap is progressing with one overdue task.',
+          client_actions: ['Approve secure access plan'],
+          amadutown_actions: ['Internal escalation note that should not be exposed'],
+          approval_needed: ['Publish next client report'],
+          monitoring_summary: {
+            overdue_tasks: 1,
+            stale_cost_items: 2,
+            report_missing: false,
+            checked_at: '2026-05-03T12:00:00.000Z',
+          },
+        },
+      ],
+    })
+
+    expect(view.latestReport).toMatchObject({
+      title: 'Monthly AI Ops report',
+      status: 'needs_review',
+      clientActions: ['Approve secure access plan'],
+      amadutownActionsCount: 1,
+      approvalNeededCount: 1,
+      monitoringSummary: {
+        overdueTasks: 1,
+        staleCostItems: 2,
+        reportMissing: false,
+      },
+    })
+    expect(JSON.stringify(view.latestReport)).not.toContain('Internal escalation note')
   })
 })

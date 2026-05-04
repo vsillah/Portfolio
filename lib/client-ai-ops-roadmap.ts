@@ -109,6 +109,23 @@ export interface RoadmapClientPhase {
   estimatedMonthlyOperatingCost: number
 }
 
+export interface RoadmapClientReportSummary {
+  title: string
+  reportType: string
+  status: string
+  generatedAt: string | null
+  summary: string | null
+  clientActions: string[]
+  amadutownActionsCount: number
+  approvalNeededCount: number
+  monitoringSummary: {
+    overdueTasks?: number
+    staleCostItems?: number
+    reportMissing?: boolean
+    checkedAt?: string | null
+  } | null
+}
+
 export interface RoadmapClientView {
   title: string
   status: RoadmapStatus
@@ -116,6 +133,7 @@ export interface RoadmapClientView {
   phases: RoadmapClientPhase[]
   costSummary: RoadmapCostRollup
   nextActions: Array<{ title: string; ownerType: RoadmapTaskOwner; priority: RoadmapPriority; dueDate: string | null }>
+  latestReport: RoadmapClientReportSummary | null
 }
 
 const DEFAULT_PHASES: RoadmapPhaseDraft[] = [
@@ -305,8 +323,20 @@ export function buildClientRoadmapView(input: {
   }>
   tasks: Array<{ phase_id: string; title: string; owner_type: RoadmapTaskOwner; priority: RoadmapPriority; status: RoadmapTaskStatus; due_date: string | null; client_visible: boolean }>
   costItems: Array<Pick<RoadmapCostItemDraft, 'payer' | 'costType' | 'amount' | 'category'>>
+  reports?: Array<{
+    title: string
+    report_type: string
+    status: string
+    generated_at: string | null
+    summary: string | null
+    client_actions?: string[] | null
+    amadutown_actions?: string[] | null
+    approval_needed?: string[] | null
+    monitoring_summary?: Record<string, unknown> | null
+  }>
 }): RoadmapClientView {
   const visibleTasks = input.tasks.filter((task) => task.client_visible)
+  const latestReport = input.reports?.[0]
   const phases = input.phases.map((phase) => {
     const phaseTasks = visibleTasks.filter((task) => task.phase_id === phase.id)
     return {
@@ -338,5 +368,25 @@ export function buildClientRoadmapView(input: {
         priority: task.priority,
         dueDate: task.due_date,
       })),
+    latestReport: latestReport
+      ? {
+          title: latestReport.title,
+          reportType: latestReport.report_type,
+          status: latestReport.status,
+          generatedAt: latestReport.generated_at,
+          summary: latestReport.summary,
+          clientActions: Array.isArray(latestReport.client_actions) ? latestReport.client_actions : [],
+          amadutownActionsCount: Array.isArray(latestReport.amadutown_actions) ? latestReport.amadutown_actions.length : 0,
+          approvalNeededCount: Array.isArray(latestReport.approval_needed) ? latestReport.approval_needed.length : 0,
+          monitoringSummary: latestReport.monitoring_summary
+            ? {
+                overdueTasks: typeof latestReport.monitoring_summary.overdue_tasks === 'number' ? latestReport.monitoring_summary.overdue_tasks : undefined,
+                staleCostItems: typeof latestReport.monitoring_summary.stale_cost_items === 'number' ? latestReport.monitoring_summary.stale_cost_items : undefined,
+                reportMissing: typeof latestReport.monitoring_summary.report_missing === 'boolean' ? latestReport.monitoring_summary.report_missing : undefined,
+                checkedAt: typeof latestReport.monitoring_summary.checked_at === 'string' ? latestReport.monitoring_summary.checked_at : null,
+              }
+            : null,
+        }
+      : null,
   }
 }

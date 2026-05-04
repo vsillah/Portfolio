@@ -79,13 +79,14 @@ export async function getRoadmapBundleForProject(clientProjectId: string): Promi
   const phases = (phasesRes.data || []) as JsonRecord[]
   const tasks = (tasksRes.data || []) as JsonRecord[]
   const costItems = (costsRes.data || []) as JsonRecord[]
+  const reports = (reportsRes.data || []) as JsonRecord[]
 
   return {
     roadmap: roadmap as JsonRecord,
     phases,
     tasks,
     costItems,
-    reports: (reportsRes.data || []) as JsonRecord[],
+    reports,
     clientView: buildClientRoadmapView({
       roadmap: {
         title: roadmap.title,
@@ -116,6 +117,17 @@ export async function getRoadmapBundleForProject(clientProjectId: string): Promi
         costType: item.cost_type as never,
         amount: item.amount == null ? null : Number(item.amount),
         category: item.category as never,
+      })),
+      reports: reports.map((report) => ({
+        title: report.title as string,
+        report_type: report.report_type as string,
+        status: report.status as string,
+        generated_at: report.generated_at as string | null,
+        summary: report.summary as string | null,
+        client_actions: Array.isArray(report.client_actions) ? (report.client_actions as string[]) : [],
+        amadutown_actions: Array.isArray(report.amadutown_actions) ? (report.amadutown_actions as string[]) : [],
+        approval_needed: Array.isArray(report.approval_needed) ? (report.approval_needed as string[]) : [],
+        monitoring_summary: report.monitoring_summary as Record<string, unknown> | null,
       })),
     }),
   }
@@ -346,7 +358,11 @@ export async function syncRoadmapTaskFromProjection(source: 'dashboard' | 'meeti
     .eq('id', roadmapTaskId)
     .maybeSingle()
 
-  if (roadmapTask?.phase_id) await refreshRoadmapPhaseStatus(roadmapTask.phase_id as string)
+  if (roadmapTask?.roadmap_id) {
+    await refreshRoadmapPhaseRollups(roadmapTask.roadmap_id as string)
+  } else if (roadmapTask?.phase_id) {
+    await refreshRoadmapPhaseStatus(roadmapTask.phase_id as string)
+  }
 }
 
 export async function refreshRoadmapPhaseRollups(roadmapId: string): Promise<void> {

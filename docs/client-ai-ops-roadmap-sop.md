@@ -6,6 +6,8 @@ This is the operating guide for selling, implementing, monitoring, and improving
 
 - The client owns the hardware, accounts, credentials, project data, and production approvals.
 - AmaduTown access is named, revocable, and limited to startup, maintenance, monitoring, and approved changes.
+- The roadmap is the shared source of truth. Client Dashboard tasks and admin Meeting Tasks are projections of the same roadmap task records, not separate parallel plans.
+- Every roadmap must include implementation, reporting, monitoring, and tracking. Treat reports, monitor findings, task projections, and cost assumptions as part of the roadmap deliverable.
 - Proposal roadmap snapshots are fixed at send time. Later registry or pricing changes become upgrade recommendations, not silent proposal edits.
 - Production technology swaps require approval before implementation.
 - Smoke-test records stay available until a manual cleanup pass is approved. Do not reuse real client records for tests without approval.
@@ -25,6 +27,7 @@ This is the operating guide for selling, implementing, monitoring, and improving
 3. Project AmaduTown delivery tasks into Meeting Tasks.
 4. Confirm each task has a phase, owner, due date when available, status, and source badge.
 5. Keep internal traces, private logs, admin-only notes, credentials, and agent execution details out of the client dashboard.
+6. If a roadmap task changes status from the client dashboard or meeting task queue, sync the status back to the source roadmap task and refresh phase rollups.
 
 ## Monitoring Stage
 
@@ -67,6 +70,18 @@ Monthly reports should separate:
 - upgrade recommendations.
 
 Client-facing summaries should be understandable and avoid exposing private logs, agent traces, credentials, or internal-only notes.
+
+## Roadmap Rule Checklist
+
+Use this checklist whenever a roadmap feature, monitor, report, or client implementation phase changes:
+
+- One shared roadmap object exists for the client project.
+- Client-visible roadmap tasks appear in the Client Dashboard.
+- AmaduTown/internal roadmap tasks appear in Meeting Tasks.
+- Status updates from either projection sync back to the roadmap task.
+- Phase rollups and cost summaries refresh after task or cost changes.
+- The monitor can create a roadmap report and follow-up task when drift, stale pricing, missing reports, or blockers appear.
+- Client-facing output excludes private logs, agent traces, credentials, and internal-only notes.
 
 ## Real Client Pilot Checklist
 
