@@ -98,6 +98,22 @@ type MissionSnapshot = {
     href: string
     source_run_id: string | null
   }>
+  engagement_queue: Array<{
+    run_id: string
+    agent_key: string
+    agent_name: string
+    pod: string
+    status: string
+    current_step: string | null
+    execution_mode: string
+    requested_from: string | null
+    source_inbox_item_id: string | null
+    source_run_id: string | null
+    note: string | null
+    next_action: string | null
+    started_at: string
+    completed_at: string | null
+  }>
 }
 
 type WarRoomResult = {
@@ -142,6 +158,7 @@ export default function AgentOperationsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [actionResult, setActionResult] = useState<{ label: string; runId: string } | null>(null)
   const [inboxRoutingId, setInboxRoutingId] = useState<string | null>(null)
+  const [engagementLoadingKey, setEngagementLoadingKey] = useState<string | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -280,6 +297,29 @@ export default function AgentOperationsPage() {
     }
   }
 
+  async function launchAgentEngagement(agentKey: string, label: string, note?: string) {
+    setEngagementLoadingKey(agentKey)
+    setActionResult(null)
+    setError(null)
+    try {
+      const response = await authedFetch('/api/admin/agents/engage', {
+        method: 'POST',
+        body: JSON.stringify({
+          agent_key: agentKey,
+          note: note ? `Chief of Staff recommended: ${note}` : undefined,
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setActionResult({ label, runId: body.run_id })
+      await loadMissionControl()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Agent engagement launch failed')
+    } finally {
+      setEngagementLoadingKey(null)
+    }
+  }
+
   const topAgents = useMemo(
     () => snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').slice(0, 10) ?? [],
     [snapshot],
@@ -377,12 +417,19 @@ export default function AgentOperationsPage() {
               </form>
 
               {chiefReply ? (
-                <ResultPanel
-                  title="Chief of Staff"
-                  href={`/admin/agents/runs/${chiefReply.run_id}`}
-                  body={chiefReply.reply}
-                  items={chiefReply.agent_engagements.map((agent) => `${agent.agentName}: ${agent.rationale}`)}
-                />
+                <>
+                  <ResultPanel
+                    title="Chief of Staff"
+                    href={`/admin/agents/runs/${chiefReply.run_id}`}
+                    body={chiefReply.reply}
+                    items={chiefReply.suggested_actions}
+                  />
+                  <AgentEngagementRecommendations
+                    recommendations={chiefReply.agent_engagements}
+                    loadingKey={engagementLoadingKey}
+                    onLaunch={(agent) => launchAgentEngagement(agent.agentKey, agent.agentName, agent.rationale)}
+                  />
+                </>
               ) : null}
 
               {warRoomResult ? (
@@ -419,6 +466,8 @@ export default function AgentOperationsPage() {
               </div>
             </div>
           </section>
+
+          <EngagementQueuePanel items={snapshot?.engagement_queue ?? []} />
 
           <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_0.8fr]">
             <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
@@ -555,6 +604,97 @@ function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_bri
             </p>
           ))}
         </div>
+      </div>
+    </section>
+  )
+}
+
+function AgentEngagementRecommendations({
+  recommendations,
+  loadingKey,
+  onLaunch,
+}: {
+  recommendations: ChiefReply['agent_engagements']
+  loadingKey: string | null
+  onLaunch: (agent: ChiefReply['agent_engagements'][number]) => void
+}) {
+  if (!recommendations.length) return null
+
+  return (
+    <div className="mt-3 grid grid-cols-1 gap-2">
+      {recommendations.slice(0, 4).map((agent) => (
+        <div key={`${agent.agentKey}-${agent.label}`} className="rounded-lg border border-radiant-gold/20 bg-radiant-gold/5 p-3">
+          <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <p className="font-medium">{agent.agentName}</p>
+                <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
+                  {agent.executionMode.replace(/_/g, ' ')}
+                </span>
+                <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
+                  {agent.status}
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-muted-foreground">{agent.rationale}</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onLaunch(agent)}
+              disabled={loadingKey === agent.agentKey}
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+            >
+              {loadingKey === agent.agentKey ? <RefreshCw size={14} className="animate-spin" /> : <Sparkles size={14} />}
+              Run read-only
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function EngagementQueuePanel({ items }: { items: MissionSnapshot['engagement_queue'] }) {
+  return (
+    <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-radiant-gold">
+          <ClipboardList size={18} />
+          <h2 className="font-semibold">Engagement Work Queue</h2>
+        </div>
+        <Link href="/admin/agents/runs" className="text-xs text-radiant-gold hover:underline">
+          Open run console
+        </Link>
+      </div>
+      <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
+        {items.length ? items.slice(0, 6).map((item) => (
+          <Link
+            key={item.run_id}
+            href={`/admin/agents/runs/${item.run_id}`}
+            className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium">{item.agent_name}</span>
+              <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
+                {item.status.replace(/_/g, ' ')}
+              </span>
+              <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
+                {item.execution_mode.replace(/_/g, ' ')}
+              </span>
+            </div>
+            <p className="mt-2 line-clamp-2 text-muted-foreground">
+              {item.current_step ?? item.next_action ?? 'Engagement request is queued for review.'}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span>{item.pod}</span>
+              <span>{formatTime(item.started_at)}</span>
+              {item.source_run_id ? <span>from inbox trace</span> : null}
+            </div>
+          </Link>
+        )) : (
+          <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
+            No routed agent engagements yet. Use Chief of Staff recommendations, Agent Inbox routing, or Slack `/agent run`.
+          </p>
+        )}
       </div>
     </section>
   )

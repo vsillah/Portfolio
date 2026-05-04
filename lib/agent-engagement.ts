@@ -251,6 +251,7 @@ export async function createAgentEngagementRun(
       suggested_next_action: workPacket.nextAction,
       note,
       executes_action: false,
+      ...(input.eventMetadata ?? {}),
     },
     idempotencyKey: input.idempotencyKey ?? null,
   })
