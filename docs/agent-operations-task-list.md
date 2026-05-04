@@ -1,46 +1,65 @@
 # Agent Operations Task List
 
-This is the active implementation queue for turning the agent organization into usable operating software.
+This is the active implementation queue for Agent Operations. The phase gates, definitions of done, and scope-control rules live in [Agent Operations Roadmap](./agent-operations-roadmap.md). If a proposed task is not allowed by that roadmap, treat it as a scope-change request before implementing it.
 
-## Current Autopilot Block
+## Integration Queue
 
-- [x] Confirm baseline: `origin/main`, open PRs, and production/staging Vercel deployment state.
-- [x] Keep Portfolio admin as the source of truth for agent operations.
-- [x] Support read-only agent dispatch from `/admin/agents`.
-- [x] Support the same read-only dispatch from Slack `/agent run <agent-key>`.
-- [x] Let Chief of Staff chat recommend mapped agents and launch their read-only dispatch runs.
-- [x] Keep every launched agent engagement visible in `/admin/agents/runs`.
-- [x] Add first-task templates to read-only dispatch artifacts for priority agents.
-- [x] Add read-only Automation Context visibility for Portfolio-related Codex automations.
-- [ ] Validate with focused tests, typecheck, lint, build, PR previews, merge, and production/staging deployment checks.
+- [ ] Merge PR #125: Agent Inbox routing.
+- [ ] Retarget or merge PR #127: Engagement Work Queue.
+- [ ] Merge this roadmap definition branch after PR #125 and PR #127 are reconciled.
+- [ ] Verify both Vercel contexts after merge:
+  - `Vercel – portfolio`
+  - `Vercel – portfolio-staging`
 
-## Next Operating Milestones
+## Next Build Queue
 
-1. Chief of Staff dispatcher
-   - The chat should recommend which mapped agent to run next.
-   - Recommendations should include `agent_key`, label, and rationale.
-   - Launching the recommendation must create the same traced read-only engagement used by admin and Slack.
+1. Queue affordances
+   - Add filters for status, agent, runtime, source, and execution mode.
+   - Clarify owner, next action, and source trace on queue items.
+   - Add a focused `/admin/agents/work` drilldown only if the overview becomes too crowded.
 
-2. Agent-specific first tasks
-   - Give the highest-value agents a first narrow read-only task:
-     - `chief-of-staff`
-     - `research-source-register`
-     - `voice-content-architect`
-     - `automation-systems`
-     - `inbox-follow-up`
-   - Planned agents should stay queued until the first task is explicit.
+2. Approval-backed execution
+   - Convert Chief of Staff side-effect recommendations into explicit approval checkpoints.
+   - Store the action payload with the approval/run artifact.
+   - Keep email, publishing, production config, unknown DB writes, and private-to-public material behind `agent_approvals`.
 
-3. Approval-backed execution
-   - Convert safe read-only recommendations into approval checkpoints when they require side effects.
-   - Keep publishing, outbound email, unknown database writes, production config, and private-to-public content behind `agent_approvals`.
+3. n8n trace expansion
+   - Prioritize workflows that already touch production automation or LLM costs.
+   - Pass `agent_run_id` into app-triggered payloads.
+   - Add progress, completion, and failure callbacks.
+   - Keep legacy workflow pages active until replacement views are proven.
 
-4. Mobile operation
-   - Keep Slack as the lightweight command surface.
-   - Keep Portfolio admin as the source of truth.
-   - Avoid adding another channel unless Slack cannot support the workflow.
+4. Reporting and hardening
+   - Add all-runtime stale-run detection.
+   - Add dead-letter handling for failed runs.
+   - Add cost summaries by runtime, agent, workflow, client/project, and artifact type.
+   - Keep morning review and deployment watcher outputs visible in Agent Operations.
 
-5. Hardening
-   - Keep Codex automation context visible in Agent Operations so future agents can inspect purpose, cadence, authority boundary, and missing context before acting.
-   - Add stale-run handling for every runtime.
-   - Add dashboard-level cost summaries by agent and runtime.
-   - Keep n8n compatibility adapters live until the generic trace model is proven.
+## Completed Or In Review
+
+- [x] Shared trace schema and helper library.
+- [x] `/admin/agents`, `/admin/agents/runs`, and run detail pages.
+- [x] Mission Control first-screen command center.
+- [x] Daily Operating Brief.
+- [x] Chief of Staff command and typed recommendations.
+- [x] Agent Inbox derived from trace signals.
+- [x] Read-only agent dispatch from admin and Slack.
+- [x] Slack `/agent` command surface for status, agents, inbox, route, brief, run, standup, and discuss.
+- [x] Hermes health bridge as read-only runtime trace.
+- [x] Approval drill and run-detail approval decisions.
+- [x] Runtime evaluation probe for OpenCode/OpenClaw.
+- [x] Engagement Work Queue in review.
+
+## Scope Guard
+
+Do not add the following without an explicit scope-change decision:
+
+- another chat channel beyond Slack,
+- a separate queue table,
+- autonomous multi-agent launch loops,
+- production data writes outside known workflows,
+- Hermes/OpenCode mutation from the web app,
+- replacement of legacy workflow pages,
+- graph/3D/animation-first views,
+- new vendors, models, or runtimes without a bakeoff,
+- non-captain merges to `main`.
