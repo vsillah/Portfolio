@@ -141,6 +141,7 @@ export default function AgentOperationsPage() {
   const [warRoomResult, setWarRoomResult] = useState<WarRoomResult | null>(null)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [actionResult, setActionResult] = useState<{ label: string; runId: string } | null>(null)
+  const [inboxRoutingId, setInboxRoutingId] = useState<string | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -256,6 +257,26 @@ export default function AgentOperationsPage() {
       setError(err instanceof Error ? err.message : `${kind} failed`)
     } finally {
       setActionLoading(null)
+    }
+  }
+
+  async function routeInboxItem(item: MissionSnapshot['agent_inbox'][number]) {
+    setInboxRoutingId(item.id)
+    setActionResult(null)
+    setError(null)
+    try {
+      const response = await authedFetch('/api/admin/agents/inbox', {
+        method: 'POST',
+        body: JSON.stringify({ item_id: item.id }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setActionResult({ label: `routed ${item.agent_name}`, runId: body.run_id })
+      await loadMissionControl()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Agent Inbox routing failed')
+    } finally {
+      setInboxRoutingId(null)
     }
   }
 
@@ -384,7 +405,12 @@ export default function AgentOperationsPage() {
               </div>
               <div className="mt-3 space-y-2">
                 {snapshot?.agent_inbox.length ? snapshot.agent_inbox.slice(0, 5).map((item) => (
-                  <InboxRow key={item.id} item={item} />
+                  <InboxRow
+                    key={item.id}
+                    item={item}
+                    routing={inboxRoutingId === item.id}
+                    onRoute={() => routeInboxItem(item)}
+                  />
                 )) : (
                   <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
                     No agent inbox items need attention.
@@ -545,9 +571,17 @@ function StatusPill({ status }: { status: 'active' | 'partial' | 'planned' }) {
   return <span className={`rounded-full border px-2 py-0.5 text-xs ${className}`}>{status}</span>
 }
 
-function InboxRow({ item }: { item: MissionSnapshot['agent_inbox'][number] }) {
+function InboxRow({
+  item,
+  routing,
+  onRoute,
+}: {
+  item: MissionSnapshot['agent_inbox'][number]
+  routing: boolean
+  onRoute: () => void
+}) {
   return (
-    <Link href={item.href} className="block rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50">
+    <div className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -558,12 +592,23 @@ function InboxRow({ item }: { item: MissionSnapshot['agent_inbox'][number] }) {
           <p className="mt-1 line-clamp-2 text-muted-foreground">{item.reason}</p>
           <p className="mt-2 text-xs text-muted-foreground">{item.pod}</p>
         </div>
-        <div className="flex shrink-0 items-center gap-1 text-xs text-radiant-gold">
-          {item.action_label}
-          <ArrowRight size={14} />
+        <div className="flex shrink-0 flex-col items-end gap-2">
+          <button
+            type="button"
+            onClick={onRoute}
+            disabled={routing}
+            className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/50 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+          >
+            {routing ? <RefreshCw size={13} className="animate-spin" /> : <Sparkles size={13} />}
+            Route
+          </button>
+          <Link href={item.href} className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-radiant-gold">
+            {item.action_label}
+            <ArrowRight size={14} />
+          </Link>
         </div>
       </div>
-    </Link>
+    </div>
   )
 }
 
