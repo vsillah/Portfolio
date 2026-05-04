@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import {
   Activity,
@@ -27,6 +27,15 @@ import { APPROVAL_GATES, RUNTIME_POLICIES } from '@/lib/agent-policy'
 
 const AGENT_ORGANIZATION_SUMMARY = getAgentOrganizationSummary()
 
+type AgentEngagementRecord = {
+  runId: string
+  status: string
+  currentStep: string | null
+  startedAt: string | null
+  completedAt: string | null
+  executionMode: string | null
+}
+
 export default function AgentOperationsPage() {
   const [hermesLoading, setHermesLoading] = useState(false)
   const [hermesResult, setHermesResult] = useState<{ runId: string; overall: string } | null>(null)
@@ -41,8 +50,52 @@ export default function AgentOperationsPage() {
   const [morningResult, setMorningResult] = useState<{ runId: string; overall: string; slackNotified: boolean } | null>(null)
   const [morningError, setMorningError] = useState<string | null>(null)
   const [engagingAgentKey, setEngagingAgentKey] = useState<string | null>(null)
-  const [engagementResults, setEngagementResults] = useState<Record<string, { runId: string; status: string }>>({})
+  const [engagementResults, setEngagementResults] = useState<Record<string, AgentEngagementRecord>>({})
   const [engagementError, setEngagementError] = useState<string | null>(null)
+  const [engagementStatusLoading, setEngagementStatusLoading] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadEngagementStatuses() {
+      setEngagementStatusLoading(true)
+      try {
+        const session = await getCurrentSession()
+        if (!session?.access_token) return
+        const res = await fetch('/api/admin/agents/engagements', {
+          headers: { Authorization: `Bearer ${session.access_token}` },
+        })
+        const body = await res.json().catch(() => ({}))
+        if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+        if (cancelled || !Array.isArray(body.engagements)) return
+
+        const byAgent: Record<string, AgentEngagementRecord> = {}
+        for (const item of body.engagements) {
+          if (!item?.agent_key || !item.run_id) continue
+          byAgent[item.agent_key] = {
+            runId: item.run_id,
+            status: item.status || 'queued',
+            currentStep: item.current_step || null,
+            startedAt: item.started_at || null,
+            completedAt: item.completed_at || null,
+            executionMode: item.execution_mode || null,
+          }
+        }
+        setEngagementResults((current) => ({ ...byAgent, ...current }))
+      } catch (err) {
+        if (!cancelled) {
+          setEngagementError(err instanceof Error ? err.message : 'Failed to load agent engagement status')
+        }
+      } finally {
+        if (!cancelled) setEngagementStatusLoading(false)
+      }
+    }
+
+    loadEngagementStatuses()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   async function runHermesHealthSummary() {
     setHermesLoading(true)
@@ -164,7 +217,14 @@ export default function AgentOperationsPage() {
       if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
       setEngagementResults((current) => ({
         ...current,
-        [agentKey]: { runId: body.run_id, status: body.status || 'queued' },
+        [agentKey]: {
+          runId: body.run_id,
+          status: body.status || 'queued',
+          currentStep: body.status === 'completed' ? 'Read-only dispatch ready' : 'Engagement request queued',
+          startedAt: new Date().toISOString(),
+          completedAt: body.status === 'completed' ? new Date().toISOString() : null,
+          executionMode: body.execution_mode || null,
+        },
       }))
     } catch (err) {
       setEngagementError(err instanceof Error ? err.message : 'Failed to queue agent engagement')
@@ -422,6 +482,9 @@ export default function AgentOperationsPage() {
               Maps the target agent organization to the n8n workflow families currently wired into the operating system.
             </p>
             {engagementError ? <p className="mt-3 text-sm text-red-300">{engagementError}</p> : null}
+            {engagementStatusLoading ? (
+              <p className="mt-3 text-xs text-muted-foreground">Loading latest engagement traces...</p>
+            ) : null}
 
             <div className="mt-5 grid grid-cols-1 lg:grid-cols-2 gap-4">
               {AGENT_ORGANIZATION_SUMMARY.map((pod) => (
@@ -441,49 +504,69 @@ export default function AgentOperationsPage() {
                     <OrgCount label="Planned" value={pod.plannedAgentCount} tone="slate" />
                   </div>
                   <div className="mt-4 space-y-3">
-                    {pod.agents.map((agent) => (
-                      <div key={agent.key} className="rounded-md border border-silicon-slate/50 bg-black/10 p-3">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <p className="font-medium">{agent.name}</p>
-                          <StatusPill status={agent.status} />
-                          <span className="rounded-full border border-silicon-slate/50 px-2 py-0.5 text-xs text-muted-foreground">
-                            {agent.primaryRuntime}
-                          </span>
-                        </div>
-                        <p className="mt-2 text-sm text-muted-foreground">{agent.responsibility}</p>
-                        {agent.n8nWorkflows.length > 0 ? (
-                          <p className="mt-2 text-xs text-muted-foreground">
-                            n8n: {agent.n8nWorkflows.slice(0, 3).map((workflow) => workflow.name).join(', ')}
-                            {agent.n8nWorkflows.length > 3 ? ` +${agent.n8nWorkflows.length - 3} more` : ''}
-                          </p>
-                        ) : (
-                          <p className="mt-2 text-xs text-muted-foreground">n8n: not primary runtime yet</p>
-                        )}
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          {engagementResults[agent.key] ? (
-                            <Link
-                              href={`/admin/agents/runs/${engagementResults[agent.key].runId}`}
-                              className="inline-flex items-center gap-1 rounded-md border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200 hover:underline"
-                            >
-                              {engagementResults[agent.key].status === 'completed'
-                                ? 'Read-only run ready'
-                                : 'Engagement queued'}
-                              <ArrowRight size={12} />
-                            </Link>
+                    {pod.agents.map((agent) => {
+                      const engagement = engagementResults[agent.key]
+
+                      return (
+                        <div key={agent.key} className="rounded-md border border-silicon-slate/50 bg-black/10 p-3">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-medium">{agent.name}</p>
+                            <StatusPill status={agent.status} />
+                            <span className="rounded-full border border-silicon-slate/50 px-2 py-0.5 text-xs text-muted-foreground">
+                              {agent.primaryRuntime}
+                            </span>
+                          </div>
+                          <p className="mt-2 text-sm text-muted-foreground">{agent.responsibility}</p>
+                          {agent.n8nWorkflows.length > 0 ? (
+                            <p className="mt-2 text-xs text-muted-foreground">
+                              n8n: {agent.n8nWorkflows.slice(0, 3).map((workflow) => workflow.name).join(', ')}
+                              {agent.n8nWorkflows.length > 3 ? ` +${agent.n8nWorkflows.length - 3} more` : ''}
+                            </p>
                           ) : (
-                            <button
-                              type="button"
-                              onClick={() => queueAgentEngagement(agent.key, agent.name)}
-                              disabled={engagingAgentKey === agent.key}
-                              className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/50 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
-                            >
-                              <Send size={12} />
-                              Run read-only
-                            </button>
+                            <p className="mt-2 text-xs text-muted-foreground">n8n: not primary runtime yet</p>
                           )}
+                          {engagement ? (
+                            <div className="mt-3 rounded-md border border-silicon-slate/50 bg-background/40 px-3 py-2 text-xs text-muted-foreground">
+                              <p>
+                                Latest engagement:{' '}
+                                <span className="text-foreground">
+                                  {engagement.status.replace(/_/g, ' ')}
+                                </span>
+                                {engagement.executionMode
+                                  ? ` · ${engagement.executionMode.replace(/_/g, ' ')}`
+                                  : ''}
+                              </p>
+                              {engagement.currentStep ? (
+                                <p className="mt-1">{engagement.currentStep}</p>
+                              ) : null}
+                            </div>
+                          ) : null}
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {engagement ? (
+                              <Link
+                                href={`/admin/agents/runs/${engagement.runId}`}
+                                className="inline-flex items-center gap-1 rounded-md border border-emerald-400/40 bg-emerald-500/10 px-2 py-1 text-xs text-emerald-200 hover:underline"
+                              >
+                                {engagement.status === 'completed'
+                                  ? 'Read-only run ready'
+                                  : 'Engagement queued'}
+                                <ArrowRight size={12} />
+                              </Link>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => queueAgentEngagement(agent.key, agent.name)}
+                                disabled={engagingAgentKey === agent.key}
+                                className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/50 bg-radiant-gold/10 px-2 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+                              >
+                                <Send size={12} />
+                                Run read-only
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
                 </div>
               ))}
