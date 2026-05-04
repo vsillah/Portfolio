@@ -107,8 +107,11 @@ Internal persistence APIs:
 
 - `POST /api/admin/source-protocol/receipts` persists one `AnswerReceipt` plus attributed chunk rows.
 - `POST /api/admin/source-protocol/monthly-payouts` upserts monthly payout settlement rows.
+- `GET /api/admin/source-protocol/overview` returns the read-only admin overview for creators, works, grants, chunks, receipts, monthly payouts, disputes, and model reviews.
 
-Both routes require `Authorization: Bearer <SOURCE_PROTOCOL_INGEST_SECRET>`. They are internal admin/system endpoints and should not be exposed as public creator UX.
+The two write routes require `Authorization: Bearer <SOURCE_PROTOCOL_INGEST_SECRET>`. They are internal admin/system endpoints and should not be exposed as public creator UX.
+
+The overview route uses the regular admin session bearer token and is projected into `/admin/source-protocol`. That page is read-only: it shows per-use receipt accruals and monthly payout settlement status without approving, paying, revoking, or ingesting anything.
 
 Smoke test:
 
