@@ -32,6 +32,7 @@ git status --short --branch
 gh pr list --state open --json number,title,headRefName,isDraft,mergeStateStatus,updatedAt,url,statusCheckRollup
 git worktree list
 git stash list --max-count=8
+npm run git:hygiene:report
 ```
 
 Confirm:
@@ -159,3 +160,44 @@ Recommend automation when the same issue appears more than twice:
 - queue hygiene report: compare `docs/integration-captain-queue.md` against open PRs
 
 Start these as read-only reports. Only add auto-cleanup after the captain has proven the report is accurate over repeated runs.
+
+### Active Hygiene Report
+
+Run the read-only hygiene report before branch or worktree cleanup:
+
+```bash
+npm run git:hygiene:report
+```
+
+The report enacts the current watch-item policies:
+
+- gone local branches are classified by unique commits before any deletion
+- worktrees are classified by branch, dirty files, and commits missing from `origin/main`
+- open PRs are classified by draft/readiness age
+- open PR file overlap is surfaced before sequencing decisions
+- Vercel pending thresholds and GitHub transient merge handling are printed in the report header
+
+Use report output as evidence. Do not delete a branch or worktree from the report alone unless the recommendation is a cleanup candidate and no active chat owns it.
+
+Current watch-item dispositions live in `docs/agents/git-hygiene-watch-classifications.md`. Update that file when a gone branch moves from `watch` to `preserve`, `superseded`, `abandon`, or `needs PR`.
+
+### Vercel Lag Thresholds
+
+Classify Vercel pending contexts by elapsed time:
+
+- under 5 minutes: `normal`
+- 5-10 minutes: `watch`
+- over 10 minutes repeatedly: `debt`
+- failed, cancelled, or timed out: `blocker`
+
+If staging lags after production but stays pending, continue polling until the threshold requires inspection. Do not merge the next PR while either required context is pending.
+
+### GitHub Transient Merge Handling
+
+When GitHub returns `502`, `merge already in progress`, or a similar transient merge error:
+
+1. Check PR state with `gh pr view <number>`.
+2. Check `origin/main` status.
+3. Poll briefly for remote merge completion.
+4. Retry once only if the PR is still open, clean, and mergeable.
+5. If the second attempt is still stuck, classify it as `watch` for GitHub service state or `blocker` if the PR is no longer clean.

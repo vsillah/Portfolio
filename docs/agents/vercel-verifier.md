@@ -57,6 +57,7 @@ Do not call a deployment complete while either required context is pending.
 
 ## Pending Thresholds
 
-- Under 8 minutes: continue polling unless a context has failed.
-- 8-15 minutes: inspect the Vercel target URL or run `vercel ls <project> --scope vsillahs-projects`.
-- Over 15 minutes: treat as blocked until the deployment is inspected or re-run.
+- Under 5 minutes: classify as `normal` and continue polling unless a context has failed.
+- 5-10 minutes: classify as `watch`; continue polling and prepare to inspect the target URL.
+- Over 10 minutes repeatedly: classify as `debt`; inspect the Vercel target URL or run `vercel ls <project> --scope vsillahs-projects`.
+- Failed, cancelled, or timed out: classify as `blocker` until the deployment is inspected or re-run.
