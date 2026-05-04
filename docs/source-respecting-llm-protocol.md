@@ -113,6 +113,12 @@ The two write routes require `Authorization: Bearer <SOURCE_PROTOCOL_INGEST_SECR
 
 The overview route uses the regular admin session bearer token and is projected into `/admin/source-protocol`. That page is read-only: it shows per-use receipt accruals and monthly payout settlement status without approving, paying, revoking, or ingesting anything.
 
+Creator portal foundation:
+
+- `source_creator_portal_accounts` links an authenticated user to a creator profile. Access is explicit and admin-controlled; the protocol does not infer account ownership from names, emails, or public metadata.
+- `GET /api/source-protocol/creator/statement` returns the signed-in creator's read-only statement: works, active grants, retrievable chunks, attributed receipt rows, monthly payout rows, and dispute/support rows.
+- `/creator/source-protocol` projects that statement for nontechnical creators. It does not approve payouts, change licenses, ingest work, open disputes, or revoke grants.
+
 Smoke test:
 
 - `npm run source-protocol:smoke` builds a synthetic receipt and monthly settlement without network calls.

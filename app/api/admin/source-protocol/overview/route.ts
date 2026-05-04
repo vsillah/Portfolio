@@ -11,6 +11,7 @@ type CountFilter = {
 
 const SOURCE_PROTOCOL_TABLES = [
   'source_creators',
+  'source_creator_portal_accounts',
   'licensed_works',
   'license_grants',
   'source_chunks',
@@ -62,6 +63,7 @@ export async function GET(request: NextRequest) {
   try {
     const [
       creators,
+      portalAccounts,
       works,
       activeGrants,
       retrievableChunks,
@@ -70,6 +72,7 @@ export async function GET(request: NextRequest) {
       openDisputes,
       heldPayouts,
       creatorRows,
+      portalAccountRows,
       workRows,
       grantRows,
       chunkRows,
@@ -80,6 +83,7 @@ export async function GET(request: NextRequest) {
       modelReviewRows,
     ] = await Promise.all([
       countRows('source_creators'),
+      countRows('source_creator_portal_accounts'),
       countRows('licensed_works'),
       countRows('license_grants', { column: 'status', value: 'active' }),
       countRows('source_chunks', { column: 'is_retrievable', value: true }),
@@ -90,6 +94,11 @@ export async function GET(request: NextRequest) {
       selectRows(
         'source_creators',
         'id, display_name, categories, rights_holder_types, verification_status, protected_identity, created_at',
+        'created_at'
+      ),
+      selectRows(
+        'source_creator_portal_accounts',
+        'id, creator_id, user_id, status, can_view_earnings, can_view_receipts, accepted_at, created_at',
         'created_at'
       ),
       selectRows(
@@ -144,6 +153,7 @@ export async function GET(request: NextRequest) {
       generatedAt: new Date().toISOString(),
       summary: {
         creators,
+        portalAccounts,
         works,
         activeGrants,
         retrievableChunks,
@@ -154,6 +164,7 @@ export async function GET(request: NextRequest) {
         accruedPayoutUsd: Number(accruedPayoutUsd.toFixed(6)),
       },
       creators: creatorRows,
+      portalAccounts: portalAccountRows,
       works: workRows,
       licenseGrants: grantRows,
       chunks: chunkRows,
