@@ -33,9 +33,10 @@ The Agent Operations console under `/admin/agents` is now a Mission Control over
 The first viewport should show:
 
 - status strip for active, running, approvals, failed, stale, cost today, and mapped agents,
+- daily operating brief synthesized from the latest standup when available, otherwise current trace state,
 - Chief of Staff command input,
 - War Room standup/discuss actions,
-- attention queue for approval-waiting, failed, stale, or high-cost runs,
+- Agent Inbox for approval-waiting, failed, stale, high-cost, and stale-standup actions,
 - compact agent roster grouped by active/partial status,
 - latest activity,
 - links to deeper run, automation, policy, and runtime controls.
@@ -199,7 +200,15 @@ Slack is an engagement surface, not the source of truth. The admin console and s
 
 ## Mission Control And War Room
 
-Mission Control uses `GET /api/admin/agents/mission-control` as a derived read model over existing tables. It does not introduce new schema in v1. The endpoint returns the status strip, agent roster, attention queue, active runs, latest events, pending approvals, and latest standup trace.
+Mission Control uses `GET /api/admin/agents/mission-control` as a derived read model over existing tables. It does not introduce new schema in v1. The endpoint returns the status strip, agent roster, attention queue, Agent Inbox, Daily Operating Brief, active runs, latest events, pending approvals, and latest standup trace.
+
+The Daily Operating Brief and Agent Inbox are derived views, not new persistence:
+
+- latest completed War Room standup outcome becomes the brief synthesis when present,
+- if no recent standup exists, the brief falls back to current run, approval, cost, and stale-status signals,
+- Agent Inbox points each actionable item to its owning agent and trace,
+- pending approvals are represented once through `agent_approvals` instead of duplicating the waiting run,
+- stale standup reminders route back to Mission Control so the Chief of Staff can refresh the daily operating view.
 
 War Room uses `POST /api/admin/agents/war-room` with `{ command: 'standup' | 'discuss', message?: string }`.
 

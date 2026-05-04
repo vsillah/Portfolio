@@ -10,6 +10,7 @@ import {
   Bot,
   CheckCircle2,
   CircleDollarSign,
+  ClipboardList,
   Clock3,
   MessageSquare,
   Network,
@@ -76,6 +77,27 @@ type MissionSnapshot = {
     occurred_at: string
   }>
   latest_standup: MissionRun | null
+  daily_brief: {
+    headline: string
+    synthesis: string
+    generated_from: 'standup' | 'current_state'
+    run_id: string | null
+    updated_at: string
+    signals: string[]
+    next_actions: string[]
+  }
+  agent_inbox: Array<{
+    id: string
+    priority: 'high' | 'medium' | 'low'
+    agent_key: string
+    agent_name: string
+    pod: string
+    title: string
+    reason: string
+    action_label: string
+    href: string
+    source_run_id: string | null
+  }>
 }
 
 type WarRoomResult = {
@@ -288,6 +310,8 @@ export default function AgentOperationsPage() {
             <MetricCard icon={<Users size={16} />} label="Agents" value={topAgents.length} />
           </section>
 
+          <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
+
           <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
               <div className="flex items-center gap-2 text-radiant-gold">
@@ -353,17 +377,17 @@ export default function AgentOperationsPage() {
             <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-radiant-gold">
-                  <AlertTriangle size={18} />
-                  <h2 className="font-semibold">Attention Queue</h2>
+                  <ClipboardList size={18} />
+                  <h2 className="font-semibold">Agent Inbox</h2>
                 </div>
                 <Link href="/admin/agents/runs" className="text-xs text-radiant-gold hover:underline">Open all</Link>
               </div>
               <div className="mt-3 space-y-2">
-                {snapshot?.attention_queue.length ? snapshot.attention_queue.slice(0, 5).map((run) => (
-                  <RunRow key={run.id} run={run} />
+                {snapshot?.agent_inbox.length ? snapshot.agent_inbox.slice(0, 5).map((item) => (
+                  <InboxRow key={item.id} item={item} />
                 )) : (
                   <p className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm text-muted-foreground">
-                    No failed, stale, approval-waiting, or high-cost runs need attention.
+                    No agent inbox items need attention.
                   </p>
                 )}
               </div>
@@ -462,6 +486,54 @@ function MetricCard({ icon, label, value, tone = 'default' }: { icon: ReactNode;
   )
 }
 
+function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_brief'] | null; loading: boolean }) {
+  return (
+    <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <Sparkles size={18} />
+            <h2 className="font-semibold">Daily Operating Brief</h2>
+          </div>
+          <p className="mt-2 text-lg font-semibold">
+            {brief?.headline ?? (loading ? 'Loading today’s agent brief...' : 'Run a standup to create today’s operating brief')}
+          </p>
+          <p className="mt-2 max-w-4xl text-sm leading-6 text-muted-foreground">
+            {brief?.synthesis ?? 'Mission Control will summarize standups, blockers, approvals, cost, and next actions here.'}
+          </p>
+        </div>
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <span className="rounded-full border border-silicon-slate/60 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground">
+            {brief?.generated_from === 'standup' ? 'From latest standup' : 'From current traces'}
+          </span>
+          {brief?.run_id ? (
+            <Link href={`/admin/agents/runs/${brief.run_id}`} className="rounded-full border border-radiant-gold/50 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15">
+              Open brief trace
+            </Link>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="mt-4 grid grid-cols-1 gap-3 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="flex flex-wrap gap-2">
+          {(brief?.signals ?? ['0 active run(s)', '0 failed or stale run(s)', '0 pending approval(s)']).map((signal) => (
+            <span key={signal} className="rounded-full border border-silicon-slate/50 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground">
+              {signal}
+            </span>
+          ))}
+        </div>
+        <div className="space-y-1">
+          {(brief?.next_actions ?? ['Run War Room standup.']).slice(0, 3).map((action) => (
+            <p key={action} className="text-sm text-muted-foreground">
+              {action}
+            </p>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function StatusPill({ status }: { status: 'active' | 'partial' | 'planned' }) {
   const className =
     status === 'active'
@@ -473,20 +545,37 @@ function StatusPill({ status }: { status: 'active' | 'partial' | 'planned' }) {
   return <span className={`rounded-full border px-2 py-0.5 text-xs ${className}`}>{status}</span>
 }
 
-function RunRow({ run }: { run: MissionRun }) {
+function InboxRow({ item }: { item: MissionSnapshot['agent_inbox'][number] }) {
   return (
-    <Link href={`/admin/agents/runs/${run.id}`} className="block rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50">
+    <Link href={item.href} className="block rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="font-medium">{run.title}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{run.runtime} · {run.status.replace(/_/g, ' ')}</p>
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <PriorityPill priority={item.priority} />
+            <span className="text-xs text-muted-foreground">{item.agent_name}</span>
+          </div>
+          <p className="mt-2 font-medium">{item.title}</p>
+          <p className="mt-1 line-clamp-2 text-muted-foreground">{item.reason}</p>
+          <p className="mt-2 text-xs text-muted-foreground">{item.pod}</p>
         </div>
-        <ArrowRight size={16} className="shrink-0 text-muted-foreground" />
+        <div className="flex shrink-0 items-center gap-1 text-xs text-radiant-gold">
+          {item.action_label}
+          <ArrowRight size={14} />
+        </div>
       </div>
-      {run.current_step ? <p className="mt-2 text-muted-foreground">{run.current_step}</p> : null}
-      {run.error_message ? <p className="mt-2 text-red-200">{run.error_message}</p> : null}
     </Link>
   )
+}
+
+function PriorityPill({ priority }: { priority: 'high' | 'medium' | 'low' }) {
+  const className =
+    priority === 'high'
+      ? 'border-red-400/40 bg-red-500/10 text-red-200'
+      : priority === 'medium'
+        ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-200'
+        : 'border-silicon-slate/60 bg-black/20 text-muted-foreground'
+
+  return <span className={`rounded-full border px-2 py-0.5 text-xs ${className}`}>{priority}</span>
 }
 
 function ResultPanel({ title, href, body, items }: { title: string; href: string; body: string; items: string[] }) {

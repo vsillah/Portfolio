@@ -45,6 +45,16 @@ describe('GET /api/admin/agents/mission-control', () => {
       active_runs: [],
       latest_events: [],
       latest_standup: null,
+      daily_brief: {
+        headline: 'Run a standup to create today’s operating brief',
+        synthesis: 'No urgent agent signals are visible.',
+        generated_from: 'current_state',
+        run_id: null,
+        updated_at: '2026-05-04T12:00:00.000Z',
+        signals: ['1 active run(s)', '0 failed or stale run(s)', '0 pending approval(s)', '$0.2500 cost today'],
+        next_actions: ['Run War Room standup.'],
+      },
+      agent_inbox: [],
       approvals: [],
     })
   })
@@ -71,6 +81,10 @@ describe('GET /api/admin/agents/mission-control', () => {
       running: 1,
       cost_today: 0.25,
     })
+    expect(body.daily_brief).toMatchObject({
+      generated_from: 'current_state',
+    })
+    expect(body.agent_inbox).toEqual([])
     expect(mocks.buildAgentMissionControlSnapshot).toHaveBeenCalledOnce()
   })
 
