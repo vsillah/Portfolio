@@ -192,6 +192,9 @@ The route verifies Slack signatures with `SLACK_SIGNING_SECRET` when configured 
 - `/agent approvals` — pending approval checkpoints with run links.
 - `/agent morning-review` — runs the approved Agent Ops morning review path with `trigger_source = slack_agent_ops_command`.
 - `/agent agents` — lists active and partial agent organization entries with their engagement keys.
+- `/agent inbox` — lists numbered Agent Inbox items from Mission Control.
+- `/agent brief` — returns the current Daily Operating Brief.
+- `/agent route <number-or-id>` — routes an Agent Inbox item through the same read-only Chief of Staff/agent engagement path used by the admin console.
 - `/agent run <agent-key>` — creates the same traceable `manual` runtime engagement request as the admin button; active or partial agents produce a read-only dispatch artifact, while planned agents stay queued for review.
 - `/agent standup` — runs the text War Room standup and returns agent updates plus a Chief of Staff synthesis.
 - `/agent discuss <question>` — gathers mapped agent perspectives and returns a synthesized advisory response.
@@ -209,6 +212,8 @@ The Daily Operating Brief and Agent Inbox are derived views, not new persistence
 - Agent Inbox points each actionable item to its owning agent and trace,
 - pending approvals are represented once through `agent_approvals` instead of duplicating the waiting run,
 - stale standup reminders route back to Mission Control so the Chief of Staff can refresh the daily operating view.
+- Agent Inbox items can be routed from the admin console with `POST /api/admin/agents/inbox` or from Slack with `/agent route <number-or-id>`.
+- Routing an inbox item does not mutate production data: failed/stale/cost/approval items create a read-only `agent_engagement_request`; stale standup items run the read-only War Room standup.
 
 War Room uses `POST /api/admin/agents/war-room` with `{ command: 'standup' | 'discuss', message?: string }`.
 

@@ -20,6 +20,11 @@ const warRoomMocks = vi.hoisted(() => ({
   runAgentWarRoom: vi.fn(),
 }))
 
+const inboxMocks = vi.hoisted(() => ({
+  buildAgentMissionControlSnapshot: vi.fn(),
+  routeAgentInboxItem: vi.fn(),
+}))
+
 vi.mock('@/lib/agent-run', () => ({
   startAgentRun: agentRunMocks.startAgentRun,
   recordAgentEvent: agentRunMocks.recordAgentEvent,
@@ -32,9 +37,20 @@ vi.mock('@/lib/agent-war-room', () => ({
   runAgentWarRoom: warRoomMocks.runAgentWarRoom,
 }))
 
+vi.mock('@/lib/agent-mission-control', () => ({
+  buildAgentMissionControlSnapshot: inboxMocks.buildAgentMissionControlSnapshot,
+}))
+
+vi.mock('@/lib/agent-inbox-routing', () => ({
+  routeAgentInboxItem: inboxMocks.routeAgentInboxItem,
+}))
+
 import {
   agentSlackCommandInternals,
+  buildAgentBriefSlackText,
+  buildAgentInboxSlackText,
   createAgentEngagementSlackText,
+  routeAgentInboxSlackText,
   runWarRoomStandupSlackText,
 } from '@/lib/agent-slack-command'
 
@@ -53,6 +69,9 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('morning')).toBe('morning-review')
     expect(agentSlackCommandInternals.commandFromText('agents')).toBe('agents')
     expect(agentSlackCommandInternals.commandFromText('list')).toBe('agents')
+    expect(agentSlackCommandInternals.commandFromText('inbox')).toBe('inbox')
+    expect(agentSlackCommandInternals.commandFromText('brief')).toBe('brief')
+    expect(agentSlackCommandInternals.commandFromText('route 1')).toBe('route')
     expect(agentSlackCommandInternals.commandFromText('run chief-of-staff')).toBe('run')
     expect(agentSlackCommandInternals.commandFromText('standup')).toBe('standup')
     expect(agentSlackCommandInternals.commandFromText('discuss roadmap')).toBe('discuss')
@@ -63,6 +82,8 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('unknown')).toBe('help')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent status')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent run <agent-key>')
+    expect(agentSlackCommandInternals.formatHelp()).toContain('/agent inbox')
+    expect(agentSlackCommandInternals.formatHelp()).toContain('/agent route <number-or-id>')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent standup')
   })
 
@@ -158,5 +179,74 @@ describe('agent Slack command parsing', () => {
     expect(text).toContain('Agent War Room standup complete')
     expect(text).toContain('Chief of Staff Agent')
     expect(text).toContain('/admin/agents/runs/standup-run')
+  })
+
+  it('formats numbered Agent Inbox items for Slack', async () => {
+    inboxMocks.buildAgentMissionControlSnapshot.mockResolvedValue({
+      agent_inbox: [
+        {
+          id: 'failed-run:failed',
+          priority: 'high',
+          agent_name: 'Automation Systems Agent',
+          title: 'Failure needs triage: Workflow dispatch',
+          reason: 'Webhook returned 500.',
+          source_run_id: 'failed-run',
+        },
+      ],
+    })
+
+    const text = await buildAgentInboxSlackText()
+
+    expect(text).toContain('Agent Inbox')
+    expect(text).toContain('1. *HIGH* Automation Systems Agent')
+    expect(text).toContain('/agent route <number>')
+    expect(text).toContain('/admin/agents/runs/failed-run')
+  })
+
+  it('formats the Daily Operating Brief for Slack', async () => {
+    inboxMocks.buildAgentMissionControlSnapshot.mockResolvedValue({
+      daily_brief: {
+        headline: '1 high-priority item needs attention',
+        synthesis: 'Chief of Staff recommends routing the failed workflow.',
+        run_id: 'standup-run',
+        signals: ['1 active run(s)', '1 failed or stale run(s)'],
+        next_actions: ['Automation Systems Agent: triage workflow'],
+      },
+    })
+
+    const text = await buildAgentBriefSlackText()
+
+    expect(text).toContain('Daily Operating Brief')
+    expect(text).toContain('Chief of Staff recommends')
+    expect(text).toContain('/admin/agents/runs/standup-run')
+  })
+
+  it('routes an Agent Inbox item from Slack', async () => {
+    inboxMocks.routeAgentInboxItem.mockResolvedValue({
+      item: {
+        title: 'Failure needs triage: Workflow dispatch',
+      },
+      runId: 'route-run',
+      routeAction: 'agent_engagement',
+      executionMode: 'read_only',
+    })
+
+    const text = await routeAgentInboxSlackText({
+      text: 'route 1',
+      userId: 'U123',
+      userName: 'vambah',
+    })
+
+    expect(inboxMocks.routeAgentInboxItem).toHaveBeenCalledWith(expect.objectContaining({
+      itemRef: '1',
+      triggerSource: 'slack_agent_inbox_route_command',
+      actor: expect.objectContaining({
+        id: 'U123',
+        label: 'vambah',
+        type: 'slack_command',
+      }),
+    }))
+    expect(text).toContain('Agent Inbox item routed')
+    expect(text).toContain('/admin/agents/runs/route-run')
   })
 })

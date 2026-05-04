@@ -1,5 +1,7 @@
 import { runAgentOpsMorningReview } from '@/lib/agent-ops-morning-review'
 import { createAgentEngagementRun } from '@/lib/agent-engagement'
+import { routeAgentInboxItem } from '@/lib/agent-inbox-routing'
+import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
 import { runAgentWarRoom } from '@/lib/agent-war-room'
 import { AGENT_ORGANIZATION, getAgentByKey } from '@/lib/agent-organization'
 import { supabaseAdmin } from '@/lib/supabase'
@@ -11,6 +13,9 @@ type SlackCommandName =
   | 'approvals'
   | 'morning-review'
   | 'agents'
+  | 'inbox'
+  | 'brief'
+  | 'route'
   | 'run'
   | 'standup'
   | 'discuss'
@@ -75,6 +80,9 @@ function commandFromText(text: string): SlackCommandName {
   if (command === 'approval' || command === 'approvals') return 'approvals'
   if (command === 'morning-review' || command === 'morning' || command === 'review') return 'morning-review'
   if (command === 'agents' || command === 'list') return 'agents'
+  if (command === 'inbox' || command === 'queue') return 'inbox'
+  if (command === 'brief') return 'brief'
+  if (command === 'route') return 'route'
   if (command === 'run' || command === 'start') return 'run'
   if (command === 'standup') return 'standup'
   if (command === 'discuss') return 'discuss'
@@ -93,10 +101,87 @@ function formatHelp() {
     '`/agent approvals` - pending approval checkpoints.',
     '`/agent morning-review` - run the approved Agent Ops morning review trace.',
     '`/agent agents` - list currently mapped agents and engagement keys.',
+    '`/agent inbox` - show numbered Agent Inbox items.',
+    '`/agent brief` - show the current Daily Operating Brief.',
+    '`/agent route <number-or-id>` - route an Agent Inbox item through Chief of Staff.',
     '`/agent run <agent-key>` - create a traceable engagement request for an agent.',
     '`/agent standup` - run a text War Room standup across active/partial agents.',
     '`/agent discuss <question>` - gather agent perspectives and a Chief of Staff synthesis.',
   ].join('\n')
+}
+
+export async function buildAgentInboxSlackText(limit = 5) {
+  try {
+    const snapshot = await buildAgentMissionControlSnapshot()
+    const items = snapshot.agent_inbox.slice(0, limit)
+    if (items.length === 0) {
+      return `*Agent Inbox*\nNo inbox items need attention.\nReview: ${baseUrl()}/admin/agents`
+    }
+
+    const lines = items.map((item, index) => {
+      const source = item.source_run_id ? ` <${agentRunsUrl(item.source_run_id)}|trace>` : ''
+      return `${index + 1}. *${item.priority.toUpperCase()}* ${item.agent_name}: ${item.title}${source}\n   ${item.reason}`
+    })
+
+    return [
+      '*Agent Inbox*',
+      ...lines,
+      'Route one with `/agent route <number>`.',
+      `Review: ${baseUrl()}/admin/agents`,
+    ].join('\n')
+  } catch (error) {
+    return `Agent Inbox lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function buildAgentBriefSlackText() {
+  try {
+    const snapshot = await buildAgentMissionControlSnapshot()
+    const brief = snapshot.daily_brief
+    const trace = brief.run_id ? `\nTrace: ${agentRunsUrl(brief.run_id)}` : ''
+    return [
+      '*Daily Operating Brief*',
+      `*${brief.headline}*`,
+      brief.synthesis,
+      '',
+      '*Signals*',
+      ...brief.signals.map((signal) => `- ${signal}`),
+      '',
+      '*Next actions*',
+      ...brief.next_actions.slice(0, 3).map((action) => `- ${action}`),
+      `${trace}\nReview: ${baseUrl()}/admin/agents`.trim(),
+    ].join('\n')
+  } catch (error) {
+    return `Daily Operating Brief lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function routeAgentInboxSlackText(input: AgentSlackCommandInput) {
+  const [itemRef] = commandArgs(input.text)
+  if (!itemRef) return 'Missing inbox item. Use `/agent inbox`, then `/agent route <number>`.'
+
+  try {
+    const actor = input.userName || input.userId || 'Slack user'
+    const result = await routeAgentInboxItem({
+      itemRef,
+      actor: {
+        id: input.userId ?? actor,
+        label: actor,
+        type: 'slack_command',
+      },
+      triggerSource: 'slack_agent_inbox_route_command',
+    })
+
+    return [
+      '*Agent Inbox item routed*',
+      `Item: ${result.item.title}`,
+      `Route action: ${result.routeAction.replace(/_/g, ' ')}`,
+      `Execution mode: ${result.executionMode}`,
+      `Review: ${agentRunsUrl(result.runId)}`,
+    ].join('\n')
+  } catch (error) {
+    return `Agent Inbox routing failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
 }
 
 function formatDbUnavailable() {
@@ -379,13 +464,19 @@ export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Pr
             ? await runMorningReviewSlackText(input)
             : command === 'agents'
               ? formatAgentListSlackText()
-              : command === 'run'
-                ? await createAgentEngagementSlackText(input)
-                : command === 'standup'
-                  ? await runWarRoomStandupSlackText(input)
-                  : command === 'discuss'
-                    ? await runWarRoomDiscussSlackText(input)
-                    : formatHelp()
+              : command === 'inbox'
+                ? await buildAgentInboxSlackText()
+                : command === 'brief'
+                  ? await buildAgentBriefSlackText()
+                  : command === 'route'
+                    ? await routeAgentInboxSlackText(input)
+                    : command === 'run'
+                      ? await createAgentEngagementSlackText(input)
+                      : command === 'standup'
+                        ? await runWarRoomStandupSlackText(input)
+                        : command === 'discuss'
+                          ? await runWarRoomDiscussSlackText(input)
+                          : formatHelp()
 
   return { responseType: 'ephemeral', text }
 }
