@@ -1,0 +1,67 @@
+import { NextRequest, NextResponse } from 'next/server'
+import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import { runAgentWarRoom, type AgentWarRoomCommand } from '@/lib/agent-war-room'
+
+export const dynamic = 'force-dynamic'
+export const maxDuration = 30
+
+function parseCommand(value: unknown): AgentWarRoomCommand | null {
+  return value === 'standup' || value === 'discuss' ? value : null
+}
+
+/**
+ * POST /api/admin/agents/war-room
+ *
+ * Text-first war room for standups and agent discussions. V1 is read-only and
+ * writes an observable trace plus transcript artifact through existing tables.
+ */
+export async function POST(request: NextRequest) {
+  const auth = await verifyAdmin(request)
+  if (isAuthError(auth)) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status })
+  }
+
+  let body: { command?: unknown; message?: unknown }
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
+
+  const command = parseCommand(body.command)
+  if (!command) {
+    return NextResponse.json({ error: 'Invalid command' }, { status: 400 })
+  }
+
+  const message = typeof body.message === 'string' ? body.message.trim() : ''
+  if (command === 'discuss' && !message) {
+    return NextResponse.json({ error: 'Message is required for discuss' }, { status: 400 })
+  }
+
+  try {
+    const result = await runAgentWarRoom({
+      command,
+      message,
+      triggerSource: 'admin_agent_war_room',
+      actor: {
+        id: auth.user.id,
+        label: 'Admin War Room',
+        type: 'admin_user',
+      },
+    })
+
+    return NextResponse.json({
+      ok: true,
+      run_id: result.runId,
+      command: result.command,
+      updates: result.updates,
+      synthesis: result.synthesis,
+    })
+  } catch (error) {
+    console.error('[agent-war-room] command failed:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'War Room command failed' },
+      { status: 500 },
+    )
+  }
+}

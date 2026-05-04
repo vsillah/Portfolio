@@ -16,6 +16,10 @@ const agentRunMocks = vi.hoisted(() => ({
   attachAgentArtifact: vi.fn(),
 }))
 
+const warRoomMocks = vi.hoisted(() => ({
+  runAgentWarRoom: vi.fn(),
+}))
+
 vi.mock('@/lib/agent-run', () => ({
   startAgentRun: agentRunMocks.startAgentRun,
   recordAgentEvent: agentRunMocks.recordAgentEvent,
@@ -24,7 +28,15 @@ vi.mock('@/lib/agent-run', () => ({
   attachAgentArtifact: agentRunMocks.attachAgentArtifact,
 }))
 
-import { agentSlackCommandInternals, createAgentEngagementSlackText } from '@/lib/agent-slack-command'
+vi.mock('@/lib/agent-war-room', () => ({
+  runAgentWarRoom: warRoomMocks.runAgentWarRoom,
+}))
+
+import {
+  agentSlackCommandInternals,
+  createAgentEngagementSlackText,
+  runWarRoomStandupSlackText,
+} from '@/lib/agent-slack-command'
 
 describe('agent Slack command parsing', () => {
   beforeEach(() => {
@@ -42,6 +54,8 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('agents')).toBe('agents')
     expect(agentSlackCommandInternals.commandFromText('list')).toBe('agents')
     expect(agentSlackCommandInternals.commandFromText('run chief-of-staff')).toBe('run')
+    expect(agentSlackCommandInternals.commandFromText('standup')).toBe('standup')
+    expect(agentSlackCommandInternals.commandFromText('discuss roadmap')).toBe('discuss')
   })
 
   it('falls back to help for empty or unknown commands', () => {
@@ -49,6 +63,7 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('unknown')).toBe('help')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent status')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent run <agent-key>')
+    expect(agentSlackCommandInternals.formatHelp()).toContain('/agent standup')
   })
 
   it('formats the mapped agent list for Slack', () => {
@@ -115,5 +130,33 @@ describe('agent Slack command parsing', () => {
 
     expect(text).toContain('Unknown agent key')
     expect(agentRunMocks.startAgentRun).not.toHaveBeenCalled()
+  })
+
+  it('runs a War Room standup from Slack', async () => {
+    warRoomMocks.runAgentWarRoom.mockResolvedValue({
+      runId: 'standup-run',
+      command: 'standup',
+      synthesis: 'Standup complete.',
+      updates: [
+        {
+          agent_name: 'Chief of Staff Agent',
+          update: 'Current posture: partial.',
+        },
+      ],
+    })
+
+    const text = await runWarRoomStandupSlackText({
+      text: 'standup',
+      userId: 'U123',
+      userName: 'vambah',
+    })
+
+    expect(warRoomMocks.runAgentWarRoom).toHaveBeenCalledWith(expect.objectContaining({
+      command: 'standup',
+      triggerSource: 'slack_agent_standup_command',
+    }))
+    expect(text).toContain('Agent War Room standup complete')
+    expect(text).toContain('Chief of Staff Agent')
+    expect(text).toContain('/admin/agents/runs/standup-run')
   })
 })

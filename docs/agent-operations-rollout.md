@@ -28,7 +28,19 @@ Supported run statuses:
 
 ## Control Plane Shape
 
-The first version adds an Agent Operations console under `/admin/agents`. It reads generic agent trace tables instead of building a custom dashboard for every workflow. Existing workflow-specific pages remain live during the rollout.
+The Agent Operations console under `/admin/agents` is now a Mission Control overview. It reads generic agent trace tables instead of building a custom dashboard for every workflow, but the first screen prioritizes command-center clarity over vertical observability scroll. Existing workflow-specific pages remain live during the rollout.
+
+The first viewport should show:
+
+- status strip for active, running, approvals, failed, stale, cost today, and mapped agents,
+- Chief of Staff command input,
+- War Room standup/discuss actions,
+- attention queue for approval-waiting, failed, stale, or high-cost runs,
+- compact agent roster grouped by active/partial status,
+- latest activity,
+- links to deeper run, automation, policy, and runtime controls.
+
+The dense controls remain reachable as drilldowns or compact action buttons. `/admin/agents/runs` and `/admin/agents/runs/[runId]` remain the trace-detail surfaces.
 
 The console now includes an Agent Engagement roster so the operating model is visible from the same place as the traces:
 
@@ -180,8 +192,22 @@ The route verifies Slack signatures with `SLACK_SIGNING_SECRET` when configured 
 - `/agent morning-review` — runs the approved Agent Ops morning review path with `trigger_source = slack_agent_ops_command`.
 - `/agent agents` — lists active and partial agent organization entries with their engagement keys.
 - `/agent run <agent-key>` — creates the same traceable `manual` runtime engagement request as the admin button; active or partial agents produce a read-only dispatch artifact, while planned agents stay queued for review.
+- `/agent standup` — runs the text War Room standup and returns agent updates plus a Chief of Staff synthesis.
+- `/agent discuss <question>` — gathers mapped agent perspectives and returns a synthesized advisory response.
 
 Slack is an engagement surface, not the source of truth. The admin console and shared trace tables remain authoritative.
+
+## Mission Control And War Room
+
+Mission Control uses `GET /api/admin/agents/mission-control` as a derived read model over existing tables. It does not introduce new schema in v1. The endpoint returns the status strip, agent roster, attention queue, active runs, latest events, pending approvals, and latest standup trace.
+
+War Room uses `POST /api/admin/agents/war-room` with `{ command: 'standup' | 'discuss', message?: string }`.
+
+- `standup` creates `kind = agent_war_room_standup`.
+- `discuss` creates `kind = agent_war_room_discussion`.
+- both paths record steps/events, attach a transcript artifact, and end with a Chief of Staff synthesis,
+- both paths are read-only and mark `executes_action = false`,
+- production mutations still require existing approval gates.
 
 ## Agent Engagement Requests
 
