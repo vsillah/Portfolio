@@ -75,3 +75,31 @@ After each processed PR, update `docs/integration-captain-queue.md` with:
 - any follow-up owner
 
 If the queue file itself has unrelated edits from another chat, do not overwrite them. Add your note below the relevant entry or report the conflict.
+
+## Status Reporting Standard
+
+Separate normal integration mechanics from process debt so the report does not create noise.
+
+Treat these as normal course of work unless they block validation, merging, or cleanup:
+
+- a draft PR that is intentionally waiting for more work
+- a temporary worktree created to isolate a branch or keep `main` available
+- a detached checkout used for read-only verification
+- a deleted upstream branch after its PR has already merged
+- a Vercel context that is pending because the deployment is still queued or building
+
+Flag these as process debt or Git hygiene issues:
+
+- uncommitted files with unclear ownership
+- multiple agents editing the same files without an impact preflight
+- stale worktrees with unmerged commits, dirty files, or unknown purpose
+- local branches whose remote was deleted before their changes were merged
+- repeated direct pushes to `origin/main` from parallel work chats
+- branches or PRs that stay open after their work has landed elsewhere
+
+When reporting, label each finding as one of:
+
+- `normal`: expected residue from active integration work
+- `watch`: harmless now, but worth cleaning if it persists
+- `debt`: inefficient, risky, or likely to create future merge noise
+- `blocker`: must be resolved before the next merge or deployment step
