@@ -7,6 +7,8 @@ import {
   CircleDollarSign,
   Database,
   FileText,
+  RefreshCw,
+  Search,
   ShieldCheck,
   Users,
 } from 'lucide-react'
@@ -43,9 +45,16 @@ type SourceProtocolOverview = {
   modelReviews?: any[]
 }
 
-type TabKey = 'creators' | 'works' | 'grants' | 'chunks' | 'receipts' | 'payouts' | 'reviews'
+type AdminUserOption = {
+  id: string
+  email: string
+  role: string
+}
+
+type TabKey = 'portal' | 'creators' | 'works' | 'grants' | 'chunks' | 'receipts' | 'payouts' | 'reviews'
 
 const TABS: Array<{ key: TabKey; label: string }> = [
+  { key: 'portal', label: 'Portal Access' },
   { key: 'creators', label: 'Creators' },
   { key: 'works', label: 'Works' },
   { key: 'grants', label: 'Grants' },
@@ -67,7 +76,16 @@ function SourceProtocolContent() {
   const [overview, setOverview] = useState<SourceProtocolOverview | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [tab, setTab] = useState<TabKey>('receipts')
+  const [tab, setTab] = useState<TabKey>('portal')
+  const [userSearch, setUserSearch] = useState('')
+  const [userOptions, setUserOptions] = useState<AdminUserOption[]>([])
+  const [selectedUserId, setSelectedUserId] = useState('')
+  const [selectedCreatorId, setSelectedCreatorId] = useState('')
+  const [portalStatus, setPortalStatus] = useState('active')
+  const [canViewEarnings, setCanViewEarnings] = useState(true)
+  const [canViewReceipts, setCanViewReceipts] = useState(true)
+  const [portalBusy, setPortalBusy] = useState(false)
+  const [portalMessage, setPortalMessage] = useState<string | null>(null)
 
   const loadOverview = useCallback(async () => {
     setLoading(true)
@@ -93,11 +111,87 @@ function SourceProtocolContent() {
     loadOverview()
   }, [loadOverview])
 
+  const searchUsers = useCallback(async () => {
+    setPortalMessage(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const params = new URLSearchParams({ page: '1', limit: '10' })
+      if (userSearch.trim()) params.set('search', userSearch.trim())
+      const res = await fetch(`/api/admin/users?${params}`, {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      setUserOptions(body.users || [])
+    } catch (err) {
+      setPortalMessage(err instanceof Error ? err.message : 'Failed to search users')
+    }
+  }, [userSearch])
+
+  const createPortalAccount = useCallback(async () => {
+    setPortalBusy(true)
+    setPortalMessage(null)
+    try {
+      if (!selectedCreatorId || !selectedUserId) throw new Error('Choose both a creator and user')
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch('/api/admin/source-protocol/portal-accounts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          creatorId: selectedCreatorId,
+          userId: selectedUserId,
+          status: portalStatus,
+          canViewEarnings,
+          canViewReceipts,
+        }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      setPortalMessage('Portal account saved.')
+      await loadOverview()
+    } catch (err) {
+      setPortalMessage(err instanceof Error ? err.message : 'Failed to save portal account')
+    } finally {
+      setPortalBusy(false)
+    }
+  }, [canViewEarnings, canViewReceipts, loadOverview, portalStatus, selectedCreatorId, selectedUserId])
+
+  const updatePortalAccount = useCallback(async (accountId: string, update: Record<string, unknown>) => {
+    setPortalBusy(true)
+    setPortalMessage(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch('/api/admin/source-protocol/portal-accounts', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ accountId, ...update }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
+      setPortalMessage('Portal account updated.')
+      await loadOverview()
+    } catch (err) {
+      setPortalMessage(err instanceof Error ? err.message : 'Failed to update portal account')
+    } finally {
+      setPortalBusy(false)
+    }
+  }, [loadOverview])
+
   const summary = overview?.summary
   const hasOpenRightsIssue = Boolean(summary && (summary.openDisputes > 0 || summary.heldPayouts > 0))
   const tabCounts = useMemo(
     () => ({
       creators: overview?.creators?.length ?? 0,
+      portal: overview?.portalAccounts?.length ?? 0,
       works: overview?.works?.length ?? 0,
       grants: overview?.licenseGrants?.length ?? 0,
       chunks: overview?.chunks?.length ?? 0,
@@ -120,7 +214,7 @@ function SourceProtocolContent() {
           <div>
             <h1 className="text-3xl font-bold mb-1">Source Protocol</h1>
             <p className="text-muted-foreground text-sm max-w-3xl">
-              Read-only operating view for opt-in creator content, active license grants, cited answer receipts, and monthly payout settlement.
+              Operating view for opt-in creator content, active license grants, cited answer receipts, monthly payout settlement, and creator portal access.
             </p>
           </div>
           <div className="rounded-lg border border-silicon-slate bg-silicon-slate/30 px-4 py-3 text-xs text-muted-foreground">
@@ -189,7 +283,7 @@ function SourceProtocolContent() {
                 <KeyValue label="Model reviews shown" value={String(tabCounts.reviews)} />
                 <KeyValue label="Promotion policy" value="Quality and license gates" />
                 <KeyValue label="Last generated" value={formatDate(overview.generatedAt)} />
-                <KeyValue label="Mode" value="Read-only admin visibility" />
+                <KeyValue label="Mode" value="Admin visibility and portal access control" />
               </Panel>
             </section>
 
@@ -206,7 +300,31 @@ function SourceProtocolContent() {
               ))}
             </section>
 
-            <section className="overflow-hidden rounded-lg border border-silicon-slate">
+            <section className={tab === 'portal' ? '' : 'overflow-hidden rounded-lg border border-silicon-slate'}>
+              {tab === 'portal' && (
+                <PortalAccountsPanel
+                  creators={overview.creators ?? []}
+                  accounts={overview.portalAccounts ?? []}
+                  userSearch={userSearch}
+                  userOptions={userOptions}
+                  selectedCreatorId={selectedCreatorId}
+                  selectedUserId={selectedUserId}
+                  portalStatus={portalStatus}
+                  canViewEarnings={canViewEarnings}
+                  canViewReceipts={canViewReceipts}
+                  busy={portalBusy}
+                  message={portalMessage}
+                  onUserSearchChange={setUserSearch}
+                  onSearchUsers={searchUsers}
+                  onSelectedCreatorChange={setSelectedCreatorId}
+                  onSelectedUserChange={setSelectedUserId}
+                  onStatusChange={setPortalStatus}
+                  onCanViewEarningsChange={setCanViewEarnings}
+                  onCanViewReceiptsChange={setCanViewReceipts}
+                  onCreate={createPortalAccount}
+                  onUpdate={updatePortalAccount}
+                />
+              )}
               {tab === 'creators' && <CreatorsTable rows={overview.creators ?? []} />}
               {tab === 'works' && <WorksTable rows={overview.works ?? []} />}
               {tab === 'grants' && <GrantsTable rows={overview.licenseGrants ?? []} />}
@@ -232,6 +350,239 @@ function Notice({ tone, title, body }: { tone: 'amber' | 'red'; title: string; b
       <p className="mt-1 text-sm">{body}</p>
     </div>
   )
+}
+
+function PortalAccountsPanel({
+  creators,
+  accounts,
+  userSearch,
+  userOptions,
+  selectedCreatorId,
+  selectedUserId,
+  portalStatus,
+  canViewEarnings,
+  canViewReceipts,
+  busy,
+  message,
+  onUserSearchChange,
+  onSearchUsers,
+  onSelectedCreatorChange,
+  onSelectedUserChange,
+  onStatusChange,
+  onCanViewEarningsChange,
+  onCanViewReceiptsChange,
+  onCreate,
+  onUpdate,
+}: {
+  creators: any[]
+  accounts: any[]
+  userSearch: string
+  userOptions: AdminUserOption[]
+  selectedCreatorId: string
+  selectedUserId: string
+  portalStatus: string
+  canViewEarnings: boolean
+  canViewReceipts: boolean
+  busy: boolean
+  message: string | null
+  onUserSearchChange: (value: string) => void
+  onSearchUsers: () => void
+  onSelectedCreatorChange: (value: string) => void
+  onSelectedUserChange: (value: string) => void
+  onStatusChange: (value: string) => void
+  onCanViewEarningsChange: (value: boolean) => void
+  onCanViewReceiptsChange: (value: boolean) => void
+  onCreate: () => void
+  onUpdate: (accountId: string, update: Record<string, unknown>) => void
+}) {
+  return (
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(320px,420px)_1fr]">
+      <section className="rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+        <div className="mb-4 flex items-center gap-2">
+          <Users size={20} className="text-radiant-gold" />
+          <h2 className="text-lg font-semibold">Link creator access</h2>
+        </div>
+
+        <div className="space-y-4">
+          <label className="block text-sm">
+            <span className="mb-1 block text-muted-foreground">Creator</span>
+            <select
+              value={selectedCreatorId}
+              onChange={(event) => onSelectedCreatorChange(event.target.value)}
+              className="w-full rounded-lg border border-silicon-slate bg-background px-3 py-2 text-sm"
+            >
+              <option value="">Choose a creator</option>
+              {creators.map((creator) => (
+                <option key={creator.id} value={creator.id}>
+                  {creator.protected_identity ? `Protected identity (${shortId(creator.id)})` : creator.display_name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div>
+            <span className="mb-1 block text-sm text-muted-foreground">User account</span>
+            <div className="flex gap-2">
+              <input
+                type="search"
+                value={userSearch}
+                onChange={(event) => onUserSearchChange(event.target.value)}
+                placeholder="Search user email"
+                className="min-w-0 flex-1 rounded-lg border border-silicon-slate bg-background px-3 py-2 text-sm"
+              />
+              <button
+                type="button"
+                onClick={onSearchUsers}
+                disabled={busy}
+                className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate px-3 py-2 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50"
+              >
+                <Search size={16} />
+                Search
+              </button>
+            </div>
+          </div>
+
+          <label className="block text-sm">
+            <span className="mb-1 block text-muted-foreground">Matched user</span>
+            <select
+              value={selectedUserId}
+              onChange={(event) => onSelectedUserChange(event.target.value)}
+              className="w-full rounded-lg border border-silicon-slate bg-background px-3 py-2 text-sm"
+            >
+              <option value="">Choose a user</option>
+              {userOptions.map((user) => (
+                <option key={user.id} value={user.id}>
+                  {user.email} ({user.role})
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="block text-sm">
+            <span className="mb-1 block text-muted-foreground">Initial status</span>
+            <select
+              value={portalStatus}
+              onChange={(event) => onStatusChange(event.target.value)}
+              className="w-full rounded-lg border border-silicon-slate bg-background px-3 py-2 text-sm"
+            >
+              <option value="active">Active</option>
+              <option value="pending">Pending</option>
+              <option value="suspended">Suspended</option>
+              <option value="revoked">Revoked</option>
+            </select>
+          </label>
+
+          <label className="flex items-center justify-between gap-3 rounded-lg border border-silicon-slate px-3 py-2 text-sm">
+            <span>Show earnings</span>
+            <input
+              type="checkbox"
+              checked={canViewEarnings}
+              onChange={(event) => onCanViewEarningsChange(event.target.checked)}
+            />
+          </label>
+          <label className="flex items-center justify-between gap-3 rounded-lg border border-silicon-slate px-3 py-2 text-sm">
+            <span>Show receipt details</span>
+            <input
+              type="checkbox"
+              checked={canViewReceipts}
+              onChange={(event) => onCanViewReceiptsChange(event.target.checked)}
+            />
+          </label>
+
+          <button
+            type="button"
+            onClick={onCreate}
+            disabled={busy || !selectedCreatorId || !selectedUserId}
+            className="w-full rounded-lg border border-radiant-gold bg-radiant-gold/10 px-3 py-2 text-sm font-semibold text-radiant-gold hover:bg-radiant-gold/20 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {busy ? 'Saving...' : 'Save portal link'}
+          </button>
+
+          {message && (
+            <p className="rounded-lg border border-silicon-slate bg-background/50 px-3 py-2 text-sm text-muted-foreground">
+              {message}
+            </p>
+          )}
+        </div>
+      </section>
+
+      <section className="overflow-hidden rounded-lg border border-silicon-slate">
+        <div className="hidden grid-cols-6 gap-4 bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground lg:grid">
+          <span>Creator</span>
+          <span>User</span>
+          <span>Status</span>
+          <span>Visibility</span>
+          <span>Created</span>
+          <span>Actions</span>
+        </div>
+        <div className="divide-y divide-silicon-slate">
+          {accounts.length === 0 ? (
+            <div className="px-4 py-8 text-center text-sm text-muted-foreground">No portal accounts yet.</div>
+          ) : accounts.map((account) => (
+            <div key={account.id} className="grid grid-cols-1 gap-3 px-4 py-4 text-sm lg:grid-cols-6 lg:gap-4">
+              <div className="font-medium">{account.creator_display_name || shortId(account.creator_id)}</div>
+              <div className="text-muted-foreground">
+                <p>{account.user_email || shortId(account.user_id)}</p>
+                <p className="font-mono text-xs">{shortId(account.user_id)}</p>
+              </div>
+              <div>
+                <StatusBadge status={account.status} />
+              </div>
+              <div className="text-muted-foreground">
+                <p>{account.can_view_earnings ? 'Earnings visible' : 'Earnings hidden'}</p>
+                <p>{account.can_view_receipts ? 'Receipts visible' : 'Receipts hidden'}</p>
+              </div>
+              <div className="text-muted-foreground">{formatDate(account.created_at)}</div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={() => onUpdate(account.id, { status: account.status === 'active' ? 'suspended' : 'active' })}
+                  disabled={busy || account.status === 'revoked'}
+                  className="rounded border border-silicon-slate px-2 py-1 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+                >
+                  {account.status === 'active' ? 'Suspend' : 'Activate'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdate(account.id, { status: 'revoked' })}
+                  disabled={busy || account.status === 'revoked'}
+                  className="rounded border border-red-500/40 px-2 py-1 text-xs text-red-300 disabled:opacity-50"
+                >
+                  Revoke
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdate(account.id, { canViewEarnings: !account.can_view_earnings })}
+                  disabled={busy || account.status === 'revoked'}
+                  className="rounded border border-silicon-slate px-2 py-1 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+                >
+                  <RefreshCw size={12} className="inline" /> Earnings
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onUpdate(account.id, { canViewReceipts: !account.can_view_receipts })}
+                  disabled={busy || account.status === 'revoked'}
+                  className="rounded border border-silicon-slate px-2 py-1 text-xs text-muted-foreground hover:text-foreground disabled:opacity-50"
+                >
+                  <RefreshCw size={12} className="inline" /> Receipts
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const classes =
+    status === 'active'
+      ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+      : status === 'revoked'
+        ? 'border-red-500/40 bg-red-500/10 text-red-300'
+        : 'border-amber-500/40 bg-amber-500/10 text-amber-300'
+  return <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${classes}`}>{status}</span>
 }
 
 function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
