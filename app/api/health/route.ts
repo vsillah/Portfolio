@@ -16,7 +16,7 @@ export async function GET() {
     if (supabaseAdmin) {
       const { error } = await supabaseAdmin
         .from('site_settings')
-        .select('id')
+        .select('key')
         .limit(1)
         .maybeSingle()
       dbOk = !error
