@@ -102,7 +102,7 @@ Current n8n trace coverage:
 
 - Social content extraction creates an `n8n` run, dispatches `agent_run_id`, and completes/fails the shared run from the n8n completion callback.
 - Value evidence workflows create an `n8n` run, dispatch `agent_run_id`, record progress stages, preserve auto-chained VEP-001 to VEP-002 behavior, and complete/fail the shared run after the final phase.
-- Warm lead scrapers create an `n8n` run, dispatch `agent_run_id`, and can complete/fail the shared run when the n8n completion callback echoes the ID.
+- Warm lead scrapers create an `n8n` run, dispatch `agent_run_id`, and the versioned WRM exports preserve the trace envelope through normalization before reporting successful ingest completion to `/api/admin/outreach/run-complete` and the generic trace event callback.
 - Social content extraction, value evidence, and warm lead scraper payloads now include a shared `agent_trace` envelope with the generic event callback URL when `agent_run_id` exists.
 
 ## Hermes Bridge

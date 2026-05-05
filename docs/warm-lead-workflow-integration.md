@@ -96,7 +96,12 @@ To limit external API calls (e.g. Apify) to at most one per 24 hours per source,
   Returns `{ lastSuccessAt: string | null, shouldRun: boolean }`. `shouldRun` is false when the last successful run was within the last 24 hours. n8n uses this at the start of a run to skip the external API and end successfully when within the window.
 
 - **POST /api/admin/outreach/run-complete**  
-  Body: `{ source: "facebook" | "google_contacts" | "linkedin" }`. Records a successful run in `warm_lead_trigger_audit` so the next run sees "last run within 24h". Call this at the end of the workflow after ingest (or rely on the ingest endpoint updating the most recent `running` audit row when the run was app-triggered).
+  Body: `{ source: "facebook" | "google_contacts" | "linkedin", agent_run_id?: string, status?: "completed" | "failed", leads_inserted?: number, error_message?: string }`. Records a run in `warm_lead_trigger_audit` so the next run sees "last run within 24h". When `agent_run_id` is present, the endpoint also completes or fails the shared Agent Operations run.
+
+The versioned WRM workflow exports preserve `agent_run_id`, `agent_event_callback_url`, `agent_trace`, and `callbackBaseUrl` from the webhook payload through the normalization node. After a successful ingest, the workflows only report callbacks when `agent_run_id` exists:
+
+1. `POST /api/admin/outreach/run-complete` records legacy warm-lead completion and closes the shared run.
+2. `POST /api/admin/agents/runs/[runId]/events` records the generic `outreach_ingest_complete` stage event and step.
 
 **Trigger strategy:** Remove any redundant 10-minute webhook caller; keep one run-on-wake or schedule per workflow. The 24-hour gate ensures at most one API call per 24 hours.
 

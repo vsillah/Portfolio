@@ -28,6 +28,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - Prioritize workflows that already touch production automation or LLM costs.
    - [x] Pass `agent_run_id` plus a generic callback URL into traced social content, value evidence, and warm lead payloads.
    - [x] Let generic n8n callbacks record both run events and stage steps.
+   - [x] Add warm lead export callbacks for successful ingest completion across Facebook, Google Contacts, and LinkedIn workflows.
    - Add remaining workflow-specific progress, completion, and failure callbacks where legacy workflows still lack them.
    - Keep legacy workflow pages active until replacement views are proven.
 
