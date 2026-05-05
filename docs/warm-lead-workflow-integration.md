@@ -105,6 +105,19 @@ The versioned WRM workflow exports preserve `agent_run_id`, `agent_event_callbac
 
 **Trigger strategy:** Remove any redundant 10-minute webhook caller; keep one run-on-wake or schedule per workflow. The 24-hour gate ensures at most one API call per 24 hours.
 
+### 1c. Production smoke gate
+
+Use the WRM production smoke gate after n8n workflow patches or deployment changes that affect warm lead capture. The gate triggers only the production webhook smoke branch for `WF-WRM-001`, `WF-WRM-002`, and `WF-WRM-003`; it does not run live source scrapers. Each smoke trigger creates an Agent Operations run, sends the shared trace envelope, verifies n8n progress callbacks, and confirms that only synthetic `contact_submissions` rows with `is_test_data=true` were inserted.
+
+```bash
+npm run wrm:smoke-gate -- --dry-run
+npm run wrm:smoke-gate
+```
+
+Live mode requires `PROD_SUPABASE_URL`, `PROD_SUPABASE_SERVICE_ROLE_KEY`, and the three production `N8N_WRM*_WEBHOOK_URL` values in `.env.local`. The callback base URL is locked to `https://amadutown.com`, and webhook URLs are rejected if they point at `webhook-test`.
+
+Do not point this gate at staging or non-production databases. Staging should use staging-scoped variables, staging data, and separate test fixtures so production customer data is never copied into non-prod.
+
 ### 2. Manual lead entry (salesperson)
 
 Salespeople can add a single lead from non-automated inputs (e.g. LinkedIn conversation, business card, referral, event) without using the ingest API or any shared secret.
@@ -323,6 +336,10 @@ await ingestMockWarmLeads(leads, authToken)
 N8N_WRM001_WEBHOOK_URL=https://n8n.amadutown.com/webhook/...
 N8N_WRM002_WEBHOOK_URL=https://n8n.amadutown.com/webhook/...
 N8N_WRM003_WEBHOOK_URL=https://n8n.amadutown.com/webhook/...
+
+# Production smoke gate database target
+PROD_SUPABASE_URL=https://...
+PROD_SUPABASE_SERVICE_ROLE_KEY=...
 
 # n8n Ingest Secret (for receiving scraped data)
 N8N_INGEST_SECRET=your-secret-key-here
@@ -543,6 +560,8 @@ ORDER BY tr.started_at DESC;
 - [ ] Set all environment variables in production
 - [ ] Configure n8n workflows in n8n Cloud
 - [ ] Test trigger API from admin dashboard
+- [ ] Run `npm run wrm:smoke-gate -- --dry-run`
+- [ ] Run `npm run wrm:smoke-gate` and confirm synthetic Agent Ops traces
 - [ ] Verify webhook URLs are accessible
 - [ ] Run E2E test in staging environment
 - [ ] Check monitoring queries
