@@ -68,6 +68,15 @@ function expectConnection(workflow: N8nWorkflow, from: string, to: string, outpu
 }
 
 describe('warm lead n8n workflow export trace callbacks', () => {
+  it('keeps exported LinkedIn workflow aligned to canonical Portfolio lead sources', () => {
+    const workflow = loadWorkflow('WF-WRM-003-LinkedIn-Warm-Lead-Scraper.json')
+    const node = getNode(workflow, 'Normalize & Deduplicate')
+
+    expect(node.parameters?.jsCode).toContain("const leadSource = 'warm_linkedin'")
+    expect(node.parameters?.jsCode).not.toContain('warm_linkedin_connections')
+    expect(node.parameters?.jsCode).not.toContain('warm_linkedin_engagement')
+  })
+
   it.each(WORKFLOWS)('$workflowId preserves agent trace fields through normalization', ({ file, normalizeNode }) => {
     const workflow = loadWorkflow(file)
     const node = getNode(workflow, normalizeNode)

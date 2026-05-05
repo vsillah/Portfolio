@@ -256,7 +256,7 @@ export function generateSingleTestLead(source: 'facebook' | 'google_contacts' | 
   const sourceMap = {
     facebook: 'warm_facebook_friends',
     google_contacts: 'warm_google_contacts',
-    linkedin: 'warm_linkedin_connections'
+    linkedin: 'warm_linkedin'
   }
 
   return {
