@@ -12,6 +12,7 @@ describe('n8n value-evidence triggers', () => {
     vi.stubGlobal('fetch', mockFetch)
     process.env.N8N_DISABLE_OUTBOUND = 'false'
     process.env.MOCK_N8N = 'false'
+    process.env.N8N_CALLBACK_BASE_URL = 'https://portfolio.example.com'
   })
 
   afterEach(() => {
@@ -26,7 +27,7 @@ describe('n8n value-evidence triggers', () => {
 
     const { triggerSocialListening } = await import('../n8n')
 
-    const result = await triggerSocialListening({ runId: 'run-123', maxResults: 10 })
+    const result = await triggerSocialListening({ runId: 'run-123', agentRunId: 'agent-run-1', maxResults: 10 })
     expect(result.triggered).toBe(true)
 
     expect(mockFetch).toHaveBeenCalledTimes(1)
@@ -40,7 +41,15 @@ describe('n8n value-evidence triggers', () => {
       workflow: 'WF-VEP-002',
       action: 'social_listening_scrape',
       run_id: 'run-123',
+      agent_run_id: 'agent-run-1',
+      agent_event_callback_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
       maxResults: 10,
+    })
+    expect(body.agent_trace).toMatchObject({
+      version: 1,
+      runtime: 'n8n',
+      workflow_id: 'WF-VEP-002',
+      events_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
     })
   })
 

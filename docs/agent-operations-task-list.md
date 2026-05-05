@@ -26,8 +26,9 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 
 3. n8n trace expansion
    - Prioritize workflows that already touch production automation or LLM costs.
-   - Pass `agent_run_id` into app-triggered payloads.
-   - Add progress, completion, and failure callbacks.
+   - [x] Pass `agent_run_id` plus a generic callback URL into traced social content, value evidence, and warm lead payloads.
+   - [x] Let generic n8n callbacks record both run events and stage steps.
+   - Add remaining workflow-specific progress, completion, and failure callbacks where legacy workflows still lack them.
    - Keep legacy workflow pages active until replacement views are proven.
 
 4. Reporting and hardening
@@ -52,6 +53,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Engagement Work Queue in review.
 - [x] Queue affordance filters and owner/source clarity in review.
 - [x] Approval-backed execution payloads and decision metadata in review.
+- [x] n8n trace callback envelope and generic stage callback endpoint in review.
 
 ## Scope Guard
 

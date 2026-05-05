@@ -31,6 +31,38 @@ export function n8nWebhookUrl(path: string): string {
   return `${N8N_BASE_URL}/webhook/${path}`
 }
 
+function n8nCallbackBaseUrl(): string {
+  return (
+    process.env.N8N_CALLBACK_BASE_URL ||
+    process.env.PORTFOLIO_BASE_URL ||
+    'https://amadutown.com'
+  ).replace(/\/+$/, '')
+}
+
+function n8nAgentTracePayload(agentRunId?: string, workflowId?: string): Record<string, unknown> {
+  if (!agentRunId) return {}
+
+  const eventsUrl = `${n8nCallbackBaseUrl()}/api/admin/agents/runs/${agentRunId}/events`
+  return {
+    agent_run_id: agentRunId,
+    agent_event_callback_url: eventsUrl,
+    agent_trace: {
+      version: 1,
+      runtime: 'n8n',
+      agent_run_id: agentRunId,
+      workflow_id: workflowId ?? null,
+      events_url: eventsUrl,
+      auth: 'Bearer N8N_INGEST_SECRET',
+      progress_payload: {
+        workflow_id: workflowId ?? '<workflow-id>',
+        stage: '<node-or-stage-name>',
+        status: 'running | completed | failed',
+        items_count: '<optional-number>',
+      },
+    },
+  }
+}
+
 /** Timeout for n8n webhook calls in milliseconds (30 seconds) */
 const N8N_TIMEOUT_MS = 30_000
 
@@ -1202,7 +1234,10 @@ export async function triggerWarmLeadScrape(params: {
     const payload = {
       source: params.source,
       triggered_at: new Date().toISOString(),
+      workflow: `WRM-${params.source}`,
+      callbackBaseUrl: n8nCallbackBaseUrl(),
       agent_run_id: params.agentRunId,
+      ...n8nAgentTracePayload(params.agentRunId, `WRM-${params.source}`),
       ...params.options,
     }
     
@@ -1283,7 +1318,8 @@ export async function triggerValueEvidenceExtraction(
       triggered_at: new Date().toISOString(),
       workflow: 'WF-VEP-001',
       action: 'extract_internal_evidence',
-      callbackBaseUrl: process.env.N8N_CALLBACK_BASE_URL || process.env.PORTFOLIO_BASE_URL || 'https://amadutown.com',
+      callbackBaseUrl: n8nCallbackBaseUrl(),
+      ...n8nAgentTracePayload(options?.agentRunId, 'WF-VEP-001'),
     }
     if (options?.contactSubmissionIds?.length) {
       body.contact_submission_ids = options.contactSubmissionIds
@@ -1293,9 +1329,6 @@ export async function triggerValueEvidenceExtraction(
     }
     if (options?.runId) {
       body.run_id = options.runId
-    }
-    if (options?.agentRunId) {
-      body.agent_run_id = options.agentRunId
     }
 
     const response = await fetchWithTimeout(N8N_VEP001_WEBHOOK_URL, {
@@ -1362,13 +1395,11 @@ export async function triggerSocialListening(options?: SocialListeningOptions): 
       triggered_at: new Date().toISOString(),
       workflow: 'WF-VEP-002',
       action: 'social_listening_scrape',
-      callbackBaseUrl: process.env.N8N_CALLBACK_BASE_URL || process.env.PORTFOLIO_BASE_URL || 'https://amadutown.com',
+      callbackBaseUrl: n8nCallbackBaseUrl(),
+      ...n8nAgentTracePayload(options?.agentRunId, 'WF-VEP-002'),
     }
     if (options?.runId) {
       body.run_id = options.runId
-    }
-    if (options?.agentRunId) {
-      body.agent_run_id = options.agentRunId
     }
     if (options?.maxResults) {
       body.maxResults = options.maxResults
@@ -1444,13 +1475,11 @@ export async function triggerSocialContentExtraction(options?: {
       triggered_at: new Date().toISOString(),
       workflow: 'WF-SOC-001',
       action: 'extract_social_content',
-      callbackBaseUrl: process.env.N8N_CALLBACK_BASE_URL || process.env.PORTFOLIO_BASE_URL || 'https://amadutown.com',
+      callbackBaseUrl: n8nCallbackBaseUrl(),
+      ...n8nAgentTracePayload(options?.agentRunId, 'WF-SOC-001'),
     }
     if (options?.runId) {
       body.run_id = options.runId
-    }
-    if (options?.agentRunId) {
-      body.agent_run_id = options.agentRunId
     }
     if (options?.meetingRecordId) {
       body.meeting_record_id = options.meetingRecordId

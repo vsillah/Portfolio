@@ -92,9 +92,10 @@ App-triggered n8n workflows should receive both the existing workflow-specific `
 
 Supported callback conventions:
 
+- App-triggered payloads may include `agent_event_callback_url` and an `agent_trace` envelope. n8n workflows can call that URL with `Authorization: Bearer N8N_INGEST_SECRET` instead of reconstructing Portfolio routes by hand.
 - Progress callbacks include `agent_run_id`, `workflow_id`, `stage`, `status`, and optional item counts.
 - Completion callbacks include `agent_run_id`, `run_id`, `workflow_id`, `status`, optional item counts, and `error_message` on failure.
-- Generic callbacks can write events with `POST /api/admin/agents/runs/[runId]/events` using `N8N_INGEST_SECRET`.
+- Generic callbacks can write events and stage steps with `POST /api/admin/agents/runs/[runId]/events` using `N8N_INGEST_SECRET`. If the body includes `stage`, the route records both an `agent_run_event` and an `agent_run_step`; `status: error|failed|failure` is normalized to a failed step.
 - Generic status updates can use `PATCH /api/admin/agents/runs/[runId]` using `N8N_INGEST_SECRET`.
 
 Current n8n trace coverage:
@@ -102,6 +103,7 @@ Current n8n trace coverage:
 - Social content extraction creates an `n8n` run, dispatches `agent_run_id`, and completes/fails the shared run from the n8n completion callback.
 - Value evidence workflows create an `n8n` run, dispatch `agent_run_id`, record progress stages, preserve auto-chained VEP-001 to VEP-002 behavior, and complete/fail the shared run after the final phase.
 - Warm lead scrapers create an `n8n` run, dispatch `agent_run_id`, and can complete/fail the shared run when the n8n completion callback echoes the ID.
+- Social content extraction, value evidence, and warm lead scraper payloads now include a shared `agent_trace` envelope with the generic event callback URL when `agent_run_id` exists.
 
 ## Hermes Bridge
 
