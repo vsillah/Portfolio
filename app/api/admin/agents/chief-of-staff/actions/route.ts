@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { recordAgentEvent, startAgentRun } from '@/lib/agent-run'
+import { attachAgentArtifact, recordAgentEvent, startAgentRun } from '@/lib/agent-run'
 import {
   actionRequiresApproval,
   getApprovalGate,
@@ -56,6 +56,60 @@ function normalizeProposal(value: unknown): ChiefOfStaffActionProposal | null {
   }
 }
 
+function sideEffectBoundary(action: AgentAction) {
+  switch (action) {
+    case 'send_email':
+      return 'No email is sent until this approval checkpoint is approved and executed by an approved workflow.'
+    case 'publish_public_content':
+      return 'No public content is published until this approval checkpoint is approved and executed by an approved workflow.'
+    case 'production_config_change':
+      return 'No production configuration is changed until this approval checkpoint is approved and executed by an approved workflow.'
+    case 'unknown_db_write':
+      return 'No database write outside known workflows is performed until this approval checkpoint is approved.'
+    case 'public_content_from_private_material':
+      return 'No private-derived material is moved to a public channel until this approval checkpoint is approved.'
+    default:
+      return 'The proposed action is recorded for review; no side effect is executed by this checkpoint.'
+  }
+}
+
+function buildActionPayload(input: {
+  proposal: ChiefOfStaffActionProposal
+  sourceRunId: string
+  userId: string
+}) {
+  return {
+    version: 1,
+    action: input.proposal.action,
+    approval_type: input.proposal.approvalType,
+    label: input.proposal.label,
+    description: input.proposal.description,
+    risk_level: input.proposal.riskLevel,
+    source_run_id: input.sourceRunId,
+    requested_by_user_id: input.userId,
+    execution_mode: 'approval_required',
+    executes_action: false,
+    side_effect_boundary: sideEffectBoundary(input.proposal.action),
+    created_at: new Date().toISOString(),
+  }
+}
+
+function formatActionPayloadSummary(payload: ReturnType<typeof buildActionPayload>) {
+  return [
+    `# Approval Action Payload: ${payload.label}`,
+    '',
+    `- Action: ${String(payload.action).replace(/_/g, ' ')}`,
+    `- Approval type: ${String(payload.approval_type).replace(/_/g, ' ')}`,
+    `- Risk: ${payload.risk_level}`,
+    `- Source run: ${payload.source_run_id}`,
+    `- Executes action now: ${payload.executes_action ? 'yes' : 'no'}`,
+    '',
+    payload.description,
+    '',
+    `Boundary: ${payload.side_effect_boundary}`,
+  ].join('\n')
+}
+
 /**
  * POST /api/admin/agents/chief-of-staff/actions
  *
@@ -92,6 +146,12 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const actionPayload = buildActionPayload({
+      proposal,
+      sourceRunId,
+      userId: auth.user.id,
+    })
+
     const run = await startAgentRun({
       agentKey: 'chief-of-staff',
       runtime: 'manual',
@@ -109,6 +169,7 @@ export async function POST(request: NextRequest) {
       metadata: {
         source_run_id: sourceRunId,
         proposal,
+        action_payload: actionPayload,
         executes_action: false,
       },
       idempotencyKey: `chief-of-staff-action:${sourceRunId}:${proposal.action}:${auth.user.id}:${Date.now()}`,
@@ -124,6 +185,7 @@ export async function POST(request: NextRequest) {
         metadata: {
           source_run_id: sourceRunId,
           proposal,
+          action_payload: actionPayload,
           executes_action: false,
         },
       })
@@ -143,8 +205,25 @@ export async function POST(request: NextRequest) {
         approval_id: data.id,
         source_run_id: sourceRunId,
         proposal,
+        action_payload: actionPayload,
       },
       idempotencyKey: `${run.id}:chief-of-staff-approval-created`,
+    }).catch(() => {})
+
+    await attachAgentArtifact({
+      runId: run.id,
+      artifactType: 'approval_action_payload',
+      title: `Approval payload: ${proposal.label}`,
+      refType: 'agent_approval',
+      refId: data.id,
+      metadata: {
+        summary_markdown: formatActionPayloadSummary(actionPayload),
+        approval_id: data.id,
+        approval_type: approvalType,
+        source_run_id: sourceRunId,
+        action_payload: actionPayload,
+      },
+      idempotencyKey: `${run.id}:approval-action-payload`,
     }).catch(() => {})
 
     return NextResponse.json({

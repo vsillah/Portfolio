@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   isAuthError: vi.fn(),
   startAgentRun: vi.fn(),
   recordAgentEvent: vi.fn(),
+  attachAgentArtifact: vi.fn(),
   from: vi.fn(),
   insert: vi.fn(),
 }))
@@ -17,6 +18,7 @@ vi.mock('@/lib/auth-server', () => ({
 vi.mock('@/lib/agent-run', () => ({
   startAgentRun: mocks.startAgentRun,
   recordAgentEvent: mocks.recordAgentEvent,
+  attachAgentArtifact: mocks.attachAgentArtifact,
 }))
 
 vi.mock('@/lib/supabase', () => ({
@@ -58,6 +60,7 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
     mocks.isAuthError.mockReturnValue(false)
     mocks.startAgentRun.mockResolvedValue({ id: 'approval-run-1' })
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
+    mocks.attachAgentArtifact.mockResolvedValue({ id: 'artifact-1' })
     approvalInsertChain()
   })
 
@@ -92,12 +95,40 @@ describe('POST /api/admin/agents/chief-of-staff/actions', () => {
       kind: 'chief_of_staff_action_approval',
       status: 'waiting_for_approval',
       triggeredByUserId: 'admin-user',
+      metadata: expect.objectContaining({
+        action_payload: expect.objectContaining({
+          action: 'send_email',
+          approval_type: 'send_email',
+          source_run_id: 'chief-run-1',
+          requested_by_user_id: 'admin-user',
+          executes_action: false,
+        }),
+      }),
     }))
     expect(mocks.insert).toHaveBeenCalledWith(expect.objectContaining({
       run_id: 'approval-run-1',
       approval_type: 'send_email',
       status: 'pending',
       requested_by_agent_key: 'chief-of-staff',
+      metadata: expect.objectContaining({
+        action_payload: expect.objectContaining({
+          action: 'send_email',
+          executes_action: false,
+        }),
+      }),
+    }))
+    expect(mocks.attachAgentArtifact).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'approval-run-1',
+      artifactType: 'approval_action_payload',
+      refType: 'agent_approval',
+      refId: 'approval-1',
+      metadata: expect.objectContaining({
+        summary_markdown: expect.stringContaining('Approval Action Payload'),
+        action_payload: expect.objectContaining({
+          action: 'send_email',
+          executes_action: false,
+        }),
+      }),
     }))
   })
 

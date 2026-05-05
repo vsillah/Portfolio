@@ -48,6 +48,37 @@ export async function POST(
   let approvalId = body.approval_id ?? null
 
   if (approvalId) {
+    const { data: existing, error: existingError } = await supabaseAdmin
+      .from('agent_approvals')
+      .select('id, approval_type, metadata')
+      .eq('id', approvalId)
+      .eq('run_id', params.runId)
+      .single()
+
+    if (existingError || !existing?.id) {
+      console.error('[agent-approval] read failed:', existingError)
+      return NextResponse.json({ error: 'Approval not found' }, { status: 404 })
+    }
+
+    const existingMetadata =
+      existing.metadata && typeof existing.metadata === 'object'
+        ? existing.metadata as Record<string, unknown>
+        : {}
+    const decisionMetadata = decided
+      ? {
+          status,
+          decision_notes: body.decision_notes ?? null,
+          decided_by_user_id: auth.user.id,
+          decided_at: new Date().toISOString(),
+        }
+      : null
+    const mergedMetadata = {
+      ...existingMetadata,
+      ...(body.metadata ?? {}),
+      ...(existingMetadata.action_payload ? { action_payload: existingMetadata.action_payload } : {}),
+      ...(decisionMetadata ? { decision: decisionMetadata } : {}),
+    }
+
     const { data, error } = await supabaseAdmin
       .from('agent_approvals')
       .update({
@@ -55,7 +86,7 @@ export async function POST(
         decided_by_user_id: decided ? auth.user.id : null,
         decided_at: decided ? new Date().toISOString() : null,
         decision_notes: body.decision_notes ?? null,
-        metadata: body.metadata ?? {},
+        metadata: mergedMetadata,
       })
       .eq('id', approvalId)
       .eq('run_id', params.runId)
@@ -95,7 +126,12 @@ export async function POST(
     event_type: approvalId === body.approval_id ? 'approval_decided' : 'approval_recorded',
     severity: status === 'rejected' ? 'warning' : 'info',
     message: `${body.approval_type ?? body.approval_id}: ${status}`,
-    metadata: { approval_id: approvalId, status },
+    metadata: {
+      approval_id: approvalId,
+      status,
+      decision_notes: body.decision_notes ?? null,
+      ...(body.metadata ?? {}),
+    },
   })
 
   if (status === 'pending') {
