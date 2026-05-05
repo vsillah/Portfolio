@@ -105,6 +105,24 @@ describe('agent-run helpers', () => {
     }))
   })
 
+  it('does not reopen a terminal run when a late completed step is recorded', async () => {
+    mocks.singleQueue.push({ data: { id: 'step-1' }, error: null })
+    mocks.maybeSingleQueue.push({ data: { status: 'completed' }, error: null })
+
+    const result = await recordAgentStep({
+      runId: 'run-1',
+      name: 'n8n callback finished',
+      status: 'completed',
+      idempotencyKey: 'late-step-idem',
+    })
+
+    expect(result).toEqual({ id: 'step-1' })
+    expect(mocks.updateMock).toHaveBeenCalledWith(expect.objectContaining({
+      current_step: 'n8n callback finished',
+      status: 'completed',
+    }))
+  })
+
   it('records events and artifacts', async () => {
     mocks.singleQueue.push(
       { data: { id: 'event-1' }, error: null },

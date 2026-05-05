@@ -17,6 +17,12 @@ export type AgentRuntime = (typeof AGENT_RUNTIMES)[number]
 export type AgentRunStatus = (typeof AGENT_RUN_STATUSES)[number]
 export type AgentEventSeverity = (typeof AGENT_EVENT_SEVERITIES)[number]
 export type AgentApprovalStatus = (typeof AGENT_APPROVAL_STATUSES)[number]
+const TERMINAL_AGENT_RUN_STATUSES: ReadonlySet<AgentRunStatus> = new Set([
+  'completed',
+  'failed',
+  'cancelled',
+  'stale',
+])
 
 export interface AgentSubjectRef {
   type?: string | null
@@ -214,11 +220,21 @@ export async function recordAgentStep(input: RecordAgentStepInput): Promise<{ id
       ? status
       : 'running'
 
+  const { data: existingRun } = await db()
+    .from('agent_runs')
+    .select('status')
+    .eq('id', input.runId)
+    .maybeSingle()
+
+  const existingStatus = (existingRun as { status?: AgentRunStatus } | null)?.status
+  const shouldPreserveTerminalStatus =
+    existingStatus && TERMINAL_AGENT_RUN_STATUSES.has(existingStatus) && runStatus === 'running'
+
   await db()
     .from('agent_runs')
     .update({
       current_step: input.name,
-      status: runStatus,
+      status: shouldPreserveTerminalStatus ? existingStatus : runStatus,
       updated_at: new Date().toISOString(),
     })
     .eq('id', input.runId)
