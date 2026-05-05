@@ -13,6 +13,7 @@ export type ClientConnectorCategory =
   | 'social_outreach'
   | 'support_chat'
   | 'auth_identity'
+  | 'runtime_hosting'
   | 'ai_model'
   | 'rag_vector'
   | 'communications'
@@ -112,6 +113,7 @@ const CATEGORY_LABELS: Record<ClientConnectorCategory, string> = {
   social_outreach: 'Social/outreach',
   support_chat: 'Support/chat',
   auth_identity: 'Auth/identity',
+  runtime_hosting: 'Runtime/hosting',
   ai_model: 'AI model',
   rag_vector: 'RAG/vector',
   communications: 'Communications',
@@ -147,6 +149,10 @@ export const CLIENT_CONNECTOR_CATALOG: ClientConnectorDefinition[] = [
   connector('zapier', 'Zapier', 'automation', ['zapier'], 'oauth', 'shared', ['Zap visibility where available'], ['external_api_call', 'production_config_change'], ['Zap inventory reviewed', 'Owner confirmed'], 'Use screenshots/exported Zap descriptions until access approval.', false),
   connector('make', 'Make', 'automation', ['make', 'integromat'], 'api_key', 'shared', ['Scenario read', 'Execution read'], ['external_api_call', 'production_config_change'], ['Scenario inventory readable', 'Execution history accessible'], 'Use scenario export and manual setup packet.', false),
   connector('supabase', 'Supabase', 'automation', ['supabase', 'postgres', 'postgresql'], 'service_account', 'shared', ['Database read', 'Edge/project read'], ['external_api_call', 'client_data_access', 'production_config_change'], ['Project linked', 'Read-only query smoke passes'], 'Use schema snapshots and SQL files until service access approval.', true),
+
+  connector('client_mac_mini_node', 'Client Mac mini node', 'runtime_hosting', ['mac mini', 'apple silicon', 'local node', 'local ai operations node'], 'manual', 'client', ['Device admin account', 'Network access', 'Backup path'], ['production_config_change'], ['Device online', 'Remote access gated', 'Backup status visible'], 'Use cloud runtime fallback until the client-owned node is online and approved.', true),
+  connector('client_pc_node', 'Client PC node', 'runtime_hosting', ['mini pc', 'pc equivalent', 'windows mini pc', 'linux mini pc', 'client pc', 'on prem', 'on-prem'], 'manual', 'client', ['Device admin account', 'Network access', 'Backup path'], ['production_config_change'], ['Device online', 'Remote access gated', 'Backup status visible'], 'Use cloud runtime fallback until the client-owned node is online and approved.', true),
+  connector('cloud_runtime', 'Cloud runtime host', 'runtime_hosting', ['cloud fallback', 'cloud runtime', 'cloud hosted', '24/7 access', 'always on', 'vercel', 'railway', 'render', 'aws', 'gcp', 'azure'], 'service_account', 'shared', ['Project read', 'Deployment read', 'Runtime env access only after approval'], ['external_api_call', 'production_config_change'], ['Runtime reachable', 'Health check passes', 'Cost owner recorded'], 'Use read-only setup packet and manual deployment approval before any cloud provisioning.', true),
 
   connector('stripe', 'Stripe', 'payments', ['stripe'], 'api_key', 'shared', ['Restricted read key', 'Webhook read'], ['external_api_call', 'client_data_access', 'production_config_change'], ['Restricted key valid', 'Webhook endpoint verified'], 'Use exported transactions and manual webhook packet.', false),
   connector('mailchimp', 'Mailchimp', 'social_outreach', ['mailchimp'], 'oauth', 'shared', ['Audience read', 'Campaign draft only when approved'], ['external_api_call', 'client_data_access', 'send_email'], ['Audience read succeeds', 'Draft-only path confirmed'], 'Use exported audience/campaign reports until OAuth approval.', false),
@@ -197,15 +203,19 @@ function valuesFromUnknown(value: unknown): string[] {
 }
 
 function definitionForValue(value: unknown, category?: ClientConnectorCategory): ClientConnectorDefinition | null {
+  return definitionsForValue(value, category)[0] ?? null
+}
+
+function definitionsForValue(value: unknown, category?: ClientConnectorCategory): ClientConnectorDefinition[] {
   const normalized = normalize(value)
-  if (!normalized || normalized === 'none' || normalized === 'other') return null
-  return CLIENT_CONNECTOR_CATALOG.find((definition) => {
+  if (!normalized || normalized === 'none' || normalized === 'other') return []
+  return CLIENT_CONNECTOR_CATALOG.filter((definition) => {
     if (category && definition.category !== category) return false
     return definition.aliases.some((alias) => {
       const aliasNorm = normalize(alias)
       return normalized === aliasNorm || normalized.includes(aliasNorm) || aliasNorm.includes(normalized)
     })
-  }) ?? null
+  })
 }
 
 function addSignal(signals: ConnectorSignal[], definition: ClientConnectorDefinition | null, source: ClientConnectorSource, evidence: string, confidence: number) {
@@ -272,7 +282,9 @@ function collectRoadmapSignals(signals: ConnectorSignal[], input: BuildClientCon
     ...valuesFromUnknown(input.projectMetadata),
   ]
   for (const value of text) {
-    addSignal(signals, definitionForValue(value), 'roadmap', `Roadmap/project signal: ${value}`, 50)
+    for (const definition of definitionsForValue(value)) {
+      addSignal(signals, definition, 'roadmap', `Roadmap/project signal: ${value}`, 50)
+    }
   }
 }
 
@@ -337,7 +349,7 @@ export function buildClientConnectorReadiness(input: BuildClientConnectorReadine
     const highestSourceRank = sourceRank(sorted[0]!.source)
     const sameTier = sorted.filter((signal) => sourceRank(signal.source) === highestSourceRank)
     const providerKeys = [...new Set(sameTier.map((signal) => signal.definition.key))]
-    if (providerKeys.length > 1 && highestSourceRank >= 70) {
+    if (providerKeys.length > 1 && (highestSourceRank >= 70 || category === 'runtime_hosting')) {
       conflicts.push({
         category,
         providers: providerKeys.map((key) => CLIENT_CONNECTOR_CATALOG.find((definition) => definition.key === key)?.label ?? key),
