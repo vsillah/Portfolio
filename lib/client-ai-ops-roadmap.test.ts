@@ -43,6 +43,28 @@ describe('client AI ops roadmap', () => {
     expect(snapshot.costSummary.monthlyClientOwned).toBeGreaterThan(0)
   })
 
+  it('uses agent readiness to shape roadmap recommendations when provided', () => {
+    const snapshot = buildProposalRoadmapSnapshot({
+      clientCompany: 'Acme Co',
+      implementationRequirements: {
+        agentReadinessAssessment: {
+          systems: [],
+          contextReadinessScore: 8,
+          workflowReadinessScore: 8,
+          agentReadinessScore: 5,
+          overallLevel: 'workflow_copilot',
+          recommendationTier: 3,
+          clientSummary: 'Workflow systems can support AI recommendations and drafts.',
+          roadmapRecommendation: 'Prioritize approval-gated copilots before autonomous action.',
+        },
+      },
+    })
+
+    expect(snapshot.clientSummary).toContain('approval-gated copilots')
+    expect(snapshot.phases.find((phase) => phase.phaseKey === 'agent_automation_deployment')?.objective)
+      .toContain('workflow copilots')
+  })
+
   it('maps statuses between roadmap and projected task tables', () => {
     expect(dashboardStatusFromRoadmap('blocked')).toBe('in_progress')
     expect(meetingTaskStatusFromRoadmap('cancelled')).toBe('cancelled')

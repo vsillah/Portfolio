@@ -3,11 +3,13 @@ import { getDiagnosticAudit, saveDiagnosticAudit } from '@/lib/diagnostic'
 import { tryVerifyAuth } from '@/lib/auth-server'
 import { AUDIT_CATEGORY_ORDER, categoryFormToPayload } from '@/lib/audit-questions'
 import { computeReportTier } from '@/lib/audit-report-tier'
+import { buildAgentReadinessAssessment } from '@/lib/agent-readiness-assessment'
 import { triggerDiagnosticCompletionWebhook } from '@/lib/n8n'
 import { findOrCreateContactByEmail } from '@/lib/find-or-create-contact'
 import { getAuthUserPrimaryEmail } from '@/lib/auth-user-email'
 import { getClientIpFromRequest, isIpRateLimited } from '@/lib/simple-ip-rate-limit'
 import type { DiagnosticCategory } from '@/lib/n8n'
+import type { DiagnosticAuditData } from '@/lib/n8n'
 import type { DiagnosticAuditRecord } from '@/lib/diagnostic'
 
 export const dynamic = 'force-dynamic'
@@ -71,6 +73,9 @@ function buildSummary(payload: Record<string, Record<string, unknown>>): string 
   if (Object.keys(payload.ai_readiness || {}).length > 0) {
     parts.push('AI readiness and data/team context captured.')
   }
+  if (Object.keys(payload.agent_readiness || {}).length > 0) {
+    parts.push('Systems and agent readiness captured.')
+  }
   if (Object.keys(payload.budget_timeline || {}).length > 0) {
     parts.push('Budget and timeline preferences recorded.')
   }
@@ -85,7 +90,7 @@ function buildSummary(payload: Record<string, Record<string, unknown>>): string 
 /**
  * PUT /api/tools/audit/update
  * Body: { auditId: string, category: DiagnosticCategory, values: Record<string, string | string[] | boolean> }
- * Merges the category payload into the audit. If all 6 categories are present, marks completed and sets summary + scores.
+ * Merges the category payload into the audit. If all categories are present, marks completed and sets summary + scores.
  */
 export async function PUT(request: NextRequest) {
   try {
@@ -144,6 +149,7 @@ export async function PUT(request: NextRequest) {
       tech_stack: (existing.tech_stack as Record<string, unknown>) || {},
       automation_needs: (existing.automation_needs as Record<string, unknown>) || {},
       ai_readiness: (existing.ai_readiness as Record<string, unknown>) || {},
+      agent_readiness: (existing.agent_readiness as Record<string, unknown>) || {},
       budget_timeline: (existing.budget_timeline as Record<string, unknown>) || {},
       decision_making: (existing.decision_making as Record<string, unknown>) || {},
     }
@@ -153,12 +159,17 @@ export async function PUT(request: NextRequest) {
     const allCategoriesPresent = AUDIT_CATEGORY_ORDER.every(
       (c) => existingData[c] && Object.keys(existingData[c]).length > 0
     )
+    const hasAgentReadiness = Object.keys(existingData.agent_readiness).length > 0
 
-    const diagnosticData: Parameters<typeof saveDiagnosticAudit>[1]['diagnosticData'] = {
+    const diagnosticData: Partial<DiagnosticAuditData> = {
       business_challenges: existingData.business_challenges,
       tech_stack: existingData.tech_stack,
       automation_needs: existingData.automation_needs,
       ai_readiness: existingData.ai_readiness,
+      agent_readiness: existingData.agent_readiness,
+      ...(hasAgentReadiness
+        ? { agent_readiness_assessment: buildAgentReadinessAssessment(existingData.agent_readiness) }
+        : {}),
       budget_timeline: existingData.budget_timeline,
       decision_making: existingData.decision_making,
     }

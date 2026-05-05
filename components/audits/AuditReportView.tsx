@@ -23,6 +23,7 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 
 import { getIndustryDisplayName } from '@/lib/constants/industry'
+import { labelForAgentReadinessLevel } from '@/lib/agent-readiness-assessment'
 import {
   getCategoryCaptureStatus,
   getEstimatedOpportunityValue,
@@ -159,6 +160,7 @@ export default function AuditReportView({
   const improvementAreas = getImprovementAreas(report)
   const enriched = report.enrichedTechStack
   const hasEnrichedTech = !!(enriched?.technologies && enriched.technologies.length > 0)
+  const agentReadiness = report.agentReadinessAssessment
 
   return (
     <div className="space-y-6">
@@ -257,6 +259,38 @@ export default function AuditReportView({
         <div className="rounded-lg border border-foreground/20 bg-black/20 p-4">
           <h2 className="font-semibold text-foreground mb-2">Summary</h2>
           <p className="text-sm text-muted-foreground">{report.diagnosticSummary}</p>
+        </div>
+      )}
+
+      {agentReadiness && (
+        <div className="rounded-lg border border-radiant-gold/30 bg-black/20 p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-muted-foreground text-sm">Systems & agent readiness</p>
+              <h2 className="text-lg font-semibold text-foreground">
+                {labelForAgentReadinessLevel(agentReadiness.overallLevel)}
+              </h2>
+            </div>
+            <span className="rounded-full border border-radiant-gold/40 bg-radiant-gold/10 px-3 py-1 text-xs font-medium text-radiant-gold">
+              Tier {agentReadiness.recommendationTier}
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground mt-2">{agentReadiness.clientSummary}</p>
+          <p className="text-sm text-foreground/90 mt-2">{agentReadiness.roadmapRecommendation}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
+            <ReadinessScore label="Context" value={agentReadiness.contextReadinessScore} />
+            <ReadinessScore label="Workflow" value={agentReadiness.workflowReadinessScore} />
+            <ReadinessScore label="Agent" value={agentReadiness.agentReadinessScore} />
+          </div>
+          {agentReadiness.systems.length > 0 && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {agentReadiness.systems.slice(0, 8).map((system) => (
+                <span key={system.name} className="rounded-full bg-muted/40 px-3 py-1 text-xs text-muted-foreground">
+                  {system.name}: {system.recommendedAiRole.replaceAll('_', ' ')}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -413,6 +447,15 @@ function LockedPrompt({ title, body }: { title: string; body: string }) {
           <p className="text-xs text-muted-foreground mt-0.5">{body}</p>
         </div>
       </div>
+    </div>
+  )
+}
+
+function ReadinessScore({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-md border border-foreground/10 bg-black/20 p-3">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className="text-xl font-bold text-radiant-gold">{value}/10</p>
     </div>
   )
 }

@@ -26,6 +26,7 @@ function buildAudit(
     tech_stack: categoryPayloads.tech_stack,
     automation_needs: categoryPayloads.automation_needs,
     ai_readiness: categoryPayloads.ai_readiness,
+    agent_readiness: categoryPayloads.agent_readiness,
     budget_timeline: categoryPayloads.budget_timeline,
     decision_making: categoryPayloads.decision_making,
     started_at: '2026-03-25T00:00:00.000Z',

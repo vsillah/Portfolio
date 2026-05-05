@@ -5,6 +5,7 @@
 
 import { supabaseAdmin } from './supabase'
 import type { DiagnosticAuditData, DiagnosticCategory, DiagnosticProgress } from './n8n'
+import type { AgentReadinessAssessment } from './agent-readiness-assessment'
 
 /** audit_type values on diagnostic_audits; must match DB CHECK constraint. */
 export type DiagnosticAuditType = 'chat' | 'standalone' | 'in_person' | 'from_meetings'
@@ -23,6 +24,8 @@ export interface DiagnosticAuditRecord {
   tech_stack: Record<string, unknown>
   automation_needs: Record<string, unknown>
   ai_readiness: Record<string, unknown>
+  agent_readiness?: Record<string, unknown> | null
+  agent_readiness_assessment?: AgentReadinessAssessment | null
   budget_timeline: Record<string, unknown>
   decision_making: Record<string, unknown>
   diagnostic_summary?: string | null
@@ -136,6 +139,12 @@ export async function saveDiagnosticAudit(
       }
       if (data.diagnosticData.ai_readiness) {
         updateData.ai_readiness = data.diagnosticData.ai_readiness
+      }
+      if (data.diagnosticData.agent_readiness) {
+        updateData.agent_readiness = data.diagnosticData.agent_readiness
+      }
+      if (data.diagnosticData.agent_readiness_assessment) {
+        updateData.agent_readiness_assessment = data.diagnosticData.agent_readiness_assessment
       }
       if (data.diagnosticData.budget_timeline) {
         updateData.budget_timeline = data.diagnosticData.budget_timeline
@@ -496,6 +505,7 @@ export function isValidDiagnosticCategory(category: string): category is Diagnos
     'tech_stack',
     'automation_needs',
     'ai_readiness',
+    'agent_readiness',
     'budget_timeline',
     'decision_making',
   ]
@@ -525,6 +535,7 @@ export function getDiagnosticProgress(audit: DiagnosticAuditRecord): number {
     'tech_stack',
     'automation_needs',
     'ai_readiness',
+    'agent_readiness',
     'budget_timeline',
     'decision_making',
   ]

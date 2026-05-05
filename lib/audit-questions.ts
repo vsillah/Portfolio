@@ -1,5 +1,5 @@
 /**
- * Standalone AI / Automation Audit — same 6 categories as chat-based diagnostic.
+ * Standalone AI / Automation Audit categories.
  * Used by the /tools/audit form and maps directly to diagnostic_audits JSONB columns.
  */
 
@@ -141,6 +141,33 @@ const AI_CONCERNS = [
   { value: 'other', label: 'Other' },
 ]
 
+const AGENT_SYSTEM_OPTIONS = [
+  { value: 'salesforce', label: 'Salesforce' },
+  { value: 'hubspot', label: 'HubSpot' },
+  { value: 'jira', label: 'Jira' },
+  { value: 'linear', label: 'Linear' },
+  { value: 'asana', label: 'Asana' },
+  { value: 'workday', label: 'Workday / HRIS' },
+  { value: 'oracle', label: 'Oracle ERP' },
+  { value: 'payroll', label: 'Payroll system' },
+  { value: 'service_now', label: 'ServiceNow' },
+  { value: 'google_drive', label: 'Google Drive / Docs' },
+  { value: 'sharepoint', label: 'SharePoint / OneDrive' },
+  { value: 'spreadsheets', label: 'Spreadsheets' },
+  { value: 'email', label: 'Email inboxes' },
+  { value: 'slack_teams', label: 'Slack / Teams' },
+  { value: 'database', label: 'Custom database' },
+  { value: 'custom_app', label: 'Custom internal app' },
+]
+
+const READINESS_MATURITY_OPTIONS = [
+  { value: 'none', label: 'No / mostly missing' },
+  { value: 'partial', label: 'Partially true' },
+  { value: 'documented', label: 'Documented for key workflows' },
+  { value: 'strong', label: 'Strong and consistently used' },
+  { value: 'mature', label: 'Mature, governed, and auditable' },
+]
+
 const TIMELINE_OPTIONS = [
   { value: 'asap', label: 'As soon as possible' },
   { value: '4_8_weeks', label: 'Within 4–8 weeks' },
@@ -253,6 +280,29 @@ export const AUDIT_CATEGORIES: AuditCategoryConfig[] = [
         { value: 'built_something', label: 'We\'ve built or integrated AI' },
       ] },
       { key: 'concerns', label: 'Concerns or blockers', type: 'multiselect', options: AI_CONCERNS },
+    ],
+  },
+  {
+    id: 'agent_readiness',
+    title: 'Systems & agent readiness',
+    description: 'Which systems are structured enough for AI to read, recommend, draft, or act with guardrails?',
+    fields: [
+      { key: 'systems', label: 'Systems in use', type: 'multiselect', options: AGENT_SYSTEM_OPTIONS },
+      { key: 'other_systems', label: 'Other systems', type: 'multiline', multiple: true, placeholder: 'One system per line' },
+      { key: 'ownership_clarity', label: 'Clear system or workflow owners', type: 'select', options: READINESS_MATURITY_OPTIONS },
+      { key: 'assignee_clarity', label: 'Named assignees for work items', type: 'select', options: READINESS_MATURITY_OPTIONS },
+      { key: 'status_tracking', label: 'Defined statuses or states', type: 'select', options: READINESS_MATURITY_OPTIONS },
+      { key: 'handoff_clarity', label: 'Clear handoffs between people or teams', type: 'select', options: READINESS_MATURITY_OPTIONS },
+      { key: 'audit_trails', label: 'Change history or audit trails', type: 'select', options: READINESS_MATURITY_OPTIONS },
+      { key: 'permission_controls', label: 'Role-based permissions', type: 'select', options: READINESS_MATURITY_OPTIONS },
+      { key: 'api_access', label: 'API or integration access', type: 'select', options: READINESS_MATURITY_OPTIONS },
+      { key: 'data_quality', label: 'Data quality and consistency', type: 'select', options: READINESS_MATURITY_OPTIONS },
+      { key: 'reversibility', label: 'Ability to undo or correct changes', type: 'select', options: READINESS_MATURITY_OPTIONS },
+      { key: 'business_risk', label: 'Risk if AI changes the wrong thing', type: 'select', options: [
+        { value: 'low', label: 'Low risk' },
+        { value: 'medium', label: 'Medium risk' },
+        { value: 'high', label: 'High risk' },
+      ] },
     ],
   },
   {
