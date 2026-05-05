@@ -244,6 +244,23 @@ function SwarmCard({ card }: { card: SwarmBoardCard }) {
         <MiniMetric label="Approvals" value={card.pendingApprovals} />
       </div>
 
+      <div className="mb-4 rounded-lg border border-silicon-slate/60 bg-silicon-slate/15 p-3">
+        <div className="mb-2 flex items-start justify-between gap-3">
+          <div>
+            <p className="text-sm font-medium">Connector readiness</p>
+            <p className="mt-1 text-xs text-muted-foreground">{card.connectorSummary}</p>
+          </div>
+          <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
+            {card.readyConnectorCount}/{card.requiredConnectorCount}
+          </span>
+        </div>
+        <div className="mb-2 grid grid-cols-2 gap-2 text-center text-xs">
+          <MiniMetric label="Approval blocked" value={card.approvalBlockedConnectorCount} />
+          <MiniMetric label="Critical gaps" value={card.missingCriticalConnectorCount} />
+        </div>
+        <p className="text-xs text-muted-foreground">{card.connectorNextAction}</p>
+      </div>
+
       <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
         <span className="text-muted-foreground">
           {card.latestRunStatus ? `Latest run: ${card.latestRunStatus}` : 'No traced run yet'}

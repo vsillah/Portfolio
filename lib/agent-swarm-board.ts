@@ -1,4 +1,9 @@
 import { actionRequiresApproval, type AgentAction } from '@/lib/agent-policy'
+import {
+  buildClientConnectorReadiness,
+  type ClientConnectorAuditSignal,
+  type ClientConnectorReadiness,
+} from '@/lib/client-connector-readiness'
 import { supabaseAdmin } from '@/lib/supabase'
 
 type JsonRecord = Record<string, unknown>
@@ -55,6 +60,13 @@ export type SwarmBoardCard = {
   activeRuns: number
   roadmapStatus: string | null
   dueDate: string | null
+  connectorReadiness: ClientConnectorReadiness
+  connectorSummary: string
+  requiredConnectorCount: number
+  readyConnectorCount: number
+  approvalBlockedConnectorCount: number
+  missingCriticalConnectorCount: number
+  connectorNextAction: string
   href: string
 }
 
@@ -83,6 +95,8 @@ type ClientProjectRow = {
   project_name: string
   client_name: string
   project_status: string
+  client_email?: string | null
+  contact_submission_id?: number | string | null
   estimated_end_date: string | null
   created_at: string | null
 }
@@ -141,6 +155,22 @@ type ApprovalRow = {
   requested_at: string
 }
 
+type ContactSubmissionRow = {
+  id: number
+  email: string | null
+  website_tech_stack: JsonRecord | null
+  client_verified_tech_stack: JsonRecord | null
+}
+
+type DiagnosticAuditRow = ClientConnectorAuditSignal & {
+  id: string | number
+  contact_submission_id: number | null
+  contact_email: string | null
+  completed_at?: string | null
+  updated_at?: string | null
+  created_at?: string | null
+}
+
 type SwarmBoardBuildInput = {
   projects: ClientProjectRow[]
   roadmaps: RoadmapRow[]
@@ -148,6 +178,8 @@ type SwarmBoardBuildInput = {
   reports: RoadmapReportRow[]
   runs: AgentRunRow[]
   approvals: ApprovalRow[]
+  contacts?: ContactSubmissionRow[]
+  audits?: DiagnosticAuditRow[]
 }
 
 const COLUMN_DEFINITIONS: Omit<SwarmBoardColumn, 'cards'>[] = [
@@ -367,10 +399,54 @@ export function buildAgentSwarmBoardSnapshotFromRows(input: SwarmBoardBuildInput
     approvalsByRun.set(approval.run_id, [...(approvalsByRun.get(approval.run_id) ?? []), approval])
   }
 
+  const contactsById = new Map<number, ContactSubmissionRow>()
+  const contactsByEmail = new Map<string, ContactSubmissionRow>()
+  for (const contact of input.contacts ?? []) {
+    contactsById.set(contact.id, contact)
+    if (contact.email) contactsByEmail.set(contact.email.toLowerCase(), contact)
+  }
+
+  const auditsByContactId = new Map<number, DiagnosticAuditRow[]>()
+  const auditsByEmail = new Map<string, DiagnosticAuditRow[]>()
+  for (const audit of input.audits ?? []) {
+    if (audit.contact_submission_id) {
+      auditsByContactId.set(audit.contact_submission_id, [...(auditsByContactId.get(audit.contact_submission_id) ?? []), audit])
+    }
+    if (audit.contact_email) {
+      const email = audit.contact_email.toLowerCase()
+      auditsByEmail.set(email, [...(auditsByEmail.get(email) ?? []), audit])
+    }
+  }
+
   const cards = input.projects.map((project): SwarmBoardCard => {
+    const projectContactId = project.contact_submission_id !== null && project.contact_submission_id !== undefined
+      ? Number(project.contact_submission_id)
+      : null
+    const projectEmail = project.client_email?.toLowerCase() ?? null
+    const contact = projectContactId && Number.isFinite(projectContactId)
+      ? contactsById.get(projectContactId)
+      : projectEmail
+        ? contactsByEmail.get(projectEmail)
+        : undefined
     const roadmap = roadmapsByProject.get(project.id) ?? null
     const tasks = roadmap ? tasksByRoadmap.get(roadmap.id) ?? [] : []
     const reports = roadmap ? reportsByRoadmap.get(roadmap.id) ?? [] : []
+    const audits = [
+      ...(projectContactId && Number.isFinite(projectContactId) ? auditsByContactId.get(projectContactId) ?? [] : []),
+      ...(projectEmail ? auditsByEmail.get(projectEmail) ?? [] : []),
+    ].filter((audit, index, rows) => rows.findIndex((item) => String(item.id) === String(audit.id)) === index)
+    const connectorReadiness = buildClientConnectorReadiness({
+      verifiedStack: contact?.client_verified_tech_stack ?? null,
+      auditSignals: audits,
+      builtWithStack: contact?.website_tech_stack ?? null,
+      roadmapSnapshot: roadmap?.snapshot ?? null,
+      roadmapTasks: tasks,
+      projectMetadata: {
+        project_name: project.project_name,
+        client_name: project.client_name,
+        project_status: project.project_status,
+      },
+    })
     const openTasks = tasks
       .filter((task) => !['complete', 'completed', 'cancelled'].includes(task.status))
       .sort((a, b) => {
@@ -416,6 +492,13 @@ export function buildAgentSwarmBoardSnapshotFromRows(input: SwarmBoardBuildInput
       activeRuns: activeRuns.length,
       roadmapStatus: roadmap?.status ?? null,
       dueDate: openTasks.find((task) => task.due_date)?.due_date ?? project.estimated_end_date,
+      connectorReadiness,
+      connectorSummary: connectorReadiness.summary,
+      requiredConnectorCount: connectorReadiness.requiredConnectorCount,
+      readyConnectorCount: connectorReadiness.readyConnectorCount,
+      approvalBlockedConnectorCount: connectorReadiness.approvalBlockedConnectorCount,
+      missingCriticalConnectorCount: connectorReadiness.missingCriticalConnectorCount,
+      connectorNextAction: connectorReadiness.connectorNextAction,
       href: `/admin/client-projects/${project.id}`,
     }
   })
@@ -444,12 +527,55 @@ export async function buildAgentSwarmBoardSnapshot(): Promise<AgentSwarmBoardSna
   if (!supabaseAdmin) throw new Error('Database not available')
   const db = supabaseAdmin
 
-  const [projectsRes, roadmapsRes, tasksRes, reportsRes, runsRes, approvalsRes] = await Promise.all([
-    db
-      .from('client_projects')
-      .select('id, project_name, client_name, project_status, estimated_end_date, created_at')
-      .order('created_at', { ascending: false })
-      .limit(50),
+  const projectsRes = await db
+    .from('client_projects')
+    .select('id, project_name, client_name, client_email, contact_submission_id, project_status, estimated_end_date, created_at')
+    .order('created_at', { ascending: false })
+    .limit(50)
+
+  if (projectsRes.error) throw new Error(projectsRes.error.message)
+
+  const projects = (projectsRes.data ?? []) as ClientProjectRow[]
+  const contactIds = [...new Set(projects
+    .map((project) => project.contact_submission_id)
+    .filter((id): id is number | string => id !== null && id !== undefined)
+    .map(Number)
+    .filter((id) => Number.isFinite(id)))]
+  const clientEmails = [...new Set(projects
+    .map((project) => project.client_email?.trim().toLowerCase())
+    .filter((email): email is string => Boolean(email)))]
+
+  const [contactsByIdRes, contactsByEmailRes, auditsByContactRes, auditsByEmailRes, roadmapsRes, tasksRes, reportsRes, runsRes, approvalsRes] = await Promise.all([
+    contactIds.length
+      ? db
+          .from('contact_submissions')
+          .select('id, email, website_tech_stack, client_verified_tech_stack')
+          .in('id', contactIds)
+      : Promise.resolve({ data: [], error: null }),
+    clientEmails.length
+      ? db
+          .from('contact_submissions')
+          .select('id, email, website_tech_stack, client_verified_tech_stack')
+          .in('email', clientEmails)
+      : Promise.resolve({ data: [], error: null }),
+    contactIds.length
+      ? db
+          .from('diagnostic_audits')
+          .select('id, contact_submission_id, contact_email, audit_type, tech_stack, automation_needs, ai_readiness, budget_timeline, decision_making, enriched_tech_stack, completed_at, updated_at, created_at')
+          .in('contact_submission_id', contactIds)
+          .order('completed_at', { ascending: false, nullsFirst: false })
+          .order('updated_at', { ascending: false })
+          .limit(100)
+      : Promise.resolve({ data: [], error: null }),
+    clientEmails.length
+      ? db
+          .from('diagnostic_audits')
+          .select('id, contact_submission_id, contact_email, audit_type, tech_stack, automation_needs, ai_readiness, budget_timeline, decision_making, enriched_tech_stack, completed_at, updated_at, created_at')
+          .in('contact_email', clientEmails)
+          .order('completed_at', { ascending: false, nullsFirst: false })
+          .order('updated_at', { ascending: false })
+          .limit(100)
+      : Promise.resolve({ data: [], error: null }),
     db
       .from('client_ai_ops_roadmaps')
       .select('id, client_project_id, title, status, snapshot, updated_at')
@@ -479,16 +605,23 @@ export async function buildAgentSwarmBoardSnapshot(): Promise<AgentSwarmBoardSna
       .limit(75),
   ])
 
-  for (const result of [projectsRes, roadmapsRes, tasksRes, reportsRes, runsRes, approvalsRes]) {
+  for (const result of [contactsByIdRes, contactsByEmailRes, auditsByContactRes, auditsByEmailRes, roadmapsRes, tasksRes, reportsRes, runsRes, approvalsRes]) {
     if (result.error) throw new Error(result.error.message)
   }
 
+  const contacts = [...((contactsByIdRes.data ?? []) as ContactSubmissionRow[]), ...((contactsByEmailRes.data ?? []) as ContactSubmissionRow[])]
+    .filter((contact, index, rows) => rows.findIndex((item) => item.id === contact.id) === index)
+  const audits = [...((auditsByContactRes.data ?? []) as DiagnosticAuditRow[]), ...((auditsByEmailRes.data ?? []) as DiagnosticAuditRow[])]
+    .filter((audit, index, rows) => rows.findIndex((item) => String(item.id) === String(audit.id)) === index)
+
   return buildAgentSwarmBoardSnapshotFromRows({
-    projects: (projectsRes.data ?? []) as ClientProjectRow[],
+    projects,
     roadmaps: (roadmapsRes.data ?? []) as RoadmapRow[],
     tasks: (tasksRes.data ?? []) as RoadmapTaskRow[],
     reports: (reportsRes.data ?? []) as RoadmapReportRow[],
     runs: (runsRes.data ?? []) as AgentRunRow[],
     approvals: (approvalsRes.data ?? []) as ApprovalRow[],
+    contacts,
+    audits,
   })
 }

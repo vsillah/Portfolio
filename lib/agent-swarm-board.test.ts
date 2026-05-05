@@ -11,6 +11,8 @@ const project = {
   id: 'project-1',
   project_name: 'Acme agent shell',
   client_name: 'Acme',
+  client_email: 'ops@acme.test',
+  contact_submission_id: 101,
   project_status: 'active',
   estimated_end_date: '2026-06-01',
   created_at: '2026-05-05T12:00:00.000Z',
@@ -213,5 +215,71 @@ describe('buildAgentSwarmBoardSnapshotFromRows', () => {
       currentAgentKey: 'chief-of-staff',
     })
     expect(snapshot.summary.failed_or_stale).toBe(1)
+  })
+
+  it('adds audit-driven connector readiness to client swarm cards without side effects', () => {
+    const snapshot = buildAgentSwarmBoardSnapshotFromRows({
+      projects: [project],
+      roadmaps: [roadmap],
+      tasks: [
+        {
+          id: 'task-1',
+          roadmap_id: 'roadmap-1',
+          task_key: 'connector-provisioning-plan',
+          title: 'Prepare connector provisioning packet',
+          status: 'pending',
+          priority: 'medium',
+          owner_type: 'amadutown',
+          due_date: null,
+          metadata: {},
+        },
+      ],
+      reports: [],
+      runs: [],
+      approvals: [],
+      contacts: [
+        {
+          id: 101,
+          email: 'ops@acme.test',
+          website_tech_stack: { technologies: [{ name: 'WordPress' }] },
+          client_verified_tech_stack: null,
+        },
+      ],
+      audits: [
+        {
+          id: 'audit-1',
+          contact_submission_id: 101,
+          contact_email: 'ops@acme.test',
+          audit_type: 'standalone',
+          tech_stack: {
+            crm: 'hubspot',
+            email: 'gmail',
+            other_tools: ['Slack'],
+            website_technologies: ['Webflow'],
+          },
+          automation_needs: { priority_areas: ['lead_follow_up'] },
+          ai_readiness: { data_quality: 'integrated' },
+          budget_timeline: { budget_range: 'medium' },
+          decision_making: { decision_maker: true, approval_process: 'solo' },
+          enriched_tech_stack: { technologies: [{ name: 'Pinecone' }] },
+        },
+      ],
+    })
+
+    const card = snapshot.columns.flatMap((column) => column.cards)[0]
+    expect(card).toMatchObject({
+      requiredConnectorCount: expect.any(Number),
+      readyConnectorCount: 0,
+      approvalBlockedConnectorCount: 0,
+    })
+    expect(card.requiredConnectorCount).toBeGreaterThanOrEqual(5)
+    expect(card.connectorReadiness.items.map((item) => item.key)).toEqual(expect.arrayContaining([
+      'webflow',
+      'hubspot',
+      'google_workspace',
+      'slack',
+      'pinecone',
+    ]))
+    expect(card.connectorNextAction).toContain('setup packet')
   })
 })
