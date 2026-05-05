@@ -88,7 +88,7 @@
         400
       ],
       "parameters": {
-        "jsCode": "let tracePayload = {};\ntry {\n  const triggerJson = $node['Webhook Trigger']?.json || {};\n  const triggerBody = triggerJson.body || triggerJson;\n  tracePayload = {\n    agent_run_id: triggerBody.agent_run_id || null,\n    agent_event_callback_url: triggerBody.agent_event_callback_url || null,\n    agent_trace: triggerBody.agent_trace || null,\n    callbackBaseUrl: triggerBody.callbackBaseUrl || triggerBody.callback_base_url || null,\n  };\n} catch (error) {\n  tracePayload = {};\n}\n\n// Normalize Google Contacts API response into lead format\nconst connections = $json.connections || [];\nconst leads = [];\n\nfor (const person of connections) {\n  const names = person.names || [];\n  const emails = person.emailAddresses || [];\n  const phones = person.phoneNumbers || [];\n  const orgs = person.organizations || [];\n  const locations = person.locations || [];\n  \n  const name = names[0]?.displayName || '';\n  if (!name || name.length < 2) continue;\n  \n  const email = emails[0]?.value || '';\n  const phone = phones[0]?.value || '';\n  const company = orgs[0]?.name || '';\n  const jobTitle = orgs[0]?.title || '';\n  const location = locations[0]?.value || '';\n  \n  // Skip contacts without useful business info\n  // (keep those with email, company, or job title)\n  if (!email && !company && !jobTitle) continue;\n  \n  leads.push({\n    name,\n    email: email || undefined,\n    company: company || undefined,\n    job_title: jobTitle || undefined,\n    phone_number: phone || undefined,\n    location: location || undefined,\n    lead_source: 'warm_google_contacts',\n    warm_source_detail: 'Google Contacts sync',\n  });\n}\n\nreturn [{ json: { leads, count: leads.length, ...tracePayload } }];"
+        "jsCode": "let tracePayload = {};\nlet triggerBody = {};\ntry {\n  const triggerJson = $node['Webhook Trigger']?.json || {};\n  triggerBody = triggerJson.body || triggerJson;\n  tracePayload = {\n    agent_run_id: triggerBody.agent_run_id || null,\n    agent_event_callback_url: triggerBody.agent_event_callback_url || null,\n    agent_trace: triggerBody.agent_trace || null,\n    callbackBaseUrl: triggerBody.callbackBaseUrl || triggerBody.callback_base_url || null,\n  };\n} catch (error) {\n  tracePayload = {};\n}\n\n// Normalize Google Contacts node output into lead format\n// The Google Contacts node returns individual contact items via $input.all()\nconst allItems = $input.all();\nconst leads = [];\n\nfor (const item of allItems) {\n  const person = item.json;\n  const names = person.names || [];\n  const emails = person.emailAddresses || [];\n  const phones = person.phoneNumbers || [];\n  const orgs = person.organizations || [];\n  const locations = person.locations || [];\n  \n  const name = names[0]?.displayName || '';\n  if (!name || name.length < 2) continue;\n  \n  const email = emails[0]?.value || '';\n  const phone = phones[0]?.value || '';\n  const company = orgs[0]?.name || '';\n  const jobTitle = orgs[0]?.title || '';\n  const location = locations[0]?.value || '';\n  \n  if (!email && !company && !jobTitle) continue;\n  \n  leads.push({\n    name,\n    email: email || undefined,\n    company: company || undefined,\n    job_title: jobTitle || undefined,\n    phone_number: phone || undefined,\n    location: location || undefined,\n    lead_source: 'warm_google_contacts',\n    warm_source_detail: 'Google Contacts sync',\n  });\n}\n\nreturn [{ json: { leads, count: leads.length, is_test_data: triggerBody.is_test_data === true || triggerBody.mode === 'smoke' || triggerBody.run_mode === 'smoke', mode: triggerBody.mode || triggerBody.run_mode || null, ...tracePayload } }];"
       }
     },
     {
@@ -118,7 +118,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ leads: $json.leads, agent_run_id: $json.agent_run_id || undefined }) }}"
+        "jsonBody": "={{ JSON.stringify({ leads: $json.leads, agent_run_id: $json.agent_run_id || undefined, is_test_data: $json.is_test_data === true || undefined }) }}"
       }
     },
     {
@@ -131,7 +131,7 @@
         100
       ],
       "parameters": {
-        "content": "## WF-WRM-002: Google Contacts Sync\n\n**Triggers:** Daily schedule (8am) or manual webhook\n\n**Steps:**\n1. Fetch contacts from Google People API\n2. Filter for contacts with business info (email, company, job title)\n3. Normalize data format\n4. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- GOOGLE_CONTACTS_TOKEN (OAuth2 access token)\n- APP_BASE_URL\n- N8N_INGEST_SECRET\n\n**Note:** For production, use n8n's built-in Google OAuth2 credential with People API scope."
+        "content": "## WF-WRM-002: Google Contacts Sync\n\n**Triggers:** Daily schedule (8am) or manual webhook\n\n**Steps:**\n1. Fetch contacts from Google People API\n2. Filter for contacts with business info (email, company, job title)\n3. Normalize data format\n4. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- GOOGLE_CONTACTS_TOKEN (OAuth2 access token)\n- APP_BASE_URL\n- N8N_INGEST_SECRET\n\n**Note:** For production, use n8n's built-in Google OAuth2 credential with People API scope.\n\n**Smoke mode:** Webhook payload `{ \"mode\": \"smoke\", \"is_test_data\": true }` bypasses live source nodes, emits one synthetic lead, and marks ingest rows as `is_test_data = true`."
       }
     },
     {
@@ -195,7 +195,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ source: 'google_contacts', agent_run_id: $node[\"Normalize Contacts\"].json.agent_run_id, status: 'completed', leads_inserted: $node[\"Normalize Contacts\"].json.count || (($node[\"Normalize Contacts\"].json.leads || []).length) }) }}"
+        "jsonBody": "={{ JSON.stringify({ source: 'google_contacts', agent_run_id: $node[\"Normalize Contacts\"].json.agent_run_id, status: 'completed', leads_inserted: $node[\"Normalize Contacts\"].json.count || (($node[\"Normalize Contacts\"].json.leads || []).length), mode: $node[\"Normalize Contacts\"].json.mode || null, is_test_data: $node[\"Normalize Contacts\"].json.is_test_data === true }) }}"
       }
     },
     {
@@ -225,7 +225,53 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ workflow_id: 'WF-WRM-002', stage: 'outreach_ingest_complete', status: 'completed', items_count: $node[\"Normalize Contacts\"].json.count || (($node[\"Normalize Contacts\"].json.leads || []).length), metadata: { source: 'google_contacts' }, idempotency_key: $node[\"Normalize Contacts\"].json.agent_run_id + ':WF-WRM-002:outreach_ingest_complete' }) }}"
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'WF-WRM-002', stage: 'outreach_ingest_complete', status: 'completed', items_count: $node[\"Normalize Contacts\"].json.count || (($node[\"Normalize Contacts\"].json.leads || []).length), metadata: { source: 'google_contacts', mode: $node[\"Normalize Contacts\"].json.mode || null, is_test_data: $node[\"Normalize Contacts\"].json.is_test_data === true }, idempotency_key: $node[\"Normalize Contacts\"].json.agent_run_id + ':WF-WRM-002:outreach_ingest_complete' }) }}"
+      }
+    },
+    {
+      "id": "is_smoke_mode",
+      "name": "Is Smoke Mode",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "smoke-mode-requested",
+              "leftValue": "={{ (((($json.body && ($json.body.mode || $json.body.run_mode)) || $json.mode || $json.run_mode || '') + '').toLowerCase()) }}",
+              "rightValue": "smoke",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "synthetic_smoke_leads",
+      "name": "Synthetic Smoke Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        620,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const timestamp = Date.now();\nreturn [{ json: {\n  names: [{ displayName: 'ATAS Production Google Smoke Lead ' + timestamp }],\n  emailAddresses: [{ value: 'wrm-production-google-smoke-' + timestamp + '@example.com' }],\n  phoneNumbers: [{ value: '+15550000000' }],\n  organizations: [{ name: 'Synthetic Production Smoke Company', title: 'Synthetic Smoke Tester' }],\n  locations: [{ value: 'Synthetic City' }],\n  smoke_marker: 'wrm-002-production-smoke',\n  is_test_data: true,\n} }];"
       }
     }
   ],
@@ -234,7 +280,7 @@
       "main": [
         [
           {
-            "node": "Fetch Google Contacts",
+            "node": "Is Smoke Mode",
             "type": "main",
             "index": 0
           }
@@ -302,6 +348,35 @@
         [
           {
             "node": "Report Agent Trace Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Smoke Mode": {
+      "main": [
+        [
+          {
+            "node": "Synthetic Smoke Leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Google Contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Synthetic Smoke Leads": {
+      "main": [
+        [
+          {
+            "node": "Normalize Contacts",
             "type": "main",
             "index": 0
           }

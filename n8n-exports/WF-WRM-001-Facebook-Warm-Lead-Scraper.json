@@ -139,7 +139,7 @@
         400
       ],
       "parameters": {
-        "jsCode": "let tracePayload = {};\ntry {\n  const triggerJson = $node['Webhook Trigger']?.json || {};\n  const triggerBody = triggerJson.body || triggerJson;\n  tracePayload = {\n    agent_run_id: triggerBody.agent_run_id || null,\n    agent_event_callback_url: triggerBody.agent_event_callback_url || null,\n    agent_trace: triggerBody.agent_trace || null,\n    callbackBaseUrl: triggerBody.callbackBaseUrl || triggerBody.callback_base_url || null,\n  };\n} catch (error) {\n  tracePayload = {};\n}\n\n// Normalize Facebook scraper results into lead format\nconst allItems = $input.all();\nconst seen = new Set();\nconst leads = [];\n\nfor (const item of allItems) {\n  const d = item.json;\n  \n  // Try to extract name and profile URL from various Apify output formats\n  const name = d.name || d.profileName || d.authorName || d.userName || '';\n  const profileUrl = d.profileUrl || d.url || d.authorUrl || '';\n  const company = d.work || d.company || '';\n  const email = d.email || '';\n  \n  if (!name || name.length < 2) continue;\n  \n  // Deduplicate by profile URL or name\n  const dedupeKey = profileUrl || name.toLowerCase();\n  if (seen.has(dedupeKey)) continue;\n  seen.add(dedupeKey);\n  \n  // Determine source type based on data origin\n  let leadSource = 'warm_facebook_friends';\n  let sourceDetail = 'Facebook friend';\n  \n  if (d._groupId || d.groupName) {\n    leadSource = 'warm_facebook_groups';\n    sourceDetail = d.groupName || 'Facebook group';\n  } else if (d.commentText || d.reactionType) {\n    leadSource = 'warm_facebook_engagement';\n    sourceDetail = d.commentText ? 'Commented on post' : 'Reacted to post';\n  }\n  \n  leads.push({\n    name,\n    email: email || undefined,\n    company: company || undefined,\n    facebook_profile_url: profileUrl || undefined,\n    lead_source: leadSource,\n    warm_source_detail: sourceDetail,\n    job_title: d.jobTitle || d.headline || undefined,\n    location: d.location || d.city || undefined,\n  });\n}\n\nreturn [{ json: { leads, count: leads.length, ...tracePayload } }];"
+        "jsCode": "let tracePayload = {};\nlet triggerBody = {};\ntry {\n  const triggerJson = $node['Webhook Trigger']?.json || {};\n  triggerBody = triggerJson.body || triggerJson;\n  tracePayload = {\n    agent_run_id: triggerBody.agent_run_id || null,\n    agent_event_callback_url: triggerBody.agent_event_callback_url || null,\n    agent_trace: triggerBody.agent_trace || null,\n    callbackBaseUrl: triggerBody.callbackBaseUrl || triggerBody.callback_base_url || null,\n  };\n} catch (error) {\n  tracePayload = {};\n}\n\n// Normalize Facebook scraper results into lead format\nconst allItems = $input.all();\nconst seen = new Set();\nconst leads = [];\n\nfor (const item of allItems) {\n  const d = item.json;\n  \n  // Try to extract name and profile URL from various Apify output formats\n  const name = d.name || d.profileName || d.authorName || d.userName || '';\n  const profileUrl = d.profileUrl || d.url || d.authorUrl || '';\n  const company = d.work || d.company || '';\n  const email = d.email || '';\n  \n  if (!name || name.length < 2) continue;\n  \n  // Deduplicate by profile URL or name\n  const dedupeKey = profileUrl || name.toLowerCase();\n  if (seen.has(dedupeKey)) continue;\n  seen.add(dedupeKey);\n  \n  // Determine source type based on data origin\n  let leadSource = 'warm_facebook_friends';\n  let sourceDetail = 'Facebook friend';\n  \n  if (d._groupId || d.groupName) {\n    leadSource = 'warm_facebook_groups';\n    sourceDetail = d.groupName || 'Facebook group';\n  } else if (d.commentText || d.reactionType) {\n    leadSource = 'warm_facebook_friends';\n    sourceDetail = d.commentText ? 'Commented on post' : 'Reacted to post';\n  }\n  \n  leads.push({\n    name,\n    email: email || undefined,\n    company: company || undefined,\n    facebook_profile_url: profileUrl || undefined,\n    lead_source: leadSource,\n    warm_source_detail: sourceDetail,\n    job_title: d.jobTitle || d.headline || undefined,\n    location: d.location || d.city || undefined,\n  });\n}\n\nreturn [{ json: { leads, count: leads.length, is_test_data: triggerBody.is_test_data === true || triggerBody.mode === 'smoke' || triggerBody.run_mode === 'smoke', mode: triggerBody.mode || triggerBody.run_mode || null, ...tracePayload } }];"
       }
     },
     {
@@ -169,7 +169,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ leads: $json.leads, agent_run_id: $json.agent_run_id || undefined }) }}"
+        "jsonBody": "={{ JSON.stringify({ leads: $json.leads, agent_run_id: $json.agent_run_id || undefined, is_test_data: $json.is_test_data === true || undefined }) }}"
       }
     },
     {
@@ -182,7 +182,7 @@
         100
       ],
       "parameters": {
-        "content": "## WF-WRM-001: Facebook Warm Lead Scraper\n\n**Triggers:** Weekly schedule (Mon 9am) or manual webhook\n\n**Steps:**\n1. Scrape FB friends via Apify (alien_force/facebook-scraper-pro)\n2. Scrape FB group members via Apify (mdgjtp1/facebook-group-member)\n3. Scrape FB post commenters via Apify (apify/facebook-comments-scraper)\n4. Normalize & deduplicate all results\n5. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- APIFY_TOKEN\n- FACEBOOK_PROFILE_URL\n- FACEBOOK_GROUP_UIDS (JSON array)\n- APP_BASE_URL\n- N8N_INGEST_SECRET"
+        "content": "## WF-WRM-001: Facebook Warm Lead Scraper\n\n**Triggers:** Weekly schedule (Mon 9am) or manual webhook\n\n**Steps:**\n1. Scrape FB friends via Apify (alien_force/facebook-scraper-pro)\n2. Scrape FB group members via Apify (mdgjtp1/facebook-group-member)\n3. Scrape FB post commenters via Apify (apify/facebook-comments-scraper)\n4. Normalize & deduplicate all results\n5. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- APIFY_TOKEN\n- FACEBOOK_PROFILE_URL\n- FACEBOOK_GROUP_UIDS (JSON array)\n- APP_BASE_URL\n- N8N_INGEST_SECRET\n\n**Smoke mode:** Webhook payload `{ \"mode\": \"smoke\", \"is_test_data\": true }` bypasses live source nodes, emits one synthetic lead, and marks ingest rows as `is_test_data = true`."
       }
     },
     {
@@ -246,7 +246,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ source: 'facebook', agent_run_id: $node[\"Normalize & Deduplicate\"].json.agent_run_id, status: 'completed', leads_inserted: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length) }) }}"
+        "jsonBody": "={{ JSON.stringify({ source: 'facebook', agent_run_id: $node[\"Normalize & Deduplicate\"].json.agent_run_id, status: 'completed', leads_inserted: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length), mode: $node[\"Normalize & Deduplicate\"].json.mode || null, is_test_data: $node[\"Normalize & Deduplicate\"].json.is_test_data === true }) }}"
       }
     },
     {
@@ -276,7 +276,53 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ workflow_id: 'WF-WRM-001', stage: 'outreach_ingest_complete', status: 'completed', items_count: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length), metadata: { source: 'facebook' }, idempotency_key: $node[\"Normalize & Deduplicate\"].json.agent_run_id + ':WF-WRM-001:outreach_ingest_complete' }) }}"
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'WF-WRM-001', stage: 'outreach_ingest_complete', status: 'completed', items_count: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length), metadata: { source: 'facebook', mode: $node[\"Normalize & Deduplicate\"].json.mode || null, is_test_data: $node[\"Normalize & Deduplicate\"].json.is_test_data === true }, idempotency_key: $node[\"Normalize & Deduplicate\"].json.agent_run_id + ':WF-WRM-001:outreach_ingest_complete' }) }}"
+      }
+    },
+    {
+      "id": "is_smoke_mode",
+      "name": "Is Smoke Mode",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "smoke-mode-requested",
+              "leftValue": "={{ (((($json.body && ($json.body.mode || $json.body.run_mode)) || $json.mode || $json.run_mode || '') + '').toLowerCase()) }}",
+              "rightValue": "smoke",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "synthetic_smoke_leads",
+      "name": "Synthetic Smoke Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        620,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const timestamp = Date.now();\nreturn [{ json: {\n  name: 'ATAS Production Facebook Smoke Lead ' + timestamp,\n  profileUrl: 'https://facebook.example/atas-production-smoke-' + timestamp,\n  company: 'Synthetic Production Smoke Company',\n  jobTitle: 'Synthetic Smoke Tester',\n  location: 'Synthetic City',\n  smoke_marker: 'wrm-001-production-smoke',\n  is_test_data: true,\n} }];"
       }
     }
   ],
@@ -285,17 +331,7 @@
       "main": [
         [
           {
-            "node": "Scrape FB Friends (Apify)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Scrape FB Groups (Apify)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Scrape FB Post Comments (Apify)",
+            "node": "Is Smoke Mode",
             "type": "main",
             "index": 0
           }
@@ -395,6 +431,45 @@
         [
           {
             "node": "Report Agent Trace Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Smoke Mode": {
+      "main": [
+        [
+          {
+            "node": "Synthetic Smoke Leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scrape FB Friends (Apify)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scrape FB Groups (Apify)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scrape FB Post Comments (Apify)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Synthetic Smoke Leads": {
+      "main": [
+        [
+          {
+            "node": "Normalize & Deduplicate",
             "type": "main",
             "index": 0
           }
