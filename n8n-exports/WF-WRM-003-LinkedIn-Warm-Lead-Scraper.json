@@ -6,7 +6,10 @@
       "name": "Webhook Trigger",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [200, 300],
+      "position": [
+        200,
+        300
+      ],
       "parameters": {
         "path": "wrm-003-linkedin",
         "httpMethod": "POST",
@@ -19,14 +22,19 @@
       "name": "Weekly Schedule",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [200, 500],
+      "position": [
+        200,
+        500
+      ],
       "parameters": {
         "rule": {
           "interval": [
             {
               "field": "weeks",
               "weeksInterval": 1,
-              "triggerAtDay": [3],
+              "triggerAtDay": [
+                3
+              ],
               "triggerAtHour": 9,
               "triggerAtMinute": 0
             }
@@ -39,7 +47,10 @@
       "name": "Scrape LI Connections (Apify)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [500, 250],
+      "position": [
+        500,
+        250
+      ],
       "parameters": {
         "method": "POST",
         "url": "=https://api.apify.com/v2/acts/addeus~get-connections/runs?token={{$env.APIFY_TOKEN}}&waitForFinish=180",
@@ -65,7 +76,10 @@
       "name": "Scrape LI Post Engagement (Apify)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [500, 500],
+      "position": [
+        500,
+        500
+      ],
       "parameters": {
         "method": "POST",
         "url": "=https://api.apify.com/v2/acts/harvestapi~linkedin-profile-posts/runs?token={{$env.APIFY_TOKEN}}&waitForFinish=180",
@@ -91,9 +105,12 @@
       "name": "Normalize & Deduplicate",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [800, 400],
+      "position": [
+        800,
+        400
+      ],
       "parameters": {
-        "jsCode": "// Normalize LinkedIn scraper results into lead format\nconst allItems = $input.all();\nconst seen = new Set();\nconst leads = [];\n\nfor (const item of allItems) {\n  const d = item.json;\n  \n  // Handle connections format (name, headline, profileUrl)\n  // Handle engagement format (commenters, reactors from posts)\n  const name = d.name || d.fullName || d.authorName || d.firstName + ' ' + (d.lastName || '') || '';\n  const profileUrl = d.profileUrl || d.url || d.authorProfileUrl || '';\n  const headline = d.headline || d.title || '';\n  const company = d.company || d.companyName || '';\n  \n  if (!name || name.trim().length < 2) continue;\n  \n  // Extract LinkedIn username from URL\n  let linkedinUsername = '';\n  if (profileUrl) {\n    const match = profileUrl.match(/linkedin\\.com\\/in\\/([^/?]+)/);\n    if (match) linkedinUsername = match[1];\n  }\n  \n  // Deduplicate by LinkedIn username or name\n  const dedupeKey = linkedinUsername || name.toLowerCase().trim();\n  if (seen.has(dedupeKey)) continue;\n  seen.add(dedupeKey);\n  \n  // Determine source type\n  let leadSource = 'warm_linkedin_connections';\n  let sourceDetail = 'LinkedIn 1st-degree connection';\n  \n  if (d.commentText || d.reactionType || d.engagementType) {\n    leadSource = 'warm_linkedin_engagement';\n    sourceDetail = d.commentText\n      ? 'Commented on LinkedIn post'\n      : 'Engaged with LinkedIn post';\n  }\n  \n  leads.push({\n    name: name.trim(),\n    company: company || undefined,\n    job_title: headline || undefined,\n    linkedin_url: profileUrl || undefined,\n    linkedin_username: linkedinUsername || undefined,\n    lead_source: leadSource,\n    warm_source_detail: sourceDetail,\n    location: d.location || d.geoLocation || undefined,\n  });\n}\n\nreturn [{ json: { leads, count: leads.length } }];"
+        "jsCode": "let tracePayload = {};\ntry {\n  const triggerJson = $node['Webhook Trigger']?.json || {};\n  const triggerBody = triggerJson.body || triggerJson;\n  tracePayload = {\n    agent_run_id: triggerBody.agent_run_id || null,\n    agent_event_callback_url: triggerBody.agent_event_callback_url || null,\n    agent_trace: triggerBody.agent_trace || null,\n    callbackBaseUrl: triggerBody.callbackBaseUrl || triggerBody.callback_base_url || null,\n  };\n} catch (error) {\n  tracePayload = {};\n}\n\n// Normalize LinkedIn scraper results into lead format\nconst allItems = $input.all();\nconst seen = new Set();\nconst leads = [];\n\nfor (const item of allItems) {\n  const d = item.json;\n  \n  // Handle connections format (name, headline, profileUrl)\n  // Handle engagement format (commenters, reactors from posts)\n  const name = d.name || d.fullName || d.authorName || d.firstName + ' ' + (d.lastName || '') || '';\n  const profileUrl = d.profileUrl || d.url || d.authorProfileUrl || '';\n  const headline = d.headline || d.title || '';\n  const company = d.company || d.companyName || '';\n  \n  if (!name || name.trim().length < 2) continue;\n  \n  // Extract LinkedIn username from URL\n  let linkedinUsername = '';\n  if (profileUrl) {\n    const match = profileUrl.match(/linkedin\\.com\\/in\\/([^/?]+)/);\n    if (match) linkedinUsername = match[1];\n  }\n  \n  // Deduplicate by LinkedIn username or name\n  const dedupeKey = linkedinUsername || name.toLowerCase().trim();\n  if (seen.has(dedupeKey)) continue;\n  seen.add(dedupeKey);\n  \n  // Determine source type\n  let leadSource = 'warm_linkedin_connections';\n  let sourceDetail = 'LinkedIn 1st-degree connection';\n  \n  if (d.commentText || d.reactionType || d.engagementType) {\n    leadSource = 'warm_linkedin_engagement';\n    sourceDetail = d.commentText\n      ? 'Commented on LinkedIn post'\n      : 'Engaged with LinkedIn post';\n  }\n  \n  leads.push({\n    name: name.trim(),\n    company: company || undefined,\n    job_title: headline || undefined,\n    linkedin_url: profileUrl || undefined,\n    linkedin_username: linkedinUsername || undefined,\n    lead_source: leadSource,\n    warm_source_detail: sourceDetail,\n    location: d.location || d.geoLocation || undefined,\n  });\n}\n\nreturn [{ json: { leads, count: leads.length, ...tracePayload } }];"
       }
     },
     {
@@ -101,10 +118,13 @@
       "name": "POST to Ingest API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1100, 400],
+      "position": [
+        1100,
+        400
+      ],
       "parameters": {
         "method": "POST",
-        "url": "={{$env.APP_BASE_URL}}/api/admin/outreach/ingest",
+        "url": "={{ (($json.callbackBaseUrl || $vars.AMADUTOWN_PUBLIC_BASE_URL || $env.APP_BASE_URL || 'https://amadutown.com') + '').replace(/\\/+$/, '') + '/api/admin/outreach/ingest' }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -114,13 +134,13 @@
             },
             {
               "name": "Authorization",
-              "value": "=Bearer {{$env.N8N_INGEST_SECRET}}"
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ leads: $json.leads }) }}"
+        "jsonBody": "={{ JSON.stringify({ leads: $json.leads, agent_run_id: $json.agent_run_id || undefined }) }}"
       }
     },
     {
@@ -128,9 +148,106 @@
       "name": "WF-WRM-003 Info",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [100, 100],
+      "position": [
+        100,
+        100
+      ],
       "parameters": {
         "content": "## WF-WRM-003: LinkedIn Warm Lead Scraper\n\n**Triggers:** Weekly schedule (Wed 9am) or manual webhook\n\n**Steps:**\n1. Scrape LinkedIn 1st-degree connections via Apify (addeus/get-connections)\n2. Scrape LinkedIn post engagement via Apify (harvestapi/linkedin-profile-posts)\n3. Normalize & deduplicate all results\n4. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- APIFY_TOKEN\n- LINKEDIN_COOKIE (li_at cookie for connections scraper)\n- LINKEDIN_PROFILE_URL\n- APP_BASE_URL\n- N8N_INGEST_SECRET\n\n**Note:** LinkedIn profile viewers data is only accessible within LinkedIn's logged-in UI and cannot be reliably scraped. This workflow covers connections + post engagement."
+      }
+    },
+    {
+      "id": "has_agent_run_id",
+      "name": "Has Agent Run ID",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "agent-run-id-present",
+              "leftValue": "={{ $json.agent_run_id || $node[\"Normalize & Deduplicate\"].json.agent_run_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "report_outreach_run_complete",
+      "name": "Report Outreach Run Complete",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1620,
+        320
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ (($node[\"Normalize & Deduplicate\"].json.callbackBaseUrl || $vars.AMADUTOWN_PUBLIC_BASE_URL || $env.APP_BASE_URL || 'https://amadutown.com') + '').replace(/\\/+$/, '') + '/api/admin/outreach/run-complete' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ source: 'linkedin', agent_run_id: $node[\"Normalize & Deduplicate\"].json.agent_run_id, status: 'completed', leads_inserted: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length) }) }}"
+      }
+    },
+    {
+      "id": "report_agent_trace_event",
+      "name": "Report Agent Trace Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1880,
+        320
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node[\"Normalize & Deduplicate\"].json.agent_event_callback_url || ((($node[\"Normalize & Deduplicate\"].json.callbackBaseUrl || $vars.AMADUTOWN_PUBLIC_BASE_URL || $env.APP_BASE_URL || 'https://amadutown.com') + '').replace(/\\/+$/, '') + '/api/admin/agents/runs/' + $node[\"Normalize & Deduplicate\"].json.agent_run_id + '/events') }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'WF-WRM-003', stage: 'outreach_ingest_complete', status: 'completed', items_count: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length), metadata: { source: 'linkedin' }, idempotency_key: $node[\"Normalize & Deduplicate\"].json.agent_run_id + ':WF-WRM-003:outreach_ingest_complete' }) }}"
       }
     }
   ],
@@ -194,6 +311,40 @@
         [
           {
             "node": "POST to Ingest API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST to Ingest API": {
+      "main": [
+        [
+          {
+            "node": "Has Agent Run ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Agent Run ID": {
+      "main": [
+        [
+          {
+            "node": "Report Outreach Run Complete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Report Outreach Run Complete": {
+      "main": [
+        [
+          {
+            "node": "Report Agent Trace Event",
             "type": "main",
             "index": 0
           }

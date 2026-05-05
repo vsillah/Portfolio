@@ -6,7 +6,10 @@
       "name": "Webhook Trigger",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [200, 300],
+      "position": [
+        200,
+        300
+      ],
       "parameters": {
         "path": "wrm-002-google-contacts",
         "httpMethod": "POST",
@@ -19,7 +22,10 @@
       "name": "Daily Schedule",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [200, 500],
+      "position": [
+        200,
+        500
+      ],
       "parameters": {
         "rule": {
           "interval": [
@@ -38,7 +44,10 @@
       "name": "Fetch Google Contacts",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [500, 400],
+      "position": [
+        500,
+        400
+      ],
       "parameters": {
         "method": "GET",
         "url": "https://people.googleapis.com/v1/people/me/connections",
@@ -47,7 +56,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "=Bearer {{$env.GOOGLE_CONTACTS_TOKEN}}"
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
             }
           ]
         },
@@ -74,9 +83,12 @@
       "name": "Normalize Contacts",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [800, 400],
+      "position": [
+        800,
+        400
+      ],
       "parameters": {
-        "jsCode": "// Normalize Google Contacts API response into lead format\nconst connections = $json.connections || [];\nconst leads = [];\n\nfor (const person of connections) {\n  const names = person.names || [];\n  const emails = person.emailAddresses || [];\n  const phones = person.phoneNumbers || [];\n  const orgs = person.organizations || [];\n  const locations = person.locations || [];\n  \n  const name = names[0]?.displayName || '';\n  if (!name || name.length < 2) continue;\n  \n  const email = emails[0]?.value || '';\n  const phone = phones[0]?.value || '';\n  const company = orgs[0]?.name || '';\n  const jobTitle = orgs[0]?.title || '';\n  const location = locations[0]?.value || '';\n  \n  // Skip contacts without useful business info\n  // (keep those with email, company, or job title)\n  if (!email && !company && !jobTitle) continue;\n  \n  leads.push({\n    name,\n    email: email || undefined,\n    company: company || undefined,\n    job_title: jobTitle || undefined,\n    phone_number: phone || undefined,\n    location: location || undefined,\n    lead_source: 'warm_google_contacts',\n    warm_source_detail: 'Google Contacts sync',\n  });\n}\n\nreturn [{ json: { leads, count: leads.length } }];"
+        "jsCode": "let tracePayload = {};\ntry {\n  const triggerJson = $node['Webhook Trigger']?.json || {};\n  const triggerBody = triggerJson.body || triggerJson;\n  tracePayload = {\n    agent_run_id: triggerBody.agent_run_id || null,\n    agent_event_callback_url: triggerBody.agent_event_callback_url || null,\n    agent_trace: triggerBody.agent_trace || null,\n    callbackBaseUrl: triggerBody.callbackBaseUrl || triggerBody.callback_base_url || null,\n  };\n} catch (error) {\n  tracePayload = {};\n}\n\n// Normalize Google Contacts API response into lead format\nconst connections = $json.connections || [];\nconst leads = [];\n\nfor (const person of connections) {\n  const names = person.names || [];\n  const emails = person.emailAddresses || [];\n  const phones = person.phoneNumbers || [];\n  const orgs = person.organizations || [];\n  const locations = person.locations || [];\n  \n  const name = names[0]?.displayName || '';\n  if (!name || name.length < 2) continue;\n  \n  const email = emails[0]?.value || '';\n  const phone = phones[0]?.value || '';\n  const company = orgs[0]?.name || '';\n  const jobTitle = orgs[0]?.title || '';\n  const location = locations[0]?.value || '';\n  \n  // Skip contacts without useful business info\n  // (keep those with email, company, or job title)\n  if (!email && !company && !jobTitle) continue;\n  \n  leads.push({\n    name,\n    email: email || undefined,\n    company: company || undefined,\n    job_title: jobTitle || undefined,\n    phone_number: phone || undefined,\n    location: location || undefined,\n    lead_source: 'warm_google_contacts',\n    warm_source_detail: 'Google Contacts sync',\n  });\n}\n\nreturn [{ json: { leads, count: leads.length, ...tracePayload } }];"
       }
     },
     {
@@ -84,10 +96,13 @@
       "name": "POST to Ingest API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1100, 400],
+      "position": [
+        1100,
+        400
+      ],
       "parameters": {
         "method": "POST",
-        "url": "={{$env.APP_BASE_URL}}/api/admin/outreach/ingest",
+        "url": "={{ (($json.callbackBaseUrl || $vars.AMADUTOWN_PUBLIC_BASE_URL || $env.APP_BASE_URL || 'https://amadutown.com') + '').replace(/\\/+$/, '') + '/api/admin/outreach/ingest' }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -97,13 +112,13 @@
             },
             {
               "name": "Authorization",
-              "value": "=Bearer {{$env.N8N_INGEST_SECRET}}"
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ leads: $json.leads }) }}"
+        "jsonBody": "={{ JSON.stringify({ leads: $json.leads, agent_run_id: $json.agent_run_id || undefined }) }}"
       }
     },
     {
@@ -111,9 +126,106 @@
       "name": "WF-WRM-002 Info",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [100, 100],
+      "position": [
+        100,
+        100
+      ],
       "parameters": {
         "content": "## WF-WRM-002: Google Contacts Sync\n\n**Triggers:** Daily schedule (8am) or manual webhook\n\n**Steps:**\n1. Fetch contacts from Google People API\n2. Filter for contacts with business info (email, company, job title)\n3. Normalize data format\n4. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- GOOGLE_CONTACTS_TOKEN (OAuth2 access token)\n- APP_BASE_URL\n- N8N_INGEST_SECRET\n\n**Note:** For production, use n8n's built-in Google OAuth2 credential with People API scope."
+      }
+    },
+    {
+      "id": "has_agent_run_id",
+      "name": "Has Agent Run ID",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "agent-run-id-present",
+              "leftValue": "={{ $json.agent_run_id || $node[\"Normalize Contacts\"].json.agent_run_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "report_outreach_run_complete",
+      "name": "Report Outreach Run Complete",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1620,
+        320
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ (($node[\"Normalize Contacts\"].json.callbackBaseUrl || $vars.AMADUTOWN_PUBLIC_BASE_URL || $env.APP_BASE_URL || 'https://amadutown.com') + '').replace(/\\/+$/, '') + '/api/admin/outreach/run-complete' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ source: 'google_contacts', agent_run_id: $node[\"Normalize Contacts\"].json.agent_run_id, status: 'completed', leads_inserted: $node[\"Normalize Contacts\"].json.count || (($node[\"Normalize Contacts\"].json.leads || []).length) }) }}"
+      }
+    },
+    {
+      "id": "report_agent_trace_event",
+      "name": "Report Agent Trace Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1880,
+        320
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node[\"Normalize Contacts\"].json.agent_event_callback_url || ((($node[\"Normalize Contacts\"].json.callbackBaseUrl || $vars.AMADUTOWN_PUBLIC_BASE_URL || $env.APP_BASE_URL || 'https://amadutown.com') + '').replace(/\\/+$/, '') + '/api/admin/agents/runs/' + $node[\"Normalize Contacts\"].json.agent_run_id + '/events') }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'WF-WRM-002', stage: 'outreach_ingest_complete', status: 'completed', items_count: $node[\"Normalize Contacts\"].json.count || (($node[\"Normalize Contacts\"].json.leads || []).length), metadata: { source: 'google_contacts' }, idempotency_key: $node[\"Normalize Contacts\"].json.agent_run_id + ':WF-WRM-002:outreach_ingest_complete' }) }}"
       }
     }
   ],
@@ -156,6 +268,40 @@
         [
           {
             "node": "POST to Ingest API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST to Ingest API": {
+      "main": [
+        [
+          {
+            "node": "Has Agent Run ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Agent Run ID": {
+      "main": [
+        [
+          {
+            "node": "Report Outreach Run Complete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Report Outreach Run Complete": {
+      "main": [
+        [
+          {
+            "node": "Report Agent Trace Event",
             "type": "main",
             "index": 0
           }

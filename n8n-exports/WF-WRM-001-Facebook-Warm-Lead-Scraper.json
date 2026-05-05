@@ -6,7 +6,10 @@
       "name": "Webhook Trigger",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [200, 300],
+      "position": [
+        200,
+        300
+      ],
       "parameters": {
         "path": "wrm-001-facebook",
         "httpMethod": "POST",
@@ -19,14 +22,19 @@
       "name": "Weekly Schedule",
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
-      "position": [200, 500],
+      "position": [
+        200,
+        500
+      ],
       "parameters": {
         "rule": {
           "interval": [
             {
               "field": "weeks",
               "weeksInterval": 1,
-              "triggerAtDay": [1],
+              "triggerAtDay": [
+                1
+              ],
               "triggerAtHour": 9,
               "triggerAtMinute": 0
             }
@@ -39,7 +47,10 @@
       "name": "Scrape FB Friends (Apify)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [500, 200],
+      "position": [
+        500,
+        200
+      ],
       "parameters": {
         "method": "POST",
         "url": "=https://api.apify.com/v2/acts/alien_force~facebook-scraper-pro/runs?token={{$env.APIFY_TOKEN}}&waitForFinish=120",
@@ -65,7 +76,10 @@
       "name": "Scrape FB Groups (Apify)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [500, 400],
+      "position": [
+        500,
+        400
+      ],
       "parameters": {
         "method": "POST",
         "url": "=https://api.apify.com/v2/acts/mdgjtp1~facebook-group-member/runs?token={{$env.APIFY_TOKEN}}&waitForFinish=120",
@@ -91,7 +105,10 @@
       "name": "Scrape FB Post Comments (Apify)",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [500, 600],
+      "position": [
+        500,
+        600
+      ],
       "parameters": {
         "method": "POST",
         "url": "=https://api.apify.com/v2/acts/apify~facebook-comments-scraper/runs?token={{$env.APIFY_TOKEN}}&waitForFinish=120",
@@ -117,9 +134,12 @@
       "name": "Normalize & Deduplicate",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [800, 400],
+      "position": [
+        800,
+        400
+      ],
       "parameters": {
-        "jsCode": "// Normalize Facebook scraper results into lead format\nconst allItems = $input.all();\nconst seen = new Set();\nconst leads = [];\n\nfor (const item of allItems) {\n  const d = item.json;\n  \n  // Try to extract name and profile URL from various Apify output formats\n  const name = d.name || d.profileName || d.authorName || d.userName || '';\n  const profileUrl = d.profileUrl || d.url || d.authorUrl || '';\n  const company = d.work || d.company || '';\n  const email = d.email || '';\n  \n  if (!name || name.length < 2) continue;\n  \n  // Deduplicate by profile URL or name\n  const dedupeKey = profileUrl || name.toLowerCase();\n  if (seen.has(dedupeKey)) continue;\n  seen.add(dedupeKey);\n  \n  // Determine source type based on data origin\n  let leadSource = 'warm_facebook_friends';\n  let sourceDetail = 'Facebook friend';\n  \n  if (d._groupId || d.groupName) {\n    leadSource = 'warm_facebook_groups';\n    sourceDetail = d.groupName || 'Facebook group';\n  } else if (d.commentText || d.reactionType) {\n    leadSource = 'warm_facebook_engagement';\n    sourceDetail = d.commentText ? 'Commented on post' : 'Reacted to post';\n  }\n  \n  leads.push({\n    name,\n    email: email || undefined,\n    company: company || undefined,\n    facebook_profile_url: profileUrl || undefined,\n    lead_source: leadSource,\n    warm_source_detail: sourceDetail,\n    job_title: d.jobTitle || d.headline || undefined,\n    location: d.location || d.city || undefined,\n  });\n}\n\nreturn [{ json: { leads, count: leads.length } }];"
+        "jsCode": "let tracePayload = {};\ntry {\n  const triggerJson = $node['Webhook Trigger']?.json || {};\n  const triggerBody = triggerJson.body || triggerJson;\n  tracePayload = {\n    agent_run_id: triggerBody.agent_run_id || null,\n    agent_event_callback_url: triggerBody.agent_event_callback_url || null,\n    agent_trace: triggerBody.agent_trace || null,\n    callbackBaseUrl: triggerBody.callbackBaseUrl || triggerBody.callback_base_url || null,\n  };\n} catch (error) {\n  tracePayload = {};\n}\n\n// Normalize Facebook scraper results into lead format\nconst allItems = $input.all();\nconst seen = new Set();\nconst leads = [];\n\nfor (const item of allItems) {\n  const d = item.json;\n  \n  // Try to extract name and profile URL from various Apify output formats\n  const name = d.name || d.profileName || d.authorName || d.userName || '';\n  const profileUrl = d.profileUrl || d.url || d.authorUrl || '';\n  const company = d.work || d.company || '';\n  const email = d.email || '';\n  \n  if (!name || name.length < 2) continue;\n  \n  // Deduplicate by profile URL or name\n  const dedupeKey = profileUrl || name.toLowerCase();\n  if (seen.has(dedupeKey)) continue;\n  seen.add(dedupeKey);\n  \n  // Determine source type based on data origin\n  let leadSource = 'warm_facebook_friends';\n  let sourceDetail = 'Facebook friend';\n  \n  if (d._groupId || d.groupName) {\n    leadSource = 'warm_facebook_groups';\n    sourceDetail = d.groupName || 'Facebook group';\n  } else if (d.commentText || d.reactionType) {\n    leadSource = 'warm_facebook_engagement';\n    sourceDetail = d.commentText ? 'Commented on post' : 'Reacted to post';\n  }\n  \n  leads.push({\n    name,\n    email: email || undefined,\n    company: company || undefined,\n    facebook_profile_url: profileUrl || undefined,\n    lead_source: leadSource,\n    warm_source_detail: sourceDetail,\n    job_title: d.jobTitle || d.headline || undefined,\n    location: d.location || d.city || undefined,\n  });\n}\n\nreturn [{ json: { leads, count: leads.length, ...tracePayload } }];"
       }
     },
     {
@@ -127,10 +147,13 @@
       "name": "POST to Ingest API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1100, 400],
+      "position": [
+        1100,
+        400
+      ],
       "parameters": {
         "method": "POST",
-        "url": "={{$env.APP_BASE_URL}}/api/admin/outreach/ingest",
+        "url": "={{ (($json.callbackBaseUrl || $vars.AMADUTOWN_PUBLIC_BASE_URL || $env.APP_BASE_URL || 'https://amadutown.com') + '').replace(/\\/+$/, '') + '/api/admin/outreach/ingest' }}",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -140,13 +163,13 @@
             },
             {
               "name": "Authorization",
-              "value": "=Bearer {{$env.N8N_INGEST_SECRET}}"
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
             }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ leads: $json.leads }) }}"
+        "jsonBody": "={{ JSON.stringify({ leads: $json.leads, agent_run_id: $json.agent_run_id || undefined }) }}"
       }
     },
     {
@@ -154,9 +177,106 @@
       "name": "WF-WRM-001 Info",
       "type": "n8n-nodes-base.stickyNote",
       "typeVersion": 1,
-      "position": [100, 100],
+      "position": [
+        100,
+        100
+      ],
       "parameters": {
         "content": "## WF-WRM-001: Facebook Warm Lead Scraper\n\n**Triggers:** Weekly schedule (Mon 9am) or manual webhook\n\n**Steps:**\n1. Scrape FB friends via Apify (alien_force/facebook-scraper-pro)\n2. Scrape FB group members via Apify (mdgjtp1/facebook-group-member)\n3. Scrape FB post commenters via Apify (apify/facebook-comments-scraper)\n4. Normalize & deduplicate all results\n5. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- APIFY_TOKEN\n- FACEBOOK_PROFILE_URL\n- FACEBOOK_GROUP_UIDS (JSON array)\n- APP_BASE_URL\n- N8N_INGEST_SECRET"
+      }
+    },
+    {
+      "id": "has_agent_run_id",
+      "name": "Has Agent Run ID",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        400
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "agent-run-id-present",
+              "leftValue": "={{ $json.agent_run_id || $node[\"Normalize & Deduplicate\"].json.agent_run_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "report_outreach_run_complete",
+      "name": "Report Outreach Run Complete",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1620,
+        320
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ (($node[\"Normalize & Deduplicate\"].json.callbackBaseUrl || $vars.AMADUTOWN_PUBLIC_BASE_URL || $env.APP_BASE_URL || 'https://amadutown.com') + '').replace(/\\/+$/, '') + '/api/admin/outreach/run-complete' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ source: 'facebook', agent_run_id: $node[\"Normalize & Deduplicate\"].json.agent_run_id, status: 'completed', leads_inserted: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length) }) }}"
+      }
+    },
+    {
+      "id": "report_agent_trace_event",
+      "name": "Report Agent Trace Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1880,
+        320
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $node[\"Normalize & Deduplicate\"].json.agent_event_callback_url || ((($node[\"Normalize & Deduplicate\"].json.callbackBaseUrl || $vars.AMADUTOWN_PUBLIC_BASE_URL || $env.APP_BASE_URL || 'https://amadutown.com') + '').replace(/\\/+$/, '') + '/api/admin/agents/runs/' + $node[\"Normalize & Deduplicate\"].json.agent_run_id + '/events') }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.N8N_INGEST_SECRET || $env.N8N_INGEST_SECRET }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'WF-WRM-001', stage: 'outreach_ingest_complete', status: 'completed', items_count: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length), metadata: { source: 'facebook' }, idempotency_key: $node[\"Normalize & Deduplicate\"].json.agent_run_id + ':WF-WRM-001:outreach_ingest_complete' }) }}"
       }
     }
   ],
@@ -241,6 +361,40 @@
         [
           {
             "node": "POST to Ingest API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST to Ingest API": {
+      "main": [
+        [
+          {
+            "node": "Has Agent Run ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Agent Run ID": {
+      "main": [
+        [
+          {
+            "node": "Report Outreach Run Complete",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Report Outreach Run Complete": {
+      "main": [
+        [
+          {
+            "node": "Report Agent Trace Event",
             "type": "main",
             "index": 0
           }
