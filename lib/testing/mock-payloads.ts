@@ -100,7 +100,7 @@ export const MOCK_WARM_LEAD_INGEST_PAYLOAD = {
       email: contact[3].email,
       company: contact[3].company,
       job_title: contact[3].jobTitle,
-      lead_source: 'warm_linkedin_connections' as const,
+      lead_source: 'warm_linkedin' as const,
       relationship_strength: 'strong' as const,
       warm_source_detail: 'Connected on LinkedIn, engaged with 3 posts about AI in fintech',
       linkedin_url: contact[3].linkedinUrl,
