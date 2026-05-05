@@ -218,6 +218,8 @@ The Daily Operating Brief and Agent Inbox are derived views, not new persistence
 - Agent Inbox items can be routed from the admin console with `POST /api/admin/agents/inbox` or from Slack with `/agent route <number-or-id>`.
 - Routing an inbox item does not mutate production data: failed/stale/cost/approval items create a read-only `agent_engagement_request`; stale standup items run the read-only War Room standup.
 
+The Dead-Letter Monitor is derived from the same traces. It lists failed and stale runs, shows whether each one has already been routed into an engagement request, and links to the source or routed trace. This gives failed automation a visible holding area without adding a second queue table or moving authority away from `agent_runs`.
+
 War Room uses `POST /api/admin/agents/war-room` with `{ command: 'standup' | 'discuss', message?: string }`.
 
 - `standup` creates `kind = agent_war_room_standup`.

@@ -56,6 +56,7 @@ describe('GET /api/admin/agents/mission-control', () => {
       },
       agent_inbox: [],
       engagement_queue: [],
+      dead_letter_queue: [],
       approvals: [],
     })
   })
@@ -87,6 +88,7 @@ describe('GET /api/admin/agents/mission-control', () => {
     })
     expect(body.agent_inbox).toEqual([])
     expect(body.engagement_queue).toEqual([])
+    expect(body.dead_letter_queue).toEqual([])
     expect(mocks.buildAgentMissionControlSnapshot).toHaveBeenCalledOnce()
   })
 

@@ -118,6 +118,22 @@ type MissionSnapshot = {
     started_at: string
     completed_at: string | null
   }>
+  dead_letter_queue: Array<{
+    run_id: string
+    agent_key: string
+    agent_name: string
+    pod: string
+    runtime: string
+    status: string
+    title: string
+    reason: string
+    age_hours: number
+    source_label: string
+    routed: boolean
+    routed_run_id: string | null
+    next_action: string
+    href: string
+  }>
 }
 
 type WarRoomResult = {
@@ -477,6 +493,8 @@ export default function AgentOperationsPage() {
 
           <EngagementQueuePanel items={snapshot?.engagement_queue ?? []} />
 
+          <DeadLetterPanel items={snapshot?.dead_letter_queue ?? []} />
+
           <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_0.8fr]">
             <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
               <div className="flex items-center gap-2 text-radiant-gold">
@@ -770,6 +788,58 @@ function EngagementQueuePanel({ items }: { items: MissionSnapshot['engagement_qu
             No routed agent engagements yet. Use Chief of Staff recommendations, Agent Inbox routing, or Slack `/agent run`.
           </p>
         )}
+      </div>
+    </section>
+  )
+}
+
+function DeadLetterPanel({ items }: { items: MissionSnapshot['dead_letter_queue'] }) {
+  if (!items.length) return null
+
+  return (
+    <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 text-radiant-gold">
+          <AlertTriangle size={18} />
+          <h2 className="font-semibold">Dead-Letter Monitor</h2>
+        </div>
+        <Link href="/admin/agents/runs" className="text-xs text-radiant-gold hover:underline">
+          Open failed runs
+        </Link>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">
+        Failed and stale traces stay here until they have a routed engagement or are resolved. This is derived from Agent Ops traces, not a separate queue table.
+      </p>
+
+      <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
+        {items.map((item) => (
+          <Link
+            key={item.run_id}
+            href={item.routed_run_id ? `/admin/agents/runs/${item.routed_run_id}` : item.href}
+            className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50"
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-medium">{item.title}</span>
+              <span className={`rounded-full border px-2 py-0.5 text-xs ${item.routed ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200' : 'border-red-400/40 bg-red-500/10 text-red-200'}`}>
+                {item.routed ? 'routed' : 'unrouted'}
+              </span>
+              <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
+                {item.status}
+              </span>
+              <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
+                {item.runtime}
+              </span>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+              <QueueDetail label="Owner" value={item.agent_name} />
+              <QueueDetail label="Source" value={item.source_label} />
+              <QueueDetail label="Pod" value={item.pod} />
+              <QueueDetail label="Age" value={`${item.age_hours}h`} />
+            </div>
+            <p className="mt-3 line-clamp-2 text-muted-foreground">{item.reason}</p>
+            <p className="mt-2 text-xs text-radiant-gold">{item.next_action}</p>
+          </Link>
+        ))}
       </div>
     </section>
   )

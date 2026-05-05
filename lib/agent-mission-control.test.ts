@@ -4,7 +4,12 @@ vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: null,
 }))
 
-import { buildAgentEngagementQueue, buildAgentInbox, buildDailyOperatingBrief } from '@/lib/agent-mission-control'
+import {
+  buildAgentDeadLetterQueue,
+  buildAgentEngagementQueue,
+  buildAgentInbox,
+  buildDailyOperatingBrief,
+} from '@/lib/agent-mission-control'
 
 type InboxInput = Parameters<typeof buildAgentInbox>[0]
 type MissionRunRow = InboxInput['runs'][number]
@@ -151,6 +156,48 @@ describe('Agent Mission Control helpers', () => {
       source_inbox_item_id: 'failed-run:failed',
       source_run_id: 'failed-run',
       next_action: 'Review mapped workflow health.',
+    })
+  })
+
+  it('builds a dead-letter monitor from failed and stale runs with routing state', () => {
+    const failedRun = run({
+      id: 'failed-run',
+      agent_key: 'automation-systems',
+      runtime: 'n8n',
+      status: 'failed',
+      title: 'Warm lead sync',
+      error_message: 'Webhook returned 500.',
+      started_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    })
+    const routedEngagement = run({
+      id: 'routed-engagement',
+      kind: 'agent_engagement_request',
+      status: 'queued',
+      metadata: {
+        requested_agent: 'automation-systems',
+        source_run_id: 'failed-run',
+      },
+    })
+    const staleRun = run({
+      id: 'stale-run',
+      agent_key: 'chief-of-staff',
+      status: 'stale',
+      title: 'Morning review',
+      current_step: 'waiting',
+    })
+
+    const queue = buildAgentDeadLetterQueue([failedRun, routedEngagement, staleRun])
+
+    expect(queue).toHaveLength(2)
+    expect(queue.find((item) => item.run_id === 'failed-run')).toMatchObject({
+      agent_name: 'Automation Systems Agent',
+      routed: true,
+      routed_run_id: 'routed-engagement',
+      next_action: 'Review routed engagement request.',
+    })
+    expect(queue.find((item) => item.run_id === 'stale-run')).toMatchObject({
+      routed: false,
+      next_action: 'Route stale run owner from Agent Inbox.',
     })
   })
 })
