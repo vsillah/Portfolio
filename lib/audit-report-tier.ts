@@ -100,8 +100,8 @@ function hasValueEstimate(audit: DiagnosticAuditRecord): boolean {
  * Compute the report tier and available/locked sections for a diagnostic audit.
  *
  * Tier rules:
- * - Bronze:   < 6 categories OR no email
- * - Silver:   All 6 categories + email
+ * - Bronze:   incomplete categories OR no email
+ * - Silver:   all categories + email
  * - Gold:     Silver + website URL + industry (+ enrichment available)
  * - Platinum: Gold + generated strategy deck (gamma_reports linked)
  *

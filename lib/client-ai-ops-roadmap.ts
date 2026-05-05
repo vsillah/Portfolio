@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import type { AgentReadinessAssessment, AgentReadinessLevel } from './agent-readiness-assessment'
 
 export const ROADMAP_PHASES = [
   'discovery_ownership',
@@ -249,14 +250,92 @@ function hashContext(context: RoadmapContext): string {
   return createHash('sha256').update(JSON.stringify(context)).digest('hex').slice(0, 16)
 }
 
+function getAgentReadinessAssessment(context: RoadmapContext): AgentReadinessAssessment | null {
+  const maybeAssessment = context.implementationRequirements?.agentReadinessAssessment
+    ?? context.implementationRequirements?.agent_readiness_assessment
+
+  if (!maybeAssessment || typeof maybeAssessment !== 'object') return null
+
+  const assessment = maybeAssessment as Partial<AgentReadinessAssessment>
+  if (
+    !assessment.overallLevel ||
+    !assessment.clientSummary ||
+    !assessment.roadmapRecommendation ||
+    typeof assessment.contextReadinessScore !== 'number' ||
+    typeof assessment.workflowReadinessScore !== 'number' ||
+    typeof assessment.agentReadinessScore !== 'number'
+  ) {
+    return null
+  }
+
+  return assessment as AgentReadinessAssessment
+}
+
+function phaseAdjustmentsForReadiness(level: AgentReadinessLevel): Partial<Record<RoadmapPhaseKey, Pick<RoadmapPhaseDraft, 'objective' | 'acceptanceCriteria'>>> {
+  switch (level) {
+    case 'organize_first':
+      return {
+        discovery_ownership: {
+          objective: 'Inventory messy sources, confirm owners, clean up access, and define the minimum structure needed before agent work.',
+          acceptanceCriteria: ['Source inventory completed', 'System owners confirmed', 'Cleanup priorities approved'],
+        },
+        data_ai_foundation: {
+          objective: 'Create the context and source map AI needs before workflow automation or autonomous actions are considered.',
+          acceptanceCriteria: ['Context layer scope approved', 'Priority sources normalized', 'Access boundaries tested'],
+        },
+      }
+    case 'context_layer_first':
+      return {
+        data_ai_foundation: {
+          objective: 'Build a governed context layer across approved sources before changing workflow states.',
+          acceptanceCriteria: ['Approved data sources mapped', 'Permission groups documented', 'Retrieval passes source attribution checks'],
+        },
+      }
+    case 'workflow_copilot':
+      return {
+        agent_automation_deployment: {
+          objective: 'Deploy workflow copilots that draft, recommend, and route work while people approve state changes.',
+          acceptanceCriteria: ['Copilot scopes documented', 'Human approval paths tested', 'Workflow draft quality reviewed'],
+        },
+      }
+    case 'approval_gated_agent':
+      return {
+        agent_automation_deployment: {
+          objective: 'Deploy bounded agents with explicit approval gates for structured systems and higher-risk changes.',
+          acceptanceCriteria: ['Agent action policy approved', 'Approval gates tested', 'Rollback procedure documented'],
+        },
+      }
+    case 'bounded_autonomy':
+      return {
+        agent_automation_deployment: {
+          objective: 'Deploy monitored agents for low-risk reversible actions while keeping sensitive actions approval-gated.',
+          acceptanceCriteria: ['Autonomous action list approved', 'Monitoring alerts tested', 'Rollback procedure documented'],
+        },
+      }
+  }
+}
+
 export function buildDefaultClientAiOpsRoadmap(context: RoadmapContext = {}): RoadmapDraft {
   const name = context.clientCompany || context.clientName || 'Client'
+  const agentReadiness = getAgentReadinessAssessment(context)
+  const adjustments = agentReadiness ? phaseAdjustmentsForReadiness(agentReadiness.overallLevel) : {}
+
   return {
     title: `${name} AI Ops Roadmap`,
-    clientSummary:
-      'A phased implementation plan for client-owned AI infrastructure, transparent setup costs, agent deployment, monitoring, and continuity reporting.',
+    clientSummary: agentReadiness
+      ? `${agentReadiness.clientSummary} ${agentReadiness.roadmapRecommendation}`
+      : 'A phased implementation plan for client-owned AI infrastructure, transparent setup costs, agent deployment, monitoring, and continuity reporting.',
     inputHash: hashContext(context),
-    phases: DEFAULT_PHASES.map((phase) => ({ ...phase, acceptanceCriteria: [...phase.acceptanceCriteria] })),
+    phases: DEFAULT_PHASES.map((phase) => {
+      const adjustment = adjustments[phase.phaseKey]
+      return {
+        ...phase,
+        ...(adjustment ? { objective: adjustment.objective } : {}),
+        acceptanceCriteria: adjustment?.acceptanceCriteria
+          ? [...adjustment.acceptanceCriteria]
+          : [...phase.acceptanceCriteria],
+      }
+    }),
     tasks: DEFAULT_TASKS.map((t) => ({ ...t })),
     costItems: DEFAULT_COST_ITEMS.map((item) => ({ ...item })),
   }

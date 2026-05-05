@@ -477,7 +477,7 @@ export default function AuditToolPage() {
               className="space-y-6"
             >
               {/* Visual stepper */}
-              <div className="rounded-xl border border-radiant-gold/30 bg-black/20 p-4" role="progressbar" aria-valuenow={categoryIndex + 1} aria-valuemin={1} aria-valuemax={6} aria-label="Audit progress">
+              <div className="rounded-xl border border-radiant-gold/30 bg-black/20 p-4" role="progressbar" aria-valuenow={categoryIndex + 1} aria-valuemin={1} aria-valuemax={AUDIT_CATEGORIES.length} aria-label="Audit progress">
                 <p className="text-muted-foreground text-sm mb-3">Your progress</p>
                 <div className="flex items-center justify-between gap-1">
                   {STEP_LABELS.map((label, i) => {

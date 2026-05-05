@@ -121,7 +121,7 @@ Only include keys for which you found evidence in the transcript. Omit keys with
 
 /**
  * Call OpenAI to extract diagnostic audit data from combined meeting text.
- * Returns object matching DiagnosticAuditData shape (six categories + optional summary/scores).
+ * Returns object matching DiagnosticAuditData shape (audit categories + optional summary/scores).
  */
 export async function extractDiagnosticFromMeetingText(
   combinedText: string,

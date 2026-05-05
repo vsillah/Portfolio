@@ -64,6 +64,8 @@ export async function GET(request: NextRequest) {
         techStack: audit.tech_stack,
         automationNeeds: audit.automation_needs,
         aiReadiness: audit.ai_readiness,
+        agentReadiness: audit.agent_readiness ?? {},
+        agentReadinessAssessment: audit.agent_readiness_assessment ?? null,
         budgetTimeline: audit.budget_timeline,
         decisionMaking: audit.decision_making,
         diagnosticSummary: audit.diagnostic_summary,

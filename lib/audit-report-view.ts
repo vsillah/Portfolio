@@ -13,6 +13,7 @@
  */
 
 import { AUDIT_CATEGORY_ORDER, formatPayloadLine } from '@/lib/audit-questions'
+import type { AgentReadinessAssessment } from '@/lib/agent-readiness-assessment'
 
 // ---------------------------------------------------------------------------
 // Canonical view-model
@@ -31,6 +32,8 @@ export interface AuditReportViewModel {
   techStack?: Record<string, unknown>
   automationNeeds?: Record<string, unknown>
   aiReadiness?: Record<string, unknown>
+  agentReadiness?: Record<string, unknown>
+  agentReadinessAssessment?: AgentReadinessAssessment | null
   budgetTimeline?: Record<string, unknown>
   decisionMaking?: Record<string, unknown>
   diagnosticSummary?: string
@@ -263,12 +266,13 @@ export function getImprovementAreas(results: AuditReportViewModel): ImprovementA
 // Category capture status (What we captured)
 // ---------------------------------------------------------------------------
 
-/** Short labels for the 6 audit categories, in `AUDIT_CATEGORY_ORDER`. */
+/** Short labels for the audit categories, in `AUDIT_CATEGORY_ORDER`. */
 export const STEP_LABELS = [
   'Challenges',
   'Tech stack',
   'Automation',
   'AI readiness',
+  'Agent',
   'Budget',
   'Decision',
 ] as const
@@ -279,6 +283,7 @@ export const RESULTS_CATEGORY_KEYS: (keyof AuditReportViewModel)[] = [
   'techStack',
   'automationNeeds',
   'aiReadiness',
+  'agentReadiness',
   'budgetTimeline',
   'decisionMaking',
 ]

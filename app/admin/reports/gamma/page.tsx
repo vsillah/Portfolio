@@ -110,7 +110,7 @@ const REPORT_TYPES: { value: ReportType; label: string; description: string; sli
   {
     value: 'audit_summary',
     label: 'Audit Summary',
-    description: 'Diagnostic audit results across all 6 categories with key insights and recommended actions.',
+    description: 'Diagnostic audit results across all audit categories with key insights and recommended actions.',
     slides: 11,
   },
   {

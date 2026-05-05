@@ -9,6 +9,7 @@ import { VoiceChat } from './VoiceChat'
 import { CalendlyEmbed } from './CalendlyEmbed'
 import { DiagnosticContextPanel } from './DiagnosticContextPanel'
 import { generateSessionId, CHAT_STORAGE_KEY } from '@/lib/chat-utils'
+import { AUDIT_CATEGORY_ORDER } from '@/lib/audit-questions'
 import { isValidCalendlyUrl } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { signInWithOAuth } from '@/lib/auth'
@@ -686,7 +687,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                   </div>
                   {diagnosticProgress && diagnosticProgress.completedCategories && diagnosticProgress.completedCategories.length > 0 && (
                     <div className="text-xs text-muted-foreground/90 mt-1">
-                      Completed: {diagnosticProgress.completedCategories.length} of 6 categories
+                      Completed: {diagnosticProgress.completedCategories.length} of {AUDIT_CATEGORY_ORDER.length} categories
                     </div>
                   )}
                 </motion.div>
@@ -729,7 +730,7 @@ export function Chat({ initialMessage, visitorEmail, visitorName }: ChatProps) {
                       <div className="flex-1">
                         <p className="text-sm font-medium text-radiant-gold">AI Readiness Assessment Started</p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          I&apos;ll ask questions across 6 categories to understand your needs. 
+                          I&apos;ll ask questions across {AUDIT_CATEGORY_ORDER.length} categories to understand your needs.
                           Click &quot;Exit Assessment&quot; in the header anytime to return to regular chat.
                         </p>
                       </div>

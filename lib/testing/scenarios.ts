@@ -77,7 +77,7 @@ export const browseAndBuyScenario: TestScenario = {
 export const chatToDiagnosticScenario: TestScenario = {
   id: 'chat_to_diagnostic',
   name: 'Chat to Diagnostic',
-  description: 'Engage with chat assistant, trigger diagnostic assessment, complete all 6 categories',
+  description: 'Engage with chat assistant, trigger diagnostic assessment, complete all diagnostic categories',
   journeyStage: ['prospect', 'lead'],
   
   steps: [

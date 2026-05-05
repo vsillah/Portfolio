@@ -8,6 +8,7 @@ import {
   isMockN8nEnabled,
   isN8nOutboundDisabled,
 } from './n8n-runtime-flags'
+import type { AgentReadinessAssessment } from './agent-readiness-assessment'
 
 export { isMockN8nEnabled, isN8nOutboundDisabled }
 
@@ -267,6 +268,7 @@ function generateMockDiagnosticResponse(
     'tech_stack', 
     'automation_needs',
     'ai_readiness',
+    'agent_readiness',
     'budget_timeline',
     'decision_making'
   ]
@@ -314,6 +316,7 @@ function generateMockDiagnosticResponse(
     tech_stack: "What tools and systems are you currently using? This includes CRM, project management, communication tools, etc.",
     automation_needs: "Which processes or tasks take up the most time that you'd like to automate?",
     ai_readiness: "How would you describe your organization's readiness for AI adoption? Do you have clean data and processes documented?",
+    agent_readiness: "Which systems have clear owners, statuses, permissions, audit trails, and APIs that an AI agent could safely work with?",
     budget_timeline: "What budget range are you considering for improvements, and what's your ideal timeline?",
     decision_making: "Are you the decision maker for technology investments, or who else would be involved?"
   }
@@ -527,6 +530,7 @@ export type DiagnosticCategory =
   | 'tech_stack'
   | 'automation_needs'
   | 'ai_readiness'
+  | 'agent_readiness'
   | 'budget_timeline'
   | 'decision_making'
 
@@ -578,6 +582,8 @@ export interface DiagnosticAuditData {
   tech_stack: Record<string, unknown>
   automation_needs: Record<string, unknown>
   ai_readiness: Record<string, unknown>
+  agent_readiness?: Record<string, unknown>
+  agent_readiness_assessment?: AgentReadinessAssessment
   budget_timeline: Record<string, unknown>
   decision_making: Record<string, unknown>
   diagnostic_summary?: string
