@@ -1,19 +1,19 @@
 {
-  "generatedAt": "2026-05-03",
+  "generatedAt": "2026-05-05",
   "sourceDocument": "/docs/subscription-cancellation-audit.md",
   "weeklyReportAutomationId": "portfolio-subscription-weekly-report",
   "dailyMonitorAutomationId": "portfolio-subscription-cancellation-monitor",
   "approvalPhrasePattern": "Cancel <tool/vendor> for Portfolio",
   "summary": {
     "status": "yellow",
-    "headline": "Core Portfolio subscriptions remain active. Vapi remains the only provisional cancellation gate; Apify and Vercel have fresh activity, while Hunter.io and OpenRouter need baseline billing checks.",
+    "headline": "Core Portfolio subscriptions remain active. Vapi has recent call usage, Pinecone has a live index, Hunter.io is Free, and OpenRouter is quiet.",
     "nextReviewFocus": [
-      "Check Vapi dashboard call history and active billing.",
-      "Check Pinecone and OpenRouter billing/API usage against RAG and model-routing plans.",
-      "Check Hunter.io billing/API usage from lead workflows.",
-      "Check Printful dashboard/store order history.",
-      "Verify whether production uses Resend or Gmail/n8n.",
-      "Document Vercel billing ownership."
+      "Confirm Vapi dashboard billing and intended production voice UX.",
+      "Check Pinecone billing/API traffic against Supabase/local RAG.",
+      "Decide whether OpenRouter is still needed after zero key usage.",
+      "Verify whether production has a paid Resend configuration.",
+      "Check Printful dashboard/order strategy for the two native stores.",
+      "Refresh Read AI, Gmail, Slack, and Vercel app connectors once available."
     ]
   },
   "buckets": {
@@ -31,19 +31,19 @@
       "Apify",
       "Calendly",
       "Anthropic",
-      "Google Cloud"
+      "Google Cloud",
+      "Hunter.io"
     ],
     "watch": [
       "BuiltWith",
-      "ElevenLabs"
+      "ElevenLabs",
+      "OpenRouter",
+      "Vapi"
     ],
     "unresolved": [
-      "Vapi",
       "Printful",
       "Resend",
-      "Pinecone",
-      "Hunter.io",
-      "OpenRouter"
+      "Pinecone"
     ],
     "resolvedCanceled": [
       "Fireflies.ai"
@@ -54,20 +54,19 @@
       "Printful",
       "Resend",
       "Pinecone",
-      "Hunter.io",
       "OpenRouter"
     ]
   },
   "vendors": [
     {
       "name": "Vapi",
-      "status": "unresolved",
-      "statusColor": "red",
-      "billingSignal": "No recent billing receipt found in Gmail; dashboard billing still needs verification.",
-      "usageSignal": "Voice code, env, and webhook references remain, but no operational usage signal was confirmed across multiple audit sessions.",
+      "status": "watch",
+      "statusColor": "yellow",
+      "billingSignal": "Dashboard billing still needs verification; direct API returned one recent call with a small recorded call cost.",
+      "usageSignal": "Vapi Calls API returned a webCall created on 2026-04-30; code/env/webhook references remain.",
       "portfolioDependency": "Voice/audit experience risk if production voice UX is enabled.",
-      "recommendation": "Provisional cancellation candidate only if dashboard confirms an active paid plan and production voice UX is not active.",
-      "nextAction": "Check Vapi dashboard call history and billing; approval phrase would be Cancel Vapi for Portfolio.",
+      "recommendation": "Investigate billing and intended voice UX; no longer a provisional red cancellation gate.",
+      "nextAction": "Check Vapi dashboard billing and decide whether the voice path should stay enabled.",
       "decisionRequired": true,
       "links": [
         {
@@ -81,10 +80,10 @@
       "status": "watch",
       "statusColor": "yellow",
       "billingSignal": "Receipts found on 2026-04-10 in the prior billing pass.",
-      "usageSignal": "No confirmed non-empty production tech-stack enrichment rows in this run; protected as an outreach-ramp watch item.",
+      "usageSignal": "Production data now shows 249 website_tech_stack rows and 27 diagnostic enriched_tech_stack rows.",
       "portfolioDependency": "Tech-stack lookup/enrichment supports lead prep, implementation strategy, and feasibility assessment.",
-      "recommendation": "Keep active during outreach ramp; reassess after more leads, audits, implementation strategies, proposals, and client outcomes.",
-      "nextAction": "Compare sales-flow outcomes where BuiltWith enrichment helped versus leads where it did not.",
+      "recommendation": "Keep active during outreach ramp; reassess after more leads, audits, proposals, and client outcomes.",
+      "nextAction": "Compare outcomes where BuiltWith enrichment improves sales preparation or proposal quality.",
       "decisionRequired": false,
       "links": [
         {
@@ -102,7 +101,7 @@
       "status": "resolved_canceled",
       "statusColor": "green",
       "billingSignal": "Refund found on 2026-03-20; Vambah confirmed canceled on 2026-05-01.",
-      "usageSignal": "No post-May-01 Slack activity found; prior April recap evidence overlapped with Read.ai.",
+      "usageSignal": "No new paid-plan evidence appeared in this run.",
       "portfolioDependency": "No direct Portfolio repo integration found in the latest audit.",
       "recommendation": "Keep out of active cancellation queue unless new paid-plan evidence appears.",
       "nextAction": "No action unless a new Fireflies receipt or paid-plan signal appears.",
@@ -117,11 +116,11 @@
     {
       "name": "Vercel",
       "status": "keep",
-      "statusColor": "yellow",
+      "statusColor": "green",
       "billingSignal": "Billing owner still needs documentation; CLI access is authenticated under vsillahs-projects.",
-      "usageSignal": "Vercel CLI showed ready production and preview deployments for portfolio and portfolio-staging on 2026-05-03.",
+      "usageSignal": "Vercel CLI showed READY deployments for portfolio and portfolio-staging on 2026-05-05.",
       "portfolioDependency": "High-risk hosting/deployment dependency.",
-      "recommendation": "Keep; operationally active, but dashboard/account ownership still needs documentation.",
+      "recommendation": "Keep; operationally active.",
       "nextAction": "Document the actual hosting account/project and billing owner.",
       "decisionRequired": true,
       "links": [
@@ -135,11 +134,11 @@
       "name": "Printful",
       "status": "unresolved",
       "statusColor": "yellow",
-      "billingSignal": "No recent billing receipt found in Gmail; Printful is likely usage/order based rather than a fixed subscription.",
-      "usageSignal": "Fulfillment code, product variants, and one historical Printful-linked order exist; printful_sync_log remains empty across sessions.",
+      "billingSignal": "Likely usage/order based; no fixed subscription evidence confirmed.",
+      "usageSignal": "Printful API returned two native stores; one historical Printful-linked order exists; printful_sync_log remains empty.",
       "portfolioDependency": "Store fulfillment and merchandise sync risk.",
-      "recommendation": "Investigate dashboard order history before any deprecation decision.",
-      "nextAction": "Check Printful dashboard/store order history and whether merchandise remains active.",
+      "recommendation": "Investigate dashboard order history and merchandise strategy before any deprecation decision.",
+      "nextAction": "Check Printful dashboard/store order history and whether both stores remain active.",
       "decisionRequired": true,
       "links": [
         {
@@ -152,8 +151,8 @@
       "name": "Resend",
       "status": "unresolved",
       "statusColor": "yellow",
-      "billingSignal": "No recent billing receipt found in Gmail.",
-      "usageSignal": "Optional transactional provider remains in code, but latest production email row used n8n transport.",
+      "billingSignal": "No billing evidence confirmed in this run.",
+      "usageSignal": "Optional transactional provider remains in code, but production email rows show 0 resend transports and 9 n8n transports.",
       "portfolioDependency": "Transactional email delivery risk if production is configured to use Resend.",
       "recommendation": "Verify production env and billing before keeping as a paid dependency or removing.",
       "nextAction": "Confirm whether production uses Resend or Gmail/n8n as the real outbound channel.",
@@ -169,11 +168,11 @@
       "name": "Pinecone",
       "status": "unresolved",
       "statusColor": "yellow",
-      "billingSignal": "No recent billing receipt found in Gmail.",
-      "usageSignal": "n8n RAG query/ingest references remain active while production local RAG documents are also populated.",
+      "billingSignal": "Billing/API traffic not confirmed; direct API showed active infrastructure.",
+      "usageSignal": "One ready serverless publications index exists; n8n RAG references and local/Supabase RAG rows also remain.",
       "portfolioDependency": "RAG/vector-store workflow risk.",
-      "recommendation": "Check billing/API usage and compare with Supabase/local RAG replacement path.",
-      "nextAction": "Verify Pinecone usage and whether the current RAG path still depends on it.",
+      "recommendation": "Investigate billing/API traffic and compare with Supabase/local RAG replacement path.",
+      "nextAction": "Verify whether current RAG traffic still depends on Pinecone before any deprecation.",
       "decisionRequired": true,
       "links": [
         {
@@ -186,8 +185,8 @@
       "name": "Apify",
       "status": "keep",
       "statusColor": "green",
-      "billingSignal": "Gmail found a payment-success invoice on 2026-05-03 for $39.",
-      "usageSignal": "n8n exports include Apify nodes and recent n8n Cloud executions continue.",
+      "billingSignal": "Prior Gmail pass found a payment-success invoice on 2026-05-03 for $39.",
+      "usageSignal": "n8n exports include Apify nodes and n8n Cloud executions continue.",
       "portfolioDependency": "Lead sourcing, scraping, and actor-monitor automation.",
       "recommendation": "Keep; continue cadence and spend review separately from cancellation.",
       "nextAction": "Review actor cadence and spend before the next renewal window.",
@@ -201,14 +200,14 @@
     },
     {
       "name": "Hunter.io",
-      "status": "unresolved",
-      "statusColor": "yellow",
-      "billingSignal": "No billing receipt was confirmed in this run.",
+      "status": "keep",
+      "statusColor": "green",
+      "billingSignal": "Direct API returned plan Free with 50 used requests, 75 available requests, reset date 2026-05-09.",
       "usageSignal": "HUNTER_API_KEY, lead-source references, and n8n Hunter node-swap docs are present.",
       "portfolioDependency": "Lead discovery and email enrichment workflow risk.",
-      "recommendation": "Investigate billing/API usage; this is a new baseline, not a cancellation candidate.",
-      "nextAction": "Check Hunter.io dashboard usage and whether paid quota is active.",
-      "decisionRequired": true,
+      "recommendation": "Keep/watch; not a paid cancellation target unless the account upgrades or becomes redundant.",
+      "nextAction": "Recheck if Hunter.io moves from Free to paid or lead workflows stop using it.",
+      "decisionRequired": false,
       "links": [
         {
           "label": "Audit tracker",
@@ -218,13 +217,13 @@
     },
     {
       "name": "OpenRouter",
-      "status": "unresolved",
+      "status": "watch",
       "statusColor": "yellow",
-      "billingSignal": "No billing receipt was confirmed in this run.",
+      "billingSignal": "Direct API returned zero current-key usage and no confirmed active spend.",
       "usageSignal": "OPENROUTER_API_KEY, media bakeoff references, and Gmail draft workflow docs are present.",
       "portfolioDependency": "Specialist model-routing path for image/media and draft-reply workflows.",
-      "recommendation": "Investigate billing/API usage; keep as a specialist until bakeoff evidence says otherwise.",
-      "nextAction": "Check OpenRouter usage and decide whether it is active, sandbox-only, or replaceable.",
+      "recommendation": "Watch until bakeoff evidence confirms whether it is active, sandbox-only, or replaceable.",
+      "nextAction": "Decide after the next media/model bakeoff whether OpenRouter should stay configured.",
       "decisionRequired": true,
       "links": [
         {
