@@ -74,6 +74,23 @@ export type AgentEngagementQueueItem = {
   completed_at: string | null
 }
 
+export type AgentDeadLetterItem = {
+  run_id: string
+  agent_key: string
+  agent_name: string
+  pod: string
+  runtime: string
+  status: string
+  title: string
+  reason: string
+  age_hours: number
+  source_label: string
+  routed: boolean
+  routed_run_id: string | null
+  next_action: string
+  href: string
+}
+
 export type DailyOperatingBrief = {
   headline: string
   synthesis: string
@@ -292,6 +309,48 @@ export function buildAgentEngagementQueue(runs: AgentRunRow[]): AgentEngagementQ
     .slice(0, 8)
 }
 
+export function buildAgentDeadLetterQueue(
+  runs: AgentRunRow[],
+): AgentDeadLetterItem[] {
+  const routedBySourceRun = new Map<string, AgentRunRow>()
+  for (const run of runs) {
+    if (run.kind !== 'agent_engagement_request') continue
+    const sourceRunId = stringMetadataValue(run.metadata, 'source_run_id')
+    if (!sourceRunId || routedBySourceRun.has(sourceRunId)) continue
+    routedBySourceRun.set(sourceRunId, run)
+  }
+
+  return runs
+    .filter((run) => run.status === 'failed' || run.status === 'stale')
+    .map((run) => {
+      const agent = findAgent(requestedAgentKey(run))
+      const routedRun = routedBySourceRun.get(run.id)
+      const agentName = agent?.name ?? 'Chief of Staff Agent'
+      const reason = run.error_message ?? run.current_step ?? `${run.runtime} run is ${run.status.replace(/_/g, ' ')}.`
+      return {
+        run_id: run.id,
+        agent_key: agent?.key ?? 'chief-of-staff',
+        agent_name: agentName,
+        pod: agent ? agentPodName(agent.podKey) : 'Chief of Staff',
+        runtime: run.runtime,
+        status: run.status,
+        title: run.title,
+        reason,
+        age_hours: Number(Math.max(0, (Date.now() - new Date(run.started_at).getTime()) / 36e5).toFixed(1)),
+        source_label: sourceLabelForRun(run),
+        routed: Boolean(routedRun),
+        routed_run_id: routedRun?.id ?? null,
+        next_action: routedRun
+          ? 'Review routed engagement request.'
+          : run.status === 'stale'
+            ? 'Route stale run owner from Agent Inbox.'
+            : 'Route failure triage from Agent Inbox.',
+        href: `/admin/agents/runs/${run.id}`,
+      }
+    })
+    .slice(0, 8)
+}
+
 export function buildDailyOperatingBrief(input: {
   approvals: ApprovalRow[]
   costToday: number
@@ -408,6 +467,7 @@ export async function buildAgentMissionControlSnapshot() {
   )
   const agentInbox = buildAgentInbox({ runs, approvals, costByRun, latestStandup })
   const engagementQueue = buildAgentEngagementQueue(runs)
+  const deadLetterQueue = buildAgentDeadLetterQueue(runs)
   const costToday = Number(costs.reduce((sum, row) => sum + Number(row.amount ?? 0), 0).toFixed(4))
   const dailyBrief = buildDailyOperatingBrief({
     approvals,
@@ -462,6 +522,7 @@ export async function buildAgentMissionControlSnapshot() {
     daily_brief: dailyBrief,
     agent_inbox: agentInbox,
     engagement_queue: engagementQueue,
+    dead_letter_queue: deadLetterQueue,
     approvals: approvals.slice(0, 8),
   }
 }

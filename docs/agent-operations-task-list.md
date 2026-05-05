@@ -34,7 +34,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 
 4. Reporting and hardening
    - Add all-runtime stale-run detection.
-   - Add dead-letter handling for failed runs.
+   - [x] Add derived dead-letter handling for failed and stale runs without introducing a separate queue table.
    - Add cost summaries by runtime, agent, workflow, client/project, and artifact type.
    - Keep morning review and deployment watcher outputs visible in Agent Operations.
 
@@ -55,6 +55,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Queue affordance filters and owner/source clarity in review.
 - [x] Approval-backed execution payloads and decision metadata in review.
 - [x] n8n trace callback envelope and generic stage callback endpoint in review.
+- [x] Dead-letter monitor for failed/stale traces in review.
 
 ## Scope Guard
 
