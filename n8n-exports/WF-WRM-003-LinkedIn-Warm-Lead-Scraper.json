@@ -110,7 +110,7 @@
         400
       ],
       "parameters": {
-        "jsCode": "let tracePayload = {};\ntry {\n  const triggerJson = $node['Webhook Trigger']?.json || {};\n  const triggerBody = triggerJson.body || triggerJson;\n  tracePayload = {\n    agent_run_id: triggerBody.agent_run_id || null,\n    agent_event_callback_url: triggerBody.agent_event_callback_url || null,\n    agent_trace: triggerBody.agent_trace || null,\n    callbackBaseUrl: triggerBody.callbackBaseUrl || triggerBody.callback_base_url || null,\n  };\n} catch (error) {\n  tracePayload = {};\n}\n\n// Normalize LinkedIn scraper results into lead format\nconst allItems = $input.all();\nconst seen = new Set();\nconst leads = [];\n\nfor (const item of allItems) {\n  const d = item.json;\n  \n  // Handle connections format (name, headline, profileUrl)\n  // Handle engagement format (commenters, reactors from posts)\n  const name = d.name || d.fullName || d.authorName || d.firstName + ' ' + (d.lastName || '') || '';\n  const profileUrl = d.profileUrl || d.url || d.authorProfileUrl || '';\n  const headline = d.headline || d.title || '';\n  const company = d.company || d.companyName || '';\n  \n  if (!name || name.trim().length < 2) continue;\n  \n  // Extract LinkedIn username from URL\n  let linkedinUsername = '';\n  if (profileUrl) {\n    const match = profileUrl.match(/linkedin\\.com\\/in\\/([^/?]+)/);\n    if (match) linkedinUsername = match[1];\n  }\n  \n  // Deduplicate by LinkedIn username or name\n  const dedupeKey = linkedinUsername || name.toLowerCase().trim();\n  if (seen.has(dedupeKey)) continue;\n  seen.add(dedupeKey);\n  \n  // Use the canonical Portfolio lead source; keep detail in warm_source_detail.\n  const leadSource = 'warm_linkedin';\n  let sourceDetail = 'LinkedIn 1st-degree connection';\n  \n  if (d.commentText || d.reactionType || d.engagementType) {\n    sourceDetail = d.commentText\n      ? 'Commented on LinkedIn post'\n      : 'Engaged with LinkedIn post';\n  }\n  \n  leads.push({\n    name: name.trim(),\n    company: company || undefined,\n    job_title: headline || undefined,\n    linkedin_url: profileUrl || undefined,\n    linkedin_username: linkedinUsername || undefined,\n    lead_source: leadSource,\n    warm_source_detail: sourceDetail,\n    location: d.location || d.geoLocation || undefined,\n  });\n}\n\nreturn [{ json: { leads, count: leads.length, ...tracePayload } }];"
+        "jsCode": "let tracePayload = {};\nlet triggerBody = {};\ntry {\n  const triggerJson = $node['Webhook Trigger']?.json || {};\n  triggerBody = triggerJson.body || triggerJson;\n  tracePayload = {\n    agent_run_id: triggerBody.agent_run_id || null,\n    agent_event_callback_url: triggerBody.agent_event_callback_url || null,\n    agent_trace: triggerBody.agent_trace || null,\n    callbackBaseUrl: triggerBody.callbackBaseUrl || triggerBody.callback_base_url || null,\n  };\n} catch (error) {\n  tracePayload = {};\n}\n\n// Normalize LinkedIn scraper results into lead format\nconst allItems = $input.all();\nconst seen = new Set();\nconst leads = [];\n\nfor (const item of allItems) {\n  const d = item.json;\n  \n  // Handle connections format (name, headline, profileUrl)\n  // Handle engagement format (commenters, reactors from posts)\n  const name = d.name || d.fullName || d.authorName || d.firstName + ' ' + (d.lastName || '') || '';\n  const profileUrl = d.profileUrl || d.url || d.authorProfileUrl || '';\n  const headline = d.headline || d.title || '';\n  const company = d.company || d.companyName || '';\n  \n  if (!name || name.trim().length < 2) continue;\n  \n  // Extract LinkedIn username from URL\n  let linkedinUsername = '';\n  if (profileUrl) {\n    const match = profileUrl.match(/linkedin\\.com\\/in\\/([^/?]+)/);\n    if (match) linkedinUsername = match[1];\n  }\n  \n  // Deduplicate by LinkedIn username or name\n  const dedupeKey = linkedinUsername || name.toLowerCase().trim();\n  if (seen.has(dedupeKey)) continue;\n  seen.add(dedupeKey);\n  \n  // Use the canonical Portfolio lead source; keep detail in warm_source_detail.\n  const leadSource = 'warm_linkedin';\n  let sourceDetail = 'LinkedIn 1st-degree connection';\n  \n  if (d.commentText || d.reactionType || d.engagementType) {\n    sourceDetail = d.commentText\n      ? 'Commented on LinkedIn post'\n      : 'Engaged with LinkedIn post';\n  }\n  \n  leads.push({\n    name: name.trim(),\n    company: company || undefined,\n    job_title: headline || undefined,\n    linkedin_url: profileUrl || undefined,\n    linkedin_username: linkedinUsername || undefined,\n    lead_source: leadSource,\n    warm_source_detail: sourceDetail,\n    location: d.location || d.geoLocation || undefined,\n  });\n}\n\nreturn [{ json: { leads, count: leads.length, is_test_data: triggerBody.is_test_data === true || triggerBody.mode === 'smoke' || triggerBody.run_mode === 'smoke', mode: triggerBody.mode || triggerBody.run_mode || null, ...tracePayload } }];"
       }
     },
     {
@@ -140,7 +140,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ leads: $json.leads, agent_run_id: $json.agent_run_id || undefined }) }}"
+        "jsonBody": "={{ JSON.stringify({ leads: $json.leads, agent_run_id: $json.agent_run_id || undefined, is_test_data: $json.is_test_data === true || undefined }) }}"
       }
     },
     {
@@ -153,7 +153,7 @@
         100
       ],
       "parameters": {
-        "content": "## WF-WRM-003: LinkedIn Warm Lead Scraper\n\n**Triggers:** Weekly schedule (Wed 9am) or manual webhook\n\n**Steps:**\n1. Scrape LinkedIn 1st-degree connections via Apify (addeus/get-connections)\n2. Scrape LinkedIn post engagement via Apify (harvestapi/linkedin-profile-posts)\n3. Normalize & deduplicate all results\n4. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- APIFY_TOKEN\n- LINKEDIN_COOKIE (li_at cookie for connections scraper)\n- LINKEDIN_PROFILE_URL\n- APP_BASE_URL\n- N8N_INGEST_SECRET\n\n**Note:** LinkedIn profile viewers data is only accessible within LinkedIn's logged-in UI and cannot be reliably scraped. This workflow covers connections + post engagement."
+        "content": "## WF-WRM-003: LinkedIn Warm Lead Scraper\n\n**Triggers:** Weekly schedule (Wed 9am) or manual webhook\n\n**Steps:**\n1. Scrape LinkedIn 1st-degree connections via Apify (addeus/get-connections)\n2. Scrape LinkedIn post engagement via Apify (harvestapi/linkedin-profile-posts)\n3. Normalize & deduplicate all results\n4. POST batch to /api/admin/outreach/ingest\n\n**Env vars needed:**\n- APIFY_TOKEN\n- LINKEDIN_COOKIE (li_at cookie for connections scraper)\n- LINKEDIN_PROFILE_URL\n- APP_BASE_URL\n- N8N_INGEST_SECRET\n\n**Note:** LinkedIn profile viewers data is only accessible within LinkedIn's logged-in UI and cannot be reliably scraped. This workflow covers connections + post engagement.\n\n**Smoke mode:** Webhook payload `{ \"mode\": \"smoke\", \"is_test_data\": true }` bypasses live source nodes, emits one synthetic lead, and marks ingest rows as `is_test_data = true`."
       }
     },
     {
@@ -217,7 +217,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ source: 'linkedin', agent_run_id: $node[\"Normalize & Deduplicate\"].json.agent_run_id, status: 'completed', leads_inserted: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length) }) }}"
+        "jsonBody": "={{ JSON.stringify({ source: 'linkedin', agent_run_id: $node[\"Normalize & Deduplicate\"].json.agent_run_id, status: 'completed', leads_inserted: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length), mode: $node[\"Normalize & Deduplicate\"].json.mode || null, is_test_data: $node[\"Normalize & Deduplicate\"].json.is_test_data === true }) }}"
       }
     },
     {
@@ -247,7 +247,53 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ workflow_id: 'WF-WRM-003', stage: 'outreach_ingest_complete', status: 'completed', items_count: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length), metadata: { source: 'linkedin' }, idempotency_key: $node[\"Normalize & Deduplicate\"].json.agent_run_id + ':WF-WRM-003:outreach_ingest_complete' }) }}"
+        "jsonBody": "={{ JSON.stringify({ workflow_id: 'WF-WRM-003', stage: 'outreach_ingest_complete', status: 'completed', items_count: $node[\"Normalize & Deduplicate\"].json.count || (($node[\"Normalize & Deduplicate\"].json.leads || []).length), metadata: { source: 'linkedin', mode: $node[\"Normalize & Deduplicate\"].json.mode || null, is_test_data: $node[\"Normalize & Deduplicate\"].json.is_test_data === true }, idempotency_key: $node[\"Normalize & Deduplicate\"].json.agent_run_id + ':WF-WRM-003:outreach_ingest_complete' }) }}"
+      }
+    },
+    {
+      "id": "is_smoke_mode",
+      "name": "Is Smoke Mode",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "smoke-mode-requested",
+              "leftValue": "={{ (((($json.body && ($json.body.mode || $json.body.run_mode)) || $json.mode || $json.run_mode || '') + '').toLowerCase()) }}",
+              "rightValue": "smoke",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "synthetic_smoke_leads",
+      "name": "Synthetic Smoke Leads",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        620,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const timestamp = Date.now();\nreturn [{ json: {\n  name: 'ATAS Production LinkedIn Smoke Lead ' + timestamp,\n  profileUrl: 'https://www.linkedin.com/in/atas-production-smoke-' + timestamp,\n  headline: 'Synthetic Smoke Tester',\n  company: 'Synthetic Production Smoke Company',\n  location: 'Synthetic City',\n  smoke_marker: 'wrm-003-production-smoke',\n  is_test_data: true,\n} }];"
       }
     }
   ],
@@ -256,12 +302,7 @@
       "main": [
         [
           {
-            "node": "Scrape LI Connections (Apify)",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Scrape LI Post Engagement (Apify)",
+            "node": "Is Smoke Mode",
             "type": "main",
             "index": 0
           }
@@ -345,6 +386,40 @@
         [
           {
             "node": "Report Agent Trace Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Smoke Mode": {
+      "main": [
+        [
+          {
+            "node": "Synthetic Smoke Leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Scrape LI Connections (Apify)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Scrape LI Post Engagement (Apify)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Synthetic Smoke Leads": {
+      "main": [
+        [
+          {
+            "node": "Normalize & Deduplicate",
             "type": "main",
             "index": 0
           }
