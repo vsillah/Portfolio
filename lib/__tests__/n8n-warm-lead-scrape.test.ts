@@ -15,6 +15,7 @@ describe('triggerWarmLeadScrape', () => {
     process.env.N8N_WRM003_WEBHOOK_URL = 'https://test.example.com/webhook/wrm-003'
     process.env.N8N_DISABLE_OUTBOUND = 'false'
     process.env.MOCK_N8N = 'false'
+    process.env.N8N_CALLBACK_BASE_URL = 'https://portfolio.example.com/'
   })
 
   afterEach(() => {
@@ -28,6 +29,7 @@ describe('triggerWarmLeadScrape', () => {
 
     const result = await triggerWarmLeadScrape({
       source: 'facebook',
+      agentRunId: 'agent-run-1',
       options: { max_leads: 10 },
     })
 
@@ -39,6 +41,17 @@ describe('triggerWarmLeadScrape', () => {
 
     const body = JSON.parse(init.body)
     expect(body.source).toBe('facebook')
+    expect(body.workflow).toBe('WRM-facebook')
+    expect(body.agent_run_id).toBe('agent-run-1')
+    expect(body.callbackBaseUrl).toBe('https://portfolio.example.com')
+    expect(body.agent_event_callback_url).toBe('https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events')
+    expect(body.agent_trace).toMatchObject({
+      version: 1,
+      runtime: 'n8n',
+      agent_run_id: 'agent-run-1',
+      workflow_id: 'WRM-facebook',
+      events_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
+    })
     expect(body.max_leads).toBe(10)
     expect(body.triggered_at).toBeDefined()
   })

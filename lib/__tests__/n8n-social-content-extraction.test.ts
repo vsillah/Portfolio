@@ -12,6 +12,7 @@ describe('triggerSocialContentExtraction', () => {
     process.env.N8N_DISABLE_OUTBOUND = 'false'
     process.env.MOCK_N8N = 'false'
     process.env.N8N_SOC001_WEBHOOK_URL = 'https://example.test/webhook/social-content-extract'
+    process.env.N8N_CALLBACK_BASE_URL = 'https://portfolio.example.com'
   })
 
   afterEach(() => {
@@ -29,6 +30,7 @@ describe('triggerSocialContentExtraction', () => {
     const { triggerSocialContentExtraction } = await import('../n8n')
     const result = await triggerSocialContentExtraction({
       meetingRecordId: 'meeting-123',
+      agentRunId: 'agent-run-1',
       prompts: {
         topicExtraction: 'topic prompt',
         copywriting: 'copy prompt',
@@ -50,6 +52,14 @@ describe('triggerSocialContentExtraction', () => {
     const payload = JSON.parse(String(init.body)) as Record<string, unknown>
     expect(payload.workflow).toBe('WF-SOC-001')
     expect(payload.action).toBe('extract_social_content')
+    expect(payload.agent_run_id).toBe('agent-run-1')
+    expect(payload.agent_event_callback_url).toBe('https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events')
+    expect(payload.agent_trace).toMatchObject({
+      version: 1,
+      runtime: 'n8n',
+      workflow_id: 'WF-SOC-001',
+      events_url: 'https://portfolio.example.com/api/admin/agents/runs/agent-run-1/events',
+    })
     expect(payload.meeting_record_id).toBe('meeting-123')
     expect(payload.prompts).toEqual({
       topicExtraction: 'topic prompt',
