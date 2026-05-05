@@ -8,6 +8,11 @@ const mocks = vi.hoisted(() => ({
   generateOutreachDraftInApp: vi.fn(),
   generateLinkedInDraftInApp: vi.fn(),
   isInAppOutreachGenerationEnabled: vi.fn(),
+  startAgentRun: vi.fn(),
+  recordAgentStep: vi.fn(),
+  recordAgentEvent: vi.fn(),
+  endAgentRun: vi.fn(),
+  markAgentRunFailed: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -29,6 +34,14 @@ vi.mock('@/lib/outreach-queue-generator', () => ({
 
 vi.mock('@/lib/slack-outreach-notification', () => ({
   notifyOutreachDraftReady: vi.fn().mockResolvedValue(undefined),
+}))
+
+vi.mock('@/lib/agent-run', () => ({
+  startAgentRun: mocks.startAgentRun,
+  recordAgentStep: mocks.recordAgentStep,
+  recordAgentEvent: mocks.recordAgentEvent,
+  endAgentRun: mocks.endAgentRun,
+  markAgentRunFailed: mocks.markAgentRunFailed,
 }))
 
 import { POST } from './route'
@@ -83,7 +96,7 @@ function mockContactSubmissions(lead: LeadRow | null) {
 describe('POST /api/admin/outreach/leads/[id]/generate', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    mocks.verifyAdmin.mockResolvedValue({ id: 'admin-user' })
+    mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
     mocks.isInAppOutreachGenerationEnabled.mockReturnValue(true)
     mocks.generateOutreachDraftInApp.mockResolvedValue({
@@ -92,6 +105,11 @@ describe('POST /api/admin/outreach/leads/[id]/generate', () => {
       subject: 'Hello there',
       body: 'Draft body',
     })
+    mocks.startAgentRun.mockResolvedValue({ id: 'agent-run-1' })
+    mocks.recordAgentStep.mockResolvedValue({ id: 'step-1' })
+    mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
+    mocks.endAgentRun.mockResolvedValue({ id: 'agent-run-1' })
+    mocks.markAgentRunFailed.mockResolvedValue({ id: 'agent-run-1' })
   })
 
   it('returns auth error response when admin verification fails', async () => {
