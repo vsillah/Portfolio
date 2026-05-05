@@ -90,4 +90,27 @@ describe('buildClientConnectorReadiness', () => {
       expect.arrayContaining(['hubspot', 'google_workspace']),
     )
   })
+
+  it('treats local device and cloud runtime placement as connector readiness decisions', () => {
+    const readiness = buildClientConnectorReadiness({
+      roadmapTasks: [
+        {
+          task_key: 'hardware-decision',
+          title: 'Select Mac mini, PC equivalent, or cloud fallback for 24/7 access',
+          metadata: {},
+        },
+      ],
+    })
+
+    const runtime = readiness.items.find((item) => item.category === 'runtime_hosting')
+    expect(runtime).toMatchObject({
+      category: 'runtime_hosting',
+      status: 'review',
+    })
+    expect(readiness.conflicts[0]).toMatchObject({
+      category: 'runtime_hosting',
+      providers: expect.arrayContaining(['Client Mac mini node', 'Client PC node', 'Cloud runtime host']),
+    })
+    expect(runtime?.nextAction).toContain('Resolve conflicting Runtime/hosting signals')
+  })
 })
