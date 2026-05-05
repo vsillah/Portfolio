@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Bot,
   CheckCircle2,
+  Columns,
   CircleDollarSign,
   ClipboardList,
   Clock3,
@@ -355,6 +356,10 @@ export default function AgentOperationsPage() {
                 <Activity size={16} />
                 Runs
               </Link>
+              <Link href="/admin/agents/swarm-board" className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-2 text-sm hover:border-radiant-gold/60">
+                <Columns size={16} />
+                Swarm Board
+              </Link>
             </div>
           </div>
 
@@ -512,6 +517,7 @@ export default function AgentOperationsPage() {
               <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-1">
                 <ControlLink href="/admin/agents/chief-of-staff" label="Chief of Staff Chat" />
                 <ControlLink href="/admin/agents/runs" label="Run Console" />
+                <ControlLink href="/admin/agents/swarm-board" label="Client Swarm Board" />
                 <ControlLink href="/admin/agents/automations" label="Automation Context" />
                 <ActionButton label="Morning review" loading={actionLoading === 'morning-review'} onClick={() => runOperatorAction('morning-review')} />
                 <ActionButton label="Hermes health" loading={actionLoading === 'hermes'} onClick={() => runOperatorAction('hermes')} />
