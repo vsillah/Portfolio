@@ -12,10 +12,12 @@ Portfolio deployment is only complete when both contexts pass:
 Run the watcher before merge for the PR head SHA and after merge for the merge SHA or `main`.
 
 ```bash
-npm run deploy:watch:once -- --ref <pr-head-sha>
-npm run deploy:watch -- --ref <merge-sha> --timeout 900 --interval 30
-npm run deploy:watch -- --ref main --timeout 900 --interval 30
+npm run deploy:watch:once -- --ref <pr-head-sha> --trace
+npm run deploy:watch -- --ref <merge-sha> --timeout 900 --interval 30 --trace
+npm run deploy:watch -- --ref main --timeout 900 --interval 30 --trace
 ```
+
+Use `--trace` for integration-captain and autopilot runs so the deployment watcher output appears in Agent Operations as an `agent_ops_deployment_watch` trace and artifact. Omit `--trace` only for scratch/local checks that should not write operational history.
 
 ## Decision Thresholds
 

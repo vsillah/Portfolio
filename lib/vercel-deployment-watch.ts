@@ -43,6 +43,7 @@ export type DeploymentWatchOptions = {
   timeoutSeconds: number
   intervalSeconds: number
   once: boolean
+  trace: boolean
 }
 
 const DEFAULT_OPTIONS: DeploymentWatchOptions = {
@@ -53,6 +54,7 @@ const DEFAULT_OPTIONS: DeploymentWatchOptions = {
   timeoutSeconds: 900,
   intervalSeconds: 30,
   once: false,
+  trace: false,
 }
 
 function normalizeState(state: string | undefined): DeploymentWatchState {
@@ -158,6 +160,8 @@ export function parseDeploymentWatchArgs(argv: string[]): DeploymentWatchOptions
       index += 1
     } else if (arg === '--once') {
       options.once = true
+    } else if (arg === '--trace') {
+      options.trace = true
     } else if (arg === '--help' || arg === '-h') {
       throw new Error('HELP_REQUESTED')
     }

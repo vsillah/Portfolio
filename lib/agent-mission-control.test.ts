@@ -9,6 +9,7 @@ import {
   buildAgentCostSummary,
   buildAgentEngagementQueue,
   buildAgentInbox,
+  buildAgentOperatingSignals,
   buildDailyOperatingBrief,
 } from '@/lib/agent-mission-control'
 
@@ -254,5 +255,49 @@ describe('Agent Mission Control helpers', () => {
     expect(summary.by_workflow[0]).toMatchObject({ key: 'WF-WRM-003', label: 'WF-WRM-003' })
     expect(summary.by_client_project[0]).toMatchObject({ key: 'ATAS Staging', label: 'ATAS Staging' })
     expect(summary.by_artifact_type[0]).toMatchObject({ key: 'warm_lead', label: 'warm lead' })
+  })
+
+  it('surfaces morning review and deployment watcher traces as operating signals', () => {
+    const signals = buildAgentOperatingSignals([
+      run({
+        id: 'morning-run',
+        kind: 'agent_ops_morning_review',
+        status: 'completed',
+        current_step: 'Agent Ops morning review ready',
+        outcome: {
+          overall: 'ok',
+          warning_count: 0,
+          stale_marked: 1,
+          slack_notified: true,
+        },
+      }),
+      run({
+        id: 'deploy-run',
+        kind: 'agent_ops_deployment_watch',
+        status: 'completed',
+        outcome: {
+          deployment_state: 'success',
+          ref: 'main',
+          contexts: [
+            { context: 'Vercel – portfolio', state: 'success' },
+            { context: 'Vercel – portfolio-staging', state: 'success' },
+          ],
+          guidance: ['guidance=ready; both required Vercel contexts passed'],
+        },
+      }),
+    ])
+
+    expect(signals).toHaveLength(2)
+    expect(signals[0]).toMatchObject({
+      kind: 'morning_review',
+      signal: 'Overall: ok',
+      details: ['0 warning(s)', '1 stale run(s) marked', 'Slack notified'],
+    })
+    expect(signals[1]).toMatchObject({
+      kind: 'deployment_watch',
+      signal: 'Deployments: success',
+      summary: 'Latest watcher snapshot for main.',
+    })
+    expect(signals[1].details).toContain('Vercel – portfolio-staging: success')
   })
 })

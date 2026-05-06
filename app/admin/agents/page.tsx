@@ -107,6 +107,17 @@ type MissionSnapshot = {
     by_client_project: CostSummaryGroup[]
     by_artifact_type: CostSummaryGroup[]
   }
+  operating_signals: Array<{
+    run_id: string
+    kind: 'morning_review' | 'deployment_watch'
+    title: string
+    status: string
+    signal: string
+    summary: string
+    updated_at: string
+    href: string
+    details: string[]
+  }>
   agent_inbox: Array<{
     id: string
     priority: 'high' | 'medium' | 'low'
@@ -417,6 +428,7 @@ export default function AgentOperationsPage() {
 
           <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
           <CostSummaryPanel summary={snapshot?.cost_summary ?? null} />
+          <OperatingSignalsPanel signals={snapshot?.operating_signals ?? []} />
 
           <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
@@ -712,6 +724,48 @@ function CostSummaryCard({ title, group }: { title: string; group: CostSummaryGr
         {group ? `${group.event_count} event(s), ${group.run_count} run(s)` : 'No linked cost events'}
       </p>
     </div>
+  )
+}
+
+function OperatingSignalsPanel({ signals }: { signals: MissionSnapshot['operating_signals'] }) {
+  if (!signals.length) return null
+
+  return (
+    <section className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-2">
+      {signals.map((signal) => {
+        const isHealthy = signal.status === 'completed' || signal.signal.toLowerCase().includes('success')
+        return (
+          <Link
+            key={`${signal.kind}-${signal.run_id}`}
+            href={signal.href}
+            className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4 hover:border-radiant-gold/50"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 text-radiant-gold">
+                  {isHealthy ? <CheckCircle2 size={18} /> : <AlertTriangle size={18} />}
+                  <h2 className="font-semibold">{signal.title}</h2>
+                </div>
+                <p className="mt-2 text-lg font-semibold">{signal.signal}</p>
+                <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{signal.summary}</p>
+              </div>
+              <span className="shrink-0 rounded-full border border-silicon-slate/50 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground">
+                {formatTime(signal.updated_at)}
+              </span>
+            </div>
+            {signal.details.length ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {signal.details.slice(0, 3).map((detail) => (
+                  <span key={detail} className="rounded-full border border-silicon-slate/50 bg-black/10 px-2.5 py-1 text-xs text-muted-foreground">
+                    {detail}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+          </Link>
+        )
+      })}
+    </section>
   )
 }
 

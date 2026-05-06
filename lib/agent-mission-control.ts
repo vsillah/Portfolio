@@ -125,6 +125,18 @@ export type AgentCostSummary = {
   by_artifact_type: AgentCostGroup[]
 }
 
+export type AgentOperatingSignal = {
+  run_id: string
+  kind: 'morning_review' | 'deployment_watch'
+  title: string
+  status: string
+  signal: string
+  summary: string
+  updated_at: string
+  href: string
+  details: string[]
+}
+
 function sinceHours(hours: number) {
   return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
 }
@@ -349,6 +361,85 @@ export function buildAgentCostSummary(input: {
     by_client_project: summarizeCostGroups(clientProjectGroups),
     by_artifact_type: summarizeCostGroups(artifactTypeGroups),
   }
+}
+
+export function buildAgentOperatingSignals(runs: AgentRunRow[]): AgentOperatingSignal[] {
+  const latestMorningReview = runs.find((run) => run.kind === 'agent_ops_morning_review')
+  const latestDeploymentWatch = runs.find((run) => run.kind === 'agent_ops_deployment_watch')
+  const signals: AgentOperatingSignal[] = []
+
+  if (latestMorningReview) {
+    const overall =
+      typeof latestMorningReview.outcome?.overall === 'string'
+        ? latestMorningReview.outcome.overall
+        : latestMorningReview.status
+    const warningCount =
+      typeof latestMorningReview.outcome?.warning_count === 'number'
+        ? latestMorningReview.outcome.warning_count
+        : null
+    const staleMarked =
+      typeof latestMorningReview.outcome?.stale_marked === 'number'
+        ? latestMorningReview.outcome.stale_marked
+        : null
+    const slackNotified =
+      typeof latestMorningReview.outcome?.slack_notified === 'boolean'
+        ? latestMorningReview.outcome.slack_notified
+        : null
+
+    signals.push({
+      run_id: latestMorningReview.id,
+      kind: 'morning_review',
+      title: 'Morning Review',
+      status: latestMorningReview.status,
+      signal: `Overall: ${overall}`,
+      summary: latestMorningReview.error_message ?? latestMorningReview.current_step ?? latestMorningReview.title,
+      updated_at: latestMorningReview.completed_at ?? latestMorningReview.started_at,
+      href: `/admin/agents/runs/${latestMorningReview.id}`,
+      details: [
+        warningCount === null ? null : `${warningCount} warning(s)`,
+        staleMarked === null ? null : `${staleMarked} stale run(s) marked`,
+        slackNotified === null ? null : slackNotified ? 'Slack notified' : 'Slack skipped',
+      ].filter((detail): detail is string => Boolean(detail)),
+    })
+  }
+
+  if (latestDeploymentWatch) {
+    const deploymentState =
+      typeof latestDeploymentWatch.outcome?.deployment_state === 'string'
+        ? latestDeploymentWatch.outcome.deployment_state
+        : latestDeploymentWatch.status
+    const ref =
+      typeof latestDeploymentWatch.outcome?.ref === 'string'
+        ? latestDeploymentWatch.outcome.ref
+        : stringMetadataValue(latestDeploymentWatch.metadata, 'ref')
+    const guidance = Array.isArray(latestDeploymentWatch.outcome?.guidance)
+      ? latestDeploymentWatch.outcome.guidance.filter((item): item is string => typeof item === 'string')
+      : []
+    const contexts = Array.isArray(latestDeploymentWatch.outcome?.contexts)
+      ? latestDeploymentWatch.outcome.contexts
+          .map((item) => {
+            if (!item || typeof item !== 'object') return null
+            const context = 'context' in item && typeof item.context === 'string' ? item.context : null
+            const state = 'state' in item && typeof item.state === 'string' ? item.state : null
+            return context && state ? `${context}: ${state}` : null
+          })
+          .filter((detail): detail is string => Boolean(detail))
+      : []
+
+    signals.push({
+      run_id: latestDeploymentWatch.id,
+      kind: 'deployment_watch',
+      title: 'Deployment Watcher',
+      status: latestDeploymentWatch.status,
+      signal: `Deployments: ${deploymentState}`,
+      summary: ref ? `Latest watcher snapshot for ${ref}.` : latestDeploymentWatch.current_step ?? latestDeploymentWatch.title,
+      updated_at: latestDeploymentWatch.completed_at ?? latestDeploymentWatch.started_at,
+      href: `/admin/agents/runs/${latestDeploymentWatch.id}`,
+      details: [...contexts.slice(0, 2), ...guidance.slice(0, 1)],
+    })
+  }
+
+  return signals
 }
 
 function sourceLabelForRun(run: AgentRunRow) {
@@ -650,6 +741,7 @@ export async function buildAgentMissionControlSnapshot() {
   const agentInbox = buildAgentInbox({ runs, approvals, costByRun, latestStandup })
   const engagementQueue = buildAgentEngagementQueue(runs)
   const deadLetterQueue = buildAgentDeadLetterQueue(runs)
+  const operatingSignals = buildAgentOperatingSignals(runs)
   const costToday = Number(costs.reduce((sum, row) => sum + Number(row.amount ?? 0), 0).toFixed(4))
   const costSummary = buildAgentCostSummary({ costs, runsById, windowHours: 24 })
   const dailyBrief = buildDailyOperatingBrief({
@@ -704,6 +796,7 @@ export async function buildAgentMissionControlSnapshot() {
     latest_standup: latestStandup ? summarizeRun(latestStandup, costByRun) : null,
     daily_brief: dailyBrief,
     cost_summary: costSummary,
+    operating_signals: operatingSignals,
     agent_inbox: agentInbox,
     engagement_queue: engagementQueue,
     dead_letter_queue: deadLetterQueue,

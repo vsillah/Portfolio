@@ -163,6 +163,15 @@ This keeps OpenCode/OpenClaw out of production automation until installation, au
 
 Use `POST /api/admin/agents/runs/stale-sweep` or the **Sweep stale** button on `/admin/agents/runs` to mark queued/running runs as `stale` when they pass `stale_after` or the default active-run threshold. Runs waiting for approval are intentionally excluded so human checkpoints do not auto-expire as infrastructure failures.
 
+## Operating Signals
+
+Mission Control surfaces the latest morning review and deployment watcher traces as compact Operating Signals:
+
+- `agent_ops_morning_review` shows overall health, warning count, stale-run cleanup, and Slack notification state.
+- `agent_ops_deployment_watch` shows the latest Vercel deployment watcher state, required context states, and guidance.
+
+Use `npm run deploy:watch -- --ref <sha-or-branch> --trace` for integration-captain and autopilot deployment checks. The `--trace` flag records the final watcher output as an Agent Operations run and artifact. It does not change deployments and writes only to the shared Agent Ops trace tables.
+
 ## Agent Ops Morning Review
 
 Use `POST /api/cron/agent-ops-morning-review` with `Authorization: Bearer N8N_INGEST_SECRET` to run the daily no-human-in-the-loop review. The route:
