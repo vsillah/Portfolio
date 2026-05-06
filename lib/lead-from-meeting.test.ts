@@ -7,6 +7,8 @@ const {
   mockEq,
   mockSingle,
   mockRecordOpenAICost,
+  mockRecordAgentStep,
+  mockRecordAgentEvent,
 } = vi.hoisted(() => {
   const mockSingle = vi.fn()
   const mockEq = vi.fn(() => ({ single: mockSingle }))
@@ -14,6 +16,8 @@ const {
   const mockFrom = vi.fn(() => ({ select: mockSelect }))
   const mockSupabaseAdmin = { from: mockFrom }
   const mockRecordOpenAICost = vi.fn(() => Promise.resolve())
+  const mockRecordAgentStep = vi.fn(() => Promise.resolve({ id: 'step-1' }))
+  const mockRecordAgentEvent = vi.fn(() => Promise.resolve({ id: 'event-1' }))
 
   return {
     mockSupabaseAdmin,
@@ -22,6 +26,8 @@ const {
     mockEq,
     mockSingle,
     mockRecordOpenAICost,
+    mockRecordAgentStep,
+    mockRecordAgentEvent,
   }
 })
 
@@ -29,11 +35,22 @@ vi.mock('@/lib/supabase', () => ({
   supabaseAdmin: mockSupabaseAdmin,
 }))
 
-vi.mock('@/lib/cost-calculator', () => ({
-  recordOpenAICost: mockRecordOpenAICost,
+vi.mock('@/lib/cost-calculator', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/cost-calculator')>()
+  return {
+    ...actual,
+    recordOpenAICost: mockRecordOpenAICost,
+  }
+})
+
+vi.mock('@/lib/agent-run', () => ({
+  recordAgentStep: mockRecordAgentStep,
+  recordAgentEvent: mockRecordAgentEvent,
 }))
 
 import {
+  buildLeadExtractionUserPrompt,
+  evaluateLeadFromMeetingBudget,
   fetchMeetingForExtraction,
   extractLeadFieldsFromTranscript,
   extractLeadFieldsFromMeeting,
@@ -48,11 +65,15 @@ describe('lead-from-meeting', () => {
     mockEq.mockClear()
     mockSingle.mockClear()
     mockRecordOpenAICost.mockClear()
+    mockRecordAgentStep.mockClear()
+    mockRecordAgentEvent.mockClear()
+    vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.unstubAllGlobals()
     process.env = { ...originalEnv }
   })
 
   afterEach(() => {
+    vi.restoreAllMocks()
     vi.unstubAllGlobals()
     process.env = { ...originalEnv }
   })
@@ -116,6 +137,29 @@ describe('lead-from-meeting', () => {
     expect(mockRecordOpenAICost).toHaveBeenCalledTimes(1)
   })
 
+  it('allows normal meeting lead extraction prompts within the manual admin budget', () => {
+    const decision = evaluateLeadFromMeetingBudget({
+      systemPrompt: 'Extract contact details.',
+      userPrompt: buildLeadExtractionUserPrompt('Short meeting transcript.'),
+    })
+
+    expect(decision.status).toBe('allowed')
+    expect(decision.rule.key).toBe('llm_manual_per_call')
+    expect(decision.estimatedCostUsd).toBeGreaterThan(0)
+  })
+
+  it('blocks oversized meeting lead extraction prompts before dispatch', () => {
+    const decision = evaluateLeadFromMeetingBudget({
+      systemPrompt: 'Extract contact details.',
+      userPrompt: buildLeadExtractionUserPrompt('x'.repeat(2_000_000)),
+      model: 'gpt-4o',
+      maxTokens: 100_000,
+    })
+
+    expect(decision.status).toBe('blocked')
+    expect(decision.reason).toContain('Manual admin LLM call cap')
+  })
+
   it('throws a generic extraction error when OpenAI returns non-OK', async () => {
     process.env.OPENAI_API_KEY = 'test-key'
 
@@ -128,6 +172,55 @@ describe('lead-from-meeting', () => {
     await expect(
       extractLeadFieldsFromTranscript('Need details for lead creation')
     ).rejects.toThrow('AI extraction failed')
+  })
+
+  it('records budget trace metadata and links cost when agentRunId is supplied', async () => {
+    process.env.OPENAI_API_KEY = 'test-key'
+
+    const mockFetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        usage: { prompt_tokens: 123, completion_tokens: 45, total_tokens: 168 },
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                name: 'Morgan Lead',
+                company: 'Example Co',
+              }),
+            },
+          },
+        ],
+      }),
+    })
+    vi.stubGlobal('fetch', mockFetch)
+
+    const extracted = await extractLeadFieldsFromTranscript(
+      'Morgan says the sales team needs cleaner follow-up.',
+      { agentRunId: 'agent-run-1', meetingRecordId: 'meeting-99' },
+    )
+
+    expect(extracted.name).toBe('Morgan Lead')
+    expect(mockRecordAgentStep).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runId: 'agent-run-1',
+        stepKey: 'budget_check',
+        metadata: expect.objectContaining({
+          meeting_record_id: 'meeting-99',
+          budget_status: 'allowed',
+        }),
+      }),
+    )
+    expect(mockRecordOpenAICost).toHaveBeenCalledWith(
+      expect.any(Object),
+      'gpt-4o-mini',
+      { type: 'lead_extraction', id: 'meeting-99' },
+      expect.objectContaining({
+        operation: 'lead_from_meeting',
+        budget_status: 'allowed',
+      }),
+      'agent-run-1',
+    )
   })
 
   it('extractLeadFieldsFromMeeting runs fetch -> combine -> extract flow', async () => {
