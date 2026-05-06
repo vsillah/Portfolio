@@ -87,4 +87,17 @@ describe('buildTechnologyBakeoffPlan', () => {
     expect(plan.candidates[0].label).toBe('New Analytics Tool')
     expect(plan.candidates[0].role).toBe('User-supplied candidate')
   })
+
+  it('uses Apify call evidence for lead enrichment bakeoffs', () => {
+    const plan = buildTechnologyBakeoffPlan({
+      surface: 'lead_enrichment',
+      objective: 'Decide whether Apify actors should be replaced before renewal.',
+      priority: 'cost',
+      currentDefault: 'Apify actors',
+    })
+
+    expect(plan.candidates.map((candidate) => candidate.id)).toEqual(expect.arrayContaining(['apify_actors', 'browser_agents']))
+    expect(plan.benchmarkRunbook.join(' ')).toContain('docs/apify-call-bakeoff-analysis.md')
+    expect(plan.missingEvidence.join(' ')).toContain('Direct Apify run history')
+  })
 })

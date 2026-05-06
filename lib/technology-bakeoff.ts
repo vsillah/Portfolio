@@ -269,14 +269,47 @@ export const TECHNOLOGY_BAKEOFF_PROFILES: Record<TechnologyBakeoffSurface, Surfa
     ['deliverability', 'personalization', 'auditability', 'reply handling', 'approval burden'],
     'Keep traceable drafts and approval state before outbound sends.'
   ),
-  lead_enrichment: genericProfile(
-    'lead_enrichment',
-    'Lead discovery and enrichment',
-    'outreach dashboard, tech-stack lookup, warm lead workflows',
-    ['Apify actors', 'BuiltWith', 'LinkedIn/Google sources', 'Enrichment APIs', 'Browser agents'],
-    ['data quality', 'source reliability', 'cost per useful lead', 'compliance', 'duplicate rate'],
-    'Keep current enrichment sources until a candidate improves qualified-lead yield without privacy risk.'
-  ),
+  lead_enrichment: {
+    surface: 'lead_enrichment',
+    label: 'Lead discovery and enrichment',
+    adminArea: 'outreach dashboard, tech-stack lookup, warm lead workflows, docs/apify-call-bakeoff-analysis.md',
+    fallback: 'Keep current enrichment sources until a candidate improves qualified-lead yield without privacy risk.',
+    candidates: [
+      candidate('apify_actors', 'Apify actors', 'Current scraper runtime', 'Facebook, LinkedIn, Reddit, Google Maps, G2, Capterra, and screenshot/video scraping where actors still return useful output.', 'Run-history may show empty datasets or account-risky scraping; do not renew blindly.'),
+      candidate('builtwith', 'BuiltWith', 'Tech-stack enrichment', 'Website technology lookup for lead prep and implementation strategy.', 'High monthly spend needs conversion evidence.'),
+      candidate('first_party_exports', 'First-party exports and CSVs', 'Low-cost source path', 'LinkedIn exports, CRM/contact imports, Google/Meta/native exports, and manually approved lists.', 'More manual setup and less automation.'),
+      candidate('browser_agents', 'Browser agents', 'Targeted extraction candidate', 'Campaign-limited research with visible source capture and less platform lock-in.', 'Needs strict rate limits, approval gates, and source register output.'),
+      candidate('search_apis', 'Search and maps APIs', 'Structured API candidate', 'Brave/Search APIs, Google Places, or review APIs where terms and cost fit.', 'Coverage varies by source and may need separate compliance review.'),
+    ],
+    scoring: [
+      scoreSeed('Cost per useful lead', 0.22, 'Compare monthly spend, run cost, and accepted lead/evidence count.'),
+      scoreSeed('Data quality and freshness', 0.2, 'Score useful, current, deduplicated records against accepted lead criteria.'),
+      scoreSeed('Source reliability', 0.18, 'Measure failed runs, empty datasets, throttling, and actor maintenance risk.'),
+      scoreSeed('Compliance and account risk', 0.16, 'Prefer first-party exports and permitted APIs over fragile scraping.'),
+      scoreSeed('Workflow fit', 0.14, 'Fits n8n, Portfolio ingest, provenance, and admin review without new hidden work.'),
+      scoreSeed('Rollback path', 0.1, 'Can pause or restore without breaking outreach operations.'),
+    ],
+    benchmarkFocus: [
+      'Use docs/apify-call-bakeoff-analysis.md as the starting actor inventory.',
+      'Pull recent Apify run count, compute/cost, dataset item count, failure rate, and accepted-result rate for each actor.',
+      'Run the same lead/evidence packet through Apify and at least one alternative for the top active actor categories.',
+    ],
+    promotionGate: [
+      ...COMMON_PROMOTION_GATE,
+      'Replacement must lower cost per useful lead or materially improve accepted data quality.',
+      'Do not replace a scraper with another scraping path unless compliance and account-risk exposure are equal or better.',
+    ],
+    rollbackPlan: [
+      'Keep existing Apify workflow nodes disabled, not deleted, until the replacement completes two successful review cycles.',
+      'Restore Apify actor nodes if accepted-result rate drops, source coverage falls, or manual burden rises.',
+    ],
+    integrationNotes: [
+      'Link each actor decision to docs/apify-call-bakeoff-analysis.md.',
+      'Expose Apify as a subscription watch item, not an automatic cancellation candidate.',
+      'Persist accepted-result counts separately from raw scrape counts before changing provider defaults.',
+    ],
+    missingEvidence: ['Direct Apify run history', 'Compute/cost by actor', 'Accepted-result rate by actor', 'Replacement run evidence'],
+  },
   pricing_roi: genericProfile(
     'pricing_roi',
     'Pricing, bundles, and ROI tools',

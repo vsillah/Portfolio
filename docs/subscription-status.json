@@ -4,6 +4,141 @@
   "weeklyReportAutomationId": "portfolio-subscription-weekly-report",
   "dailyMonitorAutomationId": "portfolio-subscription-cancellation-monitor",
   "approvalPhrasePattern": "Cancel <tool/vendor> for Portfolio",
+  "budget": {
+    "monthlyTargetUsd": 300,
+    "confirmedMonthlyRunRateUsd": 791.02,
+    "overTargetUsd": 491.02,
+    "confidence": "partial_receipt_verified",
+    "lastReceiptRefresh": "2026-05-06",
+    "queryExamples": [
+      "How much are we spending monthly?",
+      "Are we under $300?",
+      "Which vendors put us over budget?",
+      "What can we cut to get under budget?"
+    ],
+    "notes": [
+      "Confirmed from Gmail receipts and the subscription audit tracker; unresolved usage-based tools still require dashboard verification.",
+      "Recent quick enrollments/cancellations may make next-month realized spend lower than this snapshot.",
+      "Cancellation remains approval-gated; this budget view is read-only."
+    ],
+    "lineItems": [
+      {
+        "vendor": "BuiltWith",
+        "amountUsd": 307,
+        "billingCadence": "monthly",
+        "status": "watch",
+        "evidence": "Three receipts on 2026-04-10: $109.00, $99.00, and $99.00.",
+        "budgetAction": "Keep under watch during outreach ramp; largest cut lever if client-volume evidence does not justify it."
+      },
+      {
+        "vendor": "Anthropic",
+        "amountUsd": 106.25,
+        "billingCadence": "monthly",
+        "status": "watch",
+        "evidence": "Receipt on 2026-04-11 for Claude Max plan with tax.",
+        "budgetAction": "Expected to drop if the ChatGPT switch replaces Claude Max before renewal."
+      },
+      {
+        "vendor": "OpenAI / ChatGPT Pro",
+        "amountUsd": 106.25,
+        "billingCadence": "monthly",
+        "status": "keep",
+        "evidence": "ChatGPT Pro subscription email on 2026-04-29 with $106.25 total.",
+        "budgetAction": "Keep as the primary premium AI plan if Anthropic is canceled."
+      },
+      {
+        "vendor": "n8n Cloud",
+        "amountUsd": 63.75,
+        "billingCadence": "monthly",
+        "status": "keep",
+        "evidence": "Receipt on 2026-04-22 for Cloud Pro-1 with tax.",
+        "budgetAction": "Keep while workflows remain active; optimize workflow errors separately."
+      },
+      {
+        "vendor": "Apify",
+        "amountUsd": 39,
+        "billingCadence": "monthly",
+        "status": "keep",
+        "evidence": "Payment-success invoices on 2026-04-03 and 2026-05-03 for $39.",
+        "budgetAction": "Keep on watch; run Apify actor bakeoff before renewal to test cheaper or better replacements."
+      },
+      {
+        "vendor": "HeyGen",
+        "amountUsd": 30.81,
+        "billingCadence": "monthly",
+        "status": "keep",
+        "evidence": "Receipt on 2026-04-14 for HeyGen Creator Platform with tax.",
+        "budgetAction": "Review after the next video campaign."
+      },
+      {
+        "vendor": "Gamma",
+        "amountUsd": 25,
+        "billingCadence": "monthly",
+        "status": "keep",
+        "evidence": "Receipt on 2026-05-01 for Gamma Pro.",
+        "budgetAction": "Keep an eye on usage; continue comparing against Codex/PPTX and other deck paths."
+      },
+      {
+        "vendor": "Supabase",
+        "amountUsd": 25.27,
+        "billingCadence": "monthly",
+        "status": "keep",
+        "evidence": "Payment received on 2026-04-09 for $25.27.",
+        "budgetAction": "Keep; core data plane."
+      },
+      {
+        "vendor": "ElevenLabs",
+        "amountUsd": 23.38,
+        "billingCadence": "monthly",
+        "status": "watch",
+        "evidence": "Receipt on 2026-04-19 for Creator subscription with tax.",
+        "budgetAction": "Watch through the next social/audio cycle."
+      },
+      {
+        "vendor": "Vercel",
+        "amountUsd": 21.25,
+        "billingCadence": "monthly",
+        "status": "keep",
+        "evidence": "Receipt on 2026-05-06 for Vercel Pro with tax.",
+        "budgetAction": "Keep; active production and staging hosting."
+      },
+      {
+        "vendor": "Read.ai",
+        "amountUsd": 20.98,
+        "billingCadence": "monthly",
+        "status": "keep",
+        "evidence": "Receipt on 2026-04-20 for Read Pro Plan with tax.",
+        "budgetAction": "Keep while meeting transcript workflow is active."
+      },
+      {
+        "vendor": "Calendly",
+        "amountUsd": 12.75,
+        "billingCadence": "monthly",
+        "status": "keep",
+        "evidence": "Receipt on 2026-04-04 for Standard with tax.",
+        "budgetAction": "Low-cost keep unless replaced by another scheduling path."
+      },
+      {
+        "vendor": "Google Cloud",
+        "amountUsd": 9.33,
+        "billingCadence": "monthly",
+        "status": "keep",
+        "evidence": "Google Cloud payment received on 2026-05-01 for $9.33.",
+        "budgetAction": "Keep; low-cost usage-based infrastructure."
+      }
+    ],
+    "watchItems": [
+      "Gamma",
+      "Apify",
+      "BuiltWith",
+      "ElevenLabs",
+      "OpenRouter",
+      "Vapi",
+      "Pinecone",
+      "Resend",
+      "Printful"
+    ]
+  },
   "summary": {
     "status": "yellow",
     "headline": "Core Portfolio subscriptions remain active. OpenRouter and Resend stay quiet, while Apify and ElevenLabs are confirmed paid/active.",
@@ -195,6 +330,10 @@
       "nextAction": "Review actor cadence and spend before the next renewal window.",
       "decisionRequired": false,
       "links": [
+        {
+          "label": "Apify bakeoff analysis",
+          "href": "https://github.com/vsillah/Portfolio/blob/main/docs/apify-call-bakeoff-analysis.md"
+        },
         {
           "label": "Audit tracker",
           "href": "https://github.com/vsillah/Portfolio/blob/main/docs/subscription-cancellation-audit.md"
