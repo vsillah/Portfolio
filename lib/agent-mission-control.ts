@@ -19,8 +19,11 @@ type AgentRunRow = {
 
 type CostEventRow = {
   agent_run_id: string | null
+  source: string | null
+  reference_type: string | null
   amount: number | string | null
   occurred_at: string
+  metadata: Record<string, unknown> | null
 }
 
 type ApprovalRow = {
@@ -101,6 +104,27 @@ export type DailyOperatingBrief = {
   next_actions: string[]
 }
 
+export type AgentCostGroup = {
+  key: string
+  label: string
+  amount: number
+  event_count: number
+  run_count: number
+}
+
+export type AgentCostSummary = {
+  window_hours: number
+  total: number
+  event_count: number
+  linked_event_count: number
+  unlinked_event_count: number
+  by_runtime: AgentCostGroup[]
+  by_agent: AgentCostGroup[]
+  by_workflow: AgentCostGroup[]
+  by_client_project: AgentCostGroup[]
+  by_artifact_type: AgentCostGroup[]
+}
+
 function sinceHours(hours: number) {
   return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
 }
@@ -168,6 +192,163 @@ function readableLabel(value: string | null | undefined) {
     .replace(/_/g, ' ')
     .replace(/\s+/g, ' ')
     .trim()
+}
+
+function stableMetadataValue(
+  metadata: Record<string, unknown> | null | undefined,
+  keys: string[],
+) {
+  for (const key of keys) {
+    const value = metadata?.[key]
+    if (typeof value === 'string' && value.trim()) return value.trim()
+    if (typeof value === 'number' && Number.isFinite(value)) return String(value)
+  }
+  return null
+}
+
+function labelFromKey(value: string | null | undefined, fallback: string) {
+  return readableLabel(value) ?? fallback
+}
+
+function costAmount(value: number | string | null | undefined) {
+  const amount = Number(value ?? 0)
+  return Number.isFinite(amount) ? amount : 0
+}
+
+function summarizeCostGroups(groups: Map<string, AgentCostGroup & { runIds: Set<string> }>) {
+  return Array.from(groups.values())
+    .map(({ runIds, ...group }) => ({
+      ...group,
+      amount: Number(group.amount.toFixed(4)),
+      run_count: runIds.size,
+    }))
+    .sort((a, b) => b.amount - a.amount || a.label.localeCompare(b.label))
+    .slice(0, 5)
+}
+
+function addCostGroup(
+  groups: Map<string, AgentCostGroup & { runIds: Set<string> }>,
+  key: string,
+  label: string,
+  amount: number,
+  runId: string | null,
+) {
+  const existing = groups.get(key) ?? {
+    key,
+    label,
+    amount: 0,
+    event_count: 0,
+    run_count: 0,
+    runIds: new Set<string>(),
+  }
+
+  existing.amount += amount
+  existing.event_count += 1
+  if (runId) existing.runIds.add(runId)
+  groups.set(key, existing)
+}
+
+function workflowKeyForCost(run: AgentRunRow | undefined, cost: CostEventRow) {
+  const workflow =
+    stableMetadataValue(run?.metadata, ['workflow_id', 'workflow', 'n8n_workflow_id', 'source_workflow']) ??
+    stableMetadataValue(cost.metadata, ['workflow_id', 'workflow', 'n8n_workflow_id', 'source_workflow']) ??
+    run?.kind ??
+    cost.reference_type ??
+    cost.source
+
+  return {
+    key: workflow ?? 'unspecified_workflow',
+    label: labelFromKey(workflow, 'Unspecified workflow'),
+  }
+}
+
+function clientProjectKeyForCost(run: AgentRunRow | undefined, cost: CostEventRow) {
+  const clientProject =
+    stableMetadataValue(run?.metadata, [
+      'client_project_name',
+      'project_name',
+      'client_name',
+      'client_project_id',
+      'project_id',
+      'client_id',
+    ]) ??
+    stableMetadataValue(cost.metadata, [
+      'client_project_name',
+      'project_name',
+      'client_name',
+      'client_project_id',
+      'project_id',
+      'client_id',
+    ]) ??
+    run?.subject_label
+
+  return {
+    key: clientProject ?? 'unassigned_client_project',
+    label: labelFromKey(clientProject, 'Unassigned client/project'),
+  }
+}
+
+function artifactTypeKeyForCost(run: AgentRunRow | undefined, cost: CostEventRow) {
+  const artifactType =
+    stableMetadataValue(cost.metadata, ['artifact_type', 'artifactType', 'output_type', 'content_type']) ??
+    stableMetadataValue(run?.metadata, ['artifact_type', 'artifactType', 'output_type', 'content_type']) ??
+    cost.reference_type ??
+    run?.kind ??
+    cost.source
+
+  return {
+    key: artifactType ?? 'unspecified_artifact',
+    label: labelFromKey(artifactType, 'Unspecified artifact'),
+  }
+}
+
+export function buildAgentCostSummary(input: {
+  costs: CostEventRow[]
+  runsById: Map<string, AgentRunRow>
+  windowHours?: number
+}): AgentCostSummary {
+  const runtimeGroups = new Map<string, AgentCostGroup & { runIds: Set<string> }>()
+  const agentGroups = new Map<string, AgentCostGroup & { runIds: Set<string> }>()
+  const workflowGroups = new Map<string, AgentCostGroup & { runIds: Set<string> }>()
+  const clientProjectGroups = new Map<string, AgentCostGroup & { runIds: Set<string> }>()
+  const artifactTypeGroups = new Map<string, AgentCostGroup & { runIds: Set<string> }>()
+
+  let total = 0
+  let linkedEventCount = 0
+
+  for (const cost of input.costs) {
+    const amount = costAmount(cost.amount)
+    total += amount
+
+    const run = cost.agent_run_id ? input.runsById.get(cost.agent_run_id) : undefined
+    if (cost.agent_run_id) linkedEventCount += 1
+
+    const agentKey = run ? requestedAgentKey(run) : null
+    const agent = agentKey ? findAgent(agentKey) : null
+    const workflow = workflowKeyForCost(run, cost)
+    const clientProject = clientProjectKeyForCost(run, cost)
+    const artifactType = artifactTypeKeyForCost(run, cost)
+    const runId = cost.agent_run_id ?? null
+
+    addCostGroup(runtimeGroups, run?.runtime ?? 'unlinked', labelFromKey(run?.runtime, 'Unlinked'), amount, runId)
+    addCostGroup(agentGroups, agent?.key ?? 'unassigned_agent', agent?.name ?? 'Unassigned agent', amount, runId)
+    addCostGroup(workflowGroups, workflow.key, workflow.label, amount, runId)
+    addCostGroup(clientProjectGroups, clientProject.key, clientProject.label, amount, runId)
+    addCostGroup(artifactTypeGroups, artifactType.key, artifactType.label, amount, runId)
+  }
+
+  return {
+    window_hours: input.windowHours ?? 24,
+    total: Number(total.toFixed(4)),
+    event_count: input.costs.length,
+    linked_event_count: linkedEventCount,
+    unlinked_event_count: input.costs.length - linkedEventCount,
+    by_runtime: summarizeCostGroups(runtimeGroups),
+    by_agent: summarizeCostGroups(agentGroups),
+    by_workflow: summarizeCostGroups(workflowGroups),
+    by_client_project: summarizeCostGroups(clientProjectGroups),
+    by_artifact_type: summarizeCostGroups(artifactTypeGroups),
+  }
 }
 
 function sourceLabelForRun(run: AgentRunRow) {
@@ -412,7 +593,7 @@ export async function buildAgentMissionControlSnapshot() {
       .limit(50),
     db
       .from('cost_events')
-      .select('agent_run_id, amount, occurred_at')
+      .select('agent_run_id, source, reference_type, amount, occurred_at, metadata')
       .gte('occurred_at', since)
       .limit(500),
     db
@@ -439,6 +620,7 @@ export async function buildAgentMissionControlSnapshot() {
   const approvals = (approvalsRes.data ?? []) as ApprovalRow[]
   const events = (eventsRes.data ?? []) as EventRow[]
   const costByRun = new Map<string, number>()
+  const runsById = new Map(runs.map((run) => [run.id, run]))
 
   for (const row of costs) {
     if (!row.agent_run_id) continue
@@ -469,6 +651,7 @@ export async function buildAgentMissionControlSnapshot() {
   const engagementQueue = buildAgentEngagementQueue(runs)
   const deadLetterQueue = buildAgentDeadLetterQueue(runs)
   const costToday = Number(costs.reduce((sum, row) => sum + Number(row.amount ?? 0), 0).toFixed(4))
+  const costSummary = buildAgentCostSummary({ costs, runsById, windowHours: 24 })
   const dailyBrief = buildDailyOperatingBrief({
     approvals,
     costToday,
@@ -520,6 +703,7 @@ export async function buildAgentMissionControlSnapshot() {
     latest_events: events,
     latest_standup: latestStandup ? summarizeRun(latestStandup, costByRun) : null,
     daily_brief: dailyBrief,
+    cost_summary: costSummary,
     agent_inbox: agentInbox,
     engagement_queue: engagementQueue,
     dead_letter_queue: deadLetterQueue,

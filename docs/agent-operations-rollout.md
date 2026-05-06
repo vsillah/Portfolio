@@ -74,6 +74,7 @@ The shared trace tables are:
 - `agent_approvals`
 
 Costs are linked through `cost_events.agent_run_id`.
+Mission Control derives the first 24-hour cost summary by runtime, agent, workflow, client/project, and artifact type from those linked cost events plus run metadata.
 
 ## Rollout Sequence
 

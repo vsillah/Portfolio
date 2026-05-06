@@ -54,6 +54,18 @@ describe('GET /api/admin/agents/mission-control', () => {
         signals: ['1 active run(s)', '0 failed or stale run(s)', '0 pending approval(s)', '$0.2500 cost today'],
         next_actions: ['Run War Room standup.'],
       },
+      cost_summary: {
+        window_hours: 24,
+        total: 0.25,
+        event_count: 1,
+        linked_event_count: 1,
+        unlinked_event_count: 0,
+        by_runtime: [{ key: 'n8n', label: 'n8n', amount: 0.25, event_count: 1, run_count: 1 }],
+        by_agent: [{ key: 'automation-systems', label: 'Automation Systems Agent', amount: 0.25, event_count: 1, run_count: 1 }],
+        by_workflow: [{ key: 'WF-WRM-003', label: 'WF-WRM-003', amount: 0.25, event_count: 1, run_count: 1 }],
+        by_client_project: [{ key: 'Unassigned', label: 'Unassigned client/project', amount: 0.25, event_count: 1, run_count: 1 }],
+        by_artifact_type: [{ key: 'warm_lead', label: 'warm lead', amount: 0.25, event_count: 1, run_count: 1 }],
+      },
       agent_inbox: [],
       engagement_queue: [],
       dead_letter_queue: [],
@@ -85,6 +97,10 @@ describe('GET /api/admin/agents/mission-control', () => {
     })
     expect(body.daily_brief).toMatchObject({
       generated_from: 'current_state',
+    })
+    expect(body.cost_summary).toMatchObject({
+      total: 0.25,
+      linked_event_count: 1,
     })
     expect(body.agent_inbox).toEqual([])
     expect(body.engagement_queue).toEqual([])

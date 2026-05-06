@@ -41,6 +41,14 @@ type MissionRun = {
   cost_total: number
 }
 
+type CostSummaryGroup = {
+  key: string
+  label: string
+  amount: number
+  event_count: number
+  run_count: number
+}
+
 type MissionSnapshot = {
   generated_at: string
   status_strip: {
@@ -86,6 +94,18 @@ type MissionSnapshot = {
     updated_at: string
     signals: string[]
     next_actions: string[]
+  }
+  cost_summary: {
+    window_hours: number
+    total: number
+    event_count: number
+    linked_event_count: number
+    unlinked_event_count: number
+    by_runtime: CostSummaryGroup[]
+    by_agent: CostSummaryGroup[]
+    by_workflow: CostSummaryGroup[]
+    by_client_project: CostSummaryGroup[]
+    by_artifact_type: CostSummaryGroup[]
   }
   agent_inbox: Array<{
     id: string
@@ -396,6 +416,7 @@ export default function AgentOperationsPage() {
           </section>
 
           <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
+          <CostSummaryPanel summary={snapshot?.cost_summary ?? null} />
 
           <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
@@ -633,6 +654,64 @@ function DailyBriefPanel({ brief, loading }: { brief: MissionSnapshot['daily_bri
         </div>
       </div>
     </section>
+  )
+}
+
+function CostSummaryPanel({ summary }: { summary: MissionSnapshot['cost_summary'] | null }) {
+  if (!summary || summary.total <= 0 || summary.event_count === 0) return null
+
+  const topRuntime = summary.by_runtime[0]
+  const topAgent = summary.by_agent[0]
+  const topWorkflow = summary.by_workflow[0]
+  const topClientProject = summary.by_client_project[0]
+  const topArtifactType = summary.by_artifact_type[0]
+  const linkedPercent = summary.event_count
+    ? Math.round((summary.linked_event_count / summary.event_count) * 100)
+    : 0
+
+  return (
+    <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex items-center gap-2 text-radiant-gold">
+          <CircleDollarSign size={18} />
+          <h2 className="font-semibold">Cost Intelligence</h2>
+        </div>
+        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <CostChip label={`${summary.window_hours}h total`} value={`$${summary.total.toFixed(4)}`} />
+          <CostChip label="Linked traces" value={`${linkedPercent}%`} />
+          {summary.unlinked_event_count ? <CostChip label="Unlinked events" value={summary.unlinked_event_count} /> : null}
+        </div>
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-5">
+        <CostSummaryCard title="Runtime" group={topRuntime} />
+        <CostSummaryCard title="Agent" group={topAgent} />
+        <CostSummaryCard title="Workflow" group={topWorkflow} />
+        <CostSummaryCard title="Client / Project" group={topClientProject} />
+        <CostSummaryCard title="Artifact" group={topArtifactType} />
+      </div>
+    </section>
+  )
+}
+
+function CostChip({ label, value }: { label: string; value: string | number }) {
+  return (
+    <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2.5 py-1">
+      {label}: <span className="text-foreground">{value}</span>
+    </span>
+  )
+}
+
+function CostSummaryCard({ title, group }: { title: string; group: CostSummaryGroup | undefined }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3">
+      <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{title}</p>
+      <p className="mt-2 truncate text-sm font-medium">{group?.label ?? 'No signal'}</p>
+      <p className="mt-1 text-lg font-semibold">{group ? `$${group.amount.toFixed(4)}` : '$0.0000'}</p>
+      <p className="mt-1 text-xs text-muted-foreground">
+        {group ? `${group.event_count} event(s), ${group.run_count} run(s)` : 'No linked cost events'}
+      </p>
+    </div>
   )
 }
 

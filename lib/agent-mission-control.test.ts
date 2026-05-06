@@ -6,6 +6,7 @@ vi.mock('@/lib/supabase', () => ({
 
 import {
   buildAgentDeadLetterQueue,
+  buildAgentCostSummary,
   buildAgentEngagementQueue,
   buildAgentInbox,
   buildDailyOperatingBrief,
@@ -199,5 +200,59 @@ describe('Agent Mission Control helpers', () => {
       routed: false,
       next_action: 'Route stale run owner from Agent Inbox.',
     })
+  })
+
+  it('groups trace-linked costs by runtime, agent, workflow, client project, and artifact type', () => {
+    const linkedRun = run({
+      id: 'cost-run',
+      agent_key: 'automation-systems',
+      runtime: 'n8n',
+      kind: 'agent_workflow',
+      subject_label: 'Anna Berin',
+      metadata: {
+        workflow_id: 'WF-WRM-003',
+        client_project_name: 'ATAS Staging',
+        artifact_type: 'warm_lead',
+      },
+    })
+
+    const summary = buildAgentCostSummary({
+      runsById: new Map([[linkedRun.id, linkedRun]]),
+      costs: [
+        {
+          agent_run_id: 'cost-run',
+          source: 'llm_openai',
+          reference_type: 'llm_completion',
+          amount: 0.2,
+          occurred_at: now,
+          metadata: {},
+        },
+        {
+          agent_run_id: 'cost-run',
+          source: 'llm_openai',
+          reference_type: 'llm_completion',
+          amount: '0.0555',
+          occurred_at: now,
+          metadata: {},
+        },
+        {
+          agent_run_id: null,
+          source: 'other',
+          reference_type: 'manual_adjustment',
+          amount: 0.01,
+          occurred_at: now,
+          metadata: { artifact_type: 'manual_note' },
+        },
+      ],
+    })
+
+    expect(summary.total).toBe(0.2655)
+    expect(summary.linked_event_count).toBe(2)
+    expect(summary.unlinked_event_count).toBe(1)
+    expect(summary.by_runtime[0]).toMatchObject({ key: 'n8n', amount: 0.2555, run_count: 1 })
+    expect(summary.by_agent[0]).toMatchObject({ key: 'automation-systems', label: 'Automation Systems Agent' })
+    expect(summary.by_workflow[0]).toMatchObject({ key: 'WF-WRM-003', label: 'WF-WRM-003' })
+    expect(summary.by_client_project[0]).toMatchObject({ key: 'ATAS Staging', label: 'ATAS Staging' })
+    expect(summary.by_artifact_type[0]).toMatchObject({ key: 'warm_lead', label: 'warm lead' })
   })
 })
