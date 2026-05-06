@@ -415,6 +415,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 
 **Where we use it today.**
 - [`lib/cost-calculator.ts`](../lib/cost-calculator.ts) computes post-hoc costs.
+- [`lib/agent-budget-policy.ts`](../lib/agent-budget-policy.ts) defines pre-flight per-runtime LLM warning and cap rules.
 - Cost-events ingest accumulates spend per event.
 - `cost_events.agent_run_id` links usage costs to shared Agent Ops traces.
 - Mission Control derives 24-hour Cost Intelligence by runtime, agent, workflow, client/project, and artifact type where run metadata exists.
@@ -422,7 +423,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 **Coverage.** Strong post-hoc; Partial pre-flight.
 
 **Gaps.**
-- No pre-flight budget cap — a runaway loop can rack up cost before the monitor fires.
+- Pre-flight budget evaluation exists, but it is not yet enforced across every LLM dispatch path.
 - Model IDs are hard-coded at call sites; no tenant/tier-aware policy.
 
 **Retrofit backlog.** Ticket [#5](#top-retrofit-tickets) — policy router selects model + budget by tier.
@@ -481,7 +482,7 @@ These are the first five PR-sized items seeded from the scorecard. Ticket 1 has 
 - **Scope.** Add `lib/llm/policy-router.ts` that chooses `{ provider, model, maxOutputTokens, budgetUsd }` given a `{ feature, tenantTier, env }` input. Defaults live in config; overrides via env vars per [`.cursor/rules/n8n-integration.mdc`](../.cursor/rules/n8n-integration.mdc) pattern. First adoption in [`lib/ai-onboarding-generator.ts`](../lib/ai-onboarding-generator.ts).
 - **Acceptance criteria.**
   - Every LLM call in the onboarding generator goes through the router; no literal model strings remain in that file.
-  - Router refuses to dispatch a call whose estimated cost exceeds the budget cap and logs the refusal.
+  - Router reuses the Agent Ops budget policy helper, refuses to dispatch a call whose estimated cost exceeds the budget cap, and logs the refusal.
   - Scorecard rows for Routing and Cost/Resource Control updated.
 
 ---

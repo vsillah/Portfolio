@@ -264,6 +264,7 @@ Current progress:
 - Legacy workflow-specific run tables are mapped in `docs/agent-operations-rollout.md` as either domain detail to keep or future trace-link migration candidates.
 - `docs/agentic-patterns.md` now reflects the stronger Agent Ops observability state while preserving partial coverage notes for legacy/domain flows.
 - Video generation workflow sync runs now create linked Agent Ops traces while preserving the existing domain status table for admin chips/history.
+- Pre-flight budget policy helpers now define per-runtime LLM warning/cap rules and expose them through the admin policy API; enforcement remains adoption-by-adoption, not a silent global behavior change.
 
 ## Cross-Phase Definition Of Done
 
