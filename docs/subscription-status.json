@@ -1,19 +1,19 @@
 {
-  "generatedAt": "2026-05-05",
+  "generatedAt": "2026-05-06",
   "sourceDocument": "/docs/subscription-cancellation-audit.md",
   "weeklyReportAutomationId": "portfolio-subscription-weekly-report",
   "dailyMonitorAutomationId": "portfolio-subscription-cancellation-monitor",
   "approvalPhrasePattern": "Cancel <tool/vendor> for Portfolio",
   "summary": {
     "status": "yellow",
-    "headline": "Core Portfolio subscriptions remain active. Vapi has recent call usage, Pinecone has a live index, Hunter.io is Free, and OpenRouter is quiet.",
+    "headline": "Core Portfolio subscriptions remain active. OpenRouter and Resend stay quiet, while Apify and ElevenLabs are confirmed paid/active.",
     "nextReviewFocus": [
+      "Confirm OpenRouter's role in the next media/model bakeoff.",
+      "Verify whether Resend exists in Vercel production env or billing.",
+      "Refresh Read AI and Calendly auth before drawing usage conclusions.",
       "Confirm Vapi dashboard billing and intended production voice UX.",
       "Check Pinecone billing/API traffic against Supabase/local RAG.",
-      "Decide whether OpenRouter is still needed after zero key usage.",
-      "Verify whether production has a paid Resend configuration.",
-      "Check Printful dashboard/order strategy for the two native stores.",
-      "Refresh Read AI, Gmail, Slack, and Vercel app connectors once available."
+      "Review ElevenLabs renewal before 2026-05-19."
     ]
   },
   "buckets": {
@@ -54,7 +54,10 @@
       "Printful",
       "Resend",
       "Pinecone",
-      "OpenRouter"
+      "OpenRouter",
+      "Read.ai",
+      "Calendly",
+      "ElevenLabs"
     ]
   },
   "vendors": [
