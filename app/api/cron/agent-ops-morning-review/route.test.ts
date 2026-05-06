@@ -25,7 +25,12 @@ describe('POST /api/cron/agent-ops-morning-review', () => {
       runId: 'review-run-1',
       generatedAt: '2026-05-01T09:00:00.000Z',
       overall: 'warning',
-      staleSweep: { checked: 2, marked: 1, runIds: ['stale-1'] },
+      staleSweep: {
+        checked: 2,
+        marked: 1,
+        runIds: ['stale-1'],
+        byRuntime: { n8n: { checked: 2, marked: 1 } },
+      },
       slackNotified: false,
       summaryMarkdown: '# Agent Ops Morning Review',
       health: {
@@ -50,7 +55,12 @@ describe('POST /api/cron/agent-ops-morning-review', () => {
       ok: true,
       run_id: 'review-run-1',
       overall: 'warning',
-      stale_sweep: { checked: 2, marked: 1, runIds: ['stale-1'] },
+      stale_sweep: {
+        checked: 2,
+        marked: 1,
+        runIds: ['stale-1'],
+        byRuntime: { n8n: { checked: 2, marked: 1 } },
+      },
       slack_notified: false,
       warnings: ['1 agent run(s) failed in the last 24 hours'],
       summary_markdown: '# Agent Ops Morning Review',

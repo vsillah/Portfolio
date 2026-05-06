@@ -25,7 +25,16 @@ describe('buildAgentOpsMorningReviewMarkdown', () => {
       generatedAt: '2026-05-01T09:00:00.000Z',
       overall: 'warning',
       runId: 'run-1',
-      staleSweep: { checked: 4, marked: 1, runIds: ['stale-1'] },
+      staleSweep: {
+        checked: 4,
+        marked: 1,
+        runIds: ['stale-1'],
+        byRuntime: {
+          codex: { checked: 1, marked: 0 },
+          n8n: { checked: 2, marked: 1 },
+          hermes: { checked: 1, marked: 0 },
+        },
+      },
       health: {
         generatedAt: '2026-05-01T09:00:00.000Z',
         overall: 'warning',
@@ -49,6 +58,8 @@ describe('buildAgentOpsMorningReviewMarkdown', () => {
     expect(markdown).toContain('Overall: warning')
     expect(markdown).toContain('- Active runs checked: 4')
     expect(markdown).toContain('- Runs marked stale: 1')
+    expect(markdown).toContain('### Runtime Coverage')
+    expect(markdown).toContain('- n8n: checked 2, marked 1')
     expect(markdown).toContain('- Agent runs: 8')
     expect(markdown).toContain('- Cost total: $0.1234')
     expect(markdown).toContain('- 1 agent run(s) failed in the last 24 hours')

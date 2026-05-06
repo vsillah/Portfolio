@@ -33,7 +33,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - Keep legacy workflow pages active until replacement views are proven.
 
 4. Reporting and hardening
-   - Add all-runtime stale-run detection.
+   - [x] Add all-runtime stale-run detection.
    - [x] Add derived dead-letter handling for failed and stale runs without introducing a separate queue table.
    - [x] Add cost summaries by runtime, agent, workflow, client/project, and artifact type.
    - [x] Keep morning review and deployment watcher outputs visible in Agent Operations.
@@ -56,6 +56,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Approval-backed execution payloads and decision metadata in review.
 - [x] n8n trace callback envelope and generic stage callback endpoint in review.
 - [x] Dead-letter monitor for failed/stale traces in review.
+- [x] All-runtime stale sweep coverage reporting in review.
 - [x] Cost Intelligence summary by runtime, agent, workflow, client/project, and artifact type in review.
 - [x] Operating Signals for morning review and deployment watcher traces in review.
 
