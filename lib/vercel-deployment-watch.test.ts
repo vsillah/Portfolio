@@ -40,6 +40,39 @@ describe('summarizeDeploymentStatus', () => {
     ])
   })
 
+  it('uses the newest status when GitHub returns duplicate Vercel contexts', () => {
+    const summary = summarizeDeploymentStatus({
+      state: 'pending',
+      statuses: [
+        {
+          context: 'Vercel – portfolio',
+          state: 'success',
+          updated_at: '2026-05-02T10:00:00Z',
+        },
+        {
+          context: 'Vercel – portfolio',
+          state: 'pending',
+          description: 'Redeploying latest commit',
+          updated_at: '2026-05-02T10:05:00Z',
+        },
+        {
+          context: 'Vercel – portfolio-staging',
+          state: 'success',
+          updated_at: '2026-05-02T10:01:00Z',
+        },
+      ],
+    })
+
+    expect(summary.state).toBe('pending')
+    expect(summary.contexts.find((status) => status.context === 'Vercel – portfolio')).toMatchObject({
+      state: 'pending',
+      rawState: 'pending',
+      description: 'Redeploying latest commit',
+      updatedAt: '2026-05-02T10:05:00Z',
+    })
+    expect(summary.pendingContexts.map((status) => status.context)).toEqual(['Vercel – portfolio'])
+  })
+
   it('marks missing contexts as pending instead of successful', () => {
     const summary = summarizeDeploymentStatus({
       state: 'success',

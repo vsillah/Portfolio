@@ -74,4 +74,26 @@ describe('isAgentRunStale', () => {
       },
     })
   })
+
+  it('keeps runtime coverage for checked runs that were not marked stale', () => {
+    const result = buildStaleSweepResult([
+      { id: 'codex-1', runtime: 'codex' },
+      { id: 'codex-2', runtime: 'codex' },
+      { id: 'n8n-1', runtime: 'n8n' },
+      { id: 'manual-1', runtime: 'manual' },
+    ], [
+      { id: 'codex-1', runtime: 'codex' },
+    ])
+
+    expect(result).toEqual({
+      checked: 4,
+      marked: 1,
+      runIds: ['codex-1'],
+      byRuntime: {
+        codex: { checked: 2, marked: 1 },
+        n8n: { checked: 1, marked: 0 },
+        manual: { checked: 1, marked: 0 },
+      },
+    })
+  })
 })
