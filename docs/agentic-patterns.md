@@ -419,6 +419,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 - Chief of Staff chat checks the Agent Ops budget policy before dispatch and logs the decision in its trace metadata.
 - Outreach email and LinkedIn draft generation check the manual-runtime budget before dispatch, trace warning/block decisions, and persist the decision in draft provenance.
 - Admin delivery email draft generation checks the manual-runtime budget before OpenAI dispatch and links cost events to its Agent Ops trace.
+- Admin meeting lead extraction checks the manual-runtime budget before OpenAI dispatch and links cost events to its Agent Ops trace.
 - Cost-events ingest accumulates spend per event.
 - `cost_events.agent_run_id` links usage costs to shared Agent Ops traces.
 - Mission Control derives 24-hour Cost Intelligence by runtime, agent, workflow, client/project, and artifact type where run metadata exists.

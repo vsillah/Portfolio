@@ -268,6 +268,7 @@ Current progress:
 - Chief of Staff chat now runs a traced pre-flight budget check before dispatching its LLM call, carrying the budget decision into cost metadata and the API response.
 - In-app outreach generation now checks the manual-runtime budget before email or LinkedIn LLM dispatch, records warning/block decisions in Agent Ops traces, and persists the budget decision into `outreach_queue.generation_inputs`.
 - Admin delivery email draft generation now starts a manual Agent Ops trace, checks the manual-runtime budget before OpenAI dispatch, and links post-hoc OpenAI cost events back to the trace.
+- Admin meeting lead extraction now starts a manual Agent Ops trace, checks the manual-runtime budget before OpenAI dispatch, and links lead-extraction cost events back to the trace.
 
 ## Cross-Phase Definition Of Done
 
