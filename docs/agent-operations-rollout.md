@@ -169,6 +169,7 @@ V1 budget policy is advisory and pre-flight ready:
 - estimates use the existing LLM cost calculator and model-provider inference;
 - blocked decisions can be raised by shared helpers before dispatch;
 - Chief of Staff chat is the first adopted path and records its budget decision before LLM dispatch;
+- in-app outreach email and LinkedIn generation now check the manual-runtime budget before dispatch and persist the decision into draft provenance;
 - live workflows are not yet globally blocked until each adoption path has a targeted test and approval gate.
 
 Slack should be treated as a notification and lightweight decision surface later. The source of truth remains Portfolio admin plus `agent_approvals`.

@@ -24,6 +24,20 @@ vi.mock('@/lib/lead-research-context', () => ({
 }))
 
 vi.mock('@/lib/cost-calculator', () => ({
+  computeOpenAICost: (usage: { prompt_tokens?: number; completion_tokens?: number }, model: string) => {
+    const rates = model === 'gpt-4o'
+      ? { input: 2.5, output: 10 }
+      : { input: 0.15, output: 0.6 }
+    return ((usage.prompt_tokens ?? 0) / 1_000_000) * rates.input +
+      ((usage.completion_tokens ?? 0) / 1_000_000) * rates.output
+  },
+  computeAnthropicCost: (usage: { input_tokens?: number; output_tokens?: number }, model: string) => {
+    const rates = model === 'claude-sonnet-4-20250514'
+      ? { input: 3, output: 15 }
+      : { input: 0.8, output: 4 }
+    return ((usage.input_tokens ?? 0) / 1_000_000) * rates.input +
+      ((usage.output_tokens ?? 0) / 1_000_000) * rates.output
+  },
   recordOpenAICost: (...args: unknown[]) => mockRecordOpenAICost(...args),
   recordAnthropicCost: (...args: unknown[]) => mockRecordAnthropicCost(...args),
 }))
@@ -221,6 +235,35 @@ describe('outreach-queue-generator helpers', () => {
     const { isInAppOutreachGenerationEnabled } = await import('../outreach-queue-generator')
     expect(isInAppOutreachGenerationEnabled()).toBe(false)
   })
+
+  it('allows normal outreach prompts within the manual admin budget', async () => {
+    const { evaluateOutreachBudget, EMAIL_USER_PROMPT } = await import('../outreach-queue-generator')
+    const decision = evaluateOutreachBudget({
+      channel: 'email',
+      model: 'gpt-4o-mini',
+      systemPrompt: 'Brief context for a single outreach draft.',
+      userPrompt: EMAIL_USER_PROMPT,
+      maxTokens: 600,
+    })
+
+    expect(decision.status).toBe('allowed')
+    expect(decision.rule.key).toBe('llm_manual_per_call')
+    expect(decision.estimatedCostUsd).toBeGreaterThan(0)
+  })
+
+  it('blocks oversized outreach prompts before dispatch', async () => {
+    const { evaluateOutreachBudget, EMAIL_USER_PROMPT } = await import('../outreach-queue-generator')
+    const decision = evaluateOutreachBudget({
+      channel: 'email',
+      model: 'gpt-4o',
+      systemPrompt: 'x'.repeat(2_000_000),
+      userPrompt: EMAIL_USER_PROMPT,
+      maxTokens: 100_000,
+    })
+
+    expect(decision.status).toBe('blocked')
+    expect(decision.reason).toContain('Manual admin LLM call cap')
+  })
 })
 
 describe('generateOutreachDraftInApp', () => {
@@ -376,6 +419,30 @@ describe('generateOutreachDraftInApp', () => {
     expect(typeof inputs?.rag_query_chars).toBe('number')
     expect((inputs?.rag_query_chars as number) ?? 0).toBeGreaterThan(0)
     expect(inputs?.rag_empty_response).toBe(false)
+    expect(inputs?.budget_status).toBe('allowed')
+    expect(inputs?.budget_rule_key).toBe('llm_manual_per_call')
+    expect(typeof inputs?.budget_estimated_cost_usd).toBe('number')
+    expect(inputs?.budget_warning_usd).toBe(0.05)
+    expect(inputs?.budget_limit_usd).toBe(0.25)
+  })
+
+  it('rejects an email draft before dispatch when the budget check blocks it', async () => {
+    mockGetSystemPrompt.mockResolvedValueOnce({
+      prompt: 'x'.repeat(2_000_000),
+      config: { model: 'gpt-4o', temperature: 0.7, maxTokens: 100_000 },
+      version: 99,
+    })
+
+    const { generateOutreachDraftInApp } = await import('../outreach-queue-generator')
+    await expect(
+      generateOutreachDraftInApp({
+        contactId: 99,
+        templateKey: 'email_cold_outreach',
+        force: true,
+      }),
+    ).rejects.toThrow('Manual admin LLM call cap')
+
+    expect(mockFetch).not.toHaveBeenCalled()
   })
 
   it('reflects prior outreach history in generation_inputs (Phase 3)', async () => {
@@ -588,5 +655,8 @@ describe('generateLinkedInDraftInApp', () => {
     expect(inputs?.pinecone_block_hash).toBeNull()
     expect(inputs?.meeting_text_source).toBe('none')
     expect(inputs?.rag_skipped_reason).toBe('email_rag_disabled')
+    expect(inputs?.budget_status).toBe('allowed')
+    expect(inputs?.budget_rule_key).toBe('llm_manual_per_call')
+    expect(typeof inputs?.budget_estimated_cost_usd).toBe('number')
   })
 })

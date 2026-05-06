@@ -266,6 +266,7 @@ Current progress:
 - Video generation workflow sync runs now create linked Agent Ops traces while preserving the existing domain status table for admin chips/history.
 - Pre-flight budget policy helpers now define per-runtime LLM warning/cap rules and expose them through the admin policy API; enforcement remains adoption-by-adoption, not a silent global behavior change.
 - Chief of Staff chat now runs a traced pre-flight budget check before dispatching its LLM call, carrying the budget decision into cost metadata and the API response.
+- In-app outreach generation now checks the manual-runtime budget before email or LinkedIn LLM dispatch, records warning/block decisions in Agent Ops traces, and persists the budget decision into `outreach_queue.generation_inputs`.
 
 ## Cross-Phase Definition Of Done
 
