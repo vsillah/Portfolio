@@ -40,7 +40,14 @@ export async function POST(request: NextRequest) {
     if (run) {
       await completeVideoGenRun(run.id, { success, itemsInserted, errorMessage })
     }
-    return NextResponse.json({ ...json, run_id: run?.id ?? null }, { status })
+    return NextResponse.json(
+      {
+        ...json,
+        run_id: run?.id ?? null,
+        agent_run_id: run?.agentRunId ?? null,
+      },
+      { status },
+    )
   }
 
   try {

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
+import { markAgentRunFailed } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
     let query = supabaseAdmin!
       .from('video_generation_workflow_runs')
       .select(
-        'id, workflow_id, triggered_at, completed_at, status, stages, items_inserted, error_message, summary',
+        'id, workflow_id, agent_run_id, triggered_at, completed_at, status, stages, items_inserted, error_message, summary',
       )
       .order('triggered_at', { ascending: false })
       .limit(limit)
@@ -49,6 +50,7 @@ export async function GET(request: NextRequest) {
       (run: {
         id: string
         workflow_id: string
+        agent_run_id: string | null
         triggered_at: string
         completed_at: string | null
         status: string
@@ -59,6 +61,7 @@ export async function GET(request: NextRequest) {
       }) => ({
         id: run.id,
         workflow_id: run.workflow_id,
+        agent_run_id: run.agent_run_id,
         triggered_at: run.triggered_at,
         completed_at: run.completed_at,
         status: run.status,
@@ -99,7 +102,7 @@ export async function PATCH(request: NextRequest) {
 
     const { data: run } = await supabaseAdmin!
       .from('video_generation_workflow_runs')
-      .select('id, status')
+      .select('id, workflow_id, agent_run_id, status')
       .eq('id', run_id)
       .single()
 
@@ -126,7 +129,25 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    return NextResponse.json({ ok: true, run_id })
+    if ((run as { agent_run_id?: string | null }).agent_run_id) {
+      await markAgentRunFailed(
+        (run as { agent_run_id: string }).agent_run_id,
+        reason || 'Manually marked as failed (stale run)',
+        {
+          workflow_id: (run as { workflow_id?: string | null }).workflow_id ?? null,
+          legacy_run_id: run_id,
+          source: 'video_generation_workflow_status_patch',
+        },
+      ).catch((agentError) => {
+        console.warn('Error marking video gen agent run as failed:', agentError)
+      })
+    }
+
+    return NextResponse.json({
+      ok: true,
+      run_id,
+      agent_run_id: (run as { agent_run_id?: string | null }).agent_run_id ?? null,
+    })
   } catch (err) {
     console.error('Error in PATCH /api/admin/video-generation/workflow-status:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

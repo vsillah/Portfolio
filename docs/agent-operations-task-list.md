@@ -39,6 +39,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Keep morning review and deployment watcher outputs visible in Agent Operations.
    - [x] Document legacy workflow run tables as domain detail or future trace-link migration candidates.
    - [x] Update the Agentic Patterns scorecard to reflect strong Agent Ops observability.
+   - [x] Link video generation workflow sync runs to Agent Ops traces while preserving domain status UI.
 
 ## Completed Or In Review
 
