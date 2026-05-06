@@ -234,7 +234,7 @@ Out of scope:
 
 ### Phase 10: Hardening, Reporting, And Migration
 
-Status: Planned.
+Status: Partial.
 
 Goal: Make Agent Operations reliable enough to run as an operating system.
 
@@ -253,6 +253,11 @@ Out of scope:
 - Removing working legacy tables just for architectural purity.
 - Fully autonomous production remediation.
 - Cost optimization that changes vendors without a bakeoff.
+
+Current progress:
+
+- Mission Control derives a 24-hour Cost Intelligence summary from `cost_events.agent_run_id` without adding schema or copying data.
+- The first grouped view covers runtime, agent, workflow, client/project, and artifact type where trace metadata exists, with safe unassigned fallbacks.
 
 ## Cross-Phase Definition Of Done
 
