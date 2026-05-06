@@ -29,7 +29,12 @@ describe('POST /api/admin/agents/runs/stale-sweep', () => {
     vi.clearAllMocks()
     mocks.verifyAdmin.mockResolvedValue({ user: { id: 'admin-user' } })
     mocks.isAuthError.mockReturnValue(false)
-    mocks.sweepStaleAgentRuns.mockResolvedValue({ checked: 3, marked: 1, runIds: ['run-1'] })
+    mocks.sweepStaleAgentRuns.mockResolvedValue({
+      checked: 3,
+      marked: 1,
+      runIds: ['run-1'],
+      byRuntime: { n8n: { checked: 2, marked: 1 }, codex: { checked: 1, marked: 0 } },
+    })
   })
 
   it('requires admin auth', async () => {
@@ -52,6 +57,7 @@ describe('POST /api/admin/agents/runs/stale-sweep', () => {
       checked: 3,
       marked: 1,
       runIds: ['run-1'],
+      byRuntime: { n8n: { checked: 2, marked: 1 }, codex: { checked: 1, marked: 0 } },
     })
   })
 })

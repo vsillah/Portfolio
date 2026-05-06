@@ -161,7 +161,7 @@ This keeps OpenCode/OpenClaw out of production automation until installation, au
 
 ## Stale Run Sweep
 
-Use `POST /api/admin/agents/runs/stale-sweep` or the **Sweep stale** button on `/admin/agents/runs` to mark queued/running runs as `stale` when they pass `stale_after` or the default active-run threshold. Runs waiting for approval are intentionally excluded so human checkpoints do not auto-expire as infrastructure failures.
+Use `POST /api/admin/agents/runs/stale-sweep` or the **Sweep stale** button on `/admin/agents/runs` to mark queued/running runs as `stale` when they pass `stale_after` or the default active-run threshold. The sweep is runtime-neutral across `codex`, `n8n`, `hermes`, `opencode`, and `manual` traces, and reports checked/marked counts by runtime. Runs waiting for approval are intentionally excluded so human checkpoints do not auto-expire as infrastructure failures.
 
 ## Operating Signals
 

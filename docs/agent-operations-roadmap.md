@@ -260,6 +260,7 @@ Current progress:
 - The first grouped view covers runtime, agent, workflow, client/project, and artifact type where trace metadata exists, with safe unassigned fallbacks.
 - Mission Control surfaces the latest `agent_ops_morning_review` and `agent_ops_deployment_watch` traces as Operating Signals.
 - The deployment watcher supports `--trace` so integration-captain and autopilot runs write a visible Agent Ops run/artifact.
+- Stale-run detection now reports checked and marked counts by runtime across `codex`, `n8n`, `hermes`, `opencode`, and `manual` runs when those runtimes have active queued/running work.
 
 ## Cross-Phase Definition Of Done
 

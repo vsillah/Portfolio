@@ -37,6 +37,9 @@ export function buildAgentOpsMorningReviewMarkdown(input: {
 }) {
   const agentOpsUrl = `${baseUrl()}/admin/agents/runs${input.runId ? `/${input.runId}` : ''}`
   const recent = input.health.signals.agentRuns24h
+  const runtimeLines = Object.entries(input.staleSweep.byRuntime)
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([runtime, summary]) => `- ${runtime}: checked ${summary.checked}, marked ${summary.marked}`)
 
   return [
     '# Agent Ops Morning Review',
@@ -49,6 +52,7 @@ export function buildAgentOpsMorningReviewMarkdown(input: {
     '',
     `- Active runs checked: ${input.staleSweep.checked}`,
     `- Runs marked stale: ${input.staleSweep.marked}`,
+    ...(runtimeLines.length ? ['', '### Runtime Coverage', '', ...runtimeLines] : []),
     '',
     '## Last 24 Hours',
     '',
@@ -188,6 +192,7 @@ export async function runAgentOpsMorningReview(triggerSource = 'cron_agent_ops_m
         overall: health.overall,
         warning_count: health.warnings.length,
         stale_marked: staleSweep.marked,
+        stale_by_runtime: staleSweep.byRuntime,
         slack_notified: slackNotified,
         generated_at: generatedAt,
       },

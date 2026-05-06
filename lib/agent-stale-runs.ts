@@ -17,6 +17,7 @@ export type StaleSweepResult = {
   checked: number
   marked: number
   runIds: string[]
+  byRuntime: Record<string, { checked: number; marked: number }>
 }
 
 export function isAgentRunStale(
@@ -37,6 +38,30 @@ function db() {
     throw new Error('Database not available')
   }
   return supabaseAdmin
+}
+
+export function buildStaleSweepResult(
+  candidates: Pick<StaleAgentRunCandidate, 'id' | 'runtime'>[],
+  staleRuns: Pick<StaleAgentRunCandidate, 'id' | 'runtime'>[],
+): StaleSweepResult {
+  const byRuntime: StaleSweepResult['byRuntime'] = {}
+
+  for (const run of candidates) {
+    byRuntime[run.runtime] ??= { checked: 0, marked: 0 }
+    byRuntime[run.runtime].checked += 1
+  }
+
+  for (const run of staleRuns) {
+    byRuntime[run.runtime] ??= { checked: 0, marked: 0 }
+    byRuntime[run.runtime].marked += 1
+  }
+
+  return {
+    checked: candidates.length,
+    marked: staleRuns.length,
+    runIds: staleRuns.map((run) => run.id),
+    byRuntime,
+  }
 }
 
 export async function sweepStaleAgentRuns(now = new Date()): Promise<StaleSweepResult> {
@@ -93,9 +118,5 @@ export async function sweepStaleAgentRuns(now = new Date()): Promise<StaleSweepR
       })
   }
 
-  return {
-    checked: candidates.length,
-    marked: staleRuns.length,
-    runIds: staleRuns.map((run) => run.id),
-  }
+  return buildStaleSweepResult(candidates, staleRuns)
 }
