@@ -267,6 +267,7 @@ Current progress:
 - Pre-flight budget policy helpers now define per-runtime LLM warning/cap rules and expose them through the admin policy API; enforcement remains adoption-by-adoption, not a silent global behavior change.
 - Chief of Staff chat now runs a traced pre-flight budget check before dispatching its LLM call, carrying the budget decision into cost metadata and the API response.
 - In-app outreach generation now checks the manual-runtime budget before email or LinkedIn LLM dispatch, records warning/block decisions in Agent Ops traces, and persists the budget decision into `outreach_queue.generation_inputs`.
+- Admin delivery email draft generation now starts a manual Agent Ops trace, checks the manual-runtime budget before OpenAI dispatch, and links post-hoc OpenAI cost events back to the trace.
 
 ## Cross-Phase Definition Of Done
 

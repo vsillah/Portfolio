@@ -11,6 +11,11 @@ import { getSystemPrompt } from '@/lib/system-prompts'
 import { logCommunication } from '@/lib/communications'
 import { recordOpenAICost } from '@/lib/cost-calculator'
 import { sendEmailWithOutcome } from '@/lib/notifications'
+import {
+  evaluateAgentBudget,
+  type AgentBudgetDecision,
+} from '@/lib/agent-budget-policy'
+import { recordAgentEvent, recordAgentStep } from '@/lib/agent-run'
 import type { EmailTemplateKey } from '@/lib/constants/prompt-keys'
 import type {
   ContactEnrichment,
@@ -31,7 +36,11 @@ import { getEmailFromName } from '@/lib/business-email-config'
 export class DeliveryDraftError extends Error {
   constructor(
     message: string,
-    public readonly code: 'openai_not_configured' | 'openai_upstream' | 'invalid_response'
+    public readonly code:
+      | 'openai_not_configured'
+      | 'openai_upstream'
+      | 'invalid_response'
+      | 'budget_blocked'
   ) {
     super(message)
     this.name = 'DeliveryDraftError'
@@ -51,6 +60,7 @@ export interface DeliveryDraftInput {
   templateKey?: EmailTemplateKey
   customNote?: string
   dashboardUrl?: string
+  agentRunId?: string | null
 }
 
 export interface DeliveryDraft {
@@ -353,6 +363,71 @@ function buildAssetSummary(assets: AssetDetail[], templateKey?: string, dashboar
 
 /* ───────── Draft Generation ───────── */
 
+export const DELIVERY_EMAIL_USER_PROMPT =
+  'Draft the email now. Respond only with JSON: { "subject": "...", "body": "..." }'
+
+function estimateTokensFromText(text: string): number {
+  return Math.ceil(text.length / 4)
+}
+
+export function evaluateDeliveryEmailBudget(input: {
+  model: string
+  systemPrompt: string
+  userPrompt: string
+  maxTokens: number
+}): AgentBudgetDecision {
+  return evaluateAgentBudget({
+    runtime: 'manual',
+    model: input.model,
+    estimatedInputTokens: estimateTokensFromText(`${input.systemPrompt}\n${input.userPrompt}`),
+    maxTokens: input.maxTokens,
+    metadata: {
+      operation: 'delivery_email_draft',
+    },
+  })
+}
+
+async function recordDeliveryEmailBudgetDecision(args: {
+  agentRunId?: string | null
+  contactId: number
+  templateKey: string
+  decision: AgentBudgetDecision
+}) {
+  if (!args.agentRunId) return
+
+  const metadata = {
+    contact_id: args.contactId,
+    template_key: args.templateKey,
+    budget_status: args.decision.status,
+    budget_rule_key: args.decision.rule.key,
+    estimated_cost_usd: args.decision.estimatedCostUsd,
+    warning_usd: args.decision.warningUsd,
+    limit_usd: args.decision.limitUsd,
+  }
+
+  await recordAgentStep({
+    runId: args.agentRunId,
+    stepKey: 'budget_check',
+    name: 'Checked delivery email budget',
+    status: args.decision.status === 'blocked' ? 'failed' : 'completed',
+    outputSummary: args.decision.reason,
+    costUsd: args.decision.estimatedCostUsd,
+    metadata,
+    idempotencyKey: `${args.agentRunId}:delivery_email:budget_check`,
+  }).catch((err) => console.warn('[delivery-email] agent budget step failed:', err))
+
+  if (args.decision.status !== 'allowed') {
+    await recordAgentEvent({
+      runId: args.agentRunId,
+      eventType: 'budget_check',
+      severity: args.decision.status === 'blocked' ? 'error' : 'warning',
+      message: args.decision.reason,
+      metadata,
+      idempotencyKey: `${args.agentRunId}:delivery_email:budget_check:${args.decision.status}`,
+    }).catch((err) => console.warn('[delivery-email] agent budget event failed:', err))
+  }
+}
+
 /**
  * Generate a delivery email draft using the selected template + LLM.
  * Injects tiered research brief and anonymized social proof.
@@ -417,6 +492,23 @@ export async function generateDeliveryDraft(input: DeliveryDraftInput): Promise<
   const model = config.model || 'gpt-4o-mini'
   const temperature = config.temperature ?? 0.7
   const maxTokens = config.maxTokens ?? 800
+  const userPrompt = DELIVERY_EMAIL_USER_PROMPT
+
+  const budgetDecision = evaluateDeliveryEmailBudget({
+    model,
+    systemPrompt,
+    userPrompt,
+    maxTokens,
+  })
+  await recordDeliveryEmailBudgetDecision({
+    agentRunId: input.agentRunId,
+    contactId: input.contactId,
+    templateKey,
+    decision: budgetDecision,
+  })
+  if (budgetDecision.status === 'blocked') {
+    throw new DeliveryDraftError(budgetDecision.reason, 'budget_blocked')
+  }
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -428,7 +520,7 @@ export async function generateDeliveryDraft(input: DeliveryDraftInput): Promise<
       model,
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: 'Draft the email now. Respond only with JSON: { "subject": "...", "body": "..." }' },
+        { role: 'user', content: userPrompt },
       ],
       temperature,
       max_tokens: maxTokens,
@@ -451,7 +543,13 @@ export async function generateDeliveryDraft(input: DeliveryDraftInput): Promise<
       usage,
       model,
       { type: 'contact', id: String(input.contactId) },
-      { operation: `${templateKey}_draft` }
+      {
+        operation: `${templateKey}_draft`,
+        budget_status: budgetDecision.status,
+        budget_rule_key: budgetDecision.rule.key,
+        budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
+      },
+      input.agentRunId ?? undefined,
     ).catch(() => {})
   }
 
