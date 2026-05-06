@@ -65,6 +65,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Pre-flight budget policy helpers and admin policy API visibility in review.
 - [x] Chief of Staff chat pre-flight budget adoption in review.
 - [x] Outreach email and LinkedIn pre-flight budget adoption in review.
+- [x] Delivery email draft pre-flight budget adoption and trace linkage in review.
 
 ## Scope Guard
 

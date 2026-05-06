@@ -8,6 +8,12 @@ import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { DeliveryDraftError, generateDeliveryDraft, type AssetRef } from '@/lib/delivery-email'
 import type { EmailTemplateKey } from '@/lib/constants/prompt-keys'
+import {
+  endAgentRun,
+  markAgentRunFailed,
+  recordAgentStep,
+  startAgentRun,
+} from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -69,6 +75,43 @@ export async function POST(
     }
   }
 
+  const agentRun = await startAgentRun({
+    agentKey: 'manual-admin',
+    runtime: 'manual',
+    kind: 'delivery_email_draft',
+    title: 'Generate delivery email draft',
+    subject: {
+      type: 'contact_submission',
+      id: contactId,
+      label: `Lead ${contactId}`,
+    },
+    triggerSource: 'admin:compose_delivery',
+    triggeredByUserId: auth.user.id,
+    currentStep: 'Delivery request validated',
+    metadata: {
+      template_key: templateKey ?? null,
+      asset_count: assetIds.length,
+      include_dashboard_link: includeDashboardLink,
+      has_dashboard_url: !!dashboardUrl,
+    },
+  })
+  const agentRunId = agentRun.id
+
+  await recordAgentStep({
+    runId: agentRunId,
+    stepKey: 'delivery_request_validated',
+    name: 'Delivery request validated',
+    status: 'completed',
+    outputSummary: `Prepared delivery draft request for contact ${contactId}.`,
+    metadata: {
+      contact_id: contactId,
+      template_key: templateKey ?? null,
+      asset_count: assetIds.length,
+      has_dashboard_url: !!dashboardUrl,
+    },
+    idempotencyKey: `${agentRunId}:delivery_request_validated`,
+  }).catch((err) => console.warn('[Compose delivery] agent step failed', err))
+
   try {
     const draft = await generateDeliveryDraft({
       contactId,
@@ -76,12 +119,49 @@ export async function POST(
       templateKey,
       customNote: customNote || undefined,
       dashboardUrl,
+      agentRunId,
     })
 
-    return NextResponse.json(draft)
+    await endAgentRun({
+      runId: agentRunId,
+      status: 'completed',
+      currentStep: 'Delivery draft ready',
+      outcome: {
+        contact_id: contactId,
+        template_key: templateKey ?? null,
+        asset_count: assetIds.length,
+      },
+    }).catch((err) => console.warn('[Compose delivery] end agent run failed', err))
+
+    return NextResponse.json({ ...draft, agentRunId })
   } catch (err) {
     console.error('[Compose delivery] Error:', err)
+    const message = err instanceof Error ? err.message : String(err)
+    await recordAgentStep({
+      runId: agentRunId,
+      stepKey: 'delivery_generation_failed',
+      name: 'Delivery draft generation failed',
+      status: 'failed',
+      outputSummary: message,
+      metadata: {
+        contact_id: contactId,
+        template_key: templateKey ?? null,
+      },
+      idempotencyKey: `${agentRunId}:delivery_generation_failed`,
+    }).catch((stepErr) => console.warn('[Compose delivery] agent failure step failed', stepErr))
+    await markAgentRunFailed(agentRunId, message, {
+      contact_id: contactId,
+      template_key: templateKey ?? null,
+      asset_count: assetIds.length,
+    }).catch((runErr) => console.warn('[Compose delivery] mark agent run failed', runErr))
+
     if (err instanceof DeliveryDraftError) {
+      if (err.code === 'budget_blocked') {
+        return NextResponse.json(
+          { error: 'This delivery draft is over the current Agent Ops budget limit. Reduce the prompt, asset set, or model size before retrying.' },
+          { status: 400 }
+        )
+      }
       if (err.code === 'openai_not_configured') {
         return NextResponse.json(
           {
