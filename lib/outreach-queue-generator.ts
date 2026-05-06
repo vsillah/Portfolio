@@ -38,8 +38,13 @@ import {
 import { generateJsonCompletion } from '@/lib/llm-dispatch'
 import {
   attachAgentArtifact,
+  recordAgentEvent,
   recordAgentStep,
 } from '@/lib/agent-run'
+import {
+  evaluateAgentBudget,
+  type AgentBudgetDecision,
+} from '@/lib/agent-budget-policy'
 import {
   DEFAULT_OUTREACH_MODEL,
   inferProvider,
@@ -69,6 +74,70 @@ export const LINKEDIN_USER_PROMPT =
 
 export function userPromptFor(channel: OutreachChannel): string {
   return channel === 'linkedin' ? LINKEDIN_USER_PROMPT : EMAIL_USER_PROMPT
+}
+
+function estimateTokensFromText(text: string): number {
+  return Math.ceil(text.length / 4)
+}
+
+export function evaluateOutreachBudget(input: {
+  channel: OutreachChannel
+  model: string
+  systemPrompt: string
+  userPrompt: string
+  maxTokens: number
+}): AgentBudgetDecision {
+  return evaluateAgentBudget({
+    runtime: 'manual',
+    model: input.model,
+    estimatedInputTokens: estimateTokensFromText(`${input.systemPrompt}\n${input.userPrompt}`),
+    maxTokens: input.maxTokens,
+    metadata: {
+      operation: 'outreach_queue_in_app',
+      channel: input.channel,
+    },
+  })
+}
+
+async function recordOutreachBudgetDecision(args: {
+  agentRunId?: string | null
+  channel: OutreachChannel
+  templateKey: string
+  decision: AgentBudgetDecision
+}) {
+  if (!args.agentRunId) return
+
+  const metadata = {
+    channel: args.channel,
+    template_key: args.templateKey,
+    budget_status: args.decision.status,
+    budget_rule_key: args.decision.rule.key,
+    estimated_cost_usd: args.decision.estimatedCostUsd,
+    warning_usd: args.decision.warningUsd,
+    limit_usd: args.decision.limitUsd,
+  }
+
+  await recordAgentStep({
+    runId: args.agentRunId,
+    stepKey: 'budget_check',
+    name: 'Checked outreach budget',
+    status: args.decision.status === 'blocked' ? 'failed' : 'completed',
+    outputSummary: args.decision.reason,
+    costUsd: args.decision.estimatedCostUsd,
+    metadata,
+    idempotencyKey: `${args.agentRunId}:${args.channel}:budget_check`,
+  }).catch((err) => console.warn('[outreach-queue-generator] agent budget step failed:', err))
+
+  if (args.decision.status !== 'allowed') {
+    await recordAgentEvent({
+      runId: args.agentRunId,
+      eventType: 'budget_check',
+      severity: args.decision.status === 'blocked' ? 'error' : 'warning',
+      message: args.decision.reason,
+      metadata,
+      idempotencyKey: `${args.agentRunId}:${args.channel}:budget_check:${args.decision.status}`,
+    }).catch((err) => console.warn('[outreach-queue-generator] agent budget event failed:', err))
+  }
 }
 
 /** Max chars for user-supplied meeting summary (prompt injection / cost guard). */
@@ -205,6 +274,12 @@ export interface GenerationInputs {
   rag_http_status: number | null
   rag_latency_ms: number | null
   rag_empty_response: boolean
+  budget_status: AgentBudgetDecision['status']
+  budget_estimated_cost_usd: number
+  budget_warning_usd: number
+  budget_limit_usd: number
+  budget_rule_key: string
+  budget_reason: string
 }
 
 function buildGenerationInputs(args: {
@@ -212,8 +287,9 @@ function buildGenerationInputs(args: {
   templateKey: string
   channel: OutreachChannel
   sequenceStep: number
+  budgetDecision: AgentBudgetDecision
 }): GenerationInputs {
-  const { ctx, templateKey, channel, sequenceStep } = args
+  const { ctx, templateKey, channel, sequenceStep, budgetDecision } = args
   return {
     template_key: templateKey,
     prompt_version: ctx.promptRow?.version ?? null,
@@ -243,6 +319,12 @@ function buildGenerationInputs(args: {
     rag_http_status: ctx.contextSizes.ragHttpStatus,
     rag_latency_ms: ctx.contextSizes.ragLatencyMs,
     rag_empty_response: ctx.contextSizes.ragEmptyResponse,
+    budget_status: budgetDecision.status,
+    budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
+    budget_warning_usd: budgetDecision.warningUsd,
+    budget_limit_usd: budgetDecision.limitUsd,
+    budget_rule_key: budgetDecision.rule.key,
+    budget_reason: budgetDecision.reason,
   }
 }
 
@@ -655,6 +737,23 @@ export async function generateOutreachDraftInApp(params: {
     }).catch((err) => console.warn('[outreach-queue-generator] agent step failed:', err))
   }
 
+  const budgetDecision = evaluateOutreachBudget({
+    channel: 'email',
+    model: ctx.model,
+    systemPrompt: ctx.systemPrompt,
+    userPrompt: EMAIL_USER_PROMPT,
+    maxTokens: ctx.maxTokens,
+  })
+  await recordOutreachBudgetDecision({
+    agentRunId: params.agentRunId,
+    channel: 'email',
+    templateKey,
+    decision: budgetDecision,
+  })
+  if (budgetDecision.status === 'blocked') {
+    throw new Error(budgetDecision.reason)
+  }
+
   const completion = await generateJsonCompletion({
     model: ctx.model,
     systemPrompt: ctx.systemPrompt,
@@ -668,6 +767,9 @@ export async function generateOutreachDraftInApp(params: {
         operation: 'outreach_queue_in_app',
         channel: 'email',
         template_key: templateKey,
+        budget_status: budgetDecision.status,
+        budget_rule_key: budgetDecision.rule.key,
+        budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
       },
     },
   })
@@ -686,6 +788,9 @@ export async function generateOutreachDraftInApp(params: {
         model: completion.model,
         channel: 'email',
         template_key: templateKey,
+        budget_status: budgetDecision.status,
+        budget_rule_key: budgetDecision.rule.key,
+        budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
       },
       idempotencyKey: `${params.agentRunId}:email:llm_dispatch`,
     }).catch((err) => console.warn('[outreach-queue-generator] agent step failed:', err))
@@ -710,6 +815,7 @@ export async function generateOutreachDraftInApp(params: {
     templateKey,
     channel: 'email',
     sequenceStep,
+    budgetDecision,
   })
 
   const { data: inserted, error: insertErr } = await supabaseAdmin
@@ -881,6 +987,23 @@ export async function generateLinkedInDraftInApp(params: {
     }).catch((err) => console.warn('[outreach-queue-generator] agent step failed:', err))
   }
 
+  const budgetDecision = evaluateOutreachBudget({
+    channel: 'linkedin',
+    model: ctx.model,
+    systemPrompt: ctx.systemPrompt,
+    userPrompt: LINKEDIN_USER_PROMPT,
+    maxTokens: ctx.maxTokens,
+  })
+  await recordOutreachBudgetDecision({
+    agentRunId: params.agentRunId,
+    channel: 'linkedin',
+    templateKey,
+    decision: budgetDecision,
+  })
+  if (budgetDecision.status === 'blocked') {
+    throw new Error(budgetDecision.reason)
+  }
+
   const completion = await generateJsonCompletion({
     model: ctx.model,
     systemPrompt: ctx.systemPrompt,
@@ -894,6 +1017,9 @@ export async function generateLinkedInDraftInApp(params: {
         operation: 'outreach_queue_in_app',
         channel: 'linkedin',
         template_key: templateKey,
+        budget_status: budgetDecision.status,
+        budget_rule_key: budgetDecision.rule.key,
+        budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
       },
     },
   })
@@ -912,6 +1038,9 @@ export async function generateLinkedInDraftInApp(params: {
         model: completion.model,
         channel: 'linkedin',
         template_key: templateKey,
+        budget_status: budgetDecision.status,
+        budget_rule_key: budgetDecision.rule.key,
+        budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
       },
       idempotencyKey: `${params.agentRunId}:linkedin:llm_dispatch`,
     }).catch((err) => console.warn('[outreach-queue-generator] agent step failed:', err))
@@ -953,6 +1082,7 @@ export async function generateLinkedInDraftInApp(params: {
     templateKey,
     channel: 'linkedin',
     sequenceStep,
+    budgetDecision,
   })
 
   const { data: inserted, error: insertErr } = await supabaseAdmin
