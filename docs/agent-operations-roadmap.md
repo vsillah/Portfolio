@@ -265,6 +265,7 @@ Current progress:
 - `docs/agentic-patterns.md` now reflects the stronger Agent Ops observability state while preserving partial coverage notes for legacy/domain flows.
 - Video generation workflow sync runs now create linked Agent Ops traces while preserving the existing domain status table for admin chips/history.
 - Pre-flight budget policy helpers now define per-runtime LLM warning/cap rules and expose them through the admin policy API; enforcement remains adoption-by-adoption, not a silent global behavior change.
+- Chief of Staff chat now runs a traced pre-flight budget check before dispatching its LLM call, carrying the budget decision into cost metadata and the API response.
 
 ## Cross-Phase Definition Of Done
 

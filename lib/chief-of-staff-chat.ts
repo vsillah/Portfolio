@@ -11,6 +11,10 @@ import {
   getApprovalGate,
   type AgentAction,
 } from '@/lib/agent-policy'
+import {
+  evaluateAgentBudget,
+  type AgentBudgetDecision,
+} from '@/lib/agent-budget-policy'
 import { AGENT_ORGANIZATION, AGENT_PODS, getAgentByKey } from '@/lib/agent-organization'
 import {
   listCodexAutomationInventory,
@@ -36,6 +40,7 @@ export type ChiefOfStaffChatResponse = {
   actionProposals: ChiefOfStaffActionProposal[]
   agentEngagements: ChiefOfStaffAgentEngagementProposal[]
   model: string
+  budgetDecision: AgentBudgetDecision
 }
 
 export type ChiefOfStaffActionProposal = {
@@ -139,6 +144,7 @@ export type ChiefOfStaffAgentRoutingEntry = {
 }
 
 const DEFAULT_MODEL = 'gpt-4o-mini'
+const DEFAULT_MAX_TOKENS = 900
 const CHIEF_OF_STAFF_ACTIONS: AgentAction[] = [
   'read_files',
   'write_files',
@@ -161,6 +167,25 @@ function assertDatabase() {
     throw new Error('Database not available')
   }
   return supabaseAdmin
+}
+
+function estimateTokensFromText(text: string): number {
+  return Math.ceil(text.length / 4)
+}
+
+export function evaluateChiefOfStaffBudget(input: {
+  model: string
+  systemPrompt: string
+  userPrompt: string
+  maxTokens?: number
+}): AgentBudgetDecision {
+  return evaluateAgentBudget({
+    runtime: 'codex',
+    model: input.model,
+    estimatedInputTokens: estimateTokensFromText(`${input.systemPrompt}\n${input.userPrompt}`),
+    maxTokens: input.maxTokens ?? DEFAULT_MAX_TOKENS,
+    metadata: { operation: 'chief_of_staff_chat' },
+  })
 }
 
 export function getChiefOfStaffAgentRoutingCatalog(): ChiefOfStaffAgentRoutingEntry[] {
@@ -516,16 +541,64 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
       { role: 'user', content: message },
     ])
     const model = process.env.CHIEF_OF_STAFF_AGENT_MODEL || DEFAULT_MODEL
+    const budgetDecision = evaluateChiefOfStaffBudget({
+      model,
+      systemPrompt: prompt.systemPrompt,
+      userPrompt: prompt.userPrompt,
+      maxTokens: DEFAULT_MAX_TOKENS,
+    })
+
+    await recordAgentStep({
+      runId: run.id,
+      stepKey: 'budget_check',
+      name: 'Checked Chief of Staff budget',
+      status: budgetDecision.status === 'blocked' ? 'failed' : 'completed',
+      outputSummary: budgetDecision.reason,
+      metadata: {
+        budget_status: budgetDecision.status,
+        estimated_cost_usd: budgetDecision.estimatedCostUsd,
+        warning_usd: budgetDecision.warningUsd,
+        limit_usd: budgetDecision.limitUsd,
+        rule_key: budgetDecision.rule.key,
+      },
+    })
+
+    if (budgetDecision.status !== 'allowed') {
+      await recordAgentEvent({
+        runId: run.id,
+        eventType: 'agent_budget_policy_decision',
+        severity: budgetDecision.status === 'blocked' ? 'error' : 'warning',
+        message: budgetDecision.reason,
+        metadata: {
+          budget_status: budgetDecision.status,
+          estimated_cost_usd: budgetDecision.estimatedCostUsd,
+          warning_usd: budgetDecision.warningUsd,
+          limit_usd: budgetDecision.limitUsd,
+          rule_key: budgetDecision.rule.key,
+          model,
+        },
+      })
+    }
+
+    if (budgetDecision.status === 'blocked') {
+      throw new Error(budgetDecision.reason)
+    }
+
     const completion = await generateJsonCompletion({
       model,
       systemPrompt: prompt.systemPrompt,
       userPrompt: prompt.userPrompt,
       temperature: 0.3,
-      maxTokens: 900,
+      maxTokens: DEFAULT_MAX_TOKENS,
       costContext: {
         agentRunId: run.id,
         reference: { type: 'agent', id: 'chief-of-staff' },
-        metadata: { operation: 'chief_of_staff_chat' },
+        metadata: {
+          operation: 'chief_of_staff_chat',
+          budget_status: budgetDecision.status,
+          budget_rule_key: budgetDecision.rule.key,
+          estimated_cost_usd: budgetDecision.estimatedCostUsd,
+        },
       },
     })
 
@@ -540,6 +613,11 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
       outputSummary: parsed.reply.slice(0, 500),
       metadata: {
         model,
+        budget_decision: {
+          status: budgetDecision.status,
+          estimatedCostUsd: budgetDecision.estimatedCostUsd,
+          ruleKey: budgetDecision.rule.key,
+        },
         suggested_actions: parsed.suggestedActions,
         action_proposals: parsed.actionProposals,
         agent_engagements: parsed.agentEngagements,
@@ -552,6 +630,11 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
       currentStep: 'Reply ready',
       outcome: {
         reply_preview: parsed.reply.slice(0, 500),
+        budget_decision: {
+          status: budgetDecision.status,
+          estimatedCostUsd: budgetDecision.estimatedCostUsd,
+          ruleKey: budgetDecision.rule.key,
+        },
         suggested_actions: parsed.suggestedActions,
         action_proposals: parsed.actionProposals,
         agent_engagements: parsed.agentEngagements,
@@ -565,6 +648,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
       actionProposals: parsed.actionProposals,
       agentEngagements: parsed.agentEngagements,
       model,
+      budgetDecision,
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Chief of Staff chat failed'

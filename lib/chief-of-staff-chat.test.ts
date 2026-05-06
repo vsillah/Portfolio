@@ -18,6 +18,7 @@ vi.mock('@/lib/supabase', () => ({
 
 import {
   buildChiefOfStaffPrompt,
+  evaluateChiefOfStaffBudget,
   getChiefOfStaffAgentRoutingCatalog,
   normalizeChiefOfStaffHistory,
   parseChiefOfStaffJson,
@@ -170,6 +171,30 @@ describe('Chief of Staff chat helpers', () => {
     expect(prompt.userPrompt).toContain('Strategy & Narrative Pod')
     expect(prompt.userPrompt).toContain('Portfolio Credential Rotation Due Report')
     expect(prompt.userPrompt).toContain('What needs attention?')
+  })
+
+  it('evaluates the Chief of Staff LLM budget before dispatch', () => {
+    const decision = evaluateChiefOfStaffBudget({
+      model: 'gpt-4o-mini',
+      systemPrompt: 'You are the Chief of Staff Agent.',
+      userPrompt: 'Summarize the current operating state.',
+      maxTokens: 900,
+    })
+
+    expect(decision.status).toBe('allowed')
+    expect(decision.rule.key).toBe('llm_codex_per_call')
+  })
+
+  it('blocks oversized Chief of Staff prompts before dispatch', () => {
+    const decision = evaluateChiefOfStaffBudget({
+      model: 'gpt-4o',
+      systemPrompt: 'x'.repeat(2_000_000),
+      userPrompt: 'y'.repeat(2_000_000),
+      maxTokens: 100_000,
+    })
+
+    expect(decision.status).toBe('blocked')
+    expect(decision.reason).toContain('exceeds Codex LLM call cap')
   })
 
   it('keeps the Chief of Staff router aligned to the agent organization map', () => {

@@ -65,6 +65,13 @@ describe('POST /api/admin/agents/chief-of-staff/chat', () => {
         },
       ],
       model: 'gpt-4o-mini',
+      budgetDecision: {
+        status: 'allowed',
+        estimatedCostUsd: 0.001,
+        warningUsd: 0.25,
+        limitUsd: 1,
+        rule: { key: 'llm_codex_per_call' },
+      },
     })
   })
 
@@ -120,6 +127,13 @@ describe('POST /api/admin/agents/chief-of-staff/chat', () => {
         },
       ],
       model: 'gpt-4o-mini',
+      budget_decision: {
+        status: 'allowed',
+        estimated_cost_usd: 0.001,
+        warning_usd: 0.25,
+        limit_usd: 1,
+        rule_key: 'llm_codex_per_call',
+      },
     })
     expect(mocks.runChiefOfStaffChat).toHaveBeenCalledWith(expect.objectContaining({
       message: 'What needs attention?',
