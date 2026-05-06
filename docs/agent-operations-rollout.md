@@ -161,6 +161,16 @@ Current required approval gates:
 - production config changes
 - public content derived from private material
 
+Budget policy rules live in `lib/agent-budget-policy.ts` and are exposed by `GET /api/admin/agents/policies`.
+
+V1 budget policy is advisory and pre-flight ready:
+
+- runtime-specific per-call LLM warning and cap thresholds exist for `codex`, `n8n`, `hermes`, `opencode`, and `manual`;
+- estimates use the existing LLM cost calculator and model-provider inference;
+- blocked decisions can be raised by shared helpers before dispatch;
+- Chief of Staff chat is the first adopted path and records its budget decision before LLM dispatch;
+- live workflows are not yet globally blocked until each adoption path has a targeted test and approval gate.
+
 Slack should be treated as a notification and lightweight decision surface later. The source of truth remains Portfolio admin plus `agent_approvals`.
 
 ## Approval Drill

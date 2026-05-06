@@ -62,6 +62,8 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] All-runtime stale sweep coverage reporting in review.
 - [x] Cost Intelligence summary by runtime, agent, workflow, client/project, and artifact type in review.
 - [x] Operating Signals for morning review and deployment watcher traces in review.
+- [x] Pre-flight budget policy helpers and admin policy API visibility in review.
+- [x] Chief of Staff chat pre-flight budget adoption in review.
 
 ## Scope Guard
 

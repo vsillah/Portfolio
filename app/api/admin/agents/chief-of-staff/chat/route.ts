@@ -53,6 +53,13 @@ export async function POST(request: NextRequest) {
       action_proposals: result.actionProposals,
       agent_engagements: result.agentEngagements,
       model: result.model,
+      budget_decision: {
+        status: result.budgetDecision.status,
+        estimated_cost_usd: result.budgetDecision.estimatedCostUsd,
+        warning_usd: result.budgetDecision.warningUsd,
+        limit_usd: result.budgetDecision.limitUsd,
+        rule_key: result.budgetDecision.rule.key,
+      },
     })
   } catch (error) {
     console.error('[chief-of-staff-chat] failed:', error)
