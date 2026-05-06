@@ -1,5 +1,7 @@
 #!/usr/bin/env tsx
+import { config } from 'dotenv'
 import { spawnSync } from 'node:child_process'
+import { resolve } from 'node:path'
 import {
   formatDeploymentWatchSummary,
   getDeploymentWatchGuidance,
@@ -8,6 +10,8 @@ import {
   type DeploymentWatchSummary,
   type GitHubCombinedStatus,
 } from '../lib/vercel-deployment-watch'
+
+config({ path: resolve(process.cwd(), '.env.local') })
 
 type AgentRunModule = typeof import('../lib/agent-run')
 
