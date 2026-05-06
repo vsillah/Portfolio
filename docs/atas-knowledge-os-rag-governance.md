@@ -86,6 +86,18 @@ The `/admin/agents` mission-control snapshot exposes the current manifest,
 namespace counts, validation status, and approval gate. `/api/admin/rag-health`
 returns route policy and governance status alongside the n8n RAG probe.
 
+## Ingestion Trigger
+
+Governed ingestion starts at `POST /api/admin/rag-ingest`. The endpoint accepts
+admin auth or `Authorization: Bearer <N8N_INGEST_SECRET>` for n8n. It builds a
+shadow ingestion plan by validating the manifest, extracting local text, chunking
+content, generating deterministic IDs, checking metadata completeness, rejecting
+public namespace privacy violations, and recording an Agent Ops run.
+
+Current write mode is intentionally blocked. Requests with `{ "write": true }`
+return `blocked_pending_pinecone_cutover_approval` until Pinecone index creation,
+production n8n activation, and default retrieval cutover are explicitly approved.
+
 ## Approval Gates
 
 The following actions require explicit approval:
@@ -95,4 +107,3 @@ The following actions require explicit approval:
 - production n8n activation/deactivation for RAG workflows
 - promoting private-derived material into public retrieval
 - deleting or overwriting the legacy Pinecone index
-

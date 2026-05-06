@@ -74,9 +74,13 @@ governed rebuild. Future ingestion must go through Portfolio-owned validation:
 - duplicate detection
 - Agent Ops run recording
 
+The replacement trigger is `POST /api/admin/rag-ingest`. n8n can call this route
+with `Authorization: Bearer <N8N_INGEST_SECRET>`, but the app keeps control of
+manifest validation, extraction, chunking, deduplication, privacy checks, and run
+recording.
+
 ## Cutover Gate
 
 Do not route production chatbot or outreach retrieval to `amadutown-knowledge-v1`
 until shadow evaluation shows that the new index is materially better than
 `publications` on relevance, source quality, deduplication, and privacy safety.
-
