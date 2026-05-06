@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
         hadNewResults: items > 0,
         syncedAt: new Date().toISOString(),
         run_id: run?.id ?? null,
+        agent_run_id: run?.agentRunId ?? null,
       })
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)
