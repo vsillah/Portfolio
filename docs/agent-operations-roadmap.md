@@ -258,6 +258,8 @@ Current progress:
 
 - Mission Control derives a 24-hour Cost Intelligence summary from `cost_events.agent_run_id` without adding schema or copying data.
 - The first grouped view covers runtime, agent, workflow, client/project, and artifact type where trace metadata exists, with safe unassigned fallbacks.
+- Mission Control surfaces the latest `agent_ops_morning_review` and `agent_ops_deployment_watch` traces as Operating Signals.
+- The deployment watcher supports `--trace` so integration-captain and autopilot runs write a visible Agent Ops run/artifact.
 
 ## Cross-Phase Definition Of Done
 

@@ -66,6 +66,7 @@ describe('GET /api/admin/agents/mission-control', () => {
         by_client_project: [{ key: 'Unassigned', label: 'Unassigned client/project', amount: 0.25, event_count: 1, run_count: 1 }],
         by_artifact_type: [{ key: 'warm_lead', label: 'warm lead', amount: 0.25, event_count: 1, run_count: 1 }],
       },
+      operating_signals: [],
       agent_inbox: [],
       engagement_queue: [],
       dead_letter_queue: [],
@@ -102,6 +103,7 @@ describe('GET /api/admin/agents/mission-control', () => {
       total: 0.25,
       linked_event_count: 1,
     })
+    expect(body.operating_signals).toEqual([])
     expect(body.agent_inbox).toEqual([])
     expect(body.engagement_queue).toEqual([])
     expect(body.dead_letter_queue).toEqual([])

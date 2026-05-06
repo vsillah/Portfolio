@@ -87,6 +87,7 @@ describe('parseDeploymentWatchArgs', () => {
       '--contexts',
       'A,B',
       '--once',
+      '--trace',
     ])
 
     expect(options.ref).toBe('abc123')
@@ -94,6 +95,7 @@ describe('parseDeploymentWatchArgs', () => {
     expect(options.intervalSeconds).toBe(5)
     expect(options.contexts).toEqual(['A', 'B'])
     expect(options.once).toBe(true)
+    expect(options.trace).toBe(true)
   })
 })
 
