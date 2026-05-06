@@ -47,7 +47,7 @@ export const AGENT_PODS: AgentPodDefinition[] = [
   {
     key: 'research_knowledge',
     name: 'Research & Knowledge Pod',
-    purpose: 'Maintains evidence, source registers, private knowledge, RAG context, and decision support.',
+    purpose: 'Maintains evidence, source registers, governed knowledge ingestion, RAG context, and decision support.',
   },
   {
     key: 'content_production',
@@ -124,9 +124,9 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
     podKey: 'research_knowledge',
     status: 'partial',
     primaryRuntime: 'mixed',
-    responsibility: 'Collect, classify, and retrieve source-backed evidence for decisions, content, and client work.',
-    engagementPath: '/admin/value-evidence, RAG workflows, and lead research workflows.',
-    approvalGate: 'Private or client-derived material requires review before public use.',
+    responsibility: 'Collect and classify source-backed evidence before it is eligible for value evidence, content, RAG, or client work.',
+    engagementPath: '/admin/value-evidence, the knowledge source manifest, RAG audit reports, and lead research workflows.',
+    approvalGate: 'Private, client-derived, or unclassified material requires review before public or RAG use.',
     n8nWorkflows: [
       { id: 'uxsDWErRpICMxoRM', name: 'Lead Research and Qualifying Agent', environment: 'production', active: true },
       { id: 'iqGylSD1c2lDxlDT', name: 'WF-VEP-001: Internal Evidence Extraction', environment: 'production', active: true },
@@ -141,11 +141,11 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
     podKey: 'research_knowledge',
     status: 'partial',
     primaryRuntime: 'n8n',
-    responsibility: 'Keep RAG and private knowledge retrieval paths current without exposing raw private material.',
-    engagementPath: 'RAG ingest/query workflows and Portfolio knowledge surfaces.',
-    approvalGate: 'No private material quoted publicly without explicit approval.',
+    responsibility: 'Operate governed RAG ingestion, Pinecone namespaces, metadata completeness, duplicate detection, privacy checks, and retrieval health.',
+    engagementPath: '/api/admin/rag-health, knowledge source manifest, RAG ingest/query workflows, and Portfolio knowledge surfaces.',
+    approvalGate: 'Production cutover, private-source promotion, public chatbot/RAG policy changes, and raw private material usage require explicit approval.',
     n8nWorkflows: [
-      { id: 'yCNUqSHfyXpxNDLm', name: 'WF-RAG-INGEST: Google Drive -> Pinecone Ingestion (Daily)', environment: 'production', active: true },
+      { id: 'yCNUqSHfyXpxNDLm', name: 'WF-RAG-INGEST: Google Drive -> Pinecone Ingestion (Daily) [legacy read-only pending governed ingest]', environment: 'production', active: true },
       { id: '7Xn0fxEgXlbK6Gmm', name: 'WF-RAG-QUERY: Webhook RAG Search', environment: 'production', active: true },
       { id: '5YImo1TTgEInnfxw', name: 'WF-RAG-CHAT: Public Chatbot', environment: 'production', active: true },
       { id: 'Y56hALscpB5Asq7j', name: 'WF-RAG-DIAGNOSTIC: Multi-Category Assessment', environment: 'production', active: true },

@@ -118,6 +118,25 @@ type MissionSnapshot = {
     href: string
     details: string[]
   }>
+  knowledge_governance: {
+    targetIndex: string
+    legacyIndex: string
+    mode: string
+    approvalGate: string
+    manifest: {
+      sourceCount: number
+      approvedSourceCount: number
+      excludedSourceCount: number
+      countsByNamespace: Record<string, number>
+      countsByPrivacyTier: Record<string, number>
+    }
+    validation: {
+      ok: boolean
+      errors: string[]
+      warnings: string[]
+      publicUnsafeApprovedCount: number
+    }
+  }
   agent_inbox: Array<{
     id: string
     priority: 'high' | 'medium' | 'low'
@@ -429,6 +448,7 @@ export default function AgentOperationsPage() {
           <DailyBriefPanel brief={snapshot?.daily_brief ?? null} loading={loading} />
           <CostSummaryPanel summary={snapshot?.cost_summary ?? null} />
           <OperatingSignalsPanel signals={snapshot?.operating_signals ?? []} />
+          <KnowledgeGovernancePanel governance={snapshot?.knowledge_governance ?? null} />
 
           <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/25 p-4">
@@ -765,6 +785,50 @@ function OperatingSignalsPanel({ signals }: { signals: MissionSnapshot['operatin
           </Link>
         )
       })}
+    </section>
+  )
+}
+
+function KnowledgeGovernancePanel({ governance }: { governance: MissionSnapshot['knowledge_governance'] | null }) {
+  if (!governance) return null
+  const statusTone = governance.validation.ok ? 'text-emerald-200' : 'text-red-200'
+  const namespaces = Object.entries(governance.manifest.countsByNamespace)
+    .filter(([, count]) => count > 0)
+    .map(([namespace, count]) => `${namespace}: ${count}`)
+
+  return (
+    <section className="mt-5 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <ShieldCheck size={18} />
+            <h2 className="font-semibold">RAG Knowledge Governance</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {governance.targetIndex} is staged in {governance.mode.replace(/_/g, ' ')}; {governance.legacyIndex} remains legacy read-only.
+          </p>
+        </div>
+        <Link href="/api/admin/rag-health" className="rounded-full border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-1.5 text-xs text-radiant-gold hover:bg-radiant-gold/15">
+          RAG health
+        </Link>
+      </div>
+      <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <MetricCard icon={<ClipboardList size={16} />} label="Sources" value={governance.manifest.sourceCount} />
+        <MetricCard icon={<CheckCircle2 size={16} />} label="Approved" value={governance.manifest.approvedSourceCount} />
+        <MetricCard icon={<AlertTriangle size={16} />} label="Violations" value={governance.validation.errors.length + governance.validation.publicUnsafeApprovedCount} tone={governance.validation.ok ? 'default' : 'red'} />
+        <MetricCard icon={<ShieldCheck size={16} />} label="Status" value={governance.validation.ok ? 'Ready' : 'Blocked'} />
+      </div>
+      <div className="mt-3 rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm">
+        <p className={`font-medium ${statusTone}`}>
+          {governance.validation.ok ? 'Manifest validation is clean.' : governance.validation.errors[0]}
+        </p>
+        <p className="mt-1 text-muted-foreground">
+          {namespaces.length ? namespaces.join(' | ') : 'No manifest namespaces populated yet.'}
+        </p>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Approval gate: {governance.approvalGate.replace(/_/g, ' ')}
+        </p>
+      </div>
     </section>
   )
 }

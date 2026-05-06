@@ -93,6 +93,9 @@ export interface PineconeChatContextMetadata {
   ragHttpStatus: number | null
   ragLatencyMs: number | null
   ragEmptyResponse: boolean
+  ragRoute: string
+  ragAllowedNamespaces: string[]
+  ragMaxPrivacyTier: string
 }
 
 export async function appendPineconeAndChatContextToSystemPrompt(
@@ -127,7 +130,7 @@ export async function appendPineconeAndChatContextWithMetadata(
   })
 
   const [ragResult, chatBlock] = await Promise.all([
-    fetchRagContextForEmailQueryWithDiagnostics(ragQuery),
+    fetchRagContextForEmailQueryWithDiagnostics(ragQuery, { route: 'outreach_email' }),
     fetchRecentSiteChatExcerptForLeadEmail(input.contact.email),
   ])
   const ragBlock = ragResult.block
@@ -158,6 +161,9 @@ export async function appendPineconeAndChatContextWithMetadata(
       ragHttpStatus: d.http_status,
       ragLatencyMs: d.latency_ms,
       ragEmptyResponse: d.empty_response,
+      ragRoute: d.route,
+      ragAllowedNamespaces: d.allowed_namespaces,
+      ragMaxPrivacyTier: d.max_privacy_tier,
     },
   }
 }
