@@ -261,6 +261,8 @@ Current progress:
 - Mission Control surfaces the latest `agent_ops_morning_review` and `agent_ops_deployment_watch` traces as Operating Signals.
 - The deployment watcher supports `--trace` so integration-captain and autopilot runs write a visible Agent Ops run/artifact.
 - Stale-run detection now reports checked and marked counts by runtime across `codex`, `n8n`, `hermes`, `opencode`, and `manual` runs when those runtimes have active queued/running work.
+- Legacy workflow-specific run tables are mapped in `docs/agent-operations-rollout.md` as either domain detail to keep or future trace-link migration candidates.
+- `docs/agentic-patterns.md` now reflects the stronger Agent Ops observability state while preserving partial coverage notes for legacy/domain flows.
 
 ## Cross-Phase Definition Of Done
 
