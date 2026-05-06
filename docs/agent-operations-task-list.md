@@ -37,6 +37,8 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Add derived dead-letter handling for failed and stale runs without introducing a separate queue table.
    - [x] Add cost summaries by runtime, agent, workflow, client/project, and artifact type.
    - [x] Keep morning review and deployment watcher outputs visible in Agent Operations.
+   - [x] Document legacy workflow run tables as domain detail or future trace-link migration candidates.
+   - [x] Update the Agentic Patterns scorecard to reflect strong Agent Ops observability.
 
 ## Completed Or In Review
 

@@ -22,11 +22,11 @@ Our pinned 20 patterns, grouped the same way as the talk:
 | 3 | Parallelization | Grounding | Partial |
 | 4 | Tool Use | Grounding | Strong (n8n) / Partial (app) |
 | 5 | RAG | Grounding | Strong |
-| 6 | Planning / Orchestration | Transparent | Strong (workflow) / Partial (app) |
-| 7 | Chain-of-Thought | Transparent | Minimal |
+| 6 | Planning / Orchestration | Transparent | Strong |
+| 7 | Chain-of-Thought | Transparent | Minimal / trace-ready |
 | 8 | Tree-of-Thought | Transparent | Absent |
-| 9 | Multi-Agent Collaboration | Transparent | Partial |
-| 10 | Goal Tracking | Transparent | Partial |
+| 9 | Multi-Agent Collaboration | Transparent | Partial / org-mapped |
+| 10 | Goal Tracking | Transparent | Strong in Agent Ops / Partial in legacy flows |
 | 11 | Reflection | Self-awareness | Minimal |
 | 12 | Debate | Self-awareness | Absent |
 | 13 | Self-Consistency | Self-awareness | Absent |
@@ -35,8 +35,8 @@ Our pinned 20 patterns, grouped the same way as the talk:
 | 16 | Exception Handling | Production | Partial |
 | 17 | Human-in-the-Loop | Production | Strong on publish / Partial elsewhere |
 | 18 | Guardrails & Safety | Production | Strong (authz) / Partial (content) |
-| 19 | Monitoring & Observability | Production | Partial (highest-leverage gap) |
-| 20 | Cost/Resource Control | Production | Partial |
+| 19 | Monitoring & Observability | Production | Strong in Agent Ops / Partial in legacy flows |
+| 20 | Cost/Resource Control | Production | Strong post-hoc / Partial pre-flight |
 
 Coverage scale: **Strong** (consistent, reusable, tested) · **Partial** (present in some flows) · **Minimal** (one-off or offline only) · **Absent** (no deliberate implementation).
 
@@ -149,16 +149,18 @@ Each section follows the same template: *Definition · Where we use it today · 
 **Where we use it today.**
 - Client lifecycle workflows WF-000 through WF-012 (see [`n8n-exports/manifest.json`](../n8n-exports/manifest.json)) together form an orchestrated pipeline.
 - [`lib/testing/orchestrator.ts`](../lib/testing/orchestrator.ts) orchestrates simulated clients for E2E testing.
+- Agent Operations Mission Control (`/admin/agents`) is the app-level operating room for routed agent work: status strip, Agent Inbox, Engagement Work Queue, War Room, Operating Signals, runtime controls, and trace drilldowns.
+- `lib/agent-organization.ts` maps Chief of Staff, Research & Knowledge, Content Production, Product & Automation, and Publishing & Follow-Up pods to active or planned agent entries.
 
-**Coverage.** Strong at the workflow level, Partial in app.
+**Coverage.** Strong.
 
 **Gaps.**
-- No reusable orchestrator abstraction for production app flows; any multi-step agent logic gets re-invented.
-- No single place to see "for lead X, which workflows have run and which are pending".
+- The generic Agent Ops surface is strong, but some domain pages still use legacy workflow status tables as their first status source.
+- App-side orchestration is intentionally read-only in V1 for Chief of Staff, War Room, inbox routing, and agent dispatch; production mutations remain approval-gated.
 
 **Retrofit backlog.**
 - Evaluate extracting the testing orchestrator's core into `lib/orchestrator/` once we have a second non-test caller.
-- Add an admin page listing active agent runs (blocked on ticket [#1](#top-retrofit-tickets)).
+- Keep migrating high-value workflow families into the shared trace envelope while preserving domain-specific progress tables where they still add UI value.
 
 ---
 
@@ -166,15 +168,16 @@ Each section follows the same template: *Definition · Where we use it today · 
 
 **Definition.** Capture the model's intermediate reasoning so decisions are auditable, not just opaque outputs.
 
-**Where we use it today.** Implicit in some prompts ("think step by step"); nothing structured.
+**Where we use it today.** `agent_run_steps.reasoning` exists as an optional trace field for call sites that deliberately persist concise, review-safe rationale. Most flows still store step names, input/output summaries, events, artifacts, and outcomes rather than full reasoning.
 
-**Coverage.** Minimal.
+**Coverage.** Minimal / trace-ready.
 
 **Gaps.**
-- Reasoning traces are not persisted, so we cannot diagnose why a bad output happened.
+- Reasoning capture is opt-in and not broadly populated.
+- Private or sensitive reasoning should be summarized, not exposed as raw model internals.
 
 **Retrofit backlog.**
-- When ticket [#1](#top-retrofit-tickets) (agent run trace) lands, add an optional `reasoning` field on each step record for call sites that opt in.
+- Add concise reasoning summaries first to admin-only review flows where they materially improve audit quality, such as approval recommendations, routing decisions, and evaluation results.
 
 ---
 
@@ -201,15 +204,17 @@ Each section follows the same template: *Definition · Where we use it today · 
 - [`n8n-exports/RAG-Chatbot-for-AmaduTown-using-Google-Gemini.json`](../n8n-exports/RAG-Chatbot-for-AmaduTown-using-Google-Gemini.json) — six diagnostic category agents (Tech Stack, Business Challenges, Automation Needs, AI Readiness, Budget/Timeline, Decision Making) with independent memory buffers.
 - [`n8n-exports/HeyGen-Cold-Email---Sub-Agent---Jono-Catliff.json`](../n8n-exports/HeyGen-Cold-Email---Sub-Agent---Jono-Catliff.json) — sub-agent pattern for cold email.
 - [`n8n-exports/WF-CLG-002-Outreach-Generation.json`](../n8n-exports/WF-CLG-002-Outreach-Generation.json) — multiple agent nodes.
+- Agent Operations now has an explicit organization map in `lib/agent-organization.ts`, seeded registry rows, read-only engagement requests, War Room standups/discussions, and `agent_handoffs` available in the shared schema.
 
-**Coverage.** Partial.
+**Coverage.** Partial / org-mapped.
 
 **Gaps.**
-- No formal handoff contract — each workflow reinvents how state is passed between agents.
+- The shared `agent_handoffs` table exists, but most production workflows still need to adopt it deliberately.
 - No shared memory schema; per-lead facts produced by one agent are often not reused by the next.
 
 **Retrofit backlog.**
-- Define a "lead_state" JSON schema used as the handoff payload between agents in the cold-lead pipeline (WF-CLG-001 → 002 → 003 → 004).
+- Define a `lead_state` JSON schema used as the handoff payload between agents in the cold-lead pipeline (WF-CLG-001 → 002 → 003 → 004).
+- Add the first production `agent_handoffs` adoption only after the participating workflow family is already trace-linked.
 
 ---
 
@@ -220,14 +225,17 @@ Each section follows the same template: *Definition · Where we use it today · 
 **Where we use it today.**
 - RAG chatbot diagnostic flow tracks `{ completedCategories, questionsAsked, responsesReceived }` in n8n code nodes.
 - Milestone workflows WF-006, WF-009, WF-012 track lifecycle goals.
+- Agent Operations tracks cross-runtime run goals through statuses, current step, stale thresholds, approvals, artifacts, and outcomes.
+- Mission Control derives Agent Inbox, Dead-Letter Monitor, Daily Operating Brief, Operating Signals, and Engagement Work Queue from the shared traces.
 
-**Coverage.** Partial.
+**Coverage.** Strong in Agent Ops; Partial in legacy/domain flows.
 
 **Gaps.**
-- Progress state is workflow-local; admins cannot see "this lead is 60% through diagnostic" from the app.
+- Some workflow-specific progress remains local to legacy tables until each family adopts `agent_run_id` and generic callbacks.
+- Entity-level progress such as "this lead is 60% through diagnostic" still needs richer projections from domain state into the shared admin view.
 
 **Retrofit backlog.**
-- Surface diagnostic progress on the admin lead detail page once run-trace helper ships.
+- Surface diagnostic progress on the admin lead detail page using shared trace links plus domain progress where needed.
 
 ---
 
@@ -260,7 +268,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 - Lead qualification scoring could benefit — single-pass score is brittle for borderline leads.
 
 **Retrofit backlog.**
-- Prototype: run two different system prompts for lead AI-readiness scoring and reconcile. Defer until ticket [#1](#top-retrofit-tickets) makes the cost visible.
+- Prototype: run two different system prompts for lead AI-readiness scoring and reconcile. Use the shared trace/cost layer to compare quality, latency, and spend before promoting.
 
 ---
 
@@ -276,7 +284,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 - Diagnostic category classification (does this message belong to Tech Stack or AI Readiness?) is currently a single call.
 
 **Retrofit backlog.**
-- After ticket [#1](#top-retrofit-tickets) lands, A/B test self-consistency (N=3) vs single-call for diagnostic routing.
+- A/B test self-consistency (N=3) vs single-call for diagnostic routing with `agent_run_id` cost linkage enabled.
 
 ---
 
@@ -297,7 +305,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 
 **Retrofit backlog.**
 - Weekly job aggregating chat-eval scores → Slack digest.
-- Outreach template win/loss dashboard (blocked on ticket [#1](#top-retrofit-tickets)).
+- Outreach template win/loss dashboard using shared trace and cost links where available.
 
 ---
 
@@ -328,12 +336,13 @@ Each section follows the same template: *Definition · Where we use it today · 
 - Runtime gates: [`lib/n8n-runtime-flags.ts`](../lib/n8n-runtime-flags.ts) (`isN8nOutboundDisabled`, `isMockN8nEnabled`).
 - User-facing error hygiene enforced by [`.cursor/rules/no-expose-errors-to-users.mdc`](../.cursor/rules/no-expose-errors-to-users.mdc).
 - Trigger functions in [`lib/n8n.ts`](../lib/n8n.ts) return `{ triggered, message }` shape.
+- Agent Operations marks failed and stale runs, derives a Dead-Letter Monitor from those traces, and lets stale sweeps report checked/marked counts by runtime.
 
 **Coverage.** Partial.
 
 **Gaps.**
 - No standard retry/backoff helper for LLM calls or n8n triggers — each call site reinvents `try/catch`.
-- No dead-letter path for failed agent runs.
+- Dead-letter visibility exists for Agent Ops traces, but retry/backoff and remediation ownership are still call-site specific.
 
 **Retrofit backlog.** Ticket [#3](#top-retrofit-tickets) — retry/backoff helper.
 
@@ -383,13 +392,20 @@ Each section follows the same template: *Definition · Where we use it today · 
 - [`app/api/admin/cost-events/ingest/route.ts`](../app/api/admin/cost-events/ingest/route.ts) and [`lib/cost-calculator.ts`](../lib/cost-calculator.ts) — cost accounting.
 - [`n8n-exports/WF-MON-001-Apify-Actor-Health-Monitor.json`](../n8n-exports/WF-MON-001-Apify-Actor-Health-Monitor.json) — actor health monitor.
 - DB health check (`scripts/database-health-check.ts`) — referenced in [`CLAUDE.md`](../CLAUDE.md).
+- Shared Agent Ops trace tables: `agent_runs`, `agent_run_steps`, `agent_run_events`, `agent_run_artifacts`, `agent_handoffs`, and `agent_approvals`.
+- `/admin/agents`, `/admin/agents/runs`, and `/admin/agents/runs/[runId]` show mission control state, active/recent runs, timeline detail, costs, approvals, events, and artifacts.
+- n8n social content, value evidence, and warm lead workflows dispatch `agent_run_id` plus the `agent_trace` callback envelope.
+- Morning review, deployment watcher, Hermes health, War Room, Slack commands, stale sweep, runtime evaluation, and approval drills all write observable Agent Ops traces.
 
-**Coverage.** Partial.
+**Coverage.** Strong in Agent Ops; Partial in legacy/domain flows.
 
 **Gaps.**
-- No unified "agent run trace" tying a user request to every downstream step (n8n + app) with latency, cost, and outcome. **This is the single highest-leverage gap.**
+- Legacy workflow-specific tables still hold some primary progress detail until each workflow family is trace-linked or documented as domain-specific detail.
+- Not every LLM/n8n call site emits latency, token, and cost fields consistently yet.
 
-**Retrofit backlog.** Ticket [#1](#top-retrofit-tickets) — agent run trace helper.
+**Retrofit backlog.**
+- Continue migrating workflow families into the shared trace envelope.
+- Keep workflow-specific run tables only where they store useful domain state, as mapped in [`docs/agent-operations-rollout.md`](agent-operations-rollout.md).
 
 ---
 
@@ -400,8 +416,10 @@ Each section follows the same template: *Definition · Where we use it today · 
 **Where we use it today.**
 - [`lib/cost-calculator.ts`](../lib/cost-calculator.ts) computes post-hoc costs.
 - Cost-events ingest accumulates spend per event.
+- `cost_events.agent_run_id` links usage costs to shared Agent Ops traces.
+- Mission Control derives 24-hour Cost Intelligence by runtime, agent, workflow, client/project, and artifact type where run metadata exists.
 
-**Coverage.** Partial.
+**Coverage.** Strong post-hoc; Partial pre-flight.
 
 **Gaps.**
 - No pre-flight budget cap — a runaway loop can rack up cost before the monitor fires.
@@ -413,19 +431,19 @@ Each section follows the same template: *Definition · Where we use it today · 
 
 ## Top retrofit tickets
 
-These are the first five PR-sized items seeded from the scorecard. Each one closes a named gap above.
+These are the first five PR-sized items seeded from the scorecard. Ticket 1 has landed; the remaining tickets are still the next PR-sized improvements for the gaps above.
 
-### Ticket 1 — Agent run trace helper (Monitoring)
+### Ticket 1 — Agent run trace helper (Monitoring) — completed
 
-- **Owner.** _TBD_
-- **Scope.** Add `lib/agent-run.ts` exporting `startRun({ kind, subjectId }) → runId`, `recordStep(runId, { name, latencyMs, tokensIn, tokensOut, costUsd, status, reasoning? })`, `endRun(runId, { status, outcome })`. Writes to the existing cost-events pipeline ([`app/api/admin/cost-events/ingest/route.ts`](../app/api/admin/cost-events/ingest/route.ts)) with a new `agent_run_id` column.
-- **First adoption.** [`lib/outreach-queue-generator.ts`](../lib/outreach-queue-generator.ts).
+- **Owner.** Agent Operations rollout.
+- **Scope delivered.** `lib/agent-run.ts` plus shared trace tables, idempotent run/step/event/artifact helpers, approval records, handoffs, and `cost_events.agent_run_id`.
+- **First adoptions.** Agent Operations admin surfaces, outreach/social/value/warm-lead n8n trace envelopes, Hermes health bridge, War Room, Slack commands, stale sweep, deployment watcher, runtime evaluation, and approval drill.
 - **Acceptance criteria.**
-  - New DB column `agent_run_id` (Supabase migration, applied via MCP per `.cursor/rules/supabase-migrations-apply-via-mcp.mdc`).
-  - Helper has unit tests covering success, partial-failure, and `endRun` idempotency.
-  - Outreach queue generator emits `start → step(s) → end` with realistic cost numbers visible in cost-events.
-  - Scorecard row for Monitoring & Observability updated to "Strong" on completion.
-- **Unblocks.** Chain-of-Thought capture, Goal Tracking UI, Learning & Feedback dashboard, Self-Consistency and Debate experiments (all need cost visibility).
+  - Shared schema exists for runs, steps, events, artifacts, handoffs, approvals, and cost linkage.
+  - Helpers and Agent Ops read models have focused tests.
+  - Mission Control and run detail pages expose traces, costs, approvals, events, and artifacts.
+  - Scorecard row for Monitoring & Observability is updated to "Strong in Agent Ops / Partial in legacy flows."
+- **Still unblocks.** Broader reasoning summaries, workflow-family trace migrations, Learning & Feedback dashboards, Self-Consistency and Debate experiments with visible costs.
 
 ### Ticket 2 — Inline reflection wrapper (Reflection)
 
@@ -483,7 +501,7 @@ flowchart LR
 
   subgraph observability [Observability]
     costEvents["cost-events ingest"]
-    runTrace["agent_run_steps (ticket 1)"]
+    runTrace["agent_runs + agent_run_steps"]
   end
 
   chatbotRAG -. trace .-> runTrace
