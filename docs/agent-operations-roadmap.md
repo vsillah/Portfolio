@@ -234,7 +234,7 @@ Out of scope:
 
 ### Phase 10: Hardening, Reporting, And Migration
 
-Status: Partial.
+Status: Complete / monitoring.
 
 Goal: Make Agent Operations reliable enough to run as an operating system.
 
@@ -258,6 +258,32 @@ Current progress:
 
 - Mission Control derives a 24-hour Cost Intelligence summary from `cost_events.agent_run_id` without adding schema or copying data.
 - The first grouped view covers runtime, agent, workflow, client/project, and artifact type where trace metadata exists, with safe unassigned fallbacks.
+- Source validator and dev-testing LLM surfaces now use pre-flight budget checks and Agent Ops trace linkage, completing the last known Phase 10 LLM/budget trace cleanup surfaces.
+
+### Phase 11: Provider Resilience And Retry Hygiene
+
+Status: In progress.
+
+Goal: Standardize how provider calls recover from transient n8n, LLM, and tool failures.
+
+Definition of done:
+
+- A shared retry/backoff helper exists for provider calls.
+- n8n trigger calls use capped retry behavior for transient network and gateway failures.
+- Direct LLM call sites can adopt the same helper without bespoke loops.
+- Provider failures remain user-safe and traceable; implementation details stay in logs/traces.
+- Retry metadata can feed dead-letter and recovery flows without introducing a separate queue table.
+
+Out of scope:
+
+- Retrying non-idempotent production mutations without an explicit workflow-level safety check.
+- Replacing existing dead-letter visibility.
+- Changing vendors, models, or workflow ownership.
+
+Current progress:
+
+- A reusable `lib/llm/with-retry.ts` helper is being introduced with capped exponential backoff, configurable retryable error matching, and a give-up hook for dead-letter integration.
+- The first adoption targets n8n trigger calls, where transient 502/503/504 and network failures can be retried without exposing raw provider errors to users.
 - Mission Control surfaces the latest `agent_ops_morning_review` and `agent_ops_deployment_watch` traces as Operating Signals.
 - The deployment watcher supports `--trace` so integration-captain and autopilot runs write a visible Agent Ops run/artifact.
 - Stale-run detection now reports checked and marked counts by runtime across `codex`, `n8n`, `hermes`, `opencode`, and `manual` runs when those runtimes have active queued/running work.
