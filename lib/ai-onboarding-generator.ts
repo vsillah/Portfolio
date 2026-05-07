@@ -8,7 +8,20 @@
 
 import { supabaseAdmin } from '@/lib/supabase'
 import { recordOpenAICost } from '@/lib/cost-calculator'
+import {
+  evaluateAgentBudget,
+  type AgentBudgetDecision,
+} from '@/lib/agent-budget-policy'
+import {
+  recordAgentEvent,
+  recordAgentStep,
+} from '@/lib/agent-run'
 import type { SetupRequirement, MilestoneTemplate, CommunicationPlan, WinCondition, WarrantyTerms } from '@/lib/onboarding-templates'
+
+const ONBOARDING_MODEL = 'gpt-4o-mini'
+const ONBOARDING_MAX_TOKENS = 2000
+const ONBOARDING_SYSTEM_PROMPT =
+  'You are an onboarding specialist. Respond only with valid JSON matching the requested structure.'
 
 export interface AIOnboardingContent {
   setup_requirements: SetupRequirement[]
@@ -33,6 +46,7 @@ export interface OnboardingGenerationInput {
   diagnostic_audit_id?: string
   value_report_id?: string
   gamma_report_id?: string
+  agentRunId?: string | null
 }
 
 interface ContextData {
@@ -181,6 +195,70 @@ Respond with JSON matching this structure:
 }`
 }
 
+function estimateTokensFromText(text: string): number {
+  return Math.ceil(text.length / 4)
+}
+
+export function evaluateAIOnboardingBudget(input: {
+  model?: string
+  systemPrompt?: string
+  userPrompt: string
+  maxTokens?: number
+}): AgentBudgetDecision {
+  return evaluateAgentBudget({
+    runtime: 'manual',
+    model: input.model ?? ONBOARDING_MODEL,
+    estimatedInputTokens: estimateTokensFromText(
+      `${input.systemPrompt ?? ONBOARDING_SYSTEM_PROMPT}\n${input.userPrompt}`,
+    ),
+    maxTokens: input.maxTokens ?? ONBOARDING_MAX_TOKENS,
+    metadata: {
+      operation: 'generate_onboarding_content',
+    },
+  })
+}
+
+async function recordOnboardingBudgetDecision(args: {
+  agentRunId?: string | null
+  decision: AgentBudgetDecision
+  clientName?: string
+  bundleName?: string
+}) {
+  if (!args.agentRunId) return
+
+  const metadata = {
+    budget_status: args.decision.status,
+    budget_rule_key: args.decision.rule.key,
+    estimated_cost_usd: args.decision.estimatedCostUsd,
+    warning_usd: args.decision.warningUsd,
+    limit_usd: args.decision.limitUsd,
+    client_name: args.clientName ?? null,
+    bundle_name: args.bundleName ?? null,
+  }
+
+  await recordAgentStep({
+    runId: args.agentRunId,
+    stepKey: 'budget_check',
+    name: 'Checked onboarding generation budget',
+    status: args.decision.status === 'blocked' ? 'failed' : 'completed',
+    outputSummary: args.decision.reason,
+    costUsd: args.decision.estimatedCostUsd,
+    metadata,
+    idempotencyKey: `${args.agentRunId}:onboarding_budget_check`,
+  }).catch((err) => console.warn('[ai-onboarding-generator] agent budget step failed:', err))
+
+  if (args.decision.status !== 'allowed') {
+    await recordAgentEvent({
+      runId: args.agentRunId,
+      eventType: 'agent_budget_policy_decision',
+      severity: args.decision.status === 'blocked' ? 'error' : 'warning',
+      message: args.decision.reason,
+      metadata,
+      idempotencyKey: `${args.agentRunId}:onboarding_budget_check:${args.decision.status}`,
+    }).catch((err) => console.warn('[ai-onboarding-generator] agent budget event failed:', err))
+  }
+}
+
 export async function generateAIOnboardingContent(
   input: OnboardingGenerationInput
 ): Promise<AIOnboardingContent> {
@@ -191,6 +269,23 @@ export async function generateAIOnboardingContent(
 
   const ctx = await gatherContext(input)
   const prompt = buildPrompt(input, ctx)
+  const budgetDecision = evaluateAIOnboardingBudget({
+    model: ONBOARDING_MODEL,
+    systemPrompt: ONBOARDING_SYSTEM_PROMPT,
+    userPrompt: prompt,
+    maxTokens: ONBOARDING_MAX_TOKENS,
+  })
+
+  await recordOnboardingBudgetDecision({
+    agentRunId: input.agentRunId,
+    decision: budgetDecision,
+    clientName: input.client_name,
+    bundleName: input.bundle_name,
+  })
+
+  if (budgetDecision.status === 'blocked') {
+    throw new Error(budgetDecision.reason)
+  }
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -199,16 +294,16 @@ export async function generateAIOnboardingContent(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: ONBOARDING_MODEL,
       messages: [
         {
           role: 'system',
-          content: 'You are an onboarding specialist. Respond only with valid JSON matching the requested structure.',
+          content: ONBOARDING_SYSTEM_PROMPT,
         },
         { role: 'user', content: prompt },
       ],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: ONBOARDING_MAX_TOKENS,
       response_format: { type: 'json_object' },
     }),
   })
@@ -226,9 +321,15 @@ export async function generateAIOnboardingContent(
   if (usage) {
     recordOpenAICost(
       usage,
-      'gpt-4o-mini',
+      ONBOARDING_MODEL,
       { type: 'proposal', id: 'onboarding-preview' },
-      { operation: 'generate_onboarding_content' }
+      {
+        operation: 'generate_onboarding_content',
+        budget_status: budgetDecision.status,
+        budget_rule_key: budgetDecision.rule.key,
+        budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
+      },
+      input.agentRunId ?? undefined,
     ).catch(() => {})
   }
 
