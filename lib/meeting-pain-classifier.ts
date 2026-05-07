@@ -12,6 +12,9 @@
 
 import { supabaseAdmin } from '@/lib/supabase'
 import { refreshCategoryStats, linkEvidenceToCalculations } from '@/lib/value-evidence-linker'
+import { evaluateAgentBudget, type AgentBudgetDecision } from '@/lib/agent-budget-policy'
+import { recordAgentEvent, recordAgentStep } from '@/lib/agent-run'
+import { recordOpenAICost, type Usage } from '@/lib/cost-calculator'
 
 // ============================================================================
 // Types
@@ -43,6 +46,24 @@ export interface InsertEvidenceResult {
   inserted: number
   errors: string[]
   affectedCategoryIds: string[]
+}
+
+export interface MeetingPainClassificationOptions {
+  agentRunId?: string | null
+}
+
+export const MEETING_PAIN_CLASSIFICATION_OPERATION = 'meeting_pain_classification'
+export const MEETING_PAIN_CLASSIFICATION_MODEL = 'gpt-4o-mini'
+export const MEETING_PAIN_CLASSIFICATION_MAX_TOKENS = 1000
+
+export class MeetingPainClassificationError extends Error {
+  constructor(
+    message: string,
+    public readonly code: 'budget_blocked' | 'openai_upstream' | 'invalid_response',
+  ) {
+    super(message)
+    this.name = 'MeetingPainClassificationError'
+  }
 }
 
 // ============================================================================
@@ -123,6 +144,66 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
 }
 
 const MIN_CONFIDENCE_THRESHOLD = 0.3
+
+function estimateTokensFromText(text: string): number {
+  return Math.ceil(text.length / 4)
+}
+
+export function evaluateMeetingPainClassificationBudget(input: {
+  prompt: string
+  model?: string
+  maxTokens?: number
+}): AgentBudgetDecision {
+  return evaluateAgentBudget({
+    runtime: 'manual',
+    model: input.model ?? MEETING_PAIN_CLASSIFICATION_MODEL,
+    estimatedInputTokens: estimateTokensFromText(input.prompt),
+    maxTokens: input.maxTokens ?? MEETING_PAIN_CLASSIFICATION_MAX_TOKENS,
+    metadata: {
+      operation: MEETING_PAIN_CLASSIFICATION_OPERATION,
+    },
+  })
+}
+
+async function recordMeetingPainClassificationBudgetDecision(args: {
+  agentRunId?: string | null
+  unmatchedCount: number
+  decision: AgentBudgetDecision
+}) {
+  if (!args.agentRunId) return
+
+  const metadata = {
+    operation: MEETING_PAIN_CLASSIFICATION_OPERATION,
+    unmatched_count: args.unmatchedCount,
+    budget_status: args.decision.status,
+    budget_rule_key: args.decision.rule.key,
+    estimated_cost_usd: args.decision.estimatedCostUsd,
+    warning_usd: args.decision.warningUsd,
+    limit_usd: args.decision.limitUsd,
+  }
+
+  await recordAgentStep({
+    runId: args.agentRunId,
+    stepKey: 'budget_check',
+    name: 'Checked meeting pain classification budget',
+    status: args.decision.status === 'blocked' ? 'failed' : 'completed',
+    outputSummary: args.decision.reason,
+    costUsd: args.decision.estimatedCostUsd,
+    metadata,
+    idempotencyKey: `${args.agentRunId}:meeting_pain_classification:budget_check`,
+  }).catch((err) => console.warn('[meeting-pain-classifier] agent budget step failed:', err))
+
+  if (args.decision.status !== 'allowed') {
+    await recordAgentEvent({
+      runId: args.agentRunId,
+      eventType: 'budget_check',
+      severity: args.decision.status === 'blocked' ? 'error' : 'warning',
+      message: args.decision.reason,
+      metadata,
+      idempotencyKey: `${args.agentRunId}:meeting_pain_classification:budget_check:${args.decision.status}`,
+    }).catch((err) => console.warn('[meeting-pain-classifier] agent budget event failed:', err))
+  }
+}
 
 // ============================================================================
 // Text splitting
@@ -220,7 +301,8 @@ function keywordClassifyItem(
 
 async function aiClassifyItems(
   items: string[],
-  categories: PainPointCategory[]
+  categories: PainPointCategory[],
+  options: MeetingPainClassificationOptions = {}
 ): Promise<ClassifiedItem[]> {
   if (items.length === 0 || categories.length === 0) return []
 
@@ -250,6 +332,20 @@ Respond with a JSON array where each element has:
 Only include items that have a reasonable match (confidence >= 0.3). Respond ONLY with the JSON array, no other text.`
 
   try {
+    const budgetDecision = evaluateMeetingPainClassificationBudget({
+      prompt,
+      model: MEETING_PAIN_CLASSIFICATION_MODEL,
+      maxTokens: MEETING_PAIN_CLASSIFICATION_MAX_TOKENS,
+    })
+    await recordMeetingPainClassificationBudgetDecision({
+      agentRunId: options.agentRunId,
+      unmatchedCount: items.length,
+      decision: budgetDecision,
+    })
+    if (budgetDecision.status === 'blocked') {
+      throw new MeetingPainClassificationError(budgetDecision.reason, 'budget_blocked')
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -257,19 +353,35 @@ Only include items that have a reasonable match (confidence >= 0.3). Respond ONL
         Authorization: `Bearer ${OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: MEETING_PAIN_CLASSIFICATION_MODEL,
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.2,
-        max_tokens: 1000,
+        max_tokens: MEETING_PAIN_CLASSIFICATION_MAX_TOKENS,
       }),
     })
 
     if (!response.ok) {
       console.error('[meeting-pain-classifier] OpenAI API error:', response.status)
-      return []
+      throw new MeetingPainClassificationError('OpenAI classification failed', 'openai_upstream')
     }
 
     const data = await response.json()
+    const usage = data.usage as Usage | undefined
+    if (usage) {
+      recordOpenAICost(
+        usage,
+        MEETING_PAIN_CLASSIFICATION_MODEL,
+        { type: 'meeting_pain_classification', id: options.agentRunId ?? 'untraced' },
+        {
+          operation: MEETING_PAIN_CLASSIFICATION_OPERATION,
+          unmatched_count: items.length,
+          budget_status: budgetDecision.status,
+          budget_rule_key: budgetDecision.rule.key,
+          budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
+        },
+        options.agentRunId ?? undefined,
+      ).catch(() => {})
+    }
     const content = data.choices?.[0]?.message?.content?.trim() || ''
 
     const jsonMatch = content.match(/\[[\s\S]*\]/)
@@ -304,6 +416,9 @@ Only include items that have a reasonable match (confidence >= 0.3). Respond ONL
 
     return results
   } catch (err) {
+    if (err instanceof MeetingPainClassificationError) {
+      throw err
+    }
     console.error('[meeting-pain-classifier] AI classification failed:', err)
     return []
   }
@@ -315,7 +430,8 @@ Only include items that have a reasonable match (confidence >= 0.3). Respond ONL
 
 export async function classifyMeetingPainPoints(
   painPointsText: string,
-  quickWinsText: string
+  quickWinsText: string,
+  options: MeetingPainClassificationOptions = {}
 ): Promise<ClassifyResult> {
   const sb = supabaseAdmin
   if (!sb) throw new Error('supabaseAdmin not available (server-side only)')
@@ -353,7 +469,7 @@ export async function classifyMeetingPainPoints(
   }
 
   if (unmatched.length > 0) {
-    const aiResults = await aiClassifyItems(unmatched, categories)
+    const aiResults = await aiClassifyItems(unmatched, categories, options)
     const aiMatchedTexts = new Set(aiResults.map((r) => r.text))
 
     classified.push(...aiResults)

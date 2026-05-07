@@ -426,6 +426,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 - Admin video ideas generation checks the manual-runtime budget after context assembly and before GPT-4o dispatch, then links cost events to its Agent Ops trace.
 - Admin social carousel conversion checks the manual-runtime budget before GPT-4o dispatch and links cost events to its Agent Ops trace.
 - Admin in-person diagnostic insight generation checks the manual-runtime budget before GPT-4o-mini dispatch and links cost events to its Agent Ops trace.
+- Admin meeting pain classification checks the manual-runtime budget before GPT-4o-mini fallback classification and links AI fallback cost events to its Agent Ops trace.
 - Cost-events ingest accumulates spend per event.
 - `cost_events.agent_run_id` links usage costs to shared Agent Ops traces.
 - Mission Control derives 24-hour Cost Intelligence by runtime, agent, workflow, client/project, and artifact type where run metadata exists.
