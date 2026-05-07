@@ -71,6 +71,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Audit-from-meetings pre-flight budget adoption and trace linkage in review.
 - [x] Video prompt formatter pre-flight budget adoption and trace linkage in review.
 - [x] Video ideas generation pre-flight budget adoption and trace linkage in review.
+- [x] Social carousel conversion pre-flight budget adoption and trace linkage in review.
 
 ## Scope Guard
 
