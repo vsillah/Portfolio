@@ -336,13 +336,13 @@ Each section follows the same template: *Definition · Where we use it today · 
 - Runtime gates: [`lib/n8n-runtime-flags.ts`](../lib/n8n-runtime-flags.ts) (`isN8nOutboundDisabled`, `isMockN8nEnabled`).
 - User-facing error hygiene enforced by [`.cursor/rules/no-expose-errors-to-users.mdc`](../.cursor/rules/no-expose-errors-to-users.mdc).
 - Trigger functions in [`lib/n8n.ts`](../lib/n8n.ts) return `{ triggered, message }` shape.
-- Agent Operations marks failed and stale runs, derives a Dead-Letter Monitor from those traces, and lets stale sweeps report checked/marked counts by runtime.
+- Agent Operations marks failed and stale runs, derives a Dead-Letter Monitor from those traces, lets stale sweeps report checked/marked counts by runtime, and can create read-only recovery requests with retry/backoff metadata.
 
 **Coverage.** Partial.
 
 **Gaps.**
 - No standard retry/backoff helper for LLM calls or n8n triggers — each call site reinvents `try/catch`.
-- Dead-letter visibility exists for Agent Ops traces, but retry/backoff and remediation ownership are still call-site specific.
+- Dead-letter visibility and routed recovery requests exist for Agent Ops traces, but provider-call retry wrappers are still call-site specific.
 
 **Retrofit backlog.** Ticket [#3](#top-retrofit-tickets) — retry/backoff helper.
 

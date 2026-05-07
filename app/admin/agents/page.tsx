@@ -181,6 +181,7 @@ type MissionSnapshot = {
     source_label: string
     routed: boolean
     routed_run_id: string | null
+    routed_kind: string | null
     next_action: string
     href: string
   }>
@@ -229,6 +230,7 @@ export default function AgentOperationsPage() {
   const [actionResult, setActionResult] = useState<{ label: string; runId: string } | null>(null)
   const [inboxRoutingId, setInboxRoutingId] = useState<string | null>(null)
   const [engagementLoadingKey, setEngagementLoadingKey] = useState<string | null>(null)
+  const [recoveryLoadingRunId, setRecoveryLoadingRunId] = useState<string | null>(null)
 
   const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
     const session = await getCurrentSession()
@@ -390,6 +392,28 @@ export default function AgentOperationsPage() {
     }
   }
 
+  async function requestRunRecovery(item: MissionSnapshot['dead_letter_queue'][number]) {
+    setRecoveryLoadingRunId(item.run_id)
+    setActionResult(null)
+    setError(null)
+    try {
+      const response = await authedFetch(`/api/admin/agents/runs/${item.run_id}/retry`, {
+        method: 'POST',
+        body: JSON.stringify({
+          note: `Mission Control recovery request for ${item.status} ${item.runtime} run.`,
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setActionResult({ label: `recovery for ${item.agent_name}`, runId: body.run_id })
+      await loadMissionControl()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to request recovery')
+    } finally {
+      setRecoveryLoadingRunId(null)
+    }
+  }
+
   const topAgents = useMemo(
     () => snapshot?.roster.flatMap((pod) => pod.agents).filter((agent) => agent.status !== 'planned').slice(0, 10) ?? [],
     [snapshot],
@@ -546,7 +570,11 @@ export default function AgentOperationsPage() {
 
           <EngagementQueuePanel items={snapshot?.engagement_queue ?? []} />
 
-          <DeadLetterPanel items={snapshot?.dead_letter_queue ?? []} />
+          <DeadLetterPanel
+            items={snapshot?.dead_letter_queue ?? []}
+            recoveryLoadingRunId={recoveryLoadingRunId}
+            onRecover={requestRunRecovery}
+          />
 
           <section className="mt-5 grid grid-cols-1 gap-5 xl:grid-cols-[1fr_0.8fr]">
             <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
@@ -990,7 +1018,15 @@ function EngagementQueuePanel({ items }: { items: MissionSnapshot['engagement_qu
   )
 }
 
-function DeadLetterPanel({ items }: { items: MissionSnapshot['dead_letter_queue'] }) {
+function DeadLetterPanel({
+  items,
+  recoveryLoadingRunId,
+  onRecover,
+}: {
+  items: MissionSnapshot['dead_letter_queue']
+  recoveryLoadingRunId: string | null
+  onRecover: (item: MissionSnapshot['dead_letter_queue'][number]) => void
+}) {
   if (!items.length) return null
 
   return (
@@ -1010,10 +1046,9 @@ function DeadLetterPanel({ items }: { items: MissionSnapshot['dead_letter_queue'
 
       <div className="mt-3 grid grid-cols-1 gap-2 lg:grid-cols-2">
         {items.map((item) => (
-          <Link
+          <div
             key={item.run_id}
-            href={item.routed_run_id ? `/admin/agents/runs/${item.routed_run_id}` : item.href}
-            className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm hover:border-radiant-gold/50"
+            className="rounded-lg border border-silicon-slate/50 bg-black/10 p-3 text-sm"
           >
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-medium">{item.title}</span>
@@ -1034,8 +1069,28 @@ function DeadLetterPanel({ items }: { items: MissionSnapshot['dead_letter_queue'
               <QueueDetail label="Age" value={`${item.age_hours}h`} />
             </div>
             <p className="mt-3 line-clamp-2 text-muted-foreground">{item.reason}</p>
-            <p className="mt-2 text-xs text-radiant-gold">{item.next_action}</p>
-          </Link>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Link
+                href={item.routed_run_id ? `/admin/agents/runs/${item.routed_run_id}` : item.href}
+                className="inline-flex items-center gap-1 rounded-md border border-radiant-gold/40 bg-radiant-gold/10 px-2.5 py-1 text-xs text-radiant-gold hover:bg-radiant-gold/15"
+              >
+                {item.routed ? 'Open routed trace' : 'Open source trace'}
+                <ArrowRight size={12} />
+              </Link>
+              {!item.routed ? (
+                <button
+                  type="button"
+                  onClick={() => onRecover(item)}
+                  disabled={recoveryLoadingRunId === item.run_id}
+                  className="inline-flex items-center gap-1 rounded-md border border-silicon-slate/60 bg-background/50 px-2.5 py-1 text-xs hover:border-radiant-gold/50 disabled:opacity-60"
+                >
+                  <RefreshCw size={12} className={recoveryLoadingRunId === item.run_id ? 'animate-spin' : ''} />
+                  Request retry
+                </button>
+              ) : null}
+              <span className="text-xs text-muted-foreground">{item.next_action}</span>
+            </div>
+          </div>
         ))}
       </div>
     </section>

@@ -279,6 +279,7 @@ Current progress:
 - Admin Chat Eval LLM judge evaluation now starts a manual Agent Ops trace, checks the manual-runtime budget before Anthropic/OpenAI dispatch, and links judge cost events back to the trace.
 - Admin Chat Eval axial-code generation and error diagnosis now start manual Agent Ops traces, check budget before Anthropic/OpenAI dispatch, and link cost events back to the trace.
 - Value Evidence source validation and dev testing LLM helpers now run pre-flight budget checks before direct provider calls.
+- Failed, stale, and cancelled Agent Ops traces can now create a read-only recovery request with retry attempt, backoff, earliest-retry metadata, and an attached recovery packet. This routes dead-letter work without re-running production automation from Mission Control.
 
 ## Cross-Phase Definition Of Done
 

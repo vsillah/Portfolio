@@ -91,6 +91,7 @@ export type AgentDeadLetterItem = {
   source_label: string
   routed: boolean
   routed_run_id: string | null
+  routed_kind: string | null
   next_action: string
   href: string
 }
@@ -555,7 +556,7 @@ export function buildAgentInbox(input: {
 
 export function buildAgentEngagementQueue(runs: AgentRunRow[]): AgentEngagementQueueItem[] {
   return runs
-    .filter((run) => run.kind === 'agent_engagement_request')
+    .filter((run) => run.kind === 'agent_engagement_request' || run.kind === 'agent_recovery_request')
     .map((run) => {
       const agent = findAgent(requestedAgentKey(run))
       const agentName = agent?.name ?? 'Chief of Staff Agent'
@@ -587,7 +588,7 @@ export function buildAgentDeadLetterQueue(
 ): AgentDeadLetterItem[] {
   const routedBySourceRun = new Map<string, AgentRunRow>()
   for (const run of runs) {
-    if (run.kind !== 'agent_engagement_request') continue
+    if (run.kind !== 'agent_engagement_request' && run.kind !== 'agent_recovery_request') continue
     const sourceRunId = stringMetadataValue(run.metadata, 'source_run_id')
     if (!sourceRunId || routedBySourceRun.has(sourceRunId)) continue
     routedBySourceRun.set(sourceRunId, run)
@@ -613,8 +614,11 @@ export function buildAgentDeadLetterQueue(
         source_label: sourceLabelForRun(run),
         routed: Boolean(routedRun),
         routed_run_id: routedRun?.id ?? null,
+        routed_kind: routedRun?.kind ?? null,
         next_action: routedRun
-          ? 'Review routed engagement request.'
+          ? routedRun.kind === 'agent_recovery_request'
+            ? 'Review retry request.'
+            : 'Review routed engagement request.'
           : run.status === 'stale'
             ? 'Route stale run owner from Agent Inbox.'
             : 'Route failure triage from Agent Inbox.',
