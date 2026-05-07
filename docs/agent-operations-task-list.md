@@ -68,6 +68,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Delivery email draft pre-flight budget adoption and trace linkage in review.
 - [x] Meeting lead extraction pre-flight budget adoption and trace linkage in review.
 - [x] AI onboarding preview pre-flight budget adoption in review.
+- [x] Audit-from-meetings pre-flight budget adoption and trace linkage in review.
 
 ## Scope Guard
 

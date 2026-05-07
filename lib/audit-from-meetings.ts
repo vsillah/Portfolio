@@ -6,8 +6,15 @@
 
 import { supabaseAdmin } from '@/lib/supabase'
 import { recordOpenAICost, type Usage } from '@/lib/cost-calculator'
+import {
+  evaluateAgentBudget,
+  type AgentBudgetDecision,
+} from '@/lib/agent-budget-policy'
+import { recordAgentEvent, recordAgentStep } from '@/lib/agent-run'
 export const MAX_COMBINED_CHARS = 100_000
 export const MAX_MEETINGS = 20
+const AUDIT_FROM_MEETINGS_MODEL = 'gpt-4o-mini'
+const AUDIT_FROM_MEETINGS_MAX_TOKENS = 4000
 
 export interface MeetingForAudit {
   id: string
@@ -77,6 +84,9 @@ export function combineMeetingText(meetings: MeetingForAudit[]): string {
 
 export interface ExtractDiagnosticOptions {
   includeScores?: boolean
+  agentRunId?: string | null
+  contactSubmissionId?: number | null
+  clientProjectId?: string | null
 }
 
 export interface ExtractedDiagnostic {
@@ -92,6 +102,16 @@ export interface ExtractedDiagnostic {
   urgency_score?: number
   opportunity_score?: number
   sales_notes?: string
+}
+
+export class AuditFromMeetingsError extends Error {
+  constructor(
+    message: string,
+    public readonly code: 'budget_blocked' | 'openai_not_configured' | 'openai_upstream' | 'invalid_response',
+  ) {
+    super(message)
+    this.name = 'AuditFromMeetingsError'
+  }
 }
 
 const SYSTEM_PROMPT = `You are a sales intelligence analyst. Extract diagnostic audit data from meeting transcripts.
@@ -119,13 +139,79 @@ Output valid JSON with these exact top-level keys. Use the same field names and 
 
 Only include keys for which you found evidence in the transcript. Omit keys with no evidence. Respond only with valid JSON.`
 
+export function buildAuditFromMeetingsUserPrompt(combinedText: string): string {
+  return `Extract diagnostic audit data from these meeting transcripts.\n\n${combinedText}`
+}
+
+function estimateTokensFromText(text: string): number {
+  return Math.ceil(text.length / 4)
+}
+
+export function evaluateAuditFromMeetingsBudget(input: {
+  systemPrompt: string
+  userPrompt: string
+  model?: string
+  maxTokens?: number
+}): AgentBudgetDecision {
+  return evaluateAgentBudget({
+    runtime: 'manual',
+    model: input.model ?? AUDIT_FROM_MEETINGS_MODEL,
+    estimatedInputTokens: estimateTokensFromText(`${input.systemPrompt}\n${input.userPrompt}`),
+    maxTokens: input.maxTokens ?? AUDIT_FROM_MEETINGS_MAX_TOKENS,
+    metadata: {
+      operation: 'audit_from_meetings',
+    },
+  })
+}
+
+async function recordAuditFromMeetingsBudgetDecision(args: {
+  agentRunId?: string | null
+  contactSubmissionId?: number | null
+  clientProjectId?: string | null
+  decision: AgentBudgetDecision
+}) {
+  if (!args.agentRunId) return
+
+  const metadata = {
+    contact_submission_id: args.contactSubmissionId ?? null,
+    client_project_id: args.clientProjectId ?? null,
+    budget_status: args.decision.status,
+    budget_rule_key: args.decision.rule.key,
+    estimated_cost_usd: args.decision.estimatedCostUsd,
+    warning_usd: args.decision.warningUsd,
+    limit_usd: args.decision.limitUsd,
+  }
+
+  await recordAgentStep({
+    runId: args.agentRunId,
+    stepKey: 'budget_check',
+    name: 'Checked audit-from-meetings budget',
+    status: args.decision.status === 'blocked' ? 'failed' : 'completed',
+    outputSummary: args.decision.reason,
+    costUsd: args.decision.estimatedCostUsd,
+    metadata,
+    idempotencyKey: `${args.agentRunId}:audit_from_meetings:budget_check`,
+  }).catch((err) => console.warn('[audit-from-meetings] agent budget step failed:', err))
+
+  if (args.decision.status !== 'allowed') {
+    await recordAgentEvent({
+      runId: args.agentRunId,
+      eventType: 'budget_check',
+      severity: args.decision.status === 'blocked' ? 'error' : 'warning',
+      message: args.decision.reason,
+      metadata,
+      idempotencyKey: `${args.agentRunId}:audit_from_meetings:budget_check:${args.decision.status}`,
+    }).catch((err) => console.warn('[audit-from-meetings] agent budget event failed:', err))
+  }
+}
+
 /**
  * Call OpenAI to extract diagnostic audit data from combined meeting text.
  * Returns object matching DiagnosticAuditData shape (audit categories + optional summary/scores).
  */
 export async function extractDiagnosticFromMeetingText(
   combinedText: string,
-  _options?: ExtractDiagnosticOptions
+  options?: ExtractDiagnosticOptions
 ): Promise<ExtractedDiagnostic> {
   const trimmed = combinedText.trim()
   if (!trimmed) {
@@ -137,7 +223,24 @@ export async function extractDiagnosticFromMeetingText(
 
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not configured')
+    throw new AuditFromMeetingsError('OPENAI_API_KEY is not configured', 'openai_not_configured')
+  }
+
+  const userPrompt = buildAuditFromMeetingsUserPrompt(trimmed)
+  const budgetDecision = evaluateAuditFromMeetingsBudget({
+    systemPrompt: SYSTEM_PROMPT,
+    userPrompt,
+    model: AUDIT_FROM_MEETINGS_MODEL,
+    maxTokens: AUDIT_FROM_MEETINGS_MAX_TOKENS,
+  })
+  await recordAuditFromMeetingsBudgetDecision({
+    agentRunId: options?.agentRunId,
+    contactSubmissionId: options?.contactSubmissionId,
+    clientProjectId: options?.clientProjectId,
+    decision: budgetDecision,
+  })
+  if (budgetDecision.status === 'blocked') {
+    throw new AuditFromMeetingsError(budgetDecision.reason, 'budget_blocked')
   }
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -147,13 +250,13 @@ export async function extractDiagnosticFromMeetingText(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o-mini',
+      model: AUDIT_FROM_MEETINGS_MODEL,
       messages: [
         { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: `Extract diagnostic audit data from these meeting transcripts.\n\n${trimmed}` },
+        { role: 'user', content: userPrompt },
       ],
       temperature: 0.3,
-      max_tokens: 4000,
+      max_tokens: AUDIT_FROM_MEETINGS_MAX_TOKENS,
       response_format: { type: 'json_object' },
     }),
   })
@@ -161,17 +264,34 @@ export async function extractDiagnosticFromMeetingText(
   if (!response.ok) {
     const errText = await response.text()
     console.error('OpenAI API error (audit-from-meetings):', errText)
-    throw new Error('AI extraction failed')
+    throw new AuditFromMeetingsError('AI extraction failed', 'openai_upstream')
   }
 
   const result = await response.json()
   const content = result.choices?.[0]?.message?.content
   const usage = result.usage as Usage | undefined
   if (usage) {
-    recordOpenAICost(usage, 'gpt-4o-mini', { type: 'diagnostic_audit', id: 'from_meetings' }, { operation: 'audit_from_meetings' }).catch(() => {})
+    const reference =
+      options?.clientProjectId
+        ? { type: 'client_project', id: options.clientProjectId }
+        : options?.contactSubmissionId != null
+          ? { type: 'contact', id: String(options.contactSubmissionId) }
+          : { type: 'diagnostic_audit', id: 'from_meetings' }
+    recordOpenAICost(
+      usage,
+      AUDIT_FROM_MEETINGS_MODEL,
+      reference,
+      {
+        operation: 'audit_from_meetings',
+        budget_status: budgetDecision.status,
+        budget_rule_key: budgetDecision.rule.key,
+        budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
+      },
+      options?.agentRunId ?? undefined,
+    ).catch(() => {})
   }
   if (!content) {
-    throw new Error('No AI response')
+    throw new AuditFromMeetingsError('No AI response', 'invalid_response')
   }
 
   let parsed: unknown
@@ -179,7 +299,7 @@ export async function extractDiagnosticFromMeetingText(
     parsed = JSON.parse(content)
   } catch {
     console.error('Failed to parse AI response (audit-from-meetings):', content)
-    throw new Error('Failed to parse AI response')
+    throw new AuditFromMeetingsError('Failed to parse AI response', 'invalid_response')
   }
 
   const obj = parsed as Record<string, unknown>
@@ -205,7 +325,8 @@ export async function extractDiagnosticFromMeetingText(
  */
 export async function buildDiagnosticFromMeetings(
   contactSubmissionId?: number,
-  clientProjectId?: string
+  clientProjectId?: string,
+  options?: { agentRunId?: string | null },
 ): Promise<{ meetings: MeetingForAudit[]; combinedText: string; extracted: ExtractedDiagnostic }> {
   const meetings = await fetchMeetingsForAudit(contactSubmissionId, clientProjectId)
   if (meetings.length === 0) {
@@ -220,6 +341,11 @@ export async function buildDiagnosticFromMeetings(
     throw new Error(`Combined transcript exceeds ${MAX_COMBINED_CHARS} characters (${meetings.length} meetings). Use fewer meetings.`)
   }
 
-  const extracted = await extractDiagnosticFromMeetingText(combinedText, { includeScores: true })
+  const extracted = await extractDiagnosticFromMeetingText(combinedText, {
+    includeScores: true,
+    agentRunId: options?.agentRunId,
+    contactSubmissionId,
+    clientProjectId,
+  })
   return { meetings, combinedText, extracted }
 }
