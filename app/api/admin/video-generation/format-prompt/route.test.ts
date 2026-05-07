@@ -193,6 +193,18 @@ describe('POST /api/admin/video-generation/format-prompt', () => {
         status: 'failed',
       }),
     )
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runId: 'agent-run-1',
+        eventType: 'budget_check',
+        severity: 'error',
+        metadata: expect.objectContaining({
+          operation: 'video_prompt_format',
+          budget_status: 'blocked',
+        }),
+        idempotencyKey: 'agent-run-1:video_prompt_format:budget_check:blocked',
+      }),
+    )
     expect(mocks.markAgentRunFailed).toHaveBeenCalledWith(
       'agent-run-1',
       expect.stringContaining('Estimated cost'),

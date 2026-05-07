@@ -179,6 +179,20 @@ describe('POST /api/admin/video-generation/generate-ideas', () => {
         }),
       }),
     )
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runId: 'agent-run-1',
+        eventType: 'budget_check',
+        severity: 'warning',
+        metadata: expect.objectContaining({
+          operation: 'video_ideas_generation',
+          mode: 'from_direction',
+          limit: 1,
+          budget_status: 'warning',
+        }),
+        idempotencyKey: 'agent-run-1:video_ideas_generation:budget_check:warning',
+      }),
+    )
     expect(mocks.recordOpenAICost).toHaveBeenCalledWith(
       expect.any(Object),
       'gpt-4o',
@@ -221,6 +235,20 @@ describe('POST /api/admin/video-generation/generate-ideas', () => {
         runId: 'agent-run-1',
         stepKey: 'budget_check',
         status: 'failed',
+      }),
+    )
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runId: 'agent-run-1',
+        eventType: 'budget_check',
+        severity: 'error',
+        metadata: expect.objectContaining({
+          operation: 'video_ideas_generation',
+          mode: 'from_scratch',
+          limit: 10,
+          budget_status: 'blocked',
+        }),
+        idempotencyKey: 'agent-run-1:video_ideas_generation:budget_check:blocked',
       }),
     )
     expect(mocks.markAgentRunFailed).toHaveBeenCalledWith(
