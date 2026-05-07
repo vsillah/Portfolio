@@ -50,6 +50,7 @@ describe('ai-onboarding-generator budget policy', () => {
     })
     vi.stubGlobal('fetch', mockFetch)
     process.env.OPENAI_API_KEY = 'sk-test-key'
+    process.env.LLM_RETRY_DELAY_MS = '0'
     mocks.recordAgentStep.mockResolvedValue({ id: 'step-1' })
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
     mocks.recordOpenAICost.mockResolvedValue(undefined)
@@ -127,6 +128,50 @@ describe('ai-onboarding-generator budget policy', () => {
       }),
       'agent-run-1',
     )
+  })
+
+  it('retries transient OpenAI responses before returning onboarding content', async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: async () => 'temporary outage',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  setup_requirements: [],
+                  milestones: [],
+                  access_needs: ['Recovered admin access'],
+                  tools_and_platforms: ['Google Workspace'],
+                  client_actions: ['Confirm kickoff owner'],
+                }),
+              },
+            },
+          ],
+          usage: { prompt_tokens: 100, completion_tokens: 50, total_tokens: 150 },
+        }),
+      })
+
+    const { generateAIOnboardingContent } = await import('./ai-onboarding-generator')
+
+    const result = await generateAIOnboardingContent({
+      line_items: [
+        {
+          title: 'Automation setup',
+          description: 'Configure workspace automation',
+          content_type: 'service',
+          price: 2500,
+        },
+      ],
+    })
+
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(result.access_needs).toEqual(['Recovered admin access'])
   })
 
   it('rejects generation before fetch when the budget check blocks', async () => {

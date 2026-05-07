@@ -31,6 +31,7 @@ import {
 } from '@/lib/meeting-tasks-context'
 import { appendPineconeAndChatContextToSystemPrompt } from '@/lib/email-llm-context'
 import { getEmailFromName } from '@/lib/business-email-config'
+import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
 
 /** Thrown for compose-delivery; route maps codes to HTTP status and safe admin-facing messages. */
 export class DeliveryDraftError extends Error {
@@ -510,7 +511,7 @@ export async function generateDeliveryDraft(input: DeliveryDraftInput): Promise<
     throw new DeliveryDraftError(budgetDecision.reason, 'budget_blocked')
   }
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

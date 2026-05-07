@@ -48,6 +48,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Adopt the helper for retryable n8n trigger calls.
    - [x] Adopt the helper for central OpenAI/Anthropic JSON dispatch.
    - [x] Replace the source-validator LLM judge's bespoke retry loop with the shared helper.
+   - [x] Adopt shared provider fetch retries for audit-from-meetings, meeting lead extraction, AI onboarding preview, and delivery email drafts.
    - Add remaining direct LLM/provider call-site adoptions where transient failures still use bespoke retry or plain `try/catch`.
 
 ## Completed Or In Review
@@ -89,6 +90,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Source validator and dev testing LLM pre-flight budget cleanup in review.
 - [x] Shared provider retry/backoff helper and first n8n trigger adoption in review.
 - [x] Central LLM dispatch and source-validator retry helper adoption in review.
+- [x] Direct OpenAI helper retry adoption for audit/lead/onboarding/delivery surfaces in review.
 
 ## Scope Guard
 

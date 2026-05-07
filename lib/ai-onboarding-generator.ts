@@ -16,6 +16,7 @@ import {
   recordAgentEvent,
   recordAgentStep,
 } from '@/lib/agent-run'
+import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
 import type { SetupRequirement, MilestoneTemplate, CommunicationPlan, WinCondition, WarrantyTerms } from '@/lib/onboarding-templates'
 
 const ONBOARDING_MODEL = 'gpt-4o-mini'
@@ -287,7 +288,7 @@ export async function generateAIOnboardingContent(
     throw new Error(budgetDecision.reason)
   }
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
