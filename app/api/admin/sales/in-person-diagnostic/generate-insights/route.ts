@@ -1,9 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { recordOpenAICost } from '@/lib/cost-calculator'
+import { recordOpenAICost, type Usage } from '@/lib/cost-calculator'
+import {
+  endAgentRun,
+  markAgentRunFailed,
+  recordAgentStep,
+  startAgentRun,
+} from '@/lib/agent-run'
+import {
+  evaluateInPersonDiagnosticInsightsBudget,
+  IN_PERSON_DIAGNOSTIC_INSIGHTS_MAX_TOKENS,
+  IN_PERSON_DIAGNOSTIC_INSIGHTS_MODEL,
+  IN_PERSON_DIAGNOSTIC_INSIGHTS_OPERATION,
+  InPersonDiagnosticInsightsError,
+  recordInPersonDiagnosticInsightsBudgetDecision,
+} from '@/lib/in-person-diagnostic-insights'
 
 export const dynamic = 'force-dynamic'
+
+const IN_PERSON_DIAGNOSTIC_SYSTEM_PROMPT = 'You are a sales intelligence analyst. Respond only with valid JSON.'
 
 /**
  * POST /api/admin/sales/in-person-diagnostic/generate-insights
@@ -16,6 +32,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: admin.error }, { status: admin.status })
   }
 
+  let agentRunId: string | null = null
+  let auditId: string | null = null
+
   try {
     const body = await request.json()
     const { audit_id, client_name, client_company, diagnostic_data } = body
@@ -23,10 +42,47 @@ export async function POST(request: NextRequest) {
     if (!audit_id || !diagnostic_data) {
       return NextResponse.json({ error: 'audit_id and diagnostic_data are required' }, { status: 400 })
     }
+    auditId = audit_id
+
+    const agentRun = await startAgentRun({
+      agentKey: 'manual-admin',
+      runtime: 'manual',
+      kind: 'in_person_diagnostic_insights',
+      title: 'Generate in-person diagnostic insights',
+      subject: {
+        type: 'diagnostic_audit',
+        id: audit_id,
+        label: client_company || client_name || `Diagnostic audit ${audit_id}`,
+      },
+      triggerSource: 'admin:in_person_diagnostic_generate_insights',
+      triggeredByUserId: admin.user.id,
+      currentStep: 'In-person diagnostic request validated',
+      metadata: {
+        has_client_name: !!client_name,
+        has_client_company: !!client_company,
+        diagnostic_section_count: typeof diagnostic_data === 'object' && diagnostic_data
+          ? Object.keys(diagnostic_data).length
+          : 0,
+      },
+    })
+    agentRunId = agentRun.id
+
+    await recordAgentStep({
+      runId: agentRunId,
+      stepKey: 'in_person_diagnostic_request_validated',
+      name: 'In-person diagnostic request validated',
+      status: 'completed',
+      metadata: {
+        audit_id,
+        has_client_name: !!client_name,
+        has_client_company: !!client_company,
+      },
+      idempotencyKey: `${agentRunId}:in_person_diagnostic_request_validated`,
+    }).catch((err) => console.warn('[generate-insights] agent validation step failed:', err))
 
     const apiKey = process.env.OPENAI_API_KEY
     if (!apiKey) {
-      return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
+      throw new InPersonDiagnosticInsightsError('OPENAI_API_KEY is not configured', 'openai_not_configured')
     }
 
     // Build a prompt from the diagnostic data
@@ -71,6 +127,21 @@ Respond in JSON format:
   "sales_notes": "Brief note about the overall sales opportunity"
 }`
 
+    const budgetDecision = evaluateInPersonDiagnosticInsightsBudget({
+      systemPrompt: IN_PERSON_DIAGNOSTIC_SYSTEM_PROMPT,
+      userPrompt: prompt,
+      model: IN_PERSON_DIAGNOSTIC_INSIGHTS_MODEL,
+      maxTokens: IN_PERSON_DIAGNOSTIC_INSIGHTS_MAX_TOKENS,
+    })
+    await recordInPersonDiagnosticInsightsBudgetDecision({
+      agentRunId,
+      auditId: audit_id,
+      decision: budgetDecision,
+    })
+    if (budgetDecision.status === 'blocked') {
+      throw new InPersonDiagnosticInsightsError(budgetDecision.reason, 'budget_blocked')
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -78,13 +149,13 @@ Respond in JSON format:
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: IN_PERSON_DIAGNOSTIC_INSIGHTS_MODEL,
         messages: [
-          { role: 'system', content: 'You are a sales intelligence analyst. Respond only with valid JSON.' },
+          { role: 'system', content: IN_PERSON_DIAGNOSTIC_SYSTEM_PROMPT },
           { role: 'user', content: prompt },
         ],
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: IN_PERSON_DIAGNOSTIC_INSIGHTS_MAX_TOKENS,
         response_format: { type: 'json_object' },
       }),
     })
@@ -92,17 +163,28 @@ Respond in JSON format:
     if (!response.ok) {
       const errText = await response.text()
       console.error('OpenAI API error:', errText)
-      return NextResponse.json({ error: 'AI generation failed' }, { status: 500 })
+      throw new InPersonDiagnosticInsightsError('AI generation failed', 'openai_upstream')
     }
 
     const aiResult = await response.json()
     const content = aiResult.choices?.[0]?.message?.content
-    const usage = aiResult.usage
+    const usage = aiResult.usage as Usage | undefined
     if (usage) {
-      recordOpenAICost(usage, 'gpt-4o-mini', { type: 'diagnostic_audit', id: audit_id }, { operation: 'generate_insights' }).catch(() => {})
+      recordOpenAICost(
+        usage,
+        IN_PERSON_DIAGNOSTIC_INSIGHTS_MODEL,
+        { type: 'diagnostic_audit', id: audit_id },
+        {
+          operation: IN_PERSON_DIAGNOSTIC_INSIGHTS_OPERATION,
+          budget_status: budgetDecision.status,
+          budget_rule_key: budgetDecision.rule.key,
+          budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
+        },
+        agentRunId,
+      ).catch(() => {})
     }
     if (!content) {
-      return NextResponse.json({ error: 'No AI response' }, { status: 500 })
+      throw new InPersonDiagnosticInsightsError('No AI response', 'invalid_response')
     }
 
     let parsed: {
@@ -117,7 +199,7 @@ Respond in JSON format:
       parsed = JSON.parse(content)
     } catch {
       console.error('Failed to parse AI response:', content)
-      return NextResponse.json({ error: 'Failed to parse AI response' }, { status: 500 })
+      throw new InPersonDiagnosticInsightsError('Failed to parse AI response', 'invalid_response')
     }
 
     // Update the diagnostic audit with generated insights
@@ -139,6 +221,20 @@ Respond in JSON format:
       // Non-fatal: return the insights even if save failed
     }
 
+    await endAgentRun({
+      runId: agentRunId,
+      status: 'completed',
+      currentStep: 'In-person diagnostic insights ready',
+      outcome: {
+        audit_id,
+        insight_count: parsed.key_insights?.length ?? 0,
+        action_count: parsed.recommended_actions?.length ?? 0,
+        urgency_score: parsed.urgency_score ?? null,
+        opportunity_score: parsed.opportunity_score ?? null,
+        persisted: !updateError,
+      },
+    }).catch((err) => console.warn('[generate-insights] end agent run failed:', err))
+
     return NextResponse.json({
       summary: parsed.diagnostic_summary,
       insights: parsed.key_insights || [],
@@ -146,9 +242,56 @@ Respond in JSON format:
       urgency_score: parsed.urgency_score,
       opportunity_score: parsed.opportunity_score,
       sales_notes: parsed.sales_notes,
+      agentRunId,
     })
   } catch (error) {
     console.error('Generate insights API error:', error)
+    const message = error instanceof Error ? error.message : String(error)
+    if (agentRunId) {
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'in_person_diagnostic_insights_failed',
+        name: 'In-person diagnostic insights failed',
+        status: 'failed',
+        outputSummary: message,
+        idempotencyKey: `${agentRunId}:in_person_diagnostic_insights_failed`,
+      }).catch((stepErr) => console.warn('[generate-insights] agent failure step failed:', stepErr))
+      await markAgentRunFailed(agentRunId, message, {
+        operation: IN_PERSON_DIAGNOSTIC_INSIGHTS_OPERATION,
+        audit_id: auditId,
+      }).catch((runErr) => console.warn('[generate-insights] mark agent run failed:', runErr))
+    }
+
+    if (error instanceof InPersonDiagnosticInsightsError) {
+      return NextResponse.json(
+        { error: safeInPersonDiagnosticInsightsErrorMessage(error), agentRunId },
+        { status: inPersonDiagnosticInsightsErrorStatus(error) },
+      )
+    }
+
     return NextResponse.json({ error: 'Failed to generate insights' }, { status: 500 })
   }
+}
+
+function safeInPersonDiagnosticInsightsErrorMessage(error: InPersonDiagnosticInsightsError): string {
+  if (error.code === 'budget_blocked') {
+    return 'This in-person diagnostic insight request is over the current Agent Ops budget limit. Shorten the diagnostic notes before retrying.'
+  }
+  if (error.code === 'openai_not_configured') {
+    return 'OpenAI API key not configured'
+  }
+  if (error.code === 'openai_upstream') {
+    return 'AI generation failed'
+  }
+  if (error.code === 'invalid_response') {
+    return 'The AI returned an invalid insight response. Try generating again or reduce the diagnostic notes.'
+  }
+  return 'Failed to generate insights'
+}
+
+function inPersonDiagnosticInsightsErrorStatus(error: InPersonDiagnosticInsightsError): number {
+  if (error.code === 'budget_blocked') return 400
+  if (error.code === 'openai_not_configured') return 503
+  if (error.code === 'openai_upstream' || error.code === 'invalid_response') return 502
+  return 500
 }
