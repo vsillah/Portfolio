@@ -205,6 +205,10 @@ This keeps OpenCode/OpenClaw out of production automation until installation, au
 
 Use `POST /api/admin/agents/runs/stale-sweep` or the **Sweep stale** button on `/admin/agents/runs` to mark queued/running runs as `stale` when they pass `stale_after` or the default active-run threshold. The sweep is runtime-neutral across `codex`, `n8n`, `hermes`, `opencode`, and `manual` traces, and reports checked/marked counts by runtime. Runs waiting for approval are intentionally excluded so human checkpoints do not auto-expire as infrastructure failures.
 
+## Dead-Letter Recovery Requests
+
+Mission Control derives the Dead-Letter Monitor from failed and stale Agent Ops traces. Use `POST /api/admin/agents/runs/[runId]/retry` or **Request retry** on the Dead-Letter Monitor to create a read-only `agent_recovery_request` trace. The recovery request records retry attempt, capped backoff, earliest retry time, source run, target agent, and a recovery packet artifact. It does not re-run production automation directly; the actual retry remains behind the known workflow and approval gates.
+
 ## Operating Signals
 
 Mission Control surfaces the latest morning review and deployment watcher traces as compact Operating Signals:

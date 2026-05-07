@@ -195,11 +195,44 @@ describe('Agent Mission Control helpers', () => {
       agent_name: 'Automation Systems Agent',
       routed: true,
       routed_run_id: 'routed-engagement',
+      routed_kind: 'agent_engagement_request',
       next_action: 'Review routed engagement request.',
     })
     expect(queue.find((item) => item.run_id === 'stale-run')).toMatchObject({
       routed: false,
       next_action: 'Route stale run owner from Agent Inbox.',
+    })
+  })
+
+  it('treats recovery requests as routed dead-letter work', () => {
+    const failedRun = run({
+      id: 'failed-run',
+      agent_key: 'automation-systems',
+      runtime: 'n8n',
+      status: 'failed',
+      title: 'Warm lead sync',
+      error_message: 'Webhook returned 500.',
+    })
+    const retryRequest = run({
+      id: 'retry-request',
+      kind: 'agent_recovery_request',
+      status: 'completed',
+      metadata: {
+        requested_agent: 'automation-systems',
+        source_run_id: 'failed-run',
+        retry_attempt: 1,
+      },
+    })
+
+    const queue = buildAgentDeadLetterQueue([failedRun, retryRequest])
+
+    expect(queue).toHaveLength(1)
+    expect(queue[0]).toMatchObject({
+      run_id: 'failed-run',
+      routed: true,
+      routed_run_id: 'retry-request',
+      routed_kind: 'agent_recovery_request',
+      next_action: 'Review retry request.',
     })
   })
 
