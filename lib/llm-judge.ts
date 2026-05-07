@@ -10,6 +10,11 @@ import {
   recordAnthropicCost,
   type Usage,
 } from './cost-calculator'
+import {
+  evaluateAgentBudget,
+  type AgentBudgetDecision,
+} from './agent-budget-policy'
+import { recordAgentEvent, recordAgentStep, type AgentRuntime } from './agent-run'
 
 export interface ChatMessageForJudge {
   role: 'user' | 'assistant' | 'support'
@@ -51,6 +56,23 @@ export interface JudgeConfig {
   promptVersion: string
   temperature?: number
 }
+
+export interface JudgeExecutionOptions {
+  agentRunId?: string | null
+  runtime?: AgentRuntime
+  reference?: { type: string; id: string }
+  operation?: string
+}
+
+export class LlmJudgeBudgetError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'LlmJudgeBudgetError'
+  }
+}
+
+const CHAT_EVAL_OPERATION = 'chat_eval'
+const CHAT_EVAL_MAX_TOKENS = 1024
 
 // Available models for each provider
 export const AVAILABLE_MODELS: Record<LLMProvider, Array<{ id: string; name: string; description: string }>> = {
@@ -134,6 +156,69 @@ Issue categories to use (if applicable):
 - "Inappropriate escalation"
 - "System prompt violation"
 `
+
+function estimateTokensFromText(text: string): number {
+  return Math.ceil(text.length / 4)
+}
+
+export function evaluateLlmJudgeBudget(input: {
+  prompt: string
+  model: string
+  maxTokens?: number
+  runtime?: AgentRuntime
+  operation?: string
+}): AgentBudgetDecision {
+  return evaluateAgentBudget({
+    runtime: input.runtime ?? 'manual',
+    model: input.model,
+    estimatedInputTokens: estimateTokensFromText(input.prompt),
+    maxTokens: input.maxTokens ?? CHAT_EVAL_MAX_TOKENS,
+    metadata: {
+      operation: input.operation ?? CHAT_EVAL_OPERATION,
+    },
+  })
+}
+
+async function recordLlmJudgeBudgetDecision(args: {
+  agentRunId?: string | null
+  sessionId?: string | null
+  operation: string
+  decision: AgentBudgetDecision
+}) {
+  if (!args.agentRunId) return
+
+  const metadata = {
+    session_id: args.sessionId ?? null,
+    operation: args.operation,
+    budget_status: args.decision.status,
+    budget_rule_key: args.decision.rule.key,
+    estimated_cost_usd: args.decision.estimatedCostUsd,
+    warning_usd: args.decision.warningUsd,
+    limit_usd: args.decision.limitUsd,
+  }
+
+  await recordAgentStep({
+    runId: args.agentRunId,
+    stepKey: 'budget_check',
+    name: 'Checked LLM judge budget',
+    status: args.decision.status === 'blocked' ? 'failed' : 'completed',
+    outputSummary: args.decision.reason,
+    costUsd: args.decision.estimatedCostUsd,
+    metadata,
+    idempotencyKey: `${args.agentRunId}:llm_judge:budget_check`,
+  }).catch((err) => console.warn('[llm-judge] agent budget step failed:', err))
+
+  if (args.decision.status !== 'allowed') {
+    await recordAgentEvent({
+      runId: args.agentRunId,
+      eventType: 'budget_check',
+      severity: args.decision.status === 'blocked' ? 'error' : 'warning',
+      message: args.decision.reason,
+      metadata,
+      idempotencyKey: `${args.agentRunId}:llm_judge:budget_check:${args.decision.status}`,
+    }).catch((err) => console.warn('[llm-judge] agent budget event failed:', err))
+  }
+}
 
 /**
  * Get the evaluation criteria from database or fallback
@@ -290,18 +375,36 @@ export function parseJudgeResponse(response: string): JudgeEvaluation {
 export async function evaluateConversation(
   messages: ChatMessageForJudge[],
   context: JudgeContext,
-  config?: JudgeConfig
+  config?: JudgeConfig,
+  options: JudgeExecutionOptions = {},
 ): Promise<JudgeEvaluation> {
   // Use provided config or fetch from database
   const judgeConfig = config || await getJudgeModelConfig()
+  const operation = options.operation ?? CHAT_EVAL_OPERATION
   
   // Build prompt (now async to fetch criteria from database)
   const prompt = await buildJudgePrompt(messages, context)
+  const budgetDecision = evaluateLlmJudgeBudget({
+    prompt,
+    model: judgeConfig.model,
+    maxTokens: CHAT_EVAL_MAX_TOKENS,
+    runtime: options.runtime ?? 'manual',
+    operation,
+  })
+  await recordLlmJudgeBudgetDecision({
+    agentRunId: options.agentRunId,
+    sessionId: options.reference?.id,
+    operation,
+    decision: budgetDecision,
+  })
+  if (budgetDecision.status === 'blocked') {
+    throw new LlmJudgeBudgetError(budgetDecision.reason)
+  }
   
   if (judgeConfig.provider === 'anthropic') {
-    return evaluateWithClaude(prompt, judgeConfig)
+    return evaluateWithClaude(prompt, judgeConfig, options, budgetDecision)
   } else {
-    return evaluateWithOpenAI(prompt, judgeConfig)
+    return evaluateWithOpenAI(prompt, judgeConfig, options, budgetDecision)
   }
 }
 
@@ -310,7 +413,9 @@ export async function evaluateConversation(
  */
 async function evaluateWithClaude(
   prompt: string,
-  config: JudgeConfig
+  config: JudgeConfig,
+  options: JudgeExecutionOptions = {},
+  budgetDecision?: AgentBudgetDecision,
 ): Promise<JudgeEvaluation> {
   const apiKey = process.env.ANTHROPIC_API_KEY
   
@@ -349,7 +454,18 @@ async function evaluateWithClaude(
     const content = data.content?.[0]?.text || ''
     const usage = data.usage as Usage | undefined
     if (usage) {
-      recordAnthropicCost(usage, config.model, undefined, { operation: 'chat_eval' }).catch(() => {})
+      recordAnthropicCost(
+        usage,
+        config.model,
+        options.reference,
+        {
+          operation: options.operation ?? CHAT_EVAL_OPERATION,
+          budget_status: budgetDecision?.status,
+          budget_estimated_cost_usd: budgetDecision?.estimatedCostUsd,
+          budget_rule_key: budgetDecision?.rule.key,
+        },
+        options.agentRunId ?? undefined,
+      ).catch(() => {})
     }
     return parseJudgeResponse(content)
   } catch (error) {
@@ -363,7 +479,9 @@ async function evaluateWithClaude(
  */
 async function evaluateWithOpenAI(
   prompt: string,
-  config: JudgeConfig
+  config: JudgeConfig,
+  options: JudgeExecutionOptions = {},
+  budgetDecision?: AgentBudgetDecision,
 ): Promise<JudgeEvaluation> {
   const apiKey = process.env.OPENAI_API_KEY
   
@@ -404,7 +522,18 @@ async function evaluateWithOpenAI(
     const content = data.choices?.[0]?.message?.content || ''
     const usage = data.usage as Usage | undefined
     if (usage) {
-      recordOpenAICost(usage, config.model, undefined, { operation: 'chat_eval' }).catch(() => {})
+      recordOpenAICost(
+        usage,
+        config.model,
+        options.reference,
+        {
+          operation: options.operation ?? CHAT_EVAL_OPERATION,
+          budget_status: budgetDecision?.status,
+          budget_estimated_cost_usd: budgetDecision?.estimatedCostUsd,
+          budget_rule_key: budgetDecision?.rule.key,
+        },
+        options.agentRunId ?? undefined,
+      ).catch(() => {})
     }
     return parseJudgeResponse(content)
   } catch (error) {
