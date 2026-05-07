@@ -275,6 +275,7 @@ Current progress:
 - Admin video ideas generation now starts a manual Agent Ops trace, checks the manual-runtime budget after context assembly and before GPT-4o dispatch, and links idea-generation cost events back to the trace.
 - Admin social carousel conversion now starts a manual Agent Ops trace, checks the manual-runtime budget before GPT-4o dispatch, and links carousel-generation cost events back to the trace.
 - Admin in-person diagnostic insights now start a manual Agent Ops trace, check the manual-runtime budget before GPT-4o-mini dispatch, and link insight-generation cost events back to the trace.
+- Admin meeting pain classification now starts a manual Agent Ops trace, checks the manual-runtime budget before GPT-4o-mini fallback classification, and links AI fallback cost events back to the trace.
 
 ## Cross-Phase Definition Of Done
 
