@@ -178,6 +178,44 @@ Next Audit Focus
 - Review ElevenLabs renewal before 2026-05-19 against the next planned
   social/audio/video campaign.
 
+## 2026-05-06 Budget Query Readiness Update
+
+Status: YELLOW
+
+Summary:
+
+- Added a receipt-backed budget snapshot to `docs/subscription-status.json` so
+  `/admin/subscriptions` and `GET /api/admin/subscriptions/status?q=...` can
+  answer monthly spend questions such as "Are we under $300?"
+- Confirmed monthly run-rate snapshot: `$791.02` against a `$300` target, with
+  `$491.02` over target.
+- This is a partial receipt-verified snapshot, not final bank reconciliation.
+  Recent quick enrollments/cancellations, especially the Anthropic to ChatGPT
+  switch, may reduce next-month realized spend.
+- Gamma and Apify remain watch items. Gamma is a low-dollar watch item. Apify is
+  now linked to `docs/apify-call-bakeoff-analysis.md` for actor-level
+  replacement analysis.
+- No cancellation was performed and no approval phrase was given.
+
+Raw Findings:
+
+- Gmail receipts confirmed: Gamma `$25.00`, n8n `$63.75`, Read.ai `$20.98`,
+  Supabase `$25.27`, BuiltWith `$307.00` across three receipts, Apify `$39.00`,
+  HeyGen `$30.81`, ElevenLabs `$23.38`, Calendly `$12.75`, Google Cloud `$9.33`,
+  Anthropic `$106.25`, OpenAI/ChatGPT Pro `$106.25`, and Vercel `$21.25`.
+- n8n Cloud execution `13174` for workflow `HqpDGIHxvJqXKHuT` succeeded on
+  2026-05-06 and showed the Apify Actor Health Monitor checking
+  `alien_force~facebook-scraper-pro` and `harvestapi~linkedin-profile-search`.
+  Both returned `no_runs` warnings, so the actor monitor itself is active but
+  does not prove recent productive actor usage.
+
+Next Audit Focus:
+
+- Refresh the budget snapshot after the Anthropic/ChatGPT transition settles.
+- Pull direct Apify run history, dataset item counts, and compute/cost data for
+  every configured actor before the next Apify renewal.
+- Keep Gamma and Apify visible in the admin dashboard watch path.
+
 ## 2026-05-05 Daily Monitor Run
 
 Status: YELLOW

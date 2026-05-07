@@ -22,12 +22,46 @@ interface VendorStatus {
   links: Array<{ label: string; href: string }>
 }
 
+interface BudgetLineItem {
+  vendor: string
+  amountUsd: number
+  billingCadence: 'monthly' | 'usage_based' | 'annual' | 'unknown'
+  status: StatusKey | 'unknown'
+  evidence: string
+  budgetAction: string
+}
+
+interface BudgetSummary {
+  monthlyTargetUsd: number
+  confirmedMonthlyRunRateUsd: number
+  overTargetUsd: number
+  confidence: 'partial_receipt_verified' | 'tracker_only' | 'dashboard_verified'
+  lastReceiptRefresh: string
+  queryExamples: string[]
+  notes: string[]
+  lineItems: BudgetLineItem[]
+  watchItems: string[]
+}
+
+interface BudgetQueryResult {
+  query: string
+  answer: string
+  monthlyTargetUsd: number | null
+  confirmedMonthlyRunRateUsd: number | null
+  overTargetUsd: number | null
+  matchingLineItems: BudgetLineItem[]
+  suggestedCuts: BudgetLineItem[]
+  unresolvedChecks: string[]
+}
+
 interface SubscriptionStatusRegistry {
   generatedAt: string
   sourceDocument: string
   weeklyReportAutomationId: string
   dailyMonitorAutomationId: string
   approvalPhrasePattern: string
+  budget?: BudgetSummary
+  queryResult?: BudgetQueryResult
   summary: {
     status: StatusColor
     headline: string
@@ -66,7 +100,9 @@ export default function AdminSubscriptionsPage() {
 
 function AdminSubscriptionsPageContent() {
   const [data, setData] = useState<SubscriptionStatusRegistry | null>(null)
+  const [query, setQuery] = useState('How much are we spending monthly, and are we under $300?')
   const [loading, setLoading] = useState(true)
+  const [queryLoading, setQueryLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -98,6 +134,25 @@ function AdminSubscriptionsPageContent() {
     () => data?.vendors.filter((vendor) => vendor.decisionRequired) ?? [],
     [data]
   )
+  const budget = data?.budget
+  const queryResult = data?.queryResult
+
+  async function runBudgetQuery() {
+    setQueryLoading(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/admin/subscriptions/status?q=${encodeURIComponent(query)}`)
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || `HTTP ${res.status}`)
+      }
+      setData(await res.json())
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to run subscription query')
+    } finally {
+      setQueryLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
@@ -141,6 +196,74 @@ function AdminSubscriptionsPageContent() {
               </div>
             </section>
 
+            {budget && (
+              <section className="mb-6 rounded-lg border border-silicon-slate bg-silicon-slate/30 p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <CircleDollarSign size={20} className="text-radiant-gold" />
+                      <h2 className="text-xl font-semibold">Budget query</h2>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Confirmed monthly run-rate from receipts and the subscription tracker.
+                    </p>
+                  </div>
+                  <div className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${budget.overTargetUsd > 0 ? statusStyles.yellow : statusStyles.green}`}>
+                    {budget.overTargetUsd > 0 ? `$${budget.overTargetUsd.toFixed(2)} over target` : 'Under target'}
+                  </div>
+                </div>
+
+                <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <Signal label="Monthly target" value={`$${budget.monthlyTargetUsd.toFixed(2)}`} />
+                  <Signal label="Confirmed run-rate" value={`$${budget.confirmedMonthlyRunRateUsd.toFixed(2)}`} />
+                  <Signal label="Receipt refresh" value={budget.lastReceiptRefresh} />
+                </div>
+
+                <div className="mt-5 flex flex-col gap-3 lg:flex-row">
+                  <input
+                    value={query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Ask a budget question"
+                    className="min-w-0 flex-1 rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={runBudgetQuery}
+                    disabled={queryLoading}
+                    className="rounded-lg bg-radiant-gold px-4 py-2 text-sm font-semibold text-background disabled:opacity-60"
+                  >
+                    {queryLoading ? 'Querying…' : 'Run query'}
+                  </button>
+                </div>
+
+                {queryResult && (
+                  <div className="mt-4 rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-4">
+                    <p className="text-sm font-medium text-radiant-gold">{queryResult.answer}</p>
+                    <div className="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Top budget levers</p>
+                        <ul className="space-y-1 text-sm text-muted-foreground">
+                          {queryResult.suggestedCuts.slice(0, 4).map((item) => (
+                            <li key={item.vendor}>
+                              {item.vendor}: ${item.amountUsd.toFixed(2)}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Unresolved checks</p>
+                        <ul className="space-y-1 text-sm text-muted-foreground">
+                          {queryResult.unresolvedChecks.slice(0, 4).map((item) => (
+                            <li key={item}>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
             <section className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
               <BucketStat icon={<CheckCircle2 size={18} />} label="Keep" count={data.buckets.keep.length} />
               <BucketStat icon={<Clock3 size={18} />} label="Watch" count={data.buckets.watch.length} />
@@ -168,6 +291,26 @@ function AdminSubscriptionsPageContent() {
 
             <section className="mb-6">
               <h2 className="text-lg font-semibold mb-3">Vendor status</h2>
+              {budget && (
+                <div className="mb-3 overflow-hidden rounded-lg border border-silicon-slate">
+                  <div className="hidden lg:grid grid-cols-[180px_120px_1fr_1fr] gap-4 bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <span>Vendor</span>
+                    <span>Monthly</span>
+                    <span>Evidence</span>
+                    <span>Budget action</span>
+                  </div>
+                  <div className="divide-y divide-silicon-slate">
+                    {budget.lineItems.map((item) => (
+                      <div key={item.vendor} className="grid grid-cols-1 lg:grid-cols-[180px_120px_1fr_1fr] gap-3 lg:gap-4 px-4 py-4">
+                        <p className="font-semibold">{item.vendor}</p>
+                        <p className="text-sm font-semibold text-radiant-gold">${item.amountUsd.toFixed(2)}</p>
+                        <SignalBlock label="Evidence" value={item.evidence} />
+                        <SignalBlock label="Budget action" value={item.budgetAction} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               <div className="overflow-hidden rounded-lg border border-silicon-slate">
                 <div className="hidden lg:grid grid-cols-[160px_130px_1fr_1fr_1fr] gap-4 bg-silicon-slate/60 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <span>Vendor</span>
@@ -254,6 +397,15 @@ function SignalBlock({ label, value }: { label: string; value: string }) {
     <div>
       <p className="lg:hidden text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">{label}</p>
       <p className="text-sm text-muted-foreground leading-relaxed">{value}</p>
+    </div>
+  )
+}
+
+function Signal({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-background/35 p-4">
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-2 text-sm font-medium">{value}</p>
     </div>
   )
 }
