@@ -16,6 +16,7 @@ beforeEach(() => {
   mockRecordAnthropicCost.mockReset()
   mockRecordOpenAICost.mockResolvedValue(undefined)
   mockRecordAnthropicCost.mockResolvedValue(undefined)
+  process.env.LLM_RETRY_DELAY_MS = '0'
 })
 
 afterEach(() => {
@@ -114,5 +115,52 @@ describe('generateJsonCompletion — provider routing', () => {
         userPrompt: 'u',
       }),
     ).rejects.toThrowError('ANTHROPIC_API_KEY not configured')
+  })
+
+  it('retries transient OpenAI status responses before returning success', async () => {
+    process.env.OPENAI_API_KEY = 'sk-test'
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: async () => 'temporarily unavailable',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: '{"recovered":true}' } }],
+          usage: { prompt_tokens: 5, completion_tokens: 7, total_tokens: 12 },
+        }),
+      })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { generateJsonCompletion } = await import('../llm-dispatch')
+    const result = await generateJsonCompletion({
+      model: 'gpt-4o-mini',
+      systemPrompt: 'system',
+      userPrompt: 'user',
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(result.content).toBe('{"recovered":true}')
+  })
+
+  it('does not retry non-retryable provider status responses', async () => {
+    process.env.OPENAI_API_KEY = 'sk-test'
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: false,
+      status: 400,
+      text: async () => 'bad request',
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { generateJsonCompletion } = await import('../llm-dispatch')
+    await expect(generateJsonCompletion({
+      model: 'gpt-4o-mini',
+      systemPrompt: 'system',
+      userPrompt: 'user',
+    })).rejects.toThrowError('OpenAI request failed: 400')
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 })

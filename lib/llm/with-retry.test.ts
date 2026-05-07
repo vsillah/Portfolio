@@ -92,6 +92,8 @@ describe('withRetry', () => {
   it('classifies common transient network and gateway errors', () => {
     expect(isLikelyTransientError(new Error('fetch failed'))).toBe(true)
     expect(isLikelyTransientError(new Error('n8n request timed out after 30s'))).toBe(true)
+    expect(isLikelyTransientError(new Error('429 rate limited'))).toBe(true)
+    expect(isLikelyTransientError(new Error('500 server error'))).toBe(true)
     expect(isLikelyTransientError(new Error('502 bad gateway'))).toBe(true)
     expect(isLikelyTransientError(new Error('validation failed'))).toBe(false)
   })

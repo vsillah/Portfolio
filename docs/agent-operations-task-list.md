@@ -46,6 +46,8 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 5. Provider resilience
    - [x] Add a shared retry/backoff helper for provider calls.
    - [x] Adopt the helper for retryable n8n trigger calls.
+   - [x] Adopt the helper for central OpenAI/Anthropic JSON dispatch.
+   - [x] Replace the source-validator LLM judge's bespoke retry loop with the shared helper.
    - Add remaining direct LLM/provider call-site adoptions where transient failures still use bespoke retry or plain `try/catch`.
 
 ## Completed Or In Review
@@ -86,6 +88,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Chat Eval axial-code and diagnosis pre-flight budget adoption and trace linkage in review.
 - [x] Source validator and dev testing LLM pre-flight budget cleanup in review.
 - [x] Shared provider retry/backoff helper and first n8n trigger adoption in review.
+- [x] Central LLM dispatch and source-validator retry helper adoption in review.
 
 ## Scope Guard
 
