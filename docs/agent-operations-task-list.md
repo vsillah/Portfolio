@@ -41,6 +41,12 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Document legacy workflow run tables as domain detail or future trace-link migration candidates.
    - [x] Update the Agentic Patterns scorecard to reflect strong Agent Ops observability.
    - [x] Link video generation workflow sync runs to Agent Ops traces while preserving domain status UI.
+   - [x] Complete the known Phase 10 LLM/budget trace cleanup surfaces.
+
+5. Provider resilience
+   - [x] Add a shared retry/backoff helper for provider calls.
+   - [x] Adopt the helper for retryable n8n trigger calls.
+   - Add remaining direct LLM/provider call-site adoptions where transient failures still use bespoke retry or plain `try/catch`.
 
 ## Completed Or In Review
 
@@ -79,6 +85,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Chat Eval LLM judge pre-flight budget adoption and trace linkage in review.
 - [x] Chat Eval axial-code and diagnosis pre-flight budget adoption and trace linkage in review.
 - [x] Source validator and dev testing LLM pre-flight budget cleanup in review.
+- [x] Shared provider retry/backoff helper and first n8n trigger adoption in review.
 
 ## Scope Guard
 

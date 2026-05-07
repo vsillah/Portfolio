@@ -9,6 +9,7 @@ import {
   isN8nOutboundDisabled,
 } from './n8n-runtime-flags'
 import type { AgentReadinessAssessment } from './agent-readiness-assessment'
+import { isLikelyTransientError, withRetry } from './llm/with-retry'
 
 export { isMockN8nEnabled, isN8nOutboundDisabled }
 
@@ -67,11 +68,19 @@ function n8nAgentTracePayload(agentRunId?: string, workflowId?: string): Record<
 /** Timeout for n8n webhook calls in milliseconds (30 seconds) */
 const N8N_TIMEOUT_MS = 30_000
 
+function readNonNegativeIntegerEnv(name: string, fallback: number): number {
+  const value = Number(process.env[name])
+  if (!Number.isFinite(value) || value < 0) {
+    return fallback
+  }
+  return Math.floor(value)
+}
+
 /** Maximum number of retry attempts for transient failures */
-const N8N_MAX_RETRIES = 1
+const N8N_MAX_RETRIES = readNonNegativeIntegerEnv('N8N_MAX_RETRIES', 1)
 
 /** Delay before retry in milliseconds */
-const N8N_RETRY_DELAY_MS = 2_000
+const N8N_RETRY_DELAY_MS = readNonNegativeIntegerEnv('N8N_RETRY_DELAY_MS', 2_000)
 
 // ============================================================================
 // Resilient Fetch Helper
@@ -113,22 +122,61 @@ function sleep(ms: number): Promise<void> {
  * Determine whether an error is transient (worth retrying)
  */
 function isTransientError(error: unknown): boolean {
-  if (error instanceof Error) {
-    const msg = error.message.toLowerCase()
-    // Network-level failures, timeouts, 502/503/504 gateway errors
-    return (
-      msg.includes('timed out') ||
-      msg.includes('econnrefused') ||
-      msg.includes('econnreset') ||
-      msg.includes('enotfound') ||
-      msg.includes('fetch failed') ||
-      msg.includes('network') ||
-      msg.includes('502') ||
-      msg.includes('503') ||
-      msg.includes('504')
-    )
+  return isLikelyTransientError(error)
+}
+
+class N8nRetryableStatusError extends Error {
+  constructor(
+    readonly status: number,
+    readonly responseText: string
+  ) {
+    super(`n8n webhook returned retryable status ${status}: ${responseText}`)
+    this.name = 'N8nRetryableStatusError'
   }
-  return false
+}
+
+function isRetryableWebhookStatus(status: number): boolean {
+  return status === 502 || status === 503 || status === 504
+}
+
+async function fetchN8nWebhookWithRetry(
+  label: string,
+  url: string,
+  init: RequestInit,
+  timeoutMs: number = N8N_TIMEOUT_MS
+): Promise<Response> {
+  return withRetry(
+    async () => {
+      const response = await fetchWithTimeout(url, init, timeoutMs)
+
+      if (isRetryableWebhookStatus(response.status)) {
+        const responseText = await response.text().catch(() => '')
+        throw new N8nRetryableStatusError(response.status, responseText)
+      }
+
+      return response
+    },
+    {
+      label,
+      maxRetries: N8N_MAX_RETRIES,
+      baseDelayMs: N8N_RETRY_DELAY_MS,
+      maxDelayMs: Math.max(N8N_RETRY_DELAY_MS, 10_000),
+      jitterRatio: process.env.NODE_ENV === 'test' ? 0 : 0.1,
+      isRetryableError: isTransientError,
+      onRetry: ({ attemptNumber, nextDelayMs, error }) => {
+        console.warn(
+          `[n8n] ${label} transient failure on attempt ${attemptNumber}; retrying in ${nextDelayMs ?? 0}ms`,
+          error instanceof Error ? error.message : error
+        )
+      },
+      onGiveUp: ({ attemptNumber, error }) => {
+        console.warn(
+          `[n8n] ${label} failed after attempt ${attemptNumber}`,
+          error instanceof Error ? error.message : error
+        )
+      },
+    }
+  )
 }
 
 // ============================================================================
@@ -413,7 +461,7 @@ export async function triggerLeadQualificationWebhook(
   }
 
   try {
-    const response = await fetch(N8N_LEAD_WEBHOOK_URL, {
+    const response = await fetchN8nWebhookWithRetry('lead qualification webhook', N8N_LEAD_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -474,7 +522,7 @@ export async function triggerEbookNurtureSequence(
   }
 
   try {
-    const response = await fetchWithTimeout(N8N_EBOOK_NURTURE_WEBHOOK_URL, {
+    const response = await fetchN8nWebhookWithRetry('ebook nurture webhook', N8N_EBOOK_NURTURE_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1024,7 +1072,7 @@ export async function triggerDiagnosticCompletionWebhook(
       source: completionSource,
     }
 
-    const response = await fetch(completionWebhookUrl, {
+    const response = await fetchN8nWebhookWithRetry('diagnostic completion webhook', completionWebhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1059,7 +1107,7 @@ export async function checkN8nHealth(): Promise<boolean> {
 
   try {
     // Send a health check message using n8n chat trigger format
-    const response = await fetch(N8N_WEBHOOK_URL, {
+    const response = await fetchN8nWebhookWithRetry('n8n health check', N8N_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1162,7 +1210,7 @@ export async function triggerOutreachSend(params: {
   }
 
   try {
-    const response = await fetch(N8N_CLG003_WEBHOOK_URL, {
+    const response = await fetchN8nWebhookWithRetry('outreach send webhook', N8N_CLG003_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1247,7 +1295,7 @@ export async function triggerWarmLeadScrape(params: {
       ...params.options,
     }
     
-    const response = await fetch(webhookUrl, {
+    const response = await fetchN8nWebhookWithRetry(`warm lead scrape ${params.source} webhook`, webhookUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1337,7 +1385,7 @@ export async function triggerValueEvidenceExtraction(
       body.run_id = options.runId
     }
 
-    const response = await fetchWithTimeout(N8N_VEP001_WEBHOOK_URL, {
+    const response = await fetchN8nWebhookWithRetry('value evidence extraction webhook', N8N_VEP001_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1419,7 +1467,7 @@ export async function triggerSocialListening(options?: SocialListeningOptions): 
     if (options?.leadContext) {
       Object.assign(body, options.leadContext)
     }
-    const response = await fetchWithTimeout(N8N_VEP002_WEBHOOK_URL, {
+    const response = await fetchN8nWebhookWithRetry('social listening webhook', N8N_VEP002_WEBHOOK_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1494,7 +1542,7 @@ export async function triggerSocialContentExtraction(options?: {
       body.prompts = options.prompts
     }
 
-    const response = await fetch(N8N_SOC001_WEBHOOK_URL, {
+    const response = await fetchN8nWebhookWithRetry('social content extraction webhook', N8N_SOC001_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -1537,7 +1585,7 @@ export async function triggerSocialContentPublish(payload: {
   }
 
   try {
-    const response = await fetch(N8N_SOC002_WEBHOOK_URL, {
+    const response = await fetchN8nWebhookWithRetry('social content publish webhook', N8N_SOC002_WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

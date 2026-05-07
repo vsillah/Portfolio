@@ -32,7 +32,7 @@ Our pinned 20 patterns, grouped the same way as the talk:
 | 13 | Self-Consistency | Self-awareness | Absent |
 | 14 | Learning & Feedback | Self-awareness | Partial |
 | 15 | Memory Management | Self-awareness | Partial |
-| 16 | Exception Handling | Production | Partial |
+| 16 | Exception Handling | Production | Partial / improving |
 | 17 | Human-in-the-Loop | Production | Strong on publish / Partial elsewhere |
 | 18 | Guardrails & Safety | Production | Strong (authz) / Partial (content) |
 | 19 | Monitoring & Observability | Production | Strong in Agent Ops / Partial in legacy flows |
@@ -337,14 +337,16 @@ Each section follows the same template: *Definition · Where we use it today · 
 - User-facing error hygiene enforced by [`.cursor/rules/no-expose-errors-to-users.mdc`](../.cursor/rules/no-expose-errors-to-users.mdc).
 - Trigger functions in [`lib/n8n.ts`](../lib/n8n.ts) return `{ triggered, message }` shape.
 - Agent Operations marks failed and stale runs, derives a Dead-Letter Monitor from those traces, lets stale sweeps report checked/marked counts by runtime, and can create read-only recovery requests with retry/backoff metadata.
+- [`lib/llm/with-retry.ts`](../lib/llm/with-retry.ts) provides a shared capped backoff helper with configurable retryable error matching and a give-up hook.
+- n8n trigger calls use the shared helper for transient network and gateway failures while preserving generic user-facing failure messages.
 
-**Coverage.** Partial.
+**Coverage.** Partial / improving.
 
 **Gaps.**
-- No standard retry/backoff helper for LLM calls or n8n triggers — each call site reinvents `try/catch`.
-- Dead-letter visibility and routed recovery requests exist for Agent Ops traces, but provider-call retry wrappers are still call-site specific.
+- Direct LLM call sites still need to adopt the shared retry helper where transient provider failures are expected.
+- Dead-letter visibility and routed recovery requests exist for Agent Ops traces, but some provider-call retry wrappers are still call-site specific.
 
-**Retrofit backlog.** Ticket [#3](#top-retrofit-tickets) — retry/backoff helper.
+**Retrofit backlog.** Continue Ticket [#3](#top-retrofit-tickets) by adopting the shared helper across remaining direct LLM/provider calls.
 
 ---
 
@@ -471,14 +473,15 @@ These are the first five PR-sized items seeded from the scorecard. Ticket 1 has 
   - Scorecard row for Reflection updated to "Partial" on completion.
 - **Depends on.** Ticket #1 (for observability).
 
-### Ticket 3 — Retry/backoff helper for LLM/n8n calls (Exception Handling)
+### Ticket 3 — Retry/backoff helper for LLM/n8n calls (Exception Handling) — in progress
 
-- **Owner.** _TBD_
+- **Owner.** Agent Operations rollout.
 - **Scope.** Add `lib/llm/with-retry.ts` with capped exponential backoff + jitter, configurable retryable error matcher, and a dead-letter hook. Wrap the trigger functions in [`lib/n8n.ts`](../lib/n8n.ts) and the direct LLM call sites found via grep.
+- **First adoption.** n8n trigger calls now retry transient network and 502/503/504 failures through the shared helper.
 - **Acceptance criteria.**
   - Unit tests for: success-on-first-try, success-after-N-retries, gives-up-after-max, honors non-retryable errors.
   - User-facing errors remain generic per `no-expose-errors-to-users.mdc`.
-  - Scorecard row for Exception Handling updated to "Strong" on completion.
+  - Scorecard row for Exception Handling updated to "Strong" after direct LLM/provider call sites also adopt the helper.
 
 ### Ticket 4 — Content-safety gate before LinkedIn publish (Guardrails)
 

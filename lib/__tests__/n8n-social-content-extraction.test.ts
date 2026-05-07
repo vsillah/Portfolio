@@ -13,6 +13,7 @@ describe('triggerSocialContentExtraction', () => {
     process.env.MOCK_N8N = 'false'
     process.env.N8N_SOC001_WEBHOOK_URL = 'https://example.test/webhook/social-content-extract'
     process.env.N8N_CALLBACK_BASE_URL = 'https://portfolio.example.com'
+    process.env.N8N_RETRY_DELAY_MS = '0'
   })
 
   afterEach(() => {
@@ -90,8 +91,8 @@ describe('triggerSocialContentExtraction', () => {
   it('returns a failed result when webhook responds with non-2xx', async () => {
     mockFetch.mockResolvedValue({
       ok: false,
-      status: 502,
-      text: async () => 'bad gateway',
+      status: 400,
+      text: async () => 'bad request',
     })
 
     const { triggerSocialContentExtraction } = await import('../n8n')
@@ -99,8 +100,30 @@ describe('triggerSocialContentExtraction', () => {
 
     expect(result).toEqual({
       triggered: false,
-      message: 'Webhook returned 502',
+      message: 'Webhook returned 400',
     })
+  })
+
+  it('retries retryable gateway responses before returning success', async () => {
+    mockFetch
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 502,
+        text: async () => 'bad gateway',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        text: async () => '',
+      })
+
+    const { triggerSocialContentExtraction } = await import('../n8n')
+    const result = await triggerSocialContentExtraction()
+
+    expect(result).toEqual({
+      triggered: true,
+      message: 'Social content extraction triggered',
+    })
+    expect(mockFetch).toHaveBeenCalledTimes(2)
   })
 
   it('returns a failed result when webhook fetch throws', async () => {
