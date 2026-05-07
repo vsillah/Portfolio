@@ -22,6 +22,9 @@ const disabledRagDiag = {
   http_status: null,
   latency_ms: null,
   empty_response: false,
+  route: 'outreach_email' as const,
+  allowed_namespaces: ['sales_context', 'voice_story'] as const,
+  max_privacy_tier: 'client_safe',
 }
 
 vi.mock('@/lib/rag-query', () => ({
@@ -95,6 +98,9 @@ describe('appendPineconeAndChatContextWithMetadata', () => {
         http_status: 200,
         latency_ms: 12,
         empty_response: false,
+        route: 'outreach_email',
+        allowed_namespaces: ['sales_context', 'voice_story'],
+        max_privacy_tier: 'client_safe',
       },
     })
     mockFetchRecentSiteChatExcerptForLeadEmail.mockResolvedValue(null)
@@ -126,6 +132,9 @@ describe('appendPineconeAndChatContextWithMetadata', () => {
         http_status: 200,
         latency_ms: 1,
         empty_response: false,
+        route: 'outreach_email',
+        allowed_namespaces: ['sales_context', 'voice_story'],
+        max_privacy_tier: 'client_safe',
       },
     })
     mockFetchRecentSiteChatExcerptForLeadEmail.mockResolvedValue(null)

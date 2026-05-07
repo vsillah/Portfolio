@@ -44,7 +44,12 @@ describe('rag-query', () => {
     expect(fetchMock.mock.calls[0][1]).toMatchObject({
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ query: 'query text' }),
+      body: JSON.stringify({
+        query: 'query text',
+        route: 'outreach_email',
+        allowed_namespaces: ['sales_context', 'voice_story'],
+        max_privacy_tier: 'client_safe',
+      }),
     })
     expect(result.block).toBe('Voice-of-brand excerpt.')
     expect(result.diagnostics).toMatchObject({
@@ -54,6 +59,9 @@ describe('rag-query', () => {
       error_class: null,
       http_status: null,
       empty_response: false,
+      route: 'outreach_email',
+      allowed_namespaces: ['sales_context', 'voice_story'],
+      max_privacy_tier: 'client_safe',
     })
     expect(result.diagnostics.latency_ms).toEqual(expect.any(Number))
   })
@@ -77,6 +85,36 @@ describe('rag-query', () => {
       attempted: true,
       error_class: null,
       empty_response: true,
+    })
+  })
+
+  it('sends route policy metadata for public chatbot probes', async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify({ output: 'Public-safe excerpt.' }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { fetchRagContextForEmailQueryWithDiagnostics } = await importRagQuery()
+    const result = await fetchRagContextForEmailQueryWithDiagnostics('query', {
+      route: 'public_chatbot_voice',
+      allowedNamespaces: ['public_chatbot', 'voice_story', 'internal_ops'],
+    })
+
+    expect(fetchMock.mock.calls[0][1]).toMatchObject({
+      body: JSON.stringify({
+        query: 'query',
+        route: 'public_chatbot_voice',
+        allowed_namespaces: ['public_chatbot', 'voice_story'],
+        max_privacy_tier: 'public_safe',
+      }),
+    })
+    expect(result.diagnostics).toMatchObject({
+      route: 'public_chatbot_voice',
+      allowed_namespaces: ['public_chatbot', 'voice_story'],
+      max_privacy_tier: 'public_safe',
     })
   })
 

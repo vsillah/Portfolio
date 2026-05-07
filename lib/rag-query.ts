@@ -5,6 +5,7 @@
  */
 
 import { isMockN8nEnabled, isN8nOutboundDisabled } from '@/lib/n8n-runtime-flags'
+import { routePolicyFor, type KnowledgeNamespace, type RagRoute } from '@/lib/knowledge-governance'
 
 /** Kept in sync with `lib/n8n.ts` default base URL (avoid importing the full n8n client from email paths). */
 const N8N_BASE_URL = process.env.N8N_BASE_URL || 'https://amadutown.app.n8n.cloud'
@@ -73,6 +74,10 @@ export function buildEmailRagQueryText(context: {
 export type RagQueryOptions = {
   /** Set for /api/admin/rag-health so connectivity is tested even when EMAIL_RAG_ENABLED=false. */
   ignoreEmailRagEnabled?: boolean
+  /** Route/use case lets n8n constrain namespaces instead of searching all RAG content. */
+  route?: RagRoute
+  /** Optional narrowing within the selected route policy. */
+  allowedNamespaces?: KnowledgeNamespace[]
 }
 
 export type RagSkippedReason =
@@ -95,11 +100,15 @@ export interface RagFetchDiagnostics {
   latency_ms: number | null
   /** True when HTTP succeeded but the normalized RAG block was empty. */
   empty_response: boolean
+  route: RagRoute
+  allowed_namespaces: KnowledgeNamespace[]
+  max_privacy_tier: string
 }
 
 const emptyDiagnostics = (
   query: string,
   skipped: RagSkippedReason,
+  options?: RagQueryOptions,
 ): RagFetchDiagnostics => ({
   rag_query_chars: query.trim().length,
   skipped_reason: skipped,
@@ -108,7 +117,22 @@ const emptyDiagnostics = (
   http_status: null,
   latency_ms: null,
   empty_response: false,
+  ...ragRouteDiagnostics(options),
 })
+
+function ragRouteDiagnostics(options?: RagQueryOptions) {
+  const route = options?.route ?? 'outreach_email'
+  const policy = routePolicyFor(route)
+  const allowed = options?.allowedNamespaces?.length
+    ? options.allowedNamespaces.filter((namespace) => policy.allowedNamespaces.includes(namespace))
+    : policy.allowedNamespaces
+
+  return {
+    route,
+    allowed_namespaces: allowed,
+    max_privacy_tier: policy.maxPrivacyTier,
+  }
+}
 
 /**
  * POST to the RAG webhook and return plain text + structured skip/error/empty flags.
@@ -126,22 +150,23 @@ export async function fetchRagContextForEmailQueryWithDiagnostics(
     http_status: null,
     latency_ms: null,
     empty_response: false,
+    ...ragRouteDiagnostics(options),
   })
 
   if (!options?.ignoreEmailRagEnabled && process.env.EMAIL_RAG_ENABLED === 'false') {
-    return { block: null, diagnostics: emptyDiagnostics(query, 'email_rag_disabled') }
+    return { block: null, diagnostics: emptyDiagnostics(query, 'email_rag_disabled', options) }
   }
 
   if (isN8nOutboundDisabled()) {
-    return { block: null, diagnostics: emptyDiagnostics(query, 'n8n_outbound_disabled') }
+    return { block: null, diagnostics: emptyDiagnostics(query, 'n8n_outbound_disabled', options) }
   }
 
   if (isMockN8nEnabled()) {
-    return { block: null, diagnostics: emptyDiagnostics(query, 'mock_n8n_enabled') }
+    return { block: null, diagnostics: emptyDiagnostics(query, 'mock_n8n_enabled', options) }
   }
 
   if (!q) {
-    return { block: null, diagnostics: emptyDiagnostics(query, 'empty_query') }
+    return { block: null, diagnostics: emptyDiagnostics(query, 'empty_query', options) }
   }
 
   const url = getRagQueryWebhookUrl()
@@ -153,7 +178,7 @@ export async function fetchRagContextForEmailQueryWithDiagnostics(
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-      body: JSON.stringify({ query: q }),
+      body: JSON.stringify({ query: q, ...ragRouteDiagnostics(options) }),
       signal: controller.signal,
     })
 

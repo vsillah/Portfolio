@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   AGENT_ORGANIZATION,
   AGENT_PODS,
+  getAgentByKey,
   getAgentOrganizationSummary,
   getN8nWorkflowCoverage,
 } from './agent-organization'
@@ -29,5 +30,16 @@ describe('agent organization registry', () => {
     expect(summary).toHaveLength(6)
     expect(summary.find((pod) => pod.key === 'product_automation')?.activeWorkflowCount).toBeGreaterThan(10)
     expect(summary.find((pod) => pod.key === 'strategy_narrative')?.plannedAgentCount).toBe(3)
+  })
+
+  it('assigns governed RAG ownership and approval gates to the Research & Knowledge pod', () => {
+    const librarian = getAgentByKey('private-knowledge-librarian')
+    const sourceRegister = getAgentByKey('research-source-register')
+
+    expect(librarian?.responsibility).toContain('metadata completeness')
+    expect(librarian?.responsibility).toContain('privacy checks')
+    expect(librarian?.approvalGate).toContain('Production cutover')
+    expect(librarian?.approvalGate).toContain('public chatbot/RAG policy changes')
+    expect(sourceRegister?.approvalGate).toContain('unclassified material')
   })
 })

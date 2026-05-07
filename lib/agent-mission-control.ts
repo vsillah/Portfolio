@@ -1,4 +1,5 @@
 import { AGENT_ORGANIZATION, AGENT_PODS } from '@/lib/agent-organization'
+import { KNOWLEDGE_GOVERNANCE_STATUS } from '@/lib/knowledge-source-manifest'
 import { supabaseAdmin } from '@/lib/supabase'
 
 type AgentRunRow = {
@@ -797,6 +798,7 @@ export async function buildAgentMissionControlSnapshot() {
     daily_brief: dailyBrief,
     cost_summary: costSummary,
     operating_signals: operatingSignals,
+    knowledge_governance: KNOWLEDGE_GOVERNANCE_STATUS,
     agent_inbox: agentInbox,
     engagement_queue: engagementQueue,
     dead_letter_queue: deadLetterQueue,
