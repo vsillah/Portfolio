@@ -17,6 +17,8 @@ on:
 jobs:
   health-check:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     
     steps:
       - name: Checkout code
@@ -25,33 +27,18 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
       
       - name: Install dependencies
         run: npm ci
-      
-      - name: Download baseline from artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: database-baseline
-          path: .
-        continue-on-error: true
-      
+
       - name: Run database health check
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run db:health-check
-      
-      - name: Upload baseline artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: database-baseline
-          path: .database-baseline.json
-          retention-days: 90
-      
+
       - name: Send Slack notification on failure
         if: failure()
         uses: slackapi/slack-github-action@v1
