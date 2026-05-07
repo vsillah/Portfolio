@@ -1,5 +1,24 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 
+const mocks = vi.hoisted(() => ({
+  recordAgentStep: vi.fn(),
+  recordAgentEvent: vi.fn(),
+  recordAnthropicCost: vi.fn(),
+}))
+
+vi.mock('@/lib/agent-run', () => ({
+  recordAgentStep: mocks.recordAgentStep,
+  recordAgentEvent: mocks.recordAgentEvent,
+}))
+
+vi.mock('@/lib/cost-calculator', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/cost-calculator')>()
+  return {
+    ...actual,
+    recordAnthropicCost: mocks.recordAnthropicCost,
+  }
+})
+
 import { judgeBatch, PROMPT_VERSION, JUDGE_VERSION, __internal } from './llm-judge'
 import type { ExcerptFaithfulnessClaim } from './llm-judge'
 
@@ -65,6 +84,9 @@ describe('judgeBatch — live mode (fetch mocked)', () => {
 
   beforeEach(() => {
     process.env.ANTHROPIC_API_KEY = 'test-key-abc'
+    mocks.recordAgentStep.mockResolvedValue({ id: 'step-1' })
+    mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
+    mocks.recordAnthropicCost.mockResolvedValue(undefined)
   })
   afterEach(() => {
     if (ORIGINAL_KEY === undefined) delete process.env.ANTHROPIC_API_KEY
@@ -139,6 +161,43 @@ describe('judgeBatch — live mode (fetch mocked)', () => {
   it('fails fast if ANTHROPIC_API_KEY is missing', async () => {
     delete process.env.ANTHROPIC_API_KEY
     await expect(judgeBatch([base], {})).rejects.toThrow(/ANTHROPIC_API_KEY/)
+  })
+
+  it('records budget warnings for high-cost traced batches', async () => {
+    const fetchImpl = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        content: [
+          {
+            text: JSON.stringify([
+              { id: 'row-1', supported: 'yes', quantified: 'yes', verdict: 'faithful', reason: 'ok', confidence: 0.9 },
+            ]),
+          },
+        ],
+        usage: { input_tokens: 10_000, output_tokens: 1_000 },
+      }),
+      text: async () => '',
+    }) as unknown as typeof fetch
+    const oversized = {
+      ...base,
+      excerpt: 'x'.repeat(8_000_000),
+    }
+
+    await judgeBatch([oversized], {
+      fetchImpl,
+      model: 'claude-3-opus-20240229',
+      agentRunId: 'agent-run-1',
+      reference: { type: 'source_validation', id: 'source-validation-1' },
+    })
+
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runId: 'agent-run-1',
+        eventType: 'budget_check',
+        severity: 'warning',
+      }),
+    )
   })
 
   it('fills in "insufficient" placeholders for omitted ids', async () => {

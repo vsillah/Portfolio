@@ -75,6 +75,8 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] In-person diagnostic insights pre-flight budget adoption and trace linkage in review.
 - [x] Meeting pain classification pre-flight budget adoption and trace linkage in review.
 - [x] Chat Eval LLM judge pre-flight budget adoption and trace linkage in review.
+- [x] Chat Eval axial-code and diagnosis pre-flight budget adoption and trace linkage in review.
+- [x] Source validator and dev testing LLM pre-flight budget cleanup in review.
 
 ## Scope Guard
 

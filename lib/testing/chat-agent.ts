@@ -14,6 +14,7 @@ import type {
   LLMProvider,
   DiagnosticStep
 } from './types'
+import { evaluateAgentBudget } from '@/lib/agent-budget-policy'
 
 // ============================================================================
 // System Prompts
@@ -333,7 +334,17 @@ export class ChatAgent {
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY not configured')
     }
-    
+    const budgetDecision = evaluateAgentBudget({
+      runtime: 'manual',
+      model,
+      estimatedInputTokens: Math.ceil(messages.map((m) => m.content).join('\n').length / 4),
+      maxTokens: 200,
+      metadata: { operation: 'testing_chat_agent' },
+    })
+    if (budgetDecision.status === 'blocked') {
+      throw new Error(budgetDecision.reason)
+    }
+
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -384,6 +395,17 @@ export class ChatAgent {
         role: m.role as 'user' | 'assistant',
         content: m.content
       }))
+
+    const budgetDecision = evaluateAgentBudget({
+      runtime: 'manual',
+      model,
+      estimatedInputTokens: Math.ceil(messages.map((m) => m.content).join('\n').length / 4),
+      maxTokens: 200,
+      metadata: { operation: 'testing_chat_agent' },
+    })
+    if (budgetDecision.status === 'blocked') {
+      throw new Error(budgetDecision.reason)
+    }
     
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',

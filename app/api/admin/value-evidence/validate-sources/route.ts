@@ -7,6 +7,7 @@ import {
   PROMPT_VERSION,
   JUDGE_VERSION,
 } from '@/lib/source-validator'
+import { endAgentRun, markAgentRunFailed, recordAgentStep, startAgentRun } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,15 +73,60 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  let agentRunId: string | null = null
+
   try {
     if (table === 'pain_point_evidence') {
       // Sample-audit: smaller limit + force-pin Haiku regardless of body.
       // Per CTO guardrail: "Sample audit" must never become a footgun that
       // quietly runs Opus if a default changes or is overridden.
       const effectiveLimit = isSampleAudit ? Math.min(limit, 20) : limit
-      const judgeOpts = isSampleAudit
-        ? { model: 'claude-3-5-haiku-20241022' }
-        : undefined
+      const agentRun = await startAgentRun({
+        agentKey: 'manual-admin',
+        runtime: 'manual',
+        kind: 'source_validation_pain_point_evidence',
+        title: 'Validate pain point evidence sources',
+        subject: {
+          type: 'pain_point_evidence',
+          id: `${mode}:${effectiveLimit}`,
+          label: `${mode} validation (${effectiveLimit} row limit)`,
+        },
+        triggerSource: 'admin:value_evidence_validate_sources',
+        triggeredByUserId: auth.user?.id ?? null,
+        currentStep: 'Preparing source validation',
+        metadata: {
+          table,
+          mode,
+          limit: effectiveLimit,
+          stale_days: staleDays,
+          dry_run: dryRun,
+          sample_audit: isSampleAudit,
+        },
+      })
+      agentRunId = agentRun.id
+
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'source_validation_request_validated',
+        name: 'Validated source validation request',
+        status: 'completed',
+        outputSummary: `${table} ${mode} run with ${effectiveLimit} row limit.`,
+        metadata: {
+          table,
+          mode,
+          limit: effectiveLimit,
+          stale_days: staleDays,
+          dry_run: dryRun,
+        },
+        idempotencyKey: `${agentRunId}:source_validation_request_validated`,
+      })
+
+      const judgeOpts = {
+        ...(isSampleAudit ? { model: 'claude-3-5-haiku-20241022' } : {}),
+        agentRunId,
+        runtime: 'manual' as const,
+        reference: { type: 'source_validation', id: agentRunId },
+      }
 
       const { summary, items } = await runPainPointEvidenceValidation({
         mode: mode as Mode,
@@ -103,7 +149,25 @@ export async function POST(request: NextRequest) {
         prompt_version: PROMPT_VERSION,
       }))
 
+      await endAgentRun({
+        runId: agentRunId,
+        status: 'completed',
+        currentStep: 'Source validation complete',
+        outcome: {
+          table,
+          mode,
+          attempted: summary.attempted ?? 0,
+          validated: summary.validated ?? 0,
+          rejected: summary.rejected ?? 0,
+          quarantined: summary.quarantined ?? 0,
+          errors: summary.errors ?? 0,
+          llm_cost_usd: summary.llm_cost_usd ?? 0,
+          dry_run: dryRun,
+        },
+      })
+
       return NextResponse.json({
+        agentRunId,
         summary,
         items: enrichedItems,
         prompt_version: PROMPT_VERSION,
@@ -125,6 +189,31 @@ export async function POST(request: NextRequest) {
   } catch (e) {
     const msg = (e as Error).message ?? 'unknown error'
     console.error('[validate-sources] batch error:', msg)
+    if (agentRunId) {
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'source_validation_failed',
+        name: 'Source validation failed',
+        status: 'failed',
+        outputSummary: msg,
+        idempotencyKey: `${agentRunId}:source_validation_failed`,
+      }).catch(() => {})
+      await markAgentRunFailed(agentRunId, msg, {
+        table,
+        mode,
+        operation: 'source_validator_llm_judge',
+      }).catch(() => {})
+    }
+    if (/Estimated cost .*exceeds/i.test(msg)) {
+      return NextResponse.json(
+        {
+          error:
+            'This source validation request is over the current Agent Ops budget limit. Lower the row limit or use sample-audit before retrying.',
+          agentRunId,
+        },
+        { status: 400 },
+      )
+    }
     return NextResponse.json(
       { error: 'Source validation run failed. See server logs for details.' },
       { status: 500 }

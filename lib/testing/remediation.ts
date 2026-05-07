@@ -18,6 +18,7 @@ import type {
 import { createClient } from '@supabase/supabase-js'
 import { n8nWebhookUrl } from '../n8n'
 import { testDb } from './test-db-cast'
+import { evaluateAgentBudget } from '@/lib/agent-budget-policy'
 
 // ============================================================================
 // Configuration
@@ -27,6 +28,25 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN
 const GITHUB_REPO = process.env.GITHUB_REPO || 'owner/my-portfolio'
+
+function assertTestingLlmBudgetAllowed(input: {
+  prompt: string
+  model: string
+  maxTokens?: number
+  operation: string
+}) {
+  const decision = evaluateAgentBudget({
+    runtime: 'manual',
+    model: input.model,
+    estimatedInputTokens: Math.ceil(input.prompt.length / 4),
+    maxTokens: input.maxTokens ?? 1000,
+    metadata: { operation: input.operation },
+  })
+  if (decision.status === 'blocked') {
+    throw new Error(decision.reason)
+  }
+  return decision
+}
 
 // ============================================================================
 // Remediation Engine
@@ -451,6 +471,12 @@ Respond with JSON in this format:
 }`
 
     try {
+      assertTestingLlmBudgetAllowed({
+        prompt,
+        model: 'gpt-4o',
+        maxTokens: 1000,
+        operation: 'testing_fix_generation',
+      })
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -516,6 +542,12 @@ Provide a more detailed analysis in JSON format:
 }`
 
     try {
+      assertTestingLlmBudgetAllowed({
+        prompt,
+        model: 'gpt-4o-mini',
+        maxTokens: 1000,
+        operation: 'testing_analysis_enhancement',
+      })
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {

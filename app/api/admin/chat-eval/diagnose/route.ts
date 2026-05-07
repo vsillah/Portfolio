@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { diagnoseError, DEFAULT_JUDGE_CONFIG, AVAILABLE_MODELS, LLMProvider, type SessionData, type EvaluationData } from '@/lib/llm-judge'
+import { diagnoseError, DEFAULT_JUDGE_CONFIG, AVAILABLE_MODELS, LlmJudgeBudgetError, LLMProvider, type SessionData, type EvaluationData } from '@/lib/llm-judge'
 import { getChatbotPrompt, getVoiceAgentPrompt } from '@/lib/system-prompts'
+import { endAgentRun, markAgentRunFailed, recordAgentStep, startAgentRun } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,9 +21,13 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  let agentRunId: string | null = null
+  let sessionIdForFailure: string | null = null
+
   try {
     const body = await request.json()
     const { session_id, evaluation_id, provider, model } = body
+    sessionIdForFailure = typeof session_id === 'string' ? session_id : null
 
     if (!session_id) {
       return NextResponse.json(
@@ -156,7 +161,50 @@ export async function POST(request: NextRequest) {
       temperature: 0.3,
     }
 
-    const diagnosis = await diagnoseError(sessionData, evaluationData, systemPrompt, config)
+    const agentRun = await startAgentRun({
+      agentKey: 'manual-admin',
+      runtime: 'manual',
+      kind: 'chat_eval_diagnosis',
+      title: 'Diagnose Chat Eval error',
+      subject: {
+        type: 'chat_session',
+        id: session_id,
+        label: session.visitor_name || session.visitor_email || session_id,
+      },
+      triggerSource: 'admin:chat_eval_diagnose',
+      triggeredByUserId: authResult.user.id,
+      currentStep: 'Preparing chat error diagnosis',
+      metadata: {
+        provider: selectedProvider,
+        model: selectedModel,
+        evaluation_id: evaluation.id,
+        message_count: messages.length,
+      },
+    })
+    agentRunId = agentRun.id
+
+    await recordAgentStep({
+      runId: agentRunId,
+      stepKey: 'chat_eval_diagnosis_request_validated',
+      name: 'Validated chat error diagnosis request',
+      status: 'completed',
+      outputSummary: `Diagnosing chat session ${session_id}.`,
+      metadata: {
+        provider: selectedProvider,
+        model: selectedModel,
+        session_id,
+        evaluation_id: evaluation.id,
+        message_count: messages.length,
+      },
+      idempotencyKey: `${agentRunId}:chat_eval_diagnosis_request_validated`,
+    })
+
+    const diagnosis = await diagnoseError(sessionData, evaluationData, systemPrompt, config, {
+      agentRunId,
+      runtime: 'manual',
+      reference: { type: 'chat_eval_diagnosis', id: session_id },
+      operation: 'diagnose',
+    })
 
     // Store diagnosis in database
     const { data: storedDiagnosis, error: storeError } = await supabaseAdmin
@@ -179,14 +227,38 @@ export async function POST(request: NextRequest) {
 
     if (storeError) {
       console.error('Error storing diagnosis:', storeError)
+      if (agentRunId) {
+        await markAgentRunFailed(agentRunId, 'Failed to store diagnosis', {
+          operation: 'diagnose',
+          session_id,
+          evaluation_id: evaluation.id,
+        }).catch(() => {})
+      }
       return NextResponse.json(
         { error: 'Failed to store diagnosis' },
         { status: 500 }
       )
     }
 
+    await endAgentRun({
+      runId: agentRunId,
+      status: 'completed',
+      currentStep: 'Chat error diagnosis complete',
+      outcome: {
+        diagnosis_id: storedDiagnosis.id,
+        session_id,
+        evaluation_id: evaluation.id,
+        error_type: diagnosis.error_type,
+        confidence: diagnosis.confidence,
+        recommendation_count: diagnosis.recommendations.length,
+        provider: selectedProvider,
+        model: selectedModel,
+      },
+    })
+
     return NextResponse.json({
       diagnosis_id: storedDiagnosis.id,
+      agentRunId,
       diagnosis: {
         root_cause: diagnosis.root_cause,
         error_type: diagnosis.error_type,
@@ -197,6 +269,32 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error diagnosis error:', error)
+    if (agentRunId) {
+      const message = error instanceof Error ? error.message : 'Chat error diagnosis failed'
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'chat_eval_diagnosis_failed',
+        name: 'Chat error diagnosis failed',
+        status: 'failed',
+        outputSummary: message,
+        metadata: { session_id: sessionIdForFailure },
+        idempotencyKey: `${agentRunId}:chat_eval_diagnosis_failed`,
+      }).catch(() => {})
+      await markAgentRunFailed(agentRunId, message, {
+        operation: 'diagnose',
+        session_id: sessionIdForFailure,
+      }).catch(() => {})
+    }
+    if (error instanceof LlmJudgeBudgetError) {
+      return NextResponse.json(
+        {
+          error:
+            'This chat error diagnosis is over the current Agent Ops budget limit. Use a shorter session or lower-cost model before retrying.',
+          agentRunId,
+        },
+        { status: 400 },
+      )
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

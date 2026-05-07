@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { generateAxialCodes, DEFAULT_JUDGE_CONFIG, AVAILABLE_MODELS, LLMProvider, AxialCodeResult } from '@/lib/llm-judge'
+import { generateAxialCodes, DEFAULT_JUDGE_CONFIG, AVAILABLE_MODELS, LlmJudgeBudgetError, LLMProvider, AxialCodeResult } from '@/lib/llm-judge'
+import { endAgentRun, markAgentRunFailed, recordAgentStep, startAgentRun } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,6 +19,8 @@ export async function POST(request: NextRequest) {
       { status: authResult.status }
     )
   }
+
+  let agentRunId: string | null = null
 
   try {
     const body = await request.json()
@@ -71,6 +74,43 @@ export async function POST(request: NextRequest) {
     const uniqueOpenCodes = [...new Set(openCodesWithContext.map((oc: { code: string; sessionId: string; rating: 'good' | 'bad' | undefined; notes: string | undefined }) => oc.code))]
     const uniqueSessionIds = [...new Set(openCodesWithContext.map((oc: { code: string; sessionId: string; rating: 'good' | 'bad' | undefined; notes: string | undefined }) => oc.sessionId))]
 
+    const agentRun = await startAgentRun({
+      agentKey: 'manual-admin',
+      runtime: 'manual',
+      kind: 'chat_eval_axial_codes',
+      title: 'Generate Chat Eval axial codes',
+      subject: {
+        type: 'chat_eval_sessions',
+        id: uniqueSessionIds.slice(0, 5).join(','),
+        label: `${uniqueSessionIds.length} session(s), ${uniqueOpenCodes.length} open code(s)`,
+      },
+      triggerSource: 'admin:chat_eval_axial_codes',
+      triggeredByUserId: authResult.user.id,
+      currentStep: 'Preparing axial code generation',
+      metadata: {
+        provider: selectedProvider,
+        model: selectedModel,
+        session_count: uniqueSessionIds.length,
+        open_code_count: uniqueOpenCodes.length,
+      },
+    })
+    agentRunId = agentRun.id
+
+    await recordAgentStep({
+      runId: agentRunId,
+      stepKey: 'axial_code_request_validated',
+      name: 'Validated axial code generation request',
+      status: 'completed',
+      outputSummary: `Generating axial codes from ${uniqueOpenCodes.length} open code(s).`,
+      metadata: {
+        provider: selectedProvider,
+        model: selectedModel,
+        session_count: uniqueSessionIds.length,
+        open_code_count: uniqueOpenCodes.length,
+      },
+      idempotencyKey: `${agentRunId}:axial_code_request_validated`,
+    })
+
     // Generate axial codes using LLM
     const config = {
       provider: selectedProvider,
@@ -79,7 +119,12 @@ export async function POST(request: NextRequest) {
       temperature: 0.3,
     }
 
-    const result = await generateAxialCodes(openCodesWithContext, config)
+    const result = await generateAxialCodes(openCodesWithContext, config, {
+      agentRunId,
+      runtime: 'manual',
+      reference: { type: 'chat_eval_axial_codes', id: agentRunId },
+      operation: 'axial_codes',
+    })
 
     // Store the generation in the database
     const { data: generation, error: insertError } = await supabaseAdmin
@@ -98,6 +143,12 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       console.error('Error storing generation:', insertError)
+      if (agentRunId) {
+        await markAgentRunFailed(agentRunId, 'Failed to store axial code generation', {
+          operation: 'axial_codes',
+          session_count: uniqueSessionIds.length,
+        }).catch(() => {})
+      }
       return NextResponse.json(
         { error: 'Failed to store generation result' },
         { status: 500 }
@@ -123,8 +174,24 @@ export async function POST(request: NextRequest) {
       // Don't fail the whole request, the generation is already stored
     }
 
+    await endAgentRun({
+      runId: agentRunId,
+      status: 'completed',
+      currentStep: 'Axial code generation complete',
+      outcome: {
+        generation_id: generation.id,
+        axial_code_count: result.axial_codes.length,
+        source_session_count: uniqueSessionIds.length,
+        source_open_code_count: uniqueOpenCodes.length,
+        review_error: reviewError?.message ?? null,
+        provider: selectedProvider,
+        model: selectedModel,
+      },
+    })
+
     return NextResponse.json({
       generation_id: generation.id,
+      agentRunId,
       axial_codes: result.axial_codes,
       source_sessions_count: uniqueSessionIds.length,
       source_open_codes_count: uniqueOpenCodes.length,
@@ -132,6 +199,28 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Axial code generation error:', error)
+    if (agentRunId) {
+      const message = error instanceof Error ? error.message : 'Axial code generation failed'
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'axial_code_generation_failed',
+        name: 'Axial code generation failed',
+        status: 'failed',
+        outputSummary: message,
+        idempotencyKey: `${agentRunId}:axial_code_generation_failed`,
+      }).catch(() => {})
+      await markAgentRunFailed(agentRunId, message, { operation: 'axial_codes' }).catch(() => {})
+    }
+    if (error instanceof LlmJudgeBudgetError) {
+      return NextResponse.json(
+        {
+          error:
+            'This axial code generation request is over the current Agent Ops budget limit. Select fewer sessions or use a lower-cost model before retrying.',
+          agentRunId,
+        },
+        { status: 400 },
+      )
+    }
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
