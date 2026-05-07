@@ -73,6 +73,10 @@ export class LlmJudgeBudgetError extends Error {
 
 const CHAT_EVAL_OPERATION = 'chat_eval'
 const CHAT_EVAL_MAX_TOKENS = 1024
+const AXIAL_CODES_OPERATION = 'axial_codes'
+const AXIAL_CODES_MAX_TOKENS = 2048
+const DIAGNOSE_OPERATION = 'diagnose'
+const DIAGNOSE_MAX_TOKENS = 4096
 
 // Available models for each provider
 export const AVAILABLE_MODELS: Record<LLMProvider, Array<{ id: string; name: string; description: string }>> = {
@@ -205,7 +209,7 @@ async function recordLlmJudgeBudgetDecision(args: {
     outputSummary: args.decision.reason,
     costUsd: args.decision.estimatedCostUsd,
     metadata,
-    idempotencyKey: `${args.agentRunId}:llm_judge:budget_check`,
+    idempotencyKey: `${args.agentRunId}:${args.operation}:${args.sessionId ?? 'aggregate'}:budget_check`,
   }).catch((err) => console.warn('[llm-judge] agent budget step failed:', err))
 
   if (args.decision.status !== 'allowed') {
@@ -215,7 +219,7 @@ async function recordLlmJudgeBudgetDecision(args: {
       severity: args.decision.status === 'blocked' ? 'error' : 'warning',
       message: args.decision.reason,
       metadata,
-      idempotencyKey: `${args.agentRunId}:llm_judge:budget_check:${args.decision.status}`,
+      idempotencyKey: `${args.agentRunId}:${args.operation}:${args.sessionId ?? 'aggregate'}:budget_check:${args.decision.status}`,
     }).catch((err) => console.warn('[llm-judge] agent budget event failed:', err))
   }
 }
@@ -726,7 +730,9 @@ function parseAxialCodeResponse(response: string, openCodes: OpenCodeWithContext
  */
 async function generateAxialCodesWithClaude(
   prompt: string,
-  config: JudgeConfig
+  config: JudgeConfig,
+  options: JudgeExecutionOptions = {},
+  budgetDecision?: AgentBudgetDecision,
 ): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY
   
@@ -758,7 +764,18 @@ async function generateAxialCodesWithClaude(
   const data = await response.json()
   const usage = data.usage as Usage | undefined
   if (usage) {
-    recordAnthropicCost(usage, config.model, undefined, { operation: 'axial_codes' }).catch(() => {})
+    recordAnthropicCost(
+      usage,
+      config.model,
+      options.reference,
+      {
+        operation: options.operation ?? AXIAL_CODES_OPERATION,
+        budget_status: budgetDecision?.status,
+        budget_estimated_cost_usd: budgetDecision?.estimatedCostUsd,
+        budget_rule_key: budgetDecision?.rule.key,
+      },
+      options.agentRunId ?? undefined,
+    ).catch(() => {})
   }
   return data.content?.[0]?.text || ''
 }
@@ -768,7 +785,9 @@ async function generateAxialCodesWithClaude(
  */
 async function generateAxialCodesWithOpenAI(
   prompt: string,
-  config: JudgeConfig
+  config: JudgeConfig,
+  options: JudgeExecutionOptions = {},
+  budgetDecision?: AgentBudgetDecision,
 ): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY
   
@@ -804,7 +823,18 @@ async function generateAxialCodesWithOpenAI(
   const data = await response.json()
   const usage = data.usage as Usage | undefined
   if (usage) {
-    recordOpenAICost(usage, config.model, undefined, { operation: 'axial_codes' }).catch(() => {})
+    recordOpenAICost(
+      usage,
+      config.model,
+      options.reference,
+      {
+        operation: options.operation ?? AXIAL_CODES_OPERATION,
+        budget_status: budgetDecision?.status,
+        budget_estimated_cost_usd: budgetDecision?.estimatedCostUsd,
+        budget_rule_key: budgetDecision?.rule.key,
+      },
+      options.agentRunId ?? undefined,
+    ).catch(() => {})
   }
   return data.choices?.[0]?.message?.content || ''
 }
@@ -815,20 +845,38 @@ async function generateAxialCodesWithOpenAI(
  */
 export async function generateAxialCodes(
   openCodes: OpenCodeWithContext[],
-  config: JudgeConfig = DEFAULT_JUDGE_CONFIG
+  config: JudgeConfig = DEFAULT_JUDGE_CONFIG,
+  options: JudgeExecutionOptions = {},
 ): Promise<AxialCodeGenerationResult> {
   if (openCodes.length === 0) {
     return { axial_codes: [] }
   }
   
   const prompt = buildAxialCodingPrompt(openCodes)
+  const operation = options.operation ?? AXIAL_CODES_OPERATION
+  const budgetDecision = evaluateLlmJudgeBudget({
+    prompt,
+    model: config.model,
+    maxTokens: AXIAL_CODES_MAX_TOKENS,
+    runtime: options.runtime ?? 'manual',
+    operation,
+  })
+  await recordLlmJudgeBudgetDecision({
+    agentRunId: options.agentRunId,
+    sessionId: options.reference?.id,
+    operation,
+    decision: budgetDecision,
+  })
+  if (budgetDecision.status === 'blocked') {
+    throw new LlmJudgeBudgetError(budgetDecision.reason)
+  }
   
   let responseText: string
   
   if (config.provider === 'anthropic') {
-    responseText = await generateAxialCodesWithClaude(prompt, config)
+    responseText = await generateAxialCodesWithClaude(prompt, config, options, budgetDecision)
   } else {
-    responseText = await generateAxialCodesWithOpenAI(prompt, config)
+    responseText = await generateAxialCodesWithOpenAI(prompt, config, options, budgetDecision)
   }
   
   return parseAxialCodeResponse(responseText, openCodes)
@@ -1078,7 +1126,9 @@ function parseErrorDiagnosisResponse(response: string): ErrorDiagnosis {
  */
 async function diagnoseErrorWithClaude(
   prompt: string,
-  config: JudgeConfig
+  config: JudgeConfig,
+  options: JudgeExecutionOptions = {},
+  budgetDecision?: AgentBudgetDecision,
 ): Promise<string> {
   const apiKey = process.env.ANTHROPIC_API_KEY
   
@@ -1110,7 +1160,18 @@ async function diagnoseErrorWithClaude(
   const data = await response.json()
   const usage = data.usage as Usage | undefined
   if (usage) {
-    recordAnthropicCost(usage, config.model, undefined, { operation: 'diagnose' }).catch(() => {})
+    recordAnthropicCost(
+      usage,
+      config.model,
+      options.reference,
+      {
+        operation: options.operation ?? DIAGNOSE_OPERATION,
+        budget_status: budgetDecision?.status,
+        budget_estimated_cost_usd: budgetDecision?.estimatedCostUsd,
+        budget_rule_key: budgetDecision?.rule.key,
+      },
+      options.agentRunId ?? undefined,
+    ).catch(() => {})
   }
   return data.content?.[0]?.text || ''
 }
@@ -1120,7 +1181,9 @@ async function diagnoseErrorWithClaude(
  */
 async function diagnoseErrorWithOpenAI(
   prompt: string,
-  config: JudgeConfig
+  config: JudgeConfig,
+  options: JudgeExecutionOptions = {},
+  budgetDecision?: AgentBudgetDecision,
 ): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY
   
@@ -1156,7 +1219,18 @@ async function diagnoseErrorWithOpenAI(
   const data = await response.json()
   const usage = data.usage as Usage | undefined
   if (usage) {
-    recordOpenAICost(usage, config.model, undefined, { operation: 'diagnose' }).catch(() => {})
+    recordOpenAICost(
+      usage,
+      config.model,
+      options.reference,
+      {
+        operation: options.operation ?? DIAGNOSE_OPERATION,
+        budget_status: budgetDecision?.status,
+        budget_estimated_cost_usd: budgetDecision?.estimatedCostUsd,
+        budget_rule_key: budgetDecision?.rule.key,
+      },
+      options.agentRunId ?? undefined,
+    ).catch(() => {})
   }
   return data.choices?.[0]?.message?.content || ''
 }
@@ -1169,16 +1243,34 @@ export async function diagnoseError(
   session: SessionData,
   evaluation: EvaluationData,
   systemPrompt?: string,
-  config: JudgeConfig = DEFAULT_JUDGE_CONFIG
+  config: JudgeConfig = DEFAULT_JUDGE_CONFIG,
+  options: JudgeExecutionOptions = {},
 ): Promise<ErrorDiagnosis> {
   const prompt = buildErrorDiagnosisPrompt(session, evaluation, systemPrompt)
+  const operation = options.operation ?? DIAGNOSE_OPERATION
+  const budgetDecision = evaluateLlmJudgeBudget({
+    prompt,
+    model: config.model,
+    maxTokens: DIAGNOSE_MAX_TOKENS,
+    runtime: options.runtime ?? 'manual',
+    operation,
+  })
+  await recordLlmJudgeBudgetDecision({
+    agentRunId: options.agentRunId,
+    sessionId: options.reference?.id ?? session.session_id,
+    operation,
+    decision: budgetDecision,
+  })
+  if (budgetDecision.status === 'blocked') {
+    throw new LlmJudgeBudgetError(budgetDecision.reason)
+  }
   
   let responseText: string
   
   if (config.provider === 'anthropic') {
-    responseText = await diagnoseErrorWithClaude(prompt, config)
+    responseText = await diagnoseErrorWithClaude(prompt, config, options, budgetDecision)
   } else {
-    responseText = await diagnoseErrorWithOpenAI(prompt, config)
+    responseText = await diagnoseErrorWithOpenAI(prompt, config, options, budgetDecision)
   }
   
   return parseErrorDiagnosisResponse(responseText)

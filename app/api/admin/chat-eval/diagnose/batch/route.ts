@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { diagnoseError, DEFAULT_JUDGE_CONFIG, AVAILABLE_MODELS, LLMProvider, type SessionData, type EvaluationData } from '@/lib/llm-judge'
+import { diagnoseError, DEFAULT_JUDGE_CONFIG, AVAILABLE_MODELS, LlmJudgeBudgetError, LLMProvider, type SessionData, type EvaluationData } from '@/lib/llm-judge'
 import { getChatbotPrompt, getVoiceAgentPrompt } from '@/lib/system-prompts'
+import { endAgentRun, markAgentRunFailed, recordAgentStep, startAgentRun } from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,6 +20,8 @@ export async function POST(request: NextRequest) {
       { status: authResult.status }
     )
   }
+
+  let agentRunId: string | null = null
 
   try {
     let body: unknown
@@ -58,6 +61,41 @@ export async function POST(request: NextRequest) {
       promptVersion: 'v1',
       temperature: 0.3,
     }
+
+    const agentRun = await startAgentRun({
+      agentKey: 'manual-admin',
+      runtime: 'manual',
+      kind: 'chat_eval_diagnosis_batch',
+      title: 'Batch diagnose Chat Eval errors',
+      subject: {
+        type: 'chat_eval_sessions',
+        id: session_ids.slice(0, 5).join(','),
+        label: `${session_ids.length} session(s)`,
+      },
+      triggerSource: 'admin:chat_eval_diagnose_batch',
+      triggeredByUserId: authResult.user.id,
+      currentStep: 'Preparing batch chat error diagnosis',
+      metadata: {
+        provider: selectedProvider,
+        model: selectedModel,
+        session_count: session_ids.length,
+      },
+    })
+    agentRunId = agentRun.id
+
+    await recordAgentStep({
+      runId: agentRunId,
+      stepKey: 'chat_eval_diagnosis_batch_validated',
+      name: 'Validated batch diagnosis request',
+      status: 'completed',
+      outputSummary: `Diagnosing ${session_ids.length} chat session(s).`,
+      metadata: {
+        provider: selectedProvider,
+        model: selectedModel,
+        session_count: session_ids.length,
+      },
+      idempotencyKey: `${agentRunId}:chat_eval_diagnosis_batch_validated`,
+    })
 
     const results = []
 
@@ -166,7 +204,12 @@ export async function POST(request: NextRequest) {
         }
 
         // Run diagnosis
-        const diagnosis = await diagnoseError(sessionData, evaluationData, systemPrompt, config)
+        const diagnosis = await diagnoseError(sessionData, evaluationData, systemPrompt, config, {
+          agentRunId,
+          runtime: 'manual',
+          reference: { type: 'chat_eval_diagnosis', id: String(sessionId) },
+          operation: 'diagnose',
+        })
 
         // Store diagnosis
         const { data: storedDiagnosis, error: storeError } = await supabaseAdmin
@@ -205,7 +248,9 @@ export async function POST(request: NextRequest) {
         results.push({
           session_id: sessionId,
           success: false,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof LlmJudgeBudgetError
+            ? 'This chat error diagnosis is over the current Agent Ops budget limit. Use a shorter session or lower-cost model before retrying.'
+            : error instanceof Error ? error.message : 'Unknown error',
         })
       }
     }
@@ -213,7 +258,30 @@ export async function POST(request: NextRequest) {
     const successCount = results.filter(r => r.success).length
     const failureCount = results.filter(r => !r.success).length
 
+    if (failureCount === results.length) {
+      await markAgentRunFailed(agentRunId, 'All batch chat error diagnoses failed', {
+        operation: 'diagnose',
+        total: results.length,
+        successful: successCount,
+        failed: failureCount,
+      }).catch(() => {})
+    } else {
+      await endAgentRun({
+        runId: agentRunId,
+        status: 'completed',
+        currentStep: 'Batch chat error diagnosis complete',
+        outcome: {
+          total: results.length,
+          successful: successCount,
+          failed: failureCount,
+          provider: selectedProvider,
+          model: selectedModel,
+        },
+      })
+    }
+
     return NextResponse.json({
+      agentRunId,
       results,
       summary: {
         total: results.length,
@@ -224,6 +292,17 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error)
     console.error('Batch diagnosis error:', error)
+    if (agentRunId) {
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'chat_eval_diagnosis_batch_failed',
+        name: 'Batch chat error diagnosis failed',
+        status: 'failed',
+        outputSummary: errorMessage,
+        idempotencyKey: `${agentRunId}:chat_eval_diagnosis_batch_failed`,
+      }).catch(() => {})
+      await markAgentRunFailed(agentRunId, errorMessage, { operation: 'diagnose_batch' }).catch(() => {})
+    }
     return NextResponse.json(
       { error: errorMessage || 'Internal server error' },
       { status: 500 }

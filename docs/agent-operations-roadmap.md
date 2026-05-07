@@ -277,6 +277,8 @@ Current progress:
 - Admin in-person diagnostic insights now start a manual Agent Ops trace, check the manual-runtime budget before GPT-4o-mini dispatch, and link insight-generation cost events back to the trace.
 - Admin meeting pain classification now starts a manual Agent Ops trace, checks the manual-runtime budget before GPT-4o-mini fallback classification, and links AI fallback cost events back to the trace.
 - Admin Chat Eval LLM judge evaluation now starts a manual Agent Ops trace, checks the manual-runtime budget before Anthropic/OpenAI dispatch, and links judge cost events back to the trace.
+- Admin Chat Eval axial-code generation and error diagnosis now start manual Agent Ops traces, check budget before Anthropic/OpenAI dispatch, and link cost events back to the trace.
+- Value Evidence source validation and dev testing LLM helpers now run pre-flight budget checks before direct provider calls.
 
 ## Cross-Phase Definition Of Done
 

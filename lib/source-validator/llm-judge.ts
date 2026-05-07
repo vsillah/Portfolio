@@ -16,7 +16,9 @@
  *   - Returns usage + cost so the API route can log it per run.
  */
 
-import { computeAnthropicCost, type Usage } from '@/lib/cost-calculator'
+import { computeAnthropicCost, recordAnthropicCost, type Usage } from '@/lib/cost-calculator'
+import { evaluateAgentBudget, type AgentBudgetDecision } from '@/lib/agent-budget-policy'
+import { recordAgentEvent, recordAgentStep, type AgentRuntime } from '@/lib/agent-run'
 
 // -----------------------------------------------------------------------------
 // Version constants
@@ -75,6 +77,10 @@ export interface JudgeBatchOptions {
   timeoutMs?: number
   /** Inject a fetch for tests. */
   fetchImpl?: typeof fetch
+  /** Optional Agent Ops run for traced admin validation runs. */
+  agentRunId?: string | null
+  runtime?: AgentRuntime
+  reference?: { type: string; id: string }
 }
 
 export interface JudgeBatchResult {
@@ -117,6 +123,53 @@ Derive verdict from (a) and (b):
 Respond with a JSON array (no markdown fences, no prose). Each element: {"id": string, "supported": "yes"|"no", "quantified": "yes"|"no"|"approximate"|"not_applicable", "verdict": "faithful"|"unfaithful"|"insufficient", "reason": string (<=25 words), "confidence": number between 0 and 1}
 
 Preserve input order. Keep reasons factual and concise. Never invent numbers.`
+
+const SOURCE_VALIDATOR_OPERATION = 'source_validator_llm_judge'
+const SOURCE_VALIDATOR_MAX_TOKENS = 1500
+
+function estimateTokensFromText(text: string): number {
+  return Math.ceil(text.length / 4)
+}
+
+async function recordSourceValidatorBudgetDecision(args: {
+  agentRunId?: string | null
+  referenceId?: string | null
+  decision: AgentBudgetDecision
+}) {
+  if (!args.agentRunId) return
+
+  const metadata = {
+    reference_id: args.referenceId ?? null,
+    operation: SOURCE_VALIDATOR_OPERATION,
+    budget_status: args.decision.status,
+    budget_rule_key: args.decision.rule.key,
+    estimated_cost_usd: args.decision.estimatedCostUsd,
+    warning_usd: args.decision.warningUsd,
+    limit_usd: args.decision.limitUsd,
+  }
+
+  await recordAgentStep({
+    runId: args.agentRunId,
+    stepKey: 'budget_check',
+    name: 'Checked source validation LLM judge budget',
+    status: args.decision.status === 'blocked' ? 'failed' : 'completed',
+    outputSummary: args.decision.reason,
+    costUsd: args.decision.estimatedCostUsd,
+    metadata,
+    idempotencyKey: `${args.agentRunId}:source_validator_llm_judge:${args.referenceId ?? 'batch'}:budget_check`,
+  }).catch((err) => console.warn('[source-validator/llm-judge] agent budget step failed:', err))
+
+  if (args.decision.status !== 'allowed') {
+    await recordAgentEvent({
+      runId: args.agentRunId,
+      eventType: 'budget_check',
+      severity: args.decision.status === 'blocked' ? 'error' : 'warning',
+      message: args.decision.reason,
+      metadata,
+      idempotencyKey: `${args.agentRunId}:source_validator_llm_judge:${args.referenceId ?? 'batch'}:budget_check:${args.decision.status}`,
+    }).catch((err) => console.warn('[source-validator/llm-judge] agent budget event failed:', err))
+  }
+}
 
 function buildUserPrompt(items: ExcerptFaithfulnessClaim[]): string {
   const lines: string[] = []
@@ -300,6 +353,21 @@ export async function judgeBatch(
 
   const fetchImpl = options.fetchImpl ?? fetch
   const userPrompt = buildUserPrompt(items)
+  const budgetDecision = evaluateAgentBudget({
+    runtime: options.runtime ?? 'manual',
+    model,
+    estimatedInputTokens: estimateTokensFromText(`${SYSTEM_PROMPT}\n${userPrompt}`),
+    maxTokens: SOURCE_VALIDATOR_MAX_TOKENS,
+    metadata: { operation: SOURCE_VALIDATOR_OPERATION },
+  })
+  await recordSourceValidatorBudgetDecision({
+    agentRunId: options.agentRunId,
+    referenceId: options.reference?.id,
+    decision: budgetDecision,
+  })
+  if (budgetDecision.status === 'blocked') {
+    throw new Error(budgetDecision.reason)
+  }
 
   let lastError: Error | null = null
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -336,6 +404,20 @@ export async function judgeBatch(
       const verdicts = parseBatchResponse(raw, items)
       const usage: Usage = data.usage ?? { input_tokens: 0, output_tokens: 0 }
       const cost_usd = computeAnthropicCost(usage, model)
+      if (usage && options.agentRunId) {
+        recordAnthropicCost(
+          usage,
+          model,
+          options.reference,
+          {
+            operation: SOURCE_VALIDATOR_OPERATION,
+            budget_status: budgetDecision.status,
+            budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
+            budget_rule_key: budgetDecision.rule.key,
+          },
+          options.agentRunId,
+        ).catch(() => {})
+      }
 
       return {
         verdicts,
