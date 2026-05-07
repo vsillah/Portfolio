@@ -16,6 +16,7 @@ import {
   InPersonDiagnosticInsightsError,
   recordInPersonDiagnosticInsightsBudgetDecision,
 } from '@/lib/in-person-diagnostic-insights'
+import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
 
 export const dynamic = 'force-dynamic'
 
@@ -142,7 +143,7 @@ Respond in JSON format:
       throw new InPersonDiagnosticInsightsError(budgetDecision.reason, 'budget_blocked')
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -341,7 +341,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 - n8n trigger calls use the shared helper for transient network and gateway failures while preserving generic user-facing failure messages.
 - Central OpenAI/Anthropic JSON dispatch in [`lib/llm-dispatch.ts`](../lib/llm-dispatch.ts) uses the shared helper for retryable provider statuses.
 - The source-validator LLM judge in [`lib/source-validator/llm-judge.ts`](../lib/source-validator/llm-judge.ts) uses the shared helper instead of a bespoke retry loop.
-- Direct OpenAI helpers use [`lib/llm/provider-fetch.ts`](../lib/llm/provider-fetch.ts) for retryable provider failures across audit-from-meetings, meeting lead extraction, AI onboarding preview, and delivery email drafts.
+- Direct OpenAI helpers use [`lib/llm/provider-fetch.ts`](../lib/llm/provider-fetch.ts) for retryable provider failures across audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, and in-person diagnostic insights.
 
 **Coverage.** Partial / improving.
 
@@ -482,7 +482,7 @@ These are the first five PR-sized items seeded from the scorecard. Ticket 1 has 
 - **Scope.** Add `lib/llm/with-retry.ts` with capped exponential backoff + jitter, configurable retryable error matcher, and a dead-letter hook. Wrap the trigger functions in [`lib/n8n.ts`](../lib/n8n.ts) and the direct LLM call sites found via grep.
 - **First adoption.** n8n trigger calls now retry transient network and 502/503/504 failures through the shared helper.
 - **Follow-on adoption.** Central OpenAI/Anthropic JSON dispatch and source-validator LLM judge calls use the shared helper for retryable provider/network failures.
-- **Direct helper adoption.** Audit-from-meetings, meeting lead extraction, AI onboarding preview, and delivery email drafts now use the shared provider fetch wrapper.
+- **Direct helper adoption.** Audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, and in-person diagnostic insights now use the shared provider fetch wrapper.
 - **Acceptance criteria.**
   - Unit tests for: success-on-first-try, success-after-N-retries, gives-up-after-max, honors non-retryable errors.
   - User-facing errors remain generic per `no-expose-errors-to-users.mdc`.

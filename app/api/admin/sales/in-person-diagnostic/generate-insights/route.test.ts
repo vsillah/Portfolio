@@ -74,7 +74,7 @@ describe('POST /api/admin/sales/in-person-diagnostic/generate-insights', () => {
     vi.clearAllMocks()
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.unstubAllGlobals()
-    process.env = { ...originalEnv, OPENAI_API_KEY: 'test-key' }
+    process.env = { ...originalEnv, OPENAI_API_KEY: 'test-key', LLM_RETRY_DELAY_MS: '0' }
 
     mocks.verifyAdmin.mockResolvedValue({
       user: { id: 'admin-user-1' },
@@ -219,6 +219,43 @@ describe('POST /api/admin/sales/in-person-diagnostic/generate-insights', () => {
       expect.objectContaining({
         operation: 'in_person_diagnostic_insights',
         audit_id: 'audit-1',
+      }),
+    )
+  })
+
+  it('retries a transient OpenAI failure before saving generated insights', async () => {
+    const aiPayload = {
+      diagnostic_summary: 'Manual follow-up is slowing lead conversion.',
+      key_insights: ['Follow-up is not assigned consistently.'],
+      recommended_actions: ['Create lead routing rules.'],
+      urgency_score: 7,
+      opportunity_score: 8,
+      sales_notes: 'Strong fit for a lightweight automation sprint.',
+    }
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({
+        status: 503,
+        ok: false,
+        text: async () => 'temporarily unavailable',
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: JSON.stringify(aiPayload) } }],
+        }),
+      })
+    vi.stubGlobal('fetch', mockFetch)
+
+    const response = await POST(makeRequest(validBody()))
+
+    expect(response.status).toBe(200)
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(mocks.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        diagnostic_summary: aiPayload.diagnostic_summary,
+        key_insights: aiPayload.key_insights,
+        recommended_actions: aiPayload.recommended_actions,
       }),
     )
   })
