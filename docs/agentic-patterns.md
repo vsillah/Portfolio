@@ -423,6 +423,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 - AI onboarding preview generation checks the manual-runtime budget before dispatch and links admin-triggered previews to a manual Agent Ops run.
 - Admin audit-from-meetings generation checks the manual-runtime budget before OpenAI dispatch and links cost events to its Agent Ops trace.
 - Admin video prompt formatting checks the manual-runtime budget before OpenAI dispatch and links cost events to its Agent Ops trace.
+- Admin video ideas generation checks the manual-runtime budget after context assembly and before GPT-4o dispatch, then links cost events to its Agent Ops trace.
 - Cost-events ingest accumulates spend per event.
 - `cost_events.agent_run_id` links usage costs to shared Agent Ops traces.
 - Mission Control derives 24-hour Cost Intelligence by runtime, agent, workflow, client/project, and artifact type where run metadata exists.

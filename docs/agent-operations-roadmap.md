@@ -272,6 +272,7 @@ Current progress:
 - AI onboarding preview generation now creates a traced manual Agent Ops run from the admin preview endpoint, checks the manual-runtime budget before OpenAI dispatch, and links generated cost events to the trace when available.
 - Admin audit-from-meetings generation now starts a manual Agent Ops trace, checks the manual-runtime budget before OpenAI dispatch, and links diagnostic-extraction cost events back to the trace.
 - Admin video prompt formatting now starts a manual Agent Ops trace, checks the manual-runtime budget before OpenAI dispatch, and links prompt-formatting cost events back to the trace.
+- Admin video ideas generation now starts a manual Agent Ops trace, checks the manual-runtime budget after context assembly and before GPT-4o dispatch, and links idea-generation cost events back to the trace.
 
 ## Cross-Phase Definition Of Done
 
