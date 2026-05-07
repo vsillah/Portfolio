@@ -270,6 +270,7 @@ Current progress:
 - Admin delivery email draft generation now starts a manual Agent Ops trace, checks the manual-runtime budget before OpenAI dispatch, and links post-hoc OpenAI cost events back to the trace.
 - Admin meeting lead extraction now starts a manual Agent Ops trace, checks the manual-runtime budget before OpenAI dispatch, and links lead-extraction cost events back to the trace.
 - AI onboarding preview generation now creates a traced manual Agent Ops run from the admin preview endpoint, checks the manual-runtime budget before OpenAI dispatch, and links generated cost events to the trace when available.
+- Admin audit-from-meetings generation now starts a manual Agent Ops trace, checks the manual-runtime budget before OpenAI dispatch, and links diagnostic-extraction cost events back to the trace.
 
 ## Cross-Phase Definition Of Done
 

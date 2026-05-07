@@ -173,6 +173,7 @@ V1 budget policy is advisory and pre-flight ready:
 - admin delivery email draft generation now checks the manual-runtime budget before OpenAI dispatch and links cost events to the created Agent Ops trace;
 - admin meeting lead extraction now checks the manual-runtime budget before OpenAI dispatch and links cost events to the created Agent Ops trace;
 - AI onboarding preview generation now checks the manual-runtime budget before OpenAI dispatch and records a manual Agent Ops trace from the admin preview endpoint;
+- admin audit-from-meetings generation now checks the manual-runtime budget before OpenAI dispatch and links cost events to the created Agent Ops trace;
 - live workflows are not yet globally blocked until each adoption path has a targeted test and approval gate.
 
 Slack should be treated as a notification and lightweight decision surface later. The source of truth remains Portfolio admin plus `agent_approvals`.

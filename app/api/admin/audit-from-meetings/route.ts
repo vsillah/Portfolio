@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
 import { saveDiagnosticAudit } from '@/lib/diagnostic'
-import { buildDiagnosticFromMeetings } from '@/lib/audit-from-meetings'
+import { AuditFromMeetingsError, buildDiagnosticFromMeetings } from '@/lib/audit-from-meetings'
+import {
+  endAgentRun,
+  markAgentRunFailed,
+  recordAgentStep,
+  startAgentRun,
+} from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,6 +29,9 @@ export async function POST(request: NextRequest) {
   if (isAuthError(auth)) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
   }
+
+  let agentRunId: string | null = null
+  let failureMetadata: Record<string, unknown> = {}
 
   try {
     const body = await request.json().catch(() => ({}))
@@ -72,11 +81,55 @@ export async function POST(request: NextRequest) {
       resolvedContactId = cid
     }
 
+    const agentRun = await startAgentRun({
+      agentKey: 'manual-admin',
+      runtime: 'manual',
+      kind: 'audit_from_meetings',
+      title: 'Build diagnostic audit from meetings',
+      subject: {
+        type: hasProject ? 'client_project' : 'contact_submission',
+        id: hasProject ? clientProjectId : resolvedContactId,
+        label: hasProject ? `Project ${clientProjectId}` : `Lead ${resolvedContactId}`,
+      },
+      triggerSource: 'admin:audit_from_meetings',
+      triggeredByUserId: auth.user.id,
+      currentStep: 'Audit extraction requested',
+      metadata: {
+        contact_submission_id: resolvedContactId,
+        client_project_id: clientProjectId ?? null,
+        sales_session_id: salesSessionId ?? null,
+      },
+    })
+    agentRunId = agentRun.id
+    failureMetadata = {
+      contact_submission_id: resolvedContactId,
+      client_project_id: clientProjectId ?? null,
+      sales_session_id: salesSessionId ?? null,
+    }
+
+    await recordAgentStep({
+      runId: agentRunId,
+      stepKey: 'audit_extraction_requested',
+      name: 'Audit extraction requested',
+      status: 'completed',
+      outputSummary: `Prepared audit-from-meetings extraction for lead ${resolvedContactId}.`,
+      metadata: {
+        contact_submission_id: resolvedContactId,
+        client_project_id: clientProjectId ?? null,
+        sales_session_id: salesSessionId ?? null,
+      },
+      idempotencyKey: `${agentRunId}:audit_extraction_requested`,
+    }).catch((err) => console.warn('[audit-from-meetings] agent step failed', err))
+
     const { meetings, extracted } = await buildDiagnosticFromMeetings(
       hasContact ? (contactSubmissionId as number) : undefined,
-      hasProject ? clientProjectId : undefined
+      hasProject ? clientProjectId : undefined,
+      { agentRunId },
     ).catch((err) => {
       const msg = err instanceof Error ? err.message : 'Failed to build audit from meetings'
+      if (err instanceof AuditFromMeetingsError && err.code === 'budget_blocked') {
+        throw Object.assign(err, { status: 400 })
+      }
       if (msg.includes('No meetings') || msg.includes('No transcript')) {
         throw Object.assign(new Error(msg), { status: 400 })
       }
@@ -104,6 +157,10 @@ export async function POST(request: NextRequest) {
 
     if (sessionError) {
       console.error('audit-from-meetings: chat_sessions insert failed', sessionError)
+      await markAgentRunFailed(agentRunId, 'Could not create audit session', {
+        contact_submission_id: resolvedContactId,
+        client_project_id: clientProjectId ?? null,
+      }).catch((runErr) => console.warn('[audit-from-meetings] mark agent run failed', runErr))
       return NextResponse.json(
         { error: 'Could not create audit session' },
         { status: 500 }
@@ -133,6 +190,10 @@ export async function POST(request: NextRequest) {
 
     if (result.error) {
       console.error('audit-from-meetings: saveDiagnosticAudit failed', result.error)
+      await markAgentRunFailed(agentRunId, result.error.message || 'Could not save audit', {
+        contact_submission_id: resolvedContactId,
+        client_project_id: clientProjectId ?? null,
+      }).catch((runErr) => console.warn('[audit-from-meetings] mark agent run failed', runErr))
       return NextResponse.json(
         { error: result.error.message || 'Could not save audit' },
         { status: 500 }
@@ -152,17 +213,51 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    await endAgentRun({
+      runId: agentRunId,
+      status: 'completed',
+      currentStep: 'Diagnostic audit ready',
+      outcome: {
+        audit_id: result.id,
+        session_id: sessionId,
+        contact_submission_id: resolvedContactId,
+        client_project_id: clientProjectId ?? null,
+        meetings_used: meetings.length,
+      },
+    }).catch((err) => console.warn('[audit-from-meetings] end agent run failed', err))
+
     return NextResponse.json({
       auditId: result.id,
       sessionId,
       meetingsUsed: meetings.length,
+      agentRunId,
     })
   } catch (e) {
     const err = e as Error & { status?: number }
-    if (err.status === 400) {
+    const status = err.status
+    if (agentRunId) {
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'audit_from_meetings_failed',
+        name: 'Audit from meetings failed',
+        status: 'failed',
+        outputSummary: err.message || 'Audit from meetings failed',
+        metadata: failureMetadata,
+        idempotencyKey: `${agentRunId}:audit_from_meetings_failed`,
+      }).catch((stepErr) => console.warn('[audit-from-meetings] agent failure step failed', stepErr))
+      await markAgentRunFailed(agentRunId, err.message || 'Audit from meetings failed', failureMetadata)
+        .catch((runErr) => console.warn('[audit-from-meetings] mark agent run failed', runErr))
+    }
+    if (err instanceof AuditFromMeetingsError && err.code === 'budget_blocked') {
+      return NextResponse.json(
+        { error: 'This meeting audit is over the current Agent Ops budget limit. Use fewer meetings or shorten the transcripts before retrying.' },
+        { status: 400 }
+      )
+    }
+    if (status === 400) {
       return NextResponse.json({ error: err.message || 'Bad request' }, { status: 400 })
     }
-    if (err.status === 413) {
+    if (status === 413) {
       return NextResponse.json({ error: err.message || 'Payload too large' }, { status: 413 })
     }
     console.error('audit-from-meetings error', e)
