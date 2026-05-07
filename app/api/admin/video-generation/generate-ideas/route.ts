@@ -13,12 +13,26 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { supabaseAdmin } from '@/lib/supabase'
-import { recordOpenAICost } from '@/lib/cost-calculator'
+import { recordOpenAICost, type Usage } from '@/lib/cost-calculator'
+import {
+  endAgentRun,
+  markAgentRunFailed,
+  recordAgentStep,
+  startAgentRun,
+} from '@/lib/agent-run'
 import {
   fetchVideoIdeasContext,
   serializeContextForPrompt,
 } from '@/lib/video-ideas-context'
 import { fetchVideoContextByEmail } from '@/lib/video-context'
+import {
+  evaluateVideoIdeasGenerationBudget,
+  recordVideoIdeasGenerationBudgetDecision,
+  VIDEO_IDEAS_GENERATION_MAX_TOKENS,
+  VIDEO_IDEAS_GENERATION_MODEL,
+  VIDEO_IDEAS_GENERATION_OPERATION,
+  VideoIdeasGenerationError,
+} from '@/lib/video-ideas-generation'
 
 export const dynamic = 'force-dynamic'
 
@@ -106,6 +120,7 @@ function parseBody(body: Record<string, unknown>): GenerateParams {
 async function runGeneration(
   params: GenerateParams,
   apiKey: string,
+  agentRunId?: string | null,
   onStep?: (data: Record<string, unknown>) => void
 ): Promise<{ ideas: VideoIdea[]; addedToQueue: number; mode: string; error?: string }> {
   const { mode, limit, includeTranscripts, customPrompt, email, audience, tone, angle, meetingIds } = params
@@ -166,6 +181,23 @@ async function runGeneration(
     userPrompt = parts.join('\n')
   }
 
+  onStep?.({ step: 'budget_check', detail: 'Checking Agent Ops budget before AI dispatch...' })
+  const budgetDecision = evaluateVideoIdeasGenerationBudget({
+    systemPrompt,
+    userPrompt,
+    model: VIDEO_IDEAS_GENERATION_MODEL,
+    maxTokens: VIDEO_IDEAS_GENERATION_MAX_TOKENS,
+  })
+  await recordVideoIdeasGenerationBudgetDecision({
+    agentRunId,
+    mode,
+    limit,
+    decision: budgetDecision,
+  })
+  if (budgetDecision.status === 'blocked') {
+    throw new VideoIdeasGenerationError(budgetDecision.reason, 'budget_blocked')
+  }
+
   onStep?.({ step: 'calling_llm', detail: mode === 'from_direction' ? 'Polishing script with GPT-4o...' : 'Brainstorming with GPT-4o...' })
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -175,13 +207,13 @@ async function runGeneration(
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: VIDEO_IDEAS_GENERATION_MODEL,
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },
       ],
       temperature: mode === 'from_direction' ? 0.5 : 0.8,
-      max_tokens: 8000,
+      max_tokens: VIDEO_IDEAS_GENERATION_MAX_TOKENS,
       response_format: { type: 'json_object' },
     }),
   })
@@ -189,23 +221,32 @@ async function runGeneration(
   if (!response.ok) {
     const errText = await response.text()
     console.error('[generate-ideas] OpenAI error:', errText)
-    return { ideas: [], addedToQueue: 0, mode, error: 'AI generation failed' }
+    throw new VideoIdeasGenerationError('AI generation failed', 'openai_upstream')
   }
 
   onStep?.({ step: 'parsing', detail: 'Processing AI response...' })
 
   const aiResult = await response.json()
   const content = aiResult.choices?.[0]?.message?.content
-  const usage = aiResult.usage
+  const usage = aiResult.usage as Usage | undefined
   if (usage) {
-    recordOpenAICost(usage, 'gpt-4o', undefined, {
-      operation: 'video_ideas_generation',
-      mode,
-    }).catch(() => {})
+    recordOpenAICost(
+      usage,
+      VIDEO_IDEAS_GENERATION_MODEL,
+      { type: 'video_ideas_generation', id: agentRunId ?? mode },
+      {
+        operation: VIDEO_IDEAS_GENERATION_OPERATION,
+        mode,
+        budget_status: budgetDecision.status,
+        budget_rule_key: budgetDecision.rule.key,
+        budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
+      },
+      agentRunId ?? undefined,
+    ).catch(() => {})
   }
 
   if (!content) {
-    return { ideas: [], addedToQueue: 0, mode, error: 'No AI response' }
+    throw new VideoIdeasGenerationError('No AI response', 'invalid_response')
   }
 
   let parsed: { ideas?: VideoIdea[] }
@@ -218,11 +259,11 @@ async function runGeneration(
         parsed = { ideas: JSON.parse(match[0]) }
       } catch {
         console.error('[generate-ideas] Failed to parse AI response:', content.slice(0, 500))
-        return { ideas: [], addedToQueue: 0, mode, error: 'Failed to parse AI response' }
+        throw new VideoIdeasGenerationError('Failed to parse AI response', 'invalid_response')
       }
     } else {
       console.error('[generate-ideas] No JSON array in response:', content.slice(0, 500))
-      return { ideas: [], addedToQueue: 0, mode, error: 'Failed to parse AI response' }
+      throw new VideoIdeasGenerationError('Failed to parse AI response', 'invalid_response')
     }
   }
 
@@ -263,27 +304,79 @@ async function runGeneration(
 }
 
 export async function POST(request: NextRequest) {
+  let agentRunId: string | null = null
+  let parsedParams: GenerateParams | null = null
   try {
     const auth = await verifyAdmin(request)
     if (isAuthError(auth)) {
       return NextResponse.json({ error: auth.error }, { status: auth.status })
     }
 
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey) {
-      return NextResponse.json({ error: 'OpenAI API key not configured' }, { status: 500 })
-    }
-
     const body = await request.json().catch(() => ({}))
     const params = parseBody(body)
+    parsedParams = params
     const wantsSSE = request.headers.get('accept')?.includes('text/event-stream')
 
+    const agentRun = await startAgentRun({
+      agentKey: 'manual-admin',
+      runtime: 'manual',
+      kind: 'video_ideas_generation',
+      title: params.mode === 'from_direction' ? 'Polish video idea draft' : 'Generate video ideas',
+      subject: {
+        type: 'video_ideas',
+        label: params.customPrompt ? params.customPrompt.slice(0, 80) : `${params.mode}:${params.limit}`,
+      },
+      triggerSource: 'admin:video_generate_ideas',
+      triggeredByUserId: auth.user.id,
+      currentStep: 'Video ideas request validated',
+      metadata: {
+        mode: params.mode,
+        limit: params.limit,
+        include_transcripts: params.includeTranscripts,
+        has_custom_prompt: !!params.customPrompt,
+        has_email_context: !!params.email,
+        meeting_ids_count: params.meetingIds.length,
+      },
+    })
+    agentRunId = agentRun.id
+    const activeAgentRunId = agentRun.id
+
+    await recordAgentStep({
+      runId: activeAgentRunId,
+      stepKey: 'video_ideas_request_validated',
+      name: 'Video ideas request validated',
+      status: 'completed',
+      inputSummary: params.customPrompt ? params.customPrompt.slice(0, 240) : `${params.mode} request for ${params.limit} idea(s).`,
+      metadata: {
+        mode: params.mode,
+        limit: params.limit,
+        include_transcripts: params.includeTranscripts,
+        meeting_ids_count: params.meetingIds.length,
+      },
+      idempotencyKey: `${activeAgentRunId}:video_ideas_request_validated`,
+    }).catch((err) => console.warn('[generate-ideas] agent validation step failed:', err))
+
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey) {
+      throw new VideoIdeasGenerationError('OPENAI_API_KEY is not configured', 'openai_not_configured')
+    }
+
     if (!wantsSSE) {
-      const result = await runGeneration(params, apiKey)
+      const result = await runGeneration(params, apiKey, activeAgentRunId)
       if (result.error) {
         return NextResponse.json({ error: result.error }, { status: 500 })
       }
-      return NextResponse.json({ ideas: result.ideas, addedToQueue: result.addedToQueue, mode: result.mode })
+      await endAgentRun({
+        runId: activeAgentRunId,
+        status: 'completed',
+        currentStep: 'Video ideas queued',
+        outcome: {
+          mode: result.mode,
+          ideas: result.ideas.length,
+          added_to_queue: result.addedToQueue,
+        },
+      }).catch((err) => console.warn('[generate-ideas] end agent run failed:', err))
+      return NextResponse.json({ ideas: result.ideas, addedToQueue: result.addedToQueue, mode: result.mode, agentRunId: activeAgentRunId })
     }
 
     const encoder = new TextEncoder()
@@ -294,20 +387,44 @@ export async function POST(request: NextRequest) {
         }
 
         try {
-          const result = await runGeneration(params, apiKey, send)
+          const result = await runGeneration(params, apiKey, activeAgentRunId, send)
 
           if (result.error) {
             send({ step: 'error', error: result.error })
           } else {
+            await endAgentRun({
+              runId: activeAgentRunId,
+              status: 'completed',
+              currentStep: 'Video ideas queued',
+              outcome: {
+                mode: result.mode,
+                ideas: result.ideas.length,
+                added_to_queue: result.addedToQueue,
+              },
+            }).catch((err) => console.warn('[generate-ideas] end agent run failed:', err))
             send({
               step: 'done',
               ideas: result.ideas.length,
               addedToQueue: result.addedToQueue,
               mode: result.mode,
+              agentRunId: activeAgentRunId,
             })
           }
         } catch (err) {
-          send({ step: 'error', error: err instanceof Error ? err.message : String(err) })
+          const message = err instanceof Error ? err.message : String(err)
+          await recordAgentStep({
+            runId: activeAgentRunId,
+            stepKey: 'video_ideas_generation_failed',
+            name: 'Video ideas generation failed',
+            status: 'failed',
+            outputSummary: message,
+            idempotencyKey: `${activeAgentRunId}:video_ideas_generation_failed`,
+          }).catch((stepErr) => console.warn('[generate-ideas] agent failure step failed:', stepErr))
+          await markAgentRunFailed(activeAgentRunId, message, {
+            operation: VIDEO_IDEAS_GENERATION_OPERATION,
+            mode: params.mode,
+          }).catch((runErr) => console.warn('[generate-ideas] mark agent run failed:', runErr))
+          send({ step: 'error', error: safeVideoIdeasErrorMessage(err), agentRunId: activeAgentRunId })
         } finally {
           controller.close()
         }
@@ -324,6 +441,54 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('[generate-ideas] Error:', error)
     const message = error instanceof Error ? error.message : String(error)
+    if (agentRunId) {
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'video_ideas_generation_failed',
+        name: 'Video ideas generation failed',
+        status: 'failed',
+        outputSummary: message,
+        idempotencyKey: `${agentRunId}:video_ideas_generation_failed`,
+      }).catch((stepErr) => console.warn('[generate-ideas] agent failure step failed:', stepErr))
+      await markAgentRunFailed(agentRunId, message, {
+        operation: VIDEO_IDEAS_GENERATION_OPERATION,
+        mode: parsedParams?.mode ?? null,
+      }).catch((runErr) => console.warn('[generate-ideas] mark agent run failed:', runErr))
+    }
+
+    if (error instanceof VideoIdeasGenerationError) {
+      return NextResponse.json(
+        { error: safeVideoIdeasErrorMessage(error), agentRunId },
+        { status: videoIdeasErrorStatus(error) },
+      )
+    }
+
     return NextResponse.json({ error: message }, { status: 500 })
   }
+}
+
+function safeVideoIdeasErrorMessage(error: unknown): string {
+  if (error instanceof VideoIdeasGenerationError) {
+    if (error.code === 'budget_blocked') {
+      return 'This video ideas request is over the current Agent Ops budget limit. Use fewer ideas, shorter notes, or less transcript context before retrying.'
+    }
+    if (error.code === 'openai_not_configured') {
+      return 'OpenAI API key not configured'
+    }
+    if (error.code === 'openai_upstream') {
+      return 'AI generation failed'
+    }
+    if (error.code === 'invalid_response') {
+      return 'The AI returned an unexpected response. Try generating again or adjust the video idea prompt.'
+    }
+  }
+
+  return error instanceof Error ? error.message : String(error)
+}
+
+function videoIdeasErrorStatus(error: VideoIdeasGenerationError): number {
+  if (error.code === 'budget_blocked') return 400
+  if (error.code === 'openai_not_configured') return 503
+  if (error.code === 'openai_upstream' || error.code === 'invalid_response') return 502
+  return 500
 }
