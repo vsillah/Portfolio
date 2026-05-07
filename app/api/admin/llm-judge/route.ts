@@ -5,11 +5,18 @@ import {
   evaluateConversation, 
   AVAILABLE_MODELS,
   DEFAULT_JUDGE_CONFIG,
+  LlmJudgeBudgetError,
   type ChatMessageForJudge, 
   type JudgeContext,
   type JudgeConfig,
   type LLMProvider
 } from '@/lib/llm-judge'
+import {
+  endAgentRun,
+  markAgentRunFailed,
+  recordAgentStep,
+  startAgentRun,
+} from '@/lib/agent-run'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,9 +34,13 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  let agentRunId: string | null = null
+  let sessionIdForFailure: string | null = null
+
   try {
     const body = await request.json()
     const { session_id, provider, model, prompt_version } = body
+    sessionIdForFailure = typeof session_id === 'string' ? session_id : null
 
     if (!session_id) {
       return NextResponse.json(
@@ -80,6 +91,44 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const agentRun = await startAgentRun({
+      agentKey: 'manual-admin',
+      runtime: 'manual',
+      kind: 'llm_judge_chat_eval',
+      title: 'Evaluate chat session',
+      subject: {
+        type: 'chat_session',
+        id: session_id,
+        label: session.visitor_name || session.visitor_email || session_id,
+      },
+      triggerSource: 'admin:llm_judge',
+      triggeredByUserId: authResult.user.id,
+      currentStep: 'Preparing chat evaluation',
+      metadata: {
+        provider: selectedProvider,
+        model: selectedModel,
+        prompt_version: prompt_version || 'v1',
+        message_count: messages.length,
+      },
+    })
+    agentRunId = agentRun.id
+
+    await recordAgentStep({
+      runId: agentRunId,
+      stepKey: 'llm_judge_request_validated',
+      name: 'Validated chat evaluation request',
+      status: 'completed',
+      outputSummary: `Evaluating ${messages.length} message(s) with ${selectedModel}`,
+      metadata: {
+        session_id,
+        provider: selectedProvider,
+        model: selectedModel,
+        prompt_version: prompt_version || 'v1',
+        message_count: messages.length,
+      },
+      idempotencyKey: `${agentRunId}:llm_judge_request_validated`,
+    })
+
     // Prepare messages for judge
     const messagesForJudge: ChatMessageForJudge[] = messages.map((m: any) => ({
       role: m.role,
@@ -119,7 +168,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Run evaluation
-    const evaluation = await evaluateConversation(messagesForJudge, context, config)
+    const evaluation = await evaluateConversation(messagesForJudge, context, config, {
+      agentRunId,
+      runtime: 'manual',
+      reference: { type: 'chat_session', id: session_id },
+      operation: 'chat_eval',
+    })
 
     // Save evaluation to database
     const { data: savedEval, error: saveError } = await supabaseAdmin
@@ -144,8 +198,27 @@ export async function POST(request: NextRequest) {
       // Still return the evaluation even if save fails
     }
 
+    await endAgentRun({
+      runId: agentRunId,
+      status: 'completed',
+      currentStep: 'Chat evaluation complete',
+      outcome: {
+        evaluation_id: savedEval?.id ?? null,
+        session_id,
+        rating: evaluation.rating,
+        confidence: evaluation.confidence,
+        category_count: evaluation.categories.length,
+        suggestion_count: evaluation.suggestions?.length ?? 0,
+        provider: config.provider,
+        model: config.model,
+        prompt_version: config.promptVersion,
+        save_error: saveError?.message ?? null,
+      },
+    })
+
     return NextResponse.json({
       success: true,
+      agentRunId,
       evaluation: {
         id: savedEval?.id,
         session_id,
@@ -161,6 +234,36 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('LLM Judge API error:', error)
+    if (agentRunId) {
+      const message = error instanceof Error ? error.message : 'LLM judge evaluation failed'
+      await recordAgentStep({
+        runId: agentRunId,
+        stepKey: 'llm_judge_failed',
+        name: 'Chat evaluation failed',
+        status: 'failed',
+        outputSummary: message,
+        metadata: {
+          session_id: sessionIdForFailure,
+        },
+        idempotencyKey: `${agentRunId}:llm_judge_failed`,
+      }).catch(() => {})
+      await markAgentRunFailed(agentRunId, message, {
+        operation: 'chat_eval',
+        session_id: sessionIdForFailure,
+      }).catch(() => {})
+    }
+
+    if (error instanceof LlmJudgeBudgetError) {
+      return NextResponse.json(
+        {
+          error:
+            'This chat evaluation is over the current Agent Ops budget limit. Evaluate a shorter session or lower the selected model before retrying.',
+          agentRunId,
+        },
+        { status: 400 },
+      )
+    }
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

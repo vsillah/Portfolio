@@ -179,6 +179,7 @@ V1 budget policy is advisory and pre-flight ready:
 - admin social carousel conversion now checks the manual-runtime budget before GPT-4o dispatch, with generated cost events linked to the created Agent Ops trace;
 - admin in-person diagnostic insight generation now checks the manual-runtime budget before GPT-4o-mini dispatch, with generated cost events linked to the created Agent Ops trace;
 - admin meeting pain classification now checks the manual-runtime budget before GPT-4o-mini fallback classification, with generated cost events linked to the created Agent Ops trace;
+- admin Chat Eval LLM judge evaluation now checks the manual-runtime budget before Anthropic/OpenAI dispatch, with generated cost events linked to the created Agent Ops trace;
 - live workflows are not yet globally blocked until each adoption path has a targeted test and approval gate.
 
 Slack should be treated as a notification and lightweight decision surface later. The source of truth remains Portfolio admin plus `agent_approvals`.
