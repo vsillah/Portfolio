@@ -101,6 +101,40 @@ describe('POST /api/admin/agents/runs/[runId]/events', () => {
     }))
   })
 
+  it('rejects invalid n8n bearer tokens when the request is not from an admin', async () => {
+    mocks.verifyAdmin.mockResolvedValue({ error: 'Unauthorized', status: 401 })
+    mocks.isAuthError.mockReturnValue(true)
+
+    const response = await POST(makeRequest({
+      stage: 'Attempted callback',
+      status: 'running',
+    }, 'wrong-secret') as never, { params: { runId: 'run-1' } })
+
+    expect(response.status).toBe(401)
+    expect(await response.json()).toEqual({ error: 'Unauthorized' })
+    expect(mocks.verifyAdmin).toHaveBeenCalledTimes(1)
+    expect(mocks.recordAgentEvent).not.toHaveBeenCalled()
+    expect(mocks.recordAgentStep).not.toHaveBeenCalled()
+  })
+
+  it('allows admin-authenticated event writes when no n8n bearer token matches', async () => {
+    const response = await POST(makeRequest({
+      event_type: 'manual_note',
+      severity: 'warning',
+      message: 'Admin added context after reviewing the trace.',
+    }, 'wrong-secret') as never, { params: { runId: 'run-1' } })
+
+    expect(response.status).toBe(200)
+    expect(mocks.verifyAdmin).toHaveBeenCalledTimes(1)
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(expect.objectContaining({
+      runId: 'run-1',
+      eventType: 'manual_note',
+      severity: 'warning',
+      message: 'Admin added context after reviewing the trace.',
+    }))
+    expect(mocks.recordAgentStep).not.toHaveBeenCalled()
+  })
+
   it('rejects malformed callback statuses', async () => {
     const response = await POST(makeRequest({
       stage: 'Unknown stage',
