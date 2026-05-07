@@ -273,6 +273,7 @@ Current progress:
 - Admin audit-from-meetings generation now starts a manual Agent Ops trace, checks the manual-runtime budget before OpenAI dispatch, and links diagnostic-extraction cost events back to the trace.
 - Admin video prompt formatting now starts a manual Agent Ops trace, checks the manual-runtime budget before OpenAI dispatch, and links prompt-formatting cost events back to the trace.
 - Admin video ideas generation now starts a manual Agent Ops trace, checks the manual-runtime budget after context assembly and before GPT-4o dispatch, and links idea-generation cost events back to the trace.
+- Admin social carousel conversion now starts a manual Agent Ops trace, checks the manual-runtime budget before GPT-4o dispatch, and links carousel-generation cost events back to the trace.
 
 ## Cross-Phase Definition Of Done
 
