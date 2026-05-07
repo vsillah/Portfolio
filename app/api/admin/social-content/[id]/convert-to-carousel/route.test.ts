@@ -250,6 +250,19 @@ describe('POST /api/admin/social-content/[id]/convert-to-carousel', () => {
         status: 'failed',
       }),
     )
+    expect(mocks.recordAgentEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runId: 'agent-run-1',
+        eventType: 'budget_check',
+        severity: 'error',
+        metadata: expect.objectContaining({
+          operation: 'social_carousel_generation',
+          social_content_id: 'social-1',
+          budget_status: 'blocked',
+        }),
+        idempotencyKey: 'agent-run-1:social_carousel_generation:budget_check:blocked',
+      }),
+    )
     expect(mocks.markAgentRunFailed).toHaveBeenCalledWith(
       'agent-run-1',
       expect.stringContaining('Estimated cost'),
