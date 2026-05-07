@@ -81,6 +81,9 @@ export function isLikelyTransientError(error: unknown): boolean {
     message.includes('enotfound') ||
     message.includes('fetch failed') ||
     message.includes('network') ||
+    message.includes('408') ||
+    message.includes('429') ||
+    message.includes('500') ||
     message.includes('502') ||
     message.includes('503') ||
     message.includes('504')

@@ -339,6 +339,8 @@ Each section follows the same template: *Definition · Where we use it today · 
 - Agent Operations marks failed and stale runs, derives a Dead-Letter Monitor from those traces, lets stale sweeps report checked/marked counts by runtime, and can create read-only recovery requests with retry/backoff metadata.
 - [`lib/llm/with-retry.ts`](../lib/llm/with-retry.ts) provides a shared capped backoff helper with configurable retryable error matching and a give-up hook.
 - n8n trigger calls use the shared helper for transient network and gateway failures while preserving generic user-facing failure messages.
+- Central OpenAI/Anthropic JSON dispatch in [`lib/llm-dispatch.ts`](../lib/llm-dispatch.ts) uses the shared helper for retryable provider statuses.
+- The source-validator LLM judge in [`lib/source-validator/llm-judge.ts`](../lib/source-validator/llm-judge.ts) uses the shared helper instead of a bespoke retry loop.
 
 **Coverage.** Partial / improving.
 
@@ -478,6 +480,7 @@ These are the first five PR-sized items seeded from the scorecard. Ticket 1 has 
 - **Owner.** Agent Operations rollout.
 - **Scope.** Add `lib/llm/with-retry.ts` with capped exponential backoff + jitter, configurable retryable error matcher, and a dead-letter hook. Wrap the trigger functions in [`lib/n8n.ts`](../lib/n8n.ts) and the direct LLM call sites found via grep.
 - **First adoption.** n8n trigger calls now retry transient network and 502/503/504 failures through the shared helper.
+- **Follow-on adoption.** Central OpenAI/Anthropic JSON dispatch and source-validator LLM judge calls use the shared helper for retryable provider/network failures.
 - **Acceptance criteria.**
   - Unit tests for: success-on-first-try, success-after-N-retries, gives-up-after-max, honors non-retryable errors.
   - User-facing errors remain generic per `no-expose-errors-to-users.mdc`.

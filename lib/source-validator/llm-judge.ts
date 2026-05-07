@@ -19,6 +19,7 @@
 import { computeAnthropicCost, recordAnthropicCost, type Usage } from '@/lib/cost-calculator'
 import { evaluateAgentBudget, type AgentBudgetDecision } from '@/lib/agent-budget-policy'
 import { recordAgentEvent, recordAgentStep, type AgentRuntime } from '@/lib/agent-run'
+import { isLikelyTransientError, withRetry } from '@/lib/llm/with-retry'
 
 // -----------------------------------------------------------------------------
 // Version constants
@@ -370,74 +371,100 @@ export async function judgeBatch(
   }
 
   let lastError: Error | null = null
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    const controller = new AbortController()
-    const t = setTimeout(() => controller.abort(), timeoutMs)
-    try {
-      const response = await fetchImpl('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': apiKey,
-          'anthropic-version': '2023-06-01',
+  try {
+    return await withRetry(
+      async () => {
+        const controller = new AbortController()
+        const t = setTimeout(() => controller.abort(), timeoutMs)
+        try {
+          const response = await fetchImpl('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': apiKey,
+              'anthropic-version': '2023-06-01',
+            },
+            body: JSON.stringify({
+              model,
+              max_tokens: 1500,
+              system: SYSTEM_PROMPT,
+              messages: [{ role: 'user', content: userPrompt }],
+              temperature: 0.0,
+            }),
+            signal: controller.signal,
+          })
+
+          if (!response.ok) {
+            const body = await response.text().catch(() => '')
+            throw new Error(`Anthropic API ${response.status}: ${body.slice(0, 200)}`)
+          }
+          const data = (await response.json()) as {
+            content?: Array<{ text?: string }>
+            usage?: Usage
+          }
+          const raw = data.content?.[0]?.text ?? ''
+          const verdicts = parseBatchResponse(raw, items)
+          const usage: Usage = data.usage ?? { input_tokens: 0, output_tokens: 0 }
+          const cost_usd = computeAnthropicCost(usage, model)
+          if (usage && options.agentRunId) {
+            recordAnthropicCost(
+              usage,
+              model,
+              options.reference,
+              {
+                operation: SOURCE_VALIDATOR_OPERATION,
+                budget_status: budgetDecision.status,
+                budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
+                budget_rule_key: budgetDecision.rule.key,
+              },
+              options.agentRunId,
+            ).catch(() => {})
+          }
+
+          return {
+            verdicts,
+            usage,
+            cost_usd,
+            model,
+            prompt_version: PROMPT_VERSION,
+            judge_version: JUDGE_VERSION,
+            dry_run: false,
+            raw,
+          }
+        } catch (error) {
+          if (error instanceof DOMException && error.name === 'AbortError') {
+            throw new Error(`Anthropic judge request timed out after ${timeoutMs / 1000}s`)
+          }
+          throw error
+        } finally {
+          clearTimeout(t)
+        }
+      },
+      {
+        label: 'source validator LLM judge',
+        maxRetries: Math.max(0, maxAttempts - 1),
+        baseDelayMs: process.env.NODE_ENV === 'test' ? 0 : 500,
+        maxDelayMs: 5_000,
+        jitterRatio: process.env.NODE_ENV === 'test' ? 0 : 0.25,
+        isRetryableError: (error) => {
+          if (error instanceof Error && error.name === 'AbortError') {
+            return true
+          }
+          return isLikelyTransientError(error)
         },
-        body: JSON.stringify({
-          model,
-          max_tokens: 1500,
-          system: SYSTEM_PROMPT,
-          messages: [{ role: 'user', content: userPrompt }],
-          temperature: 0.0,
-        }),
-        signal: controller.signal,
-      })
-      clearTimeout(t)
-
-      if (!response.ok) {
-        const body = await response.text().catch(() => '')
-        throw new Error(`Anthropic API ${response.status}: ${body.slice(0, 200)}`)
+        onRetry: ({ attemptNumber, nextDelayMs, error }) => {
+          console.warn(
+            `[source-validator/llm-judge] transient failure on attempt ${attemptNumber}; retrying in ${nextDelayMs ?? 0}ms`,
+            error instanceof Error ? error.message : error,
+          )
+        },
+        onGiveUp: ({ error }) => {
+          lastError = error as Error
+        },
       }
-      const data = (await response.json()) as {
-        content?: Array<{ text?: string }>
-        usage?: Usage
-      }
-      const raw = data.content?.[0]?.text ?? ''
-      const verdicts = parseBatchResponse(raw, items)
-      const usage: Usage = data.usage ?? { input_tokens: 0, output_tokens: 0 }
-      const cost_usd = computeAnthropicCost(usage, model)
-      if (usage && options.agentRunId) {
-        recordAnthropicCost(
-          usage,
-          model,
-          options.reference,
-          {
-            operation: SOURCE_VALIDATOR_OPERATION,
-            budget_status: budgetDecision.status,
-            budget_estimated_cost_usd: budgetDecision.estimatedCostUsd,
-            budget_rule_key: budgetDecision.rule.key,
-          },
-          options.agentRunId,
-        ).catch(() => {})
-      }
-
-      return {
-        verdicts,
-        usage,
-        cost_usd,
-        model,
-        prompt_version: PROMPT_VERSION,
-        judge_version: JUDGE_VERSION,
-        dry_run: false,
-        raw,
-      }
-    } catch (e) {
-      clearTimeout(t)
-      lastError = e as Error
-      if (attempt < maxAttempts) {
-        const backoffMs = 500 * Math.pow(2, attempt - 1) + Math.floor(Math.random() * 250)
-        await new Promise((res) => setTimeout(res, backoffMs))
-        continue
-      }
-    }
+    )
+  } catch (error) {
+    lastError = lastError ?? (error as Error)
   }
 
   throw new Error(
