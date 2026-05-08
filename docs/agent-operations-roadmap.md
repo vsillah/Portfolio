@@ -311,9 +311,11 @@ Current progress:
 
 ### Phase 12: Operational Recovery Hygiene
 
-Status: In progress.
+Status: Complete / monitoring.
 
 Goal: Make recovery and dead-letter handling durable enough for daily use without creating duplicate queues or bypassing approval gates.
+
+Phase 12 is the final named implementation phase for this rollout. Future work should be handled as maintenance, operational backlog, or a separately approved new roadmap rather than adding Phase 13 by default.
 
 Definition of done:
 
@@ -333,6 +335,7 @@ Current progress:
 
 - Recovery request creation now checks prior `agent_recovery_request` traces for active `earliest_retry_at` windows and returns a conflict response instead of creating duplicate packets during backoff.
 - Mission Control dead-letter items now show routed recovery status, retry attempt, earliest retry time, and whether the retry packet is still waiting inside the backoff window.
+- The Agent Operations rollout is capped after Phase 12. Remaining improvements move to the maintenance backlog unless Vambah explicitly opens a new roadmap.
 
 ## Cross-Phase Definition Of Done
 
@@ -365,20 +368,15 @@ The following require an explicit scope-change decision before implementation:
 
 ## Current Review Stack
 
-These are the current known Agent Operations PR dependencies:
+No known Agent Operations implementation PRs are required before moving this rollout to maintenance mode.
 
-- PR #125: Agent Inbox routing.
-- PR #127: Engagement Work Queue.
+Integration Captain still owns merge sequencing and post-merge deployment verification for any future Agent Operations changes.
 
-Integration order:
+## Maintenance Backlog
 
-1. Merge PR #125.
-2. Retarget or merge PR #127.
-3. Rebase this roadmap branch if needed.
-4. Verify `portfolio` and `portfolio-staging`.
+These items are explicitly maintenance or operational backlog, not new rollout phases:
 
-## Next Three Build Phases
-
-1. Queue affordances: filters, owner/next-action clarity, and a focused queue drilldown if the overview becomes crowded.
-2. Approval-backed execution: convert recommended side effects into approval checkpoints with explicit action payloads.
-3. n8n trace expansion: make the highest-value automation workflows report progress and failure into Agent Operations consistently.
+1. Continue adding workflow-specific n8n progress/completion/failure callbacks where legacy workflows still lack trace coverage.
+2. Refine Mission Control recovery wording if real usage shows that stale/expired recovery packets need sharper guidance.
+3. Keep both Vercel contexts checked after future Agent Operations merges: `Vercel – portfolio` and `Vercel – portfolio-staging`.
+4. Preserve the scope guard: no new chat channel, queue table, autonomous remediation loop, runtime mutation, vendor dependency, or merge-authority change without explicit approval.
