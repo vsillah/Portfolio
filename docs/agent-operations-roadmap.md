@@ -262,7 +262,7 @@ Current progress:
 
 ### Phase 11: Provider Resilience And Retry Hygiene
 
-Status: In progress.
+Status: Complete / monitoring.
 
 Goal: Standardize how provider calls recover from transient n8n, LLM, and tool failures.
 
@@ -284,7 +284,7 @@ Current progress:
 
 - A reusable `lib/llm/with-retry.ts` helper is being introduced with capped exponential backoff, configurable retryable error matching, and a give-up hook for dead-letter integration.
 - The first adoption targets n8n trigger calls, where transient 502/503/504 and network failures can be retried without exposing raw provider errors to users.
-- The next adoption targets central LLM provider dispatch and the source-validator LLM judge, replacing bespoke retry loops with the shared helper.
+- Central LLM provider dispatch and the source-validator LLM judge use the shared helper, replacing bespoke retry loops where the provider call is not intentionally injected for tests/timeouts.
 - Direct provider helpers for audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, video ideas generation, dev testing remediation, and dev testing chat-agent calls now use a shared provider fetch wrapper.
 - Mission Control surfaces the latest `agent_ops_morning_review` and `agent_ops_deployment_watch` traces as Operating Signals.
 - The deployment watcher supports `--trace` so integration-captain and autopilot runs write a visible Agent Ops run/artifact.
@@ -308,6 +308,30 @@ Current progress:
 - Admin Chat Eval axial-code generation and error diagnosis now start manual Agent Ops traces, check budget before Anthropic/OpenAI dispatch, and link cost events back to the trace.
 - Value Evidence source validation and dev testing LLM helpers now run pre-flight budget checks before direct provider calls.
 - Failed, stale, and cancelled Agent Ops traces can now create a read-only recovery request with retry attempt, backoff, earliest-retry metadata, and an attached recovery packet. This routes dead-letter work without re-running production automation from Mission Control.
+
+### Phase 12: Operational Recovery Hygiene
+
+Status: In progress.
+
+Goal: Make recovery and dead-letter handling durable enough for daily use without creating duplicate queues or bypassing approval gates.
+
+Definition of done:
+
+- Recovery requests respect their backoff windows and do not create duplicate retry packets while a prior recovery is still waiting.
+- Mission Control clearly distinguishes unrouted failures from failures that already have recovery work in motion.
+- Stale and failed traces remain trace-derived; no separate dead-letter table is introduced.
+- Recovery requests remain read-only and never re-run production automation directly.
+- Focused tests cover duplicate recovery prevention, expired backoff windows, and recoverable status boundaries.
+
+Out of scope:
+
+- Fully autonomous remediation.
+- Retrying production workflows from the web app without workflow-specific safety checks.
+- Adding a separate queue table for dead-letter state.
+
+Current progress:
+
+- Recovery request creation now checks prior `agent_recovery_request` traces for active `earliest_retry_at` windows and returns a conflict response instead of creating duplicate packets during backoff.
 
 ## Cross-Phase Definition Of Done
 
