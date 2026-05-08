@@ -245,6 +245,62 @@ describe('POST /api/admin/llm-judge', () => {
     )
   })
 
+  it('retries a transient OpenAI judge failure before completing evaluation', async () => {
+    process.env.LLM_RETRY_DELAY_MS = '0'
+    const mockFetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: async () => 'temporary provider outage',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          usage: { prompt_tokens: 300, completion_tokens: 90, total_tokens: 390 },
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  rating: 'good',
+                  reasoning: 'The assistant recovered and completed the evaluation.',
+                  confidence: 0.79,
+                  categories: [],
+                }),
+              },
+            },
+          ],
+        }),
+      })
+    vi.stubGlobal('fetch', mockFetch)
+
+    const response = await POST(makeRequest({
+      session_id: 'session-1',
+      provider: 'openai',
+      model: 'gpt-4o-mini',
+      prompt_version: 'v1',
+    }))
+
+    expect(response.status).toBe(200)
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(mocks.recordOpenAICost).toHaveBeenCalledWith(
+      expect.objectContaining({ total_tokens: 390 }),
+      'gpt-4o-mini',
+      { type: 'chat_session', id: 'session-1' },
+      expect.objectContaining({
+        operation: 'chat_eval',
+        budget_status: 'allowed',
+      }),
+      'agent-run-1',
+    )
+    expect(mocks.endAgentRun).toHaveBeenCalledWith(
+      expect.objectContaining({
+        runId: 'agent-run-1',
+        status: 'completed',
+      }),
+    )
+  })
+
   it('marks the trace failed and returns a safe message when the budget blocks evaluation', async () => {
     mocks.sessionSingle.mockResolvedValue({
       data: {

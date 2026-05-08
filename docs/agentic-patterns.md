@@ -32,7 +32,7 @@ Our pinned 20 patterns, grouped the same way as the talk:
 | 13 | Self-Consistency | Self-awareness | Absent |
 | 14 | Learning & Feedback | Self-awareness | Partial |
 | 15 | Memory Management | Self-awareness | Partial |
-| 16 | Exception Handling | Production | Partial / improving |
+| 16 | Exception Handling | Production | Strong |
 | 17 | Human-in-the-Loop | Production | Strong on publish / Partial elsewhere |
 | 18 | Guardrails & Safety | Production | Strong (authz) / Partial (content) |
 | 19 | Monitoring & Observability | Production | Strong in Agent Ops / Partial in legacy flows |
@@ -341,15 +341,16 @@ Each section follows the same template: *Definition · Where we use it today · 
 - n8n trigger calls use the shared helper for transient network and gateway failures while preserving generic user-facing failure messages.
 - Central OpenAI/Anthropic JSON dispatch in [`lib/llm-dispatch.ts`](../lib/llm-dispatch.ts) uses the shared helper for retryable provider statuses.
 - The source-validator LLM judge in [`lib/source-validator/llm-judge.ts`](../lib/source-validator/llm-judge.ts) uses the shared helper instead of a bespoke retry loop.
-- Direct provider helpers use [`lib/llm/provider-fetch.ts`](../lib/llm/provider-fetch.ts) for retryable provider failures across audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, video ideas generation, dev testing remediation, and dev testing chat-agent calls.
+- Direct provider helpers use [`lib/llm/provider-fetch.ts`](../lib/llm/provider-fetch.ts) for retryable provider failures across audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, video ideas generation, Chat Eval LLM judge evaluation/axial-code/diagnosis calls, dev testing remediation, and dev testing chat-agent calls.
+- The source-validator LLM judge still accepts an injected `fetchImpl` for timeout and test control, but that provider call is wrapped by the shared retry helper rather than a bespoke loop.
 
-**Coverage.** Partial / improving.
+**Coverage.** Strong.
 
 **Gaps.**
-- Direct LLM call sites still need to adopt the shared retry helper where transient provider failures are expected.
-- Dead-letter visibility and routed recovery requests exist for Agent Ops traces, but some provider-call retry wrappers are still call-site specific.
+- Some domain workflows still translate provider failures into their own user-facing copy, so future work should keep error language aligned with the no-sensitive-errors rule.
+- Dead-letter visibility and routed recovery requests exist for Agent Ops traces, but legacy workflow-specific status pages still need gradual trace-link migration.
 
-**Retrofit backlog.** Continue Ticket [#3](#top-retrofit-tickets) by adopting the shared helper across remaining direct LLM/provider calls.
+**Retrofit backlog.** Ticket [#3](#top-retrofit-tickets) is complete for known OpenAI/Anthropic direct provider call sites. Future provider additions should use `fetchProviderWithRetry` or wrap injected/test fetches with `withRetry` before shipping.
 
 ---
 
@@ -476,13 +477,14 @@ These are the first five PR-sized items seeded from the scorecard. Ticket 1 has 
   - Scorecard row for Reflection updated to "Partial" on completion.
 - **Depends on.** Ticket #1 (for observability).
 
-### Ticket 3 — Retry/backoff helper for LLM/n8n calls (Exception Handling) — in progress
+### Ticket 3 — Retry/backoff helper for LLM/n8n calls (Exception Handling) — complete
 
 - **Owner.** Agent Operations rollout.
 - **Scope.** Add `lib/llm/with-retry.ts` with capped exponential backoff + jitter, configurable retryable error matcher, and a dead-letter hook. Wrap the trigger functions in [`lib/n8n.ts`](../lib/n8n.ts) and the direct LLM call sites found via grep.
 - **First adoption.** n8n trigger calls now retry transient network and 502/503/504 failures through the shared helper.
 - **Follow-on adoption.** Central OpenAI/Anthropic JSON dispatch and source-validator LLM judge calls use the shared helper for retryable provider/network failures.
-- **Direct helper adoption.** Audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, video ideas generation, dev testing remediation, and dev testing chat-agent calls now use the shared provider fetch wrapper.
+- **Direct helper adoption.** Audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, video ideas generation, Chat Eval LLM judge evaluation/axial-code/diagnosis calls, dev testing remediation, and dev testing chat-agent calls now use the shared provider fetch wrapper.
+- **Closure audit.** Remaining direct provider URL grep results are either shared wrapper usage, tests asserting provider URLs, or the source-validator injected-fetch path wrapped by `withRetry` for timeout/test control.
 - **Acceptance criteria.**
   - Unit tests for: success-on-first-try, success-after-N-retries, gives-up-after-max, honors non-retryable errors.
   - User-facing errors remain generic per `no-expose-errors-to-users.mdc`.

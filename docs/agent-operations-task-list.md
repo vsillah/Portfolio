@@ -52,7 +52,8 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Adopt shared provider fetch retries for meeting pain classification and in-person diagnostic insights.
    - [x] Adopt shared provider fetch retries for social carousel conversion, video prompt formatting, and video ideas generation.
    - [x] Adopt shared provider fetch retries for dev testing chat-agent and remediation LLM helpers.
-   - Add remaining direct LLM/provider call-site adoptions where transient failures still use bespoke retry or plain `try/catch`.
+   - [x] Adopt shared provider fetch retries for Chat Eval LLM judge evaluation, axial-code generation, and error diagnosis calls.
+   - [x] Complete final direct-provider audit; remaining provider URLs are wrapper usage, tests, or the source-validator injected-fetch path already wrapped by `withRetry`.
 
 ## Completed Or In Review
 
@@ -97,6 +98,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Direct OpenAI helper retry adoption for meeting pain classification and in-person diagnostic insights in review.
 - [x] Direct OpenAI helper retry adoption for social carousel and video generation surfaces in review.
 - [x] Dev testing LLM helper retry adoption for chat-agent and remediation surfaces in review.
+- [x] Chat Eval LLM judge retry adoption and Phase 11 closure audit in review.
 
 ## Scope Guard
 
