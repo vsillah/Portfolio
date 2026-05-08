@@ -47,13 +47,10 @@ Next action:
 
 1. Run `npm run deploy:metrics` during captain sweeps to keep queue/build timing visible.
 2. Change the pre-merge gate so routine PRs require the `portfolio` preview plus local/GitHub checks, while `portfolio-staging` remains required after merge on `main`.
-3. After the gate is updated, configure the `portfolio-staging` Vercel project to skip preview builds with:
+3. After the gate is updated, configure the `portfolio-staging` Vercel project with `previewDeploymentsDisabled: true`.
+4. Do not disable staging preview deployments while branch protection or captain policy still requires a successful `Vercel – portfolio-staging` preview context.
 
-   ```bash
-   [ "$VERCEL_ENV" = "preview" ] && exit 0 || exit 1
-   ```
-
-4. Do not apply that Vercel ignore rule while branch protection or captain policy still requires a successful `Vercel – portfolio-staging` preview context.
+Resolution note, 2026-05-08: `portfolio-staging` was configured with `previewDeploymentsDisabled: true`. A smoke branch confirmed the next branch push created a `portfolio` preview only; no new `portfolio-staging` preview deployment was created.
 
 ## GitHub Transient Merge Errors
 

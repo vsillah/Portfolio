@@ -63,21 +63,22 @@ preview builds repeatedly delay integration, prefer this rollout:
 3. Stop `portfolio-staging` from building routine PR preview branches.
 4. Require an explicit staging preview or equivalent staging smoke only when a PR touches staging env handling, n8n integration behavior, Vercel config, or release gates.
 
-Recommended `portfolio-staging` Ignored Build Step once the gate is updated:
+Live `portfolio-staging` setting as of 2026-05-08:
 
-```bash
-[ "$VERCEL_ENV" = "preview" ] && exit 0 || exit 1
-```
+- `previewDeploymentsDisabled: true`
 
-Vercel semantics: exit `0` cancels the build; exit `1` continues the build.
+This setting is stronger than an Ignored Build Step. The ignored-build command
+still creates and queues a deployment before Vercel can evaluate the command,
+which does not remove the queue bottleneck. Disabling staging preview
+deployments prevents routine PR branches from entering the staging project queue
+at all.
+
 Apply this only to `portfolio-staging`, not to `portfolio`, because the main
-project still needs PR previews.
-
-Do not apply the ignore rule if GitHub branch protection requires
-`Vercel – portfolio-staging` to pass on PR branches. In that case, skipped
-staging previews may leave otherwise mergeable PRs blocked or unstable. As of
-2026-05-08, GitHub `main` branch protection is not enforcing required status
-checks, so this rule is owned by integration-captain policy rather than GitHub.
+project still needs PR previews. Do not disable staging previews if GitHub
+branch protection requires `Vercel – portfolio-staging` to pass on PR branches.
+As of 2026-05-08, GitHub `main` branch protection is not enforcing required
+status checks, so this rule is owned by integration-captain policy rather than
+GitHub.
 
 ## Premium Plan Guidance
 
