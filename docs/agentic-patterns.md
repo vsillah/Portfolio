@@ -341,7 +341,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 - n8n trigger calls use the shared helper for transient network and gateway failures while preserving generic user-facing failure messages.
 - Central OpenAI/Anthropic JSON dispatch in [`lib/llm-dispatch.ts`](../lib/llm-dispatch.ts) uses the shared helper for retryable provider statuses.
 - The source-validator LLM judge in [`lib/source-validator/llm-judge.ts`](../lib/source-validator/llm-judge.ts) uses the shared helper instead of a bespoke retry loop.
-- Direct OpenAI helpers use [`lib/llm/provider-fetch.ts`](../lib/llm/provider-fetch.ts) for retryable provider failures across audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, and video ideas generation.
+- Direct provider helpers use [`lib/llm/provider-fetch.ts`](../lib/llm/provider-fetch.ts) for retryable provider failures across audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, video ideas generation, dev testing remediation, and dev testing chat-agent calls.
 
 **Coverage.** Partial / improving.
 
@@ -434,7 +434,7 @@ Each section follows the same template: *Definition · Where we use it today · 
 - Admin meeting pain classification checks the manual-runtime budget before GPT-4o-mini fallback classification and links AI fallback cost events to its Agent Ops trace.
 - Admin Chat Eval LLM judge evaluation checks the manual-runtime budget before Anthropic/OpenAI dispatch and links judge cost events to its Agent Ops trace.
 - Admin Chat Eval axial-code generation and error diagnosis check the manual-runtime budget before Anthropic/OpenAI dispatch and link judge cost events to Agent Ops traces.
-- Value Evidence source validation and dev testing LLM helpers check budget before direct provider calls.
+- Value Evidence source validation and dev testing LLM helpers check budget before direct provider calls; dev testing chat-agent and remediation helpers also retry transient provider failures through the shared provider fetch wrapper.
 - Cost-events ingest accumulates spend per event.
 - `cost_events.agent_run_id` links usage costs to shared Agent Ops traces.
 - Mission Control derives 24-hour Cost Intelligence by runtime, agent, workflow, client/project, and artifact type where run metadata exists.
@@ -482,7 +482,7 @@ These are the first five PR-sized items seeded from the scorecard. Ticket 1 has 
 - **Scope.** Add `lib/llm/with-retry.ts` with capped exponential backoff + jitter, configurable retryable error matcher, and a dead-letter hook. Wrap the trigger functions in [`lib/n8n.ts`](../lib/n8n.ts) and the direct LLM call sites found via grep.
 - **First adoption.** n8n trigger calls now retry transient network and 502/503/504 failures through the shared helper.
 - **Follow-on adoption.** Central OpenAI/Anthropic JSON dispatch and source-validator LLM judge calls use the shared helper for retryable provider/network failures.
-- **Direct helper adoption.** Audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, and video ideas generation now use the shared provider fetch wrapper.
+- **Direct helper adoption.** Audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, video ideas generation, dev testing remediation, and dev testing chat-agent calls now use the shared provider fetch wrapper.
 - **Acceptance criteria.**
   - Unit tests for: success-on-first-try, success-after-N-retries, gives-up-after-max, honors non-retryable errors.
   - User-facing errors remain generic per `no-expose-errors-to-users.mdc`.
