@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-06",
+  "generatedAt": "2026-05-08",
   "sourceDocument": "/docs/subscription-cancellation-audit.md",
   "weeklyReportAutomationId": "portfolio-subscription-weekly-report",
   "dailyMonitorAutomationId": "portfolio-subscription-cancellation-monitor",
@@ -132,6 +132,7 @@
       "Apify",
       "BuiltWith",
       "ElevenLabs",
+      "Anthropic",
       "OpenRouter",
       "Vapi",
       "Pinecone",
@@ -141,14 +142,16 @@
   },
   "summary": {
     "status": "yellow",
-    "headline": "Core Portfolio subscriptions remain active. OpenRouter and Resend stay quiet, while Apify and ElevenLabs are confirmed paid/active.",
+    "headline": "Core Portfolio subscriptions remain active. OpenRouter stays quiet, Apify and ElevenLabs are confirmed active, and Vercel production/staging deploys were later verified Ready.",
     "nextReviewFocus": [
+      "Keep deployment queue metrics visible after staging preview suppression.",
       "Confirm OpenRouter's role in the next media/model bakeoff.",
       "Verify whether Resend exists in Vercel production env or billing.",
       "Refresh Read AI and Calendly auth before drawing usage conclusions.",
       "Confirm Vapi dashboard billing and intended production voice UX.",
       "Check Pinecone billing/API traffic against Supabase/local RAG.",
-      "Review ElevenLabs renewal before 2026-05-19."
+      "Review ElevenLabs renewal before 2026-05-19.",
+      "Continue the Apify actor-level replacement bakeoff before renewal."
     ]
   },
   "buckets": {
@@ -173,6 +176,7 @@
       "BuiltWith",
       "ElevenLabs",
       "OpenRouter",
+      "Anthropic",
       "Vapi"
     ],
     "unresolved": [
@@ -190,6 +194,7 @@
       "Resend",
       "Pinecone",
       "OpenRouter",
+      "Anthropic",
       "Read.ai",
       "Calendly",
       "ElevenLabs"
@@ -218,7 +223,7 @@
       "status": "watch",
       "statusColor": "yellow",
       "billingSignal": "Receipts found on 2026-04-10 in the prior billing pass.",
-      "usageSignal": "Production data now shows 249 website_tech_stack rows and 27 diagnostic enriched_tech_stack rows.",
+      "usageSignal": "Local repo references remain active and the protected outreach-ramp watch decision still applies.",
       "portfolioDependency": "Tech-stack lookup/enrichment supports lead prep, implementation strategy, and feasibility assessment.",
       "recommendation": "Keep active during outreach ramp; reassess after more leads, audits, proposals, and client outcomes.",
       "nextAction": "Compare outcomes where BuiltWith enrichment improves sales preparation or proposal quality.",
@@ -256,10 +261,10 @@
       "status": "keep",
       "statusColor": "green",
       "billingSignal": "Billing owner still needs documentation; CLI access is authenticated under vsillahs-projects.",
-      "usageSignal": "Vercel CLI showed READY deployments for portfolio and portfolio-staging on 2026-05-05.",
+      "usageSignal": "Vercel CLI showed both portfolio projects updated on 2026-05-08; a later deployment monitor confirmed both production contexts READY.",
       "portfolioDependency": "High-risk hosting/deployment dependency.",
       "recommendation": "Keep; operationally active.",
-      "nextAction": "Document the actual hosting account/project and billing owner.",
+      "nextAction": "Keep deployment queue metrics visible and keep billing owner documentation current.",
       "decisionRequired": true,
       "links": [
         {
@@ -290,7 +295,7 @@
       "status": "unresolved",
       "statusColor": "yellow",
       "billingSignal": "No billing evidence confirmed in this run.",
-      "usageSignal": "Optional transactional provider remains in code, but production email rows show 0 resend transports and 9 n8n transports.",
+      "usageSignal": "Optional transactional provider remains in env/code, but the latest production email row still uses n8n transport.",
       "portfolioDependency": "Transactional email delivery risk if production is configured to use Resend.",
       "recommendation": "Verify production env and billing before keeping as a paid dependency or removing.",
       "nextAction": "Confirm whether production uses Resend or Gmail/n8n as the real outbound channel.",
@@ -323,8 +328,8 @@
       "name": "Apify",
       "status": "keep",
       "statusColor": "green",
-      "billingSignal": "Prior Gmail pass found a payment-success invoice on 2026-05-03 for $39.",
-      "usageSignal": "n8n exports include Apify nodes and n8n Cloud executions continue.",
+      "billingSignal": "Prior Gmail pass found a payment-success invoice on 2026-05-03 for $39; direct API reports STARTER plan.",
+      "usageSignal": "n8n exports include Apify nodes, n8n Cloud executions continue, and direct Apify run history includes a succeeded run on 2026-05-06.",
       "portfolioDependency": "Lead sourcing, scraping, and actor-monitor automation.",
       "recommendation": "Keep; continue cadence and spend review separately from cancellation.",
       "nextAction": "Review actor cadence and spend before the next renewal window.",
@@ -344,7 +349,7 @@
       "name": "Hunter.io",
       "status": "keep",
       "statusColor": "green",
-      "billingSignal": "Direct API returned plan Free with 50 used requests, 75 available requests, reset date 2026-05-09.",
+      "billingSignal": "Direct API returned plan Free with 5 used searches, 5 used credits, 10 used verifications, and reset date 2026-05-09.",
       "usageSignal": "HUNTER_API_KEY, lead-source references, and n8n Hunter node-swap docs are present.",
       "portfolioDependency": "Lead discovery and email enrichment workflow risk.",
       "recommendation": "Keep/watch; not a paid cancellation target unless the account upgrades or becomes redundant.",
@@ -379,7 +384,7 @@
       "status": "watch",
       "statusColor": "yellow",
       "billingSignal": "Receipts found through 2026-04-19 in the prior billing pass.",
-      "usageSignal": "Social/audio workflow references remain; no new direct ElevenLabs run was confirmed today.",
+      "usageSignal": "Direct API reports active Creator subscription with 18,068 of 164,102 characters used; social/audio workflow references remain.",
       "portfolioDependency": "Audio generation for social/video content campaigns.",
       "recommendation": "Watch through the next social content cycle before renewal review.",
       "nextAction": "Confirm next campaign audio usage before renewing or downgrading.",
