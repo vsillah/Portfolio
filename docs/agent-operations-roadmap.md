@@ -285,7 +285,7 @@ Current progress:
 - A reusable `lib/llm/with-retry.ts` helper is being introduced with capped exponential backoff, configurable retryable error matching, and a give-up hook for dead-letter integration.
 - The first adoption targets n8n trigger calls, where transient 502/503/504 and network failures can be retried without exposing raw provider errors to users.
 - The next adoption targets central LLM provider dispatch and the source-validator LLM judge, replacing bespoke retry loops with the shared helper.
-- Direct OpenAI helpers for audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, and video ideas generation now use a shared provider fetch wrapper.
+- Direct provider helpers for audit-from-meetings, meeting lead extraction, AI onboarding preview, delivery email drafts, meeting pain classification, in-person diagnostic insights, social carousel conversion, video prompt formatting, video ideas generation, dev testing remediation, and dev testing chat-agent calls now use a shared provider fetch wrapper.
 - Mission Control surfaces the latest `agent_ops_morning_review` and `agent_ops_deployment_watch` traces as Operating Signals.
 - The deployment watcher supports `--trace` so integration-captain and autopilot runs write a visible Agent Ops run/artifact.
 - Stale-run detection now reports checked and marked counts by runtime across `codex`, `n8n`, `hermes`, `opencode`, and `manual` runs when those runtimes have active queued/running work.

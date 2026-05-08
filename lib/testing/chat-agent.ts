@@ -15,6 +15,7 @@ import type {
   DiagnosticStep
 } from './types'
 import { evaluateAgentBudget } from '@/lib/agent-budget-policy'
+import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
 
 // ============================================================================
 // System Prompts
@@ -345,7 +346,7 @@ export class ChatAgent {
       throw new Error(budgetDecision.reason)
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -407,7 +408,7 @@ export class ChatAgent {
       throw new Error(budgetDecision.reason)
     }
     
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetchProviderWithRetry('anthropic', 'https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

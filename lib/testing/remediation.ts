@@ -19,6 +19,7 @@ import { createClient } from '@supabase/supabase-js'
 import { n8nWebhookUrl } from '../n8n'
 import { testDb } from './test-db-cast'
 import { evaluateAgentBudget } from '@/lib/agent-budget-policy'
+import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
 
 // ============================================================================
 // Configuration
@@ -477,7 +478,7 @@ Respond with JSON in this format:
         maxTokens: 1000,
         operation: 'testing_fix_generation',
       })
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -548,7 +549,7 @@ Provide a more detailed analysis in JSON format:
         maxTokens: 1000,
         operation: 'testing_analysis_enhancement',
       })
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
