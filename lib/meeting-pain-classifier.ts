@@ -15,6 +15,7 @@ import { refreshCategoryStats, linkEvidenceToCalculations } from '@/lib/value-ev
 import { evaluateAgentBudget, type AgentBudgetDecision } from '@/lib/agent-budget-policy'
 import { recordAgentEvent, recordAgentStep } from '@/lib/agent-run'
 import { recordOpenAICost, type Usage } from '@/lib/cost-calculator'
+import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
 
 // ============================================================================
 // Types
@@ -346,7 +347,7 @@ Only include items that have a reasonable match (confidence >= 0.3). Respond ONL
       throw new MeetingPainClassificationError(budgetDecision.reason, 'budget_blocked')
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

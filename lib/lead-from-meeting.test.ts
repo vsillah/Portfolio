@@ -70,6 +70,7 @@ describe('lead-from-meeting', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.unstubAllGlobals()
     process.env = { ...originalEnv }
+    process.env.LLM_RETRY_DELAY_MS = '0'
   })
 
   afterEach(() => {
@@ -172,6 +173,42 @@ describe('lead-from-meeting', () => {
     await expect(
       extractLeadFieldsFromTranscript('Need details for lead creation')
     ).rejects.toThrow('AI extraction failed')
+  })
+
+  it('retries transient OpenAI responses before mapping extracted lead fields', async () => {
+    process.env.OPENAI_API_KEY = 'test-key'
+
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: async () => 'temporary outage',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          usage: { prompt_tokens: 123, completion_tokens: 45, total_tokens: 168 },
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  name: 'Retry Lead',
+                  company: 'Recovered Co',
+                }),
+              },
+            },
+          ],
+        }),
+      })
+    vi.stubGlobal('fetch', mockFetch)
+
+    const extracted = await extractLeadFieldsFromTranscript(
+      'Transcript says this lead should recover after a transient provider outage.'
+    )
+
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(extracted.name).toBe('Retry Lead')
+    expect(extracted.company).toBe('Recovered Co')
   })
 
   it('records budget trace metadata and links cost when agentRunId is supplied', async () => {

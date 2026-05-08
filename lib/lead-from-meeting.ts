@@ -14,6 +14,7 @@ import {
   type AgentBudgetDecision,
 } from '@/lib/agent-budget-policy'
 import { recordAgentEvent, recordAgentStep } from '@/lib/agent-run'
+import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
 
 const MAX_TRANSCRIPT_CHARS = 60_000
 const LEAD_EXTRACTION_MODEL = 'gpt-4o-mini'
@@ -187,7 +188,7 @@ export async function extractLeadFieldsFromTranscript(
     throw new LeadFromMeetingError(budgetDecision.reason, 'budget_blocked')
   }
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

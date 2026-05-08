@@ -39,6 +39,7 @@ describe('audit-from-meetings budget policy', () => {
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.unstubAllGlobals()
     process.env = { ...originalEnv }
+    process.env.LLM_RETRY_DELAY_MS = '0'
   })
 
   afterEach(() => {
@@ -125,5 +126,45 @@ describe('audit-from-meetings budget policy', () => {
       }),
       'agent-run-1',
     )
+  })
+
+  it('retries transient OpenAI responses before parsing diagnostic output', async () => {
+    process.env.OPENAI_API_KEY = 'test-key'
+
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: async () => 'temporary outage',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          usage: { prompt_tokens: 100, completion_tokens: 50, total_tokens: 150 },
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  business_challenges: { primary_challenges: ['manual_processes'] },
+                  tech_stack: {},
+                  automation_needs: {},
+                  ai_readiness: {},
+                  budget_timeline: {},
+                  decision_making: {},
+                  diagnostic_summary: 'Recovered after retry.',
+                }),
+              },
+            },
+          ],
+        }),
+      })
+    vi.stubGlobal('fetch', mockFetch)
+
+    const extracted = await extractDiagnosticFromMeetingText(
+      'Meeting transcript says follow-up is inconsistent.'
+    )
+
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(extracted.diagnostic_summary).toBe('Recovered after retry.')
   })
 })

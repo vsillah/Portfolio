@@ -63,7 +63,7 @@ describe('meeting-pain-classifier', () => {
     mockRefreshCategoryStats.mockClear()
     mockLinkEvidenceToCalculations.mockClear()
     vi.unstubAllGlobals()
-    process.env = { ...originalEnv }
+    process.env = { ...originalEnv, LLM_RETRY_DELAY_MS: '0' }
   })
 
   afterEach(() => {
@@ -168,5 +168,57 @@ short
 
     expect(mockRefreshCategoryStats).toHaveBeenCalledTimes(2)
     expect(mockLinkEvidenceToCalculations).toHaveBeenCalledTimes(2)
+  })
+
+  it('retries a transient OpenAI classification failure before returning AI matches', async () => {
+    process.env.OPENAI_API_KEY = 'test-key'
+    mockCategoriesEq.mockResolvedValueOnce({
+      data: [
+        {
+          id: 'cat-manual',
+          name: 'manual_processes',
+          display_name: 'Manual Processes',
+          description: 'Manual repetitive work',
+        },
+      ],
+      error: null,
+    })
+
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({
+        status: 503,
+        ok: false,
+        text: async () => 'temporarily unavailable',
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify([
+                  { index: 1, category_name: 'manual_processes', confidence: 0.74 },
+                ]),
+              },
+            },
+          ],
+        }),
+      })
+    vi.stubGlobal('fetch', mockFetch)
+
+    const result = await classifyMeetingPainPoints(
+      'Operational ambiguity keeps creating buyer handoff drag',
+      ''
+    )
+
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(result.classified).toHaveLength(1)
+    expect(result.classified[0]).toMatchObject({
+      categoryId: 'cat-manual',
+      categoryName: 'manual_processes',
+      method: 'ai',
+    })
+    expect(result.unclassified).toEqual([])
   })
 })
