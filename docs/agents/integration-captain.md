@@ -53,7 +53,7 @@ Before merging a PR:
 - PR has an impact preflight when it touches a hot surface or overlaps another active branch.
 - Required validation is documented in the PR or handoff.
 - `Vercel - portfolio` preview is success.
-- `Vercel - portfolio-staging` preview is not required for routine PRs once the staging project is configured to skip preview builds. If a PR explicitly changes staging env handling, n8n integration behavior, Vercel config, or release gates, require a staging preview or an equivalent staging smoke before merge.
+- `Vercel - portfolio-staging` preview is not required for routine PRs while the staging project has preview deployments disabled. If a PR explicitly changes staging env handling, n8n integration behavior, Vercel config, or release gates, require an equivalent staging smoke before merge.
 - Security-sensitive changes have a clear approval or fail-closed posture.
 - Production config, secrets, external sends, publishing, and database writes have explicit approval when required.
 
