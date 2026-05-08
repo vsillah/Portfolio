@@ -21,6 +21,7 @@ import {
   VIDEO_PROMPT_FORMAT_OPERATION,
   VideoPromptFormatError,
 } from '@/lib/video-prompt-format'
+import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
 
 export const dynamic = 'force-dynamic'
 
@@ -116,7 +117,7 @@ export async function POST(request: NextRequest) {
       throw new VideoPromptFormatError(budgetDecision.reason, 'budget_blocked')
     }
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
