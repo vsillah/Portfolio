@@ -33,6 +33,7 @@ import {
   VIDEO_IDEAS_GENERATION_OPERATION,
   VideoIdeasGenerationError,
 } from '@/lib/video-ideas-generation'
+import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
 
 export const dynamic = 'force-dynamic'
 
@@ -200,7 +201,7 @@ async function runGeneration(
 
   onStep?.({ step: 'calling_llm', detail: mode === 'from_direction' ? 'Polishing script with GPT-4o...' : 'Brainstorming with GPT-4o...' })
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

@@ -77,7 +77,7 @@ describe('POST /api/admin/social-content/[id]/convert-to-carousel', () => {
     vi.clearAllMocks()
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.unstubAllGlobals()
-    process.env = { ...originalEnv, OPENAI_API_KEY: 'test-key' }
+    process.env = { ...originalEnv, OPENAI_API_KEY: 'test-key', LLM_RETRY_DELAY_MS: '0' }
 
     mocks.verifyAdmin.mockResolvedValue({
       user: { id: 'admin-user-1' },
@@ -271,6 +271,34 @@ describe('POST /api/admin/social-content/[id]/convert-to-carousel', () => {
         social_content_id: 'social-1',
       }),
     )
+  })
+
+  it('retries a transient OpenAI failure before rendering carousel assets', async () => {
+    const slides = [
+      { slideNumber: 1, heading: 'Reduce burden', body: 'Start with the real workflow.' },
+      { slideNumber: 2, heading: 'Find the drag', body: 'Name what costs time.' },
+      { slideNumber: 3, heading: 'Build lighter', body: 'Automate the repeatable work.' },
+    ]
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({
+        status: 503,
+        ok: false,
+        text: async () => 'temporarily unavailable',
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        ok: true,
+        json: async () => ({
+          choices: [{ message: { content: JSON.stringify({ slides }) } }],
+        }),
+      })
+    vi.stubGlobal('fetch', mockFetch)
+
+    const response = await POST(makeRequest(), { params: { id: 'social-1' } })
+
+    expect(response.status).toBe(200)
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    expect(mocks.renderCarousel).toHaveBeenCalledWith(slides)
   })
 
   it('evaluates normal carousel prompts within the manual budget', () => {

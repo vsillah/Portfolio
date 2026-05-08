@@ -18,6 +18,7 @@ import {
   SOCIAL_CAROUSEL_GENERATION_OPERATION,
   SocialCarouselGenerationError,
 } from '@/lib/social-carousel-generation'
+import { fetchProviderWithRetry } from '@/lib/llm/provider-fetch'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -116,7 +117,7 @@ Hashtags: ${(row.hashtags || []).join(', ')}`
       throw new SocialCarouselGenerationError(budgetDecision.reason, 'budget_blocked')
     }
 
-    const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const aiResponse = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
