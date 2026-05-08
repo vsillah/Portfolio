@@ -53,7 +53,7 @@ Before merging a PR:
 - PR has an impact preflight when it touches a hot surface or overlaps another active branch.
 - Required validation is documented in the PR or handoff.
 - `Vercel - portfolio` preview is success.
-- `Vercel - portfolio-staging` preview is success.
+- `Vercel - portfolio-staging` preview is not required for routine PRs once the staging project is configured to skip preview builds. If a PR explicitly changes staging env handling, n8n integration behavior, Vercel config, or release gates, require a staging preview or an equivalent staging smoke before merge.
 - Security-sensitive changes have a clear approval or fail-closed posture.
 - Production config, secrets, external sends, publishing, and database writes have explicit approval when required.
 
@@ -129,6 +129,7 @@ If that command returns commits, classify the branch as `watch` or `debt` instea
 
 - Process one non-draft PR at a time.
 - Do not start the next merge until both post-merge Vercel contexts are green.
+- Treat `portfolio` preview as the routine pre-merge Vercel gate. Treat `portfolio-staging` as a post-merge production-parity gate unless the PR touches staging-sensitive surfaces.
 - Treat draft PRs as `normal` unless they overlap hot files, stay stale for several days, or their work already landed elsewhere.
 - Promote a draft PR to merge consideration only after the owner marks it ready or the captain verifies its intent directly.
 - If two PRs touch the same hot files, merge the lower-risk/shared-foundation PR first, then re-check the second PR against updated `main`.

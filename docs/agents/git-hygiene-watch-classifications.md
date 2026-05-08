@@ -32,7 +32,7 @@ These local branches have deleted upstreams and one commit not reachable from `o
 
 ## Vercel Staging Lag
 
-Classification: `watch`.
+Classification: `debt`.
 
 Use the thresholds in `docs/agents/vercel-verifier.md`:
 
@@ -41,7 +41,19 @@ Use the thresholds in `docs/agents/vercel-verifier.md`:
 - over 10 minutes repeatedly: `debt`
 - failed, cancelled, or timed out: `blocker`
 
-Next action: keep collecting timing through `npm run deploy:watch`; only escalate if staging repeatedly exceeds the debt threshold.
+Current finding: recent deployment metrics show `portfolio-staging` waits much longer than `portfolio` before builds start because both Vercel projects build the same PR branches. This is an integration-flow bottleneck, not only normal queue variance.
+
+Next action:
+
+1. Run `npm run deploy:metrics` during captain sweeps to keep queue/build timing visible.
+2. Change the pre-merge gate so routine PRs require the `portfolio` preview plus local/GitHub checks, while `portfolio-staging` remains required after merge on `main`.
+3. After the gate is updated, configure the `portfolio-staging` Vercel project to skip preview builds with:
+
+   ```bash
+   [ "$VERCEL_ENV" = "preview" ] && exit 0 || exit 1
+   ```
+
+4. Do not apply that Vercel ignore rule while branch protection or captain policy still requires a successful `Vercel – portfolio-staging` preview context.
 
 ## GitHub Transient Merge Errors
 
