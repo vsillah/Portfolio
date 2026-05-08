@@ -73,7 +73,7 @@ describe('POST /api/admin/video-generation/generate-ideas', () => {
     vi.clearAllMocks()
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.unstubAllGlobals()
-    process.env = { ...originalEnv, OPENAI_API_KEY: 'test-key' }
+    process.env = { ...originalEnv, OPENAI_API_KEY: 'test-key', LLM_RETRY_DELAY_MS: '0' }
     mocks.verifyAdmin.mockResolvedValue({
       user: { id: 'admin-user-1' },
       isAdmin: true,
@@ -255,6 +255,53 @@ describe('POST /api/admin/video-generation/generate-ideas', () => {
       'agent-run-1',
       expect.stringContaining('Estimated cost'),
       expect.objectContaining({ operation: 'video_ideas_generation', mode: 'from_scratch' }),
+    )
+  })
+
+  it('retries a transient OpenAI failure before queueing generated ideas', async () => {
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({
+        status: 503,
+        ok: false,
+        text: async () => 'temporarily unavailable',
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  ideas: [
+                    {
+                      title: 'Automation That Gives Time Back',
+                      script: 'A practical script.',
+                      storyboard: { scenes: [{ sceneNumber: 1, description: 'Open on admin workflow.' }] },
+                    },
+                  ],
+                }),
+              },
+            },
+          ],
+        }),
+      })
+    vi.stubGlobal('fetch', mockFetch)
+
+    const response = await POST(makeRequest({
+      mode: 'from_direction',
+      customPrompt: 'Turn this note into one practical video.',
+      limit: 1,
+    }))
+
+    expect(response.status).toBe(200)
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    await expect(response.json()).resolves.toEqual(
+      expect.objectContaining({
+        addedToQueue: 1,
+        mode: 'from_direction',
+        agentRunId: 'agent-run-1',
+      }),
     )
   })
 

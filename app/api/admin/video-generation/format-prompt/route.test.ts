@@ -61,7 +61,7 @@ describe('POST /api/admin/video-generation/format-prompt', () => {
     vi.clearAllMocks()
     vi.spyOn(console, 'error').mockImplementation(() => {})
     vi.unstubAllGlobals()
-    process.env = { ...originalEnv, OPENAI_API_KEY: 'test-key' }
+    process.env = { ...originalEnv, OPENAI_API_KEY: 'test-key', LLM_RETRY_DELAY_MS: '0' }
     mocks.verifyAdmin.mockResolvedValue({
       user: { id: 'admin-user-1' },
       isAdmin: true,
@@ -210,6 +210,40 @@ describe('POST /api/admin/video-generation/format-prompt', () => {
       expect.stringContaining('Estimated cost'),
       { operation: 'video_prompt_format' },
     )
+  })
+
+  it('retries a transient OpenAI failure before returning the formatted prompt', async () => {
+    const mockFetch = vi.fn()
+      .mockResolvedValueOnce({
+        status: 503,
+        ok: false,
+        text: async () => 'temporarily unavailable',
+      })
+      .mockResolvedValueOnce({
+        status: 200,
+        ok: true,
+        json: async () => ({
+          choices: [
+            {
+              message: {
+                content: 'TOPIC: Practical automation\nTARGET AUDIENCE: Small business owners',
+              },
+            },
+          ],
+        }),
+      })
+    vi.stubGlobal('fetch', mockFetch)
+
+    const response = await POST(makeRequest({
+      rawText: 'I want a video about making automation practical.',
+    }))
+
+    expect(response.status).toBe(200)
+    expect(mockFetch).toHaveBeenCalledTimes(2)
+    await expect(response.json()).resolves.toEqual({
+      formattedPrompt: 'TOPIC: Practical automation\nTARGET AUDIENCE: Small business owners',
+      agentRunId: 'agent-run-1',
+    })
   })
 
   it('builds detail fields into the formatter user message', () => {
