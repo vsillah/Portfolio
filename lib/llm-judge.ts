@@ -15,6 +15,7 @@ import {
   type AgentBudgetDecision,
 } from './agent-budget-policy'
 import { recordAgentEvent, recordAgentStep, type AgentRuntime } from './agent-run'
+import { fetchProviderWithRetry } from './llm/provider-fetch'
 
 export interface ChatMessageForJudge {
   role: 'user' | 'assistant' | 'support'
@@ -428,7 +429,7 @@ async function evaluateWithClaude(
   }
   
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetchProviderWithRetry('anthropic', 'https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -494,7 +495,7 @@ async function evaluateWithOpenAI(
   }
   
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -740,7 +741,7 @@ async function generateAxialCodesWithClaude(
     throw new Error('ANTHROPIC_API_KEY environment variable is not configured')
   }
   
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetchProviderWithRetry('anthropic', 'https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -795,7 +796,7 @@ async function generateAxialCodesWithOpenAI(
     throw new Error('OPENAI_API_KEY environment variable is not configured')
   }
   
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1136,7 +1137,7 @@ async function diagnoseErrorWithClaude(
     throw new Error('ANTHROPIC_API_KEY environment variable is not configured')
   }
   
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetchProviderWithRetry('anthropic', 'https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1191,7 +1192,7 @@ async function diagnoseErrorWithOpenAI(
     throw new Error('OPENAI_API_KEY environment variable is not configured')
   }
   
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await fetchProviderWithRetry('openai', 'https://api.openai.com/v1/chat/completions', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
