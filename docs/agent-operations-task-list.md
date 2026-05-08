@@ -4,10 +4,9 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 
 ## Integration Queue
 
-- [ ] Merge PR #125: Agent Inbox routing.
-- [ ] Retarget or merge PR #127: Engagement Work Queue.
-- [ ] Merge this roadmap definition branch after PR #125 and PR #127 are reconciled.
-- [ ] Verify both Vercel contexts after merge:
+- [x] No open Agent Operations implementation PRs remain as rollout blockers.
+- [x] Phase 12 is the final named rollout phase.
+- [ ] Integration Captain verifies both Vercel contexts after this closeout PR merges:
   - `Vercel – portfolio`
   - `Vercel – portfolio-staging`
 
@@ -58,7 +57,11 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 6. Operational recovery hygiene
    - [x] Prevent duplicate recovery request packets while a prior recovery backoff window is still active.
    - [x] Add Mission Control visibility for routed recovery status, retry attempt, earliest retry time, and active backoff state.
-   - Add recovery stale/expired visibility where Mission Control needs sharper operator guidance.
+   - Move recovery stale/expired wording refinements to maintenance if real usage shows sharper operator guidance is needed.
+
+7. Rollout closeout
+   - [x] Cap Agent Operations at Phase 12; no Phase 13 without an explicit new roadmap.
+   - [x] Move remaining work into maintenance backlog instead of adding more phases.
 
 ## Completed Or In Review
 
@@ -105,6 +108,8 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Dev testing LLM helper retry adoption for chat-agent and remediation surfaces in review.
 - [x] Chat Eval LLM judge retry adoption and Phase 11 closure audit in review.
 - [x] Recovery request backoff guard in review.
+- [x] Mission Control recovery/backoff visibility in review.
+- [x] Phase 12 rollout closeout in review.
 
 ## Scope Guard
 
