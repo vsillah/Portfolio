@@ -16,6 +16,10 @@ The goal is simple: workers can keep moving, but only one integration captain me
 8. Add a handoff entry to `docs/integration-captain-queue.md`.
 9. Stop before merging unless the chat is explicitly acting as integration captain.
 
+## Commands
+
+Use `captain sweep` when Vambah wants the integration captain to inspect repo state, process ready PRs, verify GitHub/Vercel gates, and clean up conservatively. The command spec lives at `commands/captain-sweep.md`.
+
 ## Roles
 
 | Role | File | Use When |

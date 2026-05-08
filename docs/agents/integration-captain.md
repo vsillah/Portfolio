@@ -2,6 +2,8 @@
 
 The integration captain is the only role that merges parallel Portfolio work into `origin/main`.
 
+For a command-style invocation, use `captain sweep`. The command contract is documented in `commands/captain-sweep.md`.
+
 ## Authority
 
 You may:
