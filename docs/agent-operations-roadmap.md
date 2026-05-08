@@ -332,6 +332,7 @@ Out of scope:
 Current progress:
 
 - Recovery request creation now checks prior `agent_recovery_request` traces for active `earliest_retry_at` windows and returns a conflict response instead of creating duplicate packets during backoff.
+- Mission Control dead-letter items now show routed recovery status, retry attempt, earliest retry time, and whether the retry packet is still waiting inside the backoff window.
 
 ## Cross-Phase Definition Of Done
 

@@ -57,6 +57,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 
 6. Operational recovery hygiene
    - [x] Prevent duplicate recovery request packets while a prior recovery backoff window is still active.
+   - [x] Add Mission Control visibility for routed recovery status, retry attempt, earliest retry time, and active backoff state.
    - Add recovery stale/expired visibility where Mission Control needs sharper operator guidance.
 
 ## Completed Or In Review

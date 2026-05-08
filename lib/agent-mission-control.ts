@@ -92,6 +92,10 @@ export type AgentDeadLetterItem = {
   routed: boolean
   routed_run_id: string | null
   routed_kind: string | null
+  routed_status: string | null
+  recovery_retry_attempt: number | null
+  recovery_earliest_retry_at: string | null
+  recovery_backoff_active: boolean
   next_action: string
   href: string
 }
@@ -187,6 +191,11 @@ function requestedAgentKey(run: AgentRunRow) {
 function stringMetadataValue(metadata: Record<string, unknown> | null | undefined, key: string) {
   const value = metadata?.[key]
   return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+function numberMetadataValue(metadata: Record<string, unknown> | null | undefined, key: string) {
+  const value = metadata?.[key]
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
 function executionModeForRun(run: AgentRunRow) {
@@ -601,6 +610,19 @@ export function buildAgentDeadLetterQueue(
       const routedRun = routedBySourceRun.get(run.id)
       const agentName = agent?.name ?? 'Chief of Staff Agent'
       const reason = run.error_message ?? run.current_step ?? `${run.runtime} run is ${run.status.replace(/_/g, ' ')}.`
+      const recoveryRetryAttempt =
+        routedRun?.kind === 'agent_recovery_request'
+          ? numberMetadataValue(routedRun.metadata, 'retry_attempt')
+          : null
+      const recoveryEarliestRetryAt =
+        routedRun?.kind === 'agent_recovery_request'
+          ? stringMetadataValue(routedRun.metadata, 'earliest_retry_at')
+          : null
+      const recoveryBackoffActive =
+        Boolean(recoveryEarliestRetryAt) &&
+        Number.isFinite(new Date(recoveryEarliestRetryAt ?? '').getTime()) &&
+        new Date(recoveryEarliestRetryAt ?? '').getTime() > Date.now()
+
       return {
         run_id: run.id,
         agent_key: agent?.key ?? 'chief-of-staff',
@@ -615,9 +637,15 @@ export function buildAgentDeadLetterQueue(
         routed: Boolean(routedRun),
         routed_run_id: routedRun?.id ?? null,
         routed_kind: routedRun?.kind ?? null,
+        routed_status: routedRun?.status ?? null,
+        recovery_retry_attempt: recoveryRetryAttempt,
+        recovery_earliest_retry_at: recoveryEarliestRetryAt,
+        recovery_backoff_active: recoveryBackoffActive,
         next_action: routedRun
           ? routedRun.kind === 'agent_recovery_request'
-            ? 'Review retry request.'
+            ? recoveryBackoffActive
+              ? 'Recovery is waiting for its backoff window.'
+              : 'Review retry request.'
             : 'Review routed engagement request.'
           : run.status === 'stale'
             ? 'Route stale run owner from Agent Inbox.'

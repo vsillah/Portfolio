@@ -232,7 +232,44 @@ describe('Agent Mission Control helpers', () => {
       routed: true,
       routed_run_id: 'retry-request',
       routed_kind: 'agent_recovery_request',
+      routed_status: 'completed',
       next_action: 'Review retry request.',
+    })
+  })
+
+  it('shows recovery backoff state for dead-letter runs with active retry packets', () => {
+    const failedRun = run({
+      id: 'failed-run',
+      agent_key: 'automation-systems',
+      runtime: 'n8n',
+      status: 'failed',
+      title: 'Warm lead sync',
+      error_message: 'Webhook returned 500.',
+    })
+    const retryRequest = run({
+      id: 'retry-request',
+      kind: 'agent_recovery_request',
+      status: 'completed',
+      metadata: {
+        requested_agent: 'automation-systems',
+        source_run_id: 'failed-run',
+        retry_attempt: 2,
+        earliest_retry_at: '2999-05-07T12:15:00.000Z',
+      },
+    })
+
+    const queue = buildAgentDeadLetterQueue([failedRun, retryRequest])
+
+    expect(queue[0]).toMatchObject({
+      run_id: 'failed-run',
+      routed: true,
+      routed_run_id: 'retry-request',
+      routed_kind: 'agent_recovery_request',
+      routed_status: 'completed',
+      recovery_retry_attempt: 2,
+      recovery_earliest_retry_at: '2999-05-07T12:15:00.000Z',
+      recovery_backoff_active: true,
+      next_action: 'Recovery is waiting for its backoff window.',
     })
   })
 
