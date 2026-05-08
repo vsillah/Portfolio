@@ -26,6 +26,7 @@
     "db:health-check:dev:update": "tsx scripts/database-health-check.ts --dev --update",
     "deploy:watch": "tsx scripts/vercel-deployment-watch.ts",
     "deploy:watch:once": "tsx scripts/vercel-deployment-watch.ts --once",
+    "deploy:metrics": "tsx scripts/vercel-deployment-metrics.ts",
     "git:hygiene:report": "tsx scripts/git-hygiene-report.ts",
     "wrm:smoke-gate": "tsx scripts/wrm-production-smoke-gate.ts",
     "source-protocol:smoke": "tsx scripts/source-protocol-smoke.ts",
