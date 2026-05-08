@@ -182,6 +182,10 @@ type MissionSnapshot = {
     routed: boolean
     routed_run_id: string | null
     routed_kind: string | null
+    routed_status: string | null
+    recovery_retry_attempt: number | null
+    recovery_earliest_retry_at: string | null
+    recovery_backoff_active: boolean
     next_action: string
     href: string
   }>
@@ -1053,7 +1057,13 @@ function DeadLetterPanel({
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-medium">{item.title}</span>
               <span className={`rounded-full border px-2 py-0.5 text-xs ${item.routed ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200' : 'border-red-400/40 bg-red-500/10 text-red-200'}`}>
-                {item.routed ? 'routed' : 'unrouted'}
+                {item.routed
+                  ? item.recovery_backoff_active
+                    ? 'recovery waiting'
+                    : item.routed_kind === 'agent_recovery_request'
+                      ? 'recovery routed'
+                      : 'routed'
+                  : 'unrouted'}
               </span>
               <span className="rounded-full border border-silicon-slate/50 bg-black/10 px-2 py-0.5 text-xs text-muted-foreground">
                 {item.status}
@@ -1067,6 +1077,9 @@ function DeadLetterPanel({
               <QueueDetail label="Source" value={item.source_label} />
               <QueueDetail label="Pod" value={item.pod} />
               <QueueDetail label="Age" value={`${item.age_hours}h`} />
+              {item.routed_status ? <QueueDetail label="Routed status" value={item.routed_status} /> : null}
+              {item.recovery_retry_attempt ? <QueueDetail label="Retry attempt" value={String(item.recovery_retry_attempt)} /> : null}
+              {item.recovery_earliest_retry_at ? <QueueDetail label="Earliest retry" value={formatTime(item.recovery_earliest_retry_at)} /> : null}
             </div>
             <p className="mt-3 line-clamp-2 text-muted-foreground">{item.reason}</p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
