@@ -12,10 +12,10 @@ vi.mock('@/lib/auth-server', () => ({
   isAuthError: mocks.isAuthError,
 }))
 
-vi.mock('@/lib/agent-run-recovery', () => {
+vi.mock('@/lib/agent-run-recovery', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/agent-run-recovery')>()
   return {
-    isRecoverableAgentRunStatus: (status: string) =>
-      status === 'failed' || status === 'stale' || status === 'cancelled',
+    ...actual,
     createAgentRunRecoveryRequest: mocks.createAgentRunRecoveryRequest,
   }
 })
@@ -102,7 +102,17 @@ describe('POST /api/admin/agents/runs/[runId]/retry', () => {
   it('creates a read-only recovery request for a failed run', async () => {
     mocks.from
       .mockReturnValueOnce(sourceRunQuery(sourceRun()))
-      .mockReturnValueOnce(recoveryQuery([{ id: 'prior-recovery' }]))
+      .mockReturnValueOnce(recoveryQuery([
+        {
+          id: 'prior-recovery',
+          status: 'completed',
+          metadata: {
+            source_run_id: 'source-run-1',
+            retry_attempt: 1,
+            earliest_retry_at: '2026-05-07T11:00:00.000Z',
+          },
+        },
+      ]))
 
     const response = await POST(makeRequest({ note: 'Retry after payload check.' }) as never, {
       params: { runId: 'source-run-1' },
@@ -129,6 +139,37 @@ describe('POST /api/admin/agents/runs/[runId]/retry', () => {
       }),
       note: 'Retry after payload check.',
     }))
+  })
+
+  it('blocks duplicate recovery requests while a prior backoff window is active', async () => {
+    mocks.from
+      .mockReturnValueOnce(sourceRunQuery(sourceRun()))
+      .mockReturnValueOnce(recoveryQuery([
+        {
+          id: 'recovery-run-1',
+          status: 'completed',
+          metadata: {
+            source_run_id: 'source-run-1',
+            retry_attempt: 1,
+            earliest_retry_at: '2999-05-07T12:15:00.000Z',
+          },
+        },
+      ]))
+
+    const response = await POST(makeRequest({ note: 'Retry again.' }) as never, {
+      params: { runId: 'source-run-1' },
+    })
+
+    expect(response.status).toBe(409)
+    expect(await response.json()).toEqual({
+      ok: false,
+      error: 'A recovery request is already waiting for its backoff window.',
+      source_run_id: 'source-run-1',
+      recovery_run_id: 'recovery-run-1',
+      retry_attempt: 1,
+      earliest_retry_at: '2999-05-07T12:15:00.000Z',
+    })
+    expect(mocks.createAgentRunRecoveryRequest).not.toHaveBeenCalled()
   })
 
   it('rejects non-recoverable active runs', async () => {

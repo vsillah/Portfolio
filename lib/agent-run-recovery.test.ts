@@ -10,6 +10,7 @@ vi.mock('@/lib/agent-run', () => ({
 import {
   buildAgentRunRecoveryPlan,
   createAgentRunRecoveryRequest,
+  findActiveAgentRunRecoveryBackoff,
   isRecoverableAgentRunStatus,
   type AgentRunRecoverySource,
 } from '@/lib/agent-run-recovery'
@@ -93,6 +94,56 @@ describe('agent run recovery planning', () => {
         sourceRun: sourceRun({ status: 'completed' }),
       }),
     ).toThrow('Only failed, stale, or cancelled runs can be queued for recovery')
+  })
+
+  it('finds the active recovery backoff window for duplicate retry requests', () => {
+    const activeBackoff = findActiveAgentRunRecoveryBackoff([
+      {
+        id: 'old-recovery',
+        status: 'completed',
+        metadata: {
+          retry_attempt: 1,
+          earliest_retry_at: '2026-05-07T11:45:00.000Z',
+        },
+      },
+      {
+        id: 'next-recovery',
+        status: 'completed',
+        metadata: {
+          retry_attempt: 2,
+          earliest_retry_at: '2026-05-07T12:15:00.000Z',
+        },
+      },
+    ], new Date('2026-05-07T12:00:00.000Z'))
+
+    expect(activeBackoff).toEqual({
+      recovery_run_id: 'next-recovery',
+      retry_attempt: 2,
+      earliest_retry_at: '2026-05-07T12:15:00.000Z',
+    })
+  })
+
+  it('ignores failed or expired recovery backoff windows', () => {
+    const activeBackoff = findActiveAgentRunRecoveryBackoff([
+      {
+        id: 'failed-recovery',
+        status: 'failed',
+        metadata: {
+          retry_attempt: 2,
+          earliest_retry_at: '2026-05-07T12:15:00.000Z',
+        },
+      },
+      {
+        id: 'expired-recovery',
+        status: 'completed',
+        metadata: {
+          retry_attempt: 1,
+          earliest_retry_at: '2026-05-07T11:45:00.000Z',
+        },
+      },
+    ], new Date('2026-05-07T12:00:00.000Z'))
+
+    expect(activeBackoff).toBeNull()
   })
 
   it('creates recovery and source trace events without executing production work', async () => {

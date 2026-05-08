@@ -55,6 +55,10 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Adopt shared provider fetch retries for Chat Eval LLM judge evaluation, axial-code generation, and error diagnosis calls.
    - [x] Complete final direct-provider audit; remaining provider URLs are wrapper usage, tests, or the source-validator injected-fetch path already wrapped by `withRetry`.
 
+6. Operational recovery hygiene
+   - [x] Prevent duplicate recovery request packets while a prior recovery backoff window is still active.
+   - Add recovery stale/expired visibility where Mission Control needs sharper operator guidance.
+
 ## Completed Or In Review
 
 - [x] Shared trace schema and helper library.
@@ -99,6 +103,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Direct OpenAI helper retry adoption for social carousel and video generation surfaces in review.
 - [x] Dev testing LLM helper retry adoption for chat-agent and remediation surfaces in review.
 - [x] Chat Eval LLM judge retry adoption and Phase 11 closure audit in review.
+- [x] Recovery request backoff guard in review.
 
 ## Scope Guard
 

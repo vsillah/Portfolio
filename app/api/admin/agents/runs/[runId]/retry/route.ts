@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import {
   createAgentRunRecoveryRequest,
+  findActiveAgentRunRecoveryBackoff,
   isRecoverableAgentRunStatus,
   type AgentRunRecoverySource,
 } from '@/lib/agent-run-recovery'
@@ -50,12 +51,27 @@ export async function POST(
 
   const previousRecoveries = await supabaseAdmin
     .from('agent_runs')
-    .select('id')
+    .select('id, status, metadata')
     .eq('kind', 'agent_recovery_request')
     .contains('metadata', { source_run_id: params.runId })
 
   if (previousRecoveries.error) {
     return NextResponse.json({ error: 'Failed to inspect prior recovery requests' }, { status: 500 })
+  }
+
+  const activeBackoff = findActiveAgentRunRecoveryBackoff(previousRecoveries.data ?? [])
+  if (activeBackoff) {
+    return NextResponse.json(
+      {
+        ok: false,
+        error: 'A recovery request is already waiting for its backoff window.',
+        source_run_id: params.runId,
+        recovery_run_id: activeBackoff.recovery_run_id,
+        retry_attempt: activeBackoff.retry_attempt,
+        earliest_retry_at: activeBackoff.earliest_retry_at,
+      },
+      { status: 409 },
+    )
   }
 
   try {

@@ -36,6 +36,18 @@ export type AgentRunRecoveryPlan = {
   summary_markdown: string
 }
 
+export type AgentRunRecoveryBackoffCandidate = {
+  id: string
+  status?: string | null
+  metadata: Record<string, unknown> | null
+}
+
+export type ActiveAgentRunRecoveryBackoff = {
+  recovery_run_id: string
+  retry_attempt: number | null
+  earliest_retry_at: string
+}
+
 export type CreateAgentRunRecoveryRequestInput = {
   sourceRun: AgentRunRecoverySource
   previousRecoveryCount?: number
@@ -69,6 +81,45 @@ function requestedAgentKey(sourceRun: AgentRunRecoverySource) {
   const requested = sourceRun.metadata?.requested_agent
   if (typeof requested === 'string' && requested.trim()) return requested.trim()
   return sourceRun.agent_key || 'chief-of-staff'
+}
+
+function readRecoveryRetryAttempt(metadata: Record<string, unknown> | null | undefined) {
+  const value = metadata?.retry_attempt
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+function readRecoveryEarliestRetryAt(metadata: Record<string, unknown> | null | undefined) {
+  const value = metadata?.earliest_retry_at
+  return typeof value === 'string' && value.trim() ? value.trim() : null
+}
+
+export function findActiveAgentRunRecoveryBackoff(
+  recoveries: AgentRunRecoveryBackoffCandidate[],
+  now = new Date(),
+): ActiveAgentRunRecoveryBackoff | null {
+  const nowMs = now.getTime()
+  const active = recoveries
+    .filter((recovery) => recovery.status !== 'failed' && recovery.status !== 'cancelled' && recovery.status !== 'stale')
+    .map((recovery) => {
+      const earliestRetryAt = readRecoveryEarliestRetryAt(recovery.metadata)
+      const retryAtMs = earliestRetryAt ? new Date(earliestRetryAt).getTime() : Number.NaN
+      return {
+        recovery,
+        earliestRetryAt,
+        retryAtMs,
+      }
+    })
+    .filter((item) => item.earliestRetryAt && Number.isFinite(item.retryAtMs) && item.retryAtMs > nowMs)
+    .sort((a, b) => a.retryAtMs - b.retryAtMs)
+
+  const next = active[0]
+  if (!next?.earliestRetryAt) return null
+
+  return {
+    recovery_run_id: next.recovery.id,
+    retry_attempt: readRecoveryRetryAttempt(next.recovery.metadata),
+    earliest_retry_at: next.earliestRetryAt,
+  }
 }
 
 export function buildAgentRunRecoveryPlan(input: {
