@@ -145,6 +145,34 @@ describe('generateJsonCompletion — provider routing', () => {
     expect(result.content).toBe('{"recovered":true}')
   })
 
+  it('retries transient Anthropic status responses before returning success', async () => {
+    process.env.ANTHROPIC_API_KEY = 'sk-ant-test'
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: async () => 'temporarily unavailable',
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          content: [{ text: '{"recovered":true}' }],
+          usage: { input_tokens: 5, output_tokens: 7 },
+        }),
+      })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { generateJsonCompletion } = await import('../llm-dispatch')
+    const result = await generateJsonCompletion({
+      model: 'claude-3-5-haiku-20241022',
+      systemPrompt: 'system',
+      userPrompt: 'user',
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(result.content).toBe('{"recovered":true}')
+  })
+
   it('does not retry non-retryable provider status responses', async () => {
     process.env.OPENAI_API_KEY = 'sk-test'
     const fetchMock = vi.fn().mockResolvedValue({
