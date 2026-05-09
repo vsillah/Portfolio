@@ -103,6 +103,16 @@ cwds = ["/Users/vambahsillah"]
     }))
     expect(inventory.automations[0].controlDocs).toContain('docs/portfolio-operations-manager.md')
     expect(inventory.automations[0].contextQuestions.every((question) => question.answered)).toBe(true)
+    expect(inventory.progress.tasks.map((task) => task.id)).toEqual([
+      'inventory',
+      'context-questions',
+      'workspace-roots',
+      'governing-docs',
+      'authority-boundaries',
+      'duplicate-review',
+      'memory-context-cleanup',
+    ])
+    expect(inventory.progress.percent).toBe(100)
   })
 
   it('marks unanswered context-readiness questions without generating answers', async () => {
@@ -130,6 +140,8 @@ cwds = ["/Users/vambahsillah/Projects/Portfolio"]
     ]))
     expect(unanswered.find((question) => question.id === 'boundary')?.answer).toBeNull()
     expect(unanswered.find((question) => question.id === 'boundary')?.recommendation).toContain('authority boundary')
+    expect(inventory.progress.percent).toBeLessThan(100)
+    expect(inventory.progress.tasks.find((task) => task.id === 'memory-context-cleanup')?.status).toBe('pending')
   })
 
   it('flags duplicate credential rotation jobs and sanitizes prompt excerpts', async () => {
