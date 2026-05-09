@@ -92,6 +92,7 @@ export async function getRoadmapBundleForProject(clientProjectId: string): Promi
         title: roadmap.title,
         status: roadmap.status,
         client_summary: roadmap.client_summary,
+        snapshot: roadmap.snapshot as Record<string, unknown> | null,
       },
       phases: phases.map((phase) => ({
         id: phase.id as string,
@@ -165,7 +166,10 @@ export async function ensureRoadmapForProject(clientProjectId: string, options?:
       status: 'active',
       generated_from: options?.generatedFrom ?? 'manual',
       client_summary: draft.clientSummary,
-      snapshot: { input_hash: draft.inputHash },
+      snapshot: {
+        input_hash: draft.inputHash,
+        runtime_placement_options: draft.runtimePlacementOptions,
+      },
       created_by: options?.userId ?? null,
     })
     .select('*')
@@ -381,17 +385,29 @@ export async function refreshRoadmapPhaseRollups(roadmapId: string): Promise<voi
     .select('payer, cost_type, amount, category')
     .eq('roadmap_id', roadmapId)
 
+  const { data: roadmap } = await db
+    .from('client_ai_ops_roadmaps')
+    .select('snapshot')
+    .eq('id', roadmapId)
+    .maybeSingle()
+
   type CostRollupRow = { payer: string; cost_type: string; amount: number | string | null; category: string }
+  const existingSnapshot = roadmap?.snapshot && typeof roadmap.snapshot === 'object'
+    ? roadmap.snapshot as Record<string, unknown>
+    : {}
 
   await db
     .from('client_ai_ops_roadmaps')
     .update({
-      snapshot: { cost_summary: rollUpRoadmapCosts(((costs || []) as CostRollupRow[]).map((item) => ({
-        payer: item.payer as never,
-        costType: item.cost_type as never,
-        amount: item.amount == null ? null : Number(item.amount),
-        category: item.category as never,
-      }))) },
+      snapshot: {
+        ...existingSnapshot,
+        cost_summary: rollUpRoadmapCosts(((costs || []) as CostRollupRow[]).map((item) => ({
+          payer: item.payer as never,
+          costType: item.cost_type as never,
+          amount: item.amount == null ? null : Number(item.amount),
+          category: item.category as never,
+        }))),
+      },
       updated_at: new Date().toISOString(),
     })
     .eq('id', roadmapId)

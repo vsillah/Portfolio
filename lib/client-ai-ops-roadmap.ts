@@ -41,6 +41,17 @@ export interface RoadmapContext {
   implementationRequirements?: Record<string, unknown> | null
 }
 
+export type RoadmapRuntimePlacementKey = 'client_local_node' | 'cloud_runtime' | 'hybrid_local_cloud'
+
+export interface RoadmapRuntimePlacementOption {
+  key: RoadmapRuntimePlacementKey
+  label: string
+  description: string
+  alwaysOn: boolean
+  dataResidence: 'client_device' | 'cloud' | 'hybrid'
+  approvalNote: string
+}
+
 export interface RoadmapPhaseDraft {
   phaseKey: RoadmapPhaseKey
   phaseOrder: number
@@ -84,6 +95,7 @@ export interface RoadmapDraft {
   title: string
   clientSummary: string
   inputHash: string
+  runtimePlacementOptions: RoadmapRuntimePlacementOption[]
   phases: RoadmapPhaseDraft[]
   tasks: RoadmapTaskDraft[]
   costItems: RoadmapCostItemDraft[]
@@ -131,11 +143,39 @@ export interface RoadmapClientView {
   title: string
   status: RoadmapStatus
   clientSummary: string | null
+  runtimePlacementOptions: RoadmapRuntimePlacementOption[]
   phases: RoadmapClientPhase[]
   costSummary: RoadmapCostRollup
   nextActions: Array<{ title: string; ownerType: RoadmapTaskOwner; priority: RoadmapPriority; dueDate: string | null }>
   latestReport: RoadmapClientReportSummary | null
 }
+
+export const DEFAULT_RUNTIME_PLACEMENT_OPTIONS: RoadmapRuntimePlacementOption[] = [
+  {
+    key: 'client_local_node',
+    label: 'Client-owned local node',
+    description: 'Run the data store, local LLM repository, or automation worker on a client-owned Mac mini, mini PC, or equivalent always-on device.',
+    alwaysOn: true,
+    dataResidence: 'client_device',
+    approvalNote: 'Requires client-owned hardware, named remote access, backup, monitoring, and approval before production runtime changes.',
+  },
+  {
+    key: 'cloud_runtime',
+    label: 'Cloud runtime host',
+    description: 'Run the data store, local model fallback, or agent worker in a cloud environment for 24/7 access when client hardware is not practical.',
+    alwaysOn: true,
+    dataResidence: 'cloud',
+    approvalNote: 'Requires provider, region, cost owner, credential boundary, and deployment approval before provisioning.',
+  },
+  {
+    key: 'hybrid_local_cloud',
+    label: 'Hybrid local plus cloud fallback',
+    description: 'Keep sensitive data or local models on a client-owned node while using cloud hosting for uptime, failover, or remote access.',
+    alwaysOn: true,
+    dataResidence: 'hybrid',
+    approvalNote: 'Requires a clear split between local data, cloud services, backups, monitoring, and failover approval.',
+  },
+]
 
 const DEFAULT_PHASES: RoadmapPhaseDraft[] = [
   {
@@ -150,9 +190,9 @@ const DEFAULT_PHASES: RoadmapPhaseDraft[] = [
     phaseKey: 'infrastructure_access',
     phaseOrder: 2,
     title: 'Infrastructure and access',
-    objective: 'Configure the local or hybrid node, secure remote access, backups, and monitoring baseline.',
+    objective: 'Choose where the data and local LLM repository will live, then configure the local device, cloud runtime, or hybrid fallback for 24/7 access.',
     status: 'pending',
-    acceptanceCriteria: ['Node path selected', 'Remote access gated by named accounts', 'Backup and monitoring baseline recorded'],
+    acceptanceCriteria: ['Runtime placement selected', 'Remote access gated by named accounts', 'Backup and monitoring baseline recorded'],
   },
   {
     phaseKey: 'data_ai_foundation',
@@ -183,7 +223,7 @@ const DEFAULT_PHASES: RoadmapPhaseDraft[] = [
 const DEFAULT_TASKS: RoadmapTaskDraft[] = [
   task('client-vault', 'discovery_ownership', 'Create client-owned password vault', 'Client creates the shared vault and invites named AmaduTown maintainer access.', 'client', 'high', true, true, 'access_security', 0, 'Vault exists and access is named, logged, and revocable.'),
   task('ownership-map', 'discovery_ownership', 'Confirm ownership and access map', 'Document who owns accounts, data, hardware, logs, and approval decisions.', 'shared', 'high', true, true, 'other', 0, 'Ownership map is visible in project record.'),
-  task('hardware-decision', 'infrastructure_access', 'Select local node or cloud fallback', 'Choose Mac mini, mini PC, existing hardware, or cloud fallback based on stack and budget.', 'shared', 'high', true, true, 'hardware', 1200, 'Selected path has expected startup and monthly costs.'),
+  task('hardware-decision', 'infrastructure_access', 'Select data and local LLM repository placement', 'Choose whether the client data store, local LLM repository, or automation worker runs on a Mac mini, mini PC, cloud runtime, or hybrid local/cloud path for 24/7 access.', 'shared', 'high', true, true, 'hardware', 1200, 'Selected path has expected startup, monthly, backup, monitoring, and approval requirements.'),
   task('secure-remote-access', 'infrastructure_access', 'Configure secure remote access', 'Set up private access for maintenance without exposing admin surfaces publicly.', 'amadutown', 'high', false, true, 'access_security', 20, 'Maintainer access works through named account and MFA.'),
   task('backup-monitoring', 'infrastructure_access', 'Set backup and monitoring baseline', 'Configure backup status and core health checks for the selected infrastructure path.', 'amadutown', 'medium', true, true, 'backup', 150, 'Backup and health check status are visible in roadmap report.'),
   task('data-source-map', 'data_ai_foundation', 'Map approved data sources and permissions', 'Identify documents, databases, tools, and user groups the AI system may access.', 'shared', 'high', true, true, 'other', 0, 'Approved and forbidden data sources are documented.'),
@@ -195,10 +235,11 @@ const DEFAULT_TASKS: RoadmapTaskDraft[] = [
 ]
 
 const DEFAULT_COST_ITEMS: RoadmapCostItemDraft[] = [
-  cost('local-node', 'infrastructure_access', 'hardware', 'Local AI operations node', 'Mac mini, mini PC, or equivalent client-owned always-on device.', 'client', 'one_time', 1200, 'needs_review'),
+  cost('local-node', 'infrastructure_access', 'hardware', 'Client-owned local runtime node', 'Mac mini, mini PC, or equivalent always-on device for local data, local LLM repository, or automation workers.', 'client', 'one_time', 1200, 'needs_review'),
+  cost('cloud-runtime-host', 'infrastructure_access', 'ai_runtime', 'Cloud runtime host or fallback', 'Cloud host for 24/7 access when client-owned hardware is not practical or when hybrid failover is needed.', 'client', 'monthly', 75, 'needs_review'),
   cost('remote-access', 'infrastructure_access', 'access_security', 'Secure remote access', 'Private access layer for maintenance and support.', 'client', 'monthly', 20, 'needs_review'),
   cost('credential-vault', 'discovery_ownership', 'access_security', 'Password vault', 'Client-owned credential vault for setup and maintenance access.', 'client', 'monthly', 25, 'needs_review'),
-  cost('backup', 'infrastructure_access', 'backup', 'Backup storage', 'Encrypted backup drive, NAS allocation, or cloud backup path.', 'client', 'one_time', 150, 'needs_review'),
+  cost('backup', 'infrastructure_access', 'backup', 'Runtime and repository backup', 'Encrypted backup drive, NAS allocation, or cloud backup path for the selected data/local LLM repository placement.', 'client', 'one_time', 150, 'needs_review'),
   cost('ai-runtime', 'data_ai_foundation', 'ai_runtime', 'AI/runtime usage', 'Model, API, local runtime, or embedded AI subscription costs.', 'client', 'monthly', 50, 'needs_review'),
   cost('automation', 'agent_automation_deployment', 'automation', 'Workflow automation tooling', 'n8n, workflow runtime, connectors, or equivalent automation layer.', 'client', 'monthly', 30, 'needs_review'),
 ]
@@ -324,8 +365,9 @@ export function buildDefaultClientAiOpsRoadmap(context: RoadmapContext = {}): Ro
     title: `${name} AI Ops Roadmap`,
     clientSummary: agentReadiness
       ? `${agentReadiness.clientSummary} ${agentReadiness.roadmapRecommendation}`
-      : 'A phased implementation plan for client-owned AI infrastructure, transparent setup costs, agent deployment, monitoring, and continuity reporting.',
+      : 'A phased implementation plan for client-owned AI infrastructure, 24/7 data and local LLM repository placement, transparent setup costs, agent deployment, monitoring, and continuity reporting.',
     inputHash: hashContext(context),
+    runtimePlacementOptions: DEFAULT_RUNTIME_PLACEMENT_OPTIONS.map((option) => ({ ...option })),
     phases: DEFAULT_PHASES.map((phase) => {
       const adjustment = adjustments[phase.phaseKey]
       return {
@@ -389,7 +431,7 @@ export function buildProposalRoadmapSnapshot(context: RoadmapContext = {}): Road
 }
 
 export function buildClientRoadmapView(input: {
-  roadmap: { title: string; status: RoadmapStatus; client_summary: string | null }
+  roadmap: { title: string; status: RoadmapStatus; client_summary: string | null; snapshot?: Record<string, unknown> | null }
   phases: Array<{
     id?: string
     title: string
@@ -436,6 +478,9 @@ export function buildClientRoadmapView(input: {
     title: input.roadmap.title,
     status: input.roadmap.status,
     clientSummary: input.roadmap.client_summary,
+    runtimePlacementOptions: Array.isArray(input.roadmap.snapshot?.runtime_placement_options)
+      ? input.roadmap.snapshot.runtime_placement_options as RoadmapRuntimePlacementOption[]
+      : DEFAULT_RUNTIME_PLACEMENT_OPTIONS.map((option) => ({ ...option })),
     phases,
     costSummary: rollUpRoadmapCosts(input.costItems),
     nextActions: visibleTasks
