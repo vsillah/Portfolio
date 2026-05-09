@@ -25,6 +25,8 @@ All commands read `docs/credential-inventory.json`.
 
 ```bash
 npm run credentials:list-due -- --env staging
+npm run credentials:report -- --env staging
+npm run credentials:report -- --env staging --json
 npm run credentials:inject -- --env staging -- npm run n8n:drift-check -- --warn
 npm run credentials:rotate -- --secret n8n-ingest-secret --env staging
 npm run credentials:sync-runtime -- --secret n8n-ingest-secret --env staging
@@ -35,6 +37,8 @@ npm run credentials:smoke -- --env staging --require-provider-access
 The broker never prints raw secret values. Rotation packets are written to `.credential-rotation-audits/`, which is ignored by git.
 
 Use plain `credentials:smoke` for local registry checks. Use `--require-provider-access` after `op` and `infisical` are installed/authenticated; that mode fails unless the broker can read one scoped test secret from each source of truth without printing its value.
+
+Use `credentials:report` for rotation visibility. It is read-only and summarizes the inventory by status, source of truth, risk, runtime sink, approval boundary, and next action. It does not fetch or print secret values. The same report is exposed to admins at `/admin/credentials` through `/api/admin/credentials/report`.
 
 ## Rotation Rules
 

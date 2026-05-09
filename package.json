@@ -16,6 +16,7 @@
     "n8n:drift-check": "tsx scripts/n8n-workflow-drift-check.ts",
     "n8n:drift-check:warn": "tsx scripts/n8n-workflow-drift-check.ts -- --warn",
     "credentials:list-due": "tsx scripts/credential-broker.ts list-due",
+    "credentials:report": "tsx scripts/credential-broker.ts report",
     "credentials:inject": "tsx scripts/credential-broker.ts inject",
     "credentials:rotate": "tsx scripts/credential-broker.ts rotate",
     "credentials:sync-runtime": "tsx scripts/credential-broker.ts sync-runtime",
