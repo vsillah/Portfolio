@@ -5,6 +5,13 @@ import { buildAgentMissionControlSnapshot } from '@/lib/agent-mission-control'
 import { runAgentWarRoom } from '@/lib/agent-war-room'
 import { AGENT_ORGANIZATION, getAgentByKey } from '@/lib/agent-organization'
 import { supabaseAdmin } from '@/lib/supabase'
+import {
+  claimAgentWorkItem,
+  getAgentWorkItem,
+  handoffAgentWorkItem,
+  listAgentWorkItems,
+  type AgentWorkItem,
+} from '@/lib/agent-work-items'
 
 type SlackCommandName =
   | 'help'
@@ -14,6 +21,12 @@ type SlackCommandName =
   | 'morning-review'
   | 'agents'
   | 'engagements'
+  | 'work-items'
+  | 'claim'
+  | 'handoff'
+  | 'blockers'
+  | 'prs'
+  | 'captain'
   | 'inbox'
   | 'brief'
   | 'route'
@@ -69,6 +82,10 @@ function agentRunsUrl(runId?: string) {
   return `${baseUrl()}/admin/agents/runs${runId ? `/${runId}` : ''}`
 }
 
+function agentCoordinationUrl() {
+  return `${baseUrl()}/admin/agents/coordination`
+}
+
 function since24h() {
   return new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
 }
@@ -81,8 +98,14 @@ function commandFromText(text: string): SlackCommandName {
   if (command === 'approval' || command === 'approvals') return 'approvals'
   if (command === 'morning-review' || command === 'morning' || command === 'review') return 'morning-review'
   if (command === 'agents' || command === 'list') return 'agents'
-  if (command === 'engagements' || command === 'work' || command === 'queue') return 'engagements'
-  if (command === 'inbox' || command === 'queue') return 'inbox'
+  if (command === 'engagements' || command === 'queue') return 'engagements'
+  if (command === 'work') return 'work-items'
+  if (command === 'claim') return 'claim'
+  if (command === 'handoff') return 'handoff'
+  if (command === 'blockers') return 'blockers'
+  if (command === 'prs') return 'prs'
+  if (command === 'captain') return 'captain'
+  if (command === 'inbox') return 'inbox'
   if (command === 'brief') return 'brief'
   if (command === 'route') return 'route'
   if (command === 'run' || command === 'start') return 'run'
@@ -104,6 +127,12 @@ function formatHelp() {
     '`/agent morning-review` - run the approved Agent Ops morning review trace.',
     '`/agent agents` - list currently mapped agents and engagement keys.',
     '`/agent engagements` - show the latest routed engagement work queue.',
+    '`/agent work [id]` - show coordination work items or one work packet.',
+    '`/agent claim <id> [agent-key]` - claim a coordination work item.',
+    '`/agent handoff <id> <agent-key>` - request an agent-to-agent handoff.',
+    '`/agent blockers` - show blocked coordination work.',
+    '`/agent prs` - show work waiting on PR review or merge.',
+    '`/agent captain` - show the Integration Captain coordination queue.',
     '`/agent inbox` - show numbered Agent Inbox items.',
     '`/agent brief` - show the current Daily Operating Brief.',
     '`/agent route <number-or-id>` - route an Agent Inbox item through Chief of Staff.',
@@ -111,6 +140,127 @@ function formatHelp() {
     '`/agent standup` - run a text War Room standup across active/partial agents.',
     '`/agent discuss <question>` - gather agent perspectives and a Chief of Staff synthesis.',
   ].join('\n')
+}
+
+function formatWorkItemLine(item: AgentWorkItem, index?: number) {
+  const number = typeof index === 'number' ? `${index + 1}. ` : '- '
+  const owner = item.owner_agent_key ? `${item.owner_agent_key}/${item.owner_runtime}` : item.owner_runtime
+  const branch = item.branch_name ? ` branch=${item.branch_name}` : ''
+  const pr = item.pr_url ? ` <${item.pr_url}|PR ${item.pr_number ?? ''}>` : ''
+  const approval = item.approval_id ? ' approval-linked' : ''
+  return `${number}*${item.title}* [${item.status}/${owner}]${branch}${pr}${approval}\n   ${item.objective}`
+}
+
+export async function buildAgentWorkItemsSlackText(input: AgentSlackCommandInput) {
+  const [itemId] = commandArgs(input.text)
+  try {
+    if (itemId) {
+      const item = await getAgentWorkItem(itemId)
+      if (!item) return `Work item not found: \`${itemId}\``
+      return [
+        '*Agent work item*',
+        formatWorkItemLine(item),
+        item.blocker_summary ? `Blocker: ${item.blocker_summary}` : null,
+        item.validation_summary ? `Validation: ${item.validation_summary}` : null,
+        item.latest_handoff ? `Latest handoff: ${item.latest_handoff.from_agent_key ?? 'unknown'} -> ${item.latest_handoff.to_agent_key ?? 'unknown'}` : null,
+        item.active_run_id ? `Trace: ${agentRunsUrl(item.active_run_id)}` : null,
+        `Review: ${agentCoordinationUrl()}`,
+      ].filter(Boolean).join('\n')
+    }
+
+    const items = (await listAgentWorkItems({ limit: 8 }))
+      .filter((item) => !['merged', 'deployed', 'cancelled'].includes(item.status))
+      .slice(0, 8)
+    if (items.length === 0) return `No active agent coordination work items. Review: ${agentCoordinationUrl()}`
+    return ['*Agent coordination work*', ...items.map(formatWorkItemLine), `Review: ${agentCoordinationUrl()}`].join('\n')
+  } catch (error) {
+    return `Agent work lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function claimAgentWorkItemSlackText(input: AgentSlackCommandInput) {
+  const [itemId, agentKeyArg] = commandArgs(input.text)
+  if (!itemId) return 'Missing work item. Use `/agent work`, then `/agent claim <id> [agent-key]`.'
+  const ownerAgentKey = agentKeyArg || 'manual-admin'
+  try {
+    const actor = input.userName || input.userId || 'Slack user'
+    const item = await claimAgentWorkItem({
+      id: itemId,
+      ownerAgentKey,
+      actorLabel: actor,
+    })
+    return [
+      '*Agent work item claimed*',
+      formatWorkItemLine(item),
+      item.active_run_id ? `Trace: ${agentRunsUrl(item.active_run_id)}` : `Review: ${agentCoordinationUrl()}`,
+    ].join('\n')
+  } catch (error) {
+    return `Agent work claim failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function handoffAgentWorkItemSlackText(input: AgentSlackCommandInput) {
+  const [itemId, toAgentKey, ...summaryParts] = commandArgs(input.text)
+  if (!itemId || !toAgentKey) return 'Missing handoff details. Use `/agent handoff <id> <agent-key> [summary]`.'
+  try {
+    const actor = input.userName || input.userId || 'Slack user'
+    const result = await handoffAgentWorkItem({
+      id: itemId,
+      toAgentKey,
+      fromAgentKey: 'manual-admin',
+      summary: summaryParts.join(' ').trim() || `${actor} requested handoff to ${toAgentKey}`,
+      acceptanceCriteria: 'Review the work packet, update status, and attach PR or blocker evidence.',
+    })
+    return [
+      '*Agent work item handed off*',
+      formatWorkItemLine(result.workItem),
+      result.handoffId ? `Handoff: ${result.handoffId}` : null,
+      result.workItem.active_run_id ? `Trace: ${agentRunsUrl(result.workItem.active_run_id)}` : `Review: ${agentCoordinationUrl()}`,
+    ].filter(Boolean).join('\n')
+  } catch (error) {
+    return `Agent work handoff failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function buildAgentBlockersSlackText() {
+  try {
+    const items = await listAgentWorkItems({ status: 'blocked', limit: 8 })
+    if (items.length === 0) return `No blocked coordination work. Review: ${agentCoordinationUrl()}`
+    return ['*Blocked agent coordination work*', ...items.map(formatWorkItemLine), `Review: ${agentCoordinationUrl()}`].join('\n')
+  } catch (error) {
+    return `Agent blocker lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function buildAgentPrsSlackText() {
+  try {
+    const items = (await listAgentWorkItems({ limit: 50 }))
+      .filter((item) => item.status === 'ready_for_review' || item.status === 'ready_for_merge')
+      .slice(0, 8)
+    if (items.length === 0) return `No coordination PRs are waiting for review or merge. Review: ${agentCoordinationUrl()}`
+    return ['*Coordination PR queue*', ...items.map(formatWorkItemLine), `Review: ${agentCoordinationUrl()}`].join('\n')
+  } catch (error) {
+    return `Agent PR queue lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
+}
+
+export async function buildCaptainQueueSlackText() {
+  try {
+    const items = await listAgentWorkItems({ limit: 100 })
+    const review = items.filter((item) => item.status === 'ready_for_review' || item.status === 'ready_for_merge')
+    const blocked = items.filter((item) => item.status === 'blocked')
+    const approval = items.filter((item) => Boolean(item.approval_id))
+    return [
+      '*Integration Captain queue*',
+      `Review/merge candidates: ${review.length}`,
+      `Blocked: ${blocked.length}`,
+      `Approval-linked: ${approval.length}`,
+      review.slice(0, 5).map(formatWorkItemLine).join('\n') || 'No PR-ready work items.',
+      `Review: ${agentCoordinationUrl()}`,
+    ].join('\n')
+  } catch (error) {
+    return `Captain queue lookup failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+  }
 }
 
 export async function buildAgentEngagementQueueSlackText(limit = 5) {
@@ -493,19 +643,31 @@ export async function handleAgentSlackCommand(input: AgentSlackCommandInput): Pr
               ? formatAgentListSlackText()
               : command === 'engagements'
                 ? await buildAgentEngagementQueueSlackText()
-                : command === 'inbox'
-                  ? await buildAgentInboxSlackText()
-                  : command === 'brief'
-                    ? await buildAgentBriefSlackText()
-                    : command === 'route'
-                      ? await routeAgentInboxSlackText(input)
-                      : command === 'run'
-                        ? await createAgentEngagementSlackText(input)
-                        : command === 'standup'
-                          ? await runWarRoomStandupSlackText(input)
-                          : command === 'discuss'
-                            ? await runWarRoomDiscussSlackText(input)
-                            : formatHelp()
+                : command === 'work-items'
+                  ? await buildAgentWorkItemsSlackText(input)
+                  : command === 'claim'
+                    ? await claimAgentWorkItemSlackText(input)
+                    : command === 'handoff'
+                      ? await handoffAgentWorkItemSlackText(input)
+                      : command === 'blockers'
+                        ? await buildAgentBlockersSlackText()
+                        : command === 'prs'
+                          ? await buildAgentPrsSlackText()
+                          : command === 'captain'
+                            ? await buildCaptainQueueSlackText()
+                            : command === 'inbox'
+                              ? await buildAgentInboxSlackText()
+                              : command === 'brief'
+                                ? await buildAgentBriefSlackText()
+                                : command === 'route'
+                                  ? await routeAgentInboxSlackText(input)
+                                  : command === 'run'
+                                    ? await createAgentEngagementSlackText(input)
+                                    : command === 'standup'
+                                      ? await runWarRoomStandupSlackText(input)
+                                      : command === 'discuss'
+                                        ? await runWarRoomDiscussSlackText(input)
+                                        : formatHelp()
 
   return { responseType: 'ephemeral', text }
 }

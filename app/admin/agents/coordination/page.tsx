@@ -1,0 +1,459 @@
+'use client'
+
+import Link from 'next/link'
+import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  AlertTriangle,
+  ArrowRight,
+  Bot,
+  CheckCircle2,
+  GitPullRequest,
+  Network,
+  RefreshCw,
+  ShieldCheck,
+} from 'lucide-react'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import Breadcrumbs from '@/components/admin/Breadcrumbs'
+import { getCurrentSession } from '@/lib/auth'
+import type { AgentRuntime } from '@/lib/agent-run'
+import type { AgentWorkItem, AgentWorkItemStatus } from '@/lib/agent-work-items'
+
+const STATUSES: Array<'all' | AgentWorkItemStatus> = [
+  'all',
+  'queued',
+  'assigned',
+  'in_progress',
+  'blocked',
+  'ready_for_review',
+  'ready_for_merge',
+  'merged',
+  'deployed',
+  'cancelled',
+]
+
+type WorkItemForm = {
+  title: string
+  objective: string
+  owner_agent_key: string
+  owner_runtime: AgentRuntime
+  branch_name: string
+  worktree_path: string
+  expected_files: string
+}
+
+const DEFAULT_FORM: WorkItemForm = {
+  title: '',
+  objective: '',
+  owner_agent_key: 'chief-of-staff',
+  owner_runtime: 'codex',
+  branch_name: '',
+  worktree_path: '',
+  expected_files: '',
+}
+
+export default function AgentCoordinationPage() {
+  return (
+    <ProtectedRoute requireAdmin>
+      <AgentCoordinationContent />
+    </ProtectedRoute>
+  )
+}
+
+function AgentCoordinationContent() {
+  const [items, setItems] = useState<AgentWorkItem[]>([])
+  const [status, setStatus] = useState<'all' | AgentWorkItemStatus>('all')
+  const [loading, setLoading] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
+  const [actionId, setActionId] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [form, setForm] = useState<WorkItemForm>(DEFAULT_FORM)
+
+  const authedFetch = useCallback(async (path: string, init: RequestInit = {}) => {
+    const session = await getCurrentSession()
+    if (!session?.access_token) throw new Error('Missing admin session')
+    return fetch(path, {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+        ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(init.headers ?? {}),
+      },
+    })
+  }, [])
+
+  const loadItems = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const query = status === 'all' ? '' : `?status=${status}`
+      const response = await authedFetch(`/api/admin/agents/work-items${query}`)
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setItems(body.work_items ?? [])
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load work items')
+      setItems([])
+    } finally {
+      setLoading(false)
+    }
+  }, [authedFetch, status])
+
+  useEffect(() => {
+    loadItems()
+  }, [loadItems])
+
+  const summary = useMemo(() => ({
+    active: items.filter((item) => !['merged', 'deployed', 'cancelled'].includes(item.status)).length,
+    blocked: items.filter((item) => item.status === 'blocked').length,
+    review: items.filter((item) => item.status === 'ready_for_review' || item.status === 'ready_for_merge').length,
+    approvals: items.filter((item) => Boolean(item.approval_id)).length,
+  }), [items])
+
+  async function createWorkItem(event: FormEvent) {
+    event.preventDefault()
+    setSubmitting(true)
+    setError(null)
+    try {
+      const response = await authedFetch('/api/admin/agents/work-items', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: form.title,
+          objective: form.objective,
+          owner_agent_key: form.owner_agent_key,
+          owner_runtime: form.owner_runtime,
+          branch_name: form.branch_name || null,
+          worktree_path: form.worktree_path || null,
+          expected_files: form.expected_files.split('\n').map((line) => line.trim()).filter(Boolean),
+          source_type: 'admin_agent_coordination',
+          source_label: 'Agent Coordination',
+        }),
+      })
+      const body = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(body.error || `HTTP ${response.status}`)
+      setForm(DEFAULT_FORM)
+      await loadItems()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create work item')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  async function quickAction(item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') {
+    const note =
+      action === 'block'
+        ? 'Needs Integration Captain review before proceeding.'
+        : action === 'validation'
+          ? 'Validation packet recorded from Agent Coordination.'
+          : 'Hand off to Integration Captain for gated review.'
+    setActionId(`${action}:${item.id}`)
+    setError(null)
+    try {
+      const path =
+        action === 'block'
+          ? `/api/admin/agents/work-items/${item.id}/block`
+          : action === 'validation'
+            ? `/api/admin/agents/work-items/${item.id}/validation`
+            : `/api/admin/agents/work-items/${item.id}/handoff`
+      const body =
+        action === 'block'
+          ? { blocker_summary: note }
+          : action === 'validation'
+            ? { validation_summary: note, ready_for_merge: true }
+            : {
+                to_agent_key: 'integration-captain',
+                to_runtime: 'codex',
+                summary: note,
+                acceptance_criteria: 'Review PR, checks, deployment gates, and merge eligibility.',
+              }
+      const response = await authedFetch(path, { method: 'POST', body: JSON.stringify(body) })
+      const responseBody = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(responseBody.error || `HTTP ${response.status}`)
+      await loadItems()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Action failed')
+    } finally {
+      setActionId(null)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
+      <div className="mx-auto max-w-7xl">
+        <Breadcrumbs items={[
+          { label: 'Admin Dashboard', href: '/admin' },
+          { label: 'Agent Operations', href: '/admin/agents' },
+          { label: 'Coordination' },
+        ]} />
+
+        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <div className="mb-2 inline-flex items-center gap-2 text-sm text-radiant-gold">
+              <Network size={16} />
+              Agent Coordination Substrate
+            </div>
+            <h1 className="text-3xl font-bold">Agent Coordination</h1>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              Durable work packets, handoffs, blockers, PR links, and approval-gated merge/deploy states across Codex, n8n, Hermes, OpenCode, and manual operators.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link
+              href="/admin/agents"
+              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
+            >
+              <Bot size={16} />
+              Mission Control
+            </Link>
+            <button
+              onClick={loadItems}
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+            >
+              <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+              Refresh
+            </button>
+          </div>
+        </div>
+
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+          <Metric label="Active" value={summary.active} />
+          <Metric label="Blocked" value={summary.blocked} tone={summary.blocked ? 'red' : 'slate'} />
+          <Metric label="Review queue" value={summary.review} tone={summary.review ? 'yellow' : 'slate'} />
+          <Metric label="Approval-linked" value={summary.approvals} tone={summary.approvals ? 'green' : 'slate'} />
+        </div>
+
+        <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+          <div className="mb-4 flex flex-wrap gap-2">
+            {STATUSES.map((item) => (
+              <button
+                key={item}
+                onClick={() => setStatus(item)}
+                className={`rounded-lg border px-3 py-2 text-sm ${
+                  status === item
+                    ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
+                    : 'border-silicon-slate/70 bg-silicon-slate/20 text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {item.replace(/_/g, ' ')}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={createWorkItem} className="grid gap-3 lg:grid-cols-3">
+            <input
+              value={form.title}
+              onChange={(event) => setForm((prev) => ({ ...prev, title: event.target.value }))}
+              placeholder="Work item title"
+              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
+            />
+            <input
+              value={form.owner_agent_key}
+              onChange={(event) => setForm((prev) => ({ ...prev, owner_agent_key: event.target.value }))}
+              placeholder="owner agent key"
+              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
+            />
+            <input
+              value={form.branch_name}
+              onChange={(event) => setForm((prev) => ({ ...prev, branch_name: event.target.value }))}
+              placeholder="branch name"
+              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
+            />
+            <textarea
+              value={form.objective}
+              onChange={(event) => setForm((prev) => ({ ...prev, objective: event.target.value }))}
+              placeholder="Objective and acceptance criteria"
+              rows={3}
+              className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm lg:col-span-2"
+            />
+            <div className="grid gap-3">
+              <input
+                value={form.worktree_path}
+                onChange={(event) => setForm((prev) => ({ ...prev, worktree_path: event.target.value }))}
+                placeholder="worktree path"
+                className="rounded-lg border border-silicon-slate/70 bg-background/70 px-3 py-2 text-sm"
+              />
+              <button
+                type="submit"
+                disabled={submitting || !form.title.trim() || !form.objective.trim()}
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-radiant-gold/60 bg-radiant-gold/15 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/20 disabled:opacity-50"
+              >
+                <Network size={16} />
+                Create work item
+              </button>
+            </div>
+          </form>
+        </section>
+
+        {error ? <FailureState message={error} /> : null}
+
+        {loading ? (
+          <div className="py-16 text-center text-muted-foreground">Loading coordination work...</div>
+        ) : items.length ? (
+          <div className="space-y-3">
+            {items.map((item) => (
+              <WorkItemCard
+                key={item.id}
+                item={item}
+                actionId={actionId}
+                onAction={quickAction}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 px-4 py-12 text-center text-muted-foreground">
+            No agent coordination work items match the current filter.
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function WorkItemCard({
+  item,
+  actionId,
+  onAction,
+}: {
+  item: AgentWorkItem
+  actionId: string | null
+  onAction: (item: AgentWorkItem, action: 'block' | 'validation' | 'handoff') => void
+}) {
+  return (
+    <article className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <div className="min-w-0">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
+            <StatusBadge status={item.status} />
+            <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
+              {item.owner_runtime}
+            </span>
+            {item.owner_agent_key ? (
+              <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
+                {item.owner_agent_key}
+              </span>
+            ) : null}
+          </div>
+          <h2 className="text-lg font-semibold">{item.title}</h2>
+          <p className="mt-1 max-w-4xl text-sm text-muted-foreground">{item.objective}</p>
+          <div className="mt-3 grid gap-2 text-xs text-muted-foreground md:grid-cols-2 xl:grid-cols-4">
+            <SmallField label="Branch" value={item.branch_name} />
+            <SmallField label="Worktree" value={item.worktree_path} />
+            <SmallField label="Overlap" value={item.overlap_group} />
+            <SmallField label="Updated" value={new Date(item.updated_at).toLocaleString()} />
+          </div>
+          {item.blocker_summary || item.validation_summary ? (
+            <div className="mt-3 grid gap-2 md:grid-cols-2">
+              {item.blocker_summary ? <Callout icon="warn" label="Blocker" value={item.blocker_summary} /> : null}
+              {item.validation_summary ? <Callout icon="check" label="Validation" value={item.validation_summary} /> : null}
+            </div>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap gap-2 lg:justify-end">
+          {item.pr_url ? (
+            <Link
+              href={item.pr_url}
+              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-radiant-gold/60"
+            >
+              <GitPullRequest size={16} />
+              PR {item.pr_number ?? ''}
+            </Link>
+          ) : null}
+          {item.active_run_id ? (
+            <Link
+              href={`/admin/agents/runs/${item.active_run_id}`}
+              className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-radiant-gold/60"
+            >
+              Trace
+              <ArrowRight size={16} />
+            </Link>
+          ) : null}
+          <button
+            onClick={() => onAction(item, 'block')}
+            disabled={Boolean(actionId)}
+            className="rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-red-400/60 disabled:opacity-50"
+          >
+            Block
+          </button>
+          <button
+            onClick={() => onAction(item, 'validation')}
+            disabled={Boolean(actionId)}
+            className="rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-yellow-400/60 disabled:opacity-50"
+          >
+            Validate
+          </button>
+          <button
+            onClick={() => onAction(item, 'handoff')}
+            disabled={Boolean(actionId)}
+            className="rounded-lg border border-silicon-slate/70 px-3 py-2 text-sm hover:border-radiant-gold/60 disabled:opacity-50"
+          >
+            Handoff
+          </button>
+        </div>
+      </div>
+    </article>
+  )
+}
+
+function Metric({ label, value, tone = 'slate' }: { label: string; value: number; tone?: 'slate' | 'red' | 'yellow' | 'green' }) {
+  const toneClass =
+    tone === 'red'
+      ? 'border-red-500/35 text-red-200'
+      : tone === 'yellow'
+        ? 'border-yellow-500/35 text-yellow-100'
+        : tone === 'green'
+          ? 'border-green-500/35 text-green-100'
+          : 'border-silicon-slate/70'
+  return (
+    <div className={`rounded-lg border bg-silicon-slate/20 p-4 ${toneClass}`}>
+      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className="mt-2 text-2xl font-semibold">{value}</p>
+    </div>
+  )
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const tone =
+    status === 'blocked'
+      ? 'border-red-500/40 bg-red-500/10 text-red-200'
+      : status === 'ready_for_merge'
+        ? 'border-yellow-500/40 bg-yellow-500/10 text-yellow-100'
+        : status === 'deployed' || status === 'merged'
+          ? 'border-green-500/40 bg-green-500/10 text-green-100'
+          : 'border-silicon-slate/70 bg-silicon-slate/20 text-muted-foreground'
+  return <span className={`rounded-full border px-2 py-1 text-xs ${tone}`}>{status.replace(/_/g, ' ')}</span>
+}
+
+function SmallField({ label, value }: { label: string; value: string | null }) {
+  return (
+    <div className="min-w-0">
+      <span className="block uppercase tracking-wide text-muted-foreground/70">{label}</span>
+      <span className="block truncate">{value || 'Not set'}</span>
+    </div>
+  )
+}
+
+function Callout({ icon, label, value }: { icon: 'warn' | 'check'; label: string; value: string }) {
+  const Icon = icon === 'warn' ? AlertTriangle : CheckCircle2
+  return (
+    <div className="flex gap-2 rounded-lg border border-silicon-slate/70 bg-background/50 p-3 text-sm">
+      <Icon size={16} className={icon === 'warn' ? 'text-red-300' : 'text-green-300'} />
+      <div>
+        <p className="font-medium">{label}</p>
+        <p className="mt-1 text-muted-foreground">{value}</p>
+      </div>
+    </div>
+  )
+}
+
+function FailureState({ message }: { message: string }) {
+  return (
+    <div className="mb-6 flex items-start gap-3 rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-red-100">
+      <ShieldCheck size={18} />
+      <div>
+        <p className="font-medium">Coordination layer unavailable</p>
+        <p className="mt-1 text-sm text-red-100/80">{message}</p>
+      </div>
+    </div>
+  )
+}

@@ -67,6 +67,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'Cost & Revenue', href: '/admin/cost-revenue' },
         { label: 'Subscription Watch', href: '/admin/subscriptions' },
         { label: 'Agent Operations', href: '/admin/agents' },
+        { label: 'Agent Coordination', href: '/admin/agents/coordination' },
         { label: 'Client Swarm Board', href: '/admin/agents/swarm-board' },
         { label: 'Automation Context', href: '/admin/agents/automations' },
         { label: 'Technology Bakeoffs', href: '/admin/technology-bakeoffs' },
