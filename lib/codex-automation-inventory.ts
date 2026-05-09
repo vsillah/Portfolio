@@ -34,6 +34,20 @@ export interface MemoryOrganizationTask {
   progress: number
 }
 
+export type CodexAutomationRepairPriority = 'high' | 'medium' | 'low'
+
+export interface CodexAutomationRepairPacket {
+  automationId: string
+  automationName: string
+  priority: CodexAutomationRepairPriority
+  summary: string
+  missingQuestions: string[]
+  recommendedActions: string[]
+  governingDocCandidates: string[]
+  sourceFile: string
+  operationalBoundary: string
+}
+
 export interface CodexAutomationProfile {
   id: string
   name: string
@@ -93,6 +107,7 @@ export interface CodexAutomationInventory {
     totalTasks: number
     tasks: MemoryOrganizationTask[]
   }
+  repairPackets: CodexAutomationRepairPacket[]
 }
 
 type ParsedAutomationToml = {
@@ -162,6 +177,7 @@ export async function listCodexAutomationInventory(
     hiddenCount,
     overview: buildOverview(automations),
     progress: buildMemoryOrganizationProgress(true, automations),
+    repairPackets: buildRepairPackets(automations),
   }
 }
 
@@ -257,6 +273,7 @@ function unavailableInventory(sourceDirectory: string, generatedAt: string, reas
     hiddenCount: 0,
     overview: buildOverview([]),
     progress: buildMemoryOrganizationProgress(false, []),
+    repairPackets: [],
   }
 }
 
@@ -349,6 +366,68 @@ function classifyTaskStatus(progress: number, available: boolean): MemoryOrganiz
   if (progress >= 100) return 'completed'
   if (progress > 0) return 'in_progress'
   return 'pending'
+}
+
+function buildRepairPackets(automations: CodexAutomationProfile[]): CodexAutomationRepairPacket[] {
+  return automations
+    .filter((automation) => automation.contextHealth !== 'green' || automation.duplicateCandidate)
+    .map((automation) => {
+      const missingQuestions = automation.contextQuestions
+        .filter((question) => !question.answered)
+        .map((question) => question.id)
+      const recommendedActions = [
+        ...automation.contextQuestions
+          .filter((question) => !question.answered)
+          .map((question) => question.recommendation),
+        ...(automation.duplicateCandidate ? ['Review duplicate automation candidates and decide whether to consolidate, rename, or document why both should remain active.'] : []),
+        ...(!automation.cwds.some((cwd) => cwd.includes('/Projects/Portfolio')) ? ['Add the Portfolio workspace root to the automation context or document why it runs from another workspace.'] : []),
+      ]
+
+      return {
+        automationId: automation.id,
+        automationName: automation.name,
+        priority: classifyRepairPriority(automation),
+        summary: summarizeRepairPacket(automation, missingQuestions),
+        missingQuestions,
+        recommendedActions: [...new Set(recommendedActions)],
+        governingDocCandidates: suggestGoverningDocCandidates(automation),
+        sourceFile: automation.sourceFile,
+        operationalBoundary: 'Read-only packet. Do not edit ~/.codex/automations or ~/.codex/memories without an explicit operational-state step.',
+      }
+    })
+    .sort((a, b) => {
+      const priorityRank: Record<CodexAutomationRepairPriority, number> = { high: 0, medium: 1, low: 2 }
+      return priorityRank[a.priority] - priorityRank[b.priority] || a.automationName.localeCompare(b.automationName)
+    })
+}
+
+function classifyRepairPriority(automation: CodexAutomationProfile): CodexAutomationRepairPriority {
+  if (automation.riskLevel === 'high' && automation.contextHealth === 'red') return 'high'
+  if (automation.riskLevel === 'high' && automation.duplicateCandidate) return 'high'
+  if (automation.contextHealth === 'red') return 'high'
+  if (automation.riskLevel === 'high' || automation.contextHealth === 'yellow') return 'medium'
+  return 'low'
+}
+
+function summarizeRepairPacket(automation: CodexAutomationProfile, missingQuestions: string[]) {
+  const issues = [
+    ...missingQuestions.map((question) => `missing ${question}`),
+    ...(automation.duplicateCandidate ? ['duplicate candidate'] : []),
+  ]
+  return issues.length > 0
+    ? `${automation.name} needs context repair for ${issues.join(', ')}.`
+    : `${automation.name} needs a light review before it can be marked fully ready.`
+}
+
+function suggestGoverningDocCandidates(automation: CodexAutomationProfile) {
+  const categorySlug = automation.category.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+  const candidates = [
+    ...automation.controlDocs,
+    'docs/memory-context-organization-workflow.md',
+    `docs/automations/${automation.id}.md`,
+    `docs/automations/${categorySlug}-runbook.md`,
+  ]
+  return [...new Set(candidates)]
 }
 
 function extractControlDocs(prompt: string): string[] {

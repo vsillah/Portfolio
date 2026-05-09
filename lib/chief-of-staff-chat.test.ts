@@ -245,6 +245,19 @@ describe('Chief of Staff chat helpers', () => {
           },
         ],
       },
+      repairPackets: [
+        {
+          automationId: 'portfolio-credential-rotation-due-report',
+          automationName: 'Portfolio Credential Rotation Due Report',
+          priority: 'high',
+          summary: 'Portfolio Credential Rotation Due Report needs context repair for missing governance.',
+          missingQuestions: ['governance'],
+          recommendedActions: ['Reference the governing doc, skill, source register, or runbook path in the automation prompt.'],
+          governingDocCandidates: ['docs/memory-context-organization-workflow.md'],
+          sourceFile: '/Users/vambahsillah/.codex/automations/portfolio-credential-rotation-due-report/automation.toml',
+          operationalBoundary: 'Read-only packet. Do not edit ~/.codex/automations or ~/.codex/memories without an explicit operational-state step.',
+        },
+      ],
       automations: [
         {
           id: 'portfolio-credential-rotation-due-report',
