@@ -17,9 +17,9 @@ type VercelListResponse = {
   deployments?: VercelDeployment[]
 }
 
-const DEFAULT_PROJECTS = ['portfolio', 'portfolio-staging']
+export const DEFAULT_PROJECTS = ['portfolio', 'portfolio-staging']
 
-function parseArgs(argv: string[]) {
+export function parseArgs(argv: string[]) {
   const options = {
     projects: [...DEFAULT_PROJECTS],
     limit: 20,
@@ -217,7 +217,9 @@ async function main() {
   printFindings(findings)
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error)
-  process.exit(1)
-})
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : error)
+    process.exit(1)
+  })
+}
