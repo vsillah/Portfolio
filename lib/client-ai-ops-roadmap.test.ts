@@ -19,6 +19,28 @@ describe('client AI ops roadmap', () => {
     expect(a.phases).toHaveLength(5)
     expect(a.tasks.map((task) => task.taskKey)).toContain('client-vault')
     expect(a.costItems.map((item) => item.category)).toContain('hardware')
+    expect(a.runtimePlacementOptions.map((option) => option.key)).toEqual([
+      'client_local_node',
+      'cloud_runtime',
+      'hybrid_local_cloud',
+    ])
+  })
+
+  it('makes 24/7 data and local LLM repository placement explicit', () => {
+    const roadmap = buildDefaultClientAiOpsRoadmap({ clientCompany: 'Acme Co' })
+
+    expect(roadmap.clientSummary).toContain('24/7 data and local LLM repository placement')
+    expect(roadmap.phases.find((phase) => phase.phaseKey === 'infrastructure_access')?.acceptanceCriteria)
+      .toContain('Runtime placement selected')
+    expect(roadmap.tasks.find((task) => task.taskKey === 'hardware-decision')).toMatchObject({
+      title: 'Select data and local LLM repository placement',
+      clientVisible: true,
+      meetingTaskVisible: true,
+    })
+    expect(roadmap.costItems.map((item) => item.key)).toEqual(expect.arrayContaining([
+      'local-node',
+      'cloud-runtime-host',
+    ]))
   })
 
   it('rolls up client-owned startup and monthly costs', () => {
@@ -132,6 +154,11 @@ describe('client AI ops roadmap', () => {
         reportMissing: false,
       },
     })
+    expect(view.runtimePlacementOptions.map((option) => option.key)).toEqual([
+      'client_local_node',
+      'cloud_runtime',
+      'hybrid_local_cloud',
+    ])
     expect(JSON.stringify(view.latestReport)).not.toContain('Internal escalation note')
   })
 })

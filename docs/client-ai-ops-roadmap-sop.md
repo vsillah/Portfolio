@@ -5,6 +5,7 @@ This is the operating guide for selling, implementing, monitoring, and improving
 ## Operating Principles
 
 - The client owns the hardware, accounts, credentials, project data, and production approvals.
+- The roadmap must choose where the client data store, local LLM repository, and always-on worker runtime live: client-owned Mac mini/PC node, cloud runtime, or hybrid local/cloud fallback.
 - AmaduTown access is named, revocable, and limited to startup, maintenance, monitoring, and approved changes.
 - The roadmap is the shared source of truth. Client Dashboard tasks and admin Meeting Tasks are projections of the same roadmap task records, not separate parallel plans.
 - Every roadmap must include implementation, reporting, monitoring, and tracking. Treat reports, monitor findings, task projections, and cost assumptions as part of the roadmap deliverable.
@@ -18,7 +19,8 @@ This is the operating guide for selling, implementing, monitoring, and improving
 2. Review all phase tasks, startup costs, monthly operating costs, setup labor, and client responsibilities.
 3. Refresh any technology registry item marked `needs_review`, `stale`, `quote_required`, or `source_unavailable` before sending a proposal.
 4. Edit the roadmap estimate when the client has known constraints such as Mac-only, Windows-only, on-prem only, limited budget, or existing MDM/VPN tooling.
-5. Attach the roadmap snapshot to the proposal only after costs and assumptions are clear enough for the client to understand the real startup burden.
+5. Confirm whether 24/7 access is expected from client-owned hardware, a cloud runtime, or hybrid fallback before presenting startup and monthly costs.
+6. Attach the roadmap snapshot to the proposal only after costs and assumptions are clear enough for the client to understand the real startup burden.
 
 ## Delivery Stage
 
@@ -27,7 +29,8 @@ This is the operating guide for selling, implementing, monitoring, and improving
 3. Project AmaduTown delivery tasks into Meeting Tasks.
 4. Confirm each task has a phase, owner, due date when available, status, and source badge.
 5. Keep internal traces, private logs, admin-only notes, credentials, and agent execution details out of the client dashboard.
-6. If a roadmap task changes status from the client dashboard or meeting task queue, sync the status back to the source roadmap task and refresh phase rollups.
+6. Treat local-device setup, cloud provisioning, remote access, and runtime configuration as approval-gated implementation work.
+7. If a roadmap task changes status from the client dashboard or meeting task queue, sync the status back to the source roadmap task and refresh phase rollups.
 
 ## Monitoring Stage
 
