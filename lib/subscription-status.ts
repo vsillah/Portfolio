@@ -35,14 +35,32 @@ export interface SubscriptionBudgetLineItem {
   budgetAction: string
 }
 
+export interface SubscriptionTransitionAdjustment {
+  vendor: string
+  amountUsd: number
+  confidence: 'expected_if_cancellation_holds' | 'confirmed' | 'watch_only'
+  rationale: string
+}
+
+export interface SubscriptionApifyCallAnalysis {
+  configuredActorSurfaces: number
+  lastMonitorExecution: string
+  analysisDocument: string
+  nextAction: string
+}
+
 export interface SubscriptionBudgetSummary {
   monthlyTargetUsd: number
   confirmedMonthlyRunRateUsd: number
   overTargetUsd: number
+  expectedNextCycleRunRateUsd?: number
+  expectedNextCycleOverTargetUsd?: number
   confidence: 'partial_receipt_verified' | 'tracker_only' | 'dashboard_verified'
   lastReceiptRefresh: string
   queryExamples: string[]
   notes: string[]
+  transitionAdjustments?: SubscriptionTransitionAdjustment[]
+  apifyCallAnalysis?: SubscriptionApifyCallAnalysis
   lineItems: SubscriptionBudgetLineItem[]
   watchItems: string[]
 }
@@ -75,8 +93,12 @@ export interface SubscriptionQueryResult {
   monthlyTargetUsd: number | null
   confirmedMonthlyRunRateUsd: number | null
   overTargetUsd: number | null
+  expectedNextCycleRunRateUsd: number | null
+  expectedNextCycleOverTargetUsd: number | null
   matchingLineItems: SubscriptionBudgetLineItem[]
   suggestedCuts: SubscriptionBudgetLineItem[]
+  transitionAdjustments: SubscriptionTransitionAdjustment[]
+  apifyCallAnalysis: SubscriptionApifyCallAnalysis | null
   unresolvedChecks: string[]
 }
 
@@ -110,6 +132,9 @@ export function answerSubscriptionBudgetQuery(query: string): SubscriptionQueryR
   const target = budget?.monthlyTargetUsd ?? null
   const runRate = budget?.confirmedMonthlyRunRateUsd ?? null
   const overTarget = budget?.overTargetUsd ?? null
+  const expectedRunRate = budget?.expectedNextCycleRunRateUsd ?? null
+  const expectedOverTarget = budget?.expectedNextCycleOverTargetUsd ?? null
+  const transitionAdjustments = budget?.transitionAdjustments ?? []
 
   let answer = registry.summary.headline
   if (budget && (normalized.includes('spend') || normalized.includes('budget') || normalized.includes('300') || normalized.includes('monthly') || normalized.includes('cost'))) {
@@ -117,6 +142,11 @@ export function answerSubscriptionBudgetQuery(query: string): SubscriptionQueryR
       ? `over the $${budget.monthlyTargetUsd.toFixed(0)} target by $${budget.overTargetUsd.toFixed(2)}`
       : `under the $${budget.monthlyTargetUsd.toFixed(0)} target`
     answer = `Confirmed monthly run-rate is $${budget.confirmedMonthlyRunRateUsd.toFixed(2)}, ${direction}.`
+  }
+  if (budget && (normalized.includes('switch') || normalized.includes('anthropic') || normalized.includes('chatgpt') || normalized.includes('next month') || normalized.includes('next cycle') || normalized.includes('go down') || normalized.includes('cancellation') || normalized.includes('enrollment'))) {
+    const transitionTotal = Math.abs(transitionAdjustments.reduce((sum, item) => sum + item.amountUsd, 0))
+    const projected = budget.expectedNextCycleRunRateUsd
+    answer = `${answer} Current spend is inflated by transition activity. The tracked next-cycle adjustment is $${transitionTotal.toFixed(2)} from Anthropic if the cancellation holds, which projects the settled run-rate at $${projected?.toFixed(2) ?? 'unknown'}.`
   }
   if (budget && (normalized.includes('cut') || normalized.includes('cancel') || normalized.includes('under'))) {
     const topCuts = suggestedCuts.slice(0, 3).map((item) => `${item.vendor} ($${item.amountUsd.toFixed(2)})`).join(', ')
@@ -128,6 +158,9 @@ export function answerSubscriptionBudgetQuery(query: string): SubscriptionQueryR
       .map((item) => `${item.vendor}: $${item.amountUsd.toFixed(2)}; ${item.budgetAction}`)
       .join(' ')
     answer = watched || answer
+    if (normalized.includes('apify') && budget.apifyCallAnalysis) {
+      answer = `${answer} Apify has ${budget.apifyCallAnalysis.configuredActorSurfaces} configured actor surfaces in the current analysis; ${budget.apifyCallAnalysis.nextAction}`
+    }
   }
 
   return {
@@ -136,8 +169,12 @@ export function answerSubscriptionBudgetQuery(query: string): SubscriptionQueryR
     monthlyTargetUsd: target,
     confirmedMonthlyRunRateUsd: runRate,
     overTargetUsd: overTarget,
+    expectedNextCycleRunRateUsd: expectedRunRate,
+    expectedNextCycleOverTargetUsd: expectedOverTarget,
     matchingLineItems: matchingLineItems.length > 0 ? matchingLineItems : lineItems,
     suggestedCuts,
+    transitionAdjustments,
+    apifyCallAnalysis: budget?.apifyCallAnalysis ?? null,
     unresolvedChecks,
   }
 }

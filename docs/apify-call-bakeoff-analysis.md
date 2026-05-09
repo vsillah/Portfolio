@@ -16,6 +16,7 @@ Purpose: keep Apify under active watch, identify every current Portfolio call su
 - That execution checked `alien_force~facebook-scraper-pro` and `harvestapi~linkedin-profile-search`.
 - Both monitored actors returned `no_runs` with `totalRuns: 0`, producing warning alerts rather than evidence of recent productive actor usage.
 - Static exports show more Apify call surfaces than the current monitor checks. The monitor should be expanded or the bakeoff should pull direct Apify run history before a final replacement decision.
+- 2026-05-09 dashboard readiness update: the admin Subscription Watch budget query exposes this analysis as the Apify watch path and treats the 12 configured actor surfaces as replacement-analysis scope, not cancellation evidence by itself.
 
 ## Configured Apify Call Surfaces
 
