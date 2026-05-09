@@ -24,6 +24,16 @@ export interface CodexAutomationContextQuestion {
   recommendation: string
 }
 
+export type MemoryOrganizationTaskStatus = 'completed' | 'in_progress' | 'pending' | 'blocked'
+
+export interface MemoryOrganizationTask {
+  id: string
+  label: string
+  description: string
+  status: MemoryOrganizationTaskStatus
+  progress: number
+}
+
 export interface CodexAutomationProfile {
   id: string
   name: string
@@ -75,6 +85,13 @@ export interface CodexAutomationInventory {
     duplicateCandidates: number
     highRisk: number
     missingContext: number
+  }
+  progress: {
+    label: string
+    percent: number
+    completedTasks: number
+    totalTasks: number
+    tasks: MemoryOrganizationTask[]
   }
 }
 
@@ -144,6 +161,7 @@ export async function listCodexAutomationInventory(
     automations,
     hiddenCount,
     overview: buildOverview(automations),
+    progress: buildMemoryOrganizationProgress(true, automations),
   }
 }
 
@@ -238,6 +256,7 @@ function unavailableInventory(sourceDirectory: string, generatedAt: string, reas
     automations: [],
     hiddenCount: 0,
     overview: buildOverview([]),
+    progress: buildMemoryOrganizationProgress(false, []),
   }
 }
 
@@ -250,6 +269,86 @@ function buildOverview(automations: CodexAutomationProfile[]) {
     highRisk: automations.filter((automation) => automation.riskLevel === 'high').length,
     missingContext: automations.filter((automation) => automation.contextHealth !== 'green').length,
   }
+}
+
+function buildMemoryOrganizationProgress(available: boolean, automations: CodexAutomationProfile[]) {
+  const total = automations.length
+  const contextReady = automations.filter((automation) => automation.contextHealth === 'green').length
+  const workspaceReady = automations.filter((automation) => automation.cwds.some((cwd) => cwd.includes('/Projects/Portfolio'))).length
+  const docsReady = automations.filter((automation) => automation.controlDocs.length > 0).length
+  const boundaryReady = automations.filter((automation) => !automation.contextGaps.includes('missing authority boundary')).length
+  const duplicatesReady = automations.filter((automation) => !automation.duplicateCandidate).length
+
+  const taskInputs = [
+    {
+      id: 'inventory',
+      label: 'Automation inventory',
+      description: 'Read Portfolio-related Codex automation metadata from the local TOML source of truth.',
+      progress: available ? 100 : 0,
+    },
+    {
+      id: 'context-questions',
+      label: 'Context readiness questions',
+      description: 'Evaluate each visible automation against the seven operating-context questions.',
+      progress: total > 0 ? 100 : 0,
+    },
+    {
+      id: 'workspace-roots',
+      label: 'Workspace-root visibility',
+      description: 'Confirm visible automations declare the Portfolio workspace path in their execution context.',
+      progress: ratioPercent(workspaceReady, total),
+    },
+    {
+      id: 'governing-docs',
+      label: 'Governing docs and runbooks',
+      description: 'Map each automation to at least one governing doc, skill, source path, or runbook.',
+      progress: ratioPercent(docsReady, total),
+    },
+    {
+      id: 'authority-boundaries',
+      label: 'Authority boundaries',
+      description: 'Confirm each automation states what agents may inspect, recommend, or never do automatically.',
+      progress: ratioPercent(boundaryReady, total),
+    },
+    {
+      id: 'duplicate-review',
+      label: 'Duplicate and overlap review',
+      description: 'Flag overlapping automation jobs so the next agent can consolidate or justify them deliberately.',
+      progress: ratioPercent(duplicatesReady, total),
+    },
+    {
+      id: 'memory-context-cleanup',
+      label: 'Memory/context cleanup backlog',
+      description: 'Use context health to identify the remaining docs, prompts, or runbooks needed before automation repair.',
+      progress: ratioPercent(contextReady, total),
+    },
+  ]
+
+  const tasks = taskInputs.map((task): MemoryOrganizationTask => ({
+    ...task,
+    status: classifyTaskStatus(task.progress, available),
+  }))
+  const completedTasks = tasks.filter((task) => task.status === 'completed').length
+
+  return {
+    label: 'Memory and automation context readiness',
+    percent: ratioPercent(tasks.reduce((sum, task) => sum + task.progress, 0), tasks.length * 100),
+    completedTasks,
+    totalTasks: tasks.length,
+    tasks,
+  }
+}
+
+function ratioPercent(done: number, total: number) {
+  if (total <= 0) return 0
+  return Math.round((done / total) * 100)
+}
+
+function classifyTaskStatus(progress: number, available: boolean): MemoryOrganizationTaskStatus {
+  if (!available) return 'blocked'
+  if (progress >= 100) return 'completed'
+  if (progress > 0) return 'in_progress'
+  return 'pending'
 }
 
 function extractControlDocs(prompt: string): string[] {

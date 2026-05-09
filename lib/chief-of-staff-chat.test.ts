@@ -230,6 +230,21 @@ describe('Chief of Staff chat helpers', () => {
         highRisk: 1,
         missingContext: 1,
       },
+      progress: {
+        label: 'Memory and automation context readiness',
+        percent: 86,
+        completedTasks: 6,
+        totalTasks: 7,
+        tasks: [
+          {
+            id: 'governing-docs',
+            label: 'Governing docs and runbooks',
+            description: 'Map each automation to at least one governing doc, skill, source path, or runbook.',
+            status: 'in_progress',
+            progress: 50,
+          },
+        ],
+      },
       automations: [
         {
           id: 'portfolio-credential-rotation-due-report',

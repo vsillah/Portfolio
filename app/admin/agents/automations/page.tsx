@@ -22,6 +22,7 @@ import type {
   AutomationCategory,
   AutomationContextHealth,
   AutomationRiskLevel,
+  MemoryOrganizationTaskStatus,
 } from '@/lib/codex-automation-inventory'
 
 type AutomationProfile = {
@@ -81,6 +82,19 @@ type AutomationInventoryResponse = {
     duplicateCandidates: number
     highRisk: number
     missingContext: number
+  }
+  progress: {
+    label: string
+    percent: number
+    completedTasks: number
+    totalTasks: number
+    tasks: {
+      id: string
+      label: string
+      description: string
+      status: MemoryOrganizationTaskStatus
+      progress: number
+    }[]
   }
 }
 
@@ -224,6 +238,8 @@ function AgentAutomationsContent() {
               docWarnings={docWarnings}
             />
 
+            <MemoryOrganizationProgress progress={inventory.progress} />
+
             <div className="mb-6 inline-flex rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-1">
               <button
                 onClick={() => setViewMode('inventory')}
@@ -336,6 +352,56 @@ function AutomationTable({
         </tbody>
       </table>
     </div>
+  )
+}
+
+function MemoryOrganizationProgress({ progress }: { progress: AutomationInventoryResponse['progress'] }) {
+  return (
+    <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+      <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div>
+          <div className="flex items-center gap-2 text-radiant-gold">
+            <ListChecks size={18} />
+            <h2 className="font-semibold">{progress.label}</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {progress.completedTasks} of {progress.totalTasks} workflow tasks complete. This progress is computed from the current read-only inventory.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-bold">{progress.percent}%</p>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground">overall readiness</p>
+        </div>
+      </div>
+
+      <div className="mb-5 h-3 overflow-hidden rounded-full bg-black/30">
+        <div
+          className="h-full rounded-full bg-radiant-gold transition-all"
+          style={{ width: `${Math.max(0, Math.min(progress.percent, 100))}%` }}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        {progress.tasks.map((task) => (
+          <div key={task.id} className="rounded-lg border border-silicon-slate/60 bg-background/50 p-4">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <h3 className="text-sm font-semibold">{task.label}</h3>
+              <TaskStatusBadge status={task.status} />
+            </div>
+            <p className="min-h-[40px] text-xs text-muted-foreground">{task.description}</p>
+            <div className="mt-3 flex items-center gap-3">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-black/30">
+                <div
+                  className={`h-full rounded-full ${task.status === 'completed' ? 'bg-green-400' : task.status === 'blocked' ? 'bg-red-400' : 'bg-yellow-300'}`}
+                  style={{ width: `${Math.max(0, Math.min(task.progress, 100))}%` }}
+                />
+              </div>
+              <span className="w-10 text-right text-xs text-muted-foreground">{task.progress}%</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }
 
@@ -587,6 +653,18 @@ function ContextBadge({ health }: { health: AutomationContextHealth }) {
         ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-200'
         : 'border-red-400/40 bg-red-500/10 text-red-200'
   return <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-1 text-xs ${className}`}>{icon}{health}</span>
+}
+
+function TaskStatusBadge({ status }: { status: MemoryOrganizationTaskStatus }) {
+  const className =
+    status === 'completed'
+      ? 'border-green-400/40 bg-green-500/10 text-green-200'
+      : status === 'blocked'
+        ? 'border-red-400/40 bg-red-500/10 text-red-200'
+        : status === 'in_progress'
+          ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-200'
+          : 'border-silicon-slate/60 bg-black/20 text-muted-foreground'
+  return <span className={`rounded-full border px-2 py-1 text-[11px] ${className}`}>{status.replace('_', ' ')}</span>
 }
 
 function DetailPill({ label, value }: { label: string; value: string }) {
