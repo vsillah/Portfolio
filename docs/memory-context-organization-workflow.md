@@ -47,6 +47,21 @@ Each automation is checked against these questions:
 
 Missing answers should create recommendations only. V1 does not generate final answers or write them back to TOML, memory, skills, or docs.
 
+## Repair Packets
+
+Repair packets turn readiness gaps into reviewable next-action packets. They are generated from the read-only inventory and should be treated as planning artifacts, not as permission to mutate Codex state.
+
+Each packet includes:
+
+- the automation id and source TOML file,
+- priority based on risk, context health, and duplicate status,
+- missing readiness questions,
+- recommended context additions,
+- governing doc candidates,
+- and the operational boundary that no `~/.codex` memory or automation files should be edited without a separate approved operational-state step.
+
+Use repair packets to decide which prompt, doc, skill, or runbook needs a scoped follow-up PR or an explicitly approved local-state update.
+
 ## Enhancement Impact Preflight
 
 ### Enhancement Impact Preflight
@@ -62,6 +77,18 @@ Missing answers should create recommendations only. V1 does not generate final a
 - Merge-order note: Can merge independently after the integration captain handles active roadmap, credential, subscription, and observability branches; no shared files were identified.
 
 Implementation update: `lib/chief-of-staff-chat.test.ts` also needed a fixture update because it imports the automation inventory contract. This was an intentional shared-helper compatibility fix, not a change to Chief of Staff behavior. The overlap rating remains green against active PRs because no active PR modifies that file or helper.
+
+### Enhancement Impact Preflight
+
+- Enhancement: Add read-only repair packets for automation memory/context gaps.
+- User-facing surface: `/admin/agents/automations`, under Agent Operations.
+- Predicted files: `app/admin/agents/automations/page.tsx`, `lib/codex-automation-inventory.ts`, `lib/codex-automation-inventory.test.ts`, `docs/memory-context-organization-workflow.md`.
+- Shared routes/APIs/tables/helpers: `lib/codex-automation-inventory.ts` and the existing `/api/admin/agents/automations` response shape; no database tables or mutating APIs.
+- Active PRs or branches checked: `codex/client-ai-ops-roadmap-next` PR 190, `codex/subscription-watch-next` PR 191, `codex/credential-reporting-next` PR 192, `codex/vercel-build-observability` PR 193, `cursor/regression-test-coverage-224e` PR 195.
+- Dirty worktree files checked: current `codex/memory-context-repair-packets` worktree was clean before implementation.
+- Overlap rating: green.
+- Coordination decision: Proceed in the dedicated memory organization worktree and keep changes limited to automation context dashboard, inventory, tests, and memory workflow docs.
+- Merge-order note: Can merge independently after integration-captain review; active PRs do not touch these files.
 
 ## Operating Boundary
 

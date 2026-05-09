@@ -21,6 +21,7 @@ import type {
   AutomationBoundary,
   AutomationCategory,
   AutomationContextHealth,
+  CodexAutomationRepairPriority,
   AutomationRiskLevel,
   MemoryOrganizationTaskStatus,
 } from '@/lib/codex-automation-inventory'
@@ -96,6 +97,17 @@ type AutomationInventoryResponse = {
       progress: number
     }[]
   }
+  repairPackets: {
+    automationId: string
+    automationName: string
+    priority: CodexAutomationRepairPriority
+    summary: string
+    missingQuestions: string[]
+    recommendedActions: string[]
+    governingDocCandidates: string[]
+    sourceFile: string
+    operationalBoundary: string
+  }[]
 }
 
 const ALL = 'all'
@@ -104,7 +116,7 @@ const STATUSES = [ALL, 'ACTIVE', 'PAUSED'] as const
 const RISKS = [ALL, 'low', 'medium', 'high'] as const
 const CONTEXT_HEALTH = [ALL, 'green', 'yellow', 'red'] as const
 const EMPTY_AUTOMATIONS: AutomationProfile[] = []
-type ViewMode = 'inventory' | 'context-gaps'
+type ViewMode = 'inventory' | 'context-gaps' | 'repair-packets'
 
 export default function AgentAutomationsPage() {
   return (
@@ -221,13 +233,14 @@ function AgentAutomationsContent() {
           <UnavailableState inventory={inventory} />
         ) : inventory ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-7 gap-3 mb-6">
               <MetricCard label="Portfolio automations" value={inventory.overview.total} />
               <MetricCard label="Active" value={inventory.overview.active} tone="green" />
               <MetricCard label="Paused" value={inventory.overview.paused} />
               <MetricCard label="Duplicates" value={inventory.overview.duplicateCandidates} tone={inventory.overview.duplicateCandidates ? 'yellow' : 'slate'} />
               <MetricCard label="High risk" value={inventory.overview.highRisk} tone={inventory.overview.highRisk ? 'red' : 'slate'} />
               <MetricCard label="Missing context" value={inventory.overview.missingContext} tone={inventory.overview.missingContext ? 'yellow' : 'slate'} />
+              <MetricCard label="Repair packets" value={inventory.repairPackets.length} tone={inventory.repairPackets.length ? 'yellow' : 'slate'} />
             </div>
 
             <WarningPanels
@@ -255,6 +268,13 @@ function AgentAutomationsContent() {
                 <ListChecks size={16} />
                 Context Gaps
               </button>
+              <button
+                onClick={() => setViewMode('repair-packets')}
+                className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm ${viewMode === 'repair-packets' ? 'bg-radiant-gold/15 text-radiant-gold' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <ShieldAlert size={16} />
+                Repair Packets
+              </button>
             </div>
 
             <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
@@ -280,7 +300,7 @@ function AgentAutomationsContent() {
                 <AutomationTable automations={filtered} selectedId={selected?.id || null} onSelect={setSelectedId} />
                 {selected ? <ContextReadiness automation={selected} /> : null}
               </div>
-            ) : (
+            ) : viewMode === 'context-gaps' ? (
               <ContextGapsView
                 automations={contextGapAutomations}
                 onSelect={(id) => {
@@ -288,6 +308,8 @@ function AgentAutomationsContent() {
                   setViewMode('inventory')
                 }}
               />
+            ) : (
+              <RepairPacketsView packets={inventory.repairPackets} />
             )}
 
             <p className="mt-5 text-xs text-muted-foreground">
@@ -546,6 +568,76 @@ function ContextGapsView({
   )
 }
 
+function RepairPacketsView({ packets }: { packets: AutomationInventoryResponse['repairPackets'] }) {
+  if (packets.length === 0) {
+    return (
+      <div className="rounded-lg border border-green-400/30 bg-green-500/10 p-6 text-green-100">
+        <div className="flex items-center gap-2 font-medium">
+          <CheckCircle2 size={18} />
+          No repair packets are needed for the current automation inventory.
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <section className="space-y-4">
+      <div className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
+        <div className="flex items-center gap-2 text-radiant-gold">
+          <ShieldAlert size={18} />
+          <h2 className="font-semibold">Repair Packets</h2>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Read-only next-action packets for automations with missing context, duplicate risk, or incomplete governing references. These packets do not write to Codex memory or automation state.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        {packets.map((packet) => (
+          <article key={packet.automationId} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+            <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-lg font-semibold">{packet.automationName}</h3>
+                  <RepairPriorityBadge priority={packet.priority} />
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">{packet.automationId}</p>
+              </div>
+              <p className="text-xs text-muted-foreground break-all md:max-w-[260px]">{packet.sourceFile}</p>
+            </div>
+
+            <p className="mb-4 text-sm text-foreground">{packet.summary}</p>
+
+            <div className="mb-4">
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Missing readiness</h4>
+              {packet.missingQuestions.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {packet.missingQuestions.map((question) => (
+                    <span key={question} className="rounded-full border border-yellow-400/30 bg-yellow-500/10 px-2 py-1 text-xs text-yellow-100">
+                      {question}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">No missing questions; packet exists for duplicate or overlap review.</p>
+              )}
+            </div>
+
+            <ContextList label="Recommended actions" values={packet.recommendedActions} />
+            <div className="mt-4">
+              <ContextList label="Governing doc candidates" values={packet.governingDocCandidates} />
+            </div>
+
+            <div className="mt-4 rounded-lg border border-silicon-slate/60 bg-black/10 p-3 text-xs text-muted-foreground">
+              {packet.operationalBoundary}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function WarningPanels({
   hiddenCount,
   duplicateWarnings,
@@ -642,6 +734,16 @@ function RiskBadge({ risk }: { risk: AutomationRiskLevel }) {
         ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-200'
         : 'border-green-400/40 bg-green-500/10 text-green-200'
   return <span className={`rounded-full border px-2 py-1 text-xs ${className}`}>{risk}</span>
+}
+
+function RepairPriorityBadge({ priority }: { priority: CodexAutomationRepairPriority }) {
+  const className =
+    priority === 'high'
+      ? 'border-red-400/40 bg-red-500/10 text-red-200'
+      : priority === 'medium'
+        ? 'border-yellow-400/40 bg-yellow-500/10 text-yellow-200'
+        : 'border-green-400/40 bg-green-500/10 text-green-200'
+  return <span className={`rounded-full border px-2 py-1 text-xs ${className}`}>{priority} priority</span>
 }
 
 function ContextBadge({ health }: { health: AutomationContextHealth }) {

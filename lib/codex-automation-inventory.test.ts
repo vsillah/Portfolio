@@ -142,6 +142,17 @@ cwds = ["/Users/vambahsillah/Projects/Portfolio"]
     expect(unanswered.find((question) => question.id === 'boundary')?.recommendation).toContain('authority boundary')
     expect(inventory.progress.percent).toBeLessThan(100)
     expect(inventory.progress.tasks.find((task) => task.id === 'memory-context-cleanup')?.status).toBe('pending')
+    expect(inventory.repairPackets).toHaveLength(1)
+    expect(inventory.repairPackets[0]).toEqual(expect.objectContaining({
+      automationId: 'portfolio-thin-monitor',
+      priority: 'high',
+      missingQuestions: expect.arrayContaining(['decision', 'boundary', 'outputs', 'escalation', 'governance']),
+      operationalBoundary: expect.stringContaining('Read-only packet'),
+    }))
+    expect(inventory.repairPackets[0].recommendedActions).toEqual(expect.arrayContaining([
+      expect.stringContaining('authority boundary'),
+      expect.stringContaining('expected output'),
+    ]))
   })
 
   it('flags duplicate credential rotation jobs and sanitizes prompt excerpts', async () => {
@@ -167,5 +178,8 @@ cwds = ["/Users/vambahsillah/Projects/Portfolio"]
     expect(inventory.automations.every((automation) => automation.duplicateCandidate)).toBe(true)
     expect(inventory.automations[0].promptExcerpt).not.toContain('super-secret-value')
     expect(inventory.automations[0].category).toBe('Credentials')
+    expect(inventory.repairPackets).toHaveLength(2)
+    expect(inventory.repairPackets.every((packet) => packet.priority === 'high')).toBe(true)
+    expect(inventory.repairPackets[0].recommendedActions).toContain('Review duplicate automation candidates and decide whether to consolidate, rename, or document why both should remain active.')
   })
 })
