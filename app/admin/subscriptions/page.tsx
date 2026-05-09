@@ -31,14 +31,32 @@ interface BudgetLineItem {
   budgetAction: string
 }
 
+interface TransitionAdjustment {
+  vendor: string
+  amountUsd: number
+  confidence: 'expected_if_cancellation_holds' | 'confirmed' | 'watch_only'
+  rationale: string
+}
+
+interface ApifyCallAnalysis {
+  configuredActorSurfaces: number
+  lastMonitorExecution: string
+  analysisDocument: string
+  nextAction: string
+}
+
 interface BudgetSummary {
   monthlyTargetUsd: number
   confirmedMonthlyRunRateUsd: number
   overTargetUsd: number
+  expectedNextCycleRunRateUsd?: number
+  expectedNextCycleOverTargetUsd?: number
   confidence: 'partial_receipt_verified' | 'tracker_only' | 'dashboard_verified'
   lastReceiptRefresh: string
   queryExamples: string[]
   notes: string[]
+  transitionAdjustments?: TransitionAdjustment[]
+  apifyCallAnalysis?: ApifyCallAnalysis
   lineItems: BudgetLineItem[]
   watchItems: string[]
 }
@@ -49,8 +67,12 @@ interface BudgetQueryResult {
   monthlyTargetUsd: number | null
   confirmedMonthlyRunRateUsd: number | null
   overTargetUsd: number | null
+  expectedNextCycleRunRateUsd: number | null
+  expectedNextCycleOverTargetUsd: number | null
   matchingLineItems: BudgetLineItem[]
   suggestedCuts: BudgetLineItem[]
+  transitionAdjustments: TransitionAdjustment[]
+  apifyCallAnalysis: ApifyCallAnalysis | null
   unresolvedChecks: string[]
 }
 
@@ -213,9 +235,13 @@ function AdminSubscriptionsPageContent() {
                   </div>
                 </div>
 
-                <div className="mt-5 grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                   <Signal label="Monthly target" value={`$${budget.monthlyTargetUsd.toFixed(2)}`} />
                   <Signal label="Confirmed run-rate" value={`$${budget.confirmedMonthlyRunRateUsd.toFixed(2)}`} />
+                  <Signal
+                    label="Projected next cycle"
+                    value={budget.expectedNextCycleRunRateUsd ? `$${budget.expectedNextCycleRunRateUsd.toFixed(2)}` : 'Pending'}
+                  />
                   <Signal label="Receipt refresh" value={budget.lastReceiptRefresh} />
                 </div>
 
@@ -239,7 +265,7 @@ function AdminSubscriptionsPageContent() {
                 {queryResult && (
                   <div className="mt-4 rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 p-4">
                     <p className="text-sm font-medium text-radiant-gold">{queryResult.answer}</p>
-                    <div className="mt-3 grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    <div className="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Top budget levers</p>
                         <ul className="space-y-1 text-sm text-muted-foreground">
@@ -258,7 +284,22 @@ function AdminSubscriptionsPageContent() {
                           ))}
                         </ul>
                       </div>
+                      <div>
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Transition adjustments</p>
+                        <ul className="space-y-1 text-sm text-muted-foreground">
+                          {queryResult.transitionAdjustments.slice(0, 4).map((item) => (
+                            <li key={item.vendor}>
+                              {item.vendor}: {item.amountUsd < 0 ? '-' : '+'}${Math.abs(item.amountUsd).toFixed(2)}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
+                    {queryResult.apifyCallAnalysis && (
+                      <p className="mt-3 text-xs text-muted-foreground">
+                        Apify analysis: {queryResult.apifyCallAnalysis.configuredActorSurfaces} configured actor surfaces. {queryResult.apifyCallAnalysis.lastMonitorExecution}
+                      </p>
+                    )}
                   </div>
                 )}
               </section>

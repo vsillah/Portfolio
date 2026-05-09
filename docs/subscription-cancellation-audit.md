@@ -10,6 +10,36 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-05-09 Budget Query Readiness Update
+
+Status: YELLOW
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- The admin Subscription Watch surface now separates the current receipt-backed
+  run-rate from the projected next-cycle run-rate, so the dashboard can answer
+  questions about whether the month is inflated by quick enrollments,
+  cancellations, and the Anthropic-to-ChatGPT switch.
+- Current confirmed run-rate remains `$791.02` against the `$300.00` monthly
+  target. The tracked Anthropic adjustment is `-$106.25` if cancellation holds,
+  projecting a next-cycle run-rate of `$684.77`, still `$384.77` over target.
+- Gamma and Apify remain explicit watch items. Gamma stays in the deck/tooling
+  comparison path. Apify stays tied to actor-level replacement analysis rather
+  than a simple cancellation recommendation.
+- The Apify analysis currently identifies 12 configured actor call surfaces and
+  requires direct Apify run history, actor costs, dataset counts, and accepted
+  result rates before deciding whether to replace, pause, or keep Apify.
+
+Raw Findings
+
+- Dashboard/data source updated: `/docs/subscription-status.json`.
+- Query helper updated: `/lib/subscription-status.ts`.
+- Admin view updated: `/app/admin/subscriptions/page.tsx`.
+- Apify evidence source remains `/docs/apify-call-bakeoff-analysis.md`.
+- This update does not touch shared cost-event schema or production billing
+  writes.
+
 ## 2026-05-08 Daily Monitor Run
 
 Status: YELLOW

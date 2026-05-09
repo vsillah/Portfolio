@@ -8,6 +8,8 @@
     "monthlyTargetUsd": 300,
     "confirmedMonthlyRunRateUsd": 791.02,
     "overTargetUsd": 491.02,
+    "expectedNextCycleRunRateUsd": 684.77,
+    "expectedNextCycleOverTargetUsd": 384.77,
     "confidence": "partial_receipt_verified",
     "lastReceiptRefresh": "2026-05-06",
     "queryExamples": [
@@ -21,6 +23,20 @@
       "Recent quick enrollments/cancellations may make next-month realized spend lower than this snapshot.",
       "Cancellation remains approval-gated; this budget view is read-only."
     ],
+    "transitionAdjustments": [
+      {
+        "vendor": "Anthropic",
+        "amountUsd": -106.25,
+        "confidence": "expected_if_cancellation_holds",
+        "rationale": "Claude Max appears in the current receipt-backed run-rate, but the ChatGPT switch should remove this line from the next settled cycle if cancellation remains in place."
+      }
+    ],
+    "apifyCallAnalysis": {
+      "configuredActorSurfaces": 12,
+      "lastMonitorExecution": "n8n execution 13174 on 2026-05-06 checked two actors and found no recent runs.",
+      "analysisDocument": "/docs/apify-call-bakeoff-analysis.md",
+      "nextAction": "Pull direct Apify run history, actor costs, dataset counts, and accepted-result rates before deciding whether to replace, pause, or keep Apify."
+    },
     "lineItems": [
       {
         "vendor": "BuiltWith",
