@@ -28,6 +28,8 @@ describe('subscription status budget queries', () => {
     expect(result.answer).toContain('Gamma')
     expect(result.answer).toContain('Apify')
     expect(result.apifyCallAnalysis?.configuredActorSurfaces).toBeGreaterThan(0)
+    expect(result.apifyCallAnalysis?.actorRunHistory?.length).toBe(12)
+    expect(result.answer).toContain('315 dataset items')
   })
 
   it('handles transition spend from the Anthropic to ChatGPT switch', () => {

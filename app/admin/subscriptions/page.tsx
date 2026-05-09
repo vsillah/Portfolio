@@ -41,8 +41,29 @@ interface TransitionAdjustment {
 interface ApifyCallAnalysis {
   configuredActorSurfaces: number
   lastMonitorExecution: string
+  sampledRuns?: number
+  succeededRuns?: number
+  failedRuns?: number
+  datasetItems?: number
+  sampledActorCostUsd?: number
+  costPerDatasetItemUsd?: number
+  productiveActorSurfaces?: number
+  pauseOrReplaceActorSurfaces?: number
   analysisDocument: string
   nextAction: string
+  actorRunHistory?: Array<{
+    actor: string
+    label: string
+    runs: number
+    succeeded: number
+    failed: number
+    datasetItems: number
+    totalCostUsd: number
+    costPerItemUsd: number | null
+    latestStatus: string
+    latestAt: string | null
+    recommendation: string
+  }>
 }
 
 interface BudgetSummary {
@@ -296,9 +317,22 @@ function AdminSubscriptionsPageContent() {
                       </div>
                     </div>
                     {queryResult.apifyCallAnalysis && (
-                      <p className="mt-3 text-xs text-muted-foreground">
-                        Apify analysis: {queryResult.apifyCallAnalysis.configuredActorSurfaces} configured actor surfaces. {queryResult.apifyCallAnalysis.lastMonitorExecution}
-                      </p>
+                      <div className="mt-3 border-t border-radiant-gold/20 pt-3 text-xs text-muted-foreground">
+                        <p>
+                          Apify analysis: {queryResult.apifyCallAnalysis.configuredActorSurfaces} configured actor surfaces,
+                          {' '}{queryResult.apifyCallAnalysis.productiveActorSurfaces ?? 0} productive,
+                          {' '}{queryResult.apifyCallAnalysis.pauseOrReplaceActorSurfaces ?? 0} pause/replace candidates.
+                          {' '}{queryResult.apifyCallAnalysis.datasetItems ?? 0} sampled dataset items cost
+                          {' '}${(queryResult.apifyCallAnalysis.sampledActorCostUsd ?? 0).toFixed(2)}.
+                        </p>
+                        <ul className="mt-2 grid grid-cols-1 lg:grid-cols-2 gap-1">
+                          {queryResult.apifyCallAnalysis.actorRunHistory?.slice(0, 4).map((actor) => (
+                            <li key={actor.actor}>
+                              {actor.label}: {actor.runs} runs, {actor.datasetItems} items, {actor.latestStatus}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     )}
                   </div>
                 )}

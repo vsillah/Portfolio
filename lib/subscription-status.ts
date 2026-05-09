@@ -45,8 +45,31 @@ export interface SubscriptionTransitionAdjustment {
 export interface SubscriptionApifyCallAnalysis {
   configuredActorSurfaces: number
   lastMonitorExecution: string
+  sampledRuns?: number
+  succeededRuns?: number
+  failedRuns?: number
+  datasetItems?: number
+  sampledActorCostUsd?: number
+  costPerDatasetItemUsd?: number
+  productiveActorSurfaces?: number
+  pauseOrReplaceActorSurfaces?: number
   analysisDocument: string
   nextAction: string
+  actorRunHistory?: SubscriptionApifyActorRunHistory[]
+}
+
+export interface SubscriptionApifyActorRunHistory {
+  actor: string
+  label: string
+  runs: number
+  succeeded: number
+  failed: number
+  datasetItems: number
+  totalCostUsd: number
+  costPerItemUsd: number | null
+  latestStatus: 'NO_RUNS' | 'SUCCEEDED' | 'FAILED' | 'TIMED-OUT' | 'ABORTED' | string
+  latestAt: string | null
+  recommendation: string
 }
 
 export interface SubscriptionBudgetSummary {
@@ -159,7 +182,12 @@ export function answerSubscriptionBudgetQuery(query: string): SubscriptionQueryR
       .join(' ')
     answer = watched || answer
     if (normalized.includes('apify') && budget.apifyCallAnalysis) {
-      answer = `${answer} Apify has ${budget.apifyCallAnalysis.configuredActorSurfaces} configured actor surfaces in the current analysis; ${budget.apifyCallAnalysis.nextAction}`
+      const analysis = budget.apifyCallAnalysis
+      if (normalized.includes('call') || normalized.includes('actor') || normalized.includes('run') || normalized.includes('swap') || normalized.includes('replace') || normalized.includes('cheaper')) {
+        answer = `${answer} Direct Apify run-history sampled ${analysis.sampledRuns ?? 0} runs across ${analysis.configuredActorSurfaces} actor surfaces: ${analysis.productiveActorSurfaces ?? 0} look productive, ${analysis.pauseOrReplaceActorSurfaces ?? 0} should be paused/replaced, ${analysis.datasetItems ?? 0} dataset items cost $${(analysis.sampledActorCostUsd ?? 0).toFixed(2)} in actor usage. ${analysis.nextAction}`
+      } else {
+        answer = `${answer} Apify has ${analysis.configuredActorSurfaces} configured actor surfaces in the current analysis; ${analysis.nextAction}`
+      }
     }
   }
 

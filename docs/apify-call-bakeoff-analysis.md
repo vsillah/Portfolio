@@ -17,6 +17,26 @@ Purpose: keep Apify under active watch, identify every current Portfolio call su
 - Both monitored actors returned `no_runs` with `totalRuns: 0`, producing warning alerts rather than evidence of recent productive actor usage.
 - Static exports show more Apify call surfaces than the current monitor checks. The monitor should be expanded or the bakeoff should pull direct Apify run history before a final replacement decision.
 - 2026-05-09 dashboard readiness update: the admin Subscription Watch budget query exposes this analysis as the Apify watch path and treats the 12 configured actor surfaces as replacement-analysis scope, not cancellation evidence by itself.
+- 2026-05-09 direct Apify API pull sampled the latest 10 runs for each configured actor surface. The sample found 59 runs, 40 successes, 19 failures, 315 dataset items, and $1.99585 in actor usage cost, or about $0.00634 per dataset item before manual acceptance review.
+
+## Direct Run-History Findings
+
+| Actor surface | Latest sampled result | Items | Sample cost | Decision signal |
+| --- | ---: | ---: | ---: | --- |
+| Facebook friends | No runs | 0 | $0.00000 | Pause unless a campaign-owned Facebook source is active. |
+| Facebook groups | No runs | 0 | $0.00000 | Pause; prefer manual group review or approved community export. |
+| Facebook comments | No runs | 0 | $0.00000 | Pause unless a specific post-engagement campaign justifies it. |
+| LinkedIn connections | 4 failed / 0 succeeded | 0 | $0.04000 | Replace or keep disabled. |
+| LinkedIn post engagement | 1 succeeded / 0 failed | 0 | $0.00005 | Investigate inputs before keeping; success with zero items is not useful output. |
+| Reddit listening | 10 succeeded / 0 failed | 72 | $0.47360 | Keep for now; compare against Reddit API/RSS/search. |
+| Google Maps | 10 succeeded / 0 failed | 68 | $0.58600 | Keep only if Google Places API or manual CSV cannot match accepted evidence. |
+| LinkedIn post search | 4 succeeded / 0 failed | 135 | $0.27220 | Strongest current Apify value signal; compare against browser-agent sampling. |
+| G2 reviews | 5 succeeded / 5 failed | 0 | $0.00000 | Replace with manual/source-registered capture unless non-empty output can be proven. |
+| Capterra reviews | 10 succeeded / 0 failed | 40 | $0.62400 | Keep only for targeted evidence collection; test browser/manual replacement. |
+| Profile enrichment | No runs | 0 | $0.00000 | Remove from active watch if the older HeyGen cold-email flow is retired. |
+| Website screenshot/video | No runs | 0 | $0.00000 | Replace with Playwright, Browser Use, or Vercel Chromium capture if still needed. |
+
+Current read: Apify's $39/month subscription is not justified by all configured actors equally. Four actor categories produced useful-looking volume in the sample: Reddit listening, Google Maps, LinkedIn post search, and Capterra reviews. Eight configured surfaces are no-run, failing, or empty-output and should be paused, replaced, or retired before Apify is treated as a durable default.
 
 ## Configured Apify Call Surfaces
 
