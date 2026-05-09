@@ -25,6 +25,13 @@ const inboxMocks = vi.hoisted(() => ({
   routeAgentInboxItem: vi.fn(),
 }))
 
+const workItemMocks = vi.hoisted(() => ({
+  listAgentWorkItems: vi.fn(),
+  getAgentWorkItem: vi.fn(),
+  claimAgentWorkItem: vi.fn(),
+  handoffAgentWorkItem: vi.fn(),
+}))
+
 vi.mock('@/lib/agent-run', () => ({
   startAgentRun: agentRunMocks.startAgentRun,
   recordAgentEvent: agentRunMocks.recordAgentEvent,
@@ -45,12 +52,25 @@ vi.mock('@/lib/agent-inbox-routing', () => ({
   routeAgentInboxItem: inboxMocks.routeAgentInboxItem,
 }))
 
+vi.mock('@/lib/agent-work-items', () => ({
+  listAgentWorkItems: workItemMocks.listAgentWorkItems,
+  getAgentWorkItem: workItemMocks.getAgentWorkItem,
+  claimAgentWorkItem: workItemMocks.claimAgentWorkItem,
+  handoffAgentWorkItem: workItemMocks.handoffAgentWorkItem,
+}))
+
 import {
   agentSlackCommandInternals,
+  buildAgentBlockersSlackText,
   buildAgentBriefSlackText,
   buildAgentEngagementQueueSlackText,
+  buildAgentPrsSlackText,
+  buildAgentWorkItemsSlackText,
+  buildCaptainQueueSlackText,
+  claimAgentWorkItemSlackText,
   buildAgentInboxSlackText,
   createAgentEngagementSlackText,
+  handoffAgentWorkItemSlackText,
   routeAgentInboxSlackText,
   runWarRoomStandupSlackText,
 } from '@/lib/agent-slack-command'
@@ -71,8 +91,13 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.commandFromText('agents')).toBe('agents')
     expect(agentSlackCommandInternals.commandFromText('list')).toBe('agents')
     expect(agentSlackCommandInternals.commandFromText('engagements')).toBe('engagements')
-    expect(agentSlackCommandInternals.commandFromText('work')).toBe('engagements')
+    expect(agentSlackCommandInternals.commandFromText('work')).toBe('work-items')
     expect(agentSlackCommandInternals.commandFromText('queue')).toBe('engagements')
+    expect(agentSlackCommandInternals.commandFromText('claim work-1')).toBe('claim')
+    expect(agentSlackCommandInternals.commandFromText('handoff work-1 automation-systems')).toBe('handoff')
+    expect(agentSlackCommandInternals.commandFromText('blockers')).toBe('blockers')
+    expect(agentSlackCommandInternals.commandFromText('prs')).toBe('prs')
+    expect(agentSlackCommandInternals.commandFromText('captain')).toBe('captain')
     expect(agentSlackCommandInternals.commandFromText('inbox')).toBe('inbox')
     expect(agentSlackCommandInternals.commandFromText('brief')).toBe('brief')
     expect(agentSlackCommandInternals.commandFromText('route 1')).toBe('route')
@@ -87,6 +112,8 @@ describe('agent Slack command parsing', () => {
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent status')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent run <agent-key>')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent engagements')
+    expect(agentSlackCommandInternals.formatHelp()).toContain('/agent work [id]')
+    expect(agentSlackCommandInternals.formatHelp()).toContain('/agent captain')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent inbox')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent route <number-or-id>')
     expect(agentSlackCommandInternals.formatHelp()).toContain('/agent standup')
@@ -277,5 +304,135 @@ describe('agent Slack command parsing', () => {
     }))
     expect(text).toContain('Agent Inbox item routed')
     expect(text).toContain('/admin/agents/runs/route-run')
+  })
+
+  it('formats active coordination work items for Slack', async () => {
+    workItemMocks.listAgentWorkItems.mockResolvedValue([
+      {
+        id: 'work-1',
+        title: 'Coordinate feature',
+        objective: 'Build the substrate',
+        status: 'ready_for_review',
+        owner_agent_key: 'chief-of-staff',
+        owner_runtime: 'codex',
+        branch_name: 'codex/agent-coordination-substrate',
+        pr_url: 'https://github.test/pull/1',
+        pr_number: 1,
+        approval_id: null,
+      },
+    ])
+
+    const text = await buildAgentWorkItemsSlackText({ text: 'work' })
+
+    expect(text).toContain('Agent coordination work')
+    expect(text).toContain('Coordinate feature')
+    expect(text).toContain('PR 1')
+    expect(text).toContain('/admin/agents/coordination')
+  })
+
+  it('formats one coordination work item for Slack', async () => {
+    workItemMocks.getAgentWorkItem.mockResolvedValue({
+      id: 'work-1',
+      title: 'Coordinate feature',
+      objective: 'Build the substrate',
+      status: 'blocked',
+      owner_agent_key: 'chief-of-staff',
+      owner_runtime: 'codex',
+      branch_name: null,
+      pr_url: null,
+      pr_number: null,
+      approval_id: null,
+      active_run_id: 'run-1',
+      blocker_summary: 'Needs captain review',
+      validation_summary: null,
+      latest_handoff: null,
+    })
+
+    const text = await buildAgentWorkItemsSlackText({ text: 'work work-1' })
+
+    expect(text).toContain('Agent work item')
+    expect(text).toContain('Needs captain review')
+    expect(text).toContain('/admin/agents/runs/run-1')
+  })
+
+  it('claims and hands off coordination work from Slack', async () => {
+    workItemMocks.claimAgentWorkItem.mockResolvedValue({
+      title: 'Coordinate feature',
+      objective: 'Build the substrate',
+      status: 'assigned',
+      owner_agent_key: 'automation-systems',
+      owner_runtime: 'codex',
+      branch_name: null,
+      pr_url: null,
+      pr_number: null,
+      approval_id: null,
+      active_run_id: 'run-1',
+    })
+    const claimText = await claimAgentWorkItemSlackText({
+      text: 'claim work-1 automation-systems',
+      userName: 'vambah',
+    })
+    expect(workItemMocks.claimAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'work-1',
+      ownerAgentKey: 'automation-systems',
+    }))
+    expect(claimText).toContain('Agent work item claimed')
+
+    workItemMocks.handoffAgentWorkItem.mockResolvedValue({
+      handoffId: 'handoff-1',
+      workItem: {
+        title: 'Coordinate feature',
+        objective: 'Build the substrate',
+        status: 'assigned',
+        owner_agent_key: 'integration-captain',
+        owner_runtime: 'codex',
+        branch_name: null,
+        pr_url: null,
+        pr_number: null,
+        approval_id: null,
+        active_run_id: 'run-2',
+      },
+    })
+    const handoffText = await handoffAgentWorkItemSlackText({
+      text: 'handoff work-1 integration-captain ready for review',
+      userName: 'vambah',
+    })
+    expect(workItemMocks.handoffAgentWorkItem).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'work-1',
+      toAgentKey: 'integration-captain',
+    }))
+    expect(handoffText).toContain('Agent work item handed off')
+    expect(handoffText).toContain('handoff-1')
+  })
+
+  it('formats blocker, PR, and captain queues', async () => {
+    workItemMocks.listAgentWorkItems.mockResolvedValue([
+      {
+        title: 'Blocked feature',
+        objective: 'Needs credentials',
+        status: 'blocked',
+        owner_agent_key: 'chief-of-staff',
+        owner_runtime: 'codex',
+        branch_name: null,
+        pr_url: null,
+        pr_number: null,
+        approval_id: 'approval-1',
+      },
+      {
+        title: 'Review feature',
+        objective: 'Review PR',
+        status: 'ready_for_merge',
+        owner_agent_key: 'chief-of-staff',
+        owner_runtime: 'codex',
+        branch_name: 'codex/review',
+        pr_url: 'https://github.test/pull/2',
+        pr_number: 2,
+        approval_id: null,
+      },
+    ])
+
+    await expect(buildAgentBlockersSlackText()).resolves.toContain('Blocked agent coordination work')
+    await expect(buildAgentPrsSlackText()).resolves.toContain('Coordination PR queue')
+    await expect(buildCaptainQueueSlackText()).resolves.toContain('Integration Captain queue')
   })
 })

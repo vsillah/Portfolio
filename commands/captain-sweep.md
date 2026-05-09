@@ -74,6 +74,18 @@ Clean conservatively:
 - Preserve recovery stashes and unknown worktrees unless Vambah explicitly approves cleanup.
 - Leave watch/debt items documented instead of guessing ownership.
 
+## Agent Coordination Gate
+
+Use the Agent Coordination substrate as the shared assignment bus:
+
+- Check `/admin/agents/coordination` and Slack `/agent captain` before merging ready PRs.
+- Match PRs to coordination work items by `branch_name`, `pr_number`, or `pr_url`.
+- Attach reviewable PRs to their work item and set them to `ready_for_review`.
+- When checks are green and the branch is merge-clean, record validation and set the item to `ready_for_merge`; this creates an approval checkpoint instead of granting automatic merge authority.
+- After merge and both Vercel contexts pass, mark the item `deployed` and record deployment evidence in the validation summary.
+- If checks fail, conflicts appear, or deployment verification is blocked, mark the item `blocked` with the exact blocker and next owner.
+- Treat Slack `/agent captain` as a status surface only. It must not merge PRs or mutate production.
+
 ## Report Format
 
 Return a concise status report:

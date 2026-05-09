@@ -4,6 +4,8 @@ This roadmap is the scope-control document for Agent Operations. It defines what
 
 Portfolio admin remains the control plane. Slack remains the mobile command surface. `agent_runs`, `agent_run_steps`, `agent_run_events`, `agent_run_artifacts`, `agent_approvals`, and `cost_events.agent_run_id` remain the source of truth.
 
+Agent Coordination adds a thin work-item layer on top of Agent Ops. `agent_work_items` is the shared assignment bus for cross-runtime work packets, branch/worktree ownership, blockers, PR links, validation summaries, and gated merge/deploy states. It does not replace `agent_runs`; every work item links back to a trace and records state changes as Agent Ops events. Handoffs continue to flow through `agent_handoffs`.
+
 ## Product Definition
 
 Agent Operations is done when Vambah can:
