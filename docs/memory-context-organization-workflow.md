@@ -62,6 +62,8 @@ Each packet includes:
 
 Use repair packets to decide which prompt, doc, skill, or runbook needs a scoped follow-up PR or an explicitly approved local-state update.
 
+Repo-owned automation runbooks now live under [`docs/automations/`](./automations/README.md). When a repair packet points at a missing governing doc, prefer adding or updating one of those runbooks before requesting any direct `~/.codex` automation edit.
+
 ## Enhancement Impact Preflight
 
 ### Enhancement Impact Preflight
@@ -89,6 +91,18 @@ Implementation update: `lib/chief-of-staff-chat.test.ts` also needed a fixture u
 - Overlap rating: green.
 - Coordination decision: Proceed in the dedicated memory organization worktree and keep changes limited to automation context dashboard, inventory, tests, and memory workflow docs.
 - Merge-order note: Can merge independently after integration-captain review; active PRs do not touch these files.
+
+### Enhancement Impact Preflight
+
+- Enhancement: Add repo-owned governing runbooks for automation repair packet targets.
+- User-facing surface: `/admin/agents/automations` repair packets and the linked Portfolio documentation trail.
+- Predicted files: `docs/automations/README.md`, `docs/automations/*-runbook.md`, `docs/automations/<automation-id>.md`, `docs/memory-context-organization-workflow.md`.
+- Shared routes/APIs/tables/helpers: none; docs only.
+- Active PRs or branches checked: no open PRs at implementation start; only `main` and this `codex/memory-context-runbooks` worktree were active.
+- Dirty worktree files checked: current `codex/memory-context-runbooks` worktree was clean before implementation.
+- Overlap rating: green.
+- Coordination decision: Proceed with repo-owned docs only. Do not edit dashboard code, shared helpers, local Codex memory, or local Codex automation state.
+- Merge-order note: Can merge independently after review because it adds governing docs only.
 
 ## Operating Boundary
 
