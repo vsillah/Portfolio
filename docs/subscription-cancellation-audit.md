@@ -10,6 +10,35 @@ no meaningful usage signal, or after clear redundancy plus a lower-risk
 replacement path. Production changes require explicit approval in the form
 `Cancel <tool/vendor> for Portfolio`.
 
+## 2026-05-09 Apify Run-History Evidence Update
+
+Status: YELLOW
+
+Summary:
+
+- No cancellation approvals requested and no cancellation action taken.
+- A direct read-only Apify API pull sampled the latest 10 runs for each of the
+  12 configured actor surfaces listed in `docs/apify-call-bakeoff-analysis.md`.
+- The sample found 59 total runs, 40 successful runs, 19 failed runs, 315
+  dataset items, and `$1.99585` in actor usage cost, or about `$0.00634` per
+  dataset item before manual acceptance review.
+- Four actor categories currently show useful-looking output: Reddit listening,
+  Google Maps, LinkedIn post search, and Capterra reviews.
+- Eight configured surfaces are no-run, failing, or empty-output: Facebook
+  friends, Facebook groups, Facebook comments, LinkedIn connections, LinkedIn
+  post engagement, G2 reviews, profile enrichment, and website screenshot/video.
+- Recommendation: keep Apify as a watch item for now, but stop treating every
+  configured Apify actor as equally valuable. Pause or replace the weak
+  surfaces first, then run replacement tests against only the productive
+  categories before the next renewal decision.
+
+Raw Findings
+
+- Token source: existing local `APIFY_TOKEN`; values were not printed.
+- Evidence source updated: `/docs/apify-call-bakeoff-analysis.md`.
+- Dashboard data updated: `/docs/subscription-status.json`.
+- No shared cost-event schema changes and no production write actions.
+
 ## 2026-05-09 Budget Query Readiness Update
 
 Status: YELLOW
