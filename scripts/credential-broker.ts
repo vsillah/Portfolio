@@ -3,6 +3,7 @@ import { spawnSync } from 'node:child_process'
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
+import { buildCredentialReport, renderCredentialReportMarkdown } from '../lib/credential-report'
 
 type EnvironmentName = 'dev' | 'staging' | 'prod'
 type SourceOfTruth = 'infisical' | '1password'
@@ -92,6 +93,9 @@ function main() {
   switch (args.command) {
     case 'list-due':
       listDue(inventory, args)
+      break
+    case 'report':
+      report(inventory, args)
       break
     case 'inject':
       inject(inventory, args)
@@ -195,6 +199,19 @@ function listDue(inventory: CredentialInventory, args: ParsedArgs) {
     const due = row.dueAt ? ` due=${row.dueAt}` : ' due=unknown'
     console.log(`${row.status.padEnd(14)} ${row.envVar.padEnd(32)} ${row.rotationMode}${due} baseline=${row.baselineStatus}${approval}`)
   }
+}
+
+function report(inventory: CredentialInventory, args: ParsedArgs) {
+  const env = getEnv(args)
+  const asOf = String(args.options['as-of'] || new Date().toISOString())
+  const credentialReport = buildCredentialReport(inventory, env, asOf)
+
+  if (args.options.json) {
+    console.log(JSON.stringify(credentialReport, null, 2))
+    return
+  }
+
+  console.log(renderCredentialReportMarkdown(credentialReport))
 }
 
 function inject(inventory: CredentialInventory, args: ParsedArgs) {
@@ -510,6 +527,7 @@ function printHelp() {
 
 Commands:
   list-due      --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--json]
+  report        --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--json]
   inject        --env <dev|staging|prod> [--secret id-or-envVar[,..]] -- <command>
   rotate        --env <dev|staging|prod> --secret <id-or-envVar> [--local-env .env.staging] [--length 48]
   sync-runtime  --env <dev|staging|prod> --secret <id-or-envVar> [--local-env .env.staging]
