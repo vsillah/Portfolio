@@ -1,46 +1,20 @@
 #!/usr/bin/env tsx
 import { spawnSync } from 'node:child_process'
-
-type VercelDeployment = {
-  url: string
-  name: string
-  state: string
-  target?: string | null
-  createdAt?: number
-  buildingAt?: number
-  ready?: number
-  meta?: {
-    githubPrId?: string
-    githubCommitRef?: string
-    githubCommitSha?: string
-    githubCommitMessage?: string
-  }
-}
+import {
+  DEFAULT_DEPLOYMENT_METRIC_THRESHOLDS,
+  collectDeploymentFindings,
+  formatSeconds,
+  summarizeDeploymentMetrics,
+  toDeploymentMetric,
+  type DeploymentMetric,
+  type DeploymentMetricThresholds,
+  type MetricFinding,
+  type MetricSummary,
+  type VercelDeployment,
+} from '../lib/vercel-deployment-metrics'
 
 type VercelListResponse = {
   deployments?: VercelDeployment[]
-}
-
-type DeploymentMetric = {
-  project: string
-  state: string
-  target: string
-  ref: string
-  pr: string
-  url: string
-  queueSeconds: number | null
-  buildSeconds: number | null
-  totalSeconds: number | null
-}
-
-type MetricSummary = {
-  project: string
-  target: string
-  count: number
-  averageQueueSeconds: number
-  averageBuildSeconds: number
-  averageTotalSeconds: number
-  maxTotalSeconds: number
 }
 
 const DEFAULT_PROJECTS = ['portfolio', 'portfolio-staging']
@@ -49,6 +23,8 @@ function parseArgs(argv: string[]) {
   const options = {
     projects: [...DEFAULT_PROJECTS],
     limit: 20,
+    json: false,
+    thresholds: { ...DEFAULT_DEPLOYMENT_METRIC_THRESHOLDS },
   }
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -64,13 +40,32 @@ function parseArgs(argv: string[]) {
     } else if (arg === '--limit' && next) {
       options.limit = Number(next)
       index += 1
+    } else if (arg === '--queue-watch' && next) {
+      options.thresholds.queueWatchSeconds = Number(next)
+      index += 1
+    } else if (arg === '--queue-blocked' && next) {
+      options.thresholds.queueBlockedSeconds = Number(next)
+      index += 1
+    } else if (arg === '--build-watch' && next) {
+      options.thresholds.buildWatchSeconds = Number(next)
+      index += 1
+    } else if (arg === '--build-blocked' && next) {
+      options.thresholds.buildBlockedSeconds = Number(next)
+      index += 1
+    } else if (arg === '--json') {
+      options.json = true
     } else if (arg === '--help' || arg === '-h') {
       console.log(`Usage:
   npm run deploy:metrics -- [options]
 
 Options:
-  --projects <a,b>   Vercel projects to inspect. Defaults to portfolio,portfolio-staging.
-  --limit <n>        Number of recent deployments per project to include. Defaults to 20.
+  --projects <a,b>       Vercel projects to inspect. Defaults to portfolio,portfolio-staging.
+  --limit <n>            Number of recent deployments per project to include. Defaults to 20.
+  --queue-watch <sec>    Queue watch threshold. Defaults to 300.
+  --queue-blocked <sec>  Queue blocked threshold. Defaults to 600.
+  --build-watch <sec>    Build watch threshold. Defaults to 480.
+  --build-blocked <sec>  Build blocked threshold. Defaults to 900.
+  --json                 Print machine-readable output.
 `)
       process.exit(0)
     }
@@ -84,7 +79,25 @@ Options:
     throw new Error('--limit must be a positive number')
   }
 
+  validateThresholds(options.thresholds)
+
   return options
+}
+
+function validateThresholds(thresholds: DeploymentMetricThresholds) {
+  for (const [key, value] of Object.entries(thresholds)) {
+    if (!Number.isFinite(value) || value <= 0) {
+      throw new Error(`--${key} must be a positive number of seconds`)
+    }
+  }
+
+  if (thresholds.queueBlockedSeconds < thresholds.queueWatchSeconds) {
+    throw new Error('--queue-blocked must be greater than or equal to --queue-watch')
+  }
+
+  if (thresholds.buildBlockedSeconds < thresholds.buildWatchSeconds) {
+    throw new Error('--build-blocked must be greater than or equal to --build-watch')
+  }
 }
 
 function runVercelList(project: string): VercelDeployment[] {
@@ -102,90 +115,9 @@ function runVercelList(project: string): VercelDeployment[] {
   return parsed.deployments ?? []
 }
 
-function secondsBetween(end: number | undefined, start: number | undefined): number | null {
-  if (!end || !start || end < start) return null
-  return Math.round((end - start) / 1000)
-}
-
-function toMetric(project: string, deployment: VercelDeployment, now = Date.now()): DeploymentMetric {
-  const target = deployment.target ?? 'preview'
-  const createdAt = deployment.createdAt
-  const buildingAt = deployment.buildingAt
-  const readyAt = deployment.ready
-
-  const queueSeconds = buildingAt
-    ? secondsBetween(buildingAt, createdAt)
-    : deployment.state === 'QUEUED'
-      ? secondsBetween(now, createdAt)
-      : null
-
-  const buildSeconds = readyAt && buildingAt
-    ? secondsBetween(readyAt, buildingAt)
-    : deployment.state === 'BUILDING'
-      ? secondsBetween(now, buildingAt ?? createdAt)
-      : null
-
-  const totalSeconds = readyAt
-    ? secondsBetween(readyAt, createdAt)
-    : deployment.state === 'QUEUED' || deployment.state === 'BUILDING'
-      ? secondsBetween(now, createdAt)
-      : null
-
-  return {
-    project,
-    state: deployment.state,
-    target,
-    ref: deployment.meta?.githubCommitRef ?? 'unknown',
-    pr: deployment.meta?.githubPrId ?? '',
-    url: deployment.url,
-    queueSeconds,
-    buildSeconds,
-    totalSeconds,
-  }
-}
-
-function average(values: Array<number | null>): number {
-  const finite = values.filter((value): value is number => Number.isFinite(value))
-  if (finite.length === 0) return 0
-  return finite.reduce((sum, value) => sum + value, 0) / finite.length
-}
-
-function summarize(metrics: DeploymentMetric[]): MetricSummary[] {
-  const readyMetrics = metrics.filter((metric) => metric.state === 'READY' && metric.totalSeconds !== null)
-  const groups = new Map<string, DeploymentMetric[]>()
-
-  for (const metric of readyMetrics) {
-    const key = `${metric.project}:${metric.target}`
-    groups.set(key, [...(groups.get(key) ?? []), metric])
-  }
-
-  return [...groups.entries()]
-    .map(([key, group]) => {
-      const [project, target] = key.split(':')
-      return {
-        project,
-        target,
-        count: group.length,
-        averageQueueSeconds: average(group.map((metric) => metric.queueSeconds)),
-        averageBuildSeconds: average(group.map((metric) => metric.buildSeconds)),
-        averageTotalSeconds: average(group.map((metric) => metric.totalSeconds)),
-        maxTotalSeconds: Math.max(...group.map((metric) => metric.totalSeconds ?? 0)),
-      }
-    })
-    .sort((a, b) => a.project.localeCompare(b.project) || a.target.localeCompare(b.target))
-}
-
-function formatSeconds(seconds: number | null): string {
-  if (seconds === null) return '-'
-  if (seconds < 60) return `${seconds}s`
-  const minutes = Math.floor(seconds / 60)
-  const remainder = seconds % 60
-  return `${minutes}m${remainder.toString().padStart(2, '0')}s`
-}
-
 function printSummary(summaries: MetricSummary[]) {
   console.log('Deployment Timing Summary')
-  console.log('project\ttarget\tcount\tavg_queue\tavg_build\tavg_total\tmax_total')
+  console.log('project\ttarget\tcount\tavg_queue\tavg_build\tavg_total\tmax_queue\tmax_build\tmax_total')
 
   for (const summary of summaries) {
     console.log(
@@ -196,6 +128,8 @@ function printSummary(summaries: MetricSummary[]) {
         formatSeconds(Math.round(summary.averageQueueSeconds)),
         formatSeconds(Math.round(summary.averageBuildSeconds)),
         formatSeconds(Math.round(summary.averageTotalSeconds)),
+        formatSeconds(Math.round(summary.maxQueueSeconds)),
+        formatSeconds(Math.round(summary.maxBuildSeconds)),
         formatSeconds(Math.round(summary.maxTotalSeconds)),
       ].join('\t')
     )
@@ -224,16 +158,63 @@ function printRecent(metrics: DeploymentMetric[]) {
   }
 }
 
+function printFindings(findings: MetricFinding[]) {
+  console.log('')
+  console.log('Deployment Timing Findings')
+
+  if (findings.length === 0) {
+    console.log('No queue/build timing findings crossed the configured thresholds.')
+    return
+  }
+
+  console.log('severity\tproject\ttarget\tstate\treason\tguidance\turl')
+
+  for (const finding of findings) {
+    console.log(
+      [
+        finding.severity,
+        finding.project,
+        finding.target,
+        finding.state,
+        finding.reason,
+        finding.guidance,
+        finding.url,
+      ].join('\t')
+    )
+  }
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2))
   const metrics = options.projects.flatMap((project) =>
     runVercelList(project)
       .slice(0, options.limit)
-      .map((deployment) => toMetric(project, deployment))
+      .map((deployment) => toDeploymentMetric(project, deployment))
   )
+  const summaries = summarizeDeploymentMetrics(metrics)
+  const findings = collectDeploymentFindings(metrics, options.thresholds)
 
-  printSummary(summarize(metrics))
+  if (options.json) {
+    console.log(
+      JSON.stringify(
+        {
+          projects: options.projects,
+          limit: options.limit,
+          thresholds: options.thresholds,
+          summaries,
+          findings,
+          metrics,
+        },
+        null,
+        2
+      )
+    )
+    return
+  }
+
+  printSummary(summaries)
   printRecent(metrics)
+  printFindings(findings)
 }
 
 main().catch((error) => {

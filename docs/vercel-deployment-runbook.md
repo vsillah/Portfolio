@@ -39,6 +39,7 @@ For queue/build timing evidence, run:
 
 ```bash
 npm run deploy:metrics
+npm run deploy:metrics -- --json
 ```
 
 Use the metrics report to distinguish:
@@ -46,6 +47,27 @@ Use the metrics report to distinguish:
 - queue time: Vercel concurrency pressure before the build starts,
 - build time: actual project build duration,
 - total time: end-to-end wait from deployment creation to ready.
+
+The default metrics thresholds are:
+
+- queue watch: 5 minutes,
+- queue blocked: 10 minutes,
+- build watch: 8 minutes,
+- build blocked: 15 minutes.
+
+The script prints `Deployment Timing Findings` when any recent deployment crosses
+those thresholds. Treat `blocked` findings as a deployment gate until the
+deployment is inspected in Vercel or rerun. Treat repeated `watch` findings as
+operating debt to discuss in the captain sweep, not as automatic permission to
+change production deployment settings.
+
+Useful focused variants:
+
+```bash
+npm run deploy:metrics -- --projects portfolio --limit 10
+npm run deploy:metrics -- --projects portfolio-staging --limit 10 --json
+npm run deploy:metrics -- --queue-watch 240 --queue-blocked 600
+```
 
 ## Queue Reduction Policy
 
@@ -93,3 +115,26 @@ Upgrade is a good call if any of these become common:
 - deployment visibility becomes more valuable than the marginal subscription cost.
 
 Do not treat an upgrade as a substitute for the watcher. The watcher remains the source of truth for whether autopilot can proceed.
+
+## Safe Instrumentation Notes
+
+Allowed without a production deployment config change:
+
+- read-only `vercel ls` deployment timing snapshots,
+- read-only GitHub commit status polling through `deploy:watch`,
+- structured console logs in new or touched API routes when they do not print
+  secrets, customer records, lead records, private notes, raw request bodies, or
+  payment data,
+- local JSON output from `deploy:metrics -- --json` for captain review.
+
+Approval gate before changing:
+
+- Vercel project settings, build commands, ignored build steps, preview
+  deployment settings, environment variables, domains, or protection settings,
+- branch protection requirements tied to Vercel contexts,
+- log drains or third-party monitoring integrations that export production
+  runtime data.
+
+If a production config change appears necessary, stop with the proposed setting,
+scope, rollback path, and evidence from `deploy:watch` or `deploy:metrics`
+before applying it.
