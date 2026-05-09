@@ -1,0 +1,121 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import type { ReactNode } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import CredentialAdminPage from './page'
+
+vi.mock('@/components/ProtectedRoute', () => ({
+  default: ({ children }: { children: ReactNode }) => <>{children}</>,
+}))
+
+vi.mock('@/lib/auth', () => ({
+  getCurrentSession: vi.fn(async () => ({ access_token: 'admin-token' })),
+}))
+
+const baseReport = {
+  generatedAt: '2026-05-09T12:00:00.000Z',
+  env: 'staging',
+  asOf: '2026-05-09',
+  sourceBoundary: 'Infisical for runtime/API secrets; 1Password for human logins.',
+  providerContext: {
+    infisicalProject: 'portfolio',
+    infisicalPath: '/portfolio',
+    onePasswordVault: 'Portfolio / staging',
+  },
+  summary: {
+    total: 2,
+    ok: 0,
+    due: 0,
+    needsBaseline: 2,
+    approvalRequired: 0,
+    providerConfirmed: 0,
+    providerPending: 2,
+  },
+  bySource: { infisical: 1, '1password': 1 },
+  byRisk: { 'standard-api': 1, 'oauth-session': 1 },
+  byRuntimeSink: { Vercel: 1, 'local-env': 1 },
+  blockers: ['2 staging secrets need provider-confirmed rotation baselines.'],
+  rows: [
+    {
+      id: 'openai-api-key',
+      envVar: 'OPENAI_API_KEY',
+      displayName: 'OpenAI API key',
+      risk: 'standard-api',
+      sourceOfTruth: 'infisical',
+      cadenceDays: 90,
+      approvalRequired: false,
+      baselineStatus: 'pending-provider-confirmation',
+      lastRotatedAt: null,
+      dueAt: null,
+      status: 'needs-baseline',
+      nextAction: 'Confirm provider history and record lastRotatedAt evidence.',
+    },
+    {
+      id: 'linkedin-cookie',
+      envVar: 'LINKEDIN_COOKIE',
+      displayName: 'LinkedIn browser session',
+      risk: 'oauth-session',
+      sourceOfTruth: '1password',
+      cadenceDays: 365,
+      approvalRequired: false,
+      baselineStatus: 'pending-provider-confirmation',
+      lastRotatedAt: null,
+      dueAt: null,
+      status: 'needs-baseline',
+      nextAction: 'Confirm provider history and record lastRotatedAt evidence.',
+    },
+  ],
+}
+
+describe('CredentialAdminPage', () => {
+  beforeEach(() => {
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      const env = url.includes('env=prod') ? 'prod' : 'staging'
+      return {
+        ok: true,
+        json: async () => ({
+          ...baseReport,
+          env,
+          providerContext: {
+            ...baseReport.providerContext,
+            onePasswordVault: env === 'prod' ? 'Portfolio / prod' : 'Portfolio / staging',
+          },
+        }),
+      }
+    }))
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
+  it('renders credential posture without exposing secret values', async () => {
+    render(<CredentialAdminPage />)
+
+    expect(await screen.findByRole('heading', { name: 'Credential Reporting' })).toBeInTheDocument()
+    expect(screen.getByText('Baseline needed')).toBeInTheDocument()
+    expect(screen.getByText('2 need baseline / 0 due / 0 ok')).toBeInTheDocument()
+    expect(screen.getByText('OPENAI_API_KEY')).toBeInTheDocument()
+    expect(screen.getByText('LINKEDIN_COOKIE')).toBeInTheDocument()
+    expect(screen.queryByText('super-secret-value')).not.toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/credentials/report?env=staging', {
+        headers: { Authorization: 'Bearer admin-token' },
+      })
+    })
+  })
+
+  it('reloads the selected environment', async () => {
+    render(<CredentialAdminPage />)
+
+    fireEvent.click(await screen.findByRole('button', { name: 'prod' }))
+
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalledWith('/api/admin/credentials/report?env=prod', {
+        headers: { Authorization: 'Bearer admin-token' },
+      })
+    })
+    expect(await screen.findByText('Portfolio / prod')).toBeInTheDocument()
+  })
+})
