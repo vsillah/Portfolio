@@ -50,7 +50,7 @@ export async function GET(
     return NextResponse.json({ error: 'Run not found' }, { status: 404 })
   }
 
-  const [steps, events, artifacts, handoffs, approvals, costs] = await Promise.all([
+  const [steps, events, artifacts, handoffs, approvals, costs, evaluations] = await Promise.all([
     supabaseAdmin
       .from('agent_run_steps')
       .select('*')
@@ -81,6 +81,11 @@ export async function GET(
       .select('*')
       .eq('agent_run_id', params.runId)
       .order('occurred_at', { ascending: false }),
+    supabaseAdmin
+      .from('agent_run_evaluations')
+      .select('*')
+      .eq('run_id', params.runId)
+      .order('created_at', { ascending: false }),
   ])
 
   const costTotal = ((costs.data || []) as CostRow[]).reduce(
@@ -96,6 +101,7 @@ export async function GET(
     handoffs: handoffs.data || [],
     approvals: approvals.data || [],
     costs: costs.data || [],
+    evaluations: evaluations.data || [],
     cost_total: Number(costTotal.toFixed(4)),
   })
 }

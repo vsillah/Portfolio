@@ -1,4 +1,5 @@
 import { AGENT_ORGANIZATION, AGENT_PODS } from '@/lib/agent-organization'
+import { getAgentQualitySummary, getEmptyAgentQualitySummary } from '@/lib/agent-evaluations'
 import { KNOWLEDGE_GOVERNANCE_STATUS } from '@/lib/knowledge-source-manifest'
 import { supabaseAdmin } from '@/lib/supabase'
 
@@ -785,6 +786,10 @@ export async function buildAgentMissionControlSnapshot() {
     activeRunsCount: activeRuns.length,
     failedRunsCount: failedRuns.length,
   })
+  const qualitySummary = await getAgentQualitySummary({ windowHours: 24 }).catch((error) => {
+    console.warn('[agent-mission-control] quality summary unavailable:', error)
+    return getEmptyAgentQualitySummary(24)
+  })
 
   return {
     generated_at: new Date().toISOString(),
@@ -829,6 +834,7 @@ export async function buildAgentMissionControlSnapshot() {
     latest_standup: latestStandup ? summarizeRun(latestStandup, costByRun) : null,
     daily_brief: dailyBrief,
     cost_summary: costSummary,
+    quality_summary: qualitySummary,
     operating_signals: operatingSignals,
     knowledge_governance: KNOWLEDGE_GOVERNANCE_STATUS,
     agent_inbox: agentInbox,

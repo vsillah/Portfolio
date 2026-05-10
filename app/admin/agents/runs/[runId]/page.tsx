@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import Link from 'next/link'
-import { AlertTriangle, ArrowLeft, Bot, DollarSign, FileText, RefreshCw } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, Bot, DollarSign, FileText, Gauge, RefreshCw } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
@@ -18,8 +18,17 @@ type RunDetail = {
   approvals: AnyRow[]
   handoffs: AnyRow[]
   costs: AnyRow[]
+  evaluations: AnyRow[]
   cost_total: number
 }
+
+const RUBRIC_OPTIONS = [
+  { key: 'chief-of-staff-synthesis-quality', label: 'Chief of Staff synthesis quality' },
+  { key: 'warm-lead-capture-trace-completeness', label: 'Warm lead trace completeness' },
+  { key: 'meeting-intake-follow-up-safety-isolation', label: 'Meeting intake safety isolation' },
+  { key: 'inbox-follow-up-approval-readiness', label: 'Inbox follow-up approval readiness' },
+  { key: 'research-source-register-source-quality', label: 'Research source quality' },
+]
 
 export default function AgentRunDetailPage({ params }: { params: { runId: string } }) {
   return (
@@ -33,6 +42,8 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
   const [data, setData] = useState<RunDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [rubricKey, setRubricKey] = useState(RUBRIC_OPTIONS[0].key)
+  const [evaluating, setEvaluating] = useState(false)
 
   const fetchDetail = useCallback(async () => {
     setLoading(true)
@@ -86,6 +97,32 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
     }
   }
 
+  async function evaluateRun() {
+    setEvaluating(true)
+    setError(null)
+    try {
+      const session = await getCurrentSession()
+      if (!session?.access_token) throw new Error('Missing admin session')
+      const res = await fetch(`/api/admin/agents/runs/${runId}/evaluate`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ rubric_key: rubricKey }),
+      })
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}))
+        throw new Error(body.error || `HTTP ${res.status}`)
+      }
+      await fetchDetail()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to evaluate run')
+    } finally {
+      setEvaluating(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
       <div className="max-w-6xl mx-auto">
@@ -114,13 +151,32 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
                 <h1 className="text-3xl font-bold mb-1">{String(data.run.title ?? 'Agent run')}</h1>
                 <p className="text-sm text-muted-foreground">{String(data.run.kind ?? 'run')} · {String(data.run.id)}</p>
               </div>
-              <button
-                onClick={fetchDetail}
-                className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
-              >
-                <RefreshCw size={16} />
-                Refresh
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={rubricKey}
+                  onChange={(event) => setRubricKey(event.target.value)}
+                  className="h-10 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 text-sm outline-none focus:border-radiant-gold/60"
+                >
+                  {RUBRIC_OPTIONS.map((option) => (
+                    <option key={option.key} value={option.key}>{option.label}</option>
+                  ))}
+                </select>
+                <button
+                  onClick={evaluateRun}
+                  disabled={evaluating}
+                  className="inline-flex items-center gap-2 rounded-lg border border-radiant-gold/50 bg-radiant-gold/10 px-3 py-2 text-sm text-radiant-gold hover:bg-radiant-gold/15 disabled:opacity-60"
+                >
+                  <Gauge size={16} />
+                  {evaluating ? 'Evaluating...' : 'Evaluate'}
+                </button>
+                <button
+                  onClick={fetchDetail}
+                  className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
+                >
+                  <RefreshCw size={16} />
+                  Refresh
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -129,6 +185,11 @@ function AgentRunDetailContent({ runId }: { runId: string }) {
               <Metric icon={<DollarSign size={18} />} label="Cost" value={`$${data.cost_total.toFixed(4)}`} />
               <Metric icon={<FileText size={18} />} label="Artifacts" value={String(data.artifacts.length)} />
             </div>
+
+            <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5 mb-6">
+              <h2 className="text-lg font-semibold mb-4">Evaluations</h2>
+              <EvaluationList rows={data.evaluations} />
+            </section>
 
             <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5 mb-6">
               <h2 className="text-lg font-semibold mb-4">Steps</h2>
@@ -187,6 +248,62 @@ function Timeline({ rows, timeKey, titleKey, detailKey, fallback }: { rows: AnyR
           {row.status ? <p className="text-xs text-muted-foreground mt-1">Status: {String(row.status)}</p> : null}
         </div>
       ))}
+    </div>
+  )
+}
+
+function EvaluationList({ rows }: { rows: AnyRow[] }) {
+  if (rows.length === 0) {
+    return <p className="text-sm text-muted-foreground">No rubric evaluations recorded yet.</p>
+  }
+
+  return (
+    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+      {rows.map((row) => {
+        const score = typeof row.score === 'number' ? row.score : Number(row.score ?? 0)
+        const passed = row.passed === true
+        const reasons = Array.isArray(row.failure_reasons)
+          ? row.failure_reasons.filter((reason): reason is string => typeof reason === 'string')
+          : []
+        const dimensions = row.dimension_scores && typeof row.dimension_scores === 'object'
+          ? Object.entries(row.dimension_scores as Record<string, unknown>)
+          : []
+
+        return (
+          <div key={String(row.id)} className="rounded-lg border border-silicon-slate/50 bg-background/40 p-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-medium">{String(row.rubric_key ?? 'rubric')}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{String(row.summary ?? row.judge_model ?? '')}</p>
+              </div>
+              <span className={`shrink-0 rounded-full border px-2 py-0.5 text-xs ${passed ? 'border-emerald-400/40 bg-emerald-500/10 text-emerald-200' : 'border-yellow-400/40 bg-yellow-500/10 text-yellow-100'}`}>
+                {Number.isFinite(score) ? score.toFixed(1) : '-'} {passed ? 'pass' : 'review'}
+              </span>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
+              <span>{String(row.agent_key ?? '-').replace(/-/g, ' ')}</span>
+              <span>{String(row.judge_model ?? '-')}</span>
+              <span>{formatDate(asString(row.created_at))}</span>
+            </div>
+            {dimensions.length ? (
+              <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-muted-foreground">
+                {dimensions.slice(0, 6).map(([key, value]) => (
+                  <div key={key} className="rounded-md border border-silicon-slate/50 bg-black/10 px-2 py-1">
+                    {key.replace(/_/g, ' ')}: <span className="text-foreground/80">{Number(value).toFixed(1)}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+            {reasons.length ? (
+              <div className="mt-3 space-y-1">
+                {reasons.slice(0, 3).map((reason) => (
+                  <p key={reason} className="text-xs text-yellow-100">{reason}</p>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        )
+      })}
     </div>
   )
 }
