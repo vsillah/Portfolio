@@ -29,7 +29,53 @@ describe('agent organization registry', () => {
 
     expect(summary).toHaveLength(6)
     expect(summary.find((pod) => pod.key === 'product_automation')?.activeWorkflowCount).toBeGreaterThan(10)
+    expect(summary.find((pod) => pod.key === 'publishing_follow_up')).toMatchObject({
+      agentCount: 4,
+      activeAgentCount: 3,
+      activeWorkflowCount: 29,
+    })
     expect(summary.find((pod) => pod.key === 'strategy_narrative')?.plannedAgentCount).toBe(3)
+  })
+
+  it('splits overloaded publishing and follow-up work into narrow agents', () => {
+    const inbox = getAgentByKey('inbox-follow-up')
+    const warmLead = getAgentByKey('warm-lead-capture')
+    const meeting = getAgentByKey('meeting-intake-follow-up')
+
+    expect(inbox?.responsibility).toContain('cold outreach sends')
+    expect(inbox?.n8nWorkflows.map((workflow) => workflow.name)).toEqual(expect.arrayContaining([
+      'WF-CLG-003: Send and Follow-Up',
+      'WF-GDR: Gmail Draft Reply',
+      'WF-LMN-001: Ebook Nurture Sequence',
+    ]))
+    expect(inbox?.n8nWorkflows.some((workflow) => workflow.name.includes('Warm Lead Scraper'))).toBe(false)
+    expect(inbox?.n8nWorkflows.some((workflow) => workflow.name.includes('Meeting'))).toBe(false)
+
+    expect(warmLead).toMatchObject({
+      name: 'Warm Lead Capture Agent',
+      podKey: 'publishing_follow_up',
+      status: 'active',
+      primaryRuntime: 'n8n',
+    })
+    expect(warmLead?.n8nWorkflows.map((workflow) => workflow.name)).toEqual(expect.arrayContaining([
+      'WF-WRM-001: Facebook Warm Lead Scraper',
+      'WF-WRM-002: Google Contacts Sync',
+      'WF-WRM-003: LinkedIn Warm Lead Scraper',
+    ]))
+
+    expect(meeting).toMatchObject({
+      name: 'Meeting Intake & Follow-Up Agent',
+      podKey: 'publishing_follow_up',
+      status: 'active',
+      primaryRuntime: 'n8n',
+    })
+    expect(meeting?.n8nWorkflows.map((workflow) => workflow.name)).toEqual(expect.arrayContaining([
+      'WF-SLK: Slack Meeting Intake',
+      'WF-CAL: Calendly Webhook Router',
+      'WF-MCH: Meeting Complete Handler',
+      'WF-FUP: Follow-Up Meeting Scheduler',
+    ]))
+    expect(meeting?.approvalGate).toContain('agenda emails')
   })
 
   it('assigns governed RAG ownership and approval gates to the Research & Knowledge pod', () => {

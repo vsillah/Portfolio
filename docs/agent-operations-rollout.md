@@ -61,7 +61,13 @@ Current pod alignment:
 - Research & Knowledge — lead research, RAG, diagnostics, value evidence, source register workflows.
 - Content Production — social extraction, repurposing, audio/image regeneration, brand/course agents.
 - Product & Automation — client workflow backbone, monitoring, provisioning, task sync, tooling parity.
-- Publishing & Follow-Up — social publish, outbound/follow-up, Gmail draft, nurture, Slack and meeting intake.
+- Publishing & Follow-Up — social publish, outbound/follow-up, Gmail draft, nurture, warm lead capture, and meeting intake/follow-up.
+
+Agent organization load balancing now splits the former overloaded `Inbox & Follow-Up Agent` into narrower operating lanes:
+
+- `Inbox & Follow-Up Agent` owns cold outreach sends, reply detection, Gmail draft preparation, and lead-magnet nurture.
+- `Warm Lead Capture Agent` owns approved WRM Facebook, Google Contacts, and LinkedIn warm-source capture while preserving source-specific traceability.
+- `Meeting Intake & Follow-Up Agent` owns Slack intake, Calendly routing, meeting completion, agenda generation/sending, and follow-up scheduling.
 
 The shared trace tables are:
 
@@ -114,7 +120,7 @@ Current n8n trace coverage:
 |---|---|---|---|
 | `social_content_extraction_runs` | Content Production / social extraction | Linked through `agent_run_id` from trigger through completion callback. | Keep as domain status detail for the Social Content page; use `agent_runs` for Mission Control, events, artifacts, and cross-runtime audit. |
 | `value_evidence_workflow_runs` | Research & Knowledge / value evidence | Linked through `agent_run_id`; progress and completion callbacks write shared steps/events. | Keep as VEP-specific progress state for scoped runs, stage chips, and dashboard history. Do not duplicate generic trace fields beyond the linkage. |
-| `warm_lead_trigger_audit` | Publishing & Follow-Up / warm lead scrapers | Linked through `agent_run_id` for app-triggered scraper runs and completion artifacts. | Keep for source last-run checks, trigger audit, and scraper-specific options. Agent Operations remains canonical for run outcome visibility. |
+| `warm_lead_trigger_audit` | Warm Lead Capture / warm lead scrapers | Linked through `agent_run_id` for app-triggered scraper runs and completion artifacts. | Keep for source last-run checks, trigger audit, and scraper-specific options. Agent Operations remains canonical for run outcome visibility. |
 | `video_generation_workflow_runs` | Content Production / video sync workflows | Linked through `agent_run_id` for admin-triggered HeyGen catalog and Drive script sync runs. | Keep as domain progress for video sync chips/history; shared Agent Ops runs are canonical for audit, stale detection, artifacts, and cross-runtime visibility. |
 | `video_generation_jobs` | Content Production / generated media | Artifact/job table, not a generic run table. | Keep as the media job source of truth. Future video agents should attach job references as `agent_run_artifacts` instead of migrating the job table into `agent_runs`. |
 

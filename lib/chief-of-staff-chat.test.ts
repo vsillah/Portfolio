@@ -208,6 +208,8 @@ describe('Chief of Staff chat helpers', () => {
       'voice-content-architect',
       'automation-systems',
       'inbox-follow-up',
+      'warm-lead-capture',
+      'meeting-intake-follow-up',
     ]))
     expect(catalog.find((agent) => agent.key === 'automation-systems')).toMatchObject({
       pod: 'Product & Automation Pod',

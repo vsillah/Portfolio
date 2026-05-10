@@ -63,6 +63,12 @@ This is the active implementation queue for Agent Operations. The phase gates, d
    - [x] Cap Agent Operations at Phase 12; no Phase 13 without an explicit new roadmap.
    - [x] Move remaining work into maintenance backlog instead of adding more phases.
 
+8. Agent organization load balancing
+   - [x] Add the global `agent-org-load-balancer` meta-skill for identifying overloaded or overlapping agents.
+   - [x] Spin out warm lead capture from the overloaded Inbox & Follow-Up Agent.
+   - [x] Spin out meeting intake and follow-up from the overloaded Inbox & Follow-Up Agent.
+   - [ ] Continue monitoring Automation Systems Agent for a future split only if trace/work-item load stays high.
+
 ## Completed Or In Review
 
 - [x] Shared trace schema and helper library.
@@ -110,6 +116,7 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 - [x] Recovery request backoff guard in review.
 - [x] Mission Control recovery/backoff visibility in review.
 - [x] Phase 12 rollout closeout in review.
+- [x] Publishing & Follow-Up agent spinout boundaries in review.
 
 ## Scope Guard
 
