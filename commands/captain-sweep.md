@@ -48,10 +48,43 @@ For each ready PR, process one at a time:
 1. Confirm the PR is not draft.
 2. Confirm the file set is scoped and does not mix unrelated work.
 3. Confirm hot surfaces have impact preflight, focused validation, or explicit sequencing.
-4. Run or verify focused tests appropriate to the touched files.
-5. Require `Vercel - portfolio` preview success before merge.
-6. Require staging-specific smoke only when the PR touches staging, n8n integration behavior, Vercel config, env handling, release gates, or another staging-sensitive surface.
-7. Merge only after checks and risks are clean.
+4. Classify the PR as docs-only, low-risk code, or hot-surface code.
+5. For non-docs PRs, run the Multi-Agent Review Gate before moving the work item to `ready_for_merge`.
+6. Run or verify focused tests appropriate to the touched files.
+7. Require `Vercel - portfolio` preview success before merge.
+8. Require staging-specific smoke only when the PR touches staging, n8n integration behavior, Vercel config, env handling, release gates, or another staging-sensitive surface.
+9. Merge only after checks and risks are clean.
+
+## Multi-Agent Review Gate
+
+Use this gate for every non-docs PR and for docs PRs that touch policies, runbooks, migrations, security posture, customer-facing commitments, or operational instructions.
+
+Launch three independent read-only review lanes before the captain makes the merge decision:
+
+1. `PR scope/risk reviewer`
+   - Inspect changed files, purpose, and blast radius.
+   - Classify the PR as docs-only, code/data-affecting, security-sensitive, migration/data-affecting, or workflow-affecting.
+   - Name the risks, evidence assumptions, and whether the PR is narrow enough to undraft or merge.
+2. `Validation planner`
+   - Infer the minimum focused validation from the changed files and package scripts.
+   - Name broader validation only when the blast radius justifies it.
+   - State which expensive/live checks can be skipped and why.
+3. `Agent Coordination auditor`
+   - Confirm the PR has exactly one Agent Coordination work item, or recommend the title/owner/status for one.
+   - Check overlap against other open PRs by touched file and overlap group.
+   - Recommend the next status transition and whether an approval checkpoint is needed.
+
+The captain owns synthesis:
+
+- Do not delegate the final merge decision.
+- Record the review result and exact validation commands in the work item's validation summary.
+- Keep the work item at `ready_for_review` while the PR is draft, checks are pending, or the review lanes disagree on a material risk.
+- Move the work item to `ready_for_merge` only after the captain validates the plan and creates the approval checkpoint.
+
+Docs-only fast path:
+
+- If the PR is clearly docs-only, does not change policy/runbook authority, and has no cross-PR overlap, the captain may skip subagents.
+- Still run `git diff --check` and verify the PR is not draft, scoped, and merge-clean.
 
 ## Post-Merge Gate
 
