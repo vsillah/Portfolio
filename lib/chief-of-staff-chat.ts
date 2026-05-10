@@ -31,6 +31,7 @@ export type ChiefOfStaffChatRequest = {
   message: string
   history?: ChiefOfStaffChatMessage[]
   userId?: string
+  triggerSource?: string
 }
 
 export type ChiefOfStaffChatResponse = {
@@ -512,7 +513,7 @@ export async function runChiefOfStaffChat(input: ChiefOfStaffChatRequest): Promi
     title: 'Chief of Staff chat',
     status: 'running',
     subject: { type: 'admin_chat', id: input.userId ?? 'admin', label: 'Admin chat' },
-    triggerSource: 'admin_chief_of_staff_chat',
+    triggerSource: input.triggerSource ?? 'admin_chief_of_staff_chat',
     triggeredByUserId: input.userId,
     currentStep: 'Collecting operating context',
     metadata: { message_preview: message.slice(0, 240) },

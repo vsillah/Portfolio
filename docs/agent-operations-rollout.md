@@ -266,6 +266,29 @@ The route verifies Slack signatures with `SLACK_SIGNING_SECRET` when configured 
 
 Slack is an engagement surface, not the source of truth. The admin console and shared trace tables remain authoritative.
 
+## Slack Agent Chat
+
+Configure Slack Events API subscriptions for the Agent Ops app to call `POST /api/slack/agent/events`. The production request URL is:
+
+- `https://amadutown.com/api/slack/agent/events`
+
+V1 supports:
+
+- `app_mention` — mention the Agent Ops bot in a channel and ask a freeform question.
+- `message.im` — DM the Agent Ops bot directly.
+- `url_verification` — returns Slack's challenge during Events API setup.
+
+Required Slack app configuration:
+
+- Event subscriptions enabled with request URL `https://amadutown.com/api/slack/agent/events`.
+- Bot events: `app_mention` and `message.im`.
+- Bot token scopes: `app_mentions:read`, `im:history`, and `chat:write`.
+- Environment variables: `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN`.
+
+The event route verifies Slack signatures with `SLACK_SIGNING_SECRET`, ignores bot/subtype events, acknowledges Slack immediately, and uses `SLACK_BOT_TOKEN` to post the Chief of Staff reply back into the originating thread. The conversation path reuses the existing read-only Chief of Staff chat engine and records an observable `agent_run` with `trigger_source = slack_agent_chat`.
+
+Chat is for freeform status, triage, and coordination. Deterministic operations should stay on `/agent` commands, and production-impacting actions remain approval-gated.
+
 ## Mission Control And War Room
 
 Mission Control uses `GET /api/admin/agents/mission-control` as a derived read model over existing tables. It does not introduce new schema in v1. The endpoint returns the status strip, agent roster, attention queue, Agent Inbox, Engagement Work Queue, Daily Operating Brief, active runs, latest events, pending approvals, and latest standup trace.
