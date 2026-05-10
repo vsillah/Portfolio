@@ -97,6 +97,16 @@ export type CredentialReport = {
   rows: CredentialReportRow[]
 }
 
+export type CredentialBaselineTemplateEntry = {
+  secretId: string
+  envVar: string
+  displayName: string
+  sourceOfTruth: CredentialSourceOfTruth
+  baseline: CredentialBaseline
+  runtimeSinks: string[]
+  verification: string[]
+}
+
 export const CREDENTIAL_ENVS: CredentialEnvironment[] = ['dev', 'staging', 'prod']
 
 export function isCredentialEnvironment(value: string): value is CredentialEnvironment {
@@ -189,6 +199,59 @@ export function renderCredentialReportMarkdown(report: CredentialReport): string
     ].map(escapeTableCell).join(' | ')).map((line) => `| ${line} |`),
     '',
   ]
+
+  return `${lines.join('\n')}\n`
+}
+
+export function buildCredentialBaselineTemplate(
+  inventory: CredentialInventory,
+  env: CredentialEnvironment,
+  updatedAtInput: string | Date = new Date()
+): CredentialBaselineTemplateEntry[] {
+  const updatedAt = dateOnly(asDate(updatedAtInput))
+  return inventory.secrets
+    .filter((secret) => secret.environments.includes(env))
+    .filter((secret) => !getBaseline(secret, env).lastRotatedAt)
+    .map((secret) => ({
+      secretId: secret.id,
+      envVar: secret.envVar,
+      displayName: secret.displayName,
+      sourceOfTruth: secret.sourceOfTruth,
+      baseline: {
+        status: 'pending-provider-confirmation',
+        lastRotatedAt: null,
+        evidence: `TODO: Confirm ${secret.envVar} ${env} rotation date from ${secret.sourceOfTruth} history, provider dashboard/API, or approved rotation packet.`,
+        updatedAt,
+      },
+      runtimeSinks: secret.runtimeSinks,
+      verification: secret.verification.map((item) => item.split('{env}').join(env)),
+    }))
+}
+
+export function renderCredentialBaselineTemplateMarkdown(env: CredentialEnvironment, entries: CredentialBaselineTemplateEntry[]): string {
+  const lines = [
+    `# Credential Baseline Template (${env})`,
+    '',
+    'Use this as an editing checklist for `docs/credential-inventory.json`. Confirm provider history before replacing `lastRotatedAt` or evidence values.',
+    '',
+    `Missing baselines: ${entries.length}`,
+    '',
+  ]
+
+  for (const entry of entries) {
+    lines.push(
+      `## ${entry.envVar}`,
+      '',
+      `- Secret id: ${entry.secretId}`,
+      `- Source of truth: ${entry.sourceOfTruth}`,
+      `- Runtime sinks: ${entry.runtimeSinks.join(', ')}`,
+      '',
+      '```json',
+      JSON.stringify({ [env]: entry.baseline }, null, 2),
+      '```',
+      ''
+    )
+  }
 
   return `${lines.join('\n')}\n`
 }

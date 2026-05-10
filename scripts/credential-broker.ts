@@ -3,7 +3,12 @@ import { spawnSync } from 'node:child_process'
 import { createHash, randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import * as path from 'node:path'
-import { buildCredentialReport, renderCredentialReportMarkdown } from '../lib/credential-report'
+import {
+  buildCredentialBaselineTemplate,
+  buildCredentialReport,
+  renderCredentialBaselineTemplateMarkdown,
+  renderCredentialReportMarkdown,
+} from '../lib/credential-report'
 
 type EnvironmentName = 'dev' | 'staging' | 'prod'
 type SourceOfTruth = 'infisical' | '1password'
@@ -96,6 +101,9 @@ function main() {
       break
     case 'report':
       report(inventory, args)
+      break
+    case 'baseline-template':
+      baselineTemplate(inventory, args)
       break
     case 'inject':
       inject(inventory, args)
@@ -212,6 +220,19 @@ function report(inventory: CredentialInventory, args: ParsedArgs) {
   }
 
   console.log(renderCredentialReportMarkdown(credentialReport))
+}
+
+function baselineTemplate(inventory: CredentialInventory, args: ParsedArgs) {
+  const env = getEnv(args)
+  const updatedAt = String(args.options['updated-at'] || new Date().toISOString())
+  const entries = buildCredentialBaselineTemplate(inventory, env, updatedAt)
+
+  if (args.options.json) {
+    console.log(JSON.stringify(entries, null, 2))
+    return
+  }
+
+  console.log(renderCredentialBaselineTemplateMarkdown(env, entries))
 }
 
 function inject(inventory: CredentialInventory, args: ParsedArgs) {
@@ -528,6 +549,7 @@ function printHelp() {
 Commands:
   list-due      --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--json]
   report        --env <dev|staging|prod> [--as-of YYYY-MM-DD] [--json]
+  baseline-template --env <dev|staging|prod> [--updated-at YYYY-MM-DD] [--json]
   inject        --env <dev|staging|prod> [--secret id-or-envVar[,..]] -- <command>
   rotate        --env <dev|staging|prod> --secret <id-or-envVar> [--local-env .env.staging] [--length 48]
   sync-runtime  --env <dev|staging|prod> --secret <id-or-envVar> [--local-env .env.staging]
