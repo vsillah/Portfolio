@@ -53,6 +53,11 @@ Before merging a PR:
 - PR is not draft.
 - PR has a clear purpose and scoped file set.
 - PR has an impact preflight when it touches a hot surface or overlaps another active branch.
+- Non-docs PRs have passed the repeatable multi-agent review gate:
+  - PR scope/risk reviewer classifies blast radius and risks.
+  - Validation planner names focused and optional broader checks.
+  - Agent Coordination auditor confirms the work item, overlap group, and status transition.
+  - The captain synthesizes the three read-only reports and records the result in Agent Coordination.
 - Required validation is documented in the PR or handoff.
 - `Vercel - portfolio` preview is success.
 - `Vercel - portfolio-staging` preview is not required for routine PRs while the staging project has preview deployments disabled. If a PR explicitly changes staging env handling, n8n integration behavior, Vercel config, or release gates, require an equivalent staging smoke before merge.
@@ -135,6 +140,29 @@ If that command returns commits, classify the branch as `watch` or `debt` instea
 - Treat draft PRs as `normal` unless they overlap hot files, stay stale for several days, or their work already landed elsewhere.
 - Promote a draft PR to merge consideration only after the owner marks it ready or the captain verifies its intent directly.
 - If two PRs touch the same hot files, merge the lower-risk/shared-foundation PR first, then re-check the second PR against updated `main`.
+
+### Repeatable Multi-Agent Review
+
+Use parallel read-only reviewers when a PR changes code, generated data consumed by code, admin UI, runtime behavior, workflow configuration, security posture, or operational policy. The point is not more ceremony; it is to make the Integration Captain faster and less brittle by separating three kinds of judgment that are easy to blur in one thread.
+
+Required lanes:
+
+- `PR scope/risk reviewer`: changed files, blast radius, risks, evidence assumptions, and scope readiness.
+- `Validation planner`: minimum focused validation, optional broader validation, and safe skips.
+- `Agent Coordination auditor`: existing or needed work item, overlap group, PR attachment, blocker state, and next status transition.
+
+Captain synthesis:
+
+- Keep all lanes read-only.
+- Trust but reconcile the lane reports against current GitHub state.
+- Run the chosen validation locally or verify equivalent CI evidence.
+- Record a compact validation summary on the Agent Coordination work item before setting it to `ready_for_merge`.
+- Close subagents after their reports are incorporated.
+
+Fast path:
+
+- For simple docs-only PRs, use the single-captain path with `git diff --check`, PR scope review, and normal Vercel/deploy gates.
+- Escalate docs-only PRs into the multi-agent gate when they change governance, approval rules, runbooks, security instructions, or public/customer commitments.
 
 ### Hot File Awareness
 
