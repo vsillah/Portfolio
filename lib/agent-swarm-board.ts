@@ -467,23 +467,23 @@ function moduleHealth(input: {
 function currentAgentForColumn(column: SwarmBoardColumnKey) {
   switch (column) {
     case 'discovery':
-      return { key: 'research-source-register', label: 'Research & Source Register Agent' }
+      return { key: 'research-source-register', label: 'Askia Muhammad (Songhai) - Research Source Register' }
     case 'decision_packet':
-      return { key: 'technology-evaluator', label: 'Technology Evaluator' }
+      return { key: 'technology-evaluator', label: 'Imhotep (Kemet) - Technology Evaluator' }
     case 'provisioning_plan':
-      return { key: 'automation-systems', label: 'Automation Systems Agent' }
+      return { key: 'automation-systems', label: 'Yaa Asantewaa (Ashanti) - Automation Systems' }
     case 'build_configure':
-      return { key: 'engineering-copilot', label: 'Engineering Copilot Agent' }
+      return { key: 'engineering-copilot', label: 'Piye (Kush) - Engineering Copilot' }
     case 'qa_isolation':
-      return { key: 'engineering-copilot', label: 'QA & Isolation Agent' }
+      return { key: 'engineering-copilot', label: 'Amanitore (Kush) - QA & Isolation' }
     case 'waiting_approval':
-      return { key: 'approval-steward', label: 'Approval Steward' }
+      return { key: 'approval-steward', label: 'Tenkamenin (Ghana) - Approval Steward' }
     case 'blocked_escalated':
-      return { key: 'chief-of-staff', label: 'Chief of Staff Agent' }
+      return { key: 'chief-of-staff', label: 'Shaka (Zulu) - Chief of Staff' }
     case 'active_monitoring':
-      return { key: 'chief-of-staff', label: 'Client Swarm Monitor' }
+      return { key: 'chief-of-staff', label: 'Shaka (Zulu) - Client Swarm Monitor' }
     default:
-      return { key: 'chief-of-staff', label: 'Chief of Staff Agent' }
+      return { key: 'chief-of-staff', label: 'Shaka (Zulu) - Chief of Staff' }
   }
 }
 

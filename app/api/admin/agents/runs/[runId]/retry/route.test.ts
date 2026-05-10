@@ -82,7 +82,7 @@ describe('POST /api/admin/agents/runs/[runId]/retry', () => {
         retry_attempt: 2,
         earliest_retry_at: '2026-05-07T12:15:00.000Z',
         target_agent_key: 'automation-systems',
-        target_agent_name: 'Automation Systems Agent',
+        target_agent_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
         execution_mode: 'read_only_recovery_request',
       },
     })
@@ -126,7 +126,7 @@ describe('POST /api/admin/agents/runs/[runId]/retry', () => {
       retry_attempt: 2,
       earliest_retry_at: '2026-05-07T12:15:00.000Z',
       target_agent_key: 'automation-systems',
-      target_agent_name: 'Automation Systems Agent',
+      target_agent_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
       recovery_packet_attached: true,
       execution_mode: 'read_only_recovery_request',
     })

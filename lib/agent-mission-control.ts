@@ -487,7 +487,7 @@ function inboxItemForRun(run: AgentRunRow, costByRun: Map<string, number>): Agen
     id: `${run.id}:${run.status}`,
     priority,
     agent_key: agent?.key ?? 'chief-of-staff',
-    agent_name: agent?.name ?? 'Chief of Staff Agent',
+    agent_name: agent?.name ?? 'Shaka (Zulu) - Chief of Staff',
     pod: agent ? agentPodName(agent.podKey) : 'Chief of Staff',
     title,
     reason: run.error_message ?? run.current_step ?? `${run.runtime} run is ${run.status.replace(/_/g, ' ')}.`,
@@ -508,7 +508,7 @@ function inboxItemForApproval(approval: ApprovalRow, runsById: Map<string, Agent
     id: `${approval.id}:approval`,
     priority: 'high',
     agent_key: agent?.key ?? 'chief-of-staff',
-    agent_name: agent?.name ?? 'Chief of Staff Agent',
+    agent_name: agent?.name ?? 'Shaka (Zulu) - Chief of Staff',
     pod: agent ? agentPodName(agent.podKey) : 'Chief of Staff',
     title: `Approval checkpoint: ${run?.title ?? approval.approval_type}`,
     reason: `${approval.approval_type.replace(/_/g, ' ')} is pending.`,
@@ -546,7 +546,7 @@ export function buildAgentInbox(input: {
         id: 'chief-of-staff:standup',
         priority: failedRuns.length || input.approvals.length ? 'medium' : 'low',
         agent_key: 'chief-of-staff',
-        agent_name: 'Chief of Staff Agent',
+        agent_name: 'Shaka (Zulu) - Chief of Staff',
         pod: 'Chief of Staff',
         title: input.latestStandup ? 'Standup is stale' : 'No War Room standup yet',
         reason: 'Run a standup to turn current signals into an operating brief.',
@@ -568,7 +568,7 @@ export function buildAgentEngagementQueue(runs: AgentRunRow[]): AgentEngagementQ
     .filter((run) => run.kind === 'agent_engagement_request' || run.kind === 'agent_recovery_request')
     .map((run) => {
       const agent = findAgent(requestedAgentKey(run))
-      const agentName = agent?.name ?? 'Chief of Staff Agent'
+      const agentName = agent?.name ?? 'Shaka (Zulu) - Chief of Staff'
       return {
         run_id: run.id,
         agent_key: agent?.key ?? 'chief-of-staff',
@@ -608,7 +608,7 @@ export function buildAgentDeadLetterQueue(
     .map((run) => {
       const agent = findAgent(requestedAgentKey(run))
       const routedRun = routedBySourceRun.get(run.id)
-      const agentName = agent?.name ?? 'Chief of Staff Agent'
+      const agentName = agent?.name ?? 'Shaka (Zulu) - Chief of Staff'
       const reason = run.error_message ?? run.current_step ?? `${run.runtime} run is ${run.status.replace(/_/g, ' ')}.`
       const recoveryRetryAttempt =
         routedRun?.kind === 'agent_recovery_request'

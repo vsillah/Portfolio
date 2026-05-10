@@ -202,7 +202,7 @@ export default function ChiefOfStaffAgentPage() {
             <div>
               <div className="mb-2 flex items-center gap-2 text-radiant-gold">
                 <Bot size={22} />
-                <p className="text-sm font-semibold uppercase tracking-wider">Chief of Staff Agent</p>
+                <p className="text-sm font-semibold uppercase tracking-wider">Shaka (Zulu) - Chief of Staff</p>
               </div>
               <h1 className="text-3xl font-bold">Executive Operations Chat</h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">

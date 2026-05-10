@@ -15,6 +15,15 @@ describe('agent organization registry', () => {
     expect(AGENT_ORGANIZATION.every((agent) => podKeys.has(agent.podKey))).toBe(true)
   })
 
+  it('uses African warrior and royalty display identities while keeping stable keys', () => {
+    expect(getAgentByKey('chief-of-staff')).toMatchObject({
+      key: 'chief-of-staff',
+      name: 'Shaka (Zulu) - Chief of Staff',
+    })
+    expect(AGENT_ORGANIZATION.every((agent) => agent.name.includes(' - '))).toBe(true)
+    expect(AGENT_ORGANIZATION.some((agent) => agent.name === 'Chief of Staff Agent')).toBe(false)
+  })
+
   it('maps active n8n workflows into the operating model', () => {
     const coverage = getN8nWorkflowCoverage()
 
@@ -52,7 +61,7 @@ describe('agent organization registry', () => {
     expect(inbox?.n8nWorkflows.some((workflow) => workflow.name.includes('Meeting'))).toBe(false)
 
     expect(warmLead).toMatchObject({
-      name: 'Warm Lead Capture Agent',
+      name: 'Behanzin (Dahomey) - Warm Lead Capture',
       podKey: 'publishing_follow_up',
       status: 'active',
       primaryRuntime: 'n8n',
@@ -64,7 +73,7 @@ describe('agent organization registry', () => {
     ]))
 
     expect(meeting).toMatchObject({
-      name: 'Meeting Intake & Follow-Up Agent',
+      name: 'Amanirenas (Kush) - Meeting Intake & Follow-Up',
       podKey: 'publishing_follow_up',
       status: 'active',
       primaryRuntime: 'n8n',

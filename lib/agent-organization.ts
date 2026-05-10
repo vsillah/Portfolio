@@ -69,7 +69,7 @@ export const AGENT_PODS: AgentPodDefinition[] = [
 export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   {
     key: 'chief-of-staff',
-    name: 'Chief of Staff Agent',
+    name: 'Shaka (Zulu) - Chief of Staff',
     podKey: 'chief_of_staff',
     status: 'partial',
     primaryRuntime: 'mixed',
@@ -87,7 +87,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'strategic-narrative',
-    name: 'Strategic Narrative Agent',
+    name: 'Amina (Zazzau) - Strategic Narrative',
     podKey: 'strategy_narrative',
     status: 'planned',
     primaryRuntime: 'codex',
@@ -98,7 +98,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'proposal-business-model',
-    name: 'Proposal & Business Model Agent',
+    name: 'Mansa Musa (Mali) - Proposal & Business Model',
     podKey: 'strategy_narrative',
     status: 'planned',
     primaryRuntime: 'codex',
@@ -109,7 +109,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'legacy-institution-builder',
-    name: 'Legacy & Institution Builder',
+    name: 'Sundiata Keita (Mali) - Legacy Institution Builder',
     podKey: 'strategy_narrative',
     status: 'planned',
     primaryRuntime: 'codex',
@@ -120,7 +120,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'research-source-register',
-    name: 'Research & Source Register Agent',
+    name: 'Askia Muhammad (Songhai) - Research Source Register',
     podKey: 'research_knowledge',
     status: 'partial',
     primaryRuntime: 'mixed',
@@ -137,7 +137,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'private-knowledge-librarian',
-    name: 'Private Knowledge Librarian',
+    name: 'Hatshepsut (Kemet) - Private Knowledge Librarian',
     podKey: 'research_knowledge',
     status: 'partial',
     primaryRuntime: 'n8n',
@@ -157,7 +157,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'decision-journal',
-    name: 'Decision Journal Agent',
+    name: 'Nzinga (Ndongo/Matamba) - Decision Journal',
     podKey: 'research_knowledge',
     status: 'planned',
     primaryRuntime: 'mixed',
@@ -168,7 +168,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'voice-content-architect',
-    name: 'Voice & Content Architect',
+    name: 'Nefertiti (Kemet) - Voice & Content Architect',
     podKey: 'content_production',
     status: 'partial',
     primaryRuntime: 'mixed',
@@ -182,7 +182,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'content-repurposing',
-    name: 'Content Repurposing Agent',
+    name: 'Hannibal (Carthage) - Content Repurposing',
     podKey: 'content_production',
     status: 'partial',
     primaryRuntime: 'n8n',
@@ -196,7 +196,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'amadutown-brand',
-    name: 'AmaduTown Brand Agent',
+    name: 'Taharqa (Kush) - AmaduTown Brand',
     podKey: 'content_production',
     status: 'planned',
     primaryRuntime: 'codex',
@@ -207,7 +207,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'course-curriculum-builder',
-    name: 'Course & Curriculum Builder',
+    name: 'Menelik II (Ethiopia) - Course & Curriculum Builder',
     podKey: 'content_production',
     status: 'planned',
     primaryRuntime: 'codex',
@@ -218,7 +218,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'engineering-copilot',
-    name: 'Engineering Copilot Agent',
+    name: 'Piye (Kush) - Engineering Copilot',
     podKey: 'product_automation',
     status: 'partial',
     primaryRuntime: 'codex',
@@ -229,7 +229,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'automation-systems',
-    name: 'Automation Systems Agent',
+    name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
     podKey: 'product_automation',
     status: 'active',
     primaryRuntime: 'n8n',
@@ -263,7 +263,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'agent-tooling-parity',
-    name: 'Agent Tooling Parity Agent',
+    name: 'Ezana (Aksum) - Agent Tooling Parity',
     podKey: 'product_automation',
     status: 'planned',
     primaryRuntime: 'codex',
@@ -274,7 +274,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'website-product-copy',
-    name: 'Website & Product Copy Agent',
+    name: 'Makeda (Sheba) - Website & Product Copy',
     podKey: 'publishing_follow_up',
     status: 'partial',
     primaryRuntime: 'mixed',
@@ -288,7 +288,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'inbox-follow-up',
-    name: 'Inbox & Follow-Up Agent',
+    name: 'Samori Toure (Wassoulou) - Inbox & Follow-Up',
     podKey: 'publishing_follow_up',
     status: 'active',
     primaryRuntime: 'n8n',
@@ -310,7 +310,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'warm-lead-capture',
-    name: 'Warm Lead Capture Agent',
+    name: 'Behanzin (Dahomey) - Warm Lead Capture',
     podKey: 'publishing_follow_up',
     status: 'active',
     primaryRuntime: 'n8n',
@@ -328,7 +328,7 @@ export const AGENT_ORGANIZATION: AgentOrganizationNode[] = [
   },
   {
     key: 'meeting-intake-follow-up',
-    name: 'Meeting Intake & Follow-Up Agent',
+    name: 'Amanirenas (Kush) - Meeting Intake & Follow-Up',
     podKey: 'publishing_follow_up',
     status: 'active',
     primaryRuntime: 'n8n',

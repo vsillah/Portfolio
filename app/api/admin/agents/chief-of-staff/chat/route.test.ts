@@ -57,7 +57,7 @@ describe('POST /api/admin/agents/chief-of-staff/chat', () => {
       agentEngagements: [
         {
           agentKey: 'research-source-register',
-          agentName: 'Research & Source Register Agent',
+          agentName: 'Askia Muhammad (Songhai) - Research Source Register',
           label: 'Run research agent',
           rationale: 'Collect source-backed context for the next decision.',
           status: 'partial',
@@ -119,7 +119,7 @@ describe('POST /api/admin/agents/chief-of-staff/chat', () => {
       agent_engagements: [
         {
           agentKey: 'research-source-register',
-          agentName: 'Research & Source Register Agent',
+          agentName: 'Askia Muhammad (Songhai) - Research Source Register',
           label: 'Run research agent',
           rationale: 'Collect source-backed context for the next decision.',
           status: 'partial',

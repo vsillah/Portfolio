@@ -113,7 +113,7 @@ describe('agent engagement helpers', () => {
       },
       triggerSource: 'admin_agent_engage',
       note: longNote,
-      requestedEventMessage: 'Admin User requested Strategic Narrative Agent',
+      requestedEventMessage: 'Admin User requested Amina (Zazzau) - Strategic Narrative',
       idempotencyKey: 'agent-engage:admin-user:strategic-narrative',
       eventMetadata: { surface: 'admin_agents' },
     })
@@ -167,7 +167,7 @@ describe('agent engagement helpers', () => {
       },
       triggerSource: 'slack_agent_run_command',
       note: 'Review stale runs.',
-      requestedEventMessage: 'vambah requested Chief of Staff Agent from Slack',
+      requestedEventMessage: 'vambah requested Shaka (Zulu) - Chief of Staff from Slack',
       eventMetadata: { slack_user_id: 'U123' },
     })
 

@@ -173,7 +173,7 @@ describe('agent Slack command parsing', () => {
         status: 'completed',
       }),
     )
-    expect(text).toContain('Chief of Staff Agent read-only dispatch ready')
+    expect(text).toContain('Shaka (Zulu) - Chief of Staff read-only dispatch ready')
     expect(text).toContain('Execution mode: read_only')
     expect(text).toContain('/admin/agents/runs/run-123')
   })
@@ -192,7 +192,7 @@ describe('agent Slack command parsing', () => {
       synthesis: 'Standup complete.',
       updates: [
         {
-          agent_name: 'Chief of Staff Agent',
+          agent_name: 'Shaka (Zulu) - Chief of Staff',
           update: 'Current posture: partial.',
         },
       ],
@@ -209,7 +209,7 @@ describe('agent Slack command parsing', () => {
       triggerSource: 'slack_agent_standup_command',
     }))
     expect(text).toContain('Agent War Room standup complete')
-    expect(text).toContain('Chief of Staff Agent')
+    expect(text).toContain('Shaka (Zulu) - Chief of Staff')
     expect(text).toContain('/admin/agents/runs/standup-run')
   })
 
@@ -219,7 +219,7 @@ describe('agent Slack command parsing', () => {
         {
           id: 'failed-run:failed',
           priority: 'high',
-          agent_name: 'Automation Systems Agent',
+          agent_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
           title: 'Failure needs triage: Workflow dispatch',
           reason: 'Webhook returned 500.',
           source_run_id: 'failed-run',
@@ -230,7 +230,7 @@ describe('agent Slack command parsing', () => {
     const text = await buildAgentInboxSlackText()
 
     expect(text).toContain('Agent Inbox')
-    expect(text).toContain('1. *HIGH* Automation Systems Agent')
+    expect(text).toContain('1. *HIGH* Yaa Asantewaa (Ashanti) - Automation Systems')
     expect(text).toContain('/agent route <number>')
     expect(text).toContain('/admin/agents/runs/failed-run')
   })
@@ -240,7 +240,7 @@ describe('agent Slack command parsing', () => {
       engagement_queue: [
         {
           run_id: 'engagement-run',
-          agent_name: 'Automation Systems Agent',
+          agent_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
           status: 'completed',
           execution_mode: 'read_only',
           current_step: 'Read-only dispatch ready',
@@ -253,7 +253,7 @@ describe('agent Slack command parsing', () => {
     const text = await buildAgentEngagementQueueSlackText()
 
     expect(text).toContain('Engagement Work Queue')
-    expect(text).toContain('Automation Systems Agent')
+    expect(text).toContain('Yaa Asantewaa (Ashanti) - Automation Systems')
     expect(text).toContain('[completed/read_only]')
     expect(text).toContain('/admin/agents/runs/engagement-run')
     expect(text).toContain('/admin/agents/runs/failed-run')
@@ -266,7 +266,7 @@ describe('agent Slack command parsing', () => {
         synthesis: 'Chief of Staff recommends routing the failed workflow.',
         run_id: 'standup-run',
         signals: ['1 active run(s)', '1 failed or stale run(s)'],
-        next_actions: ['Automation Systems Agent: triage workflow'],
+        next_actions: ['Yaa Asantewaa (Ashanti) - Automation Systems: triage workflow'],
       },
     })
 

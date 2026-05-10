@@ -63,7 +63,7 @@ describe('agent run recovery planning', () => {
       source_run_id: 'source-run-1',
       source_status: 'failed',
       target_agent_key: 'automation-systems',
-      target_agent_name: 'Automation Systems Agent',
+      target_agent_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
       retry_attempt: 3,
       backoff_minutes: 60,
       earliest_retry_at: '2026-05-07T13:00:00.000Z',
@@ -84,7 +84,7 @@ describe('agent run recovery planning', () => {
     })
 
     expect(plan.target_agent_key).toBe('inbox-follow-up')
-    expect(plan.target_agent_name).toBe('Inbox & Follow-Up Agent')
+    expect(plan.target_agent_name).toBe('Samori Toure (Wassoulou) - Inbox & Follow-Up')
     expect(plan.next_action).toContain('original runtime is still active')
   })
 

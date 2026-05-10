@@ -49,7 +49,7 @@ The console now includes an Agent Engagement roster so the operating model is vi
 - Hermes Health Analyst — read-only secondary runtime summary.
 - Outreach Generation Agent — traced outreach drafts and cost-linked LLM usage.
 - Value Evidence Agent — n8n evidence/listening workflows and generated reports.
-- Approval Steward — manual approval checkpoints stored in `agent_approvals`.
+- Tenkamenin (Ghana) - Approval Steward - manual approval checkpoints stored in `agent_approvals`.
 - Slack Command Path — planned mobile-friendly command surface for read-only checks and approval-routed actions.
 
 It also includes an Agent Organization Map that aligns the target operating model to the active n8n workflow families. The typed source of truth for that map is `lib/agent-organization.ts`, with org-level registry rows seeded by `migrations/2026_05_01_agent_organization_registry.sql`.
@@ -63,11 +63,11 @@ Current pod alignment:
 - Product & Automation — client workflow backbone, monitoring, provisioning, task sync, tooling parity.
 - Publishing & Follow-Up — social publish, outbound/follow-up, Gmail draft, nurture, warm lead capture, and meeting intake/follow-up.
 
-Agent organization load balancing now splits the former overloaded `Inbox & Follow-Up Agent` into narrower operating lanes:
+Agent organization load balancing now splits the former overloaded `Samori Toure (Wassoulou) - Inbox & Follow-Up` into narrower operating lanes:
 
-- `Inbox & Follow-Up Agent` owns cold outreach sends, reply detection, Gmail draft preparation, and lead-magnet nurture.
-- `Warm Lead Capture Agent` owns approved WRM Facebook, Google Contacts, and LinkedIn warm-source capture while preserving source-specific traceability.
-- `Meeting Intake & Follow-Up Agent` owns Slack intake, Calendly routing, meeting completion, agenda generation/sending, and follow-up scheduling.
+- `Samori Toure (Wassoulou) - Inbox & Follow-Up` owns cold outreach sends, reply detection, Gmail draft preparation, and lead-magnet nurture.
+- `Behanzin (Dahomey) - Warm Lead Capture` owns approved WRM Facebook, Google Contacts, and LinkedIn warm-source capture while preserving source-specific traceability.
+- `Amanirenas (Kush) - Meeting Intake & Follow-Up` owns Slack intake, Calendly routing, meeting completion, agenda generation/sending, and follow-up scheduling.
 
 The shared trace tables are:
 

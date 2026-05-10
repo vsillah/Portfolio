@@ -65,9 +65,9 @@ This is the active implementation queue for Agent Operations. The phase gates, d
 
 8. Agent organization load balancing
    - [x] Add the global `agent-org-load-balancer` meta-skill for identifying overloaded or overlapping agents.
-   - [x] Spin out warm lead capture from the overloaded Inbox & Follow-Up Agent.
-   - [x] Spin out meeting intake and follow-up from the overloaded Inbox & Follow-Up Agent.
-   - [ ] Continue monitoring Automation Systems Agent for a future split only if trace/work-item load stays high.
+   - [x] Spin out warm lead capture from the overloaded Samori Toure (Wassoulou) - Inbox & Follow-Up.
+   - [x] Spin out meeting intake and follow-up from the overloaded Samori Toure (Wassoulou) - Inbox & Follow-Up.
+   - [ ] Continue monitoring Yaa Asantewaa (Ashanti) - Automation Systems for a future split only if trace/work-item load stays high.
 
 ## Completed Or In Review
 
