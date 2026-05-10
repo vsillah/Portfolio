@@ -64,6 +64,17 @@ Use repair packets to decide which prompt, doc, skill, or runbook needs a scoped
 
 Repo-owned automation runbooks now live under [`docs/automations/`](./automations/README.md). When a repair packet points at a missing governing doc, prefer adding or updating one of those runbooks before requesting any direct `~/.codex` automation edit.
 
+## Workspace-Root Visibility
+
+The dashboard also surfaces a read-only Codex workspace-root report. It compares the expected Portfolio root with:
+
+- Codex Desktop saved workspace roots,
+- Codex Desktop active workspace roots,
+- Codex project-order roots,
+- and active non-archived thread roots grouped by `cwd`.
+
+This report is for visibility and repair planning only. It must not rewrite `.codex-global-state.json`, `state_5.sqlite`, thread roots, or Desktop state from a Portfolio PR.
+
 ## Enhancement Impact Preflight
 
 ### Enhancement Impact Preflight
@@ -104,6 +115,18 @@ Implementation update: `lib/chief-of-staff-chat.test.ts` also needed a fixture u
 - Coordination decision: Proceed with repo-owned docs only. Do not edit dashboard code, shared helpers, local Codex memory, or local Codex automation state.
 - Merge-order note: Can merge independently after review because it adds governing docs only.
 
+### Enhancement Impact Preflight
+
+- Enhancement: Add read-only Codex workspace-root and active chat placement visibility to the Automation Context dashboard.
+- User-facing surface: `/admin/agents/automations`, under Agent Operations.
+- Predicted files: `app/admin/agents/automations/page.tsx`, `app/api/admin/agents/automations/route.ts`, `app/api/admin/agents/automations/route.test.ts`, `lib/codex-workspace-roots.ts`, `lib/codex-workspace-roots.test.ts`, `docs/memory-context-organization-workflow.md`.
+- Shared routes/APIs/tables/helpers: existing `/api/admin/agents/automations` response shape; no database tables, migrations, or mutating APIs.
+- Active PRs or branches checked: no open PRs at implementation start; only `main` and this `codex/workspace-root-visibility` worktree were active.
+- Dirty worktree files checked: current `codex/workspace-root-visibility` worktree was clean before implementation.
+- Overlap rating: green.
+- Coordination decision: Proceed in the dedicated memory organization worktree. Keep the report read-only and do not edit local Codex state.
+- Merge-order note: Can merge independently after review because there are no active overlapping PRs.
+
 ## Operating Boundary
 
 The dashboard may show that local operational state is missing or incomplete. It should not repair that state by itself.
@@ -114,6 +137,7 @@ Allowed:
 - Sanitize and summarize prompts.
 - Flag missing workspace roots, missing docs, missing authority boundaries, duplicates, and context gaps.
 - Show progress and task status computed from the inventory.
+- Show read-only Codex workspace-root and active thread placement drift.
 
 Not allowed in this workflow without an explicit operational-state step:
 

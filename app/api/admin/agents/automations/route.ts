@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
 import { listCodexAutomationInventory } from '@/lib/codex-automation-inventory'
+import { getCodexWorkspaceRootReport } from '@/lib/codex-workspace-roots'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -11,6 +12,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: auth.status })
   }
 
-  const inventory = await listCodexAutomationInventory()
-  return NextResponse.json(inventory)
+  const [inventory, workspaceRoots] = await Promise.all([
+    listCodexAutomationInventory(),
+    getCodexWorkspaceRootReport(),
+  ])
+  return NextResponse.json({ ...inventory, workspaceRoots })
 }

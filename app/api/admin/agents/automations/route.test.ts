@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
   listCodexAutomationInventory: vi.fn(),
+  getCodexWorkspaceRootReport: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -13,6 +14,10 @@ vi.mock('@/lib/auth-server', () => ({
 
 vi.mock('@/lib/codex-automation-inventory', () => ({
   listCodexAutomationInventory: mocks.listCodexAutomationInventory,
+}))
+
+vi.mock('@/lib/codex-workspace-roots', () => ({
+  getCodexWorkspaceRootReport: mocks.getCodexWorkspaceRootReport,
 }))
 
 import { GET } from './route'
@@ -48,6 +53,36 @@ describe('GET /api/admin/agents/automations', () => {
         highRisk: 0,
         missingContext: 0,
       },
+      progress: {
+        label: 'Memory and automation context readiness',
+        percent: 100,
+        completedTasks: 7,
+        totalTasks: 7,
+        tasks: [],
+      },
+      repairPackets: [],
+    })
+    mocks.getCodexWorkspaceRootReport.mockResolvedValue({
+      available: true,
+      generatedAt: '2026-05-03T00:00:00.000Z',
+      expectedRoot: '/Users/vambahsillah/Projects/Portfolio',
+      stateDatabase: '/Users/vambahsillah/.codex/state_5.sqlite',
+      globalStateFile: '/Users/vambahsillah/.codex/.codex-global-state.json',
+      savedWorkspaceRoots: ['/Users/vambahsillah/Projects/Portfolio'],
+      activeWorkspaceRoots: ['/Users/vambahsillah/Projects/Portfolio'],
+      projectOrderRoots: ['/Users/vambahsillah/Projects/Portfolio'],
+      threadRoots: [],
+      overview: {
+        activeThreads: 0,
+        portfolioThreads: 0,
+        nonPortfolioThreads: 0,
+        savedRootDrift: 0,
+        activeRootDrift: 0,
+        projectOrderDrift: 0,
+      },
+      health: 'green',
+      warnings: [],
+      operationalBoundary: 'Read-only workspace visibility.',
     })
   })
 
@@ -60,6 +95,7 @@ describe('GET /api/admin/agents/automations', () => {
     expect(response.status).toBe(401)
     expect(await response.json()).toEqual({ error: 'Unauthorized' })
     expect(mocks.listCodexAutomationInventory).not.toHaveBeenCalled()
+    expect(mocks.getCodexWorkspaceRootReport).not.toHaveBeenCalled()
   })
 
   it('returns the sanitized local automation inventory', async () => {
@@ -75,6 +111,10 @@ describe('GET /api/admin/agents/automations', () => {
         }),
       ],
       hiddenCount: 1,
+      workspaceRoots: expect.objectContaining({
+        expectedRoot: '/Users/vambahsillah/Projects/Portfolio',
+        health: 'green',
+      }),
     }))
   })
 })
