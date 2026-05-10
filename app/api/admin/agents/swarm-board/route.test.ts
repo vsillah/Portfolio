@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   verifyAdmin: vi.fn(),
   isAuthError: vi.fn(),
   buildAgentSwarmBoardSnapshot: vi.fn(),
+  buildAgentOrgBoardSnapshot: vi.fn(),
 }))
 
 vi.mock('@/lib/auth-server', () => ({
@@ -13,6 +14,7 @@ vi.mock('@/lib/auth-server', () => ({
 
 vi.mock('@/lib/agent-swarm-board', () => ({
   buildAgentSwarmBoardSnapshot: mocks.buildAgentSwarmBoardSnapshot,
+  buildAgentOrgBoardSnapshot: mocks.buildAgentOrgBoardSnapshot,
 }))
 
 import { GET } from './route'
@@ -72,6 +74,27 @@ describe('GET /api/admin/agents/swarm-board', () => {
         },
       ],
     })
+    mocks.buildAgentOrgBoardSnapshot.mockResolvedValue({
+      generated_at: '2026-05-05T12:00:00.000Z',
+      summary: {
+        agents: 2,
+        live_agents: 1,
+        active_work_items: 1,
+        unassigned_work_items: 0,
+        blocked_work_items: 0,
+        ready_for_merge: 0,
+        pending_approvals: 0,
+        activity_entries: 1,
+      },
+      agents: [],
+      lanes: [],
+      activity: [],
+      warRoom: {
+        roster: [],
+        commands: ['/agent work'],
+        suggestedPrompt: 'Ask for status.',
+      },
+    })
   })
 
   it('requires admin auth', async () => {
@@ -83,6 +106,7 @@ describe('GET /api/admin/agents/swarm-board', () => {
     expect(response.status).toBe(401)
     expect(await response.json()).toEqual({ error: 'Unauthorized' })
     expect(mocks.buildAgentSwarmBoardSnapshot).not.toHaveBeenCalled()
+    expect(mocks.buildAgentOrgBoardSnapshot).not.toHaveBeenCalled()
   })
 
   it('returns the derived swarm board snapshot', async () => {
@@ -98,6 +122,10 @@ describe('GET /api/admin/agents/swarm-board', () => {
     expect(body.columns[0].cards[0]).toMatchObject({
       clientProjectId: 'project-1',
       currentAgentKey: 'technology-evaluator',
+    })
+    expect(body.organization.summary).toMatchObject({
+      agents: 2,
+      active_work_items: 1,
     })
   })
 

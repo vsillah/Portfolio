@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 vi.mock('@/lib/supabase', () => ({ supabaseAdmin: null }))
 
 import {
+  buildAgentOrgBoardSnapshotFromRows,
   buildAgentSwarmBoardSnapshotFromRows,
   evaluateSwarmHandoffPolicy,
 } from './agent-swarm-board'
@@ -281,5 +282,157 @@ describe('buildAgentSwarmBoardSnapshotFromRows', () => {
       'pinecone',
     ]))
     expect(card.connectorNextAction).toContain('setup packet')
+  })
+})
+
+describe('buildAgentOrgBoardSnapshotFromRows', () => {
+  it('projects active coordination work into agent lanes and keeps client-builder compatible data separate', () => {
+    const snapshot = buildAgentOrgBoardSnapshotFromRows({
+      now: new Date('2026-05-05T16:00:00.000Z'),
+      runs: [
+        {
+          id: 'run-1',
+          agent_key: 'engineering-copilot',
+          runtime: 'codex',
+          kind: 'implementation',
+          title: 'Build shared org board',
+          status: 'running',
+          subject_type: 'agent_work_item',
+          subject_id: 'work-1',
+          subject_label: 'Agent org board',
+          current_step: 'Rendering Mission Control lanes',
+          error_message: null,
+          started_at: '2026-05-05T15:00:00.000Z',
+          completed_at: null,
+          metadata: {},
+        },
+      ],
+      events: [
+        {
+          id: 'event-1',
+          run_id: 'run-1',
+          event_type: 'step_completed',
+          severity: 'info',
+          message: 'Mission Control lane rendered',
+          occurred_at: '2026-05-05T15:10:00.000Z',
+          metadata: {},
+        },
+      ],
+      workItems: [
+        {
+          id: 'work-1',
+          title: 'Build reusable agent org board',
+          objective: 'Make the board work for ATAS Portfolio and client AI org builder views.',
+          status: 'in_progress',
+          priority: 'high',
+          owner_agent_key: 'engineering-copilot',
+          owner_runtime: 'codex',
+          active_run_id: 'run-1',
+          branch_name: 'codex/agent-org-board-ux',
+          worktree_path: '/Users/vambahsillah/Projects/Portfolio.worktrees/agent-org-board-ux',
+          pr_number: null,
+          pr_url: null,
+          overlap_group: 'agent-ops-ui',
+          blocker_summary: null,
+          validation_summary: null,
+          approval_id: null,
+          created_at: '2026-05-05T14:00:00.000Z',
+          updated_at: '2026-05-05T15:30:00.000Z',
+        },
+      ],
+      approvals: [],
+    })
+
+    expect(snapshot.summary).toMatchObject({
+      live_agents: 1,
+      active_work_items: 1,
+      activity_entries: 1,
+    })
+    expect(snapshot.agents.find((agent) => agent.key === 'engineering-copilot')).toMatchObject({
+      live: true,
+      todayTurns: 1,
+      latestAction: 'Rendering Mission Control lanes',
+    })
+    expect(snapshot.lanes.find((lane) => lane.key === 'engineering-copilot')?.tasks[0]).toMatchObject({
+      title: 'Build reusable agent org board',
+      branchName: 'codex/agent-org-board-ux',
+      overlapGroup: 'agent-ops-ui',
+    })
+    expect(snapshot.activity[0]).toMatchObject({
+      agentKey: 'engineering-copilot',
+      action: 'step_completed',
+      summary: 'Mission Control lane rendered',
+    })
+  })
+
+  it('routes queued and unassigned work to the inbox and ready work to Integration Captain', () => {
+    const snapshot = buildAgentOrgBoardSnapshotFromRows({
+      now: new Date('2026-05-05T16:00:00.000Z'),
+      runs: [],
+      events: [],
+      workItems: [
+        {
+          id: 'work-inbox',
+          title: 'Triage new work',
+          objective: null,
+          status: 'queued',
+          priority: 'medium',
+          owner_agent_key: null,
+          owner_runtime: null,
+          active_run_id: null,
+          branch_name: null,
+          worktree_path: null,
+          pr_number: null,
+          pr_url: null,
+          overlap_group: null,
+          blocker_summary: null,
+          validation_summary: null,
+          approval_id: null,
+          created_at: '2026-05-05T12:00:00.000Z',
+          updated_at: '2026-05-05T12:00:00.000Z',
+        },
+        {
+          id: 'work-merge',
+          title: 'Merge validated PR',
+          objective: null,
+          status: 'ready_for_merge',
+          priority: 'urgent',
+          owner_agent_key: 'engineering-copilot',
+          owner_runtime: 'codex',
+          active_run_id: null,
+          branch_name: 'codex/ready-work',
+          worktree_path: null,
+          pr_number: 204,
+          pr_url: 'https://github.com/example/repo/pull/204',
+          overlap_group: null,
+          blocker_summary: null,
+          validation_summary: 'Checks passed',
+          approval_id: null,
+          created_at: '2026-05-05T13:00:00.000Z',
+          updated_at: '2026-05-05T13:00:00.000Z',
+        },
+      ],
+      approvals: [
+        {
+          id: 'approval-1',
+          run_id: 'run-approval',
+          approval_type: 'production_config_change',
+          status: 'pending',
+          requested_at: '2026-05-05T14:00:00.000Z',
+        },
+      ],
+    })
+
+    expect(snapshot.summary).toMatchObject({
+      unassigned_work_items: 1,
+      ready_for_merge: 1,
+      pending_approvals: 1,
+    })
+    expect(snapshot.lanes.find((lane) => lane.key === 'inbox')?.tasks[0]).toMatchObject({ id: 'work-inbox' })
+    expect(snapshot.lanes.find((lane) => lane.key === 'integration-captain')?.tasks[0]).toMatchObject({
+      id: 'work-merge',
+      prNumber: 204,
+      validationSummary: 'Checks passed',
+    })
   })
 })

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin, isAuthError } from '@/lib/auth-server'
-import { buildAgentSwarmBoardSnapshot } from '@/lib/agent-swarm-board'
+import { buildAgentOrgBoardSnapshot, buildAgentSwarmBoardSnapshot } from '@/lib/agent-swarm-board'
 
 export const dynamic = 'force-dynamic'
 
@@ -18,8 +18,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const snapshot = await buildAgentSwarmBoardSnapshot()
-    return NextResponse.json({ ok: true, ...snapshot })
+    const [snapshot, organization] = await Promise.all([
+      buildAgentSwarmBoardSnapshot(),
+      buildAgentOrgBoardSnapshot(),
+    ])
+    return NextResponse.json({ ok: true, ...snapshot, organization })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Failed to build agent swarm board'
     console.error('[agent-swarm-board] snapshot failed:', error)

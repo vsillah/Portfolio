@@ -3,44 +3,45 @@
 import Link from 'next/link'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
+  Activity,
   AlertTriangle,
-  ArrowRight,
   Bot,
-  CheckCircle2,
   Columns,
-  LockKeyhole,
+  GitPullRequest,
+  LayoutDashboard,
+  MessageSquare,
   RefreshCw,
+  ShieldCheck,
+  Sparkles,
+  Users,
 } from 'lucide-react'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import Breadcrumbs from '@/components/admin/Breadcrumbs'
 import { getCurrentSession } from '@/lib/auth'
 import type {
+  AgentOrgBoardActivity,
+  AgentOrgBoardAgent,
+  AgentOrgBoardLane,
+  AgentOrgBoardSnapshot,
+  AgentOrgBoardTask,
   AgentSwarmBoardSnapshot,
   SwarmBoardCard,
-  SwarmBoardColumnKey,
 } from '@/lib/agent-swarm-board'
 
-type Filter = 'all' | 'attention' | 'approval' | 'autonomous'
-
-const FILTERS: Array<{ key: Filter; label: string }> = [
-  { key: 'all', label: 'All' },
-  { key: 'attention', label: 'Needs attention' },
-  { key: 'approval', label: 'Waiting approval' },
-  { key: 'autonomous', label: 'Autonomous-ready' },
-]
-
-const COLUMN_TONES: Record<SwarmBoardColumnKey, string> = {
-  intake: 'border-silicon-slate/70',
-  discovery: 'border-blue-500/30',
-  decision_packet: 'border-teal-500/30',
-  provisioning_plan: 'border-amber-500/30',
-  build_configure: 'border-purple-500/30',
-  qa_isolation: 'border-cyan-500/30',
-  waiting_approval: 'border-yellow-500/40',
-  active_monitoring: 'border-green-500/35',
-  blocked_escalated: 'border-red-500/40',
-  done_archived: 'border-silicon-slate/70',
+type BoardSnapshot = AgentSwarmBoardSnapshot & {
+  ok?: boolean
+  organization?: AgentOrgBoardSnapshot
 }
+
+type BoardMode = 'mission' | 'hive' | 'agents' | 'war-room' | 'client-builder'
+
+const MODES: Array<{ key: BoardMode; label: string; icon: typeof LayoutDashboard }> = [
+  { key: 'mission', label: 'Mission Control', icon: LayoutDashboard },
+  { key: 'hive', label: 'Hive Mind', icon: Activity },
+  { key: 'agents', label: 'Agents', icon: Users },
+  { key: 'war-room', label: 'War Room', icon: MessageSquare },
+  { key: 'client-builder', label: 'Client AI Builder', icon: Columns },
+]
 
 export default function AgentSwarmBoardPage() {
   return (
@@ -51,10 +52,11 @@ export default function AgentSwarmBoardPage() {
 }
 
 function AgentSwarmBoardContent() {
-  const [snapshot, setSnapshot] = useState<AgentSwarmBoardSnapshot | null>(null)
+  const [snapshot, setSnapshot] = useState<BoardSnapshot | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [filter, setFilter] = useState<Filter>('all')
+  const [mode, setMode] = useState<BoardMode>('mission')
+  const [activityFilter, setActivityFilter] = useState('all')
 
   const fetchBoard = useCallback(async () => {
     setLoading(true)
@@ -69,7 +71,7 @@ function AgentSwarmBoardContent() {
       if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`)
       setSnapshot(body)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load client swarm board')
+      setError(err instanceof Error ? err.message : 'Failed to load agent organization board')
       setSnapshot(null)
     } finally {
       setLoading(false)
@@ -80,41 +82,40 @@ function AgentSwarmBoardContent() {
     fetchBoard()
   }, [fetchBoard])
 
-  const filteredColumns = useMemo(() => {
-    if (!snapshot) return []
-    return snapshot.columns.map((column) => ({
-      ...column,
-      cards: column.cards.filter((card) => cardMatchesFilter(card, filter)),
-    }))
-  }, [filter, snapshot])
+  const organization = snapshot?.organization
+  const filteredActivity = useMemo(() => {
+    const rows = organization?.activity ?? []
+    if (activityFilter === 'all') return rows
+    return rows.filter((row) => row.podKey === activityFilter || row.agentKey === activityFilter)
+  }, [activityFilter, organization?.activity])
 
   return (
     <div className="min-h-screen bg-background text-foreground p-6 lg:p-8">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-[1680px]">
         <Breadcrumbs items={[
           { label: 'Admin Dashboard', href: '/admin' },
           { label: 'Agent Operations', href: '/admin/agents' },
-          { label: 'Swarm Board' },
+          { label: 'Agent Org Board' },
         ]} />
 
-        <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+        <header className="mb-5 flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
           <div>
             <div className="mb-2 inline-flex items-center gap-2 text-sm text-radiant-gold">
-              <Columns size={16} />
-              ATAS AI Agent Org
+              <Bot size={16} />
+              ATAS AI Agent Organization
             </div>
-            <h1 className="text-3xl font-bold">Client Swarm Board</h1>
+            <h1 className="text-3xl font-bold">Agent Org Board</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Cross-client board for policy-bounded handoffs, swarm health, approval gates, and provisioning readiness.
+              One Portfolio-native command surface for ATAS agent work, shared activity, handoffs, and client AI org builder execution.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/admin/agents"
               className="inline-flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-silicon-slate/30 px-3 py-2 text-sm hover:border-radiant-gold/60"
             >
-              <Bot size={16} />
-              Mission Control
+              <ShieldCheck size={16} />
+              Agent Ops
             </Link>
             <button
               onClick={fetchBoard}
@@ -125,152 +126,403 @@ function AgentSwarmBoardContent() {
               Refresh
             </button>
           </div>
-        </div>
+        </header>
 
         {loading ? (
-          <div className="py-16 text-center text-muted-foreground">Loading client swarm board...</div>
+          <div className="py-16 text-center text-muted-foreground">Loading agent organization board...</div>
         ) : error ? (
           <FailureState message={error} />
-        ) : snapshot ? (
-          <>
-            <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-              <MetricCard label="Clients" value={snapshot.summary.clients} />
-              <MetricCard label="Active" value={snapshot.summary.active} />
-              <MetricCard label="Failed/stale" value={snapshot.summary.failed_or_stale} tone={snapshot.summary.failed_or_stale ? 'red' : 'slate'} />
-              <MetricCard label="Approvals" value={snapshot.summary.pending_approvals} tone={snapshot.summary.pending_approvals ? 'yellow' : 'slate'} />
-              <MetricCard label="Isolation failures" value={snapshot.summary.isolation_failures} tone={snapshot.summary.isolation_failures ? 'red' : 'slate'} />
-              <MetricCard label="Autonomous-ready" value={snapshot.summary.autonomous_ready} tone="green" />
-            </div>
-
-            <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div>
-                  <h2 className="font-semibold">Handoff Boundary</h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Read-only, planning, QA, and reporting handoffs can move autonomously. Provider writes, credentials, sends, publishing, production config, and client-data mutation wait for approval.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {FILTERS.map((item) => (
+        ) : snapshot && organization ? (
+          <div className="grid gap-5 xl:grid-cols-[220px_minmax(0,1fr)]">
+            <aside className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-3">
+              <p className="px-2 pb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Workspace</p>
+              <div className="space-y-1">
+                {MODES.map((item) => {
+                  const Icon = item.icon
+                  return (
                     <button
                       key={item.key}
-                      onClick={() => setFilter(item.key)}
-                      className={`rounded-lg border px-3 py-2 text-sm ${
-                        filter === item.key
-                          ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
-                          : 'border-silicon-slate/70 bg-silicon-slate/20 text-muted-foreground hover:text-foreground'
+                      onClick={() => setMode(item.key)}
+                      aria-pressed={mode === item.key}
+                      aria-current={mode === item.key ? 'page' : undefined}
+                      className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
+                        mode === item.key
+                          ? 'bg-radiant-gold/15 text-radiant-gold'
+                          : 'text-muted-foreground hover:bg-silicon-slate/30 hover:text-foreground'
                       }`}
                     >
+                      <Icon size={16} />
                       {item.label}
                     </button>
-                  ))}
-                </div>
+                  )
+                })}
               </div>
-            </section>
 
-            <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
-              {filteredColumns.map((column) => (
-                <section
-                  key={column.key}
-                  className={`rounded-lg border bg-silicon-slate/15 p-4 ${COLUMN_TONES[column.key]}`}
-                >
-                  <div className="mb-4 flex items-start justify-between gap-3">
-                    <div>
-                      <h2 className="font-semibold">{column.label}</h2>
-                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{column.description}</p>
-                    </div>
-                    <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
-                      {column.cards.length}
-                    </span>
-                  </div>
+              <div className="mt-5 grid grid-cols-2 gap-2">
+                <RailMetric label="Live" value={organization.summary.live_agents} />
+                <RailMetric label="Active" value={organization.summary.active_work_items} />
+                <RailMetric label="Blocked" value={organization.summary.blocked_work_items} />
+                <RailMetric label="Merge" value={organization.summary.ready_for_merge} />
+              </div>
+            </aside>
 
-                  <div className="space-y-3">
-                    {column.cards.length ? (
-                      column.cards.map((card) => <SwarmCard key={card.id} card={card} />)
-                    ) : (
-                      <p className="rounded-lg border border-dashed border-silicon-slate/60 px-3 py-6 text-center text-sm text-muted-foreground">
-                        No client swarms in this column.
-                      </p>
-                    )}
-                  </div>
-                </section>
-              ))}
-            </div>
-          </>
+            <main className="min-w-0">
+              {mode === 'mission' && <MissionBoard organization={organization} />}
+              {mode === 'hive' && (
+                <HiveMind
+                  organization={organization}
+                  rows={filteredActivity}
+                  activityFilter={activityFilter}
+                  onFilterChange={setActivityFilter}
+                />
+              )}
+              {mode === 'agents' && <AgentsGrid agents={organization.agents} />}
+              {mode === 'war-room' && <WarRoom organization={organization} />}
+              {mode === 'client-builder' && <ClientBuilderBoard snapshot={snapshot} />}
+            </main>
+          </div>
         ) : null}
       </div>
     </div>
   )
 }
 
-function cardMatchesFilter(card: SwarmBoardCard, filter: Filter) {
-  if (filter === 'attention') return card.moduleHealth === 'red' || card.failedOrStaleRuns > 0
-  if (filter === 'approval') return card.approvalState !== 'none'
-  if (filter === 'autonomous') return card.approvalState === 'none' && card.moduleHealth !== 'red'
-  return true
+function MissionBoard({ organization }: { organization: AgentOrgBoardSnapshot }) {
+  return (
+    <div className="space-y-4">
+      <SummaryStrip organization={organization} />
+      <div className="grid gap-3 xl:grid-cols-4">
+        {organization.lanes.map((lane) => (
+          <TaskLane key={lane.key} lane={lane} />
+        ))}
+      </div>
+    </div>
+  )
 }
 
-function SwarmCard({ card }: { card: SwarmBoardCard }) {
-  const HealthIcon = card.moduleHealth === 'red' ? AlertTriangle : card.approvalState !== 'none' ? LockKeyhole : CheckCircle2
+function SummaryStrip({ organization }: { organization: AgentOrgBoardSnapshot }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">
+      <MetricCard label="Agents" value={organization.summary.agents} />
+      <MetricCard label="Live" value={organization.summary.live_agents} tone="green" />
+      <MetricCard label="Work items" value={organization.summary.active_work_items} />
+      <MetricCard label="Unassigned" value={organization.summary.unassigned_work_items} tone={organization.summary.unassigned_work_items ? 'yellow' : 'slate'} />
+      <MetricCard label="Blocked" value={organization.summary.blocked_work_items} tone={organization.summary.blocked_work_items ? 'red' : 'slate'} />
+      <MetricCard label="Ready merge" value={organization.summary.ready_for_merge} tone={organization.summary.ready_for_merge ? 'yellow' : 'slate'} />
+      <MetricCard label="Approvals" value={organization.summary.pending_approvals} tone={organization.summary.pending_approvals ? 'yellow' : 'slate'} />
+    </div>
+  )
+}
+
+function TaskLane({ lane }: { lane: AgentOrgBoardLane }) {
+  return (
+    <section className="min-h-[420px] rounded-lg border border-silicon-slate/70 bg-silicon-slate/15">
+      <div className="border-b border-silicon-slate/60 p-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="truncate font-semibold" title={lane.label}>{lane.label}</h2>
+            <p className="mt-1 truncate text-xs text-muted-foreground" title={lane.agentName}>{lane.agentName}</p>
+          </div>
+          <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
+            {lane.tasks.length}
+          </span>
+        </div>
+      </div>
+      <div className="space-y-3 p-3">
+        {lane.tasks.length ? (
+          lane.tasks.map((task) => <WorkItemCard key={task.id} task={task} />)
+        ) : (
+          <p className="rounded-lg border border-dashed border-silicon-slate/60 px-3 py-8 text-center text-sm text-muted-foreground">
+            No active tasks
+          </p>
+        )}
+      </div>
+    </section>
+  )
+}
+
+function WorkItemCard({ task }: { task: AgentOrgBoardTask }) {
+  return (
+    <article className="rounded-lg border border-silicon-slate/70 bg-background/70 p-3">
+      <div className="mb-2 flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate text-sm font-semibold" title={task.title}>{task.title}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{task.status.replace(/_/g, ' ')}</p>
+        </div>
+        <span className={`rounded-full px-2 py-1 text-xs ${priorityClass(task.priority)}`}>{task.priority}</span>
+      </div>
+      {task.objective && <p className="mb-3 line-clamp-2 text-xs text-muted-foreground">{task.objective}</p>}
+      <div className="flex flex-wrap gap-2 text-xs">
+        {task.branchName && <Badge label={task.branchName} />}
+        {task.ownerRuntime && <Badge label={task.ownerRuntime} />}
+        {task.overlapGroup && <Badge label={`overlap: ${task.overlapGroup}`} />}
+      </div>
+      {task.blockerSummary && (
+        <p className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 p-2 text-xs text-red-200">{task.blockerSummary}</p>
+      )}
+      {task.validationSummary && (
+        <p className="mt-3 rounded-lg border border-green-500/30 bg-green-500/10 p-2 text-xs text-green-200">{task.validationSummary}</p>
+      )}
+      <div className="mt-3 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+        <span>{formatRelative(task.updatedAt)}</span>
+        {task.prUrl ? (
+          <a
+            href={task.prUrl}
+            aria-label={`Open pull request ${task.prNumber ?? ''} for ${task.title}`.trim()}
+            className="inline-flex items-center gap-1 text-radiant-gold hover:underline"
+          >
+            <GitPullRequest size={13} />
+            PR {task.prNumber}
+          </a>
+        ) : (
+          <span>No PR</span>
+        )}
+      </div>
+    </article>
+  )
+}
+
+function HiveMind({
+  organization,
+  rows,
+  activityFilter,
+  onFilterChange,
+}: {
+  organization: AgentOrgBoardSnapshot
+  rows: AgentOrgBoardActivity[]
+  activityFilter: string
+  onFilterChange: (value: string) => void
+}) {
+  const filters = [
+    { key: 'all', label: 'All' },
+    ...Array.from(new Map(organization.agents.map((agent) => [agent.podKey, agent.podName])).entries()).map(([key, label]) => ({ key, label: label.replace(/ Pod$/, '') })),
+  ]
+
+  return (
+    <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15">
+      <div className="flex flex-col gap-3 border-b border-silicon-slate/60 p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Hive Mind</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{organization.summary.activity_entries} entries across the shared Agent Ops trace.</p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {filters.map((filter) => (
+            <button
+              key={filter.key}
+              onClick={() => onFilterChange(filter.key)}
+              aria-pressed={activityFilter === filter.key}
+              className={`rounded-lg border px-3 py-2 text-sm ${
+                activityFilter === filter.key
+                  ? 'border-radiant-gold/60 bg-radiant-gold/15 text-radiant-gold'
+                  : 'border-silicon-slate/70 bg-background/50 text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[820px] text-left text-sm">
+          <thead className="border-b border-silicon-slate/60 text-xs uppercase tracking-wide text-muted-foreground">
+            <tr>
+              <th className="px-4 py-3">When</th>
+              <th className="px-4 py-3">Agent</th>
+              <th className="px-4 py-3">Action</th>
+              <th className="px-4 py-3">Summary</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.length ? rows.map((row) => (
+              <tr key={row.id} className="border-b border-silicon-slate/40">
+                <td className="whitespace-nowrap px-4 py-3 text-muted-foreground">{formatRelative(row.occurredAt)}</td>
+                <td className="px-4 py-3">
+                  <span className="inline-flex items-center gap-2">
+                    <span aria-hidden="true" className="h-2 w-2 rounded-full bg-radiant-gold" />
+                    {row.agentName}
+                  </span>
+                </td>
+                <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{row.action}</td>
+                <td className="px-4 py-3">
+                  <span className="line-clamp-2">{row.summary}</span>
+                </td>
+              </tr>
+            )) : (
+              <tr>
+                <td colSpan={4} className="px-4 py-10 text-center text-muted-foreground">No activity matches this filter.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}
+
+function AgentsGrid({ agents }: { agents: AgentOrgBoardAgent[] }) {
+  return (
+    <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+      {agents.map((agent) => (
+        <article key={agent.key} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
+          <div className="mb-4 flex items-start gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-radiant-gold/30 bg-radiant-gold/10 text-radiant-gold">
+              <Bot size={22} />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h2 className="truncate font-semibold" title={agent.name}>{agent.name}</h2>
+                <span aria-hidden="true" className={`h-2 w-2 rounded-full ${agent.live ? 'bg-green-400' : 'bg-silicon-slate'}`} />
+              </div>
+              <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">{agent.podName}</p>
+            </div>
+          </div>
+          <div className="mb-4 flex flex-wrap gap-2">
+            <Badge label={agent.runtime} />
+            <Badge label={agent.status} />
+            <Badge label={agent.live ? 'running' : 'idle'} />
+          </div>
+          <div className="mb-4 rounded-lg border border-silicon-slate/60 bg-background/50 p-3">
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">Today turns</p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums">{agent.todayTurns}</p>
+          </div>
+          <p className="line-clamp-2 text-sm text-muted-foreground">{agent.latestAction}</p>
+          <div className="mt-4">
+            {agent.latestRunId ? (
+              <Link
+                href={`/admin/agents/runs/${agent.latestRunId}`}
+                aria-label={`Open latest trace for ${agent.name}`}
+                className="inline-flex items-center gap-2 text-sm text-radiant-gold hover:underline"
+              >
+                Open latest trace
+              </Link>
+            ) : (
+              <span className="text-sm text-muted-foreground">No trace yet</span>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  )
+}
+
+function WarRoom({ organization }: { organization: AgentOrgBoardSnapshot }) {
+  return (
+    <div className="grid gap-4 xl:grid-cols-[280px_minmax(0,1fr)]">
+      <aside className="space-y-3">
+        {organization.warRoom.roster.map((agent) => (
+          <article key={agent.key} className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
+            <div className="mb-2 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-silicon-slate/70 bg-background/60">
+                <Bot size={18} />
+              </div>
+              <div>
+                <p className="font-semibold" title={agent.name}>{agent.name}</p>
+                <p className="text-xs text-muted-foreground">{agent.podName}</p>
+              </div>
+            </div>
+            <p className="line-clamp-2 text-xs text-muted-foreground">{agent.latestAction}</p>
+          </article>
+        ))}
+      </aside>
+      <section className="flex min-h-[640px] flex-col rounded-lg border border-silicon-slate/70 bg-silicon-slate/15">
+        <div className="flex items-center justify-between border-b border-silicon-slate/60 p-4">
+          <div>
+            <h2 className="text-xl font-semibold">War Room</h2>
+            <p className="text-sm text-muted-foreground">Coordinate through Agent Ops records and Slack commands.</p>
+          </div>
+          <Badge label="text mode" />
+        </div>
+        <div className="flex flex-1 items-center justify-center p-8 text-center">
+          <div>
+            <Sparkles className="mx-auto mb-4 text-radiant-gold" size={28} />
+            <h3 className="text-lg font-semibold">Start with a specific question.</h3>
+            <p className="mt-2 max-w-xl text-sm text-muted-foreground">{organization.warRoom.suggestedPrompt}</p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              {organization.warRoom.commands.map((command) => <Badge key={command} label={command} />)}
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-silicon-slate/60 p-4">
+          <div className="flex items-center gap-2 rounded-lg border border-silicon-slate/70 bg-background/60 px-3 py-3 text-sm text-muted-foreground">
+            Message the team from Slack with /agent captain, /agent work, or /agent blockers.
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function ClientBuilderBoard({ snapshot }: { snapshot: AgentSwarmBoardSnapshot }) {
+  const cards = snapshot.columns.flatMap((column) => column.cards)
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+        <MetricCard label="Clients" value={snapshot.summary.clients} />
+        <MetricCard label="Active" value={snapshot.summary.active} />
+        <MetricCard label="Failed/stale" value={snapshot.summary.failed_or_stale} tone={snapshot.summary.failed_or_stale ? 'red' : 'slate'} />
+        <MetricCard label="Approvals" value={snapshot.summary.pending_approvals} tone={snapshot.summary.pending_approvals ? 'yellow' : 'slate'} />
+        <MetricCard label="Isolation gaps" value={snapshot.summary.isolation_failures} tone={snapshot.summary.isolation_failures ? 'red' : 'slate'} />
+        <MetricCard label="Autonomous" value={snapshot.summary.autonomous_ready} tone="green" />
+      </div>
+      <section className="rounded-lg border border-silicon-slate/70 bg-silicon-slate/15 p-4">
+        <div className="mb-4 flex items-center gap-2">
+          <Columns size={18} className="text-radiant-gold" />
+          <div>
+            <h2 className="font-semibold">Client AI Agent Org Builder</h2>
+            <p className="text-sm text-muted-foreground">Client roadmap and provisioning work projected into the same board language.</p>
+          </div>
+        </div>
+        <div className="grid gap-3 xl:grid-cols-2">
+          {cards.length ? cards.map((card) => <ClientSwarmCard key={card.id} card={card} />) : (
+            <p className="rounded-lg border border-dashed border-silicon-slate/60 px-3 py-10 text-center text-sm text-muted-foreground">No client AI builder work is active.</p>
+          )}
+        </div>
+      </section>
+    </div>
+  )
+}
+
+function ClientSwarmCard({ card }: { card: SwarmBoardCard }) {
   return (
     <article className="rounded-lg border border-silicon-slate/70 bg-background/70 p-4">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="truncate font-semibold">{card.projectName}</h3>
-          <p className="mt-1 text-xs text-muted-foreground">{card.clientName}</p>
+          <h3 className="truncate font-semibold" title={card.projectName}>{card.projectName}</h3>
+          <p className="mt-1 truncate text-xs text-muted-foreground" title={card.clientName}>{card.clientName}</p>
         </div>
-        <span className={`rounded-full px-2 py-1 text-xs ${priorityClass(card.priority)}`}>
-          {card.priority}
-        </span>
+        <span className={`rounded-full px-2 py-1 text-xs ${priorityClass(card.priority)}`}>{card.priority}</span>
       </div>
-
       <div className="mb-3 flex flex-wrap gap-2 text-xs">
         <Badge label={card.currentAgentLabel} />
         <Badge label={card.statusLabel} />
-        <Badge label={`isolation: ${card.isolationStatus.replace(/_/g, ' ')}`} />
+        <Badge label={card.isolationStatus.replace(/_/g, ' ')} />
       </div>
-
-      <div className="mb-3 flex items-start gap-2 rounded-lg border border-silicon-slate/60 bg-silicon-slate/15 p-3">
-        <HealthIcon size={16} className={healthIconClass(card)} />
-        <div>
-          <p className="text-sm font-medium">{card.nextAction}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{card.riskLabel}</p>
-        </div>
-      </div>
-
-      <div className="mb-4 grid grid-cols-3 gap-2 text-center text-xs">
+      <p className="mb-3 rounded-lg border border-silicon-slate/60 bg-silicon-slate/15 p-3 text-sm">{card.nextAction}</p>
+      <div className="grid grid-cols-3 gap-2 text-center text-xs">
         <MiniMetric label="Active" value={card.activeRuns} />
         <MiniMetric label="Failed" value={card.failedOrStaleRuns} />
         <MiniMetric label="Approvals" value={card.pendingApprovals} />
       </div>
-
-      <div className="mb-4 rounded-lg border border-silicon-slate/60 bg-silicon-slate/15 p-3">
-        <div className="mb-2 flex items-start justify-between gap-3">
-          <div>
-            <p className="text-sm font-medium">Connector readiness</p>
-            <p className="mt-1 text-xs text-muted-foreground">{card.connectorSummary}</p>
-          </div>
-          <span className="rounded-full border border-silicon-slate/70 px-2 py-1 text-xs text-muted-foreground">
-            {card.readyConnectorCount}/{card.requiredConnectorCount}
-          </span>
-        </div>
-        <div className="mb-2 grid grid-cols-2 gap-2 text-center text-xs">
-          <MiniMetric label="Approval blocked" value={card.approvalBlockedConnectorCount} />
-          <MiniMetric label="Critical gaps" value={card.missingCriticalConnectorCount} />
-        </div>
-        <p className="text-xs text-muted-foreground">{card.connectorNextAction}</p>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
-        <span className="text-muted-foreground">
-          {card.latestRunStatus ? `Latest run: ${card.latestRunStatus}` : 'No traced run yet'}
-        </span>
-        <Link href={card.latestRunId ? `/admin/agents/runs/${card.latestRunId}` : card.href} className="inline-flex items-center gap-1 text-radiant-gold hover:underline">
+      <div className="mt-4 flex items-center justify-between gap-2 text-xs text-muted-foreground">
+        <span className="min-w-0 break-words">{card.connectorSummary}</span>
+        <Link
+          href={card.latestRunId ? `/admin/agents/runs/${card.latestRunId}` : card.href}
+          aria-label={card.latestRunId ? `Open latest trace for ${card.projectName}` : `Open client project ${card.projectName}`}
+          className="shrink-0 text-radiant-gold hover:underline"
+        >
           {card.latestRunId ? 'Open trace' : 'Open project'}
-          <ArrowRight size={14} />
         </Link>
       </div>
     </article>
+  )
+}
+
+function RailMetric({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg border border-silicon-slate/60 bg-background/50 p-2">
+      <p className="text-lg font-semibold tabular-nums">{value}</p>
+      <p className="text-[11px] text-muted-foreground">{label}</p>
+    </div>
   )
 }
 
@@ -300,7 +552,10 @@ function MiniMetric({ label, value }: { label: string; value: number }) {
 
 function Badge({ label }: { label: string }) {
   return (
-    <span className="rounded-full border border-silicon-slate/70 bg-silicon-slate/20 px-2 py-1 text-muted-foreground">
+    <span
+      title={label}
+      className="inline-block max-w-full truncate rounded-full border border-silicon-slate/70 bg-silicon-slate/20 px-2 py-1 text-xs text-muted-foreground"
+    >
       {label}
     </span>
   )
@@ -311,21 +566,28 @@ function FailureState({ message }: { message: string }) {
     <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-6 text-red-200">
       <div className="mb-2 flex items-center gap-2 font-semibold">
         <AlertTriangle size={18} />
-        Failed to load Client Swarm Board
+        Failed to load Agent Org Board
       </div>
       <p className="text-sm text-red-100/80">{message}</p>
     </div>
   )
 }
 
-function priorityClass(priority: SwarmBoardCard['priority']) {
-  if (priority === 'high') return 'bg-red-500/15 text-red-300 border border-red-500/30'
+function priorityClass(priority: SwarmBoardCard['priority'] | AgentOrgBoardTask['priority']) {
+  if (priority === 'urgent' || priority === 'high') return 'bg-red-500/15 text-red-300 border border-red-500/30'
   if (priority === 'medium') return 'bg-yellow-500/15 text-yellow-300 border border-yellow-500/30'
   return 'bg-green-500/15 text-green-300 border border-green-500/30'
 }
 
-function healthIconClass(card: SwarmBoardCard) {
-  if (card.moduleHealth === 'red') return 'mt-0.5 text-red-300'
-  if (card.approvalState !== 'none') return 'mt-0.5 text-yellow-300'
-  return 'mt-0.5 text-green-300'
+function formatRelative(value: string) {
+  const time = new Date(value).getTime()
+  if (!Number.isFinite(time)) return value
+  const delta = Date.now() - time
+  const minutes = Math.max(0, Math.round(delta / 60000))
+  if (minutes < 1) return 'now'
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.round(hours / 24)
+  return `${days}d ago`
 }
