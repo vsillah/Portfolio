@@ -609,7 +609,7 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
     expect(snapshot.activity[1]).toMatchObject({
       id: 'event-content',
       agentKey: 'voice-content-architect',
-      agentName: 'Voice & Content Architect Agent',
+      agentName: 'Voice & Content Architect',
       summary: 'Content draft ready for review',
     })
   })
