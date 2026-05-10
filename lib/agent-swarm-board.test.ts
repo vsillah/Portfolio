@@ -28,6 +28,68 @@ const roadmap = {
   updated_at: '2026-05-05T12:00:00.000Z',
 }
 
+type OrgBoardInput = Parameters<typeof buildAgentOrgBoardSnapshotFromRows>[0]
+type OrgRunRow = OrgBoardInput['runs'][number]
+type OrgRunEventRow = OrgBoardInput['events'][number]
+type OrgWorkItemRow = OrgBoardInput['workItems'][number]
+
+function orgRun(overrides: Partial<OrgRunRow>): OrgRunRow {
+  return {
+    id: 'run-1',
+    agent_key: 'chief-of-staff',
+    runtime: 'codex',
+    kind: 'agent_task',
+    title: 'Agent coordination task',
+    status: 'completed',
+    subject_type: 'agent_work_item',
+    subject_id: null,
+    subject_label: null,
+    current_step: null,
+    error_message: null,
+    started_at: '2026-05-05T12:00:00.000Z',
+    completed_at: '2026-05-05T12:05:00.000Z',
+    metadata: {},
+    ...overrides,
+  }
+}
+
+function orgEvent(overrides: Partial<OrgRunEventRow>): OrgRunEventRow {
+  return {
+    id: 'event-1',
+    run_id: 'run-1',
+    event_type: 'step_completed',
+    severity: 'info',
+    message: 'Step completed',
+    occurred_at: '2026-05-05T12:01:00.000Z',
+    metadata: {},
+    ...overrides,
+  }
+}
+
+function orgWorkItem(overrides: Partial<OrgWorkItemRow>): OrgWorkItemRow {
+  return {
+    id: 'work-1',
+    title: 'Coordinate agent work',
+    objective: null,
+    status: 'queued',
+    priority: 'medium',
+    owner_agent_key: null,
+    owner_runtime: null,
+    active_run_id: null,
+    branch_name: null,
+    worktree_path: null,
+    pr_number: null,
+    pr_url: null,
+    overlap_group: null,
+    blocker_summary: null,
+    validation_summary: null,
+    approval_id: null,
+    created_at: '2026-05-05T12:00:00.000Z',
+    updated_at: '2026-05-05T12:00:00.000Z',
+    ...overrides,
+  }
+}
+
 describe('evaluateSwarmHandoffPolicy', () => {
   it('allows read-only planning handoffs to proceed autonomously', () => {
     expect(
@@ -477,6 +539,122 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
       id: 'work-merge',
       prNumber: 204,
       validationSummary: 'Checks passed',
+    })
+  })
+
+  it('keeps terminal work items out of active lanes while preserving review-ready work', () => {
+    const snapshot = buildAgentOrgBoardSnapshotFromRows({
+      now: new Date('2026-05-05T16:00:00.000Z'),
+      runs: [],
+      events: [],
+      workItems: [
+        orgWorkItem({
+          id: 'work-deployed',
+          title: 'Already deployed task',
+          status: 'deployed',
+          priority: 'high',
+          owner_agent_key: 'engineering-copilot',
+          updated_at: '2026-05-05T15:00:00.000Z',
+        }),
+        orgWorkItem({
+          id: 'work-cancelled',
+          title: 'Cancelled task',
+          status: 'cancelled',
+          priority: 'urgent',
+          owner_agent_key: null,
+          updated_at: '2026-05-05T14:00:00.000Z',
+        }),
+        orgWorkItem({
+          id: 'work-review',
+          title: 'Review validated branch',
+          status: 'ready_for_review',
+          priority: 'medium',
+          owner_agent_key: 'automation-systems',
+          branch_name: 'cursor/validated-branch',
+          pr_number: 214,
+          validation_summary: 'Smoke checks passed',
+          updated_at: '2026-05-05T13:00:00.000Z',
+        }),
+      ],
+      approvals: [],
+    })
+
+    expect(snapshot.summary).toMatchObject({
+      active_work_items: 1,
+      unassigned_work_items: 0,
+      blocked_work_items: 0,
+    })
+    expect(snapshot.lanes.flatMap((lane) => lane.tasks).map((task) => task.id)).toEqual(['work-review'])
+    expect(snapshot.lanes.find((lane) => lane.key === 'integration-captain')?.tasks[0]).toMatchObject({
+      id: 'work-review',
+      branchName: 'cursor/validated-branch',
+      prNumber: 214,
+      validationSummary: 'Smoke checks passed',
+    })
+  })
+
+  it('attributes fallback activity to the right agents and caps the activity feed', () => {
+    const fillerEvents = Array.from({ length: 101 }, (_, index) => orgEvent({
+      id: `filler-event-${index}`,
+      run_id: null,
+      event_type: 'heartbeat',
+      message: `Heartbeat ${index}`,
+      occurred_at: `2026-05-05T13:${String(index % 60).padStart(2, '0')}:00.000Z`,
+    }))
+    const snapshot = buildAgentOrgBoardSnapshotFromRows({
+      now: new Date('2026-05-05T16:00:00.000Z'),
+      runs: [
+        orgRun({
+          id: 'n8n-run',
+          agent_key: null,
+          runtime: 'n8n',
+          kind: 'workflow_dispatch',
+          title: 'Sync workflow',
+          current_step: 'Workflow dispatch completed',
+        }),
+        orgRun({
+          id: 'content-run',
+          agent_key: null,
+          runtime: 'codex',
+          kind: 'social_content_generation',
+          title: 'Draft social content',
+          current_step: 'Drafting content',
+        }),
+      ],
+      events: [
+        orgEvent({
+          id: 'event-n8n',
+          run_id: 'n8n-run',
+          event_type: 'workflow_completed',
+          message: null,
+          occurred_at: '2026-05-05T15:30:00.000Z',
+        }),
+        orgEvent({
+          id: 'event-content',
+          run_id: 'content-run',
+          event_type: 'draft_ready',
+          message: 'Content draft ready for review',
+          occurred_at: '2026-05-05T15:20:00.000Z',
+        }),
+        ...fillerEvents,
+      ],
+      workItems: [],
+      approvals: [],
+    })
+
+    expect(snapshot.activity).toHaveLength(100)
+    expect(snapshot.summary.activity_entries).toBe(100)
+    expect(snapshot.activity[0]).toMatchObject({
+      id: 'event-n8n',
+      agentKey: 'automation-systems',
+      agentName: 'Automation Systems Agent',
+      summary: 'Workflow dispatch completed',
+    })
+    expect(snapshot.activity[1]).toMatchObject({
+      id: 'event-content',
+      agentKey: 'voice-content-architect',
+      agentName: 'Voice & Content Architect',
+      summary: 'Content draft ready for review',
     })
   })
 })
