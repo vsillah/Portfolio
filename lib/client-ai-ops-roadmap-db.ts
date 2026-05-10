@@ -7,10 +7,27 @@ import {
   roadmapStatusFromProjectedTask,
   rollUpRoadmapCosts,
   type RoadmapClientView,
+  type RoadmapOrgBoardProjection,
   type RoadmapTaskStatus,
 } from './client-ai-ops-roadmap'
 
 type JsonRecord = Record<string, unknown>
+
+function orgBoardMetadata(projection: RoadmapOrgBoardProjection | undefined): JsonRecord {
+  if (!projection) return {}
+  return {
+    org_board: {
+      column: projection.column,
+      stage: projection.stage,
+      owner_agent_key: projection.ownerAgentKey,
+      owner_agent_label: projection.ownerAgentLabel,
+      approval_posture: projection.approvalPosture,
+      isolation_required: projection.isolationRequired,
+      client_visible_label: projection.clientVisibleLabel ?? null,
+      internal_handoff_label: projection.internalHandoffLabel ?? null,
+    },
+  }
+}
 
 export interface RoadmapBundle {
   roadmap: JsonRecord
@@ -212,6 +229,7 @@ export async function ensureRoadmapForProject(clientProjectId: string, options?:
         cost_category: task.costCategory,
         estimated_cost: task.estimatedCost,
         acceptance_criteria: task.acceptanceCriteria,
+        metadata: orgBoardMetadata(task.orgBoard),
       })),
     )
     .select('*')

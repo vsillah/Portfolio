@@ -43,6 +43,27 @@ describe('client AI ops roadmap', () => {
     ]))
   })
 
+  it('adds structured org-board projections to default roadmap tasks', () => {
+    const roadmap = buildDefaultClientAiOpsRoadmap({ clientCompany: 'Acme Co' })
+
+    expect(roadmap.tasks.find((task) => task.taskKey === 'hardware-decision')?.orgBoard).toMatchObject({
+      column: 'decision_packet',
+      stage: 'technology_decision',
+      ownerAgentKey: 'technology-evaluator',
+      approvalPosture: 'none',
+      isolationRequired: false,
+    })
+    expect(roadmap.tasks.find((task) => task.taskKey === 'workflow-validation')?.orgBoard).toMatchObject({
+      column: 'qa_isolation',
+      stage: 'qa_isolation',
+      ownerAgentKey: 'engineering-copilot',
+      approvalPosture: 'none',
+      isolationRequired: true,
+      internalHandoffLabel: 'Run synthetic validation and escalation behavior checks.',
+    })
+    expect(roadmap.tasks.every((task) => task.orgBoard)).toBe(true)
+  })
+
   it('rolls up client-owned startup and monthly costs', () => {
     const rollup = rollUpRoadmapCosts([
       { payer: 'client', costType: 'one_time', amount: 1000, category: 'hardware' },

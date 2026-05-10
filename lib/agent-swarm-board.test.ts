@@ -283,6 +283,50 @@ describe('buildAgentSwarmBoardSnapshotFromRows', () => {
     ]))
     expect(card.connectorNextAction).toContain('setup packet')
   })
+
+  it('uses org-board metadata before title inference for client swarm placement', () => {
+    const snapshot = buildAgentSwarmBoardSnapshotFromRows({
+      projects: [project],
+      roadmaps: [roadmap],
+      tasks: [
+        {
+          id: 'task-structured',
+          roadmap_id: 'roadmap-1',
+          task_key: 'plain-task',
+          title: 'Plain task with no routing keywords',
+          status: 'pending',
+          priority: 'medium',
+          owner_type: 'amadutown',
+          due_date: null,
+          metadata: {
+            org_board: {
+              column: 'qa_isolation',
+              stage: 'qa_isolation',
+              owner_agent_key: 'engineering-copilot',
+              owner_agent_label: 'Engineering Copilot Agent',
+              approval_posture: 'required',
+              isolation_required: true,
+              internal_handoff_label: 'Run synthetic validation packet',
+            },
+          },
+        },
+      ],
+      reports: [],
+      runs: [],
+      approvals: [],
+    })
+
+    const qaColumn = snapshot.columns.find((item) => item.key === 'qa_isolation')
+    expect(qaColumn?.cards).toHaveLength(1)
+    expect(qaColumn?.cards[0]).toMatchObject({
+      currentAgentKey: 'engineering-copilot',
+      currentAgentLabel: 'Engineering Copilot Agent',
+      nextAction: 'Run synthetic validation packet',
+      approvalState: 'required',
+      isolationStatus: 'pending',
+      riskLabel: 'approval required before side effects',
+    })
+  })
 })
 
 describe('buildAgentOrgBoardSnapshotFromRows', () => {

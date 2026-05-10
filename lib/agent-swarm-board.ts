@@ -218,6 +218,16 @@ type RoadmapTaskRow = {
   metadata: JsonRecord | null
 }
 
+type RoadmapTaskOrgBoardMetadata = {
+  column?: SwarmBoardColumnKey
+  owner_agent_key?: string
+  owner_agent_label?: string
+  approval_posture?: 'none' | 'required' | 'pending'
+  isolation_required?: boolean
+  internal_handoff_label?: string
+  client_visible_label?: string
+}
+
 type RoadmapReportRow = {
   roadmap_id: string
   report_type: string
@@ -367,6 +377,8 @@ function isolationStatusFromRoadmap(roadmap: RoadmapRow | null, tasks: RoadmapTa
   const snapshotStatus = stringValue(roadmap?.snapshot?.isolation_status)
   if (snapshotStatus === 'passed' || snapshotStatus === 'failed' || snapshotStatus === 'pending') return snapshotStatus
 
+  if (tasks.some((task) => orgBoardProjection(task)?.isolation_required)) return 'pending'
+
   const isolationTasks = tasks.filter((task) => {
     const key = task.task_key.toLowerCase()
     const title = task.title.toLowerCase()
@@ -376,6 +388,27 @@ function isolationStatusFromRoadmap(roadmap: RoadmapRow | null, tasks: RoadmapTa
   if (isolationTasks.some((task) => task.status === 'complete')) return 'passed'
   if (isolationTasks.length > 0) return 'pending'
   return 'not_started'
+}
+
+function orgBoardProjection(task: RoadmapTaskRow): RoadmapTaskOrgBoardMetadata | null {
+  const value = task.metadata?.org_board
+  if (!value || typeof value !== 'object') return null
+  const projection = value as RoadmapTaskOrgBoardMetadata
+  if (!projection.column) return null
+  return projection
+}
+
+function orgBoardColumn(task: RoadmapTaskRow): SwarmBoardColumnKey | null {
+  const column = orgBoardProjection(task)?.column
+  const allowed = new Set<SwarmBoardColumnKey>(COLUMN_DEFINITIONS.map((item) => item.key))
+  return column && allowed.has(column) ? column : null
+}
+
+function orgBoardApprovalPosture(tasks: RoadmapTaskRow[]): 'none' | 'required' | 'pending' {
+  const postures = tasks.map((task) => orgBoardProjection(task)?.approval_posture)
+  if (postures.includes('pending')) return 'pending'
+  if (postures.includes('required')) return 'required'
+  return 'none'
 }
 
 function columnFromTaskStatus(input: {
@@ -391,6 +424,9 @@ function columnFromTaskStatus(input: {
   if (input.projectStatus === 'completed' || input.roadmap?.status === 'completed') return 'done_archived'
   if (input.projectStatus === 'cancelled' || input.roadmap?.status === 'cancelled') return 'done_archived'
   if (input.roadmap?.status === 'active' && input.openTasks.length === 0) return 'active_monitoring'
+
+  const metadataColumn = input.openTasks.map(orgBoardColumn).find((column): column is SwarmBoardColumnKey => Boolean(column))
+  if (metadataColumn) return metadataColumn
 
   const titles = input.openTasks.map((task) => `${task.task_key} ${task.title}`.toLowerCase()).join(' ')
   if (!input.roadmap) return 'intake'
@@ -451,6 +487,17 @@ function currentAgentForColumn(column: SwarmBoardColumnKey) {
   }
 }
 
+function currentAgentForTasks(column: SwarmBoardColumnKey, openTasks: RoadmapTaskRow[]) {
+  const projection = openTasks.map(orgBoardProjection).find((item) => item?.owner_agent_key)
+  if (projection?.owner_agent_key) {
+    return {
+      key: projection.owner_agent_key,
+      label: projection.owner_agent_label ?? projection.owner_agent_key,
+    }
+  }
+  return currentAgentForColumn(column)
+}
+
 function nextActionForCard(input: {
   column: SwarmBoardColumnKey
   pendingApprovals: number
@@ -460,6 +507,8 @@ function nextActionForCard(input: {
   if (input.pendingApprovals > 0) return 'Review the approval checkpoint before any side effect runs.'
   if (input.failedOrStaleRuns > 0) return 'Open the latest failed or stale trace and route triage.'
   const nextTask = input.openTasks[0]
+  const orgBoardLabel = nextTask ? stringValue(orgBoardProjection(nextTask)?.internal_handoff_label) : null
+  if (orgBoardLabel) return orgBoardLabel
   if (nextTask) return nextTask.title
 
   switch (input.column) {
@@ -601,9 +650,11 @@ export function buildAgentSwarmBoardSnapshotFromRows(input: SwarmBoardBuildInput
       isolationStatus,
       projectStatus: project.project_status,
     })
-    const agent = currentAgentForColumn(column)
+    const agent = currentAgentForTasks(column, openTasks)
     const latestRun = runs[0] ?? null
     const health = moduleHealth({ pendingApprovals, failedOrStaleRuns, isolationStatus, reports })
+    const approvalPosture = orgBoardApprovalPosture(openTasks)
+    const approvalState = pendingApprovals > 0 ? 'pending' : approvalPosture === 'required' || column === 'waiting_approval' ? 'required' : 'none'
 
     return {
       id: `client-swarm:${project.id}`,
@@ -616,8 +667,8 @@ export function buildAgentSwarmBoardSnapshotFromRows(input: SwarmBoardBuildInput
       currentAgentLabel: agent.label,
       nextAction: nextActionForCard({ column, pendingApprovals, failedOrStaleRuns, openTasks }),
       statusLabel: roadmap?.status ?? project.project_status,
-      riskLabel: pendingApprovals > 0 ? 'approval gated' : failedOrStaleRuns > 0 ? 'triage required' : 'read-only handoff safe',
-      approvalState: pendingApprovals > 0 ? 'pending' : column === 'waiting_approval' ? 'required' : 'none',
+      riskLabel: pendingApprovals > 0 ? 'approval gated' : failedOrStaleRuns > 0 ? 'triage required' : approvalState === 'required' ? 'approval required before side effects' : 'read-only handoff safe',
+      approvalState,
       isolationStatus,
       moduleHealth: health,
       latestRunId: latestRun?.id ?? null,

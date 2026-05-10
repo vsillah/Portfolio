@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto'
 import type { AgentReadinessAssessment, AgentReadinessLevel } from './agent-readiness-assessment'
+import type { SwarmBoardColumnKey, SwarmHandoffStage } from './agent-swarm-board'
 
 export const ROADMAP_PHASES = [
   'discovery_ownership',
@@ -61,6 +62,17 @@ export interface RoadmapPhaseDraft {
   acceptanceCriteria: string[]
 }
 
+export type RoadmapOrgBoardProjection = {
+  column: SwarmBoardColumnKey
+  stage: SwarmHandoffStage
+  ownerAgentKey: string
+  ownerAgentLabel: string
+  approvalPosture: 'none' | 'required' | 'pending'
+  isolationRequired: boolean
+  clientVisibleLabel?: string
+  internalHandoffLabel?: string
+}
+
 export interface RoadmapTaskDraft {
   taskKey: string
   phaseKey: RoadmapPhaseKey
@@ -74,6 +86,7 @@ export interface RoadmapTaskDraft {
   costCategory?: RoadmapCostCategory
   estimatedCost: number
   acceptanceCriteria: string
+  orgBoard?: RoadmapOrgBoardProjection
 }
 
 export interface RoadmapCostItemDraft {
@@ -220,6 +233,119 @@ const DEFAULT_PHASES: RoadmapPhaseDraft[] = [
   },
 ]
 
+const ORG_BOARD_PROJECTIONS: Record<string, RoadmapOrgBoardProjection> = {
+  'client-vault': {
+    column: 'discovery',
+    stage: 'discovery',
+    ownerAgentKey: 'chief-of-staff',
+    ownerAgentLabel: 'Chief of Staff Agent',
+    approvalPosture: 'required',
+    isolationRequired: false,
+    clientVisibleLabel: 'Set up controlled access',
+    internalHandoffLabel: 'Confirm vault ownership and named maintainer access before any credential handling.',
+  },
+  'ownership-map': {
+    column: 'discovery',
+    stage: 'discovery',
+    ownerAgentKey: 'research-source-register',
+    ownerAgentLabel: 'Research & Source Register Agent',
+    approvalPosture: 'none',
+    isolationRequired: false,
+    clientVisibleLabel: 'Confirm ownership map',
+    internalHandoffLabel: 'Document account, data, and approval ownership before build work.',
+  },
+  'hardware-decision': {
+    column: 'decision_packet',
+    stage: 'technology_decision',
+    ownerAgentKey: 'technology-evaluator',
+    ownerAgentLabel: 'Technology Evaluator',
+    approvalPosture: 'none',
+    isolationRequired: false,
+    clientVisibleLabel: 'Choose runtime placement',
+    internalHandoffLabel: 'Prepare local, cloud, or hybrid runtime decision packet.',
+  },
+  'secure-remote-access': {
+    column: 'provisioning_plan',
+    stage: 'provisioning_plan',
+    ownerAgentKey: 'automation-systems',
+    ownerAgentLabel: 'Automation Systems Agent',
+    approvalPosture: 'required',
+    isolationRequired: true,
+    clientVisibleLabel: 'Configure secure access',
+    internalHandoffLabel: 'Prepare remote access provisioning packet behind approval.',
+  },
+  'backup-monitoring': {
+    column: 'provisioning_plan',
+    stage: 'provisioning_plan',
+    ownerAgentKey: 'automation-systems',
+    ownerAgentLabel: 'Automation Systems Agent',
+    approvalPosture: 'none',
+    isolationRequired: true,
+    clientVisibleLabel: 'Set monitoring baseline',
+    internalHandoffLabel: 'Create backup and health-check provisioning plan.',
+  },
+  'data-source-map': {
+    column: 'discovery',
+    stage: 'discovery',
+    ownerAgentKey: 'research-source-register',
+    ownerAgentLabel: 'Research & Source Register Agent',
+    approvalPosture: 'none',
+    isolationRequired: false,
+    clientVisibleLabel: 'Map approved sources',
+    internalHandoffLabel: 'Classify approved and forbidden data sources.',
+  },
+  'ai-runtime-selection': {
+    column: 'decision_packet',
+    stage: 'technology_decision',
+    ownerAgentKey: 'technology-evaluator',
+    ownerAgentLabel: 'Technology Evaluator',
+    approvalPosture: 'none',
+    isolationRequired: false,
+    clientVisibleLabel: 'Select AI runtime',
+    internalHandoffLabel: 'Prepare model/runtime decision packet with cost and governance notes.',
+  },
+  'agent-registry': {
+    column: 'build_configure',
+    stage: 'build_configure',
+    ownerAgentKey: 'automation-systems',
+    ownerAgentLabel: 'Automation Systems Agent',
+    approvalPosture: 'required',
+    isolationRequired: true,
+    clientVisibleLabel: 'Register approved agents',
+    internalHandoffLabel: 'Create registry and policy records after approval gates are clear.',
+  },
+  'workflow-validation': {
+    column: 'qa_isolation',
+    stage: 'qa_isolation',
+    ownerAgentKey: 'engineering-copilot',
+    ownerAgentLabel: 'Engineering Copilot Agent',
+    approvalPosture: 'none',
+    isolationRequired: true,
+    clientVisibleLabel: 'Validate workflows',
+    internalHandoffLabel: 'Run synthetic validation and escalation behavior checks.',
+  },
+  'handoff-training': {
+    column: 'active_monitoring',
+    stage: 'reporting',
+    ownerAgentKey: 'chief-of-staff',
+    ownerAgentLabel: 'Chief of Staff Agent',
+    approvalPosture: 'none',
+    isolationRequired: false,
+    clientVisibleLabel: 'Complete handoff',
+    internalHandoffLabel: 'Prepare handoff and support cadence summary.',
+  },
+  'monthly-reporting': {
+    column: 'active_monitoring',
+    stage: 'reporting',
+    ownerAgentKey: 'chief-of-staff',
+    ownerAgentLabel: 'Chief of Staff Agent',
+    approvalPosture: 'none',
+    isolationRequired: false,
+    clientVisibleLabel: 'Start health reporting',
+    internalHandoffLabel: 'Generate first monitored roadmap report.',
+  },
+}
+
 const DEFAULT_TASKS: RoadmapTaskDraft[] = [
   task('client-vault', 'discovery_ownership', 'Create client-owned password vault', 'Client creates the shared vault and invites named AmaduTown maintainer access.', 'client', 'high', true, true, 'access_security', 0, 'Vault exists and access is named, logged, and revocable.'),
   task('ownership-map', 'discovery_ownership', 'Confirm ownership and access map', 'Document who owns accounts, data, hardware, logs, and approval decisions.', 'shared', 'high', true, true, 'other', 0, 'Ownership map is visible in project record.'),
@@ -270,6 +396,7 @@ function task(
     costCategory,
     estimatedCost,
     acceptanceCriteria,
+    orgBoard: ORG_BOARD_PROJECTIONS[taskKey],
   }
 }
 
