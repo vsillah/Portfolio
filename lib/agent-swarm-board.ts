@@ -1,4 +1,5 @@
 import { actionRequiresApproval, type AgentAction } from '@/lib/agent-policy'
+import { AGENT_ORGANIZATION, AGENT_PODS, getAgentByKey, type AgentPodKey } from '@/lib/agent-organization'
 import {
   buildClientConnectorReadiness,
   type ClientConnectorAuditSignal,
@@ -90,6 +91,101 @@ export type AgentSwarmBoardSnapshot = {
   columns: SwarmBoardColumn[]
 }
 
+export type AgentOrgBoardTaskStatus =
+  | 'proposed'
+  | 'queued'
+  | 'assigned'
+  | 'in_progress'
+  | 'blocked'
+  | 'ready_for_review'
+  | 'ready_for_merge'
+  | 'merged'
+  | 'deployed'
+  | 'cancelled'
+
+export type AgentOrgBoardTask = {
+  id: string
+  title: string
+  objective: string | null
+  status: AgentOrgBoardTaskStatus
+  priority: 'low' | 'medium' | 'high' | 'urgent'
+  ownerAgentKey: string | null
+  ownerAgentName: string
+  ownerRuntime: string | null
+  branchName: string | null
+  worktreePath: string | null
+  prNumber: number | null
+  prUrl: string | null
+  blockerSummary: string | null
+  validationSummary: string | null
+  overlapGroup: string | null
+  updatedAt: string
+}
+
+export type AgentOrgBoardLane = {
+  key: string
+  label: string
+  agentKey: string | null
+  agentName: string
+  status: 'live' | 'idle' | 'planned'
+  tasks: AgentOrgBoardTask[]
+}
+
+export type AgentOrgBoardAgent = {
+  key: string
+  name: string
+  podKey: AgentPodKey
+  podName: string
+  status: 'active' | 'partial' | 'planned'
+  runtime: string
+  live: boolean
+  todayTurns: number
+  latestAction: string
+  latestRunId: string | null
+}
+
+export type AgentOrgBoardActivity = {
+  id: string
+  occurredAt: string
+  agentKey: string
+  agentName: string
+  podKey: AgentPodKey | 'main'
+  action: string
+  summary: string
+  runId: string | null
+  severity: string | null
+}
+
+export type AgentOrgBoardWarRoomAgent = {
+  key: string
+  name: string
+  podName: string
+  status: 'live' | 'idle' | 'planned'
+  latestAction: string
+}
+
+export type AgentOrgBoardSnapshot = {
+  generated_at: string
+  summary: {
+    agents: number
+    live_agents: number
+    active_work_items: number
+    unassigned_work_items: number
+    blocked_work_items: number
+    ready_for_merge: number
+    pending_approvals: number
+    activity_entries: number
+  }
+  agents: AgentOrgBoardAgent[]
+  lanes: AgentOrgBoardLane[]
+  activity: AgentOrgBoardActivity[]
+  warRoom: {
+    roster: AgentOrgBoardWarRoomAgent[]
+    commands: string[]
+    suggestedPrompt: string
+  }
+}
+
 type ClientProjectRow = {
   id: string
   project_name: string
@@ -155,6 +251,37 @@ type ApprovalRow = {
   requested_at: string
 }
 
+type AgentRunEventRow = {
+  id?: string
+  run_id: string | null
+  event_type: string
+  severity?: string | null
+  message?: string | null
+  occurred_at: string
+  metadata?: JsonRecord | null
+}
+
+type AgentWorkItemRow = {
+  id: string
+  title: string
+  objective: string | null
+  status: string
+  priority: string
+  owner_agent_key: string | null
+  owner_runtime: string | null
+  active_run_id: string | null
+  branch_name: string | null
+  worktree_path: string | null
+  pr_number: number | null
+  pr_url: string | null
+  overlap_group: string | null
+  blocker_summary: string | null
+  validation_summary: string | null
+  approval_id: string | null
+  created_at: string
+  updated_at: string
+}
+
 type ContactSubmissionRow = {
   id: number
   email: string | null
@@ -180,6 +307,14 @@ type SwarmBoardBuildInput = {
   approvals: ApprovalRow[]
   contacts?: ContactSubmissionRow[]
   audits?: DiagnosticAuditRow[]
+}
+
+type AgentOrgBoardBuildInput = {
+  runs: AgentRunRow[]
+  events: AgentRunEventRow[]
+  workItems: AgentWorkItemRow[]
+  approvals: ApprovalRow[]
+  now?: Date
 }
 
 const COLUMN_DEFINITIONS: Omit<SwarmBoardColumn, 'cards'>[] = [
@@ -523,6 +658,206 @@ export function buildAgentSwarmBoardSnapshotFromRows(input: SwarmBoardBuildInput
   }
 }
 
+function podName(podKey: AgentPodKey) {
+  return AGENT_PODS.find((pod) => pod.key === podKey)?.name ?? podKey
+}
+
+function agentName(agentKey: string | null) {
+  if (!agentKey) return 'Unassigned'
+  return getAgentByKey(agentKey)?.name ?? agentKey
+}
+
+function normalizeTaskStatus(status: string): AgentOrgBoardTaskStatus {
+  const allowed = new Set<AgentOrgBoardTaskStatus>([
+    'proposed',
+    'queued',
+    'assigned',
+    'in_progress',
+    'blocked',
+    'ready_for_review',
+    'ready_for_merge',
+    'merged',
+    'deployed',
+    'cancelled',
+  ])
+  return allowed.has(status as AgentOrgBoardTaskStatus) ? status as AgentOrgBoardTaskStatus : 'queued'
+}
+
+function normalizeTaskPriority(priority: string): AgentOrgBoardTask['priority'] {
+  if (priority === 'urgent' || priority === 'high' || priority === 'medium' || priority === 'low') return priority
+  return 'medium'
+}
+
+function isActiveRun(status: string) {
+  return status === 'queued' || status === 'running' || status === 'waiting_for_approval'
+}
+
+function isActiveWorkStatus(status: AgentOrgBoardTaskStatus) {
+  return !['merged', 'deployed', 'cancelled'].includes(status)
+}
+
+function laneKeyForTask(task: AgentWorkItemRow) {
+  if (!task.owner_agent_key || task.status === 'proposed' || task.status === 'queued') return 'inbox'
+  if (task.owner_agent_key === 'integration-captain' || task.status === 'ready_for_merge' || task.status === 'ready_for_review') return 'integration-captain'
+  return task.owner_agent_key
+}
+
+function fallbackAgentForRun(run: AgentRunRow | undefined) {
+  if (!run) return AGENT_ORGANIZATION[0]
+  if (run.agent_key) return getAgentByKey(run.agent_key) ?? AGENT_ORGANIZATION[0]
+  if (run.runtime === 'n8n') return getAgentByKey('automation-systems') ?? AGENT_ORGANIZATION[0]
+  if (run.kind?.includes('content')) return getAgentByKey('voice-content-architect') ?? AGENT_ORGANIZATION[0]
+  return AGENT_ORGANIZATION[0]
+}
+
+export function buildAgentOrgBoardSnapshotFromRows(input: AgentOrgBoardBuildInput): AgentOrgBoardSnapshot {
+  const now = input.now ?? new Date()
+  const startOfDay = new Date(now)
+  startOfDay.setHours(0, 0, 0, 0)
+
+  const runsById = new Map(input.runs.map((run) => [run.id, run]))
+  const runsByAgent = new Map<string, AgentRunRow[]>()
+  for (const run of input.runs) {
+    const agent = fallbackAgentForRun(run)
+    runsByAgent.set(agent.key, [...(runsByAgent.get(agent.key) ?? []), run])
+  }
+
+  const pendingApprovals = input.approvals.filter((approval) => approval.status === 'pending')
+  const agents: AgentOrgBoardAgent[] = AGENT_ORGANIZATION.map((agent) => {
+    const runs = runsByAgent.get(agent.key) ?? []
+    const latestRun = runs[0] ?? null
+    const live = agent.status !== 'planned' && runs.some((run) => isActiveRun(run.status))
+    const todayTurns = runs.filter((run) => new Date(run.started_at).getTime() >= startOfDay.getTime()).length
+    return {
+      key: agent.key,
+      name: agent.name,
+      podKey: agent.podKey,
+      podName: podName(agent.podKey),
+      status: agent.status,
+      runtime: agent.primaryRuntime,
+      live,
+      todayTurns,
+      latestAction: latestRun?.current_step ?? latestRun?.title ?? 'No recent traced activity',
+      latestRunId: latestRun?.id ?? null,
+    }
+  })
+
+  const tasks: AgentOrgBoardTask[] = input.workItems.map((item) => ({
+    id: item.id,
+    title: item.title,
+    objective: item.objective,
+    status: normalizeTaskStatus(item.status),
+    priority: normalizeTaskPriority(item.priority),
+    ownerAgentKey: item.owner_agent_key,
+    ownerAgentName: agentName(item.owner_agent_key),
+    ownerRuntime: item.owner_runtime,
+    branchName: item.branch_name,
+    worktreePath: item.worktree_path,
+    prNumber: item.pr_number,
+    prUrl: item.pr_url,
+    blockerSummary: item.blocker_summary,
+    validationSummary: item.validation_summary,
+    overlapGroup: item.overlap_group,
+    updatedAt: item.updated_at,
+  }))
+
+  const laneSeeds: AgentOrgBoardLane[] = [
+    {
+      key: 'inbox',
+      label: 'Inbox',
+      agentKey: null,
+      agentName: 'Unassigned',
+      status: 'idle',
+      tasks: [],
+    },
+    {
+      key: 'integration-captain',
+      label: 'Integration Captain',
+      agentKey: 'integration-captain',
+      agentName: 'Integration Captain',
+      status: 'live',
+      tasks: [],
+    },
+    ...AGENT_ORGANIZATION
+      .filter((agent) => ['chief-of-staff', 'engineering-copilot', 'automation-systems', 'research-source-register', 'voice-content-architect', 'inbox-follow-up'].includes(agent.key))
+      .map((agent): AgentOrgBoardLane => ({
+        key: agent.key,
+        label: agent.name.replace(/ Agent$/, ''),
+        agentKey: agent.key,
+        agentName: agent.name,
+        status: agent.status === 'planned' ? 'planned' : runsByAgent.get(agent.key)?.some((run) => isActiveRun(run.status)) ? 'live' : 'idle',
+        tasks: [],
+      })),
+  ]
+
+  const lanesByKey = new Map(laneSeeds.map((lane) => [lane.key, { ...lane, tasks: [] as AgentOrgBoardTask[] }]))
+  for (const item of input.workItems) {
+    const task = tasks.find((candidate) => candidate.id === item.id)
+    if (!task || !isActiveWorkStatus(task.status)) continue
+    const key = laneKeyForTask(item)
+    const lane = lanesByKey.get(key) ?? lanesByKey.get('inbox')
+    lane?.tasks.push(task)
+  }
+
+  const lanes = [...lanesByKey.values()].map((lane) => ({
+    ...lane,
+    tasks: lane.tasks.sort((a, b) => {
+      const rank: Record<AgentOrgBoardTask['priority'], number> = { urgent: 0, high: 1, medium: 2, low: 3 }
+      return rank[a.priority] - rank[b.priority] || new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    }),
+  }))
+
+  const activity: AgentOrgBoardActivity[] = input.events.slice(0, 100).map((event) => {
+    const run = event.run_id ? runsById.get(event.run_id) : undefined
+    const agent = fallbackAgentForRun(run)
+    return {
+      id: event.id ?? `${event.run_id ?? 'event'}:${event.event_type}:${event.occurred_at}`,
+      occurredAt: event.occurred_at,
+      agentKey: agent.key,
+      agentName: agent.name,
+      podKey: agent.podKey,
+      action: event.event_type,
+      summary: stringValue(event.message) ?? run?.current_step ?? run?.title ?? 'Agent Ops event recorded',
+      runId: event.run_id,
+      severity: event.severity ?? null,
+    }
+  })
+
+  const roster = agents
+    .filter((agent) => ['chief-of-staff', 'engineering-copilot', 'automation-systems', 'research-source-register', 'voice-content-architect', 'inbox-follow-up'].includes(agent.key))
+    .map((agent): AgentOrgBoardWarRoomAgent => ({
+      key: agent.key,
+      name: agent.name.replace(/ Agent$/, ''),
+      podName: agent.podName,
+      status: agent.status === 'planned' ? 'planned' : agent.live ? 'live' : 'idle',
+      latestAction: agent.latestAction,
+    }))
+
+  const activeTasks = tasks.filter((task) => isActiveWorkStatus(task.status))
+
+  return {
+    generated_at: now.toISOString(),
+    summary: {
+      agents: agents.length,
+      live_agents: agents.filter((agent) => agent.live).length,
+      active_work_items: activeTasks.length,
+      unassigned_work_items: activeTasks.filter((task) => !task.ownerAgentKey).length,
+      blocked_work_items: activeTasks.filter((task) => task.status === 'blocked').length,
+      ready_for_merge: activeTasks.filter((task) => task.status === 'ready_for_merge').length,
+      pending_approvals: pendingApprovals.length,
+      activity_entries: activity.length,
+    },
+    agents,
+    lanes,
+    activity,
+    warRoom: {
+      roster,
+      commands: ['/agent work', '/agent blockers', '/agent prs', '/agent captain'],
+      suggestedPrompt: 'Ask the team for status, blockers, overlap risk, or the next safe handoff.',
+    },
+  }
+}
+
 export async function buildAgentSwarmBoardSnapshot(): Promise<AgentSwarmBoardSnapshot> {
   if (!supabaseAdmin) throw new Error('Database not available')
   const db = supabaseAdmin
@@ -623,5 +958,45 @@ export async function buildAgentSwarmBoardSnapshot(): Promise<AgentSwarmBoardSna
     approvals: (approvalsRes.data ?? []) as ApprovalRow[],
     contacts,
     audits,
+  })
+}
+
+export async function buildAgentOrgBoardSnapshot(): Promise<AgentOrgBoardSnapshot> {
+  if (!supabaseAdmin) throw new Error('Database not available')
+  const db = supabaseAdmin
+
+  const [runsRes, eventsRes, workItemsRes, approvalsRes] = await Promise.all([
+    db
+      .from('agent_runs')
+      .select('id, agent_key, runtime, kind, title, status, subject_type, subject_id, subject_label, current_step, error_message, started_at, completed_at, metadata')
+      .order('started_at', { ascending: false })
+      .limit(150),
+    db
+      .from('agent_run_events')
+      .select('id, run_id, event_type, severity, message, occurred_at, metadata')
+      .order('occurred_at', { ascending: false })
+      .limit(120),
+    db
+      .from('agent_work_items')
+      .select('id, title, objective, status, priority, owner_agent_key, owner_runtime, active_run_id, branch_name, worktree_path, pr_number, pr_url, overlap_group, blocker_summary, validation_summary, approval_id, created_at, updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(100),
+    db
+      .from('agent_approvals')
+      .select('id, run_id, approval_type, status, requested_at')
+      .eq('status', 'pending')
+      .order('requested_at', { ascending: false })
+      .limit(75),
+  ])
+
+  for (const result of [runsRes, eventsRes, workItemsRes, approvalsRes]) {
+    if (result.error) throw new Error(result.error.message)
+  }
+
+  return buildAgentOrgBoardSnapshotFromRows({
+    runs: (runsRes.data ?? []) as AgentRunRow[],
+    events: (eventsRes.data ?? []) as AgentRunEventRow[],
+    workItems: (workItemsRes.data ?? []) as AgentWorkItemRow[],
+    approvals: (approvalsRes.data ?? []) as ApprovalRow[],
   })
 }
