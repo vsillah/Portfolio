@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { ADMIN_NAV } from '@/lib/admin-nav'
 import CredentialAdminPage from './page'
 
 vi.mock('@/components/ProtectedRoute', () => ({
@@ -117,5 +118,18 @@ describe('CredentialAdminPage', () => {
       })
     })
     expect(await screen.findByText('Portfolio / prod')).toBeInTheDocument()
+  })
+
+  it('is linked from Configuration admin navigation', () => {
+    const configurationCategory = ADMIN_NAV.categories.find((category) => category.label === 'Configuration')
+
+    expect(configurationCategory?.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Credential Reporting',
+          href: '/admin/credentials',
+        }),
+      ])
+    )
   })
 })

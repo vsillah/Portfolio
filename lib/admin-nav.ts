@@ -91,6 +91,7 @@ export const ADMIN_NAV: { dashboard: AdminNavItem; categories: AdminNavCategory[
         { label: 'User Management', href: '/admin/users' },
         { label: 'System Prompts', href: '/admin/prompts' },
         { label: 'Module Sync', href: '/admin/module-sync' },
+        { label: 'Credential Reporting', href: '/admin/credentials' },
         { label: 'Email Preview', href: '/admin/email-preview' },
       ],
       expandableItemHref: '/admin/content',

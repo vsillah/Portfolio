@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
-import { buildCredentialReport, renderCredentialReportMarkdown, type CredentialInventory } from './credential-report'
+import {
+  buildCredentialBaselineTemplate,
+  buildCredentialReport,
+  renderCredentialBaselineTemplateMarkdown,
+  renderCredentialReportMarkdown,
+  type CredentialInventory,
+} from './credential-report'
 
 const inventory: CredentialInventory = {
   schemaVersion: 1,
@@ -110,5 +116,27 @@ describe('credential report', () => {
     expect(markdown).not.toContain('super-secret')
 
     vi.useRealTimers()
+  })
+
+  it('builds a provider-confirmation template for missing baselines', () => {
+    const entries = buildCredentialBaselineTemplate(inventory, 'staging', '2026-05-09')
+
+    expect(entries).toHaveLength(1)
+    expect(entries[0]).toMatchObject({
+      secretId: 'missing-baseline',
+      envVar: 'MISSING_BASELINE',
+      sourceOfTruth: '1password',
+      baseline: {
+        status: 'pending-provider-confirmation',
+        lastRotatedAt: null,
+        updatedAt: '2026-05-09',
+      },
+    })
+    expect(entries[0].baseline.evidence).toContain('TODO: Confirm MISSING_BASELINE staging rotation date')
+
+    const markdown = renderCredentialBaselineTemplateMarkdown('staging', entries)
+    expect(markdown).toContain('Credential Baseline Template (staging)')
+    expect(markdown).toContain('MISSING_BASELINE')
+    expect(markdown).not.toContain('super-secret')
   })
 })
