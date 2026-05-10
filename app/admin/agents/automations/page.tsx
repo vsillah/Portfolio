@@ -108,6 +108,33 @@ type AutomationInventoryResponse = {
     sourceFile: string
     operationalBoundary: string
   }[]
+  workspaceRoots: {
+    available: boolean
+    reason?: string
+    generatedAt: string
+    expectedRoot: string
+    stateDatabase: string
+    globalStateFile: string
+    savedWorkspaceRoots: string[]
+    activeWorkspaceRoots: string[]
+    projectOrderRoots: string[]
+    threadRoots: {
+      cwd: string
+      activeCount: number
+      portfolioRoot: boolean
+    }[]
+    overview: {
+      activeThreads: number
+      portfolioThreads: number
+      nonPortfolioThreads: number
+      savedRootDrift: number
+      activeRootDrift: number
+      projectOrderDrift: number
+    }
+    health: AutomationContextHealth
+    warnings: string[]
+    operationalBoundary: string
+  }
 }
 
 const ALL = 'all'
@@ -251,6 +278,8 @@ function AgentAutomationsContent() {
               docWarnings={docWarnings}
             />
 
+            <WorkspaceRootVisibility report={inventory.workspaceRoots} />
+
             <MemoryOrganizationProgress progress={inventory.progress} />
 
             <div className="mb-6 inline-flex rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-1">
@@ -374,6 +403,96 @@ function AutomationTable({
         </tbody>
       </table>
     </div>
+  )
+}
+
+function WorkspaceRootVisibility({ report }: { report: AutomationInventoryResponse['workspaceRoots'] }) {
+  if (!report.available) {
+    return (
+      <section className="mb-6 rounded-lg border border-yellow-400/40 bg-yellow-500/10 p-5 text-yellow-100">
+        <div className="mb-2 flex items-center gap-2 font-medium">
+          <ShieldAlert size={18} />
+          Codex workspace-root visibility unavailable
+        </div>
+        <p className="text-sm">{report.reason || 'Local Codex workspace state could not be read from this environment.'}</p>
+        <p className="mt-3 text-xs text-yellow-100/80">Expected root: {report.expectedRoot}</p>
+      </section>
+    )
+  }
+
+  const driftCount = report.overview.nonPortfolioThreads + report.overview.savedRootDrift + report.overview.activeRootDrift + report.overview.projectOrderDrift
+
+  return (
+    <section className="mb-6 rounded-lg border border-silicon-slate/70 bg-silicon-slate/20 p-5">
+      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-semibold text-radiant-gold">Codex Workspace Roots</h2>
+            <ContextBadge health={report.health} />
+          </div>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Read-only view of Codex Desktop roots and active thread placement. Expected root: {report.expectedRoot}.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-2 text-right text-xs">
+          <DetailPill label="Active threads" value={String(report.overview.activeThreads)} />
+          <DetailPill label="Portfolio" value={String(report.overview.portfolioThreads)} />
+          <DetailPill label="Drift" value={String(driftCount)} />
+        </div>
+      </div>
+
+      {report.warnings.length > 0 ? (
+        <div className="mb-4 grid grid-cols-1 lg:grid-cols-2 gap-3">
+          {report.warnings.map((warning) => (
+            <div key={warning} className="rounded-lg border border-yellow-400/30 bg-yellow-500/10 p-3 text-sm text-yellow-100">
+              <div className="flex items-center gap-2"><AlertTriangle size={16} /> {warning}</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="mb-4 rounded-lg border border-green-400/30 bg-green-500/10 p-3 text-sm text-green-100">
+          <div className="flex items-center gap-2"><CheckCircle2 size={16} /> Active Codex roots are aligned with Portfolio.</div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_360px] gap-4">
+        <div className="overflow-hidden rounded-lg border border-silicon-slate/70">
+          <table className="w-full text-sm">
+            <thead className="bg-silicon-slate/40 text-muted-foreground">
+              <tr>
+                <th className="text-left px-4 py-3 font-medium">Thread root</th>
+                <th className="text-left px-4 py-3 font-medium">Active chats</th>
+                <th className="text-left px-4 py-3 font-medium">Alignment</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-silicon-slate/60">
+              {report.threadRoots.length > 0 ? report.threadRoots.map((root) => (
+                <tr key={root.cwd}>
+                  <td className="px-4 py-3 break-all">{root.cwd}</td>
+                  <td className="px-4 py-3">{root.activeCount}</td>
+                  <td className="px-4 py-3">
+                    {root.portfolioRoot ? <ContextBadge health="green" /> : <ContextBadge health="yellow" />}
+                  </td>
+                </tr>
+              )) : (
+                <tr>
+                  <td className="px-4 py-3 text-muted-foreground" colSpan={3}>No active thread roots were found.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="space-y-4 text-sm">
+          <ContextList label="Saved workspace roots" values={report.savedWorkspaceRoots} />
+          <ContextList label="Active workspace roots" values={report.activeWorkspaceRoots} />
+          <ContextList label="Project order roots" values={report.projectOrderRoots} />
+          <div className="rounded-lg border border-silicon-slate/60 bg-black/10 p-3 text-xs text-muted-foreground">
+            {report.operationalBoundary}
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }
 
