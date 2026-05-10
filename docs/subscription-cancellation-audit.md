@@ -31,12 +31,19 @@ Summary:
   configured Apify actor as equally valuable. Pause or replace the weak
   surfaces first, then run replacement tests against only the productive
   categories before the next renewal decision.
+- Replacement gate added after checking current primary-source pricing/terms:
+  test Brave Search against Reddit/Capterra evidence capture, Google Places API
+  against Google Maps discovery, and browser/manual sampling against LinkedIn
+  post search. Do not benchmark no-run or empty-output actors until a workflow
+  owner proves the campaign still needs that source.
 
 Raw Findings
 
 - Token source: existing local `APIFY_TOKEN`; values were not printed.
 - Evidence source updated: `/docs/apify-call-bakeoff-analysis.md`.
 - Dashboard data updated: `/docs/subscription-status.json`.
+- Pricing/terms checked from Brave Search API, Google Maps Platform pricing,
+  Reddit Data API Wiki, and Reddit Data API Terms on 2026-05-09.
 - No shared cost-event schema changes and no production write actions.
 
 ## 2026-05-09 Budget Query Readiness Update
