@@ -38,6 +38,25 @@ Purpose: keep Apify under active watch, identify every current Portfolio call su
 
 Current read: Apify's $39/month subscription is not justified by all configured actors equally. Four actor categories produced useful-looking volume in the sample: Reddit listening, Google Maps, LinkedIn post search, and Capterra reviews. Eight configured surfaces are no-run, failing, or empty-output and should be paused, replaced, or retired before Apify is treated as a durable default.
 
+## Replacement Bakeoff Gate
+
+Run replacement tests only for the productive categories. Do not spend time
+benchmarking no-run, failing, or empty-output actors until a workflow owner
+proves the campaign still needs that source.
+
+| Productive category | Current Apify signal | Replacement to test first | Why this is the first challenger | Gate |
+| --- | ---: | --- | --- | --- |
+| Reddit listening | 72 items / $0.47360 | Brave Search API with Reddit/source filters, then official Reddit Data API only if terms fit | Brave is $5 per 1,000 search requests with $5 monthly credits, which is enough for a low-volume evidence monitor. Reddit's official free API has rate limits and commercial use can require a separate agreement. | Promote replacement only if it captures the same conversations with lower review burden and acceptable source attribution. |
+| Google Maps | 68 items / $0.58600 | Google Places API Text Search/Nearby Search with field masks and strict quotas | Google Places pricing is transparent; Text Search/Nearby Search Pro list 5,000 free monthly calls, then $32 per 1,000 for the first paid tier. This can beat Apify if the workflow needs verified place data instead of broad scraping. | Promote only if Places returns enough qualified businesses with required fields while staying inside the free/low-tier quota. |
+| LinkedIn post search | 135 items / $0.27220 | Browser-agent sampling plus manual review packet | This is the strongest current Apify value signal, but LinkedIn-style extraction has account and compliance risk. A browser/manual packet should test whether smaller sampled searches produce enough accepted leads. | Keep Apify unless the replacement returns comparable accepted leads without increasing account risk or manual time. |
+| Capterra reviews | 40 items / $0.62400 | Brave Search or browser capture into a source register | Review-site evidence is usually sparse and source-sensitive. A search/browser capture may be cheaper if it preserves URLs, snippets, and review context without needing a dedicated actor. | Promote only if accepted evidence quality matches Apify and source URLs remain reviewable. |
+
+Source notes for the bakeoff packet:
+
+- Google Maps Platform pricing should be checked from the official pricing page before each run; as of the 2026-05-09 check, Places API Text Search Pro and Nearby Search Pro list 5,000 free monthly calls and then $32 per 1,000 in the first paid tier.
+- Brave Search API pricing should be checked from Brave before each run; as of the 2026-05-09 check, Search is listed at $5 per 1,000 requests with $5 monthly credits.
+- Reddit source use must be reviewed against Reddit's Data API Wiki and Data API Terms before any commercial workflow uses official Reddit API data. The official wiki lists 100 QPM free-access limits for eligible OAuth clients; the terms say commercial or out-of-scope use may require a separate agreement.
+
 ## Configured Apify Call Surfaces
 
 | Workflow | Node | Actor | Purpose | Replacement candidates |
