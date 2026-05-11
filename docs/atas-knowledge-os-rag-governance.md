@@ -7,14 +7,14 @@ namespace routing, approval gates, and Agent Ops visibility.
 ## Operating Owner
 
 - **Pod:** Research & Knowledge
-- **Primary agent:** Private Knowledge Librarian
-- **Source classification owner:** Research & Source Register Agent
-- **Escalation owner:** Chief of Staff Agent
+- **Primary agent:** Hatshepsut (Kemet) - Private Knowledge Librarian
+- **Source classification owner:** Askia Muhammad (Songhai) - Research Source Register
+- **Escalation owner:** Shaka (Zulu) - Chief of Staff
 
-The Private Knowledge Librarian owns ingestion runs, Pinecone namespaces,
+The Hatshepsut (Kemet) - Private Knowledge Librarian owns ingestion runs, Pinecone namespaces,
 metadata completeness, duplicate detection, privacy checks, and retrieval health.
-The Research & Source Register Agent classifies source material before it is
-eligible for ingestion. The Chief of Staff Agent escalates failed health checks,
+The Askia Muhammad (Songhai) - Research Source Register classifies source material before it is
+eligible for ingestion. The Shaka (Zulu) - Chief of Staff escalates failed health checks,
 privacy violations, eval regressions, and production cutover decisions.
 
 ## Index Strategy

@@ -37,7 +37,7 @@ describe('POST /api/admin/agents/war-room', () => {
       updates: [
         {
           agent_key: 'chief-of-staff',
-          agent_name: 'Chief of Staff Agent',
+          agent_name: 'Shaka (Zulu) - Chief of Staff',
           pod: 'Chief of Staff',
           runtime: 'mixed',
           status: 'partial',

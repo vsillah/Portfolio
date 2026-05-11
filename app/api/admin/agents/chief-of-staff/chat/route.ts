@@ -12,7 +12,7 @@ export const maxDuration = 60
 /**
  * POST /api/admin/agents/chief-of-staff/chat
  *
- * Admin-only conversational entrypoint for the Chief of Staff Agent. V1 is
+ * Admin-only conversational entrypoint for the Shaka (Zulu) - Chief of Staff. V1 is
  * read-only: it summarizes operating context and records an observable
  * agent_run, but it does not mutate production workflow data.
  */

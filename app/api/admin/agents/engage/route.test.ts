@@ -67,7 +67,7 @@ describe('POST /api/admin/agents/engage', () => {
       ok: true,
       run_id: 'engagement-run-1',
       agent_key: 'chief-of-staff',
-      agent_name: 'Chief of Staff Agent',
+      agent_name: 'Shaka (Zulu) - Chief of Staff',
       status: 'completed',
       work_packet_attached: true,
       dispatch_artifact_attached: true,
@@ -87,9 +87,9 @@ describe('POST /api/admin/agents/engage', () => {
     expect(mocks.attachAgentArtifact).toHaveBeenCalledWith(expect.objectContaining({
       runId: 'engagement-run-1',
       artifactType: 'agent_engagement_work_packet',
-      title: 'Chief of Staff Agent work packet',
+      title: 'Shaka (Zulu) - Chief of Staff work packet',
       metadata: expect.objectContaining({
-        summary_markdown: expect.stringContaining('Chief of Staff Agent Work Packet'),
+        summary_markdown: expect.stringContaining('Shaka (Zulu) - Chief of Staff Work Packet'),
         suggested_next_action: expect.any(String),
         executes_action: false,
       }),
@@ -105,9 +105,9 @@ describe('POST /api/admin/agents/engage', () => {
     expect(mocks.attachAgentArtifact).toHaveBeenCalledWith(expect.objectContaining({
       runId: 'engagement-run-1',
       artifactType: 'agent_read_only_dispatch',
-      title: 'Chief of Staff Agent read-only dispatch',
+      title: 'Shaka (Zulu) - Chief of Staff read-only dispatch',
       metadata: expect.objectContaining({
-        summary_markdown: expect.stringContaining('Chief of Staff Agent Read-Only Dispatch'),
+        summary_markdown: expect.stringContaining('Shaka (Zulu) - Chief of Staff Read-Only Dispatch'),
         executes_action: false,
       }),
     }))
@@ -131,7 +131,7 @@ describe('POST /api/admin/agents/engage', () => {
       ok: true,
       run_id: 'engagement-run-1',
       agent_key: 'strategic-narrative',
-      agent_name: 'Strategic Narrative Agent',
+      agent_name: 'Amina (Zazzau) - Strategic Narrative',
       status: 'queued',
       work_packet_attached: true,
       dispatch_artifact_attached: false,

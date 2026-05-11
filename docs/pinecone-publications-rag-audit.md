@@ -12,8 +12,8 @@ as part of this audit.
 - Legacy index: `publications`
 - New target index: `amadutown-knowledge-v1`
 - Legacy index treatment: audit and rollback only
-- Operational owner: Private Knowledge Librarian
-- Escalation owner: Chief of Staff Agent
+- Operational owner: Hatshepsut (Kemet) - Private Knowledge Librarian
+- Escalation owner: Shaka (Zulu) - Chief of Staff
 
 ## Observed Legacy State
 

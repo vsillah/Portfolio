@@ -365,7 +365,7 @@ describe('buildAgentSwarmBoardSnapshotFromRows', () => {
               column: 'qa_isolation',
               stage: 'qa_isolation',
               owner_agent_key: 'engineering-copilot',
-              owner_agent_label: 'Engineering Copilot Agent',
+              owner_agent_label: 'Piye (Kush) - Engineering Copilot',
               approval_posture: 'required',
               isolation_required: true,
               internal_handoff_label: 'Run synthetic validation packet',
@@ -382,7 +382,7 @@ describe('buildAgentSwarmBoardSnapshotFromRows', () => {
     expect(qaColumn?.cards).toHaveLength(1)
     expect(qaColumn?.cards[0]).toMatchObject({
       currentAgentKey: 'engineering-copilot',
-      currentAgentLabel: 'Engineering Copilot Agent',
+      currentAgentLabel: 'Piye (Kush) - Engineering Copilot',
       nextAction: 'Run synthetic validation packet',
       approvalState: 'required',
       isolationStatus: 'pending',
@@ -647,13 +647,13 @@ describe('buildAgentOrgBoardSnapshotFromRows', () => {
     expect(snapshot.activity[0]).toMatchObject({
       id: 'event-n8n',
       agentKey: 'automation-systems',
-      agentName: 'Automation Systems Agent',
+      agentName: 'Yaa Asantewaa (Ashanti) - Automation Systems',
       summary: 'Workflow dispatch completed',
     })
     expect(snapshot.activity[1]).toMatchObject({
       id: 'event-content',
       agentKey: 'voice-content-architect',
-      agentName: 'Voice & Content Architect',
+      agentName: 'Nefertiti (Kemet) - Voice & Content Architect',
       summary: 'Content draft ready for review',
     })
   })

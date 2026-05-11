@@ -54,7 +54,7 @@ describe('GET /api/admin/agents/swarm-board', () => {
               column: 'decision_packet',
               priority: 'medium',
               currentAgentKey: 'technology-evaluator',
-              currentAgentLabel: 'Technology Evaluator',
+              currentAgentLabel: 'Imhotep (Kemet) - Technology Evaluator',
               nextAction: 'Prepare LLM, RAG, and auth decision packet',
               statusLabel: 'active',
               riskLabel: 'read-only handoff safe',

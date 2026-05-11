@@ -148,8 +148,8 @@ describe('Agent Mission Control helpers', () => {
     expect(queue[0]).toMatchObject({
       run_id: 'engagement-run',
       agent_key: 'automation-systems',
-      agent_name: 'Automation Systems Agent',
-      owner_label: 'Automation Systems Agent',
+      agent_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
+      owner_label: 'Yaa Asantewaa (Ashanti) - Automation Systems',
       runtime: 'manual',
       status: 'completed',
       execution_mode: 'read_only',
@@ -192,7 +192,7 @@ describe('Agent Mission Control helpers', () => {
 
     expect(queue).toHaveLength(2)
     expect(queue.find((item) => item.run_id === 'failed-run')).toMatchObject({
-      agent_name: 'Automation Systems Agent',
+      agent_name: 'Yaa Asantewaa (Ashanti) - Automation Systems',
       routed: true,
       routed_run_id: 'routed-engagement',
       routed_kind: 'agent_engagement_request',
@@ -321,7 +321,7 @@ describe('Agent Mission Control helpers', () => {
     expect(summary.linked_event_count).toBe(2)
     expect(summary.unlinked_event_count).toBe(1)
     expect(summary.by_runtime[0]).toMatchObject({ key: 'n8n', amount: 0.2555, run_count: 1 })
-    expect(summary.by_agent[0]).toMatchObject({ key: 'automation-systems', label: 'Automation Systems Agent' })
+    expect(summary.by_agent[0]).toMatchObject({ key: 'automation-systems', label: 'Yaa Asantewaa (Ashanti) - Automation Systems' })
     expect(summary.by_workflow[0]).toMatchObject({ key: 'WF-WRM-003', label: 'WF-WRM-003' })
     expect(summary.by_client_project[0]).toMatchObject({ key: 'ATAS Staging', label: 'ATAS Staging' })
     expect(summary.by_artifact_type[0]).toMatchObject({ key: 'warm_lead', label: 'warm lead' })

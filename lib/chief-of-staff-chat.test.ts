@@ -155,7 +155,7 @@ describe('Chief of Staff chat helpers', () => {
     expect(result.agentEngagements).toEqual([
       {
         agentKey: 'research-source-register',
-        agentName: 'Research & Source Register Agent',
+        agentName: 'Askia Muhammad (Songhai) - Research Source Register',
         label: 'Run research agent',
         rationale: 'Gather source-backed context for this decision.',
         status: 'partial',
@@ -185,7 +185,7 @@ describe('Chief of Staff chat helpers', () => {
   it('evaluates the Chief of Staff LLM budget before dispatch', () => {
     const decision = evaluateChiefOfStaffBudget({
       model: 'gpt-4o-mini',
-      systemPrompt: 'You are the Chief of Staff Agent.',
+      systemPrompt: 'You are the Shaka (Zulu) - Chief of Staff.',
       userPrompt: 'Summarize the current operating state.',
       maxTokens: 900,
     })
