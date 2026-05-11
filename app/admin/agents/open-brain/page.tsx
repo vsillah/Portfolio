@@ -158,11 +158,13 @@ function OpenBrainContent() {
 
             <div className="mb-6 grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-3">
               <MetricCard label="Sources" value={snapshot.overview.sources} tone="slate" />
+              <MetricCard label="Events" value={snapshot.overview.events} tone={snapshot.overview.events ? 'green' : 'slate'} />
               <MetricCard label="Memories" value={snapshot.overview.memories} tone={snapshot.overview.memories ? 'green' : 'yellow'} />
               <MetricCard label="Pending" value={snapshot.overview.pendingProposals} tone={snapshot.overview.pendingProposals ? 'yellow' : 'slate'} />
               <MetricCard label="Approved" value={snapshot.overview.approvedProposals} tone="green" />
               <MetricCard label="Rejected" value={snapshot.overview.rejectedProposals} tone="slate" />
               <MetricCard label="Wiki pages" value={snapshot.overview.wikiPages} tone={snapshot.overview.wikiPages ? 'green' : 'yellow'} />
+              <MetricCard label="RAG docs" value={snapshot.overview.ragProjectionDocuments} tone={snapshot.overview.ragProjectionDocuments ? 'green' : 'slate'} />
               <MetricCard label="Stale sources" value={snapshot.overview.staleSources} tone={snapshot.overview.staleSources ? 'yellow' : 'slate'} />
               <MetricCard label="Private" value={snapshot.overview.privateRecords} tone={snapshot.overview.privateRecords ? 'red' : 'slate'} />
               <MetricCard label="Router lanes" value={snapshot.modelOps.routerDecisions.length} tone={snapshot.modelOps.available ? 'green' : 'yellow'} />

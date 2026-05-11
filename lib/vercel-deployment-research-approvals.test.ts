@@ -5,6 +5,9 @@ const mocks = vi.hoisted(() => ({
   createAgentWorkItem: vi.fn(),
   recordAgentEvent: vi.fn(),
   notify: vi.fn(),
+  fingerprintOpenBrainRecord: vi.fn((parts: unknown[]) => `fingerprint:${parts.join(':')}`),
+  recordOpenBrainEvent: vi.fn(),
+  recordOpenBrainSource: vi.fn(),
   from: vi.fn(),
   approvalInsert: vi.fn(),
   approvalUpdate: vi.fn(),
@@ -22,6 +25,12 @@ vi.mock('./agent-run', () => ({
 
 vi.mock('./vercel-autoresearch-notification', () => ({
   notifyVercelResearchApprovalReady: mocks.notify,
+}))
+
+vi.mock('./open-brain', () => ({
+  fingerprintOpenBrainRecord: mocks.fingerprintOpenBrainRecord,
+  recordOpenBrainEvent: mocks.recordOpenBrainEvent,
+  recordOpenBrainSource: mocks.recordOpenBrainSource,
 }))
 
 vi.mock('./supabase', () => ({
@@ -120,6 +129,14 @@ describe('createVercelResearchApproval', () => {
     vi.clearAllMocks()
     mocks.recordAgentEvent.mockResolvedValue({ id: 'event-1' })
     mocks.notify.mockResolvedValue(true)
+    mocks.recordOpenBrainSource.mockResolvedValue({
+      id: 'autoresearch:proposal:next-build-profile',
+      kind: 'autoresearch_proposal',
+    })
+    mocks.recordOpenBrainEvent.mockResolvedValue({
+      id: 'event:autoresearch-proposal-created:next-build-profile',
+      kind: 'autoresearch_proposal_created',
+    })
   })
 
   it('creates one pending approval and dispatches one notification intent', async () => {
@@ -148,6 +165,17 @@ describe('createVercelResearchApproval', () => {
       }),
     }))
     expect(mocks.notify).toHaveBeenCalledTimes(1)
+    expect(mocks.recordOpenBrainSource).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'autoresearch:proposal:next-build-profile',
+      kind: 'autoresearch_proposal',
+      privacyTier: 'internal_ops',
+    }))
+    expect(mocks.recordOpenBrainEvent).toHaveBeenCalledWith(expect.objectContaining({
+      id: 'event:autoresearch-proposal-created:next-build-profile',
+      kind: 'autoresearch_proposal_created',
+      sourceIds: ['autoresearch:proposal:next-build-profile'],
+      metadata: expect.objectContaining({ executesAction: false }),
+    }))
     expect(mocks.approvalUpdate).toHaveBeenCalledWith(expect.objectContaining({
       metadata: expect.objectContaining({
         notification: expect.objectContaining({

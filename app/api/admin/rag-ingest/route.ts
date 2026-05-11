@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isAuthError, verifyAdmin } from '@/lib/auth-server'
 import { endAgentRun, recordAgentEvent, startAgentRun } from '@/lib/agent-run'
 import { buildKnowledgeIngestionPlan } from '@/lib/knowledge-ingestion'
+import { fingerprintOpenBrainRecord, recordOpenBrainEvent, recordOpenBrainSource } from '@/lib/open-brain'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,6 +49,10 @@ export async function POST(request: NextRequest) {
     triggerSource: isN8nAuth ? 'n8n' : 'admin',
     requestedWrite,
   })
+  await recordKnowledgeIngestOpenBrainTrace(plan, {
+    triggerSource: isN8nAuth ? 'n8n' : 'admin',
+    requestedWrite,
+  })
 
   return NextResponse.json(
     {
@@ -59,6 +64,65 @@ export async function POST(request: NextRequest) {
     },
     { status: plan.ok ? 200 : 422 },
   )
+}
+
+async function recordKnowledgeIngestOpenBrainTrace(
+  plan: Awaited<ReturnType<typeof buildKnowledgeIngestionPlan>>,
+  context: { triggerSource: string; requestedWrite: boolean },
+) {
+  try {
+    const source = await recordOpenBrainSource({
+      id: `rag-projection:shadow-plan:${plan.ingestRunId}`,
+      kind: context.requestedWrite ? 'pinecone_projection' : 'rag_projection',
+      title: 'Governed RAG ingestion shadow plan',
+      summary: context.requestedWrite
+        ? 'Pinecone write was requested but blocked pending explicit cutover approval.'
+        : `Prepared shadow-only RAG projection with ${plan.chunkCount} chunk(s) from approved sources.`,
+      path: 'app/api/admin/rag-ingest/route.ts',
+      privacyTier: 'internal_ops',
+      confidence: plan.ok ? 0.86 : 0.65,
+      fingerprint: fingerprintOpenBrainRecord([
+        'rag_projection_shadow_plan',
+        plan.ingestRunId,
+        plan.targetIndex,
+        plan.chunkCount,
+        plan.errors.join('|'),
+        context.requestedWrite,
+      ]),
+    })
+
+    await recordOpenBrainEvent({
+      id: `event:rag-projection-staged:${plan.ingestRunId}`,
+      kind: 'rag_projection_staged',
+      title: 'RAG projection staged',
+      summary: plan.ok
+        ? `Staged ${plan.chunkCount} governed chunk(s). Pinecone write status remains blocked pending approval.`
+        : `RAG projection failed validation with ${plan.errors.length} error(s).`,
+      privacyTier: 'internal_ops',
+      confidence: plan.ok ? 0.86 : 0.65,
+      sourceIds: [source.id],
+      fingerprint: fingerprintOpenBrainRecord([
+        'rag_projection_staged',
+        plan.ingestRunId,
+        plan.chunkCount,
+        plan.privacyViolations.length,
+        context.requestedWrite,
+      ]),
+      metadata: {
+        ingestRunId: plan.ingestRunId,
+        targetIndex: plan.targetIndex,
+        legacyIndex: plan.legacyIndex,
+        triggerSource: context.triggerSource,
+        requestedWrite: context.requestedWrite,
+        writeStatus: context.requestedWrite ? 'blocked_pending_pinecone_cutover_approval' : 'shadow_plan_only',
+        chunkCount: plan.chunkCount,
+        sourceCount: plan.sourceCount,
+        privacyViolationCount: plan.privacyViolations.length,
+      },
+    })
+  } catch (error) {
+    console.warn('[rag-ingest] Open Brain trace skipped:', error instanceof Error ? error.message : error)
+  }
 }
 
 function summarizePlan(plan: Awaited<ReturnType<typeof buildKnowledgeIngestionPlan>>) {

@@ -4,6 +4,7 @@ import {
   compileKarpathyWikiOverlay,
   createOpenBrainProposal,
   getOpenBrainSnapshot,
+  linkOpenBrainRecords,
   type OpenBrainMemoryKind,
   type OpenBrainPrivacyTier,
 } from '../lib/open-brain'
@@ -49,7 +50,7 @@ const tools = [
   },
   {
     name: 'link_memory_to_source',
-    description: 'Return a proposal payload for linking memory and source records. Link persistence is approval-gated in V1.',
+    description: 'Create an auditable local Open Brain link between an approved memory and source record.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -102,7 +103,7 @@ async function callTool(name: string, args: Record<string, unknown>) {
   const snapshot = await getOpenBrainSnapshot()
   if (name === 'get_context_packet') return asText(snapshot.contextPacket)
   if (name === 'list_pending_memory_proposals') return asText(snapshot.proposals.filter((proposal) => proposal.status === 'pending'))
-  if (name === 'compile_wiki_overlay') return asText({ mode: 'preview', pages: compileKarpathyWikiOverlay(snapshot.memories) })
+  if (name === 'compile_wiki_overlay') return asText({ mode: 'preview', pages: compileKarpathyWikiOverlay(snapshot.memories, snapshot.events) })
   if (name === 'search_memory') {
     const query = String(args.query || '').toLowerCase()
     return asText({
@@ -124,14 +125,19 @@ async function callTool(name: string, args: Record<string, unknown>) {
     return asText({ proposal, approvalRequired: true })
   }
   if (name === 'link_memory_to_source') {
+    const memoryId = String(args.memoryId || '')
+    const sourceId = String(args.sourceId || '')
+    const relationship = String(args.relationship || '')
+    if (!snapshot.memories.some((memory) => memory.id === memoryId)) throw new Error('Memory not found.')
+    if (!snapshot.sources.some((source) => source.id === sourceId)) throw new Error('Source not found.')
+    const link = await linkOpenBrainRecords({
+      fromId: memoryId,
+      toId: sourceId,
+      relationship,
+    })
     return asText({
-      approvalRequired: true,
-      link: {
-        memoryId: args.memoryId,
-        sourceId: args.sourceId,
-        relationship: args.relationship,
-      },
-      note: 'V1 returns a link proposal payload only; durable link persistence should go through proposal review.',
+      link,
+      note: 'Link recorded locally. This does not promote any memory, mutate agent config, or write to public docs.',
     })
   }
   throw new Error(`Unknown tool: ${name}`)
