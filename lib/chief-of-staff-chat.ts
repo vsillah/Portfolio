@@ -82,8 +82,7 @@ type AgentApprovalSummaryRow = {
 
 type CostSummaryRow = {
   amount: number | string | null
-  provider: string | null
-  model: string | null
+  metadata?: Record<string, unknown> | null
 }
 
 export type ChiefOfStaffAutomationContext = {
@@ -426,7 +425,7 @@ export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext>
       .limit(10),
     db
       .from('cost_events')
-      .select('amount, provider, model')
+      .select('amount, metadata')
       .gte('occurred_at', since)
       .limit(100),
     listCodexAutomationInventory(),
@@ -440,6 +439,12 @@ export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext>
 
   const costRows = (costsRes.data ?? []) as CostSummaryRow[]
   const totalUsd = costRows.reduce((sum, row) => sum + Number(row.amount ?? 0), 0)
+  const costProviders = costRows
+    .map((row) => row.metadata?.provider)
+    .filter((provider): provider is string => typeof provider === 'string' && provider.length > 0)
+  const costModels = costRows
+    .map((row) => row.metadata?.model)
+    .filter((model): model is string => typeof model === 'string' && model.length > 0)
 
   return {
     generatedAt: new Date().toISOString(),
@@ -450,8 +455,8 @@ export async function collectChiefOfStaffContext(): Promise<ChiefOfStaffContext>
     costEvents24h: {
       count: costRows.length,
       totalUsd: Number(totalUsd.toFixed(4)),
-      providers: Array.from(new Set(costRows.map((row) => row.provider).filter(Boolean) as string[])),
-      models: Array.from(new Set(costRows.map((row) => row.model).filter(Boolean) as string[])),
+      providers: Array.from(new Set(costProviders)),
+      models: Array.from(new Set(costModels)),
     },
     automationContext: summarizeAutomationContext(automationInventory),
   }
