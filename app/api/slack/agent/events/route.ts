@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { waitUntil } from '@vercel/functions'
-import { handleSlackAgentEvent, type SlackAgentEventPayload } from '@/lib/agent-slack-events'
+import {
+  handleSlackAgentEvent,
+  shouldHandleSlackAgentEvent,
+  type SlackAgentEventPayload,
+} from '@/lib/agent-slack-events'
 import { verifySlackSignature } from '@/lib/slack-signature'
 
 export const dynamic = 'force-dynamic'
@@ -34,6 +38,10 @@ export async function POST(request: NextRequest) {
 
     if (request.headers.get('x-slack-retry-num')) {
       return NextResponse.json({ ok: true, skipped: 'slack_retry' })
+    }
+
+    if (payload.type === 'event_callback' && !shouldHandleSlackAgentEvent(payload.event)) {
+      return NextResponse.json({ ok: true, skipped: 'unsupported_event' })
     }
 
     waitUntil(handleSlackAgentEvent(payload))

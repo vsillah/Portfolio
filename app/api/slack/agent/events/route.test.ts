@@ -8,6 +8,20 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/lib/agent-slack-events', () => ({
   handleSlackAgentEvent: mocks.handleSlackAgentEvent,
+  shouldHandleSlackAgentEvent: (event?: {
+    type?: string
+    bot_id?: string
+    subtype?: string
+    user?: string
+    channel?: string
+    channel_type?: string
+  }) => {
+    if (!event) return false
+    if (event.bot_id || event.subtype) return false
+    if (!event.user || !event.channel) return false
+    if (event.type === 'app_mention') return true
+    return event.type === 'message' && event.channel_type === 'im'
+  },
 }))
 
 vi.mock('@vercel/functions', () => ({
@@ -85,6 +99,28 @@ describe('POST /api/slack/agent/events', () => {
     expect(await response.json()).toEqual({ ok: true })
     expect(mocks.handleSlackAgentEvent).toHaveBeenCalledWith(payload)
     expect(mocks.waitUntil).toHaveBeenCalledWith(expect.any(Promise))
+  })
+
+  it('acknowledges unsupported channel message events without scheduling work', async () => {
+    const payload = {
+      type: 'event_callback',
+      event_id: 'EvChannelMessage',
+      event: {
+        type: 'message',
+        channel_type: 'channel',
+        user: 'U123',
+        channel: 'C123',
+        text: 'regular channel chatter',
+      },
+    }
+    const request = signedRequest(payload)
+
+    const response = await POST(request as never)
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ ok: true, skipped: 'unsupported_event' })
+    expect(mocks.handleSlackAgentEvent).not.toHaveBeenCalled()
+    expect(mocks.waitUntil).not.toHaveBeenCalled()
   })
 
   it('dedupes Slack retries before scheduling event work', async () => {

@@ -78,6 +78,14 @@ describe('agent Slack events', () => {
     })).toBe(false)
 
     expect(shouldHandleSlackAgentEvent({
+      type: 'message',
+      channel_type: 'channel',
+      user: 'U123',
+      channel: 'C123',
+      text: '<@UAGENT> status?',
+    })).toBe(false)
+
+    expect(shouldHandleSlackAgentEvent({
       type: 'app_mention',
       bot_id: 'B123',
       user: 'U123',
