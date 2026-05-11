@@ -75,6 +75,12 @@ The dashboard also surfaces a read-only Codex workspace-root report. It compares
 
 This report is for visibility and repair planning only. It must not rewrite `.codex-global-state.json`, `state_5.sqlite`, thread roots, or Desktop state from a Portfolio PR.
 
+## Local-First Open Brain Alignment
+
+The Portfolio memory/context workflow now treats a local Open Brain as the durable memory source of truth. Portfolio Admin is the visibility, approval, and generated-overlay surface; it is not the owner of the brain.
+
+See [`open-brain-local-service.md`](./open-brain-local-service.md) for the local service contract, MCP tool expectations, privacy tiers, and Karpathy Wiki overlay boundary.
+
 ## Enhancement Impact Preflight
 
 ### Enhancement Impact Preflight
@@ -127,6 +133,18 @@ Implementation update: `lib/chief-of-staff-chat.test.ts` also needed a fixture u
 - Coordination decision: Proceed in the dedicated memory organization worktree. Keep the report read-only and do not edit local Codex state.
 - Merge-order note: Can merge independently after review because there are no active overlapping PRs.
 
+### Enhancement Impact Preflight
+
+- Enhancement: Add a local-first Open Brain projection and Karpathy Wiki overlay controls for Portfolio Agent Ops memory/context work.
+- User-facing surface: `/admin/agents/open-brain`, under Agent Operations.
+- Predicted files: `lib/open-brain.ts`, `app/api/admin/agents/open-brain/**`, `app/admin/agents/open-brain/page.tsx`, `lib/admin-nav.ts`, `docs/open-brain-local-service.md`, `docs/memory-context-organization-workflow.md`, Open Brain tests.
+- Shared routes/APIs/tables/helpers: Agent Operations admin nav and local automation/workspace inventory helpers; no Supabase tables or mutating Codex operational-state APIs.
+- Active PRs or branches checked: PR #208 `codex/hyperagent-evaluations`, PR #210 `codex/agent-identity-names`, plus sibling worktrees for credential reporting and subscription watch.
+- Dirty worktree files checked: current `codex/memory-organization-next` worktree was clean before implementation.
+- Overlap rating: yellow.
+- Coordination decision: Proceed in the dedicated memory organization worktree. Avoid Agent Ops evaluation, identity naming, credential reporting, subscription watch, Client AI Ops roadmap, and Vercel observability files unless a direct compatibility issue appears.
+- Merge-order note: Land after or alongside active Agent Operations PRs with integration-captain review of shared admin navigation; no production or local Open Brain operational state is changed by this PR.
+
 ## Operating Boundary
 
 The dashboard may show that local operational state is missing or incomplete. It should not repair that state by itself.
@@ -138,6 +156,7 @@ Allowed:
 - Flag missing workspace roots, missing docs, missing authority boundaries, duplicates, and context gaps.
 - Show progress and task status computed from the inventory.
 - Show read-only Codex workspace-root and active thread placement drift.
+- Show Open Brain source freshness, proposal health, runtime parity, and wiki overlay previews.
 
 Not allowed in this workflow without an explicit operational-state step:
 
@@ -146,3 +165,4 @@ Not allowed in this workflow without an explicit operational-state step:
 - Updating Codex SQLite thread state.
 - Rewriting Codex Desktop workspace roots.
 - Pausing, deleting, creating, or rescheduling automations.
+- Registering Open Brain MCP config in Codex, Hermes, OpenCode, Claude, Cursor, or ChatGPT without a separate operational-state approval.
