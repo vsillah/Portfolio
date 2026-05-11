@@ -285,7 +285,9 @@ Required Slack app configuration:
 - Bot token scopes: `app_mentions:read`, `im:history`, and `chat:write`.
 - Environment variables: `SLACK_SIGNING_SECRET` and `SLACK_BOT_TOKEN`.
 
-The event route verifies Slack signatures with `SLACK_SIGNING_SECRET`, ignores bot/subtype events, acknowledges Slack immediately, and uses `SLACK_BOT_TOKEN` to post the Chief of Staff reply back into the originating thread. The conversation path reuses the existing read-only Chief of Staff chat engine and records an observable `agent_run` with `trigger_source = slack_agent_chat`.
+Do not subscribe the Agent Ops app to `message.channels` for the conversational path. Broad channel-message subscriptions create unnecessary webhook traffic and should be reserved for a separately scoped ingestion workflow. The route still acknowledges unsupported channel-message events with `skipped = unsupported_event` as a defense-in-depth guard.
+
+The event route verifies Slack signatures with `SLACK_SIGNING_SECRET`, skips unsupported events before scheduling async work, ignores bot/subtype events, acknowledges Slack immediately, and uses `SLACK_BOT_TOKEN` to post the Chief of Staff reply back into the originating thread. The conversation path reuses the existing read-only Chief of Staff chat engine and records an observable `agent_run` with `trigger_source = slack_agent_chat`.
 
 Chat is for freeform status, triage, and coordination. Deterministic operations should stay on `/agent` commands, and production-impacting actions remain approval-gated.
 
